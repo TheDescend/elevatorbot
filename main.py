@@ -1,6 +1,8 @@
 import requests, zipfile, os, pickle, json, sqlite3
 import config
 
+requirements = ['Like a diamond', 'Break a leg', 'Garden of Salvation']
+
 baseURL = "https://www.bungie.net/Platform"
 PARAMS = {'X-API-Key': config.key}
 
@@ -8,14 +10,16 @@ def getJSONfromURL(requestURL):
     r=requests.get(url=baseURL + requestURL, headers=PARAMS)
     return r.json()
 
-def get_manifest():
+getHashFromName = {}
+if not os.path.exists('achievements.json'):
     if not os.path.exists('Manifest.content'):
+        print('file doesn''t exist, downloading and parsing new one')
         manifest_url = 'http://www.bungie.net/Platform/Destiny2/Manifest/'
 
         #get the manifest location from the json
         r = requests.get(manifest_url)
         manifest = r.json()
-        print(manifest['Response'].keys())
+        #print(manifest['Response'].keys())
         mani_url = 'http://www.bungie.net'+manifest['Response']['mobileWorldContentPaths']['en']
 
         #Download the file, write it to 'MANZIP'
@@ -30,6 +34,7 @@ def get_manifest():
             name = zip.namelist()
             zip.extractall()
         os.rename(name[0], 'Manifest.content')
+
     con = sqlite3.connect('manifest.content')
     cur = con.cursor()
 
@@ -42,16 +47,17 @@ def get_manifest():
     items = cur.fetchall()
     #print(items)
     item_jsons = [json.loads(item[0]) for item in items]
-    getHashFromName = []
+
     for ijson in item_jsons:
         getHashFromName[ijson['displayProperties']['name']] = ijson['hash']
-    return getHashFromName
-    #all_data = {}
-    #for every table name in the dictionary
-   
-getHashFromName = get_manifest()
-
-requirements = ['Like a diamond', 'Break a leg']
+    
+    with open('achievements.json', 'w') as outfile:
+        json.dump(getHashFromName, outfile)
+else:
+    with open('achievements.json') as json_file:
+        getHashFromName = json.load(json_file)
+#all_data = {}
+#for every table name in the dictionary
 
 requestURL = "/GroupV2/2784110/members/" #bloodoak memberlist
 memberJSON = getJSONfromURL(requestURL)
@@ -62,29 +68,35 @@ for member in memberlist:
 
 # memberids['Hali'] is my destinyMembershipID
 
-testid = memberids['Hali']
-requestURL = "/Destiny2/3/Profile/" + testid + "?components=100" #3 = steam
-profileInfo = getJSONfromURL(requestURL)
-characterids = profileInfo['Response']['profile']['data']['characterIds']
+#testid = memberids['Hali']
+#requestURL = "/Destiny2/3/Profile/" + testid + "?components=100" #3 = steam
+#profileInfo = getJSONfromURL(requestURL)
+#characterids = profileInfo['Response']['profile']['data']['characterIds']
 #print(characterids)
 
 userid = memberids['Hali']
 requestURL = "/Destiny2/3/Profile/" + userid + "?components=900" #3 = steam
+#print(requestURL)
 achJSON = getJSONfromURL(requestURL)
 
 triumphs = achJSON['Response']['profileRecords']['data']['records']
 
+getCompletenessByTriumphHash = {}
+
 for t in triumphs:
     curT = triumphs[t]
+    #print(curT.keys())
+    if 'objectives' in curT:
+        complete = bool(curT['objectives'][0]['complete'])
+        tHash = curT['objectives'][0]['objectiveHash'] #iterate over 0?
+        getCompletenessByTriumphHash[tHash] = complete
 
-    complete = bool(curT['objectives'][0]['complete'])
-    tHash = curT['objectives'][0]['objectiveHash'] #iterate over 0?
-    print(tHash)
-    
-    break
-
-    
-#check
+for req in requirements:
+    reqHash = getHashFromName[req]
+    if getCompletenessByTriumphHash[reqHash]:
+        'Hali' + ' has completed the triumph ' + req
+    else:
+        'Hali' + ' has not completed the triumph ' + req
 
 
 #/Destiny/{membershipType}/Account/{destinyMembershipId}/Triumphs/
