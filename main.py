@@ -1,7 +1,8 @@
 import requests, zipfile, os, pickle, json, sqlite3
-  
+import config
+
 baseURL = "https://www.bungie.net/Platform"
-PARAMS = {'X-API-Key':'3743ea53f4014677a36be515239869b3'}
+PARAMS = {'X-API-Key': config.key}
 
 def getJSONfromURL(requestURL):
     r=requests.get(url=baseURL + requestURL, headers=PARAMS)
@@ -49,7 +50,8 @@ def get_manifest():
     #for every table name in the dictionary
    
 getHashFromName = get_manifest()
-exit(0)
+
+requirements = ['Like a diamond', 'Break a leg']
 
 requestURL = "/GroupV2/2784110/members/" #bloodoak memberlist
 memberJSON = getJSONfromURL(requestURL)
