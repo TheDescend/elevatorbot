@@ -1,63 +1,50 @@
 import requests, zipfile, os, pickle, json, sqlite3
 import config
+import setupdics
+from setupdics import getHashFromNameActivity, getHashFromNameRecords
 
-requirements = ['Like a diamond', 'Break a leg', 'Garden of Salvation']
+requirements = ['Like a Diamond', 'All for One, One for All', 'Hold the Line', 'To Each Their Own','Solarstruck']
+requirementHashesScourge = [
+    '1428463716', #All for one, one for all
+    '1804999028', #hold the line
+    '4162926221'  #to each their own
+    ]
+
+requirementHashesScourgeMaster = [
+    '2648109757', #Like a diamond
+    '772878705',  #solarstruck
+    '496309570',  #voidstruck
+    '105811740',  #thunderstruck
+    '3780682732'  #stay classy
+]
 
 baseURL = "https://www.bungie.net/Platform"
 PARAMS = {'X-API-Key': config.key}
 
+
 def getJSONfromURL(requestURL):
-    r=requests.get(url=baseURL + requestURL, headers=PARAMS)
+    for _ in range(0,10):
+        r=requests.get(url=baseURL + requestURL, headers=PARAMS)
+        if r is not None:
+            break
     return r.json()
 
-getHashFromName = {}
-if not os.path.exists('achievements.json'):
-    if not os.path.exists('Manifest.content'):
-        print('file doesn''t exist, downloading and parsing new one')
-        manifest_url = 'http://www.bungie.net/Platform/Destiny2/Manifest/'
-
-        #get the manifest location from the json
-        r = requests.get(manifest_url)
-        manifest = r.json()
-        #print(manifest['Response'].keys())
-        mani_url = 'http://www.bungie.net'+manifest['Response']['mobileWorldContentPaths']['en']
-
-        #Download the file, write it to 'MANZIP'
-        r = requests.get(mani_url)
-        with open("MANZIP", "wb") as zip:
-            zip.write(r.content)
-        #print("Download Complete!")
-
-        #Extract the file contents, and rename the extracted file
-        # to 'Manifest.content'
-        with zipfile.ZipFile('MANZIP') as zip:
-            name = zip.namelist()
-            zip.extractall()
-        os.rename(name[0], 'Manifest.content')
-
-    con = sqlite3.connect('manifest.content')
-    cur = con.cursor()
-
-    cur.execute(
-    '''SELECT 
-        json
-    FROM 
-        DestinyRecordDefinition
-    ''')
-    items = cur.fetchall()
-    #print(items)
-    item_jsons = [json.loads(item[0]) for item in items]
-
-    for ijson in item_jsons:
-        getHashFromName[ijson['displayProperties']['name']] = ijson['hash']
-    
-    with open('achievements.json', 'w') as outfile:
-        json.dump(getHashFromName, outfile)
-else:
-    with open('achievements.json') as json_file:
-        getHashFromName = json.load(json_file)
 #all_data = {}
 #for every table name in the dictionary
+
+def getClearCount(playerid):
+    requestURL = "/Destiny2/3/Profile/" + playerid + "?components=100" #3 = steam
+    profileInfo = getJSONfromURL(requestURL)
+    characterids = profileInfo['Response']['profile']['data']['characterIds']
+    
+    for charid in characterids:
+        requestURL = '/Destiny2/3/Account/'+ playerid + '/Character/' + charid + '/Stats/AggregateActivityStats/'
+        memberJSON = getJSONfromURL(requestURL)['Response']['activities'] # acitivityHash & values
+        print(memberJSON[0])
+        break
+
+getNameFromHashRecords = {str(v): k for k, v in getHashFromNameRecords.items()}
+getNameFromHashActivities = {str(v): k for k, v in getHashFromNameActivity.items()}
 
 requestURL = "/GroupV2/2784110/members/" #bloodoak memberlist
 memberJSON = getJSONfromURL(requestURL)
@@ -68,13 +55,10 @@ for member in memberlist:
 
 # memberids['Hali'] is my destinyMembershipID
 
-#testid = memberids['Hali']
-#requestURL = "/Destiny2/3/Profile/" + testid + "?components=100" #3 = steam
-#profileInfo = getJSONfromURL(requestURL)
-#characterids = profileInfo['Response']['profile']['data']['characterIds']
-#print(characterids)
-
 userid = memberids['Hali']
+
+getClearCount(userid)
+
 requestURL = "/Destiny2/3/Profile/" + userid + "?components=900" #3 = steam
 #print(requestURL)
 achJSON = getJSONfromURL(requestURL)
@@ -83,21 +67,40 @@ triumphs = achJSON['Response']['profileRecords']['data']['records']
 
 getCompletenessByTriumphHash = {}
 
-for t in triumphs:
-    curT = triumphs[t]
-    #print(curT.keys())
-    if 'objectives' in curT:
-        complete = bool(curT['objectives'][0]['complete'])
-        tHash = curT['objectives'][0]['objectiveHash'] #iterate over 0?
-        getCompletenessByTriumphHash[tHash] = complete
+#hashreqs = {str(getHashFromName[req]):req for req in requirements}
+#print(hashreqs.keys())
 
-for req in requirements:
-    reqHash = getHashFromName[req]
-    if getCompletenessByTriumphHash[reqHash]:
-        'Hali' + ' has completed the triumph ' + req
-    else:
-        'Hali' + ' has not completed the triumph ' + req
+for req in requirementHashesScourge:
+    name = getNameFromHashRecords[req]
+    status = triumphs[req]['objectives'][0]['complete']
 
+    print('Hali' + ';' + name + ';' + str(status))
+#for t in triumphs:
+#    if str(t) in hashreqs.keys():
+#        if bool(triumphs[t]['objectives'][0]['complete']):
+#            print('Hali' + ' has completed the triumph ' + hashreqs[str(t)])
+#        else:
+#            print('Hali' + ' has not completed the triumph ' + hashreqs[str(t)])
+#    
+#    curT = triumphs[t]
+#    if 'objectives' in curT:
+#        complete = bool(curT['objectives'][0]['complete'])
+#        tHash = curT['objectives'][0]['objectiveHash'] #iterate over 0?
+#        #print(tHash)
+#        if str(tHash) in getNameFromHash.keys():
+#            print(getNameFromHash[str(tHash)])
+#
+        #getCompletenessByTriumphHash[tHash] = complete
+
+#print(getHashFromName.keys())
+
+#for req in requirements:
+#    reqHash = getHashFromName[req]
+#    if getCompletenessByTriumphHash[reqHash]:
+#        print('Hali' + ' has completed the triumph ' + req)
+#    else:
+#        print('Hali' + ' has not completed the triumph ' + req)
+print('done')
 
 #/Destiny/{membershipType}/Account/{destinyMembershipId}/Triumphs/
 #/Destiny2/{membershipType}/Profile/{destinyMembershipId}/'''
