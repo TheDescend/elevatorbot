@@ -1,9 +1,9 @@
-import requests, zipfile, os, pickle, json, sqlite3
-import config
-import setupdics
-from setupdics import getHashFromNameActivity, getHashFromNameRecords
+import requests, zipfile, os, pickle, json, sqlite3, pandas
+import config, setupdics
 
-requirements = ['Like a Diamond', 'All for One, One for All', 'Hold the Line', 'To Each Their Own','Solarstruck']
+from setupdics import getNameFromHashActivity, getNameFromHashRecords, getNameFromHashAchievements, getNameFromHashUnlocks
+
+
 requirementHashesScourge = [
     '1428463716', #All for one, one for all
     '1804999028', #hold the line
@@ -23,28 +23,43 @@ PARAMS = {'X-API-Key': config.key}
 
 
 def getJSONfromURL(requestURL):
-    for _ in range(0,10):
+    r=requests.get(url=baseURL + requestURL, headers=PARAMS)
+    while(r.json()['ErrorCode'] > 1):
         r=requests.get(url=baseURL + requestURL, headers=PARAMS)
-        if r is not None:
-            break
+        print(r.json()['ErrorCode'])
+
     return r.json()
 
 #all_data = {}
 #for every table name in the dictionary
 
-def getClearCount(playerid):
+def getClearCount(playerid, activityHash):
     requestURL = "/Destiny2/3/Profile/" + playerid + "?components=100" #3 = steam
     profileInfo = getJSONfromURL(requestURL)
     characterids = profileInfo['Response']['profile']['data']['characterIds']
     
+    count = 0
     for charid in characterids:
         requestURL = '/Destiny2/3/Account/'+ playerid + '/Character/' + charid + '/Stats/AggregateActivityStats/'
         memberJSON = getJSONfromURL(requestURL)['Response']['activities'] # acitivityHash & values
-        print(memberJSON[0])
-        break
+        for activity in memberJSON:
+            if str(activity['activityHash']) == str(activityHash):
+                count += int(activity['values']['activityCompletions']['basic']['value'])
+    return count
 
-getNameFromHashRecords = {str(v): k for k, v in getHashFromNameRecords.items()}
-getNameFromHashActivities = {str(v): k for k, v in getHashFromNameActivity.items()}
+def getHashesFromNameActivity(activityname, guided = False):
+    listh = []
+    for key in getNameFromHashActivity:
+        if getNameFromHashActivity[key] == activityname:
+            listh.append(key)
+    return listh
+
+scourgeHash = getHashesFromNameActivity('Scourge of the Past')
+lwHash = getHashesFromNameActivity('Last Wish: Level 55')
+cosHash = getHashesFromNameActivity('Crown of Sorrow: Normal')
+
+#print(getNameFromHashRecords['105811740'])
+#print(scourgeHash)
 
 requestURL = "/GroupV2/2784110/members/" #bloodoak memberlist
 memberJSON = getJSONfromURL(requestURL)
@@ -54,53 +69,39 @@ for member in memberlist:
     memberids[member['destinyUserInfo']['LastSeenDisplayName']] = member['destinyUserInfo']['membershipId']
 
 # memberids['Hali'] is my destinyMembershipID
+result = {}
+for username, userid in memberids.items():
+    requestURL = "/Destiny2/3/Profile/" + userid + "?components=900" #3 = steam
+    achJSON = getJSONfromURL(requestURL)
 
-userid = memberids['Hali']
+    triumphs = achJSON['Response']['profileRecords']['data']['records']
+    getCompletenessByTriumphHash = {}
 
-getClearCount(userid)
+    result[username] = {}
 
-requestURL = "/Destiny2/3/Profile/" + userid + "?components=900" #3 = steam
-#print(requestURL)
-achJSON = getJSONfromURL(requestURL)
+    clearcount = getClearCount(userid, scourgeHash[0]) + getClearCount(userid, scourgeHash[1]) #guided and not-guided
+    result[username]['Scourge Completions'] = clearcount
 
-triumphs = achJSON['Response']['profileRecords']['data']['records']
+    status = True
+    for req in requirementHashesScourge:
+        if req in getNameFromHashRecords:
+            name = getNameFromHashRecords[req]
+        else:
+            name = getNameFromHashUnlocks[req]
+        for part in triumphs[req]['objectives']:
+            status &= bool(part['complete'])
+        result[username][name] = str(status)
+        
+    status = True
+    for req in requirementHashesScourgeMaster:
+        name = getNameFromHashRecords[req]
+        for part in triumphs[req]['objectives']:
+            status &= bool(part['complete'])
+        result[username][name] = str(status)
 
-getCompletenessByTriumphHash = {}
-
-#hashreqs = {str(getHashFromName[req]):req for req in requirements}
-#print(hashreqs.keys())
-
-for req in requirementHashesScourge:
-    name = getNameFromHashRecords[req]
-    status = triumphs[req]['objectives'][0]['complete']
-
-    print('Hali' + ';' + name + ';' + str(status))
-#for t in triumphs:
-#    if str(t) in hashreqs.keys():
-#        if bool(triumphs[t]['objectives'][0]['complete']):
-#            print('Hali' + ' has completed the triumph ' + hashreqs[str(t)])
-#        else:
-#            print('Hali' + ' has not completed the triumph ' + hashreqs[str(t)])
-#    
-#    curT = triumphs[t]
-#    if 'objectives' in curT:
-#        complete = bool(curT['objectives'][0]['complete'])
-#        tHash = curT['objectives'][0]['objectiveHash'] #iterate over 0?
-#        #print(tHash)
-#        if str(tHash) in getNameFromHash.keys():
-#            print(getNameFromHash[str(tHash)])
-#
-        #getCompletenessByTriumphHash[tHash] = complete
-
-#print(getHashFromName.keys())
-
-#for req in requirements:
-#    reqHash = getHashFromName[req]
-#    if getCompletenessByTriumphHash[reqHash]:
-#        print('Hali' + ' has completed the triumph ' + req)
-#    else:
-#        print('Hali' + ' has not completed the triumph ' + req)
-print('done')
-
-#/Destiny/{membershipType}/Account/{destinyMembershipId}/Triumphs/
-#/Destiny2/{membershipType}/Profile/{destinyMembershipId}/'''
+print(result)
+print()
+df = pandas.DataFrame(result)
+df = df.transpose()
+print(df)
+df.to_excel(index=False)

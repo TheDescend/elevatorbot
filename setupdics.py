@@ -23,10 +23,12 @@ if not os.path.exists('Manifest.content'):
         zip.extractall()
     os.rename(name[0], 'Manifest.content')
 
-getHashFromNameRecords = {}
-getHashFromNameActivity = {}
+getNameFromHashRecords = {}
+getNameFromHashActivity= {}
+getNameFromHashAchievements = {}
+getNameFromHashUnlocks = {}
 
-if not os.path.exists('achievements.json'):
+if not os.path.exists('records.json'):
     con = sqlite3.connect('manifest.content')
     cur = con.cursor()
 
@@ -38,23 +40,73 @@ if not os.path.exists('achievements.json'):
         DestinyRecordDefinition
     ''')
     items = cur.fetchall()
+    item_jsons = [json.loads(item[0]) for item in items]
+    con.close()
+    for ijson in item_jsons:
+        getNameFromHashRecords[ijson['hash']] = ijson['displayProperties']['name']
+    with open('records.json', 'w') as outfile:
+        json.dump(getNameFromHashRecords, outfile)
+else:
+    with open('records.json') as json_file:
+        getNameFromHashRecords = json.load(json_file)
+
+
+
+if not os.path.exists('achievements.json'):
+    con = sqlite3.connect('manifest.content')
+    cur = con.cursor()
+
+
+    cur.execute(
+    '''SELECT 
+        json
+    FROM 
+        DestinyAchievementDefinition
+    ''')
+    items = cur.fetchall()
     #print(items)
     item_jsons = [json.loads(item[0]) for item in items]
-
+    con.close()
     for ijson in item_jsons:
-        getHashFromNameRecords[ijson['displayProperties']['name']] = ijson['hash']
+        getNameFromHashAchievements[ijson['hash']] = ijson['displayProperties']['name']
     
     with open('achievements.json', 'w') as outfile:
-        json.dump(getHashFromNameRecords, outfile)
+        json.dump(getNameFromHashAchievements, outfile)
 else:
     with open('achievements.json') as json_file:
-        getHashFromNameRecords = json.load(json_file)
+        getNameFromHashAchievements = json.load(json_file)
+
+
+
+if not os.path.exists('unlock.json'):
+    con = sqlite3.connect('manifest.content')
+    cur = con.cursor()
+
+
+    cur.execute(
+    '''SELECT 
+        json
+    FROM 
+        DestinyUnlockDefinition
+    ''')
+    items = cur.fetchall()
+    item_jsons = [json.loads(item[0]) for item in items]
+    con.close()
+    for ijson in item_jsons:
+        if 'name' in ijson['displayProperties']:
+            getNameFromHashUnlocks[ijson['hash']] = ijson['displayProperties']['name']
+    with open('unlock.json', 'w') as outfile:
+        json.dump(getNameFromHashUnlocks, outfile)
+else:
+    with open('unlock.json') as json_file:
+        getNameFromHashUnlocks = json.load(json_file)
 
 
 
 if not os.path.exists('activities.json'):
     con = sqlite3.connect('manifest.content')
     cur = con.cursor()
+
 
     cur.execute(
     '''SELECT 
@@ -63,14 +115,24 @@ if not os.path.exists('activities.json'):
         DestinyActivityDefinition
     ''')
     items = cur.fetchall()
-    #print(items)
-    item_jsons = [json.loads(item[0]) for item in items]
 
+    item_jsons = [json.loads(item[0]) for item in items]
+    con.close()
     for ijson in item_jsons:
-        getHashFromNameActivity[ijson['displayProperties']['name']] = ijson['hash']
+        if 'name' in ijson['displayProperties']:
+            getNameFromHashActivity[str(ijson['hash'])] = ijson['displayProperties']['name']
     
     with open('activities.json', 'w') as outfile:
-        json.dump(getHashFromNameActivity, outfile)
+        json.dump(getNameFromHashActivity, outfile)
 else:
     with open('activities.json') as json_file:
-        getHashFromNameActivity = json.load(json_file)
+        getNameFromHashActivity = json.load(json_file)
+
+con = sqlite3.connect('manifest.content')
+cur = con.cursor()
+
+cur.execute(
+'''SELECT name FROM sqlite_master WHERE type='table'
+''')
+items = cur.fetchall()
+#print(items)
