@@ -1,6 +1,10 @@
 import requests, zipfile, os, pickle, json, sqlite3
 
-if not os.path.exists('Manifest.content'):
+getNameFromHashRecords = {}
+getNameFromHashActivity= {}
+getNameFromHashCollectible = {}
+
+def getManifest():
     manifest_url = 'http://www.bungie.net/Platform/Destiny2/Manifest/'
 
     #get the manifest location from the json
@@ -22,89 +26,32 @@ if not os.path.exists('Manifest.content'):
         zip.extractall()
     os.rename(name[0], 'Manifest.content')
 
-getNameFromHashRecords = {}
-getNameFromHashActivity= {}
-getNameFromHashCollectible = {}
-#getNameFromHashUnlocks = {}
-#
-if not os.path.exists('records.json'):
-    con = sqlite3.connect('manifest.content')
-    cur = con.cursor()
+def fillDictFromDB(dictRef, table):
+    if not os.path.exists(table + '.json'): 
+        if not os.path.exists('Manifest.content'):
+            getManifest()
+        con = sqlite3.connect('manifest.content')
+        cur = con.cursor()
 
 
-    cur.execute(
-    '''SELECT 
-        json
-    FROM 
-        DestinyRecordDefinition
-    ''')
-    items = cur.fetchall()
-    item_jsons = [json.loads(item[0]) for item in items]
-    con.close()
-    for ijson in item_jsons:
-        getNameFromHashRecords[ijson['hash']] = ijson['displayProperties']['name']
-    with open('records.json', 'w') as outfile:
-        json.dump(getNameFromHashRecords, outfile)
-else:
-    with open('records.json') as json_file:
-        getNameFromHashRecords = json.load(json_file)
+        cur.execute(
+        '''SELECT 
+            json
+        FROM 
+        ''' + table
+        )
+        items = cur.fetchall()
+        item_jsons = [json.loads(item[0]) for item in items]
+        con.close()
+        for ijson in item_jsons:
+            if 'name' in ijson['displayProperties'].keys():
+                dictRef[ijson['hash']] = ijson['displayProperties']['name']
+        with open(table + '.json', 'w') as outfile:
+            json.dump(dictRef, outfile)
+    else:
+        with open(table + '.json') as json_file:
+            dictRef.update(json.load(json_file))
 
-
-if not os.path.exists('collectible.json'):
-    con = sqlite3.connect('manifest.content')
-    cur = con.cursor()
-
-
-    cur.execute(
-    '''SELECT 
-        json
-    FROM 
-        DestinyCollectibleDefinition
-    ''')
-    items = cur.fetchall()
-
-    item_jsons = [json.loads(item[0]) for item in items]
-    con.close()
-    for ijson in item_jsons:
-        if 'name' in ijson['displayProperties']:
-            getNameFromHashCollectible[str(ijson['hash'])] = ijson['displayProperties']['name']
-    
-    with open('collectible.json', 'w') as outfile:
-        json.dump(getNameFromHashCollectible, outfile)
-else:
-    with open('collectible.json') as json_file:
-        getNameFromHashCollectible = json.load(json_file)
-
-
-if not os.path.exists('activities.json'):
-    con = sqlite3.connect('manifest.content')
-    cur = con.cursor()
-
-
-    cur.execute(
-    '''SELECT 
-        json
-    FROM 
-        DestinyActivityDefinition
-    ''')
-    items = cur.fetchall()
-
-    item_jsons = [json.loads(item[0]) for item in items]
-    con.close()
-    for ijson in item_jsons:
-        if 'name' in ijson['displayProperties']:
-            getNameFromHashActivity[str(ijson['hash'])] = ijson['displayProperties']['name']
-    
-    with open('activities.json', 'w') as outfile:
-        json.dump(getNameFromHashActivity, outfile)
-else:
-    with open('activities.json') as json_file:
-        getNameFromHashActivity = json.load(json_file)
-#con = sqlite3.connect('manifest.content')
-#cur = con.cursor()
-#
-#cur.execute(
-#'''SELECT name FROM sqlite_master WHERE type='table'
-#''')
-#items = cur.fetchall()
-##print(items)
+fillDictFromDB(getNameFromHashRecords, 'DestinyRecordDefinition')
+fillDictFromDB(getNameFromHashActivity, 'DestinyActivityDefinition')
+fillDictFromDB(getNameFromHashCollectible, 'DestinyCollectibleDefinition')
