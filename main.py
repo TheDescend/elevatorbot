@@ -3,6 +3,9 @@ import config, setupdics
 
 from setupdics import getNameFromHashRecords, getNameFromHashActivity, getNameFromHashCollectible
 
+globalStart = time.perf_counter()
+globalIntervals = globalStart
+
 # from https://data.destinysets.com/
 spirePHash = '3213556450'
 spireHash = '119944200'
@@ -134,15 +137,17 @@ platform = {
     10: 'Demon',
     254: 'BungieNext'
 }
-exceptiondict = {}
+jsondict = {}
 def getJSONfromURL(requestURL, baseURL=baseURL, console=False):
     #jstart = time.perf_counter()
+    if requestURL in jsondict:
+        return jsondict[requestURL]
     r=None
     while(r == None or r.status_code != requests.codes[r'\o/']):
         try:
-            #print('trying to get ' + str(baseURL) + str(requestURL))
             r = requests.get(url=baseURL + str(requestURL), headers=PARAMS)
             if r.status_code == 200:
+                jsondict[requestURL] = r.json()
                 break
             if r.status_code == 400:
                 if console:
@@ -153,6 +158,7 @@ def getJSONfromURL(requestURL, baseURL=baseURL, console=False):
                     console = getJSONfromURL('/Destiny2/' + str(i) + requestURL[11:], baseURL=baseURL, console=True)
                     if console is not None:
                         print('found on ' + platform.get(i))
+                        jsondict[requestURL] = console
                         return console
                 return None
             else:#
@@ -162,13 +168,10 @@ def getJSONfromURL(requestURL, baseURL=baseURL, console=False):
             print(e)
             print('getting ' + baseURL + requestURL + ' failed with exception ' + e.strerror)
             r=None
-    #print('json request time: ' + str(time.perf_counter() - jstart)
+    #jend = time.perf_counter()
+    #print('json request time:', jend - jstart)
     return r.json()
 
-#j = getJSONfromURL('/Destiny2/3/Profile/4611686018432289116?components=900')
-#print(j)
-#all_data = {}
-#for every table name in the dictionary
 activities = {}
 
 def playerHasCollectible(playerid, cHash):
@@ -214,20 +217,19 @@ for member in memberlist:
     memberids[member['destinyUserInfo']['LastSeenDisplayName']] = member['destinyUserInfo']['membershipId']
 
 # memberids['Hali'] is my destinyMembershipID
-userTriumphs = {}
+userRoles = {}
 for year in requirementHashes:
     result = {}
     for username, userid in memberids.items():
+        if not username in userRoles.keys():
+            userRoles[username] = []
+        #print('time used:', time.perf_counter() - globalIntervals)
+        globalIntervals = time.perf_counter()
         print(year + ' processing user: ' + username + ' with id ' + userid)
-        if str(userid) in userTriumphs.keys():
-            triumphs = userTriumphs[str(userid)]
-            print('loaded user '+ str(userid))
-        else:
-            requestURL = "/Destiny2/3/Profile/" + userid + "?components=900" #3 = steam
-            achJSON = getJSONfromURL(requestURL)
-
-            triumphs = achJSON['Response']['profileRecords']['data']['records']
-            userTriumphs[str(userid)] = triumphs
+    
+        requestURL = "/Destiny2/3/Profile/" + userid + "?components=900" #3 = steam
+        achJSON = getJSONfromURL(requestURL)    
+        triumphs = achJSON['Response']['profileRecords']['data']['records']
         
         result[username] = {}
         if achJSON is None:
@@ -299,6 +301,10 @@ for year in requirementHashes:
                     result[username][name] = str(status)
                     rolestatus &= (str(status) == 'True')
             result[username][role] = str(rolestatus)
+            if rolestatus:
+                userRoles[username].append(role)
+            else:
+                userRoles[username].append('')
 
     df = pandas.DataFrame(result)
     df = df.transpose()
@@ -306,6 +312,7 @@ for year in requirementHashes:
 
     df.to_excel(writer, sheet_name = year + ' Roles')
 
+pandas.DataFrame(userRoles).transpose().to_excel(writer, header=None, sheet_name = 'User Roles')
 workbook = writer.book
 fat = workbook.add_format({'bold': True})
 
@@ -313,11 +320,14 @@ redBG = workbook.add_format({'bg_color': '#FFC7CE'})
 greenBG = workbook.add_format({'bg_color': '#C6EFCE'})
 
 importantColumns = {
-    'Y1' : ['A','D','G','J','M','P','W'],
-    'Y2' :  ['A','F', 'M','R','X','AE','AK'],
-    'Y3' : ['A']
+    'Y1'  : ['A','D','G','J','M','P','W'],
+    'Y2'  : ['A','F', 'M','R','X','AE','AK'],
+    'Y3'  : ['A']
 }
 color_range = "A2:ZZ300".format(298)
+
+worksheet = writer.sheets['User Roles']
+worksheet.set_column('A:M', 6, fat)
 
 for year in requirementHashes:
     worksheet = writer.sheets[year + ' Roles']
