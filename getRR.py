@@ -1,8 +1,11 @@
-import requests,config
+import requests, config
 
 bungieID = input('giff bungieNet-ID\n')
 
 PARAMS = {'X-API-Key':config.key}
-url = 'https://www.bungie.net/platform/User/GetMembershipsById/{}/3/'.format(bungieID)
+url = 'https://www.bungie.net/platform/User/GetMembershipsById/{}/{}/'.format(bungieID,3)
 r=requests.get(url=url, headers=PARAMS)
-print('https://raid.report/pc/' + r.json()['Response']['destinyMemberships'][0]['membershipId'])
+memberships = r.json()['Response']['destinyMemberships']
+for membership in memberships:
+    if membership['membershipType'] == 3:
+        print('https://raid.report/pc/' + membership['membershipId'])
