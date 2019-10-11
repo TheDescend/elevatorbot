@@ -105,7 +105,6 @@ for year,yeardata in requirementHashes.items():
         yearResult[username] = {}
         
         for role,roledata in yeardata.items():
-            print('checking role ' + role)
             rolestatus = len(roledata) > 0
             if not 'requirements' in roledata:
                 print('malformatted requirementHashes')
