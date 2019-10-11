@@ -1,12 +1,59 @@
-import requests, zipfile, os, pickle, json, sqlite3, pandas, openpyxl, xlsxwriter
+import requests, zipfile, os, sys, pickle, json, sqlite3, pandas, openpyxl, xlsxwriter
 import config, setupdics
 
 from setupdics import getNameFromHashActivity, getNameFromHashRecords, getNameFromHashAchievements, getNameFromHashUnlocks
 
 # from https://data.destinysets.com/
+spirePHash = '3213556450'
+spireHash = '119944200'
+eaterPHash = '809170886'
+eaterHash = '3089205900'
+leviHashes = ['2693136600','2693136601','2693136602','2693136603','2693136604','2693136605'] #there's like 12 of each
+leviPHashes = ['417231112','508802457','757116822', '771164842', '1685065161', '1800508819', '2449714930','3446541099','3857338478','3879860661', '3912437239','4206123728']
+scourgeHash = '548750096' #getHashesFromNameActivity('Scourge of the Past')
+lwHash = '2122313384' #getHashesFromNameActivity('Last Wish: Level 55')
+cosHash = '3333172150' #getHashesFromNameActivity('Crown of Sorrow: Normal')
+
 requirementHashes = {
     'Y1':{
-        'Levi':[]
+        'Spire': [
+            {'clears' : 4,
+            'actHash' : spireHash}, #normal
+            {'clears' : 2,
+            'actHash' : spirePHash} #prestige 
+            ],
+        'Spire Master': [
+            {'clears' : 15,
+            'actHash' : spirePHash}, #prestige
+            {'flawless' : spireHash,
+            'flawlessP' : spirePHash}
+        ],
+
+        'Eater': [
+            {'clears' : 4,
+            'actHash' : eaterHash}, #normal
+            {'clears' : 2,
+            'actHash' : eaterPHash} #prestige
+            ],
+        'Eater Master': [
+            {'clears' : 15,
+            'actHash' : '809170886'}, #prestige
+            {'flawless' : eaterHash,
+            'flawlessP' : eaterPHash}
+        ],
+        'Levi': [
+            {'clears' : 4,
+            'actHash' : leviHashes}, #normal
+            {'clears' : 2,
+            'actHash' : leviPHashes} #prestige
+            ],
+        'Levi Master': [
+            {'clears' : 15,
+            'actHash' : leviPHashes}, #prestige
+            {'flawless' : leviHashes,
+            'flawlessP' : leviPHashes}
+            #TODO
+        ]
     },
     'Y2':{
         'Crown': [
@@ -45,11 +92,11 @@ requirementHashes = {
         'Last Wish':[
             {'clears' : 15,
             'actHash' : '2122313384'},   #• Minimum 15 full clears
-        '2822000740', #• Summoning Ritual
-        '2196415799', #• Coliseum Champion
-        '1672792871', #• Forever Fight
-        '149192209', #• Keep Out
-        '3899933775' #• Strength of Cheesery
+            '2822000740', #• Summoning Ritual
+            '2196415799', #• Coliseum Champion
+            '1672792871', #• Forever Fight
+            '149192209', #• Keep Out
+            '3899933775' #• Strength of Cheesery
         ],
 
         'Last Wish Master': [
@@ -69,7 +116,7 @@ requirementHashes = {
 
 }
 
-
+#sys.stdout.errors = 'replace'
 baseURL = "https://www.bungie.net/Platform"
 PARAMS = {'X-API-Key': config.key}
 writer = pandas.ExcelWriter('clanAchievements.xlsx', engine='xlsxwriter')
@@ -117,55 +164,42 @@ def getJSONfromURL(requestURL, baseURL=baseURL, console=False):
 #print(j)
 #all_data = {}
 #for every table name in the dictionary
+activities = {}
 
 def getClearCount(playerid, activityHash):
-    rrBaseURL = 'https://b9bv2wd97h.execute-api.us-west-2.amazonaws.com/prod/api/player/'
-    #requestURL = "/Destiny2/3/Profile/" + playerid + "?components=100" #3 = steam
-    requestURL = playerid
-    profileInfo = getJSONfromURL(requestURL, baseURL=rrBaseURL)
-    activities = profileInfo['response']['activities']
-    #characterids = profileInfo['response']['profile']['data']['characterIds']
-    
-    #count = 0
-    #for charid in characterids:
-    #    requestURL = '/Destiny2/3/Account/'+ playerid + '/Character/' + charid + '/Stats/AggregateActivityStats/'
-    #    memberJSON = getJSONfromURL(requestURL)['Response']['activities'] # acitivityHash & values
-    #    for activity in memberJSON:
-    #        if str(activity['activityHash']) == str(activityHash):
-    #            count += int(activity['values']['activityCompletions']['basic']['value'])
+    if not str(playerid) in activities.keys():
+        rrBaseURL = 'https://b9bv2wd97h.execute-api.us-west-2.amazonaws.com/prod/api/player/'
+        #requestURL = "/Destiny2/3/Profile/" + playerid + "?components=100" #3 = steam
+        requestURL = playerid
+        profileInfo = getJSONfromURL(requestURL, baseURL=rrBaseURL)
+        activities[str(playerid)] = profileInfo['response']['activities']
+
     notfound = -1
-    for activity in activities:
+    for activity in activities[str(playerid)]:
         if str(activity['activityHash']) == str(activityHash):
-            #print(activity['values'])
             return activity['values']['fullClears'] or 0
         else:
             notfound = 0
-    print('didn''t find ' + str(activityHash) + ' in activitylist for ''getClearCount'' of ' + str(userid) +'')
+    #print("didn't find " + str(activityHash) + " in activitylist for 'getClearCount' of " + str(userid))
     return notfound
 
-def getHashesFromNameActivity(activityname, guided = False):
-    listh = []
-    for key in getNameFromHashActivity:
-        if getNameFromHashActivity[key] == activityname:
-            listh.append(key)
-    return listh
+def flawlessList(playerid):
+    rrBaseURL = 'https://b9bv2wd97h.execute-api.us-west-2.amazonaws.com/prod/api/player/'
+    requestURL = playerid
+    profileInfo = getJSONfromURL(requestURL, baseURL=rrBaseURL)
+    activities = profileInfo['response']['activities']
 
-#addtional entries for guided games, but who needs that
-scourgeHash = '548750096' #getHashesFromNameActivity('Scourge of the Past')
-lwHash = '2122313384' #getHashesFromNameActivity('Last Wish: Level 55')
-cosHash = '3333172150' #getHashesFromNameActivity('Crown of Sorrow: Normal')
+    flawlessL = []
+    for raid in activities:
+        if 'flawlessDetails' in raid['values'].keys():
+            flawlessL.append(str(raid['activityHash']))
+    return flawlessL
 
-# print(scourgeHash) ['2812525063', '548750096']
-#print(getClearCount(4611686018484825875, scourgeHash[1]))
-# print(lwHash) ['2214608157', '2122313384']
-#print(getClearCount(4611686018484825875, lwHash[1]))
-#print(cosHash) ['3333172150', '960175301']
-#print(getClearCount(4611686018484825875, cosHash[0]))
 
 requestURL = "/GroupV2/2784110/members/" #bloodoak memberlist
 memberJSON = getJSONfromURL(requestURL)
 memberlist = memberJSON['Response']['results']
-memberids = dict()
+memberids  = dict()
 for member in memberlist:
     memberids[member['destinyUserInfo']['LastSeenDisplayName']] = member['destinyUserInfo']['membershipId']
 
@@ -177,6 +211,7 @@ for year in requirementHashes:
         print(year + ' processing user: ' + username + ' with id ' + userid)
         if str(userid) in userTriumphs.keys():
             triumphs = userTriumphs[str(userid)]
+            print('loaded user '+ str(userid))
         else:
             requestURL = "/Destiny2/3/Profile/" + userid + "?components=900" #3 = steam
             achJSON = getJSONfromURL(requestURL)
@@ -193,23 +228,58 @@ for year in requirementHashes:
             rolestatus = len(roleReqs) > 0
             for rHash in roleReqs:
                 if isinstance(rHash, dict):
-                    cc = getClearCount(userid, rHash['actHash'])
-                    requiredN = rHash['clears']
-                    condition = role + ' clears (' + str(requiredN) + ')'
-                    result[username][condition] = str(cc >= requiredN) + ' (' + str(cc) + ')'
-                    rolestatus &= (str(cc >= requiredN) == 'True')
-                    continue
-
-                status = True
-                #if rHash in roleReqs:
-                name = getNameFromHashRecords[rHash]
-                #else:
-                #    print('found in unlocks')
-                #    name = getNameFromHashUnlocks[rHash]
-                for part in triumphs[rHash]['objectives']:
-                    status &= (str(part['complete']) == 'True')
-                result[username][name] = str(status)
-                rolestatus &= (str(status) == 'True')
+                    if 'flawless' in rHash.keys():
+                        flawlessL = flawlessList(userid)
+                        if isinstance(rHash['flawless'], list):
+                            condition = 'flawless ' + getNameFromHashActivity[rHash['flawless'][0]]
+                            found = False
+                            for h in rHash['flawless']:
+                                if h in flawlessL:
+                                    result[username][condition] = 'True'
+                                    found = True
+                            for h in rHash['flawlessP']:
+                                if h in flawlessL:
+                                    result[username][condition] = 'True'
+                                    found = True
+                            if not found:
+                                rolestatus = False
+                                result[username][condition] = 'False'
+                        elif rHash['flawless'] in flawlessL:
+                            condition = 'flawless ' + getNameFromHashActivity[rHash['flawless']]
+                            result[username][condition] = 'True'
+                        elif rHash['flawlessP'] in flawlessL:
+                            condition = 'flawless ' + getNameFromHashActivity[rHash['flawlessP']]
+                            result[username][condition] = 'True'
+                        else:
+                            condition = 'flawless ' + getNameFromHashActivity[rHash['flawless']]
+                            result[username][condition] = 'False'
+                            rolestatus = False
+                        continue
+                    else:
+                        actHash = rHash['actHash']
+                        requiredN = rHash['clears']
+                        activityname = ''
+                        if isinstance(actHash, list):
+                            cc = 0
+                            for h in actHash:
+                                cc += getClearCount(userid, h)
+                            activityname = getNameFromHashActivity[str(actHash[0])]
+                        else:
+                            cc = getClearCount(userid, rHash['actHash'])
+                            activityname = getNameFromHashActivity[str(actHash)]
+                        
+                        condition = activityname + ' clears (' + str(requiredN) + ')'
+                        result[username][condition] = str(cc >= requiredN) + ' (' + str(cc) + ')'
+                        rolestatus &= (str(cc >= requiredN) == 'True')
+                        continue
+                else: #rhash hash and not dict
+                    print(type(rHash))
+                    status = True
+                    name = getNameFromHashRecords[rHash]
+                    for part in triumphs[rHash]['objectives']:
+                        status &= (str(part['complete']) == 'True')
+                    result[username][name] = str(status)
+                    rolestatus &= (str(status) == 'True')
             result[username][role] = str(rolestatus)
 
     df = pandas.DataFrame(result)
@@ -225,7 +295,7 @@ redBG = workbook.add_format({'bg_color': '#FFC7CE'})
 greenBG = workbook.add_format({'bg_color': '#C6EFCE'})
 
 importantColumns = {
-    'Y1' : ['A'],
+    'Y1' : ['A','D','G','J','M','P','S'],
     'Y2' :  ['A','F', 'M','R','X','AE','AK'],
     'Y3' : ['A']
 }

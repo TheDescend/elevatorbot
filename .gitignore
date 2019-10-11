@@ -1,13 +1,8 @@
 .vscode/
 MANZIP
-Manifest.content
 config.py
 manifest.pickle
-world_sql_content_1960d217da17bc78f49d6a119fadb29b.content
+*.content
 __pycache__/*
-achievements.json
-activities.json
-records.json
-unlock.json
-clanAchievements.xlsx
-~$clanAchievements.xlsx
+*.json
+*.xlsx
