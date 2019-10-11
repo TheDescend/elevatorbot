@@ -6,3 +6,4 @@ manifest.pickle
 __pycache__/*
 *.json
 *.xlsx
+test.py

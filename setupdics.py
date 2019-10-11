@@ -1,4 +1,3 @@
-
 import requests, zipfile, os, pickle, json, sqlite3
 
 if not os.path.exists('Manifest.content'):
@@ -25,9 +24,9 @@ if not os.path.exists('Manifest.content'):
 
 getNameFromHashRecords = {}
 getNameFromHashActivity= {}
-getNameFromHashAchievements = {}
-getNameFromHashUnlocks = {}
-
+getNameFromHashCollectible = {}
+#getNameFromHashUnlocks = {}
+#
 if not os.path.exists('records.json'):
     con = sqlite3.connect('manifest.content')
     cur = con.cursor()
@@ -51,8 +50,7 @@ else:
         getNameFromHashRecords = json.load(json_file)
 
 
-
-if not os.path.exists('achievements.json'):
+if not os.path.exists('collectible.json'):
     con = sqlite3.connect('manifest.content')
     cur = con.cursor()
 
@@ -61,46 +59,21 @@ if not os.path.exists('achievements.json'):
     '''SELECT 
         json
     FROM 
-        DestinyAchievementDefinition
+        DestinyCollectibleDefinition
     ''')
     items = cur.fetchall()
-    #print(items)
-    item_jsons = [json.loads(item[0]) for item in items]
-    con.close()
-    for ijson in item_jsons:
-        getNameFromHashAchievements[ijson['hash']] = ijson['displayProperties']['name']
-    
-    with open('achievements.json', 'w') as outfile:
-        json.dump(getNameFromHashAchievements, outfile)
-else:
-    with open('achievements.json') as json_file:
-        getNameFromHashAchievements = json.load(json_file)
 
-
-
-if not os.path.exists('unlock.json'):
-    con = sqlite3.connect('manifest.content')
-    cur = con.cursor()
-
-
-    cur.execute(
-    '''SELECT 
-        json
-    FROM 
-        DestinyUnlockDefinition
-    ''')
-    items = cur.fetchall()
     item_jsons = [json.loads(item[0]) for item in items]
     con.close()
     for ijson in item_jsons:
         if 'name' in ijson['displayProperties']:
-            getNameFromHashUnlocks[ijson['hash']] = ijson['displayProperties']['name']
-    with open('unlock.json', 'w') as outfile:
-        json.dump(getNameFromHashUnlocks, outfile)
+            getNameFromHashCollectible[str(ijson['hash'])] = ijson['displayProperties']['name']
+    
+    with open('collectible.json', 'w') as outfile:
+        json.dump(getNameFromHashCollectible, outfile)
 else:
-    with open('unlock.json') as json_file:
-        getNameFromHashUnlocks = json.load(json_file)
-
+    with open('collectible.json') as json_file:
+        getNameFromHashCollectible = json.load(json_file)
 
 
 if not os.path.exists('activities.json'):
@@ -127,12 +100,11 @@ if not os.path.exists('activities.json'):
 else:
     with open('activities.json') as json_file:
         getNameFromHashActivity = json.load(json_file)
-
-con = sqlite3.connect('manifest.content')
-cur = con.cursor()
-
-cur.execute(
-'''SELECT name FROM sqlite_master WHERE type='table'
-''')
-items = cur.fetchall()
-#print(items)
+#con = sqlite3.connect('manifest.content')
+#cur = con.cursor()
+#
+#cur.execute(
+#'''SELECT name FROM sqlite_master WHERE type='table'
+#''')
+#items = cur.fetchall()
+##print(items)

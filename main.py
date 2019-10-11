@@ -1,7 +1,7 @@
-import requests, zipfile, os, sys, pickle, json, sqlite3, pandas, openpyxl, xlsxwriter
+import requests, zipfile, os, sys, pickle, json, sqlite3, pandas, openpyxl, xlsxwriter, time
 import config, setupdics
 
-from setupdics import getNameFromHashActivity, getNameFromHashRecords, getNameFromHashAchievements, getNameFromHashUnlocks
+from setupdics import getNameFromHashRecords, getNameFromHashActivity, getNameFromHashCollectible
 
 # from https://data.destinysets.com/
 spirePHash = '3213556450'
@@ -9,7 +9,8 @@ spireHash = '119944200'
 eaterPHash = '809170886'
 eaterHash = '3089205900'
 leviHashes = ['2693136600','2693136601','2693136602','2693136603','2693136604','2693136605'] #there's like 12 of each
-leviPHashes = ['417231112','508802457','757116822', '771164842', '1685065161', '1800508819', '2449714930','3446541099','3857338478','3879860661', '3912437239','4206123728']
+leviPHashes = ['417231112','508802457','757116822', '771164842', '1685065161', '1800508819'
+                ,'2449714930','3446541099','3857338478','3879860661', '3912437239','4206123728']
 scourgeHash = '548750096' #getHashesFromNameActivity('Scourge of the Past')
 lwHash = '2122313384' #getHashesFromNameActivity('Last Wish: Level 55')
 cosHash = '3333172150' #getHashesFromNameActivity('Crown of Sorrow: Normal')
@@ -51,8 +52,11 @@ requirementHashes = {
             {'clears' : 15,
             'actHash' : leviPHashes}, #prestige
             {'flawless' : leviHashes,
-            'flawlessP' : leviPHashes}
-            #TODO
+            'flawlessP' : leviPHashes},
+            {'collectible' : '1766893932'}, #good dog
+            {'collectible' : '1766893933'}, #splish splash
+            {'collectible' : '1766893935'}, #two enter, one leaves
+            {'collectible' : '1766893934'}  #take the throne
         ]
     },
     'Y2':{
@@ -130,8 +134,9 @@ platform = {
     10: 'Demon',
     254: 'BungieNext'
 }
-
+exceptiondict = {}
 def getJSONfromURL(requestURL, baseURL=baseURL, console=False):
+    #jstart = time.perf_counter()
     r=None
     while(r == None or r.status_code != requests.codes[r'\o/']):
         try:
@@ -151,13 +156,13 @@ def getJSONfromURL(requestURL, baseURL=baseURL, console=False):
                         return console
                 return None
             else:#
-                print(r.status_code)
+                print('request for ' + baseURL + requestURL + ' failed with code ' + str(r.status_code))
 
         except requests.exceptions.RequestException as e:
             print(e)
-            print('getting ' + baseURL + requests + ' failed')
+            print('getting ' + baseURL + requestURL + ' failed with exception ' + e.strerror)
             r=None
-
+    #print('json request time: ' + str(time.perf_counter() - jstart)
     return r.json()
 
 #j = getJSONfromURL('/Destiny2/3/Profile/4611686018432289116?components=900')
@@ -165,6 +170,11 @@ def getJSONfromURL(requestURL, baseURL=baseURL, console=False):
 #all_data = {}
 #for every table name in the dictionary
 activities = {}
+
+def playerHasCollectible(playerid, cHash):
+    j = getJSONfromURL('/Destiny2/3/Profile/' + userid + '?components=800')
+    collectibles = j['Response']['profileCollectibles']['data']['collectibles']
+    return collectibles[cHash]['state'] == 0
 
 def getClearCount(playerid, activityHash):
     if not str(playerid) in activities.keys():
@@ -255,6 +265,14 @@ for year in requirementHashes:
                             result[username][condition] = 'False'
                             rolestatus = False
                         continue
+                    elif 'collectible' in rHash.keys():
+                        condition = getNameFromHashCollectible[rHash['collectible']]
+                        if playerHasCollectible(userid, rHash['collectible']):
+                            result[username][condition] = 'True'
+                        else:
+                            result[username][condition] = 'False'
+                            rolestatus = False
+                        continue
                     else:
                         actHash = rHash['actHash']
                         requiredN = rHash['clears']
@@ -273,7 +291,7 @@ for year in requirementHashes:
                         rolestatus &= (str(cc >= requiredN) == 'True')
                         continue
                 else: #rhash hash and not dict
-                    print(type(rHash))
+                    #print(type(rHash))
                     status = True
                     name = getNameFromHashRecords[rHash]
                     for part in triumphs[rHash]['objectives']:
@@ -295,7 +313,7 @@ redBG = workbook.add_format({'bg_color': '#FFC7CE'})
 greenBG = workbook.add_format({'bg_color': '#C6EFCE'})
 
 importantColumns = {
-    'Y1' : ['A','D','G','J','M','P','S'],
+    'Y1' : ['A','D','G','J','M','P','W'],
     'Y2' :  ['A','F', 'M','R','X','AE','AK'],
     'Y3' : ['A']
 }
