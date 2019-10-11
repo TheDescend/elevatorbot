@@ -157,11 +157,12 @@ requirementHashes = {
                 '2398356743' #Sunburn :Solar:
             ]
         }
-    },
-    'Y3': {
-        'Garden':{},
-        'Garden Master':{}
     }
+    #,
+    #'Y3': {
+    #    'Garden':{},
+    #    'Garden Master':{}
+    #}
 
 }
 
