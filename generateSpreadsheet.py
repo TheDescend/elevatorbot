@@ -17,6 +17,7 @@ clanid = 2784110 #Bloodoak I
 memberids = getNameToHashMapByClanid(clanid) # memberids['Hali'] is my destinyMembershipID
 membersystem = dict()
 userRoles = {}
+
 for year,yeardata in requirementHashes.items():
     yearResult = {}
     for username, userid in memberids.items():
@@ -36,15 +37,18 @@ for year,yeardata in requirementHashes.items():
                     creq = roledata['clears']
                     for raid in creq:
                         requiredN = raid['count']
-                        activityname = getNameFromHashActivity[str(raid['actHashes'][0])]
+                        raidHash0 = raid['actHashes'][0]
+                        activityname = getNameFromHashActivity[str(raidHash0)]
                         condition = activityname + ' clears (' + str(requiredN) + ')'
 
                         boolHasClears = playerHasClears(userid, requiredN, raid['actHashes'])
-                        cc = getClearCount(userid, raid['actHashes'][0])
+                        cc = 0
+                        for actHash in raid['actHashes']:
+                            cc += getClearCount(userid, actHash)
                         yearResult[username][condition] = str(boolHasClears) + ' (' + str(cc) + ')'
                         rolestatus &= boolHasClears
                 elif req == 'flawless':
-                    condition = 'flawless ' + getNameFromHashActivity[roledata['flawless'][0]]
+                    condition = 'flawless ' + getNameFromHashActivity[str(roledata['flawless'][0])]
                     if playerHasFlawless(userid, roledata['flawless']):
                             yearResult[username][condition] = 'True'
                             found = True
@@ -53,7 +57,7 @@ for year,yeardata in requirementHashes.items():
                         yearResult[username][condition] = 'False'
                 elif req == 'collectibles':
                     for collectible in roledata['collectibles']:
-                        condition = getNameFromHashCollectible[collectible]
+                        condition = getNameFromHashCollectible[str(collectible)]
                         if playerHasCollectible(userid, collectible):
                             yearResult[username][condition] = 'True'
                         else:
@@ -61,10 +65,10 @@ for year,yeardata in requirementHashes.items():
                             rolestatus = False
                 elif req == 'records':
                     for recordHash in roledata['records']:
-                        condition = getNameFromHashRecords[recordHash]
+                        condition = getNameFromHashRecords[str(recordHash)]
                         status = playerHasTriumph(userid, recordHash)
                         yearResult[username][condition] = str(status)
-                        rolestatus &= (str(status) == 'True')
+                        rolestatus &= status
 
             yearResult[username][role] = str(rolestatus)
             if rolestatus:
@@ -85,9 +89,9 @@ redBG = workbook.add_format({'bg_color': '#FFC7CE'})
 greenBG = workbook.add_format({'bg_color': '#C6EFCE'})
 
 importantColumns = {
-    'Y1'  : ['A','D','G','J','M','P','W'],
-    'Y2'  : ['A','F', 'M','R','X','AE','AK'],
-    'Y3'  : ['A'],
+    'Y1'        : ['A','D','G','J','M','P','W'],
+    'Y2'        : ['A','F', 'M','R','X','AE','AK'],
+    'Y3'        : ['A'],
     'Addition'  : ['A']
 }
 

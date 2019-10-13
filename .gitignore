@@ -1,9 +1,8 @@
 .vscode/
-MANZIP
 config.py
-manifest.pickle
+cache/
 *.content
-__pycache__/*
+__pycache__/
 *.json
 *.xlsx
 test.py

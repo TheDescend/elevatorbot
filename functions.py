@@ -3,79 +3,96 @@ import requests
 import config
 from dict import platform,requirementHashes
 
-baseURL = "https://www.bungie.net/Platform"
-PARAMS = {'X-API-Key': config.key}
+bungieAPI_URL = "https://www.bungie.net/Platform"
+PARAMS = {'X-API-Key': config.BUNGIE_TOKEN}
 
-systemdict = {}
-jsondict = {}
-def getJSONfromURL(requestURL, baseURL=baseURL, console=False, playerid=None):
-    if requestURL in jsondict:
-        return jsondict[requestURL]
-    r = requests.get(url=baseURL + str(requestURL), headers=PARAMS)
-    if r.status_code == 200:
-        jsondict[requestURL] = r.json()
-        return r.json()
-    elif r.status_code == 400:
-        if console:
+jsonByURL = {}
+def getJSONfromURL(requestURL):
+    if requestURL in jsonByURL:
+        return jsonByURL[requestURL]
+    for _ in range(5):
+        try:
+            r = requests.get(url=requestURL, headers=PARAMS)
+        except Exception as e:
+            print('Exception was caught: ' + repr(e))
+            continue
+
+        if r.status_code == 200:
+            jsonByURL[requestURL] = r.json()
+            return r.json()
+        elif r.status_code == 400:
+            #malformated URL, e.g. wrong subsystem for bungie
             return None
-        print(requestURL + ' not on steam')
-        for i in [1,2,4,5,10,254]:
-            console = getJSONfromURL('/Destiny2/' + str(i) + requestURL[11:], baseURL=baseURL, console=True, playerid = playerid)
-            if console is not None:
-                print('found on ' + platform.get(i))
-                systemdict[playerid] = i
-                jsondict[requestURL] = console
-                return console
-        return None
-    else:
-        print('request for ' + baseURL + requestURL + ' failed with code ' + str(r.status_code))
-    return r.json()
+        else:
+            print('request for ' + requestURL + ' failed with code ' + str(r.status_code))
+    return None
+
+getSystemByPlayer = {}
+def getComponentInfoAsJSON(playerID, components):
+    if playerID in getSystemByPlayer:
+        url = bungieAPI_URL + '/Destiny2/{}/Profile/{}?components={}'.format(getSystemByPlayer[playerID], playerID, components)
+        playerData = getJSONfromURL(url)
+        return playerData
+    for systemid in [3,2,1,4,5,10,254]: #checking steam, ps, xbox, blizzard, weird ones
+        url = bungieAPI_URL + '/Destiny2/{}/Profile/{}?components={}'.format(systemid, playerID, components)
+        playerData = getJSONfromURL(url)
+        if playerData is not None:
+            getSystemByPlayer[playerID] = systemid
+            return playerData
+    print('getting playerinfo failed')
+    return None
+
+def getJSONfromRR(playerID):
+    requestURL = 'https://b9bv2wd97h.execute-api.us-west-2.amazonaws.com/prod/api/player/{}'.format(playerID)
+    return getJSONfromURL(requestURL)
+
+def getRRLink(bungiePlayerID, system=3):
+    url = 'https://www.bungie.net/platform/User/GetMembershipsById/{}/{}/'.format(bungiePlayerID,system)
+    r=requests.get(url=url, headers=PARAMS)
+    memberships = r.json()['Response']['destinyMemberships']
+    for membership in memberships:
+        if membership['membershipType'] == 3:
+            print('https://raid.report/pc/' + membership['membershipId'])
+
 
 def playerHasCollectible(playerid, cHash, systemid=3):
-    if playerid in systemdict:
-        systemid = systemdict[playerid]
-    userCollectibles = getJSONfromURL('/Destiny2/{}/Profile/{}?components=800'.format(systemid, playerid), playerid=playerid)
+    userCollectibles = getComponentInfoAsJSON(playerid, 800)
     collectibles = userCollectibles['Response']['profileCollectibles']['data']['collectibles']
-    return collectibles[cHash]['state'] == 0
+    return collectibles[str(cHash)]['state'] == 0
 
-playerActivities = {}
-def getClearCount(playerid, activityHashes):
-    if not str(playerid) in playerActivities.keys():
-        rrBaseURL = 'https://b9bv2wd97h.execute-api.us-west-2.amazonaws.com/prod/api/player/'
-        requestURL = playerid
-        profileInfo = getJSONfromURL(requestURL, baseURL=rrBaseURL, playerid=playerid)
-        playerActivities[str(playerid)] = profileInfo['response']['activities'] # list of dicts that contain activityHash and values
+playerActivities = {} #used as cache for getClearCount per player
+def getClearCount(playerid, activityHash):
+    if not playerid in playerActivities.keys():
+        profileInfo = getJSONfromRR(playerid)
+        playerActivities[playerid] = profileInfo['response']['activities'] # list of dicts that contain activityHash and values
 
     counter = 0
-    for activityInfo in playerActivities[str(playerid)]:
-        if str(activityInfo['activityHash']) in activityHashes:
-            counter += int(activityInfo['values']['fullClears'])
+    for activityInfo in playerActivities[playerid]:
+        if activityInfo['activityHash'] == activityHash:
+            counter += activityInfo['values']['fullClears']
     return counter
 
 def flawlessList(playerid):
-    rrBaseURL = 'https://b9bv2wd97h.execute-api.us-west-2.amazonaws.com/prod/api/player/'
-    requestURL = playerid
-    profileInfo = getJSONfromURL(requestURL, baseURL=rrBaseURL, playerid=playerid)
+    profileInfo = getJSONfromRR(playerid)
     activities = profileInfo['response']['activities']
 
     flawlessL = []
     for raid in activities:
         if 'flawlessDetails' in raid['values'].keys():
-            flawlessL.append(str(raid['activityHash']))
+            flawlessL.append(raid['activityHash'])
     return flawlessL
 
-def getTriumphsJSON(playerid, system=3):
-    if playerid in systemdict:
-        system = systemdict[playerid]
-    requestURL = "/Destiny2/{}/Profile/{}?components=900".format(system, playerid) 
-    achJSON = getJSONfromURL(requestURL, playerid=playerid)
+def getTriumphsJSON(playerID, system=3):
+    achJSON = getComponentInfoAsJSON(playerID, 900)
     return achJSON['Response']['profileRecords']['data']['records']
 
 def playerHasTriumph(playerid, recordHash):
     status = True
     triumphs = getTriumphsJSON(playerid)
+    if recordHash not in triumphs:
+        return False
     for part in triumphs[recordHash]['objectives']:
-        status &= (str(part['complete']) == 'True')
+        status &= part['complete']
     return status
 
 def playerHasClears(playerid, n, raidHashes):
@@ -117,7 +134,7 @@ def playerHasRole(playerid, role, year):
     return True
 
 def getNameToHashMapByClanid(clanid):
-    requestURL = "/GroupV2/{}/members/".format(clanid) #bloodoak memberlist
+    requestURL = bungieAPI_URL + "/GroupV2/{}/members/".format(clanid) #bloodoak memberlist
     memberJSON = getJSONfromURL(requestURL)
     memberlist = memberJSON['Response']['results']
     memberids  = dict()
