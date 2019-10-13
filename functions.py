@@ -31,8 +31,6 @@ def getJSONfromURL(requestURL, baseURL=baseURL, console=False, playerid=None):
         print('request for ' + baseURL + requestURL + ' failed with code ' + str(r.status_code))
     return r.json()
 
-activities = {}
-
 def playerHasCollectible(playerid, cHash, systemid=3):
     if playerid in systemdict:
         systemid = systemdict[playerid]
@@ -40,20 +38,20 @@ def playerHasCollectible(playerid, cHash, systemid=3):
     collectibles = userCollectibles['Response']['profileCollectibles']['data']['collectibles']
     return collectibles[cHash]['state'] == 0
 
-def getClearCount(playerid, activityHash):
-    if not str(playerid) in activities.keys():
+playerActivities = {}
+def getClearCount(playerid, activityHashes):
+    if not str(playerid) in playerActivities.keys():
         rrBaseURL = 'https://b9bv2wd97h.execute-api.us-west-2.amazonaws.com/prod/api/player/'
         requestURL = playerid
         profileInfo = getJSONfromURL(requestURL, baseURL=rrBaseURL, playerid=playerid)
-        activities[str(playerid)] = profileInfo['response']['activities']
+        playerActivities[str(playerid)] = profileInfo['response']['activities'] # list of dicts that contain activityHash and values
 
-    notfound = -1
-    for activity in activities[str(playerid)]:
-        if str(activity['activityHash']) == str(activityHash):
-            return activity['values']['fullClears'] or 0
-        else:
-            notfound = 0
-    return notfound
+    counter = 0
+    for activityInfo in playerActivities[str(playerid)]:
+        if str(activityInfo['activityHash']) in activityHashes:
+            counter += int(activityInfo['values']['fullClears'])
+            print('hi')
+    return counter
 
 def flawlessList(playerid):
     rrBaseURL = 'https://b9bv2wd97h.execute-api.us-west-2.amazonaws.com/prod/api/player/'
