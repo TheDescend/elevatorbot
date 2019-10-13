@@ -10,11 +10,11 @@ spireHashes = ['119944200']
 eaterPHashes = ['809170886']
 eaterHashes = ['3089205900']
 leviHashes = ['2693136600','2693136601','2693136602','2693136603','2693136604','2693136605'] #there's like 12 of each
-leviPHashes = ['417231112','508802457','757116822', '771164842', '1685065161', '1800508819'
-                ,'2449714930','3446541099','3857338478','3879860661', '3912437239','4206123728']
+leviPHashes = ['417231112','508802457','757116822', '771164842', '1685065161', '1800508819', '2449714930','3446541099','3857338478','3879860661', '3912437239','4206123728']
 scourgeHashes = ['548750096'] 
 lwHashes = ['2122313384']
 cosHashes = ['3333172150'] 
+gosHashes = ['3845997235']
 
 requirementHashes = {
     'Y1':{
@@ -84,23 +84,23 @@ requirementHashes = {
                 'actHashes' : cosHashes}
             ], #• Minimum 15 full clears
             'records': [
-                '1575460004', #• Limited Blessings
-                '1575460003', #• Total Victory
-                '1575460002'#• With Both Hands
+                '1575460004',    #Limited Blessings
+                '1575460003',    #Total Victory
+                '1575460002',    #With Both Hands
            ]
        },
         'Crown Master': {
             'requirements': ['clears','records'],
             'clears': [
                 {'count' : 30,
-                'actHashes' : cosHashes}, #• Minimum 15 full clears
+                'actHashes' : cosHashes} #Minimum 15 full clears
             ],
             'records': [
-                '1558682416', #Crown of Ease [Flawless]
-                '1558682417', #• Arc Borne :Arc: 
-                '1558682418', #• Void Borne :Void: 
-                '1558682419', #• Solar Borne :Solar: 
-                '1558682428' #• Stay Classy [Same Class]
+                '1558682416',    #Crown of Ease [Flawless]
+                '1558682417',    #Arc Borne :Arc: 
+                '1558682418',    #Void Borne :Void: 
+                '1558682419',    #Solar Borne :Solar: 
+                '1558682428'    #Stay Classy [Same Class]
             ]
         },
         'Scourge': {
@@ -110,9 +110,9 @@ requirementHashes = {
                 'actHashes' : scourgeHashes}
             ],
             'records':[
-                '1428463716', #All for one, one for all
-                '1804999028', #hold the line
-                '4162926221'  #to each their own
+                '1428463716',    #All For One, One For All
+                '1804999028',    #Hold the Line
+                '4162926221',    #To Each Their Own
             ]
         },
         'ScourgeMaster': {
@@ -122,25 +122,25 @@ requirementHashes = {
                 'actHashes' : scourgeHashes}
             ],
             'records': [
-            '2648109757', #Like a diamond
-            '772878705',  #solarstruck
-            '496309570',  #voidstruck
-            '105811740',  #thunderstruck
-            '3780682732',  #stay classy
+            '2648109757',    #Like a Diamond
+            '772878705',     #Solarstruck
+            '496309570',     #Voidstruck
+            '105811740',     #Thunderstruck
+            '3780682732',    #Stay Classy
             ]
         },
         'Last Wish':{
             'requirements': ['clears','records'],
             'clears' :[
                 {'count' : 15,
-                'actHashes' : lwHashes},   #• Minimum 15 full clears
+                'actHashes' : lwHashes},   #Minimum 15 full clears
             ],
             'records':[
-                '2822000740', #• Summoning Ritual
-                '2196415799', #• Coliseum Champion
-                '1672792871', #• Forever Fight
-                '149192209', #• Keep Out
-                '3899933775' #• Strength of Cheesery
+                '2822000740',    #Summoning Ritual
+                '2196415799',    #Coliseum Champion
+                '1672792871',    #Forever Fight
+                '149192209',     #Keep Out
+                '3899933775'    #Strength of Memory
             ]
         },
         'Last Wish Master': {
@@ -150,20 +150,51 @@ requirementHashes = {
                 'actHashes' : lwHashes}
             ], #Minimum 15 full clears
             'records': [
-                '4177910003', #Petra's Run [Flawless]
-                '3806804934', #Thunderstruck :Arc:
-                '567795114', #The New Meta [Same Class]
-                '1373122528', #Night Owl :Void:
-                '2398356743' #Sunburn :Solar:
+                '4177910003',    #Petra's Run [Flawless]
+                '3806804934',    #Thunderstruck :Arc:
+                '567795114',     #The New Meta [Same Class]
+                '1373122528',    #Night Owl :Void:
+                '2398356743'    #Sunburn :Solar:
+            ]
+        }
+ },
+     'Y3':{
+        'Garden': {
+            'requirements': ['clears','records'],
+            'clears':[
+                {'count' : 15,
+                'actHashes' : gosHashes} #Minimum 15 full clears
+            ], 
+            'records': [
+                '3281243931', #Leftovers
+                '1925300422', #A Link to the Chain
+                '1661612473', #To the Top
+                '3167166053', #Zero to One Hundred
+           ]
+       },
+        'Garden Master': {
+            'requirements': ['clears','records'],
+            'clears': [
+                {'count' : 30,
+                'actHashes' : gosHashes} #Minimum 30 full clears
+            ],
+            'records': [
+                '3144827156', #Inherent Perfection [Flawless]
+                '2841179989', #Fluorescent Foliage :Arc: 
+                '4019629605', #Shade in the Garden :Void: 
+                '3382024472', #Photosynthesis :Solar: 
+                '4025379205' #Garden Party [Same Class]
+            ]
+        }
+ },
+    'Addition':{
+        'Niobe\'s Torment': {
+            'requirements': ['collectibles'],
+            'collectibles': [
+                '3531075476' #Armory Forged Shell
             ]
         }
     }
-    #,
-    #'Y3': {
-    #    'Garden':{},
-    #    'Garden Master':{}
-    #}
-
 }
 
 platform = {

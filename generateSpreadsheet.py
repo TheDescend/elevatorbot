@@ -74,14 +74,12 @@ for year,yeardata in requirementHashes.items():
 
     df = pandas.DataFrame(yearResult)
     df = df.transpose()
-    
+
     df.to_excel(writer, sheet_name = year + ' Roles')
 
 pandas.DataFrame(userRoles).transpose().to_excel(writer, header=None, sheet_name = 'User Roles')
 workbook = writer.book
 fat = workbook.add_format({'bold': True})
-
-pandas.DataFrame(memberids).transpose().to_excel(writer, header=None, sheet_name = 'Users')
 
 redBG = workbook.add_format({'bg_color': '#FFC7CE'})
 greenBG = workbook.add_format({'bg_color': '#C6EFCE'})
@@ -89,7 +87,8 @@ greenBG = workbook.add_format({'bg_color': '#C6EFCE'})
 importantColumns = {
     'Y1'  : ['A','D','G','J','M','P','W'],
     'Y2'  : ['A','F', 'M','R','X','AE','AK'],
-    'Y3'  : ['A']
+    'Y3'  : ['A'],
+    'Addition'  : ['A']
 }
 
 worksheet = writer.sheets['User Roles']
