@@ -50,7 +50,6 @@ def getClearCount(playerid, activityHashes):
     for activityInfo in playerActivities[str(playerid)]:
         if str(activityInfo['activityHash']) in activityHashes:
             counter += int(activityInfo['values']['fullClears'])
-            print('hi')
     return counter
 
 def flawlessList(playerid):

@@ -14,7 +14,7 @@ leviPHashes = ['417231112','508802457','757116822', '771164842', '1685065161', '
 scourgeHashes = ['548750096'] 
 lwHashes = ['2122313384']
 cosHashes = ['3333172150'] 
-gosHashes = ['3845997235']
+gosHashes = ['3845997235','2659723068']
 
 requirementHashes = {
     'Y1':{
