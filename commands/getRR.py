@@ -32,12 +32,14 @@ class getRRbungo(BaseCommand):
 
 class RR(BaseCommand):
     def __init__(self):
-        description = "your personal raidreport"
+        description = "get the raidreport link"
         params = []
         super().__init__(description, params)
 
     async def handle(self, params, message, client):
         username = message.author.display_name
+        if len(params) == 1:
+            username = str(params[0])
         PARAMS = {'X-API-Key':config.BUNGIE_TOKEN}
 
 
@@ -64,41 +66,6 @@ class RR(BaseCommand):
                         await message.channel.send('https://raid.report/pc/' + membership['membershipId'])
         else:
             await message.channel.send('Name needs to be more specific or is not in BO Clan')
-
-
-class getRR(BaseCommand):
-    def __init__(self):
-        description = "someone else's raidreport"
-        params = ['user']
-        super().__init__(description, params)
-
-    async def handle(self, params, message, client):
-        username = params[0]
-        PARAMS = {'X-API-Key':config.BUNGIE_TOKEN}
-        maxName = None
-        maxProb = 0
-        for ingameName in memberMap.keys():
-            #prob = fuzz.ratio(username, ingameName)
-            uqprob = fuzz.UQRatio(username, ingameName)
-            #uwprob = fuzz.UWRatio(username, ingameName)
-            if uqprob > maxProb:
-                #strng = '{} prob, '.format(prob) + " " + '{} prob, '.format(uqprob) + '{} prob '.format(uwprob)+ username + ' = ' + ingameName
-                #await message.channel.send(strng)
-                maxProb = uqprob
-                maxName = ingameName
-        if maxName:
-            async with message.channel.typing():
-                userid = memberMap[maxName]
-                url = 'https://www.bungie.net/platform/User/GetMembershipsById/{}/{}/'.format(userid,3)
-                r=requests.get(url=url, headers=PARAMS)
-                memberships = r.json()['Response']['destinyMemberships']
-                for membership in memberships:
-                    if membership['membershipType'] == 3:
-                        print('https://raid.report/pc/' + membership['membershipId'])
-                        await message.channel.send('https://raid.report/pc/' + membership['membershipId'])
-        else:
-            await message.channel.send('Name needs to be more specific or is not in BO Clan')
-
 
 
         

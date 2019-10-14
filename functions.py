@@ -46,13 +46,16 @@ def getJSONfromRR(playerID):
     requestURL = 'https://b9bv2wd97h.execute-api.us-west-2.amazonaws.com/prod/api/player/{}'.format(playerID)
     return getJSONfromURL(requestURL)
 
-def getRRLink(bungiePlayerID, system=3):
+def getIDfromBungie(bungiePlayerID, system):
     url = 'https://www.bungie.net/platform/User/GetMembershipsById/{}/{}/'.format(bungiePlayerID,system)
     r=requests.get(url=url, headers=PARAMS)
     memberships = r.json()['Response']['destinyMemberships']
     for membership in memberships:
         if membership['membershipType'] == 3:
-            print('https://raid.report/pc/' + membership['membershipId'])
+            return membership['membershipId']
+
+def getRRLink(bungiePlayerID, system=3):
+    print('https://raid.report/pc/' +getIDfromBungie(bungiePlayerID, system))
 
 
 def playerHasCollectible(playerid, cHash, systemid=3):
