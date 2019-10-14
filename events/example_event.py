@@ -21,7 +21,7 @@ class ExampleEvent(BaseEvent):
         if now.hour == 12:
             msg = "It's high noon!"
         else:
-            msg = f"It is {now.hour}:{now.minute}"
+            msg = f"It is {now.hour}:{now.minute}, remember to drink enough water"
 
-        #channel = get_channel(client, "general")
-        #await client.send_message(channel, msg)
+        channel = get_channel(client, "testing")
+        await client.send_message(channel, msg)
