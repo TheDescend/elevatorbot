@@ -37,8 +37,3 @@ class Link(BaseCommand): #TODO
             return
         
         await message.channel.send(f'Added user {message.author.mention} with id {destinyID}')
-
-
-        
-
-        
