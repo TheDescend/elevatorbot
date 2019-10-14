@@ -183,7 +183,7 @@ requirementHashes = {
                 2841179989, #Fluorescent Foliage :Arc: 
                 4019629605, #Shade in the Garden :Void: 
                 3382024472, #Photosynthesis :Solar: 
-                4025379205 #Garden Party [Same Class]
+                4025379205, #Garden Party [Same Class]
             ]
         }
  },
@@ -191,9 +191,33 @@ requirementHashes = {
         'Niobe\'s Torment': {
             'requirements': ['collectibles'],
             'collectibles': [
-                3531075476 #Armory Forged Shell
+                3531075476, #Armory Forged Shell
+            ]
+        },
+        'Solo Flawless Shattered Throne': {
+            'requirements': ['records'],
+             'records': [
+                1290451257, #Solo Flawless Shattered Throne
+            ]
+        },
+        'Flawless Shattered Throne': {
+            'requirements': ['records'],
+            'records': [
+                2029263931, #Flawless Shattered Throne
+            ]
+        },
+        'Solo Shattered Throne': {
+            'requirements': ['records'],
+            'records': [
+                851701008, #Solo Shattered Throne
             ]
         }
+        #'Name': {
+        #    'requirements': ['collectibles'],
+        #    'collectibles': [
+        #        hash #comment
+        #    ]
+        #}
     }
 }
 
