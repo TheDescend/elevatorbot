@@ -133,6 +133,14 @@ def playerHasRole(playerid, role, year):
                     return False
     return True
 
+def getPlayerRoles(playerid):		
+    roles = []		
+    for year, yeardata in requirementHashes.items():		
+        for role in yeardata.keys():		
+            if playerHasRole(playerid, role, year):		
+                roles.append(role)		
+    return roles
+
 def getNameToHashMapByClanid(clanid):
     requestURL = bungieAPI_URL + "/GroupV2/{}/members/".format(clanid) #bloodoak memberlist
     memberJSON = getJSONfromURL(requestURL)
