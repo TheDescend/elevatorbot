@@ -92,7 +92,7 @@ importantColumns = {
     'Y1'        : ['A','D','G','J','M','P','W'],
     'Y2'        : ['A','F', 'M','R','X','AE','AK'],
     'Y3'        : ['A'],
-    'Addition'  : ['A']
+    'Addition'  : ['A','C','E','G','I']
 }
 
 worksheet = writer.sheets['User Roles']
