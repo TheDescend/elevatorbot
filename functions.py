@@ -89,9 +89,9 @@ def getTriumphsJSON(playerID, system=3):
 def playerHasTriumph(playerid, recordHash):
     status = True
     triumphs = getTriumphsJSON(playerid)
-    if recordHash not in triumphs:
+    if str(recordHash) not in triumphs:
         return False
-    for part in triumphs[recordHash]['objectives']:
+    for part in triumphs[str(recordHash)]['objectives']:
         status &= part['complete']
     return status
 
@@ -99,6 +99,7 @@ def playerHasClears(playerid, n, raidHashes):
     count = 0
     for h in raidHashes:
         count += getClearCount(playerid, h)
+    #print(str(count >= n) + ' for ' + str(raidHashes))
     return count >= n
 
 def playerHasFlawless(playerid, raidHashes):
@@ -119,17 +120,21 @@ def playerHasRole(playerid, role, year):
             for raid in creq:
                 requiredN = raid['count']
                 if not playerHasClears(playerid, requiredN, raid['actHashes']):
+                    #print('failed clears for ' + str(raid['actHashes']))
                     return False
         elif req == 'flawless':
             if not playerHasFlawless(playerid, roledata['flawless']):
+                #print('failed flawless for ' + str(roledata['flawless']))
                 return False
         elif req == 'collectibles':
             for collectible in roledata['collectibles']:
                 if not playerHasCollectible(playerid, collectible):
+                    #print('failed collectible: '+ str(collectible))
                     return False
         elif req == 'records':
             for recordHash in roledata['records']:
                 if not playerHasTriumph(playerid, recordHash):
+                    #print('failed triumph: ' + str(recordHash))
                     return False
     return True
 
