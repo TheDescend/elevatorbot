@@ -146,7 +146,13 @@ def getPlayerRoles(playerid):
     for year, yeardata in requirementHashes.items():		
         for role in yeardata.keys():		
             if playerHasRole(playerid, role, year):		
-                roles.append(role)		
+                roles.append(role)
+    if True:
+        for yeardata in requirementHashes.values():
+            for role, roledata in yeardata.items():
+                if 'replaced_by' in roledata.keys():
+                    if roledata['replaced_by'] in roles:
+                        roles.remove(role)
     return roles
 
 def getNameToHashMapByClanid(clanid):

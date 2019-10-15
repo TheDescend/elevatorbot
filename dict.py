@@ -25,9 +25,10 @@ requirementHashes = {
                 'actHashes' : spireHashes}, #normal
                 {'count' : 2,
                 'actHashes' : spirePHashes} #prestige 
-            ]
+            ],
+            'replaced_by': 'Spire of Stars Master'
         },
-        'Spire Master': {
+        'Spire of Stars Master': {
             'requirements': ['clears','flawless'],
             'clears': [
                 {'count' : 15,
@@ -42,9 +43,10 @@ requirementHashes = {
                 'actHashes' : eaterHashes}, #normal
                 {'count' : 2,
                 'actHashes' : eaterPHashes} #prestige
-            ]
+            ],
+            'replaced_by':'Eater of Worlds Master'
         },
-        'Eater Master': {
+        'Eater of Worlds Master': {
             'requirements': ['clears','flawless'],
             'clears': [
                 {'count' : 15,
@@ -59,9 +61,10 @@ requirementHashes = {
                 'actHashes' : leviHashes}, #normal
                 {'count' : 2,
                 'actHashes' : leviPHashes} #prestige
-            ]
+            ],
+            'replaced_by': 'Leviathan Master'
         },
-        'Levi Master': {
+        'Leviathan Master': {
             'requirements': ['clears','flawless','collectibles'],
             'clears':[
                 {'count' : 15,
@@ -77,7 +80,7 @@ requirementHashes = {
         }
     },
     'Y2':{
-        'Crown': {
+        'Crown of Sorrow': {
             'requirements': ['clears','records'],
             'clears':[
                 {'count' : 15,
@@ -87,9 +90,10 @@ requirementHashes = {
                 1575460004,    #Limited Blessings
                 1575460003,    #Total Victory
                 1575460002,    #With Both Hands
-           ]
+           ],
+           'replaced_by': 'Crown of Sorrow Master'
        },
-        'Crown Master': {
+        'Crown of Sorrow Master': {
             'requirements': ['clears','records'],
             'clears': [
                 {'count' : 30,
@@ -113,9 +117,10 @@ requirementHashes = {
                 1428463716,    #All For One, One For All
                 1804999028,    #Hold the Line
                 4162926221,    #To Each Their Own
-            ]
+            ],
+            'replaced_by':'Scourge of the Past Master'
         },
-        'ScourgeMaster': {
+        'Scourge of the Past Master': {
             'requirements': ['clears','records'],
             'clears': [
                 {'count' : 30,
@@ -141,7 +146,8 @@ requirementHashes = {
                 1672792871,    #Forever Fight
                 149192209,     #Keep Out
                 3899933775    #Strength of Memory
-            ]
+            ],
+            'replaced_by':'Last Wish Master'
         },
         'Last Wish Master': {
             'requirements': ['clears','records'],
@@ -158,7 +164,7 @@ requirementHashes = {
             ]
         }
  },
-     'Y3':{
+    'Y3':{
         'Garden': {
             'requirements': ['clears','records'],
             'clears':[
@@ -170,7 +176,8 @@ requirementHashes = {
                 1925300422, #A Link to the Chain
                 1661612473, #To the Top
                 3167166053, #Zero to One Hundred
-           ]
+            ],
+            'replaced_by':'Garden Master'
        },
         'Garden Master': {
             'requirements': ['clears','records'],
@@ -186,7 +193,7 @@ requirementHashes = {
                 4025379205, #Garden Party [Same Class]
             ]
         }
- },
+    },
     'Addition':{
         'Niobe\'s Torment': {
             'requirements': ['collectibles'],
@@ -204,13 +211,15 @@ requirementHashes = {
             'requirements': ['records'],
             'records': [
                 2029263931, #Flawless Shattered Throne
-            ]
+            ],
+            'replaced_by':'Solo Flawless Shattered Throne'
         },
         'Solo Shattered Throne': {
             'requirements': ['records'],
             'records': [
                 851701008, #Solo Shattered Throne
-            ]
+            ],
+            'replaced_by':'Solo Flawless Shattered Throne'
         }
         #'Name': {
         #    'requirements': ['collectibles'],
