@@ -35,5 +35,4 @@ class Link(BaseCommand): #TODO
         else:
             await message.channel.send('please give either a bungie or a raid.report link')
             return
-        
         await message.channel.send(f'Added user {message.author.mention} with id {destinyID}')

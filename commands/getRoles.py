@@ -8,6 +8,7 @@ from fuzzywuzzy             import process
 #from discord                import *
 
 from functions import getPlayerRoles
+import discord
 
 base_uri = 'https://discordapp.com/api/v7'
 bungie_base = ''
@@ -41,9 +42,42 @@ class getRoles(BaseCommand):
                 #await message.channel.send(strng)
                 maxProb = uqprob
                 maxName = ingameName
-        if maxName:
-            async with message.channel.typing():
-                userid = memberMap[maxName]
-                await message.channel.send(maxName + ' has roles ' + ", ".join(getPlayerRoles(userid)))
-        else:
-            await message.channel.send('''Name needs to be more specific or is not in BO Clan''')
+        if not maxName:
+            await message.channel.send(f'User {username} not found in BO I')
+            return
+        steamName = maxName
+
+        maxUser = None
+        maxProb = 50
+        uqprob = 0
+        for discordUser in message.guild.members:
+            #prob = fuzz.ratio(username, ingameName)
+            uqprob = max(fuzz.UQRatio(username, discordUser.nick or '-'),fuzz.UQRatio(username, discordUser.name or '-'))
+            #uwprob = fuzz.UWRatio(username, ingameName)
+            if uqprob > maxProb:
+                maxProb = uqprob
+                maxUser = discordUser
+  
+        if not maxUser:
+            await message.channel.send(f'User {username} not found in discord Server')
+            return
+        discordUser = maxUser
+        
+        async with message.channel.typing():
+            userid = memberMap[steamName]
+            roleList = getPlayerRoles(userid)
+            #print(f'{maxName} has ID {userid} and roles {str(roleList)}')
+            newRole = False
+            for role in roleList:
+                roleObj = discord.utils.get(message.guild.roles, name=role)
+                if roleObj is None:
+                    await message.channel.send(f'Role {role} was not found')
+                    continue
+                if roleObj in discordUser.roles:
+                    print(f'{maxName} already has role {role}')
+                    continue
+                await discordUser.add_roles(roleObj)
+                await message.channel.send(f'Assigned role {role} to {discordUser.mention}')
+                newRole = True
+            if not newRole:
+                await message.channel.send(f'No new roles for you')

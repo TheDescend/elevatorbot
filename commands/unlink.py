@@ -12,7 +12,7 @@ from functions import getPlayerRoles
 base_uri = 'https://discordapp.com/api/v7'
 memberMap = getNameToHashMapByClanid(2784110)
 
-class Unregister(BaseCommand): #TODO
+class Unlink(BaseCommand): #TODO
 
     def __init__(self):
         # A quick description for the help message

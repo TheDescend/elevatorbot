@@ -18,7 +18,7 @@ gosHashes = [3845997235,2659723068]
 
 requirementHashes = {
     'Y1':{
-        'Spire': {
+        'Spire of Stars': {
             'requirements': ['clears'],
             'clears': [
                 {'count' : 4,
@@ -35,7 +35,7 @@ requirementHashes = {
             ],
             'flawless' : spireHashes + spirePHashes
         },
-        'Eater': {
+        'Eater of Worlds': {
             'requirements': ['clears'],
             'clears': [
                 {'count' : 4,
@@ -52,7 +52,7 @@ requirementHashes = {
             ], #prestige
             'flawless': eaterHashes + eaterPHashes
         },
-        'Levi': {
+        'Leviathan': {
             'requirements': ['clears'],
             'clears': [
                 {'count' : 4,
@@ -103,7 +103,7 @@ requirementHashes = {
                 1558682428    #Stay Classy [Same Class]
             ]
         },
-        'Scourge': {
+        'Scourge of the Past': {
             'requirements': ['clears','records'],
             'clears': [
                 {'count' : 15,
