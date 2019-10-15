@@ -23,19 +23,7 @@ class Unlink(BaseCommand): #TODO
     # Override the handle() method
     # It will be called every time the command is received
     async def handle(self, params, message, client):
-        userid = None
-        maxProb = 0
-        for ingameName in memberMap.keys():
-            prob = fuzz.ratio(username, ingameName)
-            #print('{} prob for '.format(prob) + username + ' = ' + ingameName)
-            if prob > maxProb and prob > 60:
-                maxProb = prob
-                userid = memberMap[ingameName]
-        if userid:
-            async with message.channel.typing():
-                await message.channel.send(str(getPlayerRoles(userid)))
-        else:
-            await message.channel.send('Please be more specific')
+        await message.channel.send('It was not very effective')
         
 
         
