@@ -16,7 +16,7 @@ class Unlink(BaseCommand): #TODO
 
     def __init__(self):
         # A quick description for the help message
-        description = "gets the roles of a bloodoakplayer by ingameName, type 0 for yourself"
+        description = "[alpha] removes the link to your account"
         params = []
         super().__init__(description, params)
 

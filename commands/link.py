@@ -16,13 +16,14 @@ class Link(BaseCommand): #TODO
 
     def __init__(self):
         # A quick description for the help message
-        description = "registers you with the bot to check on roles and stuff, argument is your bungie.net profile or raid.report PC link\n if you don't know your raid.report link, try !rr"
+        description = "[alpha] registers you with the bot to check on roles and stuff, argument is your bungie.net profile or raid.report PC link\n if you don't know your raid.report link, try !rr"
         params = ["link"]
         super().__init__(description, params)
 
     # Override the handle() method
     # It will be called every time the command is received
     async def handle(self, params, message, client):
+        await message.channel.send('It was not very effective...')
         link = params[0]
         if 'bungie.net' in link:
             removeName = link[:link.rfind('/')]

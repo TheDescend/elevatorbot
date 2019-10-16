@@ -37,7 +37,7 @@ async def assignRolesToUser(roleList, discordUser, message):
             await message.channel.send(f'Assigned role {role} to {discordUser.nick or discordUser.name}')
             newRole = True
     if not newRole:
-        await message.channel.send(f'No new roles')
+        await message.channel.send(f'No new roles for {discordUser.nick or discordUser.name}')
 
 class getRoles(BaseCommand):
     def __init__(self):
