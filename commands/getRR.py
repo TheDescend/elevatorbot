@@ -30,6 +30,20 @@ class getRRbungo(BaseCommand):
                 await message.channel.send('https://raid.report/pc/' + membership['membershipId'])
 
 
+class getRRsteam(BaseCommand):
+    def __init__(self):
+        description = "input steamid to get the raid.report link"
+        params = ['steamID']
+        super().__init__(description, params)
+
+    async def handle(self, params, message, client):
+        steamID = int(params[0])
+        PARAMS = {'X-API-Key':config.BUNGIE_TOKEN}
+        url = 'https://www.bungie.net/Platform/User/GetMembershipFromHardLinkedCredential/{}/{}/'.format(12,steamID)
+        r=requests.get(url=url, headers=PARAMS)
+        destinyID = r.json()['Response']['membershipId']
+        await message.channel.send('https://raid.report/pc/' + destinyID)
+
 class RR(BaseCommand):
     def __init__(self):
         description = "get the raidreport link"
