@@ -11,11 +11,12 @@ from functions import getPlayerRoles
 from dict import requirementHashes
 import discord
 
-base_uri = 'https://discordapp.com/api/v7'
-bungie_base = ''
-bungie_getMembershipId_by_bungieName = '/Destiny/[MembershipType]/Stats/GetMembershipIdByDisplayName/[DisplayName]'
-memberMap = getNameToHashMapByClanid(2784110)
-
+#base_uri = 'https://discordapp.com/api/v7'
+#bungie_base = ''
+#bungie_getMembershipId_by_bungieName = '/Destiny/[MembershipType]/Stats/GetMembershipIdByDisplayName/[DisplayName]'
+bo1memberMap = getNameToHashMapByClanid(2784110)
+#bo2memberMap = getNameToHashMapByClanid(3373405) 
+#bo3memberMap = getNameToHashMapByClanid(3702604) 
 raiderText = '⁣           Raider       ⁣'
 achText = '⁣        Achievements       ⁣'
 
@@ -53,7 +54,7 @@ class getRoles(BaseCommand):
             username = str(params[0])
         maxName = None
         maxProb = 50
-        for ingameName in memberMap.keys():
+        for ingameName in bo1memberMap.keys():
             uqprob = fuzz.UQRatio(username, ingameName)
             if uqprob > maxProb:
                 maxProb = uqprob
@@ -77,25 +78,28 @@ class getRoles(BaseCommand):
         discordUser = maxUser
         
         async with message.channel.typing():
-            userid = memberMap[steamName]
+            userid = bo1memberMap[steamName]
             roleList = getPlayerRoles(userid)
             await assignRolesToUser(roleList, discordUser, message)
 
 class getAllRoles(BaseCommand):
     def __init__(self):
         # A quick description for the help message
-        description = "gets the roles of a bloodoakplayer by ingameName"
+        description = "gets the roles of a bloodoakplayer by ingameName (only BO1)"
         params = []
         super().__init__(description, params)
 
     # Override the handle() method
     # It will be called every time the command is received
     async def handle(self, params, message, client):
+        BOrole = discord.utils.get(message.guild.roles, name='Bloodoak')
         for discordUser in message.guild.members:
+            if not BOrole in discordUser.roles:
+                continue
             username = discordUser.nick or discordUser.name
             maxName = None
             maxProb = 50
-            for ingameName in memberMap.keys():
+            for ingameName in bo1memberMap.keys():
                 uqprob = fuzz.UQRatio(username, ingameName)
                 if uqprob > maxProb:
                     maxProb = uqprob
@@ -105,6 +109,6 @@ class getAllRoles(BaseCommand):
                 continue
             steamName = maxName
             async with message.channel.typing():
-                userid = memberMap[steamName]
+                userid = bo1memberMap[steamName]
                 roleList = getPlayerRoles(userid)
                 await assignRolesToUser(roleList, discordUser, message)
