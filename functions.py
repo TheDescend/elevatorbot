@@ -155,7 +155,7 @@ def getPlayerRoles(playerid):
                     if roledata['replaced_by'] in roles and role in roles:
                         roles.remove(role)
                         redundantRoles.append(role)
-    return [roles, redundantRoles]
+    return (roles, redundantRoles)
 
 def getNameToHashMapByClanid(clanid):
     requestURL = bungieAPI_URL + "/GroupV2/{}/members/".format(clanid) #bloodoak memberlist
