@@ -15,10 +15,10 @@ writer = pandas.ExcelWriter(path + '\\clanAchievements.xlsx', engine='xlsxwriter
 clanid = 2784110 #Bloodoak I
 
 memberids = getNameToHashMapByClanid(clanid) # memberids['Hali'] is my destinyMembershipID
-temp = {}
-for key in sorted(memberids)[:3]:
-    temp[key] = memberids[key]
-memberids = temp #made smaller for debugging
+# temp = {}
+# for key in sorted(memberids)[:3]:
+#     temp[key] = memberids[key]
+# memberids = temp #made smaller for debugging
 membersystem = dict()
 userRoles = {}
 cur = 0
