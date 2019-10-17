@@ -142,12 +142,16 @@ def playerHasRole(playerid, role, year):
     return True
 
 def getPlayerRoles(playerid):		
-    roles = []	
-    redundantRoles = []	
+    roles = []
+    redundantRoles = []
+    forbidden = []
     for year, yeardata in requirementHashes.items():		
-        for role in yeardata.keys():		
-            if playerHasRole(playerid, role, year):		
+        for role, roledata in yeardata.items():		
+            if playerHasRole(playerid, role, year) and role not in forbidden:
                 roles.append(role)
+            else:
+                if 'replaced_by' in roledata:
+                    forbidden.append(roledata['replaced_by'])
     if True:
         for yeardata in requirementHashes.values():
             for role, roledata in yeardata.items():
