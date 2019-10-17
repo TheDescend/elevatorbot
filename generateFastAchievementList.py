@@ -31,7 +31,7 @@ def main():
             for username, (t1,t2) in zip(sorted(memberids.keys()), executor.map(getPlayerRoles, sorted(memberids.values()))):
                 userRoles[username] = t1 + t2
         rolelist = []
-        for y, yd in requirementHashes.items():
+        for _, yd in requirementHashes.items():
             rolelist += sorted(yd.keys())
         table = {}
         for username in memberids.keys():
@@ -42,8 +42,7 @@ def main():
                     table[username].append('+')
                 else:
                     table[username].append('-')
-        #print(table)
-        #print(rolelist)
+
         df = pandas.DataFrame()
         df = df.from_dict(table, orient='index', columns=rolelist)
         columnlist=df.columns
