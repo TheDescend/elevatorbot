@@ -11,7 +11,7 @@ from commands.getRoles      import getAllRoles
 class AutomaticRoleAssignment(BaseEvent):
 
     def __init__(self):
-        interval_minutes = 1440  # Set the interval for this event
+        interval_minutes = 2  # Set the interval for this event
         super().__init__(interval_minutes)
 
     # Override the run() method

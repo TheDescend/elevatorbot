@@ -110,5 +110,9 @@ class getAllRoles(BaseCommand):
             steamName = maxName
             async with message.channel.typing():
                 userid = bo1memberMap[steamName]
-                roleList = getPlayerRoles(userid)
-                await assignRolesToUser(roleList, discordUser, message)
+                (newRoles, removeRoles) = getPlayerRoles(userid)[0] 
+                await assignRolesToUser(newRoles, discordUser, message)
+                removeRolesObjs = []
+                for role in removeRoles:
+                    discord.utils.get(message.guild.roles, name=role)
+                await discordUser.remove_roles(removeRolesObjs, reason='better role present')
