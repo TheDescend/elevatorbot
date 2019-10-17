@@ -142,7 +142,8 @@ def playerHasRole(playerid, role, year):
     return True
 
 def getPlayerRoles(playerid):		
-    roles = []		
+    roles = []	
+    redundantRoles = []	
     for year, yeardata in requirementHashes.items():		
         for role in yeardata.keys():		
             if playerHasRole(playerid, role, year):		
@@ -151,9 +152,10 @@ def getPlayerRoles(playerid):
         for yeardata in requirementHashes.values():
             for role, roledata in yeardata.items():
                 if 'replaced_by' in roledata.keys():
-                    if roledata['replaced_by'] in roles:
+                    if roledata['replaced_by'] in roles and role in roles:
                         roles.remove(role)
-    return roles
+                        redundantRoles.append(role)
+    return (roles, redundantRoles)
 
 def getNameToHashMapByClanid(clanid):
     requestURL = bungieAPI_URL + "/GroupV2/{}/members/".format(clanid) #bloodoak memberlist

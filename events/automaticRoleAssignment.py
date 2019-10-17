@@ -17,10 +17,7 @@ class AutomaticRoleAssignment(BaseEvent):
     # Override the run() method
     # It will be called once every {interval_minutes} minutes
     async def run(self, client):
-        #print('autorun')
         channel = get_channel(client, "testing")
-        #print(channel)
         lastMessage = await channel.fetch_message(channel.last_message_id)
         await getAllRoles().handle(None,lastMessage,client)
-        #print('roles gotten')
         await channel.send('automatic role-assignment complete')

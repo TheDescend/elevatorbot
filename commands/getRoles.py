@@ -79,7 +79,7 @@ class getRoles(BaseCommand):
         
         async with message.channel.typing():
             userid = bo1memberMap[steamName]
-            roleList = getPlayerRoles(userid)
+            (roleList,_) = getPlayerRoles(userid)
             await assignRolesToUser(roleList, discordUser, message)
 
 class getAllRoles(BaseCommand):
@@ -110,5 +110,11 @@ class getAllRoles(BaseCommand):
             steamName = maxName
             async with message.channel.typing():
                 userid = bo1memberMap[steamName]
-                roleList = getPlayerRoles(userid)
-                await assignRolesToUser(roleList, discordUser, message)
+                (newRoles, removeRoles) = getPlayerRoles(userid)
+                await assignRolesToUser(newRoles, discordUser, message)
+                removeRolesObjs = []
+                for role in removeRoles:
+                    removeRolesObjs.append(discord.utils.get(message.guild.roles, name=role))
+                #print(f'roles removed: {removeRoles}')
+                for rrole in removeRolesObjs:
+                    await discordUser.remove_roles(rrole, reason='better role present')
