@@ -41,6 +41,7 @@ class getRRsteam(BaseCommand):
         PARAMS = {'X-API-Key':config.BUNGIE_TOKEN}
         url = 'https://www.bungie.net/Platform/User/GetMembershipFromHardLinkedCredential/{}/{}/'.format(12,steamID)
         r=requests.get(url=url, headers=PARAMS)
+        print(r.json())
         destinyID = r.json()['Response']['membershipId']
         await message.channel.send('https://raid.report/pc/' + destinyID)
 
