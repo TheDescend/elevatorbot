@@ -1,4 +1,4 @@
-import os, json, pandas, openpyxl, xlsxwriter
+import os, sys, json, pandas, openpyxl, xlsxwriter
 
 import config
 from functions import getNameToHashMapByClanid,getTriumphsJSON, playerHasClears, getClearCount,playerHasFlawless,playerHasCollectible,playerHasTriumph,playerHasRole
@@ -17,13 +17,19 @@ clanid = 2784110 #Bloodoak I
 memberids = getNameToHashMapByClanid(clanid) # memberids['Hali'] is my destinyMembershipID
 membersystem = dict()
 userRoles = {}
-
+cur = 0
 for year,yeardata in requirementHashes.items():
     yearResult = {}
     for username, userid in memberids.items():
+        if username == 'Hali':
+            break
         if not username in userRoles.keys():
             userRoles[username] = []
-        print('Processing user: ' + username + ' with id ' + userid)
+        #print('Processing user: ' + username + ' with id ' + userid)
+        sys.stdout.write(f"\r({100*cur//len(memberids)}%) Processing user {username} with id {userid}" + ' '*20)
+        sys.stdout.flush()
+        if cur < len(memberids):
+            cur += 1
         triumphs = getTriumphsJSON(userid)
         yearResult[username] = {}
         
@@ -66,6 +72,8 @@ for year,yeardata in requirementHashes.items():
                 elif req == 'records':
                     for recordHash in roledata['records']:
                         condition = getNameFromHashRecords[str(recordHash)]
+                        if condition in yearResult[username]:
+                            condition += '_'
                         status = playerHasTriumph(userid, recordHash)
                         yearResult[username][condition] = str(status)
                         rolestatus &= status
@@ -88,27 +96,37 @@ bold = workbook.add_format({'bold': True})
 redBG = workbook.add_format({'bg_color': '#FFC7CE'})
 greenBG = workbook.add_format({'bg_color': '#C6EFCE'})
 
-importantColumns = {
-    'Y1'        : ['A','D','G','J','M','P','W'],
-    'Y2'        : ['A','F', 'M','R','X','AE','AK'],
-    'Y3'        : ['A'],
-    'Addition'  : ['A','C','E','G','I']
-}
+# importantColumns = {
+#     'Y1'        : ['A','D','G','J','M','P','W'],
+#     'Y2'        : ['A','F', 'M','R','X','AE','AK'],
+#     'Y3'        : ['A'],
+#     'Addition'  : ['A','C','E','G','I']
+# }
 
 worksheet = writer.sheets['User Roles']
 worksheet.set_column('A:A', 15, bold)
 worksheet.set_column('B:M', 6, bold)
 
 for year,yeardata in requirementHashes.items():
+    curCol = 0
+    worksheet.set_column(curCol, curCol, 15, bold)
     worksheet = writer.sheets[year + ' Roles']
-    worksheet.set_column('A:AK', 2)
-    for header in worksheet.headers:
-        for role in yeardata:
-            if header == role:
-                worksheet.set_column(header.range, 6, bold) #TODO
+    worksheet.set_column('A:AK', 2, None)
+    for role,roledata in yeardata.items():
+        curCol += 1
+        for reqC, reqData in roledata.items():
+            if reqC == 'flawless':
+                curCol += 1
+                #print('+1 for flawless')
+            elif not reqC == 'requirements' and not reqC == 'replaced_by':
+                curCol += len(reqData)
+                #print(f'+{len(reqData)} for {reqC}')
+                #print(f'req {reqC} has length {len(reqData)} and content {reqData}')
+                #print(f'added req, curCol now {curCol}')
+        
+        worksheet.set_column(curCol, curCol, 15, bold)
+        #print(f'{curCol} is bold.')
 
-    for let in importantColumns[year]:
-        worksheet.set_column(let +':'+let, 15, bold)
     worksheet.conditional_format("A2:ZZ300", {'type': 'text',
                                                 'criteria': 'containing',
                                                 'value': 'False',
