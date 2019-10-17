@@ -10,7 +10,7 @@ jsonByURL = {}
 def getJSONfromURL(requestURL):
     if requestURL in jsonByURL:
         return jsonByURL[requestURL]
-    for _ in range(5):
+    for _ in range(3):
         try:
             r = requests.get(url=requestURL, headers=PARAMS)
         except Exception as e:
@@ -24,7 +24,8 @@ def getJSONfromURL(requestURL):
             #malformated URL, e.g. wrong subsystem for bungie
             return None
         else:
-            print('request for ' + requestURL + ' failed with code ' + str(r.status_code))
+            #print('request for ' + requestURL + ' failed with code ' + str(r.status_code))
+            pass
     return None
 
 getSystemByPlayer = {}
@@ -60,13 +61,21 @@ def getRRLink(bungiePlayerID, system=3):
 
 def playerHasCollectible(playerid, cHash, systemid=3):
     userCollectibles = getComponentInfoAsJSON(playerid, 800)
+    if 'data' not in userCollectibles['Response']['profileCollectibles']:
+        return False
     collectibles = userCollectibles['Response']['profileCollectibles']['data']['collectibles']
     return collectibles[str(cHash)]['state'] == 0
 
 playerActivities = {} #used as cache for getClearCount per player
+nodata = []
 def getClearCount(playerid, activityHash):
+    if playerid in nodata:
+        return 0
     if not playerid in playerActivities.keys():
         profileInfo = getJSONfromRR(playerid)
+        if profileInfo is None:
+            nodata.append(playerid)
+            return -1
         playerActivities[playerid] = profileInfo['response']['activities'] # list of dicts that contain activityHash and values
 
     counter = 0
@@ -87,11 +96,15 @@ def flawlessList(playerid):
 
 def getTriumphsJSON(playerID, system=3):
     achJSON = getComponentInfoAsJSON(playerID, 900)
+    if 'data' not in achJSON['Response']['profileRecords']:
+        return None
     return achJSON['Response']['profileRecords']['data']['records']
 
 def playerHasTriumph(playerid, recordHash):
     status = True
     triumphs = getTriumphsJSON(playerid)
+    if triumphs is None:
+        return False
     if str(recordHash) not in triumphs:
         return False
     for part in triumphs[str(recordHash)]['objectives']:
@@ -142,6 +155,7 @@ def playerHasRole(playerid, role, year):
     return True
 
 def getPlayerRoles(playerid):		
+    print(f'getting roles for {playerid}')
     roles = []
     redundantRoles = []
     forbidden = []
