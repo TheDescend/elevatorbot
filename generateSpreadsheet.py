@@ -1,7 +1,7 @@
 import os, sys, json, pandas, openpyxl, xlsxwriter
 
 import config
-from functions import getNameToHashMapByClanid,getTriumphsJSON, playerHasClears, getClearCount,playerHasFlawless,playerHasCollectible,playerHasTriumph,playerHasRole
+from functions import getNameToHashMapByClanid,getTriumphsJSON, playerHasClears, getClearCount,playerHasFlawless,playerHasCollectible,playerHasTriumph,playerHasRole,getPlayerRoles
 from dict import requirementHashes, getNameFromHashActivity,getNameFromHashCollectible,getNameFromHashRecords
 
 # pylint: disable=W0223
@@ -15,14 +15,16 @@ writer = pandas.ExcelWriter(path + '\\clanAchievements.xlsx', engine='xlsxwriter
 clanid = 2784110 #Bloodoak I
 
 memberids = getNameToHashMapByClanid(clanid) # memberids['Hali'] is my destinyMembershipID
+temp = {}
+for key in sorted(memberids)[:3]:
+    temp[key] = memberids[key]
+memberids = temp #made smaller for debugging
 membersystem = dict()
 userRoles = {}
 cur = 0
 for year,yeardata in requirementHashes.items():
     yearResult = {}
     for username, userid in memberids.items():
-        if username == 'Hali':
-            break
         if not username in userRoles.keys():
             userRoles[username] = []
         #print('Processing user: ' + username + ' with id ' + userid)
@@ -88,6 +90,11 @@ for year,yeardata in requirementHashes.items():
     df = df.transpose()
 
     df.to_excel(writer, sheet_name = year + ' Roles')
+print('generating sheets...')
+actualRoles = {}
+for username, uid in memberids.items():
+    actualRoles[username] = getPlayerRoles(uid)
+userRoles = {u:[rs if rs in actualRoles[u] else '' for rs in userRoles[u]] for u,r in userRoles.items()}
 
 pandas.DataFrame(userRoles).transpose().to_excel(writer, header=None, sheet_name = 'User Roles')
 workbook = writer.book
