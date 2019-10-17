@@ -83,7 +83,7 @@ for year,yeardata in requirementHashes.items():
 
 pandas.DataFrame(userRoles).transpose().to_excel(writer, header=None, sheet_name = 'User Roles')
 workbook = writer.book
-fat = workbook.add_format({'bold': True})
+bold = workbook.add_format({'bold': True})
 
 redBG = workbook.add_format({'bg_color': '#FFC7CE'})
 greenBG = workbook.add_format({'bg_color': '#C6EFCE'})
@@ -96,14 +96,19 @@ importantColumns = {
 }
 
 worksheet = writer.sheets['User Roles']
-worksheet.set_column('A:A', 15, fat)
-worksheet.set_column('B:M', 6, fat)
+worksheet.set_column('A:A', 15, bold)
+worksheet.set_column('B:M', 6, bold)
 
-for year in requirementHashes:
+for year,yeardata in requirementHashes.items():
     worksheet = writer.sheets[year + ' Roles']
     worksheet.set_column('A:AK', 2)
+    for header in worksheet.headers:
+        for role in yeardata:
+            if header == role:
+                worksheet.set_column(header.range, 6, bold) #TODO
+
     for let in importantColumns[year]:
-        worksheet.set_column(let +':'+let, 15, fat)
+        worksheet.set_column(let +':'+let, 15, bold)
     worksheet.conditional_format("A2:ZZ300", {'type': 'text',
                                                 'criteria': 'containing',
                                                 'value': 'False',
