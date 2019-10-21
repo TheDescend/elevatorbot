@@ -1,11 +1,11 @@
 
-import requests
+import requests, config
 
 clanid = '2784110'
 displayName = 'Hali'
 
 baseURL = "https://www.bungie.net/Platform"
-PARAMS = {'X-API-Key':'3743ea53f4014677a36be515239869b3'}
+PARAMS = {'X-API-Key':config.BUNGIE_TOKEN}
 
 def getJSONfromURL(requestURL):
     r=requests.get(url=baseURL + requestURL, headers=PARAMS)
