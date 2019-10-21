@@ -86,6 +86,8 @@ def getClearCount(playerid, activityHash):
 
 def flawlessList(playerid):
     profileInfo = getJSONfromRR(playerid)
+    if profileInfo is None:
+        return []
     activities = profileInfo['response']['activities']
 
     flawlessL = []

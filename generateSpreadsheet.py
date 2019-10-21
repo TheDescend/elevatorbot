@@ -12,7 +12,10 @@ writer = pandas.ExcelWriter(path + '\\clanAchievements.xlsx', engine='xlsxwriter
 
 #print(playerHasRole(4611686018468695677,'Levi Master','Y1'))
 
-clanid = 2784110 #Bloodoak I
+clanid = 3373405 #Bloodoak I
+        # 3373405, #BO2
+        # 3702604, #BO3
+        # 3556786, #Ascend
 
 memberids = getNameToHashMapByClanid(clanid) # memberids['Hali'] is my destinyMembershipID
 # temp = {}
