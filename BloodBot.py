@@ -9,8 +9,6 @@ from events.base_event              import BaseEvent
 from events                         import *
 from multiprocessing                import Process
 
-
-
 # Set to remember if the bot is already running, since on_ready may be called
 # more than once on reconnects
 this = sys.modules[__name__]
@@ -53,6 +51,7 @@ def main():
             n_ev += 1
         sched.start()
         print(f"{n_ev} events loaded", flush=True)
+        print(f"Startup complete!", flush=True)
 
     # The message handler for both new message and edits
     @client.event

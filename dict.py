@@ -1,5 +1,6 @@
 import requests, zipfile, os, pickle, json, sqlite3
 
+
 getNameFromHashRecords = {}
 getNameFromHashActivity= {}
 getNameFromHashCollectible = {}
@@ -15,6 +16,14 @@ scourgeHashes = [548750096]
 lwHashes = [2122313384]
 cosHashes = [3333172150] 
 gosHashes = [3845997235,2659723068]
+
+clanids = [
+    2784110, #Bloodoak I
+    3373405, #BO2
+    3702604, #BO3
+    3702604, #Ascend Kappa
+]
+
 
 requirementHashes = {
     'Y1':{

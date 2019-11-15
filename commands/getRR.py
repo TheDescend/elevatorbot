@@ -1,11 +1,7 @@
 
 from commands.base_command  import BaseCommand
-from utils                  import get_emoji
-from random                 import randint
 from functions              import getNameToHashMapByClanid
 from fuzzywuzzy             import fuzz
-#from fuzzywuzzy             import process
-#from discord                import *
 
 import requests, config
 

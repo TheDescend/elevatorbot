@@ -1,7 +1,9 @@
 import requests
 
 import config
-from dict import platform,requirementHashes
+from dict import platform,requirementHashes, clanids
+from fuzzywuzzy import fuzz
+import discord
 
 bungieAPI_URL = "https://www.bungie.net/Platform"
 PARAMS = {'X-API-Key': config.BUNGIE_TOKEN}
@@ -185,3 +187,43 @@ def getNameToHashMapByClanid(clanid):
     for member in memberlist:
         memberids[member['destinyUserInfo']['LastSeenDisplayName']] = member['destinyUserInfo']['membershipId']
     return memberids
+
+
+def getUserIDbySnowflakeAndClanLookup(discordUser, memberMap):
+        username = discordUser.nick or discordUser.name
+        maxName = None
+        maxProb = 50
+        for ingameName in memberMap.keys():
+            uqprob = fuzz.UQRatio(username, ingameName)
+            if uqprob > maxProb:
+                maxProb = uqprob
+                maxName = ingameName
+        if not maxName:
+            return None
+        steamName = maxName
+        userid = memberMap[steamName]
+        return userid
+
+async def assignRolesToUser(roleList, discordUser, guild):
+    #takes rolelist as string array, userSnowflake, guild object
+    for role in roleList:
+        roleObj = discord.utils.get(guild.roles, name=role)
+        if roleObj is None:
+            continue
+        if roleObj not in discordUser.roles:
+            await discordUser.add_roles(roleObj)
+    
+async def removeRolesFromUser(roleList, discordUser, guild):
+    removeRolesObjs = []
+    for role in roleList:
+        removeRolesObjs.append(discord.utils.get(guild.roles, name=role))
+    for rrole in removeRolesObjs:
+        await discordUser.remove_roles(rrole, reason='better role present')
+
+fullMemberMap = {}
+def getFullMemberMap():
+    if len(fullMemberMap) > 0:
+        return fullMemberMap
+    else:
+        for clan in clanids:
+            fullMemberMap.update(getNameToHashMapByClanid(clan))
