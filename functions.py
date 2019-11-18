@@ -180,7 +180,7 @@ def getPlayerRoles(playerid):
     return (roles, redundantRoles)
 
 def getNameToHashMapByClanid(clanid):
-    requestURL = bungieAPI_URL + "/GroupV2/{}/members/".format(clanid) #bloodoak memberlist
+    requestURL = bungieAPI_URL + "/GroupV2/{}/members/".format(clanid) #memberlist
     memberJSON = getJSONfromURL(requestURL)
     memberlist = memberJSON['Response']['results']
     memberids  = dict()
@@ -209,21 +209,35 @@ async def assignRolesToUser(roleList, discordUser, guild):
     for role in roleList:
         roleObj = discord.utils.get(guild.roles, name=role)
         if roleObj is None:
+            print(f'role doesn\'t exist: {role}')
             continue
         if roleObj not in discordUser.roles:
+            print(f'added role {roleObj.name} to user {discordUser.name}')
             await discordUser.add_roles(roleObj)
     
 async def removeRolesFromUser(roleList, discordUser, guild):
     removeRolesObjs = []
     for role in roleList:
-        removeRolesObjs.append(discord.utils.get(guild.roles, name=role))
-    for rrole in removeRolesObjs:
-        await discordUser.remove_roles(rrole, reason='better role present')
+        roleObj = discord.utils.get(guild.roles, name=role)
+        if roleObj is None:
+            print(f'role doesn\'t exist: {role}')
+            continue
+        removeRolesObjs.append(roleObj)
+    for roleObj in removeRolesObjs:
+        #print(f'removed {roleObj.name} from {discordUser.name}')
+        if roleObj in discordUser.roles:
+            print(f'removed role {roleObj.name} from user {discordUser.name}')
+            await discordUser.remove_roles(roleObj, reason='better role present')
 
 fullMemberMap = {}
 def getFullMemberMap():
     if len(fullMemberMap) > 0:
         return fullMemberMap
     else:
-        for clan in clanids:
-            fullMemberMap.update(getNameToHashMapByClanid(clan))
+        for clanid in clanids:
+            fullMemberMap.update(getNameToHashMapByClanid(clanid))
+
+def isUserInClan(destinyID, clanid):
+    isin = destinyID in getNameToHashMapByClanid(clanid).values()
+    #print(f'{destinyID} is {isin} in {clanid}')
+    return isin
