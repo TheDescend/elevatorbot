@@ -261,10 +261,18 @@ def addUserMap(discordID, destinyID):
 def getUserMap(discordID):
     with open('userlist', mode='r+') as json_file:
         data = json.load(json_file)
-        print(data)
         for user in data:
             for _discordID, _destinyID in user.items():
-                print(f'checking {_discordID} against {discordID}')
                 if str(discordID) == str(_discordID):
                     return _destinyID
         return None 
+
+def getMultipleUserMap(discordIDlist):
+    returnlist = []
+    with open('userlist', mode='r+') as json_file:
+        data = json.load(json_file)
+        for user in data:
+            [[_discordID, _destinyID]] = user.items()
+            if int(_discordID) in discordIDlist:
+                returnlist.append((int(_discordID), int(_destinyID)))
+    return returnlist 

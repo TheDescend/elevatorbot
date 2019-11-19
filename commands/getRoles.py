@@ -1,7 +1,7 @@
 from commands.base_command  import BaseCommand
 
 from functions              import getUserIDbySnowflakeAndClanLookup, getFullMemberMap
-from functions              import getPlayerRoles, assignRolesToUser,removeRolesFromUser
+from functions              import getPlayerRoles, assignRolesToUser,removeRolesFromUser, getUserMap
 from dict                   import requirementHashes, clanids
 
 import discord
@@ -21,10 +21,12 @@ class getRoles(BaseCommand):
     # Override the handle() method
     # It will be called every time the command is received
     async def handle(self, params, message, client):
-        username = message.author.display_name
-        if len(params) == 1:
-            username = str(params[0])
-        
+
+        destinyID = getUserMap(message.author.id)
+        if destinyID:
+            await message.channel.send('https://raid.report/pc/' + destinyID)
+            return
+
         destinyID = getUserIDbySnowflakeAndClanLookup(message.author,fullMemberMap)
         
         async with message.channel.typing():
@@ -39,7 +41,7 @@ class getRoles(BaseCommand):
                     await message.author.add_roles(discord.utils.get(message.guild.roles, name=raiderText))
 
 
-class getAllRoles(BaseCommand):
+class assignAllRoles(BaseCommand):
     def __init__(self):
         # A quick description for the help message
         description = "Assigns everyone the roles they earned"
@@ -49,11 +51,12 @@ class getAllRoles(BaseCommand):
     # Override the handle() method
     # It will be called every time the command is received
     async def handle(self, params, message, client):
-        BOrole = discord.utils.get(message.guild.roles, name='Bloodoak')
         for discordUser in message.guild.members:
-            if not BOrole in discordUser.roles:
-                continue
-            destinyID = getUserIDbySnowflakeAndClanLookup(discordUser,fullMemberMap)
+            
+            destinyID = getUserMap(message.author.id)
+            if not destinyID:
+                destinyID = getUserIDbySnowflakeAndClanLookup(discordUser,fullMemberMap)
+
             async with message.channel.typing():
                 (newRoles, removeRoles) = getPlayerRoles(destinyID)
                 await assignRolesToUser(newRoles, discordUser, message.guild)

@@ -4,6 +4,8 @@ from functions              import getNameToHashMapByClanid
 from fuzzywuzzy             import fuzz
 
 import requests, config
+from functions import getUserMap
+import re
 
 base_uri = 'https://discordapp.com/api/v7'
 memberMap = getNameToHashMapByClanid(2784110)
@@ -48,21 +50,35 @@ class RR(BaseCommand):
         super().__init__(description, params)
 
     async def handle(self, params, message, client):
-        username = message.author.display_name
-        if len(params) == 1:
-            username = str(params[0])
         PARAMS = {'X-API-Key':config.BUNGIE_TOKEN}
+        username = message.author.nick or message.author.name
 
+        if len(params) == 1:
+            mentionregex = re.compile(r'<@([A-Za-z0-9]*)>') 
+            result = mentionregex.search(params[0]) 
+            discordID = None
+            if result.group(1):
+                discordID = int(result.group(1))
+                user = client.get_user(discordID)
+                username = user.nick or user.name
+
+                destinyID = getUserMap(discordID)
+                if destinyID:
+                    await message.channel.send('https://raid.report/pc/' + destinyID)
+                    return
+            else:
+                username = params[0]
+        else:
+            destinyID = getUserMap(message.author.id)
+            if destinyID:
+                await message.channel.send('https://raid.report/pc/' + destinyID)
+                return
 
         maxName = None
         maxProb = 0
         for ingameName in memberMap.keys():
-            #prob = fuzz.ratio(username, ingameName)
             uqprob = fuzz.UQRatio(username, ingameName)
-            #uwprob = fuzz.UWRatio(username, ingameName)
             if uqprob > maxProb:
-                #strng = '{} prob, '.format(prob) + " " + '{} prob, '.format(uqprob) + '{} prob '.format(uwprob)+ username + ' = ' + ingameName
-                #await message.channel.send(strng)
                 maxProb = uqprob
                 maxName = ingameName
         if maxName:
