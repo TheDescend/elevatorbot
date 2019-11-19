@@ -4,6 +4,7 @@ import config
 from dict import platform,requirementHashes, clanids
 from fuzzywuzzy import fuzz
 import discord
+import json
 
 bungieAPI_URL = "https://www.bungie.net/Platform"
 PARAMS = {'X-API-Key': config.BUNGIE_TOKEN}
@@ -241,3 +242,29 @@ def isUserInClan(destinyID, clanid):
     isin = destinyID in getNameToHashMapByClanid(clanid).values()
     #print(f'{destinyID} is {isin} in {clanid}')
     return isin
+
+def addUserMap(discordID, destinyID):
+    check = getUserMap(discordID)
+    if check is not None:
+        print(f'user already registered with id {check}')
+        return
+
+    with open('userlist', mode='r+', encoding='utf-8') as feedsjson:
+        feeds = json.load(feedsjson)
+    entry = {discordID: destinyID}
+    feeds.append(entry)
+    with open('userlist', mode='w', encoding='utf-8') as feedsjson:    
+        json.dump(feeds, feedsjson)
+    print(f'added user {discordID} with id {destinyID}')
+
+#returns destinyID or None
+def getUserMap(discordID):
+    with open('userlist', mode='r+') as json_file:
+        data = json.load(json_file)
+        print(data)
+        for user in data:
+            for _discordID, _destinyID in user.items():
+                print(f'checking {_discordID} against {discordID}')
+                if str(discordID) == str(_discordID):
+                    return _destinyID
+        return None 

@@ -9,6 +9,8 @@ from events.base_event              import BaseEvent
 from events                         import *
 from multiprocessing                import Process
 
+from oauth import start_server
+
 # Set to remember if the bot is already running, since on_ready may be called
 # more than once on reconnects
 this = sys.modules[__name__]
@@ -83,4 +85,10 @@ def main():
 
 
 if __name__ == "__main__":
+    p = Process(target=start_server)
+    p.start()
+    print('server started')
+
     main()
+
+    p.join()
