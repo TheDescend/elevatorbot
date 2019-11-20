@@ -28,7 +28,7 @@ def main():
         t2 = {}
         userRoles = {}
         with concurrent.futures.ProcessPoolExecutor() as executor:
-            for username, (t1,t2) in zip(sorted(memberids.keys()), executor.map(getPlayerRoles, sorted(memberids.values()))):
+            for username, (t1,t2) in zip(memberids.keys(), executor.map(getPlayerRoles, memberids.values())):
                 userRoles[username] = t1 + t2
         rolelist = []
         for _, yd in requirementHashes.items():
