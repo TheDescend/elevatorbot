@@ -11,12 +11,13 @@ bungieAPI_URL = "https://www.bungie.net/Platform"
 PARAMS = {'X-API-Key': config.BUNGIE_TOKEN}
 
 jsonByURL = {}
+session = requests.Session()
 def getJSONfromURL(requestURL):
     if requestURL in jsonByURL:
         return jsonByURL[requestURL]
     for _ in range(3):
         try:
-            r = requests.get(url=requestURL, headers=PARAMS)
+            r = session.get(url=requestURL, headers=PARAMS)
         except Exception as e:
             print('Exception was caught: ' + repr(e))
             continue

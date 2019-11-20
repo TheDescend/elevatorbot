@@ -10,7 +10,7 @@ def db_connect(db_path=DEFAULT_PATH):
     con = sqlite3.connect(db_path)
     return con
 
-def insertUser(discordID, destinyID,discordServerID):
+def insertUser(discordID, destinyID, discordServerID):
     con = db_connect()
     product_sql = """INSERT INTO discordGuardians 
         (discordSnowflake, destinyID,signupDate,serverID) 
@@ -27,6 +27,13 @@ def lookupUser(discordID):
     con = db_connect()
     getUser = """SELECT destinyID FROM discordGuardians
         WHERE discordSnowflake = ?"""
-    return con.execute(getUser, (discordID,))[0] or None
+    result = con.execute(getUser, (discordID,)).fetchone() or [None]
+    return result[0]
 
+def printall():
+    con = db_connect()
+    getAll = """SELECT * FROM discordGuardians"""
+    for row in con.execute(getAll).fetchall():
+        print(row)
+#printall()
 ##table discordGuardians(discordSnowflake, destinyID,signupDate, serverID)
