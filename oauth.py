@@ -21,7 +21,7 @@ def shutdown_server():
 def result():
     response = request.args
     code = response['code'] #for user auth
-    discordID = response['state'] #mine
+    (discordID,serverID) = response['state'].split(':') #mine
 
     url = 'https://www.bungie.net/platform/app/oauth/token/'
     headers = {'content-type': 'application/x-www-form-urlencoded'}
@@ -44,7 +44,7 @@ def result():
     response = r.json()['Response']
     membershiplist = response['destinyMemberships']
     for membership in membershiplist:
-        addUserMap(discordID, membership['membershipId'])
+        addUserMap(int(discordID), int(membership['membershipId']), int(serverID))
     return 'Thank you for signing up with <h1> HALI CORP </h1> !' # response to your request.
 
 def start_server():

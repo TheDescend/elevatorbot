@@ -5,6 +5,7 @@ from dict import platform,requirementHashes, clanids
 from fuzzywuzzy import fuzz
 import discord
 import json
+from database import insertUser, lookupUser
 
 bungieAPI_URL = "https://www.bungie.net/Platform"
 PARAMS = {'X-API-Key': config.BUNGIE_TOKEN}
@@ -243,36 +244,20 @@ def isUserInClan(destinyID, clanid):
     #print(f'{destinyID} is {isin} in {clanid}')
     return isin
 
-def addUserMap(discordID, destinyID):
-    check = getUserMap(discordID)
-    if check is not None:
-        print(f'user already registered with id {check}')
-        return
-
-    with open('userlist', mode='r+', encoding='utf-8') as feedsjson:
-        feeds = json.load(feedsjson)
-    entry = {discordID: destinyID}
-    feeds.append(entry)
-    with open('userlist', mode='w', encoding='utf-8') as feedsjson:    
-        json.dump(feeds, feedsjson)
-    print(f'added user {discordID} with id {destinyID}')
+def addUserMap(discordID, destinyID, serverID):
+    if not insertUser(discordID, destinyID, serverID):
+        print(f'User with id {discordID} already exists')
 
 #returns destinyID or None
 def getUserMap(discordID):
-    with open('userlist', mode='r+') as json_file:
-        data = json.load(json_file)
-        for user in data:
-            for _discordID, _destinyID in user.items():
-                if str(discordID) == str(_discordID):
-                    return _destinyID
-        return None 
+    return lookupUser(discordID)
 
-def getMultipleUserMap(discordIDlist):
-    returnlist = []
-    with open('userlist', mode='r+') as json_file:
-        data = json.load(json_file)
-        for user in data:
-            [[_discordID, _destinyID]] = user.items()
-            if int(_discordID) in discordIDlist:
-                returnlist.append((int(_discordID), int(_destinyID)))
-    return returnlist 
+# def getMultipleUserMap(discordIDlist):
+#     returnlist = []
+#     with open('userlist', mode='r+') as json_file:
+#         data = json.load(json_file)
+#         for user in data:
+#             [[_discordID, _destinyID]] = user.items()
+#             if int(_discordID) in discordIDlist:
+#                 returnlist.append((int(_discordID), int(_destinyID)))
+#     return returnlist 

@@ -13,7 +13,8 @@ class registerBO(BaseCommand):
     # Override the handle() method
     # It will be called every time the command is received
     async def handle(self, params, message, client):
-        URL = f'https://www.bungie.net/en/oauth/authorize?client_id={BUNGIE_OAUTH}&response_type=code&state={message.author.id}'
+        state = str(message.author.id) + ':' + str(message.guild.id)
+        URL = f'https://www.bungie.net/en/oauth/authorize?client_id={BUNGIE_OAUTH}&response_type=code&state={state}'
         await message.author.send(f'Open this link, to register with the bot: {URL}')
         await message.channel.send(f'sent dm to {message.author.nick or message.author.name}')
 
