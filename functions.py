@@ -7,18 +7,29 @@ import discord
 import json
 from database import insertUser, lookupUser
 import time
+import logging
+import http.client
+
+http.client.HTTPConnection.debuglevel = 1
+logging.basicConfig()
+logging.getLogger().setLevel(logging.DEBUG)
+req_log = logging.getLogger('requests.packages.urllib3')
+req_log.setLevel(logging.DEBUG)
+req_log.propagate = True
 
 bungieAPI_URL = "https://www.bungie.net/Platform"
 PARAMS = {'X-API-Key': config.BUNGIE_TOKEN}
 
 jsonByURL = {}
+session = requests.Session()
 def getJSONfromURL(requestURL):
+    print(jsonByURL) #TODO
     if requestURL in jsonByURL:
         return jsonByURL[requestURL]
     for _ in range(3):
         try:
             starttime = time.time()
-            r = requests.get(url=requestURL, headers=PARAMS)
+            r = session.get(url=requestURL, headers=PARAMS)
             print(f'request to {requestURL} took {time.time()-starttime}s')
         except Exception as e:
             print('Exception was caught: ' + repr(e))

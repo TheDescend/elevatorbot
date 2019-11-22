@@ -2,11 +2,12 @@ from commands.base_command  import BaseCommand
 import os
 from config import BUNGIE_OAUTH
 from functions import getUserMap
+from database import insertUser
 
 class registerBO(BaseCommand):
     def __init__(self):
         # A quick description for the help message
-        description = "register with hali-bot"
+        description = "register with BOB"
         params = []
         super().__init__(description, params)
 
@@ -30,3 +31,16 @@ class checkregister(BaseCommand):
     # It will be called every time the command is received
     async def handle(self, params, message, client):
         await message.channel.send(f'User {message.author.nick or message.author.name} has ID {getUserMap(message.author.id)}')
+
+class forceregister(BaseCommand):
+    def __init__(self):
+        # A quick description for the help message
+        description = "dev function to insert to db"
+        params = ['dicordID', 'destinyID']
+        super().__init__(description, params)
+
+    # Override the handle() method
+    # It will be called every time the command is received
+    async def handle(self, params, message, client):
+        insertUser(params[0], params[1], message.guild.id)
+        

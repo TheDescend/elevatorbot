@@ -1,7 +1,7 @@
 
 from commands.base_command import BaseCommand
 import discord
-from functions import getMultipleUserMap
+from functions import getUserMap
 import requests, config
 
 class updateNames(BaseCommand):
@@ -18,21 +18,49 @@ class updateNames(BaseCommand):
             await message.channel.send('You are not an Admin, sorry')
             return
 
-        memberlist = message.guild.members
-        memberidlist = [member.id for member in memberlist]
-        mappedUsers = getMultipleUserMap(memberidlist)
+        memberlist = sorted(message.guild.members, key=lambda x: x.id)
+        ziplist = [(member,member.id) for member in memberlist]
+        #mappedUsers = zip(memberlist, map(getUserMap, idlist))
+        #memberzip = zip(memberlist,idlist)
+        # for (member,id) in ziplist:
+        #     print(member.name,'-',id)
+        #print(idlist)
+        # print(memberlist)
+        #print(mappedUsers)
+        ziplist = [(member, getUserMap(memberid)) for (member, memberid) in ziplist]
+        
+        #print(ziplist)
 
-
-        for (discID, destID) in mappedUsers:
-            discUser = message.guild.get_member(discID)
+        for (discUser, destID) in ziplist:
+            #print(f'checking {discUser.name} with {destID}')
+            if destID is None:
+                continue
             url = 'https://www.bungie.net/platform/User/GetMembershipsById/{}/{}/'.format(destID,3)
             r=requests.get(url=url, headers=PARAMS)
-            membership = r.json()['Response']['destinyMemberships'][0]
+            memberships = r.json()['Response']['destinyMemberships']
+            membership = None
+            if memberships[0]['crossSaveOverride'] and memberships[0]['crossSaveOverride'] != memberships[0]['membershipType']:
+                newtype = memberships[0]['crossSaveOverride']
+                for memship in memberships:
+                    print(memship)
+                    if memship['membershipType'] == newtype:
+                        print(f'found other type for {discUser.name}')
+                        membership = memship
+                        break
+            else:
+                membership = memberships[0]
+            if not membership:
+                print(f'failed for {discUser.name}')
+                continue
             newNick = membership['LastSeenDisplayName']
-            await discUser.edit(nick=newNick)
-            print(f'set {discUser.name}\'s nickname to {newNick}')
-            memberlist.remove(discUser)
-        await message.channel.send(f'following people didn\'t have it linked and weren\'t updated:\n{" ,".join([member.name for member in memberlist])} ')
+            try:
+                await discUser.edit(nick=newNick)
+                print(f'set {discUser.id}:{discUser.name}\'s nickname to {newNick}')
+                memberlist.remove(discUser)
+            except discord.Forbidden as e:
+                await message.channel.send(f'failed {newNick} -> {discUser.nick}: {e}')
+
+        await message.channel.send(f'following people didn\'t have it linked and weren\'t updated:\n{", ".join([member.name for member in memberlist])} ')
         
         
 
