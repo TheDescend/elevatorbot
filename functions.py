@@ -29,7 +29,7 @@ def getJSONfromURL(requestURL):
     for _ in range(3):
         try:
             starttime = time.time()
-            r = session.get(url=requestURL, headers=PARAMS)
+            r = session.get(url=requestURL, headers=PARAMS, timeout=(0.5,1))
             print(f'request to {requestURL} took {time.time()-starttime}s')
         except Exception as e:
             print('Exception was caught: ' + repr(e))
