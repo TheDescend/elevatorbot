@@ -22,17 +22,17 @@ class updateNames(BaseCommand):
         ziplist = [(member,member.id) for member in memberlist]
         #mappedUsers = zip(memberlist, map(getUserMap, idlist))
         #memberzip = zip(memberlist,idlist)
-        for (member,id) in ziplist:
-            print(member.name,'-',id)
+        #for (member,id) in ziplist:
+        #    print(member.name,'-',id)
         #print(idlist)
-        print(memberlist)
+        #print(memberlist)
         #print(mappedUsers)
         ziplist = [(member, getUserMap(memberid)) for (member, memberid) in ziplist]
         
-        print(ziplist)
+        #print(ziplist)
 
         for (discUser, destID) in ziplist:
-            print(f'checking {discUser.name} with {destID}')
+            #print(f'checking {discUser.name} with {destID}')
             if destID is None:
                 continue
             url = 'https://www.bungie.net/platform/User/GetMembershipsById/{}/{}/'.format(destID,3)
