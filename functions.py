@@ -6,6 +6,7 @@ from fuzzywuzzy import fuzz
 import discord
 import json
 from database import insertUser, lookupUser
+import time
 
 bungieAPI_URL = "https://www.bungie.net/Platform"
 PARAMS = {'X-API-Key': config.BUNGIE_TOKEN}
@@ -16,7 +17,9 @@ def getJSONfromURL(requestURL):
         return jsonByURL[requestURL]
     for _ in range(3):
         try:
+            starttime = time.time()
             r = requests.get(url=requestURL, headers=PARAMS)
+            print(f'request to {requestURL} took {time.time()-starttime}s')
         except Exception as e:
             print('Exception was caught: ' + repr(e))
             continue
@@ -28,8 +31,8 @@ def getJSONfromURL(requestURL):
             #malformated URL, e.g. wrong subsystem for bungie
             return None
         else:
-            #print('request for ' + requestURL + ' failed with code ' + str(r.status_code))
-            pass
+            print('failed with code ' + str(r.status_code) + (', because servers are busy' if r.json()['ErrorCode']==1672 else ''))
+    print('request failed 3 times') 
     return None
 
 getSystemByPlayer = {}
@@ -184,6 +187,8 @@ def getPlayerRoles(playerid):
 def getNameToHashMapByClanid(clanid):
     requestURL = bungieAPI_URL + "/GroupV2/{}/members/".format(clanid) #memberlist
     memberJSON = getJSONfromURL(requestURL)
+    if not memberJSON:
+        return {}
     memberlist = memberJSON['Response']['results']
     memberids  = dict()
     for member in memberlist:
