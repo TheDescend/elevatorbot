@@ -6,6 +6,17 @@ from fuzzywuzzy import fuzz
 import discord
 import json
 from database import insertUser, lookupUser
+import time
+import logging
+import http.client
+
+if False:
+    http.client.HTTPConnection.debuglevel = 1
+    logging.basicConfig()
+    logging.getLogger().setLevel(logging.DEBUG)
+    req_log = logging.getLogger('requests.packages.urllib3')
+    req_log.setLevel(logging.DEBUG)
+    req_log.propagate = True
 
 bungieAPI_URL = "https://www.bungie.net/Platform"
 PARAMS = {'X-API-Key': config.BUNGIE_TOKEN}
@@ -13,6 +24,7 @@ PARAMS = {'X-API-Key': config.BUNGIE_TOKEN}
 jsonByURL = {}
 session = requests.Session()
 def getJSONfromURL(requestURL):
+    #print(jsonByURL) #TODO
     if requestURL in jsonByURL:
         return jsonByURL[requestURL]
     for _ in range(3):
@@ -29,8 +41,8 @@ def getJSONfromURL(requestURL):
             #malformated URL, e.g. wrong subsystem for bungie
             return None
         else:
-            #print('request for ' + requestURL + ' failed with code ' + str(r.status_code))
-            pass
+            print('failed with code ' + str(r.status_code) + (', because servers are busy' if ('ErrorCode' in r.json() and r.json()['ErrorCode']==1672) else ''))
+    print('request failed 3 times') 
     return None
 
 getSystemByPlayer = {}
@@ -163,6 +175,7 @@ def playerHasRole(playerid, role, year):
 
 def getPlayerRoles(playerid):		
     print(f'getting roles for {playerid}')
+    #starttime = time.time()
     roles = []
     redundantRoles = []
     forbidden = []
@@ -180,11 +193,15 @@ def getPlayerRoles(playerid):
                     if roledata['replaced_by'] in roles and role in roles:
                         roles.remove(role)
                         redundantRoles.append(role)
+    
+    #print(f'getting Roles took {time.time()-starttime}s')
     return (roles, redundantRoles)
 
 def getNameToHashMapByClanid(clanid):
     requestURL = bungieAPI_URL + "/GroupV2/{}/members/".format(clanid) #memberlist
     memberJSON = getJSONfromURL(requestURL)
+    if not memberJSON:
+        return {}
     memberlist = memberJSON['Response']['results']
     memberids  = dict()
     for member in memberlist:

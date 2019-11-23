@@ -21,11 +21,6 @@ class updateNames(BaseCommand):
         memberlist = sorted(message.guild.members, key=lambda x: x.id)
         ziplist = [(member,member.id) for member in memberlist]
         #mappedUsers = zip(memberlist, map(getUserMap, idlist))
-        #memberzip = zip(memberlist,idlist)
-        #for (member,id) in ziplist:
-        #    print(member.name,'-',id)
-        #print(idlist)
-        #print(memberlist)
         #print(mappedUsers)
         ziplist = [(member, getUserMap(memberid)) for (member, memberid) in ziplist]
         
