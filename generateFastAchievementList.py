@@ -1,47 +1,36 @@
-import os, sys, json, pandas, openpyxl, xlsxwriter
+#library imports
+import os, pandas, xlsxwriter
 import pandas.io.formats.excel
-import config
-from functions import getNameToHashMapByClanid,getTriumphsJSON, playerHasClears, getClearCount,playerHasFlawless,playerHasCollectible,playerHasTriumph,playerHasRole,getPlayerRoles
-from dict import requirementHashes, getNameFromHashActivity,getNameFromHashCollectible,getNameFromHashRecords
-
 import concurrent.futures
-# pylint: disable=W0223
-# pylint: disable=abstract-class-instantiated
+
+#selfdefined imports
+from functions import getNameToHashMapByClanid,getPlayerRoles
+from dict import requirementHashes, clanids
+
 
 def main():
+    #defining where and how to save the excel file
     path = os.path.dirname(os.path.abspath(__file__))
-    writer = pandas.ExcelWriter(path + '\\clanAchievementsShort.xlsx', engine='xlsxwriter') # pylint: disable=W0223
+    writer = pandas.ExcelWriter(path + '\\clanAchievementsShort.xlsx', engine='xlsxwriter')
 
-    #print(playerHasRole(4611686018468695677,'Levi Master','Y1'))
-
-    clanids = [
-        2784110, #Bloodoak I
-        3373405, #BO2
-        3702604, #BO3
-        3556786, #Ascend
-    ]
-
-    clannames = [
-        'BO I',
-        'BO II',
-        'BO III',
-        'Ascend'
-    ]
-
-    for clanid in clanids:
-        memberids = getNameToHashMapByClanid(clanid) # memberids['Hali'] is my destinyMembershipID
-        #memberids = {'Hali':4611686018468695677,'Neria':4611686018484825875,'Skeptic':4611686018467605174}
-        t1 = {}
-        t2 = {}
+    #generating a statssheet for every clan in dict.clanids
+    for clanid, clanname in clanids.items():
+        memberids = getNameToHashMapByClanid(clanid)
         userRoles = {}
+        #Collects all roles in parallel
         with concurrent.futures.ProcessPoolExecutor() as executor:
-            print('collecting data...')
+            print(f'collecting data for {clanname}...')
             for username, (t1,t2) in zip(memberids.keys(), executor.map(getPlayerRoles, memberids.values())):
+                #assigns user list of dominant + superseded roles (we want to see everything)
                 userRoles[username] = t1 + t2
-            print('done collecting, processing...')
+            print(f'done collecting for {clanname}')
+
+        #list of all possible roles (defined in dict.requirementHashes)
         rolelist = []
         for _, yd in requirementHashes.items():
             rolelist += sorted(yd.keys())
+
+        #generates the output table with user-to-earnedRoles mapping
         table = {}
         for username in memberids.keys():
             table[username] = []
@@ -51,34 +40,36 @@ def main():
                 else:
                     table[username].append('-')
 
+        #turns table into an excel
         df = pandas.DataFrame()
-        df = df.from_dict(table, orient='index', columns=rolelist)
-        columnlist=df.columns
-        sheetname = clannames[clanids.index(clanid)]+ ' Roles'
+        df = df.from_dict(table, orient='index')
+        
+        sheetname = clanname + ' Roles'
         df.to_excel(writer, header=False, startrow=1, sheet_name = sheetname)
         workbook  = writer.book
         worksheet = writer.sheets[sheetname]
-        for idx, val in enumerate(columnlist):
+        for idx, val in enumerate(rolelist):
             worksheet.write(0, idx+1, val)
+
     print('generating sheets...')
-
-
-    #workbook = xlsxwriter.Workbook(path + '\\clanAchievementsShort.xlsx')
-
 
     workbook = writer.book
 
+    #creating red/green background
     redBG = workbook.add_format({'bg_color': '#FFC7CE'})
     greenBG = workbook.add_format({'bg_color': '#C6EFCE'})
 
+    #setting up vertical column headers
     verticalRole = workbook.add_format({'bold': True, 'rotation': 90})
-    #verticalRole.set_rotation(90)
 
-    for _, worksheet in writer.sheets.items():
+    for worksheet in writer.sheets.values():
+        #setting column rotation and widths
         worksheet.set_landscape()
         worksheet.set_row(0, None, verticalRole)
         worksheet.set_column(0, 0, 10)
         worksheet.set_column(1, 100, 3)
+
+        #marking owned roles (+) green and unowned (-) red, adapts to manual changes
         worksheet.conditional_format("A2:DZ125", {'type': 'text',
                                                     'criteria': 'containing',
                                                     'value': '-',
@@ -91,6 +82,7 @@ def main():
 
     print('excel file created')
 
+#this should only get executed if it's the initially called file
 if __name__ == '__main__':
     main()
 

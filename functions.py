@@ -176,9 +176,9 @@ def playerHasRole(playerid, role, year):
                     return False
     return True
 
+#returns (roles, redundantroles)
 def getPlayerRoles(playerid):		
     print(f'getting roles for {playerid}')
-    #starttime = time.time()
     roles = []
     redundantRoles = []
     forbidden = []
@@ -189,13 +189,13 @@ def getPlayerRoles(playerid):
             else:
                 if 'replaced_by' in roledata:
                     forbidden.append(roledata['replaced_by'])
-    if True:
-        for yeardata in requirementHashes.values():
-            for role, roledata in yeardata.items():
-                if 'replaced_by' in roledata.keys():
-                    if roledata['replaced_by'] in roles and role in roles:
-                        roles.remove(role)
-                        redundantRoles.append(role)
+
+    for yeardata in requirementHashes.values():
+        for role, roledata in yeardata.items():
+            if 'replaced_by' in roledata.keys():
+                if roledata['replaced_by'] in roles and role in roles:
+                    roles.remove(role)
+                    redundantRoles.append(role)
     
     #print(f'getting Roles took {time.time()-starttime}s')
     return (roles, redundantRoles)
