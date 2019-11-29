@@ -40,6 +40,9 @@ def getJSONfromURL(requestURL):
         elif r.status_code == 400:
             #malformated URL, e.g. wrong subsystem for bungie
             return None
+        elif r.status_code == 404:
+            print('no stats found')
+            return None
         else:
             print('failed with code ' + str(r.status_code) + (', because servers are busy' if ('ErrorCode' in r.json() and r.json()['ErrorCode']==1672) else ''))
     print('request failed 3 times') 
