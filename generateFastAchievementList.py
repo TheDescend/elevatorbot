@@ -54,9 +54,10 @@ def main():
         df = pandas.DataFrame()
         df = df.from_dict(table, orient='index', columns=rolelist)
         columnlist=df.columns
-        df.to_excel(writer, header=False, startrow=1, sheet_name = clannames[clanids.index(clanid)]+ ' Roles')
+        sheetname = clannames[clanids.index(clanid)]+ ' Roles'
+        df.to_excel(writer, header=False, startrow=1, sheet_name = sheetname)
         workbook  = writer.book
-        worksheet = writer.sheets[str(clanid) + ' Roles']
+        worksheet = writer.sheets[sheetname]
         for idx, val in enumerate(columnlist):
             worksheet.write(0, idx+1, val)
     print('generating sheets...')
