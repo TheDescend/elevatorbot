@@ -8,10 +8,11 @@ from functions import getNameToHashMapByClanid,getPlayerRoles
 from dict import requirementHashes, clanids
 
 
-def main():
+def createSheet():
     #defining where and how to save the excel file
     path = os.path.dirname(os.path.abspath(__file__))
-    writer = pandas.ExcelWriter(path + '\\clanAchievementsShort.xlsx', engine='xlsxwriter')
+    path += '\\clanAchievementsShort.xlsx'
+    writer = pandas.ExcelWriter(path, engine='xlsxwriter')
 
     #generating a statssheet for every clan in dict.clanids
     for clanid, clanname in clanids.items():
@@ -39,10 +40,12 @@ def main():
                     table[username].append('+')
                 else:
                     table[username].append('-')
+        
 
         #turns table into an excel
         df = pandas.DataFrame()
         df = df.from_dict(table, orient='index')
+        df.sort_index(inplace=True)
         
         sheetname = clanname + ' Roles'
         df.to_excel(writer, header=False, startrow=1, sheet_name = sheetname)
@@ -81,8 +84,9 @@ def main():
     writer.save()
 
     print('excel file created')
+    return path
 
 #this should only get executed if it's the initially called file
 if __name__ == '__main__':
-    main()
+    createSheet()
 

@@ -14,7 +14,7 @@ fullMemberMap = getFullMemberMap()
 class getRoles(BaseCommand):
     def __init__(self):
         # A quick description for the help message
-        description = "gets the roles of a you"
+        description = "lists all the roles you earned"
         params = []
         super().__init__(description, params)
 
@@ -23,11 +23,9 @@ class getRoles(BaseCommand):
     async def handle(self, params, message, client):
 
         destinyID = getUserMap(message.author.id)
-        if destinyID:
-            await message.channel.send('https://raid.report/pc/' + destinyID)
+        if not destinyID:
+            await message.channel.send('please sign up using !registerbo')
             return
-
-        destinyID = getUserIDbySnowflakeAndClanLookup(message.author,fullMemberMap)
         
         async with message.channel.typing():
             (roleList,removeRoles) = getPlayerRoles(destinyID)
@@ -39,6 +37,7 @@ class getRoles(BaseCommand):
                     await message.author.add_roles(discord.utils.get(message.guild.roles, name=achText))
                 else:
                     await message.author.add_roles(discord.utils.get(message.guild.roles, name=raiderText))
+            await message.channel.send(f'you have the roles {", ".join(roleList)}')
 
 
 class assignAllRoles(BaseCommand):
