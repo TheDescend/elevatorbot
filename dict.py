@@ -19,10 +19,10 @@ cosHashes = [3333172150]
 gosHashes = [3845997235,2659723068]
 
 clanids = {    
-    # 2784110 : 'Bloodoak', #Bloodoak I
-    # 3373405 : 'Bloodoak II', #BO2
-    # 3702604 : 'Bloodoak III', #BO3
-    # 3964751 : 'Bloodoak IV', #BO4
+    2784110 : 'Bloodoak', #Bloodoak I
+    3373405 : 'Bloodoak II', #BO2
+    3702604 : 'Bloodoak III', #BO3
+    3964751 : 'Bloodoak IV', #BO4
     3556786 : 'Ascend', #Ascend Kappa
 }
 
