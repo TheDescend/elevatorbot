@@ -42,5 +42,7 @@ class forceregister(BaseCommand):
     # Override the handle() method
     # It will be called every time the command is received
     async def handle(self, params, message, client):
-        insertUser(params[0], params[1], message.guild.id)
+        if message.author.id == 171650677607497730:
+            insertUser(params[0], params[1], message.guild.id)
+            print('inserted ', params[0],':', params[1])
         

@@ -41,6 +41,26 @@ class getRoles(BaseCommand):
                     await message.author.add_roles(discord.utils.get(message.guild.roles, name=raiderText))
 
 
+class checkNames(BaseCommand):
+    def __init__(self):
+        # A quick description for the help message
+        description = "check name mappings"
+        params = []
+        super().__init__(description, params)
+
+    # Override the handle() method
+    # It will be called every time the command is received
+    async def handle(self, params, message, client):
+        for discordUser in message.guild.members:
+            destinyID = None
+            destinyID = getUserMap(discordUser.id)
+            if destinyID:
+                await message.channel.send(f'{discordUser.name} ({discordUser.nick}): https://raid.report/pc/{destinyID}')
+                continue
+            destinyID = getUserIDbySnowflakeAndClanLookup(discordUser,fullMemberMap)
+            await message.channel.send(f'{discordUser.name} ({discordUser.nick}): https://raid.report/pc/{destinyID}')
+
+
 class assignAllRoles(BaseCommand):
     def __init__(self):
         # A quick description for the help message
@@ -53,7 +73,7 @@ class assignAllRoles(BaseCommand):
     async def handle(self, params, message, client):
         for discordUser in message.guild.members:
             
-            destinyID = getUserMap(message.author.id)
+            destinyID = getUserMap(discordUser.id)
             if not destinyID:
                 destinyID = getUserIDbySnowflakeAndClanLookup(discordUser,fullMemberMap)
 

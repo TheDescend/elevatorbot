@@ -212,7 +212,7 @@ def getNameToHashMapByClanid(clanid):
 def getUserIDbySnowflakeAndClanLookup(discordUser, memberMap):
         username = discordUser.nick or discordUser.name
         maxName = None
-        maxProb = 50
+        maxProb = 40
         for ingameName in memberMap.keys():
             uqprob = fuzz.UQRatio(username, ingameName)
             if uqprob > maxProb:

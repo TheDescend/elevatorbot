@@ -45,6 +45,7 @@ def result():
     membershiplist = response['destinyMemberships']
     for membership in membershiplist:
         addUserMap(int(discordID), int(membership['membershipId']), int(serverID))
+        print(discordID, ' has ID ', membership['membershipId'])
     return 'Thank you for signing up with <h1> HALI CORP </h1> !' # response to your request.
 
 def start_server():

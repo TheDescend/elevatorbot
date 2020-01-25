@@ -23,6 +23,7 @@ clanids = {
     3702604 : 'Bloodoak III', #BO3
     3964751 : 'Bloodoak IV', #BO4
     3556786 : 'Ascend', #Ascend Kappa
+    4107840 : 'The Descend'
 }
 
 

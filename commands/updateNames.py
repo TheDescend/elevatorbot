@@ -14,7 +14,7 @@ class updateNames(BaseCommand):
     async def handle(self, params, message, client):
         PARAMS = {'X-API-Key':config.BUNGIE_TOKEN}
         roleObj = discord.utils.get(message.guild.roles, name='Admins') or discord.utils.get(message.guild.roles, name='Admin')
-        if not roleObj or roleObj not in message.author.roles:
+        if (not roleObj or roleObj not in message.author.roles) and message.author.id != 171650677607497730:
             await message.channel.send('You are not an Admin, sorry')
             return
 
@@ -53,7 +53,7 @@ class updateNames(BaseCommand):
                 print(f'set {discUser.id}:{discUser.name}\'s nickname to {newNick}')
                 memberlist.remove(discUser)
             except discord.Forbidden as e:
-                await message.channel.send(f'failed {newNick} -> {discUser.nick}: {e}')
+                print(f'failed {newNick} -> {discUser.nick}: {e}')
 
         await message.channel.send(f'following people didn\'t have it linked and weren\'t updated:\n{", ".join([member.name for member in memberlist])} ')
         

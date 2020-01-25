@@ -18,8 +18,10 @@ memberids = dict()
 for member in memberlist:
     memberids[member['destinyUserInfo']['LastSeenDisplayName']] = member['destinyUserInfo']['membershipId']
 
-# memberids['Hali'] is my destinyMembershipID
-# uses lastSeenDisplayName
 
 bungieID = memberids[displayName]
-print(bungieID)
+requestURL2 = f"/User/GetMembershipsById/{bungieID}/3/"
+haliJSON = getJSONfromURL(requestURL2)
+membershiplist = haliJSON['Response']['destinyMemberships']
+steamid = membershiplist[0]['membershipId']
+print(steamid)
