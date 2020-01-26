@@ -1,7 +1,7 @@
 from events.base_event      import BaseEvent
 
 from functions import getUserIDbySnowflakeAndClanLookup, assignRolesToUser, removeRolesFromUser
-from functions import isUserInClan, getPlayerRoles, getFullMemberMap, getUserMap
+from functions import isUserInClan, getPlayerRoles, getFullMemberMap, getUserMap, getIDfromBungie
 
 from dict import clanids
 
@@ -19,10 +19,14 @@ class AutomaticRoleAssignment(BaseEvent):
         print('running role analysis')
         for guild in client.guilds:
             for discordUser in guild.members:
-
                 destinyID = getUserMap(discordUser.id)
                 if not destinyID:
                     destinyID = getUserIDbySnowflakeAndClanLookup(discordUser,fullMemberMap)
+                    newtonslab = client.get_channel(670637036641845258)
+                    pcid = getIDfromBungie(destinyID)
+                    if newtonslab:
+                        await newtonslab.send(f'''Hi! User {discordUser.name} aka {discordUser.nick} was not found in my database!\n 
+                        If his rr is https://raid.report/pc/{pcid} please use ```!forceregister {discordUser.id} {pcid}```''')
 
                 if not destinyID:
                     print(f'failed for user {discordUser.name}')

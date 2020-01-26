@@ -176,7 +176,7 @@ requirementHashes = {
         }
  },
     'Y3':{
-        'Garden': {
+        'Garden of Salvation': {
             'requirements': ['clears','records'],
             'clears':[
                 {'count' : 15,
@@ -188,9 +188,9 @@ requirementHashes = {
                 1661612473, #To the Top
                 3167166053, #Zero to One Hundred
             ],
-            'replaced_by':'Garden Master'
+            'replaced_by':'Garden of Salvation Master'
        },
-        'Garden Master': {
+        'Garden of Salvation Master': {
             'requirements': ['clears','records'],
             'clears': [
                 {'count' : 30,

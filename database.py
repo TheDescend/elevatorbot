@@ -23,6 +23,18 @@ def insertUser(discordID, destinyID, discordServerID):
     except sqlite3.IntegrityError:
         return False
 
+def removeUser(discordID):
+    con = db_connect()
+    product_sql = """DELETE FROM discordGuardians 
+        WHERE discordSnowflake = ? """
+
+    try:
+        with con:
+            con.execute(product_sql, (discordID,))
+            return True
+    except sqlite3.IntegrityError:
+        return False
+
 def lookupUser(discordID):
     con = db_connect()
     getUser = """SELECT destinyID FROM discordGuardians

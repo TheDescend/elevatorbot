@@ -39,7 +39,7 @@ def createSheet():
         workbook  = writer.book
         worksheet = writer.sheets[str(clanid) + ' Roles']
         for idx, val in enumerate(columnlist):
-            worksheet.write(0, idx, val)
+            worksheet.write(0, idx+1, val)
     print('generating sheets...')
 
     workbook = writer.book

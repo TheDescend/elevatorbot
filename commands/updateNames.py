@@ -7,15 +7,15 @@ import requests, config
 class updateNames(BaseCommand):
 
     def __init__(self):
-        description = "Updates all names [Admins role only]"
+        description = "[dev] Updates all names [Admins role only]"
         params = None
         super().__init__(description, params)
 
     async def handle(self, params, message, client):
         PARAMS = {'X-API-Key':config.BUNGIE_TOKEN}
-        roleObj = discord.utils.get(message.guild.roles, name='Admins') or discord.utils.get(message.guild.roles, name='Admin')
-        if (not roleObj or roleObj not in message.author.roles) and message.author.id != 171650677607497730:
-            await message.channel.send('You are not an Admin, sorry')
+        admin = discord.utils.get(message.guild.roles, name='Admin')
+        dev = discord.utils.get(message.guild.roles, name='Developer') 
+        if admin not in message.author.roles and dev not in message.author.roles:
             return
 
         memberlist = sorted(message.guild.members, key=lambda x: x.id)

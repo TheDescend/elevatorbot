@@ -14,13 +14,10 @@ fullMemberMap = getFullMemberMap()
 class getID(BaseCommand):
     def __init__(self):
         # A quick description for the help message
-        description = "gets destinyID from charley"
+        description = "[dev] gets destinyID from charley"
         params = ['discordID'] 
         super().__init__(description, params)
 
-
-    
-        
     # Override the handle() method
     # It will be called every time the command is received
     async def handle(self, params, message, client):

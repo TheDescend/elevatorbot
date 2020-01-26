@@ -64,21 +64,31 @@ def getJSONfromRR(playerID):
     requestURL = 'https://b9bv2wd97h.execute-api.us-west-2.amazonaws.com/prod/api/player/{}'.format(playerID)
     return getJSONfromURL(requestURL)
 
-def getIDfromBungie(bungiePlayerID, system):
-    url = 'https://www.bungie.net/platform/User/GetMembershipsById/{}/{}/'.format(bungiePlayerID,system)
-    r=requests.get(url=url, headers=PARAMS)
-    memberships = r.json()['Response']['destinyMemberships']
-    for membership in memberships:
-        if membership['membershipType'] == 3:
-            return membership['membershipId']
-
+def getIDfromBungie(bungiePlayerID, system=None):
+    if system:
+        url = 'https://www.bungie.net/platform/User/GetMembershipsById/{}/{}/'.format(bungiePlayerID,system)
+        r=requests.get(url=url, headers=PARAMS)
+        memberships = r.json()['Response']['destinyMemberships']
+        for membership in memberships:
+            if membership['membershipType'] == 3:
+                return membership['membershipId']
+    else:
+        for systemid in [3,2,1,4,5,10,254]:
+            url = 'https://www.bungie.net/platform/User/GetMembershipsById/{}/{}/'.format(bungiePlayerID,systemid)
+            resp = getJSONfromURL(url)
+            if not resp:
+                continue
+            memberships = resp['Response']['destinyMemberships']
+            for membership in memberships:
+                if membership['membershipType'] == 3:
+                    return membership['membershipId']
 def getRRLink(bungiePlayerID, system=3):
     print('https://raid.report/pc/' +getIDfromBungie(bungiePlayerID, system))
 
 
 def playerHasCollectible(playerid, cHash, systemid=3):
     userCollectibles = getComponentInfoAsJSON(playerid, 800)
-    if 'data' not in userCollectibles['Response']['profileCollectibles']:
+    if not userCollectibles or 'data' not in userCollectibles['Response']['profileCollectibles']:
         return False
     collectibles = userCollectibles['Response']['profileCollectibles']['data']['collectibles']
     return collectibles[str(cHash)]['state'] == 0
@@ -212,7 +222,7 @@ def getNameToHashMapByClanid(clanid):
 def getUserIDbySnowflakeAndClanLookup(discordUser, memberMap):
         username = discordUser.nick or discordUser.name
         maxName = None
-        maxProb = 40
+        maxProb = 50
         for ingameName in memberMap.keys():
             uqprob = fuzz.UQRatio(username, ingameName)
             if uqprob > maxProb:
@@ -222,6 +232,9 @@ def getUserIDbySnowflakeAndClanLookup(discordUser, memberMap):
             return None
         steamName = maxName
         userid = memberMap[steamName]
+        if maxProb > 70:
+            insertUser(discordUser.id, userid, -1)
+            print(f'Inserted {discordUser.nick or discordUser.name} because match with {userid} was >70%')
         return userid
 
 async def assignRolesToUser(roleList, discordUser, guild):
@@ -259,7 +272,7 @@ def getFullMemberMap():
 
 def isUserInClan(destinyID, clanid):
     isin = destinyID in getNameToHashMapByClanid(clanid).values()
-    #print(f'{destinyID} is {isin} in {clanid}')
+    print(f'{destinyID} is {isin} in {clanid}')
     return isin
 
 def addUserMap(discordID, destinyID, serverID):
