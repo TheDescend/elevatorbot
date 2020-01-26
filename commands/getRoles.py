@@ -16,9 +16,6 @@ class getRoles(BaseCommand):
         # A quick description for the help message
 <<<<<<< HEAD
         description = "Assigns you all the roles you've earned"
-=======
-        description = "lists all the roles you earned"
->>>>>>> 08badc0b0ea658b616d946315067dc05956aee2e
         params = []
         super().__init__(description, params)
 
