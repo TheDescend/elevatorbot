@@ -1,6 +1,6 @@
 from commands.base_command  import BaseCommand
 from io import open
-from Spreadsheet2 import createSheet
+from generateFastAchievementList import createSheet
 
 import os
 from discord import File
@@ -22,6 +22,7 @@ class getSheet(BaseCommand):
     # Override the handle() method
     # It will be called every time the command is received
     async def handle(self, params, message, client):
+<<<<<<< HEAD
         admin = discord.utils.get(message.guild.roles, name='Admin')
         dev = discord.utils.get(message.guild.roles, name='Developer') 
         discordID = params[0]
@@ -30,17 +31,26 @@ class getSheet(BaseCommand):
             return
 
         if time.time() - self.lastupdate < 86400:
+=======
+        #generating sheet at max every 12 hours
+        if (time.time() - self.lastupdate) < 86400.0:
+>>>>>>> 08badc0b0ea658b616d946315067dc05956aee2e
+            if self.sheetpath is not None:
+                f = File(open(self.sheetpath,'rb'),'AchievementSheet.xlsx')
+                await message.channel.send('Recently generated one, take this instead')
+                await message.channel.send(file=f)
+                return
+            print('couldn\'t find old sheet, even though it should exist')
+
+        #tell the user it's processing and create sheet
+        await message.channel.send('This is gonna take a loooooooong time')
+        async with message.channel.typing():
+            self.sheetpath = createSheet()
             if self.sheetpath is not None:
                 f = File(open(self.sheetpath,'rb'),'AchievementSheet.xlsx')
                 await message.channel.send(file=f)
-                return
-
-        async with message.channel.typing():
-            await message.channel.send('This is gonna take a loooooooong time')
-            sheetpath = createSheet()
-            if sheetpath is not None:
-                f = File(open(sheetpath,'rb'),'AchievementSheet.xlsx')
-                await message.channel.send(file=f)
-            await message.channel.send('There you go! Thanks for waiting')
-            self.lastupdate = time.time()
+                await message.channel.send('There you go! Thanks for waiting')
+                self.lastupdate = time.time()
+            else:
+                await message.channel.send('Something went wrong')
 

@@ -8,3 +8,7 @@ __pycache__/
 test.py
 .gitignore
 userlist
+Lib/
+tcl/
+Include/
+Scripts/

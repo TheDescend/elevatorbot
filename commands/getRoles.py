@@ -14,7 +14,11 @@ fullMemberMap = getFullMemberMap()
 class getRoles(BaseCommand):
     def __init__(self):
         # A quick description for the help message
+<<<<<<< HEAD
         description = "Assigns you all the roles you've earned"
+=======
+        description = "lists all the roles you earned"
+>>>>>>> 08badc0b0ea658b616d946315067dc05956aee2e
         params = []
         super().__init__(description, params)
 
@@ -24,7 +28,12 @@ class getRoles(BaseCommand):
 
         destinyID = getUserMap(message.author.id)
         if not destinyID:
+<<<<<<< HEAD
             destinyID = getUserIDbySnowflakeAndClanLookup(message.author,fullMemberMap)
+=======
+            await message.channel.send('please sign up using !registerbo')
+            return
+>>>>>>> 08badc0b0ea658b616d946315067dc05956aee2e
         
         async with message.channel.typing():
             (roleList,removeRoles) = getPlayerRoles(destinyID)
@@ -36,6 +45,7 @@ class getRoles(BaseCommand):
                     await message.author.add_roles(discord.utils.get(message.guild.roles, name=achText))
                 else:
                     await message.author.add_roles(discord.utils.get(message.guild.roles, name=raiderText))
+<<<<<<< HEAD
             rolesgiven = ', '.join(roleList)
             await message.channel.send(f'Added the roles {rolesgiven} to user {message.author.mention}')
 
@@ -114,6 +124,9 @@ class listDescend(BaseCommand):
                 for (user, userid) in zip(namearr,idarr):
                     if dID == userid:
                         await message.channel.send(f'{user} : {userid}')
+=======
+            await message.channel.send(f'you have the roles {", ".join(roleList)}')
+>>>>>>> 08badc0b0ea658b616d946315067dc05956aee2e
 
 
 class assignAllRoles(BaseCommand):

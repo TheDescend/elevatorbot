@@ -10,7 +10,8 @@ spirePHashes = [3213556450]
 spireHashes = [119944200]
 eaterPHashes = [809170886]
 eaterHashes = [3089205900]
-leviHashes = [2693136600,2693136601,2693136602,2693136603,2693136604,2693136605] #there's like 12 of each
+#there is a hash for each levi-rotation and one for each possible prestige modifier
+leviHashes = [2693136600,2693136601,2693136602,2693136603,2693136604,2693136605] 
 leviPHashes = [417231112,508802457,757116822, 771164842, 1685065161, 1800508819, 2449714930,3446541099,3857338478,3879860661, 3912437239,4206123728]
 scourgeHashes = [548750096] 
 lwHashes = [2122313384]
@@ -25,7 +26,6 @@ clanids = {
     3556786 : 'Ascend', #Ascend Kappa
     4107840 : 'The Descend'
 }
-
 
 requirementHashes = {
     'Y1':{
