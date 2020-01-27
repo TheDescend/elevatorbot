@@ -55,7 +55,11 @@ class removeAllRoles(BaseCommand):
         if admin not in message.author.roles and dev not in message.author.roles and not message.author.id == params[0]:
             await message.channel.send('You are not allowed to do that')
             return
-        await removeRolesFromUser(removeRoles, client.get_user(discordID), message.guild)
+        roles = []
+        for yeardata in requirementHashes.values():		
+            for role in yeardata.keys():
+                roles.append(role)		        
+        await removeRolesFromUser(roles, client.get_user(discordID), message.guild)
 
 class checkNames(BaseCommand):
     def __init__(self):
@@ -98,7 +102,7 @@ class listDescend(BaseCommand):
             for discordUser in message.guild.members:
                 destinyID = getUserMap(discordUser.id)
                 if not destinyID:
-                    destinyID = getUserIDbySnowflakeAndClanLookup(discordUser,nameidmap)
+                    destinyID = int(getUserIDbySnowflakeAndClanLookup(discordUser,nameidmap))
                 if not destinyID:
                     continue
                 if destinyID in idarr:

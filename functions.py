@@ -176,12 +176,13 @@ playerpastraidscache = {}
 def getPlayersPastRaids(destinyID):
     if str(destinyID) in playerpastraidscache.keys():
         return playerpastraidscache[str(destinyID)]
-    charURL = "https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/?components=100,200".format(3, destinyID)
+    charURL = "https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/?components=100,200"
     characterinfo = None
-    for i in [3,2,1,4,5,10,254]:
-        characterinfo = getJSONfromURL(charURL.format(i, destinyID))
+    platform = None
+    for system in [3,2,1,4,5,10,254]:
+        characterinfo = getJSONfromURL(charURL.format(system, destinyID))
         if characterinfo:
-            platform = i
+            platform = system
             break
     charIDs = characterinfo['Response']['characters']['data'].keys()
     activitylist = []
@@ -238,6 +239,7 @@ def playerHasRole(playerid, role, year):
 
 #print(playerHasRole(4611686018467544385, 'Two-Man Argos', 'Addition'))
 
+
 #returns (roles, redundantroles)
 def getPlayerRoles(playerid):
     print(f'getting roles for {playerid}')
@@ -245,12 +247,9 @@ def getPlayerRoles(playerid):
     redundantRoles = []
     forbidden = []
     for year, yeardata in requirementHashes.items():		
-        for role, roledata in yeardata.items():		
+        for role, roledata in yeardata.items():
             if playerHasRole(playerid, role, year) and role not in forbidden:
                 roles.append(role)
-            else:
-                if 'replaced_by' in roledata:
-                    forbidden += roledata['replaced_by']
 
     for yeardata in requirementHashes.values():
         for role, roledata in yeardata.items():
@@ -273,7 +272,6 @@ def getNameToHashMapByClanid(clanid):
     for member in memberlist:
         memberids[member['destinyUserInfo']['LastSeenDisplayName']] = member['destinyUserInfo']['membershipId']
     return memberids
-
 
 def getUserIDbySnowflakeAndClanLookup(discordUser, memberMap):
         username = discordUser.nick or discordUser.name
@@ -304,9 +302,9 @@ async def assignRolesToUser(roleList, discordUser, guild):
             print(f'added role {roleObj.name} to user {discordUser.name}')
             await discordUser.add_roles(roleObj)
     
-async def removeRolesFromUser(roleList, discordUser, guild):
+async def removeRolesFromUser(roleStringList, discordUser, guild):
     removeRolesObjs = []
-    for role in roleList:
+    for role in roleStringList:
         roleObj = discord.utils.get(guild.roles, name=role)
         if roleObj is None:
             print(f'role doesn\'t exist: {role}')
