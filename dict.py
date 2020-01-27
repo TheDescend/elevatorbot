@@ -37,7 +37,7 @@ requirementHashes = {
                 {'count' : 2,
                 'actHashes' : spirePHashes} #prestige 
             ],
-            'replaced_by': 'Spire of Stars Master'
+            'replaced_by': ['Spire of Stars Master']
         },
         'Spire of Stars Master': {
             'requirements': ['clears','flawless'],
@@ -55,7 +55,7 @@ requirementHashes = {
                 {'count' : 2,
                 'actHashes' : eaterPHashes} #prestige
             ],
-            'replaced_by':'Eater of Worlds Master'
+            'replaced_by':['Eater of Worlds Master']
         },
         'Eater of Worlds Master': {
             'requirements': ['clears','flawless'],
@@ -73,7 +73,7 @@ requirementHashes = {
                 {'count' : 2,
                 'actHashes' : leviPHashes} #prestige
             ],
-            'replaced_by': 'Leviathan Master'
+            'replaced_by': ['Leviathan Master']
         },
         'Leviathan Master': {
             'requirements': ['clears','flawless','collectibles'],
@@ -102,7 +102,7 @@ requirementHashes = {
                 1575460003,    #Total Victory
                 1575460002,    #With Both Hands
            ],
-           'replaced_by': 'Crown of Sorrow Master'
+           'replaced_by': ['Crown of Sorrow Master']
        },
         'Crown of Sorrow Master': {
             'requirements': ['clears','records'],
@@ -129,7 +129,7 @@ requirementHashes = {
                 1804999028,    #Hold the Line
                 4162926221,    #To Each Their Own
             ],
-            'replaced_by':'Scourge of the Past Master'
+            'replaced_by':['Scourge of the Past Master']
         },
         'Scourge of the Past Master': {
             'requirements': ['clears','records'],
@@ -158,7 +158,7 @@ requirementHashes = {
                 149192209,     #Keep Out
                 3899933775    #Strength of Memory
             ],
-            'replaced_by':'Last Wish Master'
+            'replaced_by':['Last Wish Master']
         },
         'Last Wish Master': {
             'requirements': ['clears','records'],
@@ -188,7 +188,7 @@ requirementHashes = {
                 1661612473, #To the Top
                 3167166053, #Zero to One Hundred
             ],
-            'replaced_by':'Garden of Salvation Master'
+            'replaced_by':['Garden of Salvation Master']
        },
         'Garden of Salvation Master': {
             'requirements': ['clears','records'],
@@ -223,15 +223,32 @@ requirementHashes = {
             'records': [
                 2029263931, #Flawless Shattered Throne
             ],
-            'replaced_by':'Solo Flawless Shattered Throne'
+            'replaced_by':['Solo Flawless Shattered Throne']
         },
         'Solo Shattered Throne': {
             'requirements': ['records'],
             'records': [
                 851701008, #Solo Shattered Throne
             ],
-            'replaced_by':'Solo Flawless Shattered Throne'
-        }
+            'replaced_by':['Solo Flawless Shattered Throne']
+        },
+        'Three-Man Argos': {
+            'requirements': ['lowman'],
+            'playercount' : 3,
+            'activityHashes': eaterHashes + eaterPHashes,
+            'replaced_by': ['Solo Argos', 'Two-Man Argos'],
+         },
+        'Two-Man Argos': {
+            'requirements': ['lowman'],
+            'playercount' : 2,
+            'activityHashes': eaterHashes + eaterPHashes,
+            'replaced_by': ['Solo Argos'],
+         },
+        'Solo Argos': {
+            'requirements': ['lowman'],
+            'playercount' : 1,
+            'activityHashes': eaterHashes + eaterPHashes,
+         }
         #'Name': {
         #    'requirements': ['collectibles'],
         #    'collectibles': [

@@ -43,6 +43,9 @@ def getJSONfromURL(requestURL):
         elif r.status_code == 404:
             print('no stats found')
             return None
+        elif r.status_code == 500:
+            #print(r.content)
+            return None
         else:
             print('failed with code ' + str(r.status_code) + (', because servers are busy' if ('ErrorCode' in r.json() and r.json()['ErrorCode']==1672) else ''))
     print('request failed 3 times') 
@@ -96,6 +99,15 @@ def playerHasCollectible(playerid, cHash, systemid=3):
     collectibles = userCollectibles['Response']['profileCollectibles']['data']['collectibles']
     return collectibles[str(cHash)]['state'] == 0
 
+# def printInventoryItem(chash=1057119308, playerid=4611686018451177627):#spire star
+#     userCollectibles = getComponentInfoAsJSON(playerid, 800)
+#     if not userCollectibles or 'data' not in userCollectibles['Response']['profileCollectibles']:
+#         return False
+#     collectibles = userCollectibles['Response']['profileCollectibles']['data']['collectibles']
+#     return collectibles[str(chash)]
+#print(printCollectible())
+
+
 playerActivities = {} #used as cache for getClearCount per player
 nodata = []
 def getClearCount(playerid, activityHash):
@@ -107,12 +119,15 @@ def getClearCount(playerid, activityHash):
             nodata.append(playerid)
             return -1
         playerActivities[playerid] = profileInfo['response']['activities'] # list of dicts that contain activityHash and values
-
+        #print(playerActivities)
     counter = 0
     for activityInfo in playerActivities[playerid]:
         if activityInfo['activityHash'] == activityHash:
             counter += activityInfo['values']['fullClears']
     return counter
+
+#print(getClearCount(4611686018451177627, 119944200))
+    
 
 def flawlessList(playerid):
     profileInfo = getJSONfromRR(playerid)
@@ -157,11 +172,34 @@ def playerHasFlawless(playerid, raidHashes):
             return True
     return False
 
+playerpastraidscache = {}
+def getPlayersPastRaids(destinyID):
+    if str(destinyID) in playerpastraidscache.keys():
+        return playerpastraidscache[str(destinyID)]
+    charURL = "https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/?components=100,200".format(3, destinyID)
+    characterinfo = None
+    for i in [3,2,1,4,5,10,254]:
+        characterinfo = getJSONfromURL(charURL.format(i, destinyID))
+        if characterinfo:
+            platform = i
+            break
+    charIDs = characterinfo['Response']['characters']['data'].keys()
+    activitylist = []
+    for characterID in charIDs:
+        for pagenr in range(100):
+            staturl = f"https://www.bungie.net/Platform/Destiny2/{platform}/Account/{destinyID}/Character/{characterID}/Stats/Activities/?mode=4&count=250&page={pagenr}" #mode=4 for raids
+            rep = getJSONfromURL(staturl)
+            if not rep:
+                break
+            activitylist.append(rep['Response'])
+    playerpastraidscache[str(destinyID)] = activitylist
+    return activitylist
+
 def playerHasRole(playerid, role, year):
     roledata = requirementHashes[year][role]
     if not 'requirements' in roledata:
         print('malformatted requirementHashes')
-        return None
+        return False
     for req in roledata['requirements']:
         if req == 'clears':
             creq = roledata['clears']
@@ -184,10 +222,24 @@ def playerHasRole(playerid, role, year):
                 if not playerHasTriumph(playerid, recordHash):
                     #print('failed triumph: ' + str(recordHash))
                     return False
+        elif req == 'lowman':
+            for activitylist in getPlayersPastRaids(playerid):
+                if 'activities' not in activitylist.keys():
+                    continue
+                for activity in activitylist['activities']:
+                    hasCompleted = activity['values']['completed']['basic']['value'] == 1
+                    playercount = activity['values']['playerCount']['basic']['value']
+                    activityhash = activity['activityDetails']['directorActivityHash']
+                    #print(hasCompleted, ' and ', playercount == roledata['playercount'], ' and ', activityhash, activityhash in roledata['activityHashes'])
+                    if hasCompleted and playercount == roledata['playercount'] and activityhash in roledata['activityHashes']:
+                        return True
+            return False
     return True
 
+#print(playerHasRole(4611686018467544385, 'Two-Man Argos', 'Addition'))
+
 #returns (roles, redundantroles)
-def getPlayerRoles(playerid):		
+def getPlayerRoles(playerid):
     print(f'getting roles for {playerid}')
     roles = []
     redundantRoles = []
@@ -198,14 +250,15 @@ def getPlayerRoles(playerid):
                 roles.append(role)
             else:
                 if 'replaced_by' in roledata:
-                    forbidden.append(roledata['replaced_by'])
+                    forbidden += roledata['replaced_by']
 
     for yeardata in requirementHashes.values():
         for role, roledata in yeardata.items():
             if 'replaced_by' in roledata.keys():
-                if roledata['replaced_by'] in roles and role in roles:
-                    roles.remove(role)
-                    redundantRoles.append(role)
+                for superior in roledata['replaced_by']:
+                    if superior in roles and role in roles:
+                        roles.remove(role)
+                        redundantRoles.append(role)
     
     #print(f'getting Roles took {time.time()-starttime}s')
     return (roles, redundantRoles)

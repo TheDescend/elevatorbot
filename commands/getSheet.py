@@ -22,7 +22,6 @@ class getSheet(BaseCommand):
     # Override the handle() method
     # It will be called every time the command is received
     async def handle(self, params, message, client):
-<<<<<<< HEAD
         admin = discord.utils.get(message.guild.roles, name='Admin')
         dev = discord.utils.get(message.guild.roles, name='Developer') 
         discordID = params[0]
@@ -31,10 +30,6 @@ class getSheet(BaseCommand):
             return
 
         if time.time() - self.lastupdate < 86400:
-=======
-        #generating sheet at max every 12 hours
-        if (time.time() - self.lastupdate) < 86400.0:
->>>>>>> 08badc0b0ea658b616d946315067dc05956aee2e
             if self.sheetpath is not None:
                 f = File(open(self.sheetpath,'rb'),'AchievementSheet.xlsx')
                 await message.channel.send('Recently generated one, take this instead')
