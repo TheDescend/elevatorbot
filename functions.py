@@ -235,9 +235,13 @@ def playerHasRole(playerid, role, year):
                     if hasCompleted and playercount == roledata['playercount'] and activityhash in roledata['activityHashes']:
                         return True
             return False
+        elif req == 'roles':
+            return False
     return True
 
 #print(playerHasRole(4611686018467544385, 'Two-Man Argos', 'Addition'))
+
+
 
 
 #returns (roles, redundantroles)
@@ -259,6 +263,22 @@ def getPlayerRoles(playerid):
                         roles.remove(role)
                         redundantRoles.append(role)
     
+    for yeardata in requirementHashes.values():
+        for role, roledata in yeardata.items():
+            if 'Raid Master' in role:
+                worthy = True
+                reqs = roledata['roles']
+                for reqrole in reqs:
+                    if reqrole not in roles:
+                        worthy = False
+                if worthy:
+                    print('worthy for ', role)
+                    roles.append(role)
+                    for reqrole in reqs:
+                        roles.remove(reqrole)
+                        redundantRoles.append(reqrole)
+
+
     #print(f'getting Roles took {time.time()-starttime}s')
     return (roles, redundantRoles)
 

@@ -36,6 +36,9 @@ class getRoles(BaseCommand):
                 else:
                     await message.author.add_roles(discord.utils.get(message.guild.roles, name=raiderText))
             rolesgiven = ', '.join(roleList)
+            if len(rolesgiven) == 0:
+                await message.channel.send(f'Please get some roles first, smile')
+                return
             await message.channel.send(f'Added the roles {rolesgiven} to user {message.author.mention}')
 
 #improvable TODO
@@ -58,8 +61,8 @@ class removeAllRoles(BaseCommand):
         roles = []
         for yeardata in requirementHashes.values():		
             for role in yeardata.keys():
-                roles.append(role)		        
-        await removeRolesFromUser(roles, client.get_user(discordID), message.guild)
+                roles.append(role)
+        await removeRolesFromUser(roles, client.get_user(int(discordID)), message.guild)
 
 class checkNames(BaseCommand):
     def __init__(self):

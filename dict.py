@@ -88,6 +88,14 @@ requirementHashes = {
                 1766893935, #two enter, one leaves
                 1766893934  #take the throne
             ]
+        },
+        'Y1 Raid Master': {
+            'requirements': ['roles'],
+            'roles':[
+                'Spire of Stars Master',
+                'Eater of Worlds Master',
+                'Leviathan Master'
+            ]
         }
     },
     'Y2':{
@@ -172,6 +180,14 @@ requirementHashes = {
                 567795114,     #The New Meta [Same Class]
                 1373122528,    #Night Owl :Void:
                 2398356743    #Sunburn :Solar:
+            ]
+        },
+        'Y2 Raid Master': {
+            'requirements': ['roles'],
+            'roles':[
+                'Last Wish Master',
+                'Scourge of the Past Master',
+                'Crown of Sorrow Master'
             ]
         }
  },
