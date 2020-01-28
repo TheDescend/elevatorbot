@@ -9,6 +9,7 @@ from database import insertUser, lookupUser
 import time
 import logging
 import http.client
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 if False:
     http.client.HTTPConnection.debuglevel = 1
@@ -26,6 +27,7 @@ session = requests.Session()
 def getJSONfromURL(requestURL):
     #print(jsonByURL) #TODO
     if requestURL in jsonByURL:
+        print('chache hit')
         return jsonByURL[requestURL]
     for _ in range(3):
         try:
@@ -36,7 +38,9 @@ def getJSONfromURL(requestURL):
 
         if r.status_code == 200:
             jsonByURL[requestURL] = r.json()
-            return r.json()
+            returnval = r.json()
+            r.content = r.content + r.content
+            return 
         elif r.status_code == 400:
             #malformated URL, e.g. wrong subsystem for bungie
             return None
@@ -44,7 +48,10 @@ def getJSONfromURL(requestURL):
             print('no stats found')
             return None
         elif r.status_code == 500:
-            #print(r.content)
+            print('bad request')
+            return None
+        elif r.status_code == 503:
+            print('bungo is ded')
             return None
         else:
             print('failed with code ' + str(r.status_code) + (', because servers are busy' if ('ErrorCode' in r.json() and r.json()['ErrorCode']==1672) else ''))
@@ -143,6 +150,8 @@ def flawlessList(playerid):
 
 def getTriumphsJSON(playerID, system=3):
     achJSON = getComponentInfoAsJSON(playerID, 900)
+    if not achJSON:
+        return None
     if 'data' not in achJSON['Response']['profileRecords']:
         return None
     return achJSON['Response']['profileRecords']['data']['records']
@@ -172,10 +181,8 @@ def playerHasFlawless(playerid, raidHashes):
             return True
     return False
 
-playerpastraidscache = {}
+
 def getPlayersPastRaids(destinyID):
-    if str(destinyID) in playerpastraidscache.keys():
-        return playerpastraidscache[str(destinyID)]
     charURL = "https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/?components=100,200"
     characterinfo = None
     platform = None
@@ -240,20 +247,27 @@ def playerHasRole(playerid, role, year):
     return True
 
 #print(playerHasRole(4611686018467544385, 'Two-Man Argos', 'Addition'))
+def returnIfHasRoles(playerid, role, year):
+    if playerHasRole(playerid, role, year):
+        return role
+    return None
 
-
-
-
-#returns (roles, redundantroles)
-def getPlayerRoles(playerid):
+def getPlayerRoles(playerid, existingRoles = []):
     print(f'getting roles for {playerid}')
     roles = []
     redundantRoles = []
-    forbidden = []
-    for year, yeardata in requirementHashes.items():		
-        for role, roledata in yeardata.items():
-            if playerHasRole(playerid, role, year) and role not in forbidden:
-                roles.append(role)
+    with ThreadPoolExecutor(max_workers=30) as executor:
+        processes = []
+        for year, yeardata in requirementHashes.items():		
+            for role, roledata in yeardata.items():
+                if role in existingRoles:
+                    roles.append(role)
+                    continue
+                processes.append(executor.submit(returnIfHasRoles, playerid, role, year))
+
+    for task in as_completed(processes):
+        if task.result():
+            roles.append(task.result())
 
     for yeardata in requirementHashes.values():
         for role, roledata in yeardata.items():
@@ -343,6 +357,7 @@ def getFullMemberMap():
     else:
         for clanid in clanids:
             fullMemberMap.update(getNameToHashMapByClanid(clanid))
+        return fullMemberMap
 
 def isUserInClan(destinyID, clanid):
     isin = destinyID in getNameToHashMapByClanid(clanid).values()

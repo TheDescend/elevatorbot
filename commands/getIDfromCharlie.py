@@ -1,7 +1,7 @@
 from commands.base_command  import BaseCommand
 
 from functions              import getUserIDbySnowflakeAndClanLookup, getFullMemberMap
-from functions              import getPlayerRoles, assignRolesToUser,removeRolesFromUser, getUserMap
+from functions              import assignRolesToUser,removeRolesFromUser, getUserMap
 from dict                   import requirementHashes, clanids
 
 import discord

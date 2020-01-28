@@ -20,9 +20,9 @@ gosHashes = [3845997235,2659723068]
 
 clanids = {    
     2784110 : 'Bloodoak', #Bloodoak I
-    3373405 : 'Bloodoak II', #BO2
-    3702604 : 'Bloodoak III', #BO3
-    3964751 : 'Bloodoak IV', #BO4
+#    3373405 : 'Bloodoak II', #BO2
+#    3702604 : 'Bloodoak III', #BO3
+#    3964751 : 'Bloodoak IV', #BO4
     3556786 : 'Ascend', #Ascend Kappa
     4107840 : 'The Descend'
 }
@@ -228,6 +228,7 @@ requirementHashes = {
                 3531075476, #Armory Forged Shell
             ]
         },
+
         'Solo Flawless Shattered Throne': {
             'requirements': ['records'],
              'records': [
@@ -248,6 +249,38 @@ requirementHashes = {
             ],
             'replaced_by':['Solo Flawless Shattered Throne']
         },
+
+        'The Other Side': {
+            'requirements': ['records'],
+            'records': [
+                807845972, #Only the essentials
+            ]
+        },
+
+        'Solo Flawless Pit of Heresy': {
+            'requirements': ['records'],
+            'records': {
+                2615277024, #Savior of the Deep
+            },
+            
+        },
+        'Solo Pit of Heresy': {
+            'requirements': ['records'],
+            'records': {
+                376114010 , #Usurper
+            },
+            'replaced_by':['Solo Flawless Pit of Heresy']
+        },
+        'Flawless Pit of Heresy': {
+            'requirements': ['records'],
+            'records': {
+                3279886460 , #Eternal Heretic
+            },
+            'replaced_by':['Solo Flawless Pit of Heresy']
+        },
+
+        #lowmans
+
         'Three-Man Argos': {
             'requirements': ['lowman'],
             'playercount' : 3,
@@ -264,7 +297,46 @@ requirementHashes = {
             'requirements': ['lowman'],
             'playercount' : 1,
             'activityHashes': eaterHashes + eaterPHashes,
-         }
+         },
+        'Three-Man Insurrection': {
+            'requirements': ['lowman'],
+            'playercount' : 3,
+            'activityHashes': scourgeHashes,
+            'replaced_by': ['Two-Man Insurrection'],
+         },
+        'Two-Man Insurrection': {
+            'requirements': ['lowman'],
+            'playercount' : 2,
+            'activityHashes': scourgeHashes,
+         },
+         'Three-Man Queenswalk': {
+            'requirements': ['lowman'],
+            'playercount' : 3,
+            'activityHashes': lwHashes,
+            'replaced_by': ['Two-Man Queenswalk'],
+         },
+         'Two-Man Queenswalk': {
+            'requirements': ['lowman'],
+            'playercount' : 2,
+            'activityHashes': lwHashes,
+         },
+         'Two-Man Calus': {
+            'requirements': ['lowman'],
+            'playercount' : 2,
+            'activityHashes': leviHashes + leviPHashes,
+         },
+         'Three-Man Gahlran': {
+            'requirements': ['lowman'],
+            'playercount' : 3,
+            'activityHashes': cosHashes,
+            'replaced_by': ['Two-Man Gahlran'],
+         },
+         'Two-Man Gahlran': {
+            'requirements': ['lowman'],
+            'playercount' : 2,
+            'activityHashes': cosHashes,
+         },
+
         #'Name': {
         #    'requirements': ['collectibles'],
         #    'collectibles': [

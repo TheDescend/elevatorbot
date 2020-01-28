@@ -19,7 +19,7 @@ def createSheet():
         memberids = getNameToHashMapByClanid(clanid)
         userRoles = {}
         #Collects all roles in parallel
-        with concurrent.futures.ProcessPoolExecutor() as executor:
+        with concurrent.futures.ThreadPoolExecutor() as executor:
             print(f'collecting data for {clanname}...')
             for username, (t1,t2) in zip(memberids.keys(), executor.map(getPlayerRoles, memberids.values())):
                 #assigns user list of dominant + superseded roles (we want to see everything)

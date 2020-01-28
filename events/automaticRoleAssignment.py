@@ -31,7 +31,7 @@ class AutomaticRoleAssignment(BaseEvent):
                 if not destinyID:
                     print(f'failed for user {discordUser.name}')
                     continue
-                (newRoles, removeRoles) = getPlayerRoles(destinyID)
+                (newRoles, removeRoles) = getPlayerRoles(destinyID, [role.name for role in discordUser.roles])
                 await assignRolesToUser(newRoles, discordUser, guild)
                 await removeRolesFromUser(removeRoles, discordUser, guild)
 

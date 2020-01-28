@@ -9,7 +9,7 @@ from generateFastAchievementList import createSheet
 class ExiledsWeeklySheet(BaseEvent):
 
     def __init__(self):
-        interval_minutes = 604800  # Set the interval for this event - 7 days
+        interval_minutes = 432000  # Set the interval for this event - 5 days
         super().__init__(interval_minutes)
 
     # Override the run() method

@@ -9,8 +9,6 @@ import discord
 raiderText = '⁣           Raider       ⁣'
 achText = '⁣        Achievements       ⁣'
 
-fullMemberMap = getFullMemberMap()
-
 class getRoles(BaseCommand):
     def __init__(self):
         # A quick description for the help message
@@ -22,11 +20,16 @@ class getRoles(BaseCommand):
     # It will be called every time the command is received
     async def handle(self, params, message, client):
         destinyID = getUserMap(message.author.id)
+
+        fullMemberMap = getFullMemberMap()
+        if not fullMemberMap:
+            await message.channel.send('Seems like bungo is offline, try again later')
+            return
         if not destinyID:
-            destinyID = getUserIDbySnowflakeAndClanLookup(message.author,fullMemberMap)
-        
+            destinyID = getUserIDbySnowflakeAndClanLookup(message.author, fullMemberMap)
+
         async with message.channel.typing():
-            (roleList,removeRoles) = getPlayerRoles(destinyID)
+            (roleList,removeRoles) = getPlayerRoles(destinyID, [role.name for role in message.author.roles])
             await assignRolesToUser(roleList, message.author, message.guild)
             await removeRolesFromUser(removeRoles,message.author,message.guild)
 
@@ -145,7 +148,7 @@ class assignAllRoles(BaseCommand):
                 destinyID = getUserIDbySnowflakeAndClanLookup(discordUser,fullMemberMap)
 
             async with message.channel.typing():
-                (newRoles, removeRoles) = getPlayerRoles(destinyID)
+                (newRoles, removeRoles) = getPlayerRoles(destinyID, [role.name for role in discordUser.roles])
                 await assignRolesToUser(newRoles, discordUser, message.guild)
                 await removeRolesFromUser(removeRoles, discordUser, message.guild)
             await message.channel.send('All roles assigned')
