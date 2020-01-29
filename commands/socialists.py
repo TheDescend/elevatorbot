@@ -1,9 +1,7 @@
 from commands.base_command  import BaseCommand
 
 import discord
-import shelve
-from concurrent.futures import ThreadPoolExecutor, as_completed
-import asyncio
+import random
 
 class socialists(BaseCommand):
     def __init__(self):
@@ -30,10 +28,19 @@ class socialists(BaseCommand):
         # msg = socialists.msg
         
         if socialist not in message.author.roles:
-            await message.channel.send('Get more social first <:KKonaW:670369127445037057>')
+            await message.channel.send(f'Command reserved for {socialist.mention}s <:KKonaW:670369127445037057>')
             return
 
-        forthesocialism.send(f'Any {socialist.mention}s?')
+        
+        if message.author.id == 216642123364171778:
+            await forthesocialism.send(f'Any Socializers?')
+        elif message.author.id == 367385031569702912:
+            if random.randint(1, 3) == 1:
+                await forthesocialism.send(f'Any {socialist.mention}s?')
+            else:
+                await forthesocialism.send(f'It\'s not very effective...')
+        else:
+            await forthesocialism.send(f'Any {socialist.mention}s?')
         #await message.delete()
         #
         #for k in range(20):
