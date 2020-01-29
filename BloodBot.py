@@ -8,6 +8,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from events.base_event              import BaseEvent
 from events                         import *
 from multiprocessing                import Process
+import asyncio
 
 from oauth import start_server
 
@@ -68,11 +69,12 @@ def main():
                 print("Error while handling message", flush=True)
                 raise
 
+    tasks = []
     @client.event
     async def on_message(message):
         if message.author == client.user:
             return
-        await common_handle_message(message)
+        asyncio.ensure_future(common_handle_message(message))
 
     @client.event
     async def on_message_edit(before, after):
@@ -85,10 +87,10 @@ def main():
 
 
 if __name__ == "__main__":
-    p = Process(target=start_server)
-    p.start()
-    print('server started')
+    # p = Process(target=start_server)
+    # p.start()
+    # print('server started')
 
     main()
 
-    p.join()
+    #p.join()
