@@ -30,3 +30,4 @@ async def handle_command(command, args, message, bot_client):
                                       + " Wrong parameters!")
     else:
         await cmd_obj.handle(args, message, bot_client)
+        

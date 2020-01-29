@@ -30,6 +30,7 @@ class getRoles(BaseCommand):
 
         async with message.channel.typing():
             (roleList,removeRoles) = getPlayerRoles(destinyID, [role.name for role in message.author.roles])
+            
             await assignRolesToUser(roleList, message.author, message.guild)
             await removeRolesFromUser(removeRoles,message.author,message.guild)
 
@@ -106,11 +107,13 @@ class listDescend(BaseCommand):
         async with message.channel.typing():
             await message.channel.send(f'**Members of Descend in this discord:**')
             for discordUser in message.guild.members:
+
                 destinyID = getUserMap(discordUser.id)
                 if not destinyID:
                     destinyID = int(getUserIDbySnowflakeAndClanLookup(discordUser,nameidmap))
                 if not destinyID:
                     continue
+
                 if destinyID in idarr:
                     negativelist.remove(destinyID)
                     name = None
@@ -118,6 +121,7 @@ class listDescend(BaseCommand):
                         if userid == destinyID:
                             name = user
                     await message.channel.send(f'{discordUser.name} ({discordUser.nick}) as {name}')
+
             await message.channel.send(f'**Members of Descend __not__ in this discord:**')
             for dID in negativelist:
                 for (user, userid) in zip(namearr,idarr):
