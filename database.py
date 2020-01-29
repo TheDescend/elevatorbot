@@ -10,16 +10,16 @@ def db_connect(db_path=DEFAULT_PATH):
     con = sqlite3.connect(db_path)
     return con
 
-def insertUser(discordID, destinyID, discordServerID):
+def insertUser(discordServerID, *, discordID, destinyID):
     con = db_connect()
     product_sql = """INSERT INTO discordGuardians 
         (discordSnowflake, destinyID,signupDate,serverID) 
         VALUES (?, ?, ?, ?)"""
-
     try:
-        with con:
-            con.execute(product_sql, (discordID,destinyID, int(time.time()), discordServerID))
-            return True
+        con.execute(product_sql, (discordID, destinyID, int(time.time()), discordServerID))
+        con.commit()
+        con.close()
+        return True
     except sqlite3.IntegrityError:
         return False
 
@@ -29,17 +29,27 @@ def removeUser(discordID):
         WHERE discordSnowflake = ? """
 
     try:
-        with con:
-            con.execute(product_sql, (discordID,))
-            return True
+        con.execute(product_sql, (discordID,))
+        con.commit()
+        con.close()
+        return True
     except sqlite3.IntegrityError:
         return False
 
-def lookupUser(discordID):
+def lookupDestinyID(discordID):
     con = db_connect()
     getUser = """SELECT destinyID FROM discordGuardians
         WHERE discordSnowflake = ?"""
     result = con.execute(getUser, (discordID,)).fetchone() or [None]
+    con.close()
+    return result[0]
+
+def lookupDiscordID(destinyID):
+    con = db_connect()
+    getUser = """SELECT discordSnowflake FROM discordGuardians
+        WHERE destinyID = ?"""
+    result = con.execute(getUser, (discordID,)).fetchone() or [None]
+    con.close()
     return result[0]
 
 def printall():
@@ -47,5 +57,7 @@ def printall():
     getAll = """SELECT * FROM discordGuardians"""
     for row in con.execute(getAll).fetchall():
         print(row)
+
+
 #printall()
 ##table discordGuardians(discordSnowflake, destinyID,signupDate, serverID)

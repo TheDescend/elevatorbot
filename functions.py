@@ -5,7 +5,7 @@ from dict import platform,requirementHashes, clanids
 from fuzzywuzzy import fuzz
 import discord
 import json
-from database import insertUser, lookupUser
+from database import insertUser, lookupDestinyID
 import time
 import logging
 import http.client
@@ -21,37 +21,32 @@ if False:
 
 bungieAPI_URL = "https://www.bungie.net/Platform"
 PARAMS = {'X-API-Key': config.BUNGIE_TOKEN}
-
-jsonByURL = {}
+dummy = None
 session = requests.Session()
 def getJSONfromURL(requestURL):
     #print(jsonByURL) #TODO
-    if requestURL in jsonByURL:
-        print('chache hit')
-        return jsonByURL[requestURL]
     for _ in range(3):
         try:
             r = session.get(url=requestURL, headers=PARAMS)
         except Exception as e:
             print('Exception was caught: ' + repr(e))
             continue
-
         if r.status_code == 200:
-            jsonByURL[requestURL] = r.json()
             returnval = r.json()
-            r.content = r.content + r.content
-            return 
+            dummy = r.content[:1]
+            return returnval
         elif r.status_code == 400:
             #malformated URL, e.g. wrong subsystem for bungie
             return None
         elif r.status_code == 404:
             print('no stats found')
+            dummy = 5
             return None
         elif r.status_code == 500:
-            print('bad request')
+            print(f'bad request for {requestURL}')
             return None
         elif r.status_code == 503:
-            print('bungo is ded')
+            print(f'bungo is ded {dummy}')
             return None
         else:
             print('failed with code ' + str(r.status_code) + (', because servers are busy' if ('ErrorCode' in r.json() and r.json()['ErrorCode']==1672) else ''))
@@ -104,15 +99,18 @@ def playerHasCollectible(playerid, cHash, systemid=3):
     if not userCollectibles or 'data' not in userCollectibles['Response']['profileCollectibles']:
         return False
     collectibles = userCollectibles['Response']['profileCollectibles']['data']['collectibles']
-    return collectibles[str(cHash)]['state'] == 0
+    return collectibles[str(cHash)]['state'] & 1 == 0
 
-# def printInventoryItem(chash=1057119308, playerid=4611686018451177627):#spire star
-#     userCollectibles = getComponentInfoAsJSON(playerid, 800)
-#     if not userCollectibles or 'data' not in userCollectibles['Response']['profileCollectibles']:
-#         return False
-#     collectibles = userCollectibles['Response']['profileCollectibles']['data']['collectibles']
-#     return collectibles[str(chash)]
-#print(printCollectible())
+#   None = 0,
+#   NotAcquired = 1,
+#   Obscured = 2,
+#   Invisible = 4,
+#   CannotAffordMaterialRequirements = 8,
+#   InventorySpaceUnavailable = 16,
+#   UniquenessViolation = 32,
+#   PurchaseDisabled = 64
+
+
 
 
 playerActivities = {} #used as cache for getClearCount per player
@@ -197,10 +195,9 @@ def getPlayersPastRaids(destinyID):
         for pagenr in range(100):
             staturl = f"https://www.bungie.net/Platform/Destiny2/{platform}/Account/{destinyID}/Character/{characterID}/Stats/Activities/?mode=4&count=250&page={pagenr}" #mode=4 for raids
             rep = getJSONfromURL(staturl)
-            if not rep:
+            if not rep or not rep['Response']:
                 break
-            activitylist.append(rep['Response'])
-    playerpastraidscache[str(destinyID)] = activitylist
+            activitylist += rep['Response']['activities']
     return activitylist
 
 def playerHasRole(playerid, role, year):
@@ -231,16 +228,13 @@ def playerHasRole(playerid, role, year):
                     #print('failed triumph: ' + str(recordHash))
                     return False
         elif req == 'lowman':
-            for activitylist in getPlayersPastRaids(playerid):
-                if 'activities' not in activitylist.keys():
-                    continue
-                for activity in activitylist['activities']:
-                    hasCompleted = activity['values']['completed']['basic']['value'] == 1
-                    playercount = activity['values']['playerCount']['basic']['value']
-                    activityhash = activity['activityDetails']['directorActivityHash']
-                    #print(hasCompleted, ' and ', playercount == roledata['playercount'], ' and ', activityhash, activityhash in roledata['activityHashes'])
-                    if hasCompleted and playercount == roledata['playercount'] and activityhash in roledata['activityHashes']:
-                        return True
+            for activity in getPlayersPastRaids(playerid):
+                hasCompleted = activity['values']['completed']['basic']['value'] == 1
+                playercount = activity['values']['playerCount']['basic']['value']
+                activityhash = activity['activityDetails']['directorActivityHash']
+                #print(hasCompleted, ' and ', playercount == roledata['playercount'], ' and ', activityhash, activityhash in roledata['activityHashes'])
+                if hasCompleted and playercount == roledata['playercount'] and activityhash in roledata['activityHashes']:
+                    return True
             return False
         elif req == 'roles':
             return False
@@ -260,7 +254,7 @@ def getPlayerRoles(playerid, existingRoles = []):
         processes = []
         for year, yeardata in requirementHashes.items():		
             for role, roledata in yeardata.items():
-                if role in existingRoles:
+                if role in existingRoles or ('replaced_by' in roledata.keys() and any([x in existingRoles for x in roledata['replaced_by']])):
                     roles.append(role)
                     continue
                 processes.append(executor.submit(returnIfHasRoles, playerid, role, year))
@@ -295,6 +289,19 @@ def getPlayerRoles(playerid, existingRoles = []):
 
     #print(f'getting Roles took {time.time()-starttime}s')
     return (roles, redundantRoles)
+
+def getPlayerStats(destinyID):
+    url = 'https://stats.bungie.net/Platform/Destiny2/{}/Account/{}/Stats/?groups=weapons'
+    for system in [3,2,1,4,5,10,254]:
+        statsResponse = getJSONfromURL(url.format(system, destinyID))
+        if statsResponse:
+            return statsResponse['Response']
+    return None
+
+def getIntStat(destinyID, statname):
+    stats = getPlayerStats(destinyID)
+    stat =  stats['mergedAllCharacters']['merged']['allTime'][statname]['basic']['value']
+    return int(stat)
 
 def getNameToHashMapByClanid(clanid):
     requestURL = bungieAPI_URL + "/GroupV2/{}/members/".format(clanid) #memberlist
@@ -350,6 +357,24 @@ async def removeRolesFromUser(roleStringList, discordUser, guild):
             print(f'removed role {roleObj.name} from user {discordUser.name}')
             await discordUser.remove_roles(roleObj, reason='better role present')
 
+def getCharacterList(destinyID):
+    charURL = "https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/?components=100,200"
+    platform = None
+    for i in [3,2,1,4,5,10,254]:
+        characterinfo = getJSONfromURL(charURL.format(i, 4611686018467232843))
+        if characterinfo:
+            break
+    return characterinfo['Response']['characters']['data'].keys()
+
+def getPlatform(destinyID):
+    charURL = "https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/?components=100,200"
+    platform = None
+    for i in [3,2,1,4,5,10,254]:
+        characterinfo = getJSONfromURL(charURL.format(i, 4611686018467232843))
+        if characterinfo:
+            break
+    return platform
+
 fullMemberMap = {}
 def getFullMemberMap():
     if len(fullMemberMap) > 0:
@@ -370,7 +395,7 @@ def addUserMap(discordID, destinyID, serverID):
 
 #returns destinyID or None
 def getUserMap(discordID):
-    return lookupUser(discordID)
+    return lookupDestinyID(discordID)
 
 # def getMultipleUserMap(discordIDlist):
 #     returnlist = []
@@ -381,3 +406,13 @@ def getUserMap(discordID):
 #             if int(_discordID) in discordIDlist:
 #                 returnlist.append((int(_discordID), int(_destinyID)))
 #     return returnlist 
+
+manifest = {}
+def getManifestJson():
+    global manifest
+    if manifest:
+        return manifest
+    manifesturl = 'https://www.bungie.net/Platform/Destiny2/Manifest/'
+    manifestresponse = getJSONfromURL(manifesturl)
+    manifest = manifestresponse['Response']
+    return manifest

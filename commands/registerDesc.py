@@ -2,7 +2,7 @@ from commands.base_command  import BaseCommand
 import os
 from config import BUNGIE_OAUTH
 from functions import getUserMap
-from database import insertUser, removeUser, lookupUser
+from database import insertUser, removeUser, lookupDestinyID
 import discord
 
 class registerDesc(BaseCommand):
@@ -30,11 +30,12 @@ class getID(BaseCommand):
     # Override the handle() method
     # It will be called every time the command is received
     async def handle(self, params, message, client):
-        user = int(params[0])
-        discordUser = client.get_user(user)
+        discordID = int(params[0])
+        discordUser = client.get_user(discordID)
         if not discordUser:
-             await message.channel.send(f'Unknown User {user}')
-        await message.channel.send(f'{discordUser.name} has destinyID {lookupUser(user)}')
+             await message.channel.send(f'Unknown User {discordID}')
+        print(f'{discordID} with {lookupDestinyID(discordID)}')
+        await message.channel.send(f'{discordUser.name} has destinyID {lookupDestinyID(discordID)}')
 
 
 class checkregister(BaseCommand):
@@ -61,15 +62,22 @@ class forceregister(BaseCommand):
     async def handle(self, params, message, client):
         admin = discord.utils.get(message.guild.roles, name='Admin')
         dev = discord.utils.get(message.guild.roles, name='Developer') 
-        destinyID = params[0]
+        discordID = params[0]
+        destinyID = params[1]
         if admin not in message.author.roles and dev not in message.author.roles and not message.author.id == params[0]:
+            print(f'{discordID}')
             return
-        oldid = lookupUser(destinyID)
+        oldid = lookupDestinyID(discordID)
         if oldid:
-            await message.channel.send(f'User already registered with id {oldid}, use !unregister {params[0]} to undo that binding')
+            await message.channel.send(f'User already registered with id {oldid} and , use !unregister {discordID} to undo that binding')
             return
-        insertUser(destinyID, params[1], message.guild.id)
-        await message.channel.send(f'inserted {params[0]}:{params[1]}')
+
+        if insertUser(message.guild.id, discordID=discordID, destinyID=destinyID):
+            await message.channel.send(f'inserted {params[0]}:{params[1]}')
+        else:
+            await message.channel.send(f'insert failed')
+
+        
 
 
 class unregister(BaseCommand):
