@@ -336,6 +336,17 @@ requirementHashes = {
             'playercount' : 2,
             'activityHashes': cosHashes,
          },
+         'Two-Man Sanctified Mind': {
+            'requirements': ['lowman'],
+            'playercount' : 2,
+            'activityHashes': gosHashes,
+         },
+        'Three-Man Sanctified Mind': {
+            'requirements': ['lowman'],
+            'playercount' : 3,
+            'activityHashes': gosHashes,
+            'replaced_by': ['Two-Man Sanctified Mind'],
+         },
 
         #'Name': {
         #    'requirements': ['collectibles'],
