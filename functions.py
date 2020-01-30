@@ -10,6 +10,10 @@ import time
 import logging
 import http.client
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+import pathlib
 
 if False:
     http.client.HTTPConnection.debuglevel = 1
@@ -44,7 +48,6 @@ def getJSONfromURL(requestURL):
             return None
         elif r.status_code == 500:
             print(f'bad request for {requestURL}')
-            return None
         elif r.status_code == 503:
             print(f'bungo is ded {dummy}')
             return None
@@ -192,7 +195,7 @@ def getPlayersPastRaids(destinyID):
     charIDs = characterinfo['Response']['characters']['data'].keys()
     activitylist = []
     for characterID in charIDs:
-        for pagenr in range(100):
+        for pagenr in range(10):
             staturl = f"https://www.bungie.net/Platform/Destiny2/{platform}/Account/{destinyID}/Character/{characterID}/Stats/Activities/?mode=4&count=250&page={pagenr}" #mode=4 for raids
             rep = getJSONfromURL(staturl)
             if not rep or not rep['Response']:
@@ -416,3 +419,52 @@ def getManifestJson():
     manifestresponse = getJSONfromURL(manifesturl)
     manifest = manifestresponse['Response']
     return manifest
+
+def getTop10RaidGuns(destinyID):
+    gunids = []
+    gunkills = {}
+    raids = getPlayersPastRaids(destinyID)
+    instanceIds = [raid['activityDetails']['instanceId'] for raid in raids]
+    pgcrlist = []
+
+    processes = []
+    with ThreadPoolExecutor(max_workers=20) as executor:
+        for instanceId in instanceIds:
+            pgcrurl = f'https://www.bungie.net/Platform/Destiny2/Stats/PostGameCarnageReport/{instanceId}/'
+            processes.append(executor.submit(getJSONfromURL, pgcrurl))
+
+    for task in as_completed(processes):
+        if task.result():
+            pgcrlist.append(task.result()['Response'])
+
+    for pgcr in pgcrlist:
+        for entry in pgcr['entries']:
+            if int(entry['player']['destinyUserInfo']['membershipId']) != int(destinyID):
+               # print(entry['player']['destinyUserInfo'])
+                continue
+            if not 'weapons' in entry['extended'].keys():
+                continue
+            guns = entry['extended']['weapons']
+            for gun in guns:
+                #gunids.append(gun['referenceId'])
+                if str(gun['referenceId']) not in gunkills:
+                    gunkills[str(gun['referenceId'])] = 0
+                gunkills[str(gun['referenceId'])] += int(gun['values']['uniqueWeaponKills']['basic']['displayValue'])
+
+    manifest = getManifestJson()
+
+    DestinyInventoryItemDefinitionLink = f"https://www.bungie.net{manifest['jsonWorldComponentContentPaths']['en']['DestinyInventoryItemDefinition']}"
+    inventoryitemdefinition = getJSONfromURL(DestinyInventoryItemDefinitionLink)
+    gunidlist = list(gunkills.keys())
+    for gunid in gunidlist:
+        gunname = inventoryitemdefinition[str(gunid)]['displayProperties']['name']
+        gunkills[gunname] = int(gunkills[str(gunid)])
+        del gunkills[str(gunid)]
+
+    gunkillsorder = sorted(gunkills, reverse=True, key=lambda x : gunkills[x])    
+
+    piedataraw = [gunkills[rankeditem] for rankeditem in gunkillsorder][:10]
+    plt.pie(piedataraw, labels=gunkillsorder[:10])
+    plt.savefig(f'{destinyID}.png')
+    plt.clf()
+    return pathlib.Path(__file__).parent / f'{destinyID}.png'

@@ -1,8 +1,9 @@
 from commands.base_command  import BaseCommand
 
-from functions              import getIntStat, getUserMap, getUserIDbySnowflakeAndClanLookup, getFullMemberMap
+from functions              import getIntStat, getUserMap, getUserIDbySnowflakeAndClanLookup, getFullMemberMap,getTop10RaidGuns
 
 import discord
+import os
 
 class stat(BaseCommand):
     def __init__(self):
@@ -37,13 +38,20 @@ class stat(BaseCommand):
             snips = getIntStat(destinyID, 'longestKillDistance')
             await message.channel.send(f'{message.author.mention}, you sniped an enemy as far as **{snips}** meters away <:Kapp:670369121808154645>')
         
+        elif name == 'top10raidguns':
+            async with message.channel.typing():
+                imgpath = getTop10RaidGuns(destinyID)
+                with open(imgpath, 'rb') as f:
+                    await message.channel.send(f'{message.author.mention}, here are your top10 guns used in raids', file=discord.File(f))
+                os.remove(imgpath)
         elif name == 'help':
             await message.channel.send(f'''
-            {message.author.mention}, use those arguments for !stat *<argument>*
+            {message.author.mention}, use those arguments for !stat *<argument>*:
             > **resurrections**: *Shows how many players you revived and how many times you got revived*
             > **meleekills**: *Shows how many enemies you've punched to death*
             > **superkills**: *Shows how many enemies you've killed with your super*
             > **longrangekill**: *Shows how far you've sniped*
+            > **top10raidguns**: *Shows a piechart of your favourite guns*
             ''')
         else:
             await message.channel.send('Use !stat help for a list of commands :)')
