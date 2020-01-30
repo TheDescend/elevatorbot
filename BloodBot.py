@@ -9,8 +9,10 @@ from events.base_event              import BaseEvent
 from events                         import *
 from multiprocessing                import Process
 import asyncio
+import datetime
 
 from oauth import start_server
+from database import insertIntoMessageDB
 
 # Set to remember if the bot is already running, since on_ready may be called
 # more than once on reconnects
@@ -68,6 +70,10 @@ def main():
             except:
                 print("Error while handling message", flush=True)
                 raise
+        else:
+            if not message.content.startswith('http'):
+                formattedtime = message.created_at.strftime('%Y-%m-%dT%H:%M')
+                success = insertIntoMessageDB(message.clean_content,message.author.id,message.channel.id,message.id, formattedtime)
 
     tasks = []
     @client.event

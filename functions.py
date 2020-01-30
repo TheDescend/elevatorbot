@@ -331,7 +331,7 @@ def getUserIDbySnowflakeAndClanLookup(discordUser, memberMap):
         steamName = maxName
         userid = memberMap[steamName]
         if maxProb > 70:
-            insertUser(discordUser.id, userid, -1)
+            insertUser(-1, discordID = discordUser.id, destinyID = userid)
             print(f'Inserted {discordUser.nick or discordUser.name} because match with {userid} was >70%')
         return userid
 

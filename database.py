@@ -58,6 +58,43 @@ def printall():
     for row in con.execute(getAll).fetchall():
         print(row)
 
+def insertIntoMessageDB(messagetext, userid, channelid, msgid, msgdate):
+    con = db_connect()
+    product_sql = """INSERT INTO messagedb 
+        (msg, userid, channelid, msgid, msgdate) 
+        VALUES (?, ?, ?, ?, DATE(?))"""
+    try:
+        con.execute(product_sql, (messagetext, userid, channelid, msgid, msgdate))
+        con.commit()
+        con.close()
+        return True
+    except sqlite3.IntegrityError:
+        return False
 
-#printall()
-##table discordGuardians(discordSnowflake, destinyID,signupDate, serverID)
+def getMarkovPairs():
+    con = db_connect()
+    getAll = """SELECT * FROM markovpairs"""
+    return con.execute(getAll).fetchall()
+
+#######################################################################################
+#
+#   table discordGuardians(discordSnowflake, destinyID,signupDate, serverID)
+#   table messagedb(msg, userid, channelid, msgid, msgdate)
+#   table markovpairs(word1, word2)
+#
+#
+#
+#
+#
+#
+#
+# general = 670400011519000616
+# media = 670400027155365929
+# spoilerchat = 670402166103474190
+# offtopic = 670362162660900895
+#
+#
+#
+#
+#
+#
