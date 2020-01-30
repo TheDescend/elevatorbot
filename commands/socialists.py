@@ -34,11 +34,11 @@ class socialists(BaseCommand):
         
         if message.author.id == 216642123364171778:
             await forthesocialism.send(f'Any Socializers?')
-        elif message.author.id == 367385031569702912:
-            if random.randint(1, 3) == 1:
-                await forthesocialism.send(f'Any {socialist.mention}s?')
-            else:
-                await forthesocialism.send(f'It\'s not very effective...')
+        # elif message.author.id == 367385031569702912:
+        #     if random.randint(1, 3) == 1:
+        #         await forthesocialism.send(f'Any {socialist.mention}s?')
+        #     else:
+        #         await forthesocialism.send(f'It\'s not very effective...')
         else:
             await forthesocialism.send(f'Any {socialist.mention}s?')
         #await message.delete()
