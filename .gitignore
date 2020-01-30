@@ -12,3 +12,5 @@ Lib/
 tcl/
 Include/
 Scripts/
+*.ipynb
+*.png
