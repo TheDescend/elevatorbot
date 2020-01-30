@@ -196,7 +196,14 @@ def getPlayersPastRaids(destinyID):
     activitylist = []
     for characterID in charIDs:
         for pagenr in range(10):
-            staturl = f"https://www.bungie.net/Platform/Destiny2/{platform}/Account/{destinyID}/Character/{characterID}/Stats/Activities/?mode=4&count=250&page={pagenr}" #mode=4 for raids
+            staturl = f"https://www.bungie.net/Platform/Destiny2/{platform}/Account/{destinyID}/Character/{characterID}/Stats/Activities/?mode=4&count=250&page={pagenr}" 
+            # None	0 Everything
+            # Story	2	 
+            # Strike	3	 
+            # Raid	4	 
+            # AllPvP	5	 
+            # Patrol	6	 
+            # AllPvE	7	
             rep = getJSONfromURL(staturl)
             if not rep or not rep['Response']:
                 break
