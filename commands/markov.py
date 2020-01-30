@@ -33,3 +33,9 @@ class initiateDB(BaseCommand):
                         formattedtime = msg.created_at.strftime('%Y-%m-%dT%H:%M')
                         success = insertIntoMessageDB(msg.clean_content,msg.author.id,msg.channel.id,msg.id, formattedtime)
                 await message.channel.send(f'working on {chnl.name}')
+
+
+# general = 670400011519000616
+# media = 670400027155365929
+# spoilerchat = 670402166103474190
+# offtopic = 670362162660900895
