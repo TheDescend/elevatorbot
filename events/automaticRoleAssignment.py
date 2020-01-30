@@ -16,21 +16,20 @@ class AutomaticRoleAssignment(BaseEvent):
     # Override the run() method
     # It will be called once every {interval_minutes} minutes
     async def run(self, client):
-        print('running role analysis')
+        newtonslab = client.get_channel(670637036641845258)
+        await newtonslab.send('running role update...')
         for guild in client.guilds:
             for discordUser in guild.members:
                 destinyID = getUserMap(discordUser.id)
                 if not destinyID:
                     destinyID = getUserIDbySnowflakeAndClanLookup(discordUser,fullMemberMap)
-                    newtonslab = client.get_channel(670637036641845258)
-                    pcid = getIDfromBungie(destinyID)
-                    if newtonslab:
+                    if destinyID:
                         await newtonslab.send(f'''Hi! User {discordUser.name} aka {discordUser.nick} was not found in my database!\n 
                         If his rr is https://raid.report/pc/{pcid} please use ```!forceregister {discordUser.id} {pcid}```''')
-
-                if not destinyID:
-                    print(f'failed for user {discordUser.name}')
-                    continue
+                    else: 
+                        await newtonslab.send(f'''Hi! User {discordUser.name} aka {discordUser.nick} was not found in my database!\n 
+                        Please use ```!forceregister {discordUser.id} <destinyID>``` so he can get synced next time''')
+                        continue
                 (newRoles, removeRoles) = getPlayerRoles(destinyID, [role.name for role in discordUser.roles])
                 await assignRolesToUser(newRoles, discordUser, guild)
                 await removeRolesFromUser(removeRoles, discordUser, guild)
