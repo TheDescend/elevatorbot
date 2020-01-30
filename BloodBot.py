@@ -71,7 +71,7 @@ def main():
                 print("Error while handling message", flush=True)
                 raise
         else:
-            if not message.content.startswith('http'):
+            if not message.content.startswith('http') and len(message.clean_content) > 5:
                 formattedtime = message.created_at.strftime('%Y-%m-%dT%H:%M')
                 success = insertIntoMessageDB(message.clean_content,message.author.id,message.channel.id,message.id, formattedtime)
 

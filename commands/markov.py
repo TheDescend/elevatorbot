@@ -29,7 +29,7 @@ class initiateDB(BaseCommand):
             for chnlid in [670400011519000616, 670400027155365929, 670402166103474190, 670362162660900895]:
                 chnl = client.get_channel(chnlid)
                 async for msg in chnl.history(limit=None):
-                    if not msg.content.startswith('http') and not msg.content.startswith('!') and not msg.content == '':
+                    if not msg.content.startswith('http') and not msg.content.startswith('!') and len(msg.clean_content) > 5 :
                         formattedtime = msg.created_at.strftime('%Y-%m-%dT%H:%M')
                         success = insertIntoMessageDB(msg.clean_content,msg.author.id,msg.channel.id,msg.id, formattedtime)
                 await message.channel.send(f'working on {chnl.name}')
