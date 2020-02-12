@@ -199,9 +199,6 @@ def getPlayersPastPVE(destinyID):
     activitylist = []
     for characterID in charIDs:
         for pagenr in range(10):
-<<<<<<< HEAD
-            staturl = f"https://www.bungie.net/Platform/Destiny2/{platform}/Account/{destinyID}/Character/{characterID}/Stats/Activities/?mode=7&count=250&page={pagenr}" #mode=4 for raids, 7 for all  PvE
-=======
             staturl = f"https://www.bungie.net/Platform/Destiny2/{platform}/Account/{destinyID}/Character/{characterID}/Stats/Activities/?mode=4&count=250&page={pagenr}" 
             # None	0 Everything
             # Story	2	 
@@ -210,7 +207,6 @@ def getPlayersPastPVE(destinyID):
             # AllPvP	5	 
             # Patrol	6	 
             # AllPvE	7	
->>>>>>> 1a55b504f3633c1eb88fccea5fc1d67475aa39f5
             rep = getJSONfromURL(staturl)
             if not rep or not rep['Response']:
                 break
