@@ -198,8 +198,8 @@ def getPlayersPastPVE(destinyID):
     charIDs = characterinfo['Response']['characters']['data'].keys()
     activitylist = []
     for characterID in charIDs:
-        for pagenr in range(10):
-            staturl = f"https://www.bungie.net/Platform/Destiny2/{platform}/Account/{destinyID}/Character/{characterID}/Stats/Activities/?mode=4&count=250&page={pagenr}" 
+        for pagenr in range(100):
+            staturl = f"https://www.bungie.net/Platform/Destiny2/{platform}/Account/{destinyID}/Character/{characterID}/Stats/Activities/?mode=7&count=250&page={pagenr}" 
             # None	0 Everything
             # Story	2	 
             # Strike	3	 
