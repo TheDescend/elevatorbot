@@ -1,6 +1,6 @@
 from commands.base_command  import BaseCommand
 
-from functions              import getIntStat, getUserMap, getUserIDbySnowflakeAndClanLookup, getFullMemberMap,getTop10RaidGuns
+from functions              import getIntStat, getUserMap, getUserIDbySnowflakeAndClanLookup, getFullMemberMap,getTop10PveGuns
 
 import discord
 import os
@@ -20,7 +20,9 @@ class stat(BaseCommand):
         destinyID = getUserMap(message.author.id)
         if not destinyID:
             destinyID = getUserIDbySnowflakeAndClanLookup(message.author, getFullMemberMap())
-
+            if not destinyID:
+                await message.channel.send(f'Unable to get your destiny-stats. Please contact a {message.guild.get_role(670397357120159776)}')
+                return
         if name == 'resurrections': #
             given = getIntStat(destinyID, 'resurrectionsPerformed')
             received = getIntStat(destinyID, 'resurrectionsReceived')
@@ -38,9 +40,9 @@ class stat(BaseCommand):
             snips = getIntStat(destinyID, 'longestKillDistance')
             await message.channel.send(f'{message.author.mention}, you sniped an enemy as far as **{snips}** meters away <:Kapp:670369121808154645>')
         
-        elif name == 'top10raidguns':
+        elif name == 'top10pveguns':
             async with message.channel.typing():
-                imgpath = getTop10RaidGuns(destinyID)
+                imgpath = getTop10PveGuns(destinyID)
                 with open(imgpath, 'rb') as f:
                     await message.channel.send(f'{message.author.mention}, here are your top10 guns used in raids', file=discord.File(f))
                 os.remove(imgpath)

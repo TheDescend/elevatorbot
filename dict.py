@@ -18,6 +18,10 @@ lwHashes = [2122313384]
 cosHashes = [3333172150] 
 gosHashes = [3845997235,2659723068]
 
+premenHashes = [2509539864, 2509539865, 2509539867, 1831470693, 3107795800, 3115455134]
+zeroHashes = [3232506937] 
+herzeroHashes = [2731208666]
+
 clanids = {    
     2784110 : 'Bloodoak', #Bloodoak I
 #    3373405 : 'Bloodoak II', #BO2
@@ -33,16 +37,14 @@ requirementHashes = {
             'requirements': ['clears'],
             'clears': [
                 {'count' : 4,
-                'actHashes' : spireHashes}, #normal
-                {'count' : 2,
-                'actHashes' : spirePHashes} #prestige 
+                'actHashes' : spireHashes + spirePHashes}, #normal
             ],
             'replaced_by': ['Spire of Stars Master']
         },
         'Spire of Stars Master': {
             'requirements': ['clears','flawless'],
             'clears': [
-                {'count' : 15,
+                {'count' : 10,
                 'actHashes' : spirePHashes}  #prestige
             ],
             'flawless' : spireHashes + spirePHashes
@@ -51,16 +53,14 @@ requirementHashes = {
             'requirements': ['clears'],
             'clears': [
                 {'count' : 4,
-                'actHashes' : eaterHashes}, #normal
-                {'count' : 2,
-                'actHashes' : eaterPHashes} #prestige
+                'actHashes' : eaterHashes + eaterPHashes}, #normal
             ],
             'replaced_by':['Eater of Worlds Master']
         },
         'Eater of Worlds Master': {
             'requirements': ['clears','flawless'],
             'clears': [
-                {'count' : 15,
+                {'count' : 10,
                 'actHashes' : eaterPHashes}
             ], #prestige
             'flawless': eaterHashes + eaterPHashes
@@ -69,16 +69,14 @@ requirementHashes = {
             'requirements': ['clears'],
             'clears': [
                 {'count' : 4,
-                'actHashes' : leviHashes}, #normal
-                {'count' : 2,
-                'actHashes' : leviPHashes} #prestige
+                'actHashes' : leviHashes + leviPHashes}, #normal
             ],
             'replaced_by': ['Leviathan Master']
         },
         'Leviathan Master': {
             'requirements': ['clears','flawless','collectibles'],
             'clears':[
-                {'count' : 15,
+                {'count' : 10,
                 'actHashes' : leviPHashes}, #prestige
             ],
             'flawless': leviHashes + leviPHashes,
@@ -312,13 +310,7 @@ requirementHashes = {
          'Three-Man Queenswalk': {
             'requirements': ['lowman'],
             'playercount' : 3,
-            'activityHashes': lwHashes,
-            'replaced_by': ['Two-Man Queenswalk'],
-         },
-         'Two-Man Queenswalk': {
-            'requirements': ['lowman'],
-            'playercount' : 2,
-            'activityHashes': lwHashes,
+            'activityHashes': lwHashes
          },
          'Two-Man Calus': {
             'requirements': ['lowman'],
@@ -347,6 +339,47 @@ requirementHashes = {
             'activityHashes': gosHashes,
             'replaced_by': ['Two-Man Sanctified Mind'],
          },
+
+        'Three-Man Heroic Menagerie': {
+            'requirements': ['lowman'],
+            'playercount' : 3,
+            'activityHashes': premenHashes,
+            'replaced_by': ['Two-Man Heroic Menagerie', 'Two-Man Heroic Menagerie']
+        },
+        'Two-Man Heroic Menagerie': {
+            'requirements': ['lowman'],
+            'playercount' : 2,
+            'activityHashes': premenHashes,
+            'replaced_by': ['Solo Heroic Menagerie']
+        },
+        'Solo Heroic Menagerie': {
+            'requirements': ['lowman'],
+            'playercount' : 1,
+            'activityHashes': premenHashes
+        },
+
+        'Solo Zero Hour': {
+            'requirements': ['lowman'],
+            'playercount' : 1,
+            'activityHashes': zeroHashes,
+            'replaced_by': ['Solo Flawless Zero Hour']
+        },
+        'Solo Heroic Zero Hour': {
+            'requirements': ['lowman'],
+            'playercount' : 1,
+            'activityHashes': herzeroHashes,
+            'replaced_by': ['Solo Flawless Heroic Zero Hour']
+        },
+        'Solo Flawless Zero Hour': {
+            'requirements': ['lowman', 'flawless'],
+            'playercount' : 1,
+            'activityHashes': zeroHashes
+        },
+        'Solo Flawless Heroic Zero Hour': {
+            'requirements': ['lowman', 'flawless'],
+            'playercount' : 1,
+            'activityHashes': herzeroHashes
+        },
 
         #'Name': {
         #    'requirements': ['collectibles'],

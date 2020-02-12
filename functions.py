@@ -182,8 +182,11 @@ def playerHasFlawless(playerid, raidHashes):
             return True
     return False
 
-
-def getPlayersPastRaids(destinyID):
+tempcachepvestats = []
+def getPlayersPastPVE(destinyID):
+    global tempcachepvestats
+    # if len(tempcachepvestats) > 0:
+    #     return tempcachepvestats
     charURL = "https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/?components=100,200"
     characterinfo = None
     platform = None
@@ -196,12 +199,22 @@ def getPlayersPastRaids(destinyID):
     activitylist = []
     for characterID in charIDs:
         for pagenr in range(10):
-            staturl = f"https://www.bungie.net/Platform/Destiny2/{platform}/Account/{destinyID}/Character/{characterID}/Stats/Activities/?mode=4&count=250&page={pagenr}" #mode=4 for raids
+            staturl = f"https://www.bungie.net/Platform/Destiny2/{platform}/Account/{destinyID}/Character/{characterID}/Stats/Activities/?mode=7&count=250&page={pagenr}" #mode=4 for raids, 7 for all  PvE
             rep = getJSONfromURL(staturl)
             if not rep or not rep['Response']:
                 break
             activitylist += rep['Response']['activities']
+    tempcachepvestats = [a for a in activitylist]
+    len(activitylist)
     return activitylist
+
+def getPlayerCount(instanceID):
+    pgcr = getPGCR(instanceID)
+    ingamechars = pgcr['Response']['entries']
+    ingameids = set()
+    for char in ingamechars:
+        ingameids.add(char['player']['destinyUserInfo']['membershipId'])
+    return len(ingameids)
 
 def playerHasRole(playerid, role, year):
     roledata = requirementHashes[year][role]
@@ -217,6 +230,8 @@ def playerHasRole(playerid, role, year):
                     #print('failed clears for ' + str(raid['actHashes']))
                     return False
         elif req == 'flawless':
+            if 'lowman' in roledata['requirements']:
+                return True
             if not playerHasFlawless(playerid, roledata['flawless']):
                 #print('failed flawless for ' + str(roledata['flawless']))
                 return False
@@ -231,13 +246,17 @@ def playerHasRole(playerid, role, year):
                     #print('failed triumph: ' + str(recordHash))
                     return False
         elif req == 'lowman':
-            for activity in getPlayersPastRaids(playerid):
+            for activity in getPlayersPastPVE(playerid):
                 hasCompleted = activity['values']['completed']['basic']['value'] == 1
-                playercount = activity['values']['playerCount']['basic']['value']
                 activityhash = activity['activityDetails']['directorActivityHash']
+                hasSucceeded = int(activity['values']['completionReason']['basic']['value']) != 2
                 #print(hasCompleted, ' and ', playercount == roledata['playercount'], ' and ', activityhash, activityhash in roledata['activityHashes'])
-                if hasCompleted and playercount == roledata['playercount'] and activityhash in roledata['activityHashes']:
-                    return True
+                if hasCompleted and hasSucceeded and activityhash in roledata['activityHashes'] and activity['values']['playerCount']['basic']['value'] < 6:
+                    if not 'flawless' in roledata['requirements'] or int(activity['values']['deaths']['basic']['displayValue']) == 0:
+                        playercount = getPlayerCount(activity['activityDetails']['instanceId'])
+                        #print('role: ' + str(playercount))
+                        if playercount == roledata['playercount']:
+                            return True
             return False
         elif req == 'roles':
             return False
@@ -257,9 +276,9 @@ def getPlayerRoles(playerid, existingRoles = []):
         processes = []
         for year, yeardata in requirementHashes.items():		
             for role, roledata in yeardata.items():
-                if role in existingRoles or ('replaced_by' in roledata.keys() and any([x in existingRoles for x in roledata['replaced_by']])):
-                    roles.append(role)
-                    continue
+                # if role in existingRoles or ('replaced_by' in roledata.keys() and any([x in existingRoles for x in roledata['replaced_by']])):
+                #     roles.append(role)
+                #     continue
                 processes.append(executor.submit(returnIfHasRoles, playerid, role, year))
 
     for task in as_completed(processes):
@@ -268,6 +287,8 @@ def getPlayerRoles(playerid, existingRoles = []):
 
     for yeardata in requirementHashes.values():
         for role, roledata in yeardata.items():
+            if role not in roles:
+                redundantRoles.append(role)
             if 'replaced_by' in roledata.keys():
                 for superior in roledata['replaced_by']:
                     if superior in roles and role in roles:
@@ -285,11 +306,13 @@ def getPlayerRoles(playerid, existingRoles = []):
                 if worthy:
                     print('worthy for ', role)
                     roles.append(role)
+                    redundantRoles.remove(role)
                     for reqrole in reqs:
                         roles.remove(reqrole)
                         redundantRoles.append(reqrole)
 
-
+    global tempcachepvestats
+    tempcachepvestats = []
     #print(f'getting Roles took {time.time()-starttime}s')
     return (roles, redundantRoles)
 
@@ -364,7 +387,7 @@ def getCharacterList(destinyID):
     charURL = "https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/?components=100,200"
     platform = None
     for i in [3,2,1,4,5,10,254]:
-        characterinfo = getJSONfromURL(charURL.format(i, 4611686018467232843))
+        characterinfo = getJSONfromURL(charURL.format(i, destinyID))
         if characterinfo:
             break
     return characterinfo['Response']['characters']['data'].keys()
@@ -373,7 +396,7 @@ def getPlatform(destinyID):
     charURL = "https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/?components=100,200"
     platform = None
     for i in [3,2,1,4,5,10,254]:
-        characterinfo = getJSONfromURL(charURL.format(i, 4611686018467232843))
+        characterinfo = getJSONfromURL(charURL.format(i, destinyID))
         if characterinfo:
             break
     return platform
@@ -420,18 +443,21 @@ def getManifestJson():
     manifest = manifestresponse['Response']
     return manifest
 
-def getTop10RaidGuns(destinyID):
+def getPGCR(instanceID):
+    pgcrurl = f'https://www.bungie.net/Platform/Destiny2/Stats/PostGameCarnageReport/{instanceID}/'
+    return getJSONfromURL(pgcrurl)
+
+def getTop10PveGuns(destinyID):
     gunids = []
     gunkills = {}
-    raids = getPlayersPastRaids(destinyID)
-    instanceIds = [raid['activityDetails']['instanceId'] for raid in raids]
+    activities = getPlayersPastPVE(destinyID)
+    instanceIds = [act['activityDetails']['instanceId'] for act in activities]
     pgcrlist = []
 
     processes = []
     with ThreadPoolExecutor(max_workers=20) as executor:
         for instanceId in instanceIds:
-            pgcrurl = f'https://www.bungie.net/Platform/Destiny2/Stats/PostGameCarnageReport/{instanceId}/'
-            processes.append(executor.submit(getJSONfromURL, pgcrurl))
+            processes.append(executor.submit(getPGCR, instanceId))
 
     for task in as_completed(processes):
         if task.result():

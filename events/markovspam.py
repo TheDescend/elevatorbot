@@ -15,16 +15,14 @@ class Markovspam(BaseEvent):
     async def run(self, client):
         markchannel = client.get_channel(672541982157045791)
         now = datetime.datetime.now()
-        stopmsg = False
-        async for msg in markchannel.history(limit=20):
+        async for msg in markchannel.history(limit=45):
             if msg.author.id != 386490723223994371:
                 async with markchannel.typing():
                     await markchannel.send(getMarkovSentence())
-                    stopmsg = False
                     return
-                
-        if not stopmsg:
-            await markchannel.send('type something to reactivate the bot')
-            stopmsg = True
+
+        async for msg in markchannel.history(limit=1):        
+                if not msg.content == '**type something to reactivate the bot**':
+                    await markchannel.send('**type something to reactivate the bot**')
                 
         

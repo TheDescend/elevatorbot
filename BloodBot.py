@@ -71,7 +71,9 @@ def main():
                 print("Error while handling message", flush=True)
                 raise
         else:
-            if not message.content.startswith('http') and len(message.clean_content) > 5:
+            badwords = ['kanen', 'cyber', 'dicknugget', 'nigg', 'cmonbrug', ' bo ', 'bloodoak', 'ascend', 'cock', 'cunt']
+            goodchannels = [670400011519000616, 670400027155365929, 670402166103474190, 670362162660900895, 672541982157045791]
+            if not message.content.startswith('http') and len(message.clean_content) > 5 and not any([badword in message.clean_content.lower() for badword in badwords]) and message.channel.id in goodchannels:
                 formattedtime = message.created_at.strftime('%Y-%m-%dT%H:%M')
                 success = insertIntoMessageDB(message.clean_content,message.author.id,message.channel.id,message.id, formattedtime)
 

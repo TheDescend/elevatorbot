@@ -34,4 +34,4 @@ class AutomaticRoleAssignment(BaseEvent):
                     ''',(a,b))
         conn.commit()
 
-        client.get_channel(670400011519000616).send(getMarkovSentence())
+        client.get_channel(670637036641845258).send('updated markov table') #newtonslab

@@ -27,6 +27,9 @@ class getRoles(BaseCommand):
             return
         if not destinyID:
             destinyID = getUserIDbySnowflakeAndClanLookup(message.author, fullMemberMap)
+            if not destinyID:
+                message.channel.send('Didn\'t find your destiny profile, sorry')
+                return
 
         async with message.channel.typing():
             (roleList,removeRoles) = getPlayerRoles(destinyID, [role.name for role in message.author.roles])
@@ -44,6 +47,46 @@ class getRoles(BaseCommand):
                 await message.channel.send(f'Please get some roles first, smile')
                 return
             await message.channel.send(f'Added the roles {rolesgiven} to user {message.author.mention}')
+
+class setRoles(BaseCommand):
+    def __init__(self):
+        # A quick description for the help message
+        description = "Assigns you all the roles you've earned"
+        params = ['user']
+        super().__init__(description, params)
+
+    # Override the handle() method
+    # It will be called every time the command is received
+    async def handle(self, params, message, client):
+        user = message.guild.get_member(params[0])
+        destinyID = getUserMap(params[0])
+
+        fullMemberMap = getFullMemberMap()
+        if not fullMemberMap:
+            await message.channel.send('Seems like bungo is offline, try again later')
+            return
+        if not destinyID:
+            destinyID = getUserIDbySnowflakeAndClanLookup(user, fullMemberMap)
+            if not destinyID:
+                message.channel.send('Didn\'t find the destiny profile, sorry')
+                return
+
+        async with message.channel.typing():
+            (roleList,removeRoles) = getPlayerRoles(destinyID, [role.name for role in user.roles])
+            
+            await assignRolesToUser(roleList, user, message.guild)
+            await removeRolesFromUser(removeRoles,user,message.guild)
+
+            for role in roleList:
+                if role in requirementHashes['Addition']:
+                    await user.add_roles(discord.utils.get(message.guild.roles, name=achText))
+                else:
+                    await user.add_roles(discord.utils.get(message.guild.roles, name=raiderText))
+            rolesgiven = ', '.join(roleList)
+            if len(rolesgiven) == 0:
+                await message.channel.send(f'Please get some roles first, smile')
+                return
+            await message.channel.send(f'Added the roles {rolesgiven} to user {user.name}')
 
 #improvable TODO
 class removeAllRoles(BaseCommand):
@@ -141,7 +184,6 @@ class assignAllRoles(BaseCommand):
     async def handle(self, params, message, client):
         admin = discord.utils.get(message.guild.roles, name='Admin')
         dev = discord.utils.get(message.guild.roles, name='Developer') 
-        destinyID = params[0]
         if admin not in message.author.roles and dev not in message.author.roles and not message.author.id == params[0]:
             await message.channel.send('You are not allowed to do that')
             return
@@ -150,9 +192,16 @@ class assignAllRoles(BaseCommand):
             destinyID = getUserMap(discordUser.id)
             if not destinyID:
                 destinyID = getUserIDbySnowflakeAndClanLookup(discordUser,fullMemberMap)
+                if not destinyID:
+                    await message.channel.send(f'No destinyID found for {discordUser.name}')
+                    continue
 
             async with message.channel.typing():
                 (newRoles, removeRoles) = getPlayerRoles(destinyID, [role.name for role in discordUser.roles])
                 await assignRolesToUser(newRoles, discordUser, message.guild)
                 await removeRolesFromUser(removeRoles, discordUser, message.guild)
-            await message.channel.send('All roles assigned')
+
+                roletext = ', '.join(newRoles)
+                await message.channel.send(f'Assigned roles {roletext} to {discordUser.name}')
+
+        await message.channel.send('All roles assigned')
