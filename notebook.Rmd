@@ -1,0 +1,154 @@
+---
+title: "Social Data Science - Twitter community analysis"
+author: "Dr. David Garcia"
+output: rmarkdown::github_document
+---
+
+In this exercise we will analyze the community structure of the Twitter user network we retrieved in the last exercise. We will also run more advanced analyses and visualizations.
+
+You can find this script on Rstudio Cloud: <https://rstudio.cloud/project/917383>
+
+## Tasks:
+
+1. Load data from large retweet network
+
+2. Community detection and visualization
+
+3. Permutation tests
+
+4. Visualizing betweenness
+
+5. K-core decomposition
+
+# 1. Load data from large retweet network
+
+If you can, run overnight the previous exercise (Session 08) but retrieving the full timeline of up to 3200 tweets of each user. If you could not you can still use the shorter timelines that you got or load the file "fullTimelines.RData" where you have an example for US congress members. Once you have loaded that file, we filter such that edges are retweets within the group of users in our dataset:
+```{r}
+library(igraph)
+library(dplyr)
+```
+```{r}
+#load("fullTimelines.RData")
+#load("users.RData")
+#timelines %>% filter(retweet_user_id %in% users$user_id) -> seledges
+csvedges <- read.csv('graph.csv')
+df <- data.frame(csvedges)
+df <- select(df, c('from', 'to', 'weight'))
+graph <- graph_from_data_frame(df, directed = F)
+```
+
+
+```{r}
+friends <- df %>% 
+  filter(from == 4611686018468695677 | to == 4611686018468695677) %>%
+  filter(weight > 10)
+friendsoffriends <- df %>% filter(from %in% friends$to | to %in% friends$to | from %in% friends$from | from %in% friends$to)%>%
+  filter(weight > 10)
+friendsgraph <- graph_from_data_frame(friends, directed = F)
+fofgraph <- graph_from_data_frame(friendsoffriends, directed = F)
+```
+
+Time to plot! Use the examples of plotting in previous exercises and visualize your network:
+```{r}
+#Your code here
+plot(fofgraph, vertex.size=5, vertex.label.cex = 0.5, layout = layout_nicely, edge.curved = 0.1, edge.width = 1, edge.arrow.size=0.01)
+```
+
+# 2. Community detection and visualization
+
+Using your network object, run the Louvain algorithm to detect densely connected communities. Then calculate the Newman's modularity of the resulting communities. Does that seem like a high value?
+```{r}
+#Your code here
+clusterlouvain <- cluster_louvain(fofgraph)
+modularity(clusterlouvain)
+```
+
+
+Repeat the plotting of the network but set the vertex.color to be the communities assigned to each node. For this you can use the membership() function of igraph. Does it look like it has a community structure?
+```{r}
+plot(fofgraph, vertex.size=5, vertex.label.cex = 0.3, layout = layout_nicely, edge.curved = 0.1, edge.width = 1, edge.arrow.size=0.3, vertex.color=clusterlouvain$membership)
+```
+
+```{r}
+hist(table(membership(clusterlouvain)))
+```
+The following code is an example of how to make a JavaScript dynamic visualization of the network. Can you see communities better here? Do you see nodes of the same color concentrated in parts of the figure?
+```{r}
+library(networkD3)
+graph2 <- igraph_to_networkD3(fofgraph)
+graph2$nodes$comm <- as.character(membership(clusterlouvain))
+chargevec = -30 / (friendsoffriends$weight/sqrt(sum(friendsoffriends$weight^2))) -22
+forceNetwork(Links=graph2$links, Nodes=graph2$nodes, NodeID="name", Group="comm", zoom=T)
+```
+
+# 3. Permutation tests
+
+Let's compare with a random network that has the same degrees as the original one. This code generate a network that keeps node degrees but switches connections until the network is completely shuffled:
+```{r}
+rndnet <- sample_degseq(out.deg=degree(fofgraph))
+```
+
+Your turn, run the Louvain algorithm over that and calculate its modularity. Is it high?
+```{r}
+sample_louvain <- cluster_louvain(rndnet)
+modularity(sample_louvain)
+```
+
+Now run a permutation test, repeating the above process 1000 times and saving each modularity value in a vector. Plot the histogram and the original value.
+```{r}
+N <- 1000
+rndmods <- rep(NA,N)
+for (i in seq(1,N))
+{
+  rndnet <- sample_degseq(out.deg=degree(graph))
+  sample_louvain <- cluster_louvain(rndnet)
+  rndmods[i] <- modularity(sample_louvain)
+}
+
+hist(rndmods)
+clusterlouvain = cluster_louvain(as.undirected(fofgraph))
+observed <- modularity(clusterlouvain)
+observed
+#Your code here
+```
+
+Now calculate the p-value of that permutation test. How likely is to observe that extreme modularity under the null model?
+```{r}
+#Your code here
+pval = pnorm(rndmods)
+```
+
+# 4. Visualizing betweenness
+
+Calculate the betweenness of each of the nodes in your network and plot its distribution. Is it skewed?
+```{r}
+betw <- betweenness(graph)
+hist(betw)
+```
+
+Since the distribution is very skewed, we calculate the logarithm of betweenness values (after adding 1 to avoid zeroes). We normalize by the maximum value to make the numbers between 0 and 1. Then we plot a network with vertex colors using a scale proportional to that value. Can you see the nodes with the highest betweeness? Do they look like the ones that have the most shortest paths passing over them?
+```{r}
+logbetws <- log(betw+1)/max(log(betw+1))
+plot(graph, vertex.color = gray(1-logbetws), vertex.label.cex=0.001, layout=layout_nicely, 
+     vertex.size=5, edge.curved=0.1, edge.width=1, edge.arrow.width=0.1)
+```
+
+```{r}
+graph3 <- igraph_to_networkD3(graph, group = logbetws)
+forceNetwork(Links=graph3$links, Nodes=graph3$nodes, NodeID="name", Group="group", zoom=T, opacity = 1, opacityNoHover = 1)
+```
+# 5. K-core decomposition
+
+Now let's calculate the k-core decomposition, getting the coreness value of each node. Plot its histogram. Does it look more or less skewed than the betweenness?
+```{r}
+#Your code here
+corns = coreness(graph)
+plot(graph, vertex.color = corns, vertex.label.cex = 0.1, edge.arrow.size = 0.1, vertex.size = 5, edge.width = 1, edge.curved = 0.1)
+```
+
+And now we plot with colors according to the coreness of each node. Do you feel any difference to the betweenness?
+```{r}
+plot(graph, vertex.color = cores, vertex.label.cex=0.05, layout=layout_nicely, 
+     vertex.size=5, edge.curved=0.1, edge.width=1)
+```
+
