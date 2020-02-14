@@ -35,6 +35,10 @@ csvedges <- read.csv('graph.csv')
 df <- data.frame(csvedges)
 df <- select(df, c('from', 'to', 'weight'))
 graph <- graph_from_data_frame(df, directed = F)
+
+csvvertices <- read.csv('vertices.csv')
+vdf <- data.frame(csvvertices) %>% select('name','label') %>% unique()
+vdf %>% group_by(name) %>% count() %>% arrange(desc(n))
 ```
 
 
@@ -45,7 +49,7 @@ friends <- df %>%
 friendsoffriends <- df %>% filter(from %in% friends$to | to %in% friends$to | from %in% friends$from | from %in% friends$to)%>%
   filter(weight > 10)
 friendsgraph <- graph_from_data_frame(friends, directed = F)
-fofgraph <- graph_from_data_frame(friendsoffriends, directed = F)
+fofgraph <- graph_from_data_frame(friendsoffriends, directed = F, vertices = vdf)
 ```
 
 Time to plot! Use the examples of plotting in previous exercises and visualize your network:
@@ -78,7 +82,7 @@ library(networkD3)
 graph2 <- igraph_to_networkD3(fofgraph)
 graph2$nodes$comm <- as.character(membership(clusterlouvain))
 chargevec = -30 / (friendsoffriends$weight/sqrt(sum(friendsoffriends$weight^2))) -22
-forceNetwork(Links=graph2$links, Nodes=graph2$nodes, NodeID="name", Group="comm", zoom=T)
+forceNetwork(Links=graph2$links, Nodes=graph2$nodes, NodeID="name", Group="comm", zoom=T, opacity = 1, opacityNoHover = 1)
 ```
 
 # 3. Permutation tests
@@ -100,7 +104,7 @@ N <- 1000
 rndmods <- rep(NA,N)
 for (i in seq(1,N))
 {
-  rndnet <- sample_degseq(out.deg=degree(graph))
+  rndnet <- sample_degseq(out.deg=degree(fofgraph))
   sample_louvain <- cluster_louvain(rndnet)
   rndmods[i] <- modularity(sample_louvain)
 }
