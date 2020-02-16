@@ -16,16 +16,17 @@ dummy = None
 session = requests.Session()
 q = queue.Queue()
 
-q.put(4611686018468695677)
+q.put(4611686018467544385)
 
 edges = pd.DataFrame(columns=['from', 'to', 'weight'])
+vertices = pd.DataFrame(columns=['id', 'name'])
 if os.path.exists('raiddata/edges.pickle'):
     edges = pd.read_pickle("raiddata/edges.pickle")
+if os.path.exists('raiddata/vertices.pickle'):
+    vertices = pd.read_pickle("raiddata/vertices.pickle")
 
 if not os.path.lexists('raiddata'):
     os.mkdir('raiddata')
-if not os.path.exists('raiddata/pgcr'):
-    os.mkdir('raiddata/pgcr')
 if not os.path.exists('raiddata/friendpickle'):
     os.mkdir('raiddata/friendpickle')
 
@@ -34,6 +35,20 @@ while not q.empty():
     while os.path.exists(f'raiddata/friendpickle/{centerNodeDestinyID}.pickle'):
         for friend in pd.read_pickle(f"raiddata/friendpickle/{centerNodeDestinyID}.pickle")['to']:
             q.put(friend)
+            #fill in lost names
+            if str(friend) not in vertices['id'].values:
+                for platform in [3,2,1,4,5,10,254]:
+                    charURL = "https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/?components=100,200"
+                    characterinfo = requests.get(url=charURL.format(platform,friend), headers=PARAMS).json()
+                    if not 'Response' in characterinfo:
+                        continue
+                    response = characterinfo['Response']
+                    name = response['profile']['data']['userInfo']['displayName']
+                    vertices = vertices.append({'id': str(friend),'name': name}, ignore_index= True)
+                    vertices.to_pickle("raiddata/vertices.pickle")
+                    print(f'added {name}:{friend} to vertices.pickle')
+                    break
+
         centerNodeDestinyID = q.get()
     charURL = "https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/?components=100,200"
     characterinfo = None
@@ -105,7 +120,7 @@ while not q.empty():
         partners.append((user['membershipId'],user['displayName']))
 
     #put them into a dataframe, group by unique users and count the common raids
-    df = pd.DataFrame(partners,columns=['destinyid','username'])
+    df = pd.DataFrame(partners, columns=['destinyid','username'])
     count = df.groupby(['destinyid','username']).size().reset_index(name='counts')
     sortedcount = count.sort_values('counts', ascending=False)
     sortedcount.drop(sortedcount.index[0], inplace=True)
@@ -117,10 +132,18 @@ while not q.empty():
     outputedge['to'] = sortedcount['destinyid']
     outputedge['weight'] = sortedcount['counts']
     outputedge.to_pickle(f'raiddata/friendpickle/{centerNodeDestinyID}.pickle')
+
+
     edges = edges.append(outputedge, sort = False)
     edges.drop_duplicates(subset=['from', 'to'], inplace=True)
     #edges = edges[edges['from'] > edges['to']]
     edges.to_pickle(f'raiddata/edges.pickle')
+
+
+    vx = df.drop_duplicates(subset='destinyid')
+    vx.columnns = ['id', 'name']
+    vertices = vertices.append(vx).drop_duplicates(subset='id')
+    vertices.to_pickle(f'raiddata/vertices.pickle')
 
     print(f'done with {centerNodeDestinyID}')
     for did in outputedge['to'].values:

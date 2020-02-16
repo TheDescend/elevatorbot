@@ -15,3 +15,4 @@ Scripts/
 *.ipynb
 *.png
 share/
+raiddata/friendpickle
