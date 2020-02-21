@@ -430,15 +430,6 @@ def addUserMap(discordID, destinyID, serverID):
 def getUserMap(discordID):
     return lookupDestinyID(discordID)
 
-# def getMultipleUserMap(discordIDlist):
-#     returnlist = []
-#     with open('userlist', mode='r+') as json_file:
-#         data = json.load(json_file)
-#         for user in data:
-#             [[_discordID, _destinyID]] = user.items()
-#             if int(_discordID) in discordIDlist:
-#                 returnlist.append((int(_discordID), int(_destinyID)))
-#     return returnlist 
 
 manifest = {}
 def getManifestJson():

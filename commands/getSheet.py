@@ -3,8 +3,8 @@ from io import open
 from generateFastAchievementList import createSheet
 
 import os
-from discord import File
 import time
+import discord
 
 class getSheet(BaseCommand):
 
@@ -31,7 +31,7 @@ class getSheet(BaseCommand):
 
         if time.time() - self.lastupdate < 86400:
             if self.sheetpath is not None:
-                f = File(open(self.sheetpath,'rb'),'AchievementSheet.xlsx')
+                f = discord.File(open(self.sheetpath,'rb'),'AchievementSheet.xlsx')
                 await message.channel.send('Recently generated one, take this instead')
                 await message.channel.send(file=f)
                 return
@@ -42,7 +42,7 @@ class getSheet(BaseCommand):
         async with message.channel.typing():
             self.sheetpath = createSheet()
             if self.sheetpath is not None:
-                f = File(open(self.sheetpath,'rb'),'AchievementSheet.xlsx')
+                f = discord.File(open(self.sheetpath,'rb'),'AchievementSheet.xlsx')
                 await message.channel.send(file=f)
                 await message.channel.send('There you go! Thanks for waiting')
                 self.lastupdate = time.time()

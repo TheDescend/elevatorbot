@@ -7,24 +7,23 @@ import random
 class rollreaction(BaseCommand):
     def __init__(self):
         # A quick description for the help tmessage
-        description = "picks a random reactor from the post above, or the *message_ID* *channel_id* if given"
-        params = []
+        description = "picks a random reactor from the post above"
+        params = ['Number of people to draw']
         super().__init__(description, params)
 
     # Override the handle() method
     # It will be called every time the command is received
     async def handle(self, params, message, client):
-        tmessage = None
-        if len(params) == 0:
-            tmessage = (await message.channel.history(limit=2).flatten())[1]
-        elif len(params) == 2:
-            messageid = int(params[0])
-            channelid = int(params[1])
-            channel = client.get_channel(channelid)
-            if not channel:
-                await message.channel.send('invalid channel id')
-                return
-            tmessage = await channel.fetch_message(messageid)
+        #if len(params) == 0:
+        tmessage = (await message.channel.history(limit=2).flatten())[1]
+        # elif len(params) == 2:
+        #     messageid = int(params[0])
+        #     channelid = int(params[1])
+        #     channel = client.get_channel(channelid)
+        #     if not channel:
+        #         await message.channel.send('invalid channel id')
+        #         return
+        #     tmessage = await channel.fetch_message(messageid)
         if not tmessage:
             await message.channel.send('getting message failed')
             return
@@ -36,8 +35,8 @@ class rollreaction(BaseCommand):
         for u in userlist:
             if u not in uniqueusers:
                 uniqueusers.append(u)
-        if not len(uniqueusers):
-            await message.channel.send('no reactions found')
+        if len(uniqueusers) < int(params[0]):
+            await message.channel.send('not enough reactions found')
             return
-        winner = random.choice(uniqueusers)
-        await message.channel.send(f'Selected user {winner.name}')
+        winners = [winner.mention for winner in random.sample(uniqueusers, int(params[0]))]
+        await message.channel.send(f'Selected users {", ".join(winners)}')

@@ -19,15 +19,10 @@ class updateNames(BaseCommand):
             return
 
         memberlist = sorted(message.guild.members, key=lambda x: x.id)
-        ziplist = [(member,member.id) for member in memberlist]
-        #mappedUsers = zip(memberlist, map(getUserMap, idlist))
-        #print(mappedUsers)
-        ziplist = [(member, getUserMap(memberid)) for (member, memberid) in ziplist]
+        ziplist = [(member, getUserMap(member.id)) for member in memberlist]
         
-        #print(ziplist)
 
         for (discUser, destID) in ziplist:
-            #print(f'checking {discUser.name} with {destID}')
             if destID is None:
                 continue
             url = 'https://www.bungie.net/platform/User/GetMembershipsById/{}/{}/'.format(destID,3)
