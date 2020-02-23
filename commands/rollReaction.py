@@ -35,8 +35,14 @@ class rollreaction(BaseCommand):
         for u in userlist:
             if u not in uniqueusers:
                 uniqueusers.append(u)
-        if len(uniqueusers) < int(params[0]):
+        
+        if len(params) == 1:
+            numDraws = int(params[0])
+        else:
+            numDraws = 1
+            
+        if len(uniqueusers) < numDraws:
             await message.channel.send('not enough reactions found')
             return
-        winners = [winner.mention for winner in random.sample(uniqueusers, int(params[0]))]
+        winners = [winner.mention for winner in random.sample(uniqueusers, numDraws)]
         await message.channel.send(f'Selected users {", ".join(winners)}')

@@ -58,9 +58,8 @@ class setRoles(BaseCommand):
     # Override the handle() method
     # It will be called every time the command is received
     async def handle(self, params, message, client):
-        user = message.guild.get_member(params[0])
+        user = message.guild.get_member(int(params[0]))
         destinyID = getUserMap(params[0])
-
         fullMemberMap = getFullMemberMap()
         if not fullMemberMap:
             await message.channel.send('Seems like bungo is offline, try again later')
