@@ -30,10 +30,13 @@ def result():
     print(f'code is {code}')
     (discordID,serverID) = response['state'].split(':') #mine
 
+    clientsecret = BUNGIE_OAUTH + ":" + BUNGIE_SECRET
+    clientsecret = clientsecret.encode('UTF-8')
+
     url = 'https://www.bungie.net/platform/app/oauth/token/'
     headers = {
         'content-type': 'application/x-www-form-urlencoded',
-        'Authorization': f'Basic {base64.b64encode(BUNGIE_OAUTH + ":" + BUNGIE_SECRET)}'
+        'Authorization': f'Basic {base64.b64encode(clientsecret)}'
     }
     data = {
         "grant_type": "authorization_code",
