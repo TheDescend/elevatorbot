@@ -19,8 +19,10 @@ def shutdown_server():
 
 @app.route('/')
 def result():
+    print('got request')
     response = request.args
     code = response['code'] #for user auth
+    print(f'code is {code}')
     (discordID,serverID) = response['state'].split(':') #mine
 
     url = 'https://www.bungie.net/platform/app/oauth/token/'
@@ -33,6 +35,7 @@ def result():
 
     r = requests.post(url, data=data, headers=headers)
     access_token = r.json()['access_token']
+    print(f'bungie responded {r.content} and the token is {access_token}')
     #membershipid = r.json()['membership_id']
 
     reqParams = {
