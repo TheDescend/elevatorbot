@@ -34,16 +34,16 @@ def result():
     url = 'https://www.bungie.net/platform/app/oauth/token/'
     headers = {
         'content-type': 'application/x-www-form-urlencoded',
-        'Authorization': f'Basic {base64.b64encode(clientsecret)}'
+        'authorization': f'Basic {base64.b64encode(clientsecret)}'
     }
+
     data = {
         "grant_type": "authorization_code",
-        "code": code,
-        "client_id": BUNGIE_OAUTH
+        "code": code
     }
 
     r = requests.post(url, data=data, headers=headers)
-    print(r.content)
+    print(r)
     data = r.json()
     access_token = data['access_token']
     refresh_token = data['refresh_token']
