@@ -37,10 +37,7 @@ def result():
         'authorization': f'Basic {base64.b64encode(clientsecret)}'
     }
 
-    data = {
-        "grant_type": "authorization_code",
-        "code": code
-    }
+    data = f'grant_type=authorization_code&code={code}'
 
     r = requests.post(url, data=data, headers=headers)
     print(r)
