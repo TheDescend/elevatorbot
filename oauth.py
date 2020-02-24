@@ -54,7 +54,7 @@ def result():
 
 def start_server():
     print(f'server running')
-    app.run(host= '0.0.0.0',port=443, ssl_context=context)
+    app.run(host= '0.0.0.0',port=443) #, ssl_context=context)
 
 start_server()
 
