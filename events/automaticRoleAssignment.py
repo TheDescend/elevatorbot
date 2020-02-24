@@ -24,7 +24,12 @@ class AutomaticRoleAssignment(BaseEvent):
             if not destinyID:
                 destinyID = getUserIDbySnowflakeAndClanLookup(discordUser,fullMemberMap)
                 if destinyID:
+<<<<<<< HEAD
                     await newtonslab.send(f'''Hi! User {discordUser.name} aka {discordUser.nick} was not found in my database!\nIf his rr is https://raid.report/pc/{pcid} please use ```!forceregister {discordUser.id} {pcid}```''')
+=======
+                    await newtonslab.send(f'''Hi! User {discordUser.name} aka {discordUser.nick} was not found in my database!\n 
+                    If his rr is https://raid.report/pc/{destinyID} please use ```!forceregister {discordUser.id} {destinyID}```''')
+>>>>>>> 86466da4d645c960982ec53bd42506a7fa6da93e
                 elif not discordUser.bot: 
                     await newtonslab.send(f'''Hi! User {discordUser.name} aka {discordUser.nick} was not found in my database!\nPlease use ```!forceregister {discordUser.id} <destinyID>``` so he can get synced next time''')
                     continue
@@ -37,3 +42,4 @@ class AutomaticRoleAssignment(BaseEvent):
                     await assignRolesToUser([rolename],discordUser,guild)
                 else:
                     await removeRolesFromUser([rolename], discordUser, guild)
+        await newtonslab.send('done with role update <:CaydeThumbsUp:670997683774685234>')
