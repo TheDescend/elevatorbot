@@ -7,7 +7,7 @@ import base64
 from functions import getIDfromBungie, getUserMap, addUserMap
 from multiprocessing import Process
 from OpenSSL import SSL
-context = SSL.Context(SSL.PROTOCOL_TLSv1_2)
+
 context= ('/etc/ssl/private/ssl-cert-snakeoil.key', '/etc/ssl/certs/ca-certificates.crt')
 
 
