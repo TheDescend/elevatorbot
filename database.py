@@ -12,20 +12,39 @@ def db_connect(db_path=DEFAULT_PATH):
 
 def insertUser(discordServerID, *, discordID, destinyID):
     con = db_connect()
-    product_sql = """INSERT INTO discordGuardians 
-        (discordSnowflake, destinyID,signupDate,serverID) 
-        VALUES (?, ?, ?, ?)"""
+    product_sql = """INSERT INTO discordGuardiansToken 
+        (discordSnowflake, destinyID,signupDate,serverID, token, refresh_token) 
+        VALUES (?, ?, ?, ?, ?, ?)"""
     try:
-        con.execute(product_sql, (discordID, destinyID, int(time.time()), discordServerID))
+        con.execute(product_sql, (discordID, destinyID, int(time.time()), discordServerID, None, None))
         con.commit()
         con.close()
         return True
     except sqlite3.IntegrityError:
         return False
 
+def insertToken(discordID, destinyID, discordServerID, token, refresh_token):
+    con = db_connect()
+    insert_sql = """INSERT INTO discordGuardiansToken
+        (discordSnowflake, destinyID, signupDate, serverID, token, refresh_token) 
+        VALUES (?, ?, ?, ?, ?, ?)"""
+    update_sql = """UPDATE discordGuardiansToken
+        SET 
+        token = ?,
+        refresh_token = ?
+        WHERE discordSnowflake = ?"""
+    try:
+        con.execute(insert_sql, (discordID, destinyID, int(time.time()), discordServerID, token, refresh_token))
+        con.commit()
+        con.close()
+    except sqlite3.IntegrityError:
+        con.execute(update_sql, (token, refresh_token, discordID))
+        con.commit()
+        con.close()
+
 def removeUser(discordID):
     con = db_connect()
-    product_sql = """DELETE FROM discordGuardians 
+    product_sql = """DELETE FROM discordGuardiansToken 
         WHERE discordSnowflake = ? """
 
     try:
@@ -38,7 +57,7 @@ def removeUser(discordID):
 
 def lookupDestinyID(discordID):
     con = db_connect()
-    getUser = """SELECT destinyID FROM discordGuardians
+    getUser = """SELECT destinyID FROM discordGuardiansToken
         WHERE discordSnowflake = ?"""
     result = con.execute(getUser, (discordID,)).fetchone() or [None]
     con.close()
@@ -46,15 +65,15 @@ def lookupDestinyID(discordID):
 
 def lookupDiscordID(destinyID):
     con = db_connect()
-    getUser = """SELECT discordSnowflake FROM discordGuardians
+    getUser = """SELECT discordSnowflake FROM discordGuardiansToken
         WHERE destinyID = ?"""
-    result = con.execute(getUser, (discordID,)).fetchone() or [None]
+    result = con.execute(getUser, (destinyID,)).fetchone() or [None]
     con.close()
     return result[0]
 
 def printall():
     con = db_connect()
-    getAll = """SELECT * FROM discordGuardians"""
+    getAll = """SELECT * FROM discordGuardiansToken"""
     for row in con.execute(getAll).fetchall():
         print(row)
 
@@ -81,8 +100,8 @@ def getMarkovPairs():
 #   table discordGuardians(discordSnowflake, destinyID,signupDate, serverID)
 #   table messagedb(msg, userid, channelid, msgid, msgdate)
 #   table markovpairs(word1, word2)
-#
-#
+#   
+#   
 #
 #
 #

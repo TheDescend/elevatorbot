@@ -1,12 +1,13 @@
 import requests
-from config import BUNGIE_OAUTH, BUNGIE_TOKEN
+from config import BUNGIE_OAUTH, BUNGIE_TOKEN, BUNGIE_SECRET
 import webbrowser
 import socket
 from flask import Flask, request
 import base64
-from functions import getIDfromBungie, getUserMap, addUserMap
+from database import insertToken
 from multiprocessing import Process
 from OpenSSL import SSL
+import base64
 
 context= ('/etc/ssl/private/ssl-cert-snakeoil.key', '/etc/ssl/certs/ca-certificates.crt')
 
@@ -30,7 +31,10 @@ def result():
     (discordID,serverID) = response['state'].split(':') #mine
 
     url = 'https://www.bungie.net/platform/app/oauth/token/'
-    headers = {'content-type': 'application/x-www-form-urlencoded'}
+    headers = {
+        'content-type': 'application/x-www-form-urlencoded',
+        'Authorization': f'Basic {base64.b64encode(BUNGIE_OAUTH + ":" + BUNGIE_SECRET)}'
+    }
     data = {
         "grant_type": "authorization_code",
         "code": code,
@@ -38,7 +42,9 @@ def result():
     }
 
     r = requests.post(url, data=data, headers=headers)
-    access_token = r.json()['access_token']
+    data = r.json()
+    access_token = data['access_token']
+    refresh_token = data['refresh_token']
     print(f'bungie responded {r.content} and the token is {access_token}')
     #membershipid = r.json()['membership_id']
 
@@ -51,7 +57,7 @@ def result():
     response = r.json()['Response']
     membershiplist = response['destinyMemberships']
     for membership in membershiplist:
-        addUserMap(int(discordID), int(membership['membershipId']), int(serverID))
+        insertToken(int(discordID), int(membership['membershipId']), int(serverID), access_token, refresh_token)
         print(discordID, ' has ID ', membership['membershipId'])
     return 'Thank you for signing up with <h1> Gravity Science </h1> !\nThere will be cake' # response to your request.
 
