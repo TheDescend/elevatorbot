@@ -8,8 +8,7 @@ from functions import getIDfromBungie, getUserMap, addUserMap
 from multiprocessing import Process
 from OpenSSL import SSL
 context = SSL.Context(SSL.PROTOCOL_TLSv1_2)
-context.use_privatekey_file('/etc/ssl/private/ssl-cert-snakeoil.key')
-context.use_certificate_file('/etc/ssl/certs/ca-certificates.crt')
+context= ('/etc/ssl/private/ssl-cert-snakeoil.key', '/etc/ssl/certs/ca-certificates.crt')
 
 
 app = Flask(__name__)
