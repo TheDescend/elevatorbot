@@ -6,6 +6,11 @@ from flask import Flask, request
 import base64
 from functions import getIDfromBungie, getUserMap, addUserMap
 from multiprocessing import Process
+from OpenSSL import SSL
+context = SSL.Context(SSL.PROTOCOL_TLSv1_2)
+context.use_privatekey_file('/etc/ssl/private/ssl-cert-snakeoil.key')
+context.use_certificate_file('/etc/ssl/certs/ca-certificates.crt')
+
 
 app = Flask(__name__)
 
@@ -50,5 +55,7 @@ def result():
 
 def start_server():
     print(f'server running')
-    app.run(host= '0.0.0.0',port=443, ssl_context='adhoc')
+    app.run(host= '0.0.0.0',port=443, ssl_context=context)
+
+start_server()
 
