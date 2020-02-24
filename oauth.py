@@ -1,5 +1,5 @@
 import requests
-from config import BUNGIE_OAUTH, BUNGIE_TOKEN
+from config import BUNGIE_OAUTH_ID, BUNGIE_TOKEN
 import webbrowser
 import socket
 from flask import Flask, request
@@ -34,10 +34,11 @@ def result():
     data = {
         "grant_type": "authorization_code",
         "code": code,
-        "client_id": BUNGIE_OAUTH
+        "client_id": BUNGIE_OAUTH_ID
     }
 
     r = requests.post(url, data=data, headers=headers)
+    print(r.content)
     access_token = r.json()['access_token']
     print(f'bungie responded {r.content} and the token is {access_token}')
     #membershipid = r.json()['membership_id']
