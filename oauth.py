@@ -9,8 +9,6 @@ from multiprocessing import Process
 from OpenSSL import SSL
 import base64
 
-context= ('/etc/ssl/private/ssl-cert-snakeoil.key', '/etc/ssl/certs/ca-certificates.crt')
-
 
 app = Flask(__name__)
 
@@ -41,7 +39,7 @@ def result():
     data = {
         "grant_type": "authorization_code",
         "code": code,
-        "client_id": BUNGIE_OAUTH_ID
+        "client_id": BUNGIE_OAUTH
     }
 
     r = requests.post(url, data=data, headers=headers)
