@@ -1,5 +1,5 @@
 import requests
-from config import BUNGIE_OAUTH, BUNGIE_TOKEN, BUNGIE_SECRET
+from config import BUNGIE_OAUTH, BUNGIE_TOKEN, BUNGIE_SECRET, B64_SECRET
 import webbrowser
 import socket
 from flask import Flask, request
@@ -28,13 +28,10 @@ def result():
     print(f'code is {code}')
     (discordID,serverID) = response['state'].split(':') #mine
 
-    clientsecret = BUNGIE_OAUTH + ":" + BUNGIE_SECRET
-    clientsecret = clientsecret.encode('UTF-8')
-
     url = 'https://www.bungie.net/platform/app/oauth/token/'
     headers = {
         'content-type': 'application/x-www-form-urlencoded',
-        'authorization': f'Basic {base64.b64encode(clientsecret)}'
+        'authorization': f'Basic {B64_SECRET}'
     }
 
     data = f'grant_type=authorization_code&code={code}'
