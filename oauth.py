@@ -43,7 +43,7 @@ def result():
     }
 
     r = requests.post(url, data=data, headers=headers)
-
+    print(r.content)
     data = r.json()
     access_token = data['access_token']
     refresh_token = data['refresh_token']
