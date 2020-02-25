@@ -14,6 +14,9 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import pathlib
+from config import BUNGIE_TOKEN
+from database import getToken
+from oauth import refresh_token
 
 if False:
     http.client.HTTPConnection.debuglevel = 1
@@ -397,7 +400,7 @@ def getCharacterList(destinyID):
         characterinfo = getJSONfromURL(charURL.format(i, destinyID))
         if characterinfo:
             break
-    return characterinfo['Response']['characters']['data'].keys()
+    return list(characterinfo['Response']['characters']['data'].keys())
 
 def getPlatform(destinyID):
     charURL = "https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/?components=100,200"
@@ -492,3 +495,32 @@ def getTop10PveGuns(destinyID):
     plt.savefig(f'{destinyID}.png')
     plt.clf()
     return pathlib.Path(__file__).parent / f'{destinyID}.png'
+
+def getSpiderMaterials(discordID, destinyID, characterID):
+    token = getToken(discordID)
+    system = 3
+    url = f'https://www.bungie.net/Platform/Destiny2/{system}/Profile/{destinyID}/Character/{characterID}/Vendors/863940356/?components=400,401,402'
+    print(url)
+    headers = {'Authorization': f'Bearer {token}', 'x-api-key': BUNGIE_TOKEN}
+    print(headers)
+    r = requests.get(url, headers = headers)
+    res = r.json()
+    sales = res['Response']['sales']['data']
+    itemhashurl = 'https://bungie.net/platform/Destiny2/Manifest/DestinyInventoryItemDefinition/{hashIdentifier}/'
+    returntext = ''
+    for _, sale in sales.items():
+        soldhash = sale["itemHash"]
+        pricehash = sale["costs"][0]["itemHash"]
+
+        soldurl = itemhashurl.format(hashIdentifier=soldhash)
+        priceurl = itemhashurl.format(hashIdentifier=pricehash)
+
+        r = requests.get(soldurl, headers=headers)
+        soldname = r.json()['Response']['displayProperties']['name'][9:]
+        if 'traitIds' in r.json()['Response'] and 'item_type.bounty' in r.json()['Response']['traitIds']:
+            continue
+        r = requests.get(priceurl, headers=headers)
+        pricename = r.json()['Response']['displayProperties']['name']
+
+        returntext += f'selling {sale["quantity"]} {soldname} for {sale["costs"][0]["quantity"]} {pricename}\n'
+    return returntext

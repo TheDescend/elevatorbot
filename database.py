@@ -23,12 +23,30 @@ def insertUser(discordServerID, *, discordID, destinyID):
     except sqlite3.IntegrityError:
         return False
 
+def getRefreshToken(discordID):
+    con = db_connect()
+    c = con.cursor()
+    select_sql = """SELECT refresh_token FROM discordGuardiansToken
+        WHERE discordSnowflake = ?"""
+    c.execute(select_sql, (discordID,))
+    return c.fetchone()[0]
+    
+
+def getToken(discordID):
+    con = db_connect()
+    c = con.cursor()
+    select_sql = """SELECT token FROM discordGuardiansToken
+        WHERE discordSnowflake = ?"""
+    c.execute(select_sql, (discordID,))
+    return c.fetchone()[0]
+
 def insertToken(discordID, destinyID, discordServerID, token, refresh_token):
     con = db_connect()
     insert_sql = """INSERT INTO discordGuardiansToken
         (discordSnowflake, destinyID, signupDate, serverID, token, refresh_token) 
         VALUES (?, ?, ?, ?, ?, ?)"""
-    update_sql = """UPDATE discordGuardiansToken
+    update_sql = """
+        UPDATE discordGuardiansToken
         SET 
         token = ?,
         refresh_token = ?
