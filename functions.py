@@ -498,13 +498,16 @@ def getTop10PveGuns(destinyID):
 
 def getSpiderMaterials(discordID, destinyID, characterID):
     token = getToken(discordID)
+    if not token:
+        return None
     system = 3
     url = f'https://www.bungie.net/Platform/Destiny2/{system}/Profile/{destinyID}/Character/{characterID}/Vendors/863940356/?components=400,401,402'
-    print(url)
     headers = {'Authorization': f'Bearer {token}', 'x-api-key': BUNGIE_TOKEN}
-    print(headers)
     r = requests.get(url, headers = headers)
     res = r.json()
+    if int(res['ErrorCode']) == 401:
+        refresh_token(discordID)
+        return getSpiderMaterials(discordID, destinyID, characterID)
     sales = res['Response']['sales']['data']
     itemhashurl = 'https://bungie.net/platform/Destiny2/Manifest/DestinyInventoryItemDefinition/{hashIdentifier}/'
     returntext = ''

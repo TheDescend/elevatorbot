@@ -68,13 +68,27 @@ def result():
     membershiplist = response['destinyMemberships']
     for membership in membershiplist:
         insertToken(int(discordID), int(membership['membershipId']), int(serverID), access_token, refresh_token)
-        print(discordID, ' has ID ', membership['membershipId'])
-    return 'Thank you for signing up with <h1> Gravity Science </h1> !\nThere will be cake' # response to your request.
+        print(discordID, 'has ID', membership['membershipId'])
+    return 'Thank you for signing up with <h1> Elevator Bot </h1>\n <p style="bottom: 20" >There will be cake</p>' # response to your request.
+
+@app.route('/.well-known/acme-challenge/<challenge>')
+def letsencrypt_check(challenge):
+    challenge_response = {
+        "<challenge_token>":"<challenge_response>",
+        "<challenge_token>":"<challenge_response>"
+    }
+    return Response(challenge_response[challenge], mimetype='text/plain')
+
+@app.before_request
+def before_request():
+    if request.url.startswith('http://'):
+        return redirect(request.url.replace('http://', 'https://'), code=301)
 
 def start_server():
     if __name__ == '__main__':
         print(f'server running')
-        app.run(host= '0.0.0.0',port=443, ssl_context='adhoc') #, ssl_context=context)
+        context = ('/etc/letsencrypt/live/rc19v2108.dnh.net/fullchain.pem', '/etc/letsencrypt/live/rc19v2108.dnh.net/privkey.pem')
+        app.run(host= '0.0.0.0',port=443, ssl_context=context)
 
 start_server()
 

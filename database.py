@@ -29,7 +29,10 @@ def getRefreshToken(discordID):
     select_sql = """SELECT refresh_token FROM discordGuardiansToken
         WHERE discordSnowflake = ?"""
     c.execute(select_sql, (discordID,))
-    return c.fetchone()[0]
+    results = c.fetchone()
+    if len(results) == 1:
+        return results[0]
+    return None
     
 
 def getToken(discordID):
@@ -38,7 +41,10 @@ def getToken(discordID):
     select_sql = """SELECT token FROM discordGuardiansToken
         WHERE discordSnowflake = ?"""
     c.execute(select_sql, (discordID,))
-    return c.fetchone()[0]
+    results = c.fetchone()
+    if len(results) == 1:
+        return results[0]
+    return None
 
 def insertToken(discordID, destinyID, discordServerID, token, refresh_token):
     con = db_connect()

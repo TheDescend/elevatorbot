@@ -69,4 +69,8 @@ class spoder(BaseCommand):
     # Override the handle() method
     # It will be called every time the command is received
     async def handle(self, params, message, client):
-        await message.channel.send(getSpiderMaterials(message.author.id, lookupDestinyID(message.author.id), getCharacterList(lookupDestinyID(message.author.id))[0]))
+        discordID = message.author.id
+        destinyID = lookupDestinyID(discordID)
+        anyCharID = getCharacterList(destinyID)[0]
+        materialtext = getSpiderMaterials(discordID, destinyID, anyCharID)
+        await message.channel.send(materialtext)
