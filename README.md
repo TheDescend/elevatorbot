@@ -7,11 +7,11 @@
 - dependencies are in requirements.txt
 - for issues, check this github
 
-config.py should have
+## config.py
 
 - COMMAND_PREFIX = "!"
 - NOW_PLAYING = COMMAND_PREFIX + "commands"
-# The bot/bungie tokens. Keep those secret!
+`The bot/bungie tokens. Keep those secret!`
 - BOT_TOKEN = *DISCORD-BOT-TOKEN*
 - BUNGIE_TOKEN = *BUNGIE-API-TOKEN*
 - BUNGIE_OAUTH = *BUNGIE-OAUTH-TOKEN*
