@@ -2,15 +2,19 @@ import os
 import sqlite3
 import time
 
-# create a default path to connect to and create (if necessary) a database
-# called 'database.sqlite3' in the same directory as this script
 DEFAULT_PATH = os.path.join(os.path.dirname(__file__), 'userdb.sqlite3')
 
+#### ALL DATABASE RELATED FUNCTIONS ####
+
+#TODO have the DB remember the system of the player
+
 def db_connect(db_path=DEFAULT_PATH):
+    """ Returns a connection object for the database """
     con = sqlite3.connect(db_path)
     return con
 
 def insertUser(discordServerID, *, discordID, destinyID):
+    """ Inserts a discordID - destinyID mapping into the database, f(discordServerID, discordID = XX, destinyID = YY), returns True if successful """
     con = db_connect()
     product_sql = """INSERT INTO discordGuardiansToken 
         (discordSnowflake, destinyID,signupDate,serverID, token, refresh_token) 
@@ -24,6 +28,7 @@ def insertUser(discordServerID, *, discordID, destinyID):
         return False
 
 def getRefreshToken(discordID):
+    """ Gets a Users Bungie-Refreshtoken or None """
     con = db_connect()
     c = con.cursor()
     select_sql = """SELECT refresh_token FROM discordGuardiansToken
@@ -36,6 +41,7 @@ def getRefreshToken(discordID):
     
 
 def getToken(discordID):
+    """ Gets a Users Bungie-Token or None"""
     con = db_connect()
     c = con.cursor()
     select_sql = """SELECT token FROM discordGuardiansToken
@@ -47,10 +53,13 @@ def getToken(discordID):
     return None
 
 def insertToken(discordID, destinyID, discordServerID, token, refresh_token):
+    """ Inserts a User or Token into the database """ #TODO split up in two functions or make a overloaded one?
+    
     con = db_connect()
     insert_sql = """INSERT INTO discordGuardiansToken
         (discordSnowflake, destinyID, signupDate, serverID, token, refresh_token) 
         VALUES (?, ?, ?, ?, ?, ?)"""
+
     update_sql = """
         UPDATE discordGuardiansToken
         SET 
@@ -67,10 +76,11 @@ def insertToken(discordID, destinyID, discordServerID, token, refresh_token):
         con.close()
 
 def removeUser(discordID):
+    """ Removes a User from the DB (by discordID), returns True if successful"""
+
     con = db_connect()
     product_sql = """DELETE FROM discordGuardiansToken 
         WHERE discordSnowflake = ? """
-
     try:
         con.execute(product_sql, (discordID,))
         con.commit()
@@ -80,6 +90,7 @@ def removeUser(discordID):
         return False
 
 def lookupDestinyID(discordID):
+    """ Takes discordID and returns destinyID """
     con = db_connect()
     getUser = """SELECT destinyID FROM discordGuardiansToken
         WHERE discordSnowflake = ?"""
@@ -88,6 +99,7 @@ def lookupDestinyID(discordID):
     return result[0]
 
 def lookupDiscordID(destinyID):
+    """ Takes destinyID and returns discordID """
     con = db_connect()
     getUser = """SELECT discordSnowflake FROM discordGuardiansToken
         WHERE destinyID = ?"""
@@ -96,12 +108,14 @@ def lookupDiscordID(destinyID):
     return result[0]
 
 def printall():
+    """ **DEBUG** Prints the DB to console """
     con = db_connect()
     getAll = """SELECT * FROM discordGuardiansToken"""
     for row in con.execute(getAll).fetchall():
         print(row)
 
 def insertIntoMessageDB(messagetext, userid, channelid, msgid, msgdate):
+    """ Used to collect messages for markov-chaining, returns True if successful """
     con = db_connect()
     product_sql = """INSERT INTO messagedb 
         (msg, userid, channelid, msgid, msgdate) 
@@ -115,29 +129,14 @@ def insertIntoMessageDB(messagetext, userid, channelid, msgid, msgdate):
         return False
 
 def getMarkovPairs():
+    """ Gets all the markov-pairs """
     con = db_connect()
     getAll = """SELECT * FROM markovpairs"""
     return con.execute(getAll).fetchall()
 
 #######################################################################################
 #
-#   table discordGuardians(discordSnowflake, destinyID,signupDate, serverID)
-#   table messagedb(msg, userid, channelid, msgid, msgdate)
-#   table markovpairs(word1, word2)
+#   table discordGuardiansToken     (discordSnowflake, destinyID, signupDate, serverID, token, refresh_token) 
+#   table messagedb                 (msg, userid, channelid, msgid, msgdate)
+#   table markovpairs               (word1, word2)
 #   
-#   
-#
-#
-#
-#
-#
-# general = 670400011519000616
-# media = 670400027155365929
-# spoilerchat = 670402166103474190
-# offtopic = 670362162660900895
-#
-#
-#
-#
-#
-#

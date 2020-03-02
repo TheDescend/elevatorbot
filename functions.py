@@ -1,23 +1,20 @@
 import requests
-
-import config
-from dict import platform,requirementHashes, clanids
-from fuzzywuzzy import fuzz
 import discord
-import json
-from database import insertUser, lookupDestinyID
-import time
 import logging
 import http.client
+
+from dict               import requirementHashes, clanids
+from fuzzywuzzy         import fuzz
+from database           import insertUser, lookupDestinyID
+
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import pathlib
 from config import BUNGIE_TOKEN
-from database import getToken
-from oauth import refresh_token
 
+#HTTP debugging, set to True to enable
 if False:
     http.client.HTTPConnection.debuglevel = 1
     logging.basicConfig()
@@ -27,11 +24,11 @@ if False:
     req_log.propagate = True
 
 bungieAPI_URL = "https://www.bungie.net/Platform"
-PARAMS = {'X-API-Key': config.BUNGIE_TOKEN}
+PARAMS = {'X-API-Key': BUNGIE_TOKEN}
 dummy = None
 session = requests.Session()
 def getJSONfromURL(requestURL):
-    #print(jsonByURL) #TODO
+    """ Grabs JSON from the specified URL (no oauth)"""
     for _ in range(3):
         try:
             r = session.get(url=requestURL, headers=PARAMS)
@@ -47,7 +44,6 @@ def getJSONfromURL(requestURL):
             return None
         elif r.status_code == 404:
             print('no stats found')
-            dummy = 5
             return None
         elif r.status_code == 500:
             print(f'bad request for {requestURL}')
@@ -59,54 +55,46 @@ def getJSONfromURL(requestURL):
     print('request failed 3 times') 
     return None
 
-getSystemByPlayer = {}
-def getComponentInfoAsJSON(playerID, components):
-    if playerID in getSystemByPlayer:
-        url = bungieAPI_URL + '/Destiny2/{}/Profile/{}?components={}'.format(getSystemByPlayer[playerID], playerID, components)
-        playerData = getJSONfromURL(url)
-        return playerData
-    for systemid in [3,2,1,4,5,10,254]: #checking steam, ps, xbox, blizzard, weird ones
+#https://bungie-net.github.io/multi/operation_get_Destiny2-GetProfile.html
+def getComponentInfoAsJSON(playerID, components): 
+    """ Returns certain profile informations, depending on components specified """
+    for systemid in [3,2,1,4,5,10,254]: #checking steam, ps, xbox, blizzard, *weird_ones
         url = bungieAPI_URL + '/Destiny2/{}/Profile/{}?components={}'.format(systemid, playerID, components)
         playerData = getJSONfromURL(url)
         if playerData is not None:
-            getSystemByPlayer[playerID] = systemid
             return playerData
     print('getting playerinfo failed')
     return None
 
+
 def getJSONfromRR(playerID):
+    """ Gets a Players stats from the RR-API """
     requestURL = 'https://b9bv2wd97h.execute-api.us-west-2.amazonaws.com/prod/api/player/{}'.format(playerID)
     return getJSONfromURL(requestURL)
 
-def getIDfromBungie(bungiePlayerID, system=None):
-    if system:
-        url = 'https://www.bungie.net/platform/User/GetMembershipsById/{}/{}/'.format(bungiePlayerID,system)
-        r=requests.get(url=url, headers=PARAMS)
-        memberships = r.json()['Response']['destinyMemberships']
+
+def getIDfromBungie(bungiePlayerID):
+    """ [depracted] In: bungieID, Out: destinyID, optionally specify the system the player uses """
+    for systemid in [3,2,1,4,5,10,254]:
+        url = 'https://www.bungie.net/platform/User/GetMembershipsById/{}/{}/'.format(bungiePlayerID,systemid)
+        resp = getJSONfromURL(url)
+        if not resp:
+            continue
+        memberships = resp['Response']['destinyMemberships']
         for membership in memberships:
             if membership['membershipType'] == 3:
                 return membership['membershipId']
-    else:
-        for systemid in [3,2,1,4,5,10,254]:
-            url = 'https://www.bungie.net/platform/User/GetMembershipsById/{}/{}/'.format(bungiePlayerID,systemid)
-            resp = getJSONfromURL(url)
-            if not resp:
-                continue
-            memberships = resp['Response']['destinyMemberships']
-            for membership in memberships:
-                if membership['membershipType'] == 3:
-                    return membership['membershipId']
-def getRRLink(bungiePlayerID, system=3):
-    print('https://raid.report/pc/' +getIDfromBungie(bungiePlayerID, system))
 
-
-def playerHasCollectible(playerid, cHash, systemid=3):
+#https://data.destinysets.com/
+def playerHasCollectible(playerid, cHash):
+    """ Returns boolean whether the player <playerid> has the collecible <cHash> """
     userCollectibles = getComponentInfoAsJSON(playerid, 800)
     if not userCollectibles or 'data' not in userCollectibles['Response']['profileCollectibles']:
         return False
     collectibles = userCollectibles['Response']['profileCollectibles']['data']['collectibles']
     return collectibles[str(cHash)]['state'] & 1 == 0
-
+#   Check whether it's not (not aquired), which means that the firstbit can't be 1   
+#
 #   None = 0,
 #   NotAcquired = 1,
 #   Obscured = 2,
@@ -119,28 +107,27 @@ def playerHasCollectible(playerid, cHash, systemid=3):
 
 
 
-playerActivities = {} #used as cache for getClearCount per player
-nodata = []
+playerActivities = {}   #used as cache for getClearCount per player
+nodata = []             #list of private players
 def getClearCount(playerid, activityHash):
+    """ Gets the clearcount for player <playerid> of activity <activityHash> """
     if playerid in nodata:
-        return 0
+        return -1 #always fails requirements
     if not playerid in playerActivities.keys():
         profileInfo = getJSONfromRR(playerid)
         if profileInfo is None:
             nodata.append(playerid)
             return -1
         playerActivities[playerid] = profileInfo['response']['activities'] # list of dicts that contain activityHash and values
-        #print(playerActivities)
     counter = 0
     for activityInfo in playerActivities[playerid]:
         if activityInfo['activityHash'] == activityHash:
             counter += activityInfo['values']['fullClears']
     return counter
-
-#print(getClearCount(4611686018451177627, 119944200))
     
 
 def flawlessList(playerid):
+    """ returns the list of all flawless raids the player <playerid> has done """
     profileInfo = getJSONfromRR(playerid)
     if profileInfo is None:
         return []
@@ -152,7 +139,8 @@ def flawlessList(playerid):
             flawlessL.append(raid['activityHash'])
     return flawlessL
 
-def getTriumphsJSON(playerID, system=3):
+def getTriumphsJSON(playerID):
+    """ returns the json containing all triumphs the player <playerID> has """
     achJSON = getComponentInfoAsJSON(playerID, 900)
     if not achJSON:
         return None
@@ -161,6 +149,7 @@ def getTriumphsJSON(playerID, system=3):
     return achJSON['Response']['profileRecords']['data']['records']
 
 def playerHasTriumph(playerid, recordHash):
+    """ returns True if the player <playerid> has the triumph <recordHash> """
     status = True
     triumphs = getTriumphsJSON(playerid)
     if triumphs is None:
@@ -175,7 +164,6 @@ def playerHasClears(playerid, n, raidHashes):
     count = 0
     for h in raidHashes:
         count += getClearCount(playerid, h)
-    #print(str(count >= n) + ' for ' + str(raidHashes))
     return count >= n
 
 def playerHasFlawless(playerid, raidHashes):
@@ -185,11 +173,7 @@ def playerHasFlawless(playerid, raidHashes):
             return True
     return False
 
-tempcachepvestats = []
 def getPlayersPastPVE(destinyID):
-    global tempcachepvestats
-    # if len(tempcachepvestats) > 0:
-    #     return tempcachepvestats
     charURL = "https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/?components=100,200"
     characterinfo = None
     platform = None
@@ -214,8 +198,6 @@ def getPlayersPastPVE(destinyID):
             if not rep or not rep['Response']:
                 break
             activitylist += rep['Response']['activities']
-    tempcachepvestats = [a for a in activitylist]
-    len(activitylist)
     return activitylist
 
 def getPlayerCount(instanceID):
@@ -272,7 +254,7 @@ def playerHasRole(playerid, role, year):
             return False
     return True
 
-#print(playerHasRole(4611686018467544385, 'Two-Man Argos', 'Addition'))
+
 def returnIfHasRoles(playerid, role, year):
     if playerHasRole(playerid, role, year):
         return role
@@ -289,6 +271,7 @@ def getPlayerRoles(playerid, existingRoles = []):
                 # if role in existingRoles or ('replaced_by' in roledata.keys() and any([x in existingRoles for x in roledata['replaced_by']])):
                 #     roles.append(role)
                 #     continue
+                ## enable to not recheck existing roles
                 processes.append(executor.submit(returnIfHasRoles, playerid, role, year))
 
     for task in as_completed(processes):
@@ -323,7 +306,6 @@ def getPlayerRoles(playerid, existingRoles = []):
 
     global tempcachepvestats
     tempcachepvestats = []
-    #print(f'getting Roles took {time.time()-starttime}s')
     return (roles, redundantRoles)
 
 def getPlayerStats(destinyID):
@@ -496,34 +478,12 @@ def getTop10PveGuns(destinyID):
     plt.clf()
     return pathlib.Path(__file__).parent / f'{destinyID}.png'
 
-def getSpiderMaterials(discordID, destinyID, characterID):
-    token = getToken(discordID)
-    if not token:
-        return None
-    system = 3
-    url = f'https://www.bungie.net/Platform/Destiny2/{system}/Profile/{destinyID}/Character/{characterID}/Vendors/863940356/?components=400,401,402'
-    headers = {'Authorization': f'Bearer {token}', 'x-api-key': BUNGIE_TOKEN}
-    r = requests.get(url, headers = headers)
-    res = r.json()
-    if int(res['ErrorCode']) == 401:
-        refresh_token(discordID)
-        return getSpiderMaterials(discordID, destinyID, characterID)
-    sales = res['Response']['sales']['data']
-    itemhashurl = 'https://bungie.net/platform/Destiny2/Manifest/DestinyInventoryItemDefinition/{hashIdentifier}/'
-    returntext = ''
-    for _, sale in sales.items():
-        soldhash = sale["itemHash"]
-        pricehash = sale["costs"][0]["itemHash"]
 
-        soldurl = itemhashurl.format(hashIdentifier=soldhash)
-        priceurl = itemhashurl.format(hashIdentifier=pricehash)
-
-        r = requests.get(soldurl, headers=headers)
-        soldname = r.json()['Response']['displayProperties']['name'][9:]
-        if 'traitIds' in r.json()['Response'] and 'item_type.bounty' in r.json()['Response']['traitIds']:
-            continue
-        r = requests.get(priceurl, headers=headers)
-        pricename = r.json()['Response']['displayProperties']['name']
-
-        returntext += f'selling {sale["quantity"]} {soldname} for {sale["costs"][0]["quantity"]} {pricename}\n'
-    return returntext
+#   
+#
+#   general = 670400011519000616
+#   media = 670400027155365929
+#   spoilerchat = 670402166103474190
+#   offtopic = 670362162660900895
+#
+#

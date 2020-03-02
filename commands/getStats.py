@@ -1,6 +1,7 @@
 from commands.base_command  import BaseCommand
 
-from functions              import getIntStat, getUserMap, getUserIDbySnowflakeAndClanLookup, getFullMemberMap,getTop10PveGuns, getSpiderMaterials, getCharacterList
+from functions              import getIntStat, getUserMap, getUserIDbySnowflakeAndClanLookup, getFullMemberMap,getTop10PveGuns, getCharacterList
+from authfunctions          import getSpiderMaterials
 from database               import lookupDestinyID, getToken
 
 import discord
