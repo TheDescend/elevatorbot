@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import sys
 
 import config
@@ -26,6 +27,7 @@ sched = AsyncIOScheduler()
 ###############################################################################
 
 def main():
+    """the main method"""
     # Initialize the client
     print("Starting up...")
     client = discord.Client()
