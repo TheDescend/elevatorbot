@@ -1,6 +1,8 @@
+#!/usr/bin/env python3
+
 import requests
 from config import BUNGIE_OAUTH, BUNGIE_TOKEN, BUNGIE_SECRET, B64_SECRET
-from flask import Flask, request
+from flask import Flask, request, redirect
 from database import insertToken, getRefreshToken
 
 def refresh_token(discordID):
@@ -31,7 +33,14 @@ def shutdown_server():
     if func is None:
         raise RuntimeError('Not running with the Werkzeug Server')
     func()
-     
+
+
+@app.route('/simap/<simID>')
+def simap(simID):
+    print(request.headers.get('User-Agent'))
+    if 'ms-office' in request.headers.get('User-Agent') or '.NET4.0C; .NET4.0E;' in request.headers.get('User-Agent'):
+        return 'hi'
+    return redirect(f'https://www.simap.ch/shabforms/servlet/Search?EID=3&projectId={simID}&mode=2')
 
 @app.route('/')
 def result():
@@ -89,6 +98,7 @@ def start_server():
         print(f'server running')
         context = ('/etc/letsencrypt/live/rc19v2108.dnh.net/fullchain.pem', '/etc/letsencrypt/live/rc19v2108.dnh.net/privkey.pem')
         app.run(host= '0.0.0.0',port=443, ssl_context=context)
+
 
 start_server()
 
