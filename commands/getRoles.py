@@ -44,14 +44,14 @@ class getRoles(BaseCommand):
                     await message.author.add_roles(discord.utils.get(message.guild.roles, name=raiderText))
             rolesgiven = ', '.join(roleList)
             if len(rolesgiven) == 0:
-                await message.channel.send(f'Please get some roles first, smile')
+                await message.channel.send(f'You don\'t seem to have any roles.\nIf you believe this is an Error, refer to one of the @Developers\nOtherwise check <#673484884832157697> and <#673485065539551242> to see what you could acquire')
                 return
             await message.channel.send(f'Added the roles {rolesgiven} to user {message.author.mention}')
 
 class setRoles(BaseCommand):
     def __init__(self):
         # A quick description for the help message
-        description = "Assigns you all the roles you've earned"
+        description = "[admin] Assigns the user with discordID = <userid> the earned roles"
         params = ['user']
         super().__init__(description, params)
 
@@ -83,7 +83,7 @@ class setRoles(BaseCommand):
                     await user.add_roles(discord.utils.get(message.guild.roles, name=raiderText))
             rolesgiven = ', '.join(roleList)
             if len(rolesgiven) == 0:
-                await message.channel.send(f'Please get some roles first, smile')
+                await message.channel.send(f'You don\'t seem to have any roles.\nIf you believe this is an Error, refer to one of the @Developers\nOtherwise check <#673484884832157697> and <#673485065539551242> to see what you could acquire')
                 return
             await message.channel.send(f'Added the roles {rolesgiven} to user {user.name}')
 
