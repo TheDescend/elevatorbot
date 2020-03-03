@@ -45,4 +45,5 @@ class AutomaticRoleAssignment(BaseEvent):
                     await assignRolesToUser([rolename],discordUser,guild)
                 else:
                     await removeRolesFromUser([rolename], discordUser, guild)
+        
         await newtonslab.send('done with role update <:CaydeThumbsUp:670997683774685234>')

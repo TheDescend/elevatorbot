@@ -73,8 +73,9 @@ class spoder(BaseCommand):
         discordID = message.author.id
         destinyID = lookupDestinyID(discordID)
         anyCharID = getCharacterList(destinyID)[0]
-        materialtext = getSpiderMaterials(discordID, destinyID, anyCharID)
-        if materialtext:
-            await message.channel.send(materialtext)
-        else:
-            await message.channel.send('Please register by using !registerdesc')
+        async with message.channel.typing():
+            materialtext = getSpiderMaterials(discordID, destinyID, anyCharID)
+            if materialtext:
+                await message.channel.send(materialtext)
+            else:
+                await message.channel.send('Please register by using !registerdesc')

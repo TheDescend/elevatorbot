@@ -16,7 +16,7 @@ def refresh_token(discordID):
     data = f'grant_type=refresh_token&refresh_token={refresh_token}'
 
     r = requests.post(url, data=data, headers=headers, allow_redirects=False)
-    #print(r)
+    print(r.content)
     data = r.json()
     access_token = data['access_token']
     refresh_token = data['refresh_token']

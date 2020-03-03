@@ -17,3 +17,4 @@ Scripts/
 share/
 raiddata/friendpickle
 *.sqlite3
+*.log

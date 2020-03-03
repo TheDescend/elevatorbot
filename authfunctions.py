@@ -1,9 +1,10 @@
 from database   import getToken
 from oauth      import refresh_token
 from config     import BUNGIE_TOKEN
+from functions  import getJSONfromURL
 
 import requests
-
+session = requests.Session()
 
 def getJSONwithToken(url, discordID):
     """ Takes url and discordID, returns JSON """
@@ -12,11 +13,18 @@ def getJSONwithToken(url, discordID):
     if not token:
         return None
 
-    headers = {'Authorization': f'Bearer {token}', 'x-api-key': BUNGIE_TOKEN}
-    r = requests.get(url, headers = headers)
+    headers = {'Authorization': f'Bearer {token}', 'x-api-key': BUNGIE_TOKEN, 'Accept': 'application/json'}
+    r = session.get(url, headers = headers)
+    
+    if b'Unauthorized' in r.content:
+        print('xml 401 found')
+        refresh_token(discordID)
+        return getJSONwithToken(url, discordID)
+    
     res = r.json()
 
     if int(res['ErrorCode']) == 401:
+        print('json 401 found')
         refresh_token(discordID)
         return getJSONwithToken(url, discordID)
     
@@ -47,13 +55,13 @@ def getSpiderMaterials(discordID, destinyID, characterID):
         priceurl = itemhashurl.format(hashIdentifier=pricehash)
 
         #get the name of the sold material
-        r = getJSONwithToken(soldurl, discordID)
+        r = getJSONfromURL(soldurl)
         soldname = r['Response']['displayProperties']['name'][9:]
-        if 'traitIds' in r['Response'] and 'item_type.bounty' in r.json()['Response']['traitIds']:
+        if 'traitIds' in r['Response'] and 'item_type.bounty' in r['Response']['traitIds']:
             continue
         
         #get the name of the asked material
-        r = getJSONwithToken(priceurl, discordID)
+        r = getJSONfromURL(priceurl)
         pricename = r['Response']['displayProperties']['name']
 
         returntext += f'selling {sale["quantity"]} {soldname} for {sale["costs"][0]["quantity"]} {pricename}\n'
