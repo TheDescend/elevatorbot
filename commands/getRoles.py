@@ -28,7 +28,7 @@ class getRoles(BaseCommand):
         if not destinyID:
             destinyID = getUserIDbySnowflakeAndClanLookup(message.author, fullMemberMap)
             if not destinyID:
-                message.channel.send('Didn\'t find your destiny profile, sorry')
+                await message.channel.send('Didn\'t find your destiny profile, sorry')
                 return
 
         async with message.channel.typing():
@@ -58,6 +58,9 @@ class setRoles(BaseCommand):
     # Override the handle() method
     # It will be called every time the command is received
     async def handle(self, params, message, client):
+        if params[0].startswith('<@'):
+            await message.channel.send('please use the users id')
+            return
         user = message.guild.get_member(int(params[0]))
         destinyID = getUserMap(params[0])
         fullMemberMap = getFullMemberMap()
