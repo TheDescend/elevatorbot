@@ -23,11 +23,11 @@ zeroHashes = [3232506937]
 herzeroHashes = [2731208666]
 
 clanids = {    
-    2784110 : 'Bloodoak', #Bloodoak I
+#    2784110 : 'Bloodoak', #Bloodoak I
 #    3373405 : 'Bloodoak II', #BO2
 #    3702604 : 'Bloodoak III', #BO3
 #    3964751 : 'Bloodoak IV', #BO4
-    3556786 : 'Ascend', #Ascend Kappa
+#    3556786 : 'Ascend', #Ascend Kappa
     4107840 : 'The Descend'
 }
 
