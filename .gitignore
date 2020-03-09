@@ -12,7 +12,8 @@ Lib/
 tcl/
 Include/
 Scripts/
-*.ipynb
+.ipynb_checkpoints/
+test.ipynb
 *.png
 share/
 raiddata/friendpickle
