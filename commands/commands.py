@@ -15,7 +15,7 @@ class Commands(BaseCommand):
             await message.channel.send('<@367385031569702912> :Pepega:670369123716431872')
         from message_handler import COMMAND_HANDLERS
         msg = message.author.mention + "\n"
-        msg += "Contact <@171650677607497730> if any problems arise\n"
+        msg += "Contact <@670397357120159776> if any problems arise\n"
         # Displays all descriptions, sorted alphabetically by command name
         for cmd in sorted(COMMAND_HANDLERS.items()):
             if not '[dev]' in cmd[1].description and not '[depracted]' in cmd[1].description:

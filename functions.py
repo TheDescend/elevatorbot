@@ -264,14 +264,15 @@ def getPlayerRoles(playerid, existingRoles = []):
     print(f'getting roles for {playerid}')
     roles = []
     redundantRoles = []
-    with ThreadPoolExecutor(max_workers=30) as executor:
+    with ThreadPoolExecutor(max_workers=5) as executor:
         processes = []
         for year, yeardata in requirementHashes.items():		
             for role, roledata in yeardata.items():
-                # if role in existingRoles or ('replaced_by' in roledata.keys() and any([x in existingRoles for x in roledata['replaced_by']])):
-                #     roles.append(role)
-                #     continue
-                ## enable to not recheck existing roles
+                if role in existingRoles or ('replaced_by' in roledata.keys() and any([x in existingRoles for x in roledata['replaced_by']])):
+                    if not 'Raid Master' in role:
+                        roles.append(role)
+                    continue
+                # enable to not recheck existing roles
                 processes.append(executor.submit(returnIfHasRoles, playerid, role, year))
 
     for task in as_completed(processes):
