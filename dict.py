@@ -367,10 +367,10 @@ requirementHashes = {
         },
         'Solo Heroic Zero Hour': {
             'requirements': ['lowman'],
-            'denyTime0':[
+            'denyTime0':{ #start is earlier Time, format is important
                 'startTime':'10/03/2020 18:00',
-                'endTime':'17/03/2018 18:00':
-            ]
+                'endTime':'17/03/2020 18:00'
+            },
             'playercount' : 1,
             'activityHashes': herzeroHashes,
             'replaced_by': ['Solo Flawless Heroic Zero Hour']
