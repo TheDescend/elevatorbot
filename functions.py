@@ -249,7 +249,7 @@ def playerHasRole(playerid, role, year):
                         playercount = getPlayerCount(activity['activityDetails']['instanceId'])
                         if playercount == roledata['playercount']:
                             if 'denyTime0' in roledata.keys():
-                                activityTime = datetime.strptime(activity['period'] "%Y-%m-%dT%H:%M:%SZ") #2020-03-08T21:11:40Z
+                                activityTime = datetime.strptime(activity['period'], "%Y-%m-%dT%H:%M:%SZ") #2020-03-08T21:11:40Z
                                 denies = len(['denyTime' in key for key in roledata.keys()])
                                 for i in range(denies):
                                     startT = datetime.strptime(roledata[f'denyTime{i}']['startTime'], "%d/%m/%Y %H:%M")
