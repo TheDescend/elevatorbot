@@ -12,6 +12,8 @@ from multiprocessing                import Process
 import asyncio
 import datetime
 
+from discord.ext.commands import Bot
+
 from oauth import start_server
 from database import insertIntoMessageDB
 
@@ -30,7 +32,7 @@ def main():
     """the main method"""
     # Initialize the client
     print("Starting up...")
-    client = discord.Client()
+    client = Bot('!')
     # Define event handlers for the client
     # on_ready may be called multiple times in the event of a reconnect,
     # hence the running fla

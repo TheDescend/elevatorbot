@@ -6,6 +6,8 @@ from dict                   import requirementHashes, clanids
 
 import discord
 
+from discord.ext import commands
+
 raiderText = '⁣           Raider       ⁣'
 achText = '⁣        Achievements       ⁣'
 
@@ -51,23 +53,22 @@ class getRoles(BaseCommand):
 class setRoles(BaseCommand):
     def __init__(self):
         # A quick description for the help message
-        description = "[admin] Assigns the user with discordID = <userid> the earned roles"
+        description = "[admin] Assigns the mentioned user his/her earned roles"
         params = ['user']
         super().__init__(description, params)
 
     # Override the handle() method
     # It will be called every time the command is received
+
     async def handle(self, params, message, client):
-        if params[0].startswith('<@'):
-            await message.channel.send('please use the users id')
-            return
-        user = message.guild.get_member(int(params[0]))
-        destinyID = getUserMap(params[0])
-        fullMemberMap = getFullMemberMap()
-        if not fullMemberMap:
-            await message.channel.send('Seems like bungo is offline, try again later')
-            return
+        ctx = await client.get_context(message)
+        user = await commands.MemberConverter().convert(ctx, params[0])
+        destinyID = getUserMap(user.id)
         if not destinyID:
+            fullMemberMap = getFullMemberMap()
+            if not fullMemberMap:
+                await message.channel.send('Seems like bungo is offline, try again later')
+                return
             destinyID = getUserIDbySnowflakeAndClanLookup(user, fullMemberMap)
             if not destinyID:
                 message.channel.send('Didn\'t find the destiny profile, sorry')
