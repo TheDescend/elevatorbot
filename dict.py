@@ -4,6 +4,7 @@ import requests, zipfile, os, pickle, json, sqlite3
 getNameFromHashRecords = {}
 getNameFromHashActivity= {}
 getNameFromHashCollectible = {}
+getNameFromHashInventoryItem = {}
 
 # from https://data.destinysets.com/
 spirePHashes = [3213556450]
@@ -366,6 +367,10 @@ requirementHashes = {
         },
         'Solo Heroic Zero Hour': {
             'requirements': ['lowman'],
+            'denyTime0':[
+                'startTime':'10/03/2020 18:00',
+                'endTime':'17/03/2018 18:00':
+            ]
             'playercount' : 1,
             'activityHashes': herzeroHashes,
             'replaced_by': ['Solo Flawless Heroic Zero Hour']
@@ -454,3 +459,4 @@ def fillDictFromDB(dictRef, table):
 fillDictFromDB(getNameFromHashRecords, 'DestinyRecordDefinition')
 fillDictFromDB(getNameFromHashActivity, 'DestinyActivityDefinition')
 fillDictFromDB(getNameFromHashCollectible, 'DestinyCollectibleDefinition')
+fillDictFromDB(getNameFromHashInventoryItem, 'DestinyInventoryItemDefinition')

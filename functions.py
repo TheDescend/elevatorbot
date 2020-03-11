@@ -2,8 +2,9 @@ import requests
 import discord
 import logging
 import http.client
+from datetime import datetime
 
-from dict               import requirementHashes, clanids
+from dict               import requirementHashes, clanids, getNameFromHashInventoryItem
 from fuzzywuzzy         import fuzz
 from database           import insertUser, lookupDestinyID
 
@@ -246,12 +247,23 @@ def playerHasRole(playerid, role, year):
                 if hasCompleted and hasSucceeded and activityhash in roledata['activityHashes'] and activity['values']['playerCount']['basic']['value'] < 6:
                     if not 'flawless' in roledata['requirements'] or int(activity['values']['deaths']['basic']['displayValue']) == 0:
                         playercount = getPlayerCount(activity['activityDetails']['instanceId'])
-                        #print('role: ' + str(playercount))
                         if playercount == roledata['playercount']:
-                            return True
+                            if 'denyTime0' in roledata.keys():
+                                activityTime = datetime.strptime(activity['period'] "%Y-%m-%dT%H:%M:%SZ") #2020-03-08T21:11:40Z
+                                denies = len(['denyTime' in key for key in roledata.keys()])
+                                for i in range(denies):
+                                    startT = datetime.strptime(roledata[f'denyTime{i}']['startTime'], "%d/%m/%Y %H:%M")
+                                    endT = datetime.strptime(roledata[f'denyTime{i}']['endTime'], "%d/%m/%Y %H:%M")
+                                    if startT > activityTime > endT:
+                                        return False
+                                return True
+                            else:
+                                return True
+                
             return False
         elif req == 'roles':
             return False
+
     return True
 
 
@@ -279,6 +291,7 @@ def getPlayerRoles(playerid, existingRoles = []):
         if task.result():
             roles.append(task.result())
 
+    #remove roles that are replaced by others
     for yeardata in requirementHashes.values():
         for role, roledata in yeardata.items():
             if role not in roles:
@@ -288,7 +301,8 @@ def getPlayerRoles(playerid, existingRoles = []):
                     if superior in roles and role in roles:
                         roles.remove(role)
                         redundantRoles.append(role)
-    
+
+    #check whether player is Yx Raid Master and add/remove roles
     for yeardata in requirementHashes.values():
         for role, roledata in yeardata.items():
             if 'Raid Master' in role:
@@ -417,15 +431,15 @@ def getUserMap(discordID):
     return lookupDestinyID(discordID)
 
 
-manifest = {}
-def getManifestJson():
-    global manifest
-    if manifest:
-        return manifest
-    manifesturl = 'https://www.bungie.net/Platform/Destiny2/Manifest/'
-    manifestresponse = getJSONfromURL(manifesturl)
-    manifest = manifestresponse['Response']
-    return manifest
+# manifest = {}
+# def getManifestJson():
+#     global manifest
+#     if manifest:
+#         return manifest
+#     manifesturl = 'https://www.bungie.net/Platform/Destiny2/Manifest/'
+#     manifestresponse = getJSONfromURL(manifesturl)
+#     manifest = manifestresponse['Response']
+#     return manifest
 
 def getPGCR(instanceID):
     pgcrurl = f'https://www.bungie.net/Platform/Destiny2/Stats/PostGameCarnageReport/{instanceID}/'
@@ -461,10 +475,13 @@ def getTop10PveGuns(destinyID):
                     gunkills[str(gun['referenceId'])] = 0
                 gunkills[str(gun['referenceId'])] += int(gun['values']['uniqueWeaponKills']['basic']['displayValue'])
 
-    manifest = getManifestJson()
+    #manifest = getManifestJson()
 
-    DestinyInventoryItemDefinitionLink = f"https://www.bungie.net{manifest['jsonWorldComponentContentPaths']['en']['DestinyInventoryItemDefinition']}"
-    inventoryitemdefinition = getJSONfromURL(DestinyInventoryItemDefinitionLink)
+    #DestinyInventoryItemDefinitionLink = f"https://www.bungie.net{manifest['jsonWorldComponentContentPaths']['en']['DestinyInventoryItemDefinition']}"
+    # DestinyInventoryItemDefinitionLink = "https://www.bungie.net/common/destiny2_content/json/en/DestinyInventoryItemDefinition-39a4e3a0-efbe-4356-beca-d87271a5c699.json"
+    
+    
+    inventoryitemdefinition = getNameFromHashInventoryItem
     gunidlist = list(gunkills.keys())
     for gunid in gunidlist:
         gunname = inventoryitemdefinition[str(gunid)]['displayProperties']['name']
