@@ -90,6 +90,7 @@ def hasLowman(playerid, playercount, raidHashes, flawless=False, disallowed=[]):
     """ Default is flawless=False, disallowed is a list of (starttime, endtime) with datetime objects """
     con = db_connect()
     cur = con.cursor()
+    #raidHashes = [str(r) for r in raidHashes]
     sqlite_select = f"""SELECT t1.instanceID, t1.deaths, t1.period
                         FROM (  SELECT instanceID, deaths, period FROM activities
                                 WHERE activityHash IN ({','.join(['?']*len(raidHashes))})
@@ -103,7 +104,8 @@ def hasLowman(playerid, playercount, raidHashes, flawless=False, disallowed=[]):
     data_tuple = (*raidHashes,playercount, playerid)
     cur.execute(sqlite_select, data_tuple)
     verdict = False
-    for (_, deaths, period) in cur.fetchall():
+    for (iid, deaths, period) in cur.fetchall():
+        print(f'on {period} with {deaths} deaths in {iid}')
         if not flawless or deaths == 0:
             verdict = True
             for starttime, endtime in disallowed:

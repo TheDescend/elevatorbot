@@ -177,6 +177,7 @@ def updateDB(destinyID):
             playercount = 0
             for player in pgcrdata['entries']:
                 lightlevel = player['player']['lightLevel']
+                playerID = player['player']['destinyUserInfo']['membershipId']
                 characterID = player['characterId']
                 playerdeaths = int(player['values']['deaths']['basic']['displayValue'])
                 deaths += playerdeaths
@@ -185,8 +186,8 @@ def updateDB(destinyID):
                 playercount += completed
                 opponentsDefeated = player['values']['opponentsDefeated']['basic']['value']
                 system = player['player']['destinyUserInfo']['membershipType']
-                insertCharacter(destinyID, characterID, system)
-                insertInstanceDetails(instanceID, destinyID, characterID, lightlevel, displayname, deaths, opponentsDefeated, completed)
+                insertCharacter(playerID, characterID, system)
+                insertInstanceDetails(instanceID, playerID, characterID, lightlevel, displayname, deaths, opponentsDefeated, completed)
             insertActivity(instanceID, activityHash, timePlayedSeconds, period, startingPhaseIndex, deaths, playercount, mode)
             timstring = period.strftime("%d %m %Y")
             print(f'inserted {instanceID} for {destinyID} at {timstring}')

@@ -5,9 +5,9 @@ con = sqlite3.connect('userdb.sqlite3')
 cur = con.cursor()
 
 
-# cur.execute('''
-#     DROP TABLE characters
-#''')
+cur.execute('''
+    DROP TABLE characters
+''')
 
 cur.execute('''
     CREATE TABLE characters(
@@ -18,9 +18,9 @@ cur.execute('''
     )
 ''')
 
-# cur.execute('''
-#     DROP TABLE activities
-# ''')
+cur.execute('''
+    DROP TABLE activities
+''')
 
 cur.execute('''
     CREATE TABLE activities(
@@ -36,9 +36,9 @@ cur.execute('''
     );
 ''')
 
-# cur.execute('''
-#     DROP TABLE instancePlayerPerformance
-#''')
+cur.execute('''
+    DROP TABLE instancePlayerPerformance
+''')
 
 cur.execute('''
     CREATE TABLE instancePlayerPerformance(
