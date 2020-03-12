@@ -23,13 +23,15 @@ premenHashes = [2509539864, 2509539865, 2509539867, 1831470693, 3107795800, 3115
 zeroHashes = [3232506937] 
 herzeroHashes = [2731208666]
 
-clanids = {    
-#    2784110 : 'Bloodoak', #Bloodoak I
-#    3373405 : 'Bloodoak II', #BO2
-#    3702604 : 'Bloodoak III', #BO3
-#    3964751 : 'Bloodoak IV', #BO4
-#    3556786 : 'Ascend', #Ascend Kappa
+clanids = {
     4107840 : 'The Descend'
+}
+
+discord_channels = {
+    'general': 670400011519000616,
+    'media' : 670400027155365929,
+    'spoilerchat': 670402166103474190,
+    'offtopic': 670362162660900895
 }
 
 requirementHashes = {
@@ -376,13 +378,15 @@ requirementHashes = {
             'replaced_by': ['Solo Flawless Heroic Zero Hour']
         },
         'Solo Flawless Zero Hour': {
-            'requirements': ['lowman', 'flawless'],
+            'requirements': ['lowman'],
             'playercount' : 1,
+            'flawless' : True,
             'activityHashes': zeroHashes
         },
         'Solo Flawless Heroic Zero Hour': {
-            'requirements': ['lowman', 'flawless'],
+            'requirements': ['lowman'],
             'playercount' : 1,
+            'flawless' : True,
             'activityHashes': herzeroHashes
         },
 
@@ -404,59 +408,3 @@ platform = {
     10: 'Demon',
     254: 'BungieNext'
 }
-
-def getManifest():
-    manifest_url = 'http://www.bungie.net/Platform/Destiny2/Manifest/'
-    binaryLocation = "cache/MANZIP"
-    os.makedirs(os.path.dirname(binaryLocation), exist_ok=True)
-
-    #get the manifest location from the json
-    r = requests.get(manifest_url)
-    manifest = r.json()
-    mani_url = 'http://www.bungie.net' + manifest['Response']['mobileWorldContentPaths']['en']
-
-    #Download the file, write it to 'MANZIP'
-    r = requests.get(mani_url)
-    with open(binaryLocation, "wb") as zip:
-        zip.write(r.content)
-
-    #Extract the file contents, and rename the extracted file to 'Manifest.content'
-    with zipfile.ZipFile(binaryLocation) as zip:
-        name = zip.namelist()
-        zip.extractall()
-    os.rename(name[0], 'cache/Manifest.content')
-
-def fillDictFromDB(dictRef, table):
-    if not os.path.exists('cache/' + table + '.json'): 
-        if not os.path.exists('cache/Manifest.content'):
-            getManifest()
-
-        #Connect to DB
-        con = sqlite3.connect('cache/Manifest.content')
-        cur = con.cursor()
-
-        #Query the DB
-        cur.execute(
-        '''SELECT 
-            json
-        FROM 
-        ''' + table
-        )
-        items = cur.fetchall()
-        item_jsons = [json.loads(item[0]) for item in items]
-        con.close()
-
-        #Iterate over DB-JSONs and put named ones into the corresponding dictionary
-        for ijson in item_jsons:
-            if 'name' in ijson['displayProperties'].keys():
-                dictRef[ijson['hash']] = ijson['displayProperties']['name']
-        with open('cache/' + table + '.json', 'w') as outfile:
-            json.dump(dictRef, outfile)
-    else:
-        with open('cache/' + table + '.json') as json_file:
-            dictRef.update(json.load(json_file))
-
-fillDictFromDB(getNameFromHashRecords, 'DestinyRecordDefinition')
-fillDictFromDB(getNameFromHashActivity, 'DestinyActivityDefinition')
-fillDictFromDB(getNameFromHashCollectible, 'DestinyCollectibleDefinition')
-fillDictFromDB(getNameFromHashInventoryItem, 'DestinyInventoryItemDefinition')

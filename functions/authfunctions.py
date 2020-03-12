@@ -1,7 +1,7 @@
-from database   import getToken
-from oauth      import refresh_token
-from config     import BUNGIE_TOKEN
-from functions  import getJSONfromURL
+from functions.database     import getToken
+from oauth                  import refresh_token
+from static.config          import BUNGIE_TOKEN
+from functions.network      import getJSONfromURL
 
 import requests
 session = requests.Session()

@@ -1,8 +1,9 @@
 
 from commands.base_command import BaseCommand
 import discord
-from functions import getUserMap
-import requests, config
+from functions.database import lookupDestinyID
+from static.config      import BUNGIE_TOKEN
+import requests
 
 class updateNames(BaseCommand):
 
@@ -12,14 +13,14 @@ class updateNames(BaseCommand):
         super().__init__(description, params)
 
     async def handle(self, params, message, client):
-        PARAMS = {'X-API-Key':config.BUNGIE_TOKEN}
+        PARAMS = {'X-API-Key':BUNGIE_TOKEN}
         admin = discord.utils.get(message.guild.roles, name='Admin')
         dev = discord.utils.get(message.guild.roles, name='Developer') 
         if admin not in message.author.roles and dev not in message.author.roles:
             return
 
         memberlist = sorted(message.guild.members, key=lambda x: x.id)
-        ziplist = [(member, getUserMap(member.id)) for member in memberlist]
+        ziplist = [(member, lookupDestinyID(member.id)) for member in memberlist]
         
 
         for (discUser, destID) in ziplist:

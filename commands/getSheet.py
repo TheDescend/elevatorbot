@@ -1,6 +1,6 @@
 from commands.base_command  import BaseCommand
 from io import open
-from generateFastAchievementList import createSheet
+from spreadsheets.generateFastAchievementList import createSheet
 
 import os
 import time

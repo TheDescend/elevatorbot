@@ -1,4 +1,4 @@
-from database               import getMarkovPairs
+from functions.database               import getMarkovPairs
 import random
 
 def getMarkovSentence(startword = '__start__'):

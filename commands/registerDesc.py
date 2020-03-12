@@ -1,8 +1,7 @@
 from commands.base_command  import BaseCommand
 import os
-from config import BUNGIE_OAUTH
-from functions import getUserMap
-from database import insertUser, removeUser, lookupDestinyID
+from static.config import BUNGIE_OAUTH
+from functions.database import insertUser, removeUser, lookupDestinyID
 import discord
 
 class registerDesc(BaseCommand):
@@ -48,7 +47,7 @@ class checkregister(BaseCommand):
     # Override the handle() method
     # It will be called every time the command is received
     async def handle(self, params, message, client):
-        await message.channel.send(f'User {message.author.nick or message.author.name} has ID {getUserMap(message.author.id)}')
+        await message.channel.send(f'User {message.author.nick or message.author.name} has ID {lookupDestinyID(message.author.id)}')
 
 class forceregister(BaseCommand):
     def __init__(self):

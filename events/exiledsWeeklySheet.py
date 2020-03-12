@@ -4,7 +4,7 @@ import discord
 from io import open
 import random
 
-from generateFastAchievementList import createSheet
+from spreadsheets.generateFastAchievementList import createSheet
 
 class ExiledsWeeklySheet(BaseEvent):
 

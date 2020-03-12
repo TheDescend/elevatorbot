@@ -1,8 +1,9 @@
-from commands.base_command  import BaseCommand
+from commands.base_command          import BaseCommand
 
-from functions              import getIntStat, getUserMap, getUserIDbySnowflakeAndClanLookup, getFullMemberMap,getTop10PveGuns, getCharacterList
-from authfunctions          import getSpiderMaterials
-from database               import lookupDestinyID, getToken
+from functions.dataLoading          import getCharacterList
+from functions.dataTransformation   import getIntStat, getUserIDbySnowflakeAndClanLookup, getFullMemberMap,getTop10PveGuns
+from functions.authfunctions        import getSpiderMaterials
+from functions.database             import lookupDestinyID, getToken
 
 import discord
 import os
@@ -19,7 +20,7 @@ class stat(BaseCommand):
     async def handle(self, params, message, client):
         name = params[0]
 
-        destinyID = getUserMap(message.author.id)
+        destinyID = lookupDestinyID(message.author.id)
         if not destinyID:
             destinyID = getUserIDbySnowflakeAndClanLookup(message.author, getFullMemberMap())
             if not destinyID:

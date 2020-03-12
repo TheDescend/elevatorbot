@@ -1,8 +1,10 @@
 from commands.base_command  import BaseCommand
 
-from functions              import getUserIDbySnowflakeAndClanLookup, getFullMemberMap, getNameToHashMapByClanid
-from functions              import getPlayerRoles, assignRolesToUser,removeRolesFromUser, getUserMap,fullMemberMap, isUserInClan
-from dict                   import requirementHashes, clanids
+from static.dict                    import requirementHashes, clanids
+from functions.database             import lookupDestinyID, getLastRaid, getFlawlessList
+from functions.dataLoading          import updateDB
+from functions.dataTransformation   import getFullMemberMap, getUserIDbySnowflakeAndClanLookup, getNameToHashMapByClanid
+from functions.roles                import assignRolesToUser, removeRolesFromUser, getPlayerRoles
 
 import discord
 
@@ -21,7 +23,7 @@ class getRoles(BaseCommand):
     # Override the handle() method
     # It will be called every time the command is received
     async def handle(self, params, message, client):
-        destinyID = getUserMap(message.author.id)
+        destinyID = lookupDestinyID(message.author.id)
 
         fullMemberMap = getFullMemberMap()
         if not fullMemberMap:
@@ -32,7 +34,7 @@ class getRoles(BaseCommand):
             if not destinyID:
                 await message.channel.send('Didn\'t find your destiny profile, sorry')
                 return
-
+        updateDB(destinyID)
         async with message.channel.typing():
             (roleList,removeRoles) = getPlayerRoles(destinyID, [role.name for role in message.author.roles])
             
@@ -50,6 +52,46 @@ class getRoles(BaseCommand):
                 return
             await message.channel.send(f'Added the roles {rolesgiven} to user {message.author.mention}')
 
+class lastRaid(BaseCommand):
+    def __init__(self):
+        # A quick description for the help message
+        description = "gets your last raid"
+        params = []
+        super().__init__(description, params)
+
+    # Override the handle() method
+    # It will be called every time the command is received
+
+    async def handle(self, params, message, client):
+        ctx = await client.get_context(message)
+        user = message.author
+        if params:
+            user = await commands.MemberConverter().convert(ctx, params[0])
+
+        destinyID = lookupDestinyID(user.id)
+        updateDB(destinyID)
+        await message.channel.send(getLastRaid(destinyID))
+
+class flawlesses(BaseCommand):
+    def __init__(self):
+        # A quick description for the help message
+        description = "flaweless hashes"
+        params = []
+        super().__init__(description, params)
+
+    # Override the handle() method
+    # It will be called every time the command is received
+
+    async def handle(self, params, message, client):
+        ctx = await client.get_context(message)
+        user = message.author
+        if params:
+            user = await commands.MemberConverter().convert(ctx, params[0])
+        async with message.channel.typing():
+            destinyID = lookupDestinyID(user.id)
+            updateDB(destinyID)
+            await message.channel.send(getFlawlessList(destinyID))
+
 class setRoles(BaseCommand):
     def __init__(self):
         # A quick description for the help message
@@ -63,7 +105,7 @@ class setRoles(BaseCommand):
     async def handle(self, params, message, client):
         ctx = await client.get_context(message)
         user = await commands.MemberConverter().convert(ctx, params[0])
-        destinyID = getUserMap(user.id)
+        destinyID = lookupDestinyID(user.id)
         if not destinyID:
             fullMemberMap = getFullMemberMap()
             if not fullMemberMap:
@@ -73,7 +115,7 @@ class setRoles(BaseCommand):
             if not destinyID:
                 message.channel.send('Didn\'t find the destiny profile, sorry')
                 return
-
+        updateDB(destinyID)
         async with message.channel.typing():
             (roleList,removeRoles) = getPlayerRoles(destinyID, [role.name for role in user.roles])
             
@@ -126,11 +168,11 @@ class checkNames(BaseCommand):
     async def handle(self, params, message, client):
         for discordUser in message.guild.members:
             destinyID = None
-            destinyID = getUserMap(discordUser.id)
+            destinyID = lookupDestinyID(discordUser.id)
             if destinyID:
                 await message.channel.send(f'{discordUser.name} ({discordUser.nick}): https://raid.report/pc/{destinyID}')
                 continue
-            destinyID = getUserIDbySnowflakeAndClanLookup(discordUser,fullMemberMap)
+            destinyID = getUserIDbySnowflakeAndClanLookup(discordUser,getFullMemberMap)
             await message.channel.send(f'{discordUser.name} ({discordUser.nick}): https://raid.report/pc/{destinyID}')
 
 class listDescend(BaseCommand):
@@ -154,7 +196,7 @@ class listDescend(BaseCommand):
             await message.channel.send(f'**Members of Descend in this discord:**')
             for discordUser in message.guild.members:
 
-                destinyID = getUserMap(discordUser.id)
+                destinyID = lookupDestinyID(discordUser.id)
                 if not destinyID:
                     destinyID = int(getUserIDbySnowflakeAndClanLookup(discordUser,nameidmap))
                 if not destinyID:
@@ -192,9 +234,9 @@ class assignAllRoles(BaseCommand):
             return
 
         for discordUser in message.guild.members:
-            destinyID = getUserMap(discordUser.id)
+            destinyID = lookupDestinyID(discordUser.id)
             if not destinyID:
-                destinyID = getUserIDbySnowflakeAndClanLookup(discordUser,fullMemberMap)
+                destinyID = getUserIDbySnowflakeAndClanLookup(discordUser,getFullMemberMap)
                 if not destinyID:
                     await message.channel.send(f'No destinyID found for {discordUser.name}')
                     continue

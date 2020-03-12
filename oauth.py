@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
 import requests
-from config import BUNGIE_OAUTH, BUNGIE_TOKEN, BUNGIE_SECRET, B64_SECRET
-from flask import Flask, request, redirect
-from database import insertToken, getRefreshToken
+from static.config      import BUNGIE_OAUTH, BUNGIE_TOKEN, BUNGIE_SECRET, B64_SECRET
+from flask              import Flask, request, redirect, Response
+from functions.database import insertToken, getRefreshToken
 
 def refresh_token(discordID):
     url = 'https://www.bungie.net/platform/app/oauth/token/'
@@ -83,8 +83,8 @@ def result():
 @app.route('/.well-known/acme-challenge/<challenge>')
 def letsencrypt_check(challenge):
     challenge_response = {
-        "<challenge_token>":"<challenge_response>",
-        "<challenge_token>":"<challenge_response>"
+        "<some_challenge_token>":"<challenge_response>",
+        "<other_challenge_token>":"<challenge_response>"
     }
     return Response(challenge_response[challenge], mimetype='text/plain')
 

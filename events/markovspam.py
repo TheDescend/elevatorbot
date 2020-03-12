@@ -1,7 +1,7 @@
-from events.base_event      import BaseEvent
+from events.base_event          import BaseEvent
 
-from markovGenerator        import getMarkovSentence
-import datetime
+from functions.markovGenerator  import getMarkovSentence
+from datetime                   import datetime
 
 class Markovspam(BaseEvent):
 
@@ -14,7 +14,7 @@ class Markovspam(BaseEvent):
     stopmsg = False
     async def run(self, client):
         markchannel = client.get_channel(672541982157045791)
-        now = datetime.datetime.now()
+        now = datetime.now()
         async for msg in markchannel.history(limit=45):
             if msg.author.id != 386490723223994371:
                 async with markchannel.typing():

@@ -1,4 +1,4 @@
-import config
+from static.config import COMMAND_PREFIX
 
 
 # Base command class
@@ -9,7 +9,7 @@ class BaseCommand:
         self.name = type(self).__name__.lower()
         self.params = params
 
-        desc = f"**{config.COMMAND_PREFIX}{self.name}**"
+        desc = f"**{COMMAND_PREFIX}{self.name}**"
 
         if self.params:
             desc += " " + " ".join(f"*<{p}>*" for p in params)

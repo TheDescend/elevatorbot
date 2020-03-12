@@ -1,11 +1,11 @@
 
 from commands.base_command  import BaseCommand
-from functions              import getNameToHashMapByClanid
-from fuzzywuzzy             import fuzz
+from functions.dataLoading  import getNameToHashMapByClanid
+from static.config          import BUNGIE_TOKEN
 
-import requests, config
-from functions import getUserMap
-import re
+from fuzzywuzzy             import fuzz
+from functions.database     import lookupDestinyID
+import re, requests
 
 base_uri = 'https://discordapp.com/api/v7'
 memberMap = getNameToHashMapByClanid(2784110)
@@ -17,7 +17,7 @@ class RR(BaseCommand):
         super().__init__(description, params)
 
     async def handle(self, params, message, client):
-        PARAMS = {'X-API-Key':config.BUNGIE_TOKEN}
+        PARAMS = {'X-API-Key':BUNGIE_TOKEN}
         username = message.author.nick or message.author.name
 
         if len(params) == 1:
@@ -32,12 +32,12 @@ class RR(BaseCommand):
                 user = client.get_user(discordID)
                 username = user.name
 
-                destinyID = getUserMap(discordID)
+                destinyID = lookupDestinyID(discordID)
                 if destinyID:
                     await message.channel.send(f'https://raid.report/pc/{destinyID}')
                     return
         else:
-            destinyID = getUserMap(message.author.id)
+            destinyID = lookupDestinyID(message.author.id)
             if destinyID:
                 await message.channel.send(f'https://raid.report/pc/{destinyID}')
                 return

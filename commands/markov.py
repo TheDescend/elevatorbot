@@ -1,7 +1,7 @@
 from commands.base_command  import BaseCommand
 
-from markovGenerator        import getMarkovSentence
-from database               import db_connect
+from functions.markovGenerator        import getMarkovSentence
+from functions.database               import db_connect, insertIntoMessageDB
 
 import discord
 import os
@@ -80,8 +80,3 @@ class updateDB(BaseCommand):
         conn.commit()
         
         await message.channel.send('updated markov table') #newtonslab
-
-# general = 670400011519000616
-# media = 670400027155365929
-# spoilerchat = 670402166103474190
-# offtopic = 670362162660900895

@@ -4,8 +4,9 @@ import pandas.io.formats.excel
 import concurrent.futures
 
 #selfdefined imports
-from functions import getNameToHashMapByClanid,getPlayerRoles
-from dict import requirementHashes, clanids
+from functions.dataLoading  import getNameToHashMapByClanid
+from functions.roles        import getPlayerRoles
+from static.dict            import requirementHashes, clanids
 
 
 def createSheet():

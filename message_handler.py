@@ -4,7 +4,7 @@ from commands.base_command  import BaseCommand
 # imports all classes inside the commands package.
 from commands               import *
 
-import config
+from static.config          import COMMAND_PREFIX
 
 # Register all available commands
 COMMAND_HANDLERS = {c.__name__.lower(): c()
@@ -20,7 +20,7 @@ async def handle_command(command, args, message, bot_client):
     if command not in COMMAND_HANDLERS:
         return
 
-    print(f"{message.author.name}: {config.COMMAND_PREFIX}{command} " 
+    print(f"{message.author.name}: {COMMAND_PREFIX}{command} " 
           + " ".join(args))
 
     # Retrieve the command

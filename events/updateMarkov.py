@@ -1,7 +1,7 @@
-from events.base_event      import BaseEvent
+from events.base_event          import BaseEvent
 
-from database               import db_connect
-from markovGenerator        import getMarkovSentence
+from functions.database         import db_connect
+from functions.markovGenerator  import getMarkovSentence
 
 
 class AutomaticRoleAssignment(BaseEvent):

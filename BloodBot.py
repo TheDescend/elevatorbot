@@ -1,21 +1,19 @@
 #!/usr/bin/env python3
 import sys
 
-import config
 import discord
 import message_handler
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from events.base_event              import BaseEvent
 from events                         import *
-from multiprocessing                import Process
 import asyncio
 import datetime
 
 from discord.ext.commands import Bot
 
-from oauth import start_server
-from database import insertIntoMessageDB
+from functions.database import insertIntoMessageDB
+from static.config      import NOW_PLAYING, COMMAND_PREFIX, BOT_TOKEN
 
 # Set to remember if the bot is already running, since on_ready may be called
 # more than once on reconnects
@@ -44,10 +42,10 @@ def main():
         this.running = True
 
         # Set the playing status
-        if config.NOW_PLAYING:
+        if NOW_PLAYING:
             print("Setting NP game", flush=True)
             await client.change_presence(
-                activity=discord.Game(name=config.NOW_PLAYING))
+                activity=discord.Game(name=NOW_PLAYING))
         print("Logged in!", flush=True)
 
         # Load all events
@@ -66,8 +64,8 @@ def main():
     @client.event
     async def common_handle_message(message):
         text = message.content
-        if text.startswith(config.COMMAND_PREFIX) and text != config.COMMAND_PREFIX:
-            cmd_split = text[len(config.COMMAND_PREFIX):].split()
+        if text.startswith(COMMAND_PREFIX) and text != COMMAND_PREFIX:
+            cmd_split = text[len(COMMAND_PREFIX):].split()
             try:
                 await message_handler.handle_command(cmd_split[0].lower(), 
                                       cmd_split[1:], message, client)
@@ -93,7 +91,7 @@ def main():
         await common_handle_message(after)
 
     # Finally, set the bot running
-    client.run(config.BOT_TOKEN)
+    client.run(BOT_TOKEN)
 
 ###############################################################################
 
