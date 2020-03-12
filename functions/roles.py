@@ -56,10 +56,10 @@ def getPlayerRoles(playerid, existingRoles = []):
         processes = []
         for year, yeardata in requirementHashes.items():		
             for role, roledata in yeardata.items():
-                if role in existingRoles or ('replaced_by' in roledata.keys() and any([x in existingRoles for x in roledata['replaced_by']])):
-                    if not 'Raid Master' in role:
-                        roles.append(role)
-                    continue
+                # if role in existingRoles or ('replaced_by' in roledata.keys() and any([x in existingRoles for x in roledata['replaced_by']])):
+                #     if not 'Raid Master' in role:
+                #         roles.append(role)
+                #     continue
                 # enable to not recheck existing roles
                 processes.append(executor.submit(returnIfHasRoles, playerid, role, year))
 
