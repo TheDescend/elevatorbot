@@ -93,7 +93,7 @@ def hasLowman(playerid, playercount, raidHashes, flawless=False, disallowed=[]):
     sqlite_select = f"""SELECT t1.instanceID, t1.deaths, t1.period
                         FROM (  SELECT instanceID, deaths, period FROM activities
                                 WHERE activityHash IN ({','.join(['?']*len(raidHashes))})
-                                AND playercount = ?) t1
+                                AND playercount = ?) t1 
                         JOIN (  SELECT DISTINCT(instanceID)
                                 FROM instancePlayerPerformance
                                 WHERE playerID = ?
@@ -102,12 +102,15 @@ def hasLowman(playerid, playercount, raidHashes, flawless=False, disallowed=[]):
                         """
     data_tuple = (*raidHashes,playercount, playerid)
     cur.execute(sqlite_select, data_tuple)
+    verdict = False
     for (_, deaths, period) in cur.fetchall():
         if not flawless or deaths == 0:
+            verdict = True
             for starttime, endtime in disallowed:
-                if not starttime < period < endtime:
-                    con.close()
-                    return True
+                if starttime < period < endtime:
+                    verdict = False
+            if verdict:
+                return True            
     con.close()
     return False
 

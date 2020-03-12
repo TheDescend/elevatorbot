@@ -25,12 +25,26 @@ def getTriumphsJSON(playerID):
         return None
     return achJSON['Response']['profileRecords']['data']['records']
 
+def getCharacterList(destinyID):
+    charURL = "https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/?components=100,200"
+    platform = None
+    for i in [3,2,1,4,5,10,254]:
+        characterinfo = getJSONfromURL(charURL.format(i, destinyID))
+        if characterinfo:
+            break
+    return list(characterinfo['Response']['characters']['data'].keys())
+
 #https://bungie-net.github.io/multi/schema_Destiny-HistoricalStats-DestinyHistoricalStatsPeriodGroup.html#schema_Destiny-HistoricalStats-DestinyHistoricalStatsPeriodGroup
 def getPlayersPastPVE(destinyID):
     platform = None
     syscharlist = getSystemAndChars(destinyID)
-    (platform, _) = syscharlist[0]
-    charIDs = [charid for (_,charid) in syscharlist]
+    
+    if syscharlist:
+        (platform, _) = syscharlist[0]
+        charIDs = [charid for (_,charid) in syscharlist]
+    else:
+        charIDs = getCharacterList(destinyID)
+        platform = 3
     activitylist = []
     for pagenr in range(1000):
         for characterID in charIDs:
@@ -68,15 +82,6 @@ def getNameToHashMapByClanid(clanid):
     for member in memberlist:
         memberids[member['destinyUserInfo']['LastSeenDisplayName']] = member['destinyUserInfo']['membershipId']
     return memberids
-
-def getCharacterList(destinyID):
-    charURL = "https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/?components=100,200"
-    platform = None
-    for i in [3,2,1,4,5,10,254]:
-        characterinfo = getJSONfromURL(charURL.format(i, destinyID))
-        if characterinfo:
-            break
-    return list(characterinfo['Response']['characters']['data'].keys())
 
 
 def getPlatform(destinyID):
@@ -151,6 +156,7 @@ fillDictFromDB(getNameFromHashInventoryItem, 'DestinyInventoryItemDefinition')
 
 def updateDB(destinyID):
     lastUpdate = getLastUpdated(destinyID)
+
     for pve in getPlayersPastPVE(destinyID):
         if 'period' not in pve.keys():
             print(pve)

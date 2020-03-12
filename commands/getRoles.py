@@ -23,6 +23,9 @@ class getRoles(BaseCommand):
     # Override the handle() method
     # It will be called every time the command is received
     async def handle(self, params, message, client):
+        if params:
+            message.channel.send(f'You can\'t do this for other users\n Use !setroles {params[0]} instead')
+            return
         destinyID = lookupDestinyID(message.author.id)
 
         fullMemberMap = getFullMemberMap()
