@@ -11,48 +11,50 @@ cur.execute('''
 
 cur.execute('''
     CREATE TABLE characters(
-        destinyID INTEGER UNIQUE,
+        destinyID INTEGER,
         characterID INTEGER UNIQUE,
         systemID INTEGER DEFAULT 3,
         UNIQUE(destinyID, characterID)
     )
 ''')
 
-cur.execute('''
-    DROP TABLE activities
-''')
+# cur.execute('''
+#     DROP TABLE activities
+# ''')
 
-cur.execute('''
-    CREATE TABLE activities(
-        instanceID INTEGER PRIMARY KEY,
-        activityHash INTEGER,
-        timePlayedSeconds INTEGER,
-        period TIMESTAMP,
-        startingPhaseIndex INTEGER,
-        completed INTEGER,
-        deaths INTEGER,
-        playercount INTEGER,
-        mode INTEGER
-    );
-''')
+# cur.execute('''
+#     CREATE TABLE activities(
+#         instanceID INTEGER PRIMARY KEY,
+#         activityHash INTEGER,
+#         timePlayedSeconds INTEGER,
+#         period TIMESTAMP,
+#         startingPhaseIndex INTEGER,
+#         completed INTEGER,
+#         deaths INTEGER,
+#         playercount INTEGER,
+#         mode INTEGER
+#     );
+# ''')
 
-cur.execute('''
-    DROP TABLE instancePlayerPerformance
-''')
+# cur.execute('''
+#     DROP TABLE instancePlayerPerformance
+# ''')
 
-cur.execute('''
-    CREATE TABLE instancePlayerPerformance(
-        instanceID INTEGER,
-        playerID INTEGER,
-        characterID INTEGER,
-        lightlevel INTEGER,
-        displayname TEXT,
-        deaths INTEGER,
-        opponentsDefeated INTEGER,
-        completed INTEGER,
-        UNIQUE(instanceID, characterID)
-    )
-''')
+con.commit()
+
+# cur.execute('''
+#     CREATE TABLE instancePlayerPerformance(
+#         instanceID INTEGER,
+#         playerID INTEGER,
+#         characterID INTEGER,
+#         lightlevel INTEGER,
+#         displayname TEXT,
+#         deaths INTEGER,
+#         opponentsDefeated INTEGER,
+#         completed INTEGER,
+#         UNIQUE(instanceID, characterID)
+#     )
+# ''')
 
 #   discordGuardiansToken     (discordSnowflake, destinyID, signupDate, serverID, token, refresh_token) 
 #   table messagedb                 (msg, userid, channelid, msgid, msgdate)

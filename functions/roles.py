@@ -18,6 +18,7 @@ def hasRole(playerid, role, year):
             creq = roledata['clears']
             for raid in creq:
                 if not getClearCount(playerid, raid['actHashes']) >= raid['count']:
+                    print(f"failed clearcount with {getClearCount(playerid, raid['actHashes'])} < {raid['count']}")
                     return False
             return True
         elif req == 'flawless':

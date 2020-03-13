@@ -1,9 +1,12 @@
 from functions.network  import getJSONfromURL, getComponentInfoAsJSON
 from static.dict        import getNameFromHashRecords, getNameFromHashCollectible, getNameFromHashActivity, getNameFromHashInventoryItem
 from functions.database import db_connect, insertActivity, insertCharacter, insertInstanceDetails, updatedPlayer, getLastUpdated
-from functions.database import getSystemAndChars
+from functions.database import getSystemAndChars, getLastUpdated
+
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from datetime           import timedelta, datetime
+from pprint             import pprint
 
 import os
 import requests
@@ -31,20 +34,19 @@ def getCharacterList(destinyID):
     for i in [3,2,1,4,5,10,254]:
         characterinfo = getJSONfromURL(charURL.format(i, destinyID))
         if characterinfo:
-            break
-    return list(characterinfo['Response']['characters']['data'].keys())
+            return (i, list(characterinfo['Response']['characters']['data'].keys()))
+    return None
+    
 
 #https://bungie-net.github.io/multi/schema_Destiny-HistoricalStats-DestinyHistoricalStatsPeriodGroup.html#schema_Destiny-HistoricalStats-DestinyHistoricalStatsPeriodGroup
 def getPlayersPastPVE(destinyID):
     platform = None
     syscharlist = getSystemAndChars(destinyID)
-    
-    if syscharlist:
+    if getLastUpdated(destinyID) < datetime.strptime("26/03/2015 04:20", "%d/%m/%Y %H:%M") or not syscharlist:
+        platform, charIDs = getCharacterList(destinyID)
+    else:
         (platform, _) = syscharlist[0]
         charIDs = [charid for (_,charid) in syscharlist]
-    else:
-        charIDs = getCharacterList(destinyID)
-        platform = 3
     activitylist = []
     for pagenr in range(1000):
         for characterID in charIDs:
@@ -154,44 +156,54 @@ fillDictFromDB(getNameFromHashActivity, 'DestinyActivityDefinition')
 fillDictFromDB(getNameFromHashCollectible, 'DestinyCollectibleDefinition')
 fillDictFromDB(getNameFromHashInventoryItem, 'DestinyInventoryItemDefinition')
 
+def insertIntoDB(destinyID, pve):
+    period = datetime.strptime(pve['period'], "%Y-%m-%dT%H:%M:%SZ")
+    activityHash = pve['activityDetails']['directorActivityHash']
+    instanceID = pve['activityDetails']['instanceId']
+    timePlayedSeconds = int(pve['values']['timePlayedSeconds']['basic']['value'])
+    completed = int(pve['values']['completed']['basic']['value'])
+    mode = int(pve['activityDetails']['mode'])
+    if completed and not int(pve['values']['completionReason']['basic']['value']):
+        pgcrdata = getPGCR(instanceID)['Response']
+        startingPhaseIndex = pgcrdata['startingPhaseIndex']
+        deaths = 0
+        playercount = 0
+        for player in pgcrdata['entries']:
+            lightlevel = player['player']['lightLevel']
+            playerID = player['player']['destinyUserInfo']['membershipId']
+            characterID = player['characterId']
+            playerdeaths = int(player['values']['deaths']['basic']['displayValue'])
+            deaths += playerdeaths
+            displayname = player['player']['destinyUserInfo']['displayName']
+            completed = int(player['values']['completed']['basic']['value'])
+            playercount += completed
+            opponentsDefeated = player['values']['opponentsDefeated']['basic']['value']
+            system = player['player']['destinyUserInfo']['membershipType']
+            insertCharacter(playerID, characterID, system)
+            insertInstanceDetails(instanceID, playerID, characterID, lightlevel, displayname, deaths, opponentsDefeated, completed)
+        insertActivity(instanceID, activityHash, timePlayedSeconds, period, startingPhaseIndex, deaths, playercount, mode)
+        
 def updateDB(destinyID):
-    lastUpdate = getLastUpdated(destinyID)
-
-    for pve in getPlayersPastPVE(destinyID):
-        if 'period' not in pve.keys():
-            print(pve)
-        period = datetime.strptime(pve['period'], "%Y-%m-%dT%H:%M:%SZ")
-        if period < lastUpdate + timedelta(days=1):
-            print(f'stopped loading {destinyID} at ' + period.strftime("%d %m %Y"))
-            updatedPlayer(destinyID)
-            break
-        activityHash = pve['activityDetails']['directorActivityHash']
-        instanceID = pve['activityDetails']['instanceId']
-        timePlayedSeconds = int(pve['values']['timePlayedSeconds']['basic']['value'])
-        completed = int(pve['values']['completed']['basic']['value'])
-        mode = int(pve['activityDetails']['mode'])
-        if completed and not int(pve['values']['completionReason']['basic']['value']):
-            pgcrdata = getPGCR(instanceID)['Response']
-            startingPhaseIndex = pgcrdata['startingPhaseIndex']
-            deaths = 0
-            playercount = 0
-            for player in pgcrdata['entries']:
-                lightlevel = player['player']['lightLevel']
-                playerID = player['player']['destinyUserInfo']['membershipId']
-                characterID = player['characterId']
-                playerdeaths = int(player['values']['deaths']['basic']['displayValue'])
-                deaths += playerdeaths
-                displayname = player['player']['destinyUserInfo']['displayName']
-                completed = int(player['values']['completed']['basic']['value'])
-                playercount += completed
-                opponentsDefeated = player['values']['opponentsDefeated']['basic']['value']
-                system = player['player']['destinyUserInfo']['membershipType']
-                insertCharacter(playerID, characterID, system)
-                insertInstanceDetails(instanceID, playerID, characterID, lightlevel, displayname, deaths, opponentsDefeated, completed)
-            insertActivity(instanceID, activityHash, timePlayedSeconds, period, startingPhaseIndex, deaths, playercount, mode)
-            timstring = period.strftime("%d %m %Y")
-            print(f'inserted {instanceID} for {destinyID} at {timstring}')
-    updatedPlayer(destinyID)
+    with ThreadPoolExecutor(max_workers=10) as executor:
+        processes = []
+        lastUpdate = getLastUpdated(destinyID)
+        for pve in getPlayersPastPVE(destinyID):
+            if 'period' not in pve.keys():
+                print(pve)
+            period = datetime.strptime(pve['period'], "%Y-%m-%dT%H:%M:%SZ")
+            if period < lastUpdate + timedelta(days=1):
+                print(f'stopped loading {destinyID} at ' + period.strftime("%d %m %Y"))
+                updatedPlayer(destinyID)
+                break
+            if int(pve['activityDetails']['instanceId']) == 4672418793 or int(pve['activityDetails']['instanceId']) == 4241713648:
+                pprint(pve)
+            processes.append(executor.submit(lambda args: insertIntoDB(*args), (destinyID, pve)))
+    
+        for task in as_completed(processes):
+            if not task.result():
+                return False
+    print(f'didn\'t Updated {destinyID}')
+    #updatedPlayer(destinyID)
 
 def initDB():
     con = db_connect()

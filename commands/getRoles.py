@@ -24,20 +24,22 @@ class getRoles(BaseCommand):
     # It will be called every time the command is received
     async def handle(self, params, message, client):
         if params:
-            message.channel.send(f'You can\'t do this for other users\n Use !setroles {params[0]} instead')
+            await message.channel.send(f'You can\'t do this for other users\n Use !setroles {params[0]} instead')
             return
         destinyID = lookupDestinyID(message.author.id)
 
-        fullMemberMap = getFullMemberMap()
-        if not fullMemberMap:
-            await message.channel.send('Seems like bungo is offline, try again later')
-            return
         if not destinyID:
+            fullMemberMap = getFullMemberMap()
+            if not fullMemberMap:
+                await message.channel.send('Seems like bungo is offline, try again later')
+                return
             destinyID = getUserIDbySnowflakeAndClanLookup(message.author, fullMemberMap)
             if not destinyID:
                 await message.channel.send('Didn\'t find your destiny profile, sorry')
                 return
+
         updateDB(destinyID)
+        
         async with message.channel.typing():
             (roleList,removeRoles) = getPlayerRoles(destinyID, [role.name for role in message.author.roles])
             
