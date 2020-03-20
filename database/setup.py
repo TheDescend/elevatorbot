@@ -5,42 +5,39 @@ con = sqlite3.connect('userdb.sqlite3')
 cur = con.cursor()
 
 
-cur.execute('''
-    DROP TABLE characters
-''')
-
-cur.execute('''
-    CREATE TABLE characters(
-        destinyID INTEGER,
-        characterID INTEGER UNIQUE,
-        systemID INTEGER DEFAULT 3,
-        UNIQUE(destinyID, characterID)
-    )
-''')
-
 # cur.execute('''
-#     DROP TABLE activities
+#     DROP TABLE characters
 # ''')
 
 # cur.execute('''
-#     CREATE TABLE activities(
-#         instanceID INTEGER PRIMARY KEY,
-#         activityHash INTEGER,
-#         timePlayedSeconds INTEGER,
-#         period TIMESTAMP,
-#         startingPhaseIndex INTEGER,
-#         completed INTEGER,
-#         deaths INTEGER,
-#         playercount INTEGER,
-#         mode INTEGER
-#     );
+#     CREATE TABLE characters(
+#         destinyID INTEGER,
+#         characterID INTEGER UNIQUE,
+#         systemID INTEGER DEFAULT 3,
+#         UNIQUE(destinyID, characterID)
+#     )
 # ''')
+
+cur.execute('''
+    DROP TABLE activities
+''')
+
+cur.execute('''
+    CREATE TABLE activities(
+        instanceID INTEGER PRIMARY KEY,
+        activityHash INTEGER,
+        activityDurationSeconds INTEGER,
+        period TIMESTAMP,
+        startingPhaseIndex INTEGER,
+        deaths INTEGER,
+        playercount INTEGER,
+        mode INTEGER
+    );
+''')
 
 # cur.execute('''
 #     DROP TABLE instancePlayerPerformance
 # ''')
-
-con.commit()
 
 # cur.execute('''
 #     CREATE TABLE instancePlayerPerformance(

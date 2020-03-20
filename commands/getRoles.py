@@ -2,9 +2,10 @@ from commands.base_command  import BaseCommand
 
 from static.dict                    import requirementHashes, clanids
 from functions.database             import lookupDestinyID, getLastRaid, getFlawlessList
-from functions.dataLoading          import updateDB
+from functions.dataLoading          import updateDB, initDB
 from functions.dataTransformation   import getFullMemberMap, getUserIDbySnowflakeAndClanLookup, getNameToHashMapByClanid
 from functions.roles                import assignRolesToUser, removeRolesFromUser, getPlayerRoles
+
 
 import discord
 
@@ -118,9 +119,11 @@ class setRoles(BaseCommand):
                 return
             destinyID = getUserIDbySnowflakeAndClanLookup(user, fullMemberMap)
             if not destinyID:
-                message.channel.send('Didn\'t find the destiny profile, sorry')
+                await message.channel.send('Didn\'t find the destiny profile, sorry')
                 return
+        await message.channel.send('*Updating DB and assigning roles...*')
         updateDB(destinyID)
+        
         async with message.channel.typing():
             (roleList,removeRoles) = getPlayerRoles(destinyID, [role.name for role in user.roles])
             
@@ -134,7 +137,7 @@ class setRoles(BaseCommand):
                     await user.add_roles(discord.utils.get(message.guild.roles, name=raiderText))
             rolesgiven = ', '.join(roleList)
             if len(rolesgiven) == 0:
-                await message.channel.send(f'You don\'t seem to have any roles.\nIf you believe this is an Error, refer to one of the @Developers\nOtherwise check <#673484884832157697> and <#673485065539551242> to see what you could acquire')
+                await message.channel.send(f'You don\'t seem to have any roles.\nIf you believe this is an Error, refer to one of the @Developers\nOtherwise check <#686568386590802000> to see what you could acquire')
                 return
             await message.channel.send(f'Added the roles {rolesgiven} to user {user.name}')
 
@@ -237,7 +240,7 @@ class assignAllRoles(BaseCommand):
         if admin not in message.author.roles and dev not in message.author.roles:
             await message.channel.send('You are not allowed to do that')
             return
-
+        initDB()
         for discordUser in message.guild.members:
             destinyID = lookupDestinyID(discordUser.id)
             if not destinyID:

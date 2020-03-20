@@ -85,10 +85,10 @@ requirementHashes = {
             ],
             'flawless': leviHashes + leviPHashes,
             'collectibles': [
-                1766893932, #good dog
-                1766893933, #splish splash
-                1766893935, #two enter, one leaves
-                1766893934  #take the throne
+                3125541834, #1766893932, #good dog
+                3125541835, #1766893933, #splish splash
+                3125541833, #1766893935, #two enter, one leaves
+                3125541832  #1766893934  #take the throne
             ]
         },
         'Y1 Raid Master': {
@@ -364,6 +364,10 @@ requirementHashes = {
 
         'Solo Zero Hour': {
             'requirements': ['lowman'],
+            'denyTime0':{ #start is earlier Time, format is important
+                'startTime':'10/03/2020 18:00',
+                'endTime':'17/03/2020 18:00'
+            },
             'playercount' : 1,
             'activityHashes': zeroHashes,
             'replaced_by': ['Solo Flawless Zero Hour']

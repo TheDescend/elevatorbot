@@ -49,6 +49,7 @@ def getPlayersPastPVE(destinyID):
         charIDs = [charid for (_,charid) in syscharlist]
     activitylist = []
     for pagenr in range(1000):
+        charidsToRemove = []
         for characterID in charIDs:
             staturl = f"https://www.bungie.net/Platform/Destiny2/{platform}/Account/{destinyID}/Character/{characterID}/Stats/Activities/?mode=7&count=250&page={pagenr}" 
             # None	0 Everything
@@ -60,10 +61,13 @@ def getPlayersPastPVE(destinyID):
             # AllPvE	7	
             rep = getJSONfromURL(staturl)
             if not rep or not rep['Response']:
-                charIDs.remove(characterID)
+                charidsToRemove.append(characterID)
                 continue
             for activity in rep['Response']['activities']:
                 yield activity
+        for charid in charidsToRemove:
+            charIDs.remove(charid)
+
     #return sorted(activitylist, key = lambda i: i['period'], reverse=True)
 
 def getWeaponStats(destinyID):
@@ -160,33 +164,35 @@ def insertIntoDB(destinyID, pve):
     period = datetime.strptime(pve['period'], "%Y-%m-%dT%H:%M:%SZ")
     activityHash = pve['activityDetails']['directorActivityHash']
     instanceID = pve['activityDetails']['instanceId']
-    timePlayedSeconds = int(pve['values']['timePlayedSeconds']['basic']['value'])
+    activityDurationSeconds = int(pve['values']['activityDurationSeconds']['basic']['value'])
     completed = int(pve['values']['completed']['basic']['value'])
     mode = int(pve['activityDetails']['mode'])
     if completed and not int(pve['values']['completionReason']['basic']['value']):
         pgcrdata = getPGCR(instanceID)['Response']
         startingPhaseIndex = pgcrdata['startingPhaseIndex']
         deaths = 0
-        playercount = 0
+        players = set()
         for player in pgcrdata['entries']:
             lightlevel = player['player']['lightLevel']
             playerID = player['player']['destinyUserInfo']['membershipId']
+            players.add(playerID)
             characterID = player['characterId']
             playerdeaths = int(player['values']['deaths']['basic']['displayValue'])
             deaths += playerdeaths
             displayname = player['player']['destinyUserInfo']['displayName']
             completed = int(player['values']['completed']['basic']['value'])
-            playercount += completed
             opponentsDefeated = player['values']['opponentsDefeated']['basic']['value']
             system = player['player']['destinyUserInfo']['membershipType']
             insertCharacter(playerID, characterID, system)
             insertInstanceDetails(instanceID, playerID, characterID, lightlevel, displayname, deaths, opponentsDefeated, completed)
-        insertActivity(instanceID, activityHash, timePlayedSeconds, period, startingPhaseIndex, deaths, playercount, mode)
+        playercount = len(players)
+        insertActivity(instanceID, activityHash, activityDurationSeconds, period, startingPhaseIndex, deaths, playercount, mode)
         
 def updateDB(destinyID):
     with ThreadPoolExecutor(max_workers=10) as executor:
         processes = []
         lastUpdate = getLastUpdated(destinyID)
+        updatedPlayer(destinyID)
         for pve in getPlayersPastPVE(destinyID):
             if 'period' not in pve.keys():
                 print(pve)
@@ -195,15 +201,11 @@ def updateDB(destinyID):
                 print(f'stopped loading {destinyID} at ' + period.strftime("%d %m %Y"))
                 updatedPlayer(destinyID)
                 break
-            if int(pve['activityDetails']['instanceId']) == 4672418793 or int(pve['activityDetails']['instanceId']) == 4241713648:
-                pprint(pve)
             processes.append(executor.submit(lambda args: insertIntoDB(*args), (destinyID, pve)))
     
         for task in as_completed(processes):
             if not task.result():
                 return False
-    print(f'didn\'t Updated {destinyID}')
-    #updatedPlayer(destinyID)
 
 def initDB():
     con = db_connect()

@@ -137,16 +137,17 @@ def getMarkovPairs():
     getAll = """SELECT * FROM markovpairs"""
     return con.execute(getAll).fetchall()
 
-
-def insertActivity(instanceID, activityHash, timePlayedSeconds, period, startingPhaseIndex, deaths, playercount, mode):
+    
+def insertActivity(instanceID, activityHash, activityDurationSeconds, period, startingPhaseIndex, deaths, playercount, mode):
     """ adds an Activity to the database, not player-specific """
+    if instanceID == 4601366967:
+        print('insertActivity reached')
     con = db_connect()
     cur = con.cursor()
     sqlite_insert_with_param = """INSERT OR IGNORE INTO 'activities'
-                          ('instanceID', 'activityHash', 'timePlayedSeconds', 'period', 'startingPhaseIndex', 'deaths', 'playercount', 'mode') 
+                          ('instanceID', 'activityHash', 'activityDurationSeconds', 'period', 'startingPhaseIndex', 'deaths', 'playercount', 'mode') 
                           VALUES (?, ?, ?, ?, ?, ?, ?, ?)"""
-
-    data_tuple = (instanceID, activityHash, timePlayedSeconds, period, startingPhaseIndex, deaths, playercount, mode)
+    data_tuple = (instanceID, activityHash, activityDurationSeconds, period, startingPhaseIndex, deaths, playercount, mode)
     cur.execute(sqlite_insert_with_param, data_tuple)
     con.commit()
 
