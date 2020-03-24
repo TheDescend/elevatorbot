@@ -1,7 +1,7 @@
 from commands.base_command          import BaseCommand
 
 from functions.dataLoading          import getCharacterList
-from functions.dataTransformation   import getIntStat, getUserIDbySnowflakeAndClanLookup, getFullMemberMap,getTop10PveGuns
+from functions.dataTransformation   import getIntStat, getUserIDbySnowflakeAndClanLookup, getFullMemberMap,getTop10PveGuns, getGunsForPeriod
 from functions.authfunctions        import getSpiderMaterials
 from functions.database             import lookupDestinyID, getToken
 
@@ -49,6 +49,11 @@ class stat(BaseCommand):
                 with open(imgpath, 'rb') as f:
                     await message.channel.send(f'{message.author.mention}, here are your top10 guns used in raids', file=discord.File(f))
                 os.remove(imgpath)
+        elif name == 'pve':
+            start = params[1]
+            end = params[2]
+            await message.channel.send(getGunsForPeriod(destinyID, start, end))
+            #"2020-03-31"
         elif name == 'help':
             await message.channel.send(f'''
             {message.author.mention}, use those arguments for !stat *<argument>*:

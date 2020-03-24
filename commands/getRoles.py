@@ -54,7 +54,7 @@ class getRoles(BaseCommand):
                     await message.author.add_roles(discord.utils.get(message.guild.roles, name=raiderText))
             rolesgiven = ', '.join(roleList)
             if len(rolesgiven) == 0:
-                await message.channel.send(f'You don\'t seem to have any roles.\nIf you believe this is an Error, refer to one of the @Developers\nOtherwise check <#673484884832157697> and <#673485065539551242> to see what you could acquire')
+                await message.channel.send(f'You don\'t seem to have any roles.\nIf you believe this is an Error, refer to one of the <@&670397357120159776>\nOtherwise check <#686568386590802000> to see what you could acquire')
                 return
             await message.channel.send(f'Added the roles {rolesgiven} to user {message.author.mention}')
 

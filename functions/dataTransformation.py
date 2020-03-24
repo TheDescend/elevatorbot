@@ -153,6 +153,41 @@ def getFullMemberMap():
             fullMemberMap.update(getNameToHashMapByClanid(clanid))
         return fullMemberMap
 
+def getGunsForPeriod(destinyID, pStart, pEnd):
+    processes = []
+    with ThreadPoolExecutor(max_workers=20) as executor:
+        for pve in getPlayersPastPVE(destinyID):
+            if 'period' not in pve.keys():
+                continue
+            period = datetime.strptime(pve['period'], "%Y-%m-%dT%H:%M:%SZ")
+            pS = datetime.strptime(pStart, "%Y-%m-%d")
+            pE = datetime.strptime(pEnd, "%Y-%m-%d")
+            if pS < period < pE:
+                processes.append(executor.submit(getPGCR, pve['activityDetails']['instanceId']))
+            if period < pS:
+                break
+
+    pgcrlist = []
+    for task in as_completed(processes):
+        if task.result():
+            pgcrlist.append(task.result()['Response'])
+
+    for pgcr in pgcrlist:
+        for entry in pgcr['entries']:
+            if int(entry['player']['destinyUserInfo']['membershipId']) != int(destinyID):
+               # print(entry['player']['destinyUserInfo'])
+                continue
+            if not 'weapons' in entry['extended'].keys():
+                continue
+            guns = entry['extended']['weapons']
+            for gun in guns:
+                #gunids.append(gun['referenceId'])
+                if str(gun['referenceId']) not in gunkills:
+                    gunkills[str(gun['referenceId'])] = 0
+                gunkills[str(gun['referenceId'])] += int(gun['values']['uniqueWeaponKills']['basic']['displayValue'])
+
+        #TODO
+
 def getTop10PveGuns(destinyID):
     gunids = []
     gunkills = {}
