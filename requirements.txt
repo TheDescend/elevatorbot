@@ -58,7 +58,7 @@ parsedatetime==2.4
 pbr==3.1.1
 Pillow==5.1.0
 ply==3.11
-psutil==5.4.2
+psutil==5.6.6
 pyasn1==0.4.2
 pyasn1-modules==0.2.1
 pycrypto==2.6.1
