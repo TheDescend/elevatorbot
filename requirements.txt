@@ -93,7 +93,7 @@ Twisted==17.9.0
 typing-extensions==3.7.4.1
 tzlocal==2.0.0
 unattended-upgrades==0.1
-urllib3==1.22
+urllib3==1.24.2
 virtualenv==15.1.0
 webencodings==0.5.1
 websocket-client==0.44.0
