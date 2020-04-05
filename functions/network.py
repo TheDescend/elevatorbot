@@ -21,6 +21,8 @@ def getJSONfromURL(requestURL):
     """ Grabs JSON from the specified URL (no oauth)"""
     for _ in range(3):
         try:
+            if 'None' in requestURL:
+                break
             r = session.get(url=requestURL, headers=PARAMS)
         except Exception as e:
             print('Exception was caught: ' + repr(e))

@@ -64,6 +64,8 @@ def main():
     @client.event
     async def common_handle_message(message):
         text = message.content
+        if 'äbidöpfel' in text:
+            message.channel.send('@Häbidöpfel <:PanLove:413844320500580362>')
         if text.startswith(COMMAND_PREFIX) and text != COMMAND_PREFIX:
             cmd_split = text[len(COMMAND_PREFIX):].split()
             try:

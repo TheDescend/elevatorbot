@@ -1,7 +1,7 @@
 from commands.base_command  import BaseCommand
 import os
 from static.config import BUNGIE_OAUTH
-from functions.database import insertUser, removeUser, lookupDestinyID
+from functions.database import insertUser, removeUser, lookupDestinyID, lookupDiscordID
 import discord
 
 class registerDesc(BaseCommand):
@@ -19,7 +19,7 @@ class registerDesc(BaseCommand):
         await message.author.send(f'Open this link, to register with the bot: {URL}')
         await message.channel.send(f'sent dm to {message.author.nick or message.author.name}')
 
-class getID(BaseCommand):
+class getDestinyID(BaseCommand):
     def __init__(self):
         # A quick description for the help message
         description = "[dev] check a user's destinyID"
@@ -35,6 +35,21 @@ class getID(BaseCommand):
              await message.channel.send(f'Unknown User {discordID}')
         print(f'{discordID} with {lookupDestinyID(discordID)}')
         await message.channel.send(f'{discordUser.name} has destinyID {lookupDestinyID(discordID)}')
+
+
+class getDiscordID(BaseCommand):
+    def __init__(self):
+        # A quick description for the help message
+        description = "[dev] check a user's discordID by destinyID"
+        params = ['User']
+        super().__init__(description, params)
+
+    # Override the handle() method
+    # It will be called every time the command is received
+    async def handle(self, params, message, client):
+        destinyID = int(params[0])
+        print(f'{destinyID} with {lookupDiscordID(destinyID)}')
+        await message.channel.send(f'{destinyID} has discordID {lookupDiscordID(destinyID)}')
 
 
 class checkregister(BaseCommand):

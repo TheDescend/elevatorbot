@@ -35,7 +35,8 @@ def getCharacterList(destinyID):
         characterinfo = getJSONfromURL(charURL.format(i, destinyID))
         if characterinfo:
             return (i, list(characterinfo['Response']['characters']['data'].keys()))
-    return None
+    print(f'no account found for destinyID {destinyID}')
+    return (None,None)
     
 
 #https://bungie-net.github.io/multi/schema_Destiny-HistoricalStats-DestinyHistoricalStatsPeriodGroup.html#schema_Destiny-HistoricalStats-DestinyHistoricalStatsPeriodGroup
@@ -48,6 +49,9 @@ def getPlayersPastPVE(destinyID):
         (platform, _) = syscharlist[0]
         charIDs = [charid for (_,charid) in syscharlist]
     activitylist = []
+    if not charIDs:
+        return []
+
     for pagenr in range(1000):
         charidsToRemove = []
         for characterID in charIDs:
@@ -202,10 +206,11 @@ def updateDB(destinyID):
                 updatedPlayer(destinyID)
                 break
             processes.append(executor.submit(lambda args: insertIntoDB(*args), (destinyID, pve)))
-    
+
         for task in as_completed(processes):
             if not task.result():
                 return False
+
 
 def initDB():
     con = db_connect()
@@ -214,5 +219,6 @@ def initDB():
     playerlist = [p[0] for p in playerlist]
     for player in playerlist:
         updateDB(player)
+        print(f'done updating {player}')
 
 #TODO replace with DB and version checks

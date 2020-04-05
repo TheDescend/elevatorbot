@@ -50,6 +50,9 @@ def returnIfHasRoles(playerid, role, year):
     return None
 
 def getPlayerRoles(playerid, existingRoles = []):
+    if not playerid:
+        print('got empty playerid')
+        return ([],[])
     print(f'getting roles for {playerid}')
     roles = []
     redundantRoles = []
@@ -106,7 +109,11 @@ async def assignRolesToUser(roleList, discordUser, guild):
             continue
         if roleObj not in discordUser.roles:
             print(f'added role {roleObj.name} to user {discordUser.name}')
-            await discordUser.add_roles(roleObj)
+            try:
+                await discordUser.add_roles(roleObj)
+            except discord.errors.Forbidden:
+                return False
+    return True
 
 async def removeRolesFromUser(roleStringList, discordUser, guild):
     removeRolesObjs = []
@@ -120,4 +127,8 @@ async def removeRolesFromUser(roleStringList, discordUser, guild):
         #print(f'removed {roleObj.name} from {discordUser.name}')
         if roleObj in discordUser.roles:
             print(f'removed role {roleObj.name} from user {discordUser.name}')
-            await discordUser.remove_roles(roleObj)
+            try:
+                await discordUser.remove_roles(roleObj)
+            except discord.errors.Forbidden:
+                return False
+    return True

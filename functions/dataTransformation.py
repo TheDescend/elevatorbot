@@ -124,7 +124,7 @@ def getIntStat(destinyID, statname):
 def getUserIDbySnowflakeAndClanLookup(discordUser, memberMap):
     username = discordUser.nick or discordUser.name
     maxName = None
-    maxProb = 50
+    maxProb = 75
     for ingameName in memberMap.keys():
         uqprob = fuzz.UQRatio(username, ingameName)
         if uqprob > maxProb:
@@ -134,10 +134,11 @@ def getUserIDbySnowflakeAndClanLookup(discordUser, memberMap):
         return None
     steamName = maxName
     userid = memberMap[steamName]
-    if maxProb > 70:
+    if maxProb > 90:
         insertUser(-1, discordID = discordUser.id, destinyID = userid)
-        print(f'Inserted {discordUser.nick or discordUser.name} because match with {userid} was >70%')
-    return userid
+        print(f'Inserted {discordUser.nick or discordUser.name} because match with {userid} was >90%')
+        return userid
+    return None
 
 def isUserInClan(destinyID, clanid):
     isin = destinyID in getNameToHashMapByClanid(clanid).values()
