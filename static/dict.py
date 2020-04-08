@@ -366,7 +366,7 @@ requirementHashes = {
             'requirements': ['lowman'],
             'denyTime0':{ #start is earlier Time, format is important
                 'startTime':'10/03/2020 18:00',
-                'endTime':'17/03/2020 18:00'
+                'endTime':'14/04/2020 18:00'
             },
             'playercount' : 1,
             'activityHashes': zeroHashes,
@@ -376,7 +376,7 @@ requirementHashes = {
             'requirements': ['lowman'],
             'denyTime0':{ #start is earlier Time, format is important
                 'startTime':'10/03/2020 18:00',
-                'endTime':'17/03/2020 18:00'
+                'endTime':'14/04/2020 18:00'
             },
             'playercount' : 1,
             'activityHashes': herzeroHashes,

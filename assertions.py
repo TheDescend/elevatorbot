@@ -33,4 +33,6 @@ assert not hasRole(ghost, 'Solo Zero Hour', 'Addition')
 assert hasLowman(hali,3,lwHashes, False, [])
 assert hasRole(neria,'Three-Man Heroic Menagerie','Addition')
 
+assert hasRole(ghost, 'Last Wish', 'Y2')
+
 print('all assertions passed')

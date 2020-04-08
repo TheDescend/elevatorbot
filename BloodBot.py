@@ -9,6 +9,7 @@ from events.base_event              import BaseEvent
 from events                         import *
 import asyncio
 import datetime
+import random
 
 from discord.ext.commands import Bot
 
@@ -65,7 +66,9 @@ def main():
     async def common_handle_message(message):
         text = message.content
         if 'äbidöpfel' in text:
-            message.channel.send('@Häbidöpfel <:PanLove:413844320500580362>')
+            texts = ['<:NeriaHeart:671389916277506063>', 'is love, Häbidöpfel is life', 'is the cutest', 'the one and only', ' bzz brrrz %\*&/)\* CutenessOverflowException']
+            addition = random.choice(texts)
+            await message.channel.send(f'Häbidöpfel {addition}')
         if text.startswith(COMMAND_PREFIX) and text != COMMAND_PREFIX:
             cmd_split = text[len(COMMAND_PREFIX):].split()
             try:
@@ -87,6 +90,11 @@ def main():
         if message.author == client.user:
             return
         asyncio.ensure_future(common_handle_message(message))
+
+    @client.event
+    async def on_member_join(member):
+        guestObj = discord.utils.get(member.guild.roles, name="Guest")
+        await member.add_roles([guestObj])
 
     @client.event
     async def on_message_edit(before, after):
