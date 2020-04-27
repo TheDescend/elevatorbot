@@ -42,7 +42,7 @@ def getJSONfromURL(requestURL):
             print(f'bungo is ded')
             return None
         else:
-            print('failed with code ' + str(r.status_code) + (', because servers are busy' if ('ErrorCode' in r.json() and r.json()['ErrorCode']==1672) else ''))
+            print('failed with code ' + str(r.status_code) + ' servers might be busy')
     print('request failed 3 times') 
     return None
 

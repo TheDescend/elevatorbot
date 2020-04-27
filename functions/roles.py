@@ -20,10 +20,12 @@ def hasRole(playerid, role, year):
             for raid in creq:
                 actualclears = getClearCount(playerid, raid['actHashes'])
                 if not actualclears>= raid['count']:
-                    #print(f'only {actualclears} out of {raid["count"]}')
+                    print(f'only {actualclears} out of {raid["count"]}')
                     worthy = False
         elif req == 'flawless':
             worthy &= hasFlawless(playerid, roledata['flawless'])
+            if not worthy:
+                print('no flawless')
         elif req == 'collectibles':
             for collectible in roledata['collectibles']:
                 worthy &= hasCollectible(playerid, collectible)
@@ -33,7 +35,7 @@ def hasRole(playerid, role, year):
             for recordHash in roledata['records']:
                 worthy &= hasTriumph(playerid, recordHash)
                 if not worthy:
-                    print(f'lacking {recordHash} triumph')
+                    #print(f'lacking {recordHash} triumph')
                     break
         elif req == 'lowman':
             denies = sum([1 if 'denyTime' in key else 0 for key in roledata.keys()])

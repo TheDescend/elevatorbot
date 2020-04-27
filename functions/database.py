@@ -163,6 +163,16 @@ def insertInstanceDetails(instanceID, playerID, characterID, lightlevel, display
     cur.execute(sqlite_insert_with_param, data_tuple)
     con.commit()
 
+def instanceExists(instanceID):
+    con = db_connect()
+    cur = con.cursor()
+    sqlite_select = f"""SELECT instanceID FROM 'instancePlayerPerformance'
+                        WHERE instanceID = ?"""
+
+    data_tuple = (instanceID,)
+    cur.execute(sqlite_select, data_tuple)
+    return cur.fetchall()
+
 def insertCharacter(playerID, characterID, system):
     """ adds player-specific information """
     con = db_connect()

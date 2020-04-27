@@ -1,7 +1,7 @@
 from functions.network  import getJSONfromURL, getComponentInfoAsJSON
 from static.dict        import getNameFromHashRecords, getNameFromHashCollectible, getNameFromHashActivity, getNameFromHashInventoryItem
 from functions.database import db_connect, insertActivity, insertCharacter, insertInstanceDetails, updatedPlayer, getLastUpdated
-from functions.database import getSystemAndChars, getLastUpdated
+from functions.database import getSystemAndChars, getLastUpdated, instanceExists
 
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
@@ -29,6 +29,7 @@ def getTriumphsJSON(playerID):
     return achJSON['Response']['profileRecords']['data']['records']
 
 def getCharacterList(destinyID):
+    ''' returns a (system, [characterids]) tuple '''
     charURL = "https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/?components=100,200"
     platform = None
     for i in [3,2,1,4,5,10,254]:
@@ -36,15 +37,16 @@ def getCharacterList(destinyID):
         if characterinfo:
             return (i, list(characterinfo['Response']['characters']['data'].keys()))
     print(f'no account found for destinyID {destinyID}')
-    return (None,None)
+    return (None,[])
     
 
 #https://bungie-net.github.io/multi/schema_Destiny-HistoricalStats-DestinyHistoricalStatsPeriodGroup.html#schema_Destiny-HistoricalStats-DestinyHistoricalStatsPeriodGroup
 def getPlayersPastPVE(destinyID):
     platform = None
     syscharlist = getSystemAndChars(destinyID)
-    if getLastUpdated(destinyID) < datetime.strptime("26/03/2015 04:20", "%d/%m/%Y %H:%M") or not syscharlist:
+    if getLastUpdated(destinyID) > datetime.strptime("26/03/2015 04:20", "%d/%m/%Y %H:%M") or not syscharlist:
         platform, charIDs = getCharacterList(destinyID)
+        print(f'grabbed chars for {destinyID}')
     else:
         (platform, _) = syscharlist[0]
         charIDs = [charid for (_,charid) in syscharlist]
@@ -68,6 +70,8 @@ def getPlayersPastPVE(destinyID):
                 charidsToRemove.append(characterID)
                 continue
             for activity in rep['Response']['activities']:
+                activity['charid'] = characterID
+                #print(activity)
                 yield activity
         for charid in charidsToRemove:
             charIDs.remove(charid)
@@ -165,9 +169,16 @@ fillDictFromDB(getNameFromHashCollectible, 'DestinyCollectibleDefinition')
 fillDictFromDB(getNameFromHashInventoryItem, 'DestinyInventoryItemDefinition')
 
 def insertIntoDB(destinyID, pve):
+    if not destinyID:
+        return None
+    #print('inserting into db...')
     period = datetime.strptime(pve['period'], "%Y-%m-%dT%H:%M:%SZ")
     activityHash = pve['activityDetails']['directorActivityHash']
+    #print(activityHash)
     instanceID = pve['activityDetails']['instanceId']
+    if instanceExists(instanceID):
+        #print('cancelling insertion')
+        return False
     activityDurationSeconds = int(pve['values']['activityDurationSeconds']['basic']['value'])
     completed = int(pve['values']['completed']['basic']['value'])
     mode = int(pve['activityDetails']['mode'])
@@ -190,26 +201,56 @@ def insertIntoDB(destinyID, pve):
             insertCharacter(playerID, characterID, system)
             insertInstanceDetails(instanceID, playerID, characterID, lightlevel, displayname, deaths, opponentsDefeated, completed)
         playercount = len(players)
+        #print(f'inserting {instanceID}')
         insertActivity(instanceID, activityHash, activityDurationSeconds, period, startingPhaseIndex, deaths, playercount, mode)
+    return True
         
 def updateDB(destinyID):
-    with ThreadPoolExecutor(max_workers=10) as executor:
+    if not destinyID:
+        return
+
+    with ThreadPoolExecutor(max_workers=5) as executor:
+        charcount = len(getCharacterList(destinyID)[1])
+        if charcount == 0:
+            print(f'no characters found for {destinyID}')
+            return
+        #print(getCharacterList(destinyID)[1])
         processes = []
         lastUpdate = getLastUpdated(destinyID)
-        updatedPlayer(destinyID)
+        donechars = []
+        print(f'checking {charcount} characters')
         for pve in getPlayersPastPVE(destinyID):
             if 'period' not in pve.keys():
-                print(pve)
-            period = datetime.strptime(pve['period'], "%Y-%m-%dT%H:%M:%SZ")
-            if period < lastUpdate + timedelta(days=1):
+                print('period not in pve')
+
+            if len(donechars) == charcount:
                 print(f'stopped loading {destinyID} at ' + period.strftime("%d %m %Y"))
                 updatedPlayer(destinyID)
                 break
-            processes.append(executor.submit(lambda args: insertIntoDB(*args), (destinyID, pve)))
 
+            if pve['charid'] in donechars:
+                #print('charid in donechars... skipping...')
+                continue
+            #print(pve)
+            period = datetime.strptime(pve['period'], "%Y-%m-%dT%H:%M:%SZ")
+
+            if period < (lastUpdate - timedelta(days=2)):
+                print(f'char {pve["charid"]} done at {pve["period"]}')
+                donechars.append(pve['charid'])
+                continue
+
+            
+            #print(f'inserting {period}')
+            processes.append(executor.submit(lambda args: insertIntoDB(*args), (destinyID, pve)))
+        falses,results = 0,0
         for task in as_completed(processes):
             if not task.result():
-                return False
+                #print('returing false')
+                falses += 1
+            else:
+                results += 1
+        updatedPlayer(destinyID)
+        print(f'done updating {destinyID} with {falses} errors and {results} new entries')
 
 
 def initDB():
@@ -219,6 +260,7 @@ def initDB():
     playerlist = [p[0] for p in playerlist]
     for player in playerlist:
         updateDB(player)
-        print(f'done updating {player}')
+    print(f'done updating the db')
 
 #TODO replace with DB and version checks
+

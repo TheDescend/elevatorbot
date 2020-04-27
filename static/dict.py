@@ -366,7 +366,7 @@ requirementHashes = {
             'requirements': ['lowman'],
             'denyTime0':{ #start is earlier Time, format is important
                 'startTime':'10/03/2020 18:00',
-                'endTime':'14/04/2020 18:00'
+                'endTime':'21/04/2020 18:00'
             },
             'playercount' : 1,
             'activityHashes': zeroHashes,
@@ -376,7 +376,7 @@ requirementHashes = {
             'requirements': ['lowman'],
             'denyTime0':{ #start is earlier Time, format is important
                 'startTime':'10/03/2020 18:00',
-                'endTime':'14/04/2020 18:00'
+                'endTime':'21/04/2020 18:00'
             },
             'playercount' : 1,
             'activityHashes': herzeroHashes,
@@ -385,11 +385,19 @@ requirementHashes = {
         'Solo Flawless Zero Hour': {
             'requirements': ['lowman'],
             'playercount' : 1,
+            'denyTime0':{ #start is earlier Time, format is important
+                'startTime':'10/03/2020 18:00',
+                'endTime':'21/04/2020 18:00'
+            },
             'flawless' : True,
             'activityHashes': zeroHashes
         },
         'Solo Flawless Heroic Zero Hour': {
             'requirements': ['lowman'],
+            'denyTime0':{ #start is earlier Time, format is important
+                'startTime':'10/03/2020 18:00',
+                'endTime':'21/04/2020 18:00'
+            },
             'playercount' : 1,
             'flawless' : True,
             'activityHashes': herzeroHashes

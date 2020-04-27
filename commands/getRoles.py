@@ -244,7 +244,7 @@ class assignAllRoles(BaseCommand):
         for discordUser in message.guild.members:
             destinyID = lookupDestinyID(discordUser.id)
             if not destinyID:
-                destinyID = getUserIDbySnowflakeAndClanLookup(discordUser,getFullMemberMap)
+                destinyID = getUserIDbySnowflakeAndClanLookup(discordUser,getFullMemberMap())
                 if not destinyID:
                     await message.channel.send(f'No destinyID found for {discordUser.name}')
                     continue
