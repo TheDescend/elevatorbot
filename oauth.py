@@ -1,25 +1,26 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3
 
 import requests
 from static.config      import BUNGIE_OAUTH, BUNGIE_TOKEN, BUNGIE_SECRET, B64_SECRET
-from flask              import Flask, request, redirect, Response
+from flask              import Flask, request, redirect, Response, send_file
 from functions.database import insertToken, getRefreshToken
 
 def refresh_token(discordID):
     url = 'https://www.bungie.net/platform/app/oauth/token/'
     headers = {
         'content-type': 'application/x-www-form-urlencoded',
-        'authorization': f'Basic {B64_SECRET}'
+        'authorization': 'Basic ' + str(B64_SECRET)
     }
     refresh_token = getRefreshToken(discordID)
 
-    data = f'grant_type=refresh_token&refresh_token={refresh_token}'
+    data = 'grant_type=refresh_token&refresh_token=' +str(refresh_token)
 
     r = requests.post(url, data=data, headers=headers, allow_redirects=False)
-    print(r.content)
     data = r.json()
     access_token = data['access_token']
     refresh_token = data['refresh_token']
+
+    print('got new token ' + str(access_token)) 
 
     insertToken(discordID, None, None, access_token, refresh_token)
 
@@ -33,17 +34,28 @@ def shutdown_server():
     if func is None:
         raise RuntimeError('Not running with the Werkzeug Server')
     func()
-
+ 
+@app.route('/database')
+def database():
+    print('trying to download the file')
+    return send_file('database/userdb.sqlite3', as_attachment=True)
 
 @app.route('/simap/<simID>')
 def simap(simID):
     print(request.headers.get('User-Agent'))
     if 'ms-office' in request.headers.get('User-Agent') or '.NET4.0C; .NET4.0E;' in request.headers.get('User-Agent'):
         return 'hi'
-    return redirect(f'https://www.simap.ch/shabforms/servlet/Search?EID=3&projectId={simID}&mode=2')
+    return redirect('https://www.simap.ch/shabforms/servlet/Search?EID=3&projectId='+str(simID)+'&mode=2')
+
+
+@app.route('/test')
+def test():
+    print('testing')
+    return "hi"
 
 @app.route('/')
-def result():
+def root():
+    print('called root')
     #print('got request')
     response = request.args
     code = response['code'] #for user auth
@@ -53,10 +65,10 @@ def result():
     url = 'https://www.bungie.net/platform/app/oauth/token/'
     headers = {
         'content-type': 'application/x-www-form-urlencoded',
-        'authorization': f'Basic {B64_SECRET}'
+        'authorization': 'Basic '+ str(B64_SECRET)
     }
 
-    data = f'grant_type=authorization_code&code={code}'
+    data = 'grant_type=authorization_code&code='+str(code)
 
     r = requests.post(url, data=data, headers=headers)
     #print(r)
@@ -80,6 +92,7 @@ def result():
         print(discordID, 'has ID', membership['membershipId'])
     return 'Thank you for signing up with <h1> Elevator Bot </h1>\n <p style="bottom: 20" >There will be cake</p>' # response to your request.
 
+
 @app.route('/.well-known/acme-challenge/<challenge>')
 def letsencrypt_check(challenge):
     challenge_response = {
@@ -93,12 +106,14 @@ def before_request():
     if request.url.startswith('http://'):
         return redirect(request.url.replace('http://', 'https://'), code=301)
 
-def start_server():
-    if __name__ == '__main__':
-        print(f'server running')
-        context = ('/etc/letsencrypt/live/rc19v2108.dnh.net/fullchain.pem', '/etc/letsencrypt/live/rc19v2108.dnh.net/privkey.pem')
-        app.run(host= '0.0.0.0',port=443, ssl_context=context)
+@app.errorhandler(404)
+def not_found():
+    """Page not found."""
+    return "page not founderino"
 
+if __name__ == '__main__':
+    print('server running')
+    context = ('/etc/letsencrypt/live/rc19v2108.dnh.net/fullchain.pem', '/etc/letsencrypt/live/rc19v2108.dnh.net/privkey.pem')
+    app.run(host= '0.0.0.0', port=443, ssl_context=context)
 
-start_server()
 

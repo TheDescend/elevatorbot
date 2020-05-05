@@ -1,5 +1,5 @@
 from functions.network      import getComponentInfoAsJSON
-from functions.dataLoading  import getWeaponStats, getTriumphsJSON, getPGCR, getPlayersPastPVE,getNameToHashMapByClanid
+from functions.dataLoading  import getStats, getTriumphsJSON, getPGCR, getPlayersPastPVE,getNameToHashMapByClanid
 from functions.database     import insertUser, db_connect
 
 from static.dict            import getNameFromHashInventoryItem, clanids
@@ -21,6 +21,8 @@ def hasCollectible(playerid, cHash):
     if not userCollectibles or 'data' not in userCollectibles['Response']['profileCollectibles']:
         return False
     collectibles = userCollectibles['Response']['profileCollectibles']['data']['collectibles']
+    if str(cHash) not in collectibles:
+        return False
     return collectibles[str(cHash)]['state'] & 1 == 0
 #   Check whether it's not (not aquired), which means that the firstbit can't be 1   
 #   https://bungie-net.github.io/multi/schema_Destiny-DestinyCollectibleState.html
@@ -119,9 +121,20 @@ def hasLowman(playerid, playercount, raidHashes, flawless=False, disallowed=[]):
     return False
 
 def getIntStat(destinyID, statname):
-    stats = getWeaponStats(destinyID)
+    stats = getStats(destinyID)
     stat =  stats['mergedAllCharacters']['merged']['allTime'][statname]['basic']['value']
     return int(stat)
+
+def getCharStats(destinyID, characterID, statname):
+    stats = getStats(destinyID)
+    for char in stats['characters']:
+        if char['characterId'] == characterID:
+            return char['merged']['allTime'][statname]['basic']['value']
+
+def getPossibleStats():
+    stats = getStats(4611686018468695677)
+    for char in stats['characters']:
+        return char['merged']['allTime'].keys()
 
 
 def getUserIDbySnowflakeAndClanLookup(discordUser, memberMap):

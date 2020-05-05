@@ -38,7 +38,32 @@ def getCharacterList(destinyID):
             return (i, list(characterinfo['Response']['characters']['data'].keys()))
     print(f'no account found for destinyID {destinyID}')
     return (None,[])
-    
+
+racemap = {
+    2803282938: 'Awoken',
+    898834093: 'Exo',
+    3887404748: 'Human'
+} 
+gendermap = {
+    2204441813: 'Female',
+    3111576190: 'Male',
+}
+classmap = {
+    671679327: 'Hunter',
+    2271682572: 'Warlock',
+    3655393761: 'Titan'
+}
+
+def getCharactertypeList(destinyID):
+    ''' returns a [charID, type] tuple '''
+    charURL = "https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/?components=100,200"
+    platform = None
+    for i in [3,2,1,4,5,10,254]:
+        characterinfo = getJSONfromURL(charURL.format(i, destinyID))
+        if characterinfo:
+            return [(char["characterId"], f"{racemap[char['raceHash']]} {gendermap[char['genderHash']]} {classmap[char['classHash']]}") for char in characterinfo['Response']['characters']['data'].values()]
+    print(f'no account found for destinyID {destinyID}')
+    return (None,[])
 
 #https://bungie-net.github.io/multi/schema_Destiny-HistoricalStats-DestinyHistoricalStatsPeriodGroup.html#schema_Destiny-HistoricalStats-DestinyHistoricalStatsPeriodGroup
 def getPlayersPastPVE(destinyID):
@@ -78,13 +103,23 @@ def getPlayersPastPVE(destinyID):
 
     #return sorted(activitylist, key = lambda i: i['period'], reverse=True)
 
-def getWeaponStats(destinyID):
-    url = 'https://stats.bungie.net/Platform/Destiny2/{}/Account/{}/Stats/?groups=weapons'
+def getStats(destinyID):
+    url = 'https://stats.bungie.net/Platform/Destiny2/{}/Account/{}/Stats/'
     for system in [3,2,1,4,5,10,254]:
         statsResponse = getJSONfromURL(url.format(system, destinyID))
         if statsResponse:
             return statsResponse['Response']
     return None
+
+# def getStatsForChar(destinyID, characterID):
+#     url = 'https://stats.bungie.net/Platform/Destiny2/{}/Account/{}/Stats/'
+#     for system in [3,2,1,4,5,10,254]:
+#         statsResponse = getJSONfromURL(url.format(system, destinyID))
+#         if statsResponse:
+#             for char in statsResponse['Response']['characters']:
+#                 if char['characterId'] == characterID:
+#                     return char['merged']['allTime']
+#     return None
 
 def getNameToHashMapByClanid(clanid):
     requestURL = "https://www.bungie.net/Platform/GroupV2/{}/members/".format(clanid) #memberlist

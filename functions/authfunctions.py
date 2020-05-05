@@ -29,8 +29,10 @@ def getJSONwithToken(url, discordID):
         return getJSONwithToken(url, discordID)
     
     if int(res['ErrorCode']) != 1:
+        print(f'ErrorCode is not 1, but {res["ErrorCode"]}')
         return None
 
+    #print(f'Tokenfunction returned {res}')
     return res
 
 def getSpiderMaterials(discordID, destinyID, characterID):
@@ -41,6 +43,7 @@ def getSpiderMaterials(discordID, destinyID, characterID):
     url = f'https://www.bungie.net/Platform/Destiny2/{system}/Profile/{destinyID}/Character/{characterID}/Vendors/863940356/?components=400,401,402'
     res = getJSONwithToken(url, discordID)
     if not res:
+        print('result was none')
         return None
     #gets the dictionary of sold items
     sales = res['Response']['sales']['data']

@@ -117,6 +117,20 @@ def printall():
     for row in con.execute(getAll).fetchall():
         print(row)
 
+def getEverything():
+    """ **DEBUG** Prints the DB to console """
+    con = db_connect()
+    cur = con.cursor()
+    getAll = "SELECT discordSnowflake, destinyID, serverID, token, refresh_token FROM discordGuardiansToken;"
+
+    resultcur = cur.execute(getAll)
+    #print(resultcur)
+
+    result = resultcur.fetchall()
+    #print(result)
+
+    return result
+
 def insertIntoMessageDB(messagetext, userid, channelid, msgid, msgdate):
     """ Used to collect messages for markov-chaining, returns True if successful """
     con = db_connect()

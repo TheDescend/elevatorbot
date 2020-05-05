@@ -41,24 +41,24 @@ class socialists(BaseCommand):
         else:
             await forthesocialism.send(f'Any {socialist.mention}s?')
 
-class socialistss(BaseCommand):
-    def __init__(self):
-        # A quick description for the help message
-        description = ""
-        params = []
-        super().__init__(description, params)
+# class socialistss(BaseCommand):
+#     def __init__(self):
+#         # A quick description for the help message
+#         description = "Prints the amount of socialist commands you've done"
+#         params = []
+#         super().__init__(description, params)
     
-    async def handle(self, params, message, client):
-        if random() > 0.9:
-            message.channel.send(f'{caller} has 69 socialists')
+#     async def handle(self, params, message, client):
+#         if random() > 0.9:
+#             message.channel.send(f'{caller} has 69 socialists')
 
-        if not os.path.exists('sc.json'):
-            with open('sc.json', 'w+') as fp:
-                json.dump({}, fp)
-        with open('sc.json', 'r') as fp:
-            counts = json.load(fp)
-        caller = message.author.nick or message.author.name
+#         if not os.path.exists('sc.json'):
+#             with open('sc.json', 'w+') as fp:
+#                 json.dump({}, fp)
+#         with open('sc.json', 'r') as fp:
+#             counts = json.load(fp)
+#         caller = message.author.nick or message.author.name
         
-        if counts[str(message.author.id)] == 420:
-            await message.channel.send(f'{caller} has 419 socialists')
-        await message.channel.send(f'{caller} has {counts[str(message.author.id)]} socialists')
+#         if counts[str(message.author.id)] == 420:
+#             await message.channel.send(f'{caller} has 419 socialists')
+#         await message.channel.send(f'{caller} has {counts[str(message.author.id)]} socialists')

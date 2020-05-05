@@ -1,8 +1,8 @@
 from commands.base_command  import BaseCommand
 
 from static.dict                    import requirementHashes, clanids
-from functions.database             import lookupDestinyID, getLastRaid, getFlawlessList
-from functions.dataLoading          import updateDB, initDB
+from functions.database             import lookupDestinyID, lookupDiscordID, getLastRaid, getFlawlessList
+from functions.dataLoading          import updateDB, initDB, getNameToHashMapByClanid
 from functions.dataTransformation   import getFullMemberMap, getUserIDbySnowflakeAndClanLookup, getNameToHashMapByClanid
 from functions.roles                import assignRolesToUser, removeRolesFromUser, getPlayerRoles
 
@@ -180,8 +180,36 @@ class checkNames(BaseCommand):
             if destinyID:
                 await message.channel.send(f'{discordUser.name} ({discordUser.nick}): https://raid.report/pc/{destinyID}')
                 continue
-            destinyID = getUserIDbySnowflakeAndClanLookup(discordUser,getFullMemberMap)
+            destinyID = getUserIDbySnowflakeAndClanLookup(discordUser,getFullMemberMap())
             await message.channel.send(f'{discordUser.name} ({discordUser.nick}): https://raid.report/pc/{destinyID}')
+
+class checkNewbies(BaseCommand):
+    def __init__(self):
+        # A quick description for the help message
+        description = "[dev] check people"
+        params = []
+        super().__init__(description, params)
+
+    # Override the handle() method
+    # It will be called every time the command is received
+    async def handle(self, params, message, client):
+        naughtylist = []
+        for clanid,name in clanids.items():
+            await message.channel.send(f'checking clan {name}')
+            clanmap = getNameToHashMapByClanid(clanid)
+            for username, userid in clanmap.items():
+                discordID = lookupDiscordID(userid)
+                if discordID:
+                    user = client.get_user(discordID)
+                    if not user:
+                        await message.channel.send(f'[ERROR] {username} with destinyID {userid} has discordID {discordID} but it is faulty')
+                        continue
+                    #await message.channel.send(f'{username} is in Discord with name {user.name}')
+                else:
+                    naughtylist.append(username)
+                    await message.channel.send(f'{username} with ID {userid} is not in Discord (or not recognized by the bot)')
+        await message.channel.send(f'users to check: {", ".join(naughtylist)}')
+
 
 class listDescend(BaseCommand):
     def __init__(self):

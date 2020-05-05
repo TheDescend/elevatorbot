@@ -45,10 +45,7 @@ class AutomaticRoleAssignment(BaseEvent):
     
     async def run(self, client):
 
-
-
-        def updateUser(discordUser, client):
-            newtonslab = client.get_channel(670637036641845258) 
+        def updateUser(discordUser):
             if discordUser.bot:
                 return []
 
@@ -78,12 +75,9 @@ class AutomaticRoleAssignment(BaseEvent):
             #Since I'm too lazy to find out the guild-id, this is how I get the guild-object
             guild = newtonslab.guild
             with cf.ThreadPoolExecutor(max_workers=15) as executor:
-                future_to_mapping = executor.map(updateUser, (guild.members,client))
+                results = executor.map(updateUser, guild.members)
 
-                news = []
-                newslist = []
-                for future in cf.as_completed(future_to_mapping):
-                    news += future.result()
+                news = list(results)
                 
                 for guild, discordUser, newRoles,removeRoles in news:
                     await assignRolesToUser(newRoles, discordUser, guild)
