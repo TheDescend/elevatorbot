@@ -311,10 +311,22 @@ requirementHashes = {
             'playercount' : 2,
             'activityHashes': scourgeHashes,
          },
+         'Solo Queenswalk': {
+            'requirements': ['lowman'],
+            'playercount' : 1,
+            'activityHashes': lwHashes
+         },
+         'Two-Man Queenswalk': {
+            'requirements': ['lowman'],
+            'playercount' : 2,
+            'activityHashes': lwHashes,
+            'replaced_by': ['Solo Queenswalk']
+         },
          'Three-Man Queenswalk': {
             'requirements': ['lowman'],
             'playercount' : 3,
-            'activityHashes': lwHashes
+            'activityHashes': lwHashes,
+            'replaced_by': ['Solo Queenswalk', 'Two-Man Queenswalk']
          },
          'Two-Man Calus': {
             'requirements': ['lowman'],
