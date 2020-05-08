@@ -78,6 +78,7 @@ class AutomaticRoleAssignment(BaseEvent):
                 results = executor.map(updateUser, guild.members)
 
                 news = list(results)
+                newslist = []
                 
                 for guild, discordUser, newRoles,removeRoles in news:
                     await assignRolesToUser(newRoles, discordUser, guild)
