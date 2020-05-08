@@ -198,7 +198,7 @@ def insertCharacter(playerID, characterID, system):
     cur.execute(sqlite_insert_with_param, data_tuple)
     con.commit()
 
-def getSystemAndChars(playerID):
+def getSystemAndChars(destinyID):
     """ returns pairs of system,character """
     con = db_connect()
     cur = con.cursor()
@@ -206,7 +206,7 @@ def getSystemAndChars(playerID):
                     FROM 'characters'
                     WHERE destinyID = ?
                     """
-    data_tuple = (playerID,)
+    data_tuple = (destinyID,)
     cur.execute(sqlite_select, data_tuple)
     return list(cur.fetchall())
 
@@ -292,4 +292,4 @@ def getFlawlessList(destinyID):
 #   table discordGuardiansToken     (discordSnowflake, destinyID, signupDate, serverID, token, refresh_token) 
 #   table messagedb                 (msg, userid, channelid, msgid, msgdate)
 #   table markovpairs               (word1, word2)
-#   
+#   table characters                (systemID, characterID)

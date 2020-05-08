@@ -6,11 +6,16 @@ from static.dict            import clanids
 from discord.ext            import commands
 
 from fuzzywuzzy             import fuzz
-from functions.database     import lookupDestinyID
+from functions.database     import lookupDestinyID, getSystemAndChars
 import re, requests
 
 base_uri = 'https://discordapp.com/api/v7'
 memberMap = getNameToHashMapByClanid(list(clanids.keys())[0])
+rrsystem = {
+    1: 'xb',
+    2: 'ps',
+    3: 'pc'
+}
 
 class RR(BaseCommand):
     def __init__(self):
@@ -33,12 +38,14 @@ class RR(BaseCommand):
 
             destinyID = lookupDestinyID(user.id)
             if destinyID:
-                await message.channel.send(f'https://raid.report/pc/{destinyID}')
+                systemID, _ = getSystemAndChars(destinyID)[0]
+                await message.channel.send(f'https://raid.report/{rrsystem[systemID]}/{destinyID}')
                 return
         else:
             destinyID = lookupDestinyID(message.author.id)
             if destinyID:
-                await message.channel.send(f'https://raid.report/pc/{destinyID}')
+                systemID, _ = getSystemAndChars(destinyID)[0]
+                await message.channel.send(f'https://raid.report/{rrsystem[systemID]}/{destinyID}')
                 return
 
         maxName = None
