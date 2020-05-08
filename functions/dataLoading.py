@@ -125,11 +125,25 @@ def getNameToHashMapByClanid(clanid):
     requestURL = "https://www.bungie.net/Platform/GroupV2/{}/members/".format(clanid) #memberlist
     memberJSON = getJSONfromURL(requestURL)
     if not memberJSON:
-        return {}
+        return {} 
     memberlist = memberJSON['Response']['results']
     memberids  = dict()
     for member in memberlist:
         memberids[member['destinyUserInfo']['LastSeenDisplayName']] = member['destinyUserInfo']['membershipId']
+    return memberids
+
+def getNameAndCrossaveNameToHashMapByClanid(clanid):
+    requestURL = "https://www.bungie.net/Platform/GroupV2/{}/members/".format(clanid) #memberlist
+    memberJSON = getJSONfromURL(requestURL)
+    if not memberJSON:
+        return {}
+    memberlist = memberJSON['Response']['results']
+    memberids  = dict()
+    for member in memberlist:
+        if 'bungieNetUserInfo' in member.keys():
+            memberids[member['destinyUserInfo']['membershipId']] = (member['destinyUserInfo']['LastSeenDisplayName'], member['bungieNetUserInfo']['displayName'])
+        else:
+            memberids[member['destinyUserInfo']['membershipId']] = (member['destinyUserInfo']['LastSeenDisplayName'], 'none')
     return memberids
 
 

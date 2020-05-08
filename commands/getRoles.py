@@ -3,7 +3,7 @@ from commands.base_command  import BaseCommand
 from static.dict                    import requirementHashes, clanids
 from functions.database             import lookupDestinyID, lookupDiscordID, getLastRaid, getFlawlessList
 from functions.dataLoading          import updateDB, initDB, getNameToHashMapByClanid
-from functions.dataTransformation   import getFullMemberMap, getUserIDbySnowflakeAndClanLookup, getNameToHashMapByClanid
+from functions.dataTransformation   import getFullMemberMap, getUserIDbySnowflakeAndClanLookup
 from functions.roles                import assignRolesToUser, removeRolesFromUser, getPlayerRoles
 
 
