@@ -20,3 +20,4 @@ raiddata/friendpickle
 *.sqlite3
 *.log
 images/
+venv/
