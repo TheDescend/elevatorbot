@@ -4,6 +4,8 @@ from static.config          import BUNGIE_TOKEN
 from functions.network      import getJSONfromURL
 from static.dict            import getNameFromHashInventoryItem
 
+import json
+
 import requests
 session = requests.Session()
 
@@ -44,6 +46,19 @@ def getUserMaterials(destinyID):
         return None
     materialdict = list(res['Response']['characterCurrencyLookups']['data'].values())[0]['itemQuantities']
     return materialdict
+
+def getRasputinQuestProgress():
+    haliUrl = 'https://stats.bungie.net/Platform/Destiny2/3/Profile/4611686018468695677/?components=301'
+    res = getJSONwithToken(haliUrl, '171650677607497730')
+    rasputinobjectives = res['Response']["characterUninstancedItemComponents"]["2305843009410156755"]["objectives"]["data"]["1797229574"]['objectives']
+    obHashes = {
+        1851115127 : 'EDZ',
+        1851115126 : 'Moon',
+        1851115125 : 'Io'
+    }
+    return [(obHashes[objective["objectiveHash"]],objective["progress"], objective["completionValue"]) for objective in rasputinobjectives]
+
+getRasputinQuestProgress()
 
 def getSpiderMaterials(discordID, destinyID, characterID):
     """ Gets spiders current selling inventory, requires OAuth"""

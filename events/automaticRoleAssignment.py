@@ -47,14 +47,14 @@ class AutomaticRoleAssignment(BaseEvent):
 
         def updateUser(discordUser):
             if discordUser.bot:
-                return []
+                return (None, None, None, None)
 
             destinyID = lookupDestinyID(discordUser.id)
             if not destinyID and 'The Descend' in [r.name for r in discordUser.roles]:
                 #or check the clan for similar names
                 destinyID = getUserIDbySnowflakeAndClanLookup(discordUser,fullMemberMap)
                 if not destinyID:
-                    return []
+                    return (None, None, None, None)
                 #await newtonslab.send(f'Auto-Matched {discordUser.name} with {destinyID} \n check https://raid.report/pc/{destinyID}' )
 
             #gets the roles of the specific player and assigns/removes them
@@ -64,7 +64,7 @@ class AutomaticRoleAssignment(BaseEvent):
             return (guild, discordUser, newRoles, removeRoles)
         
         #aquires the newtonslab channel from the descend server and notifies about starting
-        newtonslab = client.get_channel(670637036641845258) 
+        newtonslab = client.get_channel(670637036641845258)
         await newtonslab.send('running db update...')
         async with newtonslab.typing():
             initDB()
@@ -81,6 +81,8 @@ class AutomaticRoleAssignment(BaseEvent):
                 newslist = []
                 
                 for guild, discordUser, newRoles,removeRoles in news:
+                    if not discordUser:
+                        continue
                     await assignRolesToUser(newRoles, discordUser, guild)
                     await removeRolesFromUser(removeRoles, discordUser, guild)
                     
@@ -90,9 +92,9 @@ class AutomaticRoleAssignment(BaseEvent):
 
                     addrls = list(compress(newRoles, addBools))
                     removerls = list(compress(removeRoles, removeBools))
-                    newslist += [(discordUser.name, removerls or ["nothing"], addrls or ["nothing"])]
-
-                newstext = 'Following users have been updated:\n' + "\n".join([f'Updated player {un} by adding {", ".join(new)} and removing {", ".join(rem)}' for un,new,rem in newslist])
-                await newtonslab.send('done with role update <:CaydeThumbsUp:670997683774685234>\n' + newstext)
+                    
+                    if addrls or removerls:
+                        newstext = f'Updated player {discordUser.name} by adding {", ".join(addrls or ["nothing"])} and removing {", ".join(removerls or ["nothing"])}'
+                        await newtonslab.send('done with role update <:CaydeThumbsUp:670997683774685234>\n' + newstext)
         
         await newtonslab.send('done with role update <:CaydeThumbsUp:670997683774685234>')
