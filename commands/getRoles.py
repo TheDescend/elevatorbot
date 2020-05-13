@@ -268,7 +268,9 @@ class assignAllRoles(BaseCommand):
         if admin not in message.author.roles and dev not in message.author.roles:
             await message.channel.send('You are not allowed to do that')
             return
+        await message.channel.send('Updating DB...')
         initDB()
+        await message.channel.send('Assigning roles...')
         for discordUser in message.guild.members:
             destinyID = lookupDestinyID(discordUser.id)
             if not destinyID:

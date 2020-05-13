@@ -27,7 +27,7 @@ async def handle_command(command, args, message, bot_client):
     cmd_obj = COMMAND_HANDLERS[command]
     if cmd_obj.params and not len(args) == len(cmd_obj.params):
         await message.channel.send(message.author.mention
-                                      + " Wrong parameters!")
+                                      + f" Params should be {', '.join(cmd_obj.params)}")
     else:
         await cmd_obj.handle(args, message, bot_client)
         

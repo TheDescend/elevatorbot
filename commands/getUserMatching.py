@@ -42,4 +42,8 @@ class getUserMatching(BaseCommand):
             unsuccessfulMessage = ''
             for (steamname, crosssavename, userid) in unsuccessfulMatches:    
                 unsuccessfulMessage += f'{steamname} / {crosssavename} (Steam-ID {userid}) could not be found in Discord \n'  
-            await message.channel.send(unsuccessfulMessage)      
+            
+            if unsuccessfulMessage:
+                await message.channel.send(unsuccessfulMessage)
+            else:
+                await message.channel.send('No unsuccessful matches <:PogU:670369128237760522>')
