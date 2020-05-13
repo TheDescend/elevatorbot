@@ -1,7 +1,7 @@
 from commands.base_command          import BaseCommand
 
-from functions.dataLoading          import getCharacterList
-from functions.dataTransformation   import getIntStat, getUserIDbySnowflakeAndClanLookup, getFullMemberMap,getTop10PveGuns
+from functions.dataLoading          import getCharacterList, getCharactertypeList
+from functions.dataTransformation   import getIntStat, getCharStats, getUserIDbySnowflakeAndClanLookup, getFullMemberMap,getTop10PveGuns, getGunsForPeriod, getPossibleStats
 from functions.authfunctions        import getSpiderMaterials
 from functions.database             import lookupDestinyID, getToken
 
@@ -42,13 +42,23 @@ class stat(BaseCommand):
         elif name == 'longrangekill':
             snips = getIntStat(destinyID, 'longestKillDistance')
             await message.channel.send(f'{message.author.mention}, you sniped an enemy as far as **{snips}** meters away <:Kapp:670369121808154645>')
-        
         elif name == 'top10pveguns':
             async with message.channel.typing():
                 imgpath = getTop10PveGuns(destinyID)
                 with open(imgpath, 'rb') as f:
                     await message.channel.send(f'{message.author.mention}, here are your top10 guns used in raids', file=discord.File(f))
                 os.remove(imgpath)
+        elif name == 'pve': #starttime endtime
+            start = params[1]
+            end = params[2]
+            await message.channel.send(getGunsForPeriod(destinyID, start, end))
+            #"2020-03-31"
+        elif name == 'deaths':
+            stats = []
+            for charid, chardesc in getCharactertypeList(destinyID):
+                stats.append((chardesc, getCharStats(destinyID, charid, 'deaths')))
+            printout = "\n".join([f'Your {chardesc} has {"{:,}".format(count)} deaths' for chardesc,count in stats])
+            await message.channel.send(printout)
         elif name == 'help':
             await message.channel.send(f'''
             {message.author.mention}, use those arguments for !stat *<argument>*:
@@ -56,8 +66,15 @@ class stat(BaseCommand):
             > **meleekills**: *Shows how many enemies you've punched to death*
             > **superkills**: *Shows how many enemies you've killed with your super*
             > **longrangekill**: *Shows how far you've sniped*
-            > **top10raidguns**: *Shows a piechart of your favourite guns*
-            ''')
+            > **top10raidguns**: *Shows a piechart of your favourite guns* 
+             other possible stats include {", ".join(getPossibleStats())}
+             ''')
+        elif name in getPossibleStats():
+            stats = []
+            for charid, chardesc in getCharactertypeList(destinyID):
+                stats.append((chardesc, getCharStats(destinyID, charid, name)))
+            printout = "\n".join([f'Your {chardesc} has {"{:,}".format(int(count))} {name}' for chardesc,count in stats])
+            await message.channel.send(printout)
         else:
             await message.channel.send('Use !stat help for a list of commands :)')
 
@@ -73,7 +90,8 @@ class spoder(BaseCommand):
     async def handle(self, params, message, client):
         discordID = message.author.id
         destinyID = lookupDestinyID(discordID)
-        anyCharID = getCharacterList(destinyID)[0]
+        anyCharID = getCharacterList(destinyID)[1][0]
+
         async with message.channel.typing():
             materialtext = getSpiderMaterials(discordID, destinyID, anyCharID)
             if materialtext:

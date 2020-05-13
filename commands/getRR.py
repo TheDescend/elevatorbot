@@ -2,13 +2,20 @@
 from commands.base_command  import BaseCommand
 from functions.dataLoading  import getNameToHashMapByClanid
 from static.config          import BUNGIE_TOKEN
+from static.dict            import clanids
+from discord.ext            import commands
 
 from fuzzywuzzy             import fuzz
-from functions.database     import lookupDestinyID
+from functions.database     import lookupDestinyID, getSystemAndChars
 import re, requests
 
 base_uri = 'https://discordapp.com/api/v7'
-memberMap = getNameToHashMapByClanid(2784110)
+memberMap = getNameToHashMapByClanid(list(clanids.keys())[0])
+rrsystem = {
+    1: 'xb',
+    2: 'ps',
+    3: 'pc'
+}
 
 class RR(BaseCommand):
     def __init__(self):
@@ -21,46 +28,45 @@ class RR(BaseCommand):
         username = message.author.nick or message.author.name
 
         if len(params) == 1:
-            mentionregex = re.compile(r'<@!?([0-9]*)>') 
-            result = mentionregex.search(params[0]) 
-            discordID = None
-            if not result:
-                await message.channel.send(f'invalid argument, please ping someone or type nothing for yourself')
+            ctx = await client.get_context(message)
+            try:
+                user = await commands.MemberConverter().convert(ctx, params[0])
+            except:
+                await message.channel.send('User not found, make sure the spelling/id is correct')
                 return
-            if result.group(1):
-                discordID = int(result.group(1))
-                user = client.get_user(discordID)
-                username = user.name
+            username = user.name
 
-                destinyID = lookupDestinyID(discordID)
-                if destinyID:
-                    await message.channel.send(f'https://raid.report/pc/{destinyID}')
-                    return
+            destinyID = lookupDestinyID(user.id)
+            if destinyID:
+                systemID, _ = getSystemAndChars(destinyID)[0]
+                await message.channel.send(f'https://raid.report/{rrsystem[systemID]}/{destinyID}')
+                return
         else:
             destinyID = lookupDestinyID(message.author.id)
             if destinyID:
-                await message.channel.send(f'https://raid.report/pc/{destinyID}')
+                systemID, _ = getSystemAndChars(destinyID)[0]
+                await message.channel.send(f'https://raid.report/{rrsystem[systemID]}/{destinyID}')
                 return
 
-            maxName = None
-            maxProb = 0
-            for ingameName in memberMap.keys():
-                uqprob = fuzz.UQRatio(username, ingameName)
-                if uqprob > maxProb:
-                    maxProb = uqprob
-                    maxName = ingameName
-            if maxName:
-                async with message.channel.typing():
-                    userid = memberMap[maxName]
-                    url = 'https://www.bungie.net/platform/User/GetMembershipsById/{}/{}/'.format(userid,3)
-                    r=requests.get(url=url, headers=PARAMS)
-                    memberships = r.json()['Response']['destinyMemberships']
-                    for membership in memberships:
-                        if membership['membershipType'] == 3:
-                            print('https://raid.report/pc/' + membership['membershipId'])
-                            await message.channel.send('https://raid.report/pc/' + membership['membershipId'])
-            else:
-                await message.channel.send('Name needs to be more specific or is not in Clan')
+        maxName = None
+        maxProb = 0
+        for ingameName in memberMap.keys():
+            uqprob = fuzz.UQRatio(username, ingameName)
+            if uqprob > maxProb:
+                maxProb = uqprob
+                maxName = ingameName
+        if maxName:
+            async with message.channel.typing():
+                userid = memberMap[maxName]
+                url = 'https://www.bungie.net/platform/User/GetMembershipsById/{}/{}/'.format(userid,3)
+                r=requests.get(url=url, headers=PARAMS)
+                memberships = r.json()['Response']['destinyMemberships']
+                for membership in memberships:
+                    if membership['membershipType'] == 3:
+                        print('https://raid.report/pc/' + membership['membershipId'])
+                        await message.channel.send('https://raid.report/pc/' + membership['membershipId'])
+        else:
+            await message.channel.send('Name needs to be more specific or is not in Clan')
 
 
         

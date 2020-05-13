@@ -21,6 +21,8 @@ def getJSONfromURL(requestURL):
     """ Grabs JSON from the specified URL (no oauth)"""
     for _ in range(3):
         try:
+            if 'None' in requestURL:
+                break
             r = session.get(url=requestURL, headers=PARAMS)
         except Exception as e:
             print('Exception was caught: ' + repr(e))
@@ -40,7 +42,7 @@ def getJSONfromURL(requestURL):
             print(f'bungo is ded')
             return None
         else:
-            print('failed with code ' + str(r.status_code) + (', because servers are busy' if ('ErrorCode' in r.json() and r.json()['ErrorCode']==1672) else ''))
+            print('failed with code ' + str(r.status_code) + ' servers might be busy')
     print('request failed 3 times') 
     return None
 

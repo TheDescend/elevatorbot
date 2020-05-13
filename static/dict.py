@@ -16,10 +16,11 @@ leviHashes = [2693136600,2693136601,2693136602,2693136603,2693136604,2693136605]
 leviPHashes = [417231112,508802457,757116822, 771164842, 1685065161, 1800508819, 2449714930,3446541099,3857338478,3879860661, 3912437239,4206123728]
 scourgeHashes = [548750096] 
 lwHashes = [2122313384]
-cosHashes = [3333172150] 
+cosHashes = [3333172150, 960175301] 
 gosHashes = [3845997235,2659723068]
 
 premenHashes = [2509539864, 2509539865, 2509539867, 1831470693, 3107795800, 3115455134]
+
 zeroHashes = [3232506937] 
 herzeroHashes = [2731208666]
 
@@ -84,10 +85,10 @@ requirementHashes = {
             ],
             'flawless': leviHashes + leviPHashes,
             'collectibles': [
-                1766893932, #good dog
-                1766893933, #splish splash
-                1766893935, #two enter, one leaves
-                1766893934  #take the throne
+                3125541834, #1766893932, #good dog
+                3125541835, #1766893933, #splish splash
+                3125541833, #1766893935, #two enter, one leaves
+                3125541832  #1766893934  #take the throne
             ]
         },
         'Y1 Raid Master': {
@@ -310,10 +311,22 @@ requirementHashes = {
             'playercount' : 2,
             'activityHashes': scourgeHashes,
          },
+         'Solo Queenswalk': {
+            'requirements': ['lowman'],
+            'playercount' : 1,
+            'activityHashes': lwHashes
+         },
+         'Two-Man Queenswalk': {
+            'requirements': ['lowman'],
+            'playercount' : 2,
+            'activityHashes': lwHashes,
+            'replaced_by': ['Solo Queenswalk']
+         },
          'Three-Man Queenswalk': {
             'requirements': ['lowman'],
             'playercount' : 3,
-            'activityHashes': lwHashes
+            'activityHashes': lwHashes,
+            'replaced_by': ['Solo Queenswalk', 'Two-Man Queenswalk']
          },
          'Two-Man Calus': {
             'requirements': ['lowman'],
@@ -363,6 +376,10 @@ requirementHashes = {
 
         'Solo Zero Hour': {
             'requirements': ['lowman'],
+            'denyTime0':{ #start is earlier Time, format is important
+                'startTime':'10/03/2020 18:00',
+                'endTime':'21/04/2020 18:00'
+            },
             'playercount' : 1,
             'activityHashes': zeroHashes,
             'replaced_by': ['Solo Flawless Zero Hour']
@@ -371,7 +388,7 @@ requirementHashes = {
             'requirements': ['lowman'],
             'denyTime0':{ #start is earlier Time, format is important
                 'startTime':'10/03/2020 18:00',
-                'endTime':'17/03/2020 18:00'
+                'endTime':'21/04/2020 18:00'
             },
             'playercount' : 1,
             'activityHashes': herzeroHashes,
@@ -380,11 +397,19 @@ requirementHashes = {
         'Solo Flawless Zero Hour': {
             'requirements': ['lowman'],
             'playercount' : 1,
+            'denyTime0':{ #start is earlier Time, format is important
+                'startTime':'10/03/2020 18:00',
+                'endTime':'21/04/2020 18:00'
+            },
             'flawless' : True,
             'activityHashes': zeroHashes
         },
         'Solo Flawless Heroic Zero Hour': {
             'requirements': ['lowman'],
+            'denyTime0':{ #start is earlier Time, format is important
+                'startTime':'10/03/2020 18:00',
+                'endTime':'21/04/2020 18:00'
+            },
             'playercount' : 1,
             'flawless' : True,
             'activityHashes': herzeroHashes

@@ -117,6 +117,20 @@ def printall():
     for row in con.execute(getAll).fetchall():
         print(row)
 
+def getEverything():
+    """ **DEBUG** Prints the DB to console """
+    con = db_connect()
+    cur = con.cursor()
+    getAll = "SELECT discordSnowflake, destinyID, serverID, token, refresh_token FROM discordGuardiansToken;"
+
+    resultcur = cur.execute(getAll)
+    #print(resultcur)
+
+    result = resultcur.fetchall()
+    #print(result)
+
+    return result
+
 def insertIntoMessageDB(messagetext, userid, channelid, msgid, msgdate):
     """ Used to collect messages for markov-chaining, returns True if successful """
     con = db_connect()
@@ -137,16 +151,17 @@ def getMarkovPairs():
     getAll = """SELECT * FROM markovpairs"""
     return con.execute(getAll).fetchall()
 
-
-def insertActivity(instanceID, activityHash, timePlayedSeconds, period, startingPhaseIndex, deaths, playercount, mode):
+    
+def insertActivity(instanceID, activityHash, activityDurationSeconds, period, startingPhaseIndex, deaths, playercount, mode):
     """ adds an Activity to the database, not player-specific """
+    if instanceID == 4601366967:
+        print('insertActivity reached')
     con = db_connect()
     cur = con.cursor()
     sqlite_insert_with_param = """INSERT OR IGNORE INTO 'activities'
-                          ('instanceID', 'activityHash', 'timePlayedSeconds', 'period', 'startingPhaseIndex', 'deaths', 'playercount', 'mode') 
+                          ('instanceID', 'activityHash', 'activityDurationSeconds', 'period', 'startingPhaseIndex', 'deaths', 'playercount', 'mode') 
                           VALUES (?, ?, ?, ?, ?, ?, ?, ?)"""
-
-    data_tuple = (instanceID, activityHash, timePlayedSeconds, period, startingPhaseIndex, deaths, playercount, mode)
+    data_tuple = (instanceID, activityHash, activityDurationSeconds, period, startingPhaseIndex, deaths, playercount, mode)
     cur.execute(sqlite_insert_with_param, data_tuple)
     con.commit()
 
@@ -162,6 +177,16 @@ def insertInstanceDetails(instanceID, playerID, characterID, lightlevel, display
     cur.execute(sqlite_insert_with_param, data_tuple)
     con.commit()
 
+def instanceExists(instanceID):
+    con = db_connect()
+    cur = con.cursor()
+    sqlite_select = f"""SELECT instanceID FROM 'instancePlayerPerformance'
+                        WHERE instanceID = ?"""
+
+    data_tuple = (instanceID,)
+    cur.execute(sqlite_select, data_tuple)
+    return cur.fetchall()
+
 def insertCharacter(playerID, characterID, system):
     """ adds player-specific information """
     con = db_connect()
@@ -173,7 +198,7 @@ def insertCharacter(playerID, characterID, system):
     cur.execute(sqlite_insert_with_param, data_tuple)
     con.commit()
 
-def getSystemAndChars(playerID):
+def getSystemAndChars(destinyID):
     """ returns pairs of system,character """
     con = db_connect()
     cur = con.cursor()
@@ -181,7 +206,7 @@ def getSystemAndChars(playerID):
                     FROM 'characters'
                     WHERE destinyID = ?
                     """
-    data_tuple = (playerID,)
+    data_tuple = (destinyID,)
     cur.execute(sqlite_select, data_tuple)
     return list(cur.fetchall())
 
@@ -267,4 +292,4 @@ def getFlawlessList(destinyID):
 #   table discordGuardiansToken     (discordSnowflake, destinyID, signupDate, serverID, token, refresh_token) 
 #   table messagedb                 (msg, userid, channelid, msgid, msgdate)
 #   table markovpairs               (word1, word2)
-#   
+#   table characters                (systemID, characterID)

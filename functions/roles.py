@@ -13,26 +13,35 @@ def hasRole(playerid, role, year):
     if not 'requirements' in roledata:
         print('malformatted requirementHashes')
         return False
+    worthy = True
     for req in roledata['requirements']:
         if req == 'clears':
             creq = roledata['clears']
             for raid in creq:
-                if not getClearCount(playerid, raid['actHashes']) >= raid['count']:
-                    return False
-            return True
+                actualclears = getClearCount(playerid, raid['actHashes'])
+                if not actualclears>= raid['count']:
+                    print(f'only {actualclears} out of {raid["count"]}')
+                    worthy = False
         elif req == 'flawless':
-            return hasFlawless(playerid, roledata['flawless'])
+            worthy &= hasFlawless(playerid, roledata['flawless'])
+            if not worthy:
+                print('no flawless')
         elif req == 'collectibles':
             for collectible in roledata['collectibles']:
-                return hasCollectible(playerid, collectible)
+                worthy &= hasCollectible(playerid, collectible)
+                if not worthy:
+                    break
         elif req == 'records':
             for recordHash in roledata['records']:
-                return hasTriumph(playerid, recordHash)
+                worthy &= hasTriumph(playerid, recordHash)
+                if not worthy:
+                    #print(f'lacking {recordHash} triumph')
+                    break
         elif req == 'lowman':
             denies = sum([1 if 'denyTime' in key else 0 for key in roledata.keys()])
             timeParse = lambda i, spec: datetime.strptime(roledata[f'denyTime{i}'][spec], "%d/%m/%Y %H:%M")
             disallowed = [(timeParse(i, 'startTime'), timeParse(i, 'endTime')) for i in range(denies)]
-            return hasLowman(playerid, 
+            worthy &= hasLowman(playerid, 
                             roledata['playercount'], 
                             roledata['activityHashes'], 
                             flawless=roledata.get('flawless', False), 
@@ -40,6 +49,10 @@ def hasRole(playerid, role, year):
                             )
         elif req == 'roles':
             return False #checked later
+        
+        if not worthy:
+            break
+    return worthy
 
 
 
@@ -49,6 +62,9 @@ def returnIfHasRoles(playerid, role, year):
     return None
 
 def getPlayerRoles(playerid, existingRoles = []):
+    if not playerid:
+        print('got empty playerid')
+        return ([],[])
     print(f'getting roles for {playerid}')
     roles = []
     redundantRoles = []
@@ -105,7 +121,11 @@ async def assignRolesToUser(roleList, discordUser, guild):
             continue
         if roleObj not in discordUser.roles:
             print(f'added role {roleObj.name} to user {discordUser.name}')
-            await discordUser.add_roles(roleObj)
+            try:
+                await discordUser.add_roles(roleObj)
+            except discord.errors.Forbidden:
+                return False
+    return True
 
 async def removeRolesFromUser(roleStringList, discordUser, guild):
     removeRolesObjs = []
@@ -119,4 +139,8 @@ async def removeRolesFromUser(roleStringList, discordUser, guild):
         #print(f'removed {roleObj.name} from {discordUser.name}')
         if roleObj in discordUser.roles:
             print(f'removed role {roleObj.name} from user {discordUser.name}')
-            await discordUser.remove_roles(roleObj, reason='better role present')
+            try:
+                await discordUser.remove_roles(roleObj)
+            except discord.errors.Forbidden:
+                return False
+    return True

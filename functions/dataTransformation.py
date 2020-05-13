@@ -1,5 +1,5 @@
 from functions.network      import getComponentInfoAsJSON
-from functions.dataLoading  import getWeaponStats, getTriumphsJSON, getPGCR, getPlayersPastPVE,getNameToHashMapByClanid
+from functions.dataLoading  import getStats, getTriumphsJSON, getPGCR, getPlayersPastPVE,getNameToHashMapByClanid
 from functions.database     import insertUser, db_connect
 
 from static.dict            import getNameFromHashInventoryItem, clanids
@@ -21,6 +21,8 @@ def hasCollectible(playerid, cHash):
     if not userCollectibles or 'data' not in userCollectibles['Response']['profileCollectibles']:
         return False
     collectibles = userCollectibles['Response']['profileCollectibles']['data']['collectibles']
+    if str(cHash) not in collectibles:
+        return False
     return collectibles[str(cHash)]['state'] & 1 == 0
 #   Check whether it's not (not aquired), which means that the firstbit can't be 1   
 #   https://bungie-net.github.io/multi/schema_Destiny-DestinyCollectibleState.html
@@ -86,14 +88,17 @@ def getPlayerCount(instanceID):
         ingameids.add(char['player']['destinyUserInfo']['membershipId'])
     return len(ingameids)
 
+from static.dict import premenHashes
+
 def hasLowman(playerid, playercount, raidHashes, flawless=False, disallowed=[]):
     """ Default is flawless=False, disallowed is a list of (starttime, endtime) with datetime objects """
     con = db_connect()
     cur = con.cursor()
+    #raidHashes = [str(r) for r in raidHashes]
     sqlite_select = f"""SELECT t1.instanceID, t1.deaths, t1.period
                         FROM (  SELECT instanceID, deaths, period FROM activities
                                 WHERE activityHash IN ({','.join(['?']*len(raidHashes))})
-                                AND playercount = ?) t1
+                                AND playercount = ?) t1 
                         JOIN (  SELECT DISTINCT(instanceID)
                                 FROM instancePlayerPerformance
                                 WHERE playerID = ?
@@ -102,25 +107,40 @@ def hasLowman(playerid, playercount, raidHashes, flawless=False, disallowed=[]):
                         """
     data_tuple = (*raidHashes,playercount, playerid)
     cur.execute(sqlite_select, data_tuple)
-    for (_, deaths, period) in cur.fetchall():
+    verdict = False
+    for (iid, deaths, period) in cur.fetchall():
+        print(f'{deaths} on {period} in {iid}')
         if not flawless or deaths == 0:
+            verdict = True
             for starttime, endtime in disallowed:
-                if not starttime < period < endtime:
-                    con.close()
-                    return True
+                if starttime < period < endtime:
+                    verdict = False
+            if verdict:
+                return True            
     con.close()
     return False
 
 def getIntStat(destinyID, statname):
-    stats = getWeaponStats(destinyID)
+    stats = getStats(destinyID)
     stat =  stats['mergedAllCharacters']['merged']['allTime'][statname]['basic']['value']
     return int(stat)
+
+def getCharStats(destinyID, characterID, statname):
+    stats = getStats(destinyID)
+    for char in stats['characters']:
+        if char['characterId'] == characterID:
+            return char['merged']['allTime'][statname]['basic']['value']
+
+def getPossibleStats():
+    stats = getStats(4611686018468695677)
+    for char in stats['characters']:
+        return char['merged']['allTime'].keys()
 
 
 def getUserIDbySnowflakeAndClanLookup(discordUser, memberMap):
     username = discordUser.nick or discordUser.name
     maxName = None
-    maxProb = 50
+    maxProb = 75
     for ingameName in memberMap.keys():
         uqprob = fuzz.UQRatio(username, ingameName)
         if uqprob > maxProb:
@@ -130,10 +150,11 @@ def getUserIDbySnowflakeAndClanLookup(discordUser, memberMap):
         return None
     steamName = maxName
     userid = memberMap[steamName]
-    if maxProb > 70:
+    if maxProb > 90:
         insertUser(-1, discordID = discordUser.id, destinyID = userid)
-        print(f'Inserted {discordUser.nick or discordUser.name} because match with {userid} was >70%')
-    return userid
+        print(f'Inserted {discordUser.nick or discordUser.name} because match with {userid} was >90%')
+        return userid
+    return None
 
 def isUserInClan(destinyID, clanid):
     isin = destinyID in getNameToHashMapByClanid(clanid).values()
@@ -148,6 +169,41 @@ def getFullMemberMap():
         for clanid in clanids:
             fullMemberMap.update(getNameToHashMapByClanid(clanid))
         return fullMemberMap
+
+def getGunsForPeriod(destinyID, pStart, pEnd):
+    processes = []
+    with ThreadPoolExecutor(max_workers=20) as executor:
+        for pve in getPlayersPastPVE(destinyID):
+            if 'period' not in pve.keys():
+                continue
+            period = datetime.strptime(pve['period'], "%Y-%m-%dT%H:%M:%SZ")
+            pS = datetime.strptime(pStart, "%Y-%m-%d")
+            pE = datetime.strptime(pEnd, "%Y-%m-%d")
+            if pS < period < pE:
+                processes.append(executor.submit(getPGCR, pve['activityDetails']['instanceId']))
+            if period < pS:
+                break
+
+    pgcrlist = []
+    for task in as_completed(processes):
+        if task.result():
+            pgcrlist.append(task.result()['Response'])
+
+    for pgcr in pgcrlist:
+        for entry in pgcr['entries']:
+            if int(entry['player']['destinyUserInfo']['membershipId']) != int(destinyID):
+               # print(entry['player']['destinyUserInfo'])
+                continue
+            if not 'weapons' in entry['extended'].keys():
+                continue
+            guns = entry['extended']['weapons']
+            for gun in guns:
+                #gunids.append(gun['referenceId'])
+                if str(gun['referenceId']) not in gunkills:
+                    gunkills[str(gun['referenceId'])] = 0
+                gunkills[str(gun['referenceId'])] += int(gun['values']['uniqueWeaponKills']['basic']['displayValue'])
+
+        #TODO
 
 def getTop10PveGuns(destinyID):
     gunids = []
