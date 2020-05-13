@@ -58,8 +58,6 @@ def getRasputinQuestProgress():
     }
     return [(obHashes[objective["objectiveHash"]],objective["progress"], objective["completionValue"]) for objective in rasputinobjectives]
 
-getRasputinQuestProgress()
-
 def getSpiderMaterials(discordID, destinyID, characterID):
     """ Gets spiders current selling inventory, requires OAuth"""
 
