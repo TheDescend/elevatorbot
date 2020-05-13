@@ -14,7 +14,7 @@ class funFact(BaseCommand):
         text = "Sorry, out of fun facts for now"
         
         r = random.random()
-        if r > 0.9:
+        if r > 0.95:
             text = "Don't let <@206878830017773568> see you using this command <:monkaO:670672093070753816>"
         else:
             response = requests.get("https://uselessfacts.jsph.pl/random.json?language=en")
