@@ -1,4 +1,5 @@
 .vscode/
+.idea/
 config.py
 cache/
 *.content
