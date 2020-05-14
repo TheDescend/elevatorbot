@@ -1,6 +1,6 @@
 from static.config          import BUNGIE_TOKEN
 from commands.base_command  import BaseCommand
-from functions.database     import lookupDestinyID
+from functions.database     import lookupDestinyID, getAllDiscordMemberDestinyIDs
 from functions.network  import getJSONfromURL
 
 import numpy as np
@@ -68,11 +68,50 @@ class friends(BaseCommand):
         # make a new array with all the information:
             # info = [[person1, person2, # of activities], ...]
 
+
         destinyID = lookupDestinyID(user.id)
         ignore = []
         friends = return_friends(ignore, destinyID, activityID, params[1])
-        print(len(friends))
-        print(friends)
+
+        # to avoid double dipping
+        ignore.append(destinyID)
+
+        # no need to continue of list is empty
+        if not friends:
+            await message.channel.send(embed=embed_message('Sorry', f'You have to play any {params[0]} before I can show you something here <:PepeLaugh:670369129060106250>'))
+            return
+
+        # initialising the big numpy array with all the data
+        data_temp = []
+        for friend in friends:
+            # data = [user1, user2, number of activities together]
+            data_temp.append([destinyID, friend, friends[friend]])
+        data = np.array(data_temp)
+
+        # gets all discord member destiny ids
+        discordMemberIDs = getAllDiscordMemberDestinyIDs()
+        # changing them to be in a simple list instead of tuple inside of a list
+        for i in range(len(discordMemberIDs)):
+            discordMemberIDs[i] = int(discordMemberIDs[i][0])
+
+        # looping through friends and doing the same IF they are in the discord and new
+        for friend in friends:
+            friend = int(friend)
+            if (friend not in ignore) and (friend in discordMemberIDs):
+                friends_friends = return_friends(ignore, friend, activityID, params[1])
+
+                # adding them to ignore
+                ignore.append(friend)
+
+                # adding their data to the numpy array
+                data_temp = []
+                for friends_friend in friends_friends:
+                    data_temp.append([friend, friends_friend, friends_friends[friends_friend]])
+                data = np.append(data, data_temp, axis=0)
+
+        print(data)
+        print(data.shape)
+
         await message.channel.send(friends)
 
 
@@ -131,7 +170,9 @@ def return_friends(ignore, destinyID, activityID, time_period):
 
             # for all friends not in ignore
             if friendID not in ignore:
-                friends.append(friendID)
+                # doesn't make sense to add yourself
+                if friendID != destinyID:
+                    friends.append(friendID)
 
     # sort and count friends
     return dict(Counter(friends))
