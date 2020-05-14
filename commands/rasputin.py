@@ -37,7 +37,13 @@ class rasputinGraph(BaseCommand):
     # It will be called every time the command is received
     async def handle(self, params, message, client):
         rdata = pd.read_pickle('database/rasputinData.pickle')
-        fig = rdata.set_index('datetime').plot().get_figure()
+        rdata = rdata.set_index('datetime').resample('15T').mean()
+
+        rdata = rdata.assign(edz=rdata.edz.interpolate(method='quadratic'))
+        rdata = rdata.assign(moon=rdata.moon.interpolate(method='quadratic'))
+        rdata = rdata.assign(io=rdata.io.interpolate(method='quadratic'))
+
+        fig = rdata.plot().get_figure()
         filename = f'rasputin_{datetime.now().strftime("%Y_%m_%d__%H_%M")}.png'
         fig.savefig(filename)
         with open(filename, 'rb') as fp:
