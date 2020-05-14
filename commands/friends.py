@@ -71,6 +71,7 @@ class friends(BaseCommand):
         destinyID = lookupDestinyID(user.id)
         ignore = []
         friends = return_friends(ignore, destinyID, activityID, params[1])
+        print(len(friends))
         print(friends)
 
 
@@ -92,29 +93,26 @@ def return_friends(ignore, destinyID, activityID, time_period):
     elif time_period == "year":
         cutoff = now - datetime.timedelta(weeks = 52)
 
-    # get activites from ID
+    # get get character ids
     staturl = f"https://www.bungie.net/Platform/Destiny2/3/Profile/{destinyID}/?components=100"
     rep = getJSONfromURL(staturl)
-
     activities = []
-    if not rep or not rep['Response']:
 
-        # loop for all 3 chars
-        for characterID in rep["Response"]["profile"]["data"]["characterIds"]:
-            staturl = f"https://www.bungie.net/Platform/Destiny2/3/Account/{destinyID}/Character/{characterID}/Stats/Activities/?mode={activityID}"
-            rep = getJSONfromURL(staturl)
+    # loop for all 3 chars
+    for characterID in rep["Response"]["profile"]["data"]["characterIds"]:
+        staturl = f"https://www.bungie.net/Platform/Destiny2/3/Account/{destinyID}/Character/{characterID}/Stats/Activities/?mode={activityID}"
+        rep = getJSONfromURL(staturl)
 
-            if not rep or not rep['Response']:
-                for activity in rep["Response"]["activities"]:
+        for activity in rep["Response"]["activities"]:
 
-                    # check that activity is completed
-                    if activity[1]["values"]["completionReason"]["basic"]["displayValue"] == "Objective Completed":
+            # check that activity is completed
+            if activity["values"]["completionReason"]["basic"]["displayValue"] == "Objective Completed":
 
-                        # check that time-period is OK
-                        if datetime.datetime.strptime(activity[0]["period"], "%Y-%m-%dT%H:%M:%SZ") > cutoff:
+                # check that time-period is OK
+                if datetime.datetime.strptime(activity["period"], "%Y-%m-%dT%H:%M:%SZ") > cutoff:
 
-                            # add instanceID to activities list
-                            activities.append(activity[0]["activityDetails"]["instanceId"])
+                    # add instanceID to activities list
+                    activities.append(activity["activityDetails"]["instanceId"])
 
     # list in which the connections are saved
     friends = []
@@ -126,13 +124,12 @@ def return_friends(ignore, destinyID, activityID, time_period):
         staturl = f"https://stats.bungie.net/Platform/Destiny2/Stats/PostGameCarnageReport/{instanceID}"
         rep = getJSONfromURL(staturl)
 
-        if not rep or not rep['Response']:
-            for player in rep["Response"]["entries"]:
-                friendID = player["player"]["destinyUserInfo"]["membershipId"]
+        for player in rep["Response"]["entries"]:
+            friendID = player["player"]["destinyUserInfo"]["membershipId"]
 
-                # for all friends not in ignore
-                if friendID not in ignore:
-                    friends.append(friendID)
+            # for all friends not in ignore
+            if friendID not in ignore:
+                friends.append(friendID)
 
     # sort and count friends
     return dict(Counter(friends))
