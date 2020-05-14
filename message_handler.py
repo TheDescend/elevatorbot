@@ -17,6 +17,9 @@ async def handle_command(command, args, message, bot_client):
     # Check whether the command is supported, stop silently if it's not
     # (to prevent unnecesary spam if our bot shares the same command prefix 
     # with some other bot)
+    COMMAND_HANDLERS = {c.__name__.lower(): c()
+                    for c in BaseCommand.__subclasses__()}
+                    
     if command not in COMMAND_HANDLERS:
         return
 
