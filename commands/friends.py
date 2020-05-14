@@ -8,6 +8,8 @@ import datetime
 import discord
 from collections import Counter
 
+import time
+
 
 # !friends <activity> <time-period> *<user>
 class friends(BaseCommand):
@@ -47,7 +49,6 @@ class friends(BaseCommand):
             return
 
         # set user to the one that send the message, or if a third param was used, the one mentioned
-        username = message.author.nick or message.author.name
         if len(params) == 3:
             ctx = await client.get_context(message)
             try:
@@ -57,6 +58,10 @@ class friends(BaseCommand):
                 return
         else:
             user = message.author
+
+        # letting the user know that this might take a while
+        status = await message.channel.send(embed=embed_message(f'Please Wait {user.name}', f"This might take a while, I'll ping you when I'm done.", f"Collecting data - 0% done!"))
+        status_msg = await message.channel.fetch_message(status.id)
 
         #   >> PLAN <<
         # get activites by user
@@ -68,7 +73,6 @@ class friends(BaseCommand):
         # make a new array with all the information:
             # info = [[person1, person2, # of activities], ...]
 
-
         destinyID = lookupDestinyID(user.id)
         ignore = []
         friends = return_friends(ignore, destinyID, activityID, params[1])
@@ -78,6 +82,7 @@ class friends(BaseCommand):
 
         # no need to continue of list is empty
         if not friends:
+            await status_msg.delete()
             await message.channel.send(embed=embed_message('Sorry', f'You have to play any {params[0]} before I can show you something here <:PepeLaugh:670369129060106250>'))
             return
 
@@ -94,6 +99,17 @@ class friends(BaseCommand):
         for i in range(len(discordMemberIDs)):
             discordMemberIDs[i] = int(discordMemberIDs[i][0])
 
+        # math on how long this is approximately going to take. Starts with 1 to factor in the user himself
+        estimated_current = 1
+        estimated_total = 1
+        for friend in friends:
+            if int(friend) in discordMemberIDs:
+                estimated_total +=1
+        # updating the user how far along we are
+        progress = int(estimated_current / estimated_total * 100)
+        await status_msg.edit(embed=embed_message(f'Please Wait {user.name}', f"This might take a while, I'll ping you when I'm done.",f"Collecting data - {progress}% done!"))
+
+
         # looping through friends and doing the same IF they are in the discord and new
         for friend in friends:
             friend = int(friend)
@@ -107,21 +123,37 @@ class friends(BaseCommand):
                 data_temp = []
                 for friends_friend in friends_friends:
                     data_temp.append([friend, friends_friend, friends_friends[friends_friend]])
-                data = np.append(data, data_temp, axis=0)
+                try:
+                    data = np.append(data, data_temp, axis=0)
+                except:
+                    pass
+
+                # updateing the status
+                estimated_current += 1
+                progress = int(estimated_current / estimated_total * 100)
+                await status_msg.edit(embed=embed_message(f'Please Wait {user.name}', f"This might take a while, I'll ping you when I'm done.", f"Collecting data - {progress}% done!"))
+
+                print(data.shape)
 
         print(data)
         print(data.shape)
 
-        await message.channel.send(friends)
 
+        # deleting the status
+        await status_msg.delete()
+        # letting user know it's done
+        await message.channel.send(embed=embed_message('Done!','some text'))
+        await message.channel.send(user.mention)
 
 
 # returns embeded message
-def embed_message(title, desc):
+def embed_message(title, desc, footer=None):
     embed = discord.Embed(
         title=title,
         description=desc
     )
+    if footer:
+        embed.set_footer(text=footer)
     return embed
 
 def return_friends(ignore, destinyID, activityID, time_period):
@@ -139,21 +171,23 @@ def return_friends(ignore, destinyID, activityID, time_period):
     rep = getJSONfromURL(staturl)
     activities = []
 
-    # loop for all 3 chars
-    for characterID in rep["Response"]["profile"]["data"]["characterIds"]:
-        staturl = f"https://www.bungie.net/Platform/Destiny2/3/Account/{destinyID}/Character/{characterID}/Stats/Activities/?mode={activityID}"
-        rep = getJSONfromURL(staturl)
+    if rep and rep['Response']:
+        # loop for all 3 chars
+        for characterID in rep["Response"]["profile"]["data"]["characterIds"]:
+            staturl = f"https://www.bungie.net/Platform/Destiny2/3/Account/{destinyID}/Character/{characterID}/Stats/Activities/?mode={activityID}"
+            rep = getJSONfromURL(staturl)
 
-        for activity in rep["Response"]["activities"]:
+            if rep and rep['Response']:
+                for activity in rep["Response"]["activities"]:
 
-            # check that activity is completed
-            if activity["values"]["completionReason"]["basic"]["displayValue"] == "Objective Completed":
+                    # check that activity is completed
+                    if activity["values"]["completionReason"]["basic"]["displayValue"] == "Objective Completed":
 
-                # check that time-period is OK
-                if datetime.datetime.strptime(activity["period"], "%Y-%m-%dT%H:%M:%SZ") > cutoff:
+                        # check that time-period is OK
+                        if datetime.datetime.strptime(activity["period"], "%Y-%m-%dT%H:%M:%SZ") > cutoff:
 
-                    # add instanceID to activities list
-                    activities.append(activity["activityDetails"]["instanceId"])
+                            # add instanceID to activities list
+                            activities.append(activity["activityDetails"]["instanceId"])
 
     # list in which the connections are saved
     friends = []
@@ -165,14 +199,15 @@ def return_friends(ignore, destinyID, activityID, time_period):
         staturl = f"https://stats.bungie.net/Platform/Destiny2/Stats/PostGameCarnageReport/{instanceID}"
         rep = getJSONfromURL(staturl)
 
-        for player in rep["Response"]["entries"]:
-            friendID = player["player"]["destinyUserInfo"]["membershipId"]
+        if rep and rep['Response']:
+            for player in rep["Response"]["entries"]:
+                friendID = player["player"]["destinyUserInfo"]["membershipId"]
 
-            # for all friends not in ignore
-            if friendID not in ignore:
-                # doesn't make sense to add yourself
-                if friendID != destinyID:
-                    friends.append(friendID)
+                # for all friends not in ignore
+                if friendID not in ignore:
+                    # doesn't make sense to add yourself
+                    if friendID != destinyID:
+                        friends.append(friendID)
 
     # sort and count friends
     return dict(Counter(friends))
