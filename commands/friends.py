@@ -73,6 +73,8 @@ class friends(BaseCommand):
         friends = return_friends(ignore, destinyID, activityID, params[1])
         print(len(friends))
         print(friends)
+        await message.channel.send(friends)
+
 
 
 # returns embeded message
