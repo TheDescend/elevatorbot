@@ -21,3 +21,4 @@ raiddata/friendpickle
 *.log
 images/
 venv/
+database/rasputinCheck.py
