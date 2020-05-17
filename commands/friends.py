@@ -6,9 +6,11 @@ from functions.network  import getJSONfromURL
 import numpy as np
 import datetime
 import discord
+from pyvis.network import Network
 from collections import Counter
 
-import time
+
+
 
 
 # !friends <activity> <time-period> *<user>
@@ -75,10 +77,12 @@ class friends(BaseCommand):
 
         destinyID = lookupDestinyID(user.id)
         ignore = []
+        unique_users = [destinyID]
         friends = return_friends(ignore, destinyID, activityID, params[1])
 
         # to avoid double dipping
-        ignore.append(destinyID)
+        ignore.append(int(destinyID))
+        unique_users.append(int(destinyID))
 
         # no need to continue of list is empty
         if not friends:
@@ -89,8 +93,10 @@ class friends(BaseCommand):
         # initialising the big numpy array with all the data
         data_temp = []
         for friend in friends:
+            friend = friend
             # data = [user1, user2, number of activities together]
             data_temp.append([destinyID, friend, friends[friend]])
+            unique_users.append(int(friend))
         data = np.array(data_temp)
 
         # gets all discord member destiny ids
@@ -123,6 +129,7 @@ class friends(BaseCommand):
                 data_temp = []
                 for friends_friend in friends_friends:
                     data_temp.append([friend, friends_friend, friends_friends[friends_friend]])
+                    unique_users.append(friends_friend)
                 try:
                     data = np.append(data, data_temp, axis=0)
                 except:
@@ -134,16 +141,75 @@ class friends(BaseCommand):
                 await status_msg.edit(embed=embed_message(f'Please Wait {user.name}', f"This might take a while, I'll ping you when I'm done.", f"Collecting data - {progress}% done!"))
 
                 print(data.shape)
+        print(data.shape)
+
+        # some last data prep
+        await status_msg.edit(embed=embed_message(f'Please Wait {user.name}', f"This might take a while, I'll ping you when I'm done.",f"Preparing data - 0% done!"))
+
+        # getting the display names, colors for users in discord, size of blob
+        count_users = dict(Counter(unique_users))
+        unique_users = set(unique_users)
+        display_names = []
+        colors = []
+        size = []
+        for person in unique_users:
+            name = get_display_name(person)
+            display_names.append(name)
+            if person in discordMemberIDs:
+                colors.append("#00ff1e")
+            else:
+                colors.append("#162347")
+            size.append(count_users[person])
+
+            # updating the status
+            progress = int(estimated_current / estimated_total * 100)
+            await status_msg.edit(embed=embed_message(f'Please Wait {user.name}',f"This might take a while, I'll ping you when I'm done.",f"Preparing data - {progress}% done!"))
 
         print(data)
-        print(data.shape)
+        print(unique_users)
+        print(display_names)
+        print(colors)
+        print(size)
+
+
+        # building the network graph
+        await status_msg.edit(embed=embed_message(f'Please Wait {user.name}', f"This might take a while, I'll ping you when I'm done.",f"Building the graph, nearly done!"))
+        net = Network()
+
+        # adding nodes
+        net.add_nodes(list(unique_users), label=display_names, value=size, title=display_names)
+
+        # adding edges with data = [user1, user2, number of activities together]
+        for edge in data:
+            src = int(edge[0])
+            dst = int(edge[1])
+            value = int(edge[2])
+
+            try:
+                net.add_edge(src, dst, value=value, title=value, physics=True)
+            except:
+                print("error adding node")
+            try:
+                net.add_edge(dst, src, value=value, title=value, physics=True)
+            except:
+                print("error adding node")
+
+
+        net.toggle_physics(True)
+        title = user.name + ".html"
+        net.show(title)
+
+
+
 
 
         # deleting the status
         await status_msg.delete()
         # letting user know it's done
-        await message.channel.send(embed=embed_message('Done!','some text'))
+        await message.channel.send(embed=embed_message('Done!', 'some text'))
         await message.channel.send(user.mention)
+
+        # delete file
 
 
 # returns embeded message
@@ -155,6 +221,19 @@ def embed_message(title, desc, footer=None):
     if footer:
         embed.set_footer(text=footer)
     return embed
+
+def get_display_name(destinyID):
+    staturl = f"https://www.bungie.net/Platform/Destiny2/3/Profile/{destinyID}/?components=100"
+    rep = getJSONfromURL(staturl)
+
+    if rep and rep['Response']:
+        return rep["Response"]["profile"]["data"]["userInfo"]["displayName"]
+    else:
+        # trying to get the name again
+        rep = getJSONfromURL(staturl)
+        if rep and rep['Response']:
+            return rep["Response"]["profile"]["data"]["userInfo"]["displayName"]
+        return "Error getting name"
 
 def return_friends(ignore, destinyID, activityID, time_period):
     now = datetime.datetime.now()
