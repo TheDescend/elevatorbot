@@ -6,17 +6,19 @@ from functions.network  import getJSONfromURL
 import numpy as np
 import datetime
 import discord
-from pyvis.network import Network
+import time
+import os
+
 from collections import Counter
 
-
+from pyvis.network import Network
 
 
 
 # !friends <activity> <time-period> *<user>
 class friends(BaseCommand):
     def __init__(self):
-        description = "Shows information about who you play with"
+        description = f'Shows information about who you play with. For options, type "!friends"'
         params = []
         super().__init__(description, params)
 
@@ -25,7 +27,7 @@ class friends(BaseCommand):
         PARAMS = {'X-API-Key': BUNGIE_TOKEN}
         activities = ["pve", "pvp", "raids", "strikes"]
         #               7      5       4         3
-        time_periods = ["week", "month", "year", "all-time"]
+        time_periods = ["week", "month", "6month", "year", "all-time"]
 
         # check if message too short / long
         if len(params) < 2 or len(params) > 3:
@@ -47,7 +49,7 @@ class friends(BaseCommand):
 
             # check if time period is correct
         if params[1] not in time_periods:
-            await message.channel.send(embed=embed_message('Error', 'Unrecognised time period, currently supported are: "week", "month", "year". "all-time"'))
+            await message.channel.send(embed=embed_message('Error', 'Unrecognised time period, currently supported are: "week", "month", "6month", "year". "all-time"'))
             return
 
         # set user to the one that send the message, or if a third param was used, the one mentioned
@@ -65,24 +67,13 @@ class friends(BaseCommand):
         status = await message.channel.send(embed=embed_message(f'Please Wait {user.name}', f"This might take a while, I'll ping you when I'm done.", f"Collecting data - 0% done!"))
         status_msg = await message.channel.fetch_message(status.id)
 
-        #   >> PLAN <<
-        # get activites by user
-        # put all the friends in there in a list user = [friend1, friend2]
-        # add user to ignore list, to avoid double dipping
-        # check the set(user) if friend is in clan
-        # if friend is in clan, get his activities and put his friends in a list SHOULD they already exist in the original users friends and SHOULD they not already be in the ignore list
-        # add friend to ignore list and continue
-        # make a new array with all the information:
-            # info = [[person1, person2, # of activities], ...]
 
-        destinyID = lookupDestinyID(user.id)
-        ignore = []
+        # >> Do the actual work <<
+        destinyID = int(lookupDestinyID(user.id))
+        # to avoid double dipping
+        ignore = [destinyID]
         unique_users = [destinyID]
         friends = return_friends(ignore, destinyID, activityID, params[1])
-
-        # to avoid double dipping
-        ignore.append(int(destinyID))
-        unique_users.append(int(destinyID))
 
         # no need to continue of list is empty
         if not friends:
@@ -93,10 +84,10 @@ class friends(BaseCommand):
         # initialising the big numpy array with all the data
         data_temp = []
         for friend in friends:
-            friend = friend
-            # data = [user1, user2, number of activities together]
-            data_temp.append([destinyID, friend, friends[friend]])
-            unique_users.append(int(friend))
+            if int(friend) != destinyID:
+                # data = [user1, user2, number of activities together]
+                data_temp.append([destinyID, friend, friends[friend]])
+                unique_users.append(int(friend))
         data = np.array(data_temp)
 
         # gets all discord member destiny ids
@@ -128,56 +119,74 @@ class friends(BaseCommand):
                 # adding their data to the numpy array
                 data_temp = []
                 for friends_friend in friends_friends:
-                    data_temp.append([friend, friends_friend, friends_friends[friends_friend]])
-                    unique_users.append(friends_friend)
+                    if int(friends_friend) != (friend):
+                        data_temp.append([friend, friends_friend, friends_friends[friends_friend]])
+                        unique_users.append(friends_friend)
                 try:
                     data = np.append(data, data_temp, axis=0)
                 except:
                     pass
 
                 # updateing the status
-                estimated_current += 1
                 progress = int(estimated_current / estimated_total * 100)
                 await status_msg.edit(embed=embed_message(f'Please Wait {user.name}', f"This might take a while, I'll ping you when I'm done.", f"Collecting data - {progress}% done!"))
-
-                print(data.shape)
-        print(data.shape)
+                estimated_current += 1
 
         # some last data prep
         await status_msg.edit(embed=embed_message(f'Please Wait {user.name}', f"This might take a while, I'll ping you when I'm done.",f"Preparing data - 0% done!"))
 
-        # getting the display names, colors for users in discord, size of blob
+        # removing users with less than 2 occurences from the dataset, to remove clutter
         count_users = dict(Counter(unique_users))
-        unique_users = set(unique_users)
+        unique_users = []
+        for name in count_users:
+            if name != destinyID:
+                if count_users[name] < 2:
+                    continue
+            unique_users.append(int(name))
         display_names = []
         colors = []
         size = []
+        size_desc = []
+
+        # calculating stuff for the status message
+        estimated_current = 1
+        estimated_total = len(unique_users) + 1
+
+        # getting the display names, colors for users in discord, size of blob
         for person in unique_users:
             name = get_display_name(person)
             display_names.append(name)
-            if person in discordMemberIDs:
-                colors.append("#00ff1e")
+            size.append(count_users[person] * 10)
+            size_desc.append(str(count_users[person]) + " Activities")
+
+            # using different colors for users in discord
+            if person != destinyID:
+                if person in discordMemberIDs:
+                    colors.append("#00ff1e")
+                else:
+                    colors.append("#162347")
+            # using a different color for initiator
             else:
-                colors.append("#162347")
-            size.append(count_users[person])
+                colors.append("#dd4b39")
 
             # updating the status
             progress = int(estimated_current / estimated_total * 100)
             await status_msg.edit(embed=embed_message(f'Please Wait {user.name}',f"This might take a while, I'll ping you when I'm done.",f"Preparing data - {progress}% done!"))
+            estimated_current += 1
 
-        print(data)
         print(unique_users)
         print(display_names)
         print(colors)
         print(size)
-
 
         # building the network graph
         await status_msg.edit(embed=embed_message(f'Please Wait {user.name}', f"This might take a while, I'll ping you when I'm done.",f"Building the graph, nearly done!"))
         net = Network()
 
         # adding nodes
-        net.add_nodes(list(unique_users), label=display_names, value=size, title=display_names)
+        net.add_nodes(unique_users, value=size, title=size_desc, label=display_names, color=colors)
+
+        count_users = dict(Counter(unique_users))
 
         # adding edges with data = [user1, user2, number of activities together]
         for edge in data:
@@ -185,32 +194,34 @@ class friends(BaseCommand):
             dst = int(edge[1])
             value = int(edge[2])
 
-            try:
-                net.add_edge(src, dst, value=value, title=value, physics=True)
-            except:
-                print("error adding node")
-            try:
-                net.add_edge(dst, src, value=value, title=value, physics=True)
-            except:
-                print("error adding node")
+            if src in unique_users and dst in unique_users:
+                try:
+                    net.add_edge(src, dst, value=value, title=value, physics=True)
+                except:
+                    print("error adding node")
+                try:
+                    net.add_edge(dst, src, value=value, title=value, physics=True)
+                except:
+                    print("error adding node")
 
+        net.barnes_hut(gravity=-200000, central_gravity=0.3, spring_length=200, spring_strength=0.005, damping=0.09, overlap=0)
+        net.show_buttons(filter_=["physics"])
 
-        net.toggle_physics(True)
+        # saving the file
         title = user.name + ".html"
-        net.show(title)
-
-
-
-
+        net.save_graph(title)
 
         # deleting the status
         await status_msg.delete()
         # letting user know it's done
-        await message.channel.send(embed=embed_message('Done!', 'some text'))
+        await message.channel.send(embed=embed_message('Done!', "Use the Link below to download your Network.", f"The file may load for a long time, that's normal."))
+        # sending them the file
+        await message.channel.send(file=discord.File(title))
+        # pinging the user
         await message.channel.send(user.mention)
 
         # delete file
-
+        os.remove(title)
 
 # returns embeded message
 def embed_message(title, desc, footer=None):
@@ -222,28 +233,49 @@ def embed_message(title, desc, footer=None):
         embed.set_footer(text=footer)
     return embed
 
-def get_display_name(destinyID):
+def get_display_name(destinyID, loop=0):
     staturl = f"https://www.bungie.net/Platform/Destiny2/3/Profile/{destinyID}/?components=100"
     rep = getJSONfromURL(staturl)
 
     if rep and rep['Response']:
         return rep["Response"]["profile"]["data"]["userInfo"]["displayName"]
-    else:
-        # trying to get the name again
+    # try psn / xbox, if that fails - return error if looped 5 times
+    elif loop == 5:
+        # xbox
+        staturl = f"https://www.bungie.net/Platform/Destiny2/1/Profile/{destinyID}/?components=100"
         rep = getJSONfromURL(staturl)
+
         if rep and rep['Response']:
             return rep["Response"]["profile"]["data"]["userInfo"]["displayName"]
-        return "Error getting name"
+        else:
+            # psn
+            staturl = f"https://www.bungie.net/Platform/Destiny2/2/Profile/{destinyID}/?components=100"
+            rep = getJSONfromURL(staturl)
+
+            if rep and rep['Response']:
+                return rep["Response"]["profile"]["data"]["userInfo"]["displayName"]
+            else:
+                print(f"Error getting name {destinyID}")
+                return destinyID
+    else:
+        # doing that until I get the name, added a delay to relax bungie
+        loop += 1
+        time.sleep(0.5)
+        return get_display_name(destinyID, loop)
 
 def return_friends(ignore, destinyID, activityID, time_period):
     now = datetime.datetime.now()
     cutoff = datetime.datetime.strptime("1900", "%Y")
     if time_period == "week":
-        cutoff = now - datetime.timedelta(weeks = 1)
+        cutoff = now - datetime.timedelta(weeks=1)
     elif time_period == "month":
-        cutoff = now - datetime.timedelta(weeks = 4)
+        cutoff = now - datetime.timedelta(weeks=4)
+    elif time_period == "6month":
+        cutoff = now - datetime.timedelta(weeks=26)
     elif time_period == "year":
-        cutoff = now - datetime.timedelta(weeks = 52)
+        cutoff = now - datetime.timedelta(weeks=52)
+
+    destinyID = int(destinyID)
 
     # get get character ids
     staturl = f"https://www.bungie.net/Platform/Destiny2/3/Profile/{destinyID}/?components=100"
@@ -280,7 +312,7 @@ def return_friends(ignore, destinyID, activityID, time_period):
 
         if rep and rep['Response']:
             for player in rep["Response"]["entries"]:
-                friendID = player["player"]["destinyUserInfo"]["membershipId"]
+                friendID = int(player["player"]["destinyUserInfo"]["membershipId"])
 
                 # for all friends not in ignore
                 if friendID not in ignore:
