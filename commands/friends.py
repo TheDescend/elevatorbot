@@ -72,8 +72,11 @@ class friends(BaseCommand):
         destinyID = int(lookupDestinyID(user.id))
         # to avoid double dipping
         ignore = [destinyID]
-        unique_users = [destinyID]
+        unique_users = []
         friends = return_friends(ignore, destinyID, activityID, params[1])
+        # adding user to unique users, otherwise the # oif activites at the end gets fucked up
+        for friend in friends:
+            unique_users.append(destinyID)
 
         # no need to continue of list is empty
         if not friends:
