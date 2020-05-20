@@ -13,6 +13,8 @@ import concurrent.futures
 from collections import Counter
 from pyvis.network import Network
 
+# note: the ids later are formatted so wierd, because pyvis broke with them being 16 numbers or so. So I'm just shorting them in an ugly way that works
+
 
 # !friends <activity> <time-period> *<user>
 class friends(BaseCommand):
@@ -33,7 +35,7 @@ class friends(BaseCommand):
             "raids": 4,
             "strikes": 3
         }
-        time_periods = ["week", "month", "6month", "year", "all-time"]
+        time_periods = ["week", "month", "6months", "year", "all-time"]
 
         # check if message too short / long
         if len(params) < 2 or len(params) > 3:
@@ -48,7 +50,7 @@ class friends(BaseCommand):
 
             # check if time period is correct
         if params[1] not in time_periods:
-            await message.channel.send(embed=self.embed_message('Error', 'Unrecognised time period, currently supported are: "week", "month", "6month", "year". "all-time"'))
+            await message.channel.send(embed=self.embed_message('Error', 'Unrecognised time period, currently supported are: "week", "month", "6months", "year". "all-time"'))
             return
 
         # set user to the one that send the message, or if a third param was used, the one mentioned
@@ -328,7 +330,7 @@ class friends(BaseCommand):
             cutoff = now - datetime.timedelta(weeks=1)
         elif time_period == "month":
             cutoff = now - datetime.timedelta(weeks=4)
-        elif time_period == "6month":
+        elif time_period == "6months":
             cutoff = now - datetime.timedelta(weeks=26)
         elif time_period == "year":
             cutoff = now - datetime.timedelta(weeks=52)
