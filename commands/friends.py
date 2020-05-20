@@ -103,7 +103,7 @@ class friends(BaseCommand):
         for friend in friends:
             if int(friend) != destinyID:
                 # data = [user1, user2, number of activities together]
-                data_temp.append([destinyID, friend, friends[friend]])
+                data_temp.append([int(str(destinyID)[-9:]), int(str(friend)[-9:]), friends[friend]])
 
                 if int(friend) not in discordMemberIDs:
                     unique_users.append(int(friend))
@@ -165,7 +165,7 @@ class friends(BaseCommand):
             # adding their data to the numpy array
             for friends_friend in friends_friends:
                 if int(friends_friend) != int(friend):
-                    data_temp.append([friend, friends_friend, friends_friends[friends_friend]])
+                    data_temp.append([int(str(friend)[-9:]), int(str(friends_friend)[-9:]), friends_friends[friends_friend]])
                     # adding the user to a list, if he wasn't looked at in the 2nd run
                     if int(friends_friend) not in friends_cleaned:
                         unique_users.append(int(friends_friend))
@@ -200,6 +200,7 @@ class friends(BaseCommand):
         for name in activities_from_user_who_got_looked_at:
             unique_users.append(int(name))
 
+        unique_users = set(unique_users)
         display_names = []
         colors = []
         size = []
@@ -235,6 +236,7 @@ class friends(BaseCommand):
             estimated_current += 1
 
         # print(unique_users)
+        # print(count_users)
         # print(activities_from_user_who_got_looked_at)
         # print(display_names)
         # print(colors)
@@ -247,7 +249,8 @@ class friends(BaseCommand):
         net = Network()
 
         # adding nodes
-        net.add_nodes(unique_users, value=size, title=size_desc, label=display_names, color=colors)
+        for ID, value, title, label, color in zip(unique_users, size, size_desc, display_names, colors):
+            net.add_node(int(str(ID)[-9:]), value=value, title=title, label=label, color=color)
 
         # adding edges with data = [user1, user2, number of activities together]
         with concurrent.futures.ThreadPoolExecutor(os.cpu_count() * 5) as pool:
@@ -341,7 +344,7 @@ class friends(BaseCommand):
             # loop for all 3 chars
             for characterID in rep["Response"]["profile"]["data"]["characterIds"]:
                 br = False
-                for page in range(10000):
+                for page in range(1000):
                     # break loop if time period is met
                     if br:
                         break
@@ -387,13 +390,13 @@ class friends(BaseCommand):
         # sort and count friends
         return friends
 
-    def add_edge(self, network, edge, unique_users):
+    def add_edge(self, network, edge, IDs):
         src = int(edge[0])
         dst = int(edge[1])
         value = int(edge[2])
 
         # only add edge if non of both users got removed because < activity
-        if src in unique_users and dst in unique_users:
+        if int("4611686018" + str(src)) in IDs and int("4611686018" + str(dst)) in IDs:
             try:
                 network.add_edge(src, dst, value=value, title=value, physics=True)
             except:
