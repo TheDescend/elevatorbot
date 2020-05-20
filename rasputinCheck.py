@@ -23,13 +23,16 @@ def getdata():
         rasputindf = pd.DataFrame(columns=["datetime",'moon','edz', 'io'])
     else:
         rasputindf = pd.read_pickle('database/rasputinData.pickle')
-    now = datetime.now()
-    newdict = {
-        'datetime':now
-    }
-    for objname, objprogress, objtotal in getRasputinQuestProgress():
-        newdict[objname.lower()] = objprogress
+    # now = datetime.now()
+    # now = now.replace(hour=4, minute=10)
+    # newdict = {
+    #     'datetime':now
+    # }
+    # newdict['moon'] = 3000000
+    # newdict['io'] = 3000000
+    # newdict['edz'] = 3000000
     
-    rasputindf = rasputindf.append(newdict, ignore_index=True)
-    rasputindf.to_pickle('database/rasputinData.pickle')
+    # rasputindf = rasputindf.append(newdict, ignore_index=True)
+    # rasputindf.to_pickle('database/rasputinData.pickle')
+    print(rasputindf)
 getdata()

@@ -15,15 +15,15 @@ class rasputin(BaseCommand):
     # Override the handle() method
     # It will be called every time the command is received
     async def handle(self, params, message, client):
-        rembed = discord.Embed(
-            title = 'Rasputin PE progress',
-            set_author = 'Hali',
-        )
-        for objname, objprogress, objtotal in getRasputinQuestProgress():
-            rembed = rembed.add_field(name = objname, value = f"{objprogress:,}\n{objprogress/objtotal*100:5.2f}%")
-        rembed = rembed.add_field(name = objname, value = f"out of {objtotal:,}", inline=False)
-        await message.channel.send(embed = rembed)
-        #await message.channel.send("\n".join([f'{objname}:\t{objprogress:9,} / {objtotal:,} or {objprogress/objtotal*100:5.2f}%' for objname, objprogress, objtotal in getRasputinQuestProgress()]))
+        # rembed = discord.Embed(
+        #     title = 'Rasputin PE progress',
+        #     set_author = 'Hali',
+        # )
+        # for objname, objprogress, objtotal in getRasputinQuestProgress():
+        #     rembed = rembed.add_field(name = objname, value = f"{objprogress:,}\n{objprogress/objtotal*100:5.2f}%")
+        # rembed = rembed.add_field(name = objname, value = f"out of {objtotal:,}", inline=False)
+        # await message.channel.send(embed = rembed)
+        await message.channel.send("The Lie has been completed, visit Ana for further steps")
 
 
 class rasputinGraph(BaseCommand):
