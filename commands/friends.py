@@ -57,7 +57,7 @@ class friends(BaseCommand):
         if len(params) == 3:
             ctx = await client.get_context(message)
             try:
-                user = await discord.commands.MemberConverter().convert(ctx, params[2])
+                user = await discord.ext.commands.MemberConverter().convert(ctx, params[2])
             except:
                 await message.channel.send(embed=self.embed_message('Error', 'User not found, make sure the spelling/id is correct'))
                 return
@@ -293,9 +293,6 @@ class friends(BaseCommand):
         return embed
 
     def get_display_name(self, destinyID, loop=0):
-        # waiting a bit so we don't get throttled by bungie
-        time.sleep(0.1)
-
         staturl = f"https://www.bungie.net/Platform/Destiny2/3/Profile/{destinyID}/?components=100"
         rep = getJSONfromURL(staturl)
 
