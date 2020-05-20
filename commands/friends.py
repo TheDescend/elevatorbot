@@ -13,6 +13,8 @@ import concurrent.futures
 from collections import Counter
 from pyvis.network import Network
 
+# note: the ids later are formatted so wierd, because pyvis broke with them being 16 numbers or so. So I'm just shorting them in an ugly way that works
+
 
 # !friends <activity> <time-period> *<user>
 class friends(BaseCommand):
@@ -33,7 +35,7 @@ class friends(BaseCommand):
             "raids": 4,
             "strikes": 3
         }
-        time_periods = ["week", "month", "6month", "year", "all-time"]
+        time_periods = ["week", "month", "6months", "year", "all-time"]
 
         # check if message too short / long
         if len(params) < 2 or len(params) > 3:
@@ -48,7 +50,7 @@ class friends(BaseCommand):
 
             # check if time period is correct
         if params[1] not in time_periods:
-            await message.channel.send(embed=self.embed_message('Error', 'Unrecognised time period, currently supported are: "week", "month", "6month", "year". "all-time"'))
+            await message.channel.send(embed=self.embed_message('Error', 'Unrecognised time period, currently supported are: "week", "month", "6months", "year". "all-time"'))
             return
 
         # set user to the one that send the message, or if a third param was used, the one mentioned
@@ -103,7 +105,7 @@ class friends(BaseCommand):
         for friend in friends:
             if int(friend) != destinyID:
                 # data = [user1, user2, number of activities together]
-                data_temp.append([destinyID, friend, friends[friend]])
+                data_temp.append([int(str(destinyID)[-9:]), int(str(friend)[-9:]), friends[friend]])
 
                 if int(friend) not in discordMemberIDs:
                     unique_users.append(int(friend))
@@ -142,6 +144,8 @@ class friends(BaseCommand):
                 except Exception as exc:
                     print(f'generated an exception: {exc}')
 
+        print("Finished getting the activityIDs")
+
         # looping through users and their activities
         for activities in list_of_activities:
             friend = activities[0]
@@ -165,7 +169,7 @@ class friends(BaseCommand):
             # adding their data to the numpy array
             for friends_friend in friends_friends:
                 if int(friends_friend) != int(friend):
-                    data_temp.append([friend, friends_friend, friends_friends[friends_friend]])
+                    data_temp.append([int(str(friend)[-9:]), int(str(friends_friend)[-9:]), friends_friends[friends_friend]])
                     # adding the user to a list, if he wasn't looked at in the 2nd run
                     if int(friends_friend) not in friends_cleaned:
                         unique_users.append(int(friends_friend))
@@ -183,6 +187,7 @@ class friends(BaseCommand):
             await status_msg.edit(embed=self.embed_message(f'Please Wait {user.name}', f"This might take a while, I'll ping you when I'm done.",f"Collecting data - {progress}% done!"))
             estimated_current += 1
 
+        print("Finished getting the activity infos")
 
         # some last data prep
         await status_msg.edit(embed=self.embed_message(f'Please Wait {user.name}', f"This might take a while, I'll ping you when I'm done.",f"Preparing data - 0% done!"))
@@ -200,6 +205,7 @@ class friends(BaseCommand):
         for name in activities_from_user_who_got_looked_at:
             unique_users.append(int(name))
 
+        unique_users = set(unique_users)
         display_names = []
         colors = []
         size = []
@@ -235,6 +241,7 @@ class friends(BaseCommand):
             estimated_current += 1
 
         # print(unique_users)
+        # print(count_users)
         # print(activities_from_user_who_got_looked_at)
         # print(display_names)
         # print(colors)
@@ -247,7 +254,8 @@ class friends(BaseCommand):
         net = Network()
 
         # adding nodes
-        net.add_nodes(unique_users, value=size, title=size_desc, label=display_names, color=colors)
+        for ID, value, title, label, color in zip(unique_users, size, size_desc, display_names, colors):
+            net.add_node(int(str(ID)[-9:]), value=value, title=title, label=label, color=color)
 
         # adding edges with data = [user1, user2, number of activities together]
         with concurrent.futures.ThreadPoolExecutor(os.cpu_count() * 5) as pool:
@@ -285,6 +293,9 @@ class friends(BaseCommand):
         return embed
 
     def get_display_name(self, destinyID, loop=0):
+        # waiting a bit so we don't get throttled by bungie
+        time.sleep(0.1)
+
         staturl = f"https://www.bungie.net/Platform/Destiny2/3/Profile/{destinyID}/?components=100"
         rep = getJSONfromURL(staturl)
 
@@ -311,10 +322,13 @@ class friends(BaseCommand):
         else:
             # doing that until I get the name, added a delay to relax bungie
             loop += 1
-            time.sleep(0.5)
+            time.sleep(1)
             return self.get_display_name(destinyID, loop)
 
     def return_activities(self, destinyID, activityID, time_period):
+        # waiting a bit so we don't get throttled by bungie
+        time.sleep(0.3)
+
         # stoping this if user is in ignore
         if destinyID in self.ignore:
             return None
@@ -325,7 +339,7 @@ class friends(BaseCommand):
             cutoff = now - datetime.timedelta(weeks=1)
         elif time_period == "month":
             cutoff = now - datetime.timedelta(weeks=4)
-        elif time_period == "6month":
+        elif time_period == "6months":
             cutoff = now - datetime.timedelta(weeks=26)
         elif time_period == "year":
             cutoff = now - datetime.timedelta(weeks=52)
@@ -341,7 +355,7 @@ class friends(BaseCommand):
             # loop for all 3 chars
             for characterID in rep["Response"]["profile"]["data"]["characterIds"]:
                 br = False
-                for page in range(10000):
+                for page in range(1000):
                     # break loop if time period is met
                     if br:
                         break
@@ -367,6 +381,9 @@ class friends(BaseCommand):
         return [destinyID, set(activities)]
 
     def return_friends(self, destinyID, instanceID):
+        # waiting a bit so we don't get throttled by bungie
+        time.sleep(0.3)
+
         # list in which the connections are saved
         friends = []
 
@@ -387,13 +404,13 @@ class friends(BaseCommand):
         # sort and count friends
         return friends
 
-    def add_edge(self, network, edge, unique_users):
+    def add_edge(self, network, edge, IDs):
         src = int(edge[0])
         dst = int(edge[1])
         value = int(edge[2])
 
         # only add edge if non of both users got removed because < activity
-        if src in unique_users and dst in unique_users:
+        if int("4611686018" + str(src)) in IDs and int("4611686018" + str(dst)) in IDs:
             try:
                 network.add_edge(src, dst, value=value, title=value, physics=True)
             except:

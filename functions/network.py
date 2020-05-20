@@ -1,5 +1,6 @@
 from static.config import BUNGIE_TOKEN
 import requests
+import time
 
 import logging
 import http.client
@@ -19,7 +20,10 @@ if False:
 
 def getJSONfromURL(requestURL):
     """ Grabs JSON from the specified URL (no oauth)"""
-    for _ in range(3):
+    for i in range(3):
+        # waiting a second after 3rd fail to try and prevent "PerEndpointRequestThrottleExceeded"
+        if i == 2:
+            time.sleep(1)
         try:
             if 'None' in requestURL:
                 break
