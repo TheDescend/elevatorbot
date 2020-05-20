@@ -144,6 +144,8 @@ class friends(BaseCommand):
                 except Exception as exc:
                     print(f'generated an exception: {exc}')
 
+        print("Finished getting the activityIDs")
+
         # looping through users and their activities
         for activities in list_of_activities:
             friend = activities[0]
@@ -185,6 +187,7 @@ class friends(BaseCommand):
             await status_msg.edit(embed=self.embed_message(f'Please Wait {user.name}', f"This might take a while, I'll ping you when I'm done.",f"Collecting data - {progress}% done!"))
             estimated_current += 1
 
+        print("Finished getting the activity infos")
 
         # some last data prep
         await status_msg.edit(embed=self.embed_message(f'Please Wait {user.name}', f"This might take a while, I'll ping you when I'm done.",f"Preparing data - 0% done!"))
@@ -290,6 +293,9 @@ class friends(BaseCommand):
         return embed
 
     def get_display_name(self, destinyID, loop=0):
+        # waiting a bit so we don't get throttled by bungie
+        time.sleep(0.1)
+
         staturl = f"https://www.bungie.net/Platform/Destiny2/3/Profile/{destinyID}/?components=100"
         rep = getJSONfromURL(staturl)
 
@@ -316,10 +322,13 @@ class friends(BaseCommand):
         else:
             # doing that until I get the name, added a delay to relax bungie
             loop += 1
-            time.sleep(0.5)
+            time.sleep(1)
             return self.get_display_name(destinyID, loop)
 
     def return_activities(self, destinyID, activityID, time_period):
+        # waiting a bit so we don't get throttled by bungie
+        time.sleep(0.3)
+
         # stoping this if user is in ignore
         if destinyID in self.ignore:
             return None
@@ -372,6 +381,9 @@ class friends(BaseCommand):
         return [destinyID, set(activities)]
 
     def return_friends(self, destinyID, instanceID):
+        # waiting a bit so we don't get throttled by bungie
+        time.sleep(0.3)
+
         # list in which the connections are saved
         friends = []
 
