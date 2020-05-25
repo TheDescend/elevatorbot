@@ -376,7 +376,7 @@ class friends(BaseCommand):
         # letting user know it's done
         await message.channel.send(embed=self.embed_message(
             f'Done!',
-            f"Use the Link below to download your Network with {param[0]}-data from {answer_msg.content}.",
+            f"Use the Link below to download your Network with {params[0]}-data from {answer_msg.content}.",
             f"The file may load for a long time, that's normal."
         ))
         # sending them the file
@@ -465,11 +465,11 @@ class friends(BaseCommand):
                                 # check if time-period is not OK, else break the loop
                                 activity_time = datetime.datetime.strptime(activity["period"], "%Y-%m-%dT%H:%M:%SZ")
                                 if activity_time < start_time:
-                                    if activity_time < end_time:
-                                        br = True
+                                    br = True
                                 else:
-                                    # add instanceID to activities list
-                                    activities.append(activity["activityDetails"]["instanceId"])
+                                    if activity_time < end_time:
+                                        # add instanceID to activities list
+                                        activities.append(activity["activityDetails"]["instanceId"])
                     else:
                         break
 
