@@ -25,6 +25,9 @@ class friends(BaseCommand):
         super().__init__(description, params)
 
         self.ignore = []
+        # edge_list = [person, size, size_desc, display_names, colors]
+        self.edge_list = []
+
 
     async def handle(self, params, message, client):
         activities = {
@@ -65,9 +68,6 @@ class friends(BaseCommand):
                 return
         else:
             user = message.author
-
-
-
 
         # asking user to give time-frame
         time_msg = await message.channel.send(embed=self.embed_message(
@@ -299,52 +299,31 @@ class friends(BaseCommand):
             unique_users.append(int(name))
 
         unique_users = set(unique_users)
-        display_names = []
-        colors = []
-        size = []
-        size_desc = []
 
         # calculating stuff for the status message
         estimated_current = 1
         estimated_total = len(unique_users) + 1
 
         # getting the display names, colors for users in discord, size of blob
-        for person in unique_users:
-            name = self.get_display_name(person)
-            display_names.append(name)
-            if person not in friends_cleaned and person != destinyID:
-                size.append(count_users[person] * 50)
-                size_desc.append(str(count_users[person]) + " Activities")
-            else:
-                size.append(activities_from_user_who_got_looked_at[person] * 50)
-                size_desc.append(str(activities_from_user_who_got_looked_at[person]) + " Activities")
-            # using different colors for users in discord
-            if person != destinyID:
-                if person in discordMemberIDs:
-                    colors.append("#00ff1e")
-                else:
-                    colors.append("#162347")
-            # using a different color for initiator
-            else:
-                colors.append("#dd4b39")
-
-            # updating the status
-            progress = int(estimated_current / estimated_total * 100)
-            await status_msg.edit(embed=self.embed_message(
-                f'Please Wait {user.name}',
-                f"This might take a while, I'll ping you when I'm done.",
-                f"Preparing data - {progress}% done!"
-            ))
-            estimated_current += 1
+        with concurrent.futures.ThreadPoolExecutor(os.cpu_count() * 5) as pool:
+            futurelist = [pool.submit(self.prep_data, person, friends_cleaned, destinyID, discordMemberIDs, activities_from_user_who_got_looked_at, count_users) for person in unique_users]
+            for _ in concurrent.futures.as_completed(futurelist):
+                # updating the status
+                progress = int(estimated_current / estimated_total * 100)
+                await status_msg.edit(embed=self.embed_message(
+                    f'Please Wait {user.name}',
+                    f"This might take a while, I'll ping you when I'm done.",
+                    f"Preparing data - {progress}% done!"
+                ))
+                estimated_current += 1
 
         # print(unique_users)
         # print(count_users)
         # print(activities_from_user_who_got_looked_at)
         # print(display_names)
-        # print(colors)
-        # print(size)
         # print(data)
         # print(data.shape)
+        # print(self.edge_list)
 
         # building the network graph
         await status_msg.edit(embed=self.embed_message(
@@ -355,13 +334,14 @@ class friends(BaseCommand):
         net = Network()
 
         # adding nodes
-        for ID, value, title, label, color in zip(unique_users, size, size_desc, display_names, colors):
-            net.add_node(int(str(ID)[-9:]), value=value, title=title, label=label, color=color)
+        # edge_list = [person, size, size_desc, display_names, colors]
+        for edge_data in self.edge_list:
+            net.add_node(int(str(edge_data[0])[-9:]), value=edge_data[1], title=edge_data[2], label=edge_data[3], color=edge_data[4])
 
         # adding edges with data = [user1, user2, number of activities together]
         with concurrent.futures.ThreadPoolExecutor(os.cpu_count() * 5) as pool:
             futurelist = [pool.submit(self.add_edge, net, edge, unique_users) for edge in data]
-            for future in concurrent.futures.as_completed(futurelist):
+            for _ in concurrent.futures.as_completed(futurelist):
                 pass
 
         net.barnes_hut(gravity=-200000, central_gravity=0.3, spring_length=200, spring_strength=0.005, damping=0.09, overlap=0)
@@ -376,7 +356,7 @@ class friends(BaseCommand):
         # letting user know it's done
         await message.channel.send(embed=self.embed_message(
             f'Done!',
-            f"Use the Link below to download your Network with {params[0]}-data from {answer_msg.content}.",
+            f"Use the Link below to download your Network with {params[0]} data from {answer_msg.content}.",
             f"The file may load for a long time, that's normal."
         ))
         # sending them the file
@@ -498,6 +478,28 @@ class friends(BaseCommand):
 
         # sort and count friends
         return friends
+
+    def prep_data(self, person, friends_cleaned, destinyID, discordMemberIDs, activities_from_user_who_got_looked_at, count_users):
+        name = self.get_display_name(person)
+        display_names = name
+        if person not in friends_cleaned and person != destinyID:
+            size = count_users[person] * 50
+            size_desc = str(count_users[person]) + " Activities"
+        else:
+            size = activities_from_user_who_got_looked_at[person] * 50
+            size_desc = str(activities_from_user_who_got_looked_at[person]) + " Activities"
+        # using different colors for users in discord
+        if person != destinyID:
+            if person in discordMemberIDs:
+                colors = "#00ff1e"
+            else:
+                colors = "#162347"
+        # using a different color for initiator
+        else:
+            colors = "#dd4b39"
+
+        # edge_list = [person, size, size_desc, display_names, colors]
+        self.edge_list.append([person, size, size_desc, display_names, colors])
 
     def add_edge(self, network, edge, IDs):
         src = int(edge[0])
