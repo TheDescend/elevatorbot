@@ -1,17 +1,18 @@
 from static.config          import BUNGIE_TOKEN
 from commands.base_command  import BaseCommand
 from functions.database     import lookupDestinyID, getAllDiscordMemberDestinyIDs
-from functions.network  import getJSONfromURL
+from functions.network      import getJSONfromURL
 
 import numpy as np
 import datetime
 import discord
+import asyncio
 import time
 import os
 import concurrent.futures
 
-from collections import Counter
-from pyvis.network import Network
+from collections    import Counter
+from pyvis.network  import Network
 
 # note: the ids later are formatted so wierd, because pyvis broke with them being 16 numbers or so. So I'm just shorting them in an ugly way that works
 
@@ -25,48 +26,125 @@ class friends(BaseCommand):
 
         self.ignore = []
 
-
     async def handle(self, params, message, client):
-        PARAMS = {'X-API-Key': BUNGIE_TOKEN}
-
         activities = {
             "pve": 7,
             "pvp": 5,
             "raids": 4,
             "strikes": 3
         }
-        time_periods = ["week", "month", "6months", "year", "all-time"]
 
         # check if message too short / long
-        if len(params) < 2 or len(params) > 3:
-            await message.channel.send(embed=self.embed_message('Error', 'Incorrect formatting, correct usage is: "!friends <activity> <time-period> *<user>"'))
+        if len(params) == 0 or len(params) > 2:
+            await message.channel.send(embed=self.embed_message(
+                'Error',
+                 'Incorrect formatting, correct usage is: "!friends <activity> *<user>"'
+            ))
             return
 
         # check if activity is correct
         if params[0] not in activities:
-            await message.channel.send(embed=self.embed_message('Error', 'Unrecognised activity, currently supported are: "pve", "pvp", "raids", "strikes"'))
+            await message.channel.send(embed=self.embed_message(
+                'Error',
+                'Unrecognised activity, currently supported are: "pve", "pvp", "raids", "strikes"'
+            ))
             return
         activityID = activities[params[0]]
 
-            # check if time period is correct
-        if params[1] not in time_periods:
-            await message.channel.send(embed=self.embed_message('Error', 'Unrecognised time period, currently supported are: "week", "month", "6months", "year". "all-time"'))
-            return
-
         # set user to the one that send the message, or if a third param was used, the one mentioned
-        if len(params) == 3:
+        if len(params) == 2:
             ctx = await client.get_context(message)
             try:
-                user = await discord.ext.commands.MemberConverter().convert(ctx, params[2])
+                user = await discord.ext.commands.MemberConverter().convert(ctx, params[1])
             except:
-                await message.channel.send(embed=self.embed_message('Error', 'User not found, make sure the spelling/id is correct'))
+                await message.channel.send(
+                    embed=self.embed_message(
+                        'Error',
+                        'User not found, make sure the spelling/id is correct'
+                    ))
                 return
         else:
             user = message.author
 
+
+
+
+        # asking user to give time-frame
+        time_msg = await message.channel.send(embed=self.embed_message(
+            f'{user.name}, I need one more thing',
+            "Please specify the time-range you want the data for like this:\n\u200B\n\u200B\n \u2000 **Start** \u2005\u2001- \u2001 **End**\n `dd/mm/yy - dd/mm/yy` \n\u200B\n *If the end-time is now, you can exchange it with* `now`"
+        ))
+        time_msg = await message.channel.fetch_message(time_msg.id)
+
+        # to check whether or not the one that send the msg is the original author for the function after this
+        def check(answer_msg):
+            return answer_msg.author == message.author and answer_msg.channel == message.channel
+
+        # wait for reply from original user to set the time parameters
+        try:
+            answer_msg = await client.wait_for('message', timeout=60.0, check=check)
+            await answer_msg.delete()
+
+        # if user is too slow, let him know and remove message after 30s
+        except asyncio.TimeoutError:
+            await time_msg.edit(embed=self.embed_message(
+                f'Sorry {user.name}',
+                f'You took to long to answer my question, type "!friends <activity> *<user>" to start over'
+            ))
+            await asyncio.sleep(30)
+            await time_msg.delete()
+            return
+
+        # try to convert the dates to time types
+        else:
+            # getting the two date strings
+            try:
+                dates = answer_msg.content.replace(" ", "").split("-")
+                start_date = dates[0]
+                end_date = dates[1]
+            except:
+                await time_msg.edit(embed=self.embed_message(
+                    f'Incorrect Formatting',
+                    f'That was the wrong formatting, type "!friends <activity> *<user>" to start over'
+                ))
+                await asyncio.sleep(30)
+                await time_msg.delete()
+                return
+
+            # converting the date into datetime
+            try:
+                start_time = datetime.datetime.strptime(start_date, "%d/%m/%y")
+                if end_date == "now":
+                    end_time = datetime.datetime.now()
+                else:
+                    end_time = datetime.datetime.strptime(end_date, "%d/%m/%y")
+            except:
+                await time_msg.edit(embed=self.embed_message(
+                    f'Incorrect Formatting',
+                    f'That was the wrong formatting, type "!friends <activity> *<user>" to start over'
+                ))
+                await asyncio.sleep(30)
+                await time_msg.delete()
+                return
+
+            # throw error if end > start
+            if end_time < start_time:
+                await time_msg.edit(embed=self.embed_message(
+                    f'Incorrect Formatting',
+                    f'Silly you, the start-time can not be greater than the end-time. Type "!friends <activity> *<user>" to start over'
+                ))
+                await asyncio.sleep(30)
+                await time_msg.delete()
+                return
+        await time_msg.delete()
+
         # letting the user know that this might take a while
-        status = await message.channel.send(embed=self.embed_message(f'Please Wait {user.name}', f"This might take a while, I'll ping you when I'm done.", f"Collecting data - 0% done!"))
-        status_msg = await message.channel.fetch_message(status.id)
+        status_msg = await message.channel.send(embed=self.embed_message(
+            f'Please Wait {user.name}',
+            f"This might take a while, I'll ping you when I'm done.",
+            f"Collecting data - 0% done!"
+        ))
+        status_msg = await message.channel.fetch_message(status_msg.id)
 
 
         # >> Do the actual work <<
@@ -81,7 +159,7 @@ class friends(BaseCommand):
             discordMemberIDs[i] = int(discordMemberIDs[i][0])
 
         # getting the activities for the original user
-        result = self.return_activities(destinyID, activityID, params[1])
+        result = self.return_activities(destinyID, activityID, start_time, end_time)
         activities_from_user_who_got_looked_at[destinyID] = len(result[1])
 
         # getting the friends from his activities
@@ -97,7 +175,10 @@ class friends(BaseCommand):
         # no need to continue of list is empty
         if not friends:
             await status_msg.delete()
-            await message.channel.send(embed=self.embed_message('Sorry', f'You have to play any {params[0]} before I can show you something here <:PepeLaugh:670369129060106250>'))
+            await message.channel.send(embed=self.embed_message(
+                'Sorry',
+                f'You have to play any {params[0]} before I can show you something here <:PepeLaugh:670369129060106250>'
+            ))
             return
 
         # initialising the big numpy array with all the data
@@ -119,7 +200,11 @@ class friends(BaseCommand):
                 estimated_total +=1
         # updating the user how far along we are
         progress = int(estimated_current / estimated_total * 100)
-        await status_msg.edit(embed=self.embed_message(f'Please Wait {user.name}', f"This might take a while, I'll ping you when I'm done.",f"Collecting data - {progress}% done!"))
+        await status_msg.edit(embed=self.embed_message(
+            f'Please Wait {user.name}'
+            , f"This might take a while, I'll ping you when I'm done.",
+            f"Collecting data - {progress}% done!"
+        ))
 
         # looping through friends and doing the same IF they are in the discord and new
         friends_cleaned = []
@@ -131,7 +216,7 @@ class friends(BaseCommand):
         # getting the activities each user did
         list_of_activities = []
         with concurrent.futures.ThreadPoolExecutor(os.cpu_count() * 5) as pool:
-            futurelist = [pool.submit(self.return_activities, friend, activityID, params[1]) for friend in friends_cleaned]
+            futurelist = [pool.submit(self.return_activities, friend, activityID, start_time, end_time) for friend in friends_cleaned]
             for future in concurrent.futures.as_completed(futurelist):
                 try:
                     result = future.result()
@@ -184,13 +269,21 @@ class friends(BaseCommand):
 
             # updating the status
             progress = int(estimated_current / estimated_total * 100)
-            await status_msg.edit(embed=self.embed_message(f'Please Wait {user.name}', f"This might take a while, I'll ping you when I'm done.",f"Collecting data - {progress}% done!"))
+            await status_msg.edit(embed=self.embed_message(
+                f'Please Wait {user.name}',
+                f"This might take a while, I'll ping you when I'm done.",
+                f"Collecting data - {progress}% done!"
+            ))
             estimated_current += 1
 
         print("Finished getting the activity infos")
 
         # some last data prep
-        await status_msg.edit(embed=self.embed_message(f'Please Wait {user.name}', f"This might take a while, I'll ping you when I'm done.",f"Preparing data - 0% done!"))
+        await status_msg.edit(embed=self.embed_message(
+            f'Please Wait {user.name}',
+            f"This might take a while, I'll ping you when I'm done.",
+            f"Preparing data - 0% done!"
+        ))
 
         # removing users with less than 2 occurences from the dataset, to remove clutter
         count_users = dict(Counter(unique_users))
@@ -237,7 +330,11 @@ class friends(BaseCommand):
 
             # updating the status
             progress = int(estimated_current / estimated_total * 100)
-            await status_msg.edit(embed=self.embed_message(f'Please Wait {user.name}',f"This might take a while, I'll ping you when I'm done.",f"Preparing data - {progress}% done!"))
+            await status_msg.edit(embed=self.embed_message(
+                f'Please Wait {user.name}',
+                f"This might take a while, I'll ping you when I'm done.",
+                f"Preparing data - {progress}% done!"
+            ))
             estimated_current += 1
 
         # print(unique_users)
@@ -250,7 +347,11 @@ class friends(BaseCommand):
         # print(data.shape)
 
         # building the network graph
-        await status_msg.edit(embed=self.embed_message(f'Please Wait {user.name}', f"This might take a while, I'll ping you when I'm done.",f"Building the graph, nearly done!"))
+        await status_msg.edit(embed=self.embed_message(
+            f'Please Wait {user.name}',
+            f"This might take a while, I'll ping you when I'm done.",
+            f"Building the graph, nearly done!"
+        ))
         net = Network()
 
         # adding nodes
@@ -273,7 +374,11 @@ class friends(BaseCommand):
         # deleting the status
         await status_msg.delete()
         # letting user know it's done
-        await message.channel.send(embed=self.embed_message('Done!', "Use the Link below to download your Network.", f"The file may load for a long time, that's normal."))
+        await message.channel.send(embed=self.embed_message(
+            f'Done!',
+            f"Use the Link below to download your Network with {param[0]}-data from {answer_msg.content}.",
+            f"The file may load for a long time, that's normal."
+        ))
         # sending them the file
         await message.channel.send(file=discord.File(title))
         # pinging the user
@@ -289,7 +394,9 @@ class friends(BaseCommand):
             description=desc
         )
         if footer:
-            embed.set_footer(text=footer)
+            embed.set_footer(
+                text=footer
+            )
         return embed
 
     def get_display_name(self, destinyID, loop=0):
@@ -322,24 +429,13 @@ class friends(BaseCommand):
             time.sleep(1)
             return self.get_display_name(destinyID, loop)
 
-    def return_activities(self, destinyID, activityID, time_period):
+    def return_activities(self, destinyID, activityID, start_time, end_time):
         # waiting a bit so we don't get throttled by bungie
         time.sleep(0.3)
 
         # stoping this if user is in ignore
         if destinyID in self.ignore:
             return None
-
-        now = datetime.datetime.now()
-        cutoff = datetime.datetime.strptime("1900", "%Y")
-        if time_period == "week":
-            cutoff = now - datetime.timedelta(weeks=1)
-        elif time_period == "month":
-            cutoff = now - datetime.timedelta(weeks=4)
-        elif time_period == "6months":
-            cutoff = now - datetime.timedelta(weeks=26)
-        elif time_period == "year":
-            cutoff = now - datetime.timedelta(weeks=52)
 
         destinyID = int(destinyID)
 
@@ -367,8 +463,10 @@ class friends(BaseCommand):
                             if activity["values"]["completionReason"]["basic"]["displayValue"] == "Objective Completed":
 
                                 # check if time-period is not OK, else break the loop
-                                if datetime.datetime.strptime(activity["period"], "%Y-%m-%dT%H:%M:%SZ") < cutoff:
-                                    br = True
+                                activity_time = datetime.datetime.strptime(activity["period"], "%Y-%m-%dT%H:%M:%SZ")
+                                if activity_time < start_time:
+                                    if activity_time < end_time:
+                                        br = True
                                 else:
                                     # add instanceID to activities list
                                     activities.append(activity["activityDetails"]["instanceId"])
