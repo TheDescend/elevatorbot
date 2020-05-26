@@ -92,7 +92,7 @@ class friends(BaseCommand):
         except asyncio.TimeoutError:
             await time_msg.edit(embed=self.embed_message(
                 f'Sorry {user.name}',
-                f'You took to long to answer my question, type "!friends <activity> *<user>" to start over'
+                f'You took to long to answer my question, type `!friends <activity> *<user>` to start over'
             ))
             await asyncio.sleep(30)
             await time_msg.delete()
@@ -108,7 +108,7 @@ class friends(BaseCommand):
             except:
                 await time_msg.edit(embed=self.embed_message(
                     f'Incorrect Formatting',
-                    f'That was the wrong formatting, type "!friends <activity> *<user>" to start over'
+                    f'That was the wrong formatting, type `!friends <activity> *<user>` to start over'
                 ))
                 await asyncio.sleep(30)
                 await time_msg.delete()
@@ -124,7 +124,7 @@ class friends(BaseCommand):
             except:
                 await time_msg.edit(embed=self.embed_message(
                     f'Incorrect Formatting',
-                    f'That was the wrong formatting, type "!friends <activity> *<user>" to start over'
+                    f'That was the wrong formatting, type `!friends <activity> *<user>` to start over'
                 ))
                 await asyncio.sleep(30)
                 await time_msg.delete()
@@ -134,7 +134,7 @@ class friends(BaseCommand):
             if end_time < start_time:
                 await time_msg.edit(embed=self.embed_message(
                     f'Incorrect Formatting',
-                    f'Silly you, the start-time can not be greater than the end-time. Type "!friends <activity> *<user>" to start over'
+                    f'Silly you, the start-time can not be greater than the end-time. Type `!friends <activity> *<user>` to start over'
                 ))
                 await asyncio.sleep(30)
                 await time_msg.delete()
