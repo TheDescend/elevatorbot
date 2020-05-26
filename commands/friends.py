@@ -31,9 +31,12 @@ class friends(BaseCommand):
 
     async def handle(self, params, message, client):
         activities = {
+            "everything": 0,
+            "patrol": 6,
             "pve": 7,
             "pvp": 5,
             "raids": 4,
+            "story": 2,
             "strikes": 3
         }
 
@@ -41,7 +44,7 @@ class friends(BaseCommand):
         if len(params) == 0 or len(params) > 2:
             await message.channel.send(embed=self.embed_message(
                 'Error',
-                 'Incorrect formatting, correct usage is: "!friends <activity> *<user>"'
+                 'Incorrect formatting, correct usage is: \n\u200B\n `!friends <activity> *<user>`'
             ))
             return
 
@@ -49,7 +52,7 @@ class friends(BaseCommand):
         if params[0] not in activities:
             await message.channel.send(embed=self.embed_message(
                 'Error',
-                'Unrecognised activity, currently supported are: "pve", "pvp", "raids", "strikes"'
+                f'Unrecognised activity, currently supported are: \n\u200B\n`{", ".join(activities)}`'
             ))
             return
         activityID = activities[params[0]]
