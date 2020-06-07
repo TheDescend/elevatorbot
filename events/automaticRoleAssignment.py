@@ -65,11 +65,11 @@ class AutomaticRoleAssignment(BaseEvent):
         
         #aquires the newtonslab channel from the descend server and notifies about starting
         newtonslab = client.get_channel(670637036641845258)
-        await newtonslab.send('running db update...')
+        #await newtonslab.send('running db update...')
         async with newtonslab.typing():
             initDB()
-        await newtonslab.send('db done')
-        await newtonslab.send('running role update...')
+        #await newtonslab.send('db done')
+        #await newtonslab.send('running role update...')
 
         async with newtonslab.typing():
             #Since I'm too lazy to find out the guild-id, this is how I get the guild-object
@@ -97,4 +97,4 @@ class AutomaticRoleAssignment(BaseEvent):
                         newstext = f'Updated player {discordUser.name} by adding {", ".join(addrls or ["nothing"])} and removing {", ".join(removerls or ["nothing"])}'
                         await newtonslab.send('done with role update <:CaydeThumbsUp:670997683774685234>\n' + newstext)
         
-        await newtonslab.send('done with role update <:CaydeThumbsUp:670997683774685234>')
+        #await newtonslab.send('done with daily update <:CaydeThumbsUp:670997683774685234>')
