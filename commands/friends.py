@@ -360,7 +360,7 @@ class friends(BaseCommand):
         await message.channel.send(embed=self.embed_message(
             f'Done!',
             f"Use the Link below to download your Network with {params[0]} data from {answer_msg.content}.",
-            f"The file may load for a long time, that's normal."
+            f"The file may load for a while, that's normal."
         ))
         # sending them the file
         await message.channel.send(file=discord.File(title))
