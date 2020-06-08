@@ -13,16 +13,21 @@ class Markovspam(BaseEvent):
     # It will be called once every {interval_minutes} minutes
     stopmsg = False
     async def run(self, client):
-        markchannel = client.get_channel(672541982157045791)
-        now = datetime.now()
-        async for msg in markchannel.history(limit=45):
-            if msg.author.id != 386490723223994371:
-                async with markchannel.typing():
-                    await markchannel.send(getMarkovSentence())
-                    return
+        try:
+            markchannel = client.get_channel(672541982157045791)
 
-        async for msg in markchannel.history(limit=1):        
-                if not msg.content == '**type something to reactivate the bot**':
-                    await markchannel.send('**type something to reactivate the bot**')
-                
+            now = datetime.now()
+            async for msg in markchannel.history(limit=45):
+                if msg.author.id != 386490723223994371:
+                    async with markchannel.typing():
+                        await markchannel.send(getMarkovSentence())
+                        return
+
+            async for msg in markchannel.history(limit=1):
+                    if not msg.content == '**type something to reactivate the bot**':
+                        await markchannel.send('**type something to reactivate the bot**')
+
+        # don't spam errors if run on a a different discord
+        except:
+            return
         
