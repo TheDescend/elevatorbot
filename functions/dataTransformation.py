@@ -109,7 +109,7 @@ def hasLowman(playerid, playercount, raidHashes, flawless=False, disallowed=[]):
     cur.execute(sqlite_select, data_tuple)
     verdict = False
     for (iid, deaths, period) in cur.fetchall():
-        print(f'{deaths} on {period} in {iid}')
+        #print(f'{deaths} on {period} in {iid}')
         if not flawless or deaths == 0:
             verdict = True
             for starttime, endtime in disallowed:

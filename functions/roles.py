@@ -20,7 +20,7 @@ def hasRole(playerid, role, year):
             for raid in creq:
                 actualclears = getClearCount(playerid, raid['actHashes'])
                 if not actualclears>= raid['count']:
-                    print(f'only {actualclears} out of {raid["count"]}')
+                    #print(f'only {actualclears} out of {raid["count"]}')
                     worthy = False
         elif req == 'flawless':
             worthy &= hasFlawless(playerid, roledata['flawless'])
@@ -104,7 +104,7 @@ def getPlayerRoles(playerid, existingRoles = []):
                     if reqrole not in roles:
                         worthy = False
                 if worthy:
-                    print('worthy for ', role)
+                    #print('worthy for ', role)
                     roles.append(role)
                     redundantRoles.remove(role)
                     for reqrole in reqs:
