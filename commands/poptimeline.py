@@ -42,7 +42,8 @@ class poptimeline(BaseCommand):
 
         # filling plot
         ax.plot(data['datetime'],
-                data['players']
+                data['players'],
+                "red"
         )
 
         # Set title and labels for axes
