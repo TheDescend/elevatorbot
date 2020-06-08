@@ -10,14 +10,13 @@ import requests
 
 class getCurrentSteamPlayers(BaseEvent):
     def __init__(self):
-        interval_minutes = 15  # Set the interval for this event
+        interval_minutes = 60  # Set the interval for this event
         super().__init__(interval_minutes)
 
 
     # Override the run() method
     # It will be called once every {interval_minutes} minutes
     async def run(self, client):
-        print("running this")
         if not os.path.exists('database/steamPlayerData.pickle'):
             steamdf = pd.DataFrame(columns=["datetime", "players"])
         else:
