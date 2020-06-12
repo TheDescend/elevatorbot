@@ -21,7 +21,7 @@ class poptimeline(BaseCommand):
             ["2019-10-01", "Shadowkeep / Season of the Undying"],
             ["2019-12-10", "Season of Dawn"],
             ["2020-03-10", "Season of the Worthy"],
-            ["2020-06-09", "Season of the Arrival"]
+            ["2020-06-09", "Season of Arrivals"]
         ]
         other_dates = [
             ["2019-10-04", "GoS"],
@@ -42,11 +42,12 @@ class poptimeline(BaseCommand):
 
         # filling plot
         ax.plot(data['datetime'],
-                data['players']
+                data['players'],
+                "darkred"
         )
 
         # Set title and labels for axes
-        ax.set_title("Destiny 2 Player Count", fontweight="bold", size=30, pad=20)
+        ax.set_title("Destiny 2 - Steam Player Count", fontweight="bold", size=30, pad=20)
         ax.set_xlabel("Date", fontsize = 20)
         ax.set_ylabel("Players", fontsize = 20)
 
