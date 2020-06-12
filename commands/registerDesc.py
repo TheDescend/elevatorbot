@@ -14,6 +14,9 @@ class registerDesc(BaseCommand):
     # Override the handle() method
     # It will be called every time the command is received
     async def handle(self, params, message, client):
+        if not message.guild:
+            await message.author.send('Please use this command in your clans bot-channel')
+            return
         state = str(message.author.id) + ':' + str(message.guild.id)
         URL = f'https://www.bungie.net/en/oauth/authorize?client_id={BUNGIE_OAUTH}&response_type=code&state={state}'
         await message.author.send(f'Open this link, to register with the bot: {URL}')

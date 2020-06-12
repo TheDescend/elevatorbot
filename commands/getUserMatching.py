@@ -28,15 +28,17 @@ class getUserMatching(BaseCommand):
                     if user:
                         successfulMatches.append((steamname, crosssavename, user.name))
                     else:
-                        await message.channel.send(f'[ERROR] {username} with destinyID {userid} has discordID {discordID} but it is faulty')
+                        await message.channel.send(f'[ERROR] {steamname}/{crosssavename} with destinyID {userid} has discordID {discordID} but it is faulty')
                 else:
                     # user not found
                     unsuccessfulMatches.append((steamname, crosssavename, userid))
 
             await message.channel.send('SUCCESSFUL MATCHES:')
             sortedSuccessfulMatches = sorted(successfulMatches, key=lambda pair: pair[2].lower())
+            successfulMessage = ''
             for (steamname, crosssavename, username) in sortedSuccessfulMatches:  
-                await message.channel.send(f'{username} has successfully been matched to {steamname} / {crosssavename}')
+                successfulMessage += f'{username} has successfully been matched to {steamname} / {crosssavename}\n'
+            await message.channel.send(successfulMessage)
 
             await message.channel.send('FAILED MATCHES:')
             unsuccessfulMessage = ''

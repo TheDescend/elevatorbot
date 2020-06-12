@@ -10,7 +10,7 @@ import os
 class rasputinWatcher(BaseEvent):
 
     def __init__(self):
-        interval_minutes = 15  # Set the interval for this event 1440 = 12h
+        interval_minutes = 1500000  # Set the interval for this event 1440 = 12h
         super().__init__(interval_minutes)
 
     # Override the run() method
@@ -31,5 +31,3 @@ class rasputinWatcher(BaseEvent):
         # rasputindf = rasputindf.append(newdict, ignore_index=True)
         # rasputindf.to_pickle('database/rasputinData.pickle')
         pass
-
-        

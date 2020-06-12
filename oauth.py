@@ -65,7 +65,7 @@ def root():
     url = 'https://www.bungie.net/platform/app/oauth/token/'
     headers = {
         'content-type': 'application/x-www-form-urlencoded',
-        'authorization': 'Basic '+ str(B64_SECRET)
+        'authorization': 'Basic '+ str(B64_SECRET) #unqiue to this app
     }
 
     data = 'grant_type=authorization_code&code='+str(code)
@@ -88,6 +88,8 @@ def root():
     response = r.json()['Response']
     membershiplist = response['destinyMemberships']
     for membership in membershiplist:
+        if "crossSaveOverride" in membership.keys() and membership["membershipType"] != membership["crossSaveOverride"]:
+            continue
         insertToken(int(discordID), int(membership['membershipId']), int(serverID), access_token, refresh_token)
         print(discordID, 'has ID', membership['membershipId'])
     return 'Thank you for signing up with <h1> Elevator Bot </h1>\n <p style="bottom: 20" >There will be cake</p>' # response to your request.

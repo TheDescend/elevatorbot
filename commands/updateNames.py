@@ -29,7 +29,7 @@ class updateNames(BaseCommand):
             url = 'https://www.bungie.net/platform/User/GetMembershipsById/{}/{}/'.format(destID,3)
             r=requests.get(url=url, headers=PARAMS)
             memberships = r.json()['Response']['destinyMemberships']
-            membership = None
+            
             if memberships[0]['crossSaveOverride'] and memberships[0]['crossSaveOverride'] != memberships[0]['membershipType']:
                 newtype = memberships[0]['crossSaveOverride']
                 for memship in memberships:
@@ -45,7 +45,7 @@ class updateNames(BaseCommand):
                 continue
             newNick = membership['LastSeenDisplayName']
             try:
-                await discUser.edit(nick=newNick)
+                #await discUser.edit(nick=newNick)
                 print(f'set {discUser.id}:{discUser.name}\'s nickname to {newNick}')
                 memberlist.remove(discUser)
             except discord.Forbidden as e:

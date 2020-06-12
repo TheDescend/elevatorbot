@@ -9,6 +9,12 @@ import json
 import requests
 session = requests.Session()
 
+
+def getFreshToken(discordID):
+    refresh_token(discordID)
+    return getToken(discordID)
+
+
 def getJSONwithToken(url, discordID):
     """ Takes url and discordID, returns JSON """
 
@@ -32,6 +38,8 @@ def getJSONwithToken(url, discordID):
         return getJSONwithToken(url, discordID)
     
     if int(res['ErrorCode']) != 1:
+        print(url)
+        print(headers)
         print(f'ErrorCode is not 1, but {res["ErrorCode"]}')
         return None
 
