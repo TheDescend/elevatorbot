@@ -78,7 +78,7 @@ class AutomaticRoleAssignment(BaseEvent):
                 results = executor.map(updateUser, guild.members)
 
                 news = list(results)
-                newslist = []
+                newstext = 'done with role update <:CaydeThumbsUp:670997683774685234>\n'
                 
                 for guild, discordUser, newRoles,removeRoles in news:
                     if not discordUser:
@@ -94,7 +94,8 @@ class AutomaticRoleAssignment(BaseEvent):
                     removerls = list(compress(removeRoles, removeBools))
                     
                     if addrls or removerls:
-                        newstext = f'Updated player {discordUser.name} by adding {", ".join(addrls or ["nothing"])} and removing {", ".join(removerls or ["nothing"])}'
-                        await newtonslab.send('done with role update <:CaydeThumbsUp:670997683774685234>\n' + newstext)
+                        newstext += f'Updated player {discordUser.name} by adding {", ".join(addrls or ["nothing"])} and removing {", ".join(removerls or ["nothing"])}\n'
+                        
+                    await newtonslab.send(newstext)
         
         #await newtonslab.send('done with daily update <:CaydeThumbsUp:670997683774685234>')

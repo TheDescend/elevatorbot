@@ -232,7 +232,10 @@ def insertIntoDB(destinyID, pve):
     completed = int(pve['values']['completed']['basic']['value'])
     mode = int(pve['activityDetails']['mode'])
     if completed and not int(pve['values']['completionReason']['basic']['value']):
-        pgcrdata = getPGCR(instanceID)['Response']
+        if not (pgcr := getPGCR(instanceID)):
+            return
+        pgcrdata = pgcr['Response']
+
         startingPhaseIndex = pgcrdata['startingPhaseIndex']
         deaths = 0
         players = set()
