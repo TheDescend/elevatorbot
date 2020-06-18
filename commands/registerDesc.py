@@ -2,12 +2,13 @@ from commands.base_command  import BaseCommand
 import os
 from static.config import BUNGIE_OAUTH
 from functions.database import insertUser, removeUser, lookupDestinyID, lookupDiscordID
+from functions.formating import embed_message
 import discord
 
-class registerDesc(BaseCommand):
+class register(BaseCommand):
     def __init__(self):
         # A quick description for the help message
-        description = "[depracted] register with bungie.net"
+        description = "Register with bungie.net"
         params = []
         super().__init__(description, params)
 
@@ -19,9 +20,38 @@ class registerDesc(BaseCommand):
             return
         state = str(message.author.id) + ':' + str(message.guild.id)
         URL = f'https://www.bungie.net/en/oauth/authorize?client_id={BUNGIE_OAUTH}&response_type=code&state={state}'
-        await message.author.send(f'Open this link, to register with the bot: {URL}')
-        await message.channel.send(f'sent dm to {message.author.nick or message.author.name}')
+        await message.author.send(embed=embed_message(
+                'Registration',
+                f'Open this link, to register with the bot: \n {URL}'
+            ))
+        await message.channel.send(embed=embed_message(
+                'Registration',
+                f'Sent a DM to {message.author.nick or message.author.name}'
+            ))
 
+class registerDesc(BaseCommand):
+    def __init__(self):
+        # A quick description for the help message
+        description = "Shadows !register, but don't get picked up from Charlemange"
+        params = []
+        super().__init__(description, params)
+
+    # Override the handle() method
+    # It will be called every time the command is received
+    async def handle(self, params, message, client):
+        if not message.guild:
+            await message.author.send('Please use this command in your clans bot-channel')
+            return
+        state = str(message.author.id) + ':' + str(message.guild.id)
+        URL = f'https://www.bungie.net/en/oauth/authorize?client_id={BUNGIE_OAUTH}&response_type=code&state={state}'
+        await message.author.send(embed=embed_message(
+                'Registration',
+                f'Open this link, to register with the bot: \n {URL}'
+            ))
+        await message.channel.send(embed=embed_message(
+                'Registration',
+                f'Sent a DM to {message.author.nick or message.author.name}'
+            ))
 class getDestinyID(BaseCommand):
     def __init__(self):
         # A quick description for the help message
