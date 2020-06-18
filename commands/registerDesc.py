@@ -21,8 +21,8 @@ class register(BaseCommand):
         state = str(message.author.id) + ':' + str(message.guild.id)
         URL = f'https://www.bungie.net/en/oauth/authorize?client_id={BUNGIE_OAUTH}&response_type=code&state={state}'
         await message.author.send(embed=embed_message(
-                'Registration',
-                f'Open this link, to register with the bot: \n {URL}'
+                f'Registration',
+                f'[Click here to register with the bot]({URL})'
             ))
         await message.channel.send(embed=embed_message(
                 'Registration',
@@ -45,8 +45,8 @@ class registerDesc(BaseCommand):
         state = str(message.author.id) + ':' + str(message.guild.id)
         URL = f'https://www.bungie.net/en/oauth/authorize?client_id={BUNGIE_OAUTH}&response_type=code&state={state}'
         await message.author.send(embed=embed_message(
-                'Registration',
-                f'Open this link, to register with the bot: \n {URL}'
+                f'Registration',
+                f'[Click here to register with the bot]({URL})'
             ))
         await message.channel.send(embed=embed_message(
                 'Registration',
