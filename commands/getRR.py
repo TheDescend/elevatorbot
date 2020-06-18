@@ -7,6 +7,7 @@ from discord.ext            import commands
 
 from fuzzywuzzy             import fuzz
 from functions.database     import lookupDestinyID, getSystemAndChars
+from functions.formating    import embed_message
 import re, requests
 
 base_uri = 'https://discordapp.com/api/v7'
@@ -32,20 +33,29 @@ class RR(BaseCommand):
             try:
                 user = await commands.MemberConverter().convert(ctx, params[0])
             except:
-                await message.channel.send('User not found, make sure the spelling/id is correct')
+                await message.channel.send(embed=embed_message(
+                    'Error',
+                    f'User not found, make sure the spelling/id is correct'
+                ))
                 return
             username = user.name
 
             destinyID = lookupDestinyID(user.id)
             if destinyID:
                 systemID, _ = getSystemAndChars(destinyID)[0]
-                await message.channel.send(f'https://raid.report/{rrsystem[systemID]}/{destinyID}')
+                await message.channel.send(embed=embed_message(
+                    'Raid Report',
+                    f'https://raid.report/{rrsystem[systemID]}/{destinyID}'
+                ))
                 return
         else:
             destinyID = lookupDestinyID(message.author.id)
             if destinyID:
                 systemID, _ = getSystemAndChars(destinyID)[0]
-                await message.channel.send(f'https://raid.report/{rrsystem[systemID]}/{destinyID}')
+                await message.channel.send(embed=embed_message(
+                    'Raid Report',
+                    f'https://raid.report/{rrsystem[systemID]}/{destinyID}'
+                ))
                 return
 
         maxName = None
@@ -64,9 +74,15 @@ class RR(BaseCommand):
                 for membership in memberships:
                     if membership['membershipType'] == 3:
                         print('https://raid.report/pc/' + membership['membershipId'])
-                        await message.channel.send('https://raid.report/pc/' + membership['membershipId'])
+                        await message.channel.send(embed=embed_message(
+                            'Raid Report',
+                            'https://raid.report/pc/' + membership['membershipId']
+                        ))
         else:
-            await message.channel.send('Name needs to be more specific or is not in Clan')
+            await message.channel.send(embed=embed_message(
+                'Error',
+                'Name needs to be more specific or is not in Clan'
+            ))
 
 
 class DR(BaseCommand):
@@ -84,20 +100,29 @@ class DR(BaseCommand):
             try:
                 user = await commands.MemberConverter().convert(ctx, params[0])
             except:
-                await message.channel.send('User not found, make sure the spelling/id is correct')
+                await message.channel.send(embed=embed_message(
+                    'Error',
+                    f'User not found, make sure the spelling/id is correct'
+                ))
                 return
             username = user.name
 
             destinyID = lookupDestinyID(user.id)
             if destinyID:
                 systemID, _ = getSystemAndChars(destinyID)[0]
-                await message.channel.send(f'https://dungeon.report/{rrsystem[systemID]}/{destinyID}')
+                await message.channel.send(embed=embed_message(
+                    'Dungeon Report',
+                    f'https://dungeon.report/{rrsystem[systemID]}/{destinyID}'
+                ))
                 return
         else:
             destinyID = lookupDestinyID(message.author.id)
             if destinyID:
                 systemID, _ = getSystemAndChars(destinyID)[0]
-                await message.channel.send(f'https://dungeon.report/{rrsystem[systemID]}/{destinyID}')
+                await message.channel.send(embed=embed_message(
+                    'Dungeon Report',
+                    f'https://dungeon.report/{rrsystem[systemID]}/{destinyID}'
+                ))
                 return
 
         maxName = None
@@ -116,7 +141,13 @@ class DR(BaseCommand):
                 for membership in memberships:
                     if membership['membershipType'] == 3:
                         #print('https://dungeon.report/pc/' + membership['membershipId'])
-                        await message.channel.send('https://dungeon.report/pc/' + membership['membershipId'])
+                        await message.channel.send(embed=embed_message(
+                            'Dungeon Report',
+                            'https://dungeon.report/pc/' + membership['membershipId']
+                        ))
         else:
-            await message.channel.send('Name needs to be more specific or is not in Clan')
+            await message.channel.send(embed=embed_message(
+                'Error',
+                'Name needs to be more specific or is not in Clan'
+            ))
         
