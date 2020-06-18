@@ -4,7 +4,8 @@ import discord
 def embed_message(title, desc, footer=None):
     embed = discord.Embed(
         title=title,
-        description=desc
+        description=desc,
+        color=discord.Colour.blue()
     )
     if footer:
         embed.set_footer(

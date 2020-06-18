@@ -1,4 +1,6 @@
 from commands.base_command  import BaseCommand
+from functions.formating import embed_message
+from functions.database import getToken
 
 # This, in addition to tweaking __all__ on commands/__init__.py, 
 # imports all classes inside the commands package.
@@ -25,6 +27,16 @@ async def handle_command(command, args, message, bot_client):
 
     print(f"{message.author.name}: {COMMAND_PREFIX}{command} " 
           + " ".join(args))
+
+    # check if user is registered, otherwise command will be blocked and he will be informed
+    discordID = message.author.id
+    token = getToken(discordID)
+    if not token:
+        await message.channel.send(embed=embed_message(
+            'Additional Action Necessary',
+            f'{message.author.name}, please first link your Destiny account by using `!register`'
+        ))
+        return
 
     # Retrieve the command
     cmd_obj = COMMAND_HANDLERS[command]
