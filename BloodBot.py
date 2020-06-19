@@ -7,6 +7,7 @@ import message_handler
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from events.base_event              import BaseEvent
 from events                         import *
+from functions.roles                import assignRolesToUser
 import asyncio
 import datetime
 import random
@@ -116,6 +117,9 @@ def main():
             f'Please link your Destiny account by using `!register` in #bot-spam. \n We have a wide variety of roles you can earn, for more information, check out #community-roles.',
             f'If you have any questions, please contact one of the Admins / Moderators'
         ))
+
+        # add @Not Registered to user
+        await assignRolesToUser(["Not Registered"], member, member.guild)
 
     @client.event
     async def on_message_edit(before, after):
