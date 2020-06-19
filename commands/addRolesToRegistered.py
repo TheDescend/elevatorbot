@@ -14,6 +14,7 @@ class addRolesToRegistered(BaseCommand):
     # Override the handle() method
     # It will be called every time the command is received
     async def handle(self, params, message, client):
+        await message.channel.send("Working...")
         for member in message.guild.members:
             await removeRolesFromUser(["Registered"], member, message.guild)
             await removeRolesFromUser(["Not Registered"], member, message.guild)
