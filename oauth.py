@@ -4,7 +4,6 @@ import requests, json
 from static.config      import BUNGIE_OAUTH, BUNGIE_TOKEN, BUNGIE_SECRET, B64_SECRET, NEWTONS_WEBHOOK
 from flask              import Flask, request, redirect, Response, send_file
 from functions.database import insertToken, getRefreshToken
-from functions.roles    import assignRolesToUser, removeRolesFromUser
 import asyncio
 
 def refresh_token(discordID):
