@@ -414,6 +414,26 @@ requirementHashes = {
             'flawless' : True,
             'activityHashes': herzeroHashes
         },
+        'Solo Prophecy': {
+            'requirements': ['records'],
+            'records' : [
+                2382088899
+            ],
+            'replaced_by': ['Solo Flawless Prophecy']
+        },
+        'Flawless Prophecy': {
+            'requirements': ['records'],
+            'records' : [
+                2094467183
+            ],
+            'replaced_by': ['Solo Flawless Prophecy']
+        },
+        'Solo Flawless Prophecy': {
+            'requirements': ['records'],
+            'records' : [
+                3931440391
+            ],
+        },
 
         #'Name': {
         #    'requirements': ['collectibles'],
