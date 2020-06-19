@@ -30,7 +30,7 @@ class addRolesToRegistered(BaseCommand):
 class whoIsNotRegistered(BaseCommand):
     def __init__(self):
         # A quick description for the help message
-        description = "Assigns @Registered or @Not Registered to everyone"
+        description = "Blames ppl who are not registered"
         params = []
         super().__init__(description, params)
 
