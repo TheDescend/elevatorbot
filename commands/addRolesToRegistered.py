@@ -39,6 +39,9 @@ class whoIsNotRegistered(BaseCommand):
     # Override the handle() method
     # It will be called every time the command is received
     async def handle(self, params, message, client):
+        people = []
         for member in message.guild.members:
             if not getToken(member.id):
-                await message.channel.send(member.name)
+                people.append(member.name)
+
+        await message.channel.send(", ".join(people))
