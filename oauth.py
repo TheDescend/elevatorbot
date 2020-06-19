@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
-import requests
-from static.config      import BUNGIE_OAUTH, BUNGIE_TOKEN, BUNGIE_SECRET, B64_SECRET
+import requests, json
+from static.config      import BUNGIE_OAUTH, BUNGIE_TOKEN, BUNGIE_SECRET, B64_SECRET, NEWTONS_WEBHOOK
 from flask              import Flask, request, redirect, Response, send_file
 from functions.database import insertToken, getRefreshToken
 
@@ -87,11 +87,23 @@ def root():
     r = requests.get(url='https://www.bungie.net/platform/User/GetMembershipsForCurrentUser/', headers=reqParams)
     response = r.json()['Response']
     membershiplist = response['destinyMemberships']
+    #print(membershiplist)
     for membership in membershiplist:
-        if "crossSaveOverride" in membership.keys() and membership["membershipType"] != membership["crossSaveOverride"]:
+        if "crossSaveOverride" in membership.keys() and membership["crossSaveOverride"] and membership["membershipType"] != membership["crossSaveOverride"]:
+            #print(f'membership {membership["membershipType"]} did not equal override {membership["crossSaveOverride"]}')
             continue
         insertToken(int(discordID), int(membership['membershipId']), int(serverID), access_token, refresh_token)
-        print(discordID, 'has ID', membership['membershipId'])
+        print(f"<@{discordID}> registered with ID {membership['membershipId']} and display name {membership['LastSeenDisplayName']}")
+        webhookURL = NEWTONS_WEBHOOK
+        requestdata = {
+            'content': f"<@{discordID}> has ID {membership['membershipId']} and display name {membership['LastSeenDisplayName']}",
+            'username': 'EscalatorBot',
+            "allowed_mentions": {
+                "parse": ["users"],
+                "users": []
+            },
+        }
+        rp = requests.post(url=webhookURL, data=json.dumps(requestdata), headers={"Content-Type": "application/json"})
     return 'Thank you for signing up with <h1> Elevator Bot </h1>\n <p style="bottom: 20" >There will be cake</p>' # response to your request.
 
 
