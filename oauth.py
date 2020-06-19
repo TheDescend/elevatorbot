@@ -88,22 +88,28 @@ def root():
     response = r.json()['Response']
     membershiplist = response['destinyMemberships']
     #print(membershiplist)
+    primarymembership = None
+    battlenetname = '_missing_'
     for membership in membershiplist:
+        if int(membership["membershipType"]) == 3:
+            battlenetname = membership["displayName"]
         if "crossSaveOverride" in membership.keys() and membership["crossSaveOverride"] and membership["membershipType"] != membership["crossSaveOverride"]:
             #print(f'membership {membership["membershipType"]} did not equal override {membership["crossSaveOverride"]}')
             continue
-        insertToken(int(discordID), int(membership['membershipId']), int(serverID), access_token, refresh_token)
-        print(f"<@{discordID}> registered with ID {membership['membershipId']} and display name {membership['LastSeenDisplayName']}")
-        webhookURL = NEWTONS_WEBHOOK
-        requestdata = {
-            'content': f"<@{discordID}> has ID {membership['membershipId']} and display name {membership['LastSeenDisplayName']}",
-            'username': 'EscalatorBot',
-            "allowed_mentions": {
-                "parse": ["users"],
-                "users": []
-            },
-        }
-        rp = requests.post(url=webhookURL, data=json.dumps(requestdata), headers={"Content-Type": "application/json"})
+        primarymembership = membership
+
+    insertToken(int(discordID), int(primarymembership['membershipId']), int(serverID), access_token, refresh_token)
+    print(f"<@{discordID}> registered with ID {primarymembership['membershipId']} and display name {primarymembership['LastSeenDisplayName']} Bnet-Name: {battlenetname}")
+    webhookURL = NEWTONS_WEBHOOK
+    requestdata = {
+        'content': f"<@{discordID}> has ID {primarymembership['membershipId']} and display name {primarymembership['LastSeenDisplayName']} Bnet-Name: {battlenetname}",
+        'username': 'EscalatorBot',
+        "allowed_mentions": {
+            "parse": ["users"],
+            "users": []
+        },
+    }
+    rp = requests.post(url=webhookURL, data=json.dumps(requestdata), headers={"Content-Type": "application/json"})
     return 'Thank you for signing up with <h1> Elevator Bot </h1>\n <p style="bottom: 20" >There will be cake</p>' # response to your request.
 
 
