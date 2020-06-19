@@ -21,8 +21,10 @@ class addRolesToRegistered(BaseCommand):
 
             if getToken(member.id):
                 await assignRolesToUser(["Registered"], member, message.guild)
+                await message.channel.send(f"add @Registered to {member.name}")
             else:
                 await assignRolesToUser(["Not Registered"], member, message.guild)
+                await message.channel.send(f"add @Not Registered to {member.name}")
 
         await message.channel.send("Done")
 
