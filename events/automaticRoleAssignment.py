@@ -102,6 +102,9 @@ class AutomaticRoleAssignment(BaseEvent):
         #await newtonslab.send('done with daily update <:CaydeThumbsUp:670997683774685234>')
 
 
+raiderText = '⁣           Raider       ⁣'
+achText = '⁣        Achievements       ⁣'
+miscText = '⁣           Misc       ⁣  ⁣  ⁣ '
 class AutoRegisteredRole(BaseEvent):
     """Will automatically update the registration and the guest role"""
     def __init__(self):
@@ -128,3 +131,11 @@ class AutoRegisteredRole(BaseEvent):
                 # remove @guest if in clan
                 if discord.utils.get(guild.roles, name="The Descend") in member.roles:
                     await removeRolesFromUser(["Guest"], member, guild)
+
+                # add filler roles to everyone
+                if discord.utils.get(guild.roles, name=raiderText) not in member.roles:
+                    await assignRolesToUser([raiderText], member, guild)
+                if discord.utils.get(guild.roles, name=achText) not in member.roles:
+                    await assignRolesToUser([achText], member, guild)
+                if discord.utils.get(guild.roles, name=miscText) not in member.roles:
+                    await assignRolesToUser([miscText], member, guild)
