@@ -8,6 +8,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from events.base_event              import BaseEvent
 from events                         import *
 from functions.roles                import assignRolesToUser
+import database.global_vars
 import asyncio
 import datetime
 import random
@@ -50,7 +51,10 @@ def main():
     """the main method"""
     # Initialize the client
     print("Starting up...")
-    client = Bot('!')
+    database.global_vars.init_client()
+    client = database.global_vars.client
+    # client = Bot('!')
+
     # Define event handlers for the client
     # on_ready may be called multiple times in the event of a reconnect,
     # hence the running fla
