@@ -125,3 +125,6 @@ class AutoRegisteredRole(BaseEvent):
                 # add @guest if the clan role doesn't exist
                 if discord.utils.get(guild.roles, name="The Descend") not in member.roles:
                     await assignRolesToUser(["Guest"], member, guild)
+                # remove @guest if in clan
+                if discord.utils.get(guild.roles, name="The Descend") in member.roles:
+                    await removeRolesFromUser(["Guest"], member, guild)
