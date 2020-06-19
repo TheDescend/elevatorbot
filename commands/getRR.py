@@ -1,11 +1,10 @@
 
 from commands.base_command  import BaseCommand
-from functions.dataLoading  import getNameToHashMapByClanid
+from functions.dataLoading  import getNameToHashMapByClanid, updateDB
 from static.config          import BUNGIE_TOKEN
 from static.dict            import clanids
 from discord.ext            import commands
 
-from fuzzywuzzy             import fuzz
 from functions.database     import lookupDestinyID, getSystemAndChars
 from functions.formating    import embed_message
 import re, requests
@@ -42,7 +41,20 @@ class RR(BaseCommand):
 
             destinyID = lookupDestinyID(user.id)
             if destinyID:
-                systemID, _ = getSystemAndChars(destinyID)[0]
+                syscharlist = getSystemAndChars(destinyID)
+                
+                if not syscharlist:
+                    #get them I guess
+                    message.channel.send("Player not yet in db, updating...")
+                    updateDB(destinyID)
+                    syscharlist = getSystemAndChars(destinyID)
+                    if not syscharlist:
+                        print(f'{destinyID} is borked')
+                        await message.channel.send(embed=embed_message(
+                            'Raid Report',
+                            f'Invalid DestinyID {destinyID}'
+                        ))
+                systemID, _ = syscharlist[0]
                 await message.channel.send(embed=embed_message(
                     'Raid Report',
                     f'https://raid.report/{rrsystem[systemID]}/{destinyID}'
@@ -58,31 +70,10 @@ class RR(BaseCommand):
                 ))
                 return
 
-        maxName = None
-        maxProb = 0
-        for ingameName in memberMap.keys():
-            uqprob = fuzz.UQRatio(username, ingameName)
-            if uqprob > maxProb:
-                maxProb = uqprob
-                maxName = ingameName
-        if maxName:
-            async with message.channel.typing():
-                userid = memberMap[maxName]
-                url = 'https://www.bungie.net/platform/User/GetMembershipsById/{}/{}/'.format(userid,3)
-                r=requests.get(url=url, headers=PARAMS)
-                memberships = r.json()['Response']['destinyMemberships']
-                for membership in memberships:
-                    if membership['membershipType'] == 3:
-                        print('https://raid.report/pc/' + membership['membershipId'])
-                        await message.channel.send(embed=embed_message(
-                            'Raid Report',
-                            'https://raid.report/pc/' + membership['membershipId']
-                        ))
-        else:
-            await message.channel.send(embed=embed_message(
-                'Error',
-                'Name needs to be more specific or is not in Clan'
-            ))
+        await message.channel.send(embed=embed_message(
+            'Error',
+            'Name needs to be more specific or is not in Clan'
+        ))
 
 
 class DR(BaseCommand):
@@ -125,29 +116,8 @@ class DR(BaseCommand):
                 ))
                 return
 
-        maxName = None
-        maxProb = 0
-        for ingameName in memberMap.keys():
-            uqprob = fuzz.UQRatio(username, ingameName)
-            if uqprob > maxProb:
-                maxProb = uqprob
-                maxName = ingameName
-        if maxName:
-            async with message.channel.typing():
-                userid = memberMap[maxName]
-                url = 'https://www.bungie.net/platform/User/GetMembershipsById/{}/{}/'.format(userid,3)
-                r=requests.get(url=url, headers=PARAMS)
-                memberships = r.json()['Response']['destinyMemberships']
-                for membership in memberships:
-                    if membership['membershipType'] == 3:
-                        #print('https://dungeon.report/pc/' + membership['membershipId'])
-                        await message.channel.send(embed=embed_message(
-                            'Dungeon Report',
-                            'https://dungeon.report/pc/' + membership['membershipId']
-                        ))
-        else:
-            await message.channel.send(embed=embed_message(
-                'Error',
-                'Name needs to be more specific or is not in Clan'
-            ))
+        await message.channel.send(embed=embed_message(
+            'Error',
+            'Name needs to be more specific or is not in Clan'
+        ))
         

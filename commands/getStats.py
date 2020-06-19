@@ -1,7 +1,7 @@
 from commands.base_command          import BaseCommand
 
 from functions.dataLoading          import getCharacterList, getCharactertypeList
-from functions.dataTransformation   import getIntStat, getCharStats, getUserIDbySnowflakeAndClanLookup, getFullMemberMap,getTop10PveGuns, getGunsForPeriod, getPossibleStats
+from functions.dataTransformation   import getIntStat, getCharStats, getFullMemberMap,getTop10PveGuns, getGunsForPeriod, getPossibleStats
 from functions.authfunctions        import getSpiderMaterials
 from functions.database             import lookupDestinyID, getToken
 
@@ -22,10 +22,8 @@ class stat(BaseCommand):
 
         destinyID = lookupDestinyID(message.author.id)
         if not destinyID:
-            destinyID = getUserIDbySnowflakeAndClanLookup(message.author, getFullMemberMap())
-            if not destinyID:
-                await message.channel.send(f'Unable to get your destiny-stats. Please contact a {message.guild.get_role(670397357120159776)}')
-                return
+            await message.channel.send(f'Unable to get your destiny-stats. Please contact a {message.guild.get_role(670397357120159776)}')
+            return
         if name == 'resurrections': #
             given = getIntStat(destinyID, 'resurrectionsPerformed')
             received = getIntStat(destinyID, 'resurrectionsReceived')

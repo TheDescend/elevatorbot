@@ -3,7 +3,7 @@ from commands.base_command  import BaseCommand
 from static.dict                    import requirementHashes, clanids
 from functions.database             import lookupDestinyID, lookupDiscordID, getLastRaid, getFlawlessList
 from functions.dataLoading          import updateDB, initDB, getNameToHashMapByClanid
-from functions.dataTransformation   import getFullMemberMap, getUserIDbySnowflakeAndClanLookup
+from functions.dataTransformation   import getFullMemberMap
 from functions.roles                import assignRolesToUser, removeRolesFromUser, getPlayerRoles
 from functions.formating import     embed_message
 
@@ -34,20 +34,11 @@ class getRoles(BaseCommand):
         destinyID = lookupDestinyID(message.author.id)
 
         if not destinyID:
-            fullMemberMap = getFullMemberMap()
-            if not fullMemberMap:
-                await message.channel.send(embed=embed_message(
-                    'Error',
-                    'Seems like bungo is offline, try again later'
-                ))
-                return
-            destinyID = getUserIDbySnowflakeAndClanLookup(message.author, fullMemberMap)
-            if not destinyID:
-                await message.channel.send(embed=embed_message(
-                    'Error',
-                    'Didn\'t find your destiny profile, sorry'
-                ))
-                return
+            await message.channel.send(embed=embed_message(
+                'Error',
+                'Didn\'t find your destiny profile, sorry'
+            ))
+            return
 
         updateDB(destinyID)
         
@@ -129,20 +120,11 @@ class setRoles(BaseCommand):
         user = await commands.MemberConverter().convert(ctx, params[0])
         destinyID = lookupDestinyID(user.id)
         if not destinyID:
-            fullMemberMap = getFullMemberMap()
-            if not fullMemberMap:
-                await message.channel.send(embed=embed_message(
-                    'Error',
-                    'Seems like bungo is offline, try again later'
-                ))
-                return
-            destinyID = getUserIDbySnowflakeAndClanLookup(user, fullMemberMap)
-            if not destinyID:
-                await message.channel.send(embed=embed_message(
-                    'Error',
-                    'Didn\'t find the destiny profile, sorry'
-                ))
-                return
+            await message.channel.send(embed=embed_message(
+                'Error',
+                'Didn\'t find the destiny profile, sorry'
+            ))
+            return
         status_msg = await message.channel.send(embed=embed_message(
             'Working...',
             'Updating DB and assigning roles...'
@@ -209,14 +191,13 @@ class checkNames(BaseCommand):
     # Override the handle() method
     # It will be called every time the command is received
     async def handle(self, params, message, client):
+        messagetext = ""
         for discordUser in message.guild.members:
-            destinyID = None
-            destinyID = lookupDestinyID(discordUser.id)
-            if destinyID:
-                await message.channel.send(f'{discordUser.name} ({discordUser.nick}): https://raid.report/pc/{destinyID}')
-                continue
-            destinyID = getUserIDbySnowflakeAndClanLookup(discordUser,getFullMemberMap())
-            await message.channel.send(f'{discordUser.name} ({discordUser.nick}): https://raid.report/pc/{destinyID}')
+            if destinyID := lookupDestinyID(discordUser.id):
+                messagetext += f'{discordUser.name} ({discordUser.nick}): https://raid.report/pc/{destinyID}\n'
+            else:
+                messagetext += f'{discordUser.name} ({discordUser.nick}): Not found\n'
+        await message.channel.send(messagetext)
 
 class checkNewbies(BaseCommand):
     def __init__(self):
@@ -246,48 +227,6 @@ class checkNewbies(BaseCommand):
         await message.channel.send(f'users to check: {", ".join(naughtylist)}')
 
 
-class listDescend(BaseCommand):
-    def __init__(self):
-        # A quick description for the help message
-        description = "[dev] list all discordusers that are in the 'The Descent' clan"
-        params = []
-        super().__init__(description, params)
-
-    # Override the handle() method
-    # It will be called every time the command is received
-    async def handle(self, params, message, client):
-        descendid = 4107840
-        nameidmap = getNameToHashMapByClanid(descendid)
-        nameidarr = [(name,id_) for (name,id_) in nameidmap.items()]
-        namearr = [name for (name, _) in nameidarr]
-        idarr = [int(id_) for (_, id_) in nameidarr]
-        negativelist = [id_ for id_ in idarr]
-        #await message.channel.send(f'All of Descend:{zip(namearr,idarr)}')
-        async with message.channel.typing():
-            await message.channel.send(f'**Members of Descend in this discord:**')
-            for discordUser in message.guild.members:
-
-                destinyID = lookupDestinyID(discordUser.id)
-                if not destinyID:
-                    destinyID = int(getUserIDbySnowflakeAndClanLookup(discordUser,nameidmap))
-                if not destinyID:
-                    continue
-
-                if destinyID in idarr:
-                    negativelist.remove(destinyID)
-                    name = None
-                    for (user, userid) in zip(namearr,idarr):
-                        if userid == destinyID:
-                            name = user
-                    await message.channel.send(f'{discordUser.name} ({discordUser.nick}) as {name}')
-
-            await message.channel.send(f'**Members of Descend __not__ in this discord:**')
-            for dID in negativelist:
-                for (user, userid) in zip(namearr,idarr):
-                    if dID == userid:
-                        await message.channel.send(f'{user} : {userid}')
-
-
 class assignAllRoles(BaseCommand):
     def __init__(self):
         # A quick description for the help message
@@ -309,10 +248,8 @@ class assignAllRoles(BaseCommand):
         for discordUser in message.guild.members:
             destinyID = lookupDestinyID(discordUser.id)
             if not destinyID:
-                destinyID = getUserIDbySnowflakeAndClanLookup(discordUser,getFullMemberMap())
-                if not destinyID:
-                    await message.channel.send(f'No destinyID found for {discordUser.name}')
-                    continue
+                await message.channel.send(f'No destinyID found for {discordUser.name}')
+                continue
 
             async with message.channel.typing():
                 (newRoles, removeRoles) = getPlayerRoles(destinyID, [role.name for role in discordUser.roles])

@@ -1,7 +1,7 @@
 from events.base_event              import BaseEvent
 
 from functions.roles                import assignRolesToUser, removeRolesFromUser, getPlayerRoles
-from functions.dataTransformation   import getUserIDbySnowflakeAndClanLookup, getFullMemberMap, isUserInClan
+from functions.dataTransformation   import getFullMemberMap, isUserInClan
 from functions.database             import lookupDestinyID, getToken
 from functions.dataLoading          import initDB
 
@@ -51,11 +51,8 @@ class AutomaticRoleAssignment(BaseEvent):
                 return (None, None, None, None)
 
             destinyID = lookupDestinyID(discordUser.id)
-            if not destinyID and 'The Descend' in [r.name for r in discordUser.roles]:
-                #or check the clan for similar names
-                destinyID = getUserIDbySnowflakeAndClanLookup(discordUser,fullMemberMap)
-                if not destinyID:
-                    return (None, None, None, None)
+            if not destinyID:
+                return (None, None, None, None)
                 #await newtonslab.send(f'Auto-Matched {discordUser.name} with {destinyID} \n check https://raid.report/pc/{destinyID}' )
 
             #gets the roles of the specific player and assigns/removes them
