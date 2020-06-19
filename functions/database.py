@@ -50,9 +50,11 @@ def getToken(discordID):
     select_sql = """SELECT token FROM discordGuardiansToken
         WHERE discordSnowflake = ?"""
     c.execute(select_sql, (discordID,))
-    results = c.fetchone()
+    results = c.fetchall()
     if len(results) == 1:
         return results[0]
+    elif len(results) > 1:
+        print(f'discordSnowflake not unique: {discordID}')
     return None
 
 def insertToken(discordID, destinyID, discordServerID, token, refresh_token):
