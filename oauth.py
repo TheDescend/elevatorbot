@@ -5,7 +5,6 @@ from static.config      import BUNGIE_OAUTH, BUNGIE_TOKEN, BUNGIE_SECRET, B64_SE
 from flask              import Flask, request, redirect, Response, send_file
 from functions.database import insertToken, getRefreshToken
 from functions.roles    import assignRolesToUser, removeRolesFromUser
-import database.global_vars
 import asyncio
 
 def refresh_token(discordID):
@@ -102,7 +101,6 @@ def root():
         primarymembership = membership
 
     insertToken(int(discordID), int(primarymembership['membershipId']), int(serverID), access_token, refresh_token)
-    add_registered_role(int(discordID), int(serverID))
     print(f"<@{discordID}> registered with ID {primarymembership['membershipId']} and display name {primarymembership['LastSeenDisplayName']} Bnet-Name: {battlenetname}")
     webhookURL = NEWTONS_WEBHOOK
     requestdata = {
@@ -116,17 +114,7 @@ def root():
     rp = requests.post(url=webhookURL, data=json.dumps(requestdata), headers={"Content-Type": "application/json"})
     return 'Thank you for signing up with <h1> Elevator Bot </h1>\n <p style="bottom: 20" >There will be cake</p>' # response to your request.
 
-def add_registered_role(discordID, serverID):
-    client = database.global_vars.client
-    for guild in client.guilds:
-        if guild.id == serverID:
-            member = guild.get_member(discordID)
-            asyncio.run_coroutine_threadsafe(add_role(member, guild), client.loop)
-            break
 
-async def add_role(member, guild):
-    await removeRolesFromUser(["Not Registered"], member, guild)
-    await assignRolesToUser(["Registered"], member, guild)
 
 @app.route('/.well-known/acme-challenge/<challenge>')
 def letsencrypt_check(challenge):
