@@ -103,7 +103,7 @@ class AutomaticRoleAssignment(BaseEvent):
 
 
 class AutoRegisteredRole(BaseEvent):
-    """Will automatically update the registration role"""
+    """Will automatically update the registration and the guest role"""
     def __init__(self):
         interval_minutes = 30  # Set the interval for this event 1440 = 24h
         super().__init__(interval_minutes)
@@ -121,3 +121,7 @@ class AutoRegisteredRole(BaseEvent):
                     if discord.utils.get(guild.roles, name="Registered") in member.roles:
                         await removeRolesFromUser(["Registered"], member, guild)
                         await assignRolesToUser(["Not Registered"], member, guild)
+
+                # add @guest if the clan role doesn't exist
+                if discord.utils.get(guild.roles, name="The Descend") not in member.roles:
+                    await assignRolesToUser(["Guest"], member, guild)
