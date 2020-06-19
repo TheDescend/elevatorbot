@@ -74,7 +74,7 @@ def getSpiderMaterials(discordID, destinyID, characterID):
         if soldname in usermaterialreadabledict.keys():
             ownedamount = usermaterialreadabledict[soldname]
         else:
-            soldnamecut = soldname[:-1]
+            soldnamecut = soldname[:-1].replace('Phaseglass', 'Phaseglass Needle')
             if soldnamecut in usermaterialreadabledict.keys():
                 ownedamount = usermaterialreadabledict[soldnamecut]
             else:
@@ -84,7 +84,7 @@ def getSpiderMaterials(discordID, destinyID, characterID):
             
 
         #returntext += f'selling {sale["quantity"]} {soldname} for {sale["costs"][0]["quantity"]} {pricename}\n'
-        returntext += f'selling {ownedamount} {soldname} for {pricename}\n'
+        returntext += f'selling {soldname} for {pricename}, you already own {ownedamount}\n'
 
     returntext = returntext.replace('Dusklight Shard', '<:DusklightShards:620647201940570133>')
     returntext = returntext.replace('Phaseglass Needle', '<:Phaseglass:620647202418851895>')
