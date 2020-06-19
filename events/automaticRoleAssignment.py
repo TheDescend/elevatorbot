@@ -96,6 +96,6 @@ class AutomaticRoleAssignment(BaseEvent):
                     if addrls or removerls:
                         newstext += f'Updated player {discordUser.name} by adding {", ".join(addrls or ["nothing"])} and removing {", ".join(removerls or ["nothing"])}\n'
                         
-                    await newtonslab.send(newstext)
+                await newtonslab.send(newstext)
         
         #await newtonslab.send('done with daily update <:CaydeThumbsUp:670997683774685234>')
