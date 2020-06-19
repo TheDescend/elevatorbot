@@ -70,7 +70,7 @@ class getRoles(BaseCommand):
                 ))
                 return
             await message.channel.send(embed=embed_message(
-                f'{message.author.mention} Roles',
+                f'{message.author.name} Roles',
                 f'Added the roles {rolesgiven}'
             ))
 
