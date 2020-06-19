@@ -45,7 +45,7 @@ def getSpiderMaterials(discordID, destinyID, characterID):
     #print(getNameFromHashInventoryItem.keys())
     for key,value in usermaterialdict.items():
         if not str(key) in getNameFromHashInventoryItem:
-            print(key)
+            #print(key)
             continue
         materialname = getNameFromHashInventoryItem[str(key)]
         usermaterialreadabledict[materialname] = value
@@ -74,9 +74,11 @@ def getSpiderMaterials(discordID, destinyID, characterID):
         if soldname in usermaterialreadabledict.keys():
             ownedamount = usermaterialreadabledict[soldname]
         else:
-            soldnamecut = soldname[:-1].replace('Phaseglass', 'Phaseglass Needle')
+            soldnamecut = soldname[:-1]
             if soldnamecut in usermaterialreadabledict.keys():
                 ownedamount = usermaterialreadabledict[soldnamecut]
+            elif soldname == 'Phaseglass':
+                ownedamount = usermaterialreadabledict['Phaseglass Needle']
             else:
                 print(soldname)
                 print(usermaterialreadabledict.keys())
@@ -84,16 +86,16 @@ def getSpiderMaterials(discordID, destinyID, characterID):
             
 
         #returntext += f'selling {sale["quantity"]} {soldname} for {sale["costs"][0]["quantity"]} {pricename}\n'
-        returntext += f'selling {soldname} for {pricename}, you already own {ownedamount}\n'
+        returntext += f'selling {soldname} for {pricename}, you already own {ownedamount} {soldname}\n'
 
-    returntext = returntext.replace('Dusklight Shard', '<:DusklightShards:620647201940570133>')
-    returntext = returntext.replace('Phaseglass Needle', '<:Phaseglass:620647202418851895>')
-    returntext = returntext.replace('Seraphite', '<:Seraphite:620647202297085992>')
-    returntext = returntext.replace('Legendary Shards', '<:LegendaryShards:620647202003484672>')
-    returntext = returntext.replace('Alkane Dust', '<:AlkaneDust:620647201827454990>')
-    returntext = returntext.replace('Data Lattice', '<:Datalattice:620647202015936536>')
-    returntext = returntext.replace('Simulation Seeds', '<:SimulationSeeds:620647203635200070>')
-    returntext = returntext.replace('Glimmer', '<:Glimmer:620647202007810098>')
+    returntext = returntext.replace('Dusklight Shard', '<:DusklightShards:620647201940570133>', 1)
+    returntext = returntext.replace('Phaseglass', '<:Phaseglass:620647202418851895>', 1)
+    returntext = returntext.replace('Seraphite', '<:Seraphite:620647202297085992>', 1)
+    returntext = returntext.replace('Legendary Shards', '<:LegendaryShards:620647202003484672>', 1)
+    returntext = returntext.replace('Alkane Dust', '<:AlkaneDust:620647201827454990>', 1)
+    returntext = returntext.replace('Data Lattice', '<:Datalattice:620647202015936536>', 1)
+    returntext = returntext.replace('Simulation Seed', '<:SimulationSeeds:620647203635200070>', 1)
+    returntext = returntext.replace('Glimmer', '<:Glimmer:620647202007810098>', 1)
     returntext = returntext.replace('Enhancement Cores', '<:EnhancementCores:620647201596637185>')
-    returntext = returntext.replace('Helium Filaments', '<:HeliumFilaments:707244746493657160>')
+    returntext = returntext.replace('Helium Filaments', '<:HeliumFilaments:707244746493657160>', 1)
     return returntext
