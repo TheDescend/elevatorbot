@@ -5,7 +5,6 @@ from functions.database     import insertUser, db_connect
 from static.dict            import getNameFromHashInventoryItem, clanids
 
 from concurrent.futures     import ThreadPoolExecutor, as_completed
-from fuzzywuzzy             import fuzz
 from datetime               import datetime
 
 import pathlib
@@ -135,26 +134,6 @@ def getPossibleStats():
     stats = getStats(4611686018468695677)
     for char in stats['characters']:
         return char['merged']['allTime'].keys()
-
-
-def getUserIDbySnowflakeAndClanLookup(discordUser, memberMap):
-    username = discordUser.nick or discordUser.name
-    maxName = None
-    maxProb = 75
-    for ingameName in memberMap.keys():
-        uqprob = fuzz.UQRatio(username, ingameName)
-        if uqprob > maxProb:
-            maxProb = uqprob
-            maxName = ingameName
-    if not maxName:
-        return None
-    steamName = maxName
-    userid = memberMap[steamName]
-    if maxProb > 90:
-        insertUser(-1, discordID = discordUser.id, destinyID = userid)
-        print(f'Inserted {discordUser.nick or discordUser.name} because match with {userid} was >90%')
-        return userid
-    return None
 
 def isUserInClan(destinyID, clanid):
     isin = destinyID in getNameToHashMapByClanid(clanid).values()
