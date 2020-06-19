@@ -2,7 +2,7 @@ from events.base_event              import BaseEvent
 
 from functions.roles                import assignRolesToUser, removeRolesFromUser, getPlayerRoles
 from functions.dataTransformation   import getUserIDbySnowflakeAndClanLookup, getFullMemberMap, isUserInClan
-from functions.database             import lookupDestinyID
+from functions.database             import lookupDestinyID, getToken
 from functions.dataLoading          import initDB
 
 from static.dict import clanids
@@ -11,6 +11,7 @@ from multiprocessing import Process
 from multiprocessing import Pool, TimeoutError
 
 import concurrent.futures as cf
+import discord
 
 from itertools import compress
 
@@ -99,3 +100,24 @@ class AutomaticRoleAssignment(BaseEvent):
                 await newtonslab.send(newstext)
         
         #await newtonslab.send('done with daily update <:CaydeThumbsUp:670997683774685234>')
+
+
+class AutoRegisteredRole(BaseEvent):
+    """Will automatically update the registration role"""
+    def __init__(self):
+        interval_minutes = 30  # Set the interval for this event 1440 = 24h
+        super().__init__(interval_minutes)
+
+    async def run(self, client):
+        for guild in client.guilds:
+            for member in guild.members:
+                # add "Registered" if they have a token but not the role
+                if getToken(member.id):
+                    if discord.utils.get(guild.roles, name="Not Registered") in member.roles:
+                        await removeRolesFromUser(["Not Registered"], member, guild)
+                        await assignRolesToUser(["Registered"], member, guild)
+                # add "Not Registered" if they have no token but the role (after unregister)
+                else:
+                    if discord.utils.get(guild.roles, name="Registered") in member.roles:
+                        await removeRolesFromUser(["Registered"], member, guild)
+                        await assignRolesToUser(["Not Registered"], member, guild)
