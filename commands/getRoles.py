@@ -5,6 +5,7 @@ from functions.database             import lookupDestinyID, lookupDiscordID, get
 from functions.dataLoading          import updateDB, initDB, getNameToHashMapByClanid
 from functions.dataTransformation   import getFullMemberMap, getUserIDbySnowflakeAndClanLookup
 from functions.roles                import assignRolesToUser, removeRolesFromUser, getPlayerRoles
+from functions.formating import     embed_message
 
 
 import discord
@@ -25,18 +26,27 @@ class getRoles(BaseCommand):
     # It will be called every time the command is received
     async def handle(self, params, message, client):
         if params:
-            await message.channel.send(f'You can\'t do this for other users\n Use !setroles {params[0]} instead')
+            await message.channel.send(embed=embed_message(
+                'Error',
+                f'You can\'t do this for other users\n Use !setroles {params[0]} instead'
+            ))
             return
         destinyID = lookupDestinyID(message.author.id)
 
         if not destinyID:
             fullMemberMap = getFullMemberMap()
             if not fullMemberMap:
-                await message.channel.send('Seems like bungo is offline, try again later')
+                await message.channel.send(embed=embed_message(
+                    'Error',
+                    'Seems like bungo is offline, try again later'
+                ))
                 return
             destinyID = getUserIDbySnowflakeAndClanLookup(message.author, fullMemberMap)
             if not destinyID:
-                await message.channel.send('Didn\'t find your destiny profile, sorry')
+                await message.channel.send(embed=embed_message(
+                    'Error',
+                    'Didn\'t find your destiny profile, sorry'
+                ))
                 return
 
         updateDB(destinyID)
@@ -54,9 +64,15 @@ class getRoles(BaseCommand):
                     await message.author.add_roles(discord.utils.get(message.guild.roles, name=raiderText))
             rolesgiven = ', '.join(roleList)
             if len(rolesgiven) == 0:
-                await message.channel.send(f'You don\'t seem to have any roles.\nIf you believe this is an Error, refer to one of the <@&670397357120159776>\nOtherwise check <#686568386590802000> to see what you could acquire')
+                await message.channel.send(embed=embed_message(
+                    'Error',
+                    f'You don\'t seem to have any roles.\nIf you believe this is an Error, refer to one of the <@&670397357120159776>\nOtherwise check <#686568386590802000> to see what you could acquire'
+                ))
                 return
-            await message.channel.send(f'Added the roles {rolesgiven} to user {message.author.mention}')
+            await message.channel.send(embed=embed_message(
+                f'{message.author.mention} Roles',
+                f'Added the roles {rolesgiven}'
+            ))
 
 class lastRaid(BaseCommand):
     def __init__(self):
@@ -115,13 +131,23 @@ class setRoles(BaseCommand):
         if not destinyID:
             fullMemberMap = getFullMemberMap()
             if not fullMemberMap:
-                await message.channel.send('Seems like bungo is offline, try again later')
+                await message.channel.send(embed=embed_message(
+                    'Error',
+                    'Seems like bungo is offline, try again later'
+                ))
                 return
             destinyID = getUserIDbySnowflakeAndClanLookup(user, fullMemberMap)
             if not destinyID:
-                await message.channel.send('Didn\'t find the destiny profile, sorry')
+                await message.channel.send(embed=embed_message(
+                    'Error',
+                    'Didn\'t find the destiny profile, sorry'
+                ))
                 return
-        await message.channel.send('*Updating DB and assigning roles...*')
+        status_msg = await message.channel.send(embed=embed_message(
+            'Working...',
+            'Updating DB and assigning roles...'
+        ))
+        status_msg = await message.channel.fetch_message(status_msg.id)
         updateDB(destinyID)
         
         async with message.channel.typing():
@@ -137,9 +163,15 @@ class setRoles(BaseCommand):
                     await user.add_roles(discord.utils.get(message.guild.roles, name=raiderText))
             rolesgiven = ', '.join(roleList)
             if len(rolesgiven) == 0:
-                await message.channel.send(f'You don\'t seem to have any roles.\nIf you believe this is an Error, refer to one of the @Developers\nOtherwise check <#686568386590802000> to see what you could acquire')
+                await status_msg.edit(embed=embed_message(
+                    'Error',
+                    f'You don\'t seem to have any roles.\nIf you believe this is an Error, refer to one of the @Developers\nOtherwise check <#686568386590802000> to see what you could acquire'
+                ))
                 return
-            await message.channel.send(f'Added the roles {rolesgiven} to user {user.name}')
+            await status_msg.edit(embed=embed_message(
+                f'{user.name} Roles',
+                f'Added the roles {rolesgiven}'
+            ))
 
 #improvable TODO
 class removeAllRoles(BaseCommand):
@@ -156,7 +188,10 @@ class removeAllRoles(BaseCommand):
         dev = discord.utils.get(message.guild.roles, name='Developer') 
         discordID = params[0]
         if admin not in message.author.roles and dev not in message.author.roles and not message.author.id == params[0]:
-            await message.channel.send('You are not allowed to do that')
+            await message.channel.send(embed=embed_message(
+                'Error',
+                'You are not allowed to do that'
+            ))
             return
         roles = []
         for yeardata in requirementHashes.values():		

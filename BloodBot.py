@@ -19,6 +19,7 @@ from threading import current_thread
 
 from functions.database import insertIntoMessageDB
 from static.config      import NOW_PLAYING, COMMAND_PREFIX, BOT_TOKEN
+from functions.formating import embed_message
 
 # Set to remember if the bot is already running, since on_ready may be called
 # more than once on reconnects
@@ -108,6 +109,13 @@ def main():
     async def on_member_join(member):
         guestObj = discord.utils.get(member.guild.roles, name="Guest")
         await member.add_roles(guestObj)
+
+        # inform the user that they should register with the bot
+        await member.send(embed=embed_message(
+            f'Welcome to Descend {member.name}!',
+            f'Please link your Destiny account by using `!register` in #bot-spam. \n We have a wide variety of roles you can earn, for more information, check out #community-roles.',
+            f'If you have any questions, please contact one of the Admins / Moderators'
+        ))
 
     @client.event
     async def on_message_edit(before, after):

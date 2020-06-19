@@ -1,4 +1,7 @@
 from static.config import BUNGIE_TOKEN
+from oauth import refresh_token
+from functions.database import getToken
+
 import requests
 import time
 
@@ -60,3 +63,41 @@ def getComponentInfoAsJSON(playerID, components):
             return playerData
     print('getting playerinfo failed')
     return None
+
+
+
+def getFreshToken(discordID):
+    refresh_token(discordID)
+    return getToken(discordID)
+
+
+def getJSONwithToken(url, discordID):
+    """ Takes url and discordID, returns JSON """
+
+    token = getToken(discordID)
+    if not token:
+        return None
+    # print(f'using {token}')
+    headers = {'Authorization': f'Bearer {token}', 'x-api-key': BUNGIE_TOKEN, 'Accept': 'application/json'}
+    r = session.get(url, headers=headers)
+
+    if b'Unauthorized' in r.content:
+        print('xml 401 found')
+        refresh_token(discordID)
+        return getJSONwithToken(url, discordID)
+
+    res = r.json()
+
+    if int(res['ErrorCode']) == 401:
+        print('json 401 found')
+        refresh_token(discordID)
+        return getJSONwithToken(url, discordID)
+
+    if int(res['ErrorCode']) != 1:
+        print(url)
+        print(headers)
+        print(f'ErrorCode is not 1, but {res["ErrorCode"]}')
+        return None
+
+    # print(f'Tokenfunction returned {res}')
+    return res

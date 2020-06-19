@@ -1,6 +1,6 @@
 from commands.base_command  import BaseCommand
 
-from functions.authfunctions import getFreshToken
+from functions.network import getFreshToken
 from discord import File, channel
 
 class getapikey(BaseCommand):
