@@ -94,3 +94,5 @@ class spoder(BaseCommand):
             materialtext = getSpiderMaterials(discordID, destinyID, anyCharID)
             if materialtext:
                 await message.channel.send(materialtext)
+            else:
+                await message.channel.send("Something went wrong")
