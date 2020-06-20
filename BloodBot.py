@@ -95,10 +95,24 @@ def main():
                 raise
         else:
             badwords = ['kanen', 'cyber', 'dicknugget', 'nigg', 'cmonbrug', ' bo ', 'bloodoak', 'ascend', 'cock', 'cunt']
-            goodchannels = [670400011519000616, 670400027155365929, 670402166103474190, 670362162660900895, 672541982157045791]
+            goodchannels = [
+                670400011519000616, #general
+                670400027155365929, #media
+                670402166103474190, #spoiler-chat
+                670362162660900895, #off-topic
+                #672541982157045791 #markov-chat-channel
+                ] 
             if not message.content.startswith('http') and len(message.clean_content) > 5 and not any([badword in message.clean_content.lower() for badword in badwords]) and message.channel.id in goodchannels:
                 formattedtime = message.created_at.strftime('%Y-%m-%dT%H:%M')
                 success = insertIntoMessageDB(message.clean_content,message.author.id,message.channel.id,message.id, formattedtime)
+        
+        if message.author.name == 'EscalatorBot':
+            for user in message.mentions:
+                member = message.guild.get_member(user.id)
+                await member.add_roles(message.guild.get_role(670396064007979009))
+                await member.remove_roles(message.guild.get_role(670396109088358437))
+                await message.channel.send(f'{member.mention} has been marked as Registered')
+                await member.send('Registration successful!\nCome say hi in <#670400011519000616>')
 
     tasks = []
     @client.event
