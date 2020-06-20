@@ -95,4 +95,4 @@ class spoder(BaseCommand):
             if materialtext:
                 await message.channel.send(materialtext)
             else:
-                await message.channel.send("Something broke... Probably on bungies side\nAsk <@171650677607497730> for more details")
+                await message.channel.send("Something went wrong")

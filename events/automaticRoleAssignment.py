@@ -111,28 +111,30 @@ class AutoRegisteredRole(BaseEvent):
     async def run(self, client):
         for guild in client.guilds:
             for member in guild.members:
-                # add "Registered" if they have a token but not the role
-                if getToken(member.id):
-                    if discord.utils.get(guild.roles, name="Not Registered") in member.roles:
-                        await removeRolesFromUser(["Not Registered"], member, guild)
-                        await assignRolesToUser(["Registered"], member, guild)
-                # add "Not Registered" if they have no token but the role (after unregister)
-                else:
-                    if discord.utils.get(guild.roles, name="Registered") in member.roles:
-                        await removeRolesFromUser(["Registered"], member, guild)
-                        await assignRolesToUser(["Not Registered"], member, guild)
+                # dont do that for bots
+                if not member.bot:
+                    # add "Registered" if they have a token but not the role
+                    if getToken(member.id):
+                        if discord.utils.get(guild.roles, name="Not Registered") in member.roles:
+                            await removeRolesFromUser(["Not Registered"], member, guild)
+                            await assignRolesToUser(["Registered"], member, guild)
+                    # add "Not Registered" if they have no token but the role (after unregister)
+                    else:
+                        if discord.utils.get(guild.roles, name="Registered") in member.roles:
+                            await removeRolesFromUser(["Registered"], member, guild)
+                            await assignRolesToUser(["Not Registered"], member, guild)
 
-                # add @guest if the clan role doesn't exist
-                if discord.utils.get(guild.roles, name="The Descend") not in member.roles:
-                    await assignRolesToUser(["Guest"], member, guild)
-                # remove @guest if in clan
-                if discord.utils.get(guild.roles, name="The Descend") in member.roles:
-                    await removeRolesFromUser(["Guest"], member, guild)
+                    # add @guest if the clan role doesn't exist
+                    if discord.utils.get(guild.roles, name="The Descend") not in member.roles:
+                        await assignRolesToUser(["Guest"], member, guild)
+                    # remove @guest if in clan
+                    if discord.utils.get(guild.roles, name="The Descend") in member.roles:
+                        await removeRolesFromUser(["Guest"], member, guild)
 
-                # add filler roles to everyone
-                if discord.utils.get(guild.roles, name=raiderText) not in member.roles:
-                    await assignRolesToUser([raiderText], member, guild)
-                if discord.utils.get(guild.roles, name=achText) not in member.roles:
-                    await assignRolesToUser([achText], member, guild)
-                if discord.utils.get(guild.roles, name=miscText) not in member.roles:
-                    await assignRolesToUser([miscText], member, guild)
+                    # add filler roles to everyone
+                    if discord.utils.get(guild.roles, name=raiderText) not in member.roles:
+                        await assignRolesToUser([raiderText], member, guild)
+                    if discord.utils.get(guild.roles, name=achText) not in member.roles:
+                        await assignRolesToUser([achText], member, guild)
+                    if discord.utils.get(guild.roles, name=miscText) not in member.roles:
+                        await assignRolesToUser([miscText], member, guild)
