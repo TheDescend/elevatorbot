@@ -14,14 +14,17 @@ class addRolesToRegistered(BaseCommand):
     # Override the handle() method
     # It will be called every time the command is received
     async def handle(self, params, message, client):
+        await message.channel.send("Working...")
         for member in message.guild.members:
             await removeRolesFromUser(["Registered"], member, message.guild)
             await removeRolesFromUser(["Not Registered"], member, message.guild)
 
             if getToken(member.id):
                 await assignRolesToUser(["Registered"], member, message.guild)
+                await message.channel.send(f"add @Registered to {member.name}")
             else:
                 await assignRolesToUser(["Not Registered"], member, message.guild)
+                await message.channel.send(f"add @Not Registered to {member.name}")
 
         await message.channel.send("Done")
 
@@ -29,13 +32,16 @@ class addRolesToRegistered(BaseCommand):
 class whoIsNotRegistered(BaseCommand):
     def __init__(self):
         # A quick description for the help message
-        description = "Assigns @Registered or @Not Registered to everyone"
+        description = "Blames ppl who are not registered"
         params = []
         super().__init__(description, params)
 
     # Override the handle() method
     # It will be called every time the command is received
     async def handle(self, params, message, client):
+        people = []
         for member in message.guild.members:
             if not getToken(member.id):
-                await message.channel.send(member.name)
+                people.append(member.name)
+
+        await message.channel.send(", ".join(people))
