@@ -192,7 +192,7 @@ requirementHashes = {
                 'Crown of Sorrow Master'
             ]
         }
- },
+    },
     'Y3':{
         'Garden of Salvation': {
             'requirements': ['clears','records'],
@@ -223,14 +223,7 @@ requirementHashes = {
             ]
         }
     },
-    'Addition':{
-        'Niobe\'s Torment': {
-            'requirements': ['collectibles'],
-            'collectibles': [
-                3531075476, #Armory Forged Shell
-            ]
-        },
-
+    'Dungeons': {
         'Solo Flawless Shattered Throne': {
             'requirements': ['records'],
              'records': [
@@ -251,38 +244,48 @@ requirementHashes = {
             ],
             'replaced_by':['Solo Flawless Shattered Throne']
         },
-
-        'The Other Side': {
-            'requirements': ['records'],
-            'records': [
-                807845972, #Only the essentials
-            ]
-        },
-
         'Solo Flawless Pit of Heresy': {
             'requirements': ['records'],
             'records': {
-                2615277024, #Savior of the Deep
+                2615277024,  # Savior of the Deep
             },
-            
         },
         'Solo Pit of Heresy': {
             'requirements': ['records'],
             'records': {
-                376114010 , #Usurper
+                376114010,  # Usurper
             },
-            'replaced_by':['Solo Flawless Pit of Heresy']
+            'replaced_by': ['Solo Flawless Pit of Heresy']
         },
         'Flawless Pit of Heresy': {
             'requirements': ['records'],
             'records': {
-                3279886460 , #Eternal Heretic
+                3279886460,  # Eternal Heretic
             },
-            'replaced_by':['Solo Flawless Pit of Heresy']
+            'replaced_by': ['Solo Flawless Pit of Heresy']
         },
-
-        #lowmans
-
+        'Solo Prophecy': {
+            'requirements': ['records'],
+            'records' : [
+                2382088899
+            ],
+            'replaced_by': ['Solo Flawless Prophecy']
+        },
+        'Flawless Prophecy': {
+            'requirements': ['records'],
+            'records' : [
+                2094467183
+            ],
+            'replaced_by': ['Solo Flawless Prophecy']
+        },
+        'Solo Flawless Prophecy': {
+            'requirements': ['records'],
+            'records' : [
+                3931440391
+            ],
+        }
+    },
+    "Lowmans":{
         'Three-Man Argos': {
             'requirements': ['lowman'],
             'playercount' : 3,
@@ -355,7 +358,6 @@ requirementHashes = {
             'activityHashes': gosHashes,
             'replaced_by': ['Two-Man Sanctified Mind'],
          },
-
         'Three-Man Heroic Menagerie': {
             'requirements': ['lowman'],
             'playercount' : 3,
@@ -372,8 +374,21 @@ requirementHashes = {
             'requirements': ['lowman'],
             'playercount' : 1,
             'activityHashes': premenHashes
+        }
+    },
+    'Addition':{
+        'Niobe\'s Torment': {
+            'requirements': ['collectibles'],
+            'collectibles': [
+                3531075476, #Armory Forged Shell
+            ]
         },
-
+        'The Other Side': {
+            'requirements': ['records'],
+            'records': [
+                807845972, #Only the essentials
+            ]
+        },
         'Solo Zero Hour': {
             'requirements': ['lowman'],
             'denyTime0':{ #start is earlier Time, format is important
@@ -414,26 +429,7 @@ requirementHashes = {
             'flawless' : True,
             'activityHashes': herzeroHashes
         },
-        'Solo Prophecy': {
-            'requirements': ['records'],
-            'records' : [
-                2382088899
-            ],
-            'replaced_by': ['Solo Flawless Prophecy']
-        },
-        'Flawless Prophecy': {
-            'requirements': ['records'],
-            'records' : [
-                2094467183
-            ],
-            'replaced_by': ['Solo Flawless Prophecy']
-        },
-        'Solo Flawless Prophecy': {
-            'requirements': ['records'],
-            'records' : [
-                3931440391
-            ],
-        },
+
 
         #'Name': {
         #    'requirements': ['collectibles'],
