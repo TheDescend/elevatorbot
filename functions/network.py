@@ -4,6 +4,7 @@ from functions.database import getToken
 
 import requests
 import time
+import json
 
 import logging
 import http.client
@@ -85,9 +86,11 @@ def getJSONwithToken(url, discordID):
         print('xml 401 found')
         refresh_token(discordID)
         return getJSONwithToken(url, discordID)
-
+   
+    if int(r.status_code) == 500:
+        return None
+    
     res = r.json()
-
     if int(res['ErrorCode']) == 401:
         print('json 401 found')
         refresh_token(discordID)
