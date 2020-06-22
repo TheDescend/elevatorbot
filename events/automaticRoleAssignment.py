@@ -101,7 +101,7 @@ class AutomaticRoleAssignment(BaseEvent):
 
 raiderText = '⁣           Raider       ⁣'
 achText = '⁣        Achievements       ⁣'
-miscText = '⁣           Misc       ⁣  ⁣  ⁣ '
+miscText = '⁣           Misc       ⁣  ⁣  ⁣'
 class AutoRegisteredRole(BaseEvent):
     """Will automatically update the registration and the guest role"""
     def __init__(self):

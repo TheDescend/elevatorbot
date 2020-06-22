@@ -83,13 +83,13 @@ class getRoles(BaseCommand):
 
             old_roles = {}
             new_roles = {}
-            for topic in requirementHashes:
+            for topic, topicroles in requirementHashes.items():
                 topic = topic.replace("Y1", "Year One")
                 topic = topic.replace("Y2", "Year Two")
                 topic = topic.replace("Y3", "Year Three")
                 topic = topic.replace("Addition", "Miscellaneous")
 
-                for role in topic:
+                for role in topicroles.keys():
                     if role in roles_at_start:
                         try:
                             old_roles[topic].append(role)
