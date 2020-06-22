@@ -81,10 +81,15 @@ class whatToDo(BaseCommand):
                 embed.add_field(name="⁣", value=f"__**Roles:**__", inline=False)
 
                 roles = self.missingRoles(user)
-                for topic in roles:
-                    embed.add_field(name=topic, value="\n".join(roles[topic]), inline=True)
 
-                embed.add_field(name="These are all the different roles you can get", value="⁣", inline=False)
+                # only do this if there are roles to get
+                if roles:
+                    for topic in roles:
+                        embed.add_field(name=topic, value="\n".join(roles[topic]), inline=True)
+
+                    embed.add_field(name="These are all the different roles you can get", value="⁣", inline=False)
+                else:
+                    embed.add_field(name="Wow, you got every single role. Congrats!", value="⁣", inline=False)
 
             # do the missing triumphs display
             if do_all or (params[0] == "triumphs"):
@@ -92,18 +97,22 @@ class whatToDo(BaseCommand):
 
                 missing = self.missingTriumphs(user)
 
-                # if do_all, show only half of the triumphs
-                if do_all:
-                    max = len(missing) / 2
-                    i = 0
-                for name, val in missing.items():
+                # only do this if there are triumphs to get
+                if missing:
+                    # if do_all, show only half of the triumphs
                     if do_all:
-                        if i >= max:
-                            break
-                        i += 1
-                    embed.add_field(name=name, value="\n".join(val), inline=True)
+                        max = len(missing) / 2
+                        i = 0
+                    for name, val in missing.items():
+                        if do_all:
+                            if i >= max:
+                                break
+                            i += 1
+                        embed.add_field(name=name, value="\n".join(val), inline=True)
 
-                embed.add_field(name="You are pretty close to finishing those triumphs", value="⁣", inline=False)
+                    embed.add_field(name="You are pretty close to finishing those triumphs", value="⁣", inline=False)
+                else:
+                    embed.add_field(name="Wow, you have done every triumph. Congrats!", value="⁣", inline=False)
 
             # do the missing seals display
             if do_all or (params[0] == "seals"):
@@ -132,16 +141,19 @@ class whatToDo(BaseCommand):
 
                 missing = self.missingSeals(client, user)
 
-                for seal in missing:
-                    name = seal[2]
-                    try:
-                        name = icons[seal[2]] + " " + seal[2]
-                    except:
-                        pass
+                if missing:
+                    for seal in missing:
+                        name = seal[2]
+                        try:
+                            name = icons[seal[2]] + " " + seal[2]
+                        except:
+                            pass
 
-                    embed.add_field(name=str(int(seal[4] * 100)) + "% done", value=name, inline=True)
+                        embed.add_field(name=str(int(seal[4] * 100)) + "% done", value=name, inline=True)
+                else:
+                    embed.add_field(name="Wow, you got every single seal that is available right now. Congrats, but I hope you haven't missed one like **@MysticShadow** :upside_down:", value="⁣", inline=False)
 
-            await message.channel.send(embed=embed)
+        await message.channel.send(embed=embed)
 
     def missingRoles(self, user):
         roles = {}
