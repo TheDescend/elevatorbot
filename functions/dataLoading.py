@@ -246,10 +246,9 @@ def insertIntoDB(destinyID, pve):
             characterID = player['characterId']
             playerdeaths = int(player['values']['deaths']['basic']['displayValue'])
             deaths += playerdeaths
+            displayname = None
             if 'displayName' in player['player']['destinyUserInfo']:
                 displayname = player['player']['destinyUserInfo']['displayName']
-            else:
-                displayName = None
             completed = int(player['values']['completed']['basic']['value'])
             opponentsDefeated = player['values']['opponentsDefeated']['basic']['value']
             system = player['player']['destinyUserInfo']['membershipType']
