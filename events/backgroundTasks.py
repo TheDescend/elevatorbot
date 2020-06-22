@@ -36,7 +36,8 @@ class refreshSealPickle(BaseEvent):
                             ]
 
             except Exception as exc:
-                print(f'generated an exception: {exc}')
+                pass
+                # print(f'generated an exception: {exc}')
 
 
     # Override the run() method
