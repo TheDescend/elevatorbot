@@ -29,7 +29,7 @@ class refreshSealPickle(BaseEvent):
                         if int(triumph) not in not_available:
                             still_available = bool(int(triumph) not in cant_earn_anymore)
                             return [
-                                int(triumph),
+                                triumph,
                                 rep['Response']["displayProperties"]["name"],
                                 rep['Response']["titleInfo"]["titlesByGender"]["Male"],
                                 still_available,
