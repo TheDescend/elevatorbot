@@ -81,7 +81,8 @@ class refreshSealPickle(BaseEvent):
                         seals.append(result)
 
                 except Exception as exc:
-                    print(f'generated an exception: {exc}')
+                    pass
+                    # print(f'generated an exception: {exc}')
 
         # print(seals)
 
