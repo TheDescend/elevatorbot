@@ -85,7 +85,9 @@ class whatToDo(BaseCommand):
                 # only do this if there are roles to get
                 if roles:
                     for topic in roles:
-                        embed.add_field(name=topic, value="\n".join(roles[topic]), inline=True)
+                        # only do this if there are roles in a topic
+                        if roles[topic]:
+                            embed.add_field(name=topic, value="\n".join(roles[topic]), inline=True)
 
                     embed.add_field(name="These are all the different roles you can get", value="⁣", inline=False)
                 else:
