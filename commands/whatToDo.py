@@ -68,7 +68,7 @@ class whatToDo(BaseCommand):
 
         async with message.channel.typing():
             embed = embed_message(
-                f"{message.author.name}'s ToDo List"
+                f"{user.display_name}'s ToDo List"
             )
 
             # do everything if no specific type was given
