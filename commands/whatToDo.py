@@ -87,7 +87,7 @@ class whatToDo(BaseCommand):
                     for topic in roles:
                         embed.add_field(name=topic, value=("\n".join(roles[topic]) or "None"), inline=True)
                 else:
-                    embed.add_field(name="Wow, you got every single role. Congrats!", value=".", inline=False)
+                    embed.add_field(name="Wow, you got every single role. Congrats!", value="⁣", inline=False)
 
             # do the missing triumphs display
             if do_all or (params[0] == "triumphs"):
@@ -110,9 +110,9 @@ class whatToDo(BaseCommand):
                             name = '.'
                         embed.add_field(name=name, value="\n".join(val), inline=True)
 
-                    embed.add_field(name="You are pretty close to finishing those triumphs", value="⁣.", inline=False)
+                    embed.add_field(name="You are pretty close to finishing those triumphs", value="⁣", inline=False)
                 else:
-                    embed.add_field(name="Wow, you have done every triumph. Congrats!", value=".⁣", inline=False)
+                    embed.add_field(name="Wow, you have done every triumph. Congrats!", value="⁣", inline=False)
 
             # do the missing seals display
             if do_all or (params[0] == "seals"):
