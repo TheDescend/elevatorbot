@@ -126,7 +126,8 @@ requirementHashes = {
                 1558682418,    #Void Borne :Void: 
                 1558682419,    #Solar Borne :Solar: 
                 1558682428    #Stay Classy [Same Class]
-            ]
+            ],
+            'replaced_by':['Y2 Raid Master']
         },
         'Scourge of the Past': {
             'requirements': ['clears','records'],
@@ -153,7 +154,8 @@ requirementHashes = {
                 496309570,     #Voidstruck
                 105811740,     #Thunderstruck
                 3780682732,    #Stay Classy
-            ]
+            ],
+            'replaced_by':['Last Wish Master']
         },
         'Last Wish':{
             'requirements': ['clears','records'],
@@ -168,7 +170,7 @@ requirementHashes = {
                 149192209,     #Keep Out
                 3899933775    #Strength of Memory
             ],
-            'replaced_by':['Last Wish Master']
+            'replaced_by':['Y2 Raid Master']
         },
         'Last Wish Master': {
             'requirements': ['clears','records'],
@@ -182,7 +184,8 @@ requirementHashes = {
                 567795114,     #The New Meta [Same Class]
                 1373122528,    #Night Owl :Void:
                 2398356743    #Sunburn :Solar:
-            ]
+            ],
+            'replaced_by':['Y2 Raid Master']
         },
         'Y2 Raid Master': {
             'requirements': ['roles'],
