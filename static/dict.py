@@ -155,7 +155,7 @@ requirementHashes = {
                 105811740,     #Thunderstruck
                 3780682732,    #Stay Classy
             ],
-            'replaced_by':['Last Wish Master']
+            'replaced_by':['Y2 Raid Master']
         },
         'Last Wish':{
             'requirements': ['clears','records'],
