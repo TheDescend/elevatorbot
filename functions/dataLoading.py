@@ -5,7 +5,7 @@ from functions.database import getSystemAndChars, getLastUpdated, instanceExists
 
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-from datetime           import timedelta, datetime
+from datetime           import timedelta, datetime, date
 from pprint             import pprint
 
 import os
@@ -13,6 +13,8 @@ import requests
 import json
 import zipfile
 import sqlite3
+import pandas
+import asyncio
 
 def getJSONfromRR(playerID):
     """ Gets a Players stats from the RR-API """
@@ -315,6 +317,28 @@ def initDB():
     for player in playerlist:
         updateDB(player)
     print(f'done updating the db')
+
+
+def getSeals(client):
+    # if file doesn't exist, call the daily running event (useful for first usage)
+    try:
+        file = pandas.read_pickle('database/seals.pickle')
+    except FileNotFoundError:
+        from events.backgroundTasks import refreshSealPickle
+        rf = refreshSealPickle()
+        fut = asyncio.run_coroutine_threadsafe(rf.run(), client.loop)
+        try:
+            fut.result()
+            print(fut)
+            file = pandas.read_pickle('database/seals.pickle')
+        except Exception as exc:
+            print(f'generated an exception: {exc}')
+
+    # returns list [[hash, name, displayName, hasExpiration], ...]
+    return file["seals"][0]
+
+
+
 
 #TODO replace with DB and version checks
 
