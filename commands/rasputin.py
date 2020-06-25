@@ -8,7 +8,7 @@ from datetime import datetime
 class rasputin(BaseCommand):
     def __init__(self):
         # A quick description for the help message
-        description = "Gives the spoders inventory"
+        description = "[depracted] Used to show the percentage of quest progress"
         params = []
         super().__init__(description, params)
 
@@ -29,7 +29,7 @@ class rasputin(BaseCommand):
 class rasputinGraph(BaseCommand):
     def __init__(self):
         # A quick description for the help message
-        description = "Gives the spoders inventory"
+        description = "Shows the timeline of seraph-completions"
         params = []
         super().__init__(description, params)
 
