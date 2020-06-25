@@ -112,7 +112,7 @@ requirementHashes = {
                 1575460003,    #Total Victory
                 1575460002,    #With Both Hands
            ],
-           'replaced_by': ['Crown of Sorrow Master']
+           'replaced_by': ['Y2 Raid Master', 'Crown of Sorrow Master']
        },
         'Crown of Sorrow Master': {
             'requirements': ['clears','records'],
@@ -140,7 +140,7 @@ requirementHashes = {
                 1804999028,    #Hold the Line
                 4162926221,    #To Each Their Own
             ],
-            'replaced_by':['Scourge of the Past Master']
+            'replaced_by':['Y2 Raid Master', 'Scourge of the Past Master']
         },
         'Scourge of the Past Master': {
             'requirements': ['clears','records'],
@@ -170,7 +170,7 @@ requirementHashes = {
                 149192209,     #Keep Out
                 3899933775    #Strength of Memory
             ],
-            'replaced_by':['Y2 Raid Master']
+            'replaced_by':['Y2 Raid Master', 'Y2 Raid Master']
         },
         'Last Wish Master': {
             'requirements': ['clears','records'],
