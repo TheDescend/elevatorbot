@@ -38,10 +38,13 @@ class whisperkills(BaseCommand):
             found = False
             for index, row in data.iterrows():
                 if len(ranking) < 12:
-                    ranking.append(str(index + 1) + ") **" + row["member"] + "** _(Total: " + str(int(row["kills"])) + ")_")
                     # setting a flag if user is in list
                     if row["member"] == message.author.display_name:
                         found = True
+                        ranking.append(
+                            str(index + 1) + ") **[" + row["member"] + "]** _(Total: " + str(int(row["kills"])) + ")_")
+                    else:
+                        ranking.append(str(index + 1) + ") **" + row["member"] + "** _(Total: " + str(int(row["kills"])) + ")_")
 
                 # looping through rest until original user is found
                 elif (len(ranking) >= 12) and (not found):
