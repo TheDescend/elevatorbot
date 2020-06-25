@@ -42,16 +42,16 @@ class whisperkills(BaseCommand):
                     if row["member"] == message.author.display_name:
                         found = True
                         ranking.append(
-                            str(index + 1) + ") **[" + row["member"] + "]** _(Total: " + str(int(row["kills"])) + ")_")
+                            str(index + 1) + ") **[" + row["member"] + "]** _(Kills: " + str(int(row["kills"])) + ")_")
                     else:
-                        ranking.append(str(index + 1) + ") **" + row["member"] + "** _(Total: " + str(int(row["kills"])) + ")_")
+                        ranking.append(str(index + 1) + ") **" + row["member"] + "** _(Kills: " + str(int(row["kills"])) + ")_")
 
                 # looping through rest until original user is found
                 elif (len(ranking) >= 12) and (not found):
                     # adding only this user
                     if row["member"] == message.author.display_name:
                         ranking.append("...")
-                        ranking.append(str(index + 1) + ") **" + row["member"] + "** _(Total: " + str(int(row["kills"])) + ")_")
+                        ranking.append(str(index + 1) + ") **" + row["member"] + "** _(Kills: " + str(int(row["kills"])) + ")_")
                         break
 
                 else:
