@@ -45,7 +45,7 @@ class AutomaticRoleAssignment(BaseEvent):
         # return [(discordUser.name, removerls or ["nothing"], addrls or ["nothing"])]
     
     async def run(self, client):
-
+        print('running the automatic role assignment...')
         def updateUser(discordUser):
             if discordUser.bot:
                 return (None, None, None, None)
@@ -59,7 +59,7 @@ class AutomaticRoleAssignment(BaseEvent):
             (newRoles, removeRoles) = getPlayerRoles(destinyID, [role.name for role in discordUser.roles]) #the list of roles may be used to not check existing roles
             
 
-            return (guild, discordUser, newRoles, removeRoles)
+            return (discordUser, newRoles, removeRoles)
         
         #aquires the newtonslab channel from the descend server and notifies about starting
         newtonslab = client.get_channel(670637036641845258)
@@ -78,7 +78,7 @@ class AutomaticRoleAssignment(BaseEvent):
                 news = list(results)
                 newstext = 'done with role update <:CaydeThumbsUp:670997683774685234>\n'
                 
-                for guild, discordUser, newRoles,removeRoles in news:
+                for discordUser, newRoles,removeRoles in news:
                     if not discordUser:
                         continue
                     await assignRolesToUser(newRoles, discordUser, guild)
@@ -100,8 +100,11 @@ class AutomaticRoleAssignment(BaseEvent):
 
 
 raiderText = '⁣           Raider       ⁣'
+raiderId = 670385313994113025
 achText = '⁣        Achievements       ⁣'
+achId = 670385837044662285
 miscText = '⁣           Misc       ⁣  ⁣  ⁣'
+miscId = 670395920327639085
 class AutoRegisteredRole(BaseEvent):
     """Will automatically update the registration and the guest role"""
     def __init__(self):
@@ -132,9 +135,9 @@ class AutoRegisteredRole(BaseEvent):
                         await removeRolesFromUser(["Guest"], member, guild)
 
                     # add filler roles to everyone
-                    if discord.utils.get(guild.roles, name=raiderText) not in member.roles:
-                        await assignRolesToUser([raiderText], member, guild)
-                    if discord.utils.get(guild.roles, name=achText) not in member.roles:
-                        await assignRolesToUser([achText], member, guild)
-                    if discord.utils.get(guild.roles, name=miscText) not in member.roles:
-                        await assignRolesToUser([miscText], member, guild)
+                    if discord.utils.get(guild.roles, id=raiderId) not in member.roles:
+                        await assignRolesToUser([raiderId], member, guild)
+                    if discord.utils.get(guild.roles, id=achId) not in member.roles:
+                        await assignRolesToUser([achId], member, guild)
+                    if discord.utils.get(guild.roles, id=miscId) not in member.roles:
+                        await assignRolesToUser([miscId], member, guild)

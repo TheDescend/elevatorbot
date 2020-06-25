@@ -1,5 +1,6 @@
 from functions.database               import getMarkovPairs
 import random
+# import gpt_2_simple as gpt2
 
 def getMarkovSentence(startword = '__start__'):
     markovpairs = getMarkovPairs()
@@ -22,3 +23,11 @@ def getMarkovSentence(startword = '__start__'):
     if random.randint(0,100) == 69:
         mtext = f'**__{mtext[::-1]}__**'
     return mtext
+
+# def getAdvancedMarkov(startword = None):
+#     sess = gpt2.start_tf_sess()
+#     gpt2.load_gpt2(sess)
+
+#     print(gpt2.generate(sess))
+
+# getAdvancedMarkov()

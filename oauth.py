@@ -5,6 +5,8 @@ from static.config      import BUNGIE_OAUTH, BUNGIE_TOKEN, BUNGIE_SECRET, B64_SE
 from flask              import Flask, request, redirect, Response, send_file
 from functions.database import insertToken, getRefreshToken
 import asyncio
+import os
+from flask import send_from_directory, url_for
 
 def refresh_token(discordID):
     url = 'https://www.bungie.net/platform/app/oauth/token/'
@@ -123,13 +125,18 @@ def letsencrypt_check(challenge):
     }
     return Response(challenge_response[challenge], mimetype='text/plain')
 
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static'),
+                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
+
 @app.before_request
 def before_request():
     if request.url.startswith('http://'):
         return redirect(request.url.replace('http://', 'https://'), code=301)
 
 @app.errorhandler(404)
-def not_found():
+def not_found(e):
     """Page not found."""
     return "page not founderino"
 
