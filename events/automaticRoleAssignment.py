@@ -59,7 +59,7 @@ class AutomaticRoleAssignment(BaseEvent):
             (newRoles, removeRoles) = getPlayerRoles(destinyID, [role.name for role in discordUser.roles]) #the list of roles may be used to not check existing roles
             
 
-            return (guild, discordUser, newRoles, removeRoles)
+            return (discordUser, newRoles, removeRoles)
         
         #aquires the newtonslab channel from the descend server and notifies about starting
         newtonslab = client.get_channel(670637036641845258)
@@ -78,7 +78,7 @@ class AutomaticRoleAssignment(BaseEvent):
                 news = list(results)
                 newstext = 'done with role update <:CaydeThumbsUp:670997683774685234>\n'
                 
-                for guild, discordUser, newRoles,removeRoles in news:
+                for discordUser, newRoles,removeRoles in news:
                     if not discordUser:
                         continue
                     await assignRolesToUser(newRoles, discordUser, guild)
