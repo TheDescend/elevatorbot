@@ -170,7 +170,7 @@ requirementHashes = {
                 149192209,     #Keep Out
                 3899933775    #Strength of Memory
             ],
-            'replaced_by':['Y2 Raid Master', 'Y2 Raid Master']
+            'replaced_by':['Y2 Raid Master', 'Last Wish Master']
         },
         'Last Wish Master': {
             'requirements': ['clears','records'],
