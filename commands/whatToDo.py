@@ -29,7 +29,7 @@ class whatToDo(BaseCommand):
         if len(params) > 2:
             await message.channel.send(embed=embed_message(
                 'Error',
-                'Incorrect formatting, correct usage is: \n\u200B\n `!whatToDo *<type> *<user>`'
+                'Incorrect formatting, correct usage is: \n.B\n `!whatToDo *<type> *<user>`'
             ))
             return
 
@@ -59,7 +59,7 @@ class whatToDo(BaseCommand):
             if (params[0] not in types) and (not block):
                 await message.channel.send(embed=embed_message(
                     'Error',
-                    f'Unrecognised type, currently supported are: \n\u200B\n`{", ".join(types)}`'
+                    f'Unrecognised type, currently supported are: \n.B\n`{", ".join(types)}`'
                 ))
                 return
         except IndexError:
@@ -85,11 +85,11 @@ class whatToDo(BaseCommand):
                 # only do this if there are roles to get
                 if roles:
                     for topic in roles:
-                        embed.add_field(name=topic, value="\n".join(roles[topic]), inline=True)
+                        embed.add_field(name=topic, value=("\n".join(roles[topic]) or "None"), inline=True)
 
-                    embed.add_field(name="These are all the different roles you can get", value="⁣", inline=False)
+                    embed.add_field(name="These are all the different roles you can get", value="⁣.", inline=False)
                 else:
-                    embed.add_field(name="Wow, you got every single role. Congrats!", value="⁣", inline=False)
+                    embed.add_field(name="Wow, you got every single role. Congrats!", value=".", inline=False)
 
             # do the missing triumphs display
             if do_all or (params[0] == "triumphs"):
@@ -108,11 +108,13 @@ class whatToDo(BaseCommand):
                             if i >= max:
                                 break
                             i += 1
+                        if not name:
+                            name = '.'
                         embed.add_field(name=name, value="\n".join(val), inline=True)
 
-                    embed.add_field(name="You are pretty close to finishing those triumphs", value="⁣", inline=False)
+                    embed.add_field(name="You are pretty close to finishing those triumphs", value="⁣.", inline=False)
                 else:
-                    embed.add_field(name="Wow, you have done every triumph. Congrats!", value="⁣", inline=False)
+                    embed.add_field(name="Wow, you have done every triumph. Congrats!", value=".⁣", inline=False)
 
             # do the missing seals display
             if do_all or (params[0] == "seals"):
@@ -148,10 +150,11 @@ class whatToDo(BaseCommand):
                             name = icons[seal[2]] + " " + seal[2]
                         except:
                             pass
-
+                        if not name:
+                            name = '.'
                         embed.add_field(name=str(int(seal[4] * 100)) + "% done", value=name, inline=True)
                 else:
-                    embed.add_field(name="Wow, you got every single seal that is available right now. Congrats, but I hope you haven't missed one like **@MysticShadow** :upside_down:", value="⁣", inline=False)
+                    embed.add_field(name="Wow, you got every single seal that is available right now. Congrats, but I hope you haven't missed one like **@MysticShadow** :upside_down:", value="⁣.", inline=False)
 
         await message.channel.send(embed=embed)
 
