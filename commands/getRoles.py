@@ -4,7 +4,7 @@ from static.dict                    import requirementHashes, clanids
 from functions.database             import lookupDestinyID, lookupDiscordID, getLastRaid, getFlawlessList
 from functions.dataLoading          import updateDB, initDB, getNameToHashMapByClanid
 from functions.dataTransformation   import getFullMemberMap
-from functions.roles                import assignRolesToUser, removeRolesFromUser, getPlayerRoles
+from functions.roles                import assignRolesToUser, removeRolesFromUser, getPlayerRoles, hasRole
 from functions.formating import     embed_message
 
 
@@ -281,3 +281,61 @@ class assignAllRoles(BaseCommand):
                 await message.channel.send(f'Assigned roles {roletext} to {discordUser.name}')
 
         await message.channel.send('All roles assigned')
+
+
+class roleRequirements(BaseCommand):
+    def __init__(self):
+        # A quick description for the help message
+        description = "Shows you what you need for a role"
+        params = []
+        super().__init__(description, params)
+
+    # Override the handle() method
+    # It will be called every time the command is received
+    async def handle(self, params, message, client):
+        # check if message too short
+        if len(params) == 0:
+            await message.channel.send(embed=embed_message(
+                'Error',
+                'Incorrect formatting, correct usage is: \n\u200B\n `!roleRequirements <role>`'
+            ))
+            return
+
+        given_role = " ".join(params)
+
+        f_year = ""
+        f_role = ""
+        found = False
+        for topic, roles in requirementHashes.items():
+            if found:
+                break
+            else:
+                for role, roledata in roles.items():
+                    if given_role.lower() == role.lower():
+                        found = True
+                        f_year = topic
+                        f_role = role
+                        break
+
+        if not found:
+            await message.channel.send(embed=embed_message(
+                'Error',
+                f"I don't know that role, please make sure it's spelled correctly!"
+            ))
+            return
+
+        async with message.channel.typing():
+            destinyID = lookupDestinyID(message.author.id)
+            reqs = hasRole(destinyID, f_role, f_year, br=False)
+
+
+            print(reqs[1])
+
+            embed = embed_message(
+                f"{message.author.display_name}'s '{f_role}' Eligibility"
+            )
+
+            for req in reqs[1]:
+                embed.add_field(name=req, value=reqs[1][req], inline=True)
+
+            await message.channel.send(embed=embed)
