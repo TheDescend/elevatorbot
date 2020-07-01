@@ -27,11 +27,13 @@ class poptimeline(BaseCommand):
             ["2019-10-04", "GoS"],
             ["2019-10-29", "PoH"],
             ["2020-01-14", "Corridors of Time"],
-            ["2020-06-06", "Almighty Live Event"],
             ["2020-04-21", "Guardian Games"],
+            ["2020-06-06", "Almighty Live Event"],
+            ["2020-08-11", "Solstice of Heroes"],
         ]
         other_dates_lower = [
             ["2020-02-04", "Empyrean Foundation"],
+            ["2020-07-07", "Moments of Triumph"],
         ]
 
 
