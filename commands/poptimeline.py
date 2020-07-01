@@ -21,13 +21,17 @@ class poptimeline(BaseCommand):
             ["2019-10-01", "Shadowkeep / Season of the Undying"],
             ["2019-12-10", "Season of Dawn"],
             ["2020-03-10", "Season of the Worthy"],
-            ["2020-06-09", "Season of Arrivals"]
+            ["2020-06-09", "Season of Arrivals"],
         ]
         other_dates = [
             ["2019-10-04", "GoS"],
             ["2019-10-29", "PoH"],
             ["2020-01-14", "Corridors of Time"],
             ["2020-06-06", "Almighty Live Event"],
+            ["2020-04-21", "Guardian Games"],
+        ]
+        other_dates_lower = [
+            ["2020-02-04", "Empyrean Foundation"],
         ]
 
 
@@ -60,6 +64,11 @@ class poptimeline(BaseCommand):
             date = datetime.datetime.strptime(dates[0], '%Y-%m-%d')
             ax.axvline(date, color="mediumaquamarine")
             ax.text(date + datetime.timedelta(days=2), (max(data['players']) - min(data['players'])) * 0.95 + min(data['players']), dates[1], color="mediumaquamarine", bbox=dict(facecolor='white', edgecolor='mediumaquamarine', boxstyle='round'))
+        for dates in other_dates_lower:
+            date = datetime.datetime.strptime(dates[0], '%Y-%m-%d')
+            ax.axvline(date, color="mediumaquamarine")
+            ax.text(date + datetime.timedelta(days=2), (max(data['players']) - min(data['players'])) * 0.90 + min(data['players']), dates[1], color="mediumaquamarine", bbox=dict(facecolor='white', edgecolor='mediumaquamarine', boxstyle='round'))
+
 
         # saving file
         title = "players.png"
