@@ -24,8 +24,8 @@ def hasRole(playerid, role, year, br = True):
             i = 1
             for raid in creq:
                 actualclears = getClearCount(playerid, raid['actHashes'])
-                if not actualclears >= raid['count']:
-                    #print(f'only {actualclears} out of {raid["count"]}')
+                if not actualclears>= raid['count']:
+                    #print(f'{playerid} is only has {actualclears} out of {raid["count"]} for {",".join([str(x) for x in raid["actHashes"]])}')
                     worthy = False
 
                 data["Clears #" + str(i)] = str(actualclears) + " / " + str(raid['count'])
@@ -150,10 +150,10 @@ def getPlayerRoles(playerid, existingRoles = []):
 async def assignRolesToUser(roleList, discordUser, guild):
     #takes rolelist as string array, userSnowflake, guild object
     for role in roleList:
-        print(guild.roles)
-        roleObj = discord.utils.get(guild.roles, name=role) or discord.utils.get(guild.roles, id=role)
+        #print(guild.roles)
+        roleObj = discord.utils.get(guild.roles, name=role) or discord.utils.get(guild.roles, id=int(role))
         if roleObj is None:
-            print(f'assignable role doesn\'t exist: {role}')
+            print(f'assignable role doesn\'t exist in {guild.name}: {role}')
             continue
         if roleObj not in discordUser.roles:
             print(f'added role {roleObj.name} to user {discordUser.name}')

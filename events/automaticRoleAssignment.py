@@ -48,11 +48,11 @@ class AutomaticRoleAssignment(BaseEvent):
         print('running the automatic role assignment...')
         def updateUser(discordUser):
             if discordUser.bot:
-                return (None, None, None, None)
+                return (None, None, None)
 
             destinyID = lookupDestinyID(discordUser.id)
             if not destinyID:
-                return (None, None, None, None)
+                return (None, None, None)
                 #await newtonslab.send(f'Auto-Matched {discordUser.name} with {destinyID} \n check https://raid.report/pc/{destinyID}' )
 
             #gets the roles of the specific player and assigns/removes them
@@ -78,7 +78,7 @@ class AutomaticRoleAssignment(BaseEvent):
                 news = list(results)
                 newstext = 'done with role update <:CaydeThumbsUp:670997683774685234>\n'
                 
-                for discordUser, newRoles,removeRoles in news:
+                for discordUser, newRoles, removeRoles in news:
                     if not discordUser:
                         continue
                     await assignRolesToUser(newRoles, discordUser, guild)
