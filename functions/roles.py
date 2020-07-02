@@ -32,9 +32,10 @@ def hasRole(playerid, role, year, br = True):
                 i += 1
 
         elif req == 'flawless':
-            worthy &= hasFlawless(playerid, roledata['flawless'])
+            has_fla = hasFlawless(playerid, roledata['flawless'])
+            worthy &= has_fla
 
-            data["Flawless"] = str(worthy)
+            data["Flawless"] = str(has_fla)
 
         elif req == 'collectibles':
             for collectible in roledata['collectibles']:
