@@ -85,10 +85,12 @@ def main():
                         'is cuteness incarnate']
             addition = random.choice(texts)
             await message.channel.send(f'Häbidöpfel {addition}')
+        if "welcome" in text.lower() and "<@109022023979667456>" in text.lower():
+            await message.channel.send(f'Welcome <@109022023979667456>!')
         if text.startswith(COMMAND_PREFIX) and text != COMMAND_PREFIX:
             cmd_split = text[len(COMMAND_PREFIX):].split()
             try:
-                await message_handler.handle_command(cmd_split[0].lower(), 
+                await message_handler.handle_command(cmd_split[0].lower(),
                                       cmd_split[1:], message, client)
             except:
                 print("Error while handling message", flush=True)

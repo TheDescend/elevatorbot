@@ -43,7 +43,7 @@ requirementHashes = {
                 {'count' : 4,
                 'actHashes' : spireHashes + spirePHashes}, #normal
             ],
-            'replaced_by': ['Spire of Stars Master']
+            'replaced_by': ['Spire of Stars Master', 'Y1 Raid Master']
         },
         'Spire of Stars Master': {
             'requirements': ['clears','flawless'],
@@ -59,7 +59,7 @@ requirementHashes = {
                 {'count' : 4,
                 'actHashes' : eaterHashes + eaterPHashes}, #normal
             ],
-            'replaced_by':['Eater of Worlds Master']
+            'replaced_by':['Eater of Worlds Master', 'Y1 Raid Master']
         },
         'Eater of Worlds Master': {
             'requirements': ['clears','flawless'],
@@ -75,7 +75,7 @@ requirementHashes = {
                 {'count' : 4,
                 'actHashes' : leviHashes + leviPHashes}, #normal
             ],
-            'replaced_by': ['Leviathan Master']
+            'replaced_by': ['Leviathan Master', 'Y1 Raid Master']
         },
         'Leviathan Master': {
             'requirements': ['clears','flawless','collectibles'],

@@ -6,6 +6,8 @@ from functions.formating    import embed_message
 import concurrent.futures
 import os
 import pandas
+import pickle
+import datetime
 
 whisper_hashes = [74501540, 1099555105]
 
@@ -17,51 +19,64 @@ class whisperkills(BaseCommand):
 
 
     async def handle(self, params, message, client):
-        async with message.channel.typing():
-            data = pandas.DataFrame(columns=["member", "kills"])
+        if not os.path.exists('database/whisperKills.pickle'):
+            file = [datetime.date.min, []]
+        else:
+            with open('database/whisperKills.pickle', "rb") as f:
+                file = pickle.load(f)
 
-            with concurrent.futures.ThreadPoolExecutor(os.cpu_count() * 5) as pool:
-                futurelist = [pool.submit(self.handleUser, member) for member in message.guild.members]
-                for future in concurrent.futures.as_completed(futurelist):
-                    try:
-                        result = future.result()
-                        if result:
-                            data = data.append(result, ignore_index=True)
+        # check if data is a day old
+        if file[0] < datetime.date.today():
+            async with message.channel.typing():
+                # refresh data
+                data = pandas.DataFrame(columns=["member", "kills"])
 
-                    except Exception as exc:
-                        print(f'generated an exception: {exc}')
+                with concurrent.futures.ThreadPoolExecutor(os.cpu_count() * 5) as pool:
+                    futurelist = [pool.submit(self.handleUser, member) for member in message.guild.members]
+                    for future in concurrent.futures.as_completed(futurelist):
+                        try:
+                            result = future.result()
+                            if result:
+                                data = data.append(result, ignore_index=True)
 
-            data.sort_values(by=["kills"], inplace=True, ascending=False)
-            data.reset_index(drop=True, inplace=True)
+                        except Exception as exc:
+                            print(f'generated an exception: {exc}')
 
-            ranking = []
-            found = False
-            for index, row in data.iterrows():
-                if len(ranking) < 12:
-                    # setting a flag if user is in list
-                    if row["member"] == message.author.display_name:
-                        found = True
-                        ranking.append(
-                            str(index + 1) + ") **[" + row["member"] + "]** _(Kills: " + str(int(row["kills"])) + ")_")
-                    else:
-                        ranking.append(str(index + 1) + ") **" + row["member"] + "** _(Kills: " + str(int(row["kills"])) + ")_")
+                data.sort_values(by=["kills"], inplace=True, ascending=False)
+                data.reset_index(drop=True, inplace=True)
 
-                # looping through rest until original user is found
-                elif (len(ranking) >= 12) and (not found):
-                    # adding only this user
-                    if row["member"] == message.author.display_name:
-                        ranking.append("...")
-                        ranking.append(str(index + 1) + ") **" + row["member"] + "** _(Kills: " + str(int(row["kills"])) + ")_")
-                        break
+                file = [datetime.date.today(), data]
 
+                with open('database/whisperKills.pickle', "wb") as f:
+                    pickle.dump(file, f)
+
+        ranking = []
+        found = False
+        for index, row in file[1].iterrows():
+            if len(ranking) < 12:
+                # setting a flag if user is in list
+                if row["member"] == message.author.display_name:
+                    found = True
+                    ranking.append(
+                        str(index + 1) + ") **[" + row["member"] + "]** _(Kills: " + str(int(row["kills"])) + ")_")
                 else:
+                    ranking.append(str(index + 1) + ") **" + row["member"] + "** _(Kills: " + str(int(row["kills"])) + ")_")
+
+            # looping through rest until original user is found
+            elif (len(ranking) >= 12) and (not found):
+                # adding only this user
+                if row["member"] == message.author.display_name:
+                    ranking.append("...")
+                    ranking.append(str(index + 1) + ") **" + row["member"] + "** _(Kills: " + str(int(row["kills"])) + ")_")
                     break
 
-            await message.channel.send(embed=embed_message(
-                'Top Guardians by D2 Whisper Mission Kills',
-                "\n".join(ranking)
-            ))
+            else:
+                break
 
+        await message.channel.send(embed=embed_message(
+            'Top Guardians by D2 Whisper Mission Kills',
+            "\n".join(ranking)
+        ))
 
     def handleUser(self, member):
         destinyID = lookupDestinyID(member.id)

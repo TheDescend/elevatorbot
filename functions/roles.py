@@ -1,5 +1,6 @@
 from functions.dataTransformation   import hasFlawless, hasCollectible, hasTriumph
 from functions.dataTransformation   import getPlayerCount, getPlayersPastPVE, getClearCount, hasLowman
+from functions.network  import getJSONfromURL
 
 from static.dict                    import requirementHashes
 
@@ -8,57 +9,89 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import discord
 
-def hasRole(playerid, role, year):
+def hasRole(playerid, role, year, br = True):
+    data = {}
+
     roledata = requirementHashes[year][role]
     if not 'requirements' in roledata:
         print('malformatted requirementHashes')
-        return False
+        return [False, data]
     worthy = True
+
     for req in roledata['requirements']:
         if req == 'clears':
             creq = roledata['clears']
+            i = 1
             for raid in creq:
                 actualclears = getClearCount(playerid, raid['actHashes'])
                 if not actualclears>= raid['count']:
                     #print(f'{playerid} is only has {actualclears} out of {raid["count"]} for {",".join([str(x) for x in raid["actHashes"]])}')
                     worthy = False
+
+                data["Clears #" + str(i)] = str(actualclears) + " / " + str(raid['count'])
+                i += 1
+
         elif req == 'flawless':
             worthy &= hasFlawless(playerid, roledata['flawless'])
-            if not worthy:
-                print('no flawless')
+
+            data["Flawless"] = str(worthy)
+
         elif req == 'collectibles':
             for collectible in roledata['collectibles']:
-                worthy &= hasCollectible(playerid, collectible)
-                if not worthy:
-                    #print(f'missing {collectible}')
+                has_col = hasCollectible(playerid, collectible)
+                worthy &= has_col
+
+                if (not worthy) and br:
                     break
+
+                # get name of collectible
+                name = "No name here"
+                rep = getJSONfromURL(f"https://www.bungie.net/Platform/Destiny2/Manifest/DestinyCollectibleDefinition/{collectible}/")
+                if rep and rep['Response']:
+                    name = rep['Response']["displayProperties"]["name"]
+                data[str(name)] = str(has_col)
+
         elif req == 'records':
             for recordHash in roledata['records']:
-                worthy &= hasTriumph(playerid, recordHash)
-                if not worthy:
-                    #print(f'lacking {recordHash} triumph')
+                has_tri = hasTriumph(playerid, recordHash)
+                worthy &= has_tri
+
+                if (not worthy) and br:
                     break
+
+                # get name of triumph
+                name = "No name here"
+                rep = getJSONfromURL(
+                    f"https://www.bungie.net/Platform/Destiny2/Manifest/DestinyRecordDefinition/{recordHash}/")
+                if rep and rep['Response']:
+                    name = rep['Response']["displayProperties"]["name"]
+                data[str(name)] = str(has_tri)
+
         elif req == 'lowman':
             denies = sum([1 if 'denyTime' in key else 0 for key in roledata.keys()])
             timeParse = lambda i, spec: datetime.strptime(roledata[f'denyTime{i}'][spec], "%d/%m/%Y %H:%M")
             disallowed = [(timeParse(i, 'startTime'), timeParse(i, 'endTime')) for i in range(denies)]
-            worthy &= hasLowman(playerid, 
+            has_low = hasLowman(playerid,
                             roledata['playercount'], 
                             roledata['activityHashes'], 
                             flawless=roledata.get('flawless', False), 
                             disallowed=disallowed
                             )
+            worthy &= has_low
+
+            data["Lowman (" + str(roledata['playercount']) + " Players)"] = str(has_low)
+
         elif req == 'roles':
-            return False #checked later
-        
-        if not worthy:
+            return [False, data] #checked later
+
+        if (not worthy) and br:
             break
-    return worthy
 
-
+    # print(data)
+    return [worthy, data]
 
 def returnIfHasRoles(playerid, role, year):
-    if hasRole(playerid, role, year):
+    if hasRole(playerid, role, year)[0]:
         return role
     return None
 
