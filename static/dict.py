@@ -51,7 +51,8 @@ requirementHashes = {
                 {'count' : 10,
                 'actHashes' : spirePHashes}  #prestige
             ],
-            'flawless' : spireHashes + spirePHashes
+            'flawless' : spireHashes + spirePHashes,
+            'replaced_by': ['Y1 Raid Master']
         },
         'Eater of Worlds': {
             'requirements': ['clears'],
@@ -67,7 +68,8 @@ requirementHashes = {
                 {'count' : 10,
                 'actHashes' : eaterPHashes}
             ], #prestige
-            'flawless': eaterHashes + eaterPHashes
+            'flawless': eaterHashes + eaterPHashes,
+            'replaced_by': ['Y1 Raid Master']
         },
         'Leviathan': {
             'requirements': ['clears'],
@@ -89,7 +91,8 @@ requirementHashes = {
                 3125541835, #1766893933, #splish splash
                 3125541833, #1766893935, #two enter, one leaves
                 3125541832  #1766893934  #take the throne
-            ]
+            ],
+            'replaced_by': ['Y1 Raid Master']
         },
         'Y1 Raid Master': {
             'requirements': ['roles'],
@@ -365,7 +368,7 @@ requirementHashes = {
             'requirements': ['lowman'],
             'playercount' : 3,
             'activityHashes': premenHashes,
-            'replaced_by': ['Two-Man Heroic Menagerie', 'Two-Man Heroic Menagerie']
+            'replaced_by': ['Two-Man Heroic Menagerie', 'Solo Heroic Menagerie']
         },
         'Two-Man Heroic Menagerie': {
             'requirements': ['lowman'],
