@@ -68,73 +68,78 @@ class getRoles(BaseCommand):
             return
 
         updateDB(destinyID)
-        
-        async with message.channel.typing():
-            roles_at_start = [role.name for role in user.roles]
-            (roleList,removeRoles) = getPlayerRoles(destinyID, roles_at_start)
 
-            await assignRolesToUser(roleList, user, message.guild)
-            await removeRolesFromUser(removeRoles, user, message.guild)
+        status_msg = await message.channel.send(embed=embed_message(
+            f'Just a sec...',
+            f"Working on your roles {user.name}!"
+        ))
+        status_msg = await message.channel.fetch_message(status_msg.id)
 
-            for role in roleList:
-                if role in requirementHashes['Addition']:
-                    await user.add_roles(discord.utils.get(message.guild.roles, id=achId ))#,name=achText))
-                else:
-                    await user.add_roles(discord.utils.get(message.guild.roles, id=raiderId ))#,name=raiderText))
+        roles_at_start = [role.name for role in user.roles]
+        (roleList,removeRoles) = getPlayerRoles(destinyID, roles_at_start)
 
-            roles_now = [role.name for role in user.roles]
+        await assignRolesToUser(roleList, user, message.guild)
+        await removeRolesFromUser(removeRoles, user, message.guild)
 
-            old_roles = {}
-            new_roles = {}
-            for topic, topicroles in requirementHashes.items():
-                topic = topic.replace("Y1", "Year One")
-                topic = topic.replace("Y2", "Year Two")
-                topic = topic.replace("Y3", "Year Three")
-                topic = topic.replace("Addition", "Miscellaneous")
+        for role in roleList:
+            if role in requirementHashes['Addition']:
+                await user.add_roles(discord.utils.get(message.guild.roles, id=achId ))#,name=achText))
+            else:
+                await user.add_roles(discord.utils.get(message.guild.roles, id=raiderId ))#,name=raiderText))
 
-                for role in topicroles.keys():
-                    if role in roles_at_start:
-                        try:
-                            old_roles[topic].append(role)
-                        except KeyError:
-                            old_roles[topic] = [role]
-                    elif (role not in roles_at_start) and (role in roles_now):
-                        try:
-                            new_roles[topic].append(role)
-                        except KeyError:
-                            new_roles[topic] = [role]
+        roles_now = [role.name for role in user.roles]
 
-            if not roleList:
-                await message.channel.send(embed=embed_message(
-                    'Error',
-                    f'You don\'t seem to have any roles.\nIf you believe this is an Error, refer to one of the <@&670397357120159776>\nOtherwise check <#686568386590802000> to see what you could acquire'
-                ))
-                return
+        old_roles = {}
+        new_roles = {}
+        for topic, topicroles in requirementHashes.items():
+            topic = topic.replace("Y1", "Year One")
+            topic = topic.replace("Y2", "Year Two")
+            topic = topic.replace("Y3", "Year Three")
+            topic = topic.replace("Addition", "Miscellaneous")
 
-            embed = embed_message(
-                f"{user.name}'s new Roles",
-                f'__Previous Roles:__'
-            )
-            if not old_roles:
-                embed.add_field(name=f"You didn't have any roles before", value="⁣", inline=True)
+            for role in topicroles.keys():
+                if role in roles_at_start:
+                    try:
+                        old_roles[topic].append(role)
+                    except KeyError:
+                        old_roles[topic] = [role]
+                elif (role not in roles_at_start) and (role in roles_now):
+                    try:
+                        new_roles[topic].append(role)
+                    except KeyError:
+                        new_roles[topic] = [role]
 
-            for topic in old_roles:
-                roles = []
-                for role in topic:
-                    roles.append(role)
-                embed.add_field(name=topic, value="\n".join(old_roles[topic]), inline=True)
+        if not roleList:
+            await status_msg.edit(embed=embed_message(
+                'Info',
+                f'You don\'t seem to have any roles.\nIf you believe this is an Error, refer to one of the <@&670397357120159776>\nOtherwise check <#686568386590802000> to see what you could acquire'
+            ))
+            return
 
-            embed.add_field(name="⁣", value=f"__New Roles:__", inline=False)
-            if not new_roles:
-                embed.add_field(name="No new roles have been achieved", value="⁣", inline=True)
+        embed = embed_message(
+            f"{user.name}'s new Roles",
+            f'__Previous Roles:__'
+        )
+        if not old_roles:
+            embed.add_field(name=f"You didn't have any roles before", value="⁣", inline=True)
 
-            for topic in new_roles:
-                roles = []
-                for role in topic:
-                    roles.append(role)
-                embed.add_field(name=topic, value="\n".join(new_roles[topic]), inline=True)
+        for topic in old_roles:
+            roles = []
+            for role in topic:
+                roles.append(role)
+            embed.add_field(name=topic, value="\n".join(old_roles[topic]), inline=True)
 
-            await message.channel.send(embed=embed)
+        embed.add_field(name="⁣", value=f"__New Roles:__", inline=False)
+        if not new_roles:
+            embed.add_field(name="No new roles have been achieved", value="⁣", inline=True)
+
+        for topic in new_roles:
+            roles = []
+            for role in topic:
+                roles.append(role)
+            embed.add_field(name=topic, value="\n".join(new_roles[topic]), inline=True)
+
+        await status_msg.edit(embed=embed)
 
 class lastRaid(BaseCommand):
     def __init__(self):
