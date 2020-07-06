@@ -31,3 +31,4 @@ database/whisperKills.pickle
 oauth/
 bbenv/
 checkpoint/
+database/seals.pickle
