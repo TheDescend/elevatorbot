@@ -150,10 +150,14 @@ async def assignRolesToUser(roleList, discordUser, guild):
     #takes rolelist as string array, userSnowflake, guild object
     for role in roleList:
         #print(guild.roles)
-        roleObj = discord.utils.get(guild.roles, name=role) or discord.utils.get(guild.roles, id=int(role))
-        if roleObj is None:
-            print(f'assignable role doesn\'t exist in {guild.name}: {role}')
-            continue
+        roleObj = discord.utils.get(guild.roles, name=role)
+        if not roleObj:
+            try:
+                roleObj = discord.utils.get(guild.roles, id=int(role))
+                _ = roleObj.name
+            except:
+                print(f'assignable role doesn\'t exist in {guild.name}: {role}')
+                continue
         if roleObj not in discordUser.roles:
             print(f'added role {roleObj.name} to user {discordUser.name}')
             try:
