@@ -292,7 +292,7 @@ def getFlawlessList(destinyID):
                     SELECT DISTINCT(t1.activityHash)
                     FROM (  SELECT instanceID, period, activityHash FROM activities
                             WHERE deaths = 0
-                            AND startingPhaseIndex = 0) t1
+                            AND startingPhaseIndex <= 2) t1
                     JOIN (  SELECT instanceID
                             FROM instancePlayerPerformance
                             WHERE playerID = ?
