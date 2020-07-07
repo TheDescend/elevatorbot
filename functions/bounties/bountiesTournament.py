@@ -1,7 +1,9 @@
 from functions.bounties.bountiesBackend import returnCustomGameWinner
 from functions.database     import lookupDestinyID
+from functions.network      import getJSONfromURL
 
 import asyncio
+import time
 
 class Tournament():
     def __init__(self):
@@ -50,9 +52,29 @@ class Tournament():
             destinyID1 = lookupDestinyID(self.player_id_translation[player1])
             destinyID2 = lookupDestinyID(self.player_id_translation[player2])
 
+            membershipType1 = None
+            charIDs1 = []
+            for i in [3, 2, 1, 4, 5, 10, 254]:
+                characterinfo = getJSONfromURL(
+                    f"https://www.bungie.net/Platform/Destiny2/{i}/Profile/{destinyID1}/?components=100")
+                if characterinfo:
+                    membershipType1 = i
+                    charIDs1 = characterinfo['Response']["profile"]["data"]["characterIds"]
+
+            timeout = time.time() + 60 * 60  # 60 minutes from now
             while True:
-                won = returnCustomGameWinner(destinyID1, destinyID2)
+                if time.time() > timeout:
+                    print("Waited too long for result")
+                    # TODO: ask in chat for winner, maybe with reactions
+                    return False
+
+                won = returnCustomGameWinner(destinyID1, charIDs1, membershipType1, destinyID2)
                 if won:
+                    if won == destinyID1:
+                        won = player1
+                    else:
+                        won = player2
+
                     return won
                 asyncio.sleep(10)
 
