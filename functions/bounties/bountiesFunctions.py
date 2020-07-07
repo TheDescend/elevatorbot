@@ -1,3 +1,6 @@
+import os
+import pickle
+
 # Channels:
 # #leaderboards
 # #register
@@ -15,3 +18,17 @@ def giveOutBounties(client):
 
 def startTournament():
     pass
+
+
+def saveAsGlobalVar(name, value):
+    if not os.path.exists('functions/bounties/channelIDs.pickle'):
+        file = {}
+    else:
+        with open('functions/bounties/channelIDs.pickle', "rb") as f:
+            file = pickle.load(f)
+
+    file[name] = value
+
+    with open('functions/bounties/channelIDs.pickle', "wb") as f:
+        pickle.dump(file, f)
+

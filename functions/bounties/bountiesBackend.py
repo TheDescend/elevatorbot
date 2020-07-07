@@ -1,7 +1,6 @@
 from functions.network      import getJSONfromURL
 import json
 
-
 # return winner of the last game in the pvp history, if just those two players where in it
 def returnCustomGameWinner(destinyID1, charIDs1, membershipType1, destinyID2):
     for char in charIDs1:
