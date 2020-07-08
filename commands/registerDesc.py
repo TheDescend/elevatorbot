@@ -52,38 +52,6 @@ class registerDesc(BaseCommand):
                 'Registration',
                 f'Sent a DM to {message.author.nick or message.author.name}'
             ))
-class getDestinyID(BaseCommand):
-    def __init__(self):
-        # A quick description for the help message
-        description = "[dev] check a user's destinyID"
-        params = ['User']
-        super().__init__(description, params)
-
-    # Override the handle() method
-    # It will be called every time the command is received
-    async def handle(self, params, message, client):
-        discordID = int(params[0])
-        discordUser = client.get_user(discordID)
-        if not discordUser:
-             await message.channel.send(f'Unknown User {discordID}')
-        print(f'{discordID} with {lookupDestinyID(discordID)}')
-        await message.channel.send(f'{discordUser.name} has destinyID {lookupDestinyID(discordID)}')
-
-
-class getDiscordID(BaseCommand):
-    def __init__(self):
-        # A quick description for the help message
-        description = "[dev] check a user's discordID by destinyID"
-        params = ['User']
-        super().__init__(description, params)
-
-    # Override the handle() method
-    # It will be called every time the command is received
-    async def handle(self, params, message, client):
-        destinyID = int(params[0])
-        print(f'{destinyID} with {lookupDiscordID(destinyID)}')
-        await message.channel.send(f'{destinyID} has discordID {lookupDiscordID(destinyID)}')
-
 
 class checkregister(BaseCommand):
     def __init__(self):
