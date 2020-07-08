@@ -8,10 +8,13 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from events.base_event              import BaseEvent
 from events                         import *
 from functions.roles                import assignRolesToUser
+from functions.bounties.bountiesFunctions import bountiesChannelMessage, registrationMessageReactions
 import asyncio
 import datetime
 import random
 import re
+import os
+import pickle
 
 from discord.ext.commands import Bot
 
@@ -69,7 +72,6 @@ def main():
                 activity=discord.Game(name=NOW_PLAYING))
         print("Logged in!", flush=True)
 
-        
         t1 = Thread(target=launch_event_loops, args=(client,))
         t1.start()
 
@@ -141,6 +143,24 @@ def main():
     @client.event
     async def on_message_edit(before, after):
         await common_handle_message(after)
+
+    # https://discordpy.readthedocs.io/en/latest/api.html#discord.RawReactionActionEvent
+    @client.event
+    async def on_raw_reaction_add(payload):
+        if payload.member.bot:
+            return
+
+        # for checking reactions to the bounties registration page
+        if os.path.exists('functions/bounties/channelIDs.pickle'):
+            with open('functions/bounties/channelIDs.pickle', "rb") as f:
+                file = pickle.load(f)
+            if "register_channel_message_id" in file:
+                register_channel_message_id = file["register_channel_message_id"]
+                if payload.message_id == register_channel_message_id:
+                    register_channel = discord.utils.get(client.get_all_channels(), guild__id=payload.guild_id, id=file["register_channel"])
+                    await registrationMessageReactions(payload.member, payload.emoji, register_channel, register_channel_message_id)
+
+
 
     @client.event
     async def on_voice_state_update(member, before, after):

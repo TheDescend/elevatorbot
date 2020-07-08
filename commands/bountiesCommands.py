@@ -1,5 +1,5 @@
 from commands.base_command  import BaseCommand
-from functions.bounties.bountiesFunctions import saveAsGlobalVar
+from functions.bounties.bountiesFunctions import saveAsGlobalVar, deleteFromGlobalVar, bountiesChannelMessage
 
 
 class bountiesMakeChannelRegister(BaseCommand):
@@ -9,8 +9,10 @@ class bountiesMakeChannelRegister(BaseCommand):
         super().__init__(description, params)
 
     async def handle(self, params, message, client):
-        saveAsGlobalVar("register_channel", message.channel.id)
-        await message.channel.send("Done!")
+        deleteFromGlobalVar("register_channel_message_id")
+        saveAsGlobalVar("register_channel", message.channel.id, message.guild.id)
+        await bountiesChannelMessage(client)
+
 
 class bountiesMakeChannelLeaderboard(BaseCommand):
     def __init__(self):
@@ -19,25 +21,28 @@ class bountiesMakeChannelLeaderboard(BaseCommand):
         super().__init__(description, params)
 
     async def handle(self, params, message, client):
-        saveAsGlobalVar("leaderboard_channel", message.channel.id)
-        await message.channel.send("Done!")
+        deleteFromGlobalVar("leaderboard_channel_message_id")
+        saveAsGlobalVar("leaderboard_channel", message.channel.id, message.guild.id)
+        await bountiesChannelMessage(client)
 
-class bountiesMakeChannelBounties(BaseCommand):
-    def __init__(self):
-        description = f'Admin / Dev only'
-        params = []
-        super().__init__(description, params)
 
-    async def handle(self, params, message, client):
-        saveAsGlobalVar("bounties_channel", message.channel.id)
-        await message.channel.send("Done!")
+# class bountiesMakeChannelBounties(BaseCommand):
+#     def __init__(self):
+#         description = f'Admin / Dev only'
+#         params = []
+#         super().__init__(description, params)
+#
+#     async def handle(self, params, message, client):
+#         saveAsGlobalVar("bounties_channel", message.channel.id, message.guild.id)
+#         await message.channel.send("Done!")
+#
 
-class bountiesMakeChannelTournament(BaseCommand):
-    def __init__(self):
-        description = f'Admin / Dev only'
-        params = []
-        super().__init__(description, params)
-
-    async def handle(self, params, message, client):
-        saveAsGlobalVar("tournament_channel", message.channel.id)
-        await message.channel.send("Done!")
+# class bountiesMakeChannelTournament(BaseCommand):
+#     def __init__(self):
+#         description = f'Admin / Dev only'
+#         params = []
+#         super().__init__(description, params)
+#
+#     async def handle(self, params, message, client):
+#         saveAsGlobalVar("tournament_channel", message.channel.id, message.guild.id)
+#         await message.channel.send("Done!")

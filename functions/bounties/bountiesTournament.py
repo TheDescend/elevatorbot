@@ -76,7 +76,7 @@ class Tournament():
                         won = player2
 
                     return won
-                asyncio.sleep(10)
+                await asyncio.sleep(10)
 
 
             # won = input(f"who won, {player1} or {player2}")
