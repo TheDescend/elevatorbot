@@ -151,14 +151,10 @@ async def assignRolesToUser(roleList, discordUser, guild):
     #takes rolelist as string array, userSnowflake, guild object
     for role in roleList:
         #print(guild.roles)
-        roleObj = discord.utils.get(guild.roles, name=role)
-        if not roleObj:
-            try:
-                roleObj = discord.utils.get(guild.roles, id=int(role))
-                _ = roleObj.name
-            except:
-                print(f'assignable role doesn\'t exist in {guild.name}: {role}')
-                continue
+        roleObj = discord.utils.get(guild.roles, name=role) or discord.utils.get(guild.roles, id=role)
+        if not roleObj and guild.id not in [556418279015448596, 724676552175910934]: #Crashtest dummy and emote server
+            print(f'assignable role doesn\'t exist in {guild.name} with id {guild.id}: {role}')
+            continue
         if roleObj not in discordUser.roles:
             print(f'added role {roleObj.name} to user {discordUser.name}')
             try:
@@ -171,7 +167,7 @@ async def removeRolesFromUser(roleStringList, discordUser, guild):
     removeRolesObjs = []
     for role in roleStringList:
         roleObj = discord.utils.get(guild.roles, name=role) or discord.utils.get(guild.roles, id=role)
-        if roleObj is None:
+        if roleObj is None and guild.id not in [556418279015448596, 724676552175910934]:
             print(f'removeable role doesn\'t exist: {role}')
             continue
         removeRolesObjs.append(roleObj)
