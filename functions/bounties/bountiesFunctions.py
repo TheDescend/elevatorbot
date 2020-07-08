@@ -40,6 +40,7 @@ def saveAsGlobalVar(name, value, guild_id = None):
     with open('functions/bounties/channelIDs.pickle', "wb") as f:
         pickle.dump(file, f)
 
+
 def deleteFromGlobalVar(name):
     if os.path.exists('functions/bounties/channelIDs.pickle'):
         with open('functions/bounties/channelIDs.pickle', "rb") as f:
@@ -54,20 +55,25 @@ def deleteFromGlobalVar(name):
             pickle.dump(file, f)
 
 
+# todo: add leaderboard lookup and calculation
+def leaderboardMessage():
+
+    embed = embed_message(
+        f'Leaderboard',
+        f'ToDo',
+        f"The leaderboard will update every 60 minutes"
+    )
+
+    return embed
+
+
 async def updateLeaderboard(client):
     with open('functions/bounties/channelIDs.pickle', "rb") as f:
         file = pickle.load(f)
 
     for guild in client.guilds:
         if guild.id == file["guild_id"]:
-
-            # todo
-            embed = embed_message(
-                f'Leaderboard',
-                f'ToDo',
-                f"The leaderboard will update every 60 minutes"
-            )
-
+            embed = leaderboardMessage()
             channel = discord.utils.get(guild.channels, id=file["leaderboard_channel"])
 
             if "leaderboard_channel_message_id" not in file:
