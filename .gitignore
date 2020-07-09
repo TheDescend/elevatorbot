@@ -32,3 +32,4 @@ oauth/
 bbenv/
 checkpoint/
 database/seals.pickle
+commands/mysticlist.list
