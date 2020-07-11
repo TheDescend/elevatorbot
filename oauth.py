@@ -61,7 +61,8 @@ def root():
     print('called root')
     #print('got request')
     response = request.args
-    code = response['code'] #for user auth
+    if not (code := getattr(response, 'code', None)): #for user auth
+        return "You look around.. There's nothing of value"
     #print(f'code is {code}')
     (discordID,serverID) = response['state'].split(':') #mine
 
@@ -132,8 +133,9 @@ def favicon():
 
 @app.before_request
 def before_request():
-    if request.url.startswith('http://'):
-        return redirect(request.url.replace('http://', 'https://'), code=301)
+    # if request.url.startswith('http://'):
+    #     return redirect(request.url.replace('http://', 'https://'), code=301)
+    pass
 
 @app.errorhandler(404)
 def not_found(e):
@@ -143,6 +145,6 @@ def not_found(e):
 if __name__ == '__main__':
     print('server running')
     context = ('/etc/letsencrypt/live/rc19v2108.dnh.net/fullchain.pem', '/etc/letsencrypt/live/rc19v2108.dnh.net/privkey.pem')
-    app.run(host= '0.0.0.0', port=443, ssl_context=context)
+    app.run(host= '0.0.0.0')
 
 

@@ -33,3 +33,5 @@ bbenv/
 checkpoint/
 database/seals.pickle
 commands/mysticlist.list
+nohup.out
+.uwsgi_plugins_builder
