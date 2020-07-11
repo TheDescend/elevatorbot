@@ -7,15 +7,15 @@ from functions.formating import embed_message
 class mysticadd(BaseCommand):
     def __init__(self):
         # A quick description for the help message
-        description = "Whom to carry"
-        params = ["player"]
+        description = "Add youself to mystics carry-list\nMystic and the admins can use pings to add other players"
+        params = []
         super().__init__(description, params)
 
     # Override the handle() method
     # It will be called every time the command is received
     async def handle(self, params, message, client):
         playerlist = []
-        with open('/root/sys32_descend/destinyBloodoakStats/commands/mysticlist.list', 'r+') as mlist:
+        with open('commands/mysticlist.list', 'r') as mlist:
             playerlist = mlist.read().split(',')
 
         if len(params) == 1:
@@ -44,18 +44,18 @@ class mysticadd(BaseCommand):
 
         playerlist.append(f'{user.name}')
 
-        with open('/root/sys32_descend/destinyBloodoakStats/commands/mysticlog.log', 'a+') as mlog:
+        with open('commands/mysticlog.log', 'a') as mlog:
             mlog.write(f'\n{message.author.name} added {user.name}')
         
-        with open('/root/sys32_descend/destinyBloodoakStats/commands/mysticlist.list', 'w+') as mlist:
+        with open('commands/mysticlist.list', 'w') as mlist:
             mlist.write(",".join(playerlist))
         await message.channel.send(f"Added {user.name} to the mysticlist, it now has {', '.join(playerlist)}")
 
 class mysticremove(BaseCommand):
     def __init__(self):
         # A quick description for the help message
-        description = "Whom to carry"
-        params = ["player"]
+        description = "Remove youself from mystics carry-list\nMystic and the admins can use pings to remove other players"
+        params = []
         super().__init__(description, params)
 
     # Override the handle() method
@@ -86,17 +86,17 @@ class mysticremove(BaseCommand):
             user = message.author
 
         playerlist = []
-        with open('/root/sys32_descend/destinyBloodoakStats/commands/mysticlist.list', 'r+') as mlist:
+        with open('commands/mysticlist.list', 'r') as mlist:
             playerlist = mlist.read().split(',')
         
         for name in playerlist[:]:
             if user.name.lower() == name.lower():
                 playerlist.remove(name)
                 await message.channel.send(f"Removed {user.name} from the mysticlist, it now has {', '.join(playerlist)}")
-                with open('/root/sys32_descend/destinyBloodoakStats/commands/mysticlog.log', 'a+') as mlog:
+                with open('commands/mysticlog.log', 'a') as mlog:
                     mlog.write(f'\n{message.author.name} removed {user.name}')
         
-                with open('/root/sys32_descend/destinyBloodoakStats/commands/mysticlist.list', 'w+') as mlist:
+                with open('commands/mysticlist.list', 'w+') as mlist:
                     mlist.write(",".join(playerlist))
                 return
         
@@ -112,6 +112,6 @@ class mystic(BaseCommand):
     # Override the handle() method
     # It will be called every time the command is received
     async def handle(self, params, message, client):
-        with open('/root/sys32_descend/destinyBloodoakStats/commands/mysticlist.list', 'r+') as mlist:
+        with open('commands/mysticlist.list', 'r+') as mlist:
             playerlist = mlist.read().split(',')
             await message.channel.send(f"It has {', '.join(playerlist)}")
