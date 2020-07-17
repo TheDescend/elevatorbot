@@ -121,6 +121,7 @@ async def bountiesChannelMessage(client):
                 #     channel = discord.utils.get(guild.channels, id=file["bounties_channel"])
                 #     await channel.send("bounties_channel")
                 #
+
                 # if "tournament_channel" in file:
                 #     channel = discord.utils.get(guild.channels, id=file["tournament_channel"])
                 #     await channel.send("tournament_channel")
