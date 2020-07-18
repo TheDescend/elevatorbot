@@ -24,25 +24,6 @@ class AutomaticRoleAssignment(BaseEvent):
     def __init__(self):
         interval_minutes = 1440 # Set the interval for this event 1440 = 24h
         super().__init__(interval_minutes)
-
-        # if not assign:
-        #     await newtonslab.send(f'Assigning roles {", ".join(newRoles)} failed for {discordUser.name}')
-        # if not remove:
-        #     await newtonslab.send(f'Removing roles {", ".join(removeRoles)} failed for {discordUser.name}')
-
-        #Auto-Assigns Descend role if player is in the clan (or any other clan registered in dict.py)
-        # for clanid, rolename in clanids.items():
-        #     if isUserInClan(destinyID,clanid):
-        #         await assignRolesToUser([rolename],discordUser,guild)
-        #     else:
-        #         await removeRolesFromUser([rolename], discordUser, guild)
-        # existingRoles = [er.name for er in discordUser.roles]
-        # addBools = [nr not in existingRoles for nr in newRoles]
-        # removeBools = [rr in existingRoles for rr in removeRoles]
-
-        # addrls = list(compress(newRoles, addBools))
-        # removerls = list(compress(removeRoles, removeBools))
-        # return [(discordUser.name, removerls or ["nothing"], addrls or ["nothing"])]
     
     async def run(self, client):
         print('running the automatic role assignment...')
