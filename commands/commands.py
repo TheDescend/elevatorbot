@@ -21,4 +21,5 @@ class Commands(BaseCommand):
             if not '[dev]' in cmd[1].description and not '[depracted]' in cmd[1].description:
                 msg += "\n" + cmd[1].description
 
-        await message.channel.send(msg)
+        for i in range(len(msg)//2000):
+            await message.channel.send(msg[i*2000:(i+1)*2000])
