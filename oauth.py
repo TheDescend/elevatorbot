@@ -37,11 +37,6 @@ def shutdown_server():
     if func is None:
         raise RuntimeError('Not running with the Werkzeug Server')
     func()
- 
-@app.route('/database')
-def database():
-    print('trying to download the file')
-    return send_file('database/userdb.sqlite3', as_attachment=True)
 
 @app.route('/test')
 def test():
