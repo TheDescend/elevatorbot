@@ -87,7 +87,7 @@ def main():
                         'is cuteness incarnate']
             addition = random.choice(texts)
             await message.channel.send(f'Häbidöpfel {addition}')
-        if "welcome" in text.lower() and "<@109022023979667456>" in text.lower():
+        if "welcome" in text.lower() and "<@!109022023979667456>" in text.lower():
             await message.channel.send(f'Welcome <@109022023979667456>!')
         if text.startswith(COMMAND_PREFIX) and text != COMMAND_PREFIX:
             cmd_split = text[len(COMMAND_PREFIX):].split()
