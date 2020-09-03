@@ -30,6 +30,58 @@ def insertUser(discordServerID, *, discordID, destinyID):
     except sqlite3.IntegrityError:
         return False
 
+def removeUser(discordID):
+    """ Removes a User from the DB (by discordID), returns True if successful"""
+
+    con = db_connect()
+    product_sql = """DELETE FROM discordGuardiansToken 
+        WHERE discordSnowflake = ? """
+    try:
+        con.execute(product_sql, (discordID,))
+        con.commit()
+        con.close()
+        return True
+    except sqlite3.IntegrityError:
+        return False
+
+    
+def insertBountyUser(discordID):
+    """ Inserts a discordID mapping into the database, returns True if successful False otherwise """
+    con = db_connect()
+    product_sql = """INSERT INTO bountyGoblins 
+        (discordSnowflake) 
+        VALUES (?)"""
+    try:
+        con.execute(product_sql, (discordID,))
+        con.commit()
+        con.close()
+        return True
+    except sqlite3.IntegrityError:
+        return False
+
+def removeBountyUser(discordID):
+    """ Removes a User from the DB (by discordID), returns True if successful"""
+    con = db_connect()
+    product_sql = """DELETE FROM bountyGoblins 
+        WHERE discordSnowflake = ? """
+    try:
+        con.execute(product_sql, (discordID,))
+        con.commit()
+        con.close()
+        return True
+    except sqlite3.IntegrityError:
+        return False
+
+def getBountyUserList():
+    """ Returns a list of all discordSnowflakes of bountyUsers"""
+    con = db_connect()
+    cur = con.cursor()
+    getAll = "SELECT discordSnowflake FROM bountyGoblins;"
+
+    resultcur = cur.execute(getAll)
+    result = resultcur.fetchall()
+    return [row[0] for row in result]
+
 def getRefreshToken(discordID):
     """ Gets a Users Bungie-Refreshtoken or None """
     con = db_connect()
@@ -79,20 +131,6 @@ def insertToken(discordID, destinyID, discordServerID, token, refresh_token):
         con.execute(update_sql, (token, refresh_token, discordID))
         con.commit()
         con.close()
-
-def removeUser(discordID):
-    """ Removes a User from the DB (by discordID), returns True if successful"""
-
-    con = db_connect()
-    product_sql = """DELETE FROM discordGuardiansToken 
-        WHERE discordSnowflake = ? """
-    try:
-        con.execute(product_sql, (discordID,))
-        con.commit()
-        con.close()
-        return True
-    except sqlite3.IntegrityError:
-        return False
 
 def lookupDestinyID(discordID):
     """ Takes discordID and returns destinyID """
