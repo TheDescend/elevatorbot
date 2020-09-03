@@ -2,7 +2,7 @@
 
 import requests, json
 from static.config      import BUNGIE_OAUTH, BUNGIE_TOKEN, BUNGIE_SECRET, B64_SECRET, NEWTONS_WEBHOOK
-from flask              import Flask, request, redirect, Response, send_file
+from flask              import Flask, request, redirect, Response, send_file, render_template
 from functions.database import insertToken, getRefreshToken
 import asyncio
 import os
@@ -42,6 +42,12 @@ def shutdown_server():
 def test():
     print('testing')
     return "hi"
+
+@app.route('/level1')
+@app.route('/level1/<highscore>')
+def level1():
+    highscore = request.cookies.get('userHighscore')
+    return render_template('level1.html', highscore=highscore)
 
 @app.route('/')
 def root():
@@ -123,6 +129,7 @@ def before_request():
     if request.url.startswith('http://'):
         return redirect(request.url.replace('http://', 'https://'), code=301)
     pass
+
 
 @app.errorhandler(404)
 def not_found(e):
