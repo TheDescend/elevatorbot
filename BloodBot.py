@@ -9,6 +9,7 @@ from events.base_event              import BaseEvent
 from events                         import *
 from functions.roles                import assignRolesToUser
 from functions.bounties.bountiesFunctions import bountiesChannelMessage, registrationMessageReactions
+from commands.otherGameRoles import otherGameRolesMessageReactions
 import asyncio
 import datetime
 import random
@@ -154,11 +155,20 @@ def main():
         if os.path.exists('functions/bounties/channelIDs.pickle'):
             with open('functions/bounties/channelIDs.pickle', "rb") as f:
                 file = pickle.load(f)
+
+            # check if reaction is on the registration page
             if "register_channel_message_id" in file:
                 register_channel_message_id = file["register_channel_message_id"]
                 if payload.message_id == register_channel_message_id:
                     register_channel = discord.utils.get(client.get_all_channels(), guild__id=payload.guild_id, id=file["register_channel"])
                     await registrationMessageReactions(payload.member, payload.emoji, register_channel, register_channel_message_id)
+
+            # check if reaction is on the other game role page
+            if "other_game_roles_channel_message_id" in file:
+                other_game_roles_channel_message_id = file["other_game_roles_channel_message_id"]
+                if payload.message_id == other_game_roles_channel_message_id:
+                    register_channel = discord.utils.get(client.get_all_channels(), guild__id=payload.guild_id, id=file["other_game_roles_channel"])
+                    await otherGameRolesMessageReactions(client, payload.member, payload.emoji, register_channel, other_game_roles_channel_message_id)
 
 
 

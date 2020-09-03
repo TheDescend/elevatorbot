@@ -87,6 +87,7 @@ async def updateLeaderboard(client):
             return
 
 
+# writes the message the user will see and react to and saves the id in the pickle
 async def bountiesChannelMessage(client):
     if os.path.exists('functions/bounties/channelIDs.pickle'):
         with open('functions/bounties/channelIDs.pickle', "rb") as f:
@@ -94,6 +95,31 @@ async def bountiesChannelMessage(client):
 
         for guild in client.guilds:
             if guild.id == file["guild_id"]:
+
+                # the other games role channel message
+                if "other_game_roles_channel" in file:
+                    if "other_game_roles_channel_message_id" not in file:
+                        channel = discord.utils.get(guild.channels, id=file["other_game_roles_channel"])
+                        await channel.purge(limit=100)
+
+                        # send register msg and save the id
+                        msg = await channel.send(embed=embed_message(
+                            f'Other Game Roles',
+                            f'React to add / remove other game roles'
+                        ))
+
+                        among_us = client.get_emoji(751020830376591420)
+                        barotrauma = client.get_emoji(751022749773856929)
+                        gta = client.get_emoji(751020831382962247)
+                        valorant = client.get_emoji(751020830414209064)
+
+                        await msg.add_reaction(among_us)
+                        await msg.add_reaction(barotrauma)
+                        await msg.add_reaction(gta)
+                        await msg.add_reaction(valorant)
+
+                        saveAsGlobalVar("other_game_roles_channel_message_id", msg.id)
+
                 # put message in #register channel if there is none
                 if "register_channel" in file:
                     if "register_channel_message_id" not in file:

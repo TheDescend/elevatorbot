@@ -112,7 +112,7 @@ class getRoles(BaseCommand):
                 return
 
             embed = embed_message(
-                f"{user.name}'s new Roles",
+                f"{user.display_name}'s new Roles",
                 f'__Previous Roles:__'
             )
             if not old_roles:
@@ -159,7 +159,7 @@ class lastRaid(BaseCommand):
 class flawlesses(BaseCommand):
     def __init__(self):
         # A quick description for the help message
-        description = "flaweless hashes"
+        description = "[dev] flaweless hashes"
         params = []
         super().__init__(description, params)
 

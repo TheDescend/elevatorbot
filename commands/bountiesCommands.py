@@ -4,7 +4,7 @@ from functions.bounties.bountiesFunctions import saveAsGlobalVar, deleteFromGlob
 
 class bountiesMakeChannelRegister(BaseCommand):
     def __init__(self):
-        description = f'Admin / Dev only'
+        description = f'[dev] Admin / Dev only'
         params = []
         super().__init__(description, params)
 
@@ -16,7 +16,7 @@ class bountiesMakeChannelRegister(BaseCommand):
 
 class bountiesMakeChannelLeaderboard(BaseCommand):
     def __init__(self):
-        description = f'Admin / Dev only'
+        description = f'[dev] Admin / Dev only'
         params = []
         super().__init__(description, params)
 
