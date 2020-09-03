@@ -82,6 +82,31 @@ def getBountyUserList():
     result = resultcur.fetchall()
     return [row[0] for row in result]
 
+def getLevel(levelType, discordID):
+    """ Returns the level for a specific discordID"""
+    con = db_connect()
+    cur = con.cursor()
+    getLevelByDiscordID = "SELECT ? FROM bountyGoblins WHERE discordSnowflake = ?"
+
+    resultcur = cur.execute(getLevelByDiscordID, (f"{levelType}Level", discordID,))
+    result = resultcur.fetchall()
+    return result[0][0]
+
+def addLevel(value, levelType, discordID):
+    """ Adds to a value to a level for a discordID and then returns it"""
+    con = db_connect()
+    cur = con.cursor()
+    curLevel = getLevel(levelType, discordID)
+    newLevel = curLevel + value
+    setLevelByDiscordID = """UPDATE table
+                                SET ? = ?
+                            WHERE
+                                discordSnowflake = ?;"""
+
+    resultcur = cur.execute(setLevelByDiscordID, (f"{levelType}Level", curLevel, discordID,))
+    con.commit()
+    return True
+
 def getRefreshToken(discordID):
     """ Gets a Users Bungie-Refreshtoken or None """
     con = db_connect()
