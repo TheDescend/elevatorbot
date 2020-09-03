@@ -72,7 +72,7 @@ def removeBountyUser(discordID):
         return False
 
 def getBountyUserList():
-        """ Returns a list of all discordSnowflakes of bountyUsers"""
+    """ Returns a list of all discordSnowflakes of bountyUsers"""
     con = db_connect()
     cur = con.cursor()
     getAll = "SELECT discordSnowflake FROM bountyGoblins;"
