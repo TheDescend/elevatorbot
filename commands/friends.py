@@ -31,13 +31,13 @@ class friends(BaseCommand):
 
 
     async def handle(self, params, message, client):
-        # special behavior fpr pepe
-        if message.author.id == 367385031569702912:
-            await message.channel.send(embed=embed_message(
-                'Error',
-                f'Pepe, we all know you have no friends. Using this command wont help you with that, now please stop sending me loli hentai <a:monkaBan:675775957906227230>'
-            ))
-            return
+        # special behavior for pepe
+        # if message.author.id == 367385031569702912:
+        #     await message.channel.send(embed=embed_message(
+        #         'Error',
+        #         f'Pepe, we all know you have no friends. Using this command wont help you with that, now please stop sending me loli hentai <a:monkaBan:675775957906227230>'
+        #     ))
+        #     return
 
         activities = {
             "everything": 0,
@@ -95,7 +95,10 @@ class friends(BaseCommand):
         # wait for reply from original user to set the time parameters
         try:
             answer_msg = await client.wait_for('message', timeout=60.0, check=check)
-            await answer_msg.delete()
+            try:
+                await answer_msg.delete()
+            except discord.errors.Forbidden:
+                print(f'doesnt have admin rights for {message.channel.guild.name}')
 
         # if user is too slow, let him know and remove message after 30s
         except asyncio.TimeoutError:
