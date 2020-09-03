@@ -1,4 +1,7 @@
-from functions.network      import getJSONfromURL
+from functions.network import getJSONfromURL
+from functions.database import getBountyUserList, lookupDestinyID
+
+
 import json
 
 # return winner of the last game in the pvp history, if just those two players where in it
@@ -40,3 +43,13 @@ def returnCustomGameWinner(destinyID1, charIDs1, membershipType1, destinyID2):
                     else:
                         return destinyID2
     return False
+
+
+# checks if any player has completed a bounty
+async def bountyCompletion(client):
+    # loop though all registered users
+    for user in getBountyUserList():
+        destinyID = lookupDestinyID(user.id)
+
+        bounties
+
