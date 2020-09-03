@@ -111,7 +111,7 @@ class forceregister(BaseCommand):
         dev = discord.utils.get(message.guild.roles, name='Developer') 
         discordID = params[0]
         destinyID = params[1]
-        if not '4' == str(destinyID)[0]: #sanity check
+        if not '4611' == str(destinyID)[:4]: #sanity check
             await message.channel.send(f'Please make sure the destinyID is correct')
             return
         if admin not in message.author.roles and dev not in message.author.roles and not message.author.id == params[0]:
