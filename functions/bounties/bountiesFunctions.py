@@ -1,15 +1,102 @@
 from functions.formating import embed_message
+from functions.database import insertBountyUser, removeBountyUser
+from functions.bounties.boutiesBountyRequirements import bounties, competition_bounties
 
 import os
 import pickle
 import discord
+import random
+import json
+import asyncio
 
 
 
-def giveOutBounties(client):
-    pass
-    # give all signed up members their bounties, maybe every week, as a dm?
-    # that'd be a way to have it run weekly https://stackoverflow.com/questions/43670224/python-to-run-a-piece-of-code-at-a-defined-time-every-day
+# randomly generate bounties. One per topic for both of the lists
+def generateBounties(client):
+    # looping though the bounties and generating random ones
+    file = {}
+    file["bounties"] = {}
+    for topic in bounties.keys():
+        file["bounties"][topic] = {}
+        for experience in bounties[topic].keys():
+            key, value = random.choice(list(bounties[topic][experience].items()))
+
+            # if "randomActivity" is present, get a random activity from the list and delete "randomActivity" so it doesn't take up space anymore
+            if "randomActivity" in value:
+                value["allowedActivities"] = [random.choice(value.pop("randomActivity"))]
+                value["requirements"].pop(value["requirements"].index("randomActivity"))
+                value["requirements"].append("allowedActivities")
+
+            file["bounties"][topic][experience] = {}
+            file["bounties"][topic][experience][key] = value
+
+    # looping though the competition bounties and generating random ones
+    file["competition_bounties"] = {}
+    for topic in competition_bounties.keys():
+        key, value = random.choice(list(competition_bounties[topic].items()))
+
+        # if "randomActivity" is present, get a random activity from the list and delete "randomActivity" so it doesn't take up space anymore
+        if "randomActivity" in value:
+            value["allowedActivities"] = [random.choice(value.pop("randomActivity"))]
+            value["requirements"].pop(value["requirements"].index("randomActivity"))
+            value["requirements"].append("allowedActivities")
+
+        file["competition_bounties"][topic] = {}
+        file["competition_bounties"][topic][key] = value
+
+    # overwrite the old bounties
+    with open('functions/bounties/currentBounties.pickle', "wb") as f:
+        pickle.dump(file, f)
+
+    print("Generated new bounties:")
+    print(json.dumps(file, indent=4))
+
+    # update the display
+    task = displayBounties(client)
+    fut = asyncio.run_coroutine_threadsafe(task, client.loop)
+    try:
+        fut.result()
+    except Exception as exc:
+        print(f'generated an exception: {exc}')
+
+
+# print the bounties in their respective channels
+async def displayBounties(client):
+    # load bounties
+    with open('functions/bounties/currentBounties.pickle', "rb") as f:
+        json = pickle.load(f)
+
+    # get channel and guild id
+    with open('functions/bounties/channelIDs.pickle', "rb") as f:
+        file = pickle.load(f)
+    for guild in client.guilds:
+        if guild.id == file["guild_id"]:
+
+            # clean channels and call the actual print function
+            if "bounties_channel" in file:
+                bounties_channel = discord.utils.get(guild.channels, id=file["bounties_channel"])
+                await bounties_channel.purge(limit=100)
+                for topic in json["bounties"].keys():
+                    embed = embed_message(
+                        topic
+                    )
+                    for experience in json["bounties"][topic].keys():
+                        name, _ = list(json["bounties"][topic][experience].items())[0]
+                        embed.add_field(name=f"{experience}:", value=name, inline=False)
+                    await bounties_channel.send(embed=embed)
+            if "competition_bounties_channel" in file:
+                competition_bounties_channel = discord.utils.get(guild.channels, id=file["competition_bounties_channel"])
+                await competition_bounties_channel.purge(limit=100)
+                for topic in json["competition_bounties"].keys():
+                    name, _ = list(json["competition_bounties"][topic].items())[0]
+                    embed = embed_message(
+                        topic,
+                        name
+                    )
+                    await competition_bounties_channel.send(embed=embed)
+
+    print("Updated the bounties display")
+
 
 def startTournament():
     pass
@@ -143,10 +230,7 @@ async def bountiesChannelMessage(client):
                         # send leaderboard msg
                         await updateLeaderboard(client)
 
-                # if "bounties_channel" in file:
-                #     channel = discord.utils.get(guild.channels, id=file["bounties_channel"])
-                #     await channel.send("bounties_channel")
-                #
+
 
                 # if "tournament_channel" in file:
                 #     channel = discord.utils.get(guild.channels, id=file["tournament_channel"])
@@ -157,12 +241,15 @@ async def registrationMessageReactions(user, emoji, register_channel, register_c
 
     if emoji.name == "✅":
         await message.remove_reaction("✅", user)
-        # todo: add to database
+        insertBountyUser(user.id)
         await user.send("you signed up")
     elif emoji.name == "❎":
         await message.remove_reaction("❎", user)
-        # todo: remove from database
+        removeBountyUser(user.id)
         await user.send("you're no longer signed up")
+
+
+    #todo maybe another msg that you can react to to get pinged if new bouinties are there
 
 
 

@@ -6,7 +6,10 @@ getNameFromHashActivity= {}
 getNameFromHashCollectible = {}
 getNameFromHashInventoryItem = {}
 
+
+
 # from https://data.destinysets.com/
+# raids
 spirePHashes = [3213556450]
 spireHashes = [119944200]
 eaterPHashes = [809170886]
@@ -19,10 +22,37 @@ lwHashes = [2122313384]
 cosHashes = [3333172150, 960175301] 
 gosHashes = [3845997235,2659723068]
 
+# dungeons
+throneHashes = [1893059148, 2032534090]
+pitHashes = [1375089621, 2559374368, 2559374374, 2559374375]
+prophHashes = [4148187374]
+
+# menagerie
 premenHashes = [2509539864, 2509539865, 2509539867, 1831470693, 3107795800, 3115455134]
 
+# secret missions
 zeroHashes = [3232506937] 
 herzeroHashes = [2731208666]
+
+# daily heroic missions - empty for now, since most stuff wil get deleted in BL
+# heroicStoryHashes =
+
+
+
+#activityTypeHashes
+ActivityStoryHash = [147238405, 1686739444, 1299744814, 2201105581, 2911768360]
+ActivityRaidHash = [2043403989]
+ActivityDungeonHash = [608898761]
+ActivityGambitHash = [636666746, 1418469392, 2490937569] # will probly change with BL
+ActivityNFHash = [575572995]
+ActivityStrikeHash = [2884569138, 2884569138, 4110605575, 4110605575, 4164571395]
+ActivityPrivateMatchHash = [4260058063]
+ActivityPVPHash = [96396597, 158362448, 517828061, 964120289, 1434366740, 1472571612, 1522227381, 2112637710,
+                   2175955486, 2278747016, 2371050408, 2394267841, 2410913661, 2505748283, 3252144427, 3268478079,
+                   3517186939, 3610972626, 3954711135, 3956087078, 3956381302, 3990775146, 4141415314, 4288302346]
+ActivityLighthouseHash = [4276116472]
+
+
 
 clanids = {
     4107840 : 'The Descend'

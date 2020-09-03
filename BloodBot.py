@@ -8,7 +8,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from events.base_event              import BaseEvent
 from events                         import *
 from functions.roles                import assignRolesToUser
-from functions.bounties.bountiesFunctions import bountiesChannelMessage, registrationMessageReactions
+from functions.bounties.bountiesFunctions import generateBounties, registrationMessageReactions
 from commands.otherGameRoles import otherGameRolesMessageReactions
 import asyncio
 import datetime
@@ -45,6 +45,11 @@ def launch_event_loops(client):
         sched.add_job(event.run, 'interval', (client,),
                         minutes=event.interval_minutes)
         n_ev += 1
+
+    # generate new bounties every monday at midnight
+    #sched.add_job(generateBounties, "cron", (client,), day_of_week="thu", hour=15, minute=28)
+    sched.add_job(generateBounties, "cron", (client,), day_of_week="mon", hour=0, minute=0)
+
     sched.start()
     print(f"{n_ev} events loaded", flush=True)
     print(f"Startup complete!", flush=True)
