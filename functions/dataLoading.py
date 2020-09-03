@@ -68,7 +68,7 @@ def getCharactertypeList(destinyID):
     return (None,[])
 
 #https://bungie-net.github.io/multi/schema_Destiny-HistoricalStats-DestinyHistoricalStatsPeriodGroup.html#schema_Destiny-HistoricalStats-DestinyHistoricalStatsPeriodGroup
-def getPlayersPastPVE(destinyID):
+def getPlayersPastPVE(destinyID, mode=7):
     platform = None
     syscharlist = getSystemAndChars(destinyID)
     if getLastUpdated(destinyID) > datetime.strptime("26/03/2015 04:20", "%d/%m/%Y %H:%M") or not syscharlist:
@@ -84,11 +84,11 @@ def getPlayersPastPVE(destinyID):
     for pagenr in range(1000):
         charidsToRemove = []
         for characterID in charIDs:
-            staturl = f"https://www.bungie.net/Platform/Destiny2/{platform}/Account/{destinyID}/Character/{characterID}/Stats/Activities/?mode=7&count=250&page={pagenr}" 
-            # None	0 Everything
-            # Story	2	 
+            staturl = f"https://www.bungie.net/Platform/Destiny2/{platform}/Account/{destinyID}/Character/{characterID}/Stats/Activities/?mode={mode}&count=250&page={pagenr}"
+            # None	    0 Everything
+            # Story	    2
             # Strike	3	 
-            # Raid	4	 
+            # Raid	    4
             # AllPvP	5	 
             # Patrol	6	 
             # AllPvE	7	

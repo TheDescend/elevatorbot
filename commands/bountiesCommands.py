@@ -7,7 +7,7 @@ import discord
 
 class generateNewBounties(BaseCommand):
     def __init__(self):
-        description = f'[dev] Admin / Dev only'
+        description = f'[Admin] Generate new bounties'
         params = []
         super().__init__(description, params)
 

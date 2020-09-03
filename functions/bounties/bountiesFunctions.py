@@ -8,6 +8,7 @@ import discord
 import random
 import json
 import asyncio
+import datetime
 
 
 
@@ -44,6 +45,9 @@ def generateBounties(client):
         file["competition_bounties"][topic] = {}
         file["competition_bounties"][topic][key] = value
 
+    # add current time to list
+    file["time"] = str(datetime.datetime.now())
+
     # overwrite the old bounties
     with open('functions/bounties/currentBounties.pickle', "wb") as f:
         pickle.dump(file, f)
@@ -53,11 +57,13 @@ def generateBounties(client):
 
     # update the display
     task = displayBounties(client)
-    fut = asyncio.run_coroutine_threadsafe(task, client.loop)
-    try:
-        fut.result()
-    except Exception as exc:
-        print(f'generated an exception: {exc}')
+    asyncio.run_coroutine_threadsafe(task, client.loop)
+
+    # delete old bounty completion tracking pickle
+    if os.path.exists('functions/bounties/playerBountyStatus.pickle'):
+        os.remove('functions/bounties/playerBountyStatus.pickle')
+
+    # todo add score to users who won the competitive bounties
 
 
 # print the bounties in their respective channels
@@ -81,38 +87,48 @@ async def displayBounties(client):
                         topic
                     )
                     for experience in json["bounties"][topic].keys():
-                        name, _ = list(json["bounties"][topic][experience].items())[0]
-                        embed.add_field(name=f"{experience}:", value=name, inline=False)
+                        name, req = list(json["bounties"][topic][experience].items())[0]
+                        embed.add_field(name=f"{experience}:", value=f"{name} (Points: {req['points']})", inline=False)
                     await bounties_channel.send(embed=embed)
+                print("Updated bounty display")
             if "competition_bounties_channel" in file:
-                competition_bounties_channel = discord.utils.get(guild.channels, id=file["competition_bounties_channel"])
-                await competition_bounties_channel.purge(limit=100)
-                for topic in json["competition_bounties"].keys():
-                    name, _ = list(json["competition_bounties"][topic].items())[0]
-                    embed = embed_message(
-                        topic,
-                        name
-                    )
-                    await competition_bounties_channel.send(embed=embed)
+                await displayCompetitionBounties(guild, file)
 
-    print("Updated the bounties display")
+    print("Done updating displays")
+
+
+async def displayCompetitionBounties(guild, file, leaderboard=None, message=None):
+    # load bounties
+    with open('functions/bounties/currentBounties.pickle', "rb") as f:
+        json = pickle.load(f)
+
+    competition_bounties_channel = discord.utils.get(guild.channels, id=file["competition_bounties_channel"])
+    await competition_bounties_channel.purge(limit=100)
+    for topic in json["competition_bounties"].keys():
+        name, req = list(json["competition_bounties"][topic].items())[0]
+        embed = embed_message(
+            topic,
+            f"{name} (Points: {req['points']})"
+        )
+
+        # if the leaderboard already exists, add it to the msg
+        if leaderboard:
+            embed.add_field(name="Current Leaderboard:", value=f"\n".join(leaderboard), inline=False)
+
+        # edit msg if given one, otherwise create a new one and save the id
+        if message:
+            await message.edit(embed=embed)
+        else:
+            msg = await competition_bounties_channel.send(embed=embed)
+            saveAsGlobalVar(f"competition_bounties_channel_{topic.lower()}_message_id", msg.id)
+    print("Updated competition bounty display")
 
 
 def startTournament():
+    #todo
     pass
 
 
-""" 
-file = {
-    "guild_id": id,
-    "register_channel": channel.id,
-    "register_channel_message_id": message.id,
-    "leaderboard_channel": channel.id,
-    "leaderboard_channel_message_id": message.id,
-    "bounties_channel": channel.id,
-    "tournament_channel: channel.id"
-}
-"""
 def saveAsGlobalVar(name, value, guild_id = None):
     if not os.path.exists('functions/bounties/channelIDs.pickle'):
         file = {}
@@ -242,6 +258,7 @@ async def registrationMessageReactions(user, emoji, register_channel, register_c
     if emoji.name == "✅":
         await message.remove_reaction("✅", user)
         insertBountyUser(user.id)
+        # todo add experience levels: 0 is unexperienced and 1 experiencd. Need different values for different topics
         await user.send("you signed up")
     elif emoji.name == "❎":
         await message.remove_reaction("❎", user)
