@@ -102,8 +102,16 @@ def getPlayersPastPVE(destinyID, mode=7):
                 yield activity
         for charid in charidsToRemove:
             charIDs.remove(charid)
-
     #return sorted(activitylist, key = lambda i: i['period'], reverse=True)
+
+# https://bungie-net.github.io/multi/schema_Destiny-DestinyComponentType.html#schema_Destiny-DestinyComponentType
+def getProfile(destinyID, components):
+    url = 'https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/?components={}'
+    for system in [3,2,1,4,5,10,254]:
+        statsResponse = getJSONfromURL(url.format(system, destinyID, components))
+        if statsResponse:
+            return statsResponse['Response']
+    return None
 
 def getStats(destinyID):
     url = 'https://stats.bungie.net/Platform/Destiny2/{}/Account/{}/Stats/'

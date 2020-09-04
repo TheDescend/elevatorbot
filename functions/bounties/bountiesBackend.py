@@ -1,15 +1,14 @@
 from functions.network import getJSONfromURL
-from functions.database import getBountyUserList, lookupDestinyID, getLevel, addLevel
-from functions.dataLoading import getPlayersPastPVE
+from functions.database import lookupDestinyID, lookupDiscordID, getLevel, addLevel, setLevel
+from functions.dataLoading import getPlayersPastPVE, getStats, getProfile
+from static.dict import metricRaidCompletion, metricAvailableRaidCompletion
 from functions.formating    import embed_message
-from functions.bounties.bountiesFunctions import displayCompetitionBounties
 
 import datetime
 import json
 import pickle
 import os
-import discord
-import concurrent.futures
+
 
 # return winner of the last game in the pvp history, if just those two players where in it
 def returnCustomGameWinner(destinyID1, charIDs1, membershipType1, destinyID2):
@@ -50,70 +49,6 @@ def returnCustomGameWinner(destinyID1, charIDs1, membershipType1, destinyID2):
                     else:
                         return destinyID2
     return False
-
-
-# checks if any player has completed a bounty
-async def bountyCompletion(client):
-    # load bounties
-    with open('functions/bounties/currentBounties.pickle', "rb") as f:
-        bounties = pickle.load(f)
-    cutoff = datetime.datetime.strptime(bounties["time"], "%Y-%m-%d %H:%M:%S.%f")
-
-    # load channel ids
-    with open('functions/bounties/channelIDs.pickle', "rb") as f:
-        file = pickle.load(f)
-        for guild in client.guilds:
-            if guild.id == file["guild_id"]:
-                break
-
-    # loop though all registered users
-    with concurrent.futures.ThreadPoolExecutor(os.cpu_count() * 5) as pool:
-        futurelist = [pool.submit(threadingBounties, bounties["bounties"], cutoff, user) for user in getBountyUserList()]
-
-        for future in concurrent.futures.as_completed(futurelist):
-            try:
-                result = future.result()
-            except Exception as exc:
-                print(f'generated an exception: {exc}')
-
-
-    # loop though all the competition bounties
-    for topic in bounties["competition_bounties"]:
-        for bounty in bounties["competition_bounties"][topic]:
-
-            # gets the msg object related to the current topic in the competition_bounties_channel
-            message = await discord.utils.get(client.guild.channels, id=file["competition_bounties_channel"]).fetch_message(file[f"competition_bounties_channel_{topic.lower()}_message_id"])
-
-            # create leaderboard dict
-            leaderboard = {}
-
-            # loop though all registered users
-            with concurrent.futures.ThreadPoolExecutor(os.cpu_count() * 5) as pool:
-                futurelist = [pool.submit(threadingCompetitionBounties, bounties["competition_bounties"][topic][bounty], cutoff, user.id)
-                              for user in getBountyUserList()]
-
-                for future in concurrent.futures.as_completed(futurelist):
-                    try:
-                        result = future.result()
-                        leaderboard.update(result)
-                    except Exception as exc:
-                        print(f'generated an exception: {exc}')
-
-            # sort leaderboard
-            leaderboard = {k: v for k, v in sorted(leaderboard.items(), key=lambda item: item[1], reverse=True)}
-
-            # update bounty leaderboard
-            ranking = []
-            i = 1
-            for key, value in leaderboard.items():
-                ranking.append(str(i) + ") **" + client.get_user(key).display_name + "** _(Score: " + str(value) + ")_")
-
-                # break after 10 entries
-                i += 1
-                if i > 10:
-                    break
-
-            await displayCompetitionBounties(guild, file, ranking, message)
 
 
 def threadingBounties(bounties, cutoff, user):
@@ -213,4 +148,67 @@ def playerHasDoneBounty(discordID, name):
 
     return False
 
+
+# updates / sets all experience levels for the user
+def updateAllExperience(discordID):
+    destinyID = lookupDestinyID(discordID)
+    experiencePve(destinyID)
+    experiencePvp(destinyID)
+    experienceRaids(destinyID)
+
+# sets the exp level for "pve" - currently kd above 1.11
+def experiencePvp(destinyID):
+    limit = 1.11    # since that includes hali :)
+
+    ret = getStats(destinyID)
+    if ret:
+        kd = ret["mergedAllCharacters"]["results"]["allPvP"]["allTime"]["killsDeathsRatio"]["basic"]["value"]
+
+        exp = 1 if kd >= limit else 0
+        setLevel(exp, "exp_pvp", lookupDiscordID(destinyID))
+
+        return True
+    return False
+
+
+# sets the exp level for "pve" - currently time played above 500h
+def experiencePve(destinyID):
+    limit = 500     # hours
+
+    ret = getStats(destinyID)
+    if ret:
+        time_played = ret["mergedAllCharacters"]["results"]["allPvE"]["allTime"]["secondsPlayed"]["basic"]["value"]
+
+        exp = 1 if time_played >= (limit * 60 * 60) else 0
+        setLevel(exp, "exp_pve", lookupDiscordID(destinyID))
+
+        return True
+    return False
+
+
+
+# sets the exp level for "raids" - currently 35 raids and every raid cleared
+def experienceRaids(destinyID):
+    limit_raids = 35            # total raids
+    limit_doneEach = 1          # does every raid need to be cleared
+
+    ret = getProfile(destinyID, 1100)
+    if ret:
+        # check total raid completions
+        completions = 0
+        for raid in metricRaidCompletion:
+            completions += ret["metrics"]["data"]["metrics"][str(raid)]["objectiveProgress"]["progress"]
+
+        # check if every raid got cleared. Only looks at currently available raids
+        clears = True
+        for raid in metricAvailableRaidCompletion:
+            if limit_doneEach > ret["metrics"]["data"]["metrics"][str(raid)]["objectiveProgress"]["progress"]:
+                clears = False
+                break
+
+        exp = 1 if (completions >= limit_raids) and clears else 0
+        setLevel(exp, "exp_pve", lookupDiscordID(destinyID))
+
+        return True
+    return False
 

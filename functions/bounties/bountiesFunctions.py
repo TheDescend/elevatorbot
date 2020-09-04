@@ -1,6 +1,7 @@
 from functions.formating import embed_message
-from functions.database import insertBountyUser, removeBountyUser
+from functions.database import insertBountyUser, removeBountyUser, getBountyUserList, getLevel
 from functions.bounties.boutiesBountyRequirements import bounties, competition_bounties
+from functions.bounties.bountiesBackend import updateAllExperience, threadingCompetitionBounties, threadingBounties
 
 import os
 import pickle
@@ -9,6 +10,7 @@ import random
 import json
 import asyncio
 import datetime
+import concurrent.futures
 
 
 
@@ -122,6 +124,70 @@ async def displayCompetitionBounties(guild, file, leaderboard=None, message=None
             msg = await competition_bounties_channel.send(embed=embed)
             saveAsGlobalVar(f"competition_bounties_channel_{topic.lower()}_message_id", msg.id)
     print("Updated competition bounty display")
+
+
+# checks if any player has completed a bounty
+async def bountyCompletion(client):
+    # load bounties
+    with open('functions/bounties/currentBounties.pickle', "rb") as f:
+        bounties = pickle.load(f)
+    cutoff = datetime.datetime.strptime(bounties["time"], "%Y-%m-%d %H:%M:%S.%f")
+
+    # load channel ids
+    with open('functions/bounties/channelIDs.pickle', "rb") as f:
+        file = pickle.load(f)
+        for guild in client.guilds:
+            if guild.id == file["guild_id"]:
+                break
+
+    # loop though all registered users
+    with concurrent.futures.ThreadPoolExecutor(os.cpu_count() * 5) as pool:
+        futurelist = [pool.submit(threadingBounties, bounties["bounties"], cutoff, user) for user in getBountyUserList()]
+
+        for future in concurrent.futures.as_completed(futurelist):
+            try:
+                result = future.result()
+            except Exception as exc:
+                print(f'generated an exception: {exc}')
+
+
+    # loop though all the competition bounties
+    for topic in bounties["competition_bounties"]:
+        for bounty in bounties["competition_bounties"][topic]:
+
+            # gets the msg object related to the current topic in the competition_bounties_channel
+            message = await discord.utils.get(client.guild.channels, id=file["competition_bounties_channel"]).fetch_message(file[f"competition_bounties_channel_{topic.lower()}_message_id"])
+
+            # create leaderboard dict
+            leaderboard = {}
+
+            # loop though all registered users
+            with concurrent.futures.ThreadPoolExecutor(os.cpu_count() * 5) as pool:
+                futurelist = [pool.submit(threadingCompetitionBounties, bounties["competition_bounties"][topic][bounty], cutoff, user.id)
+                              for user in getBountyUserList()]
+
+                for future in concurrent.futures.as_completed(futurelist):
+                    try:
+                        result = future.result()
+                        leaderboard.update(result)
+                    except Exception as exc:
+                        print(f'generated an exception: {exc}')
+
+            # sort leaderboard
+            leaderboard = {k: v for k, v in sorted(leaderboard.items(), key=lambda item: item[1], reverse=True)}
+
+            # update bounty leaderboard
+            ranking = []
+            i = 1
+            for key, value in leaderboard.items():
+                ranking.append(str(i) + ") **" + client.get_user(key).display_name + "** _(Score: " + str(value) + ")_")
+
+                # break after 10 entries
+                i += 1
+                if i > 10:
+                    break
+
+            await displayCompetitionBounties(guild, file, ranking, message)
 
 
 def startTournament():
@@ -257,16 +323,30 @@ async def registrationMessageReactions(user, emoji, register_channel, register_c
 
     if emoji.name == "✅":
         await message.remove_reaction("✅", user)
-        insertBountyUser(user.id)
-        # todo add experience levels: 0 is unexperienced and 1 experiencd. Need different values for different topics
         await user.send("you signed up")
+        insertBountyUser(user.id)
+        updateAllExperience(user.id)
+
+
+
+        pve = getLevel("exp_pve", user.id)
+        pvp = getLevel("exp_pvp", user.id)
+        raids = getLevel("exp_raids", user.id)
+        await user.send(f"pve: {pve}, pvp: {pvp}, raids: {raids} ")
+
     elif emoji.name == "❎":
         await message.remove_reaction("❎", user)
         removeBountyUser(user.id)
         await user.send("you're no longer signed up")
 
 
-    #todo maybe another msg that you can react to to get pinged if new bouinties are there
+#todo maybe another msg that you can react to to get pinged if new bouinties are there
+
+
+# loop though all users and refresh their experience level. Get's called once a week on sunday at midnight
+def updateExperienceLevels(client):
+    for user in getBountyUserList():
+        updateAllExperience(user)
 
 
 

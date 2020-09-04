@@ -102,9 +102,23 @@ def getLevel(levelType, discordID):
     cur = con.cursor()
     getLevelByDiscordID = "SELECT ? FROM bountyGoblins WHERE discordSnowflake = ?"
 
-    resultcur = cur.execute(getLevelByDiscordID, (f"{levelType}Level", discordID,))
+    resultcur = cur.execute(getLevelByDiscordID, (levelType, discordID,))
     result = resultcur.fetchall()
     return result[0][0]
+
+def setLevel(value, levelType, discordID):
+    """ Adds to a value to a level for a discordID and then returns it"""
+    con = db_connect()
+    cur = con.cursor()
+    newLevel = value
+    setLevelByDiscordID = """UPDATE table
+                                SET ? = ?
+                            WHERE
+                                discordSnowflake = ?;"""
+
+    resultcur = cur.execute(setLevelByDiscordID, (levelType, newLevel, discordID,))
+    con.commit()
+    return True
 
 def addLevel(value, levelType, discordID):
     """ Adds to a value to a level for a discordID and then returns it"""
@@ -117,7 +131,7 @@ def addLevel(value, levelType, discordID):
                             WHERE
                                 discordSnowflake = ?;"""
 
-    resultcur = cur.execute(setLevelByDiscordID, (f"{levelType}Level", curLevel, discordID,))
+    resultcur = cur.execute(setLevelByDiscordID, (levelType, newLevel, discordID,))
     con.commit()
     return True
 

@@ -1,5 +1,7 @@
 from commands.base_command  import BaseCommand
 from functions.bounties.bountiesFunctions import generateBounties, saveAsGlobalVar, deleteFromGlobalVar, bountiesChannelMessage, displayBounties
+from functions.bounties.bountiesBackend import experiencePvp
+from functions.database import getAllDiscordMemberDestinyIDs
 from functions.formating import embed_message
 
 import discord

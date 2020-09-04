@@ -33,14 +33,6 @@ points              # how many points the user gets for completing the bounty
 """ Hashes:"""
 from static.dict import *
 
-# only activities which are available are included here
-raidHashes = lwHashes + gosHashes
-dungeonHashes = throneHashes + pitHashes + prophHashes
-
-ActivityStrikeAndNFHash = ActivityNFHash + ActivityStrikeHash
-
-
-
 bounties = {
     # raid bounties
     'Raids': {
@@ -53,13 +45,13 @@ bounties = {
 
             "Finish two raids": {
                 "requirements": ["allowedTypes"],
-                "allowedTypes": ActivityRaidHash,
+                "allowedTypes": activityRaidHash,
                 "points": 0
             },
 
             "Finish two dungeons": {
                 "requirements": ["allowedTypes"],
-                "allowedTypes": ActivityDungeonHash,
+                "allowedTypes": activityDungeonHash,
                 "points": 0
             }
         },
@@ -68,13 +60,13 @@ bounties = {
         "Experienced Players": {
             "Do a raid with this loadout": {
                 "requirements": ["allowedTypes"],
-                "allowedTypes": ActivityRaidHash,
+                "allowedTypes": activityRaidHash,
                 "points": 0
             },
 
             "Do a dungeon with this loadout": {
                 "requirements": ["allowedTypes"],
-                "allowedTypes": ActivityDungeonHash,
+                "allowedTypes": activityDungeonHash,
                 "points": 0
             },
 
@@ -85,19 +77,19 @@ bounties = {
 
             "Finish a raid with 20 power or more below recommended": {
                 "requirements": ["allowedTypes"],
-                "allowedTypes": ActivityRaidHash,
+                "allowedTypes": activityRaidHash,
                 "points": 0
             },
 
             "Do a flawless raid": {
                 "requirements": ["allowedTypes"],
-                "allowedTypes": ActivityRaidHash,
+                "allowedTypes": activityRaidHash,
                 "points": 0
             },
 
             "Do a flawless dungeon": {
                 "requirements": ["allowedTypes"],
-                "allowedTypes": ActivityDungeonHash,
+                "allowedTypes": activityDungeonHash,
                 "points": 0
             }
         }
@@ -110,19 +102,19 @@ bounties = {
         "New Player": {
             "Finish a strike with high kills and low deaths": {
                 "requirements": ["allowedTypes"],
-                "allowedTypes": ActivityStrikeAndNFHash,
+                "allowedTypes": activityStrikeAndNFHash,
                 "points": 0
             },
 
             "Clear an adventure with this loadout": {
                 "requirements": ["allowedTypes"],
-                "allowedTypes": ActivityStoryHash,
+                "allowedTypes": activityStoryHash,
                 "points": 0
             },
 
             "Complete a Nightfall: The Ordeal on any difficulty": {
                 "requirements": ["allowedTypes"],
-                "allowedTypes": ActivityNFHash,
+                "allowedTypes": activityNFHash,
                 "points": 0
             }
         },
@@ -131,7 +123,7 @@ bounties = {
         "Experienced Players": {
             "Finish a strike with high kills and low deaths": {
                 "requirements": ["allowedTypes"],
-                "allowedTypes": ActivityStrikeAndNFHash,
+                "allowedTypes": activityStrikeAndNFHash,
                 "points": 0
             },
 
@@ -145,7 +137,7 @@ bounties = {
 
             "Complete a Nightfall: The Ordeal with a high score": {
                 "requirements": ["allowedTypes"],
-                "allowedTypes": ActivityNFHash,
+                "allowedTypes": activityNFHash,
                 "points": 0
             }
         }
@@ -158,13 +150,13 @@ bounties = {
         "New Player": {
             "Win a crucible game with a positive K/D": {
                 "requirements": ["allowedTypes"],
-                "allowedTypes": ActivityPVPHash,
+                "allowedTypes": activityPVPHash,
                 "points": 0
             },
 
             "Get a win streak in the crucible": {
                 "requirements": ["allowedTypes"],
-                "allowedTypes": ActivityPVPHash,
+                "allowedTypes": activityPVPHash,
                 "points": 0
             }
         },
@@ -173,25 +165,25 @@ bounties = {
         "Experienced Players": {
             "Get a win streak in the crucible": {
                 "requirements": ["allowedTypes"],
-                "allowedTypes": ActivityPVPHash,
+                "allowedTypes": activityPVPHash,
                 "points": 0
             },
 
             "Win a crucible game with a high K/D": {
                 "requirements": ["allowedTypes"],
-                "allowedTypes": ActivityPVPHash,
+                "allowedTypes": activityPVPHash,
                 "points": 0
             },
 
             "Complete a crucible game with a high amount of kills": {
                 "requirements": ["allowedTypes"],
-                "allowedTypes": ActivityPVPHash,
+                "allowedTypes": activityPVPHash,
                 "points": 0
             },
 
             "Complete a crucible game without dying": {
                 "requirements": ["allowedTypes"],
-                "allowedTypes": ActivityPVPHash,
+                "allowedTypes": activityPVPHash,
                 "points": 0
             }
         }
@@ -240,13 +232,13 @@ competition_bounties = {
 
         "Get the most kills in a gambit match": {
             "requirements": ["allowedTypes"],
-            "allowedTypes": ActivityGambitHash,
+            "allowedTypes": activityGambitHash,
             "points": 0
         },
 
         "Get the highest Nightfall Score": {
             "requirements": ["allowedTypes"],
-            "allowedTypes": ActivityNFHash,
+            "allowedTypes": activityNFHash,
             "points": 0
         }
     },
@@ -255,19 +247,19 @@ competition_bounties = {
     'PvP': {
         "Get the highest kills in any PvP mode": {
             "requirements": ["allowedTypes"],
-            "allowedTypes": ActivityPVPHash,
+            "allowedTypes": activityPVPHash,
             "points": 0
         },
 
         "Get the best K/D in any PvP mode": {
             "requirements": ["allowedTypes"],
-            "allowedTypes": ActivityPVPHash,
+            "allowedTypes": activityPVPHash,
             "points": 0
         },
 
         "Go Flawless and visit the Lighthouse": {
             "requirements": ["allowedTypes"],
-            "allowedTypes": ActivityLighthouseHash,
+            "allowedTypes": activityLighthouseHash,
             "points": 0
         },
 

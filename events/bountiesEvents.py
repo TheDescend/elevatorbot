@@ -1,6 +1,5 @@
 from events.base_event import BaseEvent
-from functions.bounties.bountiesFunctions   import updateLeaderboard
-from functions.bounties.bountiesBackend     import bountyCompletion
+from functions.bounties.bountiesFunctions   import updateLeaderboard, bountyCompletion
 
 
 # update the leaderboard every 60 mins

@@ -40,18 +40,40 @@ herzeroHashes = [2731208666]
 
 
 #activityTypeHashes
-ActivityStoryHash = [147238405, 1686739444, 1299744814, 2201105581, 2911768360]
-ActivityRaidHash = [2043403989]
-ActivityDungeonHash = [608898761]
-ActivityGambitHash = [636666746, 1418469392, 2490937569] # will probly change with BL
-ActivityNFHash = [575572995]
-ActivityStrikeHash = [2884569138, 2884569138, 4110605575, 4110605575, 4164571395]
-ActivityPrivateMatchHash = [4260058063]
-ActivityPVPHash = [96396597, 158362448, 517828061, 964120289, 1434366740, 1472571612, 1522227381, 2112637710,
+activityStoryHash = [147238405, 1686739444, 1299744814, 2201105581, 2911768360]
+activityRaidHash = [2043403989]
+activityDungeonHash = [608898761]
+activityGambitHash = [636666746, 1418469392, 2490937569] # will probly change with BL
+activityNFHash = [575572995]
+activityStrikeHash = [2884569138, 2884569138, 4110605575, 4110605575, 4164571395]
+activityPrivateMatchHash = [4260058063]
+activityPVPHash = [96396597, 158362448, 517828061, 964120289, 1434366740, 1472571612, 1522227381, 2112637710,
                    2175955486, 2278747016, 2371050408, 2394267841, 2410913661, 2505748283, 3252144427, 3268478079,
                    3517186939, 3610972626, 3954711135, 3956087078, 3956381302, 3990775146, 4141415314, 4288302346]
-ActivityLighthouseHash = [4276116472]
+activityLighthouseHash = [4276116472]
 
+
+# Metric hashes
+metricLeviCompletions = [2486745106]
+metricEoWCompletions = [2659534585]
+metricSosCompletions = [700051716]
+metricLWCompletions = [905240985]
+metricScourgeCompletions = [1201631538]
+metricCoSCompletions = [1815425870]
+metricGoSCompletions = [1168279855]
+
+
+
+
+""" Grouped Hashes """
+# only activities which are available should be included here
+raidHashes = lwHashes + gosHashes
+dungeonHashes = throneHashes + pitHashes + prophHashes
+
+activityStrikeAndNFHash = activityNFHash + activityStrikeHash
+
+metricRaidCompletion = metricLeviCompletions + metricEoWCompletions + metricSosCompletions + metricLWCompletions + metricScourgeCompletions + metricCoSCompletions + metricGoSCompletions
+metricAvailableRaidCompletion = metricLWCompletions + metricGoSCompletions
 
 
 clanids = {
