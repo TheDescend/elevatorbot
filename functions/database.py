@@ -108,14 +108,15 @@ def getLevel(levelType, discordID):
 
 def setLevel(value, levelType, discordID):
     """ Adds to a value to a level for a discordID and then returns it"""
+    #print(f'{value=} {levelType=} {discordID=}')
     con = db_connect()
     cur = con.cursor()
-    setLevelByDiscordID = """   
+    setLevelByDiscordID = f"""   
                     UPDATE bountyGoblins 
-                    SET ? = ? 
+                    SET {levelType} = ? 
                     WHERE discordSnowflake = ?"""
 
-    resultcur = cur.execute(setLevelByDiscordID, (levelType, value, discordID,))
+    resultcur = cur.execute(setLevelByDiscordID, (value, discordID,))
     con.commit()
     return True
 
