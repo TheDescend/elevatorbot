@@ -110,13 +110,12 @@ def setLevel(value, levelType, discordID):
     """ Adds to a value to a level for a discordID and then returns it"""
     con = db_connect()
     cur = con.cursor()
-    newLevel = value
-    setLevelByDiscordID = """UPDATE table
-                                SET ? = ?
-                            WHERE
-                                discordSnowflake = ?;"""
+    setLevelByDiscordID = """   
+                    UPDATE bountyGoblins 
+                    SET ? = ? 
+                    WHERE discordSnowflake = ?"""
 
-    resultcur = cur.execute(setLevelByDiscordID, (levelType, newLevel, discordID,))
+    resultcur = cur.execute(setLevelByDiscordID, (levelType, value, discordID,))
     con.commit()
     return True
 
@@ -126,10 +125,10 @@ def addLevel(value, levelType, discordID):
     cur = con.cursor()
     curLevel = getLevel(levelType, discordID)
     newLevel = curLevel + value
-    setLevelByDiscordID = """UPDATE table
+    setLevelByDiscordID = """UPDATE bountyGoblins
                                 SET ? = ?
                             WHERE
-                                discordSnowflake = ?;"""
+                                discordSnowflake = ?"""
 
     resultcur = cur.execute(setLevelByDiscordID, (levelType, newLevel, discordID,))
     con.commit()
