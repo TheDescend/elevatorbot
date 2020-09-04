@@ -82,6 +82,20 @@ def getBountyUserList():
     result = resultcur.fetchall()
     return [row[0] for row in result]
 
+
+"""
+levels:
+    exp_pve                     # those 3 are for exp levels. 0 for unexp and 1 for exp
+    exp_pvp
+    exp_raids
+    
+    points_bounties_pve         # for leaderboards and potential future expansion 
+    points_bounties_pvp 
+    points_bounties_raids 
+    points_competition_pve
+    points_competition_pvp
+    points_competition_raids
+"""
 def getLevel(levelType, discordID):
     """ Returns the level for a specific discordID"""
     con = db_connect()
@@ -106,6 +120,7 @@ def addLevel(value, levelType, discordID):
     resultcur = cur.execute(setLevelByDiscordID, (f"{levelType}Level", curLevel, discordID,))
     con.commit()
     return True
+
 
 def getRefreshToken(discordID):
     """ Gets a Users Bungie-Refreshtoken or None """

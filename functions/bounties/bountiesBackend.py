@@ -1,5 +1,5 @@
 from functions.network import getJSONfromURL
-from functions.database import getBountyUserList, lookupDestinyID
+from functions.database import getBountyUserList, lookupDestinyID, getLevel, addLevel
 from functions.dataLoading import getPlayersPastPVE
 from functions.formating    import embed_message
 from functions.bounties.bountiesFunctions import displayCompetitionBounties
@@ -118,10 +118,9 @@ async def bountyCompletion(client):
 
 def threadingBounties(bounties, cutoff, user):
     destinyID = lookupDestinyID(user.id)
-    # todo get experience level
-    experience_level_pve = lookupExperienceLevel(user.id, "pve")
-    experience_level_pvp = lookupExperienceLevel(user.id, "pvp")
-    experience_level_raids = lookupExperienceLevel(user.id, "raids")
+    experience_level_pve = getLevel("exp_pve", user.id)
+    experience_level_pvp = getLevel("exp_pvp", user.id)
+    experience_level_raids = getLevel("exp_raids", user.id)
 
     # loop through all the bounties
     for topic in bounties:
@@ -157,7 +156,7 @@ def threadingBounties(bounties, cutoff, user):
 
                         # if true, a bounty is done
                         if fulfillRequirements(requirements, activity, destinyID):
-                            addPointsToUser(user.id, requirements["points"])
+                            addLevel(requirements["points"], f"points_bounties_{topic.lower()}",user.id)
 
 
 def threadingCompetitionBounties(bounty, cutoff, discordID):
@@ -214,6 +213,4 @@ def playerHasDoneBounty(discordID, name):
 
     return False
 
-def addPointsToUser(discordID, points):
-    #todo
-    pass
+
