@@ -99,6 +99,9 @@ def main():
             await message.channel.send(f'Häbidöpfel {addition}')
         if "welcome" in text.lower() and "<@!109022023979667456>" in text.lower():
             await message.channel.send(f'Welcome <@109022023979667456>!')
+        if client.user.mention in message.content.split():
+            notification = client.get_emoji(751771924866269214)
+            await message.add_reaction(notification)
         if text.startswith(COMMAND_PREFIX) and text != COMMAND_PREFIX:
             cmd_split = text[len(COMMAND_PREFIX):].split()
             try:
