@@ -143,9 +143,13 @@ async def displayCompetitionBounties(client, guild, message=None):
         json = pickle.load(f)
 
     # load leaderboards
-    leaderboards = getCompetitionBountiesLeaderboards
+    leaderboards = getCompetitionBountiesLeaderboards()
 
+    # get channel id and clear channel
     competition_bounties_channel = discord.utils.get(guild.channels, id=file["competition_bounties_channel"])
+    if not message:
+        await competition_bounties_channel.purge(limit=100)
+
     for topic in json["competition_bounties"].keys():
         name, req = list(json["competition_bounties"][topic].items())[0]
         embed = embed_message(
@@ -157,26 +161,26 @@ async def displayCompetitionBounties(client, guild, message=None):
         ranking = []
         try:
             i = 1
-            for id, value in leaderboards[topic].items():
-                ranking.append(str(i) + ") **" + client.get_user(id).display_name + "** _(Score: " + str(value) + ")_")
+            for discordID, value in leaderboards[topic].items():
+                ranking.append(str(i) + ") **" + client.get_user(discordID).display_name + "** _(Score: " + str(value) + ")_")
                 # break after x entries
                 i += 1
                 if i > 10:
                     break
         except KeyError:
             pass
-        except Exception as e:
-            print('Exception was caught: ' + repr(e))
 
         embed.add_field(name=f"Current Leaderboard:", value=f"\n".join(ranking) if ranking else "Nobody has completed this yet", inline=False)
 
         # edit msg if given one, otherwise create a new one and save the id
         if message:
+            # gets the msg object related to the current topic in the competition_bounties_channel
+            message = await discord.utils.get(guild.channels, id=file["competition_bounties_channel"]).fetch_message(file[f"competition_bounties_channel_{topic.lower()}_message_id"])
             await message.edit(embed=embed)
         else:
-            await competition_bounties_channel.purge(limit=100)
             msg = await competition_bounties_channel.send(embed=embed)
             saveAsGlobalVar(f"competition_bounties_channel_{topic.lower()}_message_id", msg.id)
+
     print("Updated competition bounty display")
 
 
@@ -209,9 +213,6 @@ async def bountyCompletion(client):
     for topic in bounties["competition_bounties"]:
         for bounty in bounties["competition_bounties"][topic]:
 
-            # gets the msg object related to the current topic in the competition_bounties_channel
-            message = await discord.utils.get(guild.channels, id=file["competition_bounties_channel"]).fetch_message(file[f"competition_bounties_channel_{topic.lower()}_message_id"])
-
             # create leaderboard dict
             leaderboard = {}
 
@@ -231,12 +232,10 @@ async def bountyCompletion(client):
             changeCompetitionBountiesLeaderboards(topic, leaderboard)
 
             # display the new leaderboards
-            await displayCompetitionBounties(client, guild, message)
+            await displayCompetitionBounties(client, guild, message=True)
 
-
-def startTournament():
-    #todo
-    pass
+    # update the big leaderboard
+    await displayLeaderboard(client)
 
 
 def saveAsGlobalVar(name, value, guild_id = None):
@@ -384,6 +383,7 @@ async def bountiesChannelMessage(client):
                 #     channel = discord.utils.get(guild.channels, id=file["tournament_channel"])
                 #     await channel.send("tournament_channel")
 
+
 async def registrationMessageReactions(client, user, emoji, register_channel, register_channel_message_id):
     message = await register_channel.fetch_message(register_channel_message_id)
 
@@ -425,6 +425,8 @@ async def registrationMessageReactions(client, user, emoji, register_channel, re
                     f"You are {text}receiving notifications when new bounties are available!"
                 )
                 await user.send(embed=embed)
+
+    print(f"Handled {user.display_name}'s request")
 
 
 # loop though all users and refresh their experience level. Get's called once a week on sunday at midnight

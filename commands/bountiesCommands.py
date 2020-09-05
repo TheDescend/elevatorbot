@@ -139,7 +139,6 @@ class resetLeaderboards(BaseCommand):
             pass
 
 
-
 class generateNewBounties(BaseCommand):
     def __init__(self):
         description = f'[Admin] Generate new bounties'

@@ -147,6 +147,7 @@ def playerHasDoneBounty(discordID, name):
 
     return False
 
+
 # saves the current competition bounties leaderboards. gets reset in awardCompetitionBountiesPoints()
 def changeCompetitionBountiesLeaderboards(leaderboard_name, leaderboard_data):  # leaderboard_date = {discordID: score}
     if not os.path.exists('functions/bounties/competitionBountiesLeaderboards.pickle'):
