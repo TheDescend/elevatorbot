@@ -236,7 +236,7 @@ def experienceRaids(destinyID):
     return False
 
 
-# returns the sorted leaderboard for the specific topic
+# returns the sorted leaderboard for the specific topic. Returns dict = {id: score, ...}
 def returnLeaderboard(topic):
     leaderboard = {}
 
@@ -250,18 +250,35 @@ def returnLeaderboard(topic):
 
 # formats and sorts the entries. Input is dict = {id: score, id2: score2,...} output is list = [fancy sentence for id1, ...]
 async def formatLeaderboardMessage(client, leaderboard, user_id=None):
+    # how long the leaderboard will be
+    limit = 10
+
     # sort that shit
     leaderboard = {k: v for k, v in sorted(leaderboard.items(), key=lambda item: item[1], reverse=True)}
 
     # format that shit
     ranking = []
+    found = True if user_id is None else False
     i = 1
     for id, points in leaderboard.items():
-        # if user id is given, do some fancy formating
-        if id == user_id:
-            ranking.append(str(i) + ") **[ " + client.get_user(id).display_name + " ]** _(Points: " + str(points) + ")_")
+        if i > limit and found:
+            break
+
+        elif i > limit and not found:
+            # adding only this user
+            if id == user_id:
+                ranking.append("...")
+                ranking.append(str(i) + ") **" + client.get_user(id).display_name + "** _(Points: " + str(points) + ")_")
+                break
+
         else:
-            ranking.append(str(i) + ") **" + client.get_user(id).display_name + "** _(Points: " + str(points) + ")_")
+            # if user id is given, do some fancy formating
+            if id == user_id:
+                found = True
+                ranking.append(str(i) + ") **[ " + client.get_user(id).display_name + " ]** _(Points: " + str(points) + ")_")
+            else:
+                ranking.append(str(i) + ") **" + client.get_user(id).display_name + "** _(Points: " + str(points) + ")_")
+
         i += 1
 
     return ranking

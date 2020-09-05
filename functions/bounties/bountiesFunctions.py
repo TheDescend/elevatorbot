@@ -433,7 +433,6 @@ async def updateExperienceLevels(client):
         await updateAllExperience(client, user)
 
 
-
 # updates / sets all experience levels for the user
 async def updateAllExperience(client, discordID, new_register=False):
     # get user info
