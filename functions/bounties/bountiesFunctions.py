@@ -1,7 +1,7 @@
 from functions.formating import embed_message
-from functions.database import insertBountyUser, removeBountyUser, getBountyUserList, getLevel
+from functions.database import insertBountyUser, removeBountyUser, getBountyUserList, getLevel, lookupDestinyID, lookupServerID
 from functions.bounties.boutiesBountyRequirements import bounties, competition_bounties
-from functions.bounties.bountiesBackend import updateAllExperience, threadingCompetitionBounties, threadingBounties
+from functions.bounties.bountiesBackend import experiencePvp, experiencePve, experienceRaids, threadingCompetitionBounties, threadingBounties
 
 import os
 import pickle
@@ -15,7 +15,11 @@ import concurrent.futures
 
 
 # randomly generate bounties. One per topic for both of the lists
-def generateBounties(client):
+def generateBounties(client, regular=False):
+    # if part of the regular, weekly update award the points
+    if regular:
+        awardCompetitionBountiesPoints()
+
     # looping though the bounties and generating random ones
     file = {}
     file["bounties"] = {}
@@ -65,8 +69,10 @@ def generateBounties(client):
     if os.path.exists('functions/bounties/playerBountyStatus.pickle'):
         os.remove('functions/bounties/playerBountyStatus.pickle')
 
+# awards points to whoever has the most points. Can be multiple people if tied
+def awardCompetitionBountiesPoints():
+    pass
     # todo add score to users who won the competitive bounties
-
 
 # print the bounties in their respective channels
 async def displayBounties(client):
@@ -318,21 +324,13 @@ async def bountiesChannelMessage(client):
                 #     channel = discord.utils.get(guild.channels, id=file["tournament_channel"])
                 #     await channel.send("tournament_channel")
 
-async def registrationMessageReactions(user, emoji, register_channel, register_channel_message_id):
+async def registrationMessageReactions(client, user, emoji, register_channel, register_channel_message_id):
     message = await register_channel.fetch_message(register_channel_message_id)
 
     if emoji.name == "✅":
         await message.remove_reaction("✅", user)
-        await user.send("you signed up")
         insertBountyUser(user.id)
-        updateAllExperience(user.id)
-
-
-
-        pve = getLevel("exp_pve", user.id)
-        pvp = getLevel("exp_pvp", user.id)
-        raids = getLevel("exp_raids", user.id)
-        await user.send(f"pve: {pve}, pvp: {pvp}, raids: {raids} ")
+        await updateAllExperience(client, user.id, new_register=True)
 
     elif emoji.name == "❎":
         await message.remove_reaction("❎", user)
@@ -344,9 +342,54 @@ async def registrationMessageReactions(user, emoji, register_channel, register_c
 
 
 # loop though all users and refresh their experience level. Get's called once a week on sunday at midnight
-def updateExperienceLevels(client):
+async def updateExperienceLevels(client):
     for user in getBountyUserList():
-        updateAllExperience(user)
+        await updateAllExperience(client, user)
 
 
+
+# updates / sets all experience levels for the user
+async def updateAllExperience(client, discordID, new_register=False):
+    # get user info
+    destinyID = lookupDestinyID(discordID)
+    user = client.get_user(discordID)
+
+    # get levels at the start, update levels and get the new ones
+    pre_pve = getLevel("exp_pve", user.id)
+    pre_pvp = getLevel("exp_pvp", user.id)
+    pre_raids = getLevel("exp_raids", user.id)
+    experiencePve(destinyID)
+    experiencePvp(destinyID)
+    experienceRaids(destinyID)
+    post_pve = getLevel("exp_pve", user.id)
+    post_pvp = getLevel("exp_pvp", user.id)
+    post_raids = getLevel("exp_raids", user.id)
+
+    embed = None
+    # message the user if they newly registered
+    if new_register:
+        embed = embed_message(
+            "Your Experience Levels",
+            f"Thanks for registering with the **Bounty Goblins**. \n Depending on your experience levels, you will only get credit for completing the respective bounties in the respective categories. \n\n Your experience levels are:"
+        )
+
+    # message the user if levels have changed
+    elif not (pre_pve == post_pve and pre_pvp == post_pvp and pre_raids and post_raids):
+        embed = embed_message(
+            "Your Experience Levels",
+            f"Some of your experience levels have recently changed. \n As a reminder, depending on your experience levels, you will only get credit for completing the respective bounties in the respective categories. \n\n Your experience levels are:"
+        )
+
+    try:
+        embed.add_field(name="Raids Experience", value="Experienced Player" if post_raids == 1 else "New Player",
+                        inline=True)
+        embed.add_field(name="Pve Experience", value="Experienced Player" if post_pve == 1 else "New Player",
+                        inline=True)
+        embed.add_field(name="PvP Experience", value="Experienced Player" if post_pvp == 1 else "New Player",
+                        inline=True)
+    except AttributeError:  # meaning not new and nothing changed
+        pass
+
+    if embed:
+        await user.send(embed=embed)
 

@@ -100,9 +100,9 @@ def getLevel(levelType, discordID):
     """ Returns the level for a specific discordID"""
     con = db_connect()
     cur = con.cursor()
-    getLevelByDiscordID = "SELECT ? FROM bountyGoblins WHERE discordSnowflake = ?"
+    getLevelByDiscordID = f"SELECT {levelType} FROM bountyGoblins WHERE discordSnowflake = ?"
 
-    resultcur = cur.execute(getLevelByDiscordID, (levelType, discordID,))
+    resultcur = cur.execute(getLevelByDiscordID, (discordID,))
     result = resultcur.fetchall()
     return result[0][0]
 
@@ -126,12 +126,12 @@ def addLevel(value, levelType, discordID):
     cur = con.cursor()
     curLevel = getLevel(levelType, discordID)
     newLevel = curLevel + value
-    setLevelByDiscordID = """UPDATE bountyGoblins
-                                SET ? = ?
-                            WHERE
-                                discordSnowflake = ?"""
+    setLevelByDiscordID = f"""   
+                    UPDATE bountyGoblins 
+                    SET {levelType} = ? 
+                    WHERE discordSnowflake = ?"""
 
-    resultcur = cur.execute(setLevelByDiscordID, (levelType, newLevel, discordID,))
+    resultcur = cur.execute(setLevelByDiscordID, (newLevel, discordID,))
     con.commit()
     return True
 
@@ -201,6 +201,15 @@ def lookupDiscordID(destinyID):
     getUser = """SELECT discordSnowflake FROM discordGuardiansToken
         WHERE destinyID = ?"""
     result = con.execute(getUser, (destinyID,)).fetchone() or [None]
+    con.close()
+    return result[0]
+
+def lookupServerID(discordID):
+    """ Takes destinyID and returns discordID """
+    con = db_connect()
+    getUser = """SELECT serverID FROM discordGuardiansToken
+        WHERE discordSnowflake = ?"""
+    result = con.execute(getUser, (discordID,)).fetchone() or [None]
     con.close()
     return result[0]
 

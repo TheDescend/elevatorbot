@@ -47,10 +47,11 @@ def launch_event_loops(client):
         n_ev += 1
 
     # generate new bounties every monday at midnight
-    #sched.add_job(generateBounties, "cron", (client,), day_of_week="thu", hour=15, minute=28)
-    sched.add_job(generateBounties, "cron", (client,), day_of_week="mon", hour=0, minute=0)
+    #sched.add_job(generateBounties, "cron", (client, True), day_of_week="thu", hour=15, minute=28)
+    sched.add_job(generateBounties, "cron", (client, True,), day_of_week="mon", hour=0, minute=0)
 
     # update experience levels
+    #sched.add_job(updateExperienceLevels, "cron", (client,), day_of_week="sat", hour=10, minute=53)
     sched.add_job(updateExperienceLevels, "cron", (client,), day_of_week="sun", hour=0, minute=0)
 
     sched.start()
@@ -169,7 +170,7 @@ def main():
                 register_channel_message_id = file["register_channel_message_id"]
                 if payload.message_id == register_channel_message_id:
                     register_channel = discord.utils.get(client.get_all_channels(), guild__id=payload.guild_id, id=file["register_channel"])
-                    await registrationMessageReactions(payload.member, payload.emoji, register_channel, register_channel_message_id)
+                    await registrationMessageReactions(client, payload.member, payload.emoji, register_channel, register_channel_message_id)
 
             # check if reaction is on the other game role page
             if "other_game_roles_channel_message_id" in file:
