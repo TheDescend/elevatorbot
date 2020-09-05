@@ -29,7 +29,7 @@ def generateBounties(client):
 
             # if "randomActivity" is present, get a random activity from the list and delete "randomActivity" so it doesn't take up space anymore
             if "randomActivity" in value:
-                value["allowedActivities"] = [random.choice(value.pop("randomActivity"))]
+                value["allowedActivities"] = random.choice(value.pop("randomActivity"))
                 value["requirements"].pop(value["requirements"].index("randomActivity"))
                 value["requirements"].append("allowedActivities")
 
@@ -43,7 +43,7 @@ def generateBounties(client):
 
         # if "randomActivity" is present, get a random activity from the list and delete "randomActivity" so it doesn't take up space anymore
         if "randomActivity" in value:
-            value["allowedActivities"] = [random.choice(value.pop("randomActivity"))]
+            value["allowedActivities"] = random.choice(value.pop("randomActivity"))
             value["requirements"].pop(value["requirements"].index("randomActivity"))
             value["requirements"].append("allowedActivities")
 
@@ -51,7 +51,8 @@ def generateBounties(client):
         file["competition_bounties"][topic][key] = value
 
     # add current time to list
-    file["time"] = str(datetime.datetime.now())
+    file["time"] = "2010-09-05 19:41:13.688291" # todo change this back. only for testing
+    #file["time"] = str(datetime.datetime.now())
 
     # overwrite the old bounties
     with open('functions/bounties/currentBounties.pickle', "wb") as f:
@@ -78,7 +79,8 @@ def awardCompetitionBountiesPoints():
         for discordID in leaderboards[topic]:
 
             # award the points in the respective categories
-            addLevel(leaderboards[topic][discordID], f"points_competition_{topic.lower()}", discordID)
+            # todo look up points
+            addLevel("points", f"points_competition_{topic.lower()}", discordID)
 
     # delete now old leaderboards
     if os.path.exists('functions/bounties/competitionBountiesLeaderboards.pickle'):
@@ -223,13 +225,13 @@ async def bountyCompletion(client):
 
                 for future in concurrent.futures.as_completed(futurelist):
                     try:
-                        result = future.result()
+                        result, sort_by_highest = future.result()
                         leaderboard.update(result)
                     except Exception as exc:
                         print(f'generated an exception: {exc}')
 
             # update the leaderboard file
-            changeCompetitionBountiesLeaderboards(topic, leaderboard)
+            changeCompetitionBountiesLeaderboards(topic, leaderboard, sort_by_highest)
 
             # display the new leaderboards
             await displayCompetitionBounties(client, guild, message=True)
@@ -272,7 +274,7 @@ async def displayLeaderboard(client, use_old_message=True):
     # function to condense leaderboards
     def condense(lead_big, lead_new):
         for id, value in lead_new.items():
-            if value is not None:
+            if value is not None and value != 0:
                 if id in lead_big:
                     lead_big.update({id: (0 if lead_big[id] is None else value) + value})
                 else:

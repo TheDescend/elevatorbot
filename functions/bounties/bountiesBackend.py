@@ -1,6 +1,6 @@
 from functions.network import getJSONfromURL
 from functions.database import lookupDestinyID, lookupDiscordID, getBountyUserList, getLevel, addLevel, setLevel
-from functions.dataLoading import getPlayersPastPVE, getStats, getProfile
+from functions.dataLoading import getPGCR, getActivityDefiniton, getPlayersPastPVE, getStats, getProfile
 from static.dict import metricRaidCompletion, metricAvailableRaidCompletion
 from functions.formating    import embed_message
 
@@ -97,7 +97,7 @@ def threadingBounties(bounties, cutoff, user):
 def threadingCompetitionBounties(bounty, cutoff, discordID):
     destinyID = lookupDestinyID(discordID)
 
-    highest_score = 0
+    best_score = 0
     for activity in getPlayersPastPVE(destinyID, mode=0):
         activity = json.loads(json.dumps(activity))
 
@@ -105,25 +105,18 @@ def threadingCompetitionBounties(bounty, cutoff, discordID):
         if datetime.datetime.strptime(activity["period"], "%Y-%m-%dT%H:%M:%SZ") > cutoff:
 
             # add to high score if new high score, otherwise skip
-            ret = returnScore(bounty, activity)
-            if ret > highest_score:
-                highest_score = ret
+            # todo add high / low sort
+            ret, sort_by_highest = returnScore(bounty, activity, destinyID)
 
-    return {discordID: highest_score}
+            # overwrite value if better
+            if sort_by_highest:
+                if ret > best_score:
+                    best_score = ret
+            else:
+                if (ret < best_score) or (best_score == 0):
+                    best_score = ret
 
-
-def fulfillRequirements(requirements, activity, destinyID):
-    for req in requirements["requirements"]:
-        # todo
-        #if req == ....
-        pass
-
-    return True
-
-
-def returnScore(requirements, activity):
-    # todo
-    return 10
+    return {discordID: best_score}, sort_by_highest
 
 
 # return true if name is in the pickle, otherwise false and add name to pickle
@@ -149,7 +142,7 @@ def playerHasDoneBounty(discordID, name):
 
 
 # saves the current competition bounties leaderboards. gets reset in awardCompetitionBountiesPoints()
-def changeCompetitionBountiesLeaderboards(leaderboard_name, leaderboard_data):  # leaderboard_date = {discordID: score}
+def changeCompetitionBountiesLeaderboards(leaderboard_name, leaderboard_data, sort_by_highest=True):  # leaderboard_date = {discordID: score}
     if not os.path.exists('functions/bounties/competitionBountiesLeaderboards.pickle'):
         file = {}
     else:
@@ -162,7 +155,7 @@ def changeCompetitionBountiesLeaderboards(leaderboard_name, leaderboard_data):  
 
     # update the players score and sort it again
     file[leaderboard_name].update(leaderboard_data)
-    file[leaderboard_name] = {k: v for k, v in sorted(file[leaderboard_name].items(), key=lambda item: item[1], reverse=True)}
+    file[leaderboard_name] = {k: v for k, v in sorted(file[leaderboard_name].items(), key=lambda item: item[1], reverse=sort_by_highest)}
 
     # overwrite the file
     with open('functions/bounties/competitionBountiesLeaderboards.pickle', "wb") as f:
@@ -283,3 +276,110 @@ async def formatLeaderboardMessage(client, leaderboard, user_id=None):
         i += 1
 
     return ranking
+
+
+# --------------------------------------------------------------
+# checking bounties requirements
+def fulfillRequirements(requirements, activity, destinyID):
+    pass
+
+
+# checking competition bounties scores
+def returnScore(requirements, activity, destinyID):
+    score = 0
+    sort_by_highest = True
+
+    hash = activity["activityDetails"]["directorActivityHash"]
+    instance = activity["activityDetails"]["instanceId"]
+
+    pgcr = getPGCR(instance)
+
+
+    # check for checkpoint runs
+    if pgcr["Response"]["startingPhaseIndex"] != 0:
+        return 0
+
+    # check if activity got completed
+    for player in pgcr["Response"]["entries"]:
+        if player["player"]["destinyUserInfo"]["membershipId"] == destinyID:
+            if player["values"]["completed"]["basic"]["value"] != 1:
+                return 0
+
+
+    # loop through other requirements
+    for req in requirements["requirements"]:
+        if req == "allowedTypes":
+            if getActivityDefiniton(hash) not in requirements["allowedTypes"]:
+                return 0
+
+
+        elif req == "allowedActivities":
+            if hash not in requirements["allowedActivities"]:
+                return 0
+
+
+        elif req == "speedrun":
+            for player in pgcr["Response"]["entries"]:
+                if player["player"]["destinyUserInfo"]["membershipId"] == destinyID:
+
+                    # set score
+                    sort_by_highest = False
+                    score = player["values"]["activityDurationSeconds"]["basic"]["value"]
+                    break
+
+
+        elif req == "lowman":
+            # set score
+            sort_by_highest = False
+            score = len(pgcr["Response"]["entries"])
+
+
+        elif req == "noWeapons":
+            # return 0 if there are any weapon kills
+            for weapon in pgcr["Response"]["entries"]["extended"]["weapons"]:
+                if weapon["values"]["uniqueWeaponKills"] != 0:
+                    return 0
+
+
+        elif req == "totalKills":
+            for player in pgcr["Response"]["entries"]:
+                if player["player"]["destinyUserInfo"]["membershipId"] == destinyID:
+
+                    # set score
+                    score = player["values"]["kills"]["basic"]["value"]
+                    break
+
+
+        elif req == "kd":
+            for player in pgcr["Response"]["entries"]:
+                if player["player"]["destinyUserInfo"]["membershipId"] == destinyID:
+
+                    # set score
+                    score = player["values"]["killsDeathsRatio"]["basic"]["value"]
+                    break
+
+
+        elif req == "NFscore":
+            for player in pgcr["Response"]["entries"]:
+                if player["player"]["destinyUserInfo"]["membershipId"] == destinyID:
+                    # set score
+                    score = player["values"]["score"]["basic"]["value"]
+                    break
+
+
+        elif req == "tournament":
+            pass
+            # todo
+
+    # only return score if all other things have passed
+    return score, sort_by_highest
+
+
+
+
+
+
+
+
+
+

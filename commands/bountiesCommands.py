@@ -1,11 +1,42 @@
 from commands.base_command  import BaseCommand
-from functions.bounties.bountiesFunctions import displayLeaderboard, updateAllExperience, generateBounties, saveAsGlobalVar, deleteFromGlobalVar, bountiesChannelMessage, displayBounties
+from functions.bounties.bountiesFunctions import bountyCompletion, displayLeaderboard, updateAllExperience, generateBounties, saveAsGlobalVar, deleteFromGlobalVar, bountiesChannelMessage, displayBounties
 from functions.bounties.bountiesBackend import returnLeaderboard, formatLeaderboardMessage
+from functions.dataLoading import getPGCR, getActivityDefiniton
 from functions.database import getAllDiscordMemberDestinyIDs
 from functions.formating import embed_message
 
 import discord
 import asyncio
+
+
+class test(BaseCommand):
+    def __init__(self):
+        description = f"Shows the full leaderboard for the given category"
+        params = []
+        super().__init__(description, params)
+
+    async def handle(self, params, message, client):
+        print(getPGCR(6860499900))
+
+
+class updateCompletions(BaseCommand):
+    def __init__(self):
+        description = f"[Admin] Updates bounty completion status"
+        params = []
+        super().__init__(description, params)
+
+    async def handle(self, params, message, client):
+        # check if user has permission to use this command
+        admin = discord.utils.get(message.guild.roles, name='Admin')
+        dev = discord.utils.get(message.guild.roles, name='Developer')
+        if admin not in message.author.roles and dev not in message.author.roles:
+            await message.channel.send(embed=embed_message(
+                'Error',
+                'You are not allowed to do that'
+            ))
+            return
+
+        await bountyCompletion(client)
 
 
 class leaderboard(BaseCommand):
@@ -47,7 +78,7 @@ class leaderboard(BaseCommand):
         # function to condense leaderboards
         def condense(lead_big, lead_new):
             for id, value in lead_new.items():
-                if value is not None:
+                if value is not None and value != 0:
                     if id in lead_big:
                         lead_big.update({id: (0 if lead_big[id] is None else value) + value})
                     else:

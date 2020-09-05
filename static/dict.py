@@ -67,13 +67,29 @@ metricGoSCompletions = [1168279855]
 
 """ Grouped Hashes """
 # only activities which are available should be included here
-raidHashes = lwHashes + gosHashes
-dungeonHashes = throneHashes + pitHashes + prophHashes
+raidHashes = [lwHashes], [gosHashes], [scourgeHashes], [cosHashes]
+dungeonHashes = [throneHashes], [pitHashes], [prophHashes]
 
 activityStrikeAndNFHash = activityNFHash + activityStrikeHash
 
 metricRaidCompletion = metricLeviCompletions + metricEoWCompletions + metricSosCompletions + metricLWCompletions + metricScourgeCompletions + metricCoSCompletions + metricGoSCompletions
 metricAvailableRaidCompletion = metricLWCompletions + metricGoSCompletions
+
+
+
+"""" Speedrun Times """
+raidSpeedrun = {
+    548750096: 780,         # scourge 13mins
+    3333172150: 1320,       # cos 22min
+    960175301: 1320,        # cos
+    2122313384: 780,        # lw 13
+    3845997235: 1500,       # gos 25
+    2659723068: 1500,       # gos
+}
+
+scourgeHashes = [548750096]
+lwHashes = [2122313384]
+cosHashes = [3333172150, 960175301]
 
 
 clanids = {

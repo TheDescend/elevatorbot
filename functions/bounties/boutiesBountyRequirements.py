@@ -12,19 +12,22 @@ Template:
 
 Current requirements:
 
-randomActivity      # one value will automatically get changed to allowedActivities during selection process
+randomActivity      # one value will automatically get changed to allowedActivities during selection process. Needs to be in double brackets since there might be multiple hashes per activity - input: [[1, 2], [3, 4]]; output = [3, 4]
 allowedActivities   #todo
 allowedTypes        # which activity type hashes are allow, fe. activityTypeHash: 1686739444 is story
 speedrun            #todo
+lowman              #todo
 contest             #todo
 completions         #todo
 firstClear          #todo
+noWeapons           #todo
 customLoadout       #todo
 kd                  #todo
 totalKills          #todo
 totalDeaths         #todo
 NFscore             #todo
 winStreak           #todo
+tournament          #todo
 
 points              # how many points the user gets for completing the bounty
 
@@ -196,25 +199,25 @@ competition_bounties = {
     # raid bounties
     'Raids': {
         "Get the fastest clear of this raid": {
-            "requirements": ["randomActivity"],
+            "requirements": ["randomActivity", "speedrun"],
             "randomActivity": raidHashes,
             "points": 0
         },
 
         "Get the fastest clear of this dungeon": {
-            "requirements": ["randomActivity"],
+            "requirements": ["randomActivity", "speedrun"],
             "randomActivity": dungeonHashes,
             "points": 0
         },
 
-        "Do a lowman of this raid": {
-            "requirements": ["randomActivity"],
+        "Do a lowman (solo, duo or trio) of this raid": {
+            "requirements": ["randomActivity", "lowman"],
             "randomActivity": raidHashes,
-            "points": 0
+            "points": [0, 0, 0]             # [solo, duo, trio]
         },
 
-        "Get the fastest clear of this raid while using abilities only": {
-            "requirements": ["randomActivity"],
+        "Get the fastest clear of this raid while everyone uses abilities only": {
+            "requirements": ["randomActivity", "speedrun", "noWeapons"],
             "randomActivity": raidHashes,
             "points": 0
         },
@@ -231,13 +234,13 @@ competition_bounties = {
         # },
 
         "Get the most kills in a gambit match": {
-            "requirements": ["allowedTypes"],
+            "requirements": ["allowedTypes", "totalKills"],
             "allowedTypes": activityGambitHash,
             "points": 0
         },
 
         "Get the highest Nightfall Score": {
-            "requirements": ["allowedTypes"],
+            "requirements": ["allowedTypes", "NFscore"],
             "allowedTypes": activityNFHash,
             "points": 0
         }
@@ -245,14 +248,14 @@ competition_bounties = {
 
     # pvp bounties
     'PvP': {
-        "Get the highest kills in any PvP mode": {
-            "requirements": ["allowedTypes"],
+        "Get the highest kills in a game in any PvP mode": {
+            "requirements": ["allowedTypes", "totalKills"],
             "allowedTypes": activityPVPHash,
             "points": 0
         },
 
-        "Get the best K/D in any PvP mode": {
-            "requirements": ["allowedTypes"],
+        "Get the best K/D in a game in any PvP mode": {
+            "requirements": ["allowedTypes", "kd"],
             "allowedTypes": activityPVPHash,
             "points": 0
         },
@@ -264,7 +267,7 @@ competition_bounties = {
         },
 
         "Win this weeks PvP tournament": {
-
+            "requirements": ["tournament"],
             "points": 0
         }
     }
