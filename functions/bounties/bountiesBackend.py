@@ -109,7 +109,7 @@ def threadingCompetitionBounties(bounty, cutoff, discordID):
             if ret > highest_score:
                 highest_score = ret
 
-    return {discordID, highest_score}
+    return {discordID: highest_score}
 
 
 
@@ -148,13 +148,37 @@ def playerHasDoneBounty(discordID, name):
 
     return False
 
+# saves the current competition bounties leaderboards. gets reset in awardCompetitionBountiesPoints()
+def changeCompetitionBountiesLeaderboards(leaderboard_name, leaderboard_data):  # leaderboard_date = {discordID: score}
+    if not os.path.exists('functions/bounties/competitionBountiesLeaderboards.pickle'):
+        file = {}
+    else:
+        with open('functions/bounties/competitionBountiesLeaderboards.pickle', "rb") as f:
+            file = pickle.load(f)
 
-# updates / sets all experience levels for the user
-def updateAllExperience(discordID):
-    destinyID = lookupDestinyID(discordID)
-    experiencePve(destinyID)
-    experiencePvp(destinyID)
-    experienceRaids(destinyID)
+    # create entry or get it if exists
+    if leaderboard_name not in file.keys():
+        file[leaderboard_name] = {}
+
+    # update the players score and sort it again
+    file[leaderboard_name].update(leaderboard_data)
+    file[leaderboard_name] = {k: v for k, v in sorted(file[leaderboard_name].items(), key=lambda item: item[1], reverse=True)}
+
+    # overwrite the file
+    with open('functions/bounties/competitionBountiesLeaderboards.pickle', "wb") as f:
+        pickle.dump(file, f)
+
+# gets the current competition bounties leaderboards. gets reset (file gets deleted) in awardCompetitionBountiesPoints()
+# leaderboards = {topic(fe. "Raids"): {id1: score, id2:score,...}, topic2: {...
+def getCompetitionBountiesLeaderboards():
+    # skip this is the file doesn't exist
+    if not os.path.exists('functions/bounties/competitionBountiesLeaderboards.pickle'):
+        return {}
+
+    # load the file
+    with open('functions/bounties/competitionBountiesLeaderboards.pickle', "rb") as f:
+        return pickle.load(f)
+
 
 # sets the exp level for "pve" - currently kd above 1.11
 def experiencePvp(destinyID):
@@ -207,7 +231,7 @@ def experienceRaids(destinyID):
                 break
 
         exp = 1 if (completions >= limit_raids) and clears else 0
-        setLevel(exp, "exp_pve", lookupDiscordID(destinyID))
+        setLevel(exp, "exp_raids", lookupDiscordID(destinyID))
 
         return True
     return False

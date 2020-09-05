@@ -1,7 +1,7 @@
 from functions.formating import embed_message
-from functions.database import insertBountyUser, removeBountyUser, getBountyUserList, getLevel, lookupDestinyID, lookupServerID
+from functions.database import insertBountyUser, removeBountyUser, getBountyUserList, getLevel, addLevel, lookupDestinyID, lookupServerID
 from functions.bounties.boutiesBountyRequirements import bounties, competition_bounties
-from functions.bounties.bountiesBackend import experiencePvp, experiencePve, experienceRaids, threadingCompetitionBounties, threadingBounties
+from functions.bounties.bountiesBackend import getCompetitionBountiesLeaderboards, changeCompetitionBountiesLeaderboards, experiencePvp, experiencePve, experienceRaids, threadingCompetitionBounties, threadingBounties
 
 import os
 import pickle
@@ -15,10 +15,9 @@ import concurrent.futures
 
 
 # randomly generate bounties. One per topic for both of the lists
-def generateBounties(client, regular=False):
-    # if part of the regular, weekly update award the points
-    if regular:
-        awardCompetitionBountiesPoints()
+def generateBounties(client):
+    # award points for the competition bounties
+    awardCompetitionBountiesPoints()
 
     # looping though the bounties and generating random ones
     file = {}
@@ -69,10 +68,22 @@ def generateBounties(client, regular=False):
     if os.path.exists('functions/bounties/playerBountyStatus.pickle'):
         os.remove('functions/bounties/playerBountyStatus.pickle')
 
+
 # awards points to whoever has the most points. Can be multiple people if tied
 def awardCompetitionBountiesPoints():
-    pass
-    # todo add score to users who won the competitive bounties
+    leaderboards = getCompetitionBountiesLeaderboards()
+
+    # loop through topic, then though users
+    for topic in leaderboards:
+        for discordID in leaderboards[topic]:
+
+            # award the points in the respective categories
+            addLevel(leaderboards[topic][discordID], f"points_competition_{topic.lower()}", discordID)
+
+    # delete now old leaderboards
+    if os.path.exists('functions/bounties/competitionBountiesLeaderboards.pickle'):
+        os.remove('functions/bounties/competitionBountiesLeaderboards.pickle')
+
 
 # print the bounties in their respective channels
 async def displayBounties(client):
@@ -83,6 +94,7 @@ async def displayBounties(client):
     # get channel and guild id
     with open('functions/bounties/channelIDs.pickle', "rb") as f:
         file = pickle.load(f)
+
     for guild in client.guilds:
         if guild.id == file["guild_id"]:
 
@@ -96,19 +108,26 @@ async def displayBounties(client):
                     )
                     for experience in json["bounties"][topic].keys():
                         name, req = list(json["bounties"][topic][experience].items())[0]
-                        embed.add_field(name=f"{experience}:", value=f"{name} (Points: {req['points']})", inline=False)
+                        embed.add_field(name=f"{experience}:", value=f"{name} (Points: {req['points']})\n⁣", inline=False)
                     await bounties_channel.send(embed=embed)
                 print("Updated bounty display")
             if "competition_bounties_channel" in file:
-                await displayCompetitionBounties(guild, file)
+                await displayCompetitionBounties(client, guild)
 
     print("Done updating displays")
 
 
-async def displayCompetitionBounties(guild, file, leaderboard=None, message=None):
+async def displayCompetitionBounties(client, guild, message=None):
+    # load channel ids
+    with open('functions/bounties/channelIDs.pickle', "rb") as f:
+        file = pickle.load(f)
+
     # load bounties
     with open('functions/bounties/currentBounties.pickle', "rb") as f:
         json = pickle.load(f)
+
+    # load leaderboards
+    leaderboards = getCompetitionBountiesLeaderboards
 
     competition_bounties_channel = discord.utils.get(guild.channels, id=file["competition_bounties_channel"])
     await competition_bounties_channel.purge(limit=100)
@@ -116,12 +135,25 @@ async def displayCompetitionBounties(guild, file, leaderboard=None, message=None
         name, req = list(json["competition_bounties"][topic].items())[0]
         embed = embed_message(
             topic,
-            f"{name} (Points: {req['points']})"
+            f"{name} (Points: {req['points']})\n⁣"
         )
 
-        # if the leaderboard already exists, add it to the msg
-        if leaderboard:
-            embed.add_field(name="Current Leaderboard:", value=f"\n".join(leaderboard), inline=False)
+        # read the current leaderboard and display the top x = 10 players
+        ranking = []
+        try:
+            i = 1
+            for id, value in leaderboards[topic].items():
+                ranking.append(str(i) + ") **" + client.get_user(id).display_name + "** _(Score: " + str(value) + ")_")
+                # break after x entries
+                i += 1
+                if i > 10:
+                    break
+        except KeyError:
+            pass
+        except Exception as e:
+            print('Exception was caught: ' + repr(e))
+
+        embed.add_field(name=f"Current Leaderboard:", value=f"\n".join(ranking) if ranking else "Nobody has completed this yet", inline=False)
 
         # edit msg if given one, otherwise create a new one and save the id
         if message:
@@ -179,21 +211,11 @@ async def bountyCompletion(client):
                     except Exception as exc:
                         print(f'generated an exception: {exc}')
 
-            # sort leaderboard
-            leaderboard = {k: v for k, v in sorted(leaderboard.items(), key=lambda item: item[1], reverse=True)}
+            # update the leaderboard file
+            changeCompetitionBountiesLeaderboards(topic, leaderboard)
 
-            # update bounty leaderboard
-            ranking = []
-            i = 1
-            for key, value in leaderboard.items():
-                ranking.append(str(i) + ") **" + client.get_user(key).display_name + "** _(Score: " + str(value) + ")_")
-
-                # break after 10 entries
-                i += 1
-                if i > 10:
-                    break
-
-            await displayCompetitionBounties(guild, file, ranking, message)
+            # display the new leaderboards
+            await displayCompetitionBounties(client, guild, message)
 
 
 def startTournament():

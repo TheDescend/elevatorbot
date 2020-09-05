@@ -1,5 +1,5 @@
 from commands.base_command  import BaseCommand
-from functions.bounties.bountiesFunctions import generateBounties, saveAsGlobalVar, deleteFromGlobalVar, bountiesChannelMessage, displayBounties
+from functions.bounties.bountiesFunctions import updateAllExperience, generateBounties, saveAsGlobalVar, deleteFromGlobalVar, bountiesChannelMessage, displayBounties
 from functions.bounties.bountiesBackend import experiencePvp
 from functions.database import getAllDiscordMemberDestinyIDs
 from functions.formating import embed_message
@@ -7,6 +7,14 @@ from functions.formating import embed_message
 import discord
 import asyncio
 
+class experienceLevel(BaseCommand):
+    def __init__(self):
+        description = f"DM's you your experience level for the Bounty Goblins"
+        params = []
+        super().__init__(description, params)
+
+    async def handle(self, params, message, client):
+        await updateAllExperience(client, message.author.id, new_register=True)
 
 class resetLeaderboards(BaseCommand):
     def __init__(self):
