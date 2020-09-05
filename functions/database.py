@@ -128,7 +128,7 @@ def addLevel(value, levelType, discordID):
     con = db_connect()
     cur = con.cursor()
     curLevel = getLevel(levelType, discordID)
-    newLevel = curLevel + value
+    newLevel = (0 if curLevel is None else curLevel) + (0 if value is None else value)
     setLevelByDiscordID = f"""   
                     UPDATE bountyGoblins 
                     SET {levelType} = ? 

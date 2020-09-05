@@ -2,6 +2,7 @@ from functions.formating import embed_message
 from functions.database import insertBountyUser, getBountyUserList, getLevel, addLevel, setLevel, lookupDestinyID, lookupServerID
 from functions.bounties.boutiesBountyRequirements import bounties, competition_bounties
 from functions.bounties.bountiesBackend import formatLeaderboardMessage, returnLeaderboard, getCompetitionBountiesLeaderboards, changeCompetitionBountiesLeaderboards, experiencePvp, experiencePve, experienceRaids, threadingCompetitionBounties, threadingBounties
+from functions.dataLoading import getActivityDefiniton
 
 import os
 import pickle
@@ -15,43 +16,31 @@ import concurrent.futures
 
 
 # randomly generate bounties. One per topic for both of the lists
-def generateBounties(client):
+async def generateBounties(client):
     # award points for the competition bounties
-    awardCompetitionBountiesPoints()
+    await awardCompetitionBountiesPoints(client)
 
-    # looping though the bounties and generating random ones
+    # looping though the bounties
     file = {}
     file["bounties"] = {}
     for topic in bounties.keys():
         file["bounties"][topic] = {}
         for experience in bounties[topic].keys():
-            key, value = random.choice(list(bounties[topic][experience].items()))
-
-            # if "randomActivity" is present, get a random activity from the list and delete "randomActivity" so it doesn't take up space anymore
-            if "randomActivity" in value:
-                value["allowedActivities"] = random.choice(value.pop("randomActivity"))
-                value["requirements"].pop(value["requirements"].index("randomActivity"))
-                value["requirements"].append("allowedActivities")
+            key, value = bountiesFormatting(bounties[topic][experience])
 
             file["bounties"][topic][experience] = {}
             file["bounties"][topic][experience][key] = value
 
-    # looping though the competition bounties and generating random ones
+    # looping though the competition bounties
     file["competition_bounties"] = {}
     for topic in competition_bounties.keys():
-        key, value = random.choice(list(competition_bounties[topic].items()))
-
-        # if "randomActivity" is present, get a random activity from the list and delete "randomActivity" so it doesn't take up space anymore
-        if "randomActivity" in value:
-            value["allowedActivities"] = random.choice(value.pop("randomActivity"))
-            value["requirements"].pop(value["requirements"].index("randomActivity"))
-            value["requirements"].append("allowedActivities")
+        key, value = bountiesFormatting(competition_bounties[topic])
 
         file["competition_bounties"][topic] = {}
         file["competition_bounties"][topic][key] = value
 
     # add current time to list
-    file["time"] = "2010-09-05 19:41:13.688291" # todo change this back. only for testing
+    file["time"] = "2020-08-05 19:41:13.688291" # todo change this back. only for testing
     #file["time"] = str(datetime.datetime.now())
 
     # overwrite the old bounties
@@ -70,17 +59,48 @@ def generateBounties(client):
         os.remove('functions/bounties/playerBountyStatus.pickle')
 
 
+# do the random selection and the extraText formating
+def bountiesFormatting(json):
+    key, value = random.choice(list(json.items()))
+
+    # if "randomActivity" is present, get a random activity from the list and delete "randomActivity" so it doesn't take up space anymore
+    if "randomActivity" in value:
+        value["allowedActivities"] = random.choice(value.pop("randomActivity"))[0]
+        value["requirements"].pop(value["requirements"].index("randomActivity"))
+        value["requirements"].append("allowedActivities")
+
+    # if "extraText" is present, process that
+    if "extraText" in value:
+        if "allowedActivities" in value:
+            activity_name = getActivityDefiniton(value["allowedActivities"][0], "displayProperties")["name"]
+            key = key.replace("?", activity_name)
+
+    return key, value
+
+
 # awards points to whoever has the most points. Can be multiple people if tied
-def awardCompetitionBountiesPoints():
+async def awardCompetitionBountiesPoints(client):
+    # load current bounties
+    with open('functions/bounties/currentBounties.pickle', "rb") as f:
+        bounties = pickle.load(f)["competition_bounties"]
+
+    # load leaderboards
     leaderboards = getCompetitionBountiesLeaderboards()
 
     # loop through topic, then though users
     for topic in leaderboards:
+        last = None
         for discordID in leaderboards[topic]:
+            # also award the points should multiple people have the same score
+            if last != leaderboards[topic][discordID]:
+                break
 
             # award the points in the respective categories
-            # todo look up points
-            addLevel("points", f"points_competition_{topic.lower()}", discordID)
+            points = bounties[topic][list(bounties[topic].keys())[0]]["points"]
+            addLevel(points, f"points_competition_{topic.lower()}", discordID)
+
+    # update display
+    await displayLeaderboard(client)
 
     # delete now old leaderboards
     if os.path.exists('functions/bounties/competitionBountiesLeaderboards.pickle'):
@@ -188,6 +208,8 @@ async def displayCompetitionBounties(client, guild, message=None):
 
 # checks if any player has completed a bounty
 async def bountyCompletion(client):
+    current_time = datetime.datetime.now()
+
     # load bounties
     with open('functions/bounties/currentBounties.pickle', "rb") as f:
         bounties = pickle.load(f)
@@ -200,45 +222,38 @@ async def bountyCompletion(client):
             if guild.id == file["guild_id"]:
                 break
 
+    # load activity definitions
+    activity_definitions = getActivityDefiniton()
+
+
     # loop though all registered users
     with concurrent.futures.ThreadPoolExecutor(os.cpu_count() * 5) as pool:
         futurelist = [pool.submit(threadingBounties, bounties["bounties"], cutoff, user) for user in getBountyUserList()]
 
         for future in concurrent.futures.as_completed(futurelist):
-            try:
-                result = future.result()
-            except Exception as exc:
-                print(f'generated an exception: {exc}')
+            future.result()
+
+    # loop though all registered users
+    with concurrent.futures.ThreadPoolExecutor(os.cpu_count() * 5) as pool:
+        futurelist = [pool.submit(threadingCompetitionBounties, bounties["competition_bounties"], cutoff, user, activity_definitions)
+                      for user in getBountyUserList()]
+
+        for future in concurrent.futures.as_completed(futurelist):
+            future.result()
 
 
-    # loop though all the competition bounties
-    for topic in bounties["competition_bounties"]:
-        for bounty in bounties["competition_bounties"][topic]:
+    print("Done checking all the users")
 
-            # create leaderboard dict
-            leaderboard = {}
-
-            # loop though all registered users
-            with concurrent.futures.ThreadPoolExecutor(os.cpu_count() * 5) as pool:
-                futurelist = [pool.submit(threadingCompetitionBounties, bounties["competition_bounties"][topic][bounty], cutoff, user.id)
-                              for user in getBountyUserList()]
-
-                for future in concurrent.futures.as_completed(futurelist):
-                    try:
-                        result, sort_by_highest = future.result()
-                        leaderboard.update(result)
-                    except Exception as exc:
-                        print(f'generated an exception: {exc}')
-
-            # update the leaderboard file
-            changeCompetitionBountiesLeaderboards(topic, leaderboard, sort_by_highest)
-
-            # display the new leaderboards
-            await displayCompetitionBounties(client, guild, message=True)
+    # display the new leaderboards
+    await displayCompetitionBounties(client, guild, message=True)
 
     # update the big leaderboard
     await displayLeaderboard(client)
 
+    # overwrite the old time, so that one activity doesn't get checked over and over again
+    bounties["time"] = str(datetime.datetime.now())
+    with open('functions/bounties/currentBounties.pickle', "wb") as f:
+        pickle.dump(bounties, f)
 
 def saveAsGlobalVar(name, value, guild_id = None):
     if not os.path.exists('functions/bounties/channelIDs.pickle'):
@@ -459,7 +474,7 @@ async def updateAllExperience(client, discordID, new_register=False):
     if new_register:
         embed = embed_message(
             "Your Experience Levels",
-            f"Thanks for registering with the **Bounty Goblins**. \n Depending on your experience levels, you will only get credit for completing the respective bounties in the respective categories. \n\n Your experience levels are:"
+            f"Thanks for registering with the **Bounty Goblins**. \n Depending on your experience levels, you will only get credit for completing the respective bounties in the respective categories. Also, you can only complete bounties after you signed up, whatever you did before does not count.\n\n Your experience levels are:"
         )
 
     # message the user if levels have changed

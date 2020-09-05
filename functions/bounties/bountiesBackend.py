@@ -51,11 +51,11 @@ def returnCustomGameWinner(destinyID1, charIDs1, membershipType1, destinyID2):
     return False
 
 
-def threadingBounties(bounties, cutoff, user):
-    destinyID = lookupDestinyID(user.id)
-    experience_level_pve = getLevel("exp_pve", user.id)
-    experience_level_pvp = getLevel("exp_pvp", user.id)
-    experience_level_raids = getLevel("exp_raids", user.id)
+def threadingBounties(bounties, cutoff, discordID):
+    destinyID = lookupDestinyID(discordID)
+    experience_level_pve = getLevel("exp_pve", discordID)
+    experience_level_pvp = getLevel("exp_pvp", discordID)
+    experience_level_raids = getLevel("exp_raids", discordID)
 
     # loop through all the bounties
     for topic in bounties:
@@ -78,7 +78,7 @@ def threadingBounties(bounties, cutoff, user):
             for bounty in bounties[topic][experience]:
 
                 # check if user has done bounty this week already
-                if playerHasDoneBounty(bounty):
+                if playerHasDoneBounty(discordID, bounty):
                     break
 
                 requirements = bounties[topic][experience][bounty]
@@ -91,32 +91,56 @@ def threadingBounties(bounties, cutoff, user):
 
                         # if true, a bounty is done
                         if fulfillRequirements(requirements, activity, destinyID):
-                            addLevel(requirements["points"], f"points_bounties_{topic.lower()}",user.id)
+                            addLevel(requirements["points"], f"points_bounties_{topic.lower()}", discordID)
+
+    print(f"Bounties for destinyID: {destinyID} done")
 
 
-def threadingCompetitionBounties(bounty, cutoff, discordID):
+def threadingCompetitionBounties(bounties, cutoff, discordID, activity_definitions):
     destinyID = lookupDestinyID(discordID)
 
-    best_score = 0
+    # create leaderboard dict
+    leaderboard = {}
+    sort_by = {}
+    for topic in bounties:
+        leaderboard[topic] = {}
+
+    # loop through activities
     for activity in getPlayersPastPVE(destinyID, mode=0):
-        activity = json.loads(json.dumps(activity))
 
-        # only look at activities younger than the cutoff date
-        if datetime.datetime.strptime(activity["period"], "%Y-%m-%dT%H:%M:%SZ") > cutoff:
+        # loop though all the competition bounties
+        for topic in bounties:
+            sort_by_highest = True
+            best_score = 0
 
-            # add to high score if new high score, otherwise skip
-            # todo add high / low sort
-            ret, sort_by_highest = returnScore(bounty, activity, destinyID)
+            for bounty, req in bounties[topic].items():  # there is only one item in here
+                # only look at activities younger than the cutoff date
+                if datetime.datetime.strptime(activity["period"], "%Y-%m-%dT%H:%M:%SZ") > cutoff:
 
-            # overwrite value if better
-            if sort_by_highest:
-                if ret > best_score:
-                    best_score = ret
-            else:
-                if (ret < best_score) or (best_score == 0):
-                    best_score = ret
+                    # add to high score if new high score, otherwise skip
+                    ret, sort_by_highest = returnScore(req, activity, destinyID, activity_definitions)
 
-    return {discordID: best_score}, sort_by_highest
+                    # next, if 0 got returned
+                    if ret == 0:
+                        continue
+
+                    # overwrite value if better
+                    if sort_by_highest:
+                        if ret > best_score:
+                            best_score = ret
+                    else:
+                        if (ret < best_score) or (best_score == 0):
+                            best_score = ret
+
+                    # update leaderboards
+                    sort_by.update({topic: sort_by_highest})
+                    leaderboard[topic].update({discordID: best_score})
+
+    # update the leaderboard file
+    for topic in leaderboard:
+        changeCompetitionBountiesLeaderboards(topic, leaderboard[topic], sort_by[topic])
+
+    print(f"Competitive bounties for destinyID: {destinyID} done")
 
 
 # return true if name is in the pickle, otherwise false and add name to pickle
@@ -281,89 +305,92 @@ async def formatLeaderboardMessage(client, leaderboard, user_id=None):
 # --------------------------------------------------------------
 # checking bounties requirements
 def fulfillRequirements(requirements, activity, destinyID):
-    pass
+    return False
 
 
 # checking competition bounties scores
-def returnScore(requirements, activity, destinyID):
+def returnScore(requirements, activity, destinyID, activity_definitions):
     score = 0
     sort_by_highest = True
 
-    hash = activity["activityDetails"]["directorActivityHash"]
+    hashID = activity["activityDetails"]["directorActivityHash"]
     instance = activity["activityDetails"]["instanceId"]
 
     pgcr = getPGCR(instance)
 
 
     # check for checkpoint runs
-    if pgcr["Response"]["startingPhaseIndex"] != 0:
-        return 0
+    if pgcr["Response"]["startingPhaseIndex"] not in [-1, 0]:
+        return 0, sort_by_highest
 
     # check if activity got completed
     for player in pgcr["Response"]["entries"]:
-        if player["player"]["destinyUserInfo"]["membershipId"] == destinyID:
+        if player["player"]["destinyUserInfo"]["membershipId"] == str(destinyID):
             if player["values"]["completed"]["basic"]["value"] != 1:
-                return 0
+                return 0, sort_by_highest
 
 
     # loop through other requirements
     for req in requirements["requirements"]:
         if req == "allowedTypes":
-            if getActivityDefiniton(hash) not in requirements["allowedTypes"]:
-                return 0
+            if activity_definitions[str(hashID)]["activityTypeHash"] not in requirements["allowedTypes"]:
+                return 0, sort_by_highest
 
 
         elif req == "allowedActivities":
-            if hash not in requirements["allowedActivities"]:
-                return 0
+            if hashID not in requirements["allowedActivities"]:
+                return 0, sort_by_highest
 
 
         elif req == "speedrun":
             for player in pgcr["Response"]["entries"]:
-                if player["player"]["destinyUserInfo"]["membershipId"] == destinyID:
+                if player["player"]["destinyUserInfo"]["membershipId"] == str(destinyID):
 
                     # set score
                     sort_by_highest = False
-                    score = player["values"]["activityDurationSeconds"]["basic"]["value"]
+                    score = player["values"]["activityDurationSeconds"]["basic"]["value"] / 60
+                    score = round(score, 2)
                     break
 
 
         elif req == "lowman":
             # set score
             sort_by_highest = False
-            score = len(pgcr["Response"]["entries"])
+            score = int(len(pgcr["Response"]["entries"]))
 
 
         elif req == "noWeapons":
             # return 0 if there are any weapon kills
             for weapon in pgcr["Response"]["entries"]["extended"]["weapons"]:
                 if weapon["values"]["uniqueWeaponKills"] != 0:
-                    return 0
+                    return 0, sort_by_highest
 
 
         elif req == "totalKills":
             for player in pgcr["Response"]["entries"]:
-                if player["player"]["destinyUserInfo"]["membershipId"] == destinyID:
+                if player["player"]["destinyUserInfo"]["membershipId"] == str(destinyID):
 
                     # set score
-                    score = player["values"]["kills"]["basic"]["value"]
+                    score = int(player["values"]["kills"]["basic"]["value"])
                     break
 
 
         elif req == "kd":
             for player in pgcr["Response"]["entries"]:
-                if player["player"]["destinyUserInfo"]["membershipId"] == destinyID:
+                if player["player"]["destinyUserInfo"]["membershipId"] == str(destinyID):
 
                     # set score
                     score = player["values"]["killsDeathsRatio"]["basic"]["value"]
+                    score = round(score, 2)
                     break
 
 
         elif req == "NFscore":
             for player in pgcr["Response"]["entries"]:
-                if player["player"]["destinyUserInfo"]["membershipId"] == destinyID:
+                if player["player"]["destinyUserInfo"]["membershipId"] == str(destinyID):
+
                     # set score
-                    score = player["values"]["score"]["basic"]["value"]
+                    score = int(player["values"]["score"]["basic"]["value"])
                     break
 
 

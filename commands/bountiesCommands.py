@@ -187,7 +187,7 @@ class generateNewBounties(BaseCommand):
             ))
             return
 
-        generateBounties(client)
+        await generateBounties(client)
 
 
 class bountiesMakeChannelRegister(BaseCommand):
