@@ -58,7 +58,7 @@ class whisperkills(BaseCommand):
                 if row["member"] == message.author.display_name:
                     found = True
                     ranking.append(
-                        str(index + 1) + ") **[" + row["member"] + "]** _(Kills: " + str(int(row["kills"])) + ")_")
+                        str(index + 1) + ") **[ " + row["member"] + " ]** _(Kills: " + str(int(row["kills"])) + ")_")
                 else:
                     ranking.append(str(index + 1) + ") **" + row["member"] + "** _(Kills: " + str(int(row["kills"])) + ")_")
 

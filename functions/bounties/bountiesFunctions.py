@@ -1,7 +1,7 @@
 from functions.formating import embed_message
-from functions.database import insertBountyUser, removeBountyUser, getBountyUserList, getLevel, addLevel, lookupDestinyID, lookupServerID
+from functions.database import insertBountyUser, getBountyUserList, getLevel, addLevel, setLevel, lookupDestinyID, lookupServerID
 from functions.bounties.boutiesBountyRequirements import bounties, competition_bounties
-from functions.bounties.bountiesBackend import getCompetitionBountiesLeaderboards, changeCompetitionBountiesLeaderboards, experiencePvp, experiencePve, experienceRaids, threadingCompetitionBounties, threadingBounties
+from functions.bounties.bountiesBackend import formatLeaderboardMessage, returnLeaderboard, getCompetitionBountiesLeaderboards, changeCompetitionBountiesLeaderboards, experiencePvp, experiencePve, experienceRaids, threadingCompetitionBounties, threadingBounties
 
 import os
 import pickle
@@ -95,6 +95,12 @@ async def displayBounties(client):
     with open('functions/bounties/channelIDs.pickle', "rb") as f:
         file = pickle.load(f)
 
+    # get the users that signed up for notifications
+    text = ["⁣"]    # so that it still works even with nobody signed up
+    for discordID in getBountyUserList():
+        if getLevel("notifications", discordID) == 1:
+            text.append(f"<@{discordID}>")
+
     for guild in client.guilds:
         if guild.id == file["guild_id"]:
 
@@ -110,11 +116,21 @@ async def displayBounties(client):
                         name, req = list(json["bounties"][topic][experience].items())[0]
                         embed.add_field(name=f"{experience}:", value=f"{name} (Points: {req['points']})\n⁣", inline=False)
                     await bounties_channel.send(embed=embed)
+
+                # ping users
+                msg = await bounties_channel.send(" ".join(text))
+                await msg.delete()
+
                 print("Updated bounty display")
+
             if "competition_bounties_channel" in file:
                 await displayCompetitionBounties(client, guild)
 
-    print("Done updating displays")
+                # ping users
+                msg = await discord.utils.get(guild.channels, id=file["competition_bounties_channel"]).send(" ".join(text))
+                await msg.delete()
+
+            print("Done updating displays")
 
 
 async def displayCompetitionBounties(client, guild, message=None):
@@ -130,7 +146,6 @@ async def displayCompetitionBounties(client, guild, message=None):
     leaderboards = getCompetitionBountiesLeaderboards
 
     competition_bounties_channel = discord.utils.get(guild.channels, id=file["competition_bounties_channel"])
-    await competition_bounties_channel.purge(limit=100)
     for topic in json["competition_bounties"].keys():
         name, req = list(json["competition_bounties"][topic].items())[0]
         embed = embed_message(
@@ -159,6 +174,7 @@ async def displayCompetitionBounties(client, guild, message=None):
         if message:
             await message.edit(embed=embed)
         else:
+            await competition_bounties_channel.purge(limit=100)
             msg = await competition_bounties_channel.send(embed=embed)
             saveAsGlobalVar(f"competition_bounties_channel_{topic.lower()}_message_id", msg.id)
     print("Updated competition bounty display")
@@ -194,7 +210,7 @@ async def bountyCompletion(client):
         for bounty in bounties["competition_bounties"][topic]:
 
             # gets the msg object related to the current topic in the competition_bounties_channel
-            message = await discord.utils.get(client.guild.channels, id=file["competition_bounties_channel"]).fetch_message(file[f"competition_bounties_channel_{topic.lower()}_message_id"])
+            message = await discord.utils.get(guild.channels, id=file["competition_bounties_channel"]).fetch_message(file[f"competition_bounties_channel_{topic.lower()}_message_id"])
 
             # create leaderboard dict
             leaderboard = {}
@@ -252,36 +268,66 @@ def deleteFromGlobalVar(name):
             pickle.dump(file, f)
 
 
-# todo: add leaderboard lookup and calculation
-def leaderboardMessage():
+# updates the leaderboard display
+async def displayLeaderboard(client, use_old_message=True):
+    # function to condense leaderboards
+    def condense(lead_big, lead_new):
+        for id, value in lead_new.items():
+            if value is not None:
+                if id in lead_big:
+                    lead_big.update({id: (0 if lead_big[id] is None else value) + value})
+                else:
+                    lead_big.update({id: value})
 
-    embed = embed_message(
-        f'Leaderboard',
-        f'ToDo',
-        f"The leaderboard will update every 60 minutes"
-    )
+    # get current leaderboards and condense them into one
+    leaderboard = {}
+    condense(leaderboard, returnLeaderboard("points_bounties_raids"))
+    condense(leaderboard, returnLeaderboard("points_bounties_pve"))
+    condense(leaderboard, returnLeaderboard("points_bounties_pvp"))
+    condense(leaderboard, returnLeaderboard("points_competition_raids"))
+    condense(leaderboard, returnLeaderboard("points_competition_pve"))
+    condense(leaderboard, returnLeaderboard("points_competition_pvp"))
 
-    return embed
+    # format that
+    ranking = await formatLeaderboardMessage(client, leaderboard)
 
-
-async def updateLeaderboard(client):
+    # load ids
     with open('functions/bounties/channelIDs.pickle', "rb") as f:
         file = pickle.load(f)
 
+    # try to get the leaderboard message id, else make a new message
+    message_id = None
+    try:
+        message_id = file["leaderboard_channel_message_id"]
+    except:
+        pass
+
     for guild in client.guilds:
         if guild.id == file["guild_id"]:
-            embed = leaderboardMessage()
-            channel = discord.utils.get(guild.channels, id=file["leaderboard_channel"])
 
-            if "leaderboard_channel_message_id" not in file:
-                msg = await channel.send(embed=embed)
+            # get the channel id
+            competition_bounties_channel = discord.utils.get(guild.channels, id=file["leaderboard_channel"])
+
+            embed = embed_message(
+                "Leaderboard",
+                (f"\n".join(ranking)) if ranking else "Nobody has any points yet",
+                footer="This leaderboard will update every ~60 minutes"
+            )
+
+            if message_id and use_old_message:
+                # get the leaderboard msg object
+                message = await discord.utils.get(
+                        guild.channels,
+                        id=file["leaderboard_channel"]
+                    ).fetch_message(file["leaderboard_channel_message_id"])
+
+                await message.edit(embed=embed)
+            else:
+                await competition_bounties_channel.purge(limit=100)
+                msg = await competition_bounties_channel.send(embed=embed)
                 saveAsGlobalVar("leaderboard_channel_message_id", msg.id)
 
-            else:
-                msg = await channel.fetch_message(file["leaderboard_channel_message_id"])
-                await msg.edit(embed=embed)
-
-            return
+    print("Updated Leaderboard")
 
 
 # writes the message the user will see and react to and saves the id in the pickle
@@ -326,21 +372,13 @@ async def bountiesChannelMessage(client):
                         # send register msg and save the id
                         msg = await channel.send(embed=embed_message(
                             f'Registration',
-                            f'Please react if you want to register to the bounty program'
+                            f'If you want to register to the **Bounty Goblins**, react with <:register:751774620696313966> \n\n If you want to receive a notification whenever new bounties are available, react with <a:notifications:751771924866269214>'
                         ))
-                        await msg.add_reaction("✅")
-                        await msg.add_reaction("❎")
+                        register = client.get_emoji(751774620696313966)
+                        await msg.add_reaction(register)
+                        notification = client.get_emoji(751771924866269214)
+                        await msg.add_reaction(notification)
                         saveAsGlobalVar("register_channel_message_id", msg.id)
-
-                if "leaderboard_channel" in file:
-                    if "leaderboard_channel_message_id" not in file:
-                        channel = discord.utils.get(guild.channels, id=file["leaderboard_channel"])
-                        await channel.purge(limit=100)
-
-                        # send leaderboard msg
-                        await updateLeaderboard(client)
-
-
 
                 # if "tournament_channel" in file:
                 #     channel = discord.utils.get(guild.channels, id=file["tournament_channel"])
@@ -349,18 +387,44 @@ async def bountiesChannelMessage(client):
 async def registrationMessageReactions(client, user, emoji, register_channel, register_channel_message_id):
     message = await register_channel.fetch_message(register_channel_message_id)
 
-    if emoji.name == "✅":
-        await message.remove_reaction("✅", user)
-        insertBountyUser(user.id)
-        await updateAllExperience(client, user.id, new_register=True)
+    register = client.get_emoji(751774620696313966)
+    notification = client.get_emoji(751771924866269214)
 
-    elif emoji.name == "❎":
-        await message.remove_reaction("❎", user)
-        removeBountyUser(user.id)
-        await user.send("you're no longer signed up")
+    if emoji.id == register.id:
+        await message.remove_reaction(register, user)
+        # register him
+        if user.id not in getBountyUserList():
+            insertBountyUser(user.id)
+            setLevel(1, "active", user.id)
+            await updateAllExperience(client, user.id, new_register=True)
+        elif getLevel("active", user.id) != 1:
+            setLevel(1, "active", user.id)
+            await updateAllExperience(client, user.id, new_register=True)
 
+        # unregister him
+        else:
+            setLevel(0, "active", user.id)
+            setLevel(0, "notifications", user.id)
+            embed = embed_message(
+                "See you",
+                "You are no longer signed up with the **Bounty Goblins**"
+                )
+            await user.send(embed=embed)
 
-#todo maybe another msg that you can react to to get pinged if new bouinties are there
+    elif emoji.id == notification.id:
+        await message.remove_reaction(notification, user)
+        # you can only sign up if registered
+        if user.id in getBountyUserList():
+            if getLevel("active", user.id) == 1:
+                status = getLevel("notifications", user.id)
+                setLevel(0 if status == 1 else 1, "notifications", user.id)
+
+                text = "now " if status == 0 else "no longer "
+                embed = embed_message(
+                    "Notifications",
+                    f"You are {text}receiving notifications when new bounties are available!"
+                )
+                await user.send(embed=embed)
 
 
 # loop though all users and refresh their experience level. Get's called once a week on sunday at midnight

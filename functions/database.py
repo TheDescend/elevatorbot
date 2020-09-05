@@ -60,7 +60,7 @@ def insertBountyUser(discordID):
         return False
 
 def removeBountyUser(discordID):
-    """ Removes a User from the DB (by discordID), returns True if successful"""
+    """ Removes a User from the DB (by discordID), returns True if successful. CAREFUL also remove points"""
     con = db_connect()
     product_sql = """DELETE FROM bountyGoblins 
         WHERE discordSnowflake = ? """
@@ -84,7 +84,7 @@ def getBountyUserList():
 
 
 """
-levels:
+levels: (all INTEGER)
     exp_pve                     # those 3 are for exp levels. 0 for unexp and 1 for exp
     exp_pvp
     exp_raids
@@ -95,6 +95,9 @@ levels:
     points_competition_pve
     points_competition_pvp
     points_competition_raids
+    
+    active                      # is the user currently signed up
+    notifications DEFAULT 0     # for weekly pings
 """
 def getLevel(levelType, discordID):
     """ Returns the level for a specific discordID"""

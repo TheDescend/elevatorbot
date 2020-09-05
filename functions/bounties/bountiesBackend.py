@@ -1,5 +1,5 @@
 from functions.network import getJSONfromURL
-from functions.database import lookupDestinyID, lookupDiscordID, getLevel, addLevel, setLevel
+from functions.database import lookupDestinyID, lookupDiscordID, getBountyUserList, getLevel, addLevel, setLevel
 from functions.dataLoading import getPlayersPastPVE, getStats, getProfile
 from static.dict import metricRaidCompletion, metricAvailableRaidCompletion
 from functions.formating    import embed_message
@@ -112,8 +112,6 @@ def threadingCompetitionBounties(bounty, cutoff, discordID):
     return {discordID: highest_score}
 
 
-
-
 def fulfillRequirements(requirements, activity, destinyID):
     for req in requirements["requirements"]:
         # todo
@@ -121,6 +119,7 @@ def fulfillRequirements(requirements, activity, destinyID):
         pass
 
     return True
+
 
 def returnScore(requirements, activity):
     # todo
@@ -168,6 +167,7 @@ def changeCompetitionBountiesLeaderboards(leaderboard_name, leaderboard_data):  
     with open('functions/bounties/competitionBountiesLeaderboards.pickle', "wb") as f:
         pickle.dump(file, f)
 
+
 # gets the current competition bounties leaderboards. gets reset (file gets deleted) in awardCompetitionBountiesPoints()
 # leaderboards = {topic(fe. "Raids"): {id1: score, id2:score,...}, topic2: {...
 def getCompetitionBountiesLeaderboards():
@@ -210,7 +210,6 @@ def experiencePve(destinyID):
     return False
 
 
-
 # sets the exp level for "raids" - currently 35 raids and every raid cleared
 def experienceRaids(destinyID):
     limit_raids = 35            # total raids
@@ -236,3 +235,33 @@ def experienceRaids(destinyID):
         return True
     return False
 
+
+# returns the sorted leaderboard for the specific topic
+def returnLeaderboard(topic):
+    leaderboard = {}
+
+    # loop through users and get their individual score
+    for discordID in getBountyUserList():
+        leaderboard.update({discordID: getLevel(topic, discordID)})
+
+    # return sorted
+    return {k: v for k, v in sorted(leaderboard.items(), key=lambda item: item[1], reverse=True)}
+
+
+# formats and sorts the entries. Input is dict = {id: score, id2: score2,...} output is list = [fancy sentence for id1, ...]
+async def formatLeaderboardMessage(client, leaderboard, user_id=None):
+    # sort that shit
+    leaderboard = {k: v for k, v in sorted(leaderboard.items(), key=lambda item: item[1], reverse=True)}
+
+    # format that shit
+    ranking = []
+    i = 1
+    for id, points in leaderboard.items():
+        # if user id is given, do some fancy formating
+        if id == user_id:
+            ranking.append(str(i) + ") **[ " + client.get_user(id).display_name + " ]** _(Points: " + str(points) + ")_")
+        else:
+            ranking.append(str(i) + ") **" + client.get_user(id).display_name + "** _(Points: " + str(points) + ")_")
+        i += 1
+
+    return ranking

@@ -1,5 +1,5 @@
 from commands.base_command  import BaseCommand
-from functions.bounties.bountiesFunctions import updateAllExperience, generateBounties, saveAsGlobalVar, deleteFromGlobalVar, bountiesChannelMessage, displayBounties
+from functions.bounties.bountiesFunctions import displayLeaderboard, updateAllExperience, generateBounties, saveAsGlobalVar, deleteFromGlobalVar, bountiesChannelMessage, displayBounties
 from functions.bounties.bountiesBackend import experiencePvp
 from functions.database import getAllDiscordMemberDestinyIDs
 from functions.formating import embed_message
@@ -126,9 +126,9 @@ class bountiesMakeChannelLeaderboard(BaseCommand):
             ))
             return
 
-        deleteFromGlobalVar("leaderboard_channel_message_id")
+        # todo
         saveAsGlobalVar("leaderboard_channel", message.channel.id, message.guild.id)
-        await bountiesChannelMessage(client)
+        await displayLeaderboard(client, False)
 
 
 class bountiesMakeChannelBounties(BaseCommand):

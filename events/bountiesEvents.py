@@ -1,5 +1,5 @@
 from events.base_event import BaseEvent
-from functions.bounties.bountiesFunctions   import updateLeaderboard, bountyCompletion
+from functions.bounties.bountiesFunctions   import displayLeaderboard, bountyCompletion
 
 
 # update the leaderboard every 60 mins
@@ -8,8 +8,8 @@ class refreshBountiesLeaderboards(BaseEvent):
         interval_minutes = 60  # Set the interval for this event
         super().__init__(interval_minutes)
 
-    def run(self, client):
-        updateLeaderboard(client)
+    async def run(self, client):
+        await displayLeaderboard(client)
 
 
 # check if players have completed a bounty
