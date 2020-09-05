@@ -305,7 +305,7 @@ async def displayLeaderboard(client, use_old_message=True):
     condense(leaderboard, returnLeaderboard("points_competition_pvp"))
 
     # format that
-    ranking = await formatLeaderboardMessage(client, leaderboard)
+    ranking = await formatLeaderboardMessage(client, leaderboard, limit=50)
 
     # load ids
     with open('functions/bounties/channelIDs.pickle', "rb") as f:

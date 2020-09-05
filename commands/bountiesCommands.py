@@ -88,7 +88,7 @@ class leaderboard(BaseCommand):
         leaderboard = {}
         for topic in topics[params[0].lower()]:
             condense(leaderboard, returnLeaderboard(topic))
-        ranking = await formatLeaderboardMessage(client, leaderboard, message.author.id)
+        ranking = await formatLeaderboardMessage(client, leaderboard, user_id=message.author.id)
 
         fancy_dict = {
             "all": "All Categories",

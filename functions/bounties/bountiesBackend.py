@@ -267,9 +267,8 @@ def returnLeaderboard(topic):
 
 
 # formats and sorts the entries. Input is dict = {id: score, id2: score2,...} output is list = [fancy sentence for id1, ...]
-async def formatLeaderboardMessage(client, leaderboard, user_id=None):
-    # how long the leaderboard will be
-    limit = 10
+async def formatLeaderboardMessage(client, leaderboard, user_id=None, limit=10):
+    # limit = how long the leaderboard will be
 
     # sort that shit
     leaderboard = {k: v for k, v in sorted(leaderboard.items(), key=lambda item: item[1], reverse=True)}
