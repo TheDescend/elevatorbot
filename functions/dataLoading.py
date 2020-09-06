@@ -170,19 +170,13 @@ def getPGCR(instanceID):
     pgcrurl = f'https://www.bungie.net/Platform/Destiny2/Stats/PostGameCarnageReport/{instanceID}/'
     return getJSONfromURL(pgcrurl)
 
-# returns the activtiy type hash when given a activity hash
-def getActivityDefiniton(hashID=None, type=None):
-    ret = requests.get('http://www.bungie.net/Platform/Destiny2/Manifest/')
-    manifest = ret.json()
+# type = "DestinyInventoryItemDefinition" (fe.), hash = 3993415705 (fe)   - returns MT
+def returnManifestInfo(type, hash):
+    ret = requests.get(f'http://www.bungie.net/Platform/Destiny2/Manifest/{type}/{hash}/')
+    info = ret.json()
 
-    activity_url = "https://www.bungie.net" + manifest["Response"]["jsonWorldComponentContentPaths"]["en"][
-        "DestinyActivityDefinition"]
-    ret = requests.get(activity_url).json()
-
-    if hashID:
-        return ret[str(hashID)][type]  # "activityTypeHash", "displayProperties"
-    else:
-        return ret
+    if info:
+        return info['Response']
 
 def getManifest():
     manifest_url = 'http://www.bungie.net/Platform/Destiny2/Manifest/'

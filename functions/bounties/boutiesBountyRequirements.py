@@ -54,7 +54,7 @@ bounties = {
                 "points": 0
             },
 
-            "Finish two dungeons": {
+            "Finish three dungeons": {
                 "requirements": ["allowedTypes", "completions"],
                 "allowedTypes": activityDungeonHash,
                 "points": 0
@@ -130,8 +130,8 @@ bounties = {
 
         # experienced players
         "Experienced Players": {
-            "Finish a strike with high kills and low deaths": {
-                "requirements": ["allowedTypes",  "completions", "totalKills", "totalDeaths"],
+            "Finish a strike with high kills (100) and low deaths (0) in under 10 minutes": {
+                "requirements": ["allowedTypes",  "completions", "speedrun", "totalKills", "totalDeaths"],
                 "allowedTypes": activityStrikeAndNFHash,
                 "points": 0
             },

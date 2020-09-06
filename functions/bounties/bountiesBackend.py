@@ -1,6 +1,7 @@
 from functions.network import getJSONfromURL
 from functions.database import lookupDestinyID, lookupDiscordID, getBountyUserList, getLevel, addLevel, setLevel
-from functions.dataLoading import getPGCR, getActivityDefiniton, getPlayersPastPVE, getStats, getProfile
+from functions.dataLoading import getPGCR, getPlayersPastPVE, getStats, getProfile, returnManifestInfo
+from functions.network import getJSONfromURL
 from static.dict import metricRaidCompletion, metricAvailableRaidCompletion
 from functions.formating    import embed_message
 
@@ -96,7 +97,7 @@ def threadingBounties(bounties, cutoff, discordID):
     print(f"Bounties for destinyID: {destinyID} done")
 
 
-def threadingCompetitionBounties(bounties, cutoff, discordID, activity_definitions):
+def threadingCompetitionBounties(bounties, cutoff, discordID):
     destinyID = lookupDestinyID(discordID)
 
     # create leaderboard dict
@@ -118,7 +119,7 @@ def threadingCompetitionBounties(bounties, cutoff, discordID, activity_definitio
                 if datetime.datetime.strptime(activity["period"], "%Y-%m-%dT%H:%M:%SZ") > cutoff:
 
                     # add to high score if new high score, otherwise skip
-                    ret, sort_by_highest = returnScore(req, activity, destinyID, activity_definitions)
+                    ret, sort_by_highest = returnScore(req, activity, destinyID)
 
                     # next, if 0 got returned
                     if ret == 0:
@@ -308,7 +309,7 @@ def fulfillRequirements(requirements, activity, destinyID):
 
 
 # checking competition bounties scores
-def returnScore(requirements, activity, destinyID, activity_definitions):
+def returnScore(requirements, activity, destinyID):
     score = 0
     sort_by_highest = True
 
@@ -332,7 +333,7 @@ def returnScore(requirements, activity, destinyID, activity_definitions):
     # loop through other requirements
     for req in requirements["requirements"]:
         if req == "allowedTypes":
-            if activity_definitions[str(hashID)]["activityTypeHash"] not in requirements["allowedTypes"]:
+            if returnManifestInfo("DestinyActivityDefinition", hashID)["Response"]["activityTypeHash"] not in requirements["allowedTypes"]:
                 return 0, sort_by_highest
 
 

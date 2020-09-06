@@ -2,7 +2,7 @@ from functions.formating import embed_message
 from functions.database import insertBountyUser, getBountyUserList, getLevel, addLevel, setLevel, lookupDestinyID, lookupServerID
 from functions.bounties.boutiesBountyRequirements import bounties, competition_bounties
 from functions.bounties.bountiesBackend import formatLeaderboardMessage, returnLeaderboard, getCompetitionBountiesLeaderboards, changeCompetitionBountiesLeaderboards, experiencePvp, experiencePve, experienceRaids, threadingCompetitionBounties, threadingBounties
-from functions.dataLoading import getActivityDefiniton
+from functions.dataLoading import returnManifestInfo
 
 import os
 import pickle
@@ -72,7 +72,7 @@ def bountiesFormatting(json):
     # if "extraText" is present, process that
     if "extraText" in value:
         if "allowedActivities" in value:
-            activity_name = getActivityDefiniton(value["allowedActivities"][0], "displayProperties")["name"]
+            activity_name = returnManifestInfo("DestinyActivityDefinition", value["allowedActivities"][0])["Response"]["displayProperties"]["name"]
             key = key.replace("?", activity_name)
 
     return key, value
@@ -222,9 +222,6 @@ async def bountyCompletion(client):
             if guild.id == file["guild_id"]:
                 break
 
-    # load activity definitions
-    activity_definitions = getActivityDefiniton()
-
 
     # loop though all registered users
     with concurrent.futures.ThreadPoolExecutor(os.cpu_count() * 5) as pool:
@@ -235,7 +232,7 @@ async def bountyCompletion(client):
 
     # loop though all registered users
     with concurrent.futures.ThreadPoolExecutor(os.cpu_count() * 5) as pool:
-        futurelist = [pool.submit(threadingCompetitionBounties, bounties["competition_bounties"], cutoff, user, activity_definitions)
+        futurelist = [pool.submit(threadingCompetitionBounties, bounties["competition_bounties"], cutoff, user)
                       for user in getBountyUserList()]
 
         for future in concurrent.futures.as_completed(futurelist):
