@@ -1,8 +1,8 @@
 from commands.base_command  import BaseCommand
 from functions.bounties.bountiesFunctions import bountyCompletion, displayLeaderboard, updateAllExperience, generateBounties, saveAsGlobalVar, deleteFromGlobalVar, bountiesChannelMessage, displayBounties
 from functions.bounties.bountiesBackend import returnLeaderboard, formatLeaderboardMessage
-from functions.dataLoading import getPGCR, getActivityDefiniton
-from functions.database import getAllDiscordMemberDestinyIDs
+from functions.dataLoading import getPGCR
+from functions.database import getBountyUserList, setLevel
 from functions.formating import embed_message
 
 import discord
@@ -148,7 +148,15 @@ class resetLeaderboards(BaseCommand):
             msg3 = await message.channel.send("Aborted")
         else:
             if msg2.content == "yes":
-                # todo delete leaderboard
+                # delete leaderboards
+                for discordID in getBountyUserList(all=True):
+                    setLevel(0, "points_bounties_pve", discordID)
+                    setLevel(0, "points_bounties_pvp", discordID)
+                    setLevel(0, "points_bounties_raids", discordID)
+                    setLevel(0, "points_competition_pve", discordID)
+                    setLevel(0, "points_competition_pvp", discordID)
+                    setLevel(0, "points_competition_raids", discordID)
+
                 msg4 = await message.channel.send("Leaderboards were reset")
             else:
                 msg3 = await message.channel.send("Aborted")

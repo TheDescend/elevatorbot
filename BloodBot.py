@@ -43,7 +43,7 @@ def launch_event_loops(client):
     for ev in BaseEvent.__subclasses__():
         event = ev()
         sched.add_job(event.run, 'interval', (client,),
-                        minutes=event.interval_minutes, jitter=300)
+                        minutes=event.interval_minutes, jitter=60)
         n_ev += 1
 
     # generate new bounties every monday at midnight

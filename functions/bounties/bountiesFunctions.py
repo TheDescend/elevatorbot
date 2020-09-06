@@ -208,8 +208,6 @@ async def displayCompetitionBounties(client, guild, message=None):
 
 # checks if any player has completed a bounty
 async def bountyCompletion(client):
-    current_time = datetime.datetime.now()
-
     # load bounties
     with open('functions/bounties/currentBounties.pickle', "rb") as f:
         bounties = pickle.load(f)
@@ -225,7 +223,8 @@ async def bountyCompletion(client):
 
     # loop though all registered users
     with concurrent.futures.ThreadPoolExecutor(os.cpu_count() * 5) as pool:
-        futurelist = [pool.submit(threadingBounties, bounties["bounties"], cutoff, user) for user in getBountyUserList()]
+        futurelist = [pool.submit(threadingBounties, bounties["bounties"], cutoff, user)
+                      for user in getBountyUserList()]
 
         for future in concurrent.futures.as_completed(futurelist):
             future.result()
@@ -381,6 +380,9 @@ async def bountiesChannelMessage(client):
                     if "register_channel_message_id" not in file:
                         channel = discord.utils.get(guild.channels, id=file["register_channel"])
                         await channel.purge(limit=100)
+
+                        # send welcome and info message
+                        await channel.send(f"""Welcome the the """)
 
                         # send register msg and save the id
                         msg = await channel.send(embed=embed_message(

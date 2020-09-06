@@ -100,12 +100,13 @@ def threadingBounties(bounties, cutoff, discordID):
                     requirements = bounties[topic][experience][bounty]
 
                     # if true, a bounty is done
-                    done, number_of_completions, number_of_wins = fulfillRequirements(requirements, activity, destinyID, completions[topic])
+                    done, number_of_completions, number_of_wins = fulfillRequirements(requirements, activity, destinyID, completions[topic], wins[topic])
                     completions[topic] += number_of_completions
                     wins[topic] += number_of_wins
                     if done:
+                        playerHasDoneBounty(discordID, bounty, True)
                         addLevel(requirements["points"], f"points_bounties_{topic.lower()}", discordID)
-                        print(f"DestinyID {destinyID} has completed bounty {bounty}")
+                        print(f"""DestinyID {destinyID} has completed bounty {bounty} with instanceID {activity["activityDetails"]["instanceId"]}""")
 
     print(f"Bounties for destinyID: {destinyID} done")
 
@@ -118,6 +119,7 @@ def threadingCompetitionBounties(bounties, cutoff, discordID):
     sort_by = {}
     for topic in bounties:
         leaderboard[topic] = {}
+        sort_by.update({topic: True})
 
     # loop through activities
     for activity in getPlayersPastPVE(destinyID, mode=0):
@@ -158,23 +160,31 @@ def threadingCompetitionBounties(bounties, cutoff, discordID):
 
 
 # return true if name is in the pickle, otherwise false and add name to pickle
-def playerHasDoneBounty(discordID, name):
+def playerHasDoneBounty(discordID, name, done=False):
     if not os.path.exists('functions/bounties/playerBountyStatus.pickle'):
         file = {}
     else:
         with open('functions/bounties/playerBountyStatus.pickle', "rb") as f:
             file = pickle.load(f)
 
-    try:
-        if name in file[discordID]:
-            return True
-        else:
-            file[discordID].append(name)
-    except KeyError:
-        file[discordID] = [name]
+    # read
+    if not done:
+        try:
+            if name in file[discordID]:
+                return True
+        except KeyError:
+            pass
 
-    with open('functions/bounties/playerBountyStatus.pickle', "wb") as f:
-        pickle.dump(file, f)
+
+    # write
+    else:
+        try:
+            file[discordID].append(name)
+        except KeyError:
+            file[discordID] = [name]
+
+        with open('functions/bounties/playerBountyStatus.pickle', "wb") as f:
+            pickle.dump(file, f)
 
     return False
 
@@ -411,7 +421,7 @@ def fulfillRequirements(requirements, activity, destinyID, past_completions, pas
                     # do a different calc if "allowedTypes" or "allowedActivities"
                     if "allowedTypes" in requirements["requirements"]:
                         # check if activityDurationSeconds is shorter than allowed
-                        if requirements["contest"] <= time:
+                        if requirements["speedrun"] <= time:
                             complete_list.append(req)
                         else:
                             return False, 0, 0

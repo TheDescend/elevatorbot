@@ -172,11 +172,10 @@ def getPGCR(instanceID):
 
 # type = "DestinyInventoryItemDefinition" (fe.), hash = 3993415705 (fe)   - returns MT
 def returnManifestInfo(type, hash):
-    ret = requests.get(f'http://www.bungie.net/Platform/Destiny2/Manifest/{type}/{hash}/')
-    info = ret.json()
+    info = getJSONfromURL(f'http://www.bungie.net/Platform/Destiny2/Manifest/{type}/{hash}/')
 
     if info:
-        return info['Response']
+        return info
 
 def getManifest():
     manifest_url = 'http://www.bungie.net/Platform/Destiny2/Manifest/'

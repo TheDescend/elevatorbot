@@ -72,11 +72,15 @@ def removeBountyUser(discordID):
     except sqlite3.IntegrityError:
         return False
 
-def getBountyUserList():
+def getBountyUserList(all=False):
     """ Returns a list of all discordSnowflakes of bountyUsers"""
+    extra = "WHERE active = 1"
+    if all:
+        extra = ""
+
     con = db_connect()
     cur = con.cursor()
-    getAll = "SELECT discordSnowflake FROM bountyGoblins;"
+    getAll = f"""SELECT discordSnowflake FROM bountyGoblins {extra};"""
 
     resultcur = cur.execute(getAll)
     result = resultcur.fetchall()
