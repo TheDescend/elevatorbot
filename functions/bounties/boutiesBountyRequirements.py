@@ -21,7 +21,7 @@ contest             # how far below the recommeneded light for the activity one 
 completions
 firstClear          # list - out of which activities has the current one to be the first
 noWeapons
-customLoadout       #todo
+customLoadout       # after processing formating will be {kineticHash: "Hand Cannon", ...}
 kd
 totalKills
 totalDeaths
@@ -72,14 +72,14 @@ bounties = {
             "Do a raid with a specific loadout": {
                 "requirements": ["allowedTypes", "customLoadout"],
                 "allowedTypes": activityRaidHash,
-                "extraText": "Kinetic: % \n Energy: % \n Power: % ",
+                "extraText": "\n⁣\nKinetic: ? \n Energy: % \n Power: & \n⁣",
                 "points": 1
             },
 
             "Do a dungeon with a specific loadout": {
                 "requirements": ["allowedTypes", "customLoadout"],
                 "allowedTypes": activityDungeonHash,
-                "extraText": "Kinetic: % \n Energy: % \n Power: % ",
+                "extraText": "\n⁣\nKinetic: ? \n Energy: % \n Power: & \n⁣",
                 "points": 1
             },
 
@@ -116,7 +116,7 @@ bounties = {
     # general pve bounties
     'PvE': {
         # new players
-        "New Player": {
+        "New Players": {
             "Finish a strike with high kills (100) and low deaths (1)": {
                 "requirements": ["allowedTypes", "totalKills", "totalDeaths"],
                 "allowedTypes": activityStrikeAndNFHash,
@@ -128,7 +128,7 @@ bounties = {
             "Clear an adventure with a specific loadout": {
                 "requirements": ["allowedTypes", "customLoadout"],
                 "allowedTypes": activityStoryHash,
-                "extraText": "Kinetic: % \n Energy: % \n Power: % ",
+                "extraText": "\n⁣\nKinetic: ? \n Energy: % \n Power: & \n⁣",
                 "points": 1
             },
 
@@ -168,7 +168,7 @@ bounties = {
     # pvp bounties
     'PvP': {
         # new players
-        "New Player": {
+        "New Players": {
             "Win a crucible game with a positive K/D": {
                 "requirements": ["allowedTypes", "win", "kd"],
                 "allowedTypes": activityPVPHash,

@@ -1,8 +1,9 @@
 from functions.formating import embed_message
 from functions.database import insertBountyUser, getBountyUserList, getLevel, addLevel, setLevel, lookupDestinyID, lookupServerID
-from functions.bounties.boutiesBountyRequirements import bounties, competition_bounties
+from functions.bounties.boutiesBountyRequirements import bounties, competition_bounties, possibleWeaponsKinetic, possibleWeaponsEnergy, possibleWeaponsPower
 from functions.bounties.bountiesBackend import formatLeaderboardMessage, returnLeaderboard, getCompetitionBountiesLeaderboards, changeCompetitionBountiesLeaderboards, experiencePvp, experiencePve, experienceRaids, threadingCompetitionBounties, threadingBounties
 from functions.dataLoading import returnManifestInfo
+from static.dict import weaponTypeKinetic, weaponTypeEnergy, weaponTypePower
 
 import os
 import pickle
@@ -69,11 +70,30 @@ def bountiesFormatting(json):
         value["requirements"].pop(value["requirements"].index("randomActivity"))
         value["requirements"].append("allowedActivities")
 
+    # if "customLoadout" is present, get a random loadout from the list
+    if "customLoadout" in value["requirements"]:
+        weaponKinetic = random.choice(possibleWeaponsKinetic)
+        weaponEnergy = random.choice(possibleWeaponsEnergy)
+        weaponPower = random.choice(possibleWeaponsPower)
+
+        value["customLoadout"] = {
+            weaponTypeKinetic: weaponKinetic,
+            weaponTypeEnergy: weaponEnergy,
+            weaponTypePower: weaponPower
+        }
+
     # if "extraText" is present, process that
     if "extraText" in value:
-        if "allowedActivities" in value:
+        if "allowedActivities" in value["requirements"]:
             activity_name = returnManifestInfo("DestinyActivityDefinition", value["allowedActivities"][0])["Response"]["displayProperties"]["name"]
             key = key.replace("?", activity_name)
+
+        if "customLoadout" in value["requirements"]:
+            key = key + value["extraText"]
+
+            key = key.replace("?", weaponKinetic)
+            key = key.replace("%", weaponEnergy)
+            key = key.replace("&", weaponPower)
 
     return key, value
 
@@ -136,7 +156,7 @@ async def displayBounties(client):
                     )
                     for experience in json["bounties"][topic].keys():
                         name, req = list(json["bounties"][topic][experience].items())[0]
-                        embed.add_field(name=f"{experience}:", value=f"{name} (Points: {req['points']})\n⁣", inline=False)
+                        embed.add_field(name=f"{experience}:", value=f"Points: **{req['points']}** - {name}\n⁣", inline=False)
                     await bounties_channel.send(embed=embed)
 
                 # ping users
@@ -176,7 +196,7 @@ async def displayCompetitionBounties(client, guild, message=None):
         name, req = list(json["competition_bounties"][topic].items())[0]
         embed = embed_message(
             topic,
-            f"{name} (Points: {req['points']})\n⁣"
+            f"Points: **{req['points']}** - {name}\n⁣"
         )
 
         # read the current leaderboard and display the top x = 10 players
@@ -208,6 +228,9 @@ async def displayCompetitionBounties(client, guild, message=None):
 
 # checks if any player has completed a bounty
 async def bountyCompletion(client):
+    # current_time = datetime.datetime.now() # todo change that
+    current_time = "2020-08-05 19:41:13.688291"
+
     # load bounties
     with open('functions/bounties/currentBounties.pickle', "rb") as f:
         bounties = pickle.load(f)
@@ -247,7 +270,7 @@ async def bountyCompletion(client):
     await displayLeaderboard(client)
 
     # overwrite the old time, so that one activity doesn't get checked over and over again
-    bounties["time"] = str(datetime.datetime.now())
+    bounties["time"] = str(current_time)
     with open('functions/bounties/currentBounties.pickle', "wb") as f:
         pickle.dump(bounties, f)
 
@@ -382,7 +405,41 @@ async def bountiesChannelMessage(client):
                         await channel.purge(limit=100)
 
                         # send welcome and info message
-                        await channel.send(f"""Welcome the the """)
+                        await channel.send(
+f"""Welcome the the **Bounty Goblins**!
+
+After you register to this truly **remarkable** program, you will be assigned an experience level and given a bunch of bounties you can complete at your leisure.
+
+**Normal bounties** can be completed once and award you the shown points.
+**Competitive bounties** are meant to be a competition between all participants and reward a lot of points, but only one player can win. If there are any ties, both parties will of course get the points.
+
+Your experience level determines which normal bounties you can complete. That way we can have easier bounties for new players compared to veterans. 
+```
++-----------------------------------------------------------+
+|            Requirements for Experienced Players           |
++--------------------+---------------------+----------------+
+|        Raids       |         PvE         |       PvP      |
++--------------------+---------------------+----------------+
+|   35 total clears  | 500h total Playtime | K/D above 1.11 |
+| Every raid cleared |                     |                |
++--------------------+---------------------+----------------+```
+"""
+                        )
+                        await channel.send(
+f"""There are a bunch of commands which will give you more thorough information than visible in the channels:
+
+Commands:
+`!leaderboard <category>` - Prints various leaderboards.
+`!experienceLevel` - Updates and DMs you your experience levels. 
+`!bounties` - DMs you an overview of you current bounties and their status.
+
+The bounties change every monday at midnight and will get displayed in their respective channels. You can also sign up to get notified when that happened.
+
+And lastly, if you have any general suggestions or ideas for new bounties, contact <@!238388130581839872>
+⁣
+⁣
+"""
+                        )
 
                         # send register msg and save the id
                         msg = await channel.send(embed=embed_message(

@@ -100,6 +100,12 @@ weaponTypeKinetic = 1498876634
 weaponTypeEnergy = 2465295065
 weaponTypePower = 953998645
 
+possibleWeaponsKinetic = ["Hand Cannon", "Scout Rifle", "Auto Rifle", "Pulse Rifle", "Sidearm", "Submachine Gun", "Combat Bow", "Sniper Rifle", "Shotgun", "Grenade Launcher"]
+possibleWeaponsEnergy = ["Hand Cannon", "Scout Rifle", "Auto Rifle", "Pulse Rifle", "Sidearm", "Fusion Rifle", "Shotgun", "Sniper Rifle", "Trace Rifle", "Grenade Launcher", "Combat Bow"]
+possibleWeaponsPower = ["Grenade Launcher", "Rocket Launcher", "Linear Fusion Rifle", "Sword", "Shotgun", "Machine Gun", "Sniper Rifle"]
+
+
+
 
 
 

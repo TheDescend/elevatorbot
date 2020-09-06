@@ -1,22 +1,53 @@
 from commands.base_command  import BaseCommand
 from functions.bounties.bountiesFunctions import bountyCompletion, displayLeaderboard, updateAllExperience, generateBounties, saveAsGlobalVar, deleteFromGlobalVar, bountiesChannelMessage, displayBounties
-from functions.bounties.bountiesBackend import returnLeaderboard, formatLeaderboardMessage
+from functions.bounties.bountiesBackend import returnLeaderboard, formatLeaderboardMessage, playerHasDoneBounty
 from functions.dataLoading import getPGCR
-from functions.database import getBountyUserList, setLevel
+from functions.database import getBountyUserList, setLevel, getLevel
 from functions.formating import embed_message
 
 import discord
 import asyncio
+import pickle
 
 
-class test(BaseCommand):
+class bounties(BaseCommand):
     def __init__(self):
-        description = f"Shows the full leaderboard for the given category"
+        description = f"DM's you an overview of you current bounties and their status"
         params = []
         super().__init__(description, params)
 
     async def handle(self, params, message, client):
-        print(getPGCR(6860499900))
+        with open('functions/bounties/currentBounties.pickle', "rb") as f:
+            json = pickle.load(f)
+
+        experience_level_pve = getLevel("exp_pve", message.author.id)
+        experience_level_pvp = getLevel("exp_pvp", message.author.id)
+        experience_level_raids = getLevel("exp_raids", message.author.id)
+
+        for topic in json["bounties"].keys():
+            embed = embed_message(
+                topic
+            )
+            for experience in json["bounties"][topic].keys():
+
+                # only go further if experience levels match
+                if topic == "Raids":
+                    if not ((experience_level_raids == 0 and experience == "New Players") or (
+                            experience_level_raids == 1 and experience == "Experienced Players")):
+                        continue
+                elif topic == "PvE":
+                    if not ((experience_level_pve == 0 and experience == "New Players") or (
+                            experience_level_pve == 1 and experience == "Experienced Players")):
+                        continue
+                elif topic == "PvP":
+                    if not ((experience_level_pvp == 0 and experience == "New Players") or (
+                            experience_level_pvp == 1 and experience == "Experienced Players")):
+                        continue
+
+                name, req = list(json["bounties"][topic][experience].items())[0]
+
+                embed.add_field(name="✅ Done" if playerHasDoneBounty(message.author.id, name) else "Available", value=f"~~Points: **{req['points']}** - {name}~~\n⁣" if playerHasDoneBounty(message.author.id, name) else f"Points: **{req['points']}** - {name}\n⁣", inline=False)
+            await message.author.send(embed=embed)
 
 
 class updateCompletions(BaseCommand):
