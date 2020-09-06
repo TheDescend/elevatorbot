@@ -15,7 +15,7 @@ Current requirements:
 randomActivity      # one value will automatically get changed to allowedActivities during selection process. Needs to be in double brackets since there might be multiple hashes per activity - input: [[1, 2], [3, 4]]; output = [3, 4]
 allowedActivities   #todo
 allowedTypes        # which activity type hashes are allow, fe. activityTypeHash: 1686739444 is story
-speedrun            #todo
+speedrun            # bounties: requires a number if allowedTypes is given, and an entry in speedrunActivities if allowedActivities is given
 lowman              #todo
 contest             #todo
 completions         #todo
@@ -27,7 +27,7 @@ totalKills          #todo
 totalDeaths         #todo
 NFscore             #todo
 win                 #todo
-winStreak           #todo
+winStreak           # requires win to also be an recquirement
 tournament          #todo
 
 extra_text          # will show more text
@@ -38,25 +38,31 @@ points              # how many points the user gets for completing the bounty
 """ Hashes:"""
 from static.dict import *
 
+# ----------------------------------------------------------------------------------
+# bounties:
 bounties = {
     # raid bounties
     'Raids': {
         # new players
         "New Players": {
             "Clear a raid for the first time": {
-                "requirements": ["allowedTypes", "firstClear"],
+                "requirements": ["allowedActivities", "firstClear"],
+                "allowedActivities": raidHashes,
+                "firstClear": raidHashes,
                 "points": 0
             },
 
             "Finish two raids": {
                 "requirements": ["allowedTypes", "completions"],
                 "allowedTypes": activityRaidHash,
+                "completions": 2,
                 "points": 0
             },
 
             "Finish three dungeons": {
                 "requirements": ["allowedTypes", "completions"],
                 "allowedTypes": activityDungeonHash,
+                "completions": 3,
                 "points": 0
             }
         },
@@ -64,40 +70,43 @@ bounties = {
         # experienced players
         "Experienced Players": {
             "Do a raid with a specific loadout": {
-                "requirements": ["allowedTypes", "completions", "customLoadout"],
+                "requirements": ["allowedTypes", "customLoadout"],
                 "allowedTypes": activityRaidHash,
                 "extraText": "Kinetic: % \n Energy: % \n Power: % ",
                 "points": 0
             },
 
             "Do a dungeon with a specific loadout": {
-                "requirements": ["allowedTypes", "completions", "customLoadout"],
+                "requirements": ["allowedTypes", "customLoadout"],
                 "allowedTypes": activityDungeonHash,
                 "extraText": "Kinetic: % \n Energy: % \n Power: % ",
                 "points": 0
             },
 
             "Finish a raid within the allowed time frame": {
-                "requirements": ["allowedTypes", "completions", "speedrun"],
+                "requirements": ["allowedTypes", "speedrun"],
                 "extraText": "",
                 "points": 0
             },
 
-            "Finish a raid with 20 power or more below recommended": {
-                "requirements": ["allowedTypes", "completions", "contest"],
+            "Finish a raid with 20 power or more below recommended (only you have to be lower light)": {
+                "requirements": ["allowedTypes", "contest"],
                 "allowedTypes": activityRaidHash,
+                "contest": 20,
                 "points": 0
             },
 
             "Do a flawless raid (only you don't have to die)": {
-                "requirements": ["allowedTypes", "completions", "totalDeaths"],
+                "requirements": ["allowedTypes", "totalDeaths"],
                 "allowedTypes": activityRaidHash,
+                "totalDeaths": 0,
                 "points": 0
             },
 
             "Do a flawless dungeon (only you don't have to die)": {
-                "requirements": ["allowedTypes", "completions", "totalDeaths"],
+                "requirements": ["allowedTypes", "totalDeaths"],
                 "allowedTypes": activityDungeonHash,
+                "totalDeaths": 0,
                 "points": 0
             }
         }
@@ -108,21 +117,23 @@ bounties = {
     'PvE': {
         # new players
         "New Player": {
-            "Finish a strike with high kills and low deaths": {
-                "requirements": ["allowedTypes", "completions", "totalKills", "totalDeaths"],
+            "Finish a strike with high kills (100) and low deaths (1)": {
+                "requirements": ["allowedTypes", "totalKills", "totalDeaths"],
                 "allowedTypes": activityStrikeAndNFHash,
+                "totalDeaths": 1,
+                "totalKills": 100,
                 "points": 0
             },
 
             "Clear an adventure with a specific loadout": {
-                "requirements": ["allowedTypes", "completions", "customLoadout"],
+                "requirements": ["allowedTypes", "customLoadout"],
                 "allowedTypes": activityStoryHash,
                 "extraText": "Kinetic: % \n Energy: % \n Power: % ",
                 "points": 0
             },
 
             "Complete a Nightfall: The Ordeal on any difficulty": {
-                "requirements": ["allowedTypes", "completions"],
+                "requirements": ["allowedTypes"],
                 "allowedTypes": activityNFHash,
                 "points": 0
             }
@@ -131,8 +142,11 @@ bounties = {
         # experienced players
         "Experienced Players": {
             "Finish a strike with high kills (100) and low deaths (0) in under 10 minutes": {
-                "requirements": ["allowedTypes",  "completions", "speedrun", "totalKills", "totalDeaths"],
+                "requirements": ["allowedTypes", "speedrun", "totalKills", "totalDeaths"],
                 "allowedTypes": activityStrikeAndNFHash,
+                "speedrun": 600,
+                "totalDeaths": 0,
+                "totalKills": 100,
                 "points": 0
             },
 
@@ -141,9 +155,10 @@ bounties = {
             # "Clear this daily heroic adventure within the allowed time frame": {
             # },
 
-            "Complete a Nightfall: The Ordeal with a high score": {
-                "requirements": ["allowedTypes", "completions", "NFscore"],
+            "Complete a Nightfall: The Ordeal with a high score (150k)": {
+                "requirements": ["allowedTypes", "NFscore"],
                 "allowedTypes": activityNFHash,
+                "NFscore": 150_000,
                 "points": 0
             }
         }
@@ -157,12 +172,14 @@ bounties = {
             "Win a crucible game with a positive K/D": {
                 "requirements": ["allowedTypes", "win", "kd"],
                 "allowedTypes": activityPVPHash,
+                "kd": 1,
                 "points": 0
             },
 
             "Get a win streak of 3 the crucible": {
                 "requirements": ["allowedTypes", "winStreak"],
                 "allowedTypes": activityPVPHash,
+                "winStreak": 3,
                 "points": 0
             }
         },
@@ -172,31 +189,35 @@ bounties = {
             "Get a win streak of 5 the crucible": {
                 "requirements": ["allowedTypes", "winStreak"],
                 "allowedTypes": activityPVPHash,
+                "winStreak": 5,
                 "points": 0
             },
 
             "Win a crucible game with a K/D > 3": {
                 "requirements": ["allowedTypes", "win", "kd"],
                 "allowedTypes": activityPVPHash,
+                "kd": 3,
                 "points": 0
             },
 
-            "Win a crucible game with a high amount of kills": {
+            "Win a crucible game with a high amount of kills (30)": {
                 "requirements": ["allowedTypes", "win", "totalKills"],
                 "allowedTypes": activityPVPHash,
+                "totalKills": 30,
                 "points": 0
             },
 
             "Win a crucible game without dying": {
                 "requirements": ["allowedTypes", "win", "totalDeaths"],
                 "allowedTypes": activityPVPHash,
+                "totalDeaths": 0,
                 "points": 0
             }
         }
     }
 }
 
-
+# ----------------------------------------------------------------------
 # bounties where the whole clan competes against each other
 competition_bounties = {
     # raid bounties
