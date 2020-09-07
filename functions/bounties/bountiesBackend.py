@@ -355,10 +355,11 @@ def fulfillRequirements(requirements, activity, destinyID, past_completions, pas
                 return False, 0, 0
 
 
+        # todo: test
         if req == "allowedActivities":
             found = False
             for activity_list in requirements["allowedActivities"]:
-                if instance in activity_list:
+                if hashID in activity_list:
                     complete_list.append(req)
                     found = True
                     break
@@ -367,6 +368,7 @@ def fulfillRequirements(requirements, activity, destinyID, past_completions, pas
                 return False, 0, 0
 
 
+        # todo: test
         if req == "firstClear":
             # get raid metrics for future comparison
             individual_raid_clears = getProfile(destinyID, 1100)
@@ -384,6 +386,7 @@ def fulfillRequirements(requirements, activity, destinyID, past_completions, pas
                                 return False, 0, 0
 
 
+        # todo: test
         if req == "completions":
             # add to completions
             completions += 1
@@ -393,6 +396,7 @@ def fulfillRequirements(requirements, activity, destinyID, past_completions, pas
                 complete_list.append(req)
 
 
+        # todo: test
         if req == "customLoadout":
             for player in pgcr["Response"]["entries"]:
                 if player["player"]["destinyUserInfo"]["membershipId"] == str(destinyID):
@@ -416,6 +420,7 @@ def fulfillRequirements(requirements, activity, destinyID, past_completions, pas
                         return False, 0, 0
 
 
+        # todo: test
         if req == "contest":
             for player in pgcr["Response"]["entries"]:
                 if player["player"]["destinyUserInfo"]["membershipId"] == str(destinyID):
@@ -431,31 +436,37 @@ def fulfillRequirements(requirements, activity, destinyID, past_completions, pas
                         return False, 0, 0
 
 
+        # > tested <
         if req == "speedrun":
             for player in pgcr["Response"]["entries"]:
                 if player["player"]["destinyUserInfo"]["membershipId"] == str(destinyID):
                     time = player["values"]["activityDurationSeconds"]["basic"]["value"]
 
+                    # > tested <
                     # do a different calc if "allowedTypes" or "allowedActivities"
                     if "allowedTypes" in requirements["requirements"]:
                         # check if activityDurationSeconds is shorter than allowed
-                        if requirements["speedrun"] <= time:
+                        if requirements["speedrun"] >= time:
                             complete_list.append(req)
                         else:
                             return False, 0, 0
 
+                    # > tested <
                     elif "allowedActivities" in requirements["requirements"]:
                         found = False
-                        for activities in speedrunActivities:
-                            if speedrunActivities["activities"] <= time:
-                                complete_list.append(req)
-                                found = True
-                                break
+                        for activities in speedrunActivities.keys():
+                            if hashID in activities:
+                                if speedrunActivities[activities] >= time:
+                                    found = True
+                                    break
 
-                        if not found:
+                        if found:
+                            complete_list.append(req)
+                        else:
                             return False, 0, 0
 
 
+        # todo: test
         if req == "totalKills":
             for player in pgcr["Response"]["entries"]:
                 if player["player"]["destinyUserInfo"]["membershipId"] == str(destinyID):
@@ -465,6 +476,7 @@ def fulfillRequirements(requirements, activity, destinyID, past_completions, pas
                         return False, 0, 0
 
 
+        # todo: test
         if req == "totalDeaths":
             for player in pgcr["Response"]["entries"]:
                 if player["player"]["destinyUserInfo"]["membershipId"] == str(destinyID):
@@ -474,6 +486,7 @@ def fulfillRequirements(requirements, activity, destinyID, past_completions, pas
                         return False, 0, 0
 
 
+        # todo: test
         if req == "kd":
             for player in pgcr["Response"]["entries"]:
                 if player["player"]["destinyUserInfo"]["membershipId"] == str(destinyID):
@@ -483,6 +496,7 @@ def fulfillRequirements(requirements, activity, destinyID, past_completions, pas
                         return False, 0, 0
 
 
+        # todo: test
         if req == "win":
             for player in pgcr["Response"]["entries"]:
                 if player["player"]["destinyUserInfo"]["membershipId"] == str(destinyID):
@@ -492,6 +506,7 @@ def fulfillRequirements(requirements, activity, destinyID, past_completions, pas
                         return False, 0, 0
 
 
+        # todo: test
         if req == "winStreak":
             wins += 1
 
@@ -500,6 +515,7 @@ def fulfillRequirements(requirements, activity, destinyID, past_completions, pas
                 complete_list.append(req)
 
 
+        # todo: test
         if req == "NFscore":
             for player in pgcr["Response"]["entries"]:
                 if player["player"]["destinyUserInfo"]["membershipId"] == str(destinyID):
@@ -539,11 +555,13 @@ def returnScore(requirements, activity, destinyID):
                 return 0, sort_by_highest
 
 
+        # todo: test
         elif req == "allowedActivities":
             if hashID not in requirements["allowedActivities"]:
                 return 0, sort_by_highest
 
 
+        # todo: test
         elif req == "speedrun":
             for player in pgcr["Response"]["entries"]:
                 if player["player"]["destinyUserInfo"]["membershipId"] == str(destinyID):
@@ -555,6 +573,7 @@ def returnScore(requirements, activity, destinyID):
                     break
 
 
+        # todo: test
         elif req == "lowman":
             for player in pgcr["Response"]["entries"]:
                 if player["player"]["destinyUserInfo"]["membershipId"] == str(destinyID):
@@ -564,6 +583,7 @@ def returnScore(requirements, activity, destinyID):
                     score = int(player["values"]["playerCount"]["basic"]["value"])
 
 
+        # todo: test
         elif req == "noWeapons":
             # return 0 if there are any weapon kills
             for player in pgcr["Response"]["entries"]:
@@ -572,6 +592,7 @@ def returnScore(requirements, activity, destinyID):
                         return 0, sort_by_highest
 
 
+        # todo: test
         elif req == "totalKills":
             for player in pgcr["Response"]["entries"]:
                 if player["player"]["destinyUserInfo"]["membershipId"] == str(destinyID):
@@ -581,6 +602,7 @@ def returnScore(requirements, activity, destinyID):
                     break
 
 
+        # todo: test
         elif req == "kd":
             for player in pgcr["Response"]["entries"]:
                 if player["player"]["destinyUserInfo"]["membershipId"] == str(destinyID):
@@ -591,6 +613,7 @@ def returnScore(requirements, activity, destinyID):
                     break
 
 
+        # todo: test
         elif req == "NFscore":
             for player in pgcr["Response"]["entries"]:
                 if player["player"]["destinyUserInfo"]["membershipId"] == str(destinyID):
@@ -600,6 +623,7 @@ def returnScore(requirements, activity, destinyID):
                     break
 
 
+        # todo: test
         elif req == "tournament":
             pass
             # todo

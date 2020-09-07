@@ -1,8 +1,8 @@
 from commands.base_command  import BaseCommand
 from functions.bounties.bountiesFunctions import displayBounties, displayCompetitionBounties, bountyCompletion, displayLeaderboard, updateAllExperience, generateBounties, saveAsGlobalVar, deleteFromGlobalVar, bountiesChannelMessage
-from functions.bounties.bountiesBackend import returnLeaderboard, formatLeaderboardMessage, playerHasDoneBounty
+from functions.bounties.bountiesBackend import returnScore, fulfillRequirements, returnLeaderboard, formatLeaderboardMessage, playerHasDoneBounty
 from functions.dataLoading import getPGCR
-from functions.database import getBountyUserList, setLevel, getLevel
+from functions.database import getBountyUserList, setLevel, getLevel, lookupDestinyID
 from functions.formating import embed_message
 
 import discord
@@ -403,3 +403,96 @@ class overwriteBounties(BaseCommand):
             if guild.id == file["guild_id"]:
                 await displayBounties(client)
                 await displayCompetitionBounties(client, guild)
+
+
+class testCompetitive(BaseCommand):
+    def __init__(self):
+        description = f"[dev] testCompetitive"
+        params = []
+        super().__init__(description, params)
+
+    async def handle(self, params, message, client):
+        # check if user has permission to use this command
+        admin = discord.utils.get(message.guild.roles, name='Admin')
+        dev = discord.utils.get(message.guild.roles, name='Developer')
+        if admin not in message.author.roles and dev not in message.author.roles:
+            await message.channel.send(embed=embed_message(
+                'Error',
+                'You are not allowed to do that'
+            ))
+            return
+
+        """ Insert (fe.):
+                {
+                    "requirements": ["allowedTypes", "win", "totalKills"],
+                    "allowedTypes": [2043403989],
+                    "totalKills": 30,
+                    "points": 1
+                }
+        """
+        try:
+            instance_id = str(params.pop(params.index(params[0])))
+            activity = {
+                "activityDetails": {
+                    "directorActivityHash": getPGCR(instance_id)["Response"]["activityDetails"]["directorActivityHash"],
+                    "instanceId": instance_id
+                }
+            }
+
+            req = " ".join(params)
+            req.replace("\\n", "")
+            req = " ".join(req.split())
+            req = eval(req)
+        except:
+            await message.channel.send("Incorrect Formating")
+            return
+
+        score, _ = returnScore(req, activity, lookupDestinyID(message.author.id))
+        await message.channel.send(f"Score : {score}")
+
+
+class testBounties(BaseCommand):
+    def __init__(self):
+        description = f"[dev] testCompetitive"
+        params = []
+        super().__init__(description, params)
+
+    async def handle(self, params, message, client):
+        # check if user has permission to use this command
+        admin = discord.utils.get(message.guild.roles, name='Admin')
+        dev = discord.utils.get(message.guild.roles, name='Developer')
+        if admin not in message.author.roles and dev not in message.author.roles:
+            await message.channel.send(embed=embed_message(
+                'Error',
+                'You are not allowed to do that'
+            ))
+            return
+
+        """ Insert (fe.):
+                {
+                    "requirements": ["allowedTypes", "win", "totalKills"],
+                    "allowedTypes": [2043403989],
+                    "totalKills": 30,
+                    "points": 1
+                }
+        """
+        try:
+            instance_id = str(params.pop(params.index(params[0])))
+            activity = {
+                "activityDetails": {
+                    "directorActivityHash": getPGCR(instance_id)["Response"]["activityDetails"]["directorActivityHash"],
+                    "instanceId": instance_id
+                }
+            }
+
+            req = " ".join(params)
+            req.replace("\\n", "")
+            req = " ".join(req.split())
+            req = eval(req)
+        except:
+            await message.channel.send("Incorrect Formating")
+            return
+
+        done, _, _ = fulfillRequirements(req, activity, lookupDestinyID(message.author.id), 0, 0)
+        await message.channel.send(f"Done: {done}")
+

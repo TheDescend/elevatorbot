@@ -346,7 +346,7 @@ async def displayLeaderboard(client, use_old_message=True):
             embed = embed_message(
                 "Leaderboard",
                 (f"\n".join(ranking)) if ranking else "Nobody has any points yet",
-                footer="This leaderboard will update every ~60 minutes"
+                footer="This leaderboard will update every ~30 minutes"
             )
 
             if message_id and use_old_message:
