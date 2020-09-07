@@ -1,5 +1,5 @@
 from commands.base_command  import BaseCommand
-from functions.bounties.bountiesFunctions import bountyCompletion, displayLeaderboard, updateAllExperience, generateBounties, saveAsGlobalVar, deleteFromGlobalVar, bountiesChannelMessage, displayBounties
+from functions.bounties.bountiesFunctions import displayBounties, displayCompetitionBounties, bountyCompletion, displayLeaderboard, updateAllExperience, generateBounties, saveAsGlobalVar, deleteFromGlobalVar, bountiesChannelMessage
 from functions.bounties.bountiesBackend import returnLeaderboard, formatLeaderboardMessage, playerHasDoneBounty
 from functions.dataLoading import getPGCR
 from functions.database import getBountyUserList, setLevel, getLevel
@@ -8,8 +8,13 @@ from functions.formating import embed_message
 import discord
 import asyncio
 import pickle
+import os
+import requests
+import json
 
 
+# --------------------------------------------------------------------------------------------
+# normal user commands
 class bounties(BaseCommand):
     def __init__(self):
         description = f"DM's you an overview of you current bounties and their status"
@@ -48,26 +53,6 @@ class bounties(BaseCommand):
 
                 embed.add_field(name="✅ Done" if playerHasDoneBounty(message.author.id, name) else "Available", value=f"~~Points: **{req['points']}** - {name}~~\n⁣" if playerHasDoneBounty(message.author.id, name) else f"Points: **{req['points']}** - {name}\n⁣", inline=False)
             await message.author.send(embed=embed)
-
-
-class updateCompletions(BaseCommand):
-    def __init__(self):
-        description = f"[Admin] Updates bounty completion status"
-        params = []
-        super().__init__(description, params)
-
-    async def handle(self, params, message, client):
-        # check if user has permission to use this command
-        admin = discord.utils.get(message.guild.roles, name='Admin')
-        dev = discord.utils.get(message.guild.roles, name='Developer')
-        if admin not in message.author.roles and dev not in message.author.roles:
-            await message.channel.send(embed=embed_message(
-                'Error',
-                'You are not allowed to do that'
-            ))
-            return
-
-        await bountyCompletion(client)
 
 
 class leaderboard(BaseCommand):
@@ -151,6 +136,28 @@ class experienceLevel(BaseCommand):
         await updateAllExperience(client, message.author.id, new_register=True)
 
 
+# --------------------------------------------------------------------------------------------
+# admin commands
+class updateCompletions(BaseCommand):
+    def __init__(self):
+        description = f"[Admin] Updates bounty completion status"
+        params = []
+        super().__init__(description, params)
+
+    async def handle(self, params, message, client):
+        # check if user has permission to use this command
+        admin = discord.utils.get(message.guild.roles, name='Admin')
+        dev = discord.utils.get(message.guild.roles, name='Developer')
+        if admin not in message.author.roles and dev not in message.author.roles:
+            await message.channel.send(embed=embed_message(
+                'Error',
+                'You are not allowed to do that'
+            ))
+            return
+
+        await bountyCompletion(client)
+
+
 class resetLeaderboards(BaseCommand):
     def __init__(self):
         description = f'[Admin] Generate new bounties'
@@ -229,6 +236,8 @@ class generateNewBounties(BaseCommand):
         await generateBounties(client)
 
 
+# --------------------------------------------------------------------------------------------
+# channel registration
 class bountiesMakeChannelRegister(BaseCommand):
     def __init__(self):
         description = f'[dev] Admin / Dev only'
@@ -315,12 +324,82 @@ class bountiesMakeChannelCompetitionBounties(BaseCommand):
         await displayBounties(client)
 
 
-# class bountiesMakeChannelTournament(BaseCommand):
-#     def __init__(self):
-#         description = f'[dev] Admin / Dev only'
-#         params = []
-#         super().__init__(description, params)
-#
-#     async def handle(self, params, message, client):
-#         saveAsGlobalVar("tournament_channel", message.channel.id, message.guild.id)
-#         await message.channel.send("Done!")
+# --------------------------------------------------------------------------------------------
+# dev commands
+class getBounties(BaseCommand):
+    def __init__(self):
+        description = f"[dev] Overwrites bounties"
+        params = []
+        super().__init__(description, params)
+
+    async def handle(self, params, message, client):
+        # check if user has permission to use this command
+        admin = discord.utils.get(message.guild.roles, name='Admin')
+        dev = discord.utils.get(message.guild.roles, name='Developer')
+        if admin not in message.author.roles and dev not in message.author.roles:
+            await message.channel.send(embed=embed_message(
+                'Error',
+                'You are not allowed to do that'
+            ))
+            return
+        with open('functions/bounties/currentBounties.pickle', "rb") as f:
+            bounties = pickle.load(f)
+
+        with open('functions/bounties/temp.txt', "w") as f:
+            f.write(str(bounties))
+
+        await message.channel.send(file=discord.File('functions/bounties/temp.txt'))
+
+        os.remove('functions/bounties/temp.txt')
+
+class overwriteBounties(BaseCommand):
+    def __init__(self):
+        description = f"[dev] Overwrites bounties"
+        params = []
+        super().__init__(description, params)
+
+    async def handle(self, params, message, client):
+        # check if user has permission to use this command
+        admin = discord.utils.get(message.guild.roles, name='Admin')
+        dev = discord.utils.get(message.guild.roles, name='Developer')
+        if admin not in message.author.roles and dev not in message.author.roles:
+            await message.channel.send(embed=embed_message(
+                'Error',
+                'You are not allowed to do that'
+            ))
+            return
+        await message.channel.send("Please upload the new json as a file (pasting will automatically do that since its big)")
+
+        def check(m):
+            return m.author == message.author and m.channel == message.channel
+        try:
+            msg = await client.wait_for('message', timeout=120, check=check)
+        except asyncio.TimeoutError:
+            await message.channel.send("You took too long")
+            return
+
+        attachment_url = msg.attachments[0].url
+        file = requests.get(attachment_url).text
+
+        try:
+            file = eval(file)
+        except:
+            await message.channel.send("Incorrect Formating")
+            return
+
+        # overwrite the old bounties
+        with open('functions/bounties/currentBounties.pickle', "wb") as f:
+            pickle.dump(file, f)
+        # delete old bounty completion tracking pickle
+        if os.path.exists('functions/bounties/playerBountyStatus.pickle'):
+            os.remove('functions/bounties/playerBountyStatus.pickle')
+
+        print("Bounties manually overridden to:")
+        print(file)
+
+        with open('functions/bounties/channelIDs.pickle', "rb") as f:
+            file = pickle.load(f)
+        for guild in client.guilds:
+            if guild.id == file["guild_id"]:
+                await displayBounties(client)
+                await displayCompetitionBounties(client, guild)
