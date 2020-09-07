@@ -525,6 +525,7 @@ async def registrationMessageReactions(client, user, emoji, register_channel, re
 async def updateExperienceLevels(client):
     for user in getBountyUserList():
         await updateAllExperience(client, user)
+    print("Done updating experience")
 
 
 # updates / sets all experience levels for the user
