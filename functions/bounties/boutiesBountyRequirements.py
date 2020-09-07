@@ -266,6 +266,7 @@ competition_bounties = {
         },
     },
 
+
     # general pve bounties
     'PvE': {
         # todo not implemented yet bc BL will probly change everything here
@@ -285,6 +286,7 @@ competition_bounties = {
             "points": 250
         }
     },
+
 
     # pvp bounties
     'PvP': {
