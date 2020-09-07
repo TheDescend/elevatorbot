@@ -286,7 +286,6 @@ class bountiesMakeChannelLeaderboard(BaseCommand):
             ))
             return
 
-        # todo
         saveAsGlobalVar("leaderboard_channel", message.channel.id, message.guild.id)
         await displayLeaderboard(client, False)
 

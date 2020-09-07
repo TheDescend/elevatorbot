@@ -47,11 +47,11 @@ def launch_event_loops(client):
         n_ev += 1
 
     # generate new bounties every monday at midnight
-    # sched.add_job(generateBounties, "cron", (client,), day_of_week="mon", hour=19, minute=10)
+    # sched.add_job(generateBounties, "cron", (client,), day_of_week="mon", hour=19, minute=12)
     sched.add_job(generateBounties, "cron", (client,), day_of_week="mon", hour=0, minute=0)
 
     # update experience levels
-    # sched.add_job(updateExperienceLevels, "cron", (client,), day_of_week="mon", hour=19, minute=10)
+    # sched.add_job(updateExperienceLevels, "cron", (client,), day_of_week="mon", hour=19, minute=13)
     sched.add_job(updateExperienceLevels, "cron", (client,), day_of_week="sun", hour=0, minute=0)
 
     sched.start()
