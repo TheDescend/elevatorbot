@@ -21,6 +21,9 @@ async def generateBounties(client):
     # award points for the competition bounties
     await awardCompetitionBountiesPoints(client)
 
+    # delete old tourn message if exist
+    #todo
+
     # looping though the bounties
     file = {}
     file["bounties"] = {}
@@ -39,6 +42,10 @@ async def generateBounties(client):
 
         file["competition_bounties"][topic] = {}
         file["competition_bounties"][topic][key] = value
+
+        # if "tournament" is in there, put the tourn message up
+        if "tournament" in value["requirements"]:
+            await tournamentRegistrationMessage(client)
 
     # add current time to list
     file["time"] = "2020-08-05 19:41:13.688291" # todo change this back. only for testing
@@ -384,6 +391,58 @@ async def displayLeaderboard(client, use_old_message=True):
     print("Updated Leaderboard")
 
 
+# prints the msg that users have to react to register
+async def tournamentRegistrationMessage(client):
+    with open('functions/bounties/channelIDs.pickle', "rb") as f:
+        file = pickle.load(f)
+
+    for guild in client.guilds:
+        channel = discord.utils.get(guild.channels, id=file["tournament_channel"])
+
+        # send register msg and save the id
+        msg = await channel.send(embed=embed_message(
+            f'Registration',
+            f'If you want to register to the tournament this week, react with <:unbroken:724678414925168680>'
+        ))
+        register = client.get_emoji(724678414925168680)
+        await msg.add_reaction(register)
+        saveAsGlobalVar("tournament_channel_message_id", msg.id)
+
+
+# prints the default message and changes that should a tourn start
+async def tournamentChannelMessage(client, start=False):
+    with open('functions/bounties/channelIDs.pickle', "rb") as f:
+        file = pickle.load(f)
+
+    for guild in client.guilds:
+        if guild.id == file["guild_id"]:
+            channel = discord.utils.get(guild.channels, id=file["tournament_channel"])
+
+            # clean messages
+            await channel.purge(limit=100)
+
+            # displays the default message that sits in the channel while no tourn is running
+            if not start:
+                await channel.send(
+f""" Welcome to the **Tournament Channel**!
+⁣
+Every so often, the weekly PvP competition bounty will be a clan wide tournament.
+When that happens, you can come back to this channel to register for it. 
+⁣
+When the games start, I will generate a random bracket and assign player to games.
+You will then start a custom game with __only__ the two chosen players in it.
+Last man standing wins it all!
+⁣
+⁣
+**Rules**: You decide.
+**Time**: The tournament will get manually started by an admin, so try to find a good time for everyone.
+⁣
+⁣
+"""
+                )
+
+
+
 # writes the message the user will see and react to and saves the id in the pickle
 async def bountiesChannelMessage(client):
     if os.path.exists('functions/bounties/channelIDs.pickle'):
@@ -426,12 +485,12 @@ async def bountiesChannelMessage(client):
                         # send welcome and info message
                         await channel.send(
 f"""Welcome the the **Bounty Goblins**!
-
+⁣
 After you register to this truly **remarkable** program, you will be assigned an experience level and given a bunch of bounties you can complete at your leisure.
-
+⁣
 **Normal bounties** can be completed once and award you the shown points.
 **Competitive bounties** are meant to be a competition between all participants and reward a lot of points, but only one player can win. If there are any ties, both parties will of course get the points.
-
+⁣
 Your experience level determines which normal bounties you can complete. That way we can have easier bounties for new players compared to veterans. 
 ```
 +-----------------------------------------------------------+
@@ -446,14 +505,14 @@ Your experience level determines which normal bounties you can complete. That wa
                         )
                         await channel.send(
 f"""There are a bunch of commands which will give you more thorough information than visible in the channels:
-
+⁣
 Commands:
 `!leaderboard <category>` - Prints various leaderboards.
 `!experienceLevel` - Updates and DMs you your experience levels. 
 `!bounties` - DMs you an overview of you current bounties and their status.
-
+⁣
 The bounties change every monday at midnight and will get displayed in their respective channels. You can also sign up to get notified when that happened.
-
+⁣
 And lastly, if you have any general suggestions or ideas for new bounties, contact <@!238388130581839872>
 ⁣
 ⁣

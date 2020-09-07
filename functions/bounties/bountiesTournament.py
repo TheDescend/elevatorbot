@@ -6,6 +6,7 @@ from functions.formating import embed_message
 import asyncio
 import time
 import discord
+import random
 
 class Tournament():
     def __init__(self):
@@ -129,7 +130,7 @@ class Tournament():
 
 
         # players = ["ich", "du", "er", "sie", "wir"]
-        bracket, self.player_id_translation = getBracket(players)
+        bracket, self.player_id_translation = getBracket(random.sample(players, len(players)))
 
         loop = asyncio.get_event_loop()
         winner = loop.run_until_complete(playBracket(bracket))

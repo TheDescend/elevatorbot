@@ -1,5 +1,5 @@
 from commands.base_command  import BaseCommand
-from functions.bounties.bountiesFunctions import displayBounties, displayCompetitionBounties, bountyCompletion, displayLeaderboard, updateAllExperience, generateBounties, saveAsGlobalVar, deleteFromGlobalVar, bountiesChannelMessage
+from functions.bounties.bountiesFunctions import tournamentChannelMessage, displayBounties, displayCompetitionBounties, bountyCompletion, displayLeaderboard, updateAllExperience, generateBounties, saveAsGlobalVar, deleteFromGlobalVar, bountiesChannelMessage
 from functions.bounties.bountiesBackend import returnScore, fulfillRequirements, returnLeaderboard, formatLeaderboardMessage, playerHasDoneBounty
 from functions.dataLoading import getPGCR
 from functions.database import getBountyUserList, setLevel, getLevel, lookupDestinyID
@@ -147,6 +147,9 @@ class experienceLevel(BaseCommand):
 
 # --------------------------------------------------------------------------------------------
 # admin commands
+
+# todo !startTournament
+
 class updateCompletions(BaseCommand):
     def __init__(self):
         description = f"[Admin] Updates bounty completion status"
@@ -267,6 +270,27 @@ class bountiesMakeChannelRegister(BaseCommand):
         deleteFromGlobalVar("register_channel_message_id")
         saveAsGlobalVar("register_channel", message.channel.id, message.guild.id)
         await bountiesChannelMessage(client)
+
+
+class bountiesMakeChannelTournment(BaseCommand):
+    def __init__(self):
+        description = f'[dev] Admin / Dev only'
+        params = []
+        super().__init__(description, params)
+
+    async def handle(self, params, message, client):
+        # check if user has permission to use this command
+        admin = discord.utils.get(message.guild.roles, name='Admin')
+        dev = discord.utils.get(message.guild.roles, name='Developer')
+        if admin not in message.author.roles and dev not in message.author.roles:
+            await message.channel.send(embed=embed_message(
+                'Error',
+                'You are not allowed to do that'
+            ))
+            return
+
+        saveAsGlobalVar("tournament_channel", message.channel.id, message.guild.id)
+        await tournamentChannelMessage(client)
 
 
 class bountiesMakeChannelLeaderboard(BaseCommand):

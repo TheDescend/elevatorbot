@@ -636,11 +636,6 @@ def returnScore(requirements, activity, destinyID):
                     break
 
 
-        # todo: test
-        elif req == "tournament":
-            pass
-            # todo
-
     # only return score if all other things have passed
     return score, sort_by_highest
 
