@@ -72,14 +72,14 @@ bounties = {
             "Do a raid with a specific loadout": {
                 "requirements": ["allowedTypes", "customLoadout"],
                 "allowedTypes": activityRaidHash,
-                "extraText": "\n⁣\nKinetic: ? \n Energy: % \n Power: & \n⁣",
+                "extraText": "\n⁣\nKinetic: ? \n Energy: % \n Power: & ",
                 "points": 1
             },
 
             "Do a dungeon with a specific loadout": {
                 "requirements": ["allowedTypes", "customLoadout"],
                 "allowedTypes": activityDungeonHash,
-                "extraText": "\n⁣\nKinetic: ? \n Energy: % \n Power: & \n⁣",
+                "extraText": "\n⁣\nKinetic: ? \n Energy: % \n Power: & ",
                 "points": 1
             },
 
@@ -128,7 +128,7 @@ bounties = {
             "Clear an adventure with a specific loadout": {
                 "requirements": ["allowedTypes", "customLoadout"],
                 "allowedTypes": activityStoryHash,
-                "extraText": "\n⁣\nKinetic: ? \n Energy: % \n Power: & \n⁣",
+                "extraText": "\n⁣\nKinetic: ? \n Energy: % \n Power: & ",
                 "points": 1
             },
 

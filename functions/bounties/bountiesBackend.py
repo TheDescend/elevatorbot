@@ -394,8 +394,26 @@ def fulfillRequirements(requirements, activity, destinyID, past_completions, pas
 
 
         if req == "customLoadout":
-            #todo
-            pass
+            for player in pgcr["Response"]["entries"]:
+                if player["player"]["destinyUserInfo"]["membershipId"] == str(destinyID):
+
+                    # loop through weapons
+                    all_weapons_ok = True
+                    for weapon in player["extended"]["weapons"]:
+                        weapon_info = returnManifestInfo("DestinyInventoryItemDefinition", weapon["referenceId"])
+                        weapon_info_slot = weapon_info["Response"]["equippingBlock"]["equipmentSlotTypeHash"]
+                        weapon_info_type_name = weapon_info["Response"]["itemTypeDisplayName"]
+
+                        # check if weapon is allowed in slot
+                        for slot, allowed_weapon_type in requirements["customLoadout"].items():
+                            if not (slot == weapon_info_slot and allowed_weapon_type == weapon_info_type_name):
+                                all_weapons_ok = False
+
+                    # return true if all weapons were ok
+                    if all_weapons_ok:
+                        complete_list.append(req)
+                    else:
+                        return False, 0, 0
 
 
         if req == "contest":
