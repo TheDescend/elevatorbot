@@ -95,12 +95,14 @@ metricRaidCompletion = metricAvailableRaidCompletion + metricLeviCompletions + m
 
 """" Speedrun Times """
 # has to be tuples bc lists are not hashable
-speedrunActivities = {
+speedrunActivitiesRaids = {
     tuple(scourgeHashes): 780,             # scourge 13mins
     tuple(cosHashes): 1320,                # cos 22min
     tuple(lwHashes): 780,                  # lw 13
     tuple(gosHashes): 1500,                # gos 25
 }
+# consists of all of them
+speedrunActivities = speedrunActivitiesRaids
 
 
 

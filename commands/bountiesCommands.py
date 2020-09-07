@@ -51,7 +51,16 @@ class bounties(BaseCommand):
 
                 name, req = list(json["bounties"][topic][experience].items())[0]
 
-                embed.add_field(name="✅ Done" if playerHasDoneBounty(message.author.id, name) else "Available", value=f"~~Points: **{req['points']}** - {name}~~\n⁣" if playerHasDoneBounty(message.author.id, name) else f"Points: **{req['points']}** - {name}\n⁣", inline=False)
+                if isinstance(req['points'], list):
+                    if "lowman" in req["requirements"]:
+                        points = []
+                        for x, y in zip(req["lowman"], req["points"]):
+                            points.append(f"{y}** ({x} Player)** ")
+                        points = "**/ **".join(points)
+                else:
+                    points = req['points']
+
+                embed.add_field(name="✅ Done" if playerHasDoneBounty(message.author.id, name) else "Available", value=f"~~Points: **{points}** - {name}~~\n⁣" if playerHasDoneBounty(message.author.id, name) else f"Points: **{points}** - {name}\n⁣", inline=False)
             await message.author.send(embed=embed)
 
 
@@ -493,6 +502,8 @@ class testBounties(BaseCommand):
             await message.channel.send("Incorrect Formating")
             return
 
-        done = fulfillRequirements(req, activity, lookupDestinyID(message.author.id))
+        done, index_multiple_points = fulfillRequirements(req, activity, lookupDestinyID(message.author.id))
         await message.channel.send(f"Done: {done}")
+        if index_multiple_points is not None:
+            await message.channel.send(f"index_multiple_points: {index_multiple_points}")
 

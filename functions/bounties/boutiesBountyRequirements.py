@@ -66,6 +66,14 @@ bounties = {
 
         # experienced players
         "Experienced Players": {
+            "Do a lowman (solo, duo or trio) of any raid": {
+                        "requirements": ["allowedTypes", "lowman"],
+                        "allowedTypes": activityRaidHash,
+                        "lowman": [3, 2, 1],
+                        "extraText": "",
+                        "points": [1, 2, 3]
+                    },
+
             "Do a raid with a specific loadout": {
                 "requirements": ["allowedTypes", "customLoadout"],
                 "allowedTypes": activityRaidHash,
@@ -82,7 +90,8 @@ bounties = {
 
             "Finish a raid within the allowed time frame": {
                 "requirements": ["allowedTypes", "speedrun"],
-                "extraText": "",
+                "allowedTypes": activityRaidHash,
+                "extraText": "",                # todo
                 "points": 1
             },
 
@@ -237,7 +246,7 @@ competition_bounties = {
             "requirements": ["randomActivity", "lowman"],
             "randomActivity": raidHashes,
             "extraText": "",
-            "points": [3, 2, 1]             # [solo, duo, trio] todo
+            "points": 1
         },
 
         "Get the fastest clear of the raid __?__ while everyone uses abilities only": {

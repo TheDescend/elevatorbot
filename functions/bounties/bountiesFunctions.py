@@ -1,9 +1,9 @@
 from functions.formating import embed_message
 from functions.database import insertBountyUser, getBountyUserList, getLevel, addLevel, setLevel, lookupDestinyID, lookupServerID
 from functions.bounties.boutiesBountyRequirements import bounties, competition_bounties, possibleWeaponsKinetic, possibleWeaponsEnergy, possibleWeaponsPower
-from functions.bounties.bountiesBackend import formatLeaderboardMessage, returnLeaderboard, getCompetitionBountiesLeaderboards, changeCompetitionBountiesLeaderboards, experiencePvp, experiencePve, experienceRaids, threadingCompetitionBounties, threadingBounties
+from functions.bounties.bountiesBackend import addPoints, formatLeaderboardMessage, returnLeaderboard, getCompetitionBountiesLeaderboards, changeCompetitionBountiesLeaderboards, experiencePvp, experiencePve, experienceRaids, threadingCompetitionBounties, threadingBounties
 from functions.dataLoading import returnManifestInfo
-from static.dict import weaponTypeKinetic, weaponTypeEnergy, weaponTypePower
+from static.dict import activityRaidHash, speedrunActivitiesRaids, weaponTypeKinetic, weaponTypeEnergy, weaponTypePower
 
 import os
 import pickle
@@ -66,7 +66,7 @@ def bountiesFormatting(json):
 
     # if "randomActivity" is present, get a random activity from the list and delete "randomActivity" so it doesn't take up space anymore
     if "randomActivity" in value:
-        value["allowedActivities"] = random.choice(value.pop("randomActivity"))[0]
+        value["allowedActivities"] = [random.choice(value.pop("randomActivity"))[0]]
         value["requirements"].pop(value["requirements"].index("randomActivity"))
         value["requirements"].append("allowedActivities")
 
@@ -91,9 +91,17 @@ def bountiesFormatting(json):
         if "customLoadout" in value["requirements"]:
             key = key + value["extraText"]
 
-            key = key.replace("?", weaponKinetic)
-            key = key.replace("%", weaponEnergy)
-            key = key.replace("&", weaponPower)
+            key = key.replace("?", f"__{weaponKinetic}__")
+            key = key.replace("%", f"__{weaponEnergy}__")
+            key = key.replace("&", f"__{weaponPower}__")
+
+        if "speedrun" in value["requirements"]:
+            if "allowedTypes" in value["requirements"]:
+                if activityRaidHash == value["allowedTypes"]:
+                    key = key + f"\n⁣"
+                    for activities in speedrunActivitiesRaids:
+                        activity_name = returnManifestInfo("DestinyActivityDefinition", activities[0])["Response"]["displayProperties"]["name"]
+                        key = key + f"\n{activity_name}: __{speedrunActivitiesRaids[activities] / 60}min__"
 
     return key, value
 
@@ -116,8 +124,7 @@ async def awardCompetitionBountiesPoints(client):
                 break
 
             # award the points in the respective categories
-            points = bounties[topic][list(bounties[topic].keys())[0]]["points"]
-            addLevel(points, f"points_competition_{topic.lower()}", discordID)
+            addPoints(discordID, bounties[topic][list(bounties[topic].keys())[0]], f"points_competition_{topic.lower()}")
 
     # update display
     await displayLeaderboard(client)
@@ -156,7 +163,17 @@ async def displayBounties(client):
                     )
                     for experience in json["bounties"][topic].keys():
                         name, req = list(json["bounties"][topic][experience].items())[0]
-                        embed.add_field(name=f"{experience}:", value=f"Points: **{req['points']}** - {name}\n⁣", inline=False)
+
+                        if isinstance(req['points'], list):
+                            if "lowman" in req["requirements"]:
+                                points = []
+                                for x, y in zip(req["lowman"], req["points"]):
+                                    points.append(f"{y}** ({x} Player)** ")
+                                points = "**/ **".join(points)
+                        else:
+                            points = req['points']
+
+                        embed.add_field(name=f"{experience}:", value=f"Points: **{points}** - {name}\n⁣", inline=False)
                     await bounties_channel.send(embed=embed)
 
                 # ping users
@@ -194,9 +211,11 @@ async def displayCompetitionBounties(client, guild, message=None):
 
     for topic in json["competition_bounties"].keys():
         name, req = list(json["competition_bounties"][topic].items())[0]
+
+        points = req['points']
         embed = embed_message(
             topic,
-            f"Points: **{req['points']}** - {name}\n⁣"
+            f"Points: **{points}** - {name}\n⁣"
         )
 
         # read the current leaderboard and display the top x = 10 players

@@ -90,10 +90,10 @@ def threadingBounties(bounties, cutoff, discordID):
                     requirements = bounties[topic][experience][bounty]
 
                     # if true, a bounty is done
-                    done = fulfillRequirements(requirements, activity, destinyID)
+                    done, index_multiple_points = fulfillRequirements(requirements, activity, destinyID)
                     if done:
                         playerHasDoneBounty(discordID, bounty, done=True)
-                        addLevel(requirements["points"], f"points_bounties_{topic.lower()}", discordID)
+                        addPoints(discordID, requirements, f"points_bounties_{topic.lower()}", index_multiple_points=index_multiple_points)
                         print(f"""DestinyID {destinyID} has completed bounty {bounty} with instanceID {activity["activityDetails"]["instanceId"]}""")
 
     print(f"Bounties for destinyID: {destinyID} done")
@@ -175,6 +175,19 @@ def playerHasDoneBounty(discordID, name, done=False):
             pickle.dump(file, f)
 
     return False
+
+
+# adds points to the user
+def addPoints(discordID, requirements, leaderboard, index_multiple_points=None):
+    points = requirements["points"]
+
+    # if there are multiple possible points
+    if index_multiple_points is not None:
+        # add the lowman points
+        if "lowman" in requirements:
+            points = requirements["points"][index_multiple_points]
+
+    addLevel(points, leaderboard, discordID)
 
 
 # saves the current competition bounties leaderboards. gets reset in awardCompetitionBountiesPoints()
@@ -319,15 +332,18 @@ def fulfillRequirements(requirements, activity, destinyID):
     # write the requirement into the this list if it is done. At the end it will get check and if all the requirements are in there, true gets returned
     complete_list = []
 
+    # needed for stuff like lowmans, where there are different points if you do better
+    index_multiple_points = None
+
     hashID = activity["activityDetails"]["directorActivityHash"]
     instance = activity["activityDetails"]["instanceId"]
 
     pgcr = getPGCR(instance)
 
     # clean runs
-    clean = cleanRuns(pgcr, destinyID)
+    clean = cleanRuns(requirements, pgcr, destinyID)
     if not clean:
-        return False
+        return False, None
 
 
     # loop through other requirements
@@ -337,7 +353,7 @@ def fulfillRequirements(requirements, activity, destinyID):
             if returnManifestInfo("DestinyActivityDefinition", hashID)["Response"]["activityTypeHash"] in requirements["allowedTypes"]:
                 complete_list.append(req)
             else:
-                return False
+                return False, None
 
 
         # > tested <
@@ -350,7 +366,7 @@ def fulfillRequirements(requirements, activity, destinyID):
                     break
 
             if not found:
-                return False
+                return False, None
 
 
         # > tested <
@@ -371,7 +387,7 @@ def fulfillRequirements(requirements, activity, destinyID):
                                         complete_list.append(req)
                                         break
                                     else:
-                                        return False
+                                        return False, None
 
 
         # > tested <
@@ -398,7 +414,7 @@ def fulfillRequirements(requirements, activity, destinyID):
                     if all_weapons_ok:
                         complete_list.append(req)
                     else:
-                        return False
+                        return False, None
 
 
         # > tested <
@@ -414,7 +430,7 @@ def fulfillRequirements(requirements, activity, destinyID):
                     if (light_player + requirements["contest"]) <= light_activity:
                         complete_list.append(req)
                     else:
-                        return False
+                        return False, None
 
 
         # > tested <
@@ -430,7 +446,7 @@ def fulfillRequirements(requirements, activity, destinyID):
                         if requirements["speedrun"] >= time:
                             complete_list.append(req)
                         else:
-                            return False
+                            return False, None
 
                     # > tested <
                     elif "allowedActivities" in requirements["requirements"]:
@@ -444,7 +460,18 @@ def fulfillRequirements(requirements, activity, destinyID):
                         if found:
                             complete_list.append(req)
                         else:
-                            return False
+                            return False, None
+
+
+        # > tested <
+        elif req == "lowman":
+            for player in pgcr["Response"]["entries"]:
+                if player["player"]["destinyUserInfo"]["membershipId"] == str(destinyID):
+                    player_count = int(player["values"]["playerCount"]["basic"]["value"])
+                    if player_count in requirements["lowman"]:
+                        # return the # of players also
+                        complete_list.append(req)
+                        index_multiple_points = requirements["lowman"].index(player_count)
 
 
         # > tested <
@@ -454,7 +481,7 @@ def fulfillRequirements(requirements, activity, destinyID):
                     if player["values"]["kills"]["basic"]["value"] >= requirements["totalKills"]:
                         complete_list.append(req)
                     else:
-                        return False
+                        return False, None
 
 
         # > tested <
@@ -464,7 +491,7 @@ def fulfillRequirements(requirements, activity, destinyID):
                     if player["values"]["deaths"]["basic"]["value"] <= requirements["totalDeaths"]:
                         complete_list.append(req)
                     else:
-                        return False
+                        return False, None
 
 
         # > tested <
@@ -474,7 +501,7 @@ def fulfillRequirements(requirements, activity, destinyID):
                     if player["values"]["killsDeathsRatio"]["basic"]["value"] >= requirements["kd"]:
                         complete_list.append(req)
                     else:
-                        return False
+                        return False, None
 
 
         # > tested <
@@ -484,7 +511,7 @@ def fulfillRequirements(requirements, activity, destinyID):
                     if player["values"]["standing"]["basic"]["displayValue"] == "Victory":
                         complete_list.append(req)
                     else:
-                        return False
+                        return False, None
 
 
         # > tested <
@@ -497,7 +524,7 @@ def fulfillRequirements(requirements, activity, destinyID):
                         complete_list.append(req)
                         break
                     else:
-                        return False
+                        return False, None
 
 
         # > tested <
@@ -507,14 +534,14 @@ def fulfillRequirements(requirements, activity, destinyID):
                     if player["values"]["score"]["basic"]["value"] >= requirements["NFscore"]:
                         complete_list.append(req)
                     else:
-                        return False
+                        return False, None
 
     # only return true if everything else passes
     all_done = True
     for req in requirements["requirements"]:
         if req not in complete_list:
             all_done = False
-    return all_done
+    return all_done, index_multiple_points
 
 
 # checking competition bounties scores
@@ -528,7 +555,7 @@ def returnScore(requirements, activity, destinyID):
     pgcr = getPGCR(instance)
 
     # clean runs
-    clean = cleanRuns(pgcr, destinyID)
+    clean = cleanRuns(requirements, pgcr, destinyID)
     if not clean:
         return 0, sort_by_highest
 
@@ -559,7 +586,7 @@ def returnScore(requirements, activity, destinyID):
                     break
 
 
-        # todo: test
+        # > tested <
         elif req == "lowman":
             for player in pgcr["Response"]["entries"]:
                 if player["player"]["destinyUserInfo"]["membershipId"] == str(destinyID):
@@ -569,7 +596,7 @@ def returnScore(requirements, activity, destinyID):
                     score = int(player["values"]["playerCount"]["basic"]["value"])
 
 
-        # todo: test
+        # todo: test, but should work
         elif req == "noWeapons":
             # return 0 if there are any weapon kills
             for player in pgcr["Response"]["entries"]:
@@ -619,16 +646,20 @@ def returnScore(requirements, activity, destinyID):
 
 
 # checks cp runs, if completed
-def cleanRuns(pgcr, destinyID):
-    # check for checkpoint runs
-    if pgcr["Response"]["startingPhaseIndex"] not in [-1, 0]:
-        return False
-
+def cleanRuns(requirements, pgcr, destinyID):
     # check if activity got completed
     for player in pgcr["Response"]["entries"]:
         if player["player"]["destinyUserInfo"]["membershipId"] == str(destinyID):
             if player["values"]["completed"]["basic"]["value"] != 1:
                 return False
+
+    # skip this if it's supposed to be a lowman
+    if "lowman" in requirements["requirements"]:
+        return True
+
+    # check for checkpoint runs
+    if pgcr["Response"]["startingPhaseIndex"] not in [-1, 0]:
+        return False
 
     return True
 
