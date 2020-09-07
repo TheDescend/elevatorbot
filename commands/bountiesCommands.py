@@ -493,6 +493,6 @@ class testBounties(BaseCommand):
             await message.channel.send("Incorrect Formating")
             return
 
-        done, _, _ = fulfillRequirements(req, activity, lookupDestinyID(message.author.id), 0, 0)
+        done = fulfillRequirements(req, activity, lookupDestinyID(message.author.id))
         await message.channel.send(f"Done: {done}")
 

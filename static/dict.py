@@ -62,19 +62,34 @@ metricScourgeCompletions = [1201631538]
 metricCoSCompletions = [1815425870]
 metricGoSCompletions = [1168279855]
 
+metricRaidAllocation = {
+    tuple(eaterHashes): metricEoWCompletions,
+    tuple(spireHashes): metricSosCompletions,
+    tuple(scourgeHashes): metricScourgeCompletions,
+    tuple(cosHashes): metricCoSCompletions,
+    tuple(lwHashes): metricLWCompletions,
+    tuple(gosHashes): metricGoSCompletions,
+}
+
+metricWinStreakGambitWeekly = [1053579811]
+metricWinStreakCrucibleWeekly = [4044111774]
+
+metricWinStreakWeeklyAllocation = {
+    tuple(activityGambitHash): metricWinStreakGambitWeekly,
+    tuple(activityPVPHash): metricWinStreakCrucibleWeekly
+}
 
 
 
 """ Grouped Hashes """
 # only activities which are available should be included here
-raidHashes = [[lwHashes], [gosHashes], [scourgeHashes], [cosHashes]]
-dungeonHashes = [[throneHashes], [pitHashes], [prophHashes]]
+raidHashes = [lwHashes, gosHashes, scourgeHashes, cosHashes]
+dungeonHashes = [throneHashes, pitHashes, prophHashes]
 
 activityStrikeAndNFHash = activityNFHash + activityStrikeHash
 
 metricAvailableRaidCompletion = metricLWCompletions + metricGoSCompletions
 metricRaidCompletion = metricAvailableRaidCompletion + metricLeviCompletions + metricEoWCompletions + metricSosCompletions + metricScourgeCompletions + metricCoSCompletions
-
 
 
 
@@ -103,7 +118,6 @@ weaponTypePower = 953998645
 possibleWeaponsKinetic = ["Hand Cannon", "Scout Rifle", "Auto Rifle", "Pulse Rifle", "Sidearm", "Submachine Gun", "Combat Bow", "Sniper Rifle", "Shotgun", "Grenade Launcher"]
 possibleWeaponsEnergy = ["Hand Cannon", "Scout Rifle", "Auto Rifle", "Pulse Rifle", "Sidearm", "Fusion Rifle", "Shotgun", "Sniper Rifle", "Trace Rifle", "Grenade Launcher", "Combat Bow"]
 possibleWeaponsPower = ["Grenade Launcher", "Rocket Launcher", "Linear Fusion Rifle", "Sword", "Shotgun", "Machine Gun", "Sniper Rifle"]
-
 
 
 

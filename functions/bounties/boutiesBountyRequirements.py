@@ -18,7 +18,6 @@ allowedTypes        # which activity type hashes are allow, fe. activityTypeHash
 speedrun            # bounties: requires a number if allowedTypes is given, and an entry in speedrunActivities if allowedActivities is given
 lowman
 contest             # how far below the recommeneded light for the activity one has to be
-completions
 firstClear          # list - out of which activities has the current one to be the first
 noWeapons
 customLoadout       # after processing formating will be {kineticHash: "Hand Cannon", ...}
@@ -52,17 +51,15 @@ bounties = {
                 "points": 1
             },
 
-            "Finish two raids": {
-                "requirements": ["allowedTypes", "completions"],
+            "Finish a raid": {
+                "requirements": ["allowedTypes"],
                 "allowedTypes": activityRaidHash,
-                "completions": 2,
                 "points": 1
             },
 
-            "Finish three dungeons": {
-                "requirements": ["allowedTypes", "completions"],
+            "Finish a dungeon": {
+                "requirements": ["allowedTypes"],
                 "allowedTypes": activityDungeonHash,
-                "completions": 3,
                 "points": 1
             }
         },

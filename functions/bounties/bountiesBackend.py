@@ -2,7 +2,7 @@ from functions.network import getJSONfromURL
 from functions.database import lookupDestinyID, lookupDiscordID, getBountyUserList, getLevel, addLevel, setLevel
 from functions.dataLoading import getPGCR, getPlayersPastPVE, getStats, getProfile, returnManifestInfo
 from functions.network import getJSONfromURL
-from static.dict import speedrunActivities, metricRaidCompletion, metricAvailableRaidCompletion
+from static.dict import speedrunActivities, metricRaidCompletion, metricAvailableRaidCompletion, metricWinStreakWeeklyAllocation, metricRaidAllocation
 from functions.formating    import embed_message
 
 import datetime
@@ -58,16 +58,6 @@ def threadingBounties(bounties, cutoff, discordID):
     experience_level_pvp = getLevel("exp_pvp", discordID)
     experience_level_raids = getLevel("exp_raids", discordID)
 
-    # initialise completions list used later to save values to
-    completions = {}
-    for topic in bounties:
-        completions.update({topic: 0})
-
-    # initialise wins list used later to save values to
-    wins = {}
-    for topic in bounties:
-        wins.update({topic: 0})
-
     # loop though activities
     for activity in getPlayersPastPVE(destinyID, mode=0):
         # only look at activities younger than the cutoff date
@@ -100,11 +90,9 @@ def threadingBounties(bounties, cutoff, discordID):
                     requirements = bounties[topic][experience][bounty]
 
                     # if true, a bounty is done
-                    done, number_of_completions, number_of_wins = fulfillRequirements(requirements, activity, destinyID, completions[topic], wins[topic])
-                    completions[topic] += number_of_completions
-                    wins[topic] += number_of_wins
+                    done = fulfillRequirements(requirements, activity, destinyID)
                     if done:
-                        playerHasDoneBounty(discordID, bounty, True)
+                        playerHasDoneBounty(discordID, bounty, done=True)
                         addLevel(requirements["points"], f"points_bounties_{topic.lower()}", discordID)
                         print(f"""DestinyID {destinyID} has completed bounty {bounty} with instanceID {activity["activityDetails"]["instanceId"]}""")
 
@@ -327,13 +315,9 @@ async def formatLeaderboardMessage(client, leaderboard, user_id=None, limit=10):
 
 # --------------------------------------------------------------
 # checking bounties requirements
-def fulfillRequirements(requirements, activity, destinyID, past_completions, past_wins):
+def fulfillRequirements(requirements, activity, destinyID):
     # write the requirement into the this list if it is done. At the end it will get check and if all the requirements are in there, true gets returned
     complete_list = []
-
-    # completions / wins used for completions / wins
-    completions = 0
-    wins = 0
 
     hashID = activity["activityDetails"]["directorActivityHash"]
     instance = activity["activityDetails"]["instanceId"]
@@ -343,19 +327,20 @@ def fulfillRequirements(requirements, activity, destinyID, past_completions, pas
     # clean runs
     clean = cleanRuns(pgcr, destinyID)
     if not clean:
-        return False, 0, 0
+        return False
 
 
     # loop through other requirements
     for req in requirements["requirements"]:
+        # > tested <
         if req == "allowedTypes":
             if returnManifestInfo("DestinyActivityDefinition", hashID)["Response"]["activityTypeHash"] in requirements["allowedTypes"]:
                 complete_list.append(req)
             else:
-                return False, 0, 0
+                return False
 
 
-        # todo: test
+        # > tested <
         if req == "allowedActivities":
             found = False
             for activity_list in requirements["allowedActivities"]:
@@ -365,10 +350,10 @@ def fulfillRequirements(requirements, activity, destinyID, past_completions, pas
                     break
 
             if not found:
-                return False, 0, 0
+                return False
 
 
-        # todo: test
+        # > tested <
         if req == "firstClear":
             # get raid metrics for future comparison
             individual_raid_clears = getProfile(destinyID, 1100)
@@ -378,25 +363,18 @@ def fulfillRequirements(requirements, activity, destinyID, past_completions, pas
                     for activity in activity_list:
                         # make sure an allowed activity is selected
                         if activity == hashID:
-
-                            # set return to true if raid wasn't cleared before. So compare to one, since raid is now cleared. This shouldn't be a problem, since this gets check every 30mins, but it could bug out if they the raid 2x within that time
-                            if individual_raid_clears["metrics"]["data"]["metrics"][str(hashID)]["objectiveProgress"]["progress"] == 1:
-                                complete_list.append(req)
-                            else:
-                                return False, 0, 0
-
-
-        # todo: test
-        if req == "completions":
-            # add to completions
-            completions += 1
-
-            # check if enough completions
-            if (past_completions + completions) == requirements["completions"]:
-                complete_list.append(req)
+                            # loop though tuples in metricRaidAllocation to find the correct metric hash
+                            for activities in metricRaidAllocation.keys():
+                                if hashID in activities:
+                                    # set return to true if raid wasn't cleared before. So compare to one, since raid is now cleared. This shouldn't be a problem, since this gets check every 30mins, but it could bug out if they the raid 2x within that time
+                                    if individual_raid_clears["metrics"]["data"]["metrics"][str(metricRaidAllocation[activities][0])]["objectiveProgress"]["progress"] == 0:
+                                        complete_list.append(req)
+                                        break
+                                    else:
+                                        return False
 
 
-        # todo: test
+        # > tested <
         if req == "customLoadout":
             for player in pgcr["Response"]["entries"]:
                 if player["player"]["destinyUserInfo"]["membershipId"] == str(destinyID):
@@ -409,18 +387,21 @@ def fulfillRequirements(requirements, activity, destinyID, past_completions, pas
                         weapon_info_type_name = weapon_info["Response"]["itemTypeDisplayName"]
 
                         # check if weapon is allowed in slot
+                        weapon_ok = False
                         for slot, allowed_weapon_type in requirements["customLoadout"].items():
-                            if not (slot == weapon_info_slot and allowed_weapon_type == weapon_info_type_name):
-                                all_weapons_ok = False
+                            if slot == weapon_info_slot and allowed_weapon_type == weapon_info_type_name:
+                                weapon_ok = True
+                        if not weapon_ok:
+                            all_weapons_ok = False
 
                     # return true if all weapons were ok
                     if all_weapons_ok:
                         complete_list.append(req)
                     else:
-                        return False, 0, 0
+                        return False
 
 
-        # todo: test
+        # > tested <
         if req == "contest":
             for player in pgcr["Response"]["entries"]:
                 if player["player"]["destinyUserInfo"]["membershipId"] == str(destinyID):
@@ -433,7 +414,7 @@ def fulfillRequirements(requirements, activity, destinyID, past_completions, pas
                     if (light_player + requirements["contest"]) <= light_activity:
                         complete_list.append(req)
                     else:
-                        return False, 0, 0
+                        return False
 
 
         # > tested <
@@ -449,7 +430,7 @@ def fulfillRequirements(requirements, activity, destinyID, past_completions, pas
                         if requirements["speedrun"] >= time:
                             complete_list.append(req)
                         else:
-                            return False, 0, 0
+                            return False
 
                     # > tested <
                     elif "allowedActivities" in requirements["requirements"]:
@@ -463,73 +444,77 @@ def fulfillRequirements(requirements, activity, destinyID, past_completions, pas
                         if found:
                             complete_list.append(req)
                         else:
-                            return False, 0, 0
+                            return False
 
 
-        # todo: test
+        # > tested <
         if req == "totalKills":
             for player in pgcr["Response"]["entries"]:
                 if player["player"]["destinyUserInfo"]["membershipId"] == str(destinyID):
                     if player["values"]["kills"]["basic"]["value"] >= requirements["totalKills"]:
                         complete_list.append(req)
                     else:
-                        return False, 0, 0
+                        return False
 
 
-        # todo: test
+        # > tested <
         if req == "totalDeaths":
             for player in pgcr["Response"]["entries"]:
                 if player["player"]["destinyUserInfo"]["membershipId"] == str(destinyID):
-                    if player["values"]["deaths"]["basic"]["value"] >= requirements["totalDeaths"]:
+                    if player["values"]["deaths"]["basic"]["value"] <= requirements["totalDeaths"]:
                         complete_list.append(req)
                     else:
-                        return False, 0, 0
+                        return False
 
 
-        # todo: test
+        # > tested <
         if req == "kd":
             for player in pgcr["Response"]["entries"]:
                 if player["player"]["destinyUserInfo"]["membershipId"] == str(destinyID):
                     if player["values"]["killsDeathsRatio"]["basic"]["value"] >= requirements["kd"]:
                         complete_list.append(req)
                     else:
-                        return False, 0, 0
+                        return False
 
 
-        # todo: test
+        # > tested <
         if req == "win":
             for player in pgcr["Response"]["entries"]:
                 if player["player"]["destinyUserInfo"]["membershipId"] == str(destinyID):
-                    if player["values"]["standing"]["basic"]["value"] == "Victory":
+                    if player["values"]["standing"]["basic"]["displayValue"] == "Victory":
                         complete_list.append(req)
                     else:
-                        return False, 0, 0
+                        return False
 
 
-        # todo: test
+        # > tested <
         if req == "winStreak":
-            wins += 1
+            metrics = getProfile(destinyID, 1100)
+            # loop trough allocation and set look
+            for activityTypes in metricWinStreakWeeklyAllocation.keys():
+                if returnManifestInfo("DestinyActivityDefinition", hashID)["Response"]["activityTypeHash"] in activityTypes:
+                    if metrics["metrics"]["data"]["metrics"][str(metricWinStreakWeeklyAllocation[activityTypes][0])]["objectiveProgress"]["progress"] >= requirements["winStreak"]:
+                        complete_list.append(req)
+                        break
+                    else:
+                        return False
 
-            # check if enough completions
-            if (past_wins + wins) == requirements["winStreak"]:
-                complete_list.append(req)
 
-
-        # todo: test
+        # > tested <
         if req == "NFscore":
             for player in pgcr["Response"]["entries"]:
                 if player["player"]["destinyUserInfo"]["membershipId"] == str(destinyID):
                     if player["values"]["score"]["basic"]["value"] >= requirements["NFscore"]:
                         complete_list.append(req)
                     else:
-                        return False, 0, 0
+                        return False
 
     # only return true if everything else passes
     all_done = True
     for req in requirements["requirements"]:
         if req not in complete_list:
             all_done = False
-    return all_done, completions, wins
+    return all_done
 
 
 # checking competition bounties scores
@@ -550,18 +535,19 @@ def returnScore(requirements, activity, destinyID):
 
     # loop through other requirements
     for req in requirements["requirements"]:
+        # > tested <
         if req == "allowedTypes":
             if returnManifestInfo("DestinyActivityDefinition", hashID)["Response"]["activityTypeHash"] not in requirements["allowedTypes"]:
                 return 0, sort_by_highest
 
 
-        # todo: test
+        # > tested <
         elif req == "allowedActivities":
             if hashID not in requirements["allowedActivities"]:
                 return 0, sort_by_highest
 
 
-        # todo: test
+        # > tested <
         elif req == "speedrun":
             for player in pgcr["Response"]["entries"]:
                 if player["player"]["destinyUserInfo"]["membershipId"] == str(destinyID):
@@ -592,7 +578,7 @@ def returnScore(requirements, activity, destinyID):
                         return 0, sort_by_highest
 
 
-        # todo: test
+        # > tested <
         elif req == "totalKills":
             for player in pgcr["Response"]["entries"]:
                 if player["player"]["destinyUserInfo"]["membershipId"] == str(destinyID):
@@ -602,7 +588,7 @@ def returnScore(requirements, activity, destinyID):
                     break
 
 
-        # todo: test
+        # > tested <
         elif req == "kd":
             for player in pgcr["Response"]["entries"]:
                 if player["player"]["destinyUserInfo"]["membershipId"] == str(destinyID):
@@ -613,7 +599,7 @@ def returnScore(requirements, activity, destinyID):
                     break
 
 
-        # todo: test
+        # > tested <
         elif req == "NFscore":
             for player in pgcr["Response"]["entries"]:
                 if player["player"]["destinyUserInfo"]["membershipId"] == str(destinyID):
