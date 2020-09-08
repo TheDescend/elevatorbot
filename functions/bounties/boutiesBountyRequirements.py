@@ -27,7 +27,7 @@ totalDeaths
 NFscore
 win                 # activity did not just get completed, but standing is "Victory"
 winStreak           # requires win to also be an recquirement
-tournament          #todo
+tournament          # starts registration for the pvp tournament
 
 extra_text          # will show more text
 points              # how many points the user gets for completing the bounty

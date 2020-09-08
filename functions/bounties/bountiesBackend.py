@@ -20,11 +20,11 @@ def returnCustomGameWinner(destinyID1, charIDs1, membershipType1, destinyID2):
             rep = json.loads(json.dumps(rep))
             # if it's not a private game
             if not rep["Response"]["activities"][0]["activityDetails"]["isPrivate"]:
-                return False
+                return None
 
             # if it's not completed
             if not int(rep["Response"]["activities"][0]["values"]["completed"]["basic"]["value"]) == 1:
-                return False
+                return None
 
             ID = rep["Response"]["activities"][0]["activityDetails"]["instanceId"]
             staturl = f"https://stats.bungie.net/Platform/Destiny2/Stats/PostGameCarnageReport/{ID}/"
@@ -34,7 +34,7 @@ def returnCustomGameWinner(destinyID1, charIDs1, membershipType1, destinyID2):
 
                 # if more / less than 2 players
                 if len(rep2["Response"]["entries"]) != 2:
-                    return False
+                    return None
 
                 found1, found2 = False
                 for player in rep2["Response"]["entries"]:
@@ -49,7 +49,7 @@ def returnCustomGameWinner(destinyID1, charIDs1, membershipType1, destinyID2):
                         return destinyID1
                     else:
                         return destinyID2
-    return False
+    return None
 
 
 def threadingBounties(bounties, cutoff, discordID):

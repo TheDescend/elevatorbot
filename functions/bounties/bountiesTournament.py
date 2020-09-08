@@ -1,5 +1,5 @@
-from functions.bounties.bountiesBackend import returnCustomGameWinner, getGlobalVar, saveAsGlobalVar
-from functions.database import lookupDestinyID
+from functions.bounties.bountiesBackend import returnCustomGameWinner, getGlobalVar, saveAsGlobalVar, addPoints
+from functions.database import lookupDestinyID, getBountyUserList
 from functions.network import getJSONfromURL
 from functions.formating import embed_message
 
@@ -7,8 +7,7 @@ import asyncio
 import time
 import discord
 import random
-import os
-import concurrent.futures
+import pickle
 
 
 async def startTournamentEvents(client):
@@ -19,16 +18,20 @@ async def startTournamentEvents(client):
                 tourn_channel = discord.utils.get(guild.channels, id=file["tournament_channel"])
                 tourn_register_msg = await tourn_channel.fetch_message(file["tournament_channel_message_id"])
 
+                bounty_users = getBountyUserList()
+
                 # get users that registered
                 registered_users = []
+                registered_users_names = []
                 register = client.get_emoji(724678414925168680)
                 for reaction in tourn_register_msg.reactions:
                     if reaction.emoji == register:
-                        reaction_users = await reaction.users().flatten()
-                        for user in reaction_users:
+                        async for user in reaction.users():
                             if user != client.user:
-                                registered_users.append(user)
-                print(registered_users)
+                                if user.id in bounty_users:
+                                    registered_users.append(user.id)
+                                    registered_users_names.append(user.display_name)
+                print(f"Tournament Participants: {registered_users}")
 
                 # clear channel
                 await tourn_channel.purge(limit=100)
@@ -37,15 +40,18 @@ async def startTournamentEvents(client):
                 await tourn_channel.send(
 f""" ** Participants:**
 ⁣
-{", ".join([name.display_name for name in registered_users])}
+{", ".join(registered_users_names)}
 ⁣
 """
                 )
 
                 # start and play the tourn
-                print("playing tourn")
+                print("Starting Tournament...")
+                tourn = Tournament()
+                await tourn.playTournament(client, tourn_channel, registered_users)
 
                 # delete old messages and print the default one back
+                await asyncio.sleep(60*60)  # wait one hour before deleting annoucements and stuff
                 await tournamentChannelMessage(client)
 
 
@@ -102,8 +108,8 @@ class Tournament():
     def __init__(self):
         self.player_id_translation = {}
 
-    def playTournament(self, players):
-        # takes players[discord.user1, discord.user2, ...] and returns bracket = [], player_id_translation = {}
+    async def playTournament(self, client, tourn_channel, players):
+        # takes players[discordID1, discordID2, ...] and returns bracket = [], player_id_translation = {}
         def getBracket(players):
             # makes the bracket
             def divide(arr, depth, m):
@@ -122,32 +128,31 @@ class Tournament():
 
             player_id_translation = {}
             for player in players:
-                player_id_translation[players.index(player) + 1] = player.id
+                player_id_translation[players.index(player) + 1] = player
 
             return bracket, player_id_translation
 
         # loops through the bracket and plays the games
-        async def playBracket(bracket):
-            print(bracket)
+        async def playBracket(client, tourn_channel, bracket):
+            print(f"Bracket: {bracket}")
 
             # checks if bracket has sub-brackets that need to play first
             to_play = []
             if isinstance(bracket[0], list):
-                bracket[0] = playBracket(bracket[0])
+                to_play.append(bracket[0])
             if isinstance(bracket[1], list):
-                bracket[1] = playBracket(bracket[1])
+                to_play.append(bracket[1])
 
             # if there are any sub brackets, play them first
             if to_play:
-                with concurrent.futures.ThreadPoolExecutor(os.cpu_count() * 2) as pool:
-                    futurelist = [pool.submit(playBracket, new_bracket) for new_bracket in to_play]
+                if len(to_play) == 2:
+                    bracket[0], bracket[1] = await asyncio.gather(*[playBracket(client, tourn_channel, bracket[0]), playBracket(client, tourn_channel, bracket[1])])
+                elif bracket[0] in to_play:
+                    bracket[0] = await playBracket(client, tourn_channel, bracket[0])
+                elif bracket[1] in to_play:
+                    bracket[1] = await playBracket(client, tourn_channel, bracket[1])
 
-                    i = 0
-                    for future in concurrent.futures.as_completed(futurelist):
-                        bracket[i] = future.result()
-                        i += 1
-
-            won = await playGame(bracket[0], bracket[1])
+            won = await playGame(client, tourn_channel, bracket[0], bracket[1])
 
             return won
 
@@ -155,17 +160,28 @@ class Tournament():
         async def playGame(client, tourn_channel, player1, player2):
             # this pretty much needs to look at player1's match history every 10s and return the winner whenever the game with just both players ends up the in the api
 
+            print(f"Playing game: {player1} vs {player2}")
+
             admin = discord.utils.get(tourn_channel.guild.roles, name='Admin')
             dev = discord.utils.get(tourn_channel.guild.roles, name='Developer')
 
-            user1 = self.player_id_translation[player1]
-            user2 = self.player_id_translation[player2]
+            discordID1 = self.player_id_translation[player1]
+            discordID2 = self.player_id_translation[player2]
 
-            discordID1 = user1.id
-            discordID2 = user2.id
+            user1 = client.get_user(discordID1)
+            user2 = client.get_user(discordID2)
 
             destinyID1 = lookupDestinyID(discordID1)
             destinyID2 = lookupDestinyID(discordID2)
+
+            which_user_is_which_emoji = {
+                569576890512179220: destinyID1,
+                569576890470498315: destinyID2,
+            }
+            destinyID_to_player = {
+                destinyID1: player1,
+                destinyID2: player2,
+            }
 
             membershipType1 = None
             charIDs1 = []
@@ -179,13 +195,15 @@ class Tournament():
             timeout = time.time() + 60 * 60  # 60 minutes from now
 
             # send message in chat with reactions for both players. If an admin / dev reacts to them, he can overwrite the auto detection, if it breaks for some reason
-            msg = await tourn_channel.send(embed_message(
-                "Game",
-                f"**1 - {user1.display_name}** VS ** {user2.display_name} - 2 \n⁣\n To play, create a private crucible game where __only__ you two take part in. Set the time limit as you guys want, but make sure to finish the game and not leave early. \n The winner of the game will auto detect a short while after the game is complete. \n⁣\n **Good luck!**",
+            msg = await tourn_channel.send(embed=embed_message(
+                f"(1) - **{user1.display_name}** vs ** {user2.display_name}** - (2)",
+                f"To play, create a private crucible game where __only__ you two take part in. Set the time limit / rules as you guys want, but make sure to finish the game and not leave early. \n The winner of the game will auto detect a short while after the game is complete. \n⁣\n **Good luck!**",
                 "If for some reason the auto detect fails, ask an admin / dev to react on the winner"
             ))
-            await msg.add_reaction("\U00000031")
-            await msg.add_reaction("\U00000032")
+            reaction1 = client.get_emoji(569576890512179220)
+            reaction2 = client.get_emoji(569576890470498315)
+            await msg.add_reaction(reaction1)
+            await msg.add_reaction(reaction2)
 
             mention1 = await tourn_channel.send(user1.mention)
             mention2 = await tourn_channel.send(user2.mention)
@@ -202,22 +220,23 @@ class Tournament():
                 won = returnCustomGameWinner(destinyID1, charIDs1, membershipType1, destinyID2)
 
                 # check if there are new reactions, delete them and check if an admin reacted and make that reaction the winner
+                # msg object has to be reloaded
+                msg = await tourn_channel.fetch_message(msg.id)
                 for reaction in msg.reactions:
-                    reaction_users = await reaction.users().flatten()
-                    for user in reaction_users:
+                    async for user in reaction.users():
                         if user != client.user:
-                            if admin in user.roles or dev  in user.roles:
-                                if reaction.emoji == "\U00000031":
-                                    won = player1
-                                elif reaction.emoji == "\U00000032":
-                                    won = player2
+                            if admin in user.roles or dev in user.roles:
+                                print("Detected manual game winner overwrite")
+                                for reaction_id in which_user_is_which_emoji:
+                                    if reaction.emoji.id == reaction_id:
+                                        won = which_user_is_which_emoji[reaction_id]
                             await reaction.remove(user)
 
                 # return winner if found
                 if won:
-                    await msg.edit(embed_message(
-                        "Game",
-                        f"**1 - {user1.display_name}** VS ** {user2.display_name} - 2** \n⁣\n **{user1.display_name if destinyID1 == won else user2.display_name} won!**"
+                    await msg.edit(embed=embed_message(
+                        f"(1) - **{user1.display_name}** vs ** {user2.display_name}** - (2)",
+                        f"**{user1.display_name if destinyID1 == won else user2.display_name} won!**"
                     ))
                     await msg.clear_reactions()
 
@@ -231,14 +250,31 @@ class Tournament():
                 # wait a bit
                 await asyncio.sleep(10)
 
+        # randomize the bracket
+        players = random.sample(players, len(players))
+        # generate the bracket
+        bracket, self.player_id_translation = getBracket(players)
 
-        # players = ["ich", "du", "er", "sie", "wir"]
-        bracket, self.player_id_translation = getBracket(random.sample(players, len(players)))
+        # play the bracket
+        winner = await playBracket(client, tourn_channel, bracket)
+        winner = self.player_id_translation[winner]
+        winner = client.get_user(winner)
 
-        loop = asyncio.get_event_loop()
-        winner = loop.run_until_complete(playBracket(bracket))
+        print(f"Winner: {winner.display_name}")
+        await tourn_channel.send(embed=embed_message(
+            "We have a winner!",
+            f"Congratulations {winner.display_name}"
+        ))
 
-        print(winner)
+        # try and award points
+        with open('functions/bounties/currentBounties.pickle', "rb") as f:
+            bounties = pickle.load(f)["competition_bounties"]
+        for topic in bounties:
+            for key, value in bounties[topic].items():
+                if "tournament" in value["requirements"]:
+                    addPoints(winner.id, value, f"points_competition_{topic.lower()}")
+                    return
+
 
 
 

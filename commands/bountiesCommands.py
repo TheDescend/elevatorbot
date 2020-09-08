@@ -161,6 +161,7 @@ class startTournament(BaseCommand):
             return
 
         await startTournamentEvents(client)
+        await displayLeaderboard(client)
 
 class generateTournament(BaseCommand):
     def __init__(self):
