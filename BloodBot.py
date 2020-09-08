@@ -9,6 +9,7 @@ from events.base_event              import BaseEvent
 from events                         import *
 from functions.roles                import assignRolesToUser
 from functions.bounties.bountiesFunctions import generateBounties, registrationMessageReactions, updateExperienceLevels
+from functions.bounties.bountiesBackend import getGlobalVar
 from commands.otherGameRoles import otherGameRolesMessageReactions
 import asyncio
 import datetime
@@ -167,8 +168,7 @@ def main():
 
         # for checking reactions to the bounties registration page
         if os.path.exists('functions/bounties/channelIDs.pickle'):
-            with open('functions/bounties/channelIDs.pickle', "rb") as f:
-                file = pickle.load(f)
+            file = getGlobalVar()
 
             # check if reaction is on the registration page
             if "register_channel_message_id" in file:

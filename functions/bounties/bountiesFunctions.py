@@ -1,7 +1,8 @@
 from functions.formating import embed_message
 from functions.database import insertBountyUser, getBountyUserList, getLevel, addLevel, setLevel, lookupDestinyID, lookupServerID
 from functions.bounties.boutiesBountyRequirements import bounties, competition_bounties, possibleWeaponsKinetic, possibleWeaponsEnergy, possibleWeaponsPower
-from functions.bounties.bountiesBackend import addPoints, formatLeaderboardMessage, returnLeaderboard, getCompetitionBountiesLeaderboards, changeCompetitionBountiesLeaderboards, experiencePvp, experiencePve, experienceRaids, threadingCompetitionBounties, threadingBounties
+from functions.bounties.bountiesBackend import saveAsGlobalVar, getGlobalVar, addPoints, formatLeaderboardMessage, returnLeaderboard, getCompetitionBountiesLeaderboards, changeCompetitionBountiesLeaderboards, experiencePvp, experiencePve, experienceRaids, threadingCompetitionBounties, threadingBounties
+from functions.bounties.bountiesTournament import tournamentRegistrationMessage
 from functions.dataLoading import returnManifestInfo
 from static.dict import activityRaidHash, speedrunActivitiesRaids, weaponTypeKinetic, weaponTypeEnergy, weaponTypePower
 
@@ -21,8 +22,16 @@ async def generateBounties(client):
     # award points for the competition bounties
     await awardCompetitionBountiesPoints(client)
 
-    # delete old tourn message if exist
-    #todo
+    # clean the tourn channel registration message if exist
+    file = getGlobalVar()
+    for guild in client.guilds:
+        if guild.id == file["guild_id"]:
+            try:
+                tourn_channel = discord.utils.get(guild.channels, id=file["tournament_channel"])
+                tourn_msg = await tourn_channel.fetch_message(file["tournament_channel_message_id"])
+                await tourn_msg.delete()
+            except:
+                pass
 
     # looping though the bounties
     file = {}
@@ -148,8 +157,7 @@ async def displayBounties(client):
         json = pickle.load(f)
 
     # get channel and guild id
-    with open('functions/bounties/channelIDs.pickle', "rb") as f:
-        file = pickle.load(f)
+    file = getGlobalVar()
 
     # get the users that signed up for notifications
     text = ["⁣"]    # so that it still works even with nobody signed up
@@ -159,7 +167,6 @@ async def displayBounties(client):
 
     for guild in client.guilds:
         if guild.id == file["guild_id"]:
-
             # clean channels and call the actual print function
             if "bounties_channel" in file:
                 bounties_channel = discord.utils.get(guild.channels, id=file["bounties_channel"])
@@ -201,8 +208,7 @@ async def displayBounties(client):
 
 async def displayCompetitionBounties(client, guild, message=None):
     # load channel ids
-    with open('functions/bounties/channelIDs.pickle', "rb") as f:
-        file = pickle.load(f)
+    file = getGlobalVar()
 
     # load bounties
     with open('functions/bounties/currentBounties.pickle', "rb") as f:
@@ -263,11 +269,10 @@ async def bountyCompletion(client):
     cutoff = datetime.datetime.strptime(bounties["time"], "%Y-%m-%d %H:%M:%S.%f")
 
     # load channel ids
-    with open('functions/bounties/channelIDs.pickle', "rb") as f:
-        file = pickle.load(f)
-        for guild in client.guilds:
-            if guild.id == file["guild_id"]:
-                break
+    file = getGlobalVar()
+    for guild in client.guilds:
+        if guild.id == file["guild_id"]:
+            break
 
 
     # loop though all registered users
@@ -300,34 +305,6 @@ async def bountyCompletion(client):
     with open('functions/bounties/currentBounties.pickle', "wb") as f:
         pickle.dump(bounties, f)
 
-def saveAsGlobalVar(name, value, guild_id = None):
-    if not os.path.exists('functions/bounties/channelIDs.pickle'):
-        file = {}
-    else:
-        with open('functions/bounties/channelIDs.pickle', "rb") as f:
-            file = pickle.load(f)
-
-    if guild_id:
-        file["guild_id"] = guild_id
-    file[name] = value
-
-    with open('functions/bounties/channelIDs.pickle', "wb") as f:
-        pickle.dump(file, f)
-
-
-def deleteFromGlobalVar(name):
-    if os.path.exists('functions/bounties/channelIDs.pickle'):
-        with open('functions/bounties/channelIDs.pickle', "rb") as f:
-            file = pickle.load(f)
-
-        try:
-            file.pop(name)
-        except:
-            pass
-
-        with open('functions/bounties/channelIDs.pickle', "wb") as f:
-            pickle.dump(file, f)
-
 
 # updates the leaderboard display
 async def displayLeaderboard(client, use_old_message=True):
@@ -353,8 +330,7 @@ async def displayLeaderboard(client, use_old_message=True):
     ranking = await formatLeaderboardMessage(client, leaderboard, limit=50)
 
     # load ids
-    with open('functions/bounties/channelIDs.pickle', "rb") as f:
-        file = pickle.load(f)
+    file = getGlobalVar()
 
     # try to get the leaderboard message id, else make a new message
     message_id = None
@@ -391,99 +367,45 @@ async def displayLeaderboard(client, use_old_message=True):
     print("Updated Leaderboard")
 
 
-# prints the msg that users have to react to register
-async def tournamentRegistrationMessage(client):
-    with open('functions/bounties/channelIDs.pickle', "rb") as f:
-        file = pickle.load(f)
-
-    for guild in client.guilds:
-        channel = discord.utils.get(guild.channels, id=file["tournament_channel"])
-
-        # send register msg and save the id
-        msg = await channel.send(embed=embed_message(
-            f'Registration',
-            f'If you want to register to the tournament this week, react with <:unbroken:724678414925168680>'
-        ))
-        register = client.get_emoji(724678414925168680)
-        await msg.add_reaction(register)
-        saveAsGlobalVar("tournament_channel_message_id", msg.id)
-
-
-# prints the default message and changes that should a tourn start
-async def tournamentChannelMessage(client, start=False):
-    with open('functions/bounties/channelIDs.pickle', "rb") as f:
-        file = pickle.load(f)
+# writes the message the user will see and react to and saves the id in the pickle
+async def bountiesChannelMessage(client):
+    file = getGlobalVar()
 
     for guild in client.guilds:
         if guild.id == file["guild_id"]:
-            channel = discord.utils.get(guild.channels, id=file["tournament_channel"])
 
-            # clean messages
-            await channel.purge(limit=100)
+            # the other games role channel message
+            if "other_game_roles_channel" in file:
+                if "other_game_roles_channel_message_id" not in file:
+                    channel = discord.utils.get(guild.channels, id=file["other_game_roles_channel"])
+                    await channel.purge(limit=100)
 
-            # displays the default message that sits in the channel while no tourn is running
-            if not start:
-                await channel.send(
-f""" Welcome to the **Tournament Channel**!
-⁣
-Every so often, the weekly PvP competition bounty will be a clan wide tournament.
-When that happens, you can come back to this channel to register for it. 
-⁣
-When the games start, I will generate a random bracket and assign player to games.
-You will then start a custom game with __only__ the two chosen players in it.
-Last man standing wins it all!
-⁣
-⁣
-**Rules**: You decide.
-**Time**: The tournament will get manually started by an admin, so try to find a good time for everyone.
-⁣
-⁣
-"""
-                )
+                    # send register msg and save the id
+                    msg = await channel.send(embed=embed_message(
+                        f'Other Game Roles',
+                        f'React to add / remove other game roles'
+                    ))
 
+                    among_us = client.get_emoji(751020830376591420)
+                    barotrauma = client.get_emoji(751022749773856929)
+                    gta = client.get_emoji(751020831382962247)
+                    valorant = client.get_emoji(751020830414209064)
 
+                    await msg.add_reaction(among_us)
+                    await msg.add_reaction(barotrauma)
+                    await msg.add_reaction(gta)
+                    await msg.add_reaction(valorant)
 
-# writes the message the user will see and react to and saves the id in the pickle
-async def bountiesChannelMessage(client):
-    if os.path.exists('functions/bounties/channelIDs.pickle'):
-        with open('functions/bounties/channelIDs.pickle', "rb") as f:
-            file = pickle.load(f)
+                    saveAsGlobalVar("other_game_roles_channel_message_id", msg.id)
 
-        for guild in client.guilds:
-            if guild.id == file["guild_id"]:
+            # put message in #register channel if there is none
+            if "register_channel" in file:
+                if "register_channel_message_id" not in file:
+                    channel = discord.utils.get(guild.channels, id=file["register_channel"])
+                    await channel.purge(limit=100)
 
-                # the other games role channel message
-                if "other_game_roles_channel" in file:
-                    if "other_game_roles_channel_message_id" not in file:
-                        channel = discord.utils.get(guild.channels, id=file["other_game_roles_channel"])
-                        await channel.purge(limit=100)
-
-                        # send register msg and save the id
-                        msg = await channel.send(embed=embed_message(
-                            f'Other Game Roles',
-                            f'React to add / remove other game roles'
-                        ))
-
-                        among_us = client.get_emoji(751020830376591420)
-                        barotrauma = client.get_emoji(751022749773856929)
-                        gta = client.get_emoji(751020831382962247)
-                        valorant = client.get_emoji(751020830414209064)
-
-                        await msg.add_reaction(among_us)
-                        await msg.add_reaction(barotrauma)
-                        await msg.add_reaction(gta)
-                        await msg.add_reaction(valorant)
-
-                        saveAsGlobalVar("other_game_roles_channel_message_id", msg.id)
-
-                # put message in #register channel if there is none
-                if "register_channel" in file:
-                    if "register_channel_message_id" not in file:
-                        channel = discord.utils.get(guild.channels, id=file["register_channel"])
-                        await channel.purge(limit=100)
-
-                        # send welcome and info message
-                        await channel.send(
+                    # send welcome and info message
+                    await channel.send(
 f"""Welcome the the **Bounty Goblins**!
 ⁣
 After you register to this truly **remarkable** program, you will be assigned an experience level and given a bunch of bounties you can complete at your leisure.
@@ -502,8 +424,8 @@ Your experience level determines which normal bounties you can complete. That wa
 | Every raid cleared |                     |                |
 +--------------------+---------------------+----------------+```
 """
-                        )
-                        await channel.send(
+                    )
+                    await channel.send(
 f"""There are a bunch of commands which will give you more thorough information than visible in the channels:
 ⁣
 Commands:
@@ -517,22 +439,18 @@ And lastly, if you have any general suggestions or ideas for new bounties, conta
 ⁣
 ⁣
 """
-                        )
+                    )
 
-                        # send register msg and save the id
-                        msg = await channel.send(embed=embed_message(
-                            f'Registration',
-                            f'If you want to register to the **Bounty Goblins**, react with <:register:751774620696313966> \n\n If you want to receive a notification whenever new bounties are available, react with <a:notifications:751771924866269214>'
-                        ))
-                        register = client.get_emoji(751774620696313966)
-                        await msg.add_reaction(register)
-                        notification = client.get_emoji(751771924866269214)
-                        await msg.add_reaction(notification)
-                        saveAsGlobalVar("register_channel_message_id", msg.id)
-
-                # if "tournament_channel" in file:
-                #     channel = discord.utils.get(guild.channels, id=file["tournament_channel"])
-                #     await channel.send("tournament_channel")
+                    # send register msg and save the id
+                    msg = await channel.send(embed=embed_message(
+                        f'Registration',
+                        f'If you want to register to the **Bounty Goblins**, react with <:register:751774620696313966> \n\n If you want to receive a notification whenever new bounties are available, react with <a:notifications:751771924866269214>'
+                    ))
+                    register = client.get_emoji(751774620696313966)
+                    await msg.add_reaction(register)
+                    notification = client.get_emoji(751771924866269214)
+                    await msg.add_reaction(notification)
+                    saveAsGlobalVar("register_channel_message_id", msg.id)
 
 
 async def registrationMessageReactions(client, user, emoji, register_channel, register_channel_message_id):

@@ -291,6 +291,42 @@ def returnLeaderboard(topic):
     return {k: v for k, v in sorted(leaderboard.items(), key=lambda item: item[1], reverse=True)}
 
 
+def saveAsGlobalVar(name, value, guild_id = None):
+    if not os.path.exists('functions/bounties/channelIDs.pickle'):
+        file = {}
+    else:
+        with open('functions/bounties/channelIDs.pickle', "rb") as f:
+            file = pickle.load(f)
+
+    if guild_id:
+        file["guild_id"] = guild_id
+    file[name] = value
+
+    with open('functions/bounties/channelIDs.pickle', "wb") as f:
+        pickle.dump(file, f)
+
+
+def deleteFromGlobalVar(name):
+    if os.path.exists('functions/bounties/channelIDs.pickle'):
+        with open('functions/bounties/channelIDs.pickle', "rb") as f:
+            file = pickle.load(f)
+
+        try:
+            file.pop(name)
+        except:
+            pass
+
+        with open('functions/bounties/channelIDs.pickle', "wb") as f:
+            pickle.dump(file, f)
+
+
+def getGlobalVar():
+    with open('functions/bounties/channelIDs.pickle', "rb") as f:
+        file = pickle.load(f)
+
+        return file
+
+
 # formats and sorts the entries. Input is dict = {id: score, id2: score2,...} output is list = [fancy sentence for id1, ...]
 async def formatLeaderboardMessage(client, leaderboard, user_id=None, limit=10):
     # limit = how long the leaderboard will be

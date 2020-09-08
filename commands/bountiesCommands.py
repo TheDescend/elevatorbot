@@ -1,9 +1,11 @@
 from commands.base_command  import BaseCommand
-from functions.bounties.bountiesFunctions import tournamentChannelMessage, displayBounties, displayCompetitionBounties, bountyCompletion, displayLeaderboard, updateAllExperience, generateBounties, saveAsGlobalVar, deleteFromGlobalVar, bountiesChannelMessage
-from functions.bounties.bountiesBackend import returnScore, fulfillRequirements, returnLeaderboard, formatLeaderboardMessage, playerHasDoneBounty
+from functions.bounties.bountiesFunctions import displayBounties, displayCompetitionBounties, bountyCompletion, displayLeaderboard, updateAllExperience, generateBounties, bountiesChannelMessage
+from functions.bounties.bountiesBackend import getGlobalVar, saveAsGlobalVar, deleteFromGlobalVar, returnScore, fulfillRequirements, returnLeaderboard, formatLeaderboardMessage, playerHasDoneBounty
+from functions.bounties.bountiesTournament import tournamentRegistrationMessage, tournamentChannelMessage, startTournamentEvents
 from functions.dataLoading import getPGCR
 from functions.database import getBountyUserList, setLevel, getLevel, lookupDestinyID
 from functions.formating import embed_message
+from functions.roles import hasAdminOrDevPermissions
 
 import discord
 import asyncio
@@ -147,8 +149,31 @@ class experienceLevel(BaseCommand):
 
 # --------------------------------------------------------------------------------------------
 # admin commands
+class startTournament(BaseCommand):
+    def __init__(self):
+        description = f"[Admin] Starts the tournament"
+        params = []
+        super().__init__(description, params)
 
-# todo !startTournament
+    async def handle(self, params, message, client):
+        # check if user has permission to use this command
+        if not await hasAdminOrDevPermissions(message):
+            return
+
+        await startTournamentEvents(client)
+
+class generateTournament(BaseCommand):
+    def __init__(self):
+        description = f"[Admin] Generate an out of the order tournament"
+        params = []
+        super().__init__(description, params)
+
+    async def handle(self, params, message, client):
+        # check if user has permission to use this command
+        if not await hasAdminOrDevPermissions(message):
+            return
+
+        await tournamentRegistrationMessage(client)
 
 class updateCompletions(BaseCommand):
     def __init__(self):
@@ -158,13 +183,7 @@ class updateCompletions(BaseCommand):
 
     async def handle(self, params, message, client):
         # check if user has permission to use this command
-        admin = discord.utils.get(message.guild.roles, name='Admin')
-        dev = discord.utils.get(message.guild.roles, name='Developer')
-        if admin not in message.author.roles and dev not in message.author.roles:
-            await message.channel.send(embed=embed_message(
-                'Error',
-                'You are not allowed to do that'
-            ))
+        if not await hasAdminOrDevPermissions(message):
             return
 
         await bountyCompletion(client)
@@ -178,13 +197,7 @@ class resetLeaderboards(BaseCommand):
 
     async def handle(self, params, message, client):
         # check if user has permission to use this command
-        admin = discord.utils.get(message.guild.roles, name='Admin')
-        dev = discord.utils.get(message.guild.roles, name='Developer')
-        if admin not in message.author.roles and dev not in message.author.roles:
-            await message.channel.send(embed=embed_message(
-                'Error',
-                'You are not allowed to do that'
-            ))
+        if not await hasAdminOrDevPermissions(message):
             return
 
         msg = await message.channel.send("Are you sure you want to reset the entire leaderboards? That can't be undone. Type `yes` to continue or anything else to abort")
@@ -236,13 +249,7 @@ class generateNewBounties(BaseCommand):
 
     async def handle(self, params, message, client):
         # check if user has permission to use this command
-        admin = discord.utils.get(message.guild.roles, name='Admin')
-        dev = discord.utils.get(message.guild.roles, name='Developer')
-        if admin not in message.author.roles and dev not in message.author.roles:
-            await message.channel.send(embed=embed_message(
-                'Error',
-                'You are not allowed to do that'
-            ))
+        if not await hasAdminOrDevPermissions(message):
             return
 
         await generateBounties(client)
@@ -258,13 +265,7 @@ class bountiesMakeChannelRegister(BaseCommand):
 
     async def handle(self, params, message, client):
         # check if user has permission to use this command
-        admin = discord.utils.get(message.guild.roles, name='Admin')
-        dev = discord.utils.get(message.guild.roles, name='Developer')
-        if admin not in message.author.roles and dev not in message.author.roles:
-            await message.channel.send(embed=embed_message(
-                'Error',
-                'You are not allowed to do that'
-            ))
+        if not await hasAdminOrDevPermissions(message):
             return
 
         deleteFromGlobalVar("register_channel_message_id")
@@ -280,13 +281,7 @@ class bountiesMakeChannelTournment(BaseCommand):
 
     async def handle(self, params, message, client):
         # check if user has permission to use this command
-        admin = discord.utils.get(message.guild.roles, name='Admin')
-        dev = discord.utils.get(message.guild.roles, name='Developer')
-        if admin not in message.author.roles and dev not in message.author.roles:
-            await message.channel.send(embed=embed_message(
-                'Error',
-                'You are not allowed to do that'
-            ))
+        if not await hasAdminOrDevPermissions(message):
             return
 
         saveAsGlobalVar("tournament_channel", message.channel.id, message.guild.id)
@@ -301,13 +296,7 @@ class bountiesMakeChannelLeaderboard(BaseCommand):
 
     async def handle(self, params, message, client):
         # check if user has permission to use this command
-        admin = discord.utils.get(message.guild.roles, name='Admin')
-        dev = discord.utils.get(message.guild.roles, name='Developer')
-        if admin not in message.author.roles and dev not in message.author.roles:
-            await message.channel.send(embed=embed_message(
-                'Error',
-                'You are not allowed to do that'
-            ))
+        if not await hasAdminOrDevPermissions(message):
             return
 
         saveAsGlobalVar("leaderboard_channel", message.channel.id, message.guild.id)
@@ -322,13 +311,7 @@ class bountiesMakeChannelBounties(BaseCommand):
 
     async def handle(self, params, message, client):
         # check if user has permission to use this command
-        admin = discord.utils.get(message.guild.roles, name='Admin')
-        dev = discord.utils.get(message.guild.roles, name='Developer')
-        if admin not in message.author.roles and dev not in message.author.roles:
-            await message.channel.send(embed=embed_message(
-                'Error',
-                'You are not allowed to do that'
-            ))
+        if not await hasAdminOrDevPermissions(message):
             return
 
         saveAsGlobalVar("bounties_channel", message.channel.id, message.guild.id)
@@ -343,13 +326,7 @@ class bountiesMakeChannelCompetitionBounties(BaseCommand):
 
     async def handle(self, params, message, client):
         # check if user has permission to use this command
-        admin = discord.utils.get(message.guild.roles, name='Admin')
-        dev = discord.utils.get(message.guild.roles, name='Developer')
-        if admin not in message.author.roles and dev not in message.author.roles:
-            await message.channel.send(embed=embed_message(
-                'Error',
-                'You are not allowed to do that'
-            ))
+        if not await hasAdminOrDevPermissions(message):
             return
 
         saveAsGlobalVar("competition_bounties_channel", message.channel.id, message.guild.id)
@@ -366,14 +343,9 @@ class getBounties(BaseCommand):
 
     async def handle(self, params, message, client):
         # check if user has permission to use this command
-        admin = discord.utils.get(message.guild.roles, name='Admin')
-        dev = discord.utils.get(message.guild.roles, name='Developer')
-        if admin not in message.author.roles and dev not in message.author.roles:
-            await message.channel.send(embed=embed_message(
-                'Error',
-                'You are not allowed to do that'
-            ))
+        if not await hasAdminOrDevPermissions(message):
             return
+
         with open('functions/bounties/currentBounties.pickle', "rb") as f:
             bounties = pickle.load(f)
 
@@ -392,14 +364,9 @@ class overwriteBounties(BaseCommand):
 
     async def handle(self, params, message, client):
         # check if user has permission to use this command
-        admin = discord.utils.get(message.guild.roles, name='Admin')
-        dev = discord.utils.get(message.guild.roles, name='Developer')
-        if admin not in message.author.roles and dev not in message.author.roles:
-            await message.channel.send(embed=embed_message(
-                'Error',
-                'You are not allowed to do that'
-            ))
+        if not await hasAdminOrDevPermissions(message):
             return
+
         await message.channel.send("Please upload the new json as a file (pasting will automatically do that since its big)")
 
         def check(m):
@@ -429,8 +396,8 @@ class overwriteBounties(BaseCommand):
         print("Bounties manually overridden to:")
         print(file)
 
-        with open('functions/bounties/channelIDs.pickle', "rb") as f:
-            file = pickle.load(f)
+        file = getGlobalVar()
+
         for guild in client.guilds:
             if guild.id == file["guild_id"]:
                 await displayBounties(client)
@@ -445,13 +412,7 @@ class testCompetitive(BaseCommand):
 
     async def handle(self, params, message, client):
         # check if user has permission to use this command
-        admin = discord.utils.get(message.guild.roles, name='Admin')
-        dev = discord.utils.get(message.guild.roles, name='Developer')
-        if admin not in message.author.roles and dev not in message.author.roles:
-            await message.channel.send(embed=embed_message(
-                'Error',
-                'You are not allowed to do that'
-            ))
+        if not await hasAdminOrDevPermissions(message):
             return
 
         """ Insert (fe.):
@@ -491,13 +452,7 @@ class testBounties(BaseCommand):
 
     async def handle(self, params, message, client):
         # check if user has permission to use this command
-        admin = discord.utils.get(message.guild.roles, name='Admin')
-        dev = discord.utils.get(message.guild.roles, name='Developer')
-        if admin not in message.author.roles and dev not in message.author.roles:
-            await message.channel.send(embed=embed_message(
-                'Error',
-                'You are not allowed to do that'
-            ))
+        if not await hasAdminOrDevPermissions(message):
             return
 
         """ Insert (fe.):

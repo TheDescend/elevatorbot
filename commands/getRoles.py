@@ -4,7 +4,7 @@ from static.dict                    import requirementHashes, clanids
 from functions.database             import lookupDestinyID, lookupDiscordID, getLastRaid, getFlawlessList
 from functions.dataLoading          import updateDB, initDB, getNameToHashMapByClanid
 from functions.dataTransformation   import getFullMemberMap
-from functions.roles                import assignRolesToUser, removeRolesFromUser, getPlayerRoles, hasRole
+from functions.roles                import hasAdminOrDevPermissions, assignRolesToUser, removeRolesFromUser, getPlayerRoles, hasRole
 from functions.formating import     embed_message
 
 
@@ -39,13 +39,8 @@ class getRoles(BaseCommand):
 
         user = message.author
         if len(params) == 1:
-            admin = discord.utils.get(message.guild.roles, name='Admin')
-            dev = discord.utils.get(message.guild.roles, name='Developer')
-            if admin not in message.author.roles and dev not in message.author.roles and not message.author.id == params[0]:
-                await message.channel.send(embed=embed_message(
-                    'Error',
-                    'You are not allowed to do that'
-                ))
+            # check if user has permission to use this command
+            if not await hasAdminOrDevPermissions(message) and not message.author.id == params[0]:
                 return
 
             ctx = await client.get_context(message)
@@ -187,15 +182,11 @@ class removeAllRoles(BaseCommand):
     # Override the handle() method
     # It will be called every time the command is received
     async def handle(self, params, message, client):
-        admin = discord.utils.get(message.guild.roles, name='Admin')
-        dev = discord.utils.get(message.guild.roles, name='Developer') 
-        discordID = params[0]
-        if admin not in message.author.roles and dev not in message.author.roles and not message.author.id == params[0]:
-            await message.channel.send(embed=embed_message(
-                'Error',
-                'You are not allowed to do that'
-            ))
+        # check if user has permission to use this command
+        if not await hasAdminOrDevPermissions(message) and not message.author.id == params[0]:
             return
+
+        discordID = params[0]
         roles = []
         for yeardata in requirementHashes.values():		
             for role in yeardata.keys():
@@ -258,11 +249,10 @@ class assignAllRoles(BaseCommand):
     # Override the handle() method
     # It will be called every time the command is received
     async def handle(self, params, message, client):
-        admin = discord.utils.get(message.guild.roles, name='Admin')
-        dev = discord.utils.get(message.guild.roles, name='Developer') 
-        if admin not in message.author.roles and dev not in message.author.roles:
-            await message.channel.send('You are not allowed to do that')
+        # check if user has permission to use this command
+        if not await hasAdminOrDevPermissions(message):
             return
+
         await message.channel.send('Updating DB...')
         initDB()
         await message.channel.send('Assigning roles...')

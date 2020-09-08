@@ -1,6 +1,7 @@
 from functions.dataTransformation   import hasFlawless, hasCollectible, hasTriumph
 from functions.dataTransformation   import getPlayerCount, getPlayersPastPVE, getClearCount, hasLowman
 from functions.network  import getJSONfromURL
+from functions.formating import embed_message
 
 from static.dict                    import requirementHashes
 
@@ -8,6 +9,20 @@ from datetime           import datetime
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import discord
+
+
+# check if user has permission to use this command
+async def hasAdminOrDevPermissions(message):
+    admin = discord.utils.get(message.guild.roles, name='Admin')
+    dev = discord.utils.get(message.guild.roles, name='Developer')
+    if admin not in message.author.roles and dev not in message.author.roles:
+        await message.channel.send(embed=embed_message(
+            'Error',
+            'You are not allowed to do that'
+        ))
+        return False
+    return True
+
 
 def hasRole(playerid, role, year, br = True):
     data = {}

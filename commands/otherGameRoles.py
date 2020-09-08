@@ -1,5 +1,6 @@
 from commands.base_command  import BaseCommand
-from functions.bounties.bountiesFunctions import saveAsGlobalVar, deleteFromGlobalVar, bountiesChannelMessage
+from functions.bounties.bountiesBackend import saveAsGlobalVar, deleteFromGlobalVar
+from functions.bounties.bountiesFunctions import bountiesChannelMessage
 
 import os
 import pickle
