@@ -208,7 +208,16 @@ def changeCompetitionBountiesLeaderboards(leaderboard_name, leaderboard_data, so
         file[leaderboard_name] = {}
 
     # update the players score and sort it again
-    file[leaderboard_name].update(leaderboard_data)
+    for key, value in leaderboard_data.items():
+        if key in file[leaderboard_name]:
+            if sort_by_highest:
+                if file[leaderboard_name][key] > value:
+                    continue
+            else:
+                if file[leaderboard_name][key] < value:
+                    continue
+        file[leaderboard_name][key] = value
+
     file[leaderboard_name] = {k: v for k, v in sorted(file[leaderboard_name].items(), key=lambda item: item[1], reverse=sort_by_highest)}
 
     # overwrite the file
