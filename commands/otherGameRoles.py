@@ -54,21 +54,21 @@ async def otherGameRolesMessageReactions(client, user, emoji, register_channel, 
             await user.remove_roles(discord.utils.get(message.guild.roles, id=amongUs_id))
         await message.remove_reaction(among_us, user)
 
-    elif emoji.name == barotrauma:
+    elif emoji == barotrauma:
         if barotrauma_id not in roles:
             await user.add_roles(discord.utils.get(message.guild.roles, id=barotrauma_id))
         else:
             await user.remove_roles(discord.utils.get(message.guild.roles, id=barotrauma_id))
         await message.remove_reaction(barotrauma, user)
 
-    elif emoji.name == gta:
+    elif emoji == gta:
         if gta_id not in roles:
             await user.add_roles(discord.utils.get(message.guild.roles, id=gta_id))
         else:
             await user.remove_roles(discord.utils.get(message.guild.roles, id=gta_id))
         await message.remove_reaction(gta, user)
 
-    elif emoji.name == valorant:
+    elif emoji == valorant:
         if valorant_id not in roles:
             await user.add_roles(discord.utils.get(message.guild.roles, id=valorant_id))
         else:
