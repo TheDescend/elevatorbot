@@ -9,7 +9,7 @@ from functions.database     import lookupDestinyID, getSystemAndChars
 from functions.formating    import embed_message
 import re, requests
 
-base_uri = 'https://discordapp.com/api/v7'
+base_uri = 'https://discord.com/api/v7'
 memberMap = getNameToHashMapByClanid(list(clanids.keys())[0])
 rrsystem = {
     1: 'xb',

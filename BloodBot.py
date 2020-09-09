@@ -8,10 +8,16 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from events.base_event              import BaseEvent
 from events                         import *
 from functions.roles                import assignRolesToUser
+from functions.bounties.bountiesFunctions import generateBounties, registrationMessageReactions, updateExperienceLevels
+from functions.bounties.bountiesBackend import getGlobalVar
+from commands.otherGameRoles import otherGameRolesMessageReactions
 import asyncio
 import datetime
 import random
 import re
+import os
+import pickle
+import logging
 
 from discord.ext.commands import Bot
 
@@ -39,8 +45,17 @@ def launch_event_loops(client):
     for ev in BaseEvent.__subclasses__():
         event = ev()
         sched.add_job(event.run, 'interval', (client,),
-                        minutes=event.interval_minutes)
+                        minutes=event.interval_minutes, jitter=60)
         n_ev += 1
+
+    # generate new bounties every monday at midnight
+    # sched.add_job(generateBounties, "cron", (client,), day_of_week="mon", hour=19, minute=12)
+    sched.add_job(generateBounties, "cron", (client,), day_of_week="mon", hour=0, minute=0)
+
+    # update experience levels
+    # sched.add_job(updateExperienceLevels, "cron", (client,), day_of_week="mon", hour=19, minute=13)
+    sched.add_job(updateExperienceLevels, "cron", (client,), day_of_week="sun", hour=0, minute=0)
+
     sched.start()
     print(f"{n_ev} events loaded", flush=True)
     print(f"Startup complete!", flush=True)
@@ -48,6 +63,16 @@ def launch_event_loops(client):
 
 def main():
     """the main method"""
+    # Initialize logging
+    logger = logging.getLogger('bounties')
+    logger.setLevel(logging.INFO)
+
+    file_handler = logging.FileHandler('functions/bounties/bountiesLog.log')
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s : %(message)s')
+    file_handler.setFormatter(formatter)
+
+    logger.addHandler(file_handler)
+
     # Initialize the client
     print("Starting up...")
     client = Bot('!')
@@ -69,7 +94,6 @@ def main():
                 activity=discord.Game(name=NOW_PLAYING))
         print("Logged in!", flush=True)
 
-        
         t1 = Thread(target=launch_event_loops, args=(client,))
         t1.start()
 
@@ -85,8 +109,15 @@ def main():
                         'is cuteness incarnate']
             addition = random.choice(texts)
             await message.channel.send(f'Häbidöpfel {addition}')
-        if "welcome" in text.lower() and "<@!109022023979667456>" in text.lower():
-            await message.channel.send(f'Welcome <@109022023979667456>!')
+
+        if "welcome" in text.lower() and message.mentions:
+            for mention in message.mentions:
+                if mention.id == 109022023979667456:
+                    await message.channel.send(f'Welcome <@109022023979667456>!')
+        if client.user in message.mentions:
+            notification = client.get_emoji(751771924866269214)
+            await message.add_reaction(notification)
+
         if text.startswith(COMMAND_PREFIX) and text != COMMAND_PREFIX:
             cmd_split = text[len(COMMAND_PREFIX):].split()
             try:
@@ -141,6 +172,32 @@ def main():
     @client.event
     async def on_message_edit(before, after):
         await common_handle_message(after)
+
+    # https://discordpy.readthedocs.io/en/latest/api.html#discord.RawReactionActionEvent
+    @client.event
+    async def on_raw_reaction_add(payload):
+        if payload.member.bot:
+            return
+
+        # for checking reactions to the bounties registration page
+        if os.path.exists('functions/bounties/channelIDs.pickle'):
+            file = getGlobalVar()
+
+            # check if reaction is on the registration page
+            if "register_channel_message_id" in file:
+                register_channel_message_id = file["register_channel_message_id"]
+                if payload.message_id == register_channel_message_id:
+                    register_channel = discord.utils.get(client.get_all_channels(), guild__id=payload.guild_id, id=file["register_channel"])
+                    await registrationMessageReactions(client, payload.member, payload.emoji, register_channel, register_channel_message_id)
+
+            # check if reaction is on the other game role page
+            if "other_game_roles_channel_message_id" in file:
+                other_game_roles_channel_message_id = file["other_game_roles_channel_message_id"]
+                if payload.message_id == other_game_roles_channel_message_id:
+                    register_channel = discord.utils.get(client.get_all_channels(), guild__id=payload.guild_id, id=file["other_game_roles_channel"])
+                    await otherGameRolesMessageReactions(client, payload.member, payload.emoji, register_channel, other_game_roles_channel_message_id)
+
+
 
     @client.event
     async def on_voice_state_update(member, before, after):

@@ -2,6 +2,7 @@
 from commands.base_command import BaseCommand
 import discord
 from functions.database import lookupDestinyID
+from functions.roles import hasAdminOrDevPermissions
 from static.config      import BUNGIE_TOKEN
 import requests
 
@@ -14,9 +15,9 @@ class updateNames(BaseCommand):
 
     async def handle(self, params, message, client):
         PARAMS = {'X-API-Key':BUNGIE_TOKEN}
-        admin = discord.utils.get(message.guild.roles, name='Admin')
-        dev = discord.utils.get(message.guild.roles, name='Developer') 
-        if admin not in message.author.roles and dev not in message.author.roles:
+
+        # check if user has permission to use this command
+        if not await hasAdminOrDevPermissions(message):
             return
 
         memberlist = sorted(message.guild.members, key=lambda x: x.id)

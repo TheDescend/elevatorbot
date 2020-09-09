@@ -4,7 +4,7 @@ from static.dict                    import requirementHashes, clanids
 from functions.database             import lookupDestinyID, lookupDiscordID, getLastRaid, getFlawlessList
 from functions.dataLoading          import updateDB, initDB, getNameToHashMapByClanid
 from functions.dataTransformation   import getFullMemberMap
-from functions.roles                import assignRolesToUser, removeRolesFromUser, getPlayerRoles, hasRole
+from functions.roles                import hasAdminOrDevPermissions, assignRolesToUser, removeRolesFromUser, getPlayerRoles, hasRole
 from functions.formating import     embed_message
 
 
@@ -39,13 +39,8 @@ class getRoles(BaseCommand):
 
         user = message.author
         if len(params) == 1:
-            admin = discord.utils.get(message.guild.roles, name='Admin')
-            dev = discord.utils.get(message.guild.roles, name='Developer')
-            if admin not in message.author.roles and dev not in message.author.roles and not message.author.id == params[0]:
-                await message.channel.send(embed=embed_message(
-                    'Error',
-                    'You are not allowed to do that'
-                ))
+            # check if user has permission to use this command
+            if not await hasAdminOrDevPermissions(message) and not message.author.id == params[0]:
                 return
 
             ctx = await client.get_context(message)
@@ -68,78 +63,73 @@ class getRoles(BaseCommand):
             return
 
         updateDB(destinyID)
+        
+        async with message.channel.typing():
+            roles_at_start = [role.name for role in user.roles]
+            (roleList,removeRoles) = getPlayerRoles(destinyID, roles_at_start)
 
-        status_msg = await message.channel.send(embed=embed_message(
-            f'Just a sec...',
-            f"Working on your roles {user.name}!"
-        ))
-        status_msg = await message.channel.fetch_message(status_msg.id)
+            await assignRolesToUser(roleList, user, message.guild)
+            await removeRolesFromUser(removeRoles, user, message.guild)
 
-        roles_at_start = [role.name for role in user.roles]
-        (roleList,removeRoles) = getPlayerRoles(destinyID, roles_at_start)
+            for role in roleList:
+                if role in requirementHashes['Addition']:
+                    await user.add_roles(discord.utils.get(message.guild.roles, id=achId ))#,name=achText))
+                else:
+                    await user.add_roles(discord.utils.get(message.guild.roles, id=raiderId ))#,name=raiderText))
 
-        await assignRolesToUser(roleList, user, message.guild)
-        await removeRolesFromUser(removeRoles, user, message.guild)
+            roles_now = [role.name for role in user.roles]
 
-        for role in roleList:
-            if role in requirementHashes['Addition']:
-                await user.add_roles(discord.utils.get(message.guild.roles, id=achId ))#,name=achText))
-            else:
-                await user.add_roles(discord.utils.get(message.guild.roles, id=raiderId ))#,name=raiderText))
+            old_roles = {}
+            new_roles = {}
+            for topic, topicroles in requirementHashes.items():
+                topic = topic.replace("Y1", "Year One")
+                topic = topic.replace("Y2", "Year Two")
+                topic = topic.replace("Y3", "Year Three")
+                topic = topic.replace("Addition", "Miscellaneous")
 
-        roles_now = [role.name for role in user.roles]
+                for role in topicroles.keys():
+                    if role in roles_at_start:
+                        try:
+                            old_roles[topic].append(role)
+                        except KeyError:
+                            old_roles[topic] = [role]
+                    elif (role not in roles_at_start) and (role in roles_now):
+                        try:
+                            new_roles[topic].append(role)
+                        except KeyError:
+                            new_roles[topic] = [role]
 
-        old_roles = {}
-        new_roles = {}
-        for topic, topicroles in requirementHashes.items():
-            topic = topic.replace("Y1", "Year One")
-            topic = topic.replace("Y2", "Year Two")
-            topic = topic.replace("Y3", "Year Three")
-            topic = topic.replace("Addition", "Miscellaneous")
+            if not roleList:
+                await message.channel.send(embed=embed_message(
+                    'Error',
+                    f'You don\'t seem to have any roles.\nIf you believe this is an Error, refer to one of the <@&670397357120159776>\nOtherwise check <#686568386590802000> to see what you could acquire'
+                ))
+                return
 
-            for role in topicroles.keys():
-                if role in roles_at_start:
-                    try:
-                        old_roles[topic].append(role)
-                    except KeyError:
-                        old_roles[topic] = [role]
-                elif (role not in roles_at_start) and (role in roles_now):
-                    try:
-                        new_roles[topic].append(role)
-                    except KeyError:
-                        new_roles[topic] = [role]
+            embed = embed_message(
+                f"{user.display_name}'s new Roles",
+                f'__Previous Roles:__'
+            )
+            if not old_roles:
+                embed.add_field(name=f"You didn't have any roles before", value="⁣", inline=True)
 
-        if not roleList:
-            await status_msg.edit(embed=embed_message(
-                'Info',
-                f'You don\'t seem to have any roles.\nIf you believe this is an Error, refer to one of the <@&670397357120159776>\nOtherwise check <#686568386590802000> to see what you could acquire'
-            ))
-            return
+            for topic in old_roles:
+                roles = []
+                for role in topic:
+                    roles.append(role)
+                embed.add_field(name=topic, value="\n".join(old_roles[topic]), inline=True)
 
-        embed = embed_message(
-            f"{user.name}'s new Roles",
-            f'__Previous Roles:__'
-        )
-        if not old_roles:
-            embed.add_field(name=f"You didn't have any roles before", value="⁣", inline=True)
+            embed.add_field(name="⁣", value=f"__New Roles:__", inline=False)
+            if not new_roles:
+                embed.add_field(name="No new roles have been achieved", value="⁣", inline=True)
 
-        for topic in old_roles:
-            roles = []
-            for role in topic:
-                roles.append(role)
-            embed.add_field(name=topic, value="\n".join(old_roles[topic]), inline=True)
+            for topic in new_roles:
+                roles = []
+                for role in topic:
+                    roles.append(role)
+                embed.add_field(name=topic, value="\n".join(new_roles[topic]), inline=True)
 
-        embed.add_field(name="⁣", value=f"__New Roles:__", inline=False)
-        if not new_roles:
-            embed.add_field(name="No new roles have been achieved", value="⁣", inline=True)
-
-        for topic in new_roles:
-            roles = []
-            for role in topic:
-                roles.append(role)
-            embed.add_field(name=topic, value="\n".join(new_roles[topic]), inline=True)
-
-        await status_msg.edit(embed=embed)
+            await message.channel.send(embed=embed)
 
 class lastRaid(BaseCommand):
     def __init__(self):
@@ -192,15 +182,11 @@ class removeAllRoles(BaseCommand):
     # Override the handle() method
     # It will be called every time the command is received
     async def handle(self, params, message, client):
-        admin = discord.utils.get(message.guild.roles, name='Admin')
-        dev = discord.utils.get(message.guild.roles, name='Developer') 
-        discordID = params[0]
-        if admin not in message.author.roles and dev not in message.author.roles and not message.author.id == params[0]:
-            await message.channel.send(embed=embed_message(
-                'Error',
-                'You are not allowed to do that'
-            ))
+        # check if user has permission to use this command
+        if not await hasAdminOrDevPermissions(message) and not message.author.id == params[0]:
             return
+
+        discordID = params[0]
         roles = []
         for yeardata in requirementHashes.values():		
             for role in yeardata.keys():
@@ -263,11 +249,10 @@ class assignAllRoles(BaseCommand):
     # Override the handle() method
     # It will be called every time the command is received
     async def handle(self, params, message, client):
-        admin = discord.utils.get(message.guild.roles, name='Admin')
-        dev = discord.utils.get(message.guild.roles, name='Developer') 
-        if admin not in message.author.roles and dev not in message.author.roles:
-            await message.channel.send('You are not allowed to do that')
+        # check if user has permission to use this command
+        if not await hasAdminOrDevPermissions(message):
             return
+
         await message.channel.send('Updating DB...')
         initDB()
         await message.channel.send('Assigning roles...')

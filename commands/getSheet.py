@@ -1,6 +1,7 @@
 from commands.base_command  import BaseCommand
 from io import open
 from spreadsheets.generateFastAchievementList import createSheet
+from functions.roles import hasAdminOrDevPermissions
 
 import os
 import time
@@ -25,9 +26,10 @@ class getSheet(BaseCommand):
         admin = discord.utils.get(message.guild.roles, name='Admin')
         dev = discord.utils.get(message.guild.roles, name='Developer') 
         discordID = params[0]
-        if admin not in message.author.roles and dev not in message.author.roles and not message.author.id == params[0]:
-            await message.channel.send('You are not allowed to do that')
+        # check if user has permission to use this command
+        if not await hasAdminOrDevPermissions(message) and not message.author.id == params[0]:
             return
+
 
         if time.time() - self.lastupdate < 86400:
             if self.sheetpath is not None:
