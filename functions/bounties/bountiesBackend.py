@@ -189,6 +189,8 @@ def addPoints(discordID, requirements, leaderboard, index_multiple_points=None):
 
     addLevel(points, leaderboard, discordID)
 
+    # todo make a log file
+
 
 # saves the current competition bounties leaderboards. gets reset in awardCompetitionBountiesPoints()
 def changeCompetitionBountiesLeaderboards(leaderboard_name, leaderboard_data, sort_by_highest=True):  # leaderboard_date = {discordID: score}

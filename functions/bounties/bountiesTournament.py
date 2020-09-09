@@ -50,10 +50,6 @@ f""" ** Participants:**
                 tourn = Tournament()
                 await tourn.playTournament(client, tourn_channel, registered_users)
 
-                # delete old messages and print the default one back
-                await asyncio.sleep(60*60)  # wait one hour before deleting annoucements and stuff
-                await tournamentChannelMessage(client)
-
 
 # prints the msg that users have to react to register
 async def tournamentRegistrationMessage(client):

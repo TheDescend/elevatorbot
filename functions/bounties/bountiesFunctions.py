@@ -313,7 +313,7 @@ async def displayLeaderboard(client, use_old_message=True):
         for id, value in lead_new.items():
             if value is not None and value != 0:
                 if id in lead_big:
-                    lead_big.update({id: (0 if lead_big[id] is None else value) + value})
+                    lead_big.update({id: (0 if lead_big[id] is None else lead_big[id]) + value})
                 else:
                     lead_big.update({id: value})
 

@@ -107,7 +107,7 @@ class leaderboard(BaseCommand):
             for id, value in lead_new.items():
                 if value is not None and value != 0:
                     if id in lead_big:
-                        lead_big.update({id: (0 if lead_big[id] is None else value) + value})
+                        lead_big.update({id: (0 if lead_big[id] is None else lead_big[id]) + value})
                     else:
                         lead_big.update({id: value})
 
@@ -161,7 +161,13 @@ class startTournament(BaseCommand):
             return
 
         await startTournamentEvents(client)
+
+        # update leaderboard
         await displayLeaderboard(client)
+
+        # delete old messages and print the default one back
+        await asyncio.sleep(60 * 60)  # wait one hour before deleting annoucements and stuff
+        await tournamentChannelMessage(client)
 
 class generateTournament(BaseCommand):
     def __init__(self):
