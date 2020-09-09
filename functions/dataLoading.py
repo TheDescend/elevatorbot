@@ -68,7 +68,7 @@ def getCharactertypeList(destinyID):
     return (None,[])
 
 #https://bungie-net.github.io/multi/schema_Destiny-HistoricalStats-DestinyHistoricalStatsPeriodGroup.html#schema_Destiny-HistoricalStats-DestinyHistoricalStatsPeriodGroup
-def getPlayersPastPVE(destinyID):
+def getPlayersPastPVE(destinyID, mode=7):
     platform = None
     syscharlist = getSystemAndChars(destinyID)
     if getLastUpdated(destinyID) > datetime.strptime("26/03/2015 04:20", "%d/%m/%Y %H:%M") or not syscharlist:
@@ -84,11 +84,11 @@ def getPlayersPastPVE(destinyID):
     for pagenr in range(1000):
         charidsToRemove = []
         for characterID in charIDs:
-            staturl = f"https://www.bungie.net/Platform/Destiny2/{platform}/Account/{destinyID}/Character/{characterID}/Stats/Activities/?mode=7&count=250&page={pagenr}" 
-            # None	0 Everything
-            # Story	2	 
+            staturl = f"https://www.bungie.net/Platform/Destiny2/{platform}/Account/{destinyID}/Character/{characterID}/Stats/Activities/?mode={mode}&count=250&page={pagenr}"
+            # None	    0 Everything
+            # Story	    2
             # Strike	3	 
-            # Raid	4	 
+            # Raid	    4
             # AllPvP	5	 
             # Patrol	6	 
             # AllPvE	7	
@@ -102,8 +102,16 @@ def getPlayersPastPVE(destinyID):
                 yield activity
         for charid in charidsToRemove:
             charIDs.remove(charid)
-
     #return sorted(activitylist, key = lambda i: i['period'], reverse=True)
+
+# https://bungie-net.github.io/multi/schema_Destiny-DestinyComponentType.html#schema_Destiny-DestinyComponentType
+def getProfile(destinyID, components):
+    url = 'https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/?components={}'
+    for system in [3,2,1,4,5,10,254]:
+        statsResponse = getJSONfromURL(url.format(system, destinyID, components))
+        if statsResponse:
+            return statsResponse['Response']
+    return None
 
 def getStats(destinyID):
     url = 'https://stats.bungie.net/Platform/Destiny2/{}/Account/{}/Stats/'
@@ -162,6 +170,12 @@ def getPGCR(instanceID):
     pgcrurl = f'https://www.bungie.net/Platform/Destiny2/Stats/PostGameCarnageReport/{instanceID}/'
     return getJSONfromURL(pgcrurl)
 
+# type = "DestinyInventoryItemDefinition" (fe.), hash = 3993415705 (fe)   - returns MT
+def returnManifestInfo(type, hash):
+    info = getJSONfromURL(f'http://www.bungie.net/Platform/Destiny2/Manifest/{type}/{hash}/')
+
+    if info:
+        return info
 
 def getManifest():
     manifest_url = 'http://www.bungie.net/Platform/Destiny2/Manifest/'

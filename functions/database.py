@@ -30,9 +30,9 @@ def insertUser(discordServerID, *, discordID, destinyID):
     except sqlite3.IntegrityError:
         return False
 
-    
 def removeUser(discordID):
     """ Removes a User from the DB (by discordID), returns True if successful"""
+
     con = db_connect()
     product_sql = """DELETE FROM discordGuardiansToken 
         WHERE discordSnowflake = ? """
@@ -44,6 +44,7 @@ def removeUser(discordID):
     except sqlite3.IntegrityError:
         return False
 
+    
 def insertBountyUser(discordID):
     """ Inserts a discordID mapping into the database, returns True if successful False otherwise """
     con = db_connect()
@@ -59,7 +60,7 @@ def insertBountyUser(discordID):
         return False
 
 def removeBountyUser(discordID):
-    """ Removes a User from the DB (by discordID), returns True if successful"""
+    """ Removes a User from the DB (by discordID), returns True if successful. CAREFUL also remove points"""
     con = db_connect()
     product_sql = """DELETE FROM bountyGoblins 
         WHERE discordSnowflake = ? """
@@ -71,15 +72,76 @@ def removeBountyUser(discordID):
     except sqlite3.IntegrityError:
         return False
 
-def getBountyUserList():
-        """ Returns a list of all discordSnowflakes of bountyUsers"""
+def getBountyUserList(all=False):
+    """ Returns a list of all discordSnowflakes of bountyUsers"""
+    extra = "WHERE active = 1"
+    if all:
+        extra = ""
+
     con = db_connect()
     cur = con.cursor()
-    getAll = "SELECT discordSnowflake FROM bountyGoblins;"
+    getAll = f"""SELECT discordSnowflake FROM bountyGoblins {extra};"""
 
     resultcur = cur.execute(getAll)
     result = resultcur.fetchall()
     return [row[0] for row in result]
+
+
+"""
+levels: (all INTEGER)
+    exp_pve                     # those 3 are for exp levels. 0 for unexp and 1 for exp
+    exp_pvp
+    exp_raids
+    
+    points_bounties_pve         # for leaderboards and potential future expansion 
+    points_bounties_pvp 
+    points_bounties_raids 
+    points_competition_pve
+    points_competition_pvp
+    points_competition_raids
+    
+    active                      # is the user currently signed up
+    notifications DEFAULT 0     # for weekly pings
+"""
+def getLevel(levelType, discordID):
+    """ Returns the level for a specific discordID"""
+    con = db_connect()
+    cur = con.cursor()
+    getLevelByDiscordID = f"SELECT {levelType} FROM bountyGoblins WHERE discordSnowflake = ?"
+
+    resultcur = cur.execute(getLevelByDiscordID, (discordID,))
+    result = resultcur.fetchall()
+    return result[0][0]
+
+def setLevel(value, levelType, discordID):
+    """ Adds to a value to a level for a discordID and then returns it"""
+    #print(f'{value=} {levelType=} {discordID=}')
+    con = db_connect()
+    cur = con.cursor()
+    setLevelByDiscordID = f"""   
+                    UPDATE bountyGoblins 
+                    SET {levelType} = ? 
+                    WHERE discordSnowflake = ?"""
+
+    resultcur = cur.execute(setLevelByDiscordID, (value, discordID,))
+    con.commit()
+    return True
+
+def addLevel(value, levelType, discordID):
+    """ Adds to a value to a level for a discordID and then returns it"""
+    con = db_connect()
+    cur = con.cursor()
+    curLevel = getLevel(levelType, discordID)
+    newLevel = (0 if curLevel is None else curLevel) + (0 if value is None else value)
+    setLevelByDiscordID = f"""   
+                    UPDATE bountyGoblins 
+                    SET {levelType} = ? 
+                    WHERE discordSnowflake = ?"""
+
+    resultcur = cur.execute(setLevelByDiscordID, (newLevel, discordID,))
+    con.commit()
+    return True
+
 
 def getRefreshToken(discordID):
     """ Gets a Users Bungie-Refreshtoken or None """
@@ -131,7 +193,6 @@ def insertToken(discordID, destinyID, discordServerID, token, refresh_token):
         con.commit()
         con.close()
 
-
 def lookupDestinyID(discordID):
     """ Takes discordID and returns destinyID """
     con = db_connect()
@@ -147,6 +208,15 @@ def lookupDiscordID(destinyID):
     getUser = """SELECT discordSnowflake FROM discordGuardiansToken
         WHERE destinyID = ?"""
     result = con.execute(getUser, (destinyID,)).fetchone() or [None]
+    con.close()
+    return result[0]
+
+def lookupServerID(discordID):
+    """ Takes destinyID and returns discordID """
+    con = db_connect()
+    getUser = """SELECT serverID FROM discordGuardiansToken
+        WHERE discordSnowflake = ?"""
+    result = con.execute(getUser, (discordID,)).fetchone() or [None]
     con.close()
     return result[0]
 
@@ -330,7 +400,7 @@ def getFlawlessList(destinyID):
                     SELECT DISTINCT(t1.activityHash)
                     FROM (  SELECT instanceID, period, activityHash FROM activities
                             WHERE deaths = 0
-                            AND startingPhaseIndex <= 2) t1
+                            AND startingPhaseIndex = 0) t1
                     JOIN (  SELECT instanceID
                             FROM instancePlayerPerformance
                             WHERE playerID = ?
@@ -340,24 +410,6 @@ def getFlawlessList(destinyID):
     data_tuple = (destinyID,)
     cur.execute(sqlite_select, data_tuple)
     return [res[0] for res in cur.fetchall()]
-
-def getTableList():
-    con = db_connect()
-    cur = con.cursor()
-    getAll = "SELECT name FROM sqlite_master WHERE type ='table' AND name NOT LIKE 'sqlite_%';"
-
-    resultcur = cur.execute(getAll)
-    result = resultcur.fetchall()
-    return [a[0] for a in result]
-
-
-
-if __name__ == '__main__':
-    print(getTableList())
-    insertBountyUser(1234)
-    print(getBountyUserList())
-    removeBountyUser(1234)
-    print(getBountyUserList())
     
 #######################################################################################
 #

@@ -27,6 +27,10 @@ database/steamPlayerData.pickle
 database/steamPlayerData.pickle.bckp
 database/seals.pickle
 database/whisperKills.pickle
+functions/bounties/channelIDs.pickle
+functions/bounties/currentBounties.pickle
+functions/bounties/playerBountyStatus.pickle
+functions/bounties/competitionBountiesLeaderboards.pickle
 4611686018470637201
 oauth/
 bbenv/

@@ -3,6 +3,7 @@ import os
 from static.config import BUNGIE_OAUTH
 from functions.database import insertUser, removeUser, lookupDestinyID, lookupDiscordID
 from functions.formating import embed_message
+from functions.roles import hasAdminOrDevPermissions
 import discord
 
 class register(BaseCommand):
@@ -79,12 +80,14 @@ class forceregister(BaseCommand):
         dev = discord.utils.get(message.guild.roles, name='Developer') 
         discordID = params[0]
         destinyID = params[1]
-        if not '4' == str(destinyID)[0]: #sanity check
+        if not '4611' == str(destinyID)[:4]: #sanity check
             await message.channel.send(f'Please make sure the destinyID is correct')
             return
-        if admin not in message.author.roles and dev not in message.author.roles and not message.author.id == params[0]:
-            print(f'{discordID}')
+
+        # check if user has permission to use this command
+        if not await hasAdminOrDevPermissions(message) and not message.author.id == params[0]:
             return
+
         oldid = lookupDestinyID(discordID)
         if oldid:
             await message.channel.send(f'User already registered with id {oldid} and , use !unregister {discordID} to undo that binding')
@@ -108,10 +111,10 @@ class unregister(BaseCommand):
     # Override the handle() method
     # It will be called every time the command is received
     async def handle(self, params, message, client):
-        admin = discord.utils.get(message.guild.roles, name='Admin')
-        dev = discord.utils.get(message.guild.roles, name='Developer') 
-        if admin not in message.author.roles and dev not in message.author.roles and not message.author.id == params[0]:
+        # check if user has permission to use this command
+        if not await hasAdminOrDevPermissions(message) and not message.author.id == params[0]:
             return
+
         if removeUser(params[0]):
             await message.author.send(f'removed {params[0]}')
         else:

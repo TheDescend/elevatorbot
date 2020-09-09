@@ -6,7 +6,10 @@ getNameFromHashActivity= {}
 getNameFromHashCollectible = {}
 getNameFromHashInventoryItem = {}
 
+
+
 # from https://data.destinysets.com/
+# raids
 spirePHashes = [3213556450]
 spireHashes = [119944200]
 eaterPHashes = [809170886]
@@ -19,10 +22,108 @@ lwHashes = [2122313384]
 cosHashes = [3333172150, 960175301] 
 gosHashes = [3845997235,2659723068]
 
+# dungeons
+throneHashes = [1893059148, 2032534090]
+pitHashes = [1375089621, 2559374368, 2559374374, 2559374375]
+prophHashes = [4148187374]
+
+# menagerie
 premenHashes = [2509539864, 2509539865, 2509539867, 1831470693, 3107795800, 3115455134]
 
+# secret missions
 zeroHashes = [3232506937] 
 herzeroHashes = [2731208666]
+
+# daily heroic missions - empty for now, since most stuff wil get deleted in BL
+# heroicStoryHashes =
+
+
+
+#activityTypeHashes
+activityStoryHash = [147238405, 1686739444, 1299744814, 2201105581, 2911768360]
+activityRaidHash = [2043403989]
+activityDungeonHash = [608898761]
+activityGambitHash = [636666746, 1418469392, 2490937569] # will probly change with BL
+activityNFHash = [575572995]
+activityStrikeHash = [2884569138, 2884569138, 4110605575, 4110605575, 4164571395]
+activityPrivateMatchHash = [4260058063]
+activityPVPHash = [96396597, 158362448, 517828061, 964120289, 1434366740, 1472571612, 1522227381, 2112637710,
+                   2175955486, 2278747016, 2371050408, 2394267841, 2410913661, 2505748283, 3252144427, 3268478079,
+                   3517186939, 3610972626, 3954711135, 3956087078, 3956381302, 3990775146, 4141415314, 4288302346]
+activityLighthouseHash = [4276116472]
+
+
+# Metric hashes
+metricLeviCompletions = [2486745106]
+metricEoWCompletions = [2659534585]
+metricSosCompletions = [700051716]
+metricLWCompletions = [905240985]
+metricScourgeCompletions = [1201631538]
+metricCoSCompletions = [1815425870]
+metricGoSCompletions = [1168279855]
+
+metricRaidAllocation = {
+    tuple(eaterHashes): metricEoWCompletions,
+    tuple(spireHashes): metricSosCompletions,
+    tuple(scourgeHashes): metricScourgeCompletions,
+    tuple(cosHashes): metricCoSCompletions,
+    tuple(lwHashes): metricLWCompletions,
+    tuple(gosHashes): metricGoSCompletions,
+}
+
+metricWinStreakGambitWeekly = [1053579811]
+metricWinStreakCrucibleWeekly = [4044111774]
+
+metricWinStreakWeeklyAllocation = {
+    tuple(activityGambitHash): metricWinStreakGambitWeekly,
+    tuple(activityPVPHash): metricWinStreakCrucibleWeekly
+}
+
+
+
+""" Grouped Hashes """
+# only activities which are available should be included here
+raidHashes = [lwHashes, gosHashes, scourgeHashes, cosHashes]
+dungeonHashes = [throneHashes, pitHashes, prophHashes]
+
+activityStrikeAndNFHash = activityNFHash + activityStrikeHash
+
+metricAvailableRaidCompletion = metricLWCompletions + metricGoSCompletions
+metricRaidCompletion = metricAvailableRaidCompletion + metricLeviCompletions + metricEoWCompletions + metricSosCompletions + metricScourgeCompletions + metricCoSCompletions
+
+
+
+"""" Speedrun Times """
+# has to be tuples bc lists are not hashable
+speedrunActivitiesRaids = {
+    tuple(scourgeHashes): 780,             # scourge 13mins
+    tuple(cosHashes): 1320,                # cos 22min
+    tuple(lwHashes): 780,                  # lw 13
+    tuple(gosHashes): 1500,                # gos 25
+}
+# consists of all of them
+speedrunActivities = speedrunActivitiesRaids
+
+
+
+
+""" Weapon Hashes """
+damageTypeKinetic = 3373582085
+damageTypeSolar = 1847026933
+damageTypeVoid = 3454344768
+damageTypeArc = 2303181850
+
+weaponTypeKinetic = 1498876634
+weaponTypeEnergy = 2465295065
+weaponTypePower = 953998645
+
+possibleWeaponsKinetic = ["Hand Cannon", "Scout Rifle", "Auto Rifle", "Pulse Rifle", "Sidearm", "Submachine Gun", "Combat Bow", "Sniper Rifle", "Shotgun", "Grenade Launcher"]
+possibleWeaponsEnergy = ["Hand Cannon", "Scout Rifle", "Auto Rifle", "Pulse Rifle", "Sidearm", "Fusion Rifle", "Shotgun", "Sniper Rifle", "Trace Rifle", "Grenade Launcher", "Combat Bow"]
+possibleWeaponsPower = ["Grenade Launcher", "Rocket Launcher", "Linear Fusion Rifle", "Sword", "Shotgun", "Machine Gun", "Sniper Rifle"]
+
+
+
+
 
 clanids = {
     4107840 : 'The Descend'
