@@ -25,6 +25,7 @@ kd
 totalKills
 totalDeaths
 NFscore
+flawless            # sets score to one if thats in it. To track lighthouse visits
 win                 # activity did not just get completed, but standing is "Victory"
 winStreak           # requires win to also be an recquirement
 tournament          # starts registration for the pvp tournament
@@ -309,7 +310,7 @@ competition_bounties = {
         },
 
         "Win this weeks PvP tournament": {
-            "requirements": ["tournament"],
+            "requirements": ["tournament", "flawless"],
             "points": 300
         }
     }
