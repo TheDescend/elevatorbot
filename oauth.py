@@ -2,7 +2,7 @@
 
 import requests, json
 from static.config      import BUNGIE_OAUTH, BUNGIE_TOKEN, BUNGIE_SECRET, B64_SECRET, NEWTONS_WEBHOOK
-from flask              import Flask, request, redirect, Response, send_file
+from flask              import Flask, request, redirect, Response, send_file, render_template
 from functions.database import insertToken, getRefreshToken
 import asyncio
 import os
@@ -37,31 +37,26 @@ def shutdown_server():
     if func is None:
         raise RuntimeError('Not running with the Werkzeug Server')
     func()
- 
-@app.route('/database')
-def database():
-    print('trying to download the file')
-    return send_file('database/userdb.sqlite3', as_attachment=True)
-
-@app.route('/simap/<simID>')
-def simap(simID):
-    print(request.headers.get('User-Agent'))
-    if 'ms-office' in request.headers.get('User-Agent') or '.NET4.0C; .NET4.0E;' in request.headers.get('User-Agent'):
-        return 'hi'
-    return redirect('https://www.simap.ch/shabforms/servlet/Search?EID=3&projectId='+str(simID)+'&mode=2')
-
 
 @app.route('/test')
 def test():
     print('testing')
     return "hi"
 
+@app.route('/level1')
+@app.route('/level1/<highscore>')
+def level1():
+    highscore = request.cookies.get('userHighscore')
+    return render_template('level1.html', highscore=highscore)
+
 @app.route('/')
 def root():
     print('called root')
     #print('got request')
     response = request.args
-    code = response['code'] #for user auth
+    if not (code := response.get('code', None)): #for user auth
+        return "You look around.. There's nothing of value"
+    print(code)
     #print(f'code is {code}')
     (discordID,serverID) = response['state'].split(':') #mine
 
@@ -71,13 +66,12 @@ def root():
         'authorization': 'Basic '+ str(B64_SECRET) #unqiue to this app
     }
 
-    data = 'grant_type=authorization_code&code='+str(code)
+    data = f'grant_type=authorization_code&code={code}'
 
     r = requests.post(url, data=data, headers=headers)
-    #print(r)
-    data = r.json()
-    access_token = data['access_token']
-    refresh_token = data['refresh_token']
+    authresponse = r.json()
+    access_token = authresponse['access_token']
+    refresh_token = authresponse['refresh_token']
 
     #print(f'bungie responded {r.content} and the token is {access_token}')
     #membershipid = r.json()['membership_id']
@@ -134,6 +128,8 @@ def favicon():
 def before_request():
     if request.url.startswith('http://'):
         return redirect(request.url.replace('http://', 'https://'), code=301)
+    pass
+
 
 @app.errorhandler(404)
 def not_found(e):
@@ -142,7 +138,6 @@ def not_found(e):
 
 if __name__ == '__main__':
     print('server running')
-    context = ('/etc/letsencrypt/live/rc19v2108.dnh.net/fullchain.pem', '/etc/letsencrypt/live/rc19v2108.dnh.net/privkey.pem')
-    app.run(host= '0.0.0.0', port=443, ssl_context=context)
+    app.run(host= '0.0.0.0')
 
 

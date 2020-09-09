@@ -333,6 +333,10 @@ requirementHashes = {
     'Dungeons': {
         'Solo Flawless Shattered Throne': {
             'requirements': ['records'],
+            'denyTime0':{ #start is earlier Time, format is important
+                'startTime':'11/08/2020 18:00',
+                'endTime':'08/09/2020 18:00'
+            },
              'records': [
                 1290451257, #Solo Flawless Shattered Throne
             ]
@@ -346,6 +350,10 @@ requirementHashes = {
         },
         'Solo Shattered Throne': {
             'requirements': ['records'],
+            'denyTime0':{ #start is earlier Time, format is important
+                'startTime':'11/08/2020 18:00',
+                'endTime':'08/09/2020 18:00'
+            },
             'records': [
                 851701008, #Solo Shattered Throne
             ],
@@ -353,12 +361,20 @@ requirementHashes = {
         },
         'Solo Flawless Pit of Heresy': {
             'requirements': ['records'],
+            'denyTime0':{ #start is earlier Time, format is important
+                'startTime':'11/08/2020 18:00',
+                'endTime':'08/09/2020 18:00'
+            },
             'records': {
                 2615277024,  # Savior of the Deep
             },
         },
         'Solo Pit of Heresy': {
             'requirements': ['records'],
+            'denyTime0':{ #start is earlier Time, format is important
+                'startTime':'11/08/2020 18:00',
+                'endTime':'08/09/2020 18:00'
+            },
             'records': {
                 376114010,  # Usurper
             },
@@ -492,6 +508,10 @@ requirementHashes = {
         },
         'The Other Side': {
             'requirements': ['records'],
+            'denyTime0':{ #start is earlier Time, format is important
+                'startTime':'11/08/2020 18:00',
+                'endTime':'08/09/2020 18:00'
+            },
             'records': [
                 807845972, #Only the essentials
             ]
@@ -502,6 +522,10 @@ requirementHashes = {
                 'startTime':'10/03/2020 18:00',
                 'endTime':'21/04/2020 18:00'
             },
+            'denyTime1':{ #start is earlier Time, format is important
+                'startTime':'11/08/2020 18:00',
+                'endTime':'08/09/2020 18:00'
+            },
             'playercount' : 1,
             'activityHashes': zeroHashes,
             'replaced_by': ['Solo Flawless Zero Hour']
@@ -511,6 +535,10 @@ requirementHashes = {
             'denyTime0':{ #start is earlier Time, format is important
                 'startTime':'10/03/2020 18:00',
                 'endTime':'21/04/2020 18:00'
+            },
+            'denyTime1':{ #start is earlier Time, format is important
+                'startTime':'11/08/2020 18:00',
+                'endTime':'08/09/2020 18:00'
             },
             'playercount' : 1,
             'activityHashes': herzeroHashes,
@@ -523,6 +551,10 @@ requirementHashes = {
                 'startTime':'10/03/2020 18:00',
                 'endTime':'21/04/2020 18:00'
             },
+            'denyTime1':{ #start is earlier Time, format is important
+                'startTime':'11/08/2020 18:00',
+                'endTime':'08/09/2020 18:00'
+            },
             'flawless' : True,
             'activityHashes': zeroHashes
         },
@@ -531,6 +563,10 @@ requirementHashes = {
             'denyTime0':{ #start is earlier Time, format is important
                 'startTime':'10/03/2020 18:00',
                 'endTime':'21/04/2020 18:00'
+            },
+            'denyTime1':{ #start is earlier Time, format is important
+                'startTime':'11/08/2020 18:00',
+                'endTime':'08/09/2020 18:00'
             },
             'playercount' : 1,
             'flawless' : True,

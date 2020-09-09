@@ -2,8 +2,6 @@ from commands.base_command  import BaseCommand
 from functions.bounties.bountiesBackend import saveAsGlobalVar, deleteFromGlobalVar
 from functions.bounties.bountiesFunctions import bountiesChannelMessage
 
-import os
-import pickle
 import discord
 
 gta_id = 709120893728718910

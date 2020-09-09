@@ -33,7 +33,7 @@ def getClearCount(playerid, activityHashes):
     sqlite_select = f"""SELECT COUNT(t1.instanceID)
                         FROM (  SELECT instanceID FROM activities
                                 WHERE activityHash IN ({','.join(['?']*len(activityHashes))})
-                                AND startingPhaseIndex = 0) t1
+                                AND startingPhaseIndex <= 2) t1
                         JOIN (  SELECT DISTINCT(instanceID)
                                 FROM instancePlayerPerformance
                                 WHERE playerID = ?
@@ -54,7 +54,7 @@ def hasFlawless(playerid, activityHashes):
     sqlite_select = f"""SELECT COUNT(t1.instanceID)
                         FROM (  SELECT instanceID FROM activities
                                 WHERE activityHash IN ({','.join(['?']*len(activityHashes))})
-                                AND startingPhaseIndex = 0
+                                AND startingPhaseIndex <= 2
                                 AND deaths = 0) t1
                         JOIN (  SELECT DISTINCT(instanceID)
                                 FROM instancePlayerPerformance

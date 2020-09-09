@@ -109,6 +109,7 @@ def main():
                         'is cuteness incarnate']
             addition = random.choice(texts)
             await message.channel.send(f'Häbidöpfel {addition}')
+
         if "welcome" in text.lower() and message.mentions:
             for mention in message.mentions:
                 if mention.id == 109022023979667456:
@@ -116,6 +117,7 @@ def main():
         if client.user in message.mentions:
             notification = client.get_emoji(751771924866269214)
             await message.add_reaction(notification)
+
         if text.startswith(COMMAND_PREFIX) and text != COMMAND_PREFIX:
             cmd_split = text[len(COMMAND_PREFIX):].split()
             try:
