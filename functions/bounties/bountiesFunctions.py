@@ -57,8 +57,7 @@ async def generateBounties(client):
             await tournamentRegistrationMessage(client)
 
     # add current time to list
-    file["time"] = "2020-08-05 19:41:13.688291" # todo change this back. only for testing
-    #file["time"] = str(datetime.datetime.now())
+    file["time"] = str(datetime.datetime.now())
 
     # overwrite the old bounties
     with open('functions/bounties/currentBounties.pickle', "wb+") as f:
@@ -264,8 +263,7 @@ async def displayCompetitionBounties(client, guild, message=None):
 
 # checks if any player has completed a bounty
 async def bountyCompletion(client):
-    # current_time = datetime.datetime.now() # todo change that
-    current_time = "2020-08-05 19:41:13.688291"
+    current_time = datetime.datetime.now()
 
     # load bounties
     with open('functions/bounties/currentBounties.pickle', "rb") as f:
@@ -305,7 +303,7 @@ async def bountyCompletion(client):
     await displayLeaderboard(client)
 
     # overwrite the old time, so that one activity doesn't get checked over and over again
-    # bounties["time"] = str(current_time) #todo add that back
+    bounties["time"] = str(current_time)
     with open('functions/bounties/currentBounties.pickle', "wb") as f:
         pickle.dump(bounties, f)
 
