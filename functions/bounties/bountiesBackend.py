@@ -37,7 +37,7 @@ def returnCustomGameWinner(destinyID1, charIDs1, membershipType1, destinyID2):
                 if len(rep2["Response"]["entries"]) != 2:
                     return None
 
-                found1, found2 = False
+                found1, found2 = False, False
                 for player in rep2["Response"]["entries"]:
                     if int(player["player"]["destinyUserInfo"]["membershipId"]) == int(destinyID1):
                         found1 = True
@@ -290,7 +290,8 @@ def returnLeaderboard(topic):
 
     # loop through users and get their individual score
     for discordID in getBountyUserList():
-        leaderboard.update({discordID: getLevel(topic, discordID)})
+        level = getLevel(topic, discordID)
+        leaderboard.update({discordID: 0 if level is None else level})
 
     # return sorted
     return {k: v for k, v in sorted(leaderboard.items(), key=lambda item: item[1], reverse=True)}
