@@ -17,6 +17,7 @@ import random
 import re
 import os
 import pickle
+import logging
 
 from discord.ext.commands import Bot
 
@@ -62,6 +63,16 @@ def launch_event_loops(client):
 
 def main():
     """the main method"""
+    # Initialize logging
+    logger = logging.getLogger('bounties')
+    logger.setLevel(logging.INFO)
+
+    file_handler = logging.FileHandler('functions/bounties/bountiesLog.log')
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s : %(message)s')
+    file_handler.setFormatter(formatter)
+
+    logger.addHandler(file_handler)
+
     # Initialize the client
     print("Starting up...")
     client = Bot('!')

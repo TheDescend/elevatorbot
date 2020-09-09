@@ -165,7 +165,7 @@ bounties = {
                 "points": 70
             },
 
-            # todo not implemented yet bc BL will probly change everything here
+            # not implemented yet bc BL will probly change everything here
             #
             # "Clear this daily heroic adventure within the allowed time frame": {
             # },
@@ -269,7 +269,7 @@ competition_bounties = {
 
     # general pve bounties
     'PvE': {
-        # todo not implemented yet bc BL will probly change everything here
+        # not implemented yet bc BL will probly change everything here
         #
         # "Get the fastest completion of this daily heroic story mission": {
         # },

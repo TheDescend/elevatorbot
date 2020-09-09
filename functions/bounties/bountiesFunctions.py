@@ -140,7 +140,8 @@ async def awardCompetitionBountiesPoints(client):
                 break
 
             # award the points in the respective categories
-            addPoints(discordID, bounties[topic][list(bounties[topic].keys())[0]], f"points_competition_{topic.lower()}")
+            name = list(bounties[topic].keys())[0]
+            addPoints(discordID, bounties[topic], bounties[topic][name], f"points_competition_{topic.lower()}")
 
     # update display
     await displayLeaderboard(client)
@@ -301,7 +302,7 @@ async def bountyCompletion(client):
     await displayLeaderboard(client)
 
     # overwrite the old time, so that one activity doesn't get checked over and over again
-    bounties["time"] = str(current_time)
+    # bounties["time"] = str(current_time) #todo add that back
     with open('functions/bounties/currentBounties.pickle', "wb") as f:
         pickle.dump(bounties, f)
 
@@ -461,6 +462,16 @@ async def registrationMessageReactions(client, user, emoji, register_channel, re
 
     if emoji.id == register.id:
         await message.remove_reaction(register, user)
+
+        # check if user is !registered in clan
+        if lookupDestinyID(user.id) is None:
+            embed = embed_message(
+                "Registration",
+                "Please register with `!register` first (not via DMs)"
+            )
+            await user.send(embed=embed)
+            return
+
         # register him
         if user.id not in getBountyUserList():
             insertBountyUser(user.id)

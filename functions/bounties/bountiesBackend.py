@@ -9,6 +9,7 @@ import datetime
 import json
 import pickle
 import os
+import logging
 
 
 # return winner of the last game in the pvp history, if just those two players where in it
@@ -93,7 +94,7 @@ def threadingBounties(bounties, cutoff, discordID):
                     done, index_multiple_points = fulfillRequirements(requirements, activity, destinyID)
                     if done:
                         playerHasDoneBounty(discordID, bounty, done=True)
-                        addPoints(discordID, requirements, f"points_bounties_{topic.lower()}", index_multiple_points=index_multiple_points)
+                        addPoints(discordID, requirements, bounty, f"points_bounties_{topic.lower()}", index_multiple_points=index_multiple_points)
                         print(f"""DestinyID {destinyID} has completed bounty {bounty} with instanceID {activity["activityDetails"]["instanceId"]}""")
 
     print(f"Bounties for destinyID: {destinyID} done")
@@ -178,7 +179,7 @@ def playerHasDoneBounty(discordID, name, done=False):
 
 
 # adds points to the user
-def addPoints(discordID, requirements, leaderboard, index_multiple_points=None):
+def addPoints(discordID, requirements, name, leaderboard, index_multiple_points=None):
     points = requirements["points"]
 
     # if there are multiple possible points
@@ -189,7 +190,9 @@ def addPoints(discordID, requirements, leaderboard, index_multiple_points=None):
 
     addLevel(points, leaderboard, discordID)
 
-    # todo make a log file
+    # log that action
+    logger = logging.getLogger('bounties')
+    logger.info(f"DiscordID '{discordID}' completed '{name}' and was credited '{points}' points in the leaderboard '{leaderboard}'.")
 
 
 # saves the current competition bounties leaderboards. gets reset in awardCompetitionBountiesPoints()

@@ -268,7 +268,7 @@ class Tournament():
         for topic in bounties:
             for key, value in bounties[topic].items():
                 if "tournament" in value["requirements"]:
-                    addPoints(winner.id, value, f"points_competition_{topic.lower()}")
+                    addPoints(winner.id, value, key, f"points_competition_{topic.lower()}")
                     print("Added points to winner")
 
 

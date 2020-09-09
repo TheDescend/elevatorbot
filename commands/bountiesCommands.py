@@ -12,7 +12,7 @@ import asyncio
 import pickle
 import os
 import requests
-import json
+import logging
 
 
 # --------------------------------------------------------------------------------------------
@@ -228,6 +228,7 @@ class resetLeaderboards(BaseCommand):
                     setLevel(0, "points_competition_raids", discordID)
 
                 msg4 = await message.channel.send("Leaderboards were reset")
+                logging.info("Reset all leaderboards")
             else:
                 msg3 = await message.channel.send("Aborted")
 
