@@ -677,6 +677,9 @@ def returnScore(requirements, activity, destinyID):
                     score = int(player["values"]["score"]["basic"]["value"])
                     break
 
+        elif req == "flawless":
+            score = 1
+
 
     # only return score if all other things have passed
     return score, sort_by_highest
