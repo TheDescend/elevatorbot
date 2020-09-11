@@ -116,7 +116,7 @@ def bountiesFormatting(json):
                     key = key + f"\n⁣"
                     for activities in speedrunActivitiesRaids:
                         activity_name = returnManifestInfo("DestinyActivityDefinition", activities[0])["Response"]["displayProperties"]["name"]
-                        key = key + f"\n{activity_name}: __{speedrunActivitiesRaids[activities] / 60}min__"
+                        key = key + f"\n{activity_name}: __{speedrunActivitiesRaids[activities] / 60}min__ (2x WR)"
 
     return key, value
 
