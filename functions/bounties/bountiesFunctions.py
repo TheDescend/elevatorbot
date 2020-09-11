@@ -81,7 +81,7 @@ def bountiesFormatting(json):
 
     # if "randomActivity" is present, get a random activity from the list and delete "randomActivity" so it doesn't take up space anymore
     if "randomActivity" in value:
-        value["allowedActivities"] = [random.choice(value.pop("randomActivity"))[0]]
+        value["allowedActivities"] = random.choice(value.pop("randomActivity"))
         value["requirements"].pop(value["requirements"].index("randomActivity"))
         value["requirements"].append("allowedActivities")
 
