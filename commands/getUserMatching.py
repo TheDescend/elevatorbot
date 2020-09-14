@@ -9,7 +9,8 @@ class getUserMatching(BaseCommand):
         # A quick description for the help message
         description = "[dev] match ingame and Discord names"
         params = []
-        super().__init__(description, params)
+        topic = "Registration"
+        super().__init__(description, params, topic)
 
     # Override the handle() method
     # It will be called every time the command is received

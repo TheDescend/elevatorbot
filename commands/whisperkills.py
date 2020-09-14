@@ -15,7 +15,8 @@ class whisperkills(BaseCommand):
     def __init__(self):
         description = f'Shows a leaderboard of kills in the whisper mission'
         params = []
-        super().__init__(description, params)
+        topic = "Destiny"
+        super().__init__(description, params, topic)
 
 
     async def handle(self, params, message, client):

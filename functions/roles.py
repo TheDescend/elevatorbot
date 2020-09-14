@@ -12,14 +12,15 @@ import discord
 
 
 # check if user has permission to use this command
-async def hasAdminOrDevPermissions(message):
+async def hasAdminOrDevPermissions(message, send_message=True):
     admin = discord.utils.get(message.guild.roles, name='Admin')
     dev = discord.utils.get(message.guild.roles, name='Developer')
     if admin not in message.author.roles and dev not in message.author.roles:
-        await message.channel.send(embed=embed_message(
-            'Error',
-            'You are not allowed to do that'
-        ))
+        if send_message:
+            await message.channel.send(embed=embed_message(
+                'Error',
+                'You are not allowed to do that'
+            ))
         return False
     return True
 

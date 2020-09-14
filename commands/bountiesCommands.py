@@ -20,8 +20,9 @@ import logging
 class bounties(BaseCommand):
     def __init__(self):
         description = f"DM's you an overview of you current bounties and their status"
+        topic = "Bounties"
         params = []
-        super().__init__(description, params)
+        super().__init__(description, params, topic)
 
     async def handle(self, params, message, client):
         with open('functions/bounties/currentBounties.pickle', "rb") as f:
@@ -69,8 +70,9 @@ class bounties(BaseCommand):
 class leaderboard(BaseCommand):
     def __init__(self):
         description = f"Shows the full leaderboard for the given category"
+        topic = "Bounties"
         params = []
-        super().__init__(description, params)
+        super().__init__(description, params, topic)
 
     async def handle(self, params, message, client):
         topics = {
@@ -140,8 +142,9 @@ class leaderboard(BaseCommand):
 class experienceLevel(BaseCommand):
     def __init__(self):
         description = f"DM's you your experience level for the Bounty Goblins"
+        topic = "Bounties"
         params = []
-        super().__init__(description, params)
+        super().__init__(description, params, topic)
 
     async def handle(self, params, message, client):
         await updateAllExperience(client, message.author.id, new_register=True)
@@ -152,8 +155,9 @@ class experienceLevel(BaseCommand):
 class startTournament(BaseCommand):
     def __init__(self):
         description = f"[Admin] Starts the tournament"
+        topic = "Bounties"
         params = []
-        super().__init__(description, params)
+        super().__init__(description, params, topic)
 
     async def handle(self, params, message, client):
         # check if user has permission to use this command
@@ -172,8 +176,9 @@ class startTournament(BaseCommand):
 class generateTournament(BaseCommand):
     def __init__(self):
         description = f"[Admin] Generate an out of the order tournament"
+        topic = "Bounties"
         params = []
-        super().__init__(description, params)
+        super().__init__(description, params, topic)
 
     async def handle(self, params, message, client):
         # check if user has permission to use this command
@@ -185,8 +190,9 @@ class generateTournament(BaseCommand):
 class updateCompletions(BaseCommand):
     def __init__(self):
         description = f"[Admin] Updates bounty completion status"
+        topic = "Bounties"
         params = []
-        super().__init__(description, params)
+        super().__init__(description, params, topic)
 
     async def handle(self, params, message, client):
         # check if user has permission to use this command
@@ -199,8 +205,9 @@ class updateCompletions(BaseCommand):
 class resetLeaderboards(BaseCommand):
     def __init__(self):
         description = f'[Admin] Generate new bounties'
+        topic = "Bounties"
         params = []
-        super().__init__(description, params)
+        super().__init__(description, params, topic)
 
     async def handle(self, params, message, client):
         # check if user has permission to use this command
@@ -252,8 +259,9 @@ class resetLeaderboards(BaseCommand):
 class generateNewBounties(BaseCommand):
     def __init__(self):
         description = f'[Admin] Generate new bounties'
+        topic = "Bounties"
         params = []
-        super().__init__(description, params)
+        super().__init__(description, params, topic)
 
     async def handle(self, params, message, client):
         # check if user has permission to use this command
@@ -268,8 +276,9 @@ class generateNewBounties(BaseCommand):
 class bountiesMakeChannelRegister(BaseCommand):
     def __init__(self):
         description = f'[dev] Admin / Dev only'
+        topic = "Bounties"
         params = []
-        super().__init__(description, params)
+        super().__init__(description, params, topic)
 
     async def handle(self, params, message, client):
         # check if user has permission to use this command
@@ -284,8 +293,9 @@ class bountiesMakeChannelRegister(BaseCommand):
 class bountiesMakeChannelTournment(BaseCommand):
     def __init__(self):
         description = f'[dev] Admin / Dev only'
+        topic = "Bounties"
         params = []
-        super().__init__(description, params)
+        super().__init__(description, params, topic)
 
     async def handle(self, params, message, client):
         # check if user has permission to use this command
@@ -299,8 +309,9 @@ class bountiesMakeChannelTournment(BaseCommand):
 class bountiesMakeChannelLeaderboard(BaseCommand):
     def __init__(self):
         description = f'[dev] Admin / Dev only'
+        topic = "Bounties"
         params = []
-        super().__init__(description, params)
+        super().__init__(description, params, topic)
 
     async def handle(self, params, message, client):
         # check if user has permission to use this command
@@ -314,8 +325,9 @@ class bountiesMakeChannelLeaderboard(BaseCommand):
 class bountiesMakeChannelBounties(BaseCommand):
     def __init__(self):
         description = f'[dev] Admin / Dev only'
+        topic = "Bounties"
         params = []
-        super().__init__(description, params)
+        super().__init__(description, params, topic)
 
     async def handle(self, params, message, client):
         # check if user has permission to use this command
@@ -329,8 +341,9 @@ class bountiesMakeChannelBounties(BaseCommand):
 class bountiesMakeChannelCompetitionBounties(BaseCommand):
     def __init__(self):
         description = f'[dev] Admin / Dev only'
+        topic = "Bounties"
         params = []
-        super().__init__(description, params)
+        super().__init__(description, params, topic)
 
     async def handle(self, params, message, client):
         # check if user has permission to use this command
@@ -346,8 +359,9 @@ class bountiesMakeChannelCompetitionBounties(BaseCommand):
 class getBounties(BaseCommand):
     def __init__(self):
         description = f"[dev] Overwrites bounties"
+        topic = "Bounties"
         params = []
-        super().__init__(description, params)
+        super().__init__(description, params, topic)
 
     async def handle(self, params, message, client):
         # check if user has permission to use this command
@@ -367,8 +381,9 @@ class getBounties(BaseCommand):
 class overwriteBounties(BaseCommand):
     def __init__(self):
         description = f"[dev] Overwrites bounties"
+        topic = "Bounties"
         params = []
-        super().__init__(description, params)
+        super().__init__(description, params, topic)
 
     async def handle(self, params, message, client):
         # check if user has permission to use this command
@@ -415,8 +430,9 @@ class overwriteBounties(BaseCommand):
 class testCompetitive(BaseCommand):
     def __init__(self):
         description = f"[dev] testCompetitive"
+        topic = "Bounties"
         params = []
-        super().__init__(description, params)
+        super().__init__(description, params, topic)
 
     async def handle(self, params, message, client):
         # check if user has permission to use this command
@@ -455,8 +471,9 @@ class testCompetitive(BaseCommand):
 class testBounties(BaseCommand):
     def __init__(self):
         description = f"[dev] testCompetitive"
+        topic = "Bounties"
         params = []
-        super().__init__(description, params)
+        super().__init__(description, params, topic)
 
     async def handle(self, params, message, client):
         # check if user has permission to use this command

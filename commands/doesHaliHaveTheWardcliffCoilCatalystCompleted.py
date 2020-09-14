@@ -1,13 +1,14 @@
 from commands.base_command  import BaseCommand
 
 from functions.dataTransformation import hasTriumph
-543481464
+
 class doesHaliHaveTheWardcliffCoilCatalystCompleted(BaseCommand):
     def __init__(self):
         # A quick description for the help message
         description = "Does he?"
+        topic = "Destiny"
         params = []
-        super().__init__(description, params)
+        super().__init__(description, params, topic)
 
     # Override the handle() method
     # It will be called every time the command is received

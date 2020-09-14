@@ -13,7 +13,8 @@ class maxPower(BaseCommand):
         # A quick description for the help message
         description = "[dev] match ingame and Discord names"
         params = []
-        super().__init__(description, params)
+        topic = "Destiny"
+        super().__init__(description, params, topic)
 
     def getLightLevel(self, client, destinyID): 
         if not (discordID := lookupDiscordID(destinyID)) or not (user := client.get_user(discordID)):

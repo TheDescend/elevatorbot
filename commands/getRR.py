@@ -20,8 +20,9 @@ rrsystem = {
 class RR(BaseCommand):
     def __init__(self):
         description = "get your personal raid.report link"
+        topic = "Destiny"
         params = []
-        super().__init__(description, params)
+        super().__init__(description, params, topic)
 
     async def handle(self, params, message, client):
         PARAMS = {'X-API-Key':BUNGIE_TOKEN}
@@ -71,8 +72,9 @@ class RR(BaseCommand):
 class DR(BaseCommand):
     def __init__(self):
         description = "get your personal dungeon.report link"
+        topic = "Destiny"
         params = []
-        super().__init__(description, params)
+        super().__init__(description, params, topic)
 
     async def handle(self, params, message, client):
         PARAMS = {'X-API-Key':BUNGIE_TOKEN}

@@ -11,7 +11,8 @@ class listHasCollectible(BaseCommand):
         # A quick description for the help message
         description = "Lists all players in the clan that own a certain collecTible"
         params = ['collectibleHash']
-        super().__init__(description, params)
+        topic = "Destiny"
+        super().__init__(description, params, topic)
 
     # Override the handle() method
     # It will be called every time the command is received

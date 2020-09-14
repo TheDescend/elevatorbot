@@ -13,7 +13,8 @@ class whatToDo(BaseCommand):
         # A quick description for the help message
         description = "Tells you what you can still achieve in Destiny / this Server"
         params = []
-        super().__init__(description, params)
+        topic = "Destiny"
+        super().__init__(description, params, topic)
 
     # Override the handle() method
     # It will be called every time the command is received

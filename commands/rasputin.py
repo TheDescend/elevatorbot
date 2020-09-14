@@ -10,7 +10,8 @@ class rasputin(BaseCommand):
         # A quick description for the help message
         description = "[depracted] Used to show the percentage of quest progress"
         params = []
-        super().__init__(description, params)
+        topic = "Destiny"
+        super().__init__(description, params, topic)
 
     # Override the handle() method
     # It will be called every time the command is received
@@ -31,7 +32,8 @@ class rasputinGraph(BaseCommand):
         # A quick description for the help message
         description = "Shows the timeline of seraph-completions"
         params = []
-        super().__init__(description, params)
+        topic = "Destiny"
+        super().__init__(description, params, topic)
 
     # Override the handle() method
     # It will be called every time the command is received

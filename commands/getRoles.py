@@ -23,8 +23,9 @@ class getRoles(BaseCommand):
     def __init__(self):
         # A quick description for the help message
         description = "Assigns you all the roles you've earned"
+        topic = "Roles"
         params = []
-        super().__init__(description, params)
+        super().__init__(description, params, topic)
 
     # Override the handle() method
     # It will be called every time the command is received
@@ -135,8 +136,9 @@ class lastRaid(BaseCommand):
     def __init__(self):
         # A quick description for the help message
         description = "gets your last raid"
+        topic = "Roles"
         params = []
-        super().__init__(description, params)
+        super().__init__(description, params, topic)
 
     # Override the handle() method
     # It will be called every time the command is received
@@ -155,8 +157,9 @@ class flawlesses(BaseCommand):
     def __init__(self):
         # A quick description for the help message
         description = "[dev] flaweless hashes"
+        topic = "Roles"
         params = []
-        super().__init__(description, params)
+        super().__init__(description, params, topic)
 
     # Override the handle() method
     # It will be called every time the command is received
@@ -177,7 +180,8 @@ class removeAllRoles(BaseCommand):
         # A quick description for the help message
         description = "[dev] removes a certain users roles"
         params = ['User']
-        super().__init__(description, params)
+        topic = "Roles"
+        super().__init__(description, params, topic)
 
     # Override the handle() method
     # It will be called every time the command is received
@@ -197,8 +201,9 @@ class checkNames(BaseCommand):
     def __init__(self):
         # A quick description for the help message
         description = "[dev] check name mappings"
+        topic = "Roles"
         params = []
-        super().__init__(description, params)
+        super().__init__(description, params, topic)
 
     # Override the handle() method
     # It will be called every time the command is received
@@ -215,8 +220,9 @@ class checkNewbies(BaseCommand):
     def __init__(self):
         # A quick description for the help message
         description = "[dev] check people"
+        topic = "Roles"
         params = []
-        super().__init__(description, params)
+        super().__init__(description, params, topic)
 
     # Override the handle() method
     # It will be called every time the command is received
@@ -243,8 +249,9 @@ class assignAllRoles(BaseCommand):
     def __init__(self):
         # A quick description for the help message
         description = "[dev] Assigns everyone the roles they earned"
+        topic = "Roles"
         params = []
-        super().__init__(description, params)
+        super().__init__(description, params, topic)
     
     # Override the handle() method
     # It will be called every time the command is received
@@ -277,8 +284,9 @@ class roleRequirements(BaseCommand):
     def __init__(self):
         # A quick description for the help message
         description = "Shows you what you need for a role"
+        topic = "Roles"
         params = []
-        super().__init__(description, params)
+        super().__init__(description, params, topic)
 
     # Override the handle() method
     # It will be called every time the command is received

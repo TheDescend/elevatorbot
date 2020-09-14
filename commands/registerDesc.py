@@ -11,7 +11,8 @@ class register(BaseCommand):
         # A quick description for the help message
         description = "Register with bungie.net"
         params = []
-        super().__init__(description, params)
+        topic = "Registration"
+        super().__init__(description, params, topic)
 
     # Override the handle() method
     # It will be called every time the command is received
@@ -35,7 +36,8 @@ class registerDesc(BaseCommand):
         # A quick description for the help message
         description = "Shadows !register, but don't get picked up from Charlemange"
         params = []
-        super().__init__(description, params)
+        topic = "Registration"
+        super().__init__(description, params, topic)
 
     # Override the handle() method
     # It will be called every time the command is received
@@ -59,7 +61,8 @@ class checkregister(BaseCommand):
         # A quick description for the help message
         description = "[dev] function to check your destinyID"
         params = []
-        super().__init__(description, params)
+        topic = "Registration"
+        super().__init__(description, params, topic)
 
     # Override the handle() method
     # It will be called every time the command is received
@@ -71,7 +74,8 @@ class forceregister(BaseCommand):
         # A quick description for the help message
         description = "[dev] function to create Discord-Destiny mappings"
         params = ['discordID', 'destinyID']
-        super().__init__(description, params)
+        topic = "Registration"
+        super().__init__(description, params, topic)
 
     # Override the handle() method
     # It will be called every time the command is received
@@ -106,7 +110,8 @@ class unregister(BaseCommand):
         # A quick description for the help message
         description = "[dev] function to delete Users from the database"
         params = ['discordID']
-        super().__init__(description, params)
+        topic = "Registration"
+        super().__init__(description, params, topic)
 
     # Override the handle() method
     # It will be called every time the command is received
