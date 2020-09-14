@@ -11,7 +11,7 @@ import os
 class maxPower(BaseCommand):
     def __init__(self):
         # A quick description for the help message
-        description = "[dev] match ingame and Discord names"
+        description = "Returns the players with the highest light level"
         params = []
         topic = "Destiny"
         super().__init__(description, params, topic)
