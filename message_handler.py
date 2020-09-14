@@ -30,7 +30,7 @@ async def handle_command(command, args, message, bot_client):
 
     # check if user is registered, otherwise command will be blocked and he will be informed
     # ignore that check if message is !register or !registerdesc
-    if message.guild.id == 669293365900214293:
+    if message.guild and message.guild.id == 669293365900214293:
         if (command != "register") and (command != "registerdesc"):
             discordID = message.author.id
             token = getToken(discordID)
