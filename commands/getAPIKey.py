@@ -6,7 +6,7 @@ from discord import File, channel
 class getapikey(BaseCommand):
     def __init__(self):
         # A quick description for the help message
-        description = "[dev] Dumps db contents"
+        description = "[dev] If used in a DM, DMs your API key for bungie back"
         params = []
         super().__init__(description, params)
 
