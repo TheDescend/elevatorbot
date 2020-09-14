@@ -1,5 +1,5 @@
 from commands.base_command import BaseCommand
-
+import re
 
 # This is a convenient command that automatically generates a helpful
 # message showing all available commands
@@ -16,9 +16,10 @@ class Commands(BaseCommand):
         from message_handler import COMMAND_HANDLERS
         msg = message.author.mention + "\n"
         msg += "Contact <@670397357120159776> if any problems arise\n"
+        tagfinder = re.compile(r'\[[A-Za-z]*\]')
         # Displays all descriptions, sorted alphabetically by command name
         for cmd in sorted(COMMAND_HANDLERS.items()):
-            if not '[dev]' in cmd[1].description and not '[depracted]' in cmd[1].description:
+            if not tagfinder.search(cmd[1].description) or message.channel.id == 670637036641845258:
                 msg += "\n" + cmd[1].description
 
         for i in range(len(msg)//2000):
