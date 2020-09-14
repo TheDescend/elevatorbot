@@ -206,7 +206,7 @@ class checkNames(BaseCommand):
         messagetext = ""
         for discordUser in message.guild.members:
             if destinyID := lookupDestinyID(discordUser.id):
-                messagetext += f'{discordUser.name} ({discordUser.nick}): https://raid.report/pc/{destinyID}\n'
+                messagetext += f'{discordUser.name} ({discordUser.nick}): https://raid.report/pc/{destinyID}\n' #TODO make console-flexible
             else:
                 messagetext += f'{discordUser.name} ({discordUser.nick}): Not found\n'
         await message.channel.send(messagetext)
@@ -227,10 +227,10 @@ class checkNewbies(BaseCommand):
             clanmap = getNameToHashMapByClanid(clanid)
             for username, userid in clanmap.items():
                 discordID = lookupDiscordID(userid)
-                if discordID:
+                if discordID: #if the matching exists in the DB, check whether the discordID is valid and in the server
                     user = client.get_user(discordID)
-                    if not user:
-                        await message.channel.send(f'[ERROR] {username} with destinyID {userid} has discordID {discordID} but it is faulty')
+                    if not user: #TODO implement actual 'present in server'-check
+                        await message.channel.send(f'[ERROR] {username} with destinyID {userid} has discordID {discordID} registered, but it is faulty or user left the server')
                         continue
                     #await message.channel.send(f'{username} is in Discord with name {user.name}')
                 else:
