@@ -4,6 +4,8 @@ from static.config import BUNGIE_OAUTH
 from functions.database import insertUser, removeUser, lookupDestinyID, lookupDiscordID
 from functions.formating import embed_message
 from functions.roles import hasAdminOrDevPermissions
+from events.automaticRoleAssignment import AutoRegisteredRole
+
 import discord
 
 class register(BaseCommand):
@@ -30,6 +32,8 @@ class register(BaseCommand):
                 'Registration',
                 f'Sent a DM to {message.author.nick or message.author.name}'
             ))
+        x = AutoRegisteredRole()
+        await x.run(client)
 
 class registerDesc(BaseCommand):
     def __init__(self):
@@ -55,6 +59,8 @@ class registerDesc(BaseCommand):
                 'Registration',
                 f'Sent a DM to {message.author.nick or message.author.name}'
             ))
+        x = AutoRegisteredRole()
+        await x.run(client)
 
 class checkregister(BaseCommand):
     def __init__(self):
