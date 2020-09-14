@@ -24,3 +24,13 @@ class Commands(BaseCommand):
 
         for i in range(len(msg)//2000):
             await message.channel.send(msg[i*2000:(i+1)*2000])
+
+class Documentation(BaseCommand):
+
+    def __init__(self):
+        description = "[dev] Displays a link to the documentation"
+        params = None
+        super().__init__(description, params)
+
+    async def handle(self, params, message, client):
+        message.channel.send('Check out https://github.com/LukasSchmid97/destinyBloodoakStats/blob/master/README.md')
