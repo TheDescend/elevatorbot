@@ -12,7 +12,8 @@ class getDestinyID(BaseCommand):
         # A quick description for the help message
         description = "[dev] check a user's destinyID"
         params = ['User']
-        super().__init__(description, params)
+        topic = "Registration"
+        super().__init__(description, params, topic)
 
     # Override the handle() method
     # It will be called every time the command is received
@@ -30,7 +31,8 @@ class getDiscordID(BaseCommand):
         # A quick description for the help message
         description = "[dev] check a user's discordID by destinyID"
         params = ['User']
-        super().__init__(description, params)
+        topic = "Registration"
+        super().__init__(description, params, topic)
 
     # Override the handle() method
     # It will be called every time the command is received
@@ -44,7 +46,8 @@ class getDiscordFuzzy(BaseCommand):
         # A quick description for the help message
         description = "[dev] check a user's discordID by destinyID"
         params = ['partial name']
-        super().__init__(description, params)
+        topic = "Registration"
+        super().__init__(description, params, topic)
 
     # Override the handle() method
     # It will be called every time the command is received

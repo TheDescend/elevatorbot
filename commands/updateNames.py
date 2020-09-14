@@ -11,7 +11,8 @@ class updateNames(BaseCommand):
     def __init__(self):
         description = "[dev] Updates all names [Admins role only]"
         params = None
-        super().__init__(description, params)
+        topic = "Registration"
+        super().__init__(description, params, topic)
 
     async def handle(self, params, message, client):
         PARAMS = {'X-API-Key':BUNGIE_TOKEN}

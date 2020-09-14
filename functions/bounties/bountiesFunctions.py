@@ -81,7 +81,7 @@ def bountiesFormatting(json):
 
     # if "randomActivity" is present, get a random activity from the list and delete "randomActivity" so it doesn't take up space anymore
     if "randomActivity" in value:
-        value["allowedActivities"] = [random.choice(value.pop("randomActivity"))[0]]
+        value["allowedActivities"] = random.choice(value.pop("randomActivity"))
         value["requirements"].pop(value["requirements"].index("randomActivity"))
         value["requirements"].append("allowedActivities")
 
@@ -116,7 +116,7 @@ def bountiesFormatting(json):
                     key = key + f"\n⁣"
                     for activities in speedrunActivitiesRaids:
                         activity_name = returnManifestInfo("DestinyActivityDefinition", activities[0])["Response"]["displayProperties"]["name"]
-                        key = key + f"\n{activity_name}: __{speedrunActivitiesRaids[activities] / 60}min__"
+                        key = key + f"\n{activity_name}: __{speedrunActivitiesRaids[activities] / 60}min__ (2x WR)"
 
     return key, value
 
@@ -446,11 +446,11 @@ And lastly, if you have any general suggestions or ideas for new bounties, conta
                     # send register msg and save the id
                     msg = await channel.send(embed=embed_message(
                         f'Registration',
-                        f'If you want to register to the **Bounty Goblins**, react with <:register:751774620696313966> \n\n If you want to receive a notification whenever new bounties are available, react with <a:notifications:751771924866269214>'
+                        f'If you want to register to the **Bounty Goblins**, react with <:desc_bungie:754928322403631216>  \n\n If you want to receive a notification whenever new bounties are available, react with <:elevator_ping:754946724237148220>'
                     ))
-                    register = client.get_emoji(751774620696313966)
+                    register = client.get_emoji(754928322403631216)
                     await msg.add_reaction(register)
-                    notification = client.get_emoji(751771924866269214)
+                    notification = client.get_emoji(754946724237148220)
                     await msg.add_reaction(notification)
                     saveAsGlobalVar("register_channel_message_id", msg.id)
 
@@ -458,8 +458,8 @@ And lastly, if you have any general suggestions or ideas for new bounties, conta
 async def registrationMessageReactions(client, user, emoji, register_channel, register_channel_message_id):
     message = await register_channel.fetch_message(register_channel_message_id)
 
-    register = client.get_emoji(751774620696313966)
-    notification = client.get_emoji(751771924866269214)
+    register = client.get_emoji(754928322403631216)
+    notification = client.get_emoji(754946724237148220)
 
     if emoji.id == register.id:
         await message.remove_reaction(register, user)

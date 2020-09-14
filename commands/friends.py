@@ -22,8 +22,9 @@ from pyvis.network  import Network
 class friends(BaseCommand):
     def __init__(self):
         description = f'Shows information about who you play with. For options, type "!friends"'
+        topic = "Destiny"
         params = []
-        super().__init__(description, params)
+        super().__init__(description, params, topic)
 
         self.ignore = []
         # edge_list = [person, size, size_desc, display_names, colors]

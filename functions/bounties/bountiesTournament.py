@@ -23,7 +23,7 @@ async def startTournamentEvents(client):
                 # get users that registered
                 registered_users = []
                 registered_users_names = []
-                register = client.get_emoji(724678414925168680)
+                register = client.get_emoji(754946724233216100)
                 for reaction in tourn_register_msg.reactions:
                     if reaction.emoji == register:
                         async for user in reaction.users():
@@ -62,9 +62,9 @@ async def tournamentRegistrationMessage(client):
             # send register msg and save the id
             msg = await channel.send(embed=embed_message(
                 f'Registration',
-                f'If you want to register to the tournament this week, react with <:unbroken:724678414925168680>'
+                f'If you want to register to the tournament this week, react with <:elevator_yes:754946724233216100> '
             ))
-            register = client.get_emoji(724678414925168680)
+            register = client.get_emoji(754946724233216100)
             await msg.add_reaction(register)
             saveAsGlobalVar("tournament_channel_message_id", msg.id)
 
@@ -196,8 +196,8 @@ class Tournament():
                 f"To play, create a private crucible game where __only__ you two take part in. Set the time limit / rules as you guys want, but make sure to finish the game and not leave early. \n The winner of the game will auto detect a short while after the game is complete. \n⁣\n **Good luck!**",
                 "If for some reason the auto detect fails, ask an admin / dev to react on the winner"
             ))
-            reaction1 = client.get_emoji(569576890512179220)
-            reaction2 = client.get_emoji(569576890470498315)
+            reaction1 = client.get_emoji(755044614850740304)
+            reaction2 = client.get_emoji(755044614733561916)
             await msg.add_reaction(reaction1)
             await msg.add_reaction(reaction2)
 

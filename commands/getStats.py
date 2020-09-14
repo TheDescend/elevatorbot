@@ -13,7 +13,8 @@ class stat(BaseCommand):
         # A quick description for the help message
         description = "Gives you stats for your account. Use !stat help for a list of possible values"
         params = ['statName']
-        super().__init__(description, params)
+        topic = "Destiny"
+        super().__init__(description, params, topic)
 
     # Override the handle() method
     # It will be called every time the command is received
@@ -80,8 +81,9 @@ class spoder(BaseCommand):
     def __init__(self):
         # A quick description for the help message
         description = "Gives the spoders inventory"
+        topic = "Destiny"
         params = []
-        super().__init__(description, params)
+        super().__init__(description, params, topic)
 
     # Override the handle() method
     # It will be called every time the command is received

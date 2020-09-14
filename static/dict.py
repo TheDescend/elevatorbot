@@ -93,13 +93,13 @@ metricRaidCompletion = metricAvailableRaidCompletion + metricLeviCompletions + m
 
 
 
-"""" Speedrun Times """
+"""" Speedrun Times: 2x WR for now https://www.speedrun.com/destiny2"""
 # has to be tuples bc lists are not hashable
 speedrunActivitiesRaids = {
-    tuple(scourgeHashes): 780,             # scourge 13mins
-    tuple(cosHashes): 1320,                # cos 22min
-    tuple(lwHashes): 780,                  # lw 13
-    tuple(gosHashes): 1500,                # gos 25
+    tuple(scourgeHashes): 648,             # scourge
+    tuple(cosHashes): 1118,                # cos
+    tuple(lwHashes): 720,                  # lw doesn't have a time, so 12mins it is
+    tuple(gosHashes): 1496,                # gos
 }
 # consists of all of them
 speedrunActivities = speedrunActivitiesRaids

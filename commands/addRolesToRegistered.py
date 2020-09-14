@@ -8,8 +8,9 @@ class addRolesToRegistered(BaseCommand):
     def __init__(self):
         # A quick description for the help message
         description = "Assigns @Registered or @Not Registered to everyone"
+        topic = "Registration"
         params = []
-        super().__init__(description, params)
+        super().__init__(description, params, topic)
 
     # Override the handle() method
     # It will be called every time the command is received
@@ -33,8 +34,9 @@ class whoIsNotRegistered(BaseCommand):
     def __init__(self):
         # A quick description for the help message
         description = "Blames ppl who are not registered"
+        topic = "Registration"
         params = []
-        super().__init__(description, params)
+        super().__init__(description, params, topic)
 
     # Override the handle() method
     # It will be called every time the command is received
