@@ -175,10 +175,11 @@ async def assignRolesToUser(roleList, discordUser, guild):
                 print(f'assignable role doesn\'t exist in {guild.name} with id {guild.id}: {role}')
             continue
         if roleObj not in discordUser.roles:
-            print(f'added role {roleObj.name} to user {discordUser.name}')
             try:
                 await discordUser.add_roles(roleObj)
+                print(f'added role {roleObj.name} to user {discordUser.name} in server {guild.name}')
             except discord.errors.Forbidden:
+                print(f'failed to add {roleObj.name} to user {discordUser.name} in server {guild.name}')
                 return False
     return True
 
