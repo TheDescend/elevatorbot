@@ -60,7 +60,7 @@ async def generateBounties(client):
     file["time"] = str(datetime.datetime.now())
 
     # overwrite the old bounties
-    with open('functions/bounties/currentBounties.pickle', "wb") as f:
+    with open('functions/bounties/currentBounties.pickle', "wb+") as f:
         pickle.dump(file, f)
 
     print("Generated new bounties:")
@@ -124,8 +124,11 @@ def bountiesFormatting(json):
 # awards points to whoever has the most points. Can be multiple people if tied
 async def awardCompetitionBountiesPoints(client):
     # load current bounties
-    with open('functions/bounties/currentBounties.pickle', "rb") as f:
-        bounties = pickle.load(f)["competition_bounties"]
+    if os.path.exists('functions/bounties/currentBounties.pickle'):
+        with open('functions/bounties/currentBounties.pickle', "rb+") as f:
+            bountydict = pickle.load(f)
+            if "competition_bounties" in bountydict.keys():
+                bounties = bountydict["competition_bounties"]
 
     # load leaderboards
     leaderboards = getCompetitionBountiesLeaderboards()

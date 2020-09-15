@@ -6,7 +6,7 @@ from discord import File, channel
 class getapikey(BaseCommand):
     def __init__(self):
         # A quick description for the help message
-        description = "[dev] Dumps db contents"
+        description = "[dev] If used in a DM, DMs your API key for bungie back"
         params = []
         super().__init__(description, params)
 
@@ -17,4 +17,5 @@ class getapikey(BaseCommand):
             with message.channel.typing():
                 print('getting apikey')
                 await message.channel.send(getFreshToken(message.author.id))
-
+        else:
+            await message.channel.send("only usable in DMs, due to privacy/security concerns")

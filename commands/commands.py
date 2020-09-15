@@ -1,7 +1,7 @@
 from commands.base_command import BaseCommand
 from functions.roles import hasAdminOrDevPermissions
 
-import math
+import math, re
 
 # This is a convenient command that automatically generates a helpful
 # message showing all available commands
@@ -18,13 +18,15 @@ class Commands(BaseCommand):
         from message_handler import COMMAND_HANDLERS
         msg = "Contact <@&670397357120159776> if any problems arise\n⁣\n"
 
-        admin = True if await hasAdminOrDevPermissions(message, send_message=False) else False
+        #admin = await hasAdminOrDevPermissions(message, send_message=False)
+        admin = (message.channel.id == 670637036641845258)
 
         # sort by topic
         commands_by_topic = {}
         for cmd in sorted(COMMAND_HANDLERS.items()):
             description = cmd[1].description
-            if ('[dev]' not in description and '[depracted]' not in description) or admin:
+            braces = re.compile(r'\[[A-Za-z]+\]')
+            if (not braces.search(description)) or admin:
                 topic = cmd[1].topic
                 if topic not in commands_by_topic:
                     commands_by_topic[topic] = []
@@ -39,3 +41,12 @@ class Commands(BaseCommand):
             msg += "\n⁣\n"
             await message.channel.send(msg)
 
+class Documentation(BaseCommand):
+
+    def __init__(self):
+        description = "[dev] Displays a link to the documentation"
+        params = None
+        super().__init__(description, params)
+
+    async def handle(self, params, message, client):
+        message.channel.send('Check out https://github.com/LukasSchmid97/destinyBloodoakStats/blob/master/README.md')

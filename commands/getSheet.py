@@ -16,7 +16,7 @@ class getSheet(BaseCommand):
         # A quick description for the help message
         self.lastupdate = 0.0
         self.sheetpath = None
-        description = "[dev] gets the reduced Spreadsheet"
+        description = "[depracted] gets the reduced Spreadsheet"
         params = []
         super().__init__(description, params)
 
@@ -25,7 +25,7 @@ class getSheet(BaseCommand):
     async def handle(self, params, message, client):
         admin = discord.utils.get(message.guild.roles, name='Admin')
         dev = discord.utils.get(message.guild.roles, name='Developer') 
-        discordID = params[0]
+
         # check if user has permission to use this command
         if not await hasAdminOrDevPermissions(message) and not message.author.id == params[0]:
             return
