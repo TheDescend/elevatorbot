@@ -141,11 +141,9 @@ def threadingCompetitionBounties(bounties, cutoff, discordID):
                 sort_by.update({topic: sort_by_highest})
                 leaderboard[topic].update({discordID: best_score})
 
-    # update the leaderboard file
-    for topic in leaderboard:
-        changeCompetitionBountiesLeaderboards(topic, leaderboard[topic], sort_by[topic])
-
     print(f"Competitive bounties for destinyID: {destinyID} done")
+
+    return leaderboard, sort_by
 
 
 # return true if name is in the pickle, otherwise false and add name to pickle
@@ -490,17 +488,15 @@ def fulfillRequirements(requirements, activity, destinyID):
                 if player["player"]["destinyUserInfo"]["membershipId"] == str(destinyID):
                     time = player["values"]["activityDurationSeconds"]["basic"]["value"]
 
-                    # > tested <
-                    # do a different calc if "allowedTypes" or "allowedActivities"
-                    if "allowedTypes" in requirements["requirements"]:
-                        # check if activityDurationSeconds is shorter than allowed
+                    # do a different calc if a speedrun time was given
+                    if "speedrun" in requirements:
                         if requirements["speedrun"] >= time:
                             complete_list.append(req)
                         else:
                             return False, None
 
-                    # > tested <
-                    elif "allowedActivities" in requirements["requirements"]:
+                    # otherwise use the speedrun times in the dict
+                    else:
                         found = False
                         for activities in speedrunActivities.keys():
                             if hashID in activities:
