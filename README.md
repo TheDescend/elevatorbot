@@ -19,129 +19,129 @@
 
 ## Commands available through the bot
 
-##### !addrolestoregistered
+### !addrolestoregistered
 Assigns the roles @Registered or @Not Registered to everyone. This shows whether they have linked their destiny account through the bot.
 
-##### !assignallroles
+### !assignallroles
 For all registered members, checks for which roles from static/dict.py each member is eligible and assigns them accordingly.
 
-##### !boosters
+### !boosters
 Shows a list of people who used their Nitro subscription to boost the server.
 
-##### !checknames
+### !checknames
 Checks for all discord guild members whether they have a destiny-account linked and prints either the raid.report link or 'not found'
 
-##### !checknewbies
+### !checknewbies
 Checks for all bungie-net clan members whether they have a discord account associated and if it's still a member of the server
 
-##### !checkregister
+### !checkregister
 Checks whether the caller has a destiny-account connected and prints it's ID
 
-##### !commands
+### !commands
 Shows all commands that aren't tagged with a \[Tag\]
 
-##### !dr
+### !dr
 Prints the users dungeon.report link
 
-##### !finish [start of text]
+### !finish [start of text]
 Uses a continuously updated markov chain generated from the most coherent discord channels to finish whatever sentence you type as argument
 
-##### !flawlesses
+### !flawlesses
 Prints all the activityIDs for whom a completion with 0 deaths has been logged
 
-##### !forceregister discordID destinyID
+### !forceregister discordID destinyID
 Adds the discordID - destinyID pair to the database. This will usually be done through the !register command and a signup via bungie and should only be used if necessary
 
-##### !friends 
+### !friends 
 Interactive message to build a graph depending on your past teammates within Destiny 2
 
-##### !funfact
+### !funfact
 Prints a fun fact
 
-##### !getapikey
+### !getapikey
 Sends you the api key used by the bot for you if requested via DMs
 
-##### !getdestinyID [discord Identifier]
+### !getdestinyID [discord Identifier]
 Returns the destinyID if the discordid was found in the DB. Member conversion from the argument relies on discordpy's MemberConverter.
 
-##### !getdiscordfuzzy [partial name]
+### !getdiscordfuzzy [partial name]
 Will search the given partial name in the bungie-net clan and returns a list of possible matches for both destinyID and discordID
 
-##### !getdiscordid [destinyID]
+### !getdiscordid [destinyID]
 Gets the discordID from the DB if there's a match or informs you of it's absence
  
-##### !getroles [discordUser]
+### !getroles [discordUser]
 Using discordpy's MemberConverter. Gets all the roles from static/dict.py a user is eligible for.
 
-##### !getsheet
+### !getsheet
 Generates an Excelsheet containing the current state for registrated members on their roles
 
-##### !getusermatching
+### !getusermatching
 Checks for all clanmembers whether they are/were in the discord server or not
 
-##### !initiateDB
+### !initiateDB
 Adds all messages form the eligible channels to the markov-chat samples
 
-##### !lastraid
+### !lastraid
 Some stats about the last raid activity done
 
-##### !listhascollectible [collectible hash]
+### !listhascollectible [collectible hash]
 Gives a list of all players that own the mentioned collectible.
 Get the hashes from http://data.destinysets.com
 
-##### !makechannelothergameroles
+### !makechannelothergameroles
 Clears the channel and sets up a post that allows for reaction-based roles
 
-##### !markov
+### !markov
 Generates a random message based on the markov-chains collected in the discord server
 
-##### !maxpower
+### !maxpower
 Checks all the registered users for a ranking of the highest 20 powerlevels
 
-##### !mystic
+### !mystic
 Shows mystics list of who needs trials carries
 
-##### !mysticAdd/mysticremove
+### !mysticAdd/mysticremove
 Add/Remove yourself onto/from the mystic-carry-list
 Admins can use this with a discordUser as parameter
 
-##### !poptimeline
+### !poptimeline
 Generates a graph depicting the active users since Shadowkeep
 
-##### !rasputin
+### !rasputin
 Was used to track progress of the community quest during season of worthy
 
-##### !rasputingraph
+### !rasputingraph
 Displays a graph of the progress of the community quest during season of worthy
 
-##### !register
+### !register
 Registers you to the bots DB, by sending you a link to the oauth-page on elevatorbot.ch
 
-##### !registerdesc
+### !registerdesc
 Shadows !register, but don't get picked up from Charlemange.
 
-##### !removeallroles [discord user]
+### !removeallroles [discord user]
 Removes a users roles
 
-##### !rolerequirements [role name]
+### !rolerequirements [role name]
 Shows what you already have towards a certain role within static/dict.py
 
-##### !rollreaction [k]
+### !rollreaction [k]
 Chooses k distinct people from the reactions to the message before this one
 
-##### !rr
+### !rr
 Prints the link to your personal raid.report
 
-##### !spoder
+### !spoder
 Prints the spiders inventory, displaying the material costs and how many you already own
 
-##### !stat [statname]
+### !stat [statname]
 Use !stat help for a list of all possibilites. Gives various statistics about your ingame accomplishments.
 
-##### !unregister [discord user]
+### !unregister [discord user]
 Removes a user from the bots DB
 
-##### !updateDB
+### !updateDB
 Updates all the users in the DB with their most recent activities
 
 
