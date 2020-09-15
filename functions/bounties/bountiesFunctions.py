@@ -192,6 +192,7 @@ async def displayBounties(client):
             if "bounties_channel" in file:
                 bounties_channel = discord.utils.get(guild.channels, id=file["bounties_channel"])
                 await bounties_channel.purge(limit=100)
+                await bounties_channel.send(f"**Tip:** You earn 10% more points if you complete bounties with other people in this discord!")
                 for topic in json["bounties"].keys():
                     embed = embed_message(
                         topic
@@ -296,7 +297,6 @@ async def bountyCompletion(client):
     for guild in client.guilds:
         if guild.id == file["guild_id"]:
             break
-
 
     # loop though all registered users
     with concurrent.futures.ThreadPoolExecutor(os.cpu_count() * 5) as pool:

@@ -1,5 +1,5 @@
 from functions.network import getJSONfromURL
-from functions.database import lookupDestinyID, lookupDiscordID, getBountyUserList, getLevel, addLevel, setLevel
+from functions.database import getAllDiscordMemberDestinyIDs, lookupDestinyID, lookupDiscordID, getBountyUserList, getLevel, addLevel, setLevel
 from functions.dataLoading import getPGCR, getPlayersPastPVE, getStats, getProfile, returnManifestInfo
 from functions.network import getJSONfromURL
 from static.dict import speedrunActivities, metricRaidCompletion, metricAvailableRaidCompletion, metricWinStreakWeeklyAllocation, metricRaidAllocation
@@ -94,7 +94,7 @@ def threadingBounties(bounties, cutoff, discordID):
                     done, index_multiple_points = fulfillRequirements(requirements, activity, destinyID)
                     if done:
                         playerHasDoneBounty(discordID, bounty, done=True)
-                        addPoints(discordID, requirements, bounty, f"points_bounties_{topic.lower()}", index_multiple_points=index_multiple_points)
+                        addPoints(discordID, requirements, bounty, f"points_bounties_{topic.lower()}", index_multiple_points=index_multiple_points, clanmate_bonus=checkIfDiscordmateInActivity(activity["activityDetails"]["instanceId"]))
                         print(f"""DestinyID {destinyID} has completed bounty {bounty} with instanceID {activity["activityDetails"]["instanceId"]}""")
 
     print(f"Bounties for destinyID: {destinyID} done")
@@ -177,8 +177,11 @@ def playerHasDoneBounty(discordID, name, done=False):
 
 
 # adds points to the user
-def addPoints(discordID, requirements, name, leaderboard, index_multiple_points=None):
+def addPoints(discordID, requirements, name, leaderboard, index_multiple_points=None, clanmate_bonus=False):
     points = requirements["points"]
+    if clanmate_bonus:
+        points *= 1.1
+        points = int(round(points, 0))
 
     # if there are multiple possible points
     if index_multiple_points is not None:
@@ -191,6 +194,19 @@ def addPoints(discordID, requirements, name, leaderboard, index_multiple_points=
     # log that action
     logger = logging.getLogger('bounties')
     logger.info(f"DiscordID '{discordID}' completed '{name}' and was credited '{points}' points in the leaderboard '{leaderboard}'.")
+
+
+# return true if another clanmate was in the activity
+def checkIfDiscordmateInActivity(destinyID, activity_id):
+    discord_members = getAllDiscordMemberDestinyIDs()
+
+    pgcr = getPGCR(activity_id)
+    for player in pgcr["Response"]["entries"]:
+        other_destinyID = int(player["player"]["destinyUserInfo"]["membershipId"])
+        if other_destinyID != destinyID and other_destinyID in discord_members:
+            return True
+
+    return False
 
 
 # saves the current competition bounties leaderboards. gets reset in awardCompetitionBountiesPoints()

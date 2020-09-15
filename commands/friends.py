@@ -172,7 +172,7 @@ class friends(BaseCommand):
         discordMemberIDs = getAllDiscordMemberDestinyIDs()
         # changing them to be in a simple list instead of tuple inside of a list
         for i in range(len(discordMemberIDs)):
-            discordMemberIDs[i] = int(discordMemberIDs[i][0])
+            discordMemberIDs[i] = int(discordMemberIDs[i])
 
         # getting the activities for the original user
         result = self.return_activities(destinyID, activityID, start_time, end_time)

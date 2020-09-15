@@ -248,12 +248,9 @@ def getAllDiscordMemberDestinyIDs():
     getAll = "SELECT destinyID FROM discordGuardiansToken;"
 
     resultcur = cur.execute(getAll)
-    #print(resultcur)
-
     result = resultcur.fetchall()
-    #print(result)
 
-    return result
+    return [x[0] for x in result]
 
 def insertIntoMessageDB(messagetext, userid, channelid, msgid, msgdate):
     """ Used to collect messages for markov-chaining, returns True if successful """
