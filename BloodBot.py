@@ -28,6 +28,12 @@ from functions.database import insertIntoMessageDB
 from static.config      import NOW_PLAYING, COMMAND_PREFIX, BOT_TOKEN
 from functions.formating import embed_message
 
+import nltk
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
+
+nltk.download('vader_lexicon')
+analyzer = SentimentIntensityAnalyzer()
+
 # Set to remember if the bot is already running, since on_ready may be called
 # more than once on reconnects
 this = sys.modules[__name__]
@@ -112,11 +118,19 @@ def main():
 
         if "welcome" in text.lower() and message.mentions:
             for mention in message.mentions:
-                if mention.id == 109022023979667456:
+                if mention.id == 109022023979667456: #@Neria
                     await message.channel.send(f'Welcome <@109022023979667456>!')
-        if client.user in message.mentions:
-            notification = client.get_emoji(751771924866269214)
+        
+        if client.user in message.mentions: #If bot has been tagged
+            sentiment = analyzer.polarity_scores(message.clean_content) #{'neg': 0.0, 'neu': 0.436, 'pos': 0.564, 'compound': 0.3802}
+            notification = client.get_emoji(751771924866269214) #notification/angerping
+            sentimentPositive = client.get_emoji(670369126983794700) #POGGERS
+            sentimentNegative = client.get_emoji(670672093263822877) #SadChamp
             await message.add_reaction(notification)
+            if sentiment['compound'] > 0.3:
+                await message.add_reaction(sentimentPositive)
+            if sentiment['compound'] < -0.3:
+                await message.add_reaction(sentimentNegative)
 
         if text.startswith(COMMAND_PREFIX) and text != COMMAND_PREFIX:
             cmd_split = text[len(COMMAND_PREFIX):].split()
@@ -176,7 +190,7 @@ def main():
     # https://discordpy.readthedocs.io/en/latest/api.html#discord.RawReactionActionEvent
     @client.event
     async def on_raw_reaction_add(payload):
-        if payload.member.bot:
+        if not payload.member or payload.member.bot:
             return
 
         # for checking reactions to the bounties registration page
