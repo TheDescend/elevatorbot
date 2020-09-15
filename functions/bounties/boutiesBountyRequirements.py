@@ -49,7 +49,7 @@ Points:
 """
 # ----------------------------------------------------------------------------------
 # bounties:
-bounties = {
+bounties_dict = {
     # raid bounties
     'Raids': {
         # new players
@@ -235,7 +235,7 @@ bounties = {
 
 # ----------------------------------------------------------------------
 # bounties where the whole clan competes against each other
-competition_bounties = {
+competition_bounties_dict = {
     # raid bounties
     'Raids': {
         "Get the fastest clear of the raid __?__": {

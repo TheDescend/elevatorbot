@@ -52,19 +52,20 @@ class bounties(BaseCommand):
                             experience_level_pvp == 1 and experience == "Experienced Players")):
                         continue
 
-                name, req = list(json["bounties"][topic][experience].items())[0]
+                for name in json["bounties"][topic][experience]:
+                    req = json["bounties"][topic][experience][name]
 
-                if isinstance(req['points'], list):
-                    if "lowman" in req["requirements"]:
-                        points = []
-                        for x, y in zip(req["lowman"], req["points"]):
-                            points.append(f"{y}** ({x} Player)** ")
-                        points = "**/ **".join(points)
-                else:
-                    points = req['points']
+                    if isinstance(req['points'], list):
+                        if "lowman" in req["requirements"]:
+                            points = []
+                            for x, y in zip(req["lowman"], req["points"]):
+                                points.append(f"{y}** ({x} Player)** ")
+                            points = "**/ **".join(points)
+                    else:
+                        points = req['points']
 
-                embed.add_field(name="✅ Done" if playerHasDoneBounty(message.author.id, name) else "Available", value=f"~~Points: **{points}** - {name}~~\n⁣" if playerHasDoneBounty(message.author.id, name) else f"Points: **{points}** - {name}\n⁣", inline=False)
-            await message.author.send(embed=embed)
+                    embed.add_field(name="✅ Done" if playerHasDoneBounty(message.author.id, name) else "Available", value=f"~~Points: **{points}** - {name}~~\n⁣" if playerHasDoneBounty(message.author.id, name) else f"Points: **{points}** - {name}\n⁣", inline=False)
+                await message.author.send(embed=embed)
 
 
 class leaderboard(BaseCommand):

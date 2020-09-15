@@ -1,6 +1,6 @@
 from functions.formating import embed_message
 from functions.database import insertBountyUser, getBountyUserList, getLevel, addLevel, setLevel, lookupDestinyID, lookupServerID
-from functions.bounties.boutiesBountyRequirements import bounties, competition_bounties, possibleWeaponsKinetic, possibleWeaponsEnergy, possibleWeaponsPower
+from functions.bounties.boutiesBountyRequirements import bounties_dict, competition_bounties_dict, possibleWeaponsKinetic, possibleWeaponsEnergy, possibleWeaponsPower
 from functions.bounties.bountiesBackend import saveAsGlobalVar, getGlobalVar, addPoints, formatLeaderboardMessage, returnLeaderboard, getCompetitionBountiesLeaderboards, changeCompetitionBountiesLeaderboards, experiencePvp, experiencePve, experienceRaids, threadingCompetitionBounties, threadingBounties
 from functions.bounties.bountiesTournament import tournamentRegistrationMessage
 from functions.dataLoading import returnManifestInfo
@@ -14,6 +14,7 @@ import json
 import asyncio
 import datetime
 import concurrent.futures
+from copy import deepcopy
 
 
 
@@ -34,27 +35,33 @@ async def generateBounties(client):
                 pass
 
     # looping though the bounties
+    copy_of_bounty_dict = deepcopy(bounties_dict)
     file = {}
     file["bounties"] = {}
-    for topic in bounties.keys():
+    for topic in copy_of_bounty_dict.keys():
         file["bounties"][topic] = {}
-        for experience in bounties[topic].keys():
-            key, value = bountiesFormatting(bounties[topic][experience])
-
+        for experience in copy_of_bounty_dict[topic].keys():
+            ret = bountiesFormatting(copy_of_bounty_dict[topic][experience], amount_of_bounties=2)
             file["bounties"][topic][experience] = {}
-            file["bounties"][topic][experience][key] = value
+
+            for key in ret:
+                value = ret[key]
+                file["bounties"][topic][experience][key] = value
 
     # looping though the competition bounties
+    copy_of_competition_bounties_dict = deepcopy(competition_bounties_dict)
     file["competition_bounties"] = {}
-    for topic in competition_bounties.keys():
-        key, value = bountiesFormatting(competition_bounties[topic])
-
+    for topic in copy_of_competition_bounties_dict.keys():
+        ret = bountiesFormatting(copy_of_competition_bounties_dict[topic])
         file["competition_bounties"][topic] = {}
-        file["competition_bounties"][topic][key] = value
 
-        # if "tournament" is in there, put the tourn message up
-        if "tournament" in value["requirements"]:
-            await tournamentRegistrationMessage(client)
+        for key in ret:
+            value = ret[key]
+            file["competition_bounties"][topic][key] = value
+
+            # if "tournament" is in there, put the tourn message up
+            if "tournament" in value["requirements"]:
+                await tournamentRegistrationMessage(client)
 
     # add current time to list
     file["time"] = str(datetime.datetime.now())
@@ -76,49 +83,59 @@ async def generateBounties(client):
 
 
 # do the random selection and the extraText formating
-def bountiesFormatting(json):
-    key, value = random.choice(list(json.items()))
+def bountiesFormatting(json, amount_of_bounties=1):
+    ret = {}
 
-    # if "randomActivity" is present, get a random activity from the list and delete "randomActivity" so it doesn't take up space anymore
-    if "randomActivity" in value:
-        value["allowedActivities"] = random.choice(value.pop("randomActivity"))
-        value["requirements"].pop(value["requirements"].index("randomActivity"))
-        value["requirements"].append("allowedActivities")
+    # generate the specified amount of bounties
+    for _ in range(amount_of_bounties):
+        key, value = random.choice(list(json.items()))
 
-    # if "customLoadout" is present, get a random loadout from the list
-    if "customLoadout" in value["requirements"]:
-        weaponKinetic = random.choice(possibleWeaponsKinetic)
-        weaponEnergy = random.choice(possibleWeaponsEnergy)
-        weaponPower = random.choice(possibleWeaponsPower)
+        # pop that, so it can't get chosen randomly twice
+        json.pop(key)
 
-        value["customLoadout"] = {
-            weaponTypeKinetic: weaponKinetic,
-            weaponTypeEnergy: weaponEnergy,
-            weaponTypePower: weaponPower
-        }
+        # if "randomActivity" is present, get a random activity from the list and delete "randomActivity" so it doesn't take up space anymore
+        if "randomActivity" in value:
+            value["allowedActivities"] = random.choice(value.pop("randomActivity"))
+            value["requirements"].pop(value["requirements"].index("randomActivity"))
+            value["requirements"].append("allowedActivities")
 
-    # if "extraText" is present, process that
-    if "extraText" in value:
-        if "allowedActivities" in value["requirements"]:
-            activity_name = returnManifestInfo("DestinyActivityDefinition", value["allowedActivities"][0])["Response"]["displayProperties"]["name"]
-            key = key.replace("?", activity_name)
-
+        # if "customLoadout" is present, get a random loadout from the list
         if "customLoadout" in value["requirements"]:
-            key = key + value["extraText"]
+            weaponKinetic = random.choice(possibleWeaponsKinetic)
+            weaponEnergy = random.choice(possibleWeaponsEnergy)
+            weaponPower = random.choice(possibleWeaponsPower)
 
-            key = key.replace("?", f"__{weaponKinetic}__")
-            key = key.replace("%", f"__{weaponEnergy}__")
-            key = key.replace("&", f"__{weaponPower}__")
+            value["customLoadout"] = {
+                weaponTypeKinetic: weaponKinetic,
+                weaponTypeEnergy: weaponEnergy,
+                weaponTypePower: weaponPower
+            }
 
-        if "speedrun" in value["requirements"]:
-            if "allowedTypes" in value["requirements"]:
-                if activityRaidHash == value["allowedTypes"]:
-                    key = key + f"\n⁣"
-                    for activities in speedrunActivitiesRaids:
-                        activity_name = returnManifestInfo("DestinyActivityDefinition", activities[0])["Response"]["displayProperties"]["name"]
-                        key = key + f"\n{activity_name}: __{speedrunActivitiesRaids[activities] / 60}min__ (2x WR)"
+        # if "extraText" is present, process that
+        if "extraText" in value:
+            if "allowedActivities" in value["requirements"]:
+                activity_name = returnManifestInfo("DestinyActivityDefinition", value["allowedActivities"][0])["Response"]["displayProperties"]["name"]
+                key = key.replace("?", activity_name)
 
-    return key, value
+            if "customLoadout" in value["requirements"]:
+                key = key + value["extraText"]
+
+                key = key.replace("?", f"__{weaponKinetic}__")
+                key = key.replace("%", f"__{weaponEnergy}__")
+                key = key.replace("&", f"__{weaponPower}__")
+
+            if "speedrun" in value["requirements"]:
+                if "allowedTypes" in value["requirements"]:
+                    if activityRaidHash == value["allowedTypes"]:
+                        key = key + f"\n⁣"
+                        for activities in speedrunActivitiesRaids:
+                            activity_name = returnManifestInfo("DestinyActivityDefinition", activities[0])["Response"]["displayProperties"]["name"]
+                            key = key + f"\n{activity_name}: __{round(speedrunActivitiesRaids[activities] / 60, 2)}min__ (2x WR)"
+
+        # update return dict
+        ret.update({key: value})
+
+    return ret
 
 
 # awards points to whoever has the most points. Can be multiple people if tied
@@ -130,27 +147,28 @@ async def awardCompetitionBountiesPoints(client):
             if "competition_bounties" in bountydict.keys():
                 bounties = bountydict["competition_bounties"]
 
-    # load leaderboards
-    leaderboards = getCompetitionBountiesLeaderboards()
+        # load leaderboards
+        leaderboards = getCompetitionBountiesLeaderboards()
 
-    # loop through topic, then though users
-    for topic in leaderboards:
-        last = None
-        for discordID in leaderboards[topic]:
-            # also award the points should multiple people have the same score
-            if last != leaderboards[topic][discordID]:
-                break
+        # loop through topic, then though users
+        for topic in leaderboards:
+            last_score = None
+            for discordID in leaderboards[topic]:
+                # also award the points should multiple people have the same score
+                if (last_score != leaderboards[topic][discordID]) and last_score is not None:
+                    break
 
-            # award the points in the respective categories
-            name = list(bounties[topic].keys())[0]
-            addPoints(discordID, bounties[topic], bounties[topic][name], f"points_competition_{topic.lower()}")
+                # award the points in the respective categories
+                last_score = leaderboards[topic][discordID]
+                name = list(bounties[topic].keys())[0]
+                addPoints(discordID, bounties[topic][name], name, f"points_competition_{topic.lower()}")
 
-    # update display
-    await displayLeaderboard(client)
+        # update display
+        await displayLeaderboard(client)
 
-    # delete now old leaderboards
-    if os.path.exists('functions/bounties/competitionBountiesLeaderboards.pickle'):
-        os.remove('functions/bounties/competitionBountiesLeaderboards.pickle')
+        # delete now old leaderboards
+        if os.path.exists('functions/bounties/competitionBountiesLeaderboards.pickle'):
+            os.remove('functions/bounties/competitionBountiesLeaderboards.pickle')
 
 
 # print the bounties in their respective channels
@@ -174,23 +192,27 @@ async def displayBounties(client):
             if "bounties_channel" in file:
                 bounties_channel = discord.utils.get(guild.channels, id=file["bounties_channel"])
                 await bounties_channel.purge(limit=100)
+                await bounties_channel.send(f"**Tip:** You earn 10% more points if you complete bounties with other people in this discord!")
                 for topic in json["bounties"].keys():
                     embed = embed_message(
                         topic
                     )
                     for experience in json["bounties"][topic].keys():
-                        name, req = list(json["bounties"][topic][experience].items())[0]
+                        put_topic = False
+                        for name in json["bounties"][topic][experience]:
+                            req = json["bounties"][topic][experience][name]
 
-                        if isinstance(req['points'], list):
-                            if "lowman" in req["requirements"]:
-                                points = []
-                                for x, y in zip(req["lowman"], req["points"]):
-                                    points.append(f"{y}** ({x} Player)** ")
-                                points = "**/ **".join(points)
-                        else:
-                            points = req['points']
+                            if isinstance(req['points'], list):
+                                if "lowman" in req["requirements"]:
+                                    points = []
+                                    for x, y in zip(req["lowman"], req["points"]):
+                                        points.append(f"{y}** ({x} Player)** ")
+                                    points = "**/ **".join(points)
+                            else:
+                                points = req['points']
 
-                        embed.add_field(name=f"{experience}:", value=f"Points: **{points}** - {name}\n⁣", inline=False)
+                            embed.add_field(name="⁣" if put_topic else f"{experience}:", value=f"Points: **{points}** - {name}\n⁣", inline=False)
+                            put_topic = True
                     await bounties_channel.send(embed=embed)
 
                 # ping users
@@ -276,7 +298,6 @@ async def bountyCompletion(client):
         if guild.id == file["guild_id"]:
             break
 
-
     # loop though all registered users
     with concurrent.futures.ThreadPoolExecutor(os.cpu_count() * 5) as pool:
         futurelist = [pool.submit(threadingBounties, bounties["bounties"], cutoff, user)
@@ -286,15 +307,23 @@ async def bountyCompletion(client):
             future.result()
 
     # loop though all registered users
+    leaderboard = {}
     with concurrent.futures.ThreadPoolExecutor(os.cpu_count() * 5) as pool:
         futurelist = [pool.submit(threadingCompetitionBounties, bounties["competition_bounties"], cutoff, user)
                       for user in getBountyUserList()]
 
         for future in concurrent.futures.as_completed(futurelist):
-            future.result()
-
+            new_lead, sort_by = future.result()
+            for topic in new_lead:
+                if topic not in leaderboard:
+                    leaderboard[topic] = {}
+                leaderboard[topic].update(new_lead[topic])
 
     print("Done checking all the users")
+
+    # update the leaderboard file
+    for topic in leaderboard:
+        changeCompetitionBountiesLeaderboards(topic, leaderboard[topic], sort_by[topic])
 
     # display the new leaderboards
     await displayCompetitionBounties(client, guild, message=True)

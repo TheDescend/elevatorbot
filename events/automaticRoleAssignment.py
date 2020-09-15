@@ -2,8 +2,9 @@ from events.base_event              import BaseEvent
 
 from functions.roles                import assignRolesToUser, removeRolesFromUser, getPlayerRoles
 from functions.dataTransformation   import getFullMemberMap, isUserInClan
-from functions.database             import lookupDestinyID, getToken
+from functions.database             import lookupDiscordID, lookupDestinyID, getToken
 from functions.dataLoading          import initDB
+from functions.network import getJSONfromURL
 
 from static.dict import clanids
 
@@ -80,12 +81,6 @@ class AutomaticRoleAssignment(BaseEvent):
         #await newtonslab.send('done with daily update <:CaydeThumbsUp:670997683774685234>')
 
 
-raiderText = '⁣           Raider       ⁣'
-raiderId = 670385313994113025
-achText = '⁣        Achievements       ⁣'
-achId = 670385837044662285
-miscText = '⁣           Misc       ⁣  ⁣  ⁣'
-miscId = 670395920327639085
 class AutoRegisteredRole(BaseEvent):
     """Will automatically update the registration and the guest role"""
     def __init__(self):
@@ -93,6 +88,25 @@ class AutoRegisteredRole(BaseEvent):
         super().__init__(interval_minutes)
 
     async def run(self, client):
+        raiderText = '⁣           Raider       ⁣'
+        raiderId = 670385313994113025
+        achText = '⁣        Achievements       ⁣'
+        achId = 670385837044662285
+        miscText = '⁣           Misc       ⁣  ⁣  ⁣'
+        miscId = 670395920327639085
+
+        clanID = 4107840
+        newtonsLabID = 670637036641845258
+
+        # get all clan members discordID
+        memberlist = []
+        for member in getJSONfromURL(f"https://www.bungie.net/Platform/GroupV2/{clanID}/Members/")["Response"]["results"]:
+            destinyID = int(member["destinyUserInfo"]["membershipId"])
+            discordID = lookupDiscordID(destinyID)
+            if discordID is not None:
+                memberlist.append(discordID)
+        newtonsLab = client.get_channel(newtonsLabID)
+
         for guild in client.guilds:
             for member in guild.members:
                 # dont do that for bots
@@ -107,6 +121,17 @@ class AutoRegisteredRole(BaseEvent):
                         if discord.utils.get(guild.roles, name="Registered") in member.roles:
                             await removeRolesFromUser(["Registered"], member, guild)
                             await assignRolesToUser(["Not Registered"], member, guild)
+
+                    # add clan role if user is in clan and doesn't have clan role
+                    if discord.utils.get(guild.roles, name="The Descend") not in member.roles:
+                        if member.id in memberlist:
+                            await assignRolesToUser(["The Descend"], member, guild)
+                            await newtonsLab.send(f"Add Descend role to {member.display_name}")
+                    # Also remove it if no longer in clan
+                    if discord.utils.get(guild.roles, name="The Descend") in member.roles:
+                        if member.id not in memberlist:
+                            await removeRolesFromUser(["The Descend"], member, guild)
+                            await newtonsLab.send(f"Remove Descend role from {member.display_name}")
 
                     # add @guest if the clan role doesn't exist
                     if discord.utils.get(guild.roles, name="The Descend") not in member.roles:
