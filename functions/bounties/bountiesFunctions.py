@@ -39,22 +39,26 @@ async def generateBounties(client):
     for topic in bounties.keys():
         file["bounties"][topic] = {}
         for experience in bounties[topic].keys():
-            key, value = bountiesFormatting(bounties[topic][experience])
-
+            ret = bountiesFormatting(bounties[topic][experience], amount_of_bounties=2)
             file["bounties"][topic][experience] = {}
-            file["bounties"][topic][experience][key] = value
+
+            for key in ret:
+                value = ret[key]
+                file["bounties"][topic][experience][key] = value
 
     # looping though the competition bounties
     file["competition_bounties"] = {}
     for topic in competition_bounties.keys():
-        key, value = bountiesFormatting(competition_bounties[topic])
-
+        ret = bountiesFormatting(competition_bounties[topic])
         file["competition_bounties"][topic] = {}
-        file["competition_bounties"][topic][key] = value
 
-        # if "tournament" is in there, put the tourn message up
-        if "tournament" in value["requirements"]:
-            await tournamentRegistrationMessage(client)
+        for key in ret:
+            value = ret[key]
+            file["competition_bounties"][topic][key] = value
+
+            # if "tournament" is in there, put the tourn message up
+            if "tournament" in value["requirements"]:
+                await tournamentRegistrationMessage(client)
 
     # add current time to list
     file["time"] = str(datetime.datetime.now())
@@ -76,49 +80,59 @@ async def generateBounties(client):
 
 
 # do the random selection and the extraText formating
-def bountiesFormatting(json):
-    key, value = random.choice(list(json.items()))
+def bountiesFormatting(json, amount_of_bounties=1):
+    ret = {}
 
-    # if "randomActivity" is present, get a random activity from the list and delete "randomActivity" so it doesn't take up space anymore
-    if "randomActivity" in value:
-        value["allowedActivities"] = random.choice(value.pop("randomActivity"))
-        value["requirements"].pop(value["requirements"].index("randomActivity"))
-        value["requirements"].append("allowedActivities")
+    # generate the specified amount of bounties
+    for _ in range(amount_of_bounties):
+        key, value = random.choice(list(json.items()))
 
-    # if "customLoadout" is present, get a random loadout from the list
-    if "customLoadout" in value["requirements"]:
-        weaponKinetic = random.choice(possibleWeaponsKinetic)
-        weaponEnergy = random.choice(possibleWeaponsEnergy)
-        weaponPower = random.choice(possibleWeaponsPower)
+        # pop that, so it can't get chosen randomly twice
+        json.pop(key)
 
-        value["customLoadout"] = {
-            weaponTypeKinetic: weaponKinetic,
-            weaponTypeEnergy: weaponEnergy,
-            weaponTypePower: weaponPower
-        }
+        # if "randomActivity" is present, get a random activity from the list and delete "randomActivity" so it doesn't take up space anymore
+        if "randomActivity" in value:
+            value["allowedActivities"] = random.choice(value.pop("randomActivity"))
+            value["requirements"].pop(value["requirements"].index("randomActivity"))
+            value["requirements"].append("allowedActivities")
 
-    # if "extraText" is present, process that
-    if "extraText" in value:
-        if "allowedActivities" in value["requirements"]:
-            activity_name = returnManifestInfo("DestinyActivityDefinition", value["allowedActivities"][0])["Response"]["displayProperties"]["name"]
-            key = key.replace("?", activity_name)
-
+        # if "customLoadout" is present, get a random loadout from the list
         if "customLoadout" in value["requirements"]:
-            key = key + value["extraText"]
+            weaponKinetic = random.choice(possibleWeaponsKinetic)
+            weaponEnergy = random.choice(possibleWeaponsEnergy)
+            weaponPower = random.choice(possibleWeaponsPower)
 
-            key = key.replace("?", f"__{weaponKinetic}__")
-            key = key.replace("%", f"__{weaponEnergy}__")
-            key = key.replace("&", f"__{weaponPower}__")
+            value["customLoadout"] = {
+                weaponTypeKinetic: weaponKinetic,
+                weaponTypeEnergy: weaponEnergy,
+                weaponTypePower: weaponPower
+            }
 
-        if "speedrun" in value["requirements"]:
-            if "allowedTypes" in value["requirements"]:
-                if activityRaidHash == value["allowedTypes"]:
-                    key = key + f"\n⁣"
-                    for activities in speedrunActivitiesRaids:
-                        activity_name = returnManifestInfo("DestinyActivityDefinition", activities[0])["Response"]["displayProperties"]["name"]
-                        key = key + f"\n{activity_name}: __{speedrunActivitiesRaids[activities] / 60}min__ (2x WR)"
+        # if "extraText" is present, process that
+        if "extraText" in value:
+            if "allowedActivities" in value["requirements"]:
+                activity_name = returnManifestInfo("DestinyActivityDefinition", value["allowedActivities"][0])["Response"]["displayProperties"]["name"]
+                key = key.replace("?", activity_name)
 
-    return key, value
+            if "customLoadout" in value["requirements"]:
+                key = key + value["extraText"]
+
+                key = key.replace("?", f"__{weaponKinetic}__")
+                key = key.replace("%", f"__{weaponEnergy}__")
+                key = key.replace("&", f"__{weaponPower}__")
+
+            if "speedrun" in value["requirements"]:
+                if "allowedTypes" in value["requirements"]:
+                    if activityRaidHash == value["allowedTypes"]:
+                        key = key + f"\n⁣"
+                        for activities in speedrunActivitiesRaids:
+                            activity_name = returnManifestInfo("DestinyActivityDefinition", activities[0])["Response"]["displayProperties"]["name"]
+                            key = key + f"\n{activity_name}: __{round(speedrunActivitiesRaids[activities] / 60, 2)}min__ (2x WR)"
+
+        # update return dict
+        ret.update({key: value})
+
+    return ret
 
 
 # awards points to whoever has the most points. Can be multiple people if tied
@@ -179,18 +193,21 @@ async def displayBounties(client):
                         topic
                     )
                     for experience in json["bounties"][topic].keys():
-                        name, req = list(json["bounties"][topic][experience].items())[0]
+                        put_topic = False
+                        for name in json["bounties"][topic][experience]:
+                            req = json["bounties"][topic][experience][name]
 
-                        if isinstance(req['points'], list):
-                            if "lowman" in req["requirements"]:
-                                points = []
-                                for x, y in zip(req["lowman"], req["points"]):
-                                    points.append(f"{y}** ({x} Player)** ")
-                                points = "**/ **".join(points)
-                        else:
-                            points = req['points']
+                            if isinstance(req['points'], list):
+                                if "lowman" in req["requirements"]:
+                                    points = []
+                                    for x, y in zip(req["lowman"], req["points"]):
+                                        points.append(f"{y}** ({x} Player)** ")
+                                    points = "**/ **".join(points)
+                            else:
+                                points = req['points']
 
-                        embed.add_field(name=f"{experience}:", value=f"Points: **{points}** - {name}\n⁣", inline=False)
+                            embed.add_field(name="⁣" if put_topic else f"{experience}:", value=f"Points: **{points}** - {name}\n⁣", inline=False)
+                            put_topic = True
                     await bounties_channel.send(embed=embed)
 
                 # ping users
