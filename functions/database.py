@@ -165,9 +165,10 @@ def getToken(discordID):
     c.execute(select_sql, (discordID,))
     results = c.fetchall()
     if len(results) == 1:
-        return results[0]
+        return results[0][0]
     elif len(results) > 1:
         print(f'discordSnowflake not unique: {discordID}')
+    print(f'no user with ID {discordID} in discordGuardianToken')
     return None
 
 def insertToken(discordID, destinyID, discordServerID, token, refresh_token):
@@ -385,7 +386,6 @@ def getLastRaid(destinyID, before=datetime.now()):
     data_tuple = (instanceID,)
     cur.execute(sqlite_select, data_tuple)
     result = period.strftime("%d %m %Y") + '\n'
-    con.close()
     for row in cur.fetchall():
         (lightlevel, displayname, deaths, opponentsDefeated, completed) = row
         finished = 'finished' if completed else 'left'
