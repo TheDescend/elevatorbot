@@ -76,8 +76,9 @@ def getJSONwithToken(url, discordID):
 
     token = getToken(discordID)
     if not token:
+        print(f'token not found for discordID {discordID}')
         return None
-    # print(f'using {token}')
+    #print(f'using {token}')
     headers = {'Authorization': f'Bearer {token}', 'x-api-key': BUNGIE_TOKEN, 'Accept': 'application/json'}
     r = session.get(url, headers=headers)
 
@@ -87,6 +88,7 @@ def getJSONwithToken(url, discordID):
         return getJSONwithToken(url, discordID)
    
     if int(r.status_code) == 500:
+        print('bungierequest gave 500')
         return None
     
     res = r.json()
