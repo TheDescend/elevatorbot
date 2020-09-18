@@ -32,10 +32,7 @@ async def handle_command(command, args, message, bot_client):
     # ignore that check if message is !register or !registerdesc
     if message.guild and message.guild.id == 669293365900214293:
         if (command != "register") and (command != "registerdesc"):
-            discordID = message.author.id
-            token = getToken(discordID)
-            print(token)
-            if not token:
+            if not getToken(message.author.id):
                 await message.channel.send(embed=embed_message(
                     'Additional Action Necessary',
                     f'{message.author.name}, please first link your Destiny account by using `!register`'

@@ -19,21 +19,8 @@ class register(BaseCommand):
     # Override the handle() method
     # It will be called every time the command is received
     async def handle(self, params, message, client):
-        if not message.guild:
-            await message.author.send('Please use this command in your clans bot-channel')
-            return
-        state = str(message.author.id) + ':' + str(message.guild.id)
-        URL = f'https://www.bungie.net/en/oauth/authorize?client_id={BUNGIE_OAUTH}&response_type=code&state={state}'
-        await message.author.send(embed=embed_message(
-                f'Registration',
-                f'[Click here to register with the bot]({URL})'
-            ))
-        await message.channel.send(embed=embed_message(
-                'Registration',
-                f'Sent a DM to {message.author.nick or message.author.name}'
-            ))
-        x = AutoRegisteredRole()
-        await x.run(client)
+        await elevatorRegistration(message)
+
 
 class registerDesc(BaseCommand):
     def __init__(self):
@@ -46,21 +33,24 @@ class registerDesc(BaseCommand):
     # Override the handle() method
     # It will be called every time the command is received
     async def handle(self, params, message, client):
-        if not message.guild:
-            await message.author.send('Please use this command in your clans bot-channel')
-            return
-        state = str(message.author.id) + ':' + str(message.guild.id)
-        URL = f'https://www.bungie.net/en/oauth/authorize?client_id={BUNGIE_OAUTH}&response_type=code&state={state}'
-        await message.author.send(embed=embed_message(
-                f'Registration',
-                f'[Click here to register with the bot]({URL})'
-            ))
-        await message.channel.send(embed=embed_message(
-                'Registration',
-                f'Sent a DM to {message.author.nick or message.author.name}'
-            ))
-        x = AutoRegisteredRole()
-        await x.run(client)
+        await elevatorRegistration(message)
+
+
+async def elevatorRegistration(message):
+    if not message.guild:
+        await message.author.send('Please use this command in your clans bot-channel')
+        return
+    state = str(message.author.id) + ':' + str(message.guild.id)
+    URL = f'https://www.bungie.net/en/oauth/authorize?client_id={BUNGIE_OAUTH}&response_type=code&state={state}'
+    await message.author.send(embed=embed_message(
+        f'Registration',
+        f'[Click here to register with the bot]({URL})'
+    ))
+    await message.channel.send(embed=embed_message(
+        'Registration',
+        f'Sent a DM to {message.author.nick or message.author.name}'
+    ))
+
 
 class checkregister(BaseCommand):
     def __init__(self):
@@ -74,6 +64,7 @@ class checkregister(BaseCommand):
     # It will be called every time the command is received
     async def handle(self, params, message, client):
         await message.channel.send(f'User {message.author.nick or message.author.name} has ID {lookupDestinyID(message.author.id)}')
+
 
 class forceregister(BaseCommand):
     def __init__(self):
@@ -108,8 +99,6 @@ class forceregister(BaseCommand):
         else:
             await message.channel.send(f'insert failed')
 
-        
-
 
 class unregister(BaseCommand):
     def __init__(self):
@@ -130,4 +119,3 @@ class unregister(BaseCommand):
             await message.author.send(f'removed {params[0]}')
         else:
             await message.author.send('removal failed for ', params[0])
-        
