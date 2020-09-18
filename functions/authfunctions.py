@@ -88,17 +88,18 @@ def getSpiderMaterials(discordID, destinyID, characterID):
             
 
         #returntext += f'selling {sale["quantity"]} {soldname} for {sale["costs"][0]["quantity"]} {pricename}\n'
-        returntext += f'selling {soldname} for {pricename}, you already own {ownedamount} {soldname}\n'
+        returntext += f'selling {soldname} for {pricename}, you already own{ownedamount:>12,d} {soldname}\n'
 
     returntext = returntext.replace('Dusklight Shards', '<:DusklightShards:620647201940570133>')
-    returntext = returntext.replace('Phaseglass', '<:Phaseglass:620647202418851895>')
+    returntext = returntext.replace('Phaseglass Needle', '<:Phaseglass:620647202418851895>')
     returntext = returntext.replace('Seraphite', '<:Seraphite:620647202297085992>')
     returntext = returntext.replace('Legendary Shards', '<:LegendaryShards:620647202003484672>')
     returntext = returntext.replace('Alkane Dust', '<:AlkaneDust:620647201827454990>')
     returntext = returntext.replace('Datalattice', '<:Datalattice:620647202015936536>')
-    returntext = returntext.replace('Simulation Seed', '<:SimulationSeeds:620647203635200070>')
+    returntext = returntext.replace('Simulation Seeds', '<:SimulationSeeds:620647203635200070>')
     returntext = returntext.replace('Glimmer', '<:Glimmer:620647202007810098>')
     returntext = returntext.replace('Enhancement Cores', '<:EnhancementCores:620647201596637185>')
     returntext = returntext.replace('Helium Filaments', '<:HeliumFilaments:707244746493657160>')
     returntext = returntext.replace('Etheric Spiral', '<:EthericSpiral:620647202267594792>')
+    returntext = returntext.replace('Baryon Bough', '<:BaryonBough:755678814427807756>')
     return returntext
