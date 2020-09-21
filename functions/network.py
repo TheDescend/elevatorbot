@@ -72,12 +72,12 @@ def getFreshToken(discordID):
 
 
 def getJSONwithToken(url, discordID):
-    """ Takes url and discordID, returns JSON """
+    """ Takes url and discordID, returns dict with [token] = JSON, otherwise [error] has a errormessage """
 
     token = getToken(discordID)
     if not token:
         print(f'token not found for discordID {discordID}')
-        return None
+        return {'result': None, 'error':'User has not registered'}
     #print(f'using {token}')
     headers = {'Authorization': f'Bearer {token}', 'x-api-key': BUNGIE_TOKEN, 'Accept': 'application/json'}
     r = session.get(url, headers=headers)
@@ -89,7 +89,7 @@ def getJSONwithToken(url, discordID):
    
     if int(r.status_code) == 500:
         print('bungierequest gave 500')
-        return None
+        return {'result': None, 'error':'Bungie seems to be offline'}
     
     res = r.json()
     if int(res['ErrorCode']) == 401:
@@ -101,7 +101,7 @@ def getJSONwithToken(url, discordID):
         print(url)
         print(headers)
         print(f'ErrorCode is not 1, but {res["ErrorCode"]}')
-        return None
+        return {'result': None, 'error': f'You encountered error {res["ErrorCode"]}, please inform <@171650677607497730>'}
 
     # print(f'Tokenfunction returned {res}')
-    return res
+    return {'result': res, 'error': None}

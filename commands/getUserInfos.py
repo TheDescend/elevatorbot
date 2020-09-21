@@ -25,6 +25,21 @@ class getDestinyID(BaseCommand):
         print(f'{discordID} with {lookupDestinyID(discordID)}')
         await message.channel.send(f'{discordUser.name} has destinyID {lookupDestinyID(discordID)}')
 
+class getDiscordDate(BaseCommand):
+    def __init__(self):
+        # A quick description for the help message
+        description = "Check your join-datetime of the discord server"
+        params = []
+        topic = "Registration"
+        super().__init__(description, params, topic)
+
+    # Override the handle() method
+    # It will be called every time the command is received
+    async def handle(self, params, message, client):
+        discordMember = message.author
+        await message.channel.send(f'{discordMember.mention} joined at {discordMember.joined_at.strftime("%d.%m.%Y, %H:%M")}')
+        
+
 
 class getDiscordID(BaseCommand):
     def __init__(self):

@@ -10,15 +10,15 @@ def getUserMaterials(destinyID):
     system = 3
     url = f'https://stats.bungie.net/Platform/Destiny2/{system}/Profile/{destinyID}/?components=600'
     res = getJSONwithToken(url, lookupDiscordID(destinyID))
-    if not res:
-        return None
-    materialdict = list(res['Response']['characterCurrencyLookups']['data'].values())[0]['itemQuantities']
+    if not res['result']:
+        return res['error']
+    materialdict = list(res['result']['Response']['characterCurrencyLookups']['data'].values())[0]['itemQuantities']
     return materialdict
 
 def getRasputinQuestProgress():
     haliUrl = 'https://stats.bungie.net/Platform/Destiny2/3/Profile/4611686018468695677/?components=301'
     res = getJSONwithToken(haliUrl, '171650677607497730')
-    rasputinobjectives = res['Response']["characterUninstancedItemComponents"]["2305843009410156755"]["objectives"]["data"]["1797229574"]['objectives']
+    rasputinobjectives = res['result']['Response']["characterUninstancedItemComponents"]["2305843009410156755"]["objectives"]["data"]["1797229574"]['objectives']
     obHashes = {
         1851115127 : 'EDZ',
         1851115126 : 'Moon',
@@ -33,11 +33,10 @@ def getSpiderMaterials(discordID, destinyID, characterID):
     #863940356 is spiders vendorID
     url = f'https://www.bungie.net/Platform/Destiny2/{system}/Profile/{destinyID}/Character/{characterID}/Vendors/863940356/?components=400,401,402'
     res = getJSONwithToken(url, discordID)
-    if not res:
-        print('result was none')
-        return None
+    if not res['result']:
+        return {'result': None, 'error':res['error']}
     #gets the dictionary of sold items
-    sales = res['Response']['sales']['data']
+    sales = res['result']['Response']['sales']['data']
     itemhashurl = 'https://bungie.net/platform/Destiny2/Manifest/DestinyInventoryItemDefinition/{hashIdentifier}/'
     returntext = ''
     usermaterialdict = getUserMaterials(destinyID)
@@ -91,7 +90,11 @@ def getSpiderMaterials(discordID, destinyID, characterID):
         returntext += f'selling {soldname} for {pricename}, you already own{ownedamount:>12,d} {soldname}\n'
 
     returntext = returntext.replace('Dusklight Shards', '<:DusklightShards:620647201940570133>')
+    returntext = returntext.replace('Dusklight Shard', '<:DusklightShards:620647201940570133>')
+
     returntext = returntext.replace('Phaseglass Needle', '<:Phaseglass:620647202418851895>')
+    returntext = returntext.replace('Phaseglass', '<:Phaseglass:620647202418851895>')
+
     returntext = returntext.replace('Seraphite', '<:Seraphite:620647202297085992>')
     returntext = returntext.replace('Legendary Shards', '<:LegendaryShards:620647202003484672>')
     returntext = returntext.replace('Alkane Dust', '<:AlkaneDust:620647201827454990>')
@@ -102,4 +105,4 @@ def getSpiderMaterials(discordID, destinyID, characterID):
     returntext = returntext.replace('Helium Filaments', '<:HeliumFilaments:707244746493657160>')
     returntext = returntext.replace('Etheric Spiral', '<:EthericSpiral:620647202267594792>')
     returntext = returntext.replace('Baryon Bough', '<:BaryonBough:755678814427807756>')
-    return returntext
+    return {'result': returntext, 'error': None}

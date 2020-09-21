@@ -94,7 +94,7 @@ class spoder(BaseCommand):
 
         async with message.channel.typing():
             materialtext = getSpiderMaterials(discordID, destinyID, anyCharID)
-            if materialtext:
-                await message.channel.send(materialtext)
+            if materialtext['result']:
+                await message.channel.send(materialtext['result'])
             else:
-                await message.channel.send("Something went wrong")
+                await message.channel.send(materialtext['error'])
