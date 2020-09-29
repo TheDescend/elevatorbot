@@ -418,7 +418,7 @@ async def bountiesChannelMessage(client):
                     ))
 
                     among_us = client.get_emoji(751020830376591420)
-                    barotrauma = client.get_emoji(751022749773856929)
+                    barotrauma = client.get_emoji(756077724870901830)
                     gta = client.get_emoji(751020831382962247)
                     valorant = client.get_emoji(751020830414209064)
                     lol = client.get_emoji(756076309527920661)
