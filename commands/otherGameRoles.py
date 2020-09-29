@@ -4,11 +4,6 @@ from functions.bounties.bountiesFunctions import bountiesChannelMessage
 
 import discord
 
-gta_id = 709120893728718910
-barotrauma_id = 738438622553964636
-valorant_id = 709378171832893572
-amongUs_id = 750409552075423753
-
 class makeChannelOtherGameRoles(BaseCommand):
     def __init__(self):
         # A quick description for the help message
@@ -33,15 +28,17 @@ async def otherGameRolesMessageReactions(client, user, emoji, register_channel, 
 
     # emoji ids
     among_us = client.get_emoji(751020830376591420)
-    barotrauma = client.get_emoji(751022749773856929)
+    barotrauma = client.get_emoji(756077724870901830)
     gta = client.get_emoji(751020831382962247)
     valorant = client.get_emoji(751020830414209064)
+    lol = client.get_emoji(756076309527920661)
 
     # role ids
     amongUs_id = 750409552075423753
     barotrauma_id = 738438622553964636
     gta_id = 709120893728718910
     valorant_id = 709378171832893572
+    lol_id = 756076447881363486
 
     # get current roles
     roles = [role.id for role in user.roles]
@@ -74,3 +71,10 @@ async def otherGameRolesMessageReactions(client, user, emoji, register_channel, 
         else:
             await user.remove_roles(discord.utils.get(message.guild.roles, id=valorant_id))
         await message.remove_reaction(valorant, user)
+
+    elif emoji == lol:
+        if lol_id not in roles:
+            await user.add_roles(discord.utils.get(message.guild.roles, id=lol_id))
+        else:
+            await user.remove_roles(discord.utils.get(message.guild.roles, id=lol_id))
+        await message.remove_reaction(lol, user)

@@ -421,11 +421,13 @@ async def bountiesChannelMessage(client):
                     barotrauma = client.get_emoji(751022749773856929)
                     gta = client.get_emoji(751020831382962247)
                     valorant = client.get_emoji(751020830414209064)
+                    lol = client.get_emoji(756076309527920661)
 
                     await msg.add_reaction(among_us)
                     await msg.add_reaction(barotrauma)
                     await msg.add_reaction(gta)
                     await msg.add_reaction(valorant)
+                    await msg.add_reaction(lol)
 
                     saveAsGlobalVar("other_game_roles_channel_message_id", msg.id)
 
