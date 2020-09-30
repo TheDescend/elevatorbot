@@ -86,15 +86,15 @@ def main():
 
         this.running = True
 
+        t1 = Thread(target=launch_event_loops, args=(client,))
+        t1.start()
+
         # Set the playing status
         if NOW_PLAYING:
             print("Setting NP game", flush=True)
             await client.change_presence(
                 activity=discord.Game(name=NOW_PLAYING))
         print("Logged in!", flush=True)
-
-        t1 = Thread(target=launch_event_loops, args=(client,))
-        t1.start()
 
         # getting manifest
         await fillDictFromDB(getNameFromHashRecords, 'DestinyRecordDefinition')
