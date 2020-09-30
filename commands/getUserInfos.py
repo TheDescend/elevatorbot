@@ -70,7 +70,7 @@ class getDiscordFuzzy(BaseCommand):
         partialName = params[0]
         clansearch = []
         for clanid in clanids:
-            returnjson = getJSONfromURL(f"https://www.bungie.net/Platform/GroupV2/{clanid}/Members?nameSearch={partialName}")
+            returnjson = await getJSONfromURL(f"https://www.bungie.net/Platform/GroupV2/{clanid}/Members?nameSearch={partialName}")
             clansearch.append(returnjson)
 
         embed = discord.Embed(title=f'Possible matches for {partialName}:')

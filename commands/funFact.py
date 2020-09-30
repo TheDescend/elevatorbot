@@ -1,6 +1,6 @@
 from commands.base_command  import BaseCommand
 
-import requests
+import aiohttp
 import discord
 import random
 
@@ -17,13 +17,16 @@ class funFact(BaseCommand):
         if r > 0.95:
             text = f"Don't let <@206878830017773568> see you using this command <:monkaO:670672093070753816>"
         else:
-            response = requests.get("https://uselessfacts.jsph.pl/random.json?language=en")
-            if response.status_code == 200:
-                text = response.json()["text"]
-            
-        embed = discord.Embed(
-            title = 'Did you know?',
-            description = text
-        )
+            url = "https://uselessfacts.jsph.pl/random.json?language=en"
 
-        await message.channel.send(embed=embed)
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url=url) as r:
+                    if r.status == 200:
+                        text = await r.json()["text"]
+            
+                        embed = discord.Embed(
+                            title = 'Did you know?',
+                            description = text
+                        )
+
+                        await message.channel.send(embed=embed)

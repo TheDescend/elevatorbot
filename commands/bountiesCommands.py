@@ -11,7 +11,7 @@ import discord
 import asyncio
 import pickle
 import os
-import requests
+import aiohttp
 import logging
 
 
@@ -402,7 +402,9 @@ class overwriteBounties(BaseCommand):
             return
 
         attachment_url = msg.attachments[0].url
-        file = requests.get(attachment_url).text
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url=attachment_url) as r:
+                file = await r.json()
 
         try:
             file = eval(file)
@@ -452,7 +454,7 @@ class testCompetitive(BaseCommand):
             instance_id = str(params.pop(params.index(params[0])))
             activity = {
                 "activityDetails": {
-                    "directorActivityHash": getPGCR(instance_id)["Response"]["activityDetails"]["directorActivityHash"],
+                    "directorActivityHash": await getPGCR(instance_id)["Response"]["activityDetails"]["directorActivityHash"],
                     "instanceId": instance_id
                 }
             }
@@ -465,7 +467,7 @@ class testCompetitive(BaseCommand):
             await message.channel.send("Incorrect Formating")
             return
 
-        score, _ = returnScore(req, activity, lookupDestinyID(message.author.id))
+        score, _ = await returnScore(req, activity, lookupDestinyID(message.author.id))
         await message.channel.send(f"Score : {score}")
 
 
@@ -493,7 +495,7 @@ class testBounties(BaseCommand):
             instance_id = str(params.pop(params.index(params[0])))
             activity = {
                 "activityDetails": {
-                    "directorActivityHash": getPGCR(instance_id)["Response"]["activityDetails"]["directorActivityHash"],
+                    "directorActivityHash": await getPGCR(instance_id)["Response"]["activityDetails"]["directorActivityHash"],
                     "instanceId": instance_id
                 }
             }
@@ -506,7 +508,7 @@ class testBounties(BaseCommand):
             await message.channel.send("Incorrect Formating")
             return
 
-        done, index_multiple_points = fulfillRequirements(req, activity, lookupDestinyID(message.author.id))
+        done, index_multiple_points = await fulfillRequirements(req, activity, lookupDestinyID(message.author.id))
         await message.channel.send(f"Done: {done}")
         if index_multiple_points is not None:
             await message.channel.send(f"index_multiple_points: {index_multiple_points}")

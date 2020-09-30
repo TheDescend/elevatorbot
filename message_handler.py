@@ -1,12 +1,13 @@
-from commands.base_command  import BaseCommand
+from commands.base_command import BaseCommand
 from functions.formating import embed_message
 from functions.database import getToken
 
+import logging
+
 # This, in addition to tweaking __all__ on commands/__init__.py, 
 # imports all classes inside the commands package.
-from commands               import *
-
-from static.config          import COMMAND_PREFIX
+from commands import *
+from static.config import COMMAND_PREFIX
 
 # Register all available commands
 COMMAND_HANDLERS = {c.__name__.lower(): c()
@@ -27,6 +28,10 @@ async def handle_command(command, args, message, bot_client):
 
     print(f"{message.author.name}: {COMMAND_PREFIX}{command} " 
           + " ".join(args))
+
+    # log the command - <discordID,command,arg1 arg2>
+    logger = logging.getLogger('commands')
+    logger.info(f"""<{message.author.id},{command},{" ".join(args)}>""")
 
     # check if user is registered, otherwise command will be blocked and he will be informed
     # ignore that check if message is !register or !registerdesc

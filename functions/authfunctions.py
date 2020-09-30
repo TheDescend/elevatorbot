@@ -1,23 +1,22 @@
 from functions.database     import lookupDiscordID
 from functions.network      import getJSONfromURL, getJSONwithToken
 from static.dict            import getNameFromHashInventoryItem
-import requests
 
-session = requests.Session()
+import aiohttp
 
 
-def getUserMaterials(destinyID):
+async def getUserMaterials(destinyID):
     system = 3
     url = f'https://stats.bungie.net/Platform/Destiny2/{system}/Profile/{destinyID}/?components=600'
-    res = getJSONwithToken(url, lookupDiscordID(destinyID))
+    res = await getJSONwithToken(url, lookupDiscordID(destinyID))
     if not res['result']:
         return res['error']
     materialdict = list(res['result']['Response']['characterCurrencyLookups']['data'].values())[0]['itemQuantities']
     return materialdict
 
-def getRasputinQuestProgress():
+async def getRasputinQuestProgress():
     haliUrl = 'https://stats.bungie.net/Platform/Destiny2/3/Profile/4611686018468695677/?components=301'
-    res = getJSONwithToken(haliUrl, '171650677607497730')
+    res = await getJSONwithToken(haliUrl, '171650677607497730')
     rasputinobjectives = res['result']['Response']["characterUninstancedItemComponents"]["2305843009410156755"]["objectives"]["data"]["1797229574"]['objectives']
     obHashes = {
         1851115127 : 'EDZ',
@@ -26,20 +25,20 @@ def getRasputinQuestProgress():
     }
     return [(obHashes[objective["objectiveHash"]],objective["progress"], objective["completionValue"]) for objective in rasputinobjectives]
 
-def getSpiderMaterials(discordID, destinyID, characterID):
+async def getSpiderMaterials(discordID, destinyID, characterID):
     """ Gets spiders current selling inventory, requires OAuth"""
 
     system = 3 #they're probably on PC
     #863940356 is spiders vendorID
     url = f'https://www.bungie.net/Platform/Destiny2/{system}/Profile/{destinyID}/Character/{characterID}/Vendors/863940356/?components=400,401,402'
-    res = getJSONwithToken(url, discordID)
+    res = await getJSONwithToken(url, discordID)
     if not res['result']:
         return {'result': None, 'error':res['error']}
     #gets the dictionary of sold items
     sales = res['result']['Response']['sales']['data']
     itemhashurl = 'https://bungie.net/platform/Destiny2/Manifest/DestinyInventoryItemDefinition/{hashIdentifier}/'
     returntext = ''
-    usermaterialdict = getUserMaterials(destinyID)
+    usermaterialdict = await getUserMaterials(destinyID)
     usermaterialreadabledict = {}
     #print(getNameFromHashInventoryItem.keys())
     for key,value in usermaterialdict.items():
@@ -60,7 +59,7 @@ def getSpiderMaterials(discordID, destinyID, characterID):
         priceurl = itemhashurl.format(hashIdentifier=pricehash)
 
         #get the name of the sold material
-        r = getJSONfromURL(soldurl)
+        r = await getJSONfromURL(soldurl)
         soldname = r['Response']['displayProperties']['name'][9:]
         if 'traitIds' in r['Response'] and 'item_type.bounty' in r['Response']['traitIds']:
             continue

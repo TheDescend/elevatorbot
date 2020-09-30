@@ -18,7 +18,7 @@ class getUserMatching(BaseCommand):
         
         for clanid,name in clanids.items():
             await message.channel.send(f'matching members for clan {name}')
-            clanmap = getNameAndCrossaveNameToHashMapByClanid(clanid)
+            clanmap = await getNameAndCrossaveNameToHashMapByClanid(clanid)
             successfulMatches = []
             unsuccessfulMatches = []
             for userid, (steamname, crosssavename) in clanmap.items():

@@ -3,7 +3,6 @@ from functions.database import lookupDestinyID
 from functions.dataLoading import getPlayersPastPVE
 from functions.formating    import embed_message
 
-import concurrent.futures
 import os
 import pandas
 import pickle
@@ -32,16 +31,11 @@ class whisperkills(BaseCommand):
                 # refresh data
                 data = pandas.DataFrame(columns=["member", "kills"])
 
-                with concurrent.futures.ThreadPoolExecutor(os.cpu_count() * 5) as pool:
-                    futurelist = [pool.submit(self.handleUser, member) for member in message.guild.members]
-                    for future in concurrent.futures.as_completed(futurelist):
-                        try:
-                            result = future.result()
-                            if result:
-                                data = data.append(result, ignore_index=True)
+                async for member in message.guild.fetch_members():
+                    result = await self.handleUser(member)
+                    if result:
+                        data = data.append(result, ignore_index=True)
 
-                        except Exception as exc:
-                            print(f'generated an exception: {exc}')
 
                 data.sort_values(by=["kills"], inplace=True, ascending=False)
                 data.reset_index(drop=True, inplace=True)
@@ -79,7 +73,7 @@ class whisperkills(BaseCommand):
             "\n".join(ranking)
         ))
 
-    def handleUser(self, member):
+    async def handleUser(self, member):
         destinyID = lookupDestinyID(member.id)
 
         if not destinyID:
@@ -90,7 +84,7 @@ class whisperkills(BaseCommand):
             'kills': 0
         }
 
-        for activity in getPlayersPastPVE(destinyID):
+        async for activity in getPlayersPastPVE(destinyID):
             # whisper mission hash
             if activity["activityDetails"]["referenceId"] in whisper_hashes:
                 number_of_kills = float(activity["values"]["kills"]["basic"]["value"])

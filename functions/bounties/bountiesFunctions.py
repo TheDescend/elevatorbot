@@ -3,7 +3,7 @@ from functions.database import insertBountyUser, getBountyUserList, getLevel, ad
 from functions.bounties.boutiesBountyRequirements import bounties_dict, competition_bounties_dict, possibleWeaponsKinetic, possibleWeaponsEnergy, possibleWeaponsPower
 from functions.bounties.bountiesBackend import saveAsGlobalVar, getGlobalVar, addPoints, formatLeaderboardMessage, returnLeaderboard, getCompetitionBountiesLeaderboards, changeCompetitionBountiesLeaderboards, experiencePvp, experiencePve, experienceRaids, threadingCompetitionBounties, threadingBounties
 from functions.bounties.bountiesTournament import tournamentRegistrationMessage
-from functions.dataLoading import returnManifestInfo
+from functions.dataLoading import returnManifestInfo, getPlayersPastPVE
 from static.dict import activityRaidHash, speedrunActivitiesRaids, weaponTypeKinetic, weaponTypeEnergy, weaponTypePower
 
 import os
@@ -13,7 +13,6 @@ import random
 import json
 import asyncio
 import datetime
-import concurrent.futures
 from copy import deepcopy
 
 
@@ -41,7 +40,7 @@ async def generateBounties(client):
     for topic in copy_of_bounty_dict.keys():
         file["bounties"][topic] = {}
         for experience in copy_of_bounty_dict[topic].keys():
-            ret = bountiesFormatting(copy_of_bounty_dict[topic][experience], amount_of_bounties=2)
+            ret = await bountiesFormatting(copy_of_bounty_dict[topic][experience], amount_of_bounties=2)
             file["bounties"][topic][experience] = {}
 
             for key in ret:
@@ -52,7 +51,7 @@ async def generateBounties(client):
     copy_of_competition_bounties_dict = deepcopy(competition_bounties_dict)
     file["competition_bounties"] = {}
     for topic in copy_of_competition_bounties_dict.keys():
-        ret = bountiesFormatting(copy_of_competition_bounties_dict[topic])
+        ret = await bountiesFormatting(copy_of_competition_bounties_dict[topic])
         file["competition_bounties"][topic] = {}
 
         for key in ret:
@@ -83,7 +82,7 @@ async def generateBounties(client):
 
 
 # do the random selection and the extraText formating
-def bountiesFormatting(json, amount_of_bounties=1):
+async def bountiesFormatting(json, amount_of_bounties=1):
     ret = {}
 
     # generate the specified amount of bounties
@@ -114,7 +113,7 @@ def bountiesFormatting(json, amount_of_bounties=1):
         # if "extraText" is present, process that
         if "extraText" in value:
             if "allowedActivities" in value["requirements"]:
-                activity_name = returnManifestInfo("DestinyActivityDefinition", value["allowedActivities"][0])["Response"]["displayProperties"]["name"]
+                activity_name = await returnManifestInfo("DestinyActivityDefinition", value["allowedActivities"][0])["Response"]["displayProperties"]["name"]
                 key = key.replace("?", activity_name)
 
             if "customLoadout" in value["requirements"]:
@@ -129,7 +128,7 @@ def bountiesFormatting(json, amount_of_bounties=1):
                     if activityRaidHash == value["allowedTypes"]:
                         key = key + f"\n⁣"
                         for activities in speedrunActivitiesRaids:
-                            activity_name = returnManifestInfo("DestinyActivityDefinition", activities[0])["Response"]["displayProperties"]["name"]
+                            activity_name = await returnManifestInfo("DestinyActivityDefinition", activities[0])["Response"]["displayProperties"]["name"]
                             key = key + f"\n{activity_name}: __{round(speedrunActivitiesRaids[activities] / 60, 2)}min__ (2x WR)"
 
         # update return dict
@@ -298,26 +297,32 @@ async def bountyCompletion(client):
         if guild.id == file["guild_id"]:
             break
 
-    # loop though all registered users
-    with concurrent.futures.ThreadPoolExecutor(os.cpu_count() * 5) as pool:
-        futurelist = [pool.submit(threadingBounties, bounties["bounties"], cutoff, user)
-                      for user in getBountyUserList()]
-
-        for future in concurrent.futures.as_completed(futurelist):
-            future.result()
-
-    # loop though all registered users
+    # create leaderboard dict for competitive bounties
     leaderboard = {}
-    with concurrent.futures.ThreadPoolExecutor(os.cpu_count() * 5) as pool:
-        futurelist = [pool.submit(threadingCompetitionBounties, bounties["competition_bounties"], cutoff, user)
-                      for user in getBountyUserList()]
+    sort_by = {}
+    for topic in bounties["competition_bounties"]:
+        leaderboard[topic] = {}
+        sort_by[topic] = True
 
-        for future in concurrent.futures.as_completed(futurelist):
-            new_lead, sort_by = future.result()
-            for topic in new_lead:
-                if topic not in leaderboard:
-                    leaderboard[topic] = {}
-                leaderboard[topic].update(new_lead[topic])
+    # loop though all registered users
+    for discordID in getBountyUserList():
+        # get user info
+        destinyID = lookupDestinyID(discordID)
+        experience_level_pve = getLevel("exp_pve", discordID)
+        experience_level_pvp = getLevel("exp_pvp", discordID)
+        experience_level_raids = getLevel("exp_raids", discordID)
+
+        # loop though activities
+        async for activity in getPlayersPastPVE(destinyID, mode=0):
+            # only look at activities younger than the cutoff date
+            if datetime.datetime.strptime(activity["period"], "%Y-%m-%dT%H:%M:%SZ") < cutoff:
+                break
+
+            # checking normal bounties
+            await threadingBounties(activity, bounties["bounties"], destinyID, discordID, experience_level_pve, experience_level_pvp, experience_level_raids)
+
+            # checking competitive bounties
+            await threadingCompetitionBounties(activity, bounties["competition_bounties"], destinyID, discordID, leaderboard, sort_by)
 
     print("Done checking all the users")
 
@@ -558,9 +563,9 @@ async def updateAllExperience(client, discordID, new_register=False):
     pre_pve = getLevel("exp_pve", user.id)
     pre_pvp = getLevel("exp_pvp", user.id)
     pre_raids = getLevel("exp_raids", user.id)
-    experiencePve(destinyID)
-    experiencePvp(destinyID)
-    experienceRaids(destinyID)
+    await experiencePve(destinyID)
+    await experiencePvp(destinyID)
+    await experienceRaids(destinyID)
     post_pve = getLevel("exp_pve", user.id)
     post_pvp = getLevel("exp_pvp", user.id)
     post_raids = getLevel("exp_raids", user.id)

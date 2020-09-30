@@ -17,7 +17,7 @@ clanid = 3373405 #Bloodoak I
         # 3702604, #BO3
         # 3556786, #Ascend
 
-memberids = getNameToHashMapByClanid(clanid) # memberids['Hali'] is my destinyMembershipID
+memberids = await getNameToHashMapByClanid(clanid) # memberids['Hali'] is my destinyMembershipID
 # temp = {}
 # for key in sorted(memberids)[:3]:
 #     temp[key] = memberids[key]
@@ -35,7 +35,7 @@ for year,yeardata in requirementHashes.items():
         sys.stdout.flush()
         if cur < len(memberids):
             cur += 1
-        triumphs = getTriumphsJSON(userid)
+        triumphs = await getTriumphsJSON(userid)
         yearResult[username] = {}
         
         for role,roledata in yeardata.items():
@@ -69,7 +69,8 @@ for year,yeardata in requirementHashes.items():
                 elif req == 'collectibles':
                     for collectible in roledata['collectibles']:
                         condition = getNameFromHashCollectible[str(collectible)]
-                        if playerHasCollectible(userid, collectible):
+                        ret = await playerHasCollectible(userid, collectible)
+                        if ret:
                             yearResult[username][condition] = 'True'
                         else:
                             yearResult[username][condition] = 'False'
@@ -79,7 +80,7 @@ for year,yeardata in requirementHashes.items():
                         condition = getNameFromHashRecords[str(recordHash)]
                         if condition in yearResult[username]:
                             condition += '_'
-                        status = playerHasTriumph(userid, recordHash)
+                        status = await playerHasTriumph(userid, recordHash)
                         yearResult[username][condition] = str(status)
                         rolestatus &= status
 

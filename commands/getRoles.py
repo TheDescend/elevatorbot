@@ -63,7 +63,7 @@ class getRoles(BaseCommand):
             ))
             return
 
-        updateDB(destinyID)
+        await updateDB(destinyID)
         
         async with message.channel.typing():
             roles_at_start = [role.name for role in user.roles]
@@ -150,7 +150,7 @@ class lastRaid(BaseCommand):
             user = await commands.MemberConverter().convert(ctx, params[0])
 
         destinyID = lookupDestinyID(user.id)
-        updateDB(destinyID)
+        await updateDB(destinyID)
         await message.channel.send(getLastRaid(destinyID))
 
 class flawlesses(BaseCommand):
@@ -171,7 +171,7 @@ class flawlesses(BaseCommand):
             user = await commands.MemberConverter().convert(ctx, params[0])
         async with message.channel.typing():
             destinyID = lookupDestinyID(user.id)
-            updateDB(destinyID)
+            await updateDB(destinyID)
             await message.channel.send(getFlawlessList(destinyID))
 
 #improvable TODO
@@ -230,7 +230,7 @@ class checkNewbies(BaseCommand):
         naughtylist = []
         for clanid,name in clanids.items():
             await message.channel.send(f'checking clan {name}')
-            clanmap = getNameToHashMapByClanid(clanid)
+            clanmap = await getNameToHashMapByClanid(clanid)
             for username, userid in clanmap.items():
                 discordID = lookupDiscordID(userid)
                 if discordID: #if the matching exists in the DB, check whether the discordID is valid and in the server
@@ -261,7 +261,7 @@ class assignAllRoles(BaseCommand):
             return
 
         await message.channel.send('Updating DB...')
-        initDB()
+        await initDB()
         await message.channel.send('Assigning roles...')
         for discordUser in message.guild.members:
             destinyID = lookupDestinyID(discordUser.id)
@@ -324,7 +324,7 @@ class roleRequirements(BaseCommand):
 
         async with message.channel.typing():
             destinyID = lookupDestinyID(message.author.id)
-            reqs = hasRole(destinyID, f_role, f_year, br=False)
+            reqs = await hasRole(destinyID, f_role, f_year, br=False)
 
 
             print(reqs[1])

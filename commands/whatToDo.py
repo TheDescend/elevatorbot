@@ -94,7 +94,7 @@ class whatToDo(BaseCommand):
             if do_all or (params[0] == "triumphs"):
                 embed.add_field(name="⁣", value=f"__**Triumphs:**__", inline=False)
 
-                missing = self.missingTriumphs(user)
+                missing = await self.missingTriumphs(user)
 
                 # only do this if there are triumphs to get
                 if missing:
@@ -140,7 +140,7 @@ class whatToDo(BaseCommand):
 
                 embed.add_field(name="⁣", value=f"__**Seals:**__", inline=False)
 
-                missing = self.missingSeals(client, user)
+                missing = await self.missingSeals(client, user)
 
                 if missing:
                     for seal in missing:
@@ -192,9 +192,9 @@ class whatToDo(BaseCommand):
                                     pass
         return roles
 
-    def missingTriumphs(self, user):
+    async def missingTriumphs(self, user):
         destinyID = lookupDestinyID(user.id)
-        triumphs = getTriumphsJSON(destinyID)
+        triumphs = await getTriumphsJSON(destinyID)
 
         user_triumphs = {}
         if triumphs is None:
@@ -217,7 +217,7 @@ class whatToDo(BaseCommand):
             maximum = max(user_triumphs, key=user_triumphs.get)
 
             # test if triumph has a name / description, some do not for some reason. Ignore if no name
-            rep = getJSONfromURL(f"https://www.bungie.net/Platform/Destiny2/Manifest/DestinyRecordDefinition/{maximum}/")
+            rep = await getJSONfromURL(f"https://www.bungie.net/Platform/Destiny2/Manifest/DestinyRecordDefinition/{maximum}/")
             if rep and rep['Response']:
                 name = rep['Response']["displayProperties"]["name"]
                 desc = rep['Response']["displayProperties"]["description"]
@@ -229,12 +229,12 @@ class whatToDo(BaseCommand):
 
         return nearly_done_info
 
-    def missingSeals(self, client, user):
+    async def missingSeals(self, client, user):
         missing_seals = []
         seals = getSeals(client)
 
         destinyID = lookupDestinyID(user.id)
-        triumphs = getTriumphsJSON(destinyID)
+        triumphs = await getTriumphsJSON(destinyID)
         if triumphs is None:
             return False
         # converting to python dict (for true -> True conversion)

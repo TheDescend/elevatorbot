@@ -4,7 +4,7 @@ import discord
 from functions.database import lookupDestinyID
 from functions.roles import hasAdminOrDevPermissions
 from static.config      import BUNGIE_TOKEN
-import requests
+import aiohttp
 
 class updateNames(BaseCommand):
 
@@ -29,9 +29,13 @@ class updateNames(BaseCommand):
             if destID is None:
                 continue
             url = 'https://www.bungie.net/platform/User/GetMembershipsById/{}/{}/'.format(destID,3)
-            r=requests.get(url=url, headers=PARAMS)
-            memberships = r.json()['Response']['destinyMemberships']
-            
+
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url=url, headers=PARAMS) as r:
+                    memberships = await r.json()
+                    memberships = memberships['Response']['destinyMemberships']
+
+            membership = None
             if memberships[0]['crossSaveOverride'] and memberships[0]['crossSaveOverride'] != memberships[0]['membershipType']:
                 newtype = memberships[0]['crossSaveOverride']
                 for memship in memberships:

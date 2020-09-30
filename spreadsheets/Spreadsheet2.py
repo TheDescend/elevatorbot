@@ -6,14 +6,14 @@ from dict import requirementHashes, clanids
 
 # pylint: disable=W0223
 # pylint: disable=abstract-class-instantiated
-def createSheet():
+async def createSheet():
     path = os.path.dirname(os.path.abspath(__file__))
     sheetpath = path + '\\clanAchievementsShort.xlsx'
     writer = pandas.ExcelWriter(sheetpath, engine='xlsxwriter') # pylint: disable=W0223
 
 
     for clanid in clanids:
-        memberids = getNameToHashMapByClanid(clanid) # memberids['Hali'] is my destinyMembershipID
+        memberids = await getNameToHashMapByClanid(clanid) # memberids['Hali'] is my destinyMembershipID
         t1 = {}
         t2 = {}
         userRoles = {}
@@ -68,4 +68,4 @@ def createSheet():
     return sheetpath
 
 if __name__ == '__main__':
-    createSheet()
+    await createSheet()

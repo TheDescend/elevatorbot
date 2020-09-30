@@ -182,7 +182,7 @@ class Tournament():
             membershipType1 = None
             charIDs1 = []
             for i in [3, 2, 1, 4, 5, 10, 254]:
-                characterinfo = getJSONfromURL(
+                characterinfo = await getJSONfromURL(
                     f"https://www.bungie.net/Platform/Destiny2/{i}/Profile/{destinyID1}/?components=100")
                 if characterinfo:
                     membershipType1 = i
@@ -213,7 +213,7 @@ class Tournament():
                     return False
 
                 # look up winner of game
-                won = returnCustomGameWinner(destinyID1, charIDs1, membershipType1, destinyID2)
+                won = await returnCustomGameWinner(destinyID1, charIDs1, membershipType1, destinyID2)
 
                 # check if there are new reactions, delete them and check if an admin reacted and make that reaction the winner
                 # msg object has to be reloaded

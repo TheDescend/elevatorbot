@@ -19,7 +19,7 @@ class ExiledsWeeklySheet(BaseEvent):
         print('generating and sending exileds sheet')
         exiled = client.get_user(206878830017773568)
         neria = client.get_user(109022023979667456)
-        sheetpath = createSheet()
+        sheetpath = await createSheet()
         if sheetpath is not None:
             f = discord.File(open(sheetpath,'rb'),'AchievementSheet.xlsx')
             await exiled.send(file=f)

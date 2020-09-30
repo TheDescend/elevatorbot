@@ -1,10 +1,9 @@
 from functions.network      import getComponentInfoAsJSON
 from functions.dataLoading  import getStats, getTriumphsJSON, getPGCR, getPlayersPastPVE,getNameToHashMapByClanid
-from functions.database     import insertUser, db_connect
+from functions.database     import db_connect
 
 from static.dict            import getNameFromHashInventoryItem, clanids
 
-from concurrent.futures     import ThreadPoolExecutor, as_completed
 from datetime               import datetime
 
 import pathlib
@@ -14,9 +13,9 @@ import matplotlib.pyplot as plt
 
 #https://data.destinysets.com/
 
-def hasCollectible(playerid, cHash):
+async def hasCollectible(playerid, cHash):
     """ Returns boolean whether the player <playerid> has the collecible <cHash> """
-    userCollectibles = getComponentInfoAsJSON(playerid, 800)
+    userCollectibles = await getComponentInfoAsJSON(playerid, 800)
     if not userCollectibles or 'data' not in userCollectibles['Response']['profileCollectibles']:
         return False
     collectibles = userCollectibles['Response']['profileCollectibles']['data']['collectibles']
@@ -67,10 +66,10 @@ def hasFlawless(playerid, activityHashes):
     (count,) = cur.fetchone()
     return count > 0
 
-def hasTriumph(playerid, recordHash):
+async def hasTriumph(playerid, recordHash):
     """ returns True if the player <playerid> has the triumph <recordHash> """
     status = True
-    triumphs = getTriumphsJSON(playerid)
+    triumphs = await getTriumphsJSON(playerid)
     if triumphs is None:
         return False
     if str(recordHash) not in triumphs:
@@ -79,8 +78,8 @@ def hasTriumph(playerid, recordHash):
         status &= part['complete']
     return status
 
-def getPlayerCount(instanceID):
-    pgcr = getPGCR(instanceID)
+async def getPlayerCount(instanceID):
+    pgcr = await getPGCR(instanceID)
     ingamechars = pgcr['Response']['entries']
     ingameids = set()
     for char in ingamechars:
@@ -119,70 +118,68 @@ def hasLowman(playerid, playercount, raidHashes, flawless=False, disallowed=[]):
     con.close()
     return False
 
-def getIntStat(destinyID, statname):
-    stats = getStats(destinyID)
-    stat =  stats['mergedAllCharacters']['merged']['allTime'][statname]['basic']['value']
+async def getIntStat(destinyID, statname):
+    stats = await getStats(destinyID)
+    stat = stats['mergedAllCharacters']['merged']['allTime'][statname]['basic']['value']
     return int(stat)
 
-def getCharStats(destinyID, characterID, statname):
-    stats = getStats(destinyID)
+async def getCharStats(destinyID, characterID, statname):
+    stats = await getStats(destinyID)
     for char in stats['characters']:
         if char['characterId'] == characterID:
             return char['merged']['allTime'][statname]['basic']['value']
 
-def getPossibleStats():
-    stats = getStats(4611686018468695677)
+async def getPossibleStats():
+    stats = await getStats(4611686018468695677)
     for char in stats['characters']:
         return char['merged']['allTime'].keys()
 
-def isUserInClan(destinyID, clanid):
-    isin = destinyID in getNameToHashMapByClanid(clanid).values()
+async def isUserInClan(destinyID, clanid):
+    isin = destinyID in await getNameToHashMapByClanid(clanid).values()
     print(f'{destinyID} is {isin} in {clanid}')
     return isin
 
 fullMemberMap = {}
-def getFullMemberMap():
+async def getFullMemberMap():
     if len(fullMemberMap) > 0:
         return fullMemberMap
     else:
         for clanid in clanids:
-            fullMemberMap.update(getNameToHashMapByClanid(clanid))
+            fullMemberMap.update(await getNameToHashMapByClanid(clanid))
         return fullMemberMap
 
-def getGunsForPeriod(destinyID, pStart, pEnd):
+async def getGunsForPeriod(destinyID, pStart, pEnd):
     processes = []
-    with ThreadPoolExecutor(max_workers=20) as executor:
-        for pve in getPlayersPastPVE(destinyID):
-            if 'period' not in pve.keys():
-                continue
-            period = datetime.strptime(pve['period'], "%Y-%m-%dT%H:%M:%SZ")
-            pS = datetime.strptime(pStart, "%Y-%m-%d")
-            pE = datetime.strptime(pEnd, "%Y-%m-%d")
-            if pS < period < pE:
-                processes.append(executor.submit(getPGCR, pve['activityDetails']['instanceId']))
-            if period < pS:
-                break
 
-    pgcrlist = []
-    for task in as_completed(processes):
-        if task.result():
-            pgcrlist.append(task.result()['Response'])
+    async for pve in getPlayersPastPVE(destinyID):
+        if 'period' not in pve.keys():
+            continue
+        period = datetime.strptime(pve['period'], "%Y-%m-%dT%H:%M:%SZ")
+        pS = datetime.strptime(pStart, "%Y-%m-%d")
+        pE = datetime.strptime(pEnd, "%Y-%m-%d")
 
-    for pgcr in pgcrlist:
-        for entry in pgcr['entries']:
-            if int(entry['player']['destinyUserInfo']['membershipId']) != int(destinyID):
-               # print(entry['player']['destinyUserInfo'])
-                continue
-            if not 'weapons' in entry['extended'].keys():
-                continue
-            guns = entry['extended']['weapons']
-            for gun in guns:
-                #gunids.append(gun['referenceId'])
-                if str(gun['referenceId']) not in gunkills:
-                    gunkills[str(gun['referenceId'])] = 0
-                gunkills[str(gun['referenceId'])] += int(gun['values']['uniqueWeaponKills']['basic']['displayValue'])
+        if pS < period < pE:
+            result = await getPGCR(pve['activityDetails']['instanceId'])
+            if result['Response']:
+                for entry in result['Response']['entries']:
+                    if int(entry['player']['destinyUserInfo']['membershipId']) != int(destinyID):
+                        # print(entry['player']['destinyUserInfo'])
+                        continue
+                    if not 'weapons' in entry['extended'].keys():
+                        continue
+                    # guns = entry['extended']['weapons']
+                    # for gun in guns:
+                    #     # gunids.append(gun['referenceId'])
+                    #     if str(gun['referenceId']) not in gunkills:
+                    #         gunkills[str(gun['referenceId'])] = 0
+                    #     gunkills[str(gun['referenceId'])] += int(
+                    #         gun['values']['uniqueWeaponKills']['basic']['displayValue'])
 
-        #TODO
+                # TODO
+
+        if period < pS:
+            break
+
 
 def getTop10PveGuns(destinyID):
     gunids = []
@@ -192,13 +189,10 @@ def getTop10PveGuns(destinyID):
     pgcrlist = []
 
     processes = []
-    with ThreadPoolExecutor(max_workers=20) as executor:
-        for instanceId in instanceIds:
-            processes.append(executor.submit(getPGCR, instanceId))
-
-    for task in as_completed(processes):
-        if task.result():
-            pgcrlist.append(task.result()['Response'])
+    for instanceId in instanceIds:
+        result = await getPGCR(instanceId)
+        if result:
+            pgcrlist.append(result['Response'])
 
     for pgcr in pgcrlist:
         for entry in pgcr['entries']:

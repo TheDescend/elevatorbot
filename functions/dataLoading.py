@@ -3,39 +3,38 @@ from static.dict        import getNameFromHashRecords, getNameFromHashCollectibl
 from functions.database import db_connect, insertActivity, insertCharacter, insertInstanceDetails, updatedPlayer, getLastUpdated
 from functions.database import getSystemAndChars, getLastUpdated, instanceExists
 
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import as_completed
 
-from datetime           import timedelta, datetime, date
-from pprint             import pprint
+from datetime           import timedelta, datetime
 
 import os
-import requests
+import aiohttp
 import json
 import zipfile
 import sqlite3
 import pandas
 import asyncio
 
-def getJSONfromRR(playerID):
+async def getJSONfromRR(playerID):
     """ Gets a Players stats from the RR-API """
     requestURL = 'https://b9bv2wd97h.execute-api.us-west-2.amazonaws.com/prod/api/player/{}'.format(playerID)
-    return getJSONfromURL(requestURL)
+    return await getJSONfromURL(requestURL)
 
-def getTriumphsJSON(playerID):
+async def getTriumphsJSON(playerID):
     """ returns the json containing all triumphs the player <playerID> has """
-    achJSON = getComponentInfoAsJSON(playerID, 900)
+    achJSON = await getComponentInfoAsJSON(playerID, 900)
     if not achJSON:
         return None
     if 'data' not in achJSON['Response']['profileRecords']:
         return None
     return achJSON['Response']['profileRecords']['data']['records']
 
-def getCharacterList(destinyID):
+async def getCharacterList(destinyID):
     ''' returns a (system, [characterids]) tuple '''
     charURL = "https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/?components=100,200"
     platform = None
     for i in [3,2,1,4,5,10,254]:
-        characterinfo = getJSONfromURL(charURL.format(i, destinyID))
+        characterinfo = await getJSONfromURL(charURL.format(i, destinyID))
         if characterinfo:
             return (i, list(characterinfo['Response']['characters']['data'].keys()))
     print(f'no account found for destinyID {destinyID}')
@@ -56,30 +55,30 @@ classmap = {
     3655393761: 'Titan'
 }
 
-def getCharactertypeList(destinyID):
+async def getCharactertypeList(destinyID):
     ''' returns a [charID, type] tuple '''
     charURL = "https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/?components=100,200"
     platform = None
     for i in [3,2,1,4,5,10,254]:
-        characterinfo = getJSONfromURL(charURL.format(i, destinyID))
+        characterinfo = await getJSONfromURL(charURL.format(i, destinyID))
         if characterinfo:
             return [(char["characterId"], f"{racemap[char['raceHash']]} {gendermap[char['genderHash']]} {classmap[char['classHash']]}") for char in characterinfo['Response']['characters']['data'].values()]
     print(f'no account found for destinyID {destinyID}')
     return (None,[])
 
 #https://bungie-net.github.io/multi/schema_Destiny-HistoricalStats-DestinyHistoricalStatsPeriodGroup.html#schema_Destiny-HistoricalStats-DestinyHistoricalStatsPeriodGroup
-def getPlayersPastPVE(destinyID, mode=7):
+async def getPlayersPastPVE(destinyID, mode=7):
     platform = None
     syscharlist = getSystemAndChars(destinyID)
     if getLastUpdated(destinyID) > datetime.strptime("26/03/2015 04:20", "%d/%m/%Y %H:%M") or not syscharlist:
-        platform, charIDs = getCharacterList(destinyID)
+        platform, charIDs = await getCharacterList(destinyID)
         print(f'grabbed chars for {destinyID}')
     else:
         (platform, _) = syscharlist[0]
         charIDs = [charid for (_,charid) in syscharlist]
     activitylist = []
     if not charIDs:
-        return []
+        return
 
     for pagenr in range(1000):
         charidsToRemove = []
@@ -92,7 +91,7 @@ def getPlayersPastPVE(destinyID, mode=7):
             # AllPvP	5	 
             # Patrol	6	 
             # AllPvE	7	
-            rep = getJSONfromURL(staturl)
+            rep = await getJSONfromURL(staturl)
             if not rep or not rep['Response']:
                 charidsToRemove.append(characterID)
                 continue
@@ -105,35 +104,35 @@ def getPlayersPastPVE(destinyID, mode=7):
     #return sorted(activitylist, key = lambda i: i['period'], reverse=True)
 
 # https://bungie-net.github.io/multi/schema_Destiny-DestinyComponentType.html#schema_Destiny-DestinyComponentType
-def getProfile(destinyID, components):
+async def getProfile(destinyID, components):
     url = 'https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/?components={}'
     for system in [3,2,1,4,5,10,254]:
-        statsResponse = getJSONfromURL(url.format(system, destinyID, components))
+        statsResponse = await getJSONfromURL(url.format(system, destinyID, components))
         if statsResponse:
             return statsResponse['Response']
     return None
 
-def getStats(destinyID):
+async def getStats(destinyID):
     url = 'https://stats.bungie.net/Platform/Destiny2/{}/Account/{}/Stats/'
     for system in [3,2,1,4,5,10,254]:
-        statsResponse = getJSONfromURL(url.format(system, destinyID))
+        statsResponse = await getJSONfromURL(url.format(system, destinyID))
         if statsResponse:
             return statsResponse['Response']
     return None
 
-# def getStatsForChar(destinyID, characterID):
+# async def getStatsForChar(destinyID, characterID):
 #     url = 'https://stats.bungie.net/Platform/Destiny2/{}/Account/{}/Stats/'
 #     for system in [3,2,1,4,5,10,254]:
-#         statsResponse = getJSONfromURL(url.format(system, destinyID))
+#         statsResponse = await getJSONfromURL(url.format(system, destinyID))
 #         if statsResponse:
 #             for char in statsResponse['Response']['characters']:
 #                 if char['characterId'] == characterID:
 #                     return char['merged']['allTime']
 #     return None
 
-def getNameToHashMapByClanid(clanid):
+async def getNameToHashMapByClanid(clanid):
     requestURL = "https://www.bungie.net/Platform/GroupV2/{}/members/".format(clanid) #memberlist
-    memberJSON = getJSONfromURL(requestURL)
+    memberJSON = await getJSONfromURL(requestURL)
     if not memberJSON:
         return {} 
     memberlist = memberJSON['Response']['results']
@@ -142,9 +141,9 @@ def getNameToHashMapByClanid(clanid):
         memberids[member['destinyUserInfo']['LastSeenDisplayName']] = member['destinyUserInfo']['membershipId']
     return memberids
 
-def getNameAndCrossaveNameToHashMapByClanid(clanid):
+async def getNameAndCrossaveNameToHashMapByClanid(clanid):
     requestURL = "https://www.bungie.net/Platform/GroupV2/{}/members/".format(clanid) #memberlist
-    memberJSON = getJSONfromURL(requestURL)
+    memberJSON = await getJSONfromURL(requestURL)
     if not memberJSON:
         return {}
     memberlist = memberJSON['Response']['results']
@@ -157,40 +156,42 @@ def getNameAndCrossaveNameToHashMapByClanid(clanid):
     return memberids
 
 
-def getPlatform(destinyID):
+async def getPlatform(destinyID):
     charURL = "https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/?components=100,200"
     platform = None
     for i in [3,2,1,4,5,10,254]:
-        characterinfo = getJSONfromURL(charURL.format(i, destinyID))
+        characterinfo = await getJSONfromURL(charURL.format(i, destinyID))
         if characterinfo:
             break
     return platform
 
-def getPGCR(instanceID):
+async def getPGCR(instanceID):
     pgcrurl = f'https://www.bungie.net/Platform/Destiny2/Stats/PostGameCarnageReport/{instanceID}/'
-    return getJSONfromURL(pgcrurl)
+    return await getJSONfromURL(pgcrurl)
 
 # type = "DestinyInventoryItemDefinition" (fe.), hash = 3993415705 (fe)   - returns MT
-def returnManifestInfo(type, hash):
-    info = getJSONfromURL(f'http://www.bungie.net/Platform/Destiny2/Manifest/{type}/{hash}/')
+async def returnManifestInfo(type, hash):
+    info = await getJSONfromURL(f'http://www.bungie.net/Platform/Destiny2/Manifest/{type}/{hash}/')
 
     if info:
         return info
 
-def getManifest():
+async def getManifest():
     manifest_url = 'http://www.bungie.net/Platform/Destiny2/Manifest/'
     binaryLocation = "cache/MANZIP"
     os.makedirs(os.path.dirname(binaryLocation), exist_ok=True)
 
     #get the manifest location from the json
-    r = requests.get(manifest_url)
-    manifest = r.json()
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url=manifest_url) as r:
+            manifest = await r.json()
     mani_url = 'http://www.bungie.net' + manifest['Response']['mobileWorldContentPaths']['en']
 
     #Download the file, write it to 'MANZIP'
-    r = requests.get(mani_url)
-    with open(binaryLocation, "wb") as zip:
-        zip.write(r.content)
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url=mani_url) as r:
+            with open(binaryLocation, "wb") as zip:
+                zip.write(r.content)
 
     #Extract the file contents, and rename the extracted file to 'Manifest.content'
     with zipfile.ZipFile(binaryLocation) as zip:
@@ -198,10 +199,10 @@ def getManifest():
         zip.extractall()
     os.rename(name[0], 'cache/Manifest.content')
 
-def fillDictFromDB(dictRef, table):
+async def fillDictFromDB(dictRef, table):
     if not os.path.exists('cache/' + table + '.json'): 
         if not os.path.exists('cache/Manifest.content'):
-            getManifest()
+            await getManifest()
 
         #Connect to DB
         con = sqlite3.connect('cache/Manifest.content')
@@ -228,12 +229,12 @@ def fillDictFromDB(dictRef, table):
         with open('cache/' + table + '.json') as json_file:
             dictRef.update(json.load(json_file))
 
-fillDictFromDB(getNameFromHashRecords, 'DestinyRecordDefinition')
-fillDictFromDB(getNameFromHashActivity, 'DestinyActivityDefinition')
-fillDictFromDB(getNameFromHashCollectible, 'DestinyCollectibleDefinition')
-fillDictFromDB(getNameFromHashInventoryItem, 'DestinyInventoryItemDefinition')
+await fillDictFromDB(getNameFromHashRecords, 'DestinyRecordDefinition')
+await fillDictFromDB(getNameFromHashActivity, 'DestinyActivityDefinition')
+await fillDictFromDB(getNameFromHashCollectible, 'DestinyCollectibleDefinition')
+await fillDictFromDB(getNameFromHashInventoryItem, 'DestinyInventoryItemDefinition')
 
-def insertIntoDB(destinyID, pve):
+async def insertIntoDB(destinyID, pve):
     if not destinyID:
         return None
     #print('inserting into db...')
@@ -248,7 +249,7 @@ def insertIntoDB(destinyID, pve):
     completed = int(pve['values']['completed']['basic']['value'])
     mode = int(pve['activityDetails']['mode'])
     if completed and not int(pve['values']['completionReason']['basic']['value']):
-        if not (pgcr := getPGCR(instanceID)):
+        if not (pgcr := await getPGCR(instanceID)):
             return
         pgcrdata = pgcr['Response']
 
@@ -275,61 +276,59 @@ def insertIntoDB(destinyID, pve):
         insertActivity(instanceID, activityHash, activityDurationSeconds, period, startingPhaseIndex, deaths, playercount, mode)
     return True
         
-def updateDB(destinyID):
+async def updateDB(destinyID):
     if not destinyID:
         return
 
-    with ThreadPoolExecutor(max_workers=5) as executor:
-        charcount = len(getCharacterList(destinyID)[1])
-        if charcount == 0:
-            print(f'no characters found for {destinyID}')
-            return
-        #print(getCharacterList(destinyID)[1])
-        processes = []
-        lastUpdate = getLastUpdated(destinyID)
-        donechars = []
-        print(f'checking {charcount} characters')
-        for pve in getPlayersPastPVE(destinyID):
-            if 'period' not in pve.keys():
-                print('period not in pve')
+    charcount = len(await getCharacterList(destinyID)[1])
+    if charcount == 0:
+        print(f'no characters found for {destinyID}')
+        return
+    #print(await getCharacterList(destinyID)[1])
+    processes = []
+    lastUpdate = getLastUpdated(destinyID)
+    donechars = []
+    print(f'checking {charcount} characters')
 
-            if len(donechars) == charcount:
-                print(f'stopped loading {destinyID} at ' + period.strftime("%d %m %Y"))
-                updatedPlayer(destinyID)
-                break
+    falses, results = 0, 0
+    async for pve in getPlayersPastPVE(destinyID):
+        if 'period' not in pve.keys():
+            print('period not in pve')
 
-            if pve['charid'] in donechars:
-                #print('charid in donechars... skipping...')
-                continue
-            #print(pve)
-            period = datetime.strptime(pve['period'], "%Y-%m-%dT%H:%M:%SZ")
+        if len(donechars) == charcount:
+            print(f'stopped loading {destinyID} at ' + period.strftime("%d %m %Y"))
+            updatedPlayer(destinyID)
+            break
 
-            if period < (lastUpdate - timedelta(days=2)):
-                print(f'char {pve["charid"]} done at {pve["period"]}')
-                donechars.append(pve['charid'])
-                continue
+        if pve['charid'] in donechars:
+            #print('charid in donechars... skipping...')
+            continue
+        #print(pve)
+        period = datetime.strptime(pve['period'], "%Y-%m-%dT%H:%M:%SZ")
 
-            
-            #print(f'inserting {period}')
-            processes.append(executor.submit(lambda args: insertIntoDB(*args), (destinyID, pve)))
-        falses,results = 0,0
-        for task in as_completed(processes):
-            if not task.result():
-                #print('returing false')
-                falses += 1
-            else:
-                results += 1
-        updatedPlayer(destinyID)
-        print(f'done updating {destinyID} with {falses} errors and {results} new entries')
+        if period < (lastUpdate - timedelta(days=2)):
+            print(f'char {pve["charid"]} done at {pve["period"]}')
+            donechars.append(pve['charid'])
+            continue
+
+        result = await insertIntoDB(destinyID, pve)
+        if not result:
+            # print('returing false')
+            falses += 1
+        else:
+            results += 1
+
+    updatedPlayer(destinyID)
+    print(f'done updating {destinyID} with {falses} errors and {results} new entries')
 
 
-def initDB():
+async def initDB():
     con = db_connect()
     cur = con.cursor()
     playerlist = cur.execute('SELECT destinyID FROM discordGuardiansToken')
     playerlist = [p[0] for p in playerlist]
     for player in playerlist:
-        updateDB(player)
+        await updateDB(player)
     print(f'done updating the db')
 
 

@@ -175,13 +175,13 @@ class friends(BaseCommand):
             discordMemberIDs[i] = int(discordMemberIDs[i])
 
         # getting the activities for the original user
-        result = self.return_activities(destinyID, activityID, start_time, end_time)
+        result = await self.return_activities(destinyID, activityID, start_time, end_time)
         activities_from_user_who_got_looked_at[destinyID] = len(result[1])
 
         # getting the friends from his activities
         friends = []
         for ID in result[1]:
-            result = self.return_friends(destinyID, ID)
+            result = await self.return_friends(destinyID, ID)
             friends.extend(result)
         friends = dict(Counter(friends))
 
@@ -231,19 +231,14 @@ class friends(BaseCommand):
 
         # getting the activities each user did
         list_of_activities = []
-        with concurrent.futures.ThreadPoolExecutor(os.cpu_count() * 5) as pool:
-            futurelist = [pool.submit(self.return_activities, friend, activityID, start_time, end_time) for friend in friends_cleaned]
-            for future in concurrent.futures.as_completed(futurelist):
-                try:
-                    result = future.result()
-                    if result:
-                        list_of_activities.append(result)
+        for friend in friends_cleaned:
+            result = await self.return_activities(friend, activityID, start_time, end_time)
 
-                        # adding their # of activites to the dict
-                        activities_from_user_who_got_looked_at[int(result[0])] = len(result[1])
+            if result:
+                list_of_activities.append(result)
 
-                except Exception as exc:
-                    print(f'generated an exception: {exc}')
+                # adding their # of activites to the dict
+                activities_from_user_who_got_looked_at[int(result[0])] = len(result[1])
 
         print("Finished getting the activityIDs")
 
@@ -253,16 +248,11 @@ class friends(BaseCommand):
             friends_friends = []
 
             # looping through activities to get the data
-            with concurrent.futures.ThreadPoolExecutor(os.cpu_count() * 5) as pool:
-                futurelist = [pool.submit(self.return_friends, friend, ID) for ID in activities[1]]
-                for future in concurrent.futures.as_completed(futurelist):
-                    try:
-                        result = future.result()
-                        if result:
-                            friends_friends.extend(result)
+            for ID in activities[1]:
+                result = await self.return_friends(friend, ID)
 
-                    except Exception as exc:
-                        print(f'generated an exception: {exc}')
+                if result:
+                    friends_friends.extend(result)
 
             data_temp = []
             friends_friends = dict(Counter(friends_friends))
@@ -321,17 +311,17 @@ class friends(BaseCommand):
         estimated_total = len(unique_users) + 1
 
         # getting the display names, colors for users in discord, size of blob
-        with concurrent.futures.ThreadPoolExecutor(os.cpu_count() * 5) as pool:
-            futurelist = [pool.submit(self.prep_data, person, friends_cleaned, destinyID, discordMemberIDs, activities_from_user_who_got_looked_at, count_users) for person in unique_users]
-            for _ in concurrent.futures.as_completed(futurelist):
-                # updating the status
-                progress = int(estimated_current / estimated_total * 100)
-                await status_msg.edit(embed=embed_message(
-                    f'Please Wait {user.name}',
-                    f"This might take a while, I'll ping you when I'm done.",
-                    f"Preparing data - {progress}% done!"
-                ))
-                estimated_current += 1
+        for person in unique_users:
+            await self.prep_data(person, friends_cleaned, destinyID, discordMemberIDs, activities_from_user_who_got_looked_at, count_users)
+
+            # updating the status
+            progress = int(estimated_current / estimated_total * 100)
+            await status_msg.edit(embed=embed_message(
+                f'Please Wait {user.name}',
+                f"This might take a while, I'll ping you when I'm done.",
+                f"Preparing data - {progress}% done!"
+            ))
+            estimated_current += 1
 
         # print(unique_users)
         # print(count_users)
@@ -383,9 +373,9 @@ class friends(BaseCommand):
         # delete file
         os.remove(title)
 
-    def get_display_name(self, destinyID, loop=0):
+    async def get_display_name(self, destinyID, loop=0):
         staturl = f"https://www.bungie.net/Platform/Destiny2/3/Profile/{destinyID}/?components=100"
-        rep = getJSONfromURL(staturl)
+        rep = await getJSONfromURL(staturl)
 
         if rep and rep['Response']:
             return rep["Response"]["profile"]["data"]["userInfo"]["displayName"]
@@ -393,14 +383,14 @@ class friends(BaseCommand):
         elif loop == 5:
             # xbox
             staturl = f"https://www.bungie.net/Platform/Destiny2/1/Profile/{destinyID}/?components=100"
-            rep = getJSONfromURL(staturl)
+            rep = await getJSONfromURL(staturl)
 
             if rep and rep['Response']:
                 return rep["Response"]["profile"]["data"]["userInfo"]["displayName"]
             else:
                 # psn
                 staturl = f"https://www.bungie.net/Platform/Destiny2/2/Profile/{destinyID}/?components=100"
-                rep = getJSONfromURL(staturl)
+                rep = await getJSONfromURL(staturl)
 
                 if rep and rep['Response']:
                     return rep["Response"]["profile"]["data"]["userInfo"]["displayName"]
@@ -410,12 +400,12 @@ class friends(BaseCommand):
         else:
             # doing that until I get the name, added a delay to relax bungie
             loop += 1
-            time.sleep(1)
-            return self.get_display_name(destinyID, loop)
+            await asyncio.sleep(1)
+            return await self.get_display_name(destinyID, loop)
 
-    def return_activities(self, destinyID, activityID, start_time, end_time):
+    async def return_activities(self, destinyID, activityID, start_time, end_time):
         # waiting a bit so we don't get throttled by bungie
-        time.sleep(0.3)
+        await asyncio.sleep(0.3)
 
         # stoping this if user is in ignore
         if destinyID in self.ignore:
@@ -425,7 +415,7 @@ class friends(BaseCommand):
 
         # get get character ids
         staturl = f"https://www.bungie.net/Platform/Destiny2/3/Profile/{destinyID}/?components=100"
-        rep = getJSONfromURL(staturl)
+        rep = await getJSONfromURL(staturl)
         activities = []
 
         if rep and rep['Response']:
@@ -438,7 +428,7 @@ class friends(BaseCommand):
                         break
 
                     staturl = f"https://www.bungie.net/Platform/Destiny2/3/Account/{destinyID}/Character/{characterID}/Stats/Activities/?mode={activityID}&count=250&page={page}"
-                    rep = getJSONfromURL(staturl)
+                    rep = await getJSONfromURL(staturl)
 
                     if rep and rep['Response']:
                         for activity in rep["Response"]["activities"]:
@@ -459,16 +449,16 @@ class friends(BaseCommand):
 
         return [destinyID, set(activities)]
 
-    def return_friends(self, destinyID, instanceID):
+    async def return_friends(self, destinyID, instanceID):
         # waiting a bit so we don't get throttled by bungie
-        time.sleep(0.3)
+        await asyncio.sleep(0.3)
 
         # list in which the connections are saved
         friends = []
 
         # get instance id info
         staturl = f"https://stats.bungie.net/Platform/Destiny2/Stats/PostGameCarnageReport/{instanceID}"
-        rep = getJSONfromURL(staturl)
+        rep = await getJSONfromURL(staturl)
 
         if rep and rep['Response']:
             for player in rep["Response"]["entries"]:
@@ -483,8 +473,8 @@ class friends(BaseCommand):
         # sort and count friends
         return friends
 
-    def prep_data(self, person, friends_cleaned, destinyID, discordMemberIDs, activities_from_user_who_got_looked_at, count_users):
-        name = self.get_display_name(person)
+    async def prep_data(self, person, friends_cleaned, destinyID, discordMemberIDs, activities_from_user_who_got_looked_at, count_users):
+        name = await self.get_display_name(person)
         display_names = name
         if person not in friends_cleaned and person != destinyID:
             size = count_users[person] * 50

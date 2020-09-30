@@ -5,10 +5,11 @@ from static.config      import BUNGIE_OAUTH, BUNGIE_TOKEN, BUNGIE_SECRET, B64_SE
 from flask              import Flask, request, redirect, Response, send_file, render_template
 from functions.database import insertToken, getRefreshToken
 import asyncio
+import aiohttp
 import os
 from flask import send_from_directory, url_for
 
-def refresh_token(discordID):
+async def refresh_token(discordID):
     url = 'https://www.bungie.net/platform/app/oauth/token/'
     headers = {
         'content-type': 'application/x-www-form-urlencoded',
@@ -16,16 +17,17 @@ def refresh_token(discordID):
     }
     refresh_token = getRefreshToken(discordID)
 
-    data = 'grant_type=refresh_token&refresh_token=' +str(refresh_token)
+    data = 'grant_type=refresh_token&refresh_token=' + str(refresh_token)
 
-    r = requests.post(url, data=data, headers=headers, allow_redirects=False)
-    data = r.json()
-    access_token = data['access_token']
-    refresh_token = data['refresh_token']
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url, data=data, headers=headers, allow_redirects=False) as r:
+            data = await r.json()
+            access_token = data['access_token']
+            refresh_token = data['refresh_token']
 
-    print('got new token ' + str(access_token)) 
+            print('got new token ' + str(access_token))
 
-    insertToken(discordID, None, None, access_token, refresh_token)
+            insertToken(discordID, None, None, access_token, refresh_token)
 
 
 ########################################## FLASK STUFF ##################################################

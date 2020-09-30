@@ -5,8 +5,6 @@ from events.base_event import BaseEvent
 import json
 import pandas
 import datetime
-import os
-import concurrent.futures
 
 
 
@@ -15,8 +13,8 @@ class refreshSealPickle(BaseEvent):
         interval_minutes = 1440  # Set the interval for this event
         super().__init__(interval_minutes)
 
-    def getTriumphData(self, triumph, not_available, cant_earn_anymore):
-        rep = getJSONfromURL(f"https://www.bungie.net/Platform/Destiny2/Manifest/DestinyRecordDefinition/{triumph}/")
+    async def getTriumphData(self, triumph, not_available, cant_earn_anymore):
+        rep = await getJSONfromURL(f"https://www.bungie.net/Platform/Destiny2/Manifest/DestinyRecordDefinition/{triumph}/")
 
         # converting to python dict (for true -> True conversion)
         rep = json.loads(json.dumps(rep))
@@ -64,7 +62,7 @@ class refreshSealPickle(BaseEvent):
         except FileNotFoundError:
             file = pandas.DataFrame({"date": [datetime.date.min]})
 
-        triumphs = getTriumphsJSON(4611686018467765462)
+        triumphs = await getTriumphsJSON(4611686018467765462)
 
         seals = []
         if triumphs is None:
@@ -73,17 +71,10 @@ class refreshSealPickle(BaseEvent):
         # converting to python dict (for true -> True conversion)
         triumphs = json.loads(json.dumps(triumphs))
 
-        with concurrent.futures.ThreadPoolExecutor(os.cpu_count() * 1) as pool:
-            futurelist = [pool.submit(self.getTriumphData, triumph, not_available, cant_earn_anymore) for triumph in triumphs]
-            for future in concurrent.futures.as_completed(futurelist):
-                try:
-                    result = future.result()
-                    if result:
-                        seals.append(result)
-
-                except Exception as exc:
-                    pass
-                    # print(f'generated an exception: {exc}')
+        for triumph in triumphs:
+            result = await self.getTriumphData(triumph, not_available, cant_earn_anymore)
+            if result:
+                seals.append(result)
 
         # print(seals)
 

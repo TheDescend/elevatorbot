@@ -4,9 +4,7 @@ from functions.dataLoading        import getNameAndCrossaveNameToHashMapByClanid
 from static.dict                  import clanids
 from functions.database           import lookupDiscordID, getSystemAndChars
 from functions.network            import getJSONfromURL
-from concurrent.futures           import ThreadPoolExecutor, as_completed
 
-import os
 
 class maxPower(BaseCommand):
     def __init__(self):
@@ -16,7 +14,7 @@ class maxPower(BaseCommand):
         topic = "Destiny"
         super().__init__(description, params, topic)
 
-    def getLightLevel(self, client, destinyID): 
+    async def getLightLevel(self, client, destinyID):
         if not (discordID := lookupDiscordID(destinyID)) or not (user := client.get_user(discordID)):
             return ('None', 0)
         username = user.name
@@ -24,11 +22,11 @@ class maxPower(BaseCommand):
         sysCharList = getSystemAndChars(destinyID)
         for sys,charID in sysCharList:
             staturl = f"https://www.bungie.net/Platform/Destiny2/{sys}/Account/{destinyID}/Character/{charID}/Stats/Activities/?mode=7&count=3&page={0}" 
-            rep = getJSONfromURL(staturl)
+            rep = await getJSONfromURL(staturl)
             for activity in rep['Response']['activities']:
                 iid = activity['activityDetails']['instanceId']
                 print(iid)
-                if not (pgcrdata := getPGCR(iid)):
+                if not (pgcrdata := await getPGCR(iid)):
                     print('getting pgcr data failed')
                     continue
                 for player in pgcrdata['Response']['entries']:
@@ -46,11 +44,9 @@ class maxPower(BaseCommand):
         with message.channel.typing():
             namePowerList = []
             for clanid,name in clanids.items():
-                clanmap = getNameAndCrossaveNameToHashMapByClanid(clanid)
-                successfulMatches = []
-                unsuccessfulMatches = []
-                with ThreadPoolExecutor(max_workers=os.cpu_count()*5) as executor:
-                    future_to_url = [executor.submit(self.getLightLevel, client, destinyID) for destinyID in clanmap.keys()]
-                    for future in as_completed(future_to_url):
-                        namePowerList.append(future.result())
-        await message.channel.send("\n".join([f'{name}: {power}' for name,power in sorted(namePowerList, key=lambda ele:ele[1], reverse=True)][:20]))
+                clanmap = await getNameAndCrossaveNameToHashMapByClanid(clanid)
+
+                for destinyID in clanmap.keys():
+                    namePowerList.append(await self.getLightLevel(client, destinyID))
+
+        await message.channel.send("\n".join([f'{name}: {power}' for name, power in sorted(namePowerList, key=lambda ele:ele[1], reverse=True)][:20]))

@@ -6,7 +6,6 @@ from functions.formating import embed_message
 from static.dict                    import requirementHashes
 
 from datetime           import datetime
-from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import discord
 
@@ -25,7 +24,7 @@ async def hasAdminOrDevPermissions(message, send_message=True):
     return True
 
 
-def hasRole(playerid, role, year, br = True):
+async def hasRole(playerid, role, year, br = True):
     data = {}
 
     roledata = requirementHashes[year][role]
@@ -55,7 +54,7 @@ def hasRole(playerid, role, year, br = True):
 
         elif req == 'collectibles':
             for collectible in roledata['collectibles']:
-                has_col = hasCollectible(playerid, collectible)
+                has_col = await hasCollectible(playerid, collectible)
                 worthy &= has_col
 
                 if (not worthy) and br:
@@ -63,14 +62,14 @@ def hasRole(playerid, role, year, br = True):
 
                 # get name of collectible
                 name = "No name here"
-                rep = getJSONfromURL(f"https://www.bungie.net/Platform/Destiny2/Manifest/DestinyCollectibleDefinition/{collectible}/")
+                rep = await getJSONfromURL(f"https://www.bungie.net/Platform/Destiny2/Manifest/DestinyCollectibleDefinition/{collectible}/")
                 if rep and rep['Response']:
                     name = rep['Response']["displayProperties"]["name"]
                 data[str(name)] = str(has_col)
 
         elif req == 'records':
             for recordHash in roledata['records']:
-                has_tri = hasTriumph(playerid, recordHash)
+                has_tri = await hasTriumph(playerid, recordHash)
                 worthy &= has_tri
 
                 if (not worthy) and br:
@@ -78,7 +77,7 @@ def hasRole(playerid, role, year, br = True):
 
                 # get name of triumph
                 name = "No name here"
-                rep = getJSONfromURL(
+                rep = await getJSONfromURL(
                     f"https://www.bungie.net/Platform/Destiny2/Manifest/DestinyRecordDefinition/{recordHash}/")
                 if rep and rep['Response']:
                     name = rep['Response']["displayProperties"]["name"]
@@ -107,8 +106,8 @@ def hasRole(playerid, role, year, br = True):
     # print(data)
     return [worthy, data]
 
-def returnIfHasRoles(playerid, role, year):
-    if hasRole(playerid, role, year)[0]:
+async def returnIfHasRoles(playerid, role, year):
+    if await hasRole(playerid, role, year)[0]:
         return role
     return None
 
@@ -119,20 +118,17 @@ def getPlayerRoles(playerid, existingRoles = []):
     print(f'getting roles for {playerid}')
     roles = []
     redundantRoles = []
-    with ThreadPoolExecutor(max_workers=5) as executor:
-        processes = []
-        for year, yeardata in requirementHashes.items():		
-            for role, roledata in yeardata.items():
-                if role in existingRoles or ('replaced_by' in roledata.keys() and any([x in existingRoles for x in roledata['replaced_by']])):
-                    if not 'Raid Master' in role:
-                        roles.append(role)
-                    continue
-                # enable to not recheck existing roles
-                processes.append(executor.submit(returnIfHasRoles, playerid, role, year))
 
-    for task in as_completed(processes):
-        if task.result():
-            roles.append(task.result())
+    for year, yeardata in requirementHashes.items():
+        for role, roledata in yeardata.items():
+            if role in existingRoles or ('replaced_by' in roledata.keys() and any([x in existingRoles for x in roledata['replaced_by']])):
+                if not 'Raid Master' in role:
+                    roles.append(role)
+                continue
+            # enable to not recheck existing roles
+            has_role = await returnIfHasRoles(playerid, role, year)
+            if has_role:
+                roles.append(has_role)
 
     #remove roles that are replaced by others
     for yeardata in requirementHashes.values():

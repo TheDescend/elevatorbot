@@ -7,10 +7,7 @@ from discord.ext            import commands
 
 from functions.database     import lookupDestinyID, getSystemAndChars
 from functions.formating    import embed_message
-import re, requests
 
-base_uri = 'https://discord.com/api/v7'
-memberMap = getNameToHashMapByClanid(list(clanids.keys())[0])
 rrsystem = {
     1: 'xb',
     2: 'ps',
@@ -25,8 +22,6 @@ class RR(BaseCommand):
         super().__init__(description, params, topic)
 
     async def handle(self, params, message, client):
-        PARAMS = {'X-API-Key':BUNGIE_TOKEN}
-        username = message.author.nick or message.author.name
 
         if len(params) == 1:
             ctx = await client.get_context(message)
@@ -48,7 +43,7 @@ class RR(BaseCommand):
             if not syscharlist:
                 #get them I guess
                 await message.channel.send("Player not yet in db, updating...")
-                updateDB(destinyID)
+                await updateDB(destinyID)
                 syscharlist = getSystemAndChars(destinyID)
                 if not syscharlist:
                     print(f'{destinyID} is borked')
@@ -77,8 +72,6 @@ class DR(BaseCommand):
         super().__init__(description, params, topic)
 
     async def handle(self, params, message, client):
-        PARAMS = {'X-API-Key':BUNGIE_TOKEN}
-        username = message.author.nick or message.author.name
 
         if len(params) == 1:
             ctx = await client.get_context(message)
@@ -90,7 +83,6 @@ class DR(BaseCommand):
                     f'User not found, make sure the spelling/id is correct'
                 ))
                 return
-            username = user.name
 
             destinyID = lookupDestinyID(user.id)
             if destinyID:

@@ -14,6 +14,6 @@ class doesHaliHaveTheWardcliffCoilCatalystCompleted(BaseCommand):
     # It will be called every time the command is received
     async def handle(self, params, message, client):
         text = 'no, but <@109022023979667456> does'
-        if hasTriumph(4611686018468695677, 543481464):
+        if await hasTriumph(4611686018468695677, 543481464):
             text = 'yes'
         await message.channel.send(text)

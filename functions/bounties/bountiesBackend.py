@@ -13,10 +13,10 @@ import logging
 
 
 # return winner of the last game in the pvp history, if just those two players where in it
-def returnCustomGameWinner(destinyID1, charIDs1, membershipType1, destinyID2):
+async def returnCustomGameWinner(destinyID1, charIDs1, membershipType1, destinyID2):
     for char in charIDs1:
         staturl = f"https://www.bungie.net/Platform/Destiny2/{membershipType1}/Account/{destinyID1}/Character/{char}/Stats/Activities/?mode=0&count=1&page=0"
-        rep = getJSONfromURL(staturl)
+        rep = await getJSONfromURL(staturl)
         if rep and rep['Response']:
             rep = json.loads(json.dumps(rep))
             # if it's not a private game
@@ -29,7 +29,7 @@ def returnCustomGameWinner(destinyID1, charIDs1, membershipType1, destinyID2):
 
             ID = rep["Response"]["activities"][0]["activityDetails"]["instanceId"]
             staturl = f"https://stats.bungie.net/Platform/Destiny2/Stats/PostGameCarnageReport/{ID}/"
-            rep2 = getJSONfromURL(staturl)
+            rep2 = await getJSONfromURL(staturl)
             if rep2 and rep2['Response']:
                 rep2 = json.loads(json.dumps(rep2))
 
@@ -53,95 +53,64 @@ def returnCustomGameWinner(destinyID1, charIDs1, membershipType1, destinyID2):
     return None
 
 
-def threadingBounties(bounties, cutoff, discordID):
-    destinyID = lookupDestinyID(discordID)
-    experience_level_pve = getLevel("exp_pve", discordID)
-    experience_level_pvp = getLevel("exp_pvp", discordID)
-    experience_level_raids = getLevel("exp_raids", discordID)
-
-    # loop though activities
-    for activity in getPlayersPastPVE(destinyID, mode=0):
-        # only look at activities younger than the cutoff date
-        if datetime.datetime.strptime(activity["period"], "%Y-%m-%dT%H:%M:%SZ") < cutoff:
-            break
-
-        # loop through all the bounties
-        for topic in bounties:
-            for experience in bounties[topic]:
-                # only go further if experience levels match
-                if topic == "Raids":
-                    if not ((experience_level_raids == 0 and experience == "New Players") or (
-                            experience_level_raids == 1 and experience == "Experienced Players")):
-                        continue
-                elif topic == "PvE":
-                    if not ((experience_level_pve == 0 and experience == "New Players") or (
-                            experience_level_pve == 1 and experience == "Experienced Players")):
-                        continue
-                elif topic == "PvP":
-                    if not ((experience_level_pvp == 0 and experience == "New Players") or (
-                            experience_level_pvp == 1 and experience == "Experienced Players")):
-                        continue
-
-                for bounty in bounties[topic][experience]:
-
-                    # check if user has done bounty this week already
-                    if playerHasDoneBounty(discordID, bounty):
-                        break
-
-                    requirements = bounties[topic][experience][bounty]
-
-                    # if true, a bounty is done
-                    done, index_multiple_points = fulfillRequirements(requirements, activity, destinyID)
-                    if done:
-                        playerHasDoneBounty(discordID, bounty, done=True)
-                        addPoints(discordID, requirements, bounty, f"points_bounties_{topic.lower()}", index_multiple_points=index_multiple_points, clanmate_bonus=checkIfDiscordmateInActivity(activity["activityDetails"]["instanceId"]))
-                        print(f"""DestinyID {destinyID} has completed bounty {bounty} with instanceID {activity["activityDetails"]["instanceId"]}""")
-
-    print(f"Bounties for destinyID: {destinyID} done")
-
-
-def threadingCompetitionBounties(bounties, cutoff, discordID):
-    destinyID = lookupDestinyID(discordID)
-
-    # create leaderboard dict
-    leaderboard = {}
-    sort_by = {}
+async def threadingBounties(activity, bounties, destinyID, discordID, experience_level_pve, experience_level_pvp, experience_level_raids):
+    # loop through all the bounties
     for topic in bounties:
-        leaderboard[topic] = {}
-        sort_by.update({topic: True})
-
-    # loop through activities
-    for activity in getPlayersPastPVE(destinyID, mode=0):
-        # only look at activities younger than the cutoff date
-        if datetime.datetime.strptime(activity["period"], "%Y-%m-%dT%H:%M:%SZ") < cutoff:
-            break
-
-        # loop though all the competition bounties
-        for topic in bounties:
-            sort_by_highest = True
-            best_score = 0
-
-            for bounty, req in bounties[topic].items():  # there is only one item in here
-                # add to high score if new high score, otherwise skip
-                ret, sort_by_highest = returnScore(req, activity, destinyID)
-
-                # next, if 0 got returned
-                if ret == 0:
+        for experience in bounties[topic]:
+            # only go further if experience levels match
+            if topic == "Raids":
+                if not ((experience_level_raids == 0 and experience == "New Players") or (
+                        experience_level_raids == 1 and experience == "Experienced Players")):
+                    continue
+            elif topic == "PvE":
+                if not ((experience_level_pve == 0 and experience == "New Players") or (
+                        experience_level_pve == 1 and experience == "Experienced Players")):
+                    continue
+            elif topic == "PvP":
+                if not ((experience_level_pvp == 0 and experience == "New Players") or (
+                        experience_level_pvp == 1 and experience == "Experienced Players")):
                     continue
 
-                # overwrite value if better
-                if sort_by_highest:
-                    if ret > best_score:
-                        best_score = ret
-                else:
-                    if (ret < best_score) or (best_score == 0):
-                        best_score = ret
+            for bounty in bounties[topic][experience]:
 
-                # update leaderboards
-                sort_by.update({topic: sort_by_highest})
-                leaderboard[topic].update({discordID: best_score})
+                # check if user has done bounty this week already
+                if playerHasDoneBounty(discordID, bounty):
+                    break
 
-    print(f"Competitive bounties for destinyID: {destinyID} done")
+                requirements = bounties[topic][experience][bounty]
+
+                # if true, a bounty is done
+                done, index_multiple_points = await fulfillRequirements(requirements, activity, destinyID)
+                if done:
+                    playerHasDoneBounty(discordID, bounty, done=True)
+                    addPoints(discordID, requirements, bounty, f"points_bounties_{topic.lower()}", index_multiple_points=index_multiple_points, clanmate_bonus=await checkIfDiscordmateInActivity(activity["activityDetails"]["instanceId"]))
+                    print(f"""DiscordID {discordID} has completed bounty {bounty} with instanceID {activity["activityDetails"]["instanceId"]}""")
+
+
+async def threadingCompetitionBounties(activity, bounties, destinyID, discordID, leaderboard, sort_by):
+    # loop though all the competition bounties
+    for topic in bounties:
+        best_score = 0
+
+        for bounty, req in bounties[topic].items():  # there is only one item in here
+            # add to high score if new high score, otherwise skip
+            ret, sort_by_highest = await returnScore(req, activity, destinyID)
+
+            # next, if 0 got returned
+            if ret == 0:
+                continue
+
+            # overwrite value if better
+            if sort_by_highest:
+                if ret > best_score:
+                    best_score = ret
+            else:
+                if (ret < best_score) or (best_score == 0):
+                    best_score = ret
+
+            # update leaderboards
+            leaderboard[topic].update({discordID: best_score})
+            sort_by.update({topic: sort_by_highest})
 
     return leaderboard, sort_by
 
@@ -197,10 +166,10 @@ def addPoints(discordID, requirements, name, leaderboard, index_multiple_points=
 
 
 # return true if another clanmate was in the activity
-def checkIfDiscordmateInActivity(destinyID, activity_id):
+async def checkIfDiscordmateInActivity(destinyID, activity_id):
     discord_members = getAllDiscordMemberDestinyIDs()
 
-    pgcr = getPGCR(activity_id)
+    pgcr = await getPGCR(activity_id)
     for player in pgcr["Response"]["entries"]:
         other_destinyID = int(player["player"]["destinyUserInfo"]["membershipId"])
         if other_destinyID != destinyID and other_destinyID in discord_members:
@@ -252,10 +221,10 @@ def getCompetitionBountiesLeaderboards():
 
 
 # sets the exp level for "pve" - currently kd above 1.11
-def experiencePvp(destinyID):
+async def experiencePvp(destinyID):
     limit = 1.11    # since that includes hali :)
 
-    ret = getStats(destinyID)
+    ret = await getStats(destinyID)
     if ret:
         kd = ret["mergedAllCharacters"]["results"]["allPvP"]["allTime"]["killsDeathsRatio"]["basic"]["value"]
 
@@ -267,10 +236,10 @@ def experiencePvp(destinyID):
 
 
 # sets the exp level for "pve" - currently time played above 500h
-def experiencePve(destinyID):
+async def experiencePve(destinyID):
     limit = 500     # hours
 
-    ret = getStats(destinyID)
+    ret = await getStats(destinyID)
     if ret:
         time_played = ret["mergedAllCharacters"]["results"]["allPvE"]["allTime"]["secondsPlayed"]["basic"]["value"]
 
@@ -282,11 +251,11 @@ def experiencePve(destinyID):
 
 
 # sets the exp level for "raids" - currently 35 raids and every raid cleared
-def experienceRaids(destinyID):
+async def experienceRaids(destinyID):
     limit_raids = 35            # total raids
     limit_doneEach = 1          # does every raid need to be cleared
 
-    ret = getProfile(destinyID, 1100)
+    ret = await getProfile(destinyID, 1100)
     if ret:
         # check total raid completions
         completions = 0
@@ -393,7 +362,7 @@ async def formatLeaderboardMessage(client, leaderboard, user_id=None, limit=10):
 
 # --------------------------------------------------------------
 # checking bounties requirements
-def fulfillRequirements(requirements, activity, destinyID):
+async def fulfillRequirements(requirements, activity, destinyID):
     # write the requirement into the this list if it is done. At the end it will get check and if all the requirements are in there, true gets returned
     complete_list = []
 
@@ -403,7 +372,7 @@ def fulfillRequirements(requirements, activity, destinyID):
     hashID = activity["activityDetails"]["directorActivityHash"]
     instance = activity["activityDetails"]["instanceId"]
 
-    pgcr = getPGCR(instance)
+    pgcr = await getPGCR(instance)
 
     # clean runs
     clean = cleanRuns(requirements, pgcr, destinyID)
@@ -415,7 +384,7 @@ def fulfillRequirements(requirements, activity, destinyID):
     for req in requirements["requirements"]:
         # > tested <
         if req == "allowedTypes":
-            if returnManifestInfo("DestinyActivityDefinition", hashID)["Response"]["activityTypeHash"] in requirements["allowedTypes"]:
+            if await returnManifestInfo("DestinyActivityDefinition", hashID)["Response"]["activityTypeHash"] in requirements["allowedTypes"]:
                 complete_list.append(req)
             else:
                 return False, None
@@ -437,7 +406,7 @@ def fulfillRequirements(requirements, activity, destinyID):
         # > tested <
         if req == "firstClear":
             # get raid metrics for future comparison
-            individual_raid_clears = getProfile(destinyID, 1100)
+            individual_raid_clears = await getProfile(destinyID, 1100)
             if individual_raid_clears:
                 # loop though allowedActivities
                 for activity_list in requirements["firstClear"]:
@@ -463,7 +432,7 @@ def fulfillRequirements(requirements, activity, destinyID):
                     # loop through weapons
                     all_weapons_ok = True
                     for weapon in player["extended"]["weapons"]:
-                        weapon_info = returnManifestInfo("DestinyInventoryItemDefinition", weapon["referenceId"])
+                        weapon_info = await returnManifestInfo("DestinyInventoryItemDefinition", weapon["referenceId"])
                         weapon_info_slot = weapon_info["Response"]["equippingBlock"]["equipmentSlotTypeHash"]
                         weapon_info_type_name = weapon_info["Response"]["itemTypeDisplayName"]
 
@@ -490,7 +459,7 @@ def fulfillRequirements(requirements, activity, destinyID):
                     light_player = player["player"]["lightLevel"]
 
                     # get activity light level
-                    light_activity = returnManifestInfo("DestinyActivityDefinition", hashID)["Response"]["activityLightLevel"]
+                    light_activity = await returnManifestInfo("DestinyActivityDefinition", hashID)["Response"]["activityLightLevel"]
 
                     if (light_player + requirements["contest"]) <= light_activity:
                         complete_list.append(req)
@@ -579,10 +548,10 @@ def fulfillRequirements(requirements, activity, destinyID):
 
         # > tested <
         if req == "winStreak":
-            metrics = getProfile(destinyID, 1100)
+            metrics = await getProfile(destinyID, 1100)
             # loop trough allocation and set look
             for activityTypes in metricWinStreakWeeklyAllocation.keys():
-                if returnManifestInfo("DestinyActivityDefinition", hashID)["Response"]["activityTypeHash"] in activityTypes:
+                if await returnManifestInfo("DestinyActivityDefinition", hashID)["Response"]["activityTypeHash"] in activityTypes:
                     if metrics["metrics"]["data"]["metrics"][str(metricWinStreakWeeklyAllocation[activityTypes][0])]["objectiveProgress"]["progress"] >= requirements["winStreak"]:
                         complete_list.append(req)
                         break
@@ -608,14 +577,14 @@ def fulfillRequirements(requirements, activity, destinyID):
 
 
 # checking competition bounties scores
-def returnScore(requirements, activity, destinyID):
+async def returnScore(requirements, activity, destinyID):
     score = 0
     sort_by_highest = True
 
     hashID = activity["activityDetails"]["directorActivityHash"]
     instance = activity["activityDetails"]["instanceId"]
 
-    pgcr = getPGCR(instance)
+    pgcr = await getPGCR(instance)
 
     # clean runs
     clean = cleanRuns(requirements, pgcr, destinyID)
@@ -627,7 +596,7 @@ def returnScore(requirements, activity, destinyID):
     for req in requirements["requirements"]:
         # > tested <
         if req == "allowedTypes":
-            if returnManifestInfo("DestinyActivityDefinition", hashID)["Response"]["activityTypeHash"] not in requirements["allowedTypes"]:
+            if await returnManifestInfo("DestinyActivityDefinition", hashID)["Response"]["activityTypeHash"] not in requirements["allowedTypes"]:
                 return 0, sort_by_highest
 
 

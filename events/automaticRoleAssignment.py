@@ -6,18 +6,9 @@ from functions.database             import lookupDiscordID, lookupDestinyID, get
 from functions.dataLoading          import initDB
 from functions.network import getJSONfromURL
 
-from static.dict import clanids
-
-from multiprocessing import Process
-from multiprocessing import Pool, TimeoutError
-
-import concurrent.futures as cf
 import discord
 
 from itertools import compress
-
-fullMemberMap = getFullMemberMap()
-
 
 class AutomaticRoleAssignment(BaseEvent):
     """Will automatically update the roles"""
@@ -28,7 +19,7 @@ class AutomaticRoleAssignment(BaseEvent):
     
     async def run(self, client):
         print('running the automatic role assignment...')
-        def updateUser(discordUser):
+        async def updateUser(discordUser):
             if discordUser.bot:
                 return (None, None, None)
 
@@ -47,36 +38,37 @@ class AutomaticRoleAssignment(BaseEvent):
         newtonslab = client.get_channel(670637036641845258)
         #await newtonslab.send('running db update...')
         async with newtonslab.typing():
-            initDB()
+            await initDB()
         #await newtonslab.send('db done')
         #await newtonslab.send('running role update...')
 
         async with newtonslab.typing():
             #Since I'm too lazy to find out the guild-id, this is how I get the guild-object
             guild = newtonslab.guild
-            with cf.ThreadPoolExecutor(max_workers=15) as executor:
-                results = executor.map(updateUser, guild.members)
 
-                news = list(results)
-                newstext = 'done with role update <:CaydeThumbsUp:670997683774685234>\n'
-                
-                for discordUser, newRoles, removeRoles in news:
-                    if not discordUser:
-                        continue
-                    await assignRolesToUser(newRoles, discordUser, guild)
-                    await removeRolesFromUser(removeRoles, discordUser, guild)
-                    
-                    existingRoles = [er.name for er in discordUser.roles]
-                    addBools = [nr not in existingRoles for nr in newRoles]
-                    removeBools = [rr in existingRoles for rr in removeRoles]
+            news = []
+            async for member in guild.fetch_members():
+                news.append(await updateUser(member))
 
-                    addrls = list(compress(newRoles, addBools))
-                    removerls = list(compress(removeRoles, removeBools))
-                    
-                    if addrls or removerls:
-                        newstext += f'Updated player {discordUser.name} by adding {", ".join(addrls or ["nothing"])} and removing {", ".join(removerls or ["nothing"])}\n'
-                        
-                await newtonslab.send(newstext)
+            newstext = 'done with role update <:CaydeThumbsUp:670997683774685234>\n'
+
+            for discordUser, newRoles, removeRoles in news:
+                if not discordUser:
+                    continue
+                await assignRolesToUser(newRoles, discordUser, guild)
+                await removeRolesFromUser(removeRoles, discordUser, guild)
+
+                existingRoles = [er.name for er in discordUser.roles]
+                addBools = [nr not in existingRoles for nr in newRoles]
+                removeBools = [rr in existingRoles for rr in removeRoles]
+
+                addrls = list(compress(newRoles, addBools))
+                removerls = list(compress(removeRoles, removeBools))
+
+                if addrls or removerls:
+                    newstext += f'Updated player {discordUser.name} by adding {", ".join(addrls or ["nothing"])} and removing {", ".join(removerls or ["nothing"])}\n'
+
+            await newtonslab.send(newstext)
         
         #await newtonslab.send('done with daily update <:CaydeThumbsUp:670997683774685234>')
 
@@ -102,7 +94,7 @@ class AutoRegisteredRole(BaseEvent):
 
         # get all clan members discordID
         memberlist = []
-        for member in getJSONfromURL(f"https://www.bungie.net/Platform/GroupV2/{clanID}/Members/")["Response"]["results"]:
+        for member in await getJSONfromURL(f"https://www.bungie.net/Platform/GroupV2/{clanID}/Members/")["Response"]["results"]:
             destinyID = int(member["destinyUserInfo"]["membershipId"])
             discordID = lookupDiscordID(destinyID)
             if discordID is not None:

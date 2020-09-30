@@ -42,7 +42,7 @@ class getSheet(BaseCommand):
         #tell the user it's processing and create sheet
         await message.channel.send('This is gonna take a loooooooong time')
         async with message.channel.typing():
-            self.sheetpath = createSheet()
+            self.sheetpath = await createSheet()
             if self.sheetpath is not None:
                 f = discord.File(open(self.sheetpath,'rb'),'AchievementSheet.xlsx')
                 await message.channel.send(file=f)

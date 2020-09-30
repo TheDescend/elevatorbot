@@ -3,13 +3,12 @@ import os, pandas, xlsxwriter
 import pandas.io.formats.excel
 import concurrent.futures
 
-#selfdefined imports
 from functions.dataLoading  import getNameToHashMapByClanid
 from functions.roles        import getPlayerRoles
 from static.dict            import requirementHashes, clanids
 
 
-def createSheet():
+async def createSheet():
     #defining where and how to save the excel file
     path = os.path.dirname(os.path.abspath(__file__))
     path += '\\clanAchievementsShort.xlsx'
@@ -17,7 +16,7 @@ def createSheet():
 
     #generating a statssheet for every clan in dict.clanids
     for clanid, clanname in clanids.items():
-        memberids = getNameToHashMapByClanid(clanid)
+        memberids = await getNameToHashMapByClanid(clanid)
         userRoles = {}
         #Collects all roles in parallel
         with concurrent.futures.ThreadPoolExecutor() as executor:
@@ -89,5 +88,5 @@ def createSheet():
 
 #this should only get executed if it's the initially called file
 if __name__ == '__main__':
-    createSheet()
+    await createSheet()
 

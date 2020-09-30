@@ -26,6 +26,7 @@ class listHasCollectible(BaseCommand):
                 for discordUser in message.guild.members:
                     destinyID = lookupDestinyID(discordUser.id)
                     if destinyID:
+                        # todo hasCollectible() needs to be awaited
                         future_to_did[executor.submit(hasCollectible, destinyID, collectibleHash)] = discordUser.name
 
                 for future in as_completed(future_to_did):

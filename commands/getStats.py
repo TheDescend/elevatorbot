@@ -26,20 +26,20 @@ class stat(BaseCommand):
             await message.channel.send(f'Unable to get your destiny-stats. Please contact a {message.guild.get_role(670397357120159776)}')
             return
         if name == 'resurrections': #
-            given = getIntStat(destinyID, 'resurrectionsPerformed')
-            received = getIntStat(destinyID, 'resurrectionsReceived')
+            given = await getIntStat(destinyID, 'resurrectionsPerformed')
+            received = await getIntStat(destinyID, 'resurrectionsReceived')
             await message.channel.send(f'{message.author.mention}, you have revived **{given}** people and got revived **{received}** times! 🚑')
 
         elif name == 'meleekills':
-            melees = getIntStat(destinyID, 'weaponKillsMelee')
+            melees = await getIntStat(destinyID, 'weaponKillsMelee')
             await message.channel.send(f'{message.author.mention}, you have punched **{melees}** enemies to death! 🖍️')
 
         elif name == 'superkills':
-            melees = getIntStat(destinyID, 'weaponKillsSuper')
+            melees = await getIntStat(destinyID, 'weaponKillsSuper')
             await message.channel.send(f'{message.author.mention}, you have used your supers to extinguish **{melees}** enemies! <a:PepoCheer:670678495923273748>')
 
         elif name == 'longrangekill':
-            snips = getIntStat(destinyID, 'longestKillDistance')
+            snips = await getIntStat(destinyID, 'longestKillDistance')
             await message.channel.send(f'{message.author.mention}, you sniped an enemy as far as **{snips}** meters away <:Kapp:670369121808154645>')
         elif name == 'top10pveguns':
             async with message.channel.typing():
@@ -50,12 +50,12 @@ class stat(BaseCommand):
         elif name == 'pve': #starttime endtime
             start = params[1]
             end = params[2]
-            await message.channel.send(getGunsForPeriod(destinyID, start, end))
+            await message.channel.send(await getGunsForPeriod(destinyID, start, end))
             #"2020-03-31"
         elif name == 'deaths':
             stats = []
-            for charid, chardesc in getCharactertypeList(destinyID):
-                stats.append((chardesc, getCharStats(destinyID, charid, 'deaths')))
+            for charid, chardesc in await getCharactertypeList(destinyID):
+                stats.append((chardesc, await getCharStats(destinyID, charid, 'deaths')))
             printout = "\n".join([f'Your {chardesc} has {"{:,}".format(count)} deaths' for chardesc,count in stats])
             await message.channel.send(printout)
         elif name == 'help':
@@ -66,12 +66,12 @@ class stat(BaseCommand):
             > **superkills**: *Shows how many enemies you've killed with your super*
             > **longrangekill**: *Shows how far you've sniped*
             > **top10raidguns**: *Shows a piechart of your favourite guns* 
-             other possible stats include {", ".join(getPossibleStats())}
+             other possible stats include {", ".join(await getPossibleStats())}
              ''')
-        elif name in getPossibleStats():
+        elif name in await getPossibleStats():
             stats = []
-            for charid, chardesc in getCharactertypeList(destinyID):
-                stats.append((chardesc, getCharStats(destinyID, charid, name)))
+            for charid, chardesc in await getCharactertypeList(destinyID):
+                stats.append((chardesc, await getCharStats(destinyID, charid, name)))
             printout = "\n".join([f'Your {chardesc} has {"{:,}".format(int(count))} {name}' for chardesc,count in stats])
             await message.channel.send(printout)
         else:
@@ -90,10 +90,10 @@ class spoder(BaseCommand):
     async def handle(self, params, message, client):
         discordID = message.author.id
         destinyID = lookupDestinyID(discordID)
-        anyCharID = getCharacterList(destinyID)[1][0]
+        anyCharID = await getCharacterList(destinyID)[1][0]
 
         async with message.channel.typing():
-            materialtext = getSpiderMaterials(discordID, destinyID, anyCharID)
+            materialtext = await getSpiderMaterials(discordID, destinyID, anyCharID)
             if materialtext['result']:
                 await message.channel.send(materialtext['result'])
             else:
