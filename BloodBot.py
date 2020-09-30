@@ -11,18 +11,15 @@ from functions.roles                import assignRolesToUser
 from functions.bounties.bountiesFunctions import generateBounties, registrationMessageReactions, updateExperienceLevels
 from functions.bounties.bountiesBackend import getGlobalVar
 from commands.otherGameRoles import otherGameRolesMessageReactions
+from init_logging import init_logging
 import asyncio
-import datetime
 import random
 import re
 import os
-import pickle
-import logging
 
 from discord.ext.commands import Bot
 
 from threading import Thread
-from threading import current_thread
 
 from functions.database import insertIntoMessageDB
 from static.config      import NOW_PLAYING, COMMAND_PREFIX, BOT_TOKEN
@@ -69,15 +66,9 @@ def launch_event_loops(client):
 
 def main():
     """the main method"""
+
     # Initialize logging
-    logger = logging.getLogger('bounties')
-    logger.setLevel(logging.INFO)
-
-    file_handler = logging.FileHandler('functions/bounties/bountiesLog.log')
-    formatter = logging.Formatter('%(asctime)s - %(levelname)s : %(message)s')
-    file_handler.setFormatter(formatter)
-
-    logger.addHandler(file_handler)
+    init_logging()
 
     # Initialize the client
     print("Starting up...")
