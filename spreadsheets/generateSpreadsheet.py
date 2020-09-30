@@ -97,7 +97,7 @@ for year,yeardata in requirementHashes.items():
 print('generating sheets...')
 actualRoles = {}
 for username, uid in memberids.items():
-    actualRoles[username] = getPlayerRoles(uid)
+    actualRoles[username] = await getPlayerRoles(uid)
 userRoles = {u:[rs if rs in actualRoles[u] else '' for rs in userRoles[u]] for u,r in userRoles.items()}
 
 pandas.DataFrame(userRoles).transpose().to_excel(writer, header=None, sheet_name = 'User Roles')

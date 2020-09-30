@@ -67,7 +67,7 @@ class getRoles(BaseCommand):
         
         async with message.channel.typing():
             roles_at_start = [role.name for role in user.roles]
-            (roleList,removeRoles) = getPlayerRoles(destinyID, roles_at_start)
+            (roleList, removeRoles) = await getPlayerRoles(destinyID, roles_at_start)
 
             await assignRolesToUser(roleList, user, message.guild)
             await removeRolesFromUser(removeRoles, user, message.guild)
@@ -270,7 +270,7 @@ class assignAllRoles(BaseCommand):
                 continue
 
             async with message.channel.typing():
-                (newRoles, removeRoles) = getPlayerRoles(destinyID, [role.name for role in discordUser.roles])
+                (newRoles, removeRoles) = await getPlayerRoles(destinyID, [role.name for role in discordUser.roles])
                 await assignRolesToUser(newRoles, discordUser, message.guild)
                 await removeRolesFromUser(removeRoles, discordUser, message.guild)
 

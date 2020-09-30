@@ -29,7 +29,7 @@ class AutomaticRoleAssignment(BaseEvent):
                 #await newtonslab.send(f'Auto-Matched {discordUser.name} with {destinyID} \n check https://raid.report/pc/{destinyID}' )
 
             #gets the roles of the specific player and assigns/removes them
-            (newRoles, removeRoles) = getPlayerRoles(destinyID, [role.name for role in discordUser.roles]) #the list of roles may be used to not check existing roles
+            (newRoles, removeRoles) = await getPlayerRoles(destinyID, [role.name for role in discordUser.roles]) #the list of roles may be used to not check existing roles
             
 
             return (discordUser, newRoles, removeRoles)

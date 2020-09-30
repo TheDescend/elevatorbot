@@ -111,7 +111,7 @@ async def returnIfHasRoles(playerid, role, year):
         return role
     return None
 
-def getPlayerRoles(playerid, existingRoles = []):
+async def getPlayerRoles(playerid, existingRoles = []):
     if not playerid:
         print('got empty playerid')
         return ([],[])

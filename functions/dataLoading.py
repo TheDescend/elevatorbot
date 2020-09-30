@@ -1,5 +1,4 @@
 from functions.network  import getJSONfromURL, getComponentInfoAsJSON
-from static.dict        import getNameFromHashRecords, getNameFromHashCollectible, getNameFromHashActivity, getNameFromHashInventoryItem
 from functions.database import db_connect, insertActivity, insertCharacter, insertInstanceDetails, updatedPlayer, getLastUpdated
 from functions.database import getSystemAndChars, getLastUpdated, instanceExists
 
@@ -229,10 +228,6 @@ async def fillDictFromDB(dictRef, table):
         with open('cache/' + table + '.json') as json_file:
             dictRef.update(json.load(json_file))
 
-await fillDictFromDB(getNameFromHashRecords, 'DestinyRecordDefinition')
-await fillDictFromDB(getNameFromHashActivity, 'DestinyActivityDefinition')
-await fillDictFromDB(getNameFromHashCollectible, 'DestinyCollectibleDefinition')
-await fillDictFromDB(getNameFromHashInventoryItem, 'DestinyInventoryItemDefinition')
 
 async def insertIntoDB(destinyID, pve):
     if not destinyID:

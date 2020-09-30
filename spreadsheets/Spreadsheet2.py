@@ -18,7 +18,7 @@ async def createSheet():
         t2 = {}
         userRoles = {}
         for username, userid in memberids.items():
-            (t1,t2) = getPlayerRoles(userid)
+            (t1,t2) = await getPlayerRoles(userid)
             userRoles[username] = t1 + t2
         rolelist = []
         for y, yd in requirementHashes.items():

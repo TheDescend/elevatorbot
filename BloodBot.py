@@ -8,6 +8,8 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from events.base_event              import BaseEvent
 from events                         import *
 from functions.roles                import assignRolesToUser
+from functions.dataLoading import fillDictFromDB
+from static.dict import getNameFromHashRecords, getNameFromHashCollectible, getNameFromHashActivity, getNameFromHashInventoryItem
 from functions.bounties.bountiesFunctions import generateBounties, registrationMessageReactions, updateExperienceLevels
 from functions.bounties.bountiesBackend import getGlobalVar
 from commands.otherGameRoles import otherGameRolesMessageReactions
@@ -93,6 +95,12 @@ def main():
 
         t1 = Thread(target=launch_event_loops, args=(client,))
         t1.start()
+
+        # getting manifest
+        await fillDictFromDB(getNameFromHashRecords, 'DestinyRecordDefinition')
+        await fillDictFromDB(getNameFromHashActivity, 'DestinyActivityDefinition')
+        await fillDictFromDB(getNameFromHashCollectible, 'DestinyCollectibleDefinition')
+        await fillDictFromDB(getNameFromHashInventoryItem, 'DestinyInventoryItemDefinition')
 
 
     # The message handler for both new message and edits

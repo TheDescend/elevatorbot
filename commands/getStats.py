@@ -43,7 +43,7 @@ class stat(BaseCommand):
             await message.channel.send(f'{message.author.mention}, you sniped an enemy as far as **{snips}** meters away <:Kapp:670369121808154645>')
         elif name == 'top10pveguns':
             async with message.channel.typing():
-                imgpath = getTop10PveGuns(destinyID)
+                imgpath = await getTop10PveGuns(destinyID)
                 with open(imgpath, 'rb') as f:
                     await message.channel.send(f'{message.author.mention}, here are your top10 guns used in raids', file=discord.File(f))
                 os.remove(imgpath)

@@ -21,9 +21,9 @@ async def createSheet():
         #Collects all roles in parallel
         with concurrent.futures.ThreadPoolExecutor() as executor:
             print(f'collecting data for {clanname}...')
-            for username, (t1,t2) in zip(memberids.keys(), executor.map(getPlayerRoles, memberids.values())):
-                #assigns user list of dominant + superseded roles (we want to see everything)
-                userRoles[username] = t1 + t2
+            for key, value in memberids.items():
+                for username, (t1,t2) in zip(key, await getPlayerRoles(value)):
+                    userRoles[username] = t1 + t2
             print(f'done collecting for {clanname}')
 
         #list of all possible roles (defined in dict.requirementHashes)
@@ -85,8 +85,3 @@ async def createSheet():
 
     print('excel file created')
     return path
-
-#this should only get executed if it's the initially called file
-if __name__ == '__main__':
-    await createSheet()
-

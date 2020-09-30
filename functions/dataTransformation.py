@@ -181,7 +181,7 @@ async def getGunsForPeriod(destinyID, pStart, pEnd):
             break
 
 
-def getTop10PveGuns(destinyID):
+async def getTop10PveGuns(destinyID):
     gunids = []
     gunkills = {}
     activities = getPlayersPastPVE(destinyID)
