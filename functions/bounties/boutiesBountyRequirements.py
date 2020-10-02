@@ -153,7 +153,7 @@ bounties_dict = {
                 "points": 50
             },
 
-            "Complete a NightfaLL": {
+            "Complete a Nightfall": {
                 "requirements": ["allowedTypes"],
                 "allowedTypes": activityNFHash,
                 "points": 40

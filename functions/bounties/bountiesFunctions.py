@@ -1,5 +1,5 @@
 from functions.formating import embed_message
-from functions.database import insertBountyUser, getBountyUserList, getLevel, addLevel, setLevel, lookupDestinyID, lookupServerID
+from functions.database import insertBountyUser, getBountyUserList, getLevel, setLevel, lookupDestinyID
 from functions.bounties.boutiesBountyRequirements import bounties_dict, competition_bounties_dict, possibleWeaponsKinetic, possibleWeaponsEnergy, possibleWeaponsPower
 from functions.bounties.bountiesBackend import saveAsGlobalVar, getGlobalVar, addPoints, formatLeaderboardMessage, returnLeaderboard, getCompetitionBountiesLeaderboards, changeCompetitionBountiesLeaderboards, experiencePvp, experiencePve, experienceRaids, threadingCompetitionBounties, threadingBounties
 from functions.bounties.bountiesTournament import tournamentRegistrationMessage
