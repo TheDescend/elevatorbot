@@ -94,7 +94,7 @@ class AutoRegisteredRole(BaseEvent):
 
         # get all clan members discordID
         memberlist = []
-        for member in await getJSONfromURL(f"https://www.bungie.net/Platform/GroupV2/{clanID}/Members/")["Response"]["results"]:
+        for member in (await getJSONfromURL(f"https://www.bungie.net/Platform/GroupV2/{clanID}/Members/"))["Response"]["results"]:
             destinyID = int(member["destinyUserInfo"]["membershipId"])
             discordID = lookupDiscordID(destinyID)
             if discordID is not None:
