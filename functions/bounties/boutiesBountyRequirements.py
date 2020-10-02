@@ -55,9 +55,10 @@ bounties_dict = {
         # new players
         "New Players": {
             "Clear a raid for the first time": {
-                "requirements": ["allowedActivities", "firstClear"],
-                "allowedActivities": raidHashes,
+                "requirements": ["allowedTypes", "firstClear"],
+                "allowedActivities": activityRaidHash,
                 "firstClear": raidHashes,
+                "extraText": "If you already cleared all raids at \nleast once, you can not complete \nthis bounty, sorry",
                 "points": 80
             },
 
@@ -76,25 +77,25 @@ bounties_dict = {
 
         # experienced players
         "Experienced Players": {
-            "Do a lowman (solo, duo or trio) of any raid": {
+            "Do a lowman of any raid": {
                         "requirements": ["allowedTypes", "lowman"],
                         "allowedTypes": activityRaidHash,
                         "lowman": [3, 2, 1],
-                        "extraText": "",
+                        "extraText": "Solo, duo or trio are allowed",
                         "points": [80, 100, 120]
                     },
 
             "Do a raid with a specific loadout": {
                 "requirements": ["allowedTypes", "customLoadout"],
                 "allowedTypes": activityRaidHash,
-                "extraText": "\n⁣\nKinetic: ? \n Energy: % \n Power: & ",
+                "extraText": "Kinetic: ? \nEnergy: % \nPower: & ",
                 "points": 60
             },
 
             "Do a dungeon with a specific loadout": {
                 "requirements": ["allowedTypes", "customLoadout"],
                 "allowedTypes": activityDungeonHash,
-                "extraText": "\n⁣\nKinetic: ? \n Energy: % \n Power: & ",
+                "extraText": "Kinetic: ? \nEnergy: % \nPower: & ",
                 "points": 50
             },
 
@@ -105,24 +106,27 @@ bounties_dict = {
                 "points": 80
             },
 
-            "Finish a raid with 20 power or more below recommended (only you have to be lower light)": {
+            "Finish a raid with the contest modifier": {
                 "requirements": ["allowedTypes", "contest"],
                 "allowedTypes": activityRaidHash,
                 "contest": 20,
+                "extraText": "You have to be at least 20 power\n below recommended. \nOnly you have to be lower light",
                 "points": 80
             },
 
-            "Do a flawless raid (only you don't have to die)": {
+            "Do a flawless raid": {
                 "requirements": ["allowedTypes", "totalDeaths"],
                 "allowedTypes": activityRaidHash,
                 "totalDeaths": 0,
+                "extraText": "Only you don't have to die",
                 "points": 60
             },
 
-            "Do a flawless dungeon (only you don't have to die)": {
+            "Do a flawless dungeon": {
                 "requirements": ["allowedTypes", "totalDeaths"],
                 "allowedTypes": activityDungeonHash,
                 "totalDeaths": 0,
+                "extraText": "Only you don't have to die",
                 "points": 50
             }
         }
@@ -133,22 +137,23 @@ bounties_dict = {
     'PvE': {
         # new players
         "New Players": {
-            "Finish a strike with high kills (100) and low deaths (1)": {
+            "Finish a strike": {
                 "requirements": ["allowedTypes", "totalKills", "totalDeaths"],
                 "allowedTypes": activityStrikeAndNFHash,
                 "totalDeaths": 1,
                 "totalKills": 100,
+                "extraText": "While getting high kills (100) \nand low deaths (1)",
                 "points": 60
             },
 
             "Clear an adventure with a specific loadout": {
                 "requirements": ["allowedTypes", "customLoadout"],
                 "allowedTypes": activityStoryHash,
-                "extraText": "\n⁣\nKinetic: ? \n Energy: % \n Power: & ",
+                "extraText": "Kinetic: ? \nEnergy: % \nPower: & ",
                 "points": 50
             },
 
-            "Complete a NightfaLL / Nightfall: The Ordeal on any difficulty": {
+            "Complete a NightfaLL": {
                 "requirements": ["allowedTypes"],
                 "allowedTypes": activityNFHash,
                 "points": 40
@@ -157,12 +162,13 @@ bounties_dict = {
 
         # experienced players
         "Experienced Players": {
-            "Finish a strike with high kills (100) and low deaths (0) in under 10 minutes": {
+            "Finish a strike": {
                 "requirements": ["allowedTypes", "speedrun", "totalKills", "totalDeaths"],
                 "allowedTypes": activityStrikeAndNFHash,
                 "speedrun": 600,
                 "totalDeaths": 0,
                 "totalKills": 100,
+                "extraText": "While getting high kills (100), \nlow deaths (0) and finishing in \nunder 10 minutes",
                 "points": 70
             },
 
@@ -171,10 +177,11 @@ bounties_dict = {
             # "Clear this daily heroic adventure within the allowed time frame": {
             # },
 
-            "Complete a Nightfall / Nightfall: The Ordeal with a high score (150k)": {
+            "Complete a Nightfall": {
                 "requirements": ["allowedTypes", "NFscore"],
                 "allowedTypes": activityNFHash,
                 "NFscore": 150_000,
+                "extraText": "You have to get a high score (150k)",
                 "points": 60
             }
         }
@@ -185,48 +192,54 @@ bounties_dict = {
     'PvP': {
         # new players
         "New Players": {
-            "Win a crucible game with a positive K/D": {
+            "Win a crucible game": {
                 "requirements": ["allowedTypes", "win", "kd"],
                 "allowedTypes": activityPVPHash,
                 "kd": 1,
+                "extraText": "While also having a positive K/D",
                 "points": 50
             },
 
-            "Get a win streak of 3 the crucible": {
+            "Get a win streak in the crucible": {
                 "requirements": ["allowedTypes", "winStreak"],
                 "allowedTypes": activityPVPHash,
                 "winStreak": 3,
+                "extraText": "You need a win streak of 3",
                 "points": 80
             }
         },
 
         # experienced players
         "Experienced Players": {
-            "Get a win streak of 5 the crucible": {
+            "Get a win streak in the crucible": {
                 "requirements": ["allowedTypes", "winStreak"],
                 "allowedTypes": activityPVPHash,
                 "winStreak": 5,
+                "extraText": "You need a win streak of 5",
                 "points": 80
             },
 
-            "Win a crucible game with a K/D > 3": {
+            "Win a crucible game": {
                 "requirements": ["allowedTypes", "win", "kd"],
                 "allowedTypes": activityPVPHash,
                 "kd": 3,
+                "extraText": "While also having a K/D > 3",
                 "points": 50
             },
 
-            "Win a crucible game with a high amount of kills (30)": {
+            "Win a crucible game ": {
                 "requirements": ["allowedTypes", "win", "totalKills"],
                 "allowedTypes": activityPVPHash,
                 "totalKills": 30,
+                "extraText": "While also getting \na high amount of kills (30)",
                 "points": 50
             },
 
-            "Win a crucible game without dying": {
+            "Win a crucible game  ": {
                 "requirements": ["allowedTypes", "win", "totalDeaths"],
                 "allowedTypes": activityPVPHash,
                 "totalDeaths": 0,
+                "extraText": "You are not allowed to die",
                 "points": 80
             }
         }
@@ -238,31 +251,31 @@ bounties_dict = {
 competition_bounties_dict = {
     # raid bounties
     'Raids': {
-        "Get the fastest clear of the raid __?__": {
+        "Get the fastest clear of the raid ?": {
             "requirements": ["randomActivity", "speedrun"],
             "randomActivity": raidHashes,
-            "extraText": "",
+            "extraText": "Everyone in your fireteam gets \ncredit for the bounty",
             "points": 250
         },
 
-        "Get the fastest clear of the dungeon __?__": {
+        "Get the fastest clear of the dungeon ?": {
             "requirements": ["randomActivity", "speedrun"],
             "randomActivity": dungeonHashes,
-            "extraText": "",
+            "extraText": "Everyone in your fireteam gets \ncredit for the bounty",
             "points": 200
         },
 
-        "Do a lowman (solo, duo or trio) of __?__": {
+        "Do a lowman (solo, duo or trio) of ?": {
             "requirements": ["randomActivity", "lowman"],
             "randomActivity": raidHashes,
-            "extraText": "",
+            "extraText": "Everyone in your fireteam gets \ncredit for the bounty",
             "points": 300
         },
 
-        "Get the fastest clear of the raid __?__ while everyone uses abilities only": {
+        "Get the fastest clear of the raid ? ": {
             "requirements": ["randomActivity", "speedrun", "noWeapons"],
             "randomActivity": raidHashes,
-            "extraText": "",
+            "extraText": "Only ability kills are allowed, \ndon't bring weapons",
             "points": 300
         },
     },
@@ -311,6 +324,7 @@ competition_bounties_dict = {
 
         "Win this weeks PvP tournament": {
             "requirements": ["tournament", "flawless"],
+            "extraText": "For registration, visit \n#tournament",
             "points": 300
         }
     }

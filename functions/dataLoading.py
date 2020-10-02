@@ -174,6 +174,8 @@ async def returnManifestInfo(type, hash):
 
     if info:
         return info
+    else:
+        return None
 
 async def getManifest():
     manifest_url = 'http://www.bungie.net/Platform/Destiny2/Manifest/'

@@ -12,8 +12,11 @@ import discord
 import random
 import json
 import asyncio
+import aiohttp
+import io
 import datetime
 from copy import deepcopy
+from PIL import Image, ImageDraw, ImageFont
 
 
 
@@ -40,7 +43,7 @@ async def generateBounties(client):
     for topic in copy_of_bounty_dict.keys():
         file["bounties"][topic] = {}
         for experience in copy_of_bounty_dict[topic].keys():
-            ret = await bountiesFormatting(copy_of_bounty_dict[topic][experience], amount_of_bounties=2)
+            ret = await bountiesFormatting(client, topic, copy_of_bounty_dict[topic][experience], amount_of_bounties=2)
             file["bounties"][topic][experience] = {}
 
             for key in ret:
@@ -51,7 +54,7 @@ async def generateBounties(client):
     copy_of_competition_bounties_dict = deepcopy(competition_bounties_dict)
     file["competition_bounties"] = {}
     for topic in copy_of_competition_bounties_dict.keys():
-        ret = await bountiesFormatting(copy_of_competition_bounties_dict[topic])
+        ret = await bountiesFormatting(client, topic, copy_of_competition_bounties_dict[topic])
         file["competition_bounties"][topic] = {}
 
         for key in ret:
@@ -82,7 +85,7 @@ async def generateBounties(client):
 
 
 # do the random selection and the extraText formating
-async def bountiesFormatting(json, amount_of_bounties=1):
+async def bountiesFormatting(client, topic, json, amount_of_bounties=1):
     ret = {}
 
     # generate the specified amount of bounties
@@ -113,28 +116,98 @@ async def bountiesFormatting(json, amount_of_bounties=1):
         # if "extraText" is present, process that
         if "extraText" in value:
             if "allowedActivities" in value["requirements"]:
-                activity_name = await returnManifestInfo("DestinyActivityDefinition", value["allowedActivities"][0])["Response"]["displayProperties"]["name"]
+                ret_dummy = await returnManifestInfo("DestinyActivityDefinition", value["allowedActivities"][0])
+                activity_name = ret_dummy["Response"]["displayProperties"]["name"]
+
+                # removing extra characters
+                activity_name = activity_name.replace(": Level 55", "")
+                activity_name = activity_name.replace(": Normal", "")
+
                 key = key.replace("?", activity_name)
 
             if "customLoadout" in value["requirements"]:
-                key = key + value["extraText"]
-
-                key = key.replace("?", f"__{weaponKinetic}__")
-                key = key.replace("%", f"__{weaponEnergy}__")
-                key = key.replace("&", f"__{weaponPower}__")
+                value["extraText"] = value["extraText"].replace("?", f"{weaponKinetic}")
+                value["extraText"] = value["extraText"].replace("%", f"{weaponEnergy}")
+                value["extraText"] = value["extraText"].replace("&", f"{weaponPower}")
 
             if "speedrun" in value["requirements"]:
                 if "allowedTypes" in value["requirements"]:
                     if activityRaidHash == value["allowedTypes"]:
-                        key = key + f"\n⁣"
                         for activities in speedrunActivitiesRaids:
-                            activity_name = await returnManifestInfo("DestinyActivityDefinition", activities[0])["Response"]["displayProperties"]["name"]
-                            key = key + f"\n{activity_name}: __{round(speedrunActivitiesRaids[activities] / 60, 2)}min__ (2x WR)"
+                            ret_dummy = await returnManifestInfo("DestinyActivityDefinition", activities[0])
+                            activity_name = ret_dummy["Response"]["displayProperties"]["name"]
+
+                            # removing extra characters
+                            activity_name = activity_name.replace(": Level 55", "")
+                            activity_name = activity_name.replace(": Normal", "")
+
+                            value["extraText"] += f"{activity_name}: {round(speedrunActivitiesRaids[activities] / 60, 2)}min (2x WR)\n"
+
+        # put the text on and image and save the url
+        key, value = await makeAndUploadBountyImage(client, topic, key, value)
 
         # update return dict
         ret.update({key: value})
 
     return ret
+
+
+# puts the text on the image and then uploads it and saves the url
+async def makeAndUploadBountyImage(client, topic, key, value):
+    # edit the name to not be too long
+    l = 25
+    name = key
+    small_font = False
+    if len(key) > 2*l:
+        l = 29
+        small_font = True
+    if len(key) > l:
+        splits = key.split(" ")
+        name = []
+        name_holder = ""
+        while splits:
+            while len(name_holder + f" {splits[0]}") <= l:
+                name_holder += f" {splits.pop(0)}"
+                if not splits:
+                    break
+            name.append(name_holder)
+            name_holder = ""
+
+    # set description for later use
+    desc = value["extraText"] if "extraText" in value else ""
+
+    # set points for later use
+    points = value['points']
+    if isinstance(value['points'], list):
+        if "lowman" in value["requirements"]:
+            points = []
+            for x, y in zip(value["lowman"], value["points"]):
+                points.append(f"{y} ({x} Man) ")
+            points = "/ ".join(points)
+
+    # get image editing tools
+    image = Image.open(f"functions/bounties/template/{topic}.png")
+    draw = ImageDraw.Draw(image)
+    font_name = ImageFont.truetype("functions/bounties/template/font/NHaasGroteskTXPro-75Bd.otf", 60 if small_font else 64)
+    font_desc = ImageFont.truetype("functions/bounties/template/font/NHaasGroteskTXPro-55Rg.otf", 50)
+    font_points = ImageFont.truetype("functions/bounties/template/font/NHaasGroteskTXPro-65Md.otf", 46)
+
+    # edit the image
+    draw.text((230, 20 if isinstance(name, list) else 50), "\n".join(name) if isinstance(name, list) else name, font=font_name, fill=(255, 255, 255))
+    draw.text((240, 220), desc, font=font_desc, fill=(128, 128, 128))
+    draw.text((300, 496), f"Points: {points}", font=font_points, fill=(91, 166, 107))
+
+    # upload the image
+    imagespamchannel = client.get_channel(761278600103723018)
+    with io.BytesIO() as image_binary:
+        image.save(image_binary, 'PNG')
+        image_binary.seek(0)
+        msg = await imagespamchannel.send(file=discord.File(fp=image_binary, filename='image.png'))
+
+    # save the image url
+    value['url'] = msg.attachments[0].url
+
+    return key, value
 
 
 # awards points to whoever has the most points. Can be multiple people if tied
@@ -187,38 +260,36 @@ async def displayBounties(client):
 
     for guild in client.guilds:
         if guild.id == file["guild_id"]:
-            # clean channels and call the actual print function
-            if "bounties_channel" in file:
-                bounties_channel = discord.utils.get(guild.channels, id=file["bounties_channel"])
-                await bounties_channel.purge(limit=100)
-                await bounties_channel.send(f"**Tip:** You earn 10% more points if you complete bounties with other people in this discord!")
-                for topic in json["bounties"].keys():
-                    embed = embed_message(
-                        topic
-                    )
-                    for experience in json["bounties"][topic].keys():
-                        put_topic = False
-                        for name in json["bounties"][topic][experience]:
-                            req = json["bounties"][topic][experience][name]
+            # open http session for images later
+            async with aiohttp.ClientSession() as session:
+                # clean channels and call the actual print function
+                if "bounties_channel" in file:
+                    bounties_channel = discord.utils.get(guild.channels, id=file["bounties_channel"])
+                    await bounties_channel.purge(limit=100)
+                    await bounties_channel.send(f"**Tip:** You earn 10% more points if you complete bounties with other people in this discord!")
 
-                            if isinstance(req['points'], list):
-                                if "lowman" in req["requirements"]:
-                                    points = []
-                                    for x, y in zip(req["lowman"], req["points"]):
-                                        points.append(f"{y}** ({x} Player)** ")
-                                    points = "**/ **".join(points)
-                            else:
-                                points = req['points']
+                    # loop though topics
+                    for topic in json["bounties"].keys():
+                        await bounties_channel.send(f"⁣\n⁣\n__**{topic}**__")
 
-                            embed.add_field(name="⁣" if put_topic else f"{experience}:", value=f"Points: **{points}** - {name}\n⁣", inline=False)
-                            put_topic = True
-                    await bounties_channel.send(embed=embed)
+                        # loop though experience
+                        for experience in json["bounties"][topic].keys():
+                            await bounties_channel.send(f"**{experience}**")
 
-                # ping users
-                msg = await bounties_channel.send(" ".join(text))
-                await msg.delete()
+                            # loop though bounties
+                            for name in json["bounties"][topic][experience]:
+                                url = json["bounties"][topic][experience][name]["url"]
 
-                print("Updated bounty display")
+                                async with session.get(url) as resp:
+                                    if resp.status == 200:
+                                        data = io.BytesIO(await resp.read())
+                                        await bounties_channel.send(file=discord.File(data, f'Bounties-{topic}-{experience}-{name}.png'))
+
+                    # ping users
+                    msg = await bounties_channel.send(" ".join(text))
+                    await msg.delete()
+
+                    print("Updated bounty display")
 
             if "competition_bounties_channel" in file:
                 await displayCompetitionBounties(client, guild)
@@ -246,38 +317,49 @@ async def displayCompetitionBounties(client, guild, message=None):
     if not message:
         await competition_bounties_channel.purge(limit=100)
 
-    for topic in json["competition_bounties"].keys():
-        name, req = list(json["competition_bounties"][topic].items())[0]
+    # open http session for images later
+    async with aiohttp.ClientSession() as session:
+        # loop though topics
+        for topic in json["competition_bounties"].keys():
+            await competition_bounties_channel.send(f"__**{topic}**__")
 
-        points = req['points']
-        embed = embed_message(
-            topic,
-            f"Points: **{points}** - {name}\n⁣"
-        )
+            name, req = list(json["competition_bounties"][topic].items())[0]
+            url = req["url"]
 
-        # read the current leaderboard and display the top x = 10 players
-        ranking = []
-        try:
-            i = 1
-            for discordID, value in leaderboards[topic].items():
-                ranking.append(str(i) + ") **" + client.get_user(discordID).display_name + "** _(Score: " + str(value) + ")_")
-                # break after x entries
-                i += 1
-                if i > 10:
-                    break
-        except KeyError:
-            pass
+            async with session.get(url) as resp:
+                if resp.status == 200:
+                    data = io.BytesIO(await resp.read())
+                    await competition_bounties_channel.send(file=discord.File(data, f'CBounties-{topic}-{name}.png'))
 
-        embed.add_field(name=f"Current Leaderboard:", value=f"\n".join(ranking) if ranking else "Nobody has completed this yet", inline=False)
+            # read the current leaderboard and display the top x = 10 players
+            ranking = []
+            try:
+                i = 1
+                for discordID, value in leaderboards[topic].items():
+                    ranking.append(str(i) + ") **" + client.get_user(discordID).display_name + "** _(Score: " + str(value) + ")_")
+                    # break after x entries
+                    i += 1
+                    if i > 10:
+                        break
+            except KeyError:
+                pass
 
-        # edit msg if given one, otherwise create a new one and save the id
-        if message:
-            # gets the msg object related to the current topic in the competition_bounties_channel
-            message = await discord.utils.get(guild.channels, id=file["competition_bounties_channel"]).fetch_message(file[f"competition_bounties_channel_{topic.lower()}_message_id"])
-            await message.edit(embed=embed)
-        else:
-            msg = await competition_bounties_channel.send(embed=embed)
-            saveAsGlobalVar(f"competition_bounties_channel_{topic.lower()}_message_id", msg.id)
+            embed = embed_message(
+                "Current Leaderboard",
+                f"\n".join(ranking) if ranking else "Nobody has completed this yet"
+            )
+
+            # edit msg if given one, otherwise create a new one and save the id
+            if message:
+                # gets the msg object related to the current topic in the competition_bounties_channel
+                message = await discord.utils.get(guild.channels, id=file["competition_bounties_channel"]).fetch_message(file[f"competition_bounties_channel_{topic.lower()}_message_id"])
+                await message.edit(embed=embed)
+            else:
+                msg = await competition_bounties_channel.send(embed=embed)
+                saveAsGlobalVar(f"competition_bounties_channel_{topic.lower()}_message_id", msg.id)
+
+            # send spacer message
+            await competition_bounties_channel.send(f"⁣\n⁣\n")
 
     print("Updated competition bounty display")
 

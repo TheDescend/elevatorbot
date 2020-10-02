@@ -15,6 +15,29 @@ import concurrent.futures
 from collections    import Counter
 from pyvis.network  import Network
 
+
+class test(BaseCommand):
+    def __init__(self):
+        description = "Very fun fun facts just for fun"
+        params = []
+        super().__init__(description, params)
+
+    async def handle(self, params, message, client):
+
+        embed = embed_message(
+            "test",
+            "test2"
+        )
+        embed.set_image(url="https://aryans516401399.files.wordpress.com/2019/11/screen-shot-2019-11-03-at-10.40.24-pm.png")
+        embed.add_field(name="asd", value="ghdfgh", inline=False)
+        print(embed.fields)
+
+        await message.channel.send(embed=embed)
+
+
+
+
+
 # note: the ids later are formatted so wierd, because pyvis broke with them being 16 numbers or so. So I'm just shorting them in an ugly way that works
 
 

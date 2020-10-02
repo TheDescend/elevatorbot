@@ -13,6 +13,7 @@ import pickle
 import os
 import aiohttp
 import logging
+import io
 
 
 # --------------------------------------------------------------------------------------------
@@ -32,40 +33,37 @@ class bounties(BaseCommand):
         experience_level_pvp = getLevel("exp_pvp", message.author.id)
         experience_level_raids = getLevel("exp_raids", message.author.id)
 
-        for topic in json["bounties"].keys():
-            embed = embed_message(
-                topic
-            )
-            for experience in json["bounties"][topic].keys():
+        await message.author.send("This are the bounties you can still complete")
 
-                # only go further if experience levels match
-                if topic == "Raids":
-                    if not ((experience_level_raids == 0 and experience == "New Players") or (
-                            experience_level_raids == 1 and experience == "Experienced Players")):
-                        continue
-                elif topic == "PvE":
-                    if not ((experience_level_pve == 0 and experience == "New Players") or (
-                            experience_level_pve == 1 and experience == "Experienced Players")):
-                        continue
-                elif topic == "PvP":
-                    if not ((experience_level_pvp == 0 and experience == "New Players") or (
-                            experience_level_pvp == 1 and experience == "Experienced Players")):
-                        continue
+        # open http session for images later
+        async with aiohttp.ClientSession() as session:
+            for topic in json["bounties"].keys():
+                await message.author.send(f"⁣\n⁣\n__**{topic}**__")
 
-                for name in json["bounties"][topic][experience]:
-                    req = json["bounties"][topic][experience][name]
+                for experience in json["bounties"][topic].keys():
 
-                    if isinstance(req['points'], list):
-                        if "lowman" in req["requirements"]:
-                            points = []
-                            for x, y in zip(req["lowman"], req["points"]):
-                                points.append(f"{y}** ({x} Player)** ")
-                            points = "**/ **".join(points)
-                    else:
-                        points = req['points']
+                    # only go further if experience levels match
+                    if topic == "Raids":
+                        if not ((experience_level_raids == 0 and experience == "New Players") or (
+                                experience_level_raids == 1 and experience == "Experienced Players")):
+                            continue
+                    elif topic == "PvE":
+                        if not ((experience_level_pve == 0 and experience == "New Players") or (
+                                experience_level_pve == 1 and experience == "Experienced Players")):
+                            continue
+                    elif topic == "PvP":
+                        if not ((experience_level_pvp == 0 and experience == "New Players") or (
+                                experience_level_pvp == 1 and experience == "Experienced Players")):
+                            continue
 
-                    embed.add_field(name="✅ Done" if playerHasDoneBounty(message.author.id, name) else "Available", value=f"~~Points: **{points}** - {name}~~\n⁣" if playerHasDoneBounty(message.author.id, name) else f"Points: **{points}** - {name}\n⁣", inline=False)
-                await message.author.send(embed=embed)
+                    for name in json["bounties"][topic][experience]:
+                        if not playerHasDoneBounty(message.author.id, name):
+                            url = json["bounties"][topic][experience][name]["url"]
+
+                            async with session.get(url) as resp:
+                                if resp.status == 200:
+                                    data = io.BytesIO(await resp.read())
+                                    await message.author.send(file=discord.File(data, f'Bounties-{topic}-{experience}-{name}.png'))
 
 
 class leaderboard(BaseCommand):

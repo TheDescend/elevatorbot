@@ -1,11 +1,10 @@
-from functions.network import getJSONfromURL
-from functions.database import getAllDiscordMemberDestinyIDs, lookupDestinyID, lookupDiscordID, getBountyUserList, getLevel, addLevel, setLevel
-from functions.dataLoading import getPGCR, getPlayersPastPVE, getStats, getProfile, returnManifestInfo
+
+from functions.database import getAllDiscordMemberDestinyIDs, lookupDiscordID, getBountyUserList, getLevel, addLevel, setLevel
+from functions.dataLoading import getPGCR, getStats, getProfile, returnManifestInfo
 from functions.network import getJSONfromURL
 from static.dict import speedrunActivities, metricRaidCompletion, metricAvailableRaidCompletion, metricWinStreakWeeklyAllocation, metricRaidAllocation
-from functions.formating    import embed_message
 
-import datetime
+
 import json
 import pickle
 import os
@@ -83,7 +82,7 @@ async def threadingBounties(activity, bounties, destinyID, discordID, experience
                 done, index_multiple_points = await fulfillRequirements(requirements, activity, destinyID)
                 if done:
                     playerHasDoneBounty(discordID, bounty, done=True)
-                    addPoints(discordID, requirements, bounty, f"points_bounties_{topic.lower()}", index_multiple_points=index_multiple_points, clanmate_bonus=await checkIfDiscordmateInActivity(activity["activityDetails"]["instanceId"]))
+                    addPoints(discordID, requirements, bounty, f"points_bounties_{topic.lower()}", index_multiple_points=index_multiple_points, clanmate_bonus=await checkIfDiscordmateInActivity(destinyID, activity["activityDetails"]["instanceId"]))
                     print(f"""DiscordID {discordID} has completed bounty {bounty} with instanceID {activity["activityDetails"]["instanceId"]}""")
 
 
@@ -384,7 +383,8 @@ async def fulfillRequirements(requirements, activity, destinyID):
     for req in requirements["requirements"]:
         # > tested <
         if req == "allowedTypes":
-            if await returnManifestInfo("DestinyActivityDefinition", hashID)["Response"]["activityTypeHash"] in requirements["allowedTypes"]:
+            ret = await returnManifestInfo("DestinyActivityDefinition", hashID)
+            if ret["Response"]["activityTypeHash"] in requirements["allowedTypes"]:
                 complete_list.append(req)
             else:
                 return False, None
@@ -459,7 +459,8 @@ async def fulfillRequirements(requirements, activity, destinyID):
                     light_player = player["player"]["lightLevel"]
 
                     # get activity light level
-                    light_activity = await returnManifestInfo("DestinyActivityDefinition", hashID)["Response"]["activityLightLevel"]
+                    ret = await returnManifestInfo("DestinyActivityDefinition", hashID)
+                    light_activity = ret["Response"]["activityLightLevel"]
 
                     if (light_player + requirements["contest"]) <= light_activity:
                         complete_list.append(req)
@@ -551,7 +552,8 @@ async def fulfillRequirements(requirements, activity, destinyID):
             metrics = await getProfile(destinyID, 1100)
             # loop trough allocation and set look
             for activityTypes in metricWinStreakWeeklyAllocation.keys():
-                if await returnManifestInfo("DestinyActivityDefinition", hashID)["Response"]["activityTypeHash"] in activityTypes:
+                ret = await returnManifestInfo("DestinyActivityDefinition", hashID)
+                if ret["Response"]["activityTypeHash"] in activityTypes:
                     if metrics["metrics"]["data"]["metrics"][str(metricWinStreakWeeklyAllocation[activityTypes][0])]["objectiveProgress"]["progress"] >= requirements["winStreak"]:
                         complete_list.append(req)
                         break
@@ -596,7 +598,8 @@ async def returnScore(requirements, activity, destinyID):
     for req in requirements["requirements"]:
         # > tested <
         if req == "allowedTypes":
-            if await returnManifestInfo("DestinyActivityDefinition", hashID)["Response"]["activityTypeHash"] not in requirements["allowedTypes"]:
+            ret = await returnManifestInfo("DestinyActivityDefinition", hashID)
+            if ret["Response"]["activityTypeHash"] not in requirements["allowedTypes"]:
                 return 0, sort_by_highest
 
 
