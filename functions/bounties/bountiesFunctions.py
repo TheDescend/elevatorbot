@@ -321,15 +321,16 @@ async def displayCompetitionBounties(client, guild, message=None):
     async with aiohttp.ClientSession() as session:
         # loop though topics
         for topic in json["competition_bounties"].keys():
-            await competition_bounties_channel.send(f"__**{topic}**__")
-
             name, req = list(json["competition_bounties"][topic].items())[0]
             url = req["url"]
 
-            async with session.get(url) as resp:
-                if resp.status == 200:
-                    data = io.BytesIO(await resp.read())
-                    await competition_bounties_channel.send(file=discord.File(data, f'CBounties-{topic}-{name}.png'))
+            if not message:
+                await competition_bounties_channel.send(f"__**{topic}**__")
+
+                async with session.get(url) as resp:
+                    if resp.status == 200:
+                        data = io.BytesIO(await resp.read())
+                        await competition_bounties_channel.send(file=discord.File(data, f'CBounties-{topic}-{name}.png'))
 
             # read the current leaderboard and display the top x = 10 players
             ranking = []
@@ -359,7 +360,8 @@ async def displayCompetitionBounties(client, guild, message=None):
                 saveAsGlobalVar(f"competition_bounties_channel_{topic.lower()}_message_id", msg.id)
 
             # send spacer message
-            await competition_bounties_channel.send(f"⁣\n⁣\n")
+            if not message:
+                await competition_bounties_channel.send(f"⁣\n⁣\n")
 
     print("Updated competition bounty display")
 
