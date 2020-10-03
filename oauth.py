@@ -96,8 +96,11 @@ def root():
             #print(f'membership {membership["membershipType"]} did not equal override {membership["crossSaveOverride"]}')
             continue
         primarymembership = membership
+    
+    if not primarymembership:
+        print(f'no primary membership found for {battlenetname} aka {discordID} in server {serverID}')
 
-    insertToken(int(discordID), int(primarymembership['membershipId']), int(serverID), access_token, refresh_token)
+    insertToken(int(discordID), int(primarymembership['membershipId']), int(serverID), access_token, refresh_token, force=True)
     print(f"<@{discordID}> registered with ID {primarymembership['membershipId']} and display name {primarymembership['LastSeenDisplayName']} Bnet-Name: {battlenetname}")
     webhookURL = NEWTONS_WEBHOOK
     requestdata = {
