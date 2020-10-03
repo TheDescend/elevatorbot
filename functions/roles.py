@@ -159,7 +159,7 @@ async def getPlayerRoles(playerid, existingRoles = []):
                         redundantRoles.append(reqrole)
     return (roles, redundantRoles)
 
-async def assignRolesToUser(roleList, discordUser, guild):
+async def assignRolesToUser(roleList, discordUser, guild, reason=None):
     #takes rolelist as string array, userSnowflake, guild object
     if not discordUser:
         return False
@@ -167,19 +167,19 @@ async def assignRolesToUser(roleList, discordUser, guild):
         #print(guild.roles)
         roleObj = discord.utils.get(guild.roles, name=role) or discord.utils.get(guild.roles, id=role)
         if not roleObj:
-            if guild.id not in [556418279015448596, 724676552175910934, 540482071571857408]: #Crashtest dummy, emote server, kinderguardian
+            if guild.id not in [556418279015448596, 724676552175910934, 540482071571857408, 697720309847162921]: #Crashtest dummy, emote server, kinderguardian, Test 02
                 print(f'assignable role doesn\'t exist in {guild.name} with id {guild.id}: {role}')
             continue
         if roleObj not in discordUser.roles:
             try:
-                await discordUser.add_roles(roleObj)
+                await discordUser.add_roles(roleObj, reason=reason)
                 print(f'added role {roleObj.name} to user {discordUser.name} in server {guild.name}')
             except discord.errors.Forbidden:
                 print(f'failed to add {roleObj.name} to user {discordUser.name} in server {guild.name}')
                 return False
     return True
 
-async def removeRolesFromUser(roleStringList, discordUser, guild):
+async def removeRolesFromUser(roleStringList, discordUser, guild, reason=None):
     removeRolesObjs = []
     for role in roleStringList:
         roleObj = discord.utils.get(guild.roles, name=role) or discord.utils.get(guild.roles, id=role)
@@ -192,7 +192,7 @@ async def removeRolesFromUser(roleStringList, discordUser, guild):
         if roleObj in discordUser.roles:
             print(f'removed role {roleObj.name} from user {discordUser.name}')
             try:
-                await discordUser.remove_roles(roleObj)
+                await discordUser.remove_roles(roleObj, reason=reason)
             except discord.errors.Forbidden:
                 return False
     return True
