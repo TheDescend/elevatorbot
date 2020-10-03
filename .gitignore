@@ -39,3 +39,4 @@ commands/mysticlist.list
 nohup.out
 .uwsgi_plugins_builder
 HostingDetails
+database/databasemutation.py
