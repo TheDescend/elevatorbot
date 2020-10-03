@@ -171,7 +171,7 @@ def getToken(discordID):
     print(f'no user with ID {discordID} in discordGuardianToken')
     return None
 
-def insertToken(discordID, destinyID, discordServerID, token, refresh_token):
+def insertToken(discordID, destinyID, discordServerID, token, refresh_token, force=False):
     """ Inserts a User or Token into the database """ #TODO split up in two functions or make a overloaded one?
     
     con = db_connect()
@@ -179,10 +179,11 @@ def insertToken(discordID, destinyID, discordServerID, token, refresh_token):
         (discordSnowflake, destinyID, signupDate, serverID, token, refresh_token) 
         VALUES (?, ?, ?, ?, ?, ?)"""
 
-    update_sql = """
+    update_sql = f"""
         UPDATE discordGuardiansToken
         SET 
         token = ?,
+        {('destinyID =' + str(destinyID) + ',') if force else ''}
         refresh_token = ?
         WHERE discordSnowflake = ?"""
     try:
