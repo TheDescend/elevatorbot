@@ -297,6 +297,7 @@ competition_bounties_dict = {
         "Get the highest Nightfall Score": {
             "requirements": ["allowedTypes", "NFscore"],
             "allowedTypes": activityNFHash,
+            "extraText": "Everyone in your fireteam gets \ncredit for the bounty",
             "points": 250
         }
     },
