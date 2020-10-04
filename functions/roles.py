@@ -107,7 +107,7 @@ async def hasRole(playerid, role, year, br = True):
     return [worthy, data]
 
 async def returnIfHasRoles(playerid, role, year):
-    if await hasRole(playerid, role, year)[0]:
+    if (await hasRole(playerid, role, year))[0]:
         return role
     return None
 
