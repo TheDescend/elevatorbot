@@ -277,7 +277,7 @@ async def updateDB(destinyID):
     if not destinyID:
         return
 
-    charcount = len(await getCharacterList(destinyID)[1])
+    charcount = len((await getCharacterList(destinyID))[1])
     if charcount == 0:
         print(f'no characters found for {destinyID}')
         return

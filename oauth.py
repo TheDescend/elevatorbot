@@ -57,7 +57,7 @@ def root():
     #print('got request')
     response = request.args
     if not (code := response.get('code', None)): #for user auth
-        return "You look around.. There's nothing of value"
+        return redirect("http://www.elevatorbot.ch/reacttest/build", code=301)
     print(code)
     #print(f'code is {code}')
     (discordID,serverID) = response['state'].split(':') #mine
