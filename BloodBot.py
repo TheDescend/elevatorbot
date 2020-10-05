@@ -175,7 +175,7 @@ def main():
         # inform the user that they should register with the bot
         await member.send(embed=embed_message(
             f'Welcome to Descend {member.name}!',
-            f'Please link your Destiny account by using `!register` in #bot-spam. \n We have a wide variety of roles you can earn, for more information, check out #community-roles.',
+            f'Please link your Destiny account by using `!register` in #bot-spam. \n**Do note that registering with the bots is required to be accepted in the clan!** \n⁣\nWe have a wide variety of roles you can earn, for more information, check out #community-roles. ',
             f'If you have any questions, please contact one of the Admins / Moderators'
         ))
 
