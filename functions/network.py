@@ -67,10 +67,10 @@ async def getJSONwithToken(requestURL, discordID):
             # ok
             if r.status == 200:
                 res = await r.json()
-            elif b'Unauthorized' in r.content:
+            elif 'Unauthorized' in str(r.content):
                 print('xml 401 found')
                 await refresh_token(discordID)
-                return await getJSONwithToken(requestURL, discordID)
+                return (await getJSONwithToken(requestURL, discordID))
             elif r.status == 500:
                 print('bungierequest gave 500')
                 return {'result': None, 'error':'Bungie seems to be offline'}
@@ -79,7 +79,7 @@ async def getJSONwithToken(requestURL, discordID):
                 if int(res['ErrorCode']) == 401:
                     print('json 401 found')
                     await refresh_token(discordID)
-                    return await getJSONwithToken(requestURL, discordID)
+                    return (await getJSONwithToken(requestURL, discordID))
 
                 if int(res['ErrorCode']) != 1:
                     print(requestURL)
@@ -89,6 +89,13 @@ async def getJSONwithToken(requestURL, discordID):
 
                 # print(f'Tokenfunction returned {res}')
                 return {'result': res, 'error': None}
+            else:
+                print('no res found')
+                pass
+    return {
+            'result': None,
+            'error': 'Function ended unexpectedly'
+        }
 
 
 # https://bungie-net.github.io/multi/operation_get_Destiny2-GetProfile.html
