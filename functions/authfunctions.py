@@ -97,6 +97,8 @@ async def getSpiderMaterials(discordID, destinyID, characterID):
     returntext = returntext.replace('Seraphite', '<:Seraphite:620647202297085992>')
     returntext = returntext.replace('Legendary Shards', '<:LegendaryShards:620647202003484672>')
     returntext = returntext.replace('Alkane Dust', '<:AlkaneDust:620647201827454990>')
+
+    returntext = returntext.replace('Microphasic Datalattice', '<:Datalattice:620647202015936536>')
     returntext = returntext.replace('Datalattice', '<:Datalattice:620647202015936536>')
     returntext = returntext.replace('Simulation Seeds', '<:SimulationSeeds:620647203635200070>')
     returntext = returntext.replace('Glimmer', '<:Glimmer:620647202007810098>')
