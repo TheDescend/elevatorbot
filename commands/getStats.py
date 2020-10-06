@@ -90,7 +90,7 @@ class spoder(BaseCommand):
     async def handle(self, params, message, client):
         discordID = message.author.id
         destinyID = lookupDestinyID(discordID)
-        anyCharID = await getCharacterList(destinyID)[1][0]
+        anyCharID = (await getCharacterList(destinyID))[1][0]
 
         async with message.channel.typing():
             materialtext = await getSpiderMaterials(discordID, destinyID, anyCharID)
