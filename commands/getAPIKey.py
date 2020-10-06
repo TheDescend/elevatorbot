@@ -16,6 +16,6 @@ class getapikey(BaseCommand):
         if type(message.channel) == channel.DMChannel:
             with message.channel.typing():
                 print('getting apikey')
-                await message.channel.send(getFreshToken(message.author.id))
+                await message.channel.send(await getFreshToken(message.author.id))
         else:
             await message.channel.send("only usable in DMs, due to privacy/security concerns")
