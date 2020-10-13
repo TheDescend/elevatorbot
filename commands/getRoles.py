@@ -63,6 +63,11 @@ class getRoles(BaseCommand):
             ))
             return
 
+        wait_msg = await message.channel.send(embed=embed_message(
+            f'Hi, {user.name}',
+            "Your data will be available shortly"
+        ))
+
         await updateDB(destinyID)
         
         async with message.channel.typing():
@@ -130,6 +135,7 @@ class getRoles(BaseCommand):
                     roles.append(role)
                 embed.add_field(name=topic, value="\n".join(new_roles[topic]), inline=True)
 
+            await wait_msg.delete()
             await message.channel.send(embed=embed)
 
 class lastRaid(BaseCommand):
@@ -299,6 +305,7 @@ class roleRequirements(BaseCommand):
             ))
             return
 
+
         given_role = " ".join(params)
 
         f_year = ""
@@ -324,6 +331,12 @@ class roleRequirements(BaseCommand):
 
         async with message.channel.typing():
             destinyID = lookupDestinyID(message.author.id)
+            wait_msg = await message.channel.send(embed=embed_message(
+                f'Hi, {message.author.name}',
+                "Your data will be available shortly"
+            ))
+
+            await updateDB(destinyID)
             reqs = await hasRole(destinyID, f_role, f_year, br=False)
 
 
@@ -335,5 +348,6 @@ class roleRequirements(BaseCommand):
 
             for req in reqs[1]:
                 embed.add_field(name=req, value=reqs[1][req], inline=True)
-
+            
+            await wait_msg.delete()
             await message.channel.send(embed=embed)
