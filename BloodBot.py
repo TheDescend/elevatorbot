@@ -12,7 +12,8 @@ from functions.dataLoading import fillDictFromDB
 from static.dict import getNameFromHashRecords, getNameFromHashCollectible, getNameFromHashActivity, getNameFromHashInventoryItem
 from functions.bounties.bountiesFunctions import generateBounties, registrationMessageReactions, updateExperienceLevels
 from functions.bounties.bountiesBackend import getGlobalVar
-from commands.otherGameRoles import otherGameRolesMessageReactions
+from functions.clanJoinRequests import clanJoinRequestMessageReactions, removeFromClanAfterLeftDiscord
+from commands.makePersistentMessages import otherGameRolesMessageReactions
 from init_logging import init_logging
 import asyncio
 import random
@@ -183,6 +184,10 @@ def main():
         await assignRolesToUser(["Not Registered"], member, member.guild)
 
     @client.event
+    async def on_member_remove(member):
+        await removeFromClanAfterLeftDiscord(client, member)
+
+    @client.event
     async def on_message_edit(before, after):
         await common_handle_message(after)
 
@@ -198,18 +203,24 @@ def main():
 
             # check if reaction is on the registration page
             if "register_channel_message_id" in file:
-                register_channel_message_id = file["register_channel_message_id"]
-                if payload.message_id == register_channel_message_id:
+                channel_message_id = file["register_channel_message_id"]
+                if payload.message_id == channel_message_id:
                     register_channel = discord.utils.get(client.get_all_channels(), guild__id=payload.guild_id, id=file["register_channel"])
-                    await registrationMessageReactions(client, payload.member, payload.emoji, register_channel, register_channel_message_id)
+                    await registrationMessageReactions(client, payload.member, payload.emoji, register_channel, channel_message_id)
 
             # check if reaction is on the other game role page
             if "other_game_roles_channel_message_id" in file:
-                other_game_roles_channel_message_id = file["other_game_roles_channel_message_id"]
-                if payload.message_id == other_game_roles_channel_message_id:
+                channel_message_id = file["other_game_roles_channel_message_id"]
+                if payload.message_id == channel_message_id:
                     register_channel = discord.utils.get(client.get_all_channels(), guild__id=payload.guild_id, id=file["other_game_roles_channel"])
-                    await otherGameRolesMessageReactions(client, payload.member, payload.emoji, register_channel, other_game_roles_channel_message_id)
+                    await otherGameRolesMessageReactions(client, payload.member, payload.emoji, register_channel, channel_message_id)
 
+            # check if reaction is on the clan join request page
+            if "clan_join_request_channel_message_id" in file:
+                channel_message_id = file["clan_join_request_channel_message_id"]
+                if payload.message_id == channel_message_id:
+                    register_channel = discord.utils.get(client.get_all_channels(), guild__id=payload.guild_id, id=file["clan_join_request_channel"])
+                    await clanJoinRequestMessageReactions(client, payload.member, payload.emoji, register_channel, channel_message_id)
 
 
     @client.event

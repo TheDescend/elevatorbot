@@ -1,10 +1,10 @@
 from events.base_event              import BaseEvent
 
 from functions.roles                import assignRolesToUser, removeRolesFromUser, getPlayerRoles
-from functions.dataTransformation   import getFullMemberMap, isUserInClan
 from functions.database             import lookupDiscordID, lookupDestinyID, getToken
 from functions.dataLoading          import initDB
 from functions.network import getJSONfromURL
+from static.config import CLANID, BOTDEVCHANNELID, DISCORDCLANROLEID
 
 import discord
 
@@ -35,7 +35,7 @@ class AutomaticRoleAssignment(BaseEvent):
             return (discordUser, newRoles, removeRoles)
         
         #aquires the newtonslab channel from the descend server and notifies about starting
-        newtonslab = client.get_channel(670637036641845258)
+        newtonslab = client.get_channel(BOTDEVCHANNELID)
         #await newtonslab.send('running db update...')
         async with newtonslab.typing():
             await initDB()
@@ -87,21 +87,18 @@ class AutoRegisteredRole(BaseEvent):
         miscText = '⁣           Misc       ⁣  ⁣  ⁣'
         miscId = 670395920327639085
 
-        clanID = 4107840
-        newtonsLabID = 670637036641845258
 
-        clanRoleID = 670384239489056768 #Descend
 
         # get all clan members discordID
         memberlist = []
-        for member in (await getJSONfromURL(f"https://www.bungie.net/Platform/GroupV2/{clanID}/Members/"))["Response"]["results"]:
+        for member in (await getJSONfromURL(f"https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/"))["Response"]["results"]:
             destinyID = int(member["destinyUserInfo"]["membershipId"])
             discordID = lookupDiscordID(destinyID)
             if discordID is not None:
                 memberlist.append(discordID)
 
         for guild in client.guilds:
-            newtonsLab = discord.utils.get(guild.channels, id=newtonsLabID)
+            newtonsLab = discord.utils.get(guild.channels, id=BOTDEVCHANNELID)
             for member in guild.members:
                 # dont do that for bots
                 if not member.bot:
@@ -117,23 +114,23 @@ class AutoRegisteredRole(BaseEvent):
                             await assignRolesToUser(["Not Registered"], member, guild)
 
                     # add clan role if user is in clan and doesn't have clan role
-                    if discord.utils.get(guild.roles, id=clanRoleID) not in member.roles:
+                    if discord.utils.get(guild.roles, id=DISCORDCLANROLEID) not in member.roles:
                         if member.id in memberlist:
-                            await assignRolesToUser([clanRoleID], member, guild)
+                            await assignRolesToUser([DISCORDCLANROLEID], member, guild)
                             if newtonsLab:
                                 await newtonsLab.send(f"Added Descend role to {member.mention}")
                     # Also remove it if no longer in clan
-                    elif discord.utils.get(guild.roles, id=clanRoleID) in member.roles:
+                    elif discord.utils.get(guild.roles, id=DISCORDCLANROLEID) in member.roles:
                         if member.id not in memberlist:
-                            await removeRolesFromUser([clanRoleID], member, guild)
+                            await removeRolesFromUser([DISCORDCLANROLEID], member, guild)
                             if newtonsLab:
                                 await newtonsLab.send(f"Removee Descend role from {member.mention}")
 
                     # add @guest if the clan role doesn't exist
-                    if discord.utils.get(guild.roles, id=clanRoleID) not in member.roles:
+                    if discord.utils.get(guild.roles, id=DISCORDCLANROLEID) not in member.roles:
                         await assignRolesToUser(["Guest"], member, guild)
                     # remove @guest if in clan
-                    elif discord.utils.get(guild.roles, id=clanRoleID) in member.roles:
+                    elif discord.utils.get(guild.roles, id=DISCORDCLANROLEID) in member.roles:
                         await removeRolesFromUser(["Guest"], member, guild)
 
                     # add filler roles to everyone

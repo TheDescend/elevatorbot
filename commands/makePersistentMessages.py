@@ -1,9 +1,11 @@
 from commands.base_command  import BaseCommand
 from functions.bounties.bountiesBackend import saveAsGlobalVar, deleteFromGlobalVar
-from functions.bounties.bountiesFunctions import bountiesChannelMessage
+from functions.persistentMessages import persistentChannelMessages
 
 import discord
 
+
+# writes the message the user will see and react to and saves the id in the pickle
 class makeChannelOtherGameRoles(BaseCommand):
     def __init__(self):
         # A quick description for the help message
@@ -17,10 +19,8 @@ class makeChannelOtherGameRoles(BaseCommand):
         # add channel id to pickle where bounty channel ids are also saved
         deleteFromGlobalVar("other_game_roles_channel_message_id")
         saveAsGlobalVar("other_game_roles_channel", message.channel.id, message.guild.id)
-        await bountiesChannelMessage(client)
+        await persistentChannelMessages(client)
 
-
-# writes the message the user will see and react to and saves the id in the pickle
 
 # assign the roles. get's called from bloodbot.py
 async def otherGameRolesMessageReactions(client, user, emoji, register_channel, channel_message_id):
@@ -78,3 +78,20 @@ async def otherGameRolesMessageReactions(client, user, emoji, register_channel, 
         else:
             await user.remove_roles(discord.utils.get(message.guild.roles, id=lol_id))
         await message.remove_reaction(lol, user)
+
+
+# writes the message the user will see and react to and saves the id in the pickle
+class makeChannelClanJoinRequest(BaseCommand):
+    def __init__(self):
+        # A quick description for the help message
+        description = "[dev] make channel for getting other game roles. will delete all msg in channel if used"
+        params = []
+        super().__init__(description, params)
+
+    # Override the handle() method
+    # It will be called every time the command is received
+    async def handle(self, params, message, client):
+        # add channel id to pickle where bounty channel ids are also saved
+        deleteFromGlobalVar("clan_join_request_channel_message_id")
+        saveAsGlobalVar("clan_join_request_channel", message.channel.id, message.guild.id)
+        await persistentChannelMessages(client)
