@@ -57,7 +57,8 @@ def root():
     #print('got request')
     response = request.args
     if not (code := response.get('code', None)): #for user auth
-        return redirect("http://www.elevatorbot.ch/reacttest/build", code=301)
+        return '<img src="https://vignette.wikia.nocookie.net/meme/images/a/a8/Portal-cake.jpg/revision/latest/top-crop/width/360/height/450?cb=20110913215856"/>'
+        #return redirect("http://www.elevatorbot.ch/reacttest/build", code=301)
     print(code)
     #print(f'code is {code}')
     (discordID,serverID) = response['state'].split(':') #mine
