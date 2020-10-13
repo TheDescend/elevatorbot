@@ -154,15 +154,14 @@ async def getNameAndCrossaveNameToHashMapByClanid(clanid):
             memberids[member['destinyUserInfo']['membershipId']] = (member['destinyUserInfo']['LastSeenDisplayName'], 'none')
     return memberids
 
-
-async def getPlatform(destinyID):
-    charURL = "https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/?components=100,200"
-    platform = None
+async def getMembershipType(destinyID):
+    charURL = "https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/?components=100"
     for i in [3,2,1,4,5,10,254]:
-        characterinfo = await getJSONfromURL(charURL.format(i, destinyID))
-        if characterinfo:
-            break
-    return platform
+        response = await getJSONfromURL(charURL.format(i, destinyID))
+        if response:
+            if response['Response']:
+                return response['Response']["profile"]["data"]["userInfo"]["membershipType"]
+    return None
 
 async def getPGCR(instanceID):
     pgcrurl = f'https://www.bungie.net/Platform/Destiny2/Stats/PostGameCarnageReport/{instanceID}/'

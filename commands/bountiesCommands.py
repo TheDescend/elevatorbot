@@ -1,11 +1,12 @@
 from commands.base_command  import BaseCommand
-from functions.bounties.bountiesFunctions import displayBounties, displayCompetitionBounties, bountyCompletion, displayLeaderboard, updateAllExperience, generateBounties, bountiesChannelMessage
+from functions.bounties.bountiesFunctions import displayBounties, displayCompetitionBounties, bountyCompletion, displayLeaderboard, updateAllExperience, generateBounties
 from functions.bounties.bountiesBackend import getGlobalVar, saveAsGlobalVar, deleteFromGlobalVar, returnScore, fulfillRequirements, returnLeaderboard, formatLeaderboardMessage, playerHasDoneBounty
 from functions.bounties.bountiesTournament import tournamentRegistrationMessage, tournamentChannelMessage, startTournamentEvents
 from functions.dataLoading import getPGCR
 from functions.database import getBountyUserList, setLevel, getLevel, lookupDestinyID
 from functions.formating import embed_message
 from functions.roles import hasAdminOrDevPermissions
+from functions.persistentMessages import persistentChannelMessages
 
 import discord
 import asyncio
@@ -286,7 +287,7 @@ class bountiesMakeChannelRegister(BaseCommand):
 
         deleteFromGlobalVar("register_channel_message_id")
         saveAsGlobalVar("register_channel", message.channel.id, message.guild.id)
-        await bountiesChannelMessage(client)
+        await persistentChannelMessages(client)
 
 
 class bountiesMakeChannelTournment(BaseCommand):

@@ -56,8 +56,9 @@ async def getJSONwithToken(requestURL, discordID):
                     res = await r.json()
 
                 # handling any errors if not ok
-                if await errorCodeHandling(requestURL, r, discordID):
-                    return {'result': None, 'error': f"Status Code <{r.status}>"}
+                else:
+                    if await errorCodeHandling(requestURL, r, discordID):
+                        return {'result': None, 'error': f"Status Code <{r.status}>"}
 
                 if res:
                     if int(res['ErrorCode']) == 401:
@@ -119,8 +120,9 @@ async def postJSONtoBungie(postURL, data, discordID):
                     res = await r.json()
 
                 # handling any errors if not ok
-                if await errorCodeHandling(postURL, r, discordID):
-                    return {'result': None, 'error': f"Status Code <{r.status}>"}
+                else:
+                    if await errorCodeHandling(postURL, r, discordID):
+                        return {'result': None, 'error': f"Status Code <{r.status}>"}
 
                 if res:
                     if int(res['ErrorCode']) == 401:
