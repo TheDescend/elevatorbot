@@ -5,6 +5,7 @@ from functions.database import lookupDestinyID, getToken
 from functions. dataLoading import getMembershipType
 from static.config import CLANID, BOTDEVCHANNELID
 
+import asyncio
 
 
 async def clanJoinRequestMessageReactions(client, user, emoji, channel, channel_message_id):
@@ -70,8 +71,11 @@ async def clanJoinRequestMessageReactions(client, user, emoji, channel, channel_
 
 # if a user leaves discord, he will be removed from the clan as well if admins react to the msg in the bot dev channel
 async def removeFromClanAfterLeftDiscord(client, member):
-    # remove once everyone is happy with this
+    # remove this  once everyone is happy with this
     return
+
+    # wait 10 mins bc bungie takes forever in updating the clan roster
+    await asyncio.sleep(10 * 60)
 
     # check if user was in clan
     destinyID = lookupDestinyID(member.id)
