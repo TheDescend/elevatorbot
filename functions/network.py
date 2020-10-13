@@ -39,7 +39,11 @@ async def getJSONwithToken(requestURL, discordID):
             'error': 'User has not registered'
         }
 
-    headers = {'Authorization': f'Bearer {token}', 'x-api-key': BUNGIE_TOKEN, 'Accept': 'application/json'}
+    headers = {
+        'Authorization': f'Bearer {token}',
+        'x-api-key': BUNGIE_TOKEN,
+        'Accept': 'application/json'
+    }
 
     async with aiohttp.ClientSession() as session:
         # abort after 5 tries
