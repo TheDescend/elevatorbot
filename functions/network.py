@@ -61,13 +61,14 @@ async def getJSONwithToken(requestURL, discordID):
     headers = {'Authorization': f'Bearer {token}', 'x-api-key': BUNGIE_TOKEN, 'Accept': 'application/json'}
 
     async with aiohttp.ClientSession() as session:
+        print(headers)
         async with session.get(url=requestURL, headers=headers) as r:
             res = None
-
             # ok
+            print(r.status)
             if r.status == 200:
                 res = await r.json()
-            elif 'Unauthorized' in str(r.content):
+            elif r.status == 401:
                 print('xml 401 found')
                 await refresh_token(discordID)
                 return (await getJSONwithToken(requestURL, discordID))
@@ -94,7 +95,7 @@ async def getJSONwithToken(requestURL, discordID):
                 pass
     return {
             'result': None,
-            'error': 'Function ended unexpectedly'
+            'error': 'Function succeeded unexpectedly'
         }
 
 
