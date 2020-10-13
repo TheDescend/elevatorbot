@@ -99,12 +99,15 @@ async def postJSONtoBungie(postURL, data, discordID):
             'error': 'User has not registered'
         }
 
-    headers = {'Authorization': f'Bearer {token}', 'x-api-key': BUNGIE_TOKEN, 'Accept': 'application/json'}
+    headers = {
+        'Authorization': f'Bearer {token}',
+        'x-api-key': BUNGIE_TOKEN,
+        'Accept': 'application/json'}
 
     async with aiohttp.ClientSession() as session:
         # abort after 5 tries
         for i in range(5):
-            async with session.post(url=postURL, data=data, headers=headers) as r:
+            async with session.post(url=postURL, json=data, headers=headers, allow_redirects=False) as r:
                 res = None
                 print(await r.read())
                 # ok
