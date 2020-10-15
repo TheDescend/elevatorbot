@@ -21,7 +21,7 @@ f"""**Welcome to Descend!**
 
 We are an EU based community of veteran players who have created their own community for chill PVE and PVP activities while still focusing on raids and other endgame activities.
 
-If you want to join the clan, react to the message below and if you fulfill the requirements, you will receive an invite to join the clan.
+If you want to join the clan, react to the message below and if you fulfill the requirements, you will instantly receive an invite to join the clan.
 
 
 __Requirements:__
