@@ -23,6 +23,8 @@ class maxPower(BaseCommand):
         for sys,charID in sysCharList:
             staturl = f"https://www.bungie.net/Platform/Destiny2/{sys}/Account/{destinyID}/Character/{charID}/Stats/Activities/?mode=7&count=3&page={0}" 
             rep = await getJSONfromURL(staturl)
+            if not rep:
+                continue
             for activity in rep['Response']['activities']:
                 iid = activity['activityDetails']['instanceId']
                 print(iid)
