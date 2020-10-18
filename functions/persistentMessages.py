@@ -19,7 +19,15 @@ async def persistentChannelMessages(client):
                     await channel.send(
 f"""**Welcome to Descend!**
 
-PLACEHOLDER
+We are an EU based community of veteran players who have created their own community for chill PVE and PVP activities while still focusing on raids and other endgame activities.
+
+If you want to join the clan, react to the message below and if you fulfill the requirements, you will instantly receive an invite to join the clan.
+
+
+__Requirements:__
+- Join the Discord <> Wow, you already did that :)
+- Register with `!registerdesc` in <#670401854496309268>
+⁣
 """
                     )
 
@@ -90,7 +98,7 @@ Your experience level determines which normal bounties you can complete. That wa
                     await channel.send(
 f"""There are a bunch of commands which will give you more thorough information than visible in the channels:
 ⁣
-Commands:
+__Commands:__
 `!leaderboard <category>` - Prints various leaderboards.
 `!experienceLevel` - Updates and DMs you your experience levels. 
 `!bounties` - DMs you an overview of you current bounties and their status.
