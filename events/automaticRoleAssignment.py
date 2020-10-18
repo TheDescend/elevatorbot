@@ -47,7 +47,7 @@ class AutomaticRoleAssignment(BaseEvent):
             guild = newtonslab.guild
 
             news = []
-            async for member in guild.fetch_members():
+            for member in guild.members:
                 news.append(await updateUser(member))
 
             newstext = 'done with role update <:CaydeThumbsUp:670997683774685234>\n'
