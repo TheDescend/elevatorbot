@@ -1,6 +1,7 @@
 from commands.base_command  import BaseCommand
 from functions.roles        import assignRolesToUser, removeRolesFromUser
 from functions.database     import getToken
+from functions.roles import hasAdminOrDevPermissions
 
 
 
@@ -15,6 +16,8 @@ class addRolesToRegistered(BaseCommand):
     # Override the handle() method
     # It will be called every time the command is received
     async def handle(self, params, message, client):
+        if not await hasAdminOrDevPermissions(message):
+            return
         await message.channel.send("Working...")
         for member in message.guild.members:
             await removeRolesFromUser(["Registered"], member, message.guild)
