@@ -22,7 +22,7 @@ class funFact(BaseCommand):
             async with aiohttp.ClientSession() as session:
                 async with session.get(url=url) as r:
                     if r.status == 200:
-                        text = await r.json()["text"]
+                        text = (await r.json())["text"]
             
                         embed = discord.Embed(
                             title = 'Did you know?',
