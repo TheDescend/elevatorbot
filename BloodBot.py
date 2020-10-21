@@ -155,9 +155,9 @@ def main():
         
         if message.author.name == 'EscalatorBot':
             for user in message.mentions:
-                member = message.guild.get_member(user.id)
-                await member.add_roles(message.guild.get_role(670396064007979009))
-                await member.remove_roles(message.guild.get_role(670396109088358437))
+                member = await message.guild.fetch_member(user.id)
+                await member.add_roles(message.guild.get_role(670396064007979009)) #registered role
+                await member.remove_roles(message.guild.get_role(670396109088358437)) #unregistered role
                 await message.channel.send(f'{member.mention} has been marked as Registered')
                 await member.send('Registration successful!\nCome say hi in <#670400011519000616>')
 
