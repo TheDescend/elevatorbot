@@ -25,9 +25,9 @@ async def clanJoinRequestMessageReactions(client, user, emoji, channel, channel_
                 print(f"{member.display_name} tried to join the clan while being in it")
                 return
 
-        # # abort if user is @not_registered
-        # if not await checkIfUserIsRegistered(user):
-        #     return
+        # abort if user is @not_registered
+        if not await checkIfUserIsRegistered(user):
+            return
 
         # abort if user doesn't fulfill requirements
         req = await checkRequirements(user.id)
