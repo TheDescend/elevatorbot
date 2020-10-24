@@ -22,7 +22,7 @@ async def clanJoinRequestMessageReactions(client, user, emoji, channel, channel_
         for member in (await getJSONfromURL(f"https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/"))["Response"]["results"]:
             memberID = int(member["destinyUserInfo"]["membershipId"])
             if memberID == destinyID:
-                print(f"{member.display_name} tried to join the clan while being in it")
+                print(f"{user.display_name} tried to join the clan while being in it")
                 return
 
         # abort if user is @not_registered
