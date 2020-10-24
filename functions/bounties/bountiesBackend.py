@@ -320,7 +320,6 @@ def deleteFromGlobalVar(name):
 def getGlobalVar():
     with open('functions/bounties/channelIDs.pickle', "rb") as f:
         file = pickle.load(f)
-
         return file
 
 
