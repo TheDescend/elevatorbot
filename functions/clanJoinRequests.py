@@ -6,9 +6,11 @@ from functions. dataLoading import getMembershipType
 from static.config import CLANID, BOTDEVCHANNELID
 
 import asyncio
+import discord
 
 
 async def clanJoinRequestMessageReactions(client, user, emoji, channel, channel_message_id):
+    newtonslab = client.get_channel(BOTDEVCHANNELID)
     message = await channel.fetch_message(channel_message_id)
     join = client.get_emoji(768906489472876574)
     destinyID = lookupDestinyID(user.id)
@@ -27,6 +29,13 @@ async def clanJoinRequestMessageReactions(client, user, emoji, channel, channel_
 
         # abort if user is @not_registered
         if not await checkIfUserIsRegistered(user):
+            await user.send("Please `!registerdesc` first")
+            return
+
+        # abort if member hasnt accepted the rules
+        member_role_id = 769612980978843668
+        if discord.utils.get(newtonslab.guild.roles, id=member_role_id) not in user.roles:
+            await user.send("Please accept the rules first")
             return
 
         # abort if user doesn't fulfill requirements
@@ -53,7 +62,6 @@ async def clanJoinRequestMessageReactions(client, user, emoji, channel, channel_
         # inform user if invite was send / sth went wrong
         if ret["error"] is None:
             text = "Send you a clan application"
-            newtonslab = client.get_channel(BOTDEVCHANNELID)
             embed = embed_message(
                 "Clan Update",
                 f"{user.display_name} with discordID <{user.id}> and destinyID <{destinyID}> has been send a clan invite"
