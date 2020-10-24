@@ -475,10 +475,11 @@ async def displayLeaderboard(client, use_old_message=True):
 
             if message_id and use_old_message:
                 # get the leaderboard msg object
-                message = await discord.utils.get(
+                if channel := await discord.utils.get(
                         guild.channels,
                         id=file["leaderboard_channel"]
-                    ).fetch_message(file["leaderboard_channel_message_id"])
+                    ):
+                    message = channel.fetch_message(file["leaderboard_channel_message_id"])
 
                 await message.edit(embed=embed)
             else:
