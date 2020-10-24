@@ -124,7 +124,7 @@ class AutoRegisteredRole(BaseEvent):
                                 await newtonsLab.send(f"Added Descend role to {member.mention}")
                     # Also remove it if no longer in clan or not member
                     elif discord.utils.get(guild.roles, id=DISCORDCLANROLEID) in member.roles:
-                        if (member.id not in memberlist) or (getToken(member.id)) or (discord.utils.get(guild.roles, id=member_role_id) not in member.roles):
+                        if (member.id not in memberlist): # or (getToken(member.id)) or (discord.utils.get(guild.roles, id=member_role_id) not in member.roles): #todo
                             await removeRolesFromUser([DISCORDCLANROLEID], member, guild)
                             if newtonsLab:
                                 await newtonsLab.send(f"Removed Descend role from {member.mention}")
