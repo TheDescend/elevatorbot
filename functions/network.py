@@ -152,7 +152,9 @@ async def postJSONtoBungie(postURL, data, discordID):
 async def errorCodeHandling(requestURL, r, discordID=None):
     # refreshing token if outdated. Only relevant if used with oauth
     if discordID:
-        if b'Unauthorized' in await r.read():
+        result = await r.read()
+        if b'Unauthorized' in result:
+            print(result)
             print('Token outdated, refreshing...')
             await refresh_token(discordID)
             return False
