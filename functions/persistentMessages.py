@@ -10,11 +10,22 @@ async def persistentChannelMessages(client):
 
     for guild in client.guilds:
         if guild.id == file["guild_id"]:
+            # the read rules feature
+            if "read_rules_channel" in file:
+                if "read_rules_channel_message_id" not in file:
+                    channel = discord.utils.get(guild.channels, id=file["read_rules_channel"])
+
+                    msg = await channel.send(embed=embed_message(
+                        "Access The Server",
+                        "If you have read the information above and Agree to the rules, please react accordingly"
+                    ))
+                    join = client.get_emoji(754928322403631216)
+                    await msg.add_reaction(join)
+
             # the clan join request feature
             if "clan_join_request_channel" in file:
                 if "clan_join_request_channel_message_id" not in file:
                     channel = discord.utils.get(guild.channels, id=file["clan_join_request_channel"])
-                    await channel.purge(limit=100)
 
                     await channel.send(
 f"""**Welcome to Descend!**
@@ -46,7 +57,6 @@ __Requirements:__
             if "other_game_roles_channel" in file:
                 if "other_game_roles_channel_message_id" not in file:
                     channel = discord.utils.get(guild.channels, id=file["other_game_roles_channel"])
-                    await channel.purge(limit=100)
 
                     # send register msg and save the id
                     msg = await channel.send(embed=embed_message(
@@ -72,7 +82,6 @@ __Requirements:__
             if "register_channel" in file:
                 if "register_channel_message_id" not in file:
                     channel = discord.utils.get(guild.channels, id=file["register_channel"])
-                    await channel.purge(limit=100)
 
                     # send welcome and info message
                     await channel.send(

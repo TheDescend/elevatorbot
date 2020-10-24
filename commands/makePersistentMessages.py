@@ -95,3 +95,32 @@ class makeChannelClanJoinRequest(BaseCommand):
         deleteFromGlobalVar("clan_join_request_channel_message_id")
         saveAsGlobalVar("clan_join_request_channel", message.channel.id, message.guild.id)
         await persistentChannelMessages(client)
+
+
+# writes the message the user will see and react to and saves the id in the pickle
+class makeChannelReadRules(BaseCommand):
+    def __init__(self):
+        # A quick description for the help message
+        description = "[dev] make channel for accepting the rules"
+        params = []
+        super().__init__(description, params)
+
+    # Override the handle() method
+    # It will be called every time the command is received
+    async def handle(self, params, message, client):
+        # add channel id to pickle where bounty channel ids are also saved
+        deleteFromGlobalVar("read_rules_channel_message_id")
+        saveAsGlobalVar("read_rules_channel", message.channel.id, message.guild.id)
+        await persistentChannelMessages(client)
+
+# assign the role. get's called from bloodbot.py
+async def readRulesMessageReactions(client, user, emoji, register_channel, channel_message_id):
+    message = await register_channel.fetch_message(channel_message_id)
+    emote = client.get_emoji(754928322403631216)
+    role_id = 0     # todo
+
+    if emoji == emote:
+        await message.remove_reaction(emote, user)
+
+        # adds the read rules role to the user
+        await user.add_roles(discord.utils.get(message.guild.roles, id=role_id))
