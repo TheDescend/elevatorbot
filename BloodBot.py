@@ -13,7 +13,7 @@ from static.dict import getNameFromHashRecords, getNameFromHashCollectible, getN
 from functions.bounties.bountiesFunctions import generateBounties, registrationMessageReactions, updateExperienceLevels
 from functions.bounties.bountiesBackend import getGlobalVar
 from functions.clanJoinRequests import clanJoinRequestMessageReactions, removeFromClanAfterLeftDiscord
-from commands.makePersistentMessages import otherGameRolesMessageReactions
+from commands.makePersistentMessages import otherGameRolesMessageReactions, readRulesMessageReactions
 from init_logging import init_logging
 import asyncio
 import random
@@ -170,7 +170,7 @@ def main():
 
     @client.event
     async def on_member_join(member):
-        guestObj = discord.utils.get(member.guild.roles, name="Guest")
+        guestObj = discord.utils.get(member.guild.roles, id=670385220037509132)
         await member.add_roles(guestObj)
 
         # inform the user that they should register with the bot
@@ -222,6 +222,12 @@ def main():
                     register_channel = discord.utils.get(client.get_all_channels(), guild__id=payload.guild_id, id=file["clan_join_request_channel"])
                     await clanJoinRequestMessageReactions(client, payload.member, payload.emoji, register_channel, channel_message_id)
 
+            # check if reaction is on the rules page
+            if "read_rules_channel_message_id" in file:
+                channel_message_id = file["read_rules_channel_message_id"]
+                if payload.message_id == channel_message_id:
+                    register_channel = discord.utils.get(client.get_all_channels(), guild__id=payload.guild_id, id=file["read_rules_channel"])
+                    await readRulesMessageReactions(client, payload.member, payload.emoji, register_channel, channel_message_id)
 
     @client.event
     async def on_voice_state_update(member, before, after):

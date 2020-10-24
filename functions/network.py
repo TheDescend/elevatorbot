@@ -140,8 +140,13 @@ async def postJSONtoBungie(postURL, data, discordID):
                     return {'result': res, 'error': None}
 
         print('Request failed 5 times, aborting')
-        return {'result': None, 'error': "Didn't get a valid response from Bungie. Servers might be down, try again later."}
+        try:
+            error = await r.json()
+            msg = f"""Didn't get a valid response. Bungie returned status {r.status}: \n`ErrorCode - {error["ErrorCode"]} \nErrorStatus - {error["ErrorStatus"]} \nMessage - {error["Message"]}`"""
+        except:
+            msg = "Bungie is doing wierd stuff right now or there is a big error in my programming, the first is definitely more likely."
 
+        return {'result': None, 'error': msg}
 
 # if this returns True, None should be return by the caller. If it returns False, it should try again
 async def errorCodeHandling(requestURL, r, discordID=None):

@@ -10,7 +10,7 @@ import asyncio
 
 async def clanJoinRequestMessageReactions(client, user, emoji, channel, channel_message_id):
     message = await channel.fetch_message(channel_message_id)
-    join = client.get_emoji(754928322403631216)
+    join = client.get_emoji(768906489472876574)
     destinyID = lookupDestinyID(user.id)
 
     # if the reaction is the correct one
@@ -25,9 +25,9 @@ async def clanJoinRequestMessageReactions(client, user, emoji, channel, channel_
                 print(f"{member.display_name} tried to join the clan while being in it")
                 return
 
-        # # abort if user is @not_registered
-        # if not await checkIfUserIsRegistered(user):
-        #     return
+        # abort if user is @not_registered
+        if not await checkIfUserIsRegistered(user):
+            return
 
         # abort if user doesn't fulfill requirements
         req = await checkRequirements(user.id)
@@ -71,9 +71,6 @@ async def clanJoinRequestMessageReactions(client, user, emoji, channel, channel_
 
 # if a user leaves discord, he will be removed from the clan as well if admins react to the msg in the bot dev channel
 async def removeFromClanAfterLeftDiscord(client, member):
-    # remove this  once everyone is happy with this
-    return
-
     # wait 10 mins bc bungie takes forever in updating the clan roster
     await asyncio.sleep(10 * 60)
 

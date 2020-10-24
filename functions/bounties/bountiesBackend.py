@@ -627,7 +627,9 @@ async def returnScore(requirements, activity, destinyID):
 
                     # set score
                     sort_by_highest = False
-                    score = int(player["values"]["playerCount"]["basic"]["value"])
+                    players = int(player["values"]["playerCount"]["basic"]["value"])
+                    if players <= 3:
+                        score = players
 
 
         # todo: test, but should work

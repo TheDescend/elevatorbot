@@ -10,23 +10,30 @@ async def persistentChannelMessages(client):
 
     for guild in client.guilds:
         if guild.id == file["guild_id"]:
+            # the read rules feature
+            if "read_rules_channel" in file:
+                if "read_rules_channel_message_id" not in file:
+                    channel = discord.utils.get(guild.channels, id=file["read_rules_channel"])
+
+                    msg = await channel.send(embed=embed_message(
+                        "Access The Server",
+                        "If you have read the information above and **Agree** to the rules, please react accordingly"
+                    ))
+                    join = client.get_emoji(768908985557844028)
+                    await msg.add_reaction(join)
+
             # the clan join request feature
             if "clan_join_request_channel" in file:
                 if "clan_join_request_channel_message_id" not in file:
                     channel = discord.utils.get(guild.channels, id=file["clan_join_request_channel"])
-                    await channel.purge(limit=100)
 
                     await channel.send(
-f"""**Welcome to Descend!**
-
-We are an EU based community of veteran players who have created their own community for chill PVE and PVP activities while still focusing on raids and other endgame activities.
-
+f"""We are an EU based community of veteran players who have created their own community for chill PVE and PVP activities while still focusing on raids and other endgame activities.
 If you want to join the clan, react to the message below and if you fulfill the requirements, you will instantly receive an invite to join the clan.
 
-
-__Requirements:__
-- Join the Discord <> Wow, you already did that :)
-- Register with `!registerdesc` in <#670401854496309268>
+<:desc_title_left_b:768906489309822987>**Requirements:**<:desc_title_right_b:768906489729122344>
+<:desc_circle_b:768906489464619008>Join the Discord <> Wow, you already did that :)
+<:desc_circle_b:768906489464619008>Register with `!registerdesc` in <#670401854496309268>
 ⁣
 """
                     )
@@ -37,7 +44,7 @@ __Requirements:__
                         f'React if you want to join the clan'
                     ))
 
-                    join = client.get_emoji(754928322403631216)
+                    join = client.get_emoji(768906489472876574)
                     await msg.add_reaction(join)
 
                     saveAsGlobalVar("clan_join_request_channel_message_id", msg.id)
@@ -46,7 +53,6 @@ __Requirements:__
             if "other_game_roles_channel" in file:
                 if "other_game_roles_channel_message_id" not in file:
                     channel = discord.utils.get(guild.channels, id=file["other_game_roles_channel"])
-                    await channel.purge(limit=100)
 
                     # send register msg and save the id
                     msg = await channel.send(embed=embed_message(
@@ -72,7 +78,6 @@ __Requirements:__
             if "register_channel" in file:
                 if "register_channel_message_id" not in file:
                     channel = discord.utils.get(guild.channels, id=file["register_channel"])
-                    await channel.purge(limit=100)
 
                     # send welcome and info message
                     await channel.send(
