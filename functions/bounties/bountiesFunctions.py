@@ -354,8 +354,9 @@ async def displayCompetitionBounties(client, guild, message=None):
             # edit msg if given one, otherwise create a new one and save the id
             if message:
                 # gets the msg object related to the current topic in the competition_bounties_channel
-                message = await discord.utils.get(guild.channels, id=file["competition_bounties_channel"]).fetch_message(file[f"competition_bounties_channel_{topic.lower()}_message_id"])
-                await message.edit(embed=embed)
+                if channel := discord.utils.get(guild.channels, id=file["competition_bounties_channel"]):
+                    message = await channel.fetch_message(file[f"competition_bounties_channel_{topic.lower()}_message_id"])
+                    await message.edit(embed=embed)
             else:
                 msg = await competition_bounties_channel.send(embed=embed)
                 saveAsGlobalVar(f"competition_bounties_channel_{topic.lower()}_message_id", msg.id)
