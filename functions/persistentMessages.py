@@ -22,6 +22,8 @@ async def persistentChannelMessages(client):
                     join = client.get_emoji(768908985557844028)
                     await msg.add_reaction(join)
 
+                    saveAsGlobalVar("read_rules_channel_message_id", msg.id)
+
             # the clan join request feature
             if "clan_join_request_channel" in file:
                 if "clan_join_request_channel_message_id" not in file:
