@@ -22,21 +22,12 @@ async def persistentChannelMessages(client):
                     join = client.get_emoji(768908985557844028)
                     await msg.add_reaction(join)
 
+                    saveAsGlobalVar("read_rules_channel_message_id", msg.id)
+
             # the clan join request feature
             if "clan_join_request_channel" in file:
                 if "clan_join_request_channel_message_id" not in file:
                     channel = discord.utils.get(guild.channels, id=file["clan_join_request_channel"])
-
-                    await channel.send(
-f"""We are an EU based community of veteran players who have created their own community for chill PVE and PVP activities while still focusing on raids and other endgame activities.
-If you want to join the clan, react to the message below and if you fulfill the requirements, you will instantly receive an invite to join the clan.
-
-<:desc_title_left_b:768906489309822987>**Requirements:**<:desc_title_right_b:768906489729122344>
-<:desc_circle_b:768906489464619008>Join the Discord <> Wow, you already did that :)
-<:desc_circle_b:768906489464619008>Register with `!registerdesc` in <#670401854496309268>
-⁣
-"""
-                    )
 
                     # send register msg and save the id
                     msg = await channel.send(embed=embed_message(
