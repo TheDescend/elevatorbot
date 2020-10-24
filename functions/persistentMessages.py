@@ -17,9 +17,9 @@ async def persistentChannelMessages(client):
 
                     msg = await channel.send(embed=embed_message(
                         "Access The Server",
-                        "If you have read the information above and Agree to the rules, please react accordingly"
+                        "If you have read the information above and **Agree** to the rules, please react accordingly"
                     ))
-                    join = client.get_emoji(754928322403631216)
+                    join = client.get_emoji(768908985557844028)
                     await msg.add_reaction(join)
 
             # the clan join request feature
@@ -28,16 +28,12 @@ async def persistentChannelMessages(client):
                     channel = discord.utils.get(guild.channels, id=file["clan_join_request_channel"])
 
                     await channel.send(
-f"""**Welcome to Descend!**
-
-We are an EU based community of veteran players who have created their own community for chill PVE and PVP activities while still focusing on raids and other endgame activities.
-
+f"""We are an EU based community of veteran players who have created their own community for chill PVE and PVP activities while still focusing on raids and other endgame activities.
 If you want to join the clan, react to the message below and if you fulfill the requirements, you will instantly receive an invite to join the clan.
 
-
-__Requirements:__
-- Join the Discord <> Wow, you already did that :)
-- Register with `!registerdesc` in <#670401854496309268>
+<:desc_title_left_b:768906489309822987>**Requirements:**<:desc_title_right_b:768906489729122344>
+<:desc_circle_b:768906489464619008>Join the Discord <> Wow, you already did that :)
+<:desc_circle_b:768906489464619008>Register with `!registerdesc` in <#670401854496309268>
 ⁣
 """
                     )
@@ -48,7 +44,7 @@ __Requirements:__
                         f'React if you want to join the clan'
                     ))
 
-                    join = client.get_emoji(754928322403631216)
+                    join = client.get_emoji(768906489472876574)
                     await msg.add_reaction(join)
 
                     saveAsGlobalVar("clan_join_request_channel_message_id", msg.id)

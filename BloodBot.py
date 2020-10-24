@@ -170,7 +170,7 @@ def main():
 
     @client.event
     async def on_member_join(member):
-        guestObj = discord.utils.get(member.guild.roles, name="Guest")
+        guestObj = discord.utils.get(member.guild.roles, id=670385220037509132)
         await member.add_roles(guestObj)
 
         # inform the user that they should register with the bot

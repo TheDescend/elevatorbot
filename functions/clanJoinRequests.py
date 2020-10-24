@@ -10,7 +10,7 @@ import asyncio
 
 async def clanJoinRequestMessageReactions(client, user, emoji, channel, channel_message_id):
     message = await channel.fetch_message(channel_message_id)
-    join = client.get_emoji(754928322403631216)
+    join = client.get_emoji(768906489472876574)
     destinyID = lookupDestinyID(user.id)
 
     # if the reaction is the correct one

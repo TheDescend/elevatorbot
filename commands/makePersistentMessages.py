@@ -1,6 +1,7 @@
 from commands.base_command  import BaseCommand
 from functions.bounties.bountiesBackend import saveAsGlobalVar, deleteFromGlobalVar
 from functions.persistentMessages import persistentChannelMessages
+from functions.roles                import assignRolesToUser, removeRolesFromUser
 
 import discord
 
@@ -113,14 +114,18 @@ class makeChannelReadRules(BaseCommand):
         saveAsGlobalVar("read_rules_channel", message.channel.id, message.guild.id)
         await persistentChannelMessages(client)
 
+
 # assign the role. get's called from bloodbot.py
 async def readRulesMessageReactions(client, user, emoji, register_channel, channel_message_id):
     message = await register_channel.fetch_message(channel_message_id)
-    emote = client.get_emoji(754928322403631216)
-    role_id = 0     # todo
+    emote = client.get_emoji(768908985557844028)
+    role_id = 769612980978843668
 
     if emoji == emote:
         await message.remove_reaction(emote, user)
 
         # adds the read rules role to the user
-        await user.add_roles(discord.utils.get(message.guild.roles, id=role_id))
+        await assignRolesToUser([role_id], user, message.guild)
+
+        # removes the guest role
+        await removeRolesFromUser(["Guest"], user, message.guild)
