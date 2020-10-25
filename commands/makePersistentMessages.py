@@ -2,7 +2,9 @@ from commands.base_command  import BaseCommand
 from functions.bounties.bountiesBackend import saveAsGlobalVar, deleteFromGlobalVar
 from functions.persistentMessages import persistentChannelMessages
 from functions.roles                import assignRolesToUser, removeRolesFromUser
-from static.globals import guest_role_id, member_role_id
+from static.globals import guest_role_id, member_role_id, yes_emoji_id, among_us_emoji_id, barotrauma_emoji_id, \
+    gta_emoji_id, valorant_emoji_id, lol_emoji_id, among_us_role_id, barotrauma_role_id, gta_role_id, valorant_role_id, \
+    lol_role_id
 
 import discord
 
@@ -29,18 +31,18 @@ async def otherGameRolesMessageReactions(client, user, emoji, register_channel, 
     message = await register_channel.fetch_message(channel_message_id)
 
     # emoji ids
-    among_us = client.get_emoji(751020830376591420)
-    barotrauma = client.get_emoji(756077724870901830)
-    gta = client.get_emoji(751020831382962247)
-    valorant = client.get_emoji(751020830414209064)
-    lol = client.get_emoji(756076309527920661)
+    among_us = client.get_emoji(among_us_emoji_id)
+    barotrauma = client.get_emoji(barotrauma_emoji_id)
+    gta = client.get_emoji(gta_emoji_id)
+    valorant = client.get_emoji(valorant_emoji_id)
+    lol = client.get_emoji(lol_emoji_id)
 
     # role ids
-    amongUs_id = 750409552075423753
-    barotrauma_id = 738438622553964636
-    gta_id = 709120893728718910
-    valorant_id = 709378171832893572
-    lol_id = 756076447881363486
+    amongUs_id = among_us_role_id
+    barotrauma_id = barotrauma_role_id
+    gta_id = gta_role_id
+    valorant_id = valorant_role_id
+    lol_id = lol_role_id
 
     # get current roles
     roles = [role.id for role in user.roles]
@@ -119,7 +121,7 @@ class makeChannelReadRules(BaseCommand):
 # assign the role. get's called from bloodbot.py
 async def readRulesMessageReactions(client, user, emoji, register_channel, channel_message_id):
     message = await register_channel.fetch_message(channel_message_id)
-    emote = client.get_emoji(768908985557844028)
+    emote = client.get_emoji(yes_emoji_id)
 
     if emoji == emote:
         await message.remove_reaction(emote, user)

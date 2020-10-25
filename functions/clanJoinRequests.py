@@ -8,13 +8,13 @@ from static.config import CLANID, BOTDEVCHANNELID
 import asyncio
 import discord
 
-from static.globals import member_role_id
+from static.globals import member_role_id, thumps_up_emoji_id, thumps_down_emoji_id, destiny_emoji_id
 
 
 async def clanJoinRequestMessageReactions(client, user, emoji, channel, channel_message_id):
     newtonslab = client.get_channel(BOTDEVCHANNELID)
     message = await channel.fetch_message(channel_message_id)
-    join = client.get_emoji(768906489472876574)
+    join = client.get_emoji(destiny_emoji_id)
     destinyID = lookupDestinyID(user.id)
 
     # if the reaction is the correct one
@@ -98,8 +98,8 @@ async def removeFromClanAfterLeftDiscord(client, member):
 
     # promts in newtonslab, if yes is pressed he is removed
     newtonslab = client.get_channel(BOTDEVCHANNELID)
-    yes = client.get_emoji(754946723612196975)
-    no = client.get_emoji(754946723503276124)
+    yes = client.get_emoji(thumps_up_emoji_id)
+    no = client.get_emoji(thumps_down_emoji_id)
 
     embed = embed_message(
         "Clan Update",

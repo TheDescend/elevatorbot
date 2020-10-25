@@ -5,6 +5,10 @@ import discord
 
 
 # writes the message the user will see and react to and saves the id in the pickle
+from static.globals import yes_emoji_id, destiny_emoji_id, among_us_emoji_id, barotrauma_emoji_id, gta_emoji_id, \
+    valorant_emoji_id, lol_emoji_id
+
+
 async def persistentChannelMessages(client):
     file = getGlobalVar()
 
@@ -19,7 +23,7 @@ async def persistentChannelMessages(client):
                         "Access The Server",
                         "If you have read the information above and **Agree** to the rules, please react accordingly"
                     ))
-                    join = client.get_emoji(768908985557844028)
+                    join = client.get_emoji(yes_emoji_id)
                     await msg.add_reaction(join)
 
                     saveAsGlobalVar("read_rules_channel_message_id", msg.id)
@@ -35,7 +39,7 @@ async def persistentChannelMessages(client):
                         f'React if you want to join the clan'
                     ))
 
-                    join = client.get_emoji(768906489472876574)
+                    join = client.get_emoji(destiny_emoji_id)
                     await msg.add_reaction(join)
 
                     saveAsGlobalVar("clan_join_request_channel_message_id", msg.id)
@@ -51,11 +55,11 @@ async def persistentChannelMessages(client):
                         f'React to add / remove other game roles'
                     ))
 
-                    among_us = client.get_emoji(751020830376591420)
-                    barotrauma = client.get_emoji(756077724870901830)
-                    gta = client.get_emoji(751020831382962247)
-                    valorant = client.get_emoji(751020830414209064)
-                    lol = client.get_emoji(756076309527920661)
+                    among_us = client.get_emoji(among_us_emoji_id)
+                    barotrauma = client.get_emoji(barotrauma_emoji_id)
+                    gta = client.get_emoji(gta_emoji_id)
+                    valorant = client.get_emoji(valorant_emoji_id)
+                    lol = client.get_emoji(lol_emoji_id)
 
                     await msg.add_reaction(among_us)
                     await msg.add_reaction(barotrauma)
