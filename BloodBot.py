@@ -33,6 +33,7 @@ from functions.formating import embed_message
 import nltk
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 
+from io import BytesIO
 
 
 nltk.download('vader_lexicon')
@@ -122,7 +123,11 @@ def main():
             if not message.author.bot:
                 if not text.startswith(COMMAND_PREFIX):
                     admin_discussions_channel = client.get_channel(admin_discussions_channel_id)
-                    await admin_discussions_channel.send(f"From {message.author.mention}: \n{text}")
+                    if message.attachments:
+                        attached_files = [discord.File(BytesIO(await attachment.read()),filename=attachment.filename) for attachment in message.attachments]
+                        await admin_discussions_channel.send(f"From {message.author.mention}: \n{text}", files=attached_files)
+                    else:
+                        await admin_discussions_channel.send(f"From {message.author.mention}: \n{text}")
 
         if 'äbidöpfel' in text:
             texts = [   '<:NeriaHeart:671389916277506063> <:NeriaHeart:671389916277506063> <:NeriaHeart:671389916277506063>', 
