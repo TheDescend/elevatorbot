@@ -338,11 +338,15 @@ async def displayCompetitionBounties(client, guild, message=None):
             try:
                 i = 1
                 for discordID, value in leaderboards[topic].items():
-                    ranking.append(str(i) + ") **" + client.get_user(discordID).display_name + "** _(Score: " + str(value) + ")_")
-                    # break after x entries
-                    i += 1
-                    if i > 10:
-                        break
+                    leaderboarduser = client.get_user(discordID)
+                    if leaderboarduser:
+                        ranking.append(str(i) + ") **" + leaderboarduser.display_name + "** _(Score: " + str(value) + ")_")
+                        # break after x entries
+                        i += 1
+                        if i > 10:
+                            break
+                    else:
+                        print(f'User with ID {discordID} in competition bounties, but not found')
             except KeyError:
                 pass
 
