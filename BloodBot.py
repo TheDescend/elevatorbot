@@ -123,6 +123,7 @@ def main():
                 if not text.startswith(COMMAND_PREFIX):
                     admin_discussions_channel = client.get_channel(admin_discussions_channel_id)
                     await admin_discussions_channel.send(f"From {message.author.mention}: \n{text}")
+                    await message.author.send("Forwarded your message to staff, you will be contacted shortly 🙃")
 
         if 'äbidöpfel' in text:
             texts = [   '<:NeriaHeart:671389916277506063> <:NeriaHeart:671389916277506063> <:NeriaHeart:671389916277506063>', 
