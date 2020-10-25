@@ -10,6 +10,8 @@ from events                         import *
 from functions.roles                import assignRolesToUser
 from functions.dataLoading import fillDictFromDB
 from static.dict import getNameFromHashRecords, getNameFromHashCollectible, getNameFromHashActivity, getNameFromHashInventoryItem
+from static.globals import guest_role_id, registered_role_id, not_registered_role_id, admin_discussions_channel_id, \
+    divider_raider_role_id, divider_achievement_role_id, divider_misc_role_id
 from functions.bounties.bountiesFunctions import generateBounties, registrationMessageReactions, updateExperienceLevels
 from functions.bounties.bountiesBackend import getGlobalVar
 from functions.clanJoinRequests import clanJoinRequestMessageReactions, removeFromClanAfterLeftDiscord
@@ -30,6 +32,8 @@ from functions.formating import embed_message
 
 import nltk
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
+
+
 
 nltk.download('vader_lexicon')
 analyzer = SentimentIntensityAnalyzer()
@@ -108,10 +112,18 @@ def main():
     @client.event
     async def common_handle_message(message):
         text = message.content
+
+        # if the message was from an dm, post it in #admin-discussions: Don't do that if bot send an command
+        if isinstance(message.channel, discord.channel.DMChannel):
+            if not message.author.bot:
+                if not text.startswith(COMMAND_PREFIX):
+                    admin_discussions_channel = client.get_channel(admin_discussions_channel_id)
+                    await admin_discussions_channel.send(f"From {message.author.mention}: \n{text}")
+
         if 'äbidöpfel' in text:
             texts = [   '<:NeriaHeart:671389916277506063> <:NeriaHeart:671389916277506063> <:NeriaHeart:671389916277506063>', 
                         'knows what`s up', 'knows you can do the thing', 'has been voted plushie of the month', 'knows da wey',
-                        'yes!', 'does`nt yeet teammtes of the map, be like Häbidöpfel', 'debuggin has proven effective 99.9% of the time',
+                        'yes!', 'does`nt yeet teammtes of the map, be like Häbidöpfel', 'debuggin has proven effective 99.9% of the time (editors note: now 98.9%)',
                         'is cuteness incarnate']
             addition = random.choice(texts)
             await message.channel.send(f'Häbidöpfel {addition}')
@@ -156,32 +168,36 @@ def main():
         if message.author.name == 'EscalatorBot':
             for user in message.mentions:
                 member = await message.guild.fetch_member(user.id)
-                await member.add_roles(message.guild.get_role(670396064007979009)) #registered role
-                await member.remove_roles(message.guild.get_role(670396109088358437)) #unregistered role
+                await member.add_roles(message.guild.get_role(registered_role_id)) #registered role
+                await member.remove_roles(message.guild.get_role(not_registered_role_id)) #unregistered role
                 await message.channel.send(f'{member.mention} has been marked as Registered')
                 await member.send('Registration successful!\nCome say hi in <#670400011519000616>')
 
     tasks = []
     @client.event
     async def on_message(message):
-        if message.author == client.user:
+        # ignore msg from itself
+        if (message.author == client.user):
             return
         asyncio.ensure_future(common_handle_message(message))
 
     @client.event
     async def on_member_join(member):
-        guestObj = discord.utils.get(member.guild.roles, id=670385220037509132)
-        await member.add_roles(guestObj)
+        # add @guest and @Not Registered to user
+        await assignRolesToUser([guest_role_id], member, member.guild)
+        await assignRolesToUser([not_registered_role_id], member, member.guild)
+
+        # add filler roles
+        await assignRolesToUser([divider_raider_role_id], member, member.guild)
+        await assignRolesToUser([divider_achievement_role_id], member, member.guild)
+        await assignRolesToUser([divider_misc_role_id], member, member.guild)
 
         # inform the user that they should register with the bot
         await member.send(embed=embed_message(
             f'Welcome to Descend {member.name}!',
-            f'Please link your Destiny account by using `!register` in #bot-spam. \n**Do note that registering with the bots is required to be accepted in the clan!** \n⁣\nWe have a wide variety of roles you can earn, for more information, check out #community-roles. ',
+            f'You can join the destiny clan in #registration. \n**Do note that registering with the bots is required to be accepted in the clan!** \n⁣\nWe have a wide variety of roles you can earn, for more information, check out #community-roles. ',
             f'If you have any questions, please contact one of the Admins / Moderators'
         ))
-
-        # add @Not Registered to user
-        await assignRolesToUser(["Not Registered"], member, member.guild)
 
     @client.event
     async def on_member_remove(member):

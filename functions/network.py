@@ -144,7 +144,7 @@ async def postJSONtoBungie(postURL, data, discordID):
             error = await r.json()
             msg = f"""Didn't get a valid response. Bungie returned status {r.status}: \n`ErrorCode - {error["ErrorCode"]} \nErrorStatus - {error["ErrorStatus"]} \nMessage - {error["Message"]}`"""
         except:
-            msg = "Bungie is doing wierd stuff right now or there is a big error in my programming, the first is definitely more likely."
+            msg = "Bungie is doing wierd stuff right now or there is a big error in my programming, the first is definitely more likely. Try again in a sec."
 
         return {'result': None, 'error': msg}
 

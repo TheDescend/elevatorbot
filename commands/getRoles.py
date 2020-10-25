@@ -13,10 +13,7 @@ import json
 
 from discord.ext import commands
 
-raiderText = '⁣           Raider       ⁣'
-raiderId = 670385313994113025
-achText = '⁣        Achievements       ⁣'
-achId = 670385837044662285
+from static.globals import dev_role_id
 
 
 class getRoles(BaseCommand):
@@ -77,12 +74,6 @@ class getRoles(BaseCommand):
             await assignRolesToUser(roleList, user, message.guild)
             await removeRolesFromUser(removeRoles, user, message.guild)
 
-            for role in roleList:
-                if role in requirementHashes['Addition']:
-                    await user.add_roles(discord.utils.get(message.guild.roles, id=achId ))#,name=achText))
-                else:
-                    await user.add_roles(discord.utils.get(message.guild.roles, id=raiderId ))#,name=raiderText))
-
             roles_now = [role.name for role in user.roles]
 
             old_roles = {}
@@ -108,7 +99,7 @@ class getRoles(BaseCommand):
             if not roleList:
                 await message.channel.send(embed=embed_message(
                     'Error',
-                    f'You don\'t seem to have any roles.\nIf you believe this is an Error, refer to one of the <@&670397357120159776>\nOtherwise check <#686568386590802000> to see what you could acquire'
+                    f'You don\'t seem to have any roles.\nIf you believe this is an Error, refer to one of the <@&{dev_role_id}>\nOtherwise check <#686568386590802000> to see what you could acquire'
                 ))
                 return
 
