@@ -38,6 +38,10 @@ from nltk.sentiment.vader import SentimentIntensityAnalyzer
 nltk.download('vader_lexicon')
 analyzer = SentimentIntensityAnalyzer()
 
+#to enable the on_member_join and on_member_remove
+intents = discord.Intents.default()
+intents.members = True
+
 # Set to remember if the bot is already running, since on_ready may be called
 # more than once on reconnects
 this = sys.modules[__name__]
@@ -79,7 +83,7 @@ def main():
 
     # Initialize the client
     print("Starting up...")
-    client = Bot('!')
+    client = Bot('!', intents=intents)
 
     # Define event handlers for the client
     # on_ready may be called multiple times in the event of a reconnect,
