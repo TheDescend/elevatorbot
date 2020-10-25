@@ -1,6 +1,10 @@
 from functions.formating import embed_message
 from functions.database import getToken
+from static.config import NOW_PLAYING
 
+import discord
+import asyncio
+import itertools
 
 
 async def checkIfUserIsRegistered(user):
@@ -13,3 +17,18 @@ async def checkIfUserIsRegistered(user):
         )
         await user.send(embed=embed)
         return False
+
+
+async def update_status(client):
+    status_messages = [
+        "DM me to contact Staff",
+        "Bounties are the endgame",
+    ]
+
+    if NOW_PLAYING:
+        status_messages.append(NOW_PLAYING)
+
+    print("Launching the Status Changer Loop", flush=True)
+    for element in itertools.cycle(status_messages):
+        await client.change_presence(activity=discord.Game(name=element))
+        await asyncio.sleep(30)

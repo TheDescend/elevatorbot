@@ -7,6 +7,7 @@ import message_handler
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from events.base_event              import BaseEvent
 from events                         import *
+from functions.miscFunctions import update_status
 from functions.roles                import assignRolesToUser
 from functions.dataLoading import fillDictFromDB
 from static.dict import getNameFromHashRecords, getNameFromHashCollectible, getNameFromHashActivity, getNameFromHashInventoryItem
@@ -98,18 +99,16 @@ def main():
         t1 = Thread(target=launch_event_loops, args=(client,))
         t1.start()
 
-        # Set the playing status
-        if NOW_PLAYING:
-            print("Setting NP game", flush=True)
-            await client.change_presence(
-                activity=discord.Game(name=NOW_PLAYING))
-        print("Logged in!", flush=True)
-
         # getting manifest
         await fillDictFromDB(getNameFromHashRecords, 'DestinyRecordDefinition')
         await fillDictFromDB(getNameFromHashActivity, 'DestinyActivityDefinition')
         await fillDictFromDB(getNameFromHashCollectible, 'DestinyCollectibleDefinition')
         await fillDictFromDB(getNameFromHashInventoryItem, 'DestinyInventoryItemDefinition')
+
+        print("Logged in!", flush=True)
+
+        # Set the playing status
+        await update_status(client)
 
 
     # The message handler for both new message and edits
