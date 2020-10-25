@@ -10,7 +10,8 @@ from events                         import *
 from functions.roles                import assignRolesToUser
 from functions.dataLoading import fillDictFromDB
 from static.dict import getNameFromHashRecords, getNameFromHashCollectible, getNameFromHashActivity, getNameFromHashInventoryItem
-from static.globals import guest_role_id, registered_role_id, not_registered_role_id, admin_discussions_channel_id
+from static.globals import guest_role_id, registered_role_id, not_registered_role_id, admin_discussions_channel_id, \
+    divider_raider_role_id, divider_achievement_role_id, divider_misc_role_id
 from functions.bounties.bountiesFunctions import generateBounties, registrationMessageReactions, updateExperienceLevels
 from functions.bounties.bountiesBackend import getGlobalVar
 from functions.clanJoinRequests import clanJoinRequestMessageReactions, removeFromClanAfterLeftDiscord
@@ -185,6 +186,11 @@ def main():
         # add @guest and @Not Registered to user
         await assignRolesToUser([guest_role_id], member, member.guild)
         await assignRolesToUser([not_registered_role_id], member, member.guild)
+
+        # add filler roles
+        await assignRolesToUser([divider_raider_role_id], member, member.guild)
+        await assignRolesToUser([divider_achievement_role_id], member, member.guild)
+        await assignRolesToUser([divider_misc_role_id], member, member.guild)
 
         # inform the user that they should register with the bot
         await member.send(embed=embed_message(
