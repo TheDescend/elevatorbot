@@ -40,13 +40,13 @@ class whatToDo(BaseCommand):
         block = False
         ctx = await client.get_context(message)
         try:
-            user = await discord.ext.commands.MemberConverter().convert(ctx, params[0])
+            user = message.guild.get_member(params[0])
             block = True
         except:
             pass
         if len(params) == 2:
             try:
-                user = await discord.ext.commands.MemberConverter().convert(ctx, params[1])
+                user = message.guild.get_member(params[1])
             except:
                 await message.channel.send(
                     embed=embed_message(
@@ -162,11 +162,12 @@ class whatToDo(BaseCommand):
 
         # get list of roles available
         for category, x in requirementHashes.items():
-            for role, _ in x.items():
-                try:
-                    roles[category].append(role)
-                except KeyError:
-                    roles[category] = [role]
+            for role, req in x.items():
+                if "deprecated" not in req:
+                    try:
+                        roles[category].append(role)
+                    except KeyError:
+                        roles[category] = [role]
 
         # remove the roles from dict(roles) that are already earned
         user_roles = [role.name for role in user.roles]

@@ -136,6 +136,7 @@ discord_channels = {
 requirementHashes = {
     'Y1':{
         'Spire of Stars': {
+            "deprecated": True,
             'requirements': ['clears'],
             'clears': [
                 {'count' : 4,
@@ -144,6 +145,7 @@ requirementHashes = {
             'replaced_by': ['Spire of Stars Master', 'Y1 Raid Master']
         },
         'Spire of Stars Master': {
+            "deprecated": True,
             'requirements': ['clears','flawless'],
             'clears': [
                 {'count' : 10,
@@ -153,6 +155,7 @@ requirementHashes = {
             'replaced_by': ['Y1 Raid Master']
         },
         'Eater of Worlds': {
+            "deprecated": True,
             'requirements': ['clears'],
             'clears': [
                 {'count' : 4,
@@ -161,6 +164,7 @@ requirementHashes = {
             'replaced_by':['Eater of Worlds Master', 'Y1 Raid Master']
         },
         'Eater of Worlds Master': {
+            "deprecated": True,
             'requirements': ['clears','flawless'],
             'clears': [
                 {'count' : 10,
@@ -170,6 +174,7 @@ requirementHashes = {
             'replaced_by': ['Y1 Raid Master']
         },
         'Leviathan': {
+            "deprecated": True,
             'requirements': ['clears'],
             'clears': [
                 {'count' : 4,
@@ -178,6 +183,7 @@ requirementHashes = {
             'replaced_by': ['Leviathan Master', 'Y1 Raid Master']
         },
         'Leviathan Master': {
+            "deprecated": True,
             'requirements': ['clears','flawless','collectibles'],
             'clears':[
                 {'count' : 10,
@@ -193,6 +199,7 @@ requirementHashes = {
             'replaced_by': ['Y1 Raid Master']
         },
         'Y1 Raid Master': {
+            "deprecated": True,
             'requirements': ['roles'],
             'roles':[
                 'Spire of Stars Master',
@@ -203,6 +210,7 @@ requirementHashes = {
     },
     'Y2':{
         'Crown of Sorrow': {
+            "deprecated": True,
             'requirements': ['clears','records'],
             'clears':[
                 {'count' : 15,
@@ -216,6 +224,7 @@ requirementHashes = {
            'replaced_by': ['Y2 Raid Master', 'Crown of Sorrow Master']
        },
         'Crown of Sorrow Master': {
+            "deprecated": True,
             'requirements': ['clears','records'],
             'clears': [
                 {'count' : 30,
@@ -231,6 +240,7 @@ requirementHashes = {
             'replaced_by':['Y2 Raid Master']
         },
         'Scourge of the Past': {
+            "deprecated": True,
             'requirements': ['clears','records'],
             'clears': [
                 {'count' : 15,
@@ -244,6 +254,7 @@ requirementHashes = {
             'replaced_by':['Y2 Raid Master', 'Scourge of the Past Master']
         },
         'Scourge of the Past Master': {
+            "deprecated": True,
             'requirements': ['clears','records'],
             'clears': [
                 {'count' : 30,
@@ -258,9 +269,9 @@ requirementHashes = {
             ],
             'replaced_by':['Y2 Raid Master']
         },
-        'Last Wish':{
+        'Last Wish': {
             'requirements': ['clears','records'],
-            'clears' :[
+            'clears': [
                 {'count' : 15,
                 'actHashes' : lwHashes},   #Minimum 15 full clears
             ],
@@ -407,29 +418,34 @@ requirementHashes = {
     },
     "Lowmans":{
         'Three-Man Argos': {
+            "deprecated": True,
             'requirements': ['lowman'],
             'playercount' : 3,
             'activityHashes': eaterHashes + eaterPHashes,
             'replaced_by': ['Solo Argos', 'Two-Man Argos'],
          },
         'Two-Man Argos': {
+            "deprecated": True,
             'requirements': ['lowman'],
             'playercount' : 2,
             'activityHashes': eaterHashes + eaterPHashes,
             'replaced_by': ['Solo Argos'],
          },
         'Solo Argos': {
+            "deprecated": True,
             'requirements': ['lowman'],
             'playercount' : 1,
             'activityHashes': eaterHashes + eaterPHashes,
          },
         'Three-Man Insurrection': {
+            "deprecated": True,
             'requirements': ['lowman'],
             'playercount' : 3,
             'activityHashes': scourgeHashes,
             'replaced_by': ['Two-Man Insurrection'],
          },
         'Two-Man Insurrection': {
+            "deprecated": True,
             'requirements': ['lowman'],
             'playercount' : 2,
             'activityHashes': scourgeHashes,
@@ -452,17 +468,20 @@ requirementHashes = {
             'replaced_by': ['Solo Queenswalk', 'Two-Man Queenswalk']
          },
          'Two-Man Calus': {
+            "deprecated": True,
             'requirements': ['lowman'],
             'playercount' : 2,
             'activityHashes': leviHashes + leviPHashes,
          },
          'Three-Man Gahlran': {
+            "deprecated": True,
             'requirements': ['lowman'],
             'playercount' : 3,
             'activityHashes': cosHashes,
             'replaced_by': ['Two-Man Gahlran'],
          },
          'Two-Man Gahlran': {
+            "deprecated": True,
             'requirements': ['lowman'],
             'playercount' : 2,
             'activityHashes': cosHashes,
@@ -479,18 +498,21 @@ requirementHashes = {
             'replaced_by': ['Two-Man Sanctified Mind'],
          },
         'Three-Man Heroic Menagerie': {
+            "deprecated": True,
             'requirements': ['lowman'],
             'playercount' : 3,
             'activityHashes': premenHashes,
             'replaced_by': ['Two-Man Heroic Menagerie', 'Solo Heroic Menagerie']
         },
         'Two-Man Heroic Menagerie': {
+            "deprecated": True,
             'requirements': ['lowman'],
             'playercount' : 2,
             'activityHashes': premenHashes,
             'replaced_by': ['Solo Heroic Menagerie']
         },
         'Solo Heroic Menagerie': {
+            "deprecated": True,
             'requirements': ['lowman'],
             'playercount' : 1,
             'activityHashes': premenHashes
@@ -498,12 +520,14 @@ requirementHashes = {
     },
     'Addition':{
         'Niobe\'s Torment': {
+            "deprecated": True,
             'requirements': ['collectibles'],
             'collectibles': [
                 3531075476, #Armory Forged Shell
             ]
         },
         'The Other Side': {
+            "deprecated": True,
             'requirements': ['records'],
             'denyTime0':{ #start is earlier Time, format is important
                 'startTime':'11/08/2020 18:00',
@@ -514,6 +538,7 @@ requirementHashes = {
             ]
         },
         'Solo Zero Hour': {
+            "deprecated": True,
             'requirements': ['lowman'],
             'denyTime0':{ #start is earlier Time, format is important
                 'startTime':'10/03/2020 18:00',
@@ -528,6 +553,7 @@ requirementHashes = {
             'replaced_by': ['Solo Flawless Zero Hour']
         },
         'Solo Heroic Zero Hour': {
+            "deprecated": True,
             'requirements': ['lowman'],
             'denyTime0':{ #start is earlier Time, format is important
                 'startTime':'10/03/2020 18:00',
@@ -542,6 +568,7 @@ requirementHashes = {
             'replaced_by': ['Solo Flawless Heroic Zero Hour']
         },
         'Solo Flawless Zero Hour': {
+            "deprecated": True,
             'requirements': ['lowman'],
             'playercount' : 1,
             'denyTime0':{ #start is earlier Time, format is important
@@ -556,6 +583,7 @@ requirementHashes = {
             'activityHashes': zeroHashes
         },
         'Solo Flawless Heroic Zero Hour': {
+            "deprecated": True,
             'requirements': ['lowman'],
             'denyTime0':{ #start is earlier Time, format is important
                 'startTime':'10/03/2020 18:00',
