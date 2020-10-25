@@ -5,6 +5,9 @@ import math, re
 
 # This is a convenient command that automatically generates a helpful
 # message showing all available commands
+from static.globals import dev_role_id
+
+
 class Commands(BaseCommand):
 
     def __init__(self):
@@ -16,7 +19,7 @@ class Commands(BaseCommand):
         if message.author.id == 367385031569702912:
             await message.channel.send('<@!367385031569702912> :Pepega:670369123716431872')
         from message_handler import COMMAND_HANDLERS
-        msg = "Contact <@&670397357120159776> if any problems arise\n⁣\n"
+        msg = f"Contact <@&{dev_role_id}> if any problems arise\n⁣\n"
 
         #admin = await hasAdminOrDevPermissions(message, send_message=False)
         admin = (message.channel.id == 670637036641845258)

@@ -180,8 +180,9 @@ def main():
 
     @client.event
     async def on_member_join(member):
-        guestObj = discord.utils.get(member.guild.roles, id=guest_role_id)
-        await member.add_roles(guestObj)
+        # add @guest and @Not Registered to user
+        await assignRolesToUser([guest_role_id], member, member.guild)
+        await assignRolesToUser([not_registered_role_id], member, member.guild)
 
         # inform the user that they should register with the bot
         await member.send(embed=embed_message(
@@ -189,9 +190,6 @@ def main():
             f'Please link your Destiny account by using `!register` in #bot-spam. \n**Do note that registering with the bots is required to be accepted in the clan!** \n⁣\nWe have a wide variety of roles you can earn, for more information, check out #community-roles. ',
             f'If you have any questions, please contact one of the Admins / Moderators'
         ))
-
-        # add @Not Registered to user
-        await assignRolesToUser(["Not Registered"], member, member.guild)
 
     @client.event
     async def on_member_remove(member):

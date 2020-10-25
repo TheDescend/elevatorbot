@@ -2,7 +2,7 @@ from commands.base_command  import BaseCommand
 from functions.roles        import assignRolesToUser, removeRolesFromUser
 from functions.database     import getToken
 from functions.roles import hasAdminOrDevPermissions
-
+from static.globals import registered_role_id, not_registered_role_id
 
 
 class addRolesToRegistered(BaseCommand):
@@ -20,14 +20,14 @@ class addRolesToRegistered(BaseCommand):
             return
         await message.channel.send("Working...")
         for member in message.guild.members:
-            await removeRolesFromUser(["Registered"], member, message.guild)
-            await removeRolesFromUser(["Not Registered"], member, message.guild)
+            await removeRolesFromUser([registered_role_id], member, message.guild)
+            await removeRolesFromUser([not_registered_role_id], member, message.guild)
 
             if getToken(member.id):
-                await assignRolesToUser(["Registered"], member, message.guild)
+                await assignRolesToUser([registered_role_id], member, message.guild)
                 await message.channel.send(f"add @Registered to {member.name}")
             else:
-                await assignRolesToUser(["Not Registered"], member, message.guild)
+                await assignRolesToUser([not_registered_role_id], member, message.guild)
                 await message.channel.send(f"add @Not Registered to {member.name}")
 
         await message.channel.send("Done")

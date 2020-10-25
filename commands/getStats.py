@@ -8,6 +8,9 @@ from functions.database             import lookupDestinyID, getToken
 import discord
 import os
 
+from static.globals import dev_role_id
+
+
 class stat(BaseCommand):
     def __init__(self):
         # A quick description for the help message
@@ -23,7 +26,7 @@ class stat(BaseCommand):
 
         destinyID = lookupDestinyID(message.author.id)
         if not destinyID:
-            await message.channel.send(f'Unable to get your destiny-stats. Please contact a {message.guild.get_role(670397357120159776)}')
+            await message.channel.send(f'Unable to get your destiny-stats. Please contact a {message.guild.get_role(dev_role_id)}')
             return
         if name == 'resurrections': #
             given = await getIntStat(destinyID, 'resurrectionsPerformed')

@@ -1,6 +1,8 @@
 # bot dev channel id and clan id are in static.config.py
 
 """ Role IDs """
+admin_role_id = 670383817147809814
+dev_role_id = 670397357120159776
 member_role_id = 769612980978843668
 guest_role_id = 670385220037509132
 registered_role_id = 670396064007979009

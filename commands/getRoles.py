@@ -13,6 +13,8 @@ import json
 
 from discord.ext import commands
 
+from static.globals import dev_role_id
+
 
 class getRoles(BaseCommand):
     def __init__(self):
@@ -97,7 +99,7 @@ class getRoles(BaseCommand):
             if not roleList:
                 await message.channel.send(embed=embed_message(
                     'Error',
-                    f'You don\'t seem to have any roles.\nIf you believe this is an Error, refer to one of the <@&670397357120159776>\nOtherwise check <#686568386590802000> to see what you could acquire'
+                    f'You don\'t seem to have any roles.\nIf you believe this is an Error, refer to one of the <@&{dev_role_id}>\nOtherwise check <#686568386590802000> to see what you could acquire'
                 ))
                 return
 
