@@ -131,3 +131,10 @@ class AutoRegisteredRole(BaseEvent):
                     elif (clan_role in member.roles) or (member_role in member.roles):
                         await removeRolesFromUser([guest_role_id], member, guild)
 
+                    # add filler roles to everyone
+                    if discord.utils.get(guild.roles, id=divider_raider_role_id) not in member.roles:
+                        await assignRolesToUser([divider_raider_role_id], member, guild)
+                    if discord.utils.get(guild.roles, id=divider_achievement_role_id) not in member.roles:
+                        await assignRolesToUser([divider_achievement_role_id], member, guild)
+                    if discord.utils.get(guild.roles, id=divider_misc_role_id) not in member.roles:
+                        await assignRolesToUser([divider_misc_role_id], member, guild)
