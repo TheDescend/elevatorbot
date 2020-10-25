@@ -112,10 +112,11 @@ def main():
     async def common_handle_message(message):
         text = message.content
 
-        # if the message was from an dm, post it in #admin-discussions
+        # if the message was from an dm, post it in #admin-discussions: Don't do that if bot send an command
         if isinstance(message.channel, discord.channel.DMChannel):
-            admin_discussions_channel = client.get_channel(admin_discussions_channel_id)
-            await admin_discussions_channel.send(f"From {message.author.mention}: \n{text}")
+            if not text.startswith(COMMAND_PREFIX):
+                admin_discussions_channel = client.get_channel(admin_discussions_channel_id)
+                await admin_discussions_channel.send(f"From {message.author.mention}: \n{text}")
 
         if 'äbidöpfel' in text:
             texts = [   '<:NeriaHeart:671389916277506063> <:NeriaHeart:671389916277506063> <:NeriaHeart:671389916277506063>', 
