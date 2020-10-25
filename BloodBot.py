@@ -114,14 +114,15 @@ def main():
 
         # if the message was from an dm, post it in #admin-discussions: Don't do that if bot send an command
         if isinstance(message.channel, discord.channel.DMChannel):
-            if not text.startswith(COMMAND_PREFIX):
-                admin_discussions_channel = client.get_channel(admin_discussions_channel_id)
-                await admin_discussions_channel.send(f"From {message.author.mention}: \n{text}")
+            if not message.author.bot:
+                if not text.startswith(COMMAND_PREFIX):
+                    admin_discussions_channel = client.get_channel(admin_discussions_channel_id)
+                    await admin_discussions_channel.send(f"From {message.author.mention}: \n{text}")
 
         if 'äbidöpfel' in text:
             texts = [   '<:NeriaHeart:671389916277506063> <:NeriaHeart:671389916277506063> <:NeriaHeart:671389916277506063>', 
                         'knows what`s up', 'knows you can do the thing', 'has been voted plushie of the month', 'knows da wey',
-                        'yes!', 'does`nt yeet teammtes of the map, be like Häbidöpfel', 'debuggin has proven effective 99.9% of the time',
+                        'yes!', 'does`nt yeet teammtes of the map, be like Häbidöpfel', 'debuggin has proven effective 99.9% of the time (editors note: now 98.9%)',
                         'is cuteness incarnate']
             addition = random.choice(texts)
             await message.channel.send(f'Häbidöpfel {addition}')
@@ -174,7 +175,8 @@ def main():
     tasks = []
     @client.event
     async def on_message(message):
-        if message.author == client.user:
+        # ignore msg from itself
+        if (message.author == client.user):
             return
         asyncio.ensure_future(common_handle_message(message))
 

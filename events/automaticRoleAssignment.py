@@ -119,7 +119,7 @@ class AutoRegisteredRole(BaseEvent):
 
                     # Remove clan role it if no longer in clan or not member or no token
                     if clan_role in member.roles:
-                        if (member.id not in memberlist) or (not getToken(member.id)) or (member_role not in member.roles):
+                        if (member.id not in memberlist): # or (not getToken(member.id)) or (member_role not in member.roles):
                             await removeRolesFromUser([clan_role_id], member, guild)
                             if newtonsLab:
                                 await newtonsLab.send(f"Removed Descend role from {member.mention}")
