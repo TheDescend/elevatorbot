@@ -138,6 +138,7 @@ async def postJSONtoBungie(postURL, data, discordID):
 
                     # print(f'Tokenfunction returned {res}')
                     return {'result': res, 'error': None}
+            asyncio.sleep(2)
 
         print('Request failed 5 times, aborting')
         try:
