@@ -347,7 +347,7 @@ async def formatLeaderboardMessage(client, leaderboard, user_id=None, limit=10):
 
         else:
             # if user id is given, do some fancy formating
-            user_name = await client.fetch_user(id).name
+            user_name = (await client.fetch_user(id)).name
             if id == user_id:
                 found = True
                 ranking.append(str(i) + ") **[ " + user_name + " ]** _(Points: " + str(points) + ")_")
