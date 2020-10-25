@@ -13,3 +13,4 @@ divider_raider_role_id = 670385313994113025
 
 
 """ Channel IDs """
+admin_discussions_channel_id = 671264040974024705

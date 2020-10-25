@@ -10,7 +10,7 @@ from events                         import *
 from functions.roles                import assignRolesToUser
 from functions.dataLoading import fillDictFromDB
 from static.dict import getNameFromHashRecords, getNameFromHashCollectible, getNameFromHashActivity, getNameFromHashInventoryItem
-from static.globals import guest_role_id, registered_role_id, not_registered_role_id
+from static.globals import guest_role_id, registered_role_id, not_registered_role_id, admin_discussions_channel_id
 from functions.bounties.bountiesFunctions import generateBounties, registrationMessageReactions, updateExperienceLevels
 from functions.bounties.bountiesBackend import getGlobalVar
 from functions.clanJoinRequests import clanJoinRequestMessageReactions, removeFromClanAfterLeftDiscord
@@ -110,9 +110,13 @@ def main():
     # The message handler for both new message and edits
     @client.event
     async def common_handle_message(message):
-
-
         text = message.content
+
+        # if the message was from an dm, post it in #admin-discussions
+        if isinstance(message.channel, discord.channel.DMChannel):
+            admin_discussions_channel = client.get_channel(admin_discussions_channel_id)
+            await admin_discussions_channel.send(f"From {message.author.mention}: \n{text}")
+
         if 'äbidöpfel' in text:
             texts = [   '<:NeriaHeart:671389916277506063> <:NeriaHeart:671389916277506063> <:NeriaHeart:671389916277506063>', 
                         'knows what`s up', 'knows you can do the thing', 'has been voted plushie of the month', 'knows da wey',
