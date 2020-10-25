@@ -103,12 +103,12 @@ class AutoRegisteredRole(BaseEvent):
                     if getToken(member.id):
                         if discord.utils.get(guild.roles, id=not_registered_role_id) in member.roles:
                             await removeRolesFromUser([not_registered_role_id], member, guild)
-                            await assignRolesToUser([registered_role_id], member, guild)
+                        await assignRolesToUser([registered_role_id], member, guild)
                     # add "Not Registered" if they have no token but the role (after unregister)
                     else:
                         if discord.utils.get(guild.roles, id=registered_role_id) in member.roles:
                             await removeRolesFromUser([registered_role_id], member, guild)
-                            await assignRolesToUser([not_registered_role_id], member, guild)
+                        await assignRolesToUser([not_registered_role_id], member, guild)
 
                     # add clan role if user is in clan, has token, is member and doesn't have clan role
                     if clan_role not in member.roles:
