@@ -2,6 +2,7 @@ from commands.base_command  import BaseCommand
 from functions.bounties.bountiesBackend import saveAsGlobalVar, deleteFromGlobalVar
 from functions.persistentMessages import persistentChannelMessages
 from functions.roles                import assignRolesToUser, removeRolesFromUser
+from static.globals import guest_role_id, member_role_id
 
 import discord
 
@@ -119,13 +120,12 @@ class makeChannelReadRules(BaseCommand):
 async def readRulesMessageReactions(client, user, emoji, register_channel, channel_message_id):
     message = await register_channel.fetch_message(channel_message_id)
     emote = client.get_emoji(768908985557844028)
-    role_id = 769612980978843668
 
     if emoji == emote:
         await message.remove_reaction(emote, user)
 
         # adds the read rules role to the user
-        await assignRolesToUser([role_id], user, message.guild)
+        await assignRolesToUser([member_role_id], user, message.guild)
 
         # removes the guest role
-        await removeRolesFromUser(["Guest"], user, message.guild)
+        await removeRolesFromUser([guest_role_id], user, message.guild)

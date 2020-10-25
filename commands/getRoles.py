@@ -13,11 +13,6 @@ import json
 
 from discord.ext import commands
 
-raiderText = '⁣           Raider       ⁣'
-raiderId = 670385313994113025
-achText = '⁣        Achievements       ⁣'
-achId = 670385837044662285
-
 
 class getRoles(BaseCommand):
     def __init__(self):
@@ -76,12 +71,6 @@ class getRoles(BaseCommand):
 
             await assignRolesToUser(roleList, user, message.guild)
             await removeRolesFromUser(removeRoles, user, message.guild)
-
-            for role in roleList:
-                if role in requirementHashes['Addition']:
-                    await user.add_roles(discord.utils.get(message.guild.roles, id=achId ))#,name=achText))
-                else:
-                    await user.add_roles(discord.utils.get(message.guild.roles, id=raiderId ))#,name=raiderText))
 
             roles_now = [role.name for role in user.roles]
 

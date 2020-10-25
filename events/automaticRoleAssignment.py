@@ -4,7 +4,9 @@ from functions.roles                import assignRolesToUser, removeRolesFromUse
 from functions.database             import lookupDiscordID, lookupDestinyID, getToken
 from functions.dataLoading          import initDB
 from functions.network import getJSONfromURL
-from static.config import CLANID, BOTDEVCHANNELID, DISCORDCLANROLEID
+from static.config import CLANID, BOTDEVCHANNELID
+from static.globals import member_role_id, guest_role_id, registered_role_id, not_registered_role_id, \
+    divider_misc_role_id, divider_achievement_role_id, divider_raider_role_id, clan_role_id
 
 import discord
 
@@ -80,18 +82,6 @@ class AutoRegisteredRole(BaseEvent):
         super().__init__(interval_minutes)
 
     async def run(self, client):
-        raiderText = '⁣           Raider       ⁣'
-        raiderId = 670385313994113025
-        achText = '⁣        Achievements       ⁣'
-        achId = 670385837044662285
-        miscText = '⁣           Misc       ⁣  ⁣  ⁣'
-        miscId = 670395920327639085
-
-        member_role_id = 769612980978843668
-        guest_role_id = 670385220037509132
-
-
-
         # get all clan members discordID
         memberlist = []
         for member in (await getJSONfromURL(f"https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/"))["Response"]["results"]:
@@ -102,44 +92,49 @@ class AutoRegisteredRole(BaseEvent):
 
         for guild in client.guilds:
             newtonsLab = discord.utils.get(guild.channels, id=BOTDEVCHANNELID)
+
+            clan_role = discord.utils.get(guild.roles, id=clan_role_id)
+            member_role = discord.utils.get(guild.roles, id=member_role_id)
+
             for member in guild.members:
                 # dont do that for bots
                 if not member.bot:
                     # add "Registered" if they have a token but not the role
                     if getToken(member.id):
-                        if discord.utils.get(guild.roles, name="Not Registered") in member.roles:
-                            await removeRolesFromUser(["Not Registered"], member, guild)
-                            await assignRolesToUser(["Registered"], member, guild)
+                        if discord.utils.get(guild.roles, id=not_registered_role_id) in member.roles:
+                            await removeRolesFromUser([not_registered_role_id], member, guild)
+                            await assignRolesToUser([registered_role_id], member, guild)
                     # add "Not Registered" if they have no token but the role (after unregister)
                     else:
-                        if discord.utils.get(guild.roles, name="Registered") in member.roles:
-                            await removeRolesFromUser(["Registered"], member, guild)
-                            await assignRolesToUser(["Not Registered"], member, guild)
+                        if discord.utils.get(guild.roles, id=registered_role_id) in member.roles:
+                            await removeRolesFromUser([registered_role_id], member, guild)
+                            await assignRolesToUser([not_registered_role_id], member, guild)
 
-                    # add clan role if user is in clan, is member and doesn't have clan role
-                    if discord.utils.get(guild.roles, id=DISCORDCLANROLEID) not in member.roles:
-                        if (member.id in memberlist) and (getToken(member.id)) and (discord.utils.get(guild.roles, id=member_role_id) in member.roles):
-                            await assignRolesToUser([DISCORDCLANROLEID], member, guild)
+                    # add clan role if user is in clan, has token, is member and doesn't have clan role
+                    if clan_role not in member.roles:
+                        if (member.id in memberlist) and (getToken(member.id)) and (member_role in member.roles):
+                            await assignRolesToUser([clan_role_id], member, guild)
                             if newtonsLab:
                                 await newtonsLab.send(f"Added Descend role to {member.mention}")
-                    # Also remove it if no longer in clan or not member
-                    elif discord.utils.get(guild.roles, id=DISCORDCLANROLEID) in member.roles:
-                        if (member.id not in memberlist): # or (getToken(member.id)) or (discord.utils.get(guild.roles, id=member_role_id) not in member.roles): #todo
-                            await removeRolesFromUser([DISCORDCLANROLEID], member, guild)
+
+                    # Remove clan role it if no longer in clan or not member or no token
+                    if clan_role in member.roles:
+                        if (member.id not in memberlist) or (not getToken(member.id)) or (member_role not in member.roles):
+                            await removeRolesFromUser([clan_role_id], member, guild)
                             if newtonsLab:
                                 await newtonsLab.send(f"Removed Descend role from {member.mention}")
 
                     # add @guest if the clan role doesn't exist and no member
-                    if (discord.utils.get(guild.roles, id=DISCORDCLANROLEID) not in member.roles) and (discord.utils.get(guild.roles, id=member_role_id) not in member.roles):
+                    if (clan_role not in member.roles) and (member_role not in member.roles):
                         await assignRolesToUser([guest_role_id], member, guild)
-                    # remove @guest if in clan
-                    elif (discord.utils.get(guild.roles, id=DISCORDCLANROLEID) in member.roles) and (discord.utils.get(guild.roles, id=member_role_id) in member.roles):
+                    # remove @guest if in clan or has member role
+                    elif (clan_role in member.roles) or (member_role in member.roles):
                         await removeRolesFromUser([guest_role_id], member, guild)
 
                     # add filler roles to everyone
-                    if discord.utils.get(guild.roles, id=raiderId) not in member.roles:
-                        await assignRolesToUser([raiderId], member, guild)
-                    if discord.utils.get(guild.roles, id=achId) not in member.roles:
-                        await assignRolesToUser([achId], member, guild)
-                    if discord.utils.get(guild.roles, id=miscId) not in member.roles:
-                        await assignRolesToUser([miscId], member, guild)
+                    if discord.utils.get(guild.roles, id=divider_raider_role_id) not in member.roles:
+                        await assignRolesToUser([divider_raider_role_id], member, guild)
+                    if discord.utils.get(guild.roles, id=divider_achievement_role_id) not in member.roles:
+                        await assignRolesToUser([divider_achievement_role_id], member, guild)
+                    if discord.utils.get(guild.roles, id=divider_misc_role_id) not in member.roles:
+                        await assignRolesToUser([divider_misc_role_id], member, guild)

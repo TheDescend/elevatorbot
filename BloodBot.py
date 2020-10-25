@@ -10,6 +10,7 @@ from events                         import *
 from functions.roles                import assignRolesToUser
 from functions.dataLoading import fillDictFromDB
 from static.dict import getNameFromHashRecords, getNameFromHashCollectible, getNameFromHashActivity, getNameFromHashInventoryItem
+from static.globals import guest_role_id, registered_role_id, not_registered_role_id
 from functions.bounties.bountiesFunctions import generateBounties, registrationMessageReactions, updateExperienceLevels
 from functions.bounties.bountiesBackend import getGlobalVar
 from functions.clanJoinRequests import clanJoinRequestMessageReactions, removeFromClanAfterLeftDiscord
@@ -30,6 +31,8 @@ from functions.formating import embed_message
 
 import nltk
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
+
+
 
 nltk.download('vader_lexicon')
 analyzer = SentimentIntensityAnalyzer()
@@ -107,6 +110,8 @@ def main():
     # The message handler for both new message and edits
     @client.event
     async def common_handle_message(message):
+
+
         text = message.content
         if 'äbidöpfel' in text:
             texts = [   '<:NeriaHeart:671389916277506063> <:NeriaHeart:671389916277506063> <:NeriaHeart:671389916277506063>', 
@@ -156,8 +161,8 @@ def main():
         if message.author.name == 'EscalatorBot':
             for user in message.mentions:
                 member = await message.guild.fetch_member(user.id)
-                await member.add_roles(message.guild.get_role(670396064007979009)) #registered role
-                await member.remove_roles(message.guild.get_role(670396109088358437)) #unregistered role
+                await member.add_roles(message.guild.get_role(registered_role_id)) #registered role
+                await member.remove_roles(message.guild.get_role(not_registered_role_id)) #unregistered role
                 await message.channel.send(f'{member.mention} has been marked as Registered')
                 await member.send('Registration successful!\nCome say hi in <#670400011519000616>')
 
@@ -170,7 +175,7 @@ def main():
 
     @client.event
     async def on_member_join(member):
-        guestObj = discord.utils.get(member.guild.roles, id=670385220037509132)
+        guestObj = discord.utils.get(member.guild.roles, id=guest_role_id)
         await member.add_roles(guestObj)
 
         # inform the user that they should register with the bot

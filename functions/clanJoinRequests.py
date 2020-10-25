@@ -8,6 +8,8 @@ from static.config import CLANID, BOTDEVCHANNELID
 import asyncio
 import discord
 
+from static.globals import member_role_id
+
 
 async def clanJoinRequestMessageReactions(client, user, emoji, channel, channel_message_id):
     newtonslab = client.get_channel(BOTDEVCHANNELID)
@@ -33,7 +35,6 @@ async def clanJoinRequestMessageReactions(client, user, emoji, channel, channel_
             return
 
         # abort if member hasnt accepted the rules
-        member_role_id = 769612980978843668
         if discord.utils.get(newtonslab.guild.roles, id=member_role_id) not in user.roles:
             await user.send("Please accept the rules first")
             return
