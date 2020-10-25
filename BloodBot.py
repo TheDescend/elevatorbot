@@ -199,8 +199,7 @@ def main():
         # inform the user that they should register with the bot
         await member.send(embed=embed_message(
             f'Welcome to Descend {member.name}!',
-            f'You can join the destiny clan in #registration. \n**Do note that registering with the bots is required to be accepted in the clan!** \n⁣\nWe have a wide variety of roles you can earn, for more information, check out #community-roles. ',
-            f'If you have any questions, please contact one of the Admins / Moderators'
+            f'You can join the destiny clan in **#registration**. \nYou can find our current requirements in the same channel. \n⁣\nWe have a wide variety of roles you can earn, for more information, check out #community-roles. \n⁣\nIf you have any problems / questions, do not hesitate to write **@ElevatorBot** (me) a personal message with your problem / question'
         ))
 
     @client.event
