@@ -59,11 +59,12 @@ async def getJSONwithToken(requestURL, discordID):
                 else:
                     if await errorCodeHandling(requestURL, r, discordID):
                         return {'result': None, 'error': f"Status Code <{r.status}>"}
+                    headers['Authorization'] = f'Bearer {getFreshToken(discordID)}'
 
                 if res:
                     if int(res['ErrorCode']) == 401:
                         print('json 401 found')
-                        headers['Authorization'] = f'Bearer {getFreshToken()}'
+                        headers['Authorization'] = f'Bearer {getFreshToken(discordID)}'
 
                     if int(res['ErrorCode']) != 1:
                         print(requestURL)
