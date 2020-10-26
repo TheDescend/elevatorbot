@@ -121,8 +121,10 @@ async def postJSONtoBungie(postURL, data, discordID):
 
                 # handling any errors if not ok
                 else:
-                    if await errorCodeHandling(postURL, r, discordID):
+                    if (await errorCodeHandling(postURL, r, discordID)):
                         return {'result': None, 'error': f"Status Code <{r.status}>"}
+                    else:
+                        headers['Authorization'] = f'Bearer {token}'
 
                 if res:
                     if int(res['ErrorCode']) == 401:
@@ -138,6 +140,7 @@ async def postJSONtoBungie(postURL, data, discordID):
 
                     # print(f'Tokenfunction returned {res}')
                     return {'result': res, 'error': None}
+            asyncio.sleep(2)
 
         print('Request failed 5 times, aborting')
         try:
