@@ -1,6 +1,6 @@
 from commands.base_command  import BaseCommand
 from functions.dataLoading import getStats, getProfile, getCharactertypeList, getCharacterList, \
-    getAggregateStatsForChar, getGearPiece, getVault, getWeaponKills
+    getAggregateStatsForChar, getGearPiece, getVault, getWeaponKills, returnManifestInfo, searchArmory
 from functions.database import lookupDiscordID, getToken
 from functions.formating import embed_message
 from functions.network import getJSONfromURL
@@ -37,12 +37,10 @@ class rank(BaseCommand):
             "kills",
             "raids",
             "raidtime",
-            "mqkills",
-            "reclusekills",
-            "mtkills"
+            "weapon"
         ]
 
-        if len(params) == 1:
+        if len(params) > 0:
             if params[0].lower() == "help":
                 await message.channel.send(embed=embed_message(
                     "Info",
@@ -50,20 +48,41 @@ class rank(BaseCommand):
                 ))
 
             elif params[0].lower() in supported:
+                name = None
+                hashID = None
+                if params[0].lower() == "weapon":
+                    if len(params) == 1:
+                        await message.channel.send(embed=embed_message(
+                            "Info",
+                            "Please specify a weapon"
+                        ))
+                        return
+
+                    else:
+                        hashID = await searchArmory("DestinyInventoryItemDefinition", " ".join(params[1:]))
+                        if hashID:
+                            name = (await returnManifestInfo("DestinyInventoryItemDefinition", hashID))["Response"]["displayProperties"]["name"]
+                        else:
+                            await message.channel.send(embed=embed_message(
+                                "Info",
+                                "I do not know that weapon"
+                            ))
+                            return
+
                 async with message.channel.typing():
-                    embed = await handle_users(client, params[0], message.author.display_name, message.guild)
+                    embed = await handle_users(client, params[0].lower(), message.author.display_name, message.guild, hashID, name)
 
                 if embed:
                     await message.channel.send(embed=embed)
 
 
-async def handle_users(client, stat, display_name, guild):
+async def handle_users(client, stat, display_name, guild, extra_hash, extra_name):
     # init DF. "stat_sort" is only here, since I want to save numbers fancy (1,000,000) and that is a string and not an int so sorting wont work
     data = pandas.DataFrame(columns=["member", "stat", "stat_sort"])
 
     # loop through the clan members
     clan_members = (await getJSONfromURL(f"https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/"))["Response"]["results"]
-    results = await asyncio.gather(*[handle_user(stat, member, guild) for member in clan_members])
+    results = await asyncio.gather(*[handle_user(stat, member, guild, extra_hash, extra_name) for member in clan_members])
 
     for ret in results:
         # add user to DF
@@ -110,7 +129,7 @@ async def handle_users(client, stat, display_name, guild):
         "\n".join(ranking)
     )
 
-async def handle_user(stat, member, guild):
+async def handle_user(stat, member, guild, extra_hash, extra_name):
     destinyID = int(member["destinyUserInfo"]["membershipId"])
     discordID = lookupDiscordID(destinyID)
     sort_by_ascending = False
@@ -224,25 +243,17 @@ async def handle_user(stat, member, guild):
         result_sort = int((await add_activity_stats(destinyID, raidHashes, "activitySecondsPlayed")) / 60 / 60)
         result = f"{result_sort:,}"
 
-    elif stat == "mqkills":
+    elif stat == "weapon":
         if not getToken(discordID):
             return None
 
-        leaderboard_text = "Top Clanmembers by D2 Midnight Coup Kills"
+        leaderboard_text = f"Top Clanmembers by {extra_name} Kills"
         stat_text = "Kills"
 
-        result_sort = await getWeaponKills(destinyID, 1128225405)
+        result_sort = await getWeaponKills(destinyID, extra_hash)
         result = f"{result_sort:,}"
 
-    elif stat == "mtkills":
-        if not getToken(discordID):
-            return None
 
-        leaderboard_text = "Top Clanmembers by D2 Mountaintop Kills"
-        stat_text = "Kills"
-
-        result_sort = await getWeaponKills(destinyID, 3993415705)
-        result = f"{result_sort:,}"
 
     elif stat == "reclusekills":
         if not getToken(discordID):

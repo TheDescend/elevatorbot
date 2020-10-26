@@ -258,6 +258,7 @@ async def getPGCR(instanceID):
     pgcrurl = f'https://www.bungie.net/Platform/Destiny2/Stats/PostGameCarnageReport/{instanceID}/'
     return await getJSONfromURL(pgcrurl)
 
+
 # type = "DestinyInventoryItemDefinition" (fe.), hash = 3993415705 (fe)   - returns MT
 async def returnManifestInfo(type, hash):
     info = await getJSONfromURL(f'http://www.bungie.net/Platform/Destiny2/Manifest/{type}/{hash}/')
@@ -266,6 +267,16 @@ async def returnManifestInfo(type, hash):
         return info
     else:
         return None
+
+# returns the hash of the item if found
+async def searchArmory(type, searchTerm):
+    info = await getJSONfromURL(f'http://www.bungie.net/Platform/Destiny2/Armory/Search/{type}/{searchTerm}/')
+
+    try:
+        return info["Response"]["results"]["results"][0]["hash"]
+    except:
+        return None
+
 
 async def getManifest():
     manifest_url = 'http://www.bungie.net/Platform/Destiny2/Manifest/'
