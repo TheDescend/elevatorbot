@@ -1,6 +1,7 @@
 from commands.base_command  import BaseCommand
 from functions.dataLoading import getStats, getProfile, getCharactertypeList, getCharacterList, \
-    getAggregateStatsForChar, getGearPiece, getVault, getWeaponKills, returnManifestInfo, searchArmory
+    getAggregateStatsForChar, getGearPiece, getVault, getWeaponKills, returnManifestInfo, searchArmory, getAllGear, \
+    getItemDefinition
 from functions.database import lookupDiscordID, getToken
 from functions.formating import embed_message
 from functions.network import getJSONfromURL
@@ -37,7 +38,8 @@ class rank(BaseCommand):
             "kills",
             "raids",
             "raidtime",
-            "weapon"
+            "weapon",
+            "armor"
         ]
 
         if len(params) > 0:
@@ -68,6 +70,26 @@ class rank(BaseCommand):
                                 "I do not know that weapon"
                             ))
                             return
+                elif params[0].lower() == "armor":
+                    stats = {
+                        "mobility": 2996146975,
+                        "resilience": 392767087,
+                        "recovery": 1943323491,
+                        "discipline": 1735777505,
+                        "intellect": 144602215,
+                        "strength": 4244567218
+                    }
+
+                    if len(params) == 1 or params[1] not in stats:
+                        await message.channel.send(embed=embed_message(
+                            "Info",
+                            f"""Please specify a stat, available are: \n`{"`, `".join(list(stats.keys()))}`"""
+                        ))
+                        return
+
+                    else:
+                        name = params[1]
+                        hashID = stats[name]
 
                 async with message.channel.typing():
                     embed = await handle_users(client, params[0].lower(), message.author.display_name, message.guild, hashID, name)
@@ -253,16 +275,28 @@ async def handle_user(stat, member, guild, extra_hash, extra_name):
         result_sort = await getWeaponKills(destinyID, extra_hash)
         result = f"{result_sort:,}"
 
-
-
-    elif stat == "reclusekills":
+    elif stat == "armor":
         if not getToken(discordID):
             return None
 
-        leaderboard_text = "Top Clanmembers by D2 Recluse Kills"
-        stat_text = "Kills"
+        leaderboard_text = f"Top Clanmembers by single Armor Piece with highest {extra_name.capitalize()}"
+        stat_text = "Value"
 
-        result_sort = await getWeaponKills(destinyID, 3354242550)
+        items = await getAllGear(destinyID)
+        system = (await getCharacterList(destinyID))[0]
+
+        # clean items so that only entries with instanceID remain
+        items_clean = []
+        for item in items:
+            if "itemInstanceId" in item:
+                items_clean.append(item)
+
+        results = await asyncio.gather(*[get_armor_stat(destinyID, system, item["itemInstanceId"], extra_hash) for item in items_clean])
+
+        result_sort = 0
+        for ret in results:
+            if ret and (ret > result_sort):
+                result_sort = ret
         result = f"{result_sort:,}"
 
     else:
@@ -297,6 +331,7 @@ def add_stats(json, stat, scope="all"):
             pass
     return result_sort
 
+
 # activities = [[id1,id2], [id1], [id1, id2, id3]]
 async def add_activity_stats(destinyID, hashes, stat):
     result_sort = 0
@@ -321,5 +356,8 @@ async def add_activity_stats(destinyID, hashes, stat):
     return result_sort
 
 
-
-
+async def get_armor_stat(destinyID, system, itemInstanceId, extra_hash):
+    try:
+        return (await getItemDefinition(destinyID, system, itemInstanceId, 304))["stats"]["data"]["stats"][str(extra_hash)]["value"]
+    except KeyError:
+        return None
