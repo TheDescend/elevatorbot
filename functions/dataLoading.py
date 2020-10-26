@@ -135,6 +135,7 @@ async def getAggregateStatsForChar(destinyID, system, characterID):
     return None
 
 
+# returns the item data - https://bungie-net.github.io/#/components/schemas/Destiny.Entities.Items.DestinyItemComponent
 async def getItemDefinition(destinyID, system, itemID, components):
     url = 'https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/Item/{}/?components={}'
     statsResponse = await getJSONfromURL(url.format(system, destinyID, itemID, components))
@@ -142,6 +143,8 @@ async def getItemDefinition(destinyID, system, itemID, components):
         return statsResponse['Response']
     return None
 
+
+# returns all items in vault
 async def getVault(destinyID):
     items = (await getProfile(destinyID, 102, with_token=True))["profileInventory"]["data"]["items"]
     ret = []
@@ -151,6 +154,8 @@ async def getVault(destinyID):
 
     return ret
 
+
+# returns all items in vault + inventory. Also gets ships and stuff - not only armor / weapons
 async def getAllGear(destinyID):
     chars = await getCharacterList(destinyID)
 
@@ -171,6 +176,7 @@ async def getAllGear(destinyID):
     return items
 
 
+# returns list of all copies of that piece
 async def getGearPiece(destinyID, itemID):
     items = await getAllGear(destinyID)
 
@@ -182,13 +188,25 @@ async def getGearPiece(destinyID, itemID):
     return instances
 
 
-async def getKillTracker(destinyID, system, itemID):
-    try:
-        ret = (await getItemDefinition(destinyID, system, itemID, 309))["plugObjectives"]["data"]["objectivesPerPlug"]
-        ret = ret[next(iter(ret))][0]
-        return ret["progress"]
-    except KeyError:
-        return 0
+# returns the amount of kills done with all copies of that weapon in vault / inventory
+async def getWeaponKills(destinyID, itemID):
+    async def getItemData(destinyID, system, uniqueItemID):
+        try:
+            ret = (await getItemDefinition(destinyID, system, uniqueItemID, 309))["plugObjectives"]["data"][
+                "objectivesPerPlug"]
+            ret = ret[next(iter(ret))][0]
+            return ret["progress"]
+        except KeyError:
+            return 0
+
+    instances = await getGearPiece(destinyID, itemID)
+    system = (await getCharacterList(destinyID))[0]
+
+    result = 0
+    for item in instances:
+        result += await getItemData(destinyID, system, item["itemInstanceId"])
+
+    return result
 
 
 

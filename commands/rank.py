@@ -1,6 +1,6 @@
 from commands.base_command  import BaseCommand
 from functions.dataLoading import getStats, getProfile, getCharactertypeList, getCharacterList, \
-    getAggregateStatsForChar, getGearPiece, getKillTracker, getVault
+    getAggregateStatsForChar, getGearPiece, getVault, getWeaponKills
 from functions.database import lookupDiscordID, getToken
 from functions.formating import embed_message
 from functions.network import getJSONfromURL
@@ -309,15 +309,6 @@ async def add_activity_stats(destinyID, hashes, stat):
 
     return result_sort
 
-async def getWeaponKills(destinyID, itemID):
-    instances = await getGearPiece(destinyID, itemID)
-    system = (await getCharacterList(destinyID))[0]
 
-    result_sort = 0
-    for item in instances:
-        result_sort += await getKillTracker(destinyID, system, item["itemInstanceId"])
-
-
-    return result_sort
 
 
