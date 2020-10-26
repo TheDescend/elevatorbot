@@ -1,5 +1,6 @@
 from commands.base_command  import BaseCommand
-from functions.dataLoading import getStats, getProfile, getCharactertypeList, getCharacterList, getAggregateStatsForChar
+from functions.dataLoading import getStats, getProfile, getCharactertypeList, getCharacterList, \
+    getAggregateStatsForChar, getGearPiece, getKillTracker, getVault
 from functions.database import lookupDiscordID, getToken
 from functions.formating import embed_message
 from functions.network import getJSONfromURL
@@ -36,6 +37,9 @@ class rank(BaseCommand):
             "kills",
             "raids",
             "raidtime",
+            "mqkills",
+            "reclusekills",
+            "mtkills"
         ]
 
         if len(params) == 1:
@@ -199,10 +203,7 @@ async def handle_user(stat, member, guild):
         leaderboard_text = "Top Clanmembers by D2 Vaultspace Used"
         stat_text = "Used Space"
 
-        json = await getProfile(destinyID, 201, with_token=True)
-        result_sort = 0
-        for char in (await getCharacterList(destinyID))[1]:
-            result_sort += len(json["characterInventories"]["data"][char]["items"])
+        result_sort = len(await getVault(4611686018467765462))
         result = f"{result_sort:,}"
 
     elif stat == "raids":
@@ -221,6 +222,36 @@ async def handle_user(stat, member, guild):
 
         # in hours
         result_sort = int((await add_activity_stats(destinyID, raidHashes, "activitySecondsPlayed")) / 60 / 60)
+        result = f"{result_sort:,}"
+
+    elif stat == "mqkills":
+        if not getToken(discordID):
+            return None
+
+        leaderboard_text = "Top Clanmembers by D2 Midnight Coup Kills"
+        stat_text = "Kills"
+
+        result_sort = await getWeaponKills(destinyID, 1128225405)
+        result = f"{result_sort:,}"
+
+    elif stat == "mtkills":
+        if not getToken(discordID):
+            return None
+
+        leaderboard_text = "Top Clanmembers by D2 Mountaintop Kills"
+        stat_text = "Kills"
+
+        result_sort = await getWeaponKills(destinyID, 3993415705)
+        result = f"{result_sort:,}"
+
+    elif stat == "reclusekills":
+        if not getToken(discordID):
+            return None
+
+        leaderboard_text = "Top Clanmembers by D2 Recluse Kills"
+        stat_text = "Kills"
+
+        result_sort = await getWeaponKills(destinyID, 3354242550)
         result = f"{result_sort:,}"
 
     else:
@@ -277,3 +308,16 @@ async def add_activity_stats(destinyID, hashes, stat):
             pass
 
     return result_sort
+
+async def getWeaponKills(destinyID, itemID):
+    instances = await getGearPiece(destinyID, itemID)
+    system = (await getCharacterList(destinyID))[0]
+
+    result_sort = 0
+    for item in instances:
+        result_sort += await getKillTracker(destinyID, system, item["itemInstanceId"])
+
+
+    return result_sort
+
+

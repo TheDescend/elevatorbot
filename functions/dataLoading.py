@@ -126,12 +126,71 @@ async def getStats(destinyID):
             return statsResponse['Response']
     return None
 
+
 async def getAggregateStatsForChar(destinyID, system, characterID):
     url = 'https://stats.bungie.net/Platform/Destiny2/{}/Account/{}/Character/{}/Stats/AggregateActivityStats/'
     statsResponse = await getJSONfromURL(url.format(system, destinyID, characterID))
     if statsResponse:
         return statsResponse['Response']
     return None
+
+
+async def getItemDefinition(destinyID, system, itemID, components):
+    url = 'https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/Item/{}/?components={}'
+    statsResponse = await getJSONfromURL(url.format(system, destinyID, itemID, components))
+    if statsResponse:
+        return statsResponse['Response']
+    return None
+
+async def getVault(destinyID):
+    items = (await getProfile(destinyID, 102, with_token=True))["profileInventory"]["data"]["items"]
+    ret = []
+    for item in items:
+        if item["bucketHash"] == 138197802:    # vault hash
+            ret.append(item)
+
+    return ret
+
+async def getAllGear(destinyID):
+    chars = await getCharacterList(destinyID)
+
+    # vault
+    items = await getVault(destinyID)
+
+    # not equiped on chars
+    char_inventory = (await getProfile(destinyID, 201, with_token=True))["characterInventories"]["data"]
+    for char in chars[1]:
+        items.extend(char_inventory[char]["items"])
+
+    # equiped on chars
+    char_inventory = (await getProfile(destinyID, 205))['characterEquipment']["data"]
+    for char in chars[1]:
+        items.extend(char_inventory[char]["items"])
+
+    # returns a list with the dicts of the items
+    return items
+
+
+async def getGearPiece(destinyID, itemID):
+    items = await getAllGear(destinyID)
+
+    instances = []
+    for item in items:
+        if item["itemHash"] == itemID:
+            instances.append(item)
+
+    return instances
+
+
+async def getKillTracker(destinyID, system, itemID):
+    try:
+        ret = (await getItemDefinition(destinyID, system, itemID, 309))["plugObjectives"]["data"]["objectivesPerPlug"]
+        ret = ret[next(iter(ret))][0]
+        return ret["progress"]
+    except KeyError:
+        return 0
+
+
 
 # async def getStatsForChar(destinyID, characterID):
 #     url = 'https://stats.bungie.net/Platform/Destiny2/{}/Account/{}/Stats/'
