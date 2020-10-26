@@ -80,8 +80,9 @@ metricWinStreakWeeklyAllocation = {
 
 """ Grouped Hashes """
 # only activities which are available should be included here
-raidHashes = [lwHashes, gosHashes, scourgeHashes, cosHashes]
-dungeonHashes = [throneHashes, pitHashes, prophHashes]
+availableRaidHashes = [lwHashes, gosHashes]
+raidHashes = availableRaidHashes + [leviHashes, leviPHashes, eaterHashes, eaterPHashes, spireHashes, spirePHashes, scourgeHashes, cosHashes]
+availableDungeonHashes = [throneHashes, pitHashes, prophHashes]
 
 activityStrikeAndNFHash = activityNFHash + activityStrikeHash
 

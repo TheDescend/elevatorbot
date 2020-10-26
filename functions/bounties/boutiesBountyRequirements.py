@@ -57,7 +57,7 @@ bounties_dict = {
             "Clear a raid for the first time": {
                 "requirements": ["allowedTypes", "firstClear"],
                 "allowedActivities": activityRaidHash,
-                "firstClear": raidHashes,
+                "firstClear": availableRaidHashes,
                 "extraText": "If you already cleared all raids at \nleast once, you can not complete \nthis bounty, sorry",
                 "points": 80
             },
@@ -253,28 +253,28 @@ competition_bounties_dict = {
     'Raids': {
         "Get the fastest clear of the raid ?": {
             "requirements": ["randomActivity", "speedrun"],
-            "randomActivity": raidHashes,
+            "randomActivity": availableRaidHashes,
             "extraText": "Everyone in your fireteam gets \ncredit for the bounty",
             "points": 250
         },
 
         "Get the fastest clear of the dungeon ?": {
             "requirements": ["randomActivity", "speedrun"],
-            "randomActivity": dungeonHashes,
+            "randomActivity": availableDungeonHashes,
             "extraText": "Everyone in your fireteam gets \ncredit for the bounty",
             "points": 200
         },
 
         "Do a lowman (solo, duo or trio) of ?": {
             "requirements": ["randomActivity", "lowman"],
-            "randomActivity": raidHashes,
+            "randomActivity": availableRaidHashes,
             "extraText": "Everyone in your fireteam gets \ncredit for the bounty",
             "points": 300
         },
 
         "Get the fastest clear of the raid ? ": {
             "requirements": ["randomActivity", "speedrun", "noWeapons"],
-            "randomActivity": raidHashes,
+            "randomActivity": availableRaidHashes,
             "extraText": "Only ability kills are allowed, \ndon't bring weapons",
             "points": 300
         },

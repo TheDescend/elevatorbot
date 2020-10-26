@@ -1,5 +1,5 @@
 from commands.base_command  import BaseCommand
-from functions.dataLoading import getStats
+from functions.dataLoading import getStats, getProfile, getCharactertypeList, getCharacterList, getAggregateStatsForChar
 from functions.database import lookupDiscordID
 from functions.formating import embed_message
 from functions.network import getJSONfromURL
@@ -9,12 +9,14 @@ import pandas
 import asyncio
 import random
 
+from static.dict import metricRaidCompletion, raidHashes
+
 
 class rank(BaseCommand):
     # shadows charleys rank command. Currently works with "totaltime", "maxpower"
     def __init__(self):
         # A quick description for the help message
-        description = "Shadows various Charley leaderboards with only clan members shown"
+        description = "Shadows various Charley leaderboards with only clan members shown. `!rank help` for current leaderboards"
         params = []
         super().__init__(description, params)
 
@@ -23,15 +25,32 @@ class rank(BaseCommand):
     async def handle(self, params, message, client):
         supported = [
             "totaltime",
-            "maxpower"
+            "maxpower",
+            "vaultspace",
+            "orbs",
+            "meleekills",
+            "superkills",
+            "grenadekills",
+            "deaths",
+            "suicides",
+            "kills",
+            "raids",
+            "raidtime",
         ]
 
-        if len(params) == 1 and params[0] in supported:
-            async with message.channel.typing():
-                embed = await handle_users(client, params[0], message.author.display_name, message.guild)
+        if len(params) == 1:
+            if params[0].lower() == "help":
+                await message.channel.send(embed=embed_message(
+                    "Info",
+                    f"""Currently supported are: \n`{"`, `".join(sorted(supported))}`"""
+                ))
 
-            if embed:
-                await message.channel.send(embed=embed)
+            elif params[0].lower() in supported:
+                async with message.channel.typing():
+                    embed = await handle_users(client, params[0], message.author.display_name, message.guild)
+
+                if embed:
+                    await message.channel.send(embed=embed)
 
 
 async def handle_users(client, stat, display_name, guild):
@@ -44,14 +63,15 @@ async def handle_users(client, stat, display_name, guild):
 
     for ret in results:
         # add user to DF
-        data = data.append({"member": ret[0], "stat": ret[1], "stat_sort": ret[2]}, ignore_index=True)
+        if ret:
+            data = data.append({"member": ret[0], "stat": ret[1], "stat_sort": ret[2]}, ignore_index=True)
 
-    # the flavor text of the leaderboard, fe "Top Clanmembers by D2 Total Time Logged In" for totaltime
-    leaderboard_text = results[0][3]
-    # the flavor text the stat will have, fe. "hours" for totaltime
-    stat_text = results[0][4]
-    # for some stats lower might be better
-    sort_by_ascending = results[0][5]
+            # the flavor text of the leaderboard, fe "Top Clanmembers by D2 Total Time Logged In" for totaltime
+            leaderboard_text = ret[3]
+            # the flavor text the stat will have, fe. "hours" for totaltime
+            stat_text = ret[4]
+            # for some stats lower might be better
+            sort_by_ascending = ret[5]
 
     # sort and prepare DF
     data.sort_values(by=["stat_sort"], inplace=True, ascending=sort_by_ascending)
@@ -96,8 +116,7 @@ async def handle_user(stat, member, guild):
         name = guild.get_member(discordID).display_name
     except:
         print(f"DestinyID {destinyID} isn't in discord but he is in clan")
-        name = random.randint(1, 100000)
-        # continue
+        return None
 
     # get the stat that we are looking for
     if stat == "totaltime":
@@ -106,11 +125,63 @@ async def handle_user(stat, member, guild):
 
         # in hours
         json = await getStats(destinyID)
-        result_sort = int(json["mergedAllCharacters"]["merged"]["allTime"]["secondsPlayed"]["basic"]["value"] / 60 / 60)
-        try:
-            result_sort += int(json["mergedDeletedCharacters"]["merged"]["allTime"]["secondsPlayed"]["basic"]["value"] / 60 / 60)
-        except:
-            pass
+        result_sort = add_stats(json, "secondsPlayed") / 60 / 60
+        result = f"{result_sort:,}"
+
+    elif stat == "orbs":
+        leaderboard_text = "Top Clanmembers by PvE Orbs Generated"
+        stat_text = "Orbs"
+
+        json = await getStats(destinyID)
+        result_sort = add_stats(json, "orbsDropped", scope="pve")
+        result = f"{result_sort:,}"
+
+    elif stat == "meleekills":
+        leaderboard_text = "Top Clanmembers by D2 PvE Meleekills"
+        stat_text = "Kills"
+
+        json = await getStats(destinyID)
+        result_sort = add_stats(json, "weaponKillsMelee", scope="pve")
+        result = f"{result_sort:,}"
+
+    elif stat == "superkills":
+        leaderboard_text = "Top Clanmembers by D2 PvE Superkills"
+        stat_text = "Kills"
+
+        json = await getStats(destinyID)
+        result_sort = add_stats(json, "weaponKillsSuper", scope="pve")
+        result = f"{result_sort:,}"
+
+    elif stat == "grenadekills":
+        leaderboard_text = "Top Clanmembers by D2 PvE Grenadekills"
+        stat_text = "Kills"
+
+        json = await getStats(destinyID)
+        result_sort = add_stats(json, "weaponKillsGrenade", scope="pve")
+        result = f"{result_sort:,}"
+
+    elif stat == "deaths":
+        leaderboard_text = "Top Clanmembers by D2 PvE Deaths"
+        stat_text = "Deaths"
+
+        json = await getStats(destinyID)
+        result_sort = add_stats(json, "deaths", scope="pve")
+        result = f"{result_sort:,}"
+
+    elif stat == "suicides":
+        leaderboard_text = "Top Clanmembers by D2 PvE Suicides"
+        stat_text = "Suicides"
+
+        json = await getStats(destinyID)
+        result_sort = add_stats(json, "suicides", scope="pve")
+        result = f"{result_sort:,}"
+
+    elif stat == "kills":
+        leaderboard_text = "Top Clanmembers by D2 PvE Kills"
+        stat_text = "Kills"
+
+        json = await getStats(destinyID)
+        result_sort = add_stats(json, "kills", scope="pve")
         result = f"{result_sort:,}"
 
     elif stat == "maxpower":
@@ -121,12 +192,85 @@ async def handle_user(stat, member, guild):
         result_sort = int(json["mergedAllCharacters"]["merged"]["allTime"]["highestLightLevel"]["basic"]["value"])
         result = f"{result_sort:,}"
 
+    elif stat == "vaultspace":
+        leaderboard_text = "Top Clanmembers by D2 Vaultspace Used"
+        stat_text = "Used Space"
+
+        json = await getProfile(destinyID, 201, with_token=True)
+        result_sort = 0
+        for char in (await getCharacterList(destinyID))[1]:
+            result_sort += len(json["characterInventories"]["data"][char]["items"])
+        result = f"{result_sort:,}"
+
+    elif stat == "raids":
+        leaderboard_text = "Top Clanmembers by D2 Total Raid Completions"
+        stat_text = "Total"
+
+        json = await getProfile(destinyID, 1100)
+        result_sort = 0
+        for raid in metricRaidCompletion:
+            result_sort += json["metrics"]["data"]["metrics"][str(raid)]["objectiveProgress"]["progress"]
+        result = f"{result_sort:,}"
+
+    elif stat == "raidtime":
+        leaderboard_text = "Top Clanmembers by D2 Total Raid Time"
+        stat_text = "Hours"
+
+        # in hours
+        result_sort = int((await add_activity_stats(destinyID, raidHashes, "activitySecondsPlayed")) / 60 / 60)
+        result = f"{result_sort:,}"
+
     else:
         return
 
     return [name, result, result_sort, leaderboard_text, stat_text, sort_by_ascending]
 
+
 def write_line(index, member, stat_text, stat):
     return f"{index}) **{member}** _({stat_text}: {stat})_"
 
 
+def add_stats(json, stat, scope="all"):
+    result_sort = 0
+    if scope == "all":
+        result_sort = int(json["mergedAllCharacters"]["merged"]["allTime"][stat]["basic"]["value"])
+        try:
+            result_sort += int(json["mergedDeletedCharacters"]["merged"]["allTime"][stat]["basic"]["value"])
+        except:
+            pass
+    elif scope == "pve":
+        result_sort = int(json["mergedAllCharacters"]["results"]["allPvE"]["allTime"][stat]["basic"]["value"])
+        try:
+            result_sort += int(json["mergedDeletedCharacters"]["results"]["allPvE"]["allTime"][stat]["basic"]["value"])
+        except:
+            pass
+    elif scope == "pvp":
+        result_sort = int(json["mergedAllCharacters"]["results"]["allPvP"]["allTime"][stat]["basic"]["value"])
+        try:
+            result_sort += int(json["mergedDeletedCharacters"]["results"]["allPvP"]["allTime"][stat]["basic"]["value"])
+        except:
+            pass
+    return result_sort
+
+# activities = [[id1,id2], [id1], [id1, id2, id3]]
+async def add_activity_stats(destinyID, hashes, stat):
+    result_sort = 0
+    chars = await getCharacterList(destinyID)
+    for characterID in chars[1]:
+        aggregateStats = await getAggregateStatsForChar(destinyID, chars[0], characterID)
+
+        try:
+            for activities in aggregateStats["activities"]:
+                found = False
+                for hash in hashes:
+                    if found:
+                        break
+                    for hashID in hash:
+                        if hashID == activities["activityHash"]:
+                            result_sort += int(activities["values"][stat]["basic"]["value"])
+                            found = True
+                            break
+        except:
+            pass
+
+    return result_sort

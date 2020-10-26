@@ -1,5 +1,6 @@
-from functions.network  import getJSONfromURL, getComponentInfoAsJSON
-from functions.database import db_connect, insertActivity, insertCharacter, insertInstanceDetails, updatedPlayer, getLastUpdated
+from functions.network import getJSONfromURL, getComponentInfoAsJSON, getJSONwithToken
+from functions.database import db_connect, insertActivity, insertCharacter, insertInstanceDetails, updatedPlayer, \
+    getLastUpdated, lookupDiscordID
 from functions.database import getSystemAndChars, getLastUpdated, instanceExists
 
 from concurrent.futures import as_completed
@@ -103,12 +104,18 @@ async def getPlayersPastPVE(destinyID, mode=7):
     #return sorted(activitylist, key = lambda i: i['period'], reverse=True)
 
 # https://bungie-net.github.io/multi/schema_Destiny-DestinyComponentType.html#schema_Destiny-DestinyComponentType
-async def getProfile(destinyID, components):
+async def getProfile(destinyID, components, with_token=False):
     url = 'https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/?components={}'
     for system in [3,2,1,4,5,10,254]:
-        statsResponse = await getJSONfromURL(url.format(system, destinyID, components))
-        if statsResponse:
-            return statsResponse['Response']
+        if with_token:
+            statsResponse = await getJSONwithToken(url.format(system, destinyID, components), lookupDiscordID(destinyID))
+            if statsResponse["result"]:
+                return statsResponse["result"]['Response']
+
+        else:
+            statsResponse = await getJSONfromURL(url.format(system, destinyID, components))
+            if statsResponse:
+                return statsResponse['Response']
     return None
 
 async def getStats(destinyID):
@@ -117,6 +124,13 @@ async def getStats(destinyID):
         statsResponse = await getJSONfromURL(url.format(system, destinyID))
         if statsResponse:
             return statsResponse['Response']
+    return None
+
+async def getAggregateStatsForChar(destinyID, system, characterID):
+    url = 'https://stats.bungie.net/Platform/Destiny2/{}/Account/{}/Character/{}/Stats/AggregateActivityStats/'
+    statsResponse = await getJSONfromURL(url.format(system, destinyID, characterID))
+    if statsResponse:
+        return statsResponse['Response']
     return None
 
 # async def getStatsForChar(destinyID, characterID):
