@@ -28,17 +28,15 @@ class rank(BaseCommand):
 
         if len(params) == 1 and params[0] in supported:
             async with message.channel.typing():
-                embed = await handle_users(params[0], message.author.display_name, message.guild)
+                embed = await handle_users(client, params[0], message.author.display_name, message.guild)
 
             if embed:
                 await message.channel.send(embed=embed)
 
 
-async def handle_users(stat, display_name, guild):
-    # init DF
-    data = pandas.DataFrame(columns=["member", "stat"])
-    # for some stats lower might be better
-    sort_by_ascending = False
+async def handle_users(client, stat, display_name, guild):
+    # init DF. "stat_sort" is only here, since I want to save numbers fancy (1,000,000) and that is a string and not an int so sorting wont work
+    data = pandas.DataFrame(columns=["member", "stat", "stat_sort"])
 
     # loop through the clan members
     clan_members = (await getJSONfromURL(f"https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/"))["Response"]["results"]
@@ -46,15 +44,17 @@ async def handle_users(stat, display_name, guild):
 
     for ret in results:
         # add user to DF
-        data = data.append({"member": ret[0], "stat": ret[0]}, ignore_index=True)
+        data = data.append({"member": ret[0], "stat": ret[1], "stat_sort": ret[2]}, ignore_index=True)
 
     # the flavor text of the leaderboard, fe "Top Clanmembers by D2 Total Time Logged In" for totaltime
-    leaderboard_text = results[0][2]
+    leaderboard_text = results[0][3]
     # the flavor text the stat will have, fe. "hours" for totaltime
-    stat_text = results[0][3]
+    stat_text = results[0][4]
+    # for some stats lower might be better
+    sort_by_ascending = results[0][5]
 
     # sort and prepare DF
-    data.sort_values(by=["stat"], inplace=True, ascending=sort_by_ascending)
+    data.sort_values(by=["stat_sort"], inplace=True, ascending=sort_by_ascending)
     data.reset_index(drop=True, inplace=True)
 
     # calculate the data for the embed
@@ -80,15 +80,16 @@ async def handle_users(stat, display_name, guild):
         else:
             break
 
-        # make and return embed
-        return embed_message(
-            leaderboard_text,
-            "\n".join(ranking)
-        )
+    # make and return embed
+    return embed_message(
+        leaderboard_text,
+        "\n".join(ranking)
+    )
 
 async def handle_user(stat, member, guild):
     destinyID = int(member["destinyUserInfo"]["membershipId"])
     discordID = lookupDiscordID(destinyID)
+    sort_by_ascending = False
 
     # catch people that are in the clan but not in discord, shouldn't happen tho
     try:
@@ -105,25 +106,25 @@ async def handle_user(stat, member, guild):
 
         # in hours
         json = await getStats(destinyID)
-        result = int(json["mergedAllCharacters"]["merged"]["allTime"]["secondsPlayed"]["basic"]["value"] / 60 / 60)
+        result_sort = int(json["mergedAllCharacters"]["merged"]["allTime"]["secondsPlayed"]["basic"]["value"] / 60 / 60)
         try:
-            result += int(json["mergedDeletedCharacters"]["merged"]["allTime"]["secondsPlayed"]["basic"]["value"] / 60 / 60)
+            result_sort += int(json["mergedDeletedCharacters"]["merged"]["allTime"]["secondsPlayed"]["basic"]["value"] / 60 / 60)
         except:
             pass
-        result = f"{result:,}"
+        result = f"{result_sort:,}"
 
     elif stat == "maxpower":
         leaderboard_text = "Top Clanmembers by D2 Maximum Reported Power"
         stat_text = "Power"
 
         json = await getStats(destinyID)
-        result = int(json["mergedAllCharacters"]["merged"]["allTime"]["highestLightLevel"]["basic"]["value"])
-        result = f"{result:,}"
+        result_sort = int(json["mergedAllCharacters"]["merged"]["allTime"]["highestLightLevel"]["basic"]["value"])
+        result = f"{result_sort:,}"
 
     else:
         return
 
-    return [name, result, leaderboard_text, stat_text]
+    return [name, result, result_sort, leaderboard_text, stat_text, sort_by_ascending]
 
 def write_line(index, member, stat_text, stat):
     return f"{index}) **{member}** _({stat_text}: {stat})_"
