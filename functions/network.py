@@ -63,7 +63,7 @@ async def getJSONwithToken(requestURL, discordID):
                 if res:
                     if int(res['ErrorCode']) == 401:
                         print('json 401 found')
-                        await refresh_token(discordID)
+                        headers['Authorization'] = f'Bearer {getFreshToken()}'
 
                     if int(res['ErrorCode']) != 1:
                         print(requestURL)
@@ -73,6 +73,7 @@ async def getJSONwithToken(requestURL, discordID):
 
                     # print(f'Tokenfunction returned {res}')
                     return {'result': res, 'error': None}
+            asyncio.sleep(2)
 
         print('Request failed 5 times, aborting')
         return {'result': None, 'error': "Didn't get a valid response from Bungie. Servers might be down, try again later."}
