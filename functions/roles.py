@@ -11,12 +11,13 @@ import discord
 
 
 # check if user has permission to use this command
-from static.globals import admin_role_id, dev_role_id
+from static.globals import admin_role_id, dev_role_id, mod_role_id
 
 
 async def hasAdminOrDevPermissions(message, send_message=True):
     admin = discord.utils.get(message.guild.roles, id=admin_role_id)
     dev = discord.utils.get(message.guild.roles, id=dev_role_id)
+    mod = discord.utils.get(message.guild.roles, id=mod_role_id)
     if admin not in message.author.roles and dev not in message.author.roles:
         if send_message:
             await message.channel.send(embed=embed_message(
