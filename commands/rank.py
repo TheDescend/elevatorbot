@@ -1,6 +1,6 @@
 from commands.base_command  import BaseCommand
 from functions.dataLoading import getStats, getProfile, getCharactertypeList, getCharacterList, getAggregateStatsForChar
-from functions.database import lookupDiscordID
+from functions.database import lookupDiscordID, getToken
 from functions.formating import embed_message
 from functions.network import getJSONfromURL
 from static.config import CLANID
@@ -193,6 +193,9 @@ async def handle_user(stat, member, guild):
         result = f"{result_sort:,}"
 
     elif stat == "vaultspace":
+        if not getToken(discordID):
+            return None
+
         leaderboard_text = "Top Clanmembers by D2 Vaultspace Used"
         stat_text = "Used Space"
 
