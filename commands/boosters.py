@@ -1,9 +1,6 @@
 
 from commands.base_command  import BaseCommand
 
-import discord
-
-from discord.ext import commands
 
 class boosters(BaseCommand):
     def __init__(self):

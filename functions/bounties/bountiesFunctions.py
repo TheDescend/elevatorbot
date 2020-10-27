@@ -1,24 +1,27 @@
-from functions.formating import embed_message
-from functions.database import insertBountyUser, getBountyUserList, getLevel, setLevel, lookupDestinyID
-from functions.bounties.boutiesBountyRequirements import bounties_dict, competition_bounties_dict, possibleWeaponsKinetic, possibleWeaponsEnergy, possibleWeaponsPower
-from functions.bounties.bountiesBackend import saveAsGlobalVar, getGlobalVar, addPoints, formatLeaderboardMessage, returnLeaderboard, getCompetitionBountiesLeaderboards, changeCompetitionBountiesLeaderboards, experiencePvp, experiencePve, experienceRaids, threadingCompetitionBounties, threadingBounties
-from functions.bounties.bountiesTournament import tournamentRegistrationMessage
-from functions.dataLoading import returnManifestInfo, getPlayersPastPVE
-from functions.miscFunctions import checkIfUserIsRegistered
-from static.dict import activityRaidHash, speedrunActivitiesRaids, weaponTypeKinetic, weaponTypeEnergy, weaponTypePower
-
+import asyncio
+import datetime
+import io
+import json
 import os
 import pickle
-import discord
 import random
-import json
-import asyncio
-import aiohttp
-import io
-import datetime
 from copy import deepcopy
+
+import aiohttp
+import discord
 from PIL import Image, ImageDraw, ImageFont
 
+from functions.bounties.bountiesBackend import saveAsGlobalVar, getGlobalVar, addPoints, formatLeaderboardMessage, \
+    returnLeaderboard, getCompetitionBountiesLeaderboards, changeCompetitionBountiesLeaderboards, experiencePvp, \
+    experiencePve, experienceRaids, threadingCompetitionBounties, threadingBounties
+from functions.bounties.bountiesTournament import tournamentRegistrationMessage
+from functions.bounties.boutiesBountyRequirements import bounties_dict, competition_bounties_dict, \
+    possibleWeaponsKinetic, possibleWeaponsEnergy, possibleWeaponsPower
+from functions.dataLoading import returnManifestInfo, getPlayersPastPVE
+from functions.database import insertBountyUser, getBountyUserList, getLevel, setLevel, lookupDestinyID
+from functions.formating import embed_message
+from functions.miscFunctions import checkIfUserIsRegistered
+from static.dict import activityRaidHash, speedrunActivitiesRaids, weaponTypeKinetic, weaponTypeEnergy, weaponTypePower
 
 
 # randomly generate bounties. One per topic for both of the lists

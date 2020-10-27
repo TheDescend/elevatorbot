@@ -1,19 +1,18 @@
-from functions.network import getJSONfromURL, getComponentInfoAsJSON, getJSONwithToken
-from functions.database import db_connect, insertActivity, insertCharacter, insertInstanceDetails, updatedPlayer, \
-    getLastUpdated, lookupDiscordID, lookupSystem
-from functions.database import getSystemAndChars, getLastUpdated, instanceExists
-
-from concurrent.futures import as_completed
-
-from datetime           import timedelta, datetime
-
-import os
-import aiohttp
-import json
-import zipfile
-import sqlite3
-import pandas
 import asyncio
+import json
+import os
+import sqlite3
+import zipfile
+from datetime import timedelta, datetime
+
+import aiohttp
+import pandas
+
+from functions.database import db_connect, insertActivity, insertCharacter, insertInstanceDetails, updatedPlayer, \
+    lookupDiscordID, lookupSystem
+from functions.database import getSystemAndChars, getLastUpdated, instanceExists
+from functions.network import getJSONfromURL, getComponentInfoAsJSON, getJSONwithToken
+
 
 async def getJSONfromRR(playerID):
     """ Gets a Players stats from the RR-API """

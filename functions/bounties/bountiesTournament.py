@@ -1,13 +1,14 @@
+import asyncio
+import pickle
+import random
+import time
+
+import discord
+
 from functions.bounties.bountiesBackend import returnCustomGameWinner, getGlobalVar, saveAsGlobalVar, addPoints
 from functions.database import lookupDestinyID, getBountyUserList
-from functions.network import getJSONfromURL
 from functions.formating import embed_message
-
-import asyncio
-import time
-import discord
-import random
-import pickle
+from functions.network import getJSONfromURL
 
 
 async def startTournamentEvents(client):

@@ -1,19 +1,17 @@
-from static.config          import BUNGIE_TOKEN
-from commands.base_command  import BaseCommand
-from functions.database     import lookupDestinyID, getAllDiscordMemberDestinyIDs
-from functions.network      import getJSONfromURL
-from functions.formating    import embed_message
-
-import numpy as np
-import datetime
-import discord
 import asyncio
-import time
-import os
 import concurrent.futures
+import datetime
+import os
+from collections import Counter
 
-from collections    import Counter
-from pyvis.network  import Network
+import discord
+import numpy as np
+from pyvis.network import Network
+
+from commands.base_command import BaseCommand
+from functions.database import lookupDestinyID, getAllDiscordMemberDestinyIDs
+from functions.formating import embed_message
+from functions.network import getJSONfromURL
 
 
 # note: the ids later are formatted so wierd, because pyvis broke with them being 16 numbers or so. So I'm just shorting them in an ugly way that works

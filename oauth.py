@@ -1,15 +1,18 @@
 #!/usr/bin/python3
 
-import requests, json
-
-from static.config      import BUNGIE_OAUTH, BUNGIE_TOKEN, BUNGIE_SECRET, B64_SECRET, NEWTONS_WEBHOOK
-from flask              import Flask, request, redirect, Response, send_file, render_template
-from functions.database import insertToken, getRefreshToken, updateToken
 import asyncio
-import aiohttp
 import os
 import time
-from flask import send_from_directory, url_for
+
+import aiohttp
+import json
+import requests
+from flask import Flask, request, redirect, Response, render_template
+from flask import send_from_directory
+
+from functions.database import insertToken, getRefreshToken, updateToken
+from static.config import BUNGIE_TOKEN, B64_SECRET, NEWTONS_WEBHOOK
+
 
 async def refresh_token(discordID):
     url = 'https://www.bungie.net/platform/app/oauth/token/'

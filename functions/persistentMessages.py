@@ -1,9 +1,7 @@
-from functions.formating import embed_message
-from functions.bounties.bountiesFunctions import getGlobalVar, saveAsGlobalVar
-
 import discord
 
-
+from functions.bounties.bountiesFunctions import getGlobalVar, saveAsGlobalVar
+from functions.formating import embed_message
 # writes the message the user will see and react to and saves the id in the pickle
 from static.globals import yes_emoji_id, destiny_emoji_id, among_us_emoji_id, barotrauma_emoji_id, gta_emoji_id, \
     valorant_emoji_id, lol_emoji_id

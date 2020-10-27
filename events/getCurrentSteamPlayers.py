@@ -1,12 +1,11 @@
-from static.config import STEAM_TOKEN
+import os
+from datetime import datetime
+
+import pandas as pd
 
 from events.base_event import BaseEvent
 from functions.network import getJSONfromURL
-
-from datetime import datetime
-import pandas as pd
-import os
-import aiohttp
+from static.config import STEAM_TOKEN
 
 
 class getCurrentSteamPlayers(BaseEvent):

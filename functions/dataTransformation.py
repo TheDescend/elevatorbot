@@ -1,13 +1,13 @@
-from functions.network      import getComponentInfoAsJSON
-from functions.dataLoading  import getStats, getTriumphsJSON, getPGCR, getPlayersPastPVE,getNameToHashMapByClanid
-from functions.database     import db_connect
-
-from static.dict            import getNameFromHashInventoryItem, clanids
-
-from datetime               import datetime
-
 import pathlib
+from datetime import datetime
+
 import matplotlib
+
+from functions.dataLoading import getStats, getTriumphsJSON, getPGCR, getPlayersPastPVE, getNameToHashMapByClanid
+from functions.database import db_connect
+from functions.network import getComponentInfoAsJSON
+from static.dict import getNameFromHashInventoryItem, clanids
+
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
@@ -86,7 +86,6 @@ async def getPlayerCount(instanceID):
         ingameids.add(char['player']['destinyUserInfo']['membershipId'])
     return len(ingameids)
 
-from static.dict import premenHashes
 
 def hasLowman(playerid, playercount, raidHashes, flawless=False, disallowed=[]):
     """ Default is flawless=False, disallowed is a list of (starttime, endtime) with datetime objects """

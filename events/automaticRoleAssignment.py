@@ -1,16 +1,16 @@
-from events.base_event              import BaseEvent
+from itertools import compress
 
-from functions.roles                import assignRolesToUser, removeRolesFromUser, getPlayerRoles
-from functions.database             import lookupDiscordID, lookupDestinyID, getToken
-from functions.dataLoading          import initDB
+import discord
+
+from events.base_event import BaseEvent
+from functions.dataLoading import initDB
+from functions.database import lookupDiscordID, lookupDestinyID, getToken
 from functions.network import getJSONfromURL
+from functions.roles import assignRolesToUser, removeRolesFromUser, getPlayerRoles
 from static.config import CLANID, BOTDEVCHANNELID
 from static.globals import member_role_id, guest_role_id, registered_role_id, not_registered_role_id, \
     divider_misc_role_id, divider_achievement_role_id, divider_raider_role_id, clan_role_id
 
-import discord
-
-from itertools import compress
 
 class AutomaticRoleAssignment(BaseEvent):
     """Will automatically update the roles"""

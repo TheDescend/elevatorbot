@@ -1,12 +1,12 @@
+import asyncio
+
+import discord
+
+from functions.database import lookupDestinyID, lookupSystem
 from functions.formating import embed_message
 from functions.miscFunctions import checkIfUserIsRegistered
 from functions.network import getJSONfromURL, postJSONtoBungie
-from functions.database import lookupDestinyID, getToken, lookupSystem
 from static.config import CLANID, BOTDEVCHANNELID
-
-import asyncio
-import discord
-
 from static.globals import member_role_id, thumps_up_emoji_id, thumps_down_emoji_id, destiny_emoji_id
 
 

@@ -1,9 +1,8 @@
-from commands.base_command  import BaseCommand
-
-from functions.dataLoading        import getNameAndCrossaveNameToHashMapByClanid, getPGCR
-from static.dict                  import clanids
-from functions.database           import lookupDiscordID, getSystemAndChars
-from functions.network            import getJSONfromURL
+from commands.base_command import BaseCommand
+from functions.dataLoading import getNameAndCrossaveNameToHashMapByClanid, getPGCR
+from functions.database import lookupDiscordID, getSystemAndChars
+from functions.network import getJSONfromURL
+from static.dict import clanids
 
 
 class maxPower(BaseCommand):

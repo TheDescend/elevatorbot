@@ -1,11 +1,11 @@
-from static.config import BUNGIE_TOKEN
-from oauth import refresh_token
-from functions.database import getToken, getTokenExpiry
-
-import aiohttp
 import asyncio
 import time
 
+import aiohttp
+
+from functions.database import getToken, getTokenExpiry
+from oauth import refresh_token
+from static.config import BUNGIE_TOKEN
 
 bungieAPI_URL = "https://www.bungie.net/Platform"
 headers = {'X-API-Key': BUNGIE_TOKEN}

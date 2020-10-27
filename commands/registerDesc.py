@@ -1,12 +1,9 @@
-from commands.base_command  import BaseCommand
-import os
-from static.config import BUNGIE_OAUTH
-from functions.database import removeUser, lookupDestinyID, lookupDiscordID
+from commands.base_command import BaseCommand
+from functions.database import removeUser, lookupDestinyID
 from functions.formating import embed_message
 from functions.roles import hasAdminOrDevPermissions
-from events.automaticRoleAssignment import AutoRegisteredRole
+from static.config import BUNGIE_OAUTH
 
-import discord
 
 class register(BaseCommand):
     def __init__(self):

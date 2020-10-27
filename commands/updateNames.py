@@ -1,10 +1,12 @@
 
-from commands.base_command import BaseCommand
+import aiohttp
 import discord
+
+from commands.base_command import BaseCommand
 from functions.database import lookupDestinyID
 from functions.roles import hasAdminOrDevPermissions
-from static.config      import BUNGIE_TOKEN
-import aiohttp
+from static.config import BUNGIE_TOKEN
+
 
 class updateNames(BaseCommand):
 

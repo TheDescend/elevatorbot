@@ -1,14 +1,15 @@
 
-from functions.database import getAllDiscordMemberDestinyIDs, lookupDiscordID, getBountyUserList, getLevel, addLevel, setLevel
-from functions.dataLoading import getPGCR, getStats, getProfile, returnManifestInfo
-from functions.network import getJSONfromURL
-from static.dict import speedrunActivities, metricRaidCompletion, metricAvailableRaidCompletion, metricWinStreakWeeklyAllocation, metricRaidAllocation
-
-
 import json
-import pickle
-import os
 import logging
+import os
+import pickle
+
+from functions.dataLoading import getPGCR, getStats, getProfile, returnManifestInfo
+from functions.database import getAllDiscordMemberDestinyIDs, lookupDiscordID, getBountyUserList, getLevel, addLevel, \
+    setLevel
+from functions.network import getJSONfromURL
+from static.dict import speedrunActivities, metricRaidCompletion, metricAvailableRaidCompletion, \
+    metricWinStreakWeeklyAllocation, metricRaidAllocation
 
 
 # return winner of the last game in the pvp history, if just those two players where in it

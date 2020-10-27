@@ -1,13 +1,12 @@
-from commands.base_command          import BaseCommand
-
-from functions.dataLoading          import getCharacterList, getCharactertypeList
-from functions.dataTransformation   import getIntStat, getCharStats, getFullMemberMap,getTop10PveGuns, getGunsForPeriod, getPossibleStats
-from functions.authfunctions        import getSpiderMaterials
-from functions.database             import lookupDestinyID, getToken
-
-import discord
 import os
 
+import discord
+
+from commands.base_command import BaseCommand
+from functions.authfunctions import getSpiderMaterials
+from functions.dataLoading import getCharacterList, getCharactertypeList
+from functions.dataTransformation import getIntStat, getCharStats, getTop10PveGuns, getGunsForPeriod, getPossibleStats
+from functions.database import lookupDestinyID
 from static.globals import dev_role_id
 
 

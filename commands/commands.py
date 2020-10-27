@@ -1,8 +1,6 @@
+import re
+
 from commands.base_command import BaseCommand
-from functions.roles import hasAdminOrDevPermissions
-
-import math, re
-
 # This is a convenient command that automatically generates a helpful
 # message showing all available commands
 from static.globals import dev_role_id

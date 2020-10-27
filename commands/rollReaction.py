@@ -1,8 +1,7 @@
-from commands.base_command  import BaseCommand
-
-import discord
-import os
 import random
+
+from commands.base_command import BaseCommand
+
 
 class rollreaction(BaseCommand):
     def __init__(self):

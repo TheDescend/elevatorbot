@@ -1,5 +1,5 @@
 from events.base_event import BaseEvent
-from functions.bounties.bountiesFunctions import displayLeaderboard, bountyCompletion
+from functions.bounties.bountiesFunctions import bountyCompletion
 
 
 # check if players have completed a bounty

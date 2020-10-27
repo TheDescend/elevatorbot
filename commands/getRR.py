@@ -1,12 +1,10 @@
 
-from commands.base_command  import BaseCommand
-from functions.dataLoading  import getNameToHashMapByClanid, updateDB
-from static.config          import BUNGIE_TOKEN
-from static.dict            import clanids
-from discord.ext            import commands
+from discord.ext import commands
 
-from functions.database     import lookupDestinyID, getSystemAndChars
-from functions.formating    import embed_message
+from commands.base_command import BaseCommand
+from functions.dataLoading import updateDB
+from functions.database import lookupDestinyID, getSystemAndChars
+from functions.formating import embed_message
 
 rrsystem = {
     1: 'xb',

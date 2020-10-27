@@ -1,11 +1,6 @@
-from functions.roles import hasRole
-from functions.dataLoading import getPlayersPastPVE
 from functions.dataTransformation import hasLowman, getClearCount
-from functions.database import getSystemAndChars
-
-from static.dict import premenHashes,cosHashes,lwHashes
-
-from pprint import pprint
+from functions.roles import hasRole
+from static.dict import premenHashes, cosHashes, lwHashes
 
 spiderHash = 863940356
 

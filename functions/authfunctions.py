@@ -2,8 +2,6 @@ from functions.database     import lookupDiscordID
 from functions.network      import getJSONfromURL, getJSONwithToken
 from static.dict            import getNameFromHashInventoryItem
 
-import aiohttp
-
 
 async def getUserMaterials(destinyID):
     system = 3

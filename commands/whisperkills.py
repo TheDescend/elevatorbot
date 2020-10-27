@@ -1,12 +1,13 @@
-from commands.base_command  import BaseCommand
-from functions.database import lookupDestinyID
-from functions.dataLoading import getPlayersPastPVE
-from functions.formating    import embed_message
-
-import os
-import pandas
-import pickle
 import datetime
+import os
+import pickle
+
+import pandas
+
+from commands.base_command import BaseCommand
+from functions.dataLoading import getPlayersPastPVE
+from functions.database import lookupDestinyID
+from functions.formating import embed_message
 
 whisper_hashes = [74501540, 1099555105]
 

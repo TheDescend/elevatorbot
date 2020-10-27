@@ -1,10 +1,11 @@
-from functions.formating import embed_message
-from functions.database import getToken
-from static.config import NOW_PLAYING
-
-import discord
 import asyncio
 import itertools
+
+import discord
+
+from functions.database import getToken
+from functions.formating import embed_message
+from static.config import NOW_PLAYING
 
 
 async def checkIfUserIsRegistered(user):

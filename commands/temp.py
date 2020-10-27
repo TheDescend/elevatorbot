@@ -1,7 +1,7 @@
-from commands.base_command  import BaseCommand
+from commands.base_command import BaseCommand
 from functions.database import lookupDestinyID, updateUser, lookupSystem, getToken
-from functions.roles import hasAdminOrDevPermissions
 from functions.network import refresh_token
+from functions.roles import hasAdminOrDevPermissions
 
 """ Temp commands which should be deleted after a bit """
 

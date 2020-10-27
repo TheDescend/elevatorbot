@@ -1,8 +1,8 @@
+import json
 import os
 import sqlite3
 import time
 from datetime import datetime
-import json
 
 DEFAULT_PATH = 'database/userdb.sqlite3'
 

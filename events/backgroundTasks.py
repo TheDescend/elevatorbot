@@ -1,11 +1,11 @@
-from functions.dataLoading import getTriumphsJSON
-from functions.network  import getJSONfromURL
-from events.base_event import BaseEvent
-
-import json
-import pandas
 import datetime
+import json
 
+import pandas
+
+from events.base_event import BaseEvent
+from functions.dataLoading import getTriumphsJSON
+from functions.network import getJSONfromURL
 
 
 class refreshSealPickle(BaseEvent):

@@ -1,16 +1,15 @@
-from commands.base_command  import BaseCommand
-from functions.dataLoading import getStats, getProfile, getCharactertypeList, getCharacterList, \
-    getAggregateStatsForChar, getGearPiece, getVault, getWeaponKills, returnManifestInfo, searchArmory, getAllGear, \
+import asyncio
+
+import pandas
+
+from commands.base_command import BaseCommand
+from functions.dataLoading import getStats, getProfile, getCharacterList, \
+    getAggregateStatsForChar, getVault, getWeaponKills, returnManifestInfo, searchArmory, getAllGear, \
     getItemDefinition
 from functions.database import lookupDiscordID, getToken, lookupSystem
 from functions.formating import embed_message
 from functions.network import getJSONfromURL
 from static.config import CLANID
-
-import pandas
-import asyncio
-import random
-
 from static.dict import metricRaidCompletion, raidHashes
 
 

@@ -1,12 +1,10 @@
-from commands.base_command import BaseCommand
-from functions.formating import embed_message
-from functions.database import getToken
-
 import logging
 
-# This, in addition to tweaking __all__ on commands/__init__.py, 
+from commands.base_command import BaseCommand
+from functions.database import getToken
+from functions.formating import embed_message
+# This, in addition to tweaking __all__ on commands/__init__.py,
 # imports all classes inside the commands package.
-from commands import *
 from static.config import COMMAND_PREFIX
 
 # Register all available commands

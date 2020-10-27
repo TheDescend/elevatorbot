@@ -1,8 +1,10 @@
-from commands.base_command  import BaseCommand
+import random
 
 import aiohttp
 import discord
-import random
+
+from commands.base_command import BaseCommand
+
 
 class funFact(BaseCommand):
     def __init__(self):

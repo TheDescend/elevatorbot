@@ -1,8 +1,8 @@
-from commands.base_command  import BaseCommand
+from commands.base_command import BaseCommand
+from functions.dataLoading import getNameAndCrossaveNameToHashMapByClanid
+from functions.database import lookupDiscordID
+from static.dict import clanids
 
-from functions.dataLoading        import getNameAndCrossaveNameToHashMapByClanid
-from static.dict                  import clanids
-from functions.database           import lookupDiscordID
 
 class getUserMatching(BaseCommand):
     def __init__(self):

@@ -1,7 +1,6 @@
-import pandas as pd
-from datetime import datetime
 import os
-from functions.authfunctions        import getRasputinQuestProgress
+
+import pandas as pd
 
 rdata = pd.read_pickle('database/rasputinData.pickle')
 print(rdata)

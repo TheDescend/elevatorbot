@@ -1,15 +1,12 @@
-from functions.dataTransformation   import hasFlawless, hasCollectible, hasTriumph
-from functions.dataTransformation   import getPlayerCount, getPlayersPastPVE, getClearCount, hasLowman
-from functions.network  import getJSONfromURL
-from functions.formating import embed_message
-
-from static.dict                    import requirementHashes
-
-from datetime           import datetime
+from datetime import datetime
 
 import discord
 
-
+from functions.dataTransformation import getClearCount, hasLowman
+from functions.dataTransformation import hasFlawless, hasCollectible, hasTriumph
+from functions.formating import embed_message
+from functions.network import getJSONfromURL
+from static.dict import requirementHashes
 # check if user has permission to use this command
 from static.globals import admin_role_id, dev_role_id, mod_role_id
 

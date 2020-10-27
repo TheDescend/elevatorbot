@@ -1,41 +1,35 @@
 #!/usr/bin/env python3
-import sys
-
-import discord
-import message_handler
-
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from events.base_event              import BaseEvent
-from events                         import *
-from functions.miscFunctions import update_status
-from functions.roles                import assignRolesToUser
-from functions.dataLoading import fillDictFromDB
-from static.dict import getNameFromHashRecords, getNameFromHashCollectible, getNameFromHashActivity, getNameFromHashInventoryItem
-from static.globals import guest_role_id, registered_role_id, not_registered_role_id, admin_discussions_channel_id, \
-    divider_raider_role_id, divider_achievement_role_id, divider_misc_role_id
-from functions.bounties.bountiesFunctions import generateBounties, registrationMessageReactions, updateExperienceLevels
-from functions.bounties.bountiesBackend import getGlobalVar
-from functions.clanJoinRequests import clanJoinRequestMessageReactions, removeFromClanAfterLeftDiscord
-from commands.makePersistentMessages import otherGameRolesMessageReactions, readRulesMessageReactions
-from init_logging import init_logging
 import asyncio
+import os
 import random
 import re
-import os
-
-from discord.ext.commands import Bot
-
+import sys
+from io import BytesIO
 from threading import Thread
 
-from functions.database import insertIntoMessageDB
-from static.config      import NOW_PLAYING, COMMAND_PREFIX, BOT_TOKEN
-from functions.formating import embed_message
-
+import discord
 import nltk
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from discord.ext.commands import Bot
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 
-from io import BytesIO
-
+import message_handler
+from commands.makePersistentMessages import otherGameRolesMessageReactions, readRulesMessageReactions
+from events.base_event import BaseEvent
+from functions.bounties.bountiesBackend import getGlobalVar
+from functions.bounties.bountiesFunctions import generateBounties, registrationMessageReactions, updateExperienceLevels
+from functions.clanJoinRequests import clanJoinRequestMessageReactions, removeFromClanAfterLeftDiscord
+from functions.dataLoading import fillDictFromDB
+from functions.database import insertIntoMessageDB
+from functions.formating import embed_message
+from functions.miscFunctions import update_status
+from functions.roles import assignRolesToUser
+from init_logging import init_logging
+from static.config import COMMAND_PREFIX, BOT_TOKEN
+from static.dict import getNameFromHashRecords, getNameFromHashCollectible, getNameFromHashActivity, \
+    getNameFromHashInventoryItem
+from static.globals import guest_role_id, registered_role_id, not_registered_role_id, admin_discussions_channel_id, \
+    divider_raider_role_id, divider_achievement_role_id, divider_misc_role_id
 
 nltk.download('vader_lexicon')
 analyzer = SentimentIntensityAnalyzer()

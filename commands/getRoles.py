@@ -1,18 +1,12 @@
-from commands.base_command  import BaseCommand
-
-from static.dict                    import requirementHashes, clanids
-from functions.database             import lookupDestinyID, lookupDiscordID, getLastRaid, getFlawlessList
-from functions.dataLoading          import updateDB, initDB, getNameToHashMapByClanid
-from functions.dataTransformation   import getFullMemberMap
-from functions.roles                import hasAdminOrDevPermissions, assignRolesToUser, removeRolesFromUser, getPlayerRoles, hasRole
-from functions.formating import     embed_message
-
-
 import discord
-import json
-
 from discord.ext import commands
 
+from commands.base_command import BaseCommand
+from functions.dataLoading import updateDB, initDB, getNameToHashMapByClanid
+from functions.database import lookupDestinyID, lookupDiscordID, getLastRaid, getFlawlessList
+from functions.formating import embed_message
+from functions.roles import hasAdminOrDevPermissions, assignRolesToUser, removeRolesFromUser, getPlayerRoles, hasRole
+from static.dict import requirementHashes, clanids
 from static.globals import dev_role_id
 
 

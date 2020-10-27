@@ -1,20 +1,24 @@
-from commands.base_command  import BaseCommand
-from functions.bounties.bountiesFunctions import displayBounties, displayCompetitionBounties, bountyCompletion, displayLeaderboard, updateAllExperience, generateBounties
-from functions.bounties.bountiesBackend import getGlobalVar, saveAsGlobalVar, deleteFromGlobalVar, returnScore, fulfillRequirements, returnLeaderboard, formatLeaderboardMessage, playerHasDoneBounty
-from functions.bounties.bountiesTournament import tournamentRegistrationMessage, tournamentChannelMessage, startTournamentEvents
+import asyncio
+import io
+import logging
+import os
+import pickle
+
+import aiohttp
+import discord
+
+from commands.base_command import BaseCommand
+from functions.bounties.bountiesBackend import getGlobalVar, saveAsGlobalVar, deleteFromGlobalVar, returnScore, \
+    fulfillRequirements, returnLeaderboard, formatLeaderboardMessage, playerHasDoneBounty
+from functions.bounties.bountiesFunctions import displayBounties, displayCompetitionBounties, bountyCompletion, \
+    displayLeaderboard, updateAllExperience, generateBounties
+from functions.bounties.bountiesTournament import tournamentRegistrationMessage, tournamentChannelMessage, \
+    startTournamentEvents
 from functions.dataLoading import getPGCR
 from functions.database import getBountyUserList, setLevel, getLevel, lookupDestinyID
 from functions.formating import embed_message
-from functions.roles import hasAdminOrDevPermissions
 from functions.persistentMessages import persistentChannelMessages
-
-import discord
-import asyncio
-import pickle
-import os
-import aiohttp
-import logging
-import io
+from functions.roles import hasAdminOrDevPermissions
 
 
 # --------------------------------------------------------------------------------------------

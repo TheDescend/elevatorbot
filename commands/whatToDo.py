@@ -1,12 +1,12 @@
-from commands.base_command  import BaseCommand
-from functions.formating    import embed_message
-from static.dict            import requirementHashes
-from functions.dataLoading  import getTriumphsJSON, getSeals
-from functions.database     import lookupDestinyID
-from functions.network      import getJSONfromURL
-
-import discord
 import json
+
+from commands.base_command import BaseCommand
+from functions.dataLoading import getTriumphsJSON, getSeals
+from functions.database import lookupDestinyID
+from functions.formating import embed_message
+from functions.network import getJSONfromURL
+from static.dict import requirementHashes
+
 
 class whatToDo(BaseCommand):
     def __init__(self):
