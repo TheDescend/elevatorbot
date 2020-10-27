@@ -56,7 +56,7 @@ async def getJSONwithToken(requestURL, discordID):
 
                 # handling any errors if not ok
                 else:
-                    if await errorCodeHandling(requestURL, r, discordID):
+                    if await errorCodeHandling(requestURL, r):
                         return {'result': None, 'error': f"Status Code <{r.status}>"}
 
         print('Request failed 5 times, aborting')
@@ -111,7 +111,7 @@ async def postJSONtoBungie(postURL, data, discordID):
 
                 # handling any errors if not ok
                 else:
-                    if await errorCodeHandling(postURL, r, discordID):
+                    if await errorCodeHandling(postURL, r):
                         return {'result': None, 'error': f"Status Code <{r.status}>"}
 
         print('Request failed 5 times, aborting')
@@ -124,16 +124,7 @@ async def postJSONtoBungie(postURL, data, discordID):
         return {'result': None, 'error': msg}
 
 # if this returns True, None should be return by the caller. If it returns False, it should try again
-async def errorCodeHandling(requestURL, r, discordID=None):
-    # refreshing token if outdated. Only relevant if used with oauth
-    if discordID:
-        result = await r.read()
-        if b'Unauthorized' in result:
-            print(result)
-            print('Token outdated, refreshing...')
-            await refresh_token(discordID)
-            return False
-
+async def errorCodeHandling(requestURL, r):
     # generic bad request, such as wrong format
     if r.status == 400:
         print(f'Generic bad request for {requestURL}')
@@ -190,7 +181,7 @@ async def handleAndReturnToken(discordID):
     # refresh token if outdated
     elif t > expiry[0]:
         print(f"Refreshing token for discordID {discordID}")
-        token = refresh_token(discordID)
+        token = await getFreshToken(discordID)
 
     return {
             'result': token,

@@ -32,10 +32,10 @@ async def getTriumphsJSON(playerID):
 async def getCharacterList(destinyID):
     ''' returns a (system, [characterids]) tuple '''
     charURL = "https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/?components=100,200"
-    membershiptType = lookupSystem(destinyID)
-    characterinfo = await getJSONfromURL(charURL.format(membershiptType, destinyID))
+    membershipType = lookupSystem(destinyID)
+    characterinfo = await getJSONfromURL(charURL.format(membershipType, destinyID))
     if characterinfo:
-        return (i, list(characterinfo['Response']['characters']['data'].keys()))
+        return (membershipType, list(characterinfo['Response']['characters']['data'].keys()))
     print(f'no account found for destinyID {destinyID}')
     return (None,[])
 

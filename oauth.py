@@ -21,18 +21,27 @@ async def refresh_token(discordID):
 
     data = 'grant_type=refresh_token&refresh_token=' + str(refresh_token)
 
-    t = int(time.time())
-    async with aiohttp.ClientSession() as session:
-        async with session.post(url, data=data, headers=headers, allow_redirects=False) as r:
-            data = await r.json()
-            access_token = data['access_token']
-            refresh_token = data['refresh_token']
-            token_expiry = t + data['expires_in']
-            refresh_token_expiry = t + data['refresh_expires_in']
+    for i in range(5):
+        t = int(time.time())
+        async with aiohttp.ClientSession() as session:
+            async with session.post(url, data=data, headers=headers, allow_redirects=False) as r:
+                if r.status == 200:
+                    data = await r.json()
+                    access_token = data['access_token']
+                    refresh_token = data['refresh_token']
+                    token_expiry = t + data['expires_in']
+                    refresh_token_expiry = t + data['refresh_expires_in']
 
-            print('got new token ' + str(access_token))
+                    updateToken(discordID, access_token, refresh_token, token_expiry, refresh_token_expiry)
 
-            updateToken(discordID, access_token, refresh_token, token_expiry, refresh_token_expiry)
+                    print(f"Refreshed token for discordID {discordID}")
+                    return
+
+                else:
+                    print(f"Refreshing Token failed with code {r.status}. Waiting 1s and trying again")
+                    await asyncio.sleep(1)
+
+    print(f"Refreshing Token failed with code {r.status}. Failed 5 times, aborting")
 
 
 ########################################## FLASK STUFF ##################################################

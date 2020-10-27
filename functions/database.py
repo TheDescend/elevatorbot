@@ -201,13 +201,13 @@ def updateToken(IDdiscord, token, refresh_token, token_expiry, refresh_token_exp
     update_sql = f"""
         UPDATE discordGuardiansToken
         SET 
-        token = {token},
-        refresh_token = {refresh_token},
-        token_expiry = {token_expiry},
-        refresh_token_expiry = {refresh_token_expiry}
-        WHERE discordSnowflake = {IDdiscord} """
+        token = ?,
+        refresh_token = ?,
+        token_expiry = ?,
+        refresh_token_expiry = ?
+        WHERE discordSnowflake = ? """
 
-    con.execute(update_sql)
+    con.execute(update_sql, (token, refresh_token, token_expiry, refresh_token_expiry, IDdiscord))
     con.commit()
     con.close()
 
@@ -220,12 +220,12 @@ def updateUser(IDdiscord, IDdestiny, systemID):
         UPDATE 
             discordGuardiansToken
         SET 
-            destinyID = {IDdestiny},
-            systemID = {systemID}
+            destinyID = ?,
+            systemID = ?
         WHERE 
-            discordSnowflake = {IDdiscord}"""
+            discordSnowflake = ?"""
 
-    con.execute(update_sql)
+    con.execute(update_sql, (IDdestiny, systemID, IDdiscord))
     con.commit()
     con.close()
 

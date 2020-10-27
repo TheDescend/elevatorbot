@@ -42,11 +42,10 @@ class addExpiryDates(BaseCommand):
     async def handle(self, params, message, client):
         if not await hasAdminOrDevPermissions(message):
             return
-
         async for member in message.guild.fetch_members(limit=None):
             destinyID = lookupDestinyID(member.id)
             if destinyID:
                 if getToken(member.id):
-                    _ = refresh_token(member.id)
+                    _ = await refresh_token(member.id)
 
         await message.channel.send("Done!")
