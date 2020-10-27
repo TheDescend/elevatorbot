@@ -123,10 +123,10 @@ def root():
     systemID = int(primarymembership['membershipType'])
 
     insertToken(int(discordID), destinyID, systemID, int(serverID), access_token, refresh_token, token_expiry, refresh_token_expiry)
-    print(f"<@{discordID}> registered with ID {destinyID} and display name {display_name} and Steam-Name: {steam_name}")
+    print(f"<@{discordID}> has destinyID `{destinyID}`, Bungie-Name `{display_name}`, Steam-Name `{steam_name}`")
     webhookURL = NEWTONS_WEBHOOK
     requestdata = {
-        'content': f"<@{discordID}> has ID {destinyID} and display name {display_name} and Steam-Name: {steam_name}",
+        'content': f"<@{discordID}> has destinyID `{destinyID}`, Bungie-Name `{display_name}`, Steam-Name `{steam_name}`",
         'username': 'EscalatorBot',
         "allowed_mentions": {
             "parse": ["users"],
