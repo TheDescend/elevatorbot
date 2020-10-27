@@ -66,39 +66,6 @@ class checkregister(BaseCommand):
         await message.channel.send(f'User {message.author.nick or message.author.name} has ID {lookupDestinyID(message.author.id)}')
 
 
-class forceregister(BaseCommand):
-    def __init__(self):
-        # A quick description for the help message
-        description = "[dev] function to create Discord-Destiny mappings"
-        params = ['discordID', 'destinyID']
-        topic = "Registration"
-        super().__init__(description, params, topic)
-
-    # Override the handle() method
-    # It will be called every time the command is received
-    async def handle(self, params, message, client):
-        admin = discord.utils.get(message.guild.roles, name='Admin')
-        dev = discord.utils.get(message.guild.roles, name='Developer') 
-        discordID = params[0]
-        destinyID = params[1]
-        if not '4611' == str(destinyID)[:4]: #sanity check
-            await message.channel.send(f'Please make sure the destinyID is correct')
-            return
-
-        # check if user has permission to use this command
-        if not await hasAdminOrDevPermissions(message) and not message.author.id == params[0]:
-            return
-
-        oldid = lookupDestinyID(discordID)
-        if oldid:
-            await message.channel.send(f'User already registered with id {oldid} and , use !unregister {discordID} to undo that binding')
-            return
-
-        if insertUser(message.guild.id, discordID=discordID, destinyID=destinyID):
-            await message.channel.send(f'inserted {params[0]}:{params[1]}')
-        else:
-            await message.channel.send(f'insert failed')
-
 
 class unregister(BaseCommand):
     def __init__(self):
