@@ -16,6 +16,7 @@ from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import message_handler
 from commands.makePersistentMessages import otherGameRolesMessageReactions, readRulesMessageReactions
 from events.base_event import BaseEvent
+from events import *
 from functions.bounties.bountiesBackend import getGlobalVar
 from functions.bounties.bountiesFunctions import generateBounties, registrationMessageReactions, updateExperienceLevels
 from functions.clanJoinRequests import clanJoinRequestMessageReactions, removeFromClanAfterLeftDiscord

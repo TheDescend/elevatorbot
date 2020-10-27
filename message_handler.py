@@ -5,6 +5,7 @@ from functions.database import getToken
 from functions.formating import embed_message
 # This, in addition to tweaking __all__ on commands/__init__.py,
 # imports all classes inside the commands package.
+from commands import *
 from static.config import COMMAND_PREFIX
 
 # Register all available commands
