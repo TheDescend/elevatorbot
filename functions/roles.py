@@ -18,7 +18,7 @@ async def hasAdminOrDevPermissions(message, send_message=True):
     admin = discord.utils.get(message.guild.roles, id=admin_role_id)
     dev = discord.utils.get(message.guild.roles, id=dev_role_id)
     mod = discord.utils.get(message.guild.roles, id=mod_role_id)
-    if admin not in message.author.roles and dev not in message.author.roles:
+    if admin not in message.author.roles and dev not in message.author.roles and mod not in message.author.roles:
         if send_message:
             await message.channel.send(embed=embed_message(
                 'Error',

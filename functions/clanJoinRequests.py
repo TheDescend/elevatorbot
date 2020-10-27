@@ -1,8 +1,7 @@
 from functions.formating import embed_message
 from functions.miscFunctions import checkIfUserIsRegistered
 from functions.network import getJSONfromURL, postJSONtoBungie
-from functions.database import lookupDestinyID, getToken
-from functions. dataLoading import getMembershipType
+from functions.database import lookupDestinyID, getToken, lookupSystem
 from static.config import CLANID, BOTDEVCHANNELID
 
 import asyncio
@@ -53,7 +52,7 @@ async def clanJoinRequestMessageReactions(client, user, emoji, channel, channel_
             return
 
         # send user a clan invite (using kigstn's id / token since he is an admin and not the owner for some safety)
-        membershipType = await getMembershipType(destinyID)
+        membershipType = lookupSystem(destinyID)
         postURL = f'https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/IndividualInvite/{membershipType}/{destinyID}/'
         data = {
             "message": "Welcome"
@@ -116,7 +115,7 @@ async def removeFromClanAfterLeftDiscord(client, member):
 
     # if yes is pressed he is removed (using kigstn's id / token since he is an admin and not the owner for some safety)
     if reaction.emoji == yes:
-        membershipType = await getMembershipType(destinyID)
+        membershipType = lookupSystem(destinyID)
         postURL = f'https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/{membershipType}/{destinyID}/Kick/'
         data = {}
 

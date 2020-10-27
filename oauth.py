@@ -1,12 +1,14 @@
 #!/usr/bin/python3
 
 import requests, json
+
 from static.config      import BUNGIE_OAUTH, BUNGIE_TOKEN, BUNGIE_SECRET, B64_SECRET, NEWTONS_WEBHOOK
 from flask              import Flask, request, redirect, Response, send_file, render_template
-from functions.database import insertToken, getRefreshToken
+from functions.database import insertToken, getRefreshToken, updateToken
 import asyncio
 import aiohttp
 import os
+import time
 from flask import send_from_directory, url_for
 
 async def refresh_token(discordID):
@@ -19,15 +21,18 @@ async def refresh_token(discordID):
 
     data = 'grant_type=refresh_token&refresh_token=' + str(refresh_token)
 
+    t = int(time.time())
     async with aiohttp.ClientSession() as session:
         async with session.post(url, data=data, headers=headers, allow_redirects=False) as r:
             data = await r.json()
             access_token = data['access_token']
             refresh_token = data['refresh_token']
+            token_expiry = t + data['expires_in']
+            refresh_token_expiry = t + data['refresh_expires_in']
 
             print('got new token ' + str(access_token))
 
-            insertToken(discordID, None, None, access_token, refresh_token)
+            updateToken(discordID, access_token, refresh_token, token_expiry, refresh_token_expiry)
 
 
 ########################################## FLASK STUFF ##################################################
@@ -71,10 +76,13 @@ def root():
 
     data = f'grant_type=authorization_code&code={code}'
 
+    t = int(time.time())
     r = requests.post(url, data=data, headers=headers)
     authresponse = r.json()
     access_token = authresponse['access_token']
     refresh_token = authresponse['refresh_token']
+    token_expiry = t + authresponse['expires_in']
+    refresh_token_expiry = t + authresponse['refresh_expires_in']
 
     #print(f'bungie responded {r.content} and the token is {access_token}')
     #membershipid = r.json()['membership_id']
@@ -101,11 +109,14 @@ def root():
     if not primarymembership:
         print(f'no primary membership found for {battlenetname} aka {discordID} in server {serverID}')
 
-    insertToken(int(discordID), int(primarymembership['membershipId']), int(serverID), access_token, refresh_token, force=True)
-    print(f"<@{discordID}> registered with ID {primarymembership['membershipId']} and display name {primarymembership['LastSeenDisplayName']} Bnet-Name: {battlenetname}")
+    destinyID = int(primarymembership['membershipId'])
+    systemID = int(primarymembership['membershipType'])
+
+    insertToken(int(discordID), destinyID, systemID, int(serverID), access_token, refresh_token, token_expiry, refresh_token_expiry)
+    print(f"<@{discordID}> registered with ID {destinyID} and display name {primarymembership['LastSeenDisplayName']} Bnet-Name: {battlenetname}")
     webhookURL = NEWTONS_WEBHOOK
     requestdata = {
-        'content': f"<@{discordID}> has ID {primarymembership['membershipId']} and display name {primarymembership['LastSeenDisplayName']} Bnet-Name: {battlenetname}",
+        'content': f"<@{discordID}> has ID {destinyID} and display name {primarymembership['LastSeenDisplayName']} Bnet-Name: {battlenetname}",
         'username': 'EscalatorBot',
         "allowed_mentions": {
             "parse": ["users"],

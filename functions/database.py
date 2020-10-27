@@ -1,7 +1,7 @@
 import os
 import sqlite3
 import time
-from datetime import datetime, timedelta
+from datetime import datetime
 import json
 
 DEFAULT_PATH = 'database/userdb.sqlite3'
@@ -15,20 +15,6 @@ def db_connect(db_path=DEFAULT_PATH):
     con = sqlite3.connect(db_path, detect_types=sqlite3.PARSE_DECLTYPES |
                                                 sqlite3.PARSE_COLNAMES)
     return con
-
-def insertUser(discordServerID, *, discordID, destinyID):
-    """ Inserts a discordID - destinyID mapping into the database, f(discordServerID, discordID = XX, destinyID = YY), returns True if successful """
-    con = db_connect()
-    product_sql = """INSERT INTO discordGuardiansToken 
-        (discordSnowflake, destinyID,signupDate,serverID, token, refresh_token) 
-        VALUES (?, ?, ?, ?, ?, ?)"""
-    try:
-        con.execute(product_sql, (discordID, destinyID, int(time.time()), discordServerID, None, None))
-        con.commit()
-        con.close()
-        return True
-    except sqlite3.IntegrityError:
-        return False
 
 def removeUser(discordID):
     """ Removes a User from the DB (by discordID), returns True if successful"""
@@ -171,29 +157,78 @@ def getToken(discordID):
     print(f'no user with ID {discordID} in discordGuardianToken')
     return None
 
-def insertToken(discordID, destinyID, discordServerID, token, refresh_token, force=False):
+
+def getTokenExpiry(discordID):
+    """ Gets a Users Bungie-Token expiry date and als the refresh token ones or None.
+    Retruns tuple (token_expiry, refresh_token_expiry) or None"""
+    con = db_connect()
+    c = con.cursor()
+    select_sql = """
+        SELECT 
+        token_expiry, refresh_token_expiry
+        FROM 
+        discordGuardiansToken
+        WHERE 
+        discordSnowflake = ?"""
+
+    c.execute(select_sql, (discordID,))
+    results = c.fetchall()
+
+    return results[0] if results else None
+
+
+def insertToken(discordID, destinyID, systemID, discordServerID, token, refresh_token, token_expiry, refresh_token_expiry):
     """ Inserts a User or Token into the database """ #TODO split up in two functions or make a overloaded one?
-    
+
     con = db_connect()
     insert_sql = """INSERT INTO discordGuardiansToken
-        (discordSnowflake, destinyID, signupDate, serverID, token, refresh_token) 
-        VALUES (?, ?, ?, ?, ?, ?)"""
+        (discordSnowflake, destinyID, signupDate, serverID, token, refresh_token, systemID, token_expiry, refresh_token_expiry) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"""
+
+    try:
+        con.execute(insert_sql, (discordID, destinyID, int(time.time()), discordServerID, token, refresh_token, systemID, token_expiry, refresh_token_expiry))
+        con.commit()
+        con.close()
+    except sqlite3.IntegrityError:
+        updateUser(discordID, destinyID, systemID)
+        updateToken(discordID, token, refresh_token, token_expiry, refresh_token_expiry)
+
+
+def updateToken(IDdiscord, token, refresh_token, token_expiry, refresh_token_expiry):
+    """ Updates a User - Token, token refresh, token_expiry, refresh_token_expiry  """
+    con = db_connect()
 
     update_sql = f"""
         UPDATE discordGuardiansToken
         SET 
-        token = ?,
-        {('destinyID =' + str(destinyID) + ',') if force else ''}
-        refresh_token = ?
-        WHERE discordSnowflake = ?"""
-    try:
-        con.execute(insert_sql, (discordID, destinyID, int(time.time()), discordServerID, token, refresh_token))
-        con.commit()
-        con.close()
-    except sqlite3.IntegrityError:
-        con.execute(update_sql, (token, refresh_token, discordID))
-        con.commit()
-        con.close()
+        token = {token},
+        refresh_token = {refresh_token},
+        token_expiry = {token_expiry},
+        refresh_token_expiry = {refresh_token_expiry}
+        WHERE discordSnowflake = {IDdiscord} """
+
+    con.execute(update_sql)
+    con.commit()
+    con.close()
+
+
+def updateUser(IDdiscord, IDdestiny, systemID):
+    """ Updates a User - DestinyID, SystemID  """
+    con = db_connect()
+
+    update_sql = f"""
+        UPDATE 
+            discordGuardiansToken
+        SET 
+            destinyID = {IDdestiny},
+            systemID = {systemID}
+        WHERE 
+            discordSnowflake = {IDdiscord}"""
+
+    con.execute(update_sql)
+    con.commit()
+    con.close()
+
 
 def lookupDestinyID(discordID):
     """ Takes discordID and returns destinyID """
@@ -219,6 +254,15 @@ def lookupServerID(discordID):
     getUser = """SELECT serverID FROM discordGuardiansToken
         WHERE discordSnowflake = ?"""
     result = con.execute(getUser, (discordID,)).fetchone() or [None]
+    con.close()
+    return result[0]
+
+def lookupSystem(destinyID):
+    """ Takes destinyID and returns system """
+    con = db_connect()
+    getUser = """SELECT systemID FROM discordGuardiansToken
+        WHERE destinyID = ?"""
+    result = con.execute(getUser, (destinyID,)).fetchone() or [None]
     con.close()
     return result[0]
 

@@ -1,6 +1,6 @@
 from functions.network import getJSONfromURL, getComponentInfoAsJSON, getJSONwithToken
 from functions.database import db_connect, insertActivity, insertCharacter, insertInstanceDetails, updatedPlayer, \
-    getLastUpdated, lookupDiscordID
+    getLastUpdated, lookupDiscordID, lookupSystem
 from functions.database import getSystemAndChars, getLastUpdated, instanceExists
 
 from concurrent.futures import as_completed
@@ -32,11 +32,10 @@ async def getTriumphsJSON(playerID):
 async def getCharacterList(destinyID):
     ''' returns a (system, [characterids]) tuple '''
     charURL = "https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/?components=100,200"
-    platform = None
-    for i in [3,2,1,4,5,10,254]:
-        characterinfo = await getJSONfromURL(charURL.format(i, destinyID))
-        if characterinfo:
-            return (i, list(characterinfo['Response']['characters']['data'].keys()))
+    membershiptType = lookupSystem(destinyID)
+    characterinfo = await getJSONfromURL(charURL.format(membershiptType, destinyID))
+    if characterinfo:
+        return (i, list(characterinfo['Response']['characters']['data'].keys()))
     print(f'no account found for destinyID {destinyID}')
     return (None,[])
 
@@ -58,11 +57,10 @@ classmap = {
 async def getCharactertypeList(destinyID):
     ''' returns a [charID, type] tuple '''
     charURL = "https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/?components=100,200"
-    platform = None
-    for i in [3,2,1,4,5,10,254]:
-        characterinfo = await getJSONfromURL(charURL.format(i, destinyID))
-        if characterinfo:
-            return [(char["characterId"], f"{racemap[char['raceHash']]} {gendermap[char['genderHash']]} {classmap[char['classHash']]}") for char in characterinfo['Response']['characters']['data'].values()]
+    membershiptType = lookupSystem(destinyID)
+    characterinfo = await getJSONfromURL(charURL.format(membershiptType, destinyID))
+    if characterinfo:
+        return [(char["characterId"], f"{racemap[char['raceHash']]} {gendermap[char['genderHash']]} {classmap[char['classHash']]}") for char in characterinfo['Response']['characters']['data'].values()]
     print(f'no account found for destinyID {destinyID}')
     return (None,[])
 
@@ -106,24 +104,24 @@ async def getPlayersPastPVE(destinyID, mode=7):
 # https://bungie-net.github.io/multi/schema_Destiny-DestinyComponentType.html#schema_Destiny-DestinyComponentType
 async def getProfile(destinyID, components, with_token=False):
     url = 'https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/?components={}'
-    for system in [3,2,1,4,5,10,254]:
-        if with_token:
-            statsResponse = await getJSONwithToken(url.format(system, destinyID, components), lookupDiscordID(destinyID))
-            if statsResponse["result"]:
-                return statsResponse["result"]['Response']
+    membershipType = lookupSystem(destinyID)
+    if with_token:
+        statsResponse = await getJSONwithToken(url.format(membershipType, destinyID, components), lookupDiscordID(destinyID))
+        if statsResponse["result"]:
+            return statsResponse["result"]['Response']
 
-        else:
-            statsResponse = await getJSONfromURL(url.format(system, destinyID, components))
-            if statsResponse:
-                return statsResponse['Response']
+    else:
+        statsResponse = await getJSONfromURL(url.format(membershipType, destinyID, components))
+        if statsResponse:
+            return statsResponse['Response']
     return None
 
 async def getStats(destinyID):
     url = 'https://stats.bungie.net/Platform/Destiny2/{}/Account/{}/Stats/'
-    for system in [3,2,1,4,5,10,254]:
-        statsResponse = await getJSONfromURL(url.format(system, destinyID))
-        if statsResponse:
-            return statsResponse['Response']
+    membershipType = lookupSystem(destinyID)
+    statsResponse = await getJSONfromURL(url.format(membershipType, destinyID))
+    if statsResponse:
+        return statsResponse['Response']
     return None
 
 
@@ -245,14 +243,6 @@ async def getNameAndCrossaveNameToHashMapByClanid(clanid):
             memberids[member['destinyUserInfo']['membershipId']] = (member['destinyUserInfo']['LastSeenDisplayName'], 'none')
     return memberids
 
-async def getMembershipType(destinyID):
-    charURL = "https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/?components=100"
-    for i in [3,2,1,4,5,10,254]:
-        response = await getJSONfromURL(charURL.format(i, destinyID))
-        if response:
-            if response['Response']:
-                return response['Response']["profile"]["data"]["userInfo"]["membershipType"]
-    return None
 
 async def getPGCR(instanceID):
     pgcrurl = f'https://www.bungie.net/Platform/Destiny2/Stats/PostGameCarnageReport/{instanceID}/'

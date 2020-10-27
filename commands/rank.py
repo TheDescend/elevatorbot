@@ -2,7 +2,7 @@ from commands.base_command  import BaseCommand
 from functions.dataLoading import getStats, getProfile, getCharactertypeList, getCharacterList, \
     getAggregateStatsForChar, getGearPiece, getVault, getWeaponKills, returnManifestInfo, searchArmory, getAllGear, \
     getItemDefinition
-from functions.database import lookupDiscordID, getToken
+from functions.database import lookupDiscordID, getToken, lookupSystem
 from functions.formating import embed_message
 from functions.network import getJSONfromURL
 from static.config import CLANID
@@ -283,7 +283,7 @@ async def handle_user(stat, member, guild, extra_hash, extra_name):
         stat_text = "Value"
 
         items = await getAllGear(destinyID)
-        system = (await getCharacterList(destinyID))[0]
+        system = lookupSystem(destinyID)
 
         # clean items so that only entries with instanceID remain
         items_clean = []

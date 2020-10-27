@@ -1,9 +1,10 @@
 from static.config import BUNGIE_TOKEN
 from oauth import refresh_token
-from functions.database import getToken
+from functions.database import getToken, getTokenExpiry
 
 import aiohttp
 import asyncio
+import time
 
 
 bungieAPI_URL = "https://www.bungie.net/Platform"
@@ -31,13 +32,12 @@ async def getJSONfromURL(requestURL, headers=headers, params={}):
 async def getJSONwithToken(requestURL, discordID):
     """ Takes url and discordID, returns dict with [token] = JSON, otherwise [error] has a errormessage """
 
-    token = getToken(discordID)
-    if not token:
-        print(f'Token not found for discordID {discordID}')
-        return {
-            'result': None,
-            'error': 'User has not registered'
-        }
+    # handle and return working token
+    ret = await handleAndReturnToken(discordID)
+    if ret["result"]:
+        token = ret["result"]
+    else:
+        return ret
 
     headers = {
         'Authorization': f'Bearer {token}',
@@ -49,35 +49,24 @@ async def getJSONwithToken(requestURL, discordID):
         # abort after 5 tries
         for i in range(5):
             async with session.get(url=requestURL, headers=headers) as r:
-                res = None
-
                 # ok
                 if r.status == 200:
                     res = await r.json()
+                    return {'result': res, 'error': None}
 
                 # handling any errors if not ok
                 else:
                     if await errorCodeHandling(requestURL, r, discordID):
                         return {'result': None, 'error': f"Status Code <{r.status}>"}
-                    headers['Authorization'] = f'Bearer {getFreshToken(discordID)}'
-
-                if res:
-                    if int(res['ErrorCode']) == 401:
-                        print('json 401 found')
-                        headers['Authorization'] = f'Bearer {getFreshToken(discordID)}'
-
-                    if int(res['ErrorCode']) != 1:
-                        print(requestURL)
-                        print(headers)
-                        print(f'ErrorCode is not 1, but {res["ErrorCode"]}')
-                        return {'result': None, 'error': f'You encountered error {res["ErrorCode"]}, please inform <@171650677607497730>'}
-
-                    # print(f'Tokenfunction returned {res}')
-                    return {'result': res, 'error': None}
-            asyncio.sleep(2)
 
         print('Request failed 5 times, aborting')
-        return {'result': None, 'error': "Didn't get a valid response from Bungie. Servers might be down, try again later."}
+        try:
+            error = await r.json()
+            msg = f"""Didn't get a valid response. Bungie returned status {r.status}: \n`ErrorCode - {error["ErrorCode"]} \nErrorStatus - {error["ErrorStatus"]} \nMessage - {error["Message"]}`"""
+        except:
+            msg = "Bungie is doing wierd stuff right now or there is a big error in my programming, the first is definitely more likely. Try again in a sec."
+
+        return {'result': None, 'error': msg}
 
 
 # https://bungie-net.github.io/multi/operation_get_Destiny2-GetProfile.html
@@ -98,51 +87,32 @@ async def getComponentInfoAsJSON(playerID, components):
 async def postJSONtoBungie(postURL, data, discordID):
     """ Post info to bungie """
 
-    token = getToken(discordID)
-    if not token:
-        print(f'Token not found for discordID {discordID}')
-        return {
-            'result': None,
-            'error': 'User has not registered'
-        }
+    # handle and return working token
+    ret = await handleAndReturnToken(discordID)
+    if ret["result"]:
+        token = ret["result"]
+    else:
+        return ret
 
     headers = {
         'Authorization': f'Bearer {token}',
         'x-api-key': BUNGIE_TOKEN,
-        'Accept': 'application/json'}
+        'Accept': 'application/json'
+    }
 
     async with aiohttp.ClientSession() as session:
         # abort after 5 tries
         for i in range(5):
             async with session.post(url=postURL, json=data, headers=headers, allow_redirects=False) as r:
-                res = None
-                print(await r.read())
                 # ok
                 if r.status == 200:
                     res = await r.json()
+                    return {'result': res, 'error': None}
 
                 # handling any errors if not ok
                 else:
-                    if (await errorCodeHandling(postURL, r, discordID)):
+                    if await errorCodeHandling(postURL, r, discordID):
                         return {'result': None, 'error': f"Status Code <{r.status}>"}
-                    else:
-                        headers['Authorization'] = f'Bearer {token}'
-
-                if res:
-                    if int(res['ErrorCode']) == 401:
-                        print('json 401 found')
-                        print(f'Refreshing token for discordID {discordID}')
-                        return await postJSONtoBungie(postURL, data, discordID)
-
-                    if int(res['ErrorCode']) != 1:
-                        print(postURL)
-                        print(headers)
-                        print(f'ErrorCode is not 1, but {res["ErrorCode"]}')
-                        return {'result': None, 'error': f'You encountered error {res["ErrorCode"]}, please inform <@171650677607497730>'}
-
-                    # print(f'Tokenfunction returned {res}')
-                    return {'result': res, 'error': None}
-            asyncio.sleep(2)
 
         print('Request failed 5 times, aborting')
         try:
@@ -182,12 +152,50 @@ async def errorCodeHandling(requestURL, r, discordID=None):
         await asyncio.sleep(10)
     # rate limited
     elif r.status == 429:
-        print(f"Getting rate limited, waiting 1s and trying again")
-        await asyncio.sleep(1)
+        print(f"Getting rate limited, waiting 2s and trying again")
+        await asyncio.sleep(2)
 
     print(f"Failed with code {r.status}. Waiting 1s and trying again")
     await asyncio.sleep(1)
     return False
+
+async def handleAndReturnToken(discordID):
+    token = getToken(discordID)
+    if not token:
+        print(f'Token not found for discordID {discordID}')
+        return {
+            'result': None,
+            'error': 'User has not registered'
+        }
+
+    # refresh token if expired
+    expiry = getTokenExpiry(discordID)
+    if not expiry:
+        print(f'Expiry Dates not found for discordID {discordID}, refreshing tokens')
+        return {
+            'result': None,
+            'error': 'User tokens have no expiry date'
+        }
+
+    t = int(time.time())
+
+    # check refresh token first, since they need to re-register otherwise
+    if t > expiry[1]:
+        print(f'Expiry Dates for refreshed token passed for discordID {discordID}. Needs to re-register')
+        return {
+            'result': None,
+            'error': 'User needs to re-register'
+        }
+
+    # refresh token if outdated
+    elif t > expiry[0]:
+        print(f"Refreshing token for discordID {discordID}")
+        token = refresh_token(discordID)
+
+    return {
+            'result': token,
+            'error': ''
+        }
 
 
 async def getFreshToken(discordID):

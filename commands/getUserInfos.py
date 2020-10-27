@@ -2,7 +2,7 @@ from commands.base_command  import BaseCommand
 import os
 from static.config import BUNGIE_OAUTH
 from static.dict import clanids
-from functions.database import insertUser, removeUser, lookupDestinyID, lookupDiscordID
+from functions.database import removeUser, lookupDestinyID, lookupDiscordID
 from functions.formating import embed_message
 from functions.network import getJSONfromURL
 import discord
