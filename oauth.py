@@ -106,26 +106,27 @@ def root():
     membershiplist = response['destinyMemberships']
     #print(membershiplist)
     primarymembership = None
-    battlenetname = '_missing_'
+    display_name = '_missing_'
     for membership in membershiplist:
         if int(membership["membershipType"]) == 3:
-            battlenetname = membership["displayName"]
+            display_name = membership["displayName"]
+            steam_name = membership["steamDisplayName"]
         if "crossSaveOverride" in membership.keys() and membership["crossSaveOverride"] and membership["membershipType"] != membership["crossSaveOverride"]:
             #print(f'membership {membership["membershipType"]} did not equal override {membership["crossSaveOverride"]}')
             continue
         primarymembership = membership
     
     if not primarymembership:
-        print(f'no primary membership found for {battlenetname} aka {discordID} in server {serverID}')
+        print(f'no primary membership found for {display_name} aka {discordID} in server {serverID}')
 
     destinyID = int(primarymembership['membershipId'])
     systemID = int(primarymembership['membershipType'])
 
     insertToken(int(discordID), destinyID, systemID, int(serverID), access_token, refresh_token, token_expiry, refresh_token_expiry)
-    print(f"<@{discordID}> registered with ID {destinyID} and display name {primarymembership['LastSeenDisplayName']} Bnet-Name: {battlenetname}")
+    print(f"<@{discordID}> registered with ID {destinyID} and display name {display_name} and Steam-Name: {steam_name}")
     webhookURL = NEWTONS_WEBHOOK
     requestdata = {
-        'content': f"<@{discordID}> has ID {destinyID} and display name {primarymembership['LastSeenDisplayName']} Bnet-Name: {battlenetname}",
+        'content': f"<@{discordID}> has ID {destinyID} and display name {display_name} and Steam-Name: {steam_name}",
         'username': 'EscalatorBot',
         "allowed_mentions": {
             "parse": ["users"],
@@ -133,7 +134,7 @@ def root():
         },
     }
     rp = requests.post(url=webhookURL, data=json.dumps(requestdata), headers={"Content-Type": "application/json"})
-    return 'Thank you for signing up with <h1> Elevator Bot </h1>\n <p style="bottom: 20" >There will be cake</p>' # response to your request.
+    return 'Thank you for signing up with <h1> Elevator Bot </h1>\n <p style="bottom: 20" >There will be cake (or will there...)</p>'   # response to your request.
 
 
 
