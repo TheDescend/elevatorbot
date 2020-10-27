@@ -135,9 +135,15 @@ async def errorCodeHandling(requestURL, r):
         return True
     # Internal server error
     elif r.status == 500:
-        print(f'Bad request for {requestURL}. Returned:')
-        print(await r.read())
-        # bungo is ded
+        res = await r.json()
+        error = res["ErrorStatus"]
+        if error == "PerEndpointRequestThrottleExceeded":
+            await asyncio.sleep(res["ThrottleSeconds"])
+        else:
+            print(f'Bad request for {requestURL}. Returned error {error}:')
+            print(res)
+
+    # bungo is ded
     elif r.status == 503:
         print(f'Server is overloaded, waiting 10s and then trying again')
         await asyncio.sleep(10)
@@ -146,8 +152,10 @@ async def errorCodeHandling(requestURL, r):
         print(f"Getting rate limited, waiting 2s and trying again")
         await asyncio.sleep(2)
 
-    print(f"Failed with code {r.status}. Waiting 1s and trying again")
-    await asyncio.sleep(1)
+    else:
+        print(f"Failed with code {r.status}. Waiting 1s and trying again")
+        await asyncio.sleep(1)
+
     return False
 
 async def handleAndReturnToken(discordID):
@@ -175,7 +183,7 @@ async def handleAndReturnToken(discordID):
         print(f'Expiry Dates for refreshed token passed for discordID {discordID}. Needs to re-register')
         return {
             'result': None,
-            'error': 'User needs to re-register'
+            'error': 'Registration is outdated, please re-register using `!registerdesc`'
         }
 
     # refresh token if outdated
