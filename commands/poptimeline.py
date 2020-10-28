@@ -23,7 +23,7 @@ class poptimeline(BaseCommand):
             ["2019-12-10", "Season of Dawn"],
             ["2020-03-10", "Season of the Worthy"],
             ["2020-06-09", "Season of Arrivals"],
-            ["2020-11-10", "Beyond Light / Season of [Redacted]"],
+            ["2020-11-10", "Beyond Light / Season of the Hunt"],
         ]
         other_dates = [
             ["2019-10-04", "GoS"],
@@ -32,6 +32,7 @@ class poptimeline(BaseCommand):
             ["2020-04-21", "Guardian Games"],
             ["2020-06-06", "Almighty Live Event"],
             ["2020-08-11", "Solstice of Heroes"],
+            ["2020-11-21", "DSC"],
         ]
         other_dates_lower = [
             ["2020-02-04", "Empyrean Foundation"],
