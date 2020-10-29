@@ -113,7 +113,7 @@ def root():
     for membership in membershiplist:
         if int(membership["membershipType"]) == 3:
             display_name = membership["displayName"]
-            steam_name = membership["steamDisplayName"]
+            steam_name = membership["LastSeenDisplayName"]
         if "crossSaveOverride" in membership.keys() and membership["crossSaveOverride"] and membership["membershipType"] != membership["crossSaveOverride"]:
             #print(f'membership {membership["membershipType"]} did not equal override {membership["crossSaveOverride"]}')
             continue
@@ -129,7 +129,7 @@ def root():
     print(f"<@{discordID}> has destinyID `{destinyID}`, Bungie-Name `{display_name}`, Steam-Name `{steam_name}`")
     webhookURL = NEWTONS_WEBHOOK
     requestdata = {
-        'content': f"<@{discordID}> has destinyID `{destinyID}`, Bungie-Name `{display_name}`, Steam-Name `{steam_name}`",
+        'content': f"<@{discordID}> has destinyID `{destinyID}`, Bungie-Name `{display_name}`, Steam-Name `{steam_name}`, System `{systemID}`",
         'username': 'EscalatorBot',
         "allowed_mentions": {
             "parse": ["users"],
