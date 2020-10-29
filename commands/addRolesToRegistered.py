@@ -21,18 +21,28 @@ class addRolesToRegistered(BaseCommand):
         if not await hasAdminOrDevPermissions(message):
             return
         await message.channel.send("Working...")
+        notregisteredlist = []
+        registeredlist = []
         for member in message.guild.members:
             await removeRolesFromUser([registered_role_id], member, message.guild)
             await removeRolesFromUser([not_registered_role_id], member, message.guild)
 
             if getToken(member.id):
                 await assignRolesToUser([registered_role_id], member, message.guild)
-                await message.channel.send(f"add @Registered to {member.name}")
+                registeredlist.append(member.name)
             else:
                 await assignRolesToUser([not_registered_role_id], member, message.guild)
-                await message.channel.send(f"add @Not Registered to {member.name}")
+                notregisteredlist.append(member.name)
+            
+            roleids = [role.id for role in member.roles]
+            if (registered_role_id not in roleids) and (not_registered_role_id not in roleids):
+                print(getToken(member.id))
+                print(member.id)
+                break
+        
 
-        await message.channel.send("Done")
+        await message.channel.send(f"Registered:\n {','.join(registeredlist)}")
+        await message.channel.send(f"**NOT** registered:\n {','.join(notregisteredlist)}")
 
 
 class whoIsNotRegistered(BaseCommand):
