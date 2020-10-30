@@ -119,6 +119,8 @@ def hasLowman(playerid, playercount, raidHashes, flawless=False, disallowed=[]):
 
 async def getIntStat(destinyID, statname):
     stats = await getStats(destinyID)
+    if not stats:
+        return -1
     stat = stats['mergedAllCharacters']['merged']['allTime'][statname]['basic']['value']
     return int(stat)
 

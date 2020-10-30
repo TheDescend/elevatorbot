@@ -163,7 +163,6 @@ def getToken(discordID):
         return results[0][0]
     elif len(results) > 1:
         print(f'discordSnowflake not unique: {discordID}')
-    print(f'no user with ID {discordID} in discordGuardianToken')
     return None
 
 
