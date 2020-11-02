@@ -208,14 +208,18 @@ async def getWeaponKills(destinyID, itemID):
         except KeyError:
             return 0
 
+    kills = 0
+
     instances = await getGearPiece(destinyID, itemID)
+    if not instances:
+        return kills
+
     system = (await getCharacterList(destinyID))[0]
 
-    result = 0
     for item in instances:
-        result += await getItemData(destinyID, system, item["itemInstanceId"])
+        kills += await getItemData(destinyID, system, item["itemInstanceId"])
 
-    return result
+    return kills
 
 
 

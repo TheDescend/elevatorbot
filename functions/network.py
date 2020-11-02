@@ -140,6 +140,12 @@ async def errorCodeHandling(requestURL, r):
         # we we are getting throttled
         if error == "PerEndpointRequestThrottleExceeded":
             await asyncio.sleep(res["ThrottleSeconds"])
+
+        # if user doesn't have that item
+        elif error == "DestinyItemNotFound":
+            print("User doesn't have that item, aborting")
+            return True
+
         else:
             print(f'Bad request for {requestURL}. Returned error {error}:')
             print(res)
