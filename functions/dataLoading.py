@@ -153,15 +153,16 @@ async def getItemDefinition(destinyID, system, itemID, components):
     return None
 
 
-# returns all items in vault
-async def getVault(destinyID):
+# returns all items in bucket. Deafult is vault hash, for others search "bucket" at https://data.destinysets.com/
+async def getInventoryBucket(destinyID, bucket=138197802):
     items = (await getProfile(destinyID, 102, with_token=True))["profileInventory"]["data"]["items"]
     ret = []
     for item in items:
-        if item["bucketHash"] == 138197802:    # vault hash
+        if item["bucketHash"] == bucket:    # vault hash
             ret.append(item)
 
     return ret
+
 
 
 # returns all items in vault + inventory. Also gets ships and stuff - not only armor / weapons
@@ -169,7 +170,7 @@ async def getAllGear(destinyID):
     chars = await getCharacterList(destinyID)
 
     # vault
-    items = await getVault(destinyID)
+    items = await getInventoryBucket(destinyID)
 
     # not equiped on chars
     char_inventory = (await getProfile(destinyID, 201, with_token=True))["characterInventories"]["data"]

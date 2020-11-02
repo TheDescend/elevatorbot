@@ -4,7 +4,7 @@ import pandas
 
 from commands.base_command import BaseCommand
 from functions.dataLoading import getStats, getProfile, getCharacterList, \
-    getAggregateStatsForChar, getVault, getWeaponKills, returnManifestInfo, searchArmory, getAllGear, \
+    getAggregateStatsForChar, getInventoryBucket, getWeaponKills, returnManifestInfo, searchArmory, getAllGear, \
     getItemDefinition
 from functions.database import lookupDiscordID, getToken, lookupSystem
 from functions.formating import embed_message
@@ -38,7 +38,8 @@ class rank(BaseCommand):
             "raids",
             "raidtime",
             "weapon",
-            "armor"
+            "armor",
+            "enhancementcores"
         ]
 
         if len(params) > 0:
@@ -240,10 +241,12 @@ async def handle_user(stat, member, guild, extra_hash, extra_name):
         if not getToken(discordID):
             return None
 
+        sort_by_ascending = True
+
         leaderboard_text = "Top Clanmembers by D2 Vaultspace Used"
         stat_text = "Used Space"
 
-        result_sort = len(await getVault(destinyID))
+        result_sort = len(await getInventoryBucket(destinyID))
         result = f"{result_sort:,}"
 
     elif stat == "raids":
@@ -262,6 +265,27 @@ async def handle_user(stat, member, guild, extra_hash, extra_name):
 
         # in hours
         result_sort = int((await add_activity_stats(destinyID, raidHashes, "activitySecondsPlayed")) / 60 / 60)
+        result = f"{result_sort:,}"
+
+    elif stat == "enhancementcores":
+        leaderboard_text = "Top Clanmembers by D2 Total Enhancement Cores"
+        stat_text = "Total"
+
+        result_sort = 0
+
+        # check vault
+        items = await getInventoryBucket(destinyID)
+        for item in items:
+            if item["itemHash"] == 3853748946:
+                result_sort += item["quantity"]
+
+        items = await getInventoryBucket(destinyID, bucket=1469714392)
+        for item in items:
+            if item["itemHash"] == 3853748946:
+                result_sort += item["quantity"]
+
+
+
         result = f"{result_sort:,}"
 
     elif stat == "weapon":
