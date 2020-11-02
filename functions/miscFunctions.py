@@ -24,7 +24,8 @@ async def update_status(client):
     status_messages = [
         "DM me to contact Staff",
         "Bounties are the endgame",
-        "#MakeHäbidöpfelMascot"
+        "#MakeHäbidöpfelMascot",
+        "Blue > Orange"
     ]
 
     if NOW_PLAYING:
