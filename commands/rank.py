@@ -268,6 +268,9 @@ async def handle_user(stat, member, guild, extra_hash, extra_name):
         result = f"{result_sort:,}"
 
     elif stat == "enhancementcores":
+        if not getToken(discordID):
+            return None
+
         leaderboard_text = "Top Clanmembers by D2 Total Enhancement Cores"
         stat_text = "Total"
 
