@@ -64,7 +64,7 @@ async def clanJoinRequestMessageReactions(client, user, emoji, channel, channel_
             text = "Send you a clan application"
             embed = embed_message(
                 "Clan Update",
-                f"{user.display_name} with discordID <{user.id}> and destinyID <{destinyID}> has been send a clan invite"
+                f"{user.display_name} with discordID <{user.id}> and destinyID <{destinyID}> was has had been sended a clan invite"
             )
             await newtonslab.send(embed=embed)
         else:
