@@ -5,6 +5,7 @@ import re
 import discord
 import matplotlib.pyplot as plt
 import os
+import asyncio
 
 class statistic(BaseCommand):
     def __init__(self):
@@ -21,6 +22,7 @@ class statistic(BaseCommand):
 
         if params[0] == "emotes":
             a = await message.channel.send("Working, will take a while...")
+            lock = asyncio.Lock()
             async with message.channel.typing():
                 emotes = await message.guild.fetch_emojis()
                 channels = await message.guild.fetch_channels()
@@ -29,32 +31,38 @@ class statistic(BaseCommand):
 
                 for channel in channels:
                     if channel.type == discord.ChannelType.text:
-                        async for msg in channel.history():
+                        async for msg in channel.history(limit=None):
                             if not message.author.bot:
                                 for reaction in msg.reactions:
                                     if isinstance(reaction.emoji, str):
-                                        try:
-                                            count[reaction.emoji] += 1
-                                        except KeyError:
-                                            count.update({reaction.emoji: 1})
+                                        async with lock:
+                                            try:
+                                                count[reaction.emoji] += 1
+                                            except KeyError:
+                                                count.update({reaction.emoji: 1})
                                     else:
-                                        try:
-                                            count[reaction.emoji.name] += 1
-                                        except KeyError:
-                                            count.update({reaction.emoji.name: 1})
+                                        async with lock:
+                                            try:
+                                                count[reaction.emoji.name] += 1
+                                            except KeyError:
+                                                count.update({reaction.emoji.name: 1})
 
                                 for emote in emotes:
                                     if f"<:{emote.name}:{emote.id}>" in msg.content:
-                                        try:
-                                            count[emote.name] += len(re.findall(f"<:{emote.name}:{emote.id}>", msg.content))
-                                        except KeyError:
-                                            count.update({emote.name: len(re.findall(f"<:{emote.name}:{emote.id}>", msg.content))})
+                                        async with lock:
+                                            try:
+                                                count[emote.name] += len(
+                                                    re.findall(f"<:{emote.name}:{emote.id}>", msg.content))
+                                            except KeyError:
+                                                count.update({emote.name: len(
+                                                    re.findall(f"<:{emote.name}:{emote.id}>", msg.content))})
+
 
             print(count)
             keys = count.keys()
             values = count.values()
 
-            plt.bar(keys, values)
+            plt.bar(keys, values, color="b")
             plt.title("Descend Emote Usage", fontweight="bold", size=20)
             plt.xticks(rotation=90)
             plt.tight_layout()

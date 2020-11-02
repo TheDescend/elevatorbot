@@ -201,6 +201,7 @@ async def getGearPiece(destinyID, itemID):
 async def getWeaponKills(destinyID, itemID):
     async def getItemData(destinyID, system, uniqueItemID):
         try:
+            await lock
             ret = (await getItemDefinition(destinyID, system, uniqueItemID, 309))["plugObjectives"]["data"][
                 "objectivesPerPlug"]
             ret = ret[next(iter(ret))][0]
