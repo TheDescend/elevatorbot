@@ -22,11 +22,14 @@ async def refresh_token(discordID):
     }
     refresh_token = getRefreshToken(discordID)
 
-    data = 'grant_type=refresh_token&refresh_token=' + str(refresh_token)
+    if not refresh_token:
+        return None
 
-    for i in range(5):
-        t = int(time.time())
-        async with aiohttp.ClientSession() as session:
+    data = {"grant_type":"refresh_token", "refresh_token": str(refresh_token)}
+
+    async with aiohttp.ClientSession() as session:
+        for i in range(5):
+            t = int(time.time())
             async with session.post(url, data=data, headers=headers, allow_redirects=False) as r:
                 if r.status == 200:
                     data = await r.json()
@@ -41,7 +44,8 @@ async def refresh_token(discordID):
                     return access_token
 
                 else:
-                    print(f"Refreshing Token failed with code {r.status}. Waiting 1s and trying again")
+                    print(f"Refreshing Token failed with code {r.status} . Waiting 1s and trying again")
+                    print(await r.read(), '\n')
                     await asyncio.sleep(1)
 
     print(f"Refreshing Token failed with code {r.status}. Failed 5 times, aborting")
