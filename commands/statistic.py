@@ -22,7 +22,7 @@ class statistic(BaseCommand):
 
         # outputs info about emote usage
         if params[0] == "emotes":
-            a = await message.channel.send("Working, will take a while...")
+            a = await message.channel.send("Working, will take a long while...")
             lock = asyncio.Lock()
             async with message.channel.typing():
                 emotes = await message.guild.fetch_emojis()
@@ -104,7 +104,7 @@ class statistic(BaseCommand):
 
         # outputs info about channel usage
         elif params[0] == "channels":
-            a = await message.channel.send("Working, will take a while...")
+            a = await message.channel.send("Working, will take a long while...")
             lock = asyncio.Lock()
             async with message.channel.typing():
                 channels = await message.guild.fetch_channels()
