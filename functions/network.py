@@ -191,6 +191,12 @@ async def handleAndReturnToken(discordID):
     elif t > expiry[0]:
         print(f"Refreshing token for discordID {discordID}")
         token = await getFreshToken(discordID)
+        if not token:
+
+            return {
+                'result': None,
+                'error': 'Token refresh failed'
+            }
 
     return {
             'result': token,
@@ -199,5 +205,5 @@ async def handleAndReturnToken(discordID):
 
 
 async def getFreshToken(discordID):
-    await refresh_token(discordID)
-    return getToken(discordID)
+    return await refresh_token(discordID)
+

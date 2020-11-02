@@ -38,13 +38,14 @@ async def refresh_token(discordID):
                     updateToken(discordID, access_token, refresh_token, token_expiry, refresh_token_expiry)
 
                     print(f"Refreshed token for discordID {discordID}")
-                    return
+                    return access_token
 
                 else:
                     print(f"Refreshing Token failed with code {r.status}. Waiting 1s and trying again")
                     await asyncio.sleep(1)
 
     print(f"Refreshing Token failed with code {r.status}. Failed 5 times, aborting")
+    return None
 
 
 ########################################## FLASK STUFF ##################################################

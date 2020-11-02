@@ -290,7 +290,7 @@ def getEverything():
     """ **DEBUG** Prints the DB to console """
     con = db_connect()
     cur = con.cursor()
-    getAll = "SELECT discordSnowflake, destinyID, serverID, token, refresh_token FROM discordGuardiansToken;"
+    getAll = "SELECT discordSnowflake, destinyID, serverID, systemID, token, refresh_token, token_expiry, refresh_token_expiry FROM discordGuardiansToken;"
 
     resultcur = cur.execute(getAll)
     #print(resultcur)

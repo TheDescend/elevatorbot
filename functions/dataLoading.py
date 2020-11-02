@@ -53,6 +53,18 @@ classmap = {
     3655393761: 'Titan'
 }
 
+async def OUTDATEDgetSystem(destinyID):
+    ''' returns system '''
+    charURL = "https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/?components=100,200"
+    platform = None
+    for i in [3, 2, 1, 4, 5, 10, 254]:
+        characterinfo = await getJSONfromURL(charURL.format(i, destinyID))
+        if characterinfo:
+            platform = characterinfo["Response"]["profile"]["data"]["userInfo"]["membershipType"]
+            break
+    return platform
+
+# OUTDATED. Use membershipType = lookupSystem(destinyID)
 async def getCharactertypeList(destinyID):
     ''' returns a [charID, type] tuple '''
     charURL = "https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/?components=100,200"
