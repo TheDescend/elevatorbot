@@ -55,7 +55,7 @@ class statistic(BaseCommand):
                                                 count[emote.name] += len(
                                                     re.findall(f"<:{emote.name}:{emote.id}>", msg.content))
                                             except KeyError:
-                                                count.update({emote.name: len(
+                                               count.update({emote.name: len(
                                                     re.findall(f"<:{emote.name}:{emote.id}>", msg.content))})
 
 
