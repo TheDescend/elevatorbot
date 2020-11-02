@@ -112,6 +112,7 @@ def main():
     async def common_handle_message(message):
         text = message.content
         if charley_spam in text:
+            await asyncio.sleep(1)
             await message.delete()
             return
 
