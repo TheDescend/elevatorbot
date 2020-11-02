@@ -156,6 +156,9 @@ async def handle_user(stat, member, guild, extra_hash, extra_name):
     discordID = lookupDiscordID(destinyID)
     sort_by_ascending = False
 
+    if not getToken(discordID):
+        return None
+
     # catch people that are in the clan but not in discord, shouldn't happen tho
     try:
         name = guild.get_member(discordID).display_name
@@ -238,9 +241,6 @@ async def handle_user(stat, member, guild, extra_hash, extra_name):
         result = f"{result_sort:,}"
 
     elif stat == "vaultspace":
-        if not getToken(discordID):
-            return None
-
         sort_by_ascending = True
 
         leaderboard_text = "Top Clanmembers by D2 Vaultspace Used"
@@ -268,9 +268,6 @@ async def handle_user(stat, member, guild, extra_hash, extra_name):
         result = f"{result_sort:,}"
 
     elif stat == "enhancementcores":
-        if not getToken(discordID):
-            return None
-
         leaderboard_text = "Top Clanmembers by D2 Total Enhancement Cores"
         stat_text = "Total"
 
@@ -302,9 +299,6 @@ async def handle_user(stat, member, guild, extra_hash, extra_name):
         result = f"{result_sort:,}"
 
     elif stat == "armor":
-        if not getToken(discordID):
-            return None
-
         leaderboard_text = f"Top Clanmembers by single Armor Piece with highest {extra_name.capitalize()}"
         stat_text = "Value"
 
