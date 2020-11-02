@@ -27,11 +27,10 @@ class stat(BaseCommand):
         if not destinyID:
             await message.channel.send(f'Unable to get your destiny-stats. Please contact a {message.guild.get_role(dev_role_id)}')
             return
-        if name == 'resurrections': #
+        if name == 'resurrections':
             given = await getIntStat(destinyID, 'resurrectionsPerformed')
             received = await getIntStat(destinyID, 'resurrectionsReceived')
             await message.channel.send(f'{message.author.mention}, you have revived **{given}** people and got revived **{received}** times! 🚑')
-
         elif name == 'meleekills':
             melees = await getIntStat(destinyID, 'weaponKillsMelee')
             await message.channel.send(f'{message.author.mention}, you have punched **{melees}** enemies to death! 🖍️')

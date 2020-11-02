@@ -39,3 +39,4 @@ nohup.out
 .uwsgi_plugins_builder
 HostingDetails
 database/databasemutation.py
+database/db_mutations.ipynb

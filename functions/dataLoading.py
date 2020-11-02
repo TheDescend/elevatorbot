@@ -56,8 +56,8 @@ classmap = {
 async def getCharactertypeList(destinyID):
     ''' returns a [charID, type] tuple '''
     charURL = "https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/?components=100,200"
-    membershiptType = lookupSystem(destinyID)
-    characterinfo = await getJSONfromURL(charURL.format(membershiptType, destinyID))
+    membershipType = lookupSystem(destinyID)
+    characterinfo = await getJSONfromURL(charURL.format(membershipType, destinyID))
     if characterinfo:
         return [(char["characterId"], f"{racemap[char['raceHash']]} {gendermap[char['genderHash']]} {classmap[char['classHash']]}") for char in characterinfo['Response']['characters']['data'].values()]
     print(f'no account found for destinyID {destinyID}')

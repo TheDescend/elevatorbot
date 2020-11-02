@@ -28,6 +28,7 @@ def removeUser(discordID):
         con.close()
         return True
     except sqlite3.IntegrityError:
+        con.close()
         return False
 
     
@@ -43,6 +44,7 @@ def insertBountyUser(discordID):
         con.close()
         return True
     except sqlite3.IntegrityError:
+        con.close()
         return False
 
 def removeBountyUser(discordID):
@@ -56,6 +58,7 @@ def removeBountyUser(discordID):
         con.close()
         return True
     except sqlite3.IntegrityError:
+        con.close()
         return False
 
 def getBountyUserList(all=False):
@@ -70,6 +73,7 @@ def getBountyUserList(all=False):
 
     resultcur = cur.execute(getAll)
     result = resultcur.fetchall()
+    con.close()
     return [row[0] for row in result]
 
 
@@ -97,6 +101,7 @@ def getLevel(levelType, discordID):
 
     resultcur = cur.execute(getLevelByDiscordID, (discordID,))
     result = resultcur.fetchall()
+    con.close()
     return result[0][0]
 
 def setLevel(value, levelType, discordID):
@@ -111,6 +116,7 @@ def setLevel(value, levelType, discordID):
 
     resultcur = cur.execute(setLevelByDiscordID, (value, discordID,))
     con.commit()
+    con.close()
     return True
 
 def addLevel(value, levelType, discordID):
@@ -126,6 +132,7 @@ def addLevel(value, levelType, discordID):
 
     resultcur = cur.execute(setLevelByDiscordID, (newLevel, discordID,))
     con.commit()
+    con.close()
     return True
 
 
@@ -137,6 +144,7 @@ def getRefreshToken(discordID):
         WHERE discordSnowflake = ?"""
     c.execute(select_sql, (discordID,))
     results = c.fetchone()
+    con.close()
     if len(results) == 1:
         return results[0]
     return None
@@ -150,11 +158,11 @@ def getToken(discordID):
         WHERE discordSnowflake = ?"""
     c.execute(select_sql, (discordID,))
     results = c.fetchall()
+    con.close()
     if len(results) == 1:
         return results[0][0]
     elif len(results) > 1:
         print(f'discordSnowflake not unique: {discordID}')
-    print(f'no user with ID {discordID} in discordGuardianToken')
     return None
 
 
@@ -173,6 +181,7 @@ def getTokenExpiry(discordID):
 
     c.execute(select_sql, (discordID,))
     results = c.fetchall()
+    con.close()
 
     return results[0] if results else None
 
@@ -189,15 +198,18 @@ def insertToken(discordID, destinyID, systemID, discordServerID, token, refresh_
         con.execute(insert_sql, (discordID, destinyID, int(time.time()), discordServerID, token, refresh_token, systemID, token_expiry, refresh_token_expiry))
         con.commit()
         con.close()
+        return
     except sqlite3.IntegrityError:
-        updateUser(discordID, destinyID, systemID)
-        updateToken(discordID, token, refresh_token, token_expiry, refresh_token_expiry)
+        con.close()
+    
+    updateUser(discordID, destinyID, systemID)
+    updateToken(discordID, token, refresh_token, token_expiry, refresh_token_expiry)
 
 
 def updateToken(IDdiscord, token, refresh_token, token_expiry, refresh_token_expiry):
     """ Updates a User - Token, token refresh, token_expiry, refresh_token_expiry  """
     con = db_connect()
-
+    cur = con.cursor()
     update_sql = f"""
         UPDATE discordGuardiansToken
         SET 
@@ -207,7 +219,7 @@ def updateToken(IDdiscord, token, refresh_token, token_expiry, refresh_token_exp
         refresh_token_expiry = ?
         WHERE discordSnowflake = ? """
 
-    con.execute(update_sql, (token, refresh_token, token_expiry, refresh_token_expiry, IDdiscord))
+    cur.execute(update_sql, (token, refresh_token, token_expiry, refresh_token_expiry, IDdiscord))
     con.commit()
     con.close()
 
@@ -215,17 +227,15 @@ def updateToken(IDdiscord, token, refresh_token, token_expiry, refresh_token_exp
 def updateUser(IDdiscord, IDdestiny, systemID):
     """ Updates a User - DestinyID, SystemID  """
     con = db_connect()
-
+    cur = con.cursor()
     update_sql = f"""
-        UPDATE 
-            discordGuardiansToken
+        UPDATE discordGuardiansToken
         SET 
-            destinyID = ?,
-            systemID = ?
-        WHERE 
-            discordSnowflake = ?"""
+        destinyID = ?,
+        systemID = ?
+        WHERE discordSnowflake = ? """
 
-    con.execute(update_sql, (IDdestiny, systemID, IDdiscord))
+    cur.execute(update_sql, (IDdestiny, systemID, IDdiscord))
     con.commit()
     con.close()
 
@@ -262,9 +272,10 @@ def lookupSystem(destinyID):
     con = db_connect()
     getUser = """SELECT systemID FROM discordGuardiansToken
         WHERE destinyID = ?"""
-    result = con.execute(getUser, (destinyID,)).fetchone() or [None]
+    result = con.execute(getUser, (destinyID,)).fetchone()[0] or None
+    print(f'system for user {destinyID} is {result}')
     con.close()
-    return result[0]
+    return result
 
 def printall():
     """ **DEBUG** Prints the DB to console """
@@ -272,6 +283,8 @@ def printall():
     getAll = """SELECT * FROM discordGuardiansToken"""
     for row in con.execute(getAll).fetchall():
         print(row)
+        
+    con.close()
 
 def getEverything():
     """ **DEBUG** Prints the DB to console """
@@ -284,6 +297,7 @@ def getEverything():
 
     result = resultcur.fetchall()
     #print(result)
+    con.close()
 
     return result
 
@@ -295,6 +309,7 @@ def getAllDiscordMemberDestinyIDs():
 
     resultcur = cur.execute(getAll)
     result = resultcur.fetchall()
+    con.close()
 
     return [x[0] for x in result]
 
@@ -312,12 +327,6 @@ def insertIntoMessageDB(messagetext, userid, channelid, msgid, msgdate):
     except sqlite3.IntegrityError:
         return False
 
-def getMarkovPairs():
-    """ Gets all the markov-pairs """
-    con = db_connect()
-    getAll = """SELECT * FROM markovpairs"""
-    return con.execute(getAll).fetchall()
-
     
 def insertActivity(instanceID, activityHash, activityDurationSeconds, period, startingPhaseIndex, deaths, playercount, mode):
     """ adds an Activity to the database, not player-specific """
@@ -331,6 +340,7 @@ def insertActivity(instanceID, activityHash, activityDurationSeconds, period, st
     data_tuple = (instanceID, activityHash, activityDurationSeconds, period, startingPhaseIndex, deaths, playercount, mode)
     cur.execute(sqlite_insert_with_param, data_tuple)
     con.commit()
+    con.close()
 
 def insertInstanceDetails(instanceID, playerID, characterID, lightlevel, displayname, deaths, opponentsDefeated, completed):
     """ adds player-specific information """
@@ -343,6 +353,7 @@ def insertInstanceDetails(instanceID, playerID, characterID, lightlevel, display
     data_tuple = (instanceID, playerID, characterID, lightlevel, displayname, deaths, opponentsDefeated, completed)
     cur.execute(sqlite_insert_with_param, data_tuple)
     con.commit()
+    con.close()
 
 def instanceExists(instanceID):
     con = db_connect()
@@ -352,7 +363,9 @@ def instanceExists(instanceID):
 
     data_tuple = (instanceID,)
     cur.execute(sqlite_select, data_tuple)
-    return cur.fetchall()
+    result = cur.fetchall()
+    con.close()
+    return result
 
 def insertCharacter(playerID, characterID, system):
     """ adds player-specific information """
@@ -364,6 +377,7 @@ def insertCharacter(playerID, characterID, system):
     data_tuple = (playerID, characterID, system)
     cur.execute(sqlite_insert_with_param, data_tuple)
     con.commit()
+    con.close()
 
 def getSystemAndChars(destinyID):
     """ returns pairs of system,character """
@@ -375,7 +389,9 @@ def getSystemAndChars(destinyID):
                     """
     data_tuple = (destinyID,)
     cur.execute(sqlite_select, data_tuple)
-    return list(cur.fetchall())
+    result = list(cur.fetchall())
+    con.close()
+    return result
 
 def updatedPlayer(destinyID):
     """ sets players last updated time to now """
@@ -432,6 +448,7 @@ def getLastRaid(destinyID, before=datetime.now()):
         (lightlevel, displayname, deaths, opponentsDefeated, completed) = row
         finished = 'finished' if completed else 'left'
         result += f'{displayname} L{lightlevel}: {opponentsDefeated}/{deaths} {finished}\n'
+    con.close()
     return result
 
 def getFlawlessList(destinyID):
@@ -451,7 +468,9 @@ def getFlawlessList(destinyID):
                     """
     data_tuple = (destinyID,)
     cur.execute(sqlite_select, data_tuple)
-    return [res[0] for res in cur.fetchall()]
+    result = [res[0] for res in cur.fetchall()]
+    con.close()
+    return result
     
 #######################################################################################
 #

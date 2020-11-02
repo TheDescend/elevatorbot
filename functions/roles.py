@@ -168,7 +168,7 @@ async def assignRolesToUser(roleList, discordUser, guild, reason=None):
         #print(guild.roles)
         roleObj = discord.utils.get(guild.roles, name=role) or discord.utils.get(guild.roles, id=role)
         if not roleObj:
-            if guild.id not in [556418279015448596, 724676552175910934, 540482071571857408, 697720309847162921]: #Crashtest dummy, emote server, kinderguardian, Test 02
+            if guild.id in [669293365900214293]: #We only care about the descend discord
                 print(f'assignable role doesn\'t exist in {guild.name} with id {guild.id}: {role}')
             continue
         if roleObj not in discordUser.roles:
