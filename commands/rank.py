@@ -243,7 +243,7 @@ async def handle_user(stat, member, guild, extra_hash, extra_name):
         leaderboard_text = "Top Clanmembers by D2 Vaultspace Used"
         stat_text = "Used Space"
 
-        result_sort = len(await getVault(4611686018467765462))
+        result_sort = len(await getVault(destinyID))
         result = f"{result_sort:,}"
 
     elif stat == "raids":
