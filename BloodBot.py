@@ -47,7 +47,7 @@ this.running = False
 # Scheduler that will be used to manage events
 sched = AsyncIOScheduler()
 
-
+charley_spam = "Please enter a valid leaderboard name. Type `!help rank` for more information."
 ###############################################################################
 
 def launch_event_loops(client):
@@ -111,6 +111,9 @@ def main():
     @client.event
     async def common_handle_message(message):
         text = message.content
+        if charley_spam in text:
+            await message.delete()
+            return
 
         # if the message was from an dm, post it in #admin-discussions: Don't do that if bot send an command
         if isinstance(message.channel, discord.channel.DMChannel):

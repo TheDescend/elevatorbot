@@ -151,7 +151,6 @@ class statistic(BaseCommand):
                     msg = e
             msgs.append(msg)
 
-
             await a.delete()
             await message.channel.send("__**Channel Messages**__")
             for msg in msgs:
