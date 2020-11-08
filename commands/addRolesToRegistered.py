@@ -66,7 +66,7 @@ class whoIsNotRegistered(BaseCommand):
         await message.channel.send(", ".join(people))
 
 
-class findNaughtClanMembers(BaseCommand):
+class findNaughtyClanMembers(BaseCommand):
     def __init__(self):
         # A quick description for the help message
         description = "Blames ppl who are in the d2 clan, but do not fulfill requirements"
