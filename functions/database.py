@@ -273,7 +273,7 @@ def lookupSystem(destinyID):
     getUser = """SELECT systemID FROM discordGuardiansToken
         WHERE destinyID = ?"""
     result = con.execute(getUser, (destinyID,)).fetchone()[0] or None
-    print(f'system for user {destinyID} is {result}')
+    #print(f'system for user {destinyID} is {result}')
     con.close()
     return result
 
