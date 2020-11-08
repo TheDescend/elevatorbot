@@ -2,6 +2,7 @@ import discord
 
 from commands.base_command import BaseCommand
 from functions.database import lookupDestinyID, lookupDiscordID
+from functions.formating import embed_message
 from functions.network import getJSONfromURL
 from static.dict import clanids
 
@@ -72,7 +73,9 @@ class getDiscordFuzzy(BaseCommand):
             returnjson = await getJSONfromURL(f"https://www.bungie.net/Platform/GroupV2/{clanid}/Members?nameSearch={partialName}")
             clansearch.append(returnjson)
 
-        embed = discord.Embed(title=f'Possible matches for {partialName}:')
+        embed = embed_message(
+            f'Possible matches for {partialName}'
+        )
 
         for result in clansearch:
             resp = result['Response']

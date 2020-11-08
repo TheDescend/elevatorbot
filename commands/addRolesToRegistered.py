@@ -1,5 +1,6 @@
 from commands.base_command import BaseCommand
 from functions.database import getToken, lookupDiscordID
+from functions.formating import embed_message
 from functions.network import getJSONfromURL
 from functions.roles import assignRolesToUser, removeRolesFromUser
 from functions.roles import hasAdminOrDevPermissions
@@ -110,13 +111,20 @@ class findNaughtyClanMembers(BaseCommand):
                 not_accepted_rules.append(member.mention)
 
         if not_in_discord_or_registered:
-            await message.channel.send("**These destinyIDs are not in discord, or have not registered with the bot:**")
-            await message.channel.send(", ".join(not_in_discord_or_registered))
+            await message.channel.send(embed=embed_message(
+                "**These destinyIDs are not in discord, or have not registered with the bot**",
+                ", ".join(not_in_discord_or_registered)
+            ))
 
         if no_token:
-            await message.channel.send("**These users have no token and need to register with the bot:**")
-            await message.channel.send(", ".join(no_token))
+            await message.channel.send(embed=embed_message(
+                "**These users have no token and need to register with the bot**",
+                ", ".join(no_token)
+            ))
 
         if not_accepted_rules:
-            await message.channel.send("**These users have not yet accepted the rules:**")
-            await message.channel.send(", ".join(not_accepted_rules))
+            await message.channel.send(embed=embed_message(
+                "**These users have not yet accepted the rules**",
+                ", ".join(not_accepted_rules)
+            ))
+
