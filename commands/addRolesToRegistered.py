@@ -4,7 +4,9 @@ from functions.network import getJSONfromURL
 from functions.roles import assignRolesToUser, removeRolesFromUser
 from functions.roles import hasAdminOrDevPermissions
 from static.config import CLANID
-from static.globals import registered_role_id, not_registered_role_id
+from static.globals import registered_role_id, not_registered_role_id, member_role_id
+
+import discord
 
 
 class addRolesToRegistered(BaseCommand):
@@ -64,10 +66,10 @@ class whoIsNotRegistered(BaseCommand):
         await message.channel.send(", ".join(people))
 
 
-class whoIsNotRegisteredAndInClan(BaseCommand):
+class findNaughtClanMembers(BaseCommand):
     def __init__(self):
         # A quick description for the help message
-        description = "Blames ppl who are not registered and are in the d2 clan"
+        description = "Blames ppl who are in the d2 clan, but do not fulfill requirements"
         topic = "Registration"
         params = []
         super().__init__(description, params, topic)
@@ -79,13 +81,42 @@ class whoIsNotRegisteredAndInClan(BaseCommand):
         memberlist = []
         for member in (await getJSONfromURL(f"https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/"))["Response"]["results"]:
             destinyID = int(member["destinyUserInfo"]["membershipId"])
+            memberlist.append(destinyID)
+
+        rules = discord.utils.get(message.guild.roles, id=member_role_id)
+
+        not_in_discord_or_registered = []       # list of destinyID
+        no_token = []                           # list of guild.member.mention
+        not_accepted_rules = []                 # list of guild.member.mention
+
+        # loop through all members and check requirements
+        for destinyID in memberlist:
+            # check if in discord or still having the old force registration
             discordID = lookupDiscordID(destinyID)
-            if discordID is not None:
-                memberlist.append(discordID)
+            if discordID is None:
+                not_in_discord_or_registered.append(str(destinyID))
+                continue
+            member = message.guild.get_member(discordID)
+            if member is None:
+                not_in_discord_or_registered.append(str(destinyID))
+                continue
 
-        people = []
-        for member in message.guild.members:
-            if not getToken(member.id) and (member.id in memberlist):
-                people.append(member.name)
+            # check if no token
+            if not getToken(discordID):
+                no_token.append(member.mention)
 
-        await message.channel.send(", ".join(people))
+            # check if accepted rules
+            if rules not in member.roles:
+                not_accepted_rules.append(member.mention)
+
+        if not_in_discord_or_registered:
+            await message.channel.send("**These destinyIDs are not in discord, or have not registered with the bot:**")
+            await message.channel.send(", ".join(not_in_discord_or_registered))
+
+        if no_token:
+            await message.channel.send("**These users have no token and need to register with the bot:**")
+            await message.channel.send(", ".join(no_token))
+
+        if not_accepted_rules:
+            await message.channel.send("**These users have not yet accepted the rules:**")
+            await message.channel.send(", ".join(not_accepted_rules))
