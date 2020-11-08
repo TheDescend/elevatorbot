@@ -79,10 +79,13 @@ class getDiscordFuzzy(BaseCommand):
 
         for result in clansearch:
             resp = result['Response']
+            i = 0
             for user in resp['results']:
-                ingamename = user['destinyUserInfo']['LastSeenDisplayName']
+                i += 1
+                steam_name = user['destinyUserInfo']['LastSeenDisplayName']
+                bungie_name = user['bungieNetUserInfo']['displayName']
                 destinyID = user['destinyUserInfo']['membershipId']
                 discordID = lookupDiscordID(destinyID)
-                embed.add_field(name=ingamename, value=f"<@{discordID}>", inline=False)
+                embed.add_field(name=f"Option {i}", value=f"Discord - <@{discordID}>\nSteamName - {steam_name}\nBungieName - {bungie_name}", inline=False)
 
         await message.channel.send(embed=embed)
