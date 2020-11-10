@@ -39,10 +39,13 @@ class whatToDo(BaseCommand):
         block = False
 
         # set user to author or param
-        user = message.guild.get_member(params[0])
-        if user:
-            block = True
-        else:
+        try:
+            user = message.guild.get_member(params[0])
+            if user:
+                block = True
+            else:
+                user = message.author
+        except IndexError:
             user = message.author
 
         if len(params) == 2:
