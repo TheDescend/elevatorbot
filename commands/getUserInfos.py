@@ -1,11 +1,11 @@
 import discord
+from discord.ext import commands
 
 from commands.base_command import BaseCommand
 from functions.database import lookupDestinyID, lookupDiscordID
 from functions.formating import embed_message
 from functions.network import getJSONfromURL
 from static.dict import clanids
-
 
 class getDestinyID(BaseCommand):
     def __init__(self):
@@ -18,10 +18,13 @@ class getDestinyID(BaseCommand):
     # Override the handle() method
     # It will be called every time the command is received
     async def handle(self, params, message, client):
-        discordID = int(params[0])
-        discordUser = client.get_user(discordID)
+        try:
+            ctx = await client.get_context(message)
+            discordUser = await commands.MemberConverter().convert(ctx, params[0])
+        except:
+            await message.channel.send(f'User not found')
         if not discordUser:
-             await message.channel.send(f'Unknown User {discordID}')
+            await message.channel.send(f'Unknown User {discordID}')
         print(f'{discordID} with {lookupDestinyID(discordID)}')
         await message.channel.send(f'{discordUser.name} has destinyID {lookupDestinyID(discordID)}')
 
