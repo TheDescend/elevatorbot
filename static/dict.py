@@ -322,7 +322,7 @@ requirementHashes = {
                 1661612473, #To the Top
                 3167166053, #Zero to One Hundred
             ],
-            'replaced_by':['Garden of Salvation Master']
+            'replaced_by':['Y3 Raid Master']
        },
         'Y3 Raid Master': {
             'requirements': ['clears', 'records'],
