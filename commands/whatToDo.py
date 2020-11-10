@@ -36,14 +36,18 @@ class whatToDo(BaseCommand):
 
         # set user to the one that send the message, or if a 2nd param was used, the one mentioned
         # do the same, if the first param can be converted to a user
-        user = message.author
         block = False
-        ctx = await client.get_context(message)
+
+        # set user to author or param
         try:
             user = message.guild.get_member(params[0])
-            block = True
-        except:
-            pass
+            if user:
+                block = True
+            else:
+                user = message.author
+        except IndexError:
+            user = message.author
+
         if len(params) == 2:
             try:
                 user = message.guild.get_member(params[1])

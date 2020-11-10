@@ -324,8 +324,8 @@ requirementHashes = {
             ],
             'replaced_by':['Garden of Salvation Master']
        },
-        'Garden of Salvation Master': {
-            'requirements': ['clears','records'],
+        'Y3 Raid Master': {
+            'requirements': ['clears', 'records'],
             'clears': [
                 {'count' : 30,
                 'actHashes' : gosHashes} #Minimum 30 full clears

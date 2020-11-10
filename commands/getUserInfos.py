@@ -82,6 +82,13 @@ class getDiscordFuzzy(BaseCommand):
 
         for result in clansearch:
             resp = result['Response']
+            if not resp['results']:
+                await message.channel.send(embed=embed_message(
+                    f'Possible matches for {partialName}',
+                    "No matches found"
+                ))
+                return
+
             i = 0
             for user in resp['results']:
                 i += 1
