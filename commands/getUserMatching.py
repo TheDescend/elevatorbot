@@ -38,9 +38,15 @@ class getUserMatching(BaseCommand):
             sortedSuccessfulMatches = sorted(successfulMatches, key=lambda pair: pair[2].lower())
             successfulMessage = ''
             for (steamname, crosssavename, username) in sortedSuccessfulMatches:  
-                successfulMessage += f'{username} has successfully been matched to {steamname} / {crosssavename}\n'
-            await message.channel.send(successfulMessage)
-
+                successfulMessage += f'{username:<30} - {steamname} / {crosssavename}\n'
+            
+            if len(successfulMessage) < 2000:
+                await message.channel.send(successfulMessage)
+            else:
+                remainingMessage = successfulMessage
+                while curMessage := remainingMessage[:1900]:
+                    await message.channel.send(curMessage)
+                    remainingMessage = remainingMessage[1900:]
             await message.channel.send('FAILED MATCHES:')
             unsuccessfulMessage = ''
             for (steamname, crosssavename, userid) in unsuccessfulMatches:    
