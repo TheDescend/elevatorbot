@@ -111,20 +111,29 @@ class findNaughtyClanMembers(BaseCommand):
                 not_accepted_rules.append(member.mention)
 
         if not_in_discord_or_registered:
-            await message.channel.send(embed=embed_message(
-                "**These destinyIDs are not in discord, or have not registered with the bot**",
-                ", ".join(not_in_discord_or_registered)
-            ))
+            textstr = ", ".join(not_in_discord_or_registered)
+            while tempstr := textstr[:1900]:
+                await message.channel.send(
+                    "**These destinyIDs are not in discord, or have not registered with the bot**\n"
+                    + tempstr
+                )
+                textstr = textstr[1900:]
 
         if no_token:
-            await message.channel.send(embed=embed_message(
-                "**These users have no token and need to register with the bot**",
-                ", ".join(no_token)
-            ))
+            textstr = ", ".join(no_token)
+            while tempstr := textstr[:1900]:
+                await message.channel.send(
+                    "**These users have no token and need to register with the bot** \n"
+                    + tempstr
+                )
+                textstr = textstr[1900:]
 
         if not_accepted_rules:
-            await message.channel.send(embed=embed_message(
-                "**These users have not yet accepted the rules**",
-                ", ".join(not_accepted_rules)
-            ))
+            textstr = ", ".join(not_accepted_rules)
+            while tempstr := textstr[:1900]:
+                await message.channel.send(
+                    "**These users have not yet accepted the rules**\n"
+                    + tempstr
+                )
+                textstr = textstr[1900:]
 
