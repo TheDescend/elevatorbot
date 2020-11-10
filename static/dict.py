@@ -397,6 +397,7 @@ requirementHashes = {
             'replaced_by': ['Solo Flawless Pit of Heresy']
         },
         'Solo Prophecy': {
+            "deprecated": True,
             'requirements': ['records'],
             'records' : [
                 2382088899
@@ -404,6 +405,7 @@ requirementHashes = {
             'replaced_by': ['Solo Flawless Prophecy']
         },
         'Flawless Prophecy': {
+            "deprecated": True,
             'requirements': ['records'],
             'records' : [
                 2094467183
@@ -411,6 +413,7 @@ requirementHashes = {
             'replaced_by': ['Solo Flawless Prophecy']
         },
         'Solo Flawless Prophecy': {
+            "deprecated": True,
             'requirements': ['records'],
             'records' : [
                 3931440391
