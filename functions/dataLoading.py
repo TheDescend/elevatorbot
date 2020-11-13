@@ -81,7 +81,7 @@ async def getPlayersPastPVE(destinyID, mode=7):
     syscharlist = getSystemAndChars(destinyID)
     if getLastUpdated(destinyID) > datetime.strptime("26/03/2015 04:20", "%d/%m/%Y %H:%M") or not syscharlist:
         platform, charIDs = await getCharacterList(destinyID)
-        print(f'grabbed chars for {destinyID}')
+        #print(f'grabbed chars for {destinyID}')
     else:
         (platform, _) = syscharlist[0]
         charIDs = [charid for (_,charid) in syscharlist]
