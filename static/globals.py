@@ -13,6 +13,7 @@ clan_role_id = 670384239489056768
 divider_misc_role_id = 670395920327639085
 divider_achievement_role_id = 670385837044662285
 divider_raider_role_id = 670385313994113025
+divider_legacy_role_id = 776854211585376296
 
 among_us_role_id = 750409552075423753
 barotrauma_role_id = 738438622553964636
