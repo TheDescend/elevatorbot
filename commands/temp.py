@@ -6,7 +6,7 @@ from functions.roles import hasAdminOrDevPermissions
 from oauth import refresh_token
 from static.config import BUNGIE_OAUTH
 
-class fixTokenExpiry(BaseCommand):
+class giveLegacyDivider(BaseCommand):
     def __init__(self):
         # A quick description for the help message
         description = "[dev]Register with bungie.net"
@@ -17,23 +17,28 @@ class fixTokenExpiry(BaseCommand):
     # Override the handle() method
     # It will be called every time the command is received
     async def handle(self, params, message, client):
-        users = getEverything()
+        # users = getEverything()
 
-        notokenlist = []
+        # notokenlist = []
 
-        for (discordSnowflake, destinyID, serverID, systemID, token, _refresh_token, token_expiry, refresh_token_expiry) in users:
-            if not token_expiry or not refresh_token_expiry:
-                if not _refresh_token:
-                    notokenlist.append(str(discordSnowflake))
-                    continue
-                ret = await refresh_token(discordSnowflake)
+        # for (discordSnowflake, destinyID, serverID, systemID, token, _refresh_token, token_expiry, refresh_token_expiry) in users:
+        #     if not token_expiry or not refresh_token_expiry:
+        #         if not _refresh_token:
+        #             notokenlist.append(str(discordSnowflake))
+        #             continue
+        #         ret = await refresh_token(discordSnowflake)
                 
-                if ret:
-                    await message.channel.send(f"Updated tokens from discordID {discordSnowflake} destinyID {destinyID}")
-                else:
-                    await message.channel.send(f"__**Update tokens from discordID {discordSnowflake} destinyID {destinyID} failed**__")
-        broketext = ", ".join(notokenlist)
-        await message.channel.send(f'following users did not have a token to refresh {broketext[:1900]}')
-        await message.channel.send(f'{broketext[1900:]}')
-        await message.channel.send("Done")
+        #         if ret:
+        #             await message.channel.send(f"Updated tokens from discordID {discordSnowflake} destinyID {destinyID}")
+        #         else:
+        #             await message.channel.send(f"__**Update tokens from discordID {discordSnowflake} destinyID {destinyID} failed**__")
+        # broketext = ", ".join(notokenlist)
+        # await message.channel.send(f'following users did not have a token to refresh {broketext[:1900]}')
+        # await message.channel.send(f'{broketext[1900:]}')
+        # await message.channel.send("Done")
+        
+        legacyDivider = message.guild.get_role(776854211585376296)
+        for member in message.guild.members:
+            await member.add_roles(legacyDivider)
+        await message.channel.send('added all roles')
 
