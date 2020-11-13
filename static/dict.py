@@ -418,14 +418,14 @@ requirementHashes = {
         }
     },
     "Lowmans":{
-        'Three-Man Argos': {
+        'Trio Argos': {
             "deprecated": True,
             'requirements': ['lowman'],
             'playercount' : 3,
             'activityHashes': eaterHashes + eaterPHashes,
-            'replaced_by': ['Solo Argos', 'Two-Man Argos'],
+            'replaced_by': ['Solo Argos', 'Duo Argos'],
          },
-        'Two-Man Argos': {
+        'Duo Argos': {
             "deprecated": True,
             'requirements': ['lowman'],
             'playercount' : 2,
@@ -438,14 +438,14 @@ requirementHashes = {
             'playercount' : 1,
             'activityHashes': eaterHashes + eaterPHashes,
          },
-        'Three-Man Insurrection': {
+        'Trio Insurrection': {
             "deprecated": True,
             'requirements': ['lowman'],
             'playercount' : 3,
             'activityHashes': scourgeHashes,
-            'replaced_by': ['Two-Man Insurrection'],
+            'replaced_by': ['Duo Insurrection'],
          },
-        'Two-Man Insurrection': {
+        'Duo Insurrection': {
             "deprecated": True,
             'requirements': ['lowman'],
             'playercount' : 2,
@@ -456,56 +456,56 @@ requirementHashes = {
             'playercount' : 1,
             'activityHashes': lwHashes
          },
-         'Two-Man Queenswalk': {
+         'Duo Queenswalk': {
             'requirements': ['lowman'],
             'playercount' : 2,
             'activityHashes': lwHashes,
             'replaced_by': ['Solo Queenswalk']
          },
-         'Three-Man Queenswalk': {
+         'Trio Queenswalk': {
             'requirements': ['lowman'],
             'playercount' : 3,
             'activityHashes': lwHashes,
-            'replaced_by': ['Solo Queenswalk', 'Two-Man Queenswalk']
+            'replaced_by': ['Solo Queenswalk', 'Duo Queenswalk']
          },
-         'Two-Man Calus': {
+         'Duo Calus': {
             "deprecated": True,
             'requirements': ['lowman'],
             'playercount' : 2,
             'activityHashes': leviHashes + leviPHashes,
          },
-         'Three-Man Gahlran': {
+         'Trio Gahlran': {
             "deprecated": True,
             'requirements': ['lowman'],
             'playercount' : 3,
             'activityHashes': cosHashes,
-            'replaced_by': ['Two-Man Gahlran'],
+            'replaced_by': ['Duo Gahlran'],
          },
-         'Two-Man Gahlran': {
+         'Duo Gahlran': {
             "deprecated": True,
             'requirements': ['lowman'],
             'playercount' : 2,
             'activityHashes': cosHashes,
          },
-         'Two-Man Sanctified Mind': {
+         'Duo Sanctified Mind': {
             'requirements': ['lowman'],
             'playercount' : 2,
             'activityHashes': gosHashes,
          },
-        'Three-Man Sanctified Mind': {
+        'Trio Sanctified Mind': {
             'requirements': ['lowman'],
             'playercount' : 3,
             'activityHashes': gosHashes,
-            'replaced_by': ['Two-Man Sanctified Mind'],
+            'replaced_by': ['Duo Sanctified Mind'],
          },
-        'Three-Man Heroic Menagerie': {
+        'Trio Heroic Menagerie': {
             "deprecated": True,
             'requirements': ['lowman'],
             'playercount' : 3,
             'activityHashes': premenHashes,
-            'replaced_by': ['Two-Man Heroic Menagerie', 'Solo Heroic Menagerie']
+            'replaced_by': ['Duo Heroic Menagerie', 'Solo Heroic Menagerie']
         },
-        'Two-Man Heroic Menagerie': {
+        'Duo Heroic Menagerie': {
             "deprecated": True,
             'requirements': ['lowman'],
             'playercount' : 2,
