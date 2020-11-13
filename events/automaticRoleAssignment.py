@@ -8,8 +8,7 @@ from functions.database import lookupDiscordID, lookupDestinyID, getToken
 from functions.network import getJSONfromURL
 from functions.roles import assignRolesToUser, removeRolesFromUser, getPlayerRoles
 from static.config import CLANID, BOTDEVCHANNELID
-from static.globals import member_role_id, guest_role_id, registered_role_id, not_registered_role_id, \
-    divider_misc_role_id, divider_achievement_role_id, divider_raider_role_id, clan_role_id
+from static.globals import *
 
 
 class AutomaticRoleAssignment(BaseEvent):
@@ -142,3 +141,5 @@ class AutoRegisteredRole(BaseEvent):
                         await assignRolesToUser([divider_achievement_role_id], member, guild)
                     if discord.utils.get(guild.roles, id=divider_misc_role_id) not in member.roles:
                         await assignRolesToUser([divider_misc_role_id], member, guild)
+                    if discord.utils.get(guild.roles, id=divider_legacy_role_id) not in member.roles:
+                        await assignRolesToUser([divider_legacy_role_id], member, guild)
