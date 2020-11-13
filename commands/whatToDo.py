@@ -92,7 +92,7 @@ class whatToDo(BaseCommand):
                     for topic in roles:
                         embed.add_field(name=topic, value=("\n".join(roles[topic]) or "None"), inline=True)
                 else:
-                    embed.add_field(name="Wow, you got every single role. Congrats!", value="⁣", inline=False)
+                    embed.add_field(name="Wow, you got every single role that is currently earnable in game. Congrats!", value="⁣", inline=False)
 
             # do the missing triumphs display
             if do_all or (params[0] == "triumphs"):
@@ -195,6 +195,12 @@ class whatToDo(BaseCommand):
                                     break
                                 except ValueError:
                                     pass
+
+        # remove the empty categories
+        for role, roledata in roles.items():
+            if not roledata:
+                roles.pop(role)
+
         return roles
 
     async def missingTriumphs(self, user):
