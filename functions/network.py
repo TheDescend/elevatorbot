@@ -19,13 +19,17 @@ async def getJSONfromURL(requestURL, headers=headers, params={}):
         # abort after 5 tries
         for i in range(5):
             async with session.get(url=requestURL, headers=headers, params=params, timeout=60) as r:
+                res = await r.json()
+
                 # ok
                 if r.status == 200:
-                    return await r.json()
+                    return res
 
                 # handling any errors if not ok
-                if await errorCodeHandling(requestURL, r):
+                if await errorCodeHandling(requestURL, r, res):
                     return None
+                if res["ErrorStatus"] == "PerEndpointRequestThrottleExceeded":
+                    return await getJSONfromURL(requestURL, headers=headers, params=params)
 
         print(f'Request failed 5 times, aborting {requestURL}')
         return None
@@ -51,15 +55,18 @@ async def getJSONwithToken(requestURL, discordID):
         # abort after 5 tries
         for i in range(5):
             async with session.get(url=requestURL, headers=headers) as r:
+                res = await r.json()
+
                 # ok
                 if r.status == 200:
-                    res = await r.json()
                     return {'result': res, 'error': None}
 
                 # handling any errors if not ok
                 else:
-                    if await errorCodeHandling(requestURL, r):
+                    if await errorCodeHandling(requestURL, r, res):
                         return {'result': None, 'error': f"Status Code <{r.status}>"}
+                    if res["ErrorStatus"] == "PerEndpointRequestThrottleExceeded":
+                        return await getJSONwithToken(requestURL, discordID)
 
         print('Request failed 5 times, aborting')
         try:
@@ -106,15 +113,18 @@ async def postJSONtoBungie(postURL, data, discordID):
         # abort after 5 tries
         for i in range(5):
             async with session.post(url=postURL, json=data, headers=headers, allow_redirects=False) as r:
+                res = await r.json()
+
                 # ok
                 if r.status == 200:
-                    res = await r.json()
                     return {'result': res, 'error': None}
 
                 # handling any errors if not ok
                 else:
-                    if await errorCodeHandling(postURL, r):
+                    if await errorCodeHandling(postURL, r, res):
                         return {'result': None, 'error': f"Status Code <{r.status}>"}
+                    if res["ErrorStatus"] == "PerEndpointRequestThrottleExceeded":
+                        return await postJSONtoBungie(postURL, data, discordID)
 
         print('Request failed 5 times, aborting')
         try:
@@ -126,7 +136,7 @@ async def postJSONtoBungie(postURL, data, discordID):
         return {'result': None, 'error': msg}
 
 # if this returns True, None should be return by the caller. If it returns False, it should try again
-async def errorCodeHandling(requestURL, r):
+async def errorCodeHandling(requestURL, r, res):
     # generic bad request, such as wrong format
     if r.status == 400:
         print(f'Generic bad request for {requestURL}')
@@ -137,7 +147,6 @@ async def errorCodeHandling(requestURL, r):
         return True
     # Internal server error
     elif r.status == 500:
-        res = await r.json()
         error = res["ErrorStatus"]
         # we we are getting throttled
         if error == "PerEndpointRequestThrottleExceeded":
