@@ -2,6 +2,7 @@ import asyncio
 import time
 
 import aiohttp
+import random
 
 from functions.database import getToken, getTokenExpiry
 from oauth import refresh_token
@@ -17,7 +18,7 @@ async def getJSONfromURL(requestURL, headers=headers, params={}):
     async with aiohttp.ClientSession(cookie_jar=no_jar) as session:
         # abort after 5 tries
         for i in range(5):
-            async with session.get(url=requestURL, headers=headers, params=params) as r:
+            async with session.get(url=requestURL, headers=headers, params=params, timeout=60) as r:
                 # ok
                 if r.status == 200:
                     return await r.json()
@@ -26,7 +27,7 @@ async def getJSONfromURL(requestURL, headers=headers, params={}):
                 if await errorCodeHandling(requestURL, r):
                     return None
 
-        print('Request failed 5 times, aborting')
+        print(f'Request failed 5 times, aborting {requestURL}')
         return None
 
 async def getJSONwithToken(requestURL, discordID):
@@ -141,7 +142,7 @@ async def errorCodeHandling(requestURL, r):
         # we we are getting throttled
         if error == "PerEndpointRequestThrottleExceeded":
             print(f"Getting throtteled, waiting  {res['ThrottleSeconds']}")
-            await asyncio.sleep(res["ThrottleSeconds"])
+            await asyncio.sleep(res["ThrottleSeconds"]*random.randrange(33, 66))
 
         # if user doesn't have that item
         elif error == "DestinyItemNotFound":
