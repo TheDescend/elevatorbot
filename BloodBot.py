@@ -1,4 +1,10 @@
 #!/usr/bin/env python3
+import sys
+if "http" in sys.modules:
+    raise ImportError("Crawler must be imported before http module")
+import http.cookies
+http.cookies._is_legal_key = lambda _: True
+
 import asyncio
 import os
 import random
