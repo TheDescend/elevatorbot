@@ -139,6 +139,7 @@ async def errorCodeHandling(requestURL, r):
         error = res["ErrorStatus"]
         # we we are getting throttled
         if error == "PerEndpointRequestThrottleExceeded":
+            print(f"Getting throtteled, waiting  {res['ThrottleSeconds']}")
             await asyncio.sleep(res["ThrottleSeconds"])
 
         # if user doesn't have that item
