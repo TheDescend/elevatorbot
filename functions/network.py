@@ -13,8 +13,8 @@ headers = {'X-API-Key': BUNGIE_TOKEN}
 
 async def getJSONfromURL(requestURL, headers=headers, params={}):
     """ Grabs JSON from the specified URL (no oauth)"""
-
-    async with aiohttp.ClientSession() as session:
+    no_jar = aiohttp.DummyCookieJar()
+    async with aiohttp.ClientSession(cookie_jar=no_jar) as session:
         # abort after 5 tries
         for i in range(5):
             async with session.get(url=requestURL, headers=headers, params=params) as r:
@@ -45,7 +45,8 @@ async def getJSONwithToken(requestURL, discordID):
         'Accept': 'application/json'
     }
 
-    async with aiohttp.ClientSession() as session:
+    no_jar = aiohttp.DummyCookieJar()
+    async with aiohttp.ClientSession(cookie_jar=no_jar) as session:
         # abort after 5 tries
         for i in range(5):
             async with session.get(url=requestURL, headers=headers) as r:
