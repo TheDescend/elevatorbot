@@ -429,14 +429,15 @@ def sort_gear_by_slot(items):
 
 
 async def get_highest_item_light_level(destinyID, system, items):
-    power = 0
+    max_power = 0
 
     for item in items:
         try:
-            item_power = (await getItemDefinition(destinyID, system, item["itemInstanceId"], 300))["instance"]["data"]["primaryStat"]['value']
+            if item_definition := await getItemDefinition(destinyID, system, item["itemInstanceId"], 300):
+                item_power = item_definition["instance"]["data"]["primaryStat"]['value']
 
-            if item_power > power:
-                power = item_power
+                if item_power > max_power:
+                    max_power = item_power
         except KeyError:
             pass
-    return power
+    return max_power
