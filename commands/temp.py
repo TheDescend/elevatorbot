@@ -1,5 +1,5 @@
 from commands.base_command import BaseCommand
-from functions.dataLoading import getCharactertypeList, getCharacterList, OUTDATEDgetSystem
+from functions.dataLoading import getCharactertypeList, getCharacterList, OUTDATEDgetSystem, getInventoryBucket
 from functions.database import removeUser, lookupDestinyID, getEverything, updateUser, updateToken, getRefreshToken
 from functions.formating import embed_message
 from functions.roles import hasAdminOrDevPermissions
@@ -41,4 +41,3 @@ class giveLegacyDivider(BaseCommand):
         for member in message.guild.members:
             await member.add_roles(legacyDivider)
         await message.channel.send('added all roles')
-

@@ -157,6 +157,7 @@ async def getItemDefinition(destinyID, system, itemID, components):
 async def getInventoryBucket(destinyID, bucket=138197802):
     items = (await getProfile(destinyID, 102, with_token=True))["profileInventory"]["data"]["items"]
     ret = []
+    print(items)
     for item in items:
         if item["bucketHash"] == bucket:    # vault hash
             ret.append(item)
@@ -164,13 +165,15 @@ async def getInventoryBucket(destinyID, bucket=138197802):
     return ret
 
 
+# gets the current artifact, which includes the level
+async def getArtifact(destinyID):
+    return (await getProfile(destinyID, 104, with_token=True))['profileProgression']['data']['seasonalArtifact']
 
-# returns all items in vault + inventory. Also gets ships and stuff - not only armor / weapons
-async def getAllGear(destinyID):
+
+# returns all items in inventory
+async def getCharacterGear(destinyID):
+    items = []
     chars = await getCharacterList(destinyID)
-
-    # vault
-    items = await getInventoryBucket(destinyID)
 
     # not equiped on chars
     char_inventory = (await getProfile(destinyID, 201, with_token=True))["characterInventories"]["data"]
@@ -181,6 +184,16 @@ async def getAllGear(destinyID):
     char_inventory = (await getProfile(destinyID, 205))['characterEquipment']["data"]
     for char in chars[1]:
         items.extend(char_inventory[char]["items"])
+
+    return items
+
+
+# returns all items in vault + inventory. Also gets ships and stuff - not only armor / weapons
+async def getAllGear(destinyID):
+    # vault
+    items = await getInventoryBucket(destinyID)
+
+    items.extend(await getCharacterGear(destinyID))
 
     # returns a list with the dicts of the items
     return items

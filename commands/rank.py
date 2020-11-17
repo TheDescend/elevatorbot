@@ -5,7 +5,7 @@ import pandas
 from commands.base_command import BaseCommand
 from functions.dataLoading import getStats, getProfile, getCharacterList, \
     getAggregateStatsForChar, getInventoryBucket, getWeaponKills, returnManifestInfo, searchArmory, getAllGear, \
-    getItemDefinition
+    getItemDefinition, getArtifact, getCharacterGear
 from functions.database import lookupDiscordID, getToken, lookupSystem
 from functions.formating import embed_message
 from functions.network import getJSONfromURL
@@ -233,12 +233,27 @@ async def handle_user(stat, member, guild, extra_hash, extra_name):
         result = f"{result_sort:,}"
 
     elif stat == "maxpower":
+        if not getToken(discordID):
+            return None
+
         leaderboard_text = "Top Clanmembers by D2 Maximum Reported Power"
         stat_text = "Power"
 
-        json = await getStats(destinyID)
-        result_sort = int(json["mergedAllCharacters"]["merged"]["allTime"]["highestLightLevel"]["basic"]["value"])
-        result = f"{result_sort:,}"
+        artifact_power = (await getArtifact(destinyID))["powerBonus"]
+        system = lookupSystem(destinyID)
+
+        items = await getCharacterGear(destinyID)
+        items = sort_gear_by_slot(items)
+
+        results = await asyncio.gather(*[get_highest_item_light_level(destinyID, system, slot) for slot in items])
+
+        total_power = 0
+        for ret in results:
+            total_power += ret
+        total_power /= 8
+
+        result_sort = int(total_power + artifact_power)
+        result = f"{int(total_power):,} + {artifact_power:,}"
 
     elif stat == "vaultspace":
         sort_by_ascending = True
@@ -283,9 +298,6 @@ async def handle_user(stat, member, guild, extra_hash, extra_name):
         for item in items:
             if item["itemHash"] == 3853748946:
                 result_sort += item["quantity"]
-
-
-
         result = f"{result_sort:,}"
 
     elif stat == "weapon":
@@ -381,3 +393,50 @@ async def get_armor_stat(destinyID, system, itemInstanceId, extra_hash):
         return (await getItemDefinition(destinyID, system, itemInstanceId, 304))["stats"]["data"]["stats"][str(extra_hash)]["value"]
     except KeyError:
         return None
+
+# takes list of items and sorts them
+def sort_gear_by_slot(items):
+    helmet = []         # 3448274439
+    gauntlet = []       # 3551918588
+    chest = []          # 14239492
+    leg = []            # 20886954
+    class_item = []     # 1585787867
+
+    kinetic = []        # 1498876634
+    energy = []         # 2465295065
+    power = []          # 953998645
+
+    for item in items:
+        if item["bucketHash"] == 3448274439:
+            helmet.append(item)
+        elif item["bucketHash"] == 3551918588:
+            gauntlet.append(item)
+        elif item["bucketHash"] == 14239492:
+            chest.append(item)
+        elif item["bucketHash"] == 20886954:
+            leg.append(item)
+        elif item["bucketHash"] == 1585787867:
+            class_item.append(item)
+
+        elif item["bucketHash"] == 1498876634:
+            kinetic.append(item)
+        elif item["bucketHash"] == 2465295065:
+            energy.append(item)
+        elif item["bucketHash"] == 953998645:
+            power.append(item)
+
+    return [helmet, gauntlet, chest, leg, class_item, kinetic, energy, power]
+
+
+async def get_highest_item_light_level(destinyID, system, items):
+    power = 0
+
+    for item in items:
+        try:
+            item_power = (await getItemDefinition(destinyID, system, item["itemInstanceId"], 300))["instance"]["data"]["primaryStat"]['value']
+
+            if item_power > power:
+                power = item_power
+        except KeyError:
+            pass
+    return power
