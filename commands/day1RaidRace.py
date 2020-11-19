@@ -58,7 +58,6 @@ class day1spam(BaseCommand):
 
             # set new now
             now = datetime.datetime.now(datetime.timezone.utc)
-            print(now)
 
         async with channel.typing():
             if finished_raid:
