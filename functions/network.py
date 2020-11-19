@@ -28,8 +28,6 @@ async def getJSONfromURL(requestURL, headers=headers, params={}):
                 # handling any errors if not ok
                 if await errorCodeHandling(requestURL, r, res):
                     return None
-                if res["ErrorStatus"] == "PerEndpointRequestThrottleExceeded":
-                    return await getJSONfromURL(requestURL, headers=headers, params=params)
 
         print(f'Request failed 5 times, aborting {requestURL}')
         return None
@@ -151,7 +149,7 @@ async def errorCodeHandling(requestURL, r, res):
         # we we are getting throttled
         if error == "PerEndpointRequestThrottleExceeded":
             print(f"Getting throtteled, waiting  {res['ThrottleSeconds']}")
-            await asyncio.sleep(res["ThrottleSeconds"]*random.randrange(33, 66))
+            await asyncio.sleep(res["ThrottleSeconds"]*random.randrange(0, 5))
 
         # if user doesn't have that item
         elif error == "DestinyItemNotFound":
