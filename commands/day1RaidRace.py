@@ -34,7 +34,6 @@ class day1spam(BaseCommand):
         activity_metric = 954805812
         activity_hashes = [3976949817, 910380154]
         cutoff_time = datetime.datetime(2020, 11, 22, 18, 0, tzinfo=datetime.timezone.utc)
-        cutoff_time = datetime.datetime(2020, 11, 19, 12, 46, tzinfo=datetime.timezone.utc)
 
         start = datetime.datetime.now()  # Need that for calculating total time. this time without utc timezone since bungie return doesnt care about that
         finished_raid = []
