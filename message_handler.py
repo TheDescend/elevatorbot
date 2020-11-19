@@ -50,4 +50,3 @@ async def handle_command(command, args, message, bot_client):
                                       + f" Params should be {', '.join(cmd_obj.params)}")
     else:
         await cmd_obj.handle(args, message, bot_client)
-        

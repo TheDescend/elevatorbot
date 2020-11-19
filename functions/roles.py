@@ -15,6 +15,11 @@ async def hasAdminOrDevPermissions(message, send_message=True):
     admin = discord.utils.get(message.guild.roles, id=admin_role_id)
     dev = discord.utils.get(message.guild.roles, id=dev_role_id)
     mod = discord.utils.get(message.guild.roles, id=mod_role_id)
+
+    # also checking for Kigstns id, to make that shit work on my local version of the bot
+    if message.author.id == 238388130581839872:
+        return True
+
     if admin not in message.author.roles and dev not in message.author.roles and mod not in message.author.roles:
         if send_message:
             await message.channel.send(embed=embed_message(

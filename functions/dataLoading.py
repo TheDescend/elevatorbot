@@ -112,6 +112,33 @@ async def getPlayersPastPVE(destinyID, mode=7):
             charIDs.remove(charid)
     #return sorted(activitylist, key = lambda i: i['period'], reverse=True)
 
+
+# rewrite of getPlayersPastPVE() bc that was not working well if you want to break at a certain datetime
+#
+# None	    0 Everything
+# Story	    2
+# Strike	3
+# Raid	    4
+# AllPvP	5
+# Patrol	6
+# AllPvE	7
+async def getCharacterPastPVE(destinyID, characterID, mode=0):
+    system = lookupSystem(destinyID)
+
+    for pagenr in range(10000):
+        staturl = f"https://www.bungie.net/Platform/Destiny2/{system}/Account/{destinyID}/Character/{characterID}/Stats/Activities/?mode={mode}&count=250&page={pagenr}"
+        rep = await getJSONfromURL(staturl)
+
+        # stopping if exceeds pages / error
+        if not rep or not rep['Response']:
+            break
+
+        # yielding activity info
+        for activity in rep['Response']['activities']:
+            activity['charid'] = characterID
+            yield activity
+
+
 # https://bungie-net.github.io/multi/schema_Destiny-DestinyComponentType.html#schema_Destiny-DestinyComponentType
 async def getProfile(destinyID, *components, with_token=False):
     url = 'https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/?components={}'
