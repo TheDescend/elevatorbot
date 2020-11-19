@@ -1,3 +1,8 @@
+import io
+
+import aiohttp
+import discord
+
 from commands.base_command import BaseCommand
 from functions.dataLoading import getStats, getProfile, getCharacterList, \
     getAggregateStatsForChar, getInventoryBucket, getWeaponKills, returnManifestInfo, searchArmory, getAllGear, \
@@ -26,14 +31,25 @@ class day1spam(BaseCommand):
         if not await hasAdminOrDevPermissions(message):
             return
 
-        channel = message.channel
-        await message.author.send("Started tracking!")
-        await message.delete()
-
         # >>> CHANGE HERE FOR DIFFERENT DAY 1 HASHES <<<
         activity_metric = 954805812
         activity_hashes = [3976949817, 910380154]
         cutoff_time = datetime.datetime(2020, 11, 22, 18, 0, tzinfo=datetime.timezone.utc)
+        image_url = "https://www.bungie.net/img/destiny_content/pgcr/europa-raid-deep-stone-crypt.jpg"
+        activity_name = "Europa - Deep Stone Crypt"
+
+
+        channel = message.channel
+        await message.delete()
+
+        # printing the raid image. Taken from data.destinysets.com
+        async with aiohttp.ClientSession() as session:
+            async with session.get(image_url) as resp:
+                if resp.status == 200:
+                    data = io.BytesIO(await resp.read())
+                    await channel.send(f"__**{activity_name}**__")
+                    await channel.send("My day one mode is now activated and I will (hopefully) inform about completions. \nGood luck to everyone competing, will see you on the other side.")
+                    await channel.send(file=discord.File(data, f'raid_image.png'))
 
         start = datetime.datetime.now()  # Need that for calculating total time. this time without utc timezone since bungie return doesnt care about that
         finished_raid = []
