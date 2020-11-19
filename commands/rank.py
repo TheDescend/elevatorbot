@@ -5,7 +5,7 @@ import pandas
 from commands.base_command import BaseCommand
 from functions.dataLoading import getStats, getProfile, getCharacterList, \
     getAggregateStatsForChar, getInventoryBucket, getWeaponKills, returnManifestInfo, searchArmory, getAllGear, \
-    getItemDefinition, getArtifact, getCharacterGear
+    getItemDefinition, getArtifact, getCharacterGear, getCharacterGearAndPower
 from functions.database import lookupDiscordID, getToken, lookupSystem
 from functions.formating import embed_message
 from functions.network import getJSONfromURL
@@ -233,6 +233,7 @@ async def handle_user(stat, member, guild, extra_hash, extra_name):
         result = f"{result_sort:,}"
 
     elif stat == "maxpower":
+        #TODO efficiency
         if not getToken(discordID):
             return None
 
@@ -242,7 +243,7 @@ async def handle_user(stat, member, guild, extra_hash, extra_name):
         artifact_power = (await getArtifact(destinyID))["powerBonus"]
         system = lookupSystem(destinyID)
 
-        items = await getCharacterGear(destinyID)
+        items = await getCharacterGearAndPower(destinyID)
         items = sort_gear_by_slot(items)
 
         results = await asyncio.gather(*[get_highest_item_light_level(destinyID, system, slot) for slot in items])
@@ -429,15 +430,10 @@ def sort_gear_by_slot(items):
 
 
 async def get_highest_item_light_level(destinyID, system, items):
+    #TODO not overload network
     max_power = 0
 
     for item in items:
-        try:
-            if item_definition := await getItemDefinition(destinyID, system, item["itemInstanceId"], 300):
-                item_power = item_definition["instance"]["data"]["primaryStat"]['value']
-
-                if item_power > max_power:
-                    max_power = item_power
-        except KeyError:
-            pass
+        if item['lightlevel'] > max_power:
+            max_power = item['lightlevel']
     return max_power

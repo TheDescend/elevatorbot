@@ -113,16 +113,16 @@ async def getPlayersPastPVE(destinyID, mode=7):
     #return sorted(activitylist, key = lambda i: i['period'], reverse=True)
 
 # https://bungie-net.github.io/multi/schema_Destiny-DestinyComponentType.html#schema_Destiny-DestinyComponentType
-async def getProfile(destinyID, components, with_token=False):
+async def getProfile(destinyID, *components, with_token=False):
     url = 'https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/?components={}'
     membershipType = lookupSystem(destinyID)
     if with_token:
-        statsResponse = await getJSONwithToken(url.format(membershipType, destinyID, components), lookupDiscordID(destinyID))
+        statsResponse = await getJSONwithToken(url.format(membershipType, destinyID, ','.join(map(str, components))), lookupDiscordID(destinyID))
         if statsResponse["result"]:
             return statsResponse["result"]['Response']
 
     else:
-        statsResponse = await getJSONfromURL(url.format(membershipType, destinyID, components))
+        statsResponse = await getJSONfromURL(url.format(membershipType, destinyID, ','.join(map(str, components))))
         if statsResponse:
             return statsResponse['Response']
     return None
@@ -187,6 +187,20 @@ async def getCharacterGear(destinyID):
 
     return items
 
+async def getCharacterGearAndPower(destinyID):
+    items = []
+    chars = await getCharacterList(destinyID)
+
+    # not equiped on chars
+    playerProfile = (await getProfile(destinyID, 201, 205, 300, with_token=True))
+    itempower = {weaponid:int(weapondata.get("primaryStat", {"value":0})['value']) for weaponid, weapondata in playerProfile["itemComponents"]["instances"]["data"].items()}
+    itempower['none'] = 0
+    for char in chars[1]:
+        charitems = playerProfile["characterInventories"]["data"][char]["items"] + playerProfile['characterEquipment']["data"][char]["items"]
+        charpoweritems = map(lambda charitem:dict(charitem, **{'lightlevel':itempower[charitem.get('itemInstanceId', 'none')]}), charitems)
+        items.extend(charpoweritems)
+
+    return items
 
 # returns all items in vault + inventory. Also gets ships and stuff - not only armor / weapons
 async def getAllGear(destinyID):
