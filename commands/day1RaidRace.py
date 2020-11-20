@@ -26,18 +26,31 @@ class day1spam(BaseCommand):
             return
 
         # >>> CHANGE HERE FOR DIFFERENT DAY 1 HASHES <<<
-        leaderboard_channel = 778993490981027881
-        activity_triumph = 2699580344
+        # leaderboard_channel = 778993490981027881
+        # activity_triumph = 2699580344
+        # activity_triumph_encounters = {
+        #     4132628245: "Encounter 1",
+        #     4132628244: "Encounter 2",
+        #     4132628247: "Encounter 3",
+        #     4132628246: "the final Boss"
+        # }
+        # activity_hashes = [3976949817, 910380154]
+        # cutoff_time = datetime.datetime(2020, 11, 22, 18, 0, tzinfo=datetime.timezone.utc)
+        # image_url = "https://www.bungie.net/img/destiny_content/pgcr/europa-raid-deep-stone-crypt.jpg"
+        # activity_name = "Europa - Deep Stone Crypt"
+
+        leaderboard_channel = 569823470557331456
+        activity_triumph = 2629178011
         activity_triumph_encounters = {
-            4132628245: "Encounter 1",
-            4132628244: "Encounter 2",
-            4132628247: "Encounter 3",
-            4132628246: "the final Boss"
+            3554541792: "Encounter 1",
+            3554541793: "Encounter 2",
+            3554541794: "Encounter 3",
+            3554541795: "the final Boss"
         }
-        activity_hashes = [3976949817, 910380154]
-        cutoff_time = datetime.datetime(2020, 11, 22, 18, 0, tzinfo=datetime.timezone.utc)
+        activity_hashes = [2497200493, 2659723068, 3458480158, 3845997235]
+        cutoff_time = datetime.datetime(2020, 11, 20, 21, 0, tzinfo=datetime.timezone.utc)
         image_url = "https://www.bungie.net/img/destiny_content/pgcr/europa-raid-deep-stone-crypt.jpg"
-        activity_name = "Europa - Deep Stone Crypt"
+        activity_name = "GoS Stasis with wrong image lol"
 
 
         channel = message.channel
@@ -95,6 +108,7 @@ class day1spam(BaseCommand):
 
             # set new now
             now = datetime.datetime.now(datetime.timezone.utc)
+            print(f"Done with loop at {str(now)}")
 
 
         async with channel.typing():
@@ -183,7 +197,7 @@ async def update_leaderboard(leaderboard_channel, leaderboard_msg, finished_raid
                         running_raid[(name, destinyID)] = [activity_triumph_encounters[encounter]]
 
     embed = embed_message(
-        "Race for World First / Day One"
+        "Race for Worlds First / Day One"
     )
 
     if finished_raid:
