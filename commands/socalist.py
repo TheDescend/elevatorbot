@@ -11,4 +11,4 @@ class socialist(BaseCommand):
     # Override the handle() method
     # It will be called every time the command is received
     async def handle(self, params, message, client):
-        await message.channel.send("No :)")
+        await message.channel.send("No 🙃")
