@@ -30,12 +30,12 @@ async def clanJoinRequestMessageReactions(client, user, emoji, channel, channel_
 
         # abort if user is @not_registered
         if not await checkIfUserIsRegistered(user):
-            await user.send("Please `!registerdesc` first")
+            await user.send("Please `!registerdesc` first. Try again after")
             return
 
         # abort if member hasnt accepted the rules
         if discord.utils.get(newtonslab.guild.roles, id=member_role_id) not in user.roles:
-            await user.send("Please accept the rules first")
+            await user.send("Please accept the rules first. Try again after")
             return
 
         # abort if user doesn't fulfill requirements

@@ -1,5 +1,5 @@
 from commands.base_command import BaseCommand
-from functions.dataLoading import getProfile, getCharacterList, getCharacterPastPVE
+from functions.dataLoading import getProfile, getCharacterList, getCharacterPastPVE, getPlayersPastPVE
 from functions.formating import embed_message
 from functions.network import getJSONfromURL
 from functions.roles import hasAdminOrDevPermissions
@@ -26,31 +26,18 @@ class day1spam(BaseCommand):
             return
 
         # >>> CHANGE HERE FOR DIFFERENT DAY 1 HASHES <<<
-        # leaderboard_channel = 778993490981027881
-        # activity_triumph = 2699580344
-        # activity_triumph_encounters = {
-        #     4132628245: "Encounter 1",
-        #     4132628244: "Encounter 2",
-        #     4132628247: "Encounter 3",
-        #     4132628246: "the final Boss"
-        # }
-        # activity_hashes = [3976949817, 910380154]
-        # cutoff_time = datetime.datetime(2020, 11, 22, 18, 0, tzinfo=datetime.timezone.utc)
-        # image_url = "https://www.bungie.net/img/destiny_content/pgcr/europa-raid-deep-stone-crypt.jpg"
-        # activity_name = "Europa - Deep Stone Crypt"
-
-        leaderboard_channel = 569823470557331456
-        activity_triumph = 2629178011
+        leaderboard_channel = 778993490981027881
+        activity_triumph = 2699580344
         activity_triumph_encounters = {
-            3554541792: "Encounter 1",
-            3554541793: "Encounter 2",
-            3554541794: "Encounter 3",
-            3554541795: "the final Boss"
+            4132628245: "Encounter 1",
+            4132628244: "Encounter 2",
+            4132628247: "Encounter 3",
+            4132628246: "the final Boss"
         }
-        activity_hashes = [2497200493, 2659723068, 3458480158, 3845997235]
-        cutoff_time = datetime.datetime(2020, 11, 20, 21, 0, tzinfo=datetime.timezone.utc)
+        activity_hashes = [3976949817, 910380154]
+        cutoff_time = datetime.datetime(2020, 11, 22, 18, 0, tzinfo=datetime.timezone.utc)
         image_url = "https://www.bungie.net/img/destiny_content/pgcr/europa-raid-deep-stone-crypt.jpg"
-        activity_name = "GoS Stasis with wrong image lol"
+        activity_name = "Europa - Deep Stone Crypt"
 
 
         channel = message.channel
@@ -110,7 +97,6 @@ class day1spam(BaseCommand):
             now = datetime.datetime.now(datetime.timezone.utc)
             print(f"Done with loop at {str(now)}")
 
-
         async with channel.typing():
             if finished_raid:
                 # get total time spend in raid
@@ -119,21 +105,19 @@ class day1spam(BaseCommand):
                     try:
                         name = member[0]
                         destinyID = member[1]
-                        chars = (await getCharacterList(destinyID))[1]
 
                         # loop though activities
                         time_spend = 0
                         kills = 0
                         deaths = 0
-                        for characterID in chars:
-                            async for activity in getCharacterPastPVE(destinyID, characterID, mode=4):
-                                if datetime.datetime.strptime(activity["period"], "%Y-%m-%dT%H:%M:%SZ") < start:
-                                    break
+                        async for activity in getPlayersPastPVE(destinyID, mode=4):
+                            if datetime.datetime.strptime(activity["period"], "%Y-%m-%dT%H:%M:%SZ") < start:
+                                continue
 
-                                if activity["activityDetails"]["directorActivityHash"] in activity_hashes:
-                                    time_spend += activity["values"]["activityDurationSeconds"]["basic"]["value"]
-                                    kills += activity["values"]["kills"]["basic"]["value"]
-                                    deaths += activity["values"]["deaths"]["basic"]["value"]
+                            if activity["activityDetails"]["directorActivityHash"] in activity_hashes:
+                                time_spend += activity["values"]["activityDurationSeconds"]["basic"]["value"]
+                                kills += activity["values"]["kills"]["basic"]["value"]
+                                deaths += activity["values"]["deaths"]["basic"]["value"]
 
                         # write the fancy text
                         completions.append(f"""<:desc_circle_b:768906489464619008>**{name}** - Kills: *{int(kills):,}*, Deaths: *{int(deaths):,}*, Time: *{str(datetime.timedelta(seconds=time_spend))}*""")
