@@ -22,11 +22,10 @@ async def checkIfUserIsRegistered(user):
 
 async def update_status(client):
     status_messages = [
-        "DSC Mode Activated"
-        # "DM me to contact Staff",
-        # "Bounties are the endgame",
-        # "#MakeHäbidöpfelMascot",
-        # "Blue > Orange"
+        "DM me to contact Staff",
+        "Bounties are the endgame",
+        "#MakeHäbidöpfelMascot",
+        "Blue > Orange"
     ]
 
     if NOW_PLAYING:
