@@ -1,6 +1,8 @@
 import asyncio
 
 import pandas
+import discord
+from discord.ext.commands import MemberConverter
 
 from commands.base_command import BaseCommand
 from functions.dataLoading import getStats, getProfile, getCharacterList, \
@@ -40,10 +42,18 @@ class rank(BaseCommand):
             "weapon",
             "armor",
             "enhancementcores",
-            "forges"
+            "forges",
+            "afkforges",
         ]
 
         if len(params) > 0:
+            # try to get another user obj
+            ctx = await client.get_context(message)
+            try:
+                message.author = await MemberConverter().convert(ctx, params[-1])
+            except:
+                pass
+
             if params[0].lower() == "help":
                 await message.channel.send(embed=embed_message(
                     "Info",
@@ -298,6 +308,21 @@ async def handle_user(stat, member, guild, extra_hash, extra_name):
                 result_sort += 1
 
         result = f"{result_sort:,} + {farmed_runs:,} AFK runs"
+
+    elif stat == "afkforges":
+        leaderboard_text = "Top Clanmembers by D2 AFK Forge Completions"
+        stat_text = "Total"
+
+        runs = 0
+        result_sort = 0
+        async for activity in getPlayersPastPVE(destinyID, mode=66):
+            # set this run as a farmed run if you haven't killed anything
+            if activity["values"]["opponentsDefeated"]["basic"]["value"] == 0:
+                result_sort += 1
+            else:
+                runs += 1
+
+        result = f"{runs:,} + {result_sort:,} AFK runs"
 
     elif stat == "enhancementcores":
         leaderboard_text = "Top Clanmembers by D2 Total Enhancement Cores"
