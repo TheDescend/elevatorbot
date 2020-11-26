@@ -1,12 +1,13 @@
 from commands.base_command import BaseCommand
 from functions.dataLoading import getCharactertypeList, getCharacterList, OUTDATEDgetSystem, getInventoryBucket
+from functions.dataTransformation import hasCollectible
 from functions.database import removeUser, lookupDestinyID, getEverything, updateUser, updateToken, getRefreshToken
 from functions.formating import embed_message
 from functions.roles import hasAdminOrDevPermissions
 from oauth import refresh_token
 from static.config import BUNGIE_OAUTH
 
-class giveLegacyDivider(BaseCommand):
+class getDay1Completions(BaseCommand):
     def __init__(self):
         # A quick description for the help message
         description = "[dev]Register with bungie.net"
@@ -37,7 +38,10 @@ class giveLegacyDivider(BaseCommand):
         # await message.channel.send(f'{broketext[1900:]}')
         # await message.channel.send("Done")
         
-        legacyDivider = message.guild.get_role(776854211585376296)
+        userlist = []
         for member in message.guild.members:
-            await member.add_roles(legacyDivider)
-        await message.channel.send('added all roles')
+            if message.guild.get_role(670384239489056768) in member.roles: #isdescend
+                destinyid = lookupDestinyID(member.id)
+                if await hasCollectible(destinyid, 2273453972):
+                    userlist.append(member.name)
+        await message.channel.send(", ".join(userlist))
