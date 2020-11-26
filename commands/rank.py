@@ -5,7 +5,7 @@ import pandas
 from commands.base_command import BaseCommand
 from functions.dataLoading import getStats, getProfile, getCharacterList, \
     getAggregateStatsForChar, getInventoryBucket, getWeaponKills, returnManifestInfo, searchArmory, getAllGear, \
-    getItemDefinition, getArtifact, getCharacterGear, getCharacterGearAndPower
+    getItemDefinition, getArtifact, getCharacterGear, getCharacterGearAndPower, getPlayersPastPVE
 from functions.database import lookupDiscordID, getToken, lookupSystem
 from functions.formating import embed_message
 from functions.network import getJSONfromURL
@@ -39,7 +39,8 @@ class rank(BaseCommand):
             "raidtime",
             "weapon",
             "armor",
-            "enhancementcores"
+            "enhancementcores",
+            "forges"
         ]
 
         if len(params) > 0:
@@ -282,6 +283,21 @@ async def handle_user(stat, member, guild, extra_hash, extra_name):
         # in hours
         result_sort = int((await add_activity_stats(destinyID, raidHashes, "activitySecondsPlayed")) / 60 / 60)
         result = f"{result_sort:,}"
+
+    elif stat == "forges":
+        leaderboard_text = "Top Clanmembers by D2 Forge Completions"
+        stat_text = "Total"
+
+        result_sort = 0
+        farmed_runs = 0
+        async for activity in getPlayersPastPVE(destinyID, mode=66):
+            # set this run as a farmed run if you haven't killed anything
+            if activity["values"]["opponentsDefeated"]["basic"]["value"] == 0:
+                farmed_runs += 1
+            else:
+                result_sort += 1
+
+        result = f"{result_sort:,} + {farmed_runs:,} AFK runs"
 
     elif stat == "enhancementcores":
         leaderboard_text = "Top Clanmembers by D2 Total Enhancement Cores"

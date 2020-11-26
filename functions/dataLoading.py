@@ -93,13 +93,16 @@ async def getPlayersPastPVE(destinyID, mode=7):
         charidsToRemove = []
         for characterID in charIDs:
             staturl = f"https://www.bungie.net/Platform/Destiny2/{platform}/Account/{destinyID}/Character/{characterID}/Stats/Activities/?mode={mode}&count=250&page={pagenr}"
-            # None	    0 Everything
-            # Story	    2
-            # Strike	3	 
-            # Raid	    4
-            # AllPvP	5	 
-            # Patrol	6	 
-            # AllPvE	7	
+            """ 
+            https://bungie-net.github.io/multi/schema_Destiny-HistoricalStats-Definitions-DestinyActivityModeType.html#schema_Destiny-HistoricalStats-Definitions-DestinyActivityModeType
+                None	    0 Everything
+                Story	    2
+                Strike	    3	 
+                Raid	    4
+                AllPvP	    5	 
+                Patrol	    6	 
+                AllPvE	    7	
+            """
             rep = await getJSONfromURL(staturl)
             if not rep or not rep['Response']:
                 charidsToRemove.append(characterID)
