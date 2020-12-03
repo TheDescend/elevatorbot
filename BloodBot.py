@@ -30,13 +30,13 @@ from functions.dataLoading import fillDictFromDB
 from functions.database import insertIntoMessageDB
 from functions.formating import embed_message
 from functions.miscFunctions import update_status
-from functions.roles import assignRolesToUser
+from functions.roles import assignRolesToUser, removeRolesFromUser
 from init_logging import init_logging
 from static.config import COMMAND_PREFIX, BOT_TOKEN
 from static.dict import getNameFromHashRecords, getNameFromHashCollectible, getNameFromHashActivity, \
     getNameFromHashInventoryItem
 from static.globals import guest_role_id, registered_role_id, not_registered_role_id, admin_discussions_channel_id, \
-    divider_raider_role_id, divider_achievement_role_id, divider_misc_role_id
+    divider_raider_role_id, divider_achievement_role_id, divider_misc_role_id, muted_role_id
 
 nltk.download('vader_lexicon')
 analyzer = SentimentIntensityAnalyzer()
@@ -158,6 +158,25 @@ def main():
             if sentiment['compound'] < -0.3:
                 await message.add_reaction(sentimentNegative)
 
+        # mute pepe for an hour if he trashes destiny
+        if message.author.id == 367385031569702912:
+            if "destiny" in text.lower():
+                for insult in ["suck", "bad", "fuck", "shit", "trash"]:
+                    if insult in text.lower():
+                        # mute pepe and msg him about it
+                        await assignRolesToUser([muted_role_id], message.author, message.guild)
+                        await message.author.send("Stop trashing on destiny, muted for an hour :)")
+                        nick = message.author.nick
+                        await message.author.edit(nick="!Pepe the Muted for an Hour")
+
+                        # remove muted role after an hour
+                        await asyncio.sleep(60 * 60)
+                        await removeRolesFromUser([muted_role_id], message.author, message.guild)
+                        await message.author.edit(nick=nick)
+                        await message.author.send("Unmuted again :(")
+                        return
+
+        # run the command if starts with !
         if text.startswith(COMMAND_PREFIX) and text != COMMAND_PREFIX:
             cmd_split = text[len(COMMAND_PREFIX):].split()
             try:
