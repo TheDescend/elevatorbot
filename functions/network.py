@@ -108,8 +108,8 @@ async def postJSONtoBungie(postURL, data, discordID):
     }
 
     async with aiohttp.ClientSession() as session:
-        # abort after 5 tries
-        for i in range(5):
+        # abort after 10 tries
+        for i in range(10):
             async with session.post(url=postURL, json=data, headers=headers, allow_redirects=False) as r:
                 res = await r.json()
 
