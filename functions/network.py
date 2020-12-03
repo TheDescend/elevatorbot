@@ -17,7 +17,7 @@ async def getJSONfromURL(requestURL, headers=headers, params={}):
     no_jar = aiohttp.DummyCookieJar()
     async with aiohttp.ClientSession(cookie_jar=no_jar) as session:
         # abort after 5 tries
-        for i in range(5):
+        for i in range(10):
             async with session.get(url=requestURL, headers=headers, params=params, timeout=60) as r:
                 res = await r.json()
 
@@ -51,7 +51,7 @@ async def getJSONwithToken(requestURL, discordID):
     no_jar = aiohttp.DummyCookieJar()
     async with aiohttp.ClientSession(cookie_jar=no_jar) as session:
         # abort after 5 tries
-        for i in range(5):
+        for i in range(10):
             async with session.get(url=requestURL, headers=headers) as r:
                 res = await r.json()
 
