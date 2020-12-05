@@ -468,7 +468,7 @@ async def updateDB(destinyID):
         period = datetime.strptime(pve['period'], "%Y-%m-%dT%H:%M:%SZ")
 
         if period < (lastUpdate - timedelta(days=2)):
-            print(f'char {pve["charid"]} done at {pve["period"]}')
+            print(f'char {pve["charid"]} caught up to {pve["period"]}')
             donechars.append(pve['charid'])
             continue
 
