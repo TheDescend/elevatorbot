@@ -18,6 +18,7 @@ scourgeHashes = [548750096]
 lwHashes = [2122313384]
 cosHashes = [3333172150, 960175301] 
 gosHashes = [3845997235, 2659723068]
+dscHashes = [910380154, 3976949817]
 
 # dungeons
 throneHashes = [1893059148, 2032534090]
@@ -240,6 +241,7 @@ requirementHashes = {
             ],
             'replaced_by':['Y2 Raid Master']
         },
+        #################### TODO anything above here has unchecked hashes #################################
         'Scourge of the Past': {
             "deprecated": True,
             'requirements': ['clears','records'],
@@ -248,9 +250,10 @@ requirementHashes = {
                 'actHashes' : scourgeHashes}
             ],
             'records':[
-                1428463716,    #All For One, One For All
-                1804999028,    #Hold the Line
-                4162926221,    #To Each Their Own
+                223175561,    #All For One, One For All
+                1180238715,    #Hold the Line
+                132377266,    #To Each Their Own
+                974101911,    #Fast and unwieldy
             ],
             'replaced_by':['Y2 Raid Master', 'Scourge of the Past Master']
         },
@@ -262,11 +265,12 @@ requirementHashes = {
                 'actHashes' : scourgeHashes}
             ],
             'records': [
-                2648109757,    #Like a Diamond
-                772878705,     #Solarstruck
-                496309570,     #Voidstruck
-                105811740,     #Thunderstruck
-                3780682732,    #Stay Classy
+                2925485370,    #Like a Diamond
+                #Can't check since not in the api (probably)
+                # 772878705,     #Solarstruck 
+                # 496309570,     #Voidstruck
+                # 105811740,     #Thunderstruck
+                # 3780682732,    #Stay Classy
             ],
             'replaced_by':['Y2 Raid Master']
         },
@@ -277,11 +281,11 @@ requirementHashes = {
                 'actHashes' : lwHashes},   #Minimum 15 full clears
             ],
             'records':[
-                2822000740,    #Summoning Ritual
-                2196415799,    #Coliseum Champion
-                1672792871,    #Forever Fight
-                149192209,     #Keep Out
-                3899933775    #Strength of Memory
+                1847670729,    #Summoning Ritual
+                3533973498,    #Coliseum Champion
+                989244596,    #Forever Fight
+                3234595894,     #Keep Out
+                1711136422    #Strength of Memory
             ],
             'replaced_by':['Y2 Raid Master', 'Last Wish Master']
         },
@@ -292,11 +296,11 @@ requirementHashes = {
                 'actHashes' : lwHashes}
             ], #Minimum 15 full clears
             'records': [
-                4177910003,    #Petra's Run [Flawless]
-                3806804934,    #Thunderstruck :Arc:
-                567795114,     #The New Meta [Same Class]
-                1373122528,    #Night Owl :Void:
-                2398356743    #Sunburn :Solar:
+                380332968,    #Petra's Run [Flawless]
+                3000516033,    #Thunderstruck :Arc:
+                342038729,     #The New Meta [Same Class]
+                2826160801,    #Night Owl :Void:
+                623283604    #Sunburn :Solar:
             ],
             'replaced_by':['Y2 Raid Master']
         },
@@ -317,26 +321,33 @@ requirementHashes = {
                 'actHashes' : gosHashes} #Minimum 15 full clears
             ], 
             'records': [
-                3281243931, #Leftovers
-                1925300422, #A Link to the Chain
-                1661612473, #To the Top
-                3167166053, #Zero to One Hundred
+                3719309782, #Leftovers
+                637935773, #A Link to the Chain
+                2381358572, #To the Top
+                2191554152, #Zero to One Hundred
             ],
-            'replaced_by':['Y3 Raid Master']
+            'replaced_by':['Garden of Salvation Master']
        },
-        'Y3 Raid Master': {
+        'Garden of Salvation Master': {
             'requirements': ['clears', 'records'],
             'clears': [
                 {'count' : 30,
                 'actHashes' : gosHashes} #Minimum 30 full clears
             ],
             'records': [
-                3144827156, #Inherent Perfection [Flawless]
-                2841179989, #Fluorescent Foliage :Arc: 
-                4019629605, #Shade in the Garden :Void: 
-                3382024472, #Photosynthesis :Solar: 
-                4025379205, #Garden Party [Same Class]
+                1522774125, #Inherent Perfection [Flawless]
+                3427328428, #Fluorescent Foliage :Arc: 
+                277137394, #Shade in the Garden :Void: 
+                2571794337, #Photosynthesis :Solar: 
+                1830799772, #Garden Party [Same Class]
             ]
+        },
+        'Y3 Raid Master': {
+            'requirements': ['roles'],
+            'roles':[
+                'Garden of Salvation Master'
+            ]
+
         }
     },
     'Dungeons': {
@@ -347,13 +358,13 @@ requirementHashes = {
                 'endTime':'08/09/2020 18:00'
             },
              'records': [
-                1290451257, #Solo Flawless Shattered Throne
+                3205009787, #Seriously, Never Again
             ]
         },
         'Flawless Shattered Throne': {
             'requirements': ['records'],
             'records': [
-                2029263931, #Flawless Shattered Throne
+                1178448425, #Curse This
             ],
             'replaced_by':['Solo Flawless Shattered Throne']
         },
@@ -364,7 +375,7 @@ requirementHashes = {
                 'endTime':'08/09/2020 18:00'
             },
             'records': [
-                851701008, #Solo Shattered Throne
+                3899996566, #Solo-nely
             ],
             'replaced_by':['Solo Flawless Shattered Throne']
         },
@@ -375,7 +386,7 @@ requirementHashes = {
                 'endTime':'08/09/2020 18:00'
             },
             'records': {
-                2615277024,  # Savior of the Deep
+                3950599483,  # Savior of the Deep
             },
         },
         'Solo Pit of Heresy': {
@@ -385,14 +396,14 @@ requirementHashes = {
                 'endTime':'08/09/2020 18:00'
             },
             'records': {
-                376114010,  # Usurper
+                3841336511,  # Usurper
             },
             'replaced_by': ['Solo Flawless Pit of Heresy']
         },
         'Flawless Pit of Heresy': {
             'requirements': ['records'],
             'records': {
-                3279886460,  # Eternal Heretic
+                245952203,  # Eternal Heretic
             },
             'replaced_by': ['Solo Flawless Pit of Heresy']
         },
@@ -400,7 +411,7 @@ requirementHashes = {
             "deprecated": True,
             'requirements': ['records'],
             'records' : [
-                2382088899
+                3002642730
             ],
             'replaced_by': ['Solo Flawless Prophecy']
         },
@@ -408,7 +419,7 @@ requirementHashes = {
             "deprecated": True,
             'requirements': ['records'],
             'records' : [
-                2094467183
+                2010041484
             ],
             'replaced_by': ['Solo Flawless Prophecy']
         },
@@ -416,9 +427,48 @@ requirementHashes = {
             "deprecated": True,
             'requirements': ['records'],
             'records' : [
-                3931440391
+                3191784400
             ],
         }
+    },
+    "Y4":{
+        'Deep Stone Crypt': {
+            'requirements': ['clears','records'],
+            'clears': [
+                {'count' : 15,
+                'actHashes' : dscHashes},   #Minimum 15 full clears
+            ],
+            'records':[
+                22094034,    #Red Rover Challenge
+                64856166,    #Copies of Copies Challenge
+                337542929,     #Of All Trades Challenge
+                2530940166,    #The Core Four Challenge
+            ],
+            'replaced_by':['Deep Stone Crypt Master']
+        },
+        'Deep Stone Crypt Master': {
+            'requirements': ['clears','records'],
+            'clears': [
+                {'count' : 30,
+                'actHashes' : dscHashes}
+            ], #Minimum 30 full clears
+            'records': [
+                3560923614, #Survival of the Fittest [Flawless]
+
+                # 134885948,    #Not a Scratch 
+                # 4216504853,    #Resource Contention 
+                # 3771160417,    #5 Seconds to Paradise 
+                # 1277450448,     #Short Circuit
+                # 1487317889    #Ready, Set, Go! 
+
+                564366615, #Control Group [Same Class]
+                3834307795, #Electric Sheep :arc:
+                3200831458, #Meltdown :solar:
+                513707022, #Freezing Point :stasis:
+                3875695735, #Devoid of the Rest :void:
+            ],
+            #'replaced_by':[]
+        },
     },
     "Lowmans":{
         'Trio Argos': {
@@ -520,7 +570,12 @@ requirementHashes = {
             'requirements': ['lowman'],
             'playercount' : 1,
             'activityHashes': premenHashes
-        }
+        },
+        'Trio Taniks': {
+            'requirements': ['lowman'],
+            'playercount' : 3,
+            'activityHashes': dscHashes,
+        },
     },
     'Addition':{
         'Niobe\'s Torment': {
