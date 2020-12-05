@@ -1,5 +1,5 @@
 from commands.base_command import BaseCommand
-from functions.dataLoading import getProfile, getCharacterList, getCharacterPastPVE, getPlayersPastPVE
+from functions.dataLoading import getProfile, getCharacterList, getPlayersPastPVE
 from functions.formating import embed_message
 from functions.network import getJSONfromURL
 from functions.roles import hasAdminOrDevPermissions

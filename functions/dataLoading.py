@@ -12,6 +12,7 @@ from functions.database import db_connect, insertActivity, insertCharacter, inse
     lookupDiscordID, lookupSystem
 from functions.database import getSystemAndChars, getLastUpdated, instanceExists
 from functions.network import getJSONfromURL, getComponentInfoAsJSON, getJSONwithToken
+from static.config import CLANID
 
 
 async def getJSONfromRR(playerID):
@@ -75,71 +76,70 @@ async def getCharactertypeList(destinyID):
     print(f'no account found for destinyID {destinyID}')
     return (None,[])
 
-#https://bungie-net.github.io/multi/schema_Destiny-HistoricalStats-DestinyHistoricalStatsPeriodGroup.html#schema_Destiny-HistoricalStats-DestinyHistoricalStatsPeriodGroup
-async def getPlayersPastPVE(destinyID, mode=7):
-    platform = None
-    syscharlist = getSystemAndChars(destinyID)
-    if getLastUpdated(destinyID) > datetime.strptime("26/03/2015 04:20", "%d/%m/%Y %H:%M") or not syscharlist:
-        platform, charIDs = await getCharacterList(destinyID)
-        #print(f'grabbed chars for {destinyID}')
-    else:
-        (platform, _) = syscharlist[0]
-        charIDs = [charid for (_,charid) in syscharlist]
-    activitylist = []
+async def getPlayersPastPVE(destinyID, mode : int = 7, earliest_allowed_time : datetime = None, latest_allowed_time : datetime = None):
+    """
+    Generator which returns all activities whith an extra field < activity['charid'] = characterID >
+    For more Info visit https://bungie-net.github.io/multi/schema_Destiny-HistoricalStats-DestinyHistoricalStatsPeriodGroup.html#schema_Destiny-HistoricalStats-DestinyHistoricalStatsPeriodGroup
+
+    :mode - Describes the mode, see https://bungie-net.github.io/multi/schema_Destiny-HistoricalStats-Definitions-DestinyActivityModeType.html#schema_Destiny-HistoricalStats-Definitions-DestinyActivityModeType
+        Everything	0
+        Story	    2
+        Strike	    3
+        Raid	    4
+        AllPvP	    5
+        Patrol	    6
+        AllPvE	    7
+        ...
+    :earliest_allowed_time - takes datetime.datetime and describes the lower cutoff
+    :latest_allowed_time - takes datetime.datetime and describes the higher cutoff
+    """
+
+    platform, charIDs = await getCharacterList(destinyID)
+
+    # if player has no characters for some reason
     if not charIDs:
         return
 
-    for pagenr in range(1000):
-        charidsToRemove = []
-        for characterID in charIDs:
-            staturl = f"https://www.bungie.net/Platform/Destiny2/{platform}/Account/{destinyID}/Character/{characterID}/Stats/Activities/?mode={mode}&count=250&page={pagenr}"
-            """ 
-            https://bungie-net.github.io/multi/schema_Destiny-HistoricalStats-Definitions-DestinyActivityModeType.html#schema_Destiny-HistoricalStats-Definitions-DestinyActivityModeType
-                None	    0 Everything
-                Story	    2
-                Strike	    3	 
-                Raid	    4
-                AllPvP	    5	 
-                Patrol	    6	 
-                AllPvE	    7	
-            """
+    for characterID in charIDs:
+        br = False
+        page = -1
+        while True:
+            page += 1
+            staturl = f"https://www.bungie.net/Platform/Destiny2/{platform}/Account/{destinyID}/Character/{characterID}/Stats/Activities/?mode={mode}&count=250&page={page}"
+
+            # break once threshold is reached
+            if br:
+                break
+
+            # get activities
             rep = await getJSONfromURL(staturl)
+
+            # break if empty, fe. when pages are over
             if not rep or not rep['Response']:
-                charidsToRemove.append(characterID)
-                continue
+                break
+
+            # loop through all activities
             for activity in rep['Response']['activities']:
+                # check times if wanted
+                if earliest_allowed_time or latest_allowed_time:
+                    activity_time = datetime.strptime(activity["period"], "%Y-%m-%dT%H:%M:%SZ")
+
+                    # check if the activity started later than the earliest allowed, else break and continue with next char
+                    # This works bc Bungie sorts the api with the newest entry on top
+                    if earliest_allowed_time:
+                        if activity_time < earliest_allowed_time:
+                            br = True
+                            break
+
+                    # check if the time is still in the timeframe, else pass this one and do the next
+                    if latest_allowed_time:
+                        if activity_time > latest_allowed_time:
+                            pass
+
+                # add character info to the activity
                 activity['charid'] = characterID
-                #print(activity)
+
                 yield activity
-        for charid in charidsToRemove:
-            charIDs.remove(charid)
-    #return sorted(activitylist, key = lambda i: i['period'], reverse=True)
-
-
-# rewrite of getPlayersPastPVE() bc that was not working well if you want to break at a certain datetime
-#
-# None	    0 Everything
-# Story	    2
-# Strike	3
-# Raid	    4
-# AllPvP	5
-# Patrol	6
-# AllPvE	7
-async def getCharacterPastPVE(destinyID, characterID, mode=0):
-    system = lookupSystem(destinyID)
-
-    for pagenr in range(10000):
-        staturl = f"https://www.bungie.net/Platform/Destiny2/{system}/Account/{destinyID}/Character/{characterID}/Stats/Activities/?mode={mode}&count=250&page={pagenr}"
-        rep = await getJSONfromURL(staturl)
-
-        # stopping if exceeds pages / error
-        if not rep or not rep['Response']:
-            break
-
-        # yielding activity info
-        for activity in rep['Response']['activities']:
-            activity['charid'] = characterID
-            yield activity
 
 
 # https://bungie-net.github.io/multi/schema_Destiny-DestinyComponentType.html#schema_Destiny-DestinyComponentType
@@ -156,6 +156,7 @@ async def getProfile(destinyID, *components, with_token=False):
         if statsResponse:
             return statsResponse['Response']
     return None
+
 
 async def getStats(destinyID):
     url = 'https://stats.bungie.net/Platform/Destiny2/{}/Account/{}/Stats/'
@@ -511,7 +512,17 @@ def getSeals(client):
     # returns list [[hash, name, displayName, hasExpiration], ...]
     return file["seals"][0]
 
+async def getClanMembers(client):
+    # get all clan members {destinyID: discordID}
+    memberlist = {}
+    for member in (await getJSONfromURL(f"https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/"))["Response"][
+        "results"]:
+        destinyID = int(member["destinyUserInfo"]["membershipId"])
+        discordID = lookupDiscordID(destinyID)
+        if discordID is not None:
+            memberlist.update({destinyID: discordID})
 
+    return memberlist
 
 
 #TODO replace with DB and version checks
