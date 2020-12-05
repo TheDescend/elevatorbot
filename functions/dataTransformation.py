@@ -74,6 +74,12 @@ async def hasTriumph(playerid, recordHash):
         return False
     if str(recordHash) not in triumphs:
         return False
+    #print(triumphs[str(recordHash)])
+    if not 'objectives' in triumphs[str(recordHash)]:
+        assert triumphs[str(recordHash)]['state'] & 2 #make sure it's RewardUnavailable aka legacy 
+        #https://bungie-net.github.io/multi/schema_Destiny-DestinyRecordState.html#schema_Destiny-DestinyRecordState
+        status &= (triumphs[str(recordHash)]['state'] & 1)
+        return status
     for part in triumphs[str(recordHash)]['objectives']:
         status &= part['complete']
     return status
