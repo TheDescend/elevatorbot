@@ -85,8 +85,10 @@ async def hasRole(playerid, role, year, br = True):
                 name = "No name here"
                 rep = await getJSONfromURL(
                     f"https://www.bungie.net/Platform/Destiny2/Manifest/DestinyRecordDefinition/{recordHash}/")
-                if rep and rep['Response']:
+                if rep and 'Response' in rep and rep['Response']:
                     name = rep['Response']["displayProperties"]["name"]
+                else:
+                    print(f'Request failed, response was {rep}')
                 data[str(name)] = str(has_tri)
 
         elif req == 'lowman':
@@ -138,31 +140,33 @@ async def getPlayerRoles(playerid, existingRoles = []):
 
     #remove roles that are replaced by others
     for yeardata in requirementHashes.values():
-        for role, roledata in yeardata.items():
-            if role not in roles:
-                redundantRoles.append(role)
+        for roleName, roledata in yeardata.items():
+            if roleName not in roles:
+                redundantRoles.append(roleName)
             if 'replaced_by' in roledata.keys():
                 for superior in roledata['replaced_by']:
-                    if superior in roles and role in roles:
-                        roles.remove(role)
-                        redundantRoles.append(role)
+                    if superior in roles and roleName in roles:
+                        roles.remove(roleName)
+                        redundantRoles.append(roleName)
 
     #check whether player is Yx Raid Master and add/remove roles
     for yeardata in requirementHashes.values():
-        for role, roledata in yeardata.items():
-            if 'Raid Master' in role:
+        for roleName, roledata in yeardata.items():
+            assert 'requirements' in roledata
+            if 'roles' in roledata['requirements']:
                 worthy = True
                 reqs = roledata['roles']
                 for reqrole in reqs:
                     if reqrole not in roles:
                         worthy = False
                 if worthy:
-                    #print('worthy for ', role)
-                    roles.append(role)
-                    redundantRoles.remove(role)
+                    #print('worthy for ', roleName)
+                    roles.append(roleName)
+                    redundantRoles.remove(roleName)
                     for reqrole in reqs:
                         roles.remove(reqrole)
                         redundantRoles.append(reqrole)
+            
     return (roles, redundantRoles)
 
 async def assignRolesToUser(roleList, discordUser, guild, reason=None):
