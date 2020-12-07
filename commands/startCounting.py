@@ -1,7 +1,11 @@
 from commands.base_command import BaseCommand
+from functions.roles import assignRolesToUser, removeRolesFromUser
+from static.globals import muted_role_id
+
+import asyncio
 
 
-class muteMe(BaseCommand):
+class startCounting(BaseCommand):
     def __init__(self):
         # A quick description for the help message
         description = "Starts the counting challenge"
@@ -22,7 +26,10 @@ class muteMe(BaseCommand):
 
             # check if he counted up correctly
             if msg.content != str(i):
-                await message.channel.send(f"{msg.author.mention} ruined it at {str(i-1)}")
+                await message.channel.send(f"{msg.author.mention} ruined it at {str(i-1)} and got muted for 10mins ")
+                await assignRolesToUser([muted_role_id], message.author, message.guild)
+                await asyncio.sleep(60 * 60)
+                await removeRolesFromUser([muted_role_id], message.author, message.guild)
                 return
 
             i += 1
