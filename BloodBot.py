@@ -159,7 +159,7 @@ def main():
                 await message.add_reaction(sentimentNegative)
 
         # mute pepe for an hour if he trashes destiny
-        if message.author.id == 367385031569702912:
+        if message.author.id == 367385031569702912420:
             if "destiny" in text.lower():
                 for insult in ["suck", "bad", "fuck", "shit", "trash"]:
                     if insult in text.lower():
