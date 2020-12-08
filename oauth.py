@@ -79,7 +79,12 @@ def root():
     #print('got request')
     response = request.args
     if not (code := response.get('code', None)): #for user auth
-        return '<img src="https://vignette.wikia.nocookie.net/meme/images/a/a8/Portal-cake.jpg/revision/latest/top-crop/width/360/height/450?cb=20110913215856"/>'
+        return '''
+<img src="https://vignette.wikia.nocookie.net/meme/images/a/a8/Portal-cake.jpg/revision/latest/top-crop/width/360/height/450?cb=20110913215856"/><br/>
+<a href="https://elevatorbot.ch/vendorbounties">Vendorbounties</a><br/>
+<a href="https://elevatorbot.ch/fireteamstalker">Fireteamstalker</a><br/>
+<a href="https://elevatorbot.ch/descendadmintool">Descend Members</a><br/>
+'''
         #return redirect("http://www.elevatorbot.ch/reacttest/build", code=301)
     print(code)
     #print(f'code is {code}')
@@ -142,7 +147,12 @@ def root():
         },
     }
     rp = requests.post(url=webhookURL, data=json.dumps(requestdata), headers={"Content-Type": "application/json"})
-    return 'Thank you for signing up with <h1> Elevator Bot </h1>\n <p style="bottom: 20" >There will be cake (or will there...)</p>'   # response to your request.
+    return '''
+        Thank you for signing up with <h1> Elevator Bot </h1>\n <p style="bottom: 20" >There will be cake</p>
+        <script>
+            setTimeout("location.href = 'https://www.elevatorbot.ch';",1500);
+        </script>
+    '''
 
 
 
