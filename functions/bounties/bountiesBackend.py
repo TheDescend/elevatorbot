@@ -638,9 +638,12 @@ async def returnScore(requirements, activity, destinyID):
         elif req == "noWeapons":
             # return 0 if there are any weapon kills
             for player in pgcr["Response"]["entries"]:
-                for weapon in player["extended"]["weapons"]:
-                    if weapon["values"]["uniqueWeaponKills"] != 0:
-                        return 0, sort_by_highest
+                try:
+                    for weapon in player["extended"]["weapons"]:
+                        if weapon["values"]["uniqueWeaponKills"] != 0:
+                            return 0, sort_by_highest
+                except KeyError:
+                    print(f"Error at - {player['extended']}")
 
 
         # > tested <

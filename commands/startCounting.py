@@ -26,10 +26,7 @@ class startCounting(BaseCommand):
 
             # check if he counted up correctly
             if msg.content != str(i):
-                await message.channel.send(f"{msg.author.mention} ruined it at `{str(i-1)}` and thus got muted for 5 minutes <:SadChamp:670672093263822877>")
-                await assignRolesToUser([muted_role_id], msg.author, msg.guild)
-                await asyncio.sleep(60 * 5)
-                await removeRolesFromUser([muted_role_id], msg.author, msg.guild)
+                await message.channel.send(f"{msg.author.mention} ruined it at `{str(i-1)}`")
                 return
 
             i += 1
