@@ -12,7 +12,7 @@ class startCounting(BaseCommand):
         params = []
         super().__init__(description, params)
 
-    # Override the handle() method
+    # Override the handle() methodget
     # It will be called every time the command is received
     async def handle(self, params, message, client):
         await message.channel.send("Start counting, first person has to begin with `1`")
