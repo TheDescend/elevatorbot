@@ -23,7 +23,7 @@ dscHashes = [910380154, 3976949817]
 # dungeons
 throneHashes = [1893059148, 2032534090]
 pitHashes = [1375089621, 2559374368, 2559374374, 2559374375]
-prophHashes = [4148187374]
+prophHashes = [1077850348, 4148187374]
 
 # menagerie
 premenHashes = [2509539864, 2509539865, 2509539867, 1831470693, 3107795800, 3115455134]
@@ -350,87 +350,6 @@ requirementHashes = {
 
         }
     },
-    'Dungeons': {
-        'Solo Flawless Shattered Throne': {
-            'requirements': ['records'],
-            'denyTime0':{ #start is earlier Time, format is important
-                'startTime':'11/08/2020 18:00',
-                'endTime':'08/09/2020 18:00'
-            },
-             'records': [
-                3205009787, #Seriously, Never Again
-            ]
-        },
-        'Flawless Shattered Throne': {
-            'requirements': ['records'],
-            'records': [
-                1178448425, #Curse This
-            ],
-            'replaced_by':['Solo Flawless Shattered Throne']
-        },
-        'Solo Shattered Throne': {
-            'requirements': ['records'],
-            'denyTime0':{ #start is earlier Time, format is important
-                'startTime':'11/08/2020 18:00',
-                'endTime':'08/09/2020 18:00'
-            },
-            'records': [
-                3899996566, #Solo-nely
-            ],
-            'replaced_by':['Solo Flawless Shattered Throne']
-        },
-        'Solo Flawless Pit of Heresy': {
-            'requirements': ['records'],
-            'denyTime0':{ #start is earlier Time, format is important
-                'startTime':'11/08/2020 18:00',
-                'endTime':'08/09/2020 18:00'
-            },
-            'records': {
-                3950599483,  # Savior of the Deep
-            },
-        },
-        'Solo Pit of Heresy': {
-            'requirements': ['records'],
-            'denyTime0':{ #start is earlier Time, format is important
-                'startTime':'11/08/2020 18:00',
-                'endTime':'08/09/2020 18:00'
-            },
-            'records': {
-                3841336511,  # Usurper
-            },
-            'replaced_by': ['Solo Flawless Pit of Heresy']
-        },
-        'Flawless Pit of Heresy': {
-            'requirements': ['records'],
-            'records': {
-                245952203,  # Eternal Heretic
-            },
-            'replaced_by': ['Solo Flawless Pit of Heresy']
-        },
-        'Solo Prophecy': {
-            "deprecated": True,
-            'requirements': ['records'],
-            'records' : [
-                3002642730
-            ],
-            'replaced_by': ['Solo Flawless Prophecy']
-        },
-        'Flawless Prophecy': {
-            "deprecated": True,
-            'requirements': ['records'],
-            'records' : [
-                2010041484
-            ],
-            'replaced_by': ['Solo Flawless Prophecy']
-        },
-        'Solo Flawless Prophecy': {
-            "deprecated": True,
-            'requirements': ['records'],
-            'records' : [
-                3191784400
-            ],
-        }
-    },
     "Y4":{
         'Deep Stone Crypt': {
             'requirements': ['clears','records'],
@@ -469,6 +388,100 @@ requirementHashes = {
             ],
             #'replaced_by':[]
         },
+    },
+    'Dungeons': {
+        'Solo Flawless Shattered Throne': {
+            'requirements': ['lowman'],
+            'playercount': 1,
+            'flawless' : True,
+            'denyTime0':{ #start is earlier Time, format is important
+                'startTime':'11/08/2020 18:00',
+                'endTime':'08/09/2020 18:00'
+            },
+            'denyTime1':{ #Beyond light boss CP bug
+                'startTime':'10/11/2020 18:00',
+                'endTime':'17/12/2020 18:00'
+            },
+             'activityHashes': throneHashes
+        },
+        'Flawless Shattered Throne': {
+            'requirements': ['records'],
+            'records': [
+                1178448425, #Curse This
+            ],
+            'replaced_by':['Solo Flawless Shattered Throne']
+        },
+        'Solo Shattered Throne': {
+            'requirements': ['records'],
+            'denyTime0':{ #start is earlier Time, format is important
+                'startTime':'11/08/2020 18:00',
+                'endTime':'08/09/2020 18:00'
+            },
+            'records': [
+                3899996566, #Solo-nely
+            ],
+            'replaced_by':['Solo Flawless Shattered Throne']
+        },
+        'Solo Flawless Pit of Heresy': {
+            'requirements': ['lowman'],
+            'playercount': 1,
+            'flawless' : True,
+            'denyTime0':{ #start is earlier Time, format is important
+                'startTime':'11/08/2020 18:00',
+                'endTime':'08/09/2020 18:00'
+            },
+            'denyTime1':{ #Beyond light boss CP bug
+                'startTime':'10/11/2020 18:00',
+                'endTime':'17/12/2020 18:00'
+            },
+            'activityHashes': pitHashes
+        },
+        'Solo Pit of Heresy': {
+            'requirements': ['records'],
+            'denyTime0':{ #start is earlier Time, format is important
+                'startTime':'11/08/2020 18:00',
+                'endTime':'08/09/2020 18:00'
+            },
+            'records': {
+                3841336511,  # Usurper
+            },
+            'replaced_by': ['Solo Flawless Pit of Heresy']
+        },
+        'Flawless Pit of Heresy': {
+            'requirements': ['records'],
+            'records': {
+                245952203,  # Eternal Heretic
+            },
+            'replaced_by': ['Solo Flawless Pit of Heresy']
+        },
+        'Solo Prophecy': {
+            'requirements': ['records'],
+            'records' : [
+                3002642730
+            ],
+            'replaced_by': ['Solo Flawless Prophecy']
+        },
+        'Flawless Prophecy': {
+            'requirements': ['records'],
+            'records' : [
+                2010041484
+            ],
+            'replaced_by': ['Solo Flawless Prophecy']
+        },
+        'Solo Flawless Prophecy': {
+            'requirements': ['lowman'],
+            'playercount': 1,
+            'flawless' : True,
+            'denyTime0':{ #Beyond light boss CP bug
+                'startTime':'10/11/2020 18:00',
+                'endTime':'08/09/2020 18:00'
+            },
+            'denyTime1':{ #start is earlier Time, format is important
+                'startTime':'01/12/2020 18:00',
+                'endTime':'17/12/2020 18:00'
+            },
+            'activityHashes': prophHashes
+        }
     },
     "Lowmans":{
         'Trio Argos': {
@@ -575,6 +588,12 @@ requirementHashes = {
             'requirements': ['lowman'],
             'playercount' : 3,
             'activityHashes': dscHashes,
+            'replaced_by': ['Duo Taniks']
+        },
+        'Duo Taniks': {
+            'requirements': ['lowman'],
+            'playercount' : 2,
+            'activityHashes': dscHashes
         },
     },
     'Addition':{
