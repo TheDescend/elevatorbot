@@ -65,8 +65,16 @@ class getRoles(BaseCommand):
             roles_at_start = [role.name for role in user.roles]
             (roleList, removeRoles) = await getPlayerRoles(destinyID, roles_at_start)
 
-            await assignRolesToUser(roleList, user, message.guild)
+            roles_assignable = await assignRolesToUser(roleList, user, message.guild)
             await removeRolesFromUser(removeRoles, user, message.guild)
+
+            if not roles_assignable:
+                await wait_msg.delete()
+                await message.channel.send(embed=embed_message(
+                    'Error',
+                    f'You seem to have been banned from acquiring any roles.\nIf you believe this is a mistake, refer to the admin team or DM <@386490723223994371>'
+                ))
+                return
 
             roles_now = [role.name for role in user.roles]
 
@@ -77,7 +85,7 @@ class getRoles(BaseCommand):
                 topic = topic.replace("Y2", "Year Two")
                 topic = topic.replace("Y3", "Year Three")
                 topic = topic.replace("Y4", "Year Four")
-                
+
                 topic = topic.replace("Addition", "Miscellaneous")
 
                 for role in topicroles.keys():
@@ -93,6 +101,7 @@ class getRoles(BaseCommand):
                             new_roles[topic] = [role]
 
             if not roleList:
+                await wait_msg.delete()
                 await message.channel.send(embed=embed_message(
                     'Error',
                     f'You don\'t seem to have any roles.\nIf you believe this is an Error, refer to one of the <@&{dev_role_id}>\nOtherwise check <#686568386590802000> to see what you could acquire'

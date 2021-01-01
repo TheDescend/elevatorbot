@@ -10,6 +10,7 @@ registered_role_id = 670396064007979009
 not_registered_role_id = 670396109088358437
 clan_role_id = 670384239489056768
 muted_role_id = 681944329698541585
+role_ban_id = 794685157712855040
 
 divider_misc_role_id = 670395920327639085
 divider_achievement_role_id = 670385837044662285

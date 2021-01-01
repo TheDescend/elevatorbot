@@ -15,11 +15,13 @@ class AutomaticRoleAssignment(BaseEvent):
     """Will automatically update the roles"""
 
     def __init__(self):
-        interval_minutes = 1440 # Set the interval for this event 1440 = 24h
+        interval_minutes = 720 # Set the interval for this event 1440 = 24h
         super().__init__(interval_minutes)
+        print('initiate automaticRoleAssignment')
     
     async def run(self, client):
         print('running the automatic role assignment...')
+
         async def updateUser(discordUser):
             if discordUser.bot:
                 return (None, None, None)
@@ -56,9 +58,8 @@ class AutomaticRoleAssignment(BaseEvent):
             for discordUser, newRoles, removeRoles in news:
                 if not discordUser:
                     continue
-                await assignRolesToUser(newRoles, discordUser, guild)
+                is_assigned = await assignRolesToUser(newRoles, discordUser, guild)
                 await removeRolesFromUser(removeRoles, discordUser, guild)
-
                 existingRoles = [er.name for er in discordUser.roles]
                 addBools = [nr not in existingRoles for nr in newRoles]
                 removeBools = [rr in existingRoles for rr in removeRoles]
@@ -67,7 +68,11 @@ class AutomaticRoleAssignment(BaseEvent):
                 removerls = list(compress(removeRoles, removeBools))
 
                 if addrls or removerls:
-                    newstext += f'Updated player {discordUser.name} by adding {", ".join(addrls or ["nothing"])} and removing {", ".join(removerls or ["nothing"])}\n'
+                    if is_assigned:
+                        newstext += f'Updated player {discordUser.name} by adding {", ".join(addrls or ["nothing"])} and removing {", ".join(removerls or ["nothing"])}\n'
+                    else:
+                        newstext += f'Would have updated player {discordUser.name} by adding {", ".join(addrls or ["nothing"])} and removing {", ".join(removerls or ["nothing"])}, but User is currently prohibited from acquiring roles\n'
+
 
             await newtonslab.send(newstext)
         

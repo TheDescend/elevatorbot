@@ -8,7 +8,7 @@ from functions.formating import embed_message
 from functions.network import getJSONfromURL
 from static.dict import requirementHashes
 # check if user has permission to use this command
-from static.globals import admin_role_id, dev_role_id, mod_role_id
+from static.globals import admin_role_id, dev_role_id, mod_role_id, role_ban_id
 
 
 async def hasAdminOrDevPermissions(message, send_message=True):
@@ -177,6 +177,11 @@ async def assignRolesToUser(roleList, discordUser, guild, reason=None):
     #takes rolelist as string array, userSnowflake, guild object
     if not discordUser:
         return False
+    
+    role_banned = discord.utils.get(guild.roles, name='Role Banned') or discord.utils.get(guild.roles, id=role_ban_id)
+    if role_banned in discordUser.roles:
+        return False
+
     for role in roleList:
         #print(guild.roles)
         roleObj = discord.utils.get(guild.roles, name=role) or discord.utils.get(guild.roles, id=role)
