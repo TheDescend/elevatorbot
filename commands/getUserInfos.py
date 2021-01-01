@@ -70,7 +70,7 @@ class getDiscordFuzzy(BaseCommand):
     # Override the handle() method
     # It will be called every time the command is received
     async def handle(self, params, message, client):
-        partialName = params[0]
+        partialName = " ".join(params)
         clansearch = []
         for clanid in clanids:
             returnjson = await getJSONfromURL(f"https://www.bungie.net/Platform/GroupV2/{clanid}/Members?nameSearch={partialName}")
