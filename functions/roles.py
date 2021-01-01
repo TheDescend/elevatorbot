@@ -134,9 +134,9 @@ async def getPlayerRoles(playerid, existingRoles = []):
                     roles.append(role)
                 continue
             # enable to not recheck existing roles
-            has_role = await returnIfHasRoles(playerid, role, year)
-            if has_role:
-                roles.append(has_role)
+            roleOrNone = await returnIfHasRoles(playerid, role, year)
+            if roleOrNone:
+                roles.append(roleOrNone)
 
     #remove roles that are replaced by others
     for yeardata in requirementHashes.values():
@@ -145,9 +145,13 @@ async def getPlayerRoles(playerid, existingRoles = []):
                 redundantRoles.append(roleName)
             if 'replaced_by' in roledata.keys():
                 for superior in roledata['replaced_by']:
-                    if superior in roles and roleName in roles:
-                        roles.remove(roleName)
-                        redundantRoles.append(roleName)
+                    if superior in roles:
+                        if roleName in roles:
+                            roles.remove(roleName)
+                            redundantRoles.append(roleName)
+                        else:
+                            roles.remove(superior)
+                            
 
     #check whether player is Yx Raid Master and add/remove roles
     for yeardata in requirementHashes.values():
