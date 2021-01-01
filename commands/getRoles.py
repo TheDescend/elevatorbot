@@ -76,6 +76,8 @@ class getRoles(BaseCommand):
                 topic = topic.replace("Y1", "Year One")
                 topic = topic.replace("Y2", "Year Two")
                 topic = topic.replace("Y3", "Year Three")
+                topic = topic.replace("Y4", "Year Four")
+                
                 topic = topic.replace("Addition", "Miscellaneous")
 
                 for role in topicroles.keys():
@@ -290,8 +292,21 @@ class roleRequirements(BaseCommand):
             ))
             return
 
-
-        given_role = " ".join(params)
+        user = message.author
+        if len(message.mentions) == 1:
+            ctx = await client.get_context(message)
+            try:
+                user = await commands.MemberConverter().convert(ctx, params[-1])
+            except:
+                await message.channel.send(embed=embed_message(
+                    'Error',
+                    f'User not found, make sure the spelling/id is correct'
+                ))
+                return
+            
+            given_role = " ".join(params[:-1])
+        else:
+            given_role = " ".join(params)
 
         f_year = ""
         f_role = ""
@@ -314,10 +329,11 @@ class roleRequirements(BaseCommand):
             ))
             return
 
+
         async with message.channel.typing():
-            destinyID = lookupDestinyID(message.author.id)
+            destinyID = lookupDestinyID(user.id)
             wait_msg = await message.channel.send(embed=embed_message(
-                f'Hi, {message.author.name}',
+                f'Hi, {user.name}',
                 "Your data will be available shortly"
             ))
 
@@ -328,7 +344,7 @@ class roleRequirements(BaseCommand):
             print(reqs[1])
 
             embed = embed_message(
-                f"{message.author.display_name}'s '{f_role}' Eligibility"
+                f"{user.display_name}'s '{f_role}' Eligibility"
             )
 
             for req in reqs[1]:
