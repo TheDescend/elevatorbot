@@ -1,9 +1,4 @@
 from commands.base_command import BaseCommand
-from functions.roles import assignRolesToUser, removeRolesFromUser
-from static.globals import muted_role_id
-
-import asyncio
-
 
 class startCounting(BaseCommand):
     def __init__(self):

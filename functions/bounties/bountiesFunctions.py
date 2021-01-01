@@ -372,7 +372,7 @@ async def displayCompetitionBounties(client, guild, message=None):
             if not message:
                 await competition_bounties_channel.send(f"⁣\n⁣\n")
 
-    print("Updated competition bounty display")
+    #print("Updated competition bounty display")
 
 
 # checks if any player has completed a bounty
@@ -417,7 +417,7 @@ async def bountyCompletion(client):
             # checking competitive bounties
             await threadingCompetitionBounties(activity, bounties["competition_bounties"], destinyID, discordID, leaderboard, sort_by)
 
-    print("Done checking all the users")
+    #print("Done checking all the users")
 
     # update the leaderboard file
     for topic in leaderboard:
@@ -493,7 +493,7 @@ async def displayLeaderboard(client, use_old_message=True):
                 msg = await competition_bounties_channel.send(embed=embed)
                 saveAsGlobalVar("leaderboard_channel_message_id", msg.id)
 
-    print("Updated Leaderboard")
+    #print("Updated Leaderboard")
 
 
 async def registrationMessageReactions(client, user, emoji, register_channel, register_channel_message_id):
