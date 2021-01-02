@@ -290,7 +290,10 @@ requirementHashes = {
             'replaced_by':['Y2 Raid Master', 'Last Wish Master']
         },
         'Last Wish Master': {
-            'requirements': ['clears','records'],
+            'requirements': ['clears','records', 'roles'],
+            'roles':[
+                'Last Wish'
+            ],
             'clears': [
                 {'count' : 30,
                 'actHashes' : lwHashes}
@@ -329,7 +332,10 @@ requirementHashes = {
             'replaced_by':['Garden of Salvation Master']
        },
         'Garden of Salvation Master': {
-            'requirements': ['clears', 'records'],
+            'requirements': ['clears', 'records', 'roles'],
+            'roles':[
+                'Garden of Salvation'
+            ],
             'clears': [
                 {'count' : 30,
                 'actHashes' : gosHashes} #Minimum 30 full clears
@@ -340,7 +346,8 @@ requirementHashes = {
                 277137394, #Shade in the Garden :Void: 
                 2571794337, #Photosynthesis :Solar: 
                 1830799772, #Garden Party [Same Class]
-            ]
+            ],
+            'replaced_by': ['Y3 Raid Master']
         },
         'Y3 Raid Master': {
             'requirements': ['roles'],
@@ -366,7 +373,10 @@ requirementHashes = {
             'replaced_by':['Deep Stone Crypt Master']
         },
         'Deep Stone Crypt Master': {
-            'requirements': ['clears','records'],
+            'requirements': ['roles', 'clears', 'records'],
+            'roles':[
+                'Deep Stone Crypt'
+            ],
             'clears': [
                 {'count' : 30,
                 'actHashes' : dscHashes}

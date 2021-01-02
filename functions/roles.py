@@ -106,12 +106,14 @@ async def hasRole(playerid, role, year, br = True):
             data["Lowman (" + str(roledata['playercount']) + " Players)"] = str(has_low)
 
         elif req == 'roles':
-            return [False, data] #checked later
+            for required_role in roledata['roles']:
+                req_worthy, req_data = await hasRole(playerid, required_role, year, br = True)
+                worthy &= req_worthy #only worthy if worthy for all required roles
+                data = {**req_data, **data} #merging dicts, data dominates
 
         if (not worthy) and br:
             break
 
-    # print(data)
     return [worthy, data]
 
 async def returnIfHasRoles(playerid, role, year):
@@ -129,11 +131,11 @@ async def getPlayerRoles(playerid, existingRoles = []):
 
     for year, yeardata in requirementHashes.items():
         for role, roledata in yeardata.items():
+            #do not recheck existing roles or roles that will be replaced by existing roles
             if role in existingRoles or ('replaced_by' in roledata.keys() and any([x in existingRoles for x in roledata['replaced_by']])):
-                if not 'Raid Master' in role:
-                    roles.append(role)
+                roles.append(role)
                 continue
-            # enable to not recheck existing roles
+
             roleOrNone = await returnIfHasRoles(playerid, role, year)
             if roleOrNone:
                 roles.append(roleOrNone)
@@ -149,28 +151,7 @@ async def getPlayerRoles(playerid, existingRoles = []):
                         if roleName in roles:
                             roles.remove(roleName)
                             redundantRoles.append(roleName)
-                        else:
-                            roles.remove(superior)
-                            
-
-    #check whether player is Yx Raid Master and add/remove roles
-    for yeardata in requirementHashes.values():
-        for roleName, roledata in yeardata.items():
-            assert 'requirements' in roledata
-            if 'roles' in roledata['requirements']:
-                worthy = True
-                reqs = roledata['roles']
-                for reqrole in reqs:
-                    if reqrole not in roles:
-                        worthy = False
-                if worthy:
-                    #print('worthy for ', roleName)
-                    roles.append(roleName)
-                    redundantRoles.remove(roleName)
-                    for reqrole in reqs:
-                        roles.remove(reqrole)
-                        redundantRoles.append(reqrole)
-            
+    
     return (roles, redundantRoles)
 
 async def assignRolesToUser(roleList, discordUser, guild, reason=None):
