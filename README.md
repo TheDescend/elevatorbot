@@ -95,10 +95,6 @@ Adds all messages form the eligible channels to the markov-chat samples
 ### !lastraid
 Some stats about the last raid activity done
 
-### !listhascollectible [collectible hash]
-Gives a list of all players that own the mentioned collectible.
-Get the hashes from http://data.destinysets.com
-
 ### !makechannelothergameroles
 Clears the channel and sets up a post that allows for reaction-based roles
 
