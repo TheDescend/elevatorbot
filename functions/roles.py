@@ -2,11 +2,12 @@ from datetime import datetime
 
 import discord
 
-from functions.dataTransformation import getClearCount, hasLowman
-from functions.dataTransformation import hasFlawless, hasCollectible, hasTriumph
+from functions.database import hasFlawless, getClearCount
+from functions.dataTransformation import hasLowman
+from functions.dataTransformation import hasCollectible, hasTriumph
 from functions.formating import embed_message
 from functions.network import getJSONfromURL
-from static.dict import requirementHashes
+from static.dict import requirementHashes, getNameFromHashRecords, getNameFromHashCollectible
 # check if user has permission to use this command
 from static.globals import admin_role_id, dev_role_id, mod_role_id, role_ban_id
 
@@ -31,6 +32,7 @@ async def hasAdminOrDevPermissions(message, send_message=True):
 
 
 async def hasRole(playerid, role, year, br = True):
+    """ br may be set to True if only True/False is exptected, set to False to get complete data on why or why not the user earned the role """
     data = {}
 
     roledata = requirementHashes[year][role]
@@ -65,13 +67,14 @@ async def hasRole(playerid, role, year, br = True):
 
                 if (not worthy) and br:
                     break
-
-                # get name of collectible
-                name = "No name here"
-                rep = await getJSONfromURL(f"https://www.bungie.net/Platform/Destiny2/Manifest/DestinyCollectibleDefinition/{collectible}/")
-                if rep and rep['Response']:
-                    name = rep['Response']["displayProperties"]["name"]
-                data[str(name)] = str(has_col)
+                
+                if not br:
+                    # get name of collectible
+                    name = "No name here"
+                    #str conversion required because dictionary is indexed on strings, not postiions
+                    if str(collectible) in getNameFromHashCollectible.keys():
+                        name = getNameFromHashCollectible[str(collectible)]
+                    data[name] = str(has_col)
 
         elif req == 'records':
             for recordHash in roledata['records']:
@@ -80,16 +83,13 @@ async def hasRole(playerid, role, year, br = True):
 
                 if (not worthy) and br:
                     break
-
-                # get name of triumph
-                name = "No name here"
-                rep = await getJSONfromURL(
-                    f"https://www.bungie.net/Platform/Destiny2/Manifest/DestinyRecordDefinition/{recordHash}/")
-                if rep and 'Response' in rep and rep['Response']:
-                    name = rep['Response']["displayProperties"]["name"]
-                else:
-                    print(f'Request failed, response was {rep}')
-                data[str(name)] = str(has_tri)
+                
+                if not br:
+                    # get name of triumph
+                    name = "No name here"
+                    if str(recordHash) in getNameFromHashRecords.keys():
+                        name = getNameFromHashRecords[str(recordHash)]
+                    data[name] = str(has_tri)
 
         elif req == 'lowman':
             denies = sum([1 if 'denyTime' in key else 0 for key in roledata.keys()])
@@ -107,9 +107,10 @@ async def hasRole(playerid, role, year, br = True):
 
         elif req == 'roles':
             for required_role in roledata['roles']:
-                req_worthy, req_data = await hasRole(playerid, required_role, year, br = True)
+                req_worthy, req_data = await hasRole(playerid, required_role, year, br = br)
                 worthy &= req_worthy #only worthy if worthy for all required roles
                 data = {**req_data, **data} #merging dicts, data dominates
+                data[f'Role: {required_role}'] = req_worthy
 
         if (not worthy) and br:
             break
