@@ -26,6 +26,7 @@ database/rasputinCheck.py
 database/steamPlayerData.pickle
 database/steamPlayerData.pickle.bckp
 database/seals.pickle
+database/psql_credentials.py
 functions/bounties/channelIDs.pickle
 functions/bounties/currentBounties.pickle
 functions/bounties/playerBountyStatus.pickle
