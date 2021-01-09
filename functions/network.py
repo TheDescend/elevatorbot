@@ -1,7 +1,8 @@
 import asyncio
-import aiohttp
+import aiohttp, asyncio
 import random
 import time
+from datetime import datetime
 
 from functions.database import getToken, getTokenExpiry
 from oauth import refresh_token
@@ -50,17 +51,32 @@ async def getJSONfromURL(requestURL, headers=headers, params={}):
         for i in range(10):
             # wait for a token from the rate limiter
             await limiter.wait_for_token()
+            try:
+                async with session.get(url=requestURL, headers=headers, params=params, timeout=5) as r:
+                    if 'application/json' not in r.headers['Content-Type']: #might be application/json; charset=utf-8
+                        print(f'Wrong content type {r.headers["Content-Type"]}! {r.status}: {r.reason})')
+                        if r.status == 200:
+                            print(await r.text())
+                        continue
+                    try:
+                        res = await r.json()
+                    except aiohttp.client_exceptions.ClientPayloadError:
+                        print('Payload error, retrying...')
+                        continue
+                    except aiohttp.client_exceptions.ContentTypeError:
+                        print('Content tpye error, retrying...')
+                        continue
 
-            async with session.get(url=requestURL, headers=headers, params=params, timeout=60) as r:
-                res = await r.json()
+                    # ok
+                    if r.status == 200:
+                        return res
 
-                # ok
-                if r.status == 200:
-                    return res
-
-                # handling any errors if not ok
-                if await errorCodeHandling(requestURL, r, res):
-                    return None
+                    # handling any errors if not ok
+                    if await errorCodeHandling(requestURL, r, res):
+                        return None
+            except asyncio.exceptions.TimeoutError:
+                    print('Timeout error, retrying...')
+                    continue
 
         print(f'Request failed 5 times, aborting {requestURL}')
         return None
@@ -89,6 +105,10 @@ async def getJSONwithToken(requestURL, discordID):
             await limiter.wait_for_token()
 
             async with session.get(url=requestURL, headers=headers) as r:
+                if 'application/json' not in r.headers['Content-Type']: #might be application/json; charset=utf-8
+                    #print(await r.text())
+                    print(f'Wrong content type! {r.status}: {r.reason})')
+                    continue
                 res = await r.json()
 
                 # ok
@@ -131,7 +151,7 @@ async def postJSONtoBungie(postURL, data, discordID):
     """ Post info to bungie """
 
     # handle and return working token
-    ret = await handleAndReturnToken(discordID)
+    ret = await handleAndReturnToken(discordID) #iS FIXED AS ONE OF THE CLANS ADMINS
     if ret["result"]:
         token = ret["result"]
     else:
@@ -150,6 +170,10 @@ async def postJSONtoBungie(postURL, data, discordID):
             await limiter.wait_for_token()
 
             async with session.post(url=postURL, json=data, headers=headers, allow_redirects=False) as r:
+                if 'application/json' not in r.headers['Content-Type']: #might be application/json; charset=utf-8
+                    #print(await r.text())
+                    print(f'Wrong content type! {r.status}: {r.reason})')
+                    continue
                 res = await r.json()
 
                 # ok
@@ -176,7 +200,8 @@ async def postJSONtoBungie(postURL, data, discordID):
 async def errorCodeHandling(requestURL, r, res):
     # generic bad request, such as wrong format
     if r.status == 400:
-        print(f'Generic bad request for {requestURL}')
+        #network.log
+        #print(f'Generic bad request for {requestURL}')
         return True
     # not found
     elif r.status == 404:
@@ -194,7 +219,9 @@ async def errorCodeHandling(requestURL, r, res):
         elif error == "DestinyItemNotFound":
             print("User doesn't have that item, aborting")
             return True
-
+        elif error == "DestinyPrivacyRestriction":
+            print("User has private Profile")
+            return True
         else:
             print(f'Bad request for {requestURL}. Returned error {error}:')
             print(res)
@@ -236,7 +263,7 @@ async def handleAndReturnToken(discordID):
 
     # check refresh token first, since they need to re-register otherwise
     if t > expiry[1]:
-        print(f'Expiry Dates for refreshed token passed for discordID {discordID}. Needs to re-register')
+        print(f'Expiry Dates for refreshed token passed ({datetime.fromtimestamp(expiry[1]).strftime("%Y-%m-%d")}) for discordID {discordID}. Needs to re-register')
         return {
             'result': None,
             'error': 'Registration is outdated, please re-register using `!registerdesc`'
@@ -244,7 +271,7 @@ async def handleAndReturnToken(discordID):
 
     # refresh token if outdated
     elif t > expiry[0]:
-        print(f"Refreshing token for discordID {discordID}")
+        print(f'Refreshing token for discordID {discordID}, expired  ({datetime.fromtimestamp(expiry[0]).strftime("%Y-%m-%d")})')
         token = await getFreshToken(discordID)
         if not token:
 

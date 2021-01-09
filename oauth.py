@@ -9,8 +9,9 @@ import json
 import requests
 from flask import Flask, request, redirect, Response, render_template, jsonify, abort
 from flask import send_from_directory
+from datetime import datetime
 
-from functions.database import insertToken, getRefreshToken, updateToken
+from functions.database import insertToken, getRefreshToken, updateToken, lookupDestinyID
 from static.config import BUNGIE_TOKEN, B64_SECRET, NEWTONS_WEBHOOK
 
 from nacl.signing import VerifyKey
@@ -27,7 +28,7 @@ async def refresh_token(discordID):
         'authorization': 'Basic ' + str(B64_SECRET)
     }
     refresh_token = getRefreshToken(discordID)
-
+    destinyID = lookupDestinyID(discordID)
     if not refresh_token:
         return None
 
@@ -43,12 +44,8 @@ async def refresh_token(discordID):
                     refresh_token = data['refresh_token']
                     token_expiry = t + data['expires_in']
                     refresh_token_expiry = t + data['refresh_expires_in']
-
-                    updateToken(discordID, access_token, refresh_token, token_expiry, refresh_token_expiry)
-
-                    print(f"Refreshed token for discordID {discordID}")
+                    updateToken(destinyID, discordID, access_token, refresh_token, token_expiry, refresh_token_expiry)
                     return access_token
-
                 else:
                     print(f"Refreshing Token failed with code {r.status} . Waiting 1s and trying again")
                     print(await r.read(), '\n')
@@ -81,8 +78,6 @@ def level1():
 
 @app.route('/')
 def root():
-    print('called root')
-    #print('got request')
     response = request.args
     if not (code := response.get('code', None)): #for user auth
         return '''
@@ -91,9 +86,6 @@ def root():
 <a href="https://elevatorbot.ch/fireteamstalker">Fireteamstalker</a><br/>
 <a href="https://elevatorbot.ch/descendadmintool">Descend Members</a><br/>
 '''
-        #return redirect("http://www.elevatorbot.ch/reacttest/build", code=301)
-    print(code)
-    #print(f'code is {code}')
     (discordID,serverID) = response['state'].split(':') #mine
 
     url = 'https://www.bungie.net/platform/app/oauth/token/'
@@ -112,9 +104,6 @@ def root():
     token_expiry = t + authresponse['expires_in']
     refresh_token_expiry = t + authresponse['refresh_expires_in']
 
-    #print(f'bungie responded {r.content} and the token is {access_token}')
-    #membershipid = r.json()['membership_id']
-
     reqParams = {
         'Authorization': 'Bearer ' + str(access_token),
         'X-API-Key': BUNGIE_TOKEN
@@ -123,7 +112,7 @@ def root():
     r = requests.get(url='https://www.bungie.net/platform/User/GetMembershipsForCurrentUser/', headers=reqParams)
     response = r.json()['Response']
     membershiplist = response['destinyMemberships']
-    #print(membershiplist)
+
     primarymembership = None
     display_name = '_missing_'
     for membership in membershiplist:
@@ -131,7 +120,7 @@ def root():
             display_name = membership["displayName"]
             steam_name = membership["LastSeenDisplayName"]
         if "crossSaveOverride" in membership.keys() and membership["crossSaveOverride"] and membership["membershipType"] != membership["crossSaveOverride"]:
-            #print(f'membership {membership["membershipType"]} did not equal override {membership["crossSaveOverride"]}')
+            #the primary membership has been identified
             continue
         primarymembership = membership
     
@@ -142,7 +131,7 @@ def root():
     systemID = int(primarymembership['membershipType'])
 
     insertToken(int(discordID), destinyID, systemID, int(serverID), access_token, refresh_token, token_expiry, refresh_token_expiry)
-    print(f"<@{discordID}> has destinyID `{destinyID}`, Bungie-Name `{display_name}`, Steam-Name `{steam_name}`")
+    print(f"Inserted token. <@{discordID}> has destinyID `{destinyID}`, Bungie-Name `{display_name}`, Steam-Name `{steam_name}`")
     webhookURL = NEWTONS_WEBHOOK
     requestdata = {
         'content': f"<@{discordID}> has destinyID `{destinyID}`, Bungie-Name `{display_name}`, Steam-Name `{steam_name}`, System `{systemID}`",

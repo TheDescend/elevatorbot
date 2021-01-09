@@ -4,9 +4,9 @@ from datetime import datetime
 import matplotlib
 
 from functions.dataLoading import getStats, getTriumphsJSON, getPGCR, getPlayersPastPVE, getNameToHashMapByClanid
-from functions.database import db_connect
 from functions.network import getComponentInfoAsJSON
 from static.dict import getNameFromHashInventoryItem, clanids
+from functions.database import getInfoOnLowManActivity
 
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -24,47 +24,6 @@ async def hasCollectible(playerid, cHash):
     return collectibles[str(cHash)]['state'] & 1 == 0
 #   Check whether it's not (not aquired), which means that the firstbit can't be 1   
 #   https://bungie-net.github.io/multi/schema_Destiny-DestinyCollectibleState.html
-
-def getClearCount(playerid, activityHashes):
-    """ Gets the full-clearcount for player <playerid> of activity <activityHash> """
-    con = db_connect()
-    cur = con.cursor()
-    sqlite_select = f"""SELECT COUNT(t1.instanceID)
-                        FROM (  SELECT instanceID FROM activities
-                                WHERE activityHash IN ({','.join(['?']*len(activityHashes))})
-                                AND startingPhaseIndex <= 2) t1
-                        JOIN (  SELECT DISTINCT(instanceID)
-                                FROM instancePlayerPerformance
-                                WHERE playerID = ?
-                                ) ipp 
-                        ON (ipp.instanceID = t1.instanceID)
-                        """
-    data_tuple = (*activityHashes, playerid)
-    cur.execute(sqlite_select, data_tuple)
-    (result,) = cur.fetchone()
-    con.close()
-    return result
-
-
-def hasFlawless(playerid, activityHashes):
-    """ returns the list of all flawless raids the player <playerid> has done """
-    con = db_connect()
-    cur = con.cursor()
-    sqlite_select = f"""SELECT COUNT(t1.instanceID)
-                        FROM (  SELECT instanceID FROM activities
-                                WHERE activityHash IN ({','.join(['?']*len(activityHashes))})
-                                AND startingPhaseIndex <= 2
-                                AND deaths = 0) t1
-                        JOIN (  SELECT DISTINCT(instanceID)
-                                FROM instancePlayerPerformance
-                                WHERE playerID = ?
-                                ) ipp 
-                        ON (ipp.instanceID = t1.instanceID)
-                        """
-    data_tuple = (*activityHashes, playerid)
-    cur.execute(sqlite_select, data_tuple)
-    (count,) = cur.fetchone()
-    return count > 0
 
 async def hasTriumph(playerid, recordHash):
     """ returns True if the player <playerid> has the triumph <recordHash> """
@@ -95,23 +54,9 @@ async def getPlayerCount(instanceID):
 
 def hasLowman(playerid, playercount, raidHashes, flawless=False, disallowed=[]):
     """ Default is flawless=False, disallowed is a list of (starttime, endtime) with datetime objects """
-    con = db_connect()
-    cur = con.cursor()
-    #raidHashes = [str(r) for r in raidHashes]
-    sqlite_select = f"""SELECT t1.instanceID, t1.deaths, t1.period
-                        FROM (  SELECT instanceID, deaths, period FROM activities
-                                WHERE activityHash IN ({','.join(['?']*len(raidHashes))})
-                                AND playercount = ?) t1 
-                        JOIN (  SELECT DISTINCT(instanceID)
-                                FROM instancePlayerPerformance
-                                WHERE playerID = ?
-                                ) ipp
-                        ON (ipp.instanceID = t1.instanceID)
-                        """
-    data_tuple = (*raidHashes,playercount, playerid)
-    cur.execute(sqlite_select, data_tuple)
+    low_activity_info = getInfoOnLowManActivity(raidHashes, playercount, playerid)
     verdict = False
-    for (iid, deaths, period) in cur.fetchall():
+    for (iid, deaths, period) in low_activity_info:
         #print(f'{deaths} on {period} in {iid}')
         if not flawless or deaths == 0:
             verdict = True
@@ -119,8 +64,7 @@ def hasLowman(playerid, playercount, raidHashes, flawless=False, disallowed=[]):
                 if starttime < period < endtime:
                     verdict = False
             if verdict:
-                return True            
-    con.close()
+                return True
     return False
 
 async def getIntStat(destinyID, statname):

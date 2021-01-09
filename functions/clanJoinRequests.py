@@ -30,7 +30,6 @@ async def clanJoinRequestMessageReactions(client, user, emoji, channel, channel_
 
         # abort if user is @not_registered
         if not await checkIfUserIsRegistered(user):
-            await user.send("Please `!registerdesc` first. Try again after")
             return
 
         # abort if member hasnt accepted the rules
@@ -57,11 +56,11 @@ async def clanJoinRequestMessageReactions(client, user, emoji, channel, channel_
         data = {
             "message": "Welcome"
         }
-        ret = await postJSONtoBungie(postURL, data, 238388130581839872)
+        ret = await postJSONtoBungie(postURL, data, 171650677607497730) #Halis ID
 
         # inform user if invite was send / sth went wrong
         if ret["error"] is None:
-            text = "Send you a clan application"
+            text = "Sent you a clan application"
             embed = embed_message(
                 "Clan Update",
                 f"{user.display_name} with discordID <{user.id}> and destinyID <{destinyID}> has been sent a clan invite"
@@ -118,7 +117,7 @@ async def removeFromClanAfterLeftDiscord(client, member):
         membershipType = lookupSystem(destinyID)
         postURL = f'https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/{membershipType}/{destinyID}/Kick/'
         data = {}
-
+        #Kigstns discord ID
         ret = await postJSONtoBungie(postURL, data, 238388130581839872)
 
         if ret["error"] is None:

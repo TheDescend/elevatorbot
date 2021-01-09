@@ -8,9 +8,9 @@ from datetime import timedelta, datetime
 import aiohttp
 import pandas
 
-from functions.database import db_connect, insertActivity, insertCharacter, insertInstanceDetails, updatedPlayer, \
+from functions.database import insertActivity, insertCharacter, insertInstanceDetails, updatedPlayer, \
     lookupDiscordID, lookupSystem
-from functions.database import getSystemAndChars, getLastUpdated, instanceExists
+from functions.database import getSystemAndChars, getLastUpdated, playerInstanceExists, getAllDestinyIDs
 from functions.network import getJSONfromURL, getComponentInfoAsJSON, getJSONwithToken
 from static.config import CLANID
 
@@ -357,7 +357,7 @@ async def getManifest():
     async with aiohttp.ClientSession() as session:
         async with session.get(url=mani_url) as r:
             with open(binaryLocation, "wb") as zip:
-                zip.write(r.content)
+                zip.write(await r.read())
 
     #Extract the file contents, and rename the extracted file to 'Manifest.content'
     with zipfile.ZipFile(binaryLocation) as zip:
@@ -397,22 +397,20 @@ async def fillDictFromDB(dictRef, table):
 
 
 async def insertIntoDB(destinyID, pve):
-    if not destinyID:
-        return None
-    #print('inserting into db...')
     period = datetime.strptime(pve['period'], "%Y-%m-%dT%H:%M:%SZ")
     activityHash = pve['activityDetails']['directorActivityHash']
-    #print(activityHash)
     instanceID = pve['activityDetails']['instanceId']
-    if instanceExists(instanceID):
-        #print('cancelling insertion')
-        return False
+
+    if playerInstanceExists(instanceID, destinyID):
+        return {'existed':instanceID}
+        
     activityDurationSeconds = int(pve['values']['activityDurationSeconds']['basic']['value'])
     completed = int(pve['values']['completed']['basic']['value'])
     mode = int(pve['activityDetails']['mode'])
     if completed and not int(pve['values']['completionReason']['basic']['value']):
         if not (pgcr := await getPGCR(instanceID)):
-            return
+            print('Network error')
+            return {'networkerror': True}
         pgcrdata = pgcr['Response']
 
         startingPhaseIndex = pgcrdata['startingPhaseIndex']
@@ -436,7 +434,7 @@ async def insertIntoDB(destinyID, pve):
         playercount = len(players)
         #print(f'inserting {instanceID}')
         insertActivity(instanceID, activityHash, activityDurationSeconds, period, startingPhaseIndex, deaths, playercount, mode)
-    return True
+    return {'added':instanceID}
         
 async def updateDB(destinyID):
     if not destinyID:
@@ -451,9 +449,8 @@ async def updateDB(destinyID):
     lastUpdate = getLastUpdated(destinyID)
     donechars = []
     print(f'checking {charcount} characters')
-
-    falses, results = 0, 0
-    async for pve in getPlayersPastPVE(destinyID):
+    error, existed, added = 0,[],[]
+    async for pve in getPlayersPastPVE(destinyID, earliest_allowed_time = lastUpdate - timedelta(days=1)):
         if 'period' not in pve.keys():
             print('period not in pve')
 
@@ -468,29 +465,31 @@ async def updateDB(destinyID):
         #print(pve)
         period = datetime.strptime(pve['period'], "%Y-%m-%dT%H:%M:%SZ")
 
-        if period < (lastUpdate - timedelta(days=2)):
+        if period < (lastUpdate - timedelta(days=1)):
             print(f'char {pve["charid"]} caught up to {pve["period"]}')
             donechars.append(pve['charid'])
             continue
 
         result = await insertIntoDB(destinyID, pve)
-        if not result:
-            # print('returing false')
-            falses += 1
-        else:
-            results += 1
+        if not result or 'networkerror' in result:
+            print('something went wrong')
+            error += 1
+        elif 'added' in result:
+            instanceID = result['added']
+            added.append(instanceID)
+        elif 'existed' in result:
+            instanceID = result['existed']
+            existed.append(instanceID)
 
     updatedPlayer(destinyID)
-    print(f'done updating {destinyID} with {falses} errors and {results} new entries')
+    print(f'done updating {destinyID} with {error} errors and {len(added)} new entries, while {len(existed)} already were present')
+    #print(f'{existed=}\n{added=}')
 
 
 async def initDB():
-    con = db_connect()
-    cur = con.cursor()
-    playerlist = cur.execute('SELECT destinyID FROM discordGuardiansToken')
-    playerlist = [p[0] for p in playerlist]
-    for player in playerlist:
-        await updateDB(player)
+    playerIDs = getAllDestinyIDs()
+    for playerID in playerIDs:
+        await updateDB(playerID)
     print(f'done updating the db')
 
 

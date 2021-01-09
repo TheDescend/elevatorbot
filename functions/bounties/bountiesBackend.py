@@ -5,7 +5,7 @@ import os
 import pickle
 
 from functions.dataLoading import getPGCR, getStats, getProfile, returnManifestInfo
-from functions.database import getAllDiscordMemberDestinyIDs, lookupDiscordID, getBountyUserList, getLevel, addLevel, \
+from functions.database import getAllDestinyIDs, lookupDiscordID, getBountyUserList, getLevel, addLevel, \
     setLevel
 from functions.network import getJSONfromURL
 from static.dict import speedrunActivities, metricRaidCompletion, metricAvailableRaidCompletion, \
@@ -167,7 +167,7 @@ def addPoints(discordID, requirements, name, leaderboard, index_multiple_points=
 
 # return true if another clanmate was in the activity
 async def checkIfDiscordmateInActivity(destinyID, activity_id):
-    discord_members = getAllDiscordMemberDestinyIDs()
+    discord_members = getAllDestinyIDs()
 
     pgcr = await getPGCR(activity_id)
     for player in pgcr["Response"]["entries"]:
@@ -372,7 +372,8 @@ async def fulfillRequirements(requirements, activity, destinyID):
     hashID = activity["activityDetails"]["directorActivityHash"]
     instance = activity["activityDetails"]["instanceId"]
 
-    pgcr = await getPGCR(instance)
+    if not (pgcr := await getPGCR(instance)):
+        return False, None
 
     # clean runs
     clean = cleanRuns(requirements, pgcr, destinyID)
