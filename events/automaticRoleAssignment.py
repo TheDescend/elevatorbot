@@ -94,6 +94,11 @@ class AutoRegisteredRole(BaseEvent):
             if discordID is not None:
                 memberlist.append(discordID)
 
+        if not len(memberlist) > 5:
+            #error.log
+            print('something broke at AutoRegisteredRole, clansize <= 5')
+            return
+
         for guild in client.guilds:
             newtonsLab = discord.utils.get(guild.channels, id=BOTDEVCHANNELID)
 

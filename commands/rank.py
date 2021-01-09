@@ -116,7 +116,11 @@ async def handle_users(client, stat, display_name, guild, extra_hash, extra_name
     # loop through the clan members
     clan_members = (await getJSONfromURL(f"https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/"))["Response"]["results"]
     results = await asyncio.gather(*[handle_user(stat, member, guild, extra_hash, extra_name) for member in clan_members])
-
+    if len(results) < 1:
+        return embed_message(
+            "Error",
+            "No users found"
+        )
     for ret in results:
         # add user to DF
         if ret:
