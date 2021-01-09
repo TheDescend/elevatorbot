@@ -301,6 +301,7 @@ class roleRequirements(BaseCommand):
             ))
             return
 
+        #Identify the user to check
         user = message.author
         if len(message.mentions) == 1:
             ctx = await client.get_context(message)
@@ -338,7 +339,7 @@ class roleRequirements(BaseCommand):
             ))
             return
 
-
+        #Get user details and run analysis
         async with message.channel.typing():
             destinyID = lookupDestinyID(user.id)
             wait_msg = await message.channel.send(embed=embed_message(
