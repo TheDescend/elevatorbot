@@ -195,8 +195,7 @@ def main():
                 #672541982157045791 #markov-chat-channel
                 ] 
             if not message.content.startswith('http') and len(message.clean_content) > 5 and not any([badword in message.clean_content.lower() for badword in badwords]) and message.channel.id in goodchannels:
-                formattedtime = message.created_at.strftime('%Y-%m-%dT%H:%M')
-                success = insertIntoMessageDB(message.clean_content,message.author.id,message.channel.id,message.id, formattedtime)
+                success = insertIntoMessageDB(message.clean_content,message.author.id,message.channel.id,message.id)
         
         if message.author.name == 'EscalatorBot':
             for user in message.mentions:
