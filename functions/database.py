@@ -3,24 +3,52 @@ import os
 import psycopg2
 import time
 from datetime import datetime
+from sshtunnel import SSHTunnelForwarder
 
 import database.psql_credentials as psql_credentials
 
 #### ALL DATABASE ACCESS FUNCTIONS ####
 
 con = None
+ssh_server = None
+
 def db_connect():
     global con
     """ Returns a connection object for the database """
     if not con:
-        con = psycopg2.connect(
-            dbname=psql_credentials.dbname,
-            user=psql_credentials.user, 
-            host=psql_credentials.host,
-            password=psql_credentials.password
-        )
-        con.set_session(autocommit=True)
-        print('opened a db connection')
+        try:
+            con = psycopg2.connect(
+                dbname=psql_credentials.dbname,
+                user=psql_credentials.user,
+                host=psql_credentials.host,
+                password=psql_credentials.password
+            )
+            con.set_session(autocommit=True)
+            print('opened a db connection')
+
+        # create an ssh tunnel to connect to the db from outside the local network and bind that to localhost
+        except psycopg2.OperationalError:
+            bind_port = 5432
+            global ssh_server
+
+            ssh_server = SSHTunnelForwarder(
+                                    (psql_credentials.ssh_host, psql_credentials.ssh_port),
+                                    ssh_username=psql_credentials.ssh_user,
+                                    ssh_password=psql_credentials.ssh_password,
+                                    remote_bind_address=("127.0.0.1", bind_port))
+            ssh_server.start()
+            print("Connected via SSH")
+
+            con = psycopg2.connect(
+                dbname=psql_credentials.dbname,
+                user=psql_credentials.user,
+                host="127.0.0.1",
+                port=ssh_server.local_bind_port,
+                password=psql_credentials.password
+            )
+            con.set_session(autocommit=True)
+            print('Opened a DB connection via SSH')
+
     return con
 
 def removeUser(discordID):
