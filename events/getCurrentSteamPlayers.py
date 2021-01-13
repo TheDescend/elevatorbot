@@ -11,8 +11,7 @@ from static.config import STEAM_TOKEN
 class getCurrentSteamPlayers(BaseEvent):
     def __init__(self):
         interval_minutes = 60  # Set the interval for this event
-        super().__init__(interval_minutes)
-
+        super().__init__(scheduler_type="interval", interval_minutes=interval_minutes)
 
     # Override the run() method
     # It will be called once every {interval_minutes} minutes

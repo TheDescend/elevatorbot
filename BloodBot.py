@@ -24,7 +24,7 @@ from commands.makePersistentMessages import otherGameRolesMessageReactions, read
 from events.base_event import BaseEvent
 from events import *
 from functions.bounties.bountiesBackend import getGlobalVar
-from functions.bounties.bountiesFunctions import generateBounties, registrationMessageReactions, updateExperienceLevels
+from functions.bounties.bountiesFunctions import registrationMessageReactions
 from functions.clanJoinRequests import clanJoinRequestMessageReactions, removeFromClanAfterLeftDiscord
 from functions.dataLoading import fillDictFromDB
 from functions.database import insertIntoMessageDB, db_connect
@@ -61,17 +61,16 @@ def launch_event_loops(client):
     n_ev = 0
     for ev in BaseEvent.__subclasses__():
         event = ev()
-        sched.add_job(event.run, 'interval', (client,),
-                        minutes=event.interval_minutes, jitter=60)
+
+        # check the type of job and schedule acordingly
+        if event.scheduler_type == "interval":
+            sched.add_job(event.run, 'interval', (client,), minutes=event.interval_minutes, jitter=60)
+        elif event.scheduler_type == "cron":
+            sched.add_job(event.run, 'cron', (client,), day_of_week=event.dow_day_of_week, hour=event.dow_hour, minute=event.dow_hour)
+        elif event.scheduler_type == "date":
+            sched.add_job(event.run, 'date', (client,), run_date=event.interval_minutes)
+
         n_ev += 1
-
-    # generate new bounties every monday at midnight
-    # sched.add_job(generateBounties, "cron", (client,), day_of_week="mon", hour=19, minute=12)
-    sched.add_job(generateBounties, "cron", (client,), day_of_week="mon", hour=0, minute=0)
-
-    # update experience levels
-    # sched.add_job(updateExperienceLevels, "cron", (client,), day_of_week="mon", hour=19, minute=13)
-    sched.add_job(updateExperienceLevels, "cron", (client,), day_of_week="sun", hour=0, minute=0)
 
     sched.start()
     print(f"{n_ev} events loaded", flush=True)

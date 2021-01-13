@@ -13,11 +13,9 @@ from static.globals import *
 
 class AutomaticRoleAssignment(BaseEvent):
     """Will automatically update the roles"""
-
     def __init__(self):
-        interval_minutes = 720 # Set the interval for this event 1440 = 24h
-        super().__init__(interval_minutes)
-        print('initiate automaticRoleAssignment')
+        interval_minutes = 720  # Set the interval for this event
+        super().__init__(scheduler_type="interval", interval_minutes=interval_minutes)
     
     async def run(self, client):
         print('running the automatic role assignment...')
@@ -82,8 +80,8 @@ class AutomaticRoleAssignment(BaseEvent):
 class AutoRegisteredRole(BaseEvent):
     """Will automatically update the registration and the guest role"""
     def __init__(self):
-        interval_minutes = 30  # Set the interval for this event 1440 = 24h
-        super().__init__(interval_minutes)
+        interval_minutes = 30  # Set the interval for this event
+        super().__init__(scheduler_type="interval", interval_minutes=interval_minutes)
 
     async def run(self, client):
         # get all clan members discordID

@@ -11,7 +11,7 @@ from functions.network import getJSONfromURL
 class refreshSealPickle(BaseEvent):
     def __init__(self):
         interval_minutes = 1340  # Set the interval for this event
-        super().__init__(interval_minutes)
+        super().__init__(scheduler_type="interval", interval_minutes=interval_minutes)
 
     async def getTriumphData(self, triumph, not_available, cant_earn_anymore):
         rep = await getJSONfromURL(f"https://www.bungie.net/Platform/Destiny2/Manifest/DestinyRecordDefinition/{triumph}/")

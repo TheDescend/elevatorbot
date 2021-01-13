@@ -11,7 +11,8 @@ from commands.base_command import BaseCommand
 from functions.bounties.bountiesBackend import getGlobalVar, saveAsGlobalVar, deleteFromGlobalVar, returnScore, \
     fulfillRequirements, returnLeaderboard, formatLeaderboardMessage, playerHasDoneBounty
 from functions.bounties.bountiesFunctions import displayBounties, displayCompetitionBounties, bountyCompletion, \
-    displayLeaderboard, updateAllExperience, generateBounties
+    displayLeaderboard, updateAllExperience
+from events.bountiesEvents import GenerateBounties
 from functions.bounties.bountiesTournament import tournamentRegistrationMessage, tournamentChannelMessage, \
     startTournamentEvents
 from functions.dataLoading import getPGCR
@@ -282,7 +283,8 @@ class generateNewBounties(BaseCommand):
         if not await hasAdminOrDevPermissions(message):
             return
 
-        await generateBounties(client)
+        gen = GenerateBounties()
+        await gen.run(client)
 
 
 # --------------------------------------------------------------------------------------------
