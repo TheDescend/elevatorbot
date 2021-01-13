@@ -2,8 +2,10 @@ import discord
 from discord.ext import commands
 
 from commands.base_command import BaseCommand
-from functions.database import lookupDestinyID, lookupDiscordID
+from functions.dataLoading import getProfile
+from functions.database import lookupDestinyID, lookupDiscordID, lookupSystem, getToken
 from functions.formating import embed_message
+from functions.miscFunctions import hasAdminOrDevPermissions
 from functions.network import getJSONfromURL
 from static.dict import clanids
 
@@ -22,20 +24,28 @@ class getDiscordDate(BaseCommand):
         await message.channel.send(f'{mentioned_user.mention} joined at {mentioned_user.joined_at.strftime("%d.%m.%Y, %H:%M")}')
 
 
-class getDiscordID(BaseCommand):
+class getUserInfo(BaseCommand):
     def __init__(self):
         # A quick description for the help message
-        description = "[dev] check a user's discordID by destinyID"
-        params = ['User']
+        description = "[dev] check a user's infos"
+        params = []
         topic = "Registration"
         super().__init__(description, params, topic)
 
     # Override the handle() method
     # It will be called every time the command is received
     async def handle(self, params, message, mentioned_user, client):
-        destinyID = int(params[0])
-        print(f'{destinyID} with {lookupDiscordID(destinyID)}')
-        await message.channel.send(f'{destinyID} has discordID {lookupDiscordID(destinyID)}')
+        # check if user has permission to use this command
+        if not await hasAdminOrDevPermissions(message):
+            return
+
+        discordID = mentioned_user.id
+        destinyID = lookupDestinyID(discordID)
+
+        await message.channel.send(embed=embed_message(
+            f'DB infos for {mentioned_user.name}',
+            f"""DiscordID - `{discordID}` \nDestinyID: `{destinyID}` \nSystem - `{lookupSystem(destinyID)}` \nSteamName - `{(await getProfile(destinyID, 100))["profile"]["data"]["userInfo"]["displayName"]}` \nHasToken - `{bool(getToken(discordID))}`"""
+        ))
 
 
 class getDiscordFuzzy(BaseCommand):

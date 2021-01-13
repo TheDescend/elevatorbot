@@ -237,8 +237,6 @@ def updateUser(IDdiscord, IDdestiny, systemID):
     with db_connect().cursor() as cur:
         cur.execute(update_sql, (IDdestiny, systemID, IDdiscord))
 
-
-
 def lookupDestinyID(discordID):
     """ Takes discordID and returns destinyID """
 
