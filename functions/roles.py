@@ -5,30 +5,9 @@ import discord
 from functions.database import hasFlawless, getClearCount
 from functions.dataTransformation import hasLowman
 from functions.dataTransformation import hasCollectible, hasTriumph
-from functions.formating import embed_message
-from functions.network import getJSONfromURL
 from static.dict import requirementHashes, getNameFromHashRecords, getNameFromHashCollectible
 # check if user has permission to use this command
-from static.globals import admin_role_id, dev_role_id, mod_role_id, role_ban_id
-
-
-async def hasAdminOrDevPermissions(message, send_message=True):
-    admin = discord.utils.get(message.guild.roles, id=admin_role_id)
-    dev = discord.utils.get(message.guild.roles, id=dev_role_id)
-    mod = discord.utils.get(message.guild.roles, id=mod_role_id)
-
-    # also checking for Kigstns id, to make that shit work on my local version of the bot
-    if message.author.id == 238388130581839872:
-        return True
-
-    if admin not in message.author.roles and dev not in message.author.roles and mod not in message.author.roles:
-        if send_message:
-            await message.channel.send(embed=embed_message(
-                'Error',
-                'You are not allowed to do that'
-            ))
-        return False
-    return True
+from static.globals import role_ban_id
 
 
 async def hasRole(playerid, role, year, br = True):

@@ -16,8 +16,7 @@ class poptimeline(BaseCommand):
         topic = "Destiny"
         super().__init__(description, params, topic)
 
-
-    async def handle(self, params, message, client):
+    async def handle(self, params, message, mentioned_user, client):
         season_dates = [
             ["2019-10-01", "Shadowkeep / Season of the Undying"],
             ["2019-12-10", "Season of Dawn"],

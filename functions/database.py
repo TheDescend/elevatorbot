@@ -16,6 +16,7 @@ def db_connect():
     global con
     """ Returns a connection object for the database """
     if not con:
+        print("Connecting to DB")
         try:
             con = psycopg2.connect(
                 dbname=psql_credentials.dbname,
@@ -24,7 +25,7 @@ def db_connect():
                 password=psql_credentials.password
             )
             con.set_session(autocommit=True)
-            print('opened a db connection')
+            print('Opened a DB connection')
 
         # create an ssh tunnel to connect to the db from outside the local network and bind that to localhost
         except psycopg2.OperationalError:

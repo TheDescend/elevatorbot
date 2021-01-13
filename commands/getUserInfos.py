@@ -7,26 +7,6 @@ from functions.formating import embed_message
 from functions.network import getJSONfromURL
 from static.dict import clanids
 
-class getDestinyID(BaseCommand):
-    def __init__(self):
-        # A quick description for the help message
-        description = "[dev] check a user's destinyID"
-        params = ['User']
-        topic = "Registration"
-        super().__init__(description, params, topic)
-
-    # Override the handle() method
-    # It will be called every time the command is received
-    async def handle(self, params, message, client):
-        try:
-            ctx = await client.get_context(message)
-            discordUser = await commands.MemberConverter().convert(ctx, params[0])
-        except:
-            await message.channel.send(f'User not found')
-        if not discordUser:
-            await message.channel.send(f'Unknown User {discordID}')
-        print(f'{discordID} with {lookupDestinyID(discordID)}')
-        await message.channel.send(f'{discordUser.name} has destinyID {lookupDestinyID(discordID)}')
 
 class getDiscordDate(BaseCommand):
     def __init__(self):
@@ -38,10 +18,8 @@ class getDiscordDate(BaseCommand):
 
     # Override the handle() method
     # It will be called every time the command is received
-    async def handle(self, params, message, client):
-        discordMember = message.author
-        await message.channel.send(f'{discordMember.mention} joined at {discordMember.joined_at.strftime("%d.%m.%Y, %H:%M")}')
-        
+    async def handle(self, params, message, mentioned_user, client):
+        await message.channel.send(f'{mentioned_user.mention} joined at {mentioned_user.joined_at.strftime("%d.%m.%Y, %H:%M")}')
 
 
 class getDiscordID(BaseCommand):
@@ -54,10 +32,11 @@ class getDiscordID(BaseCommand):
 
     # Override the handle() method
     # It will be called every time the command is received
-    async def handle(self, params, message, client):
+    async def handle(self, params, message, mentioned_user, client):
         destinyID = int(params[0])
         print(f'{destinyID} with {lookupDiscordID(destinyID)}')
         await message.channel.send(f'{destinyID} has discordID {lookupDiscordID(destinyID)}')
+
 
 class getDiscordFuzzy(BaseCommand):
     def __init__(self):
@@ -69,7 +48,7 @@ class getDiscordFuzzy(BaseCommand):
 
     # Override the handle() method
     # It will be called every time the command is received
-    async def handle(self, params, message, client):
+    async def handle(self, params, message, mentioned_user, client):
         partialName = " ".join(params)
         clansearch = []
         for clanid in clanids:
@@ -90,11 +69,11 @@ class getDiscordFuzzy(BaseCommand):
                 return
 
             i = 0
-            for user in resp['results']:
+            for guy in resp['results']:
                 i += 1
-                steam_name = user['destinyUserInfo']['LastSeenDisplayName']
-                bungie_name = user['bungieNetUserInfo']['displayName']
-                destinyID = user['destinyUserInfo']['membershipId']
+                steam_name = guy['destinyUserInfo']['LastSeenDisplayName']
+                bungie_name = guy['bungieNetUserInfo']['displayName']
+                destinyID = guy['destinyUserInfo']['membershipId']
                 discordID = lookupDiscordID(destinyID)
                 embed.add_field(name=f"Option {i}", value=f"Discord - <@{discordID}>\nSteamName - {steam_name}\nBungieName - {bungie_name}", inline=False)
 

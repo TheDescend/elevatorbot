@@ -18,7 +18,7 @@ from functions.dataLoading import getPGCR
 from functions.database import getBountyUserList, setLevel, getLevel, lookupDestinyID
 from functions.formating import embed_message
 from functions.persistentMessages import persistentChannelMessages
-from functions.roles import hasAdminOrDevPermissions
+from functions.miscFunctions import hasAdminOrDevPermissions, hasMentionPermission
 
 
 # --------------------------------------------------------------------------------------------
@@ -30,7 +30,11 @@ class bounties(BaseCommand):
         params = []
         super().__init__(description, params, topic)
 
-    async def handle(self, params, message, client):
+    async def handle(self, params, message, mentioned_user, client):
+        # check perm for other user mention, otherwise abort
+        if not (await hasMentionPermission(message, mentioned_user)):
+            return
+
         with open('functions/bounties/currentBounties.pickle', "rb") as f:
             json = pickle.load(f)
 
@@ -78,7 +82,7 @@ class leaderboard(BaseCommand):
         params = []
         super().__init__(description, params, topic)
 
-    async def handle(self, params, message, client):
+    async def handle(self, params, message, mentioned_user, client):
         topics = {
             "all": ["points_bounties_raids", "points_competition_raids", "points_bounties_pve", "points_competition_pve", "points_bounties_pvp", "points_competition_pvp"],
             "raids": ["points_bounties_raids", "points_competition_raids"],
@@ -121,7 +125,7 @@ class leaderboard(BaseCommand):
         leaderboard = {}
         for topic in topics[params[0].lower()]:
             condense(leaderboard, returnLeaderboard(topic))
-        ranking = await formatLeaderboardMessage(client, leaderboard, user_id=message.author.id)
+        ranking = await formatLeaderboardMessage(client, leaderboard, user_id=mentioned_user.id)
 
         fancy_dict = {
             "all": "All Categories",
@@ -150,8 +154,12 @@ class experienceLevel(BaseCommand):
         params = []
         super().__init__(description, params, topic)
 
-    async def handle(self, params, message, client):
-        await updateAllExperience(client, message.author.id, new_register=True)
+    async def handle(self, params, message, mentioned_user, client):
+        # check perm for other user mention, otherwise abort
+        if not (await hasMentionPermission(message, mentioned_user)):
+            return
+
+        await updateAllExperience(client, mentioned_user.id, new_register=True)
 
 
 # --------------------------------------------------------------------------------------------
@@ -163,7 +171,7 @@ class startTournament(BaseCommand):
         params = []
         super().__init__(description, params, topic)
 
-    async def handle(self, params, message, client):
+    async def handle(self, params, message, mentioned_user, client):
         # check if user has permission to use this command
         if not await hasAdminOrDevPermissions(message):
             return
@@ -177,6 +185,7 @@ class startTournament(BaseCommand):
         await asyncio.sleep(60 * 60)  # wait one hour before deleting annoucements and stuff
         await tournamentChannelMessage(client)
 
+
 class generateTournament(BaseCommand):
     def __init__(self):
         description = f"[Admin] Generate an out of the order tournament"
@@ -184,12 +193,13 @@ class generateTournament(BaseCommand):
         params = []
         super().__init__(description, params, topic)
 
-    async def handle(self, params, message, client):
+    async def handle(self, params, message, mentioned_user, client):
         # check if user has permission to use this command
         if not await hasAdminOrDevPermissions(message):
             return
 
         await tournamentRegistrationMessage(client)
+
 
 class updateCompletions(BaseCommand):
     def __init__(self):
@@ -198,7 +208,7 @@ class updateCompletions(BaseCommand):
         params = []
         super().__init__(description, params, topic)
 
-    async def handle(self, params, message, client):
+    async def handle(self, params, message, mentioned_user, client):
         # check if user has permission to use this command
         if not await hasAdminOrDevPermissions(message):
             return
@@ -213,7 +223,7 @@ class resetLeaderboards(BaseCommand):
         params = []
         super().__init__(description, params, topic)
 
-    async def handle(self, params, message, client):
+    async def handle(self, params, message, mentioned_user, client):
         # check if user has permission to use this command
         if not await hasAdminOrDevPermissions(message):
             return
@@ -267,7 +277,7 @@ class generateNewBounties(BaseCommand):
         params = []
         super().__init__(description, params, topic)
 
-    async def handle(self, params, message, client):
+    async def handle(self, params, message, mentioned_user, client):
         # check if user has permission to use this command
         if not await hasAdminOrDevPermissions(message):
             return
@@ -284,7 +294,7 @@ class bountiesMakeChannelRegister(BaseCommand):
         params = []
         super().__init__(description, params, topic)
 
-    async def handle(self, params, message, client):
+    async def handle(self, params, message, mentioned_user, client):
         # check if user has permission to use this command
         if not await hasAdminOrDevPermissions(message):
             return
@@ -301,7 +311,7 @@ class bountiesMakeChannelTournment(BaseCommand):
         params = []
         super().__init__(description, params, topic)
 
-    async def handle(self, params, message, client):
+    async def handle(self, params, message, mentioned_user, client):
         # check if user has permission to use this command
         if not await hasAdminOrDevPermissions(message):
             return
@@ -317,7 +327,7 @@ class bountiesMakeChannelLeaderboard(BaseCommand):
         params = []
         super().__init__(description, params, topic)
 
-    async def handle(self, params, message, client):
+    async def handle(self, params, message, mentioned_user, client):
         # check if user has permission to use this command
         if not await hasAdminOrDevPermissions(message):
             return
@@ -333,7 +343,7 @@ class bountiesMakeChannelBounties(BaseCommand):
         params = []
         super().__init__(description, params, topic)
 
-    async def handle(self, params, message, client):
+    async def handle(self, params, message, mentioned_user, client):
         # check if user has permission to use this command
         if not await hasAdminOrDevPermissions(message):
             return
@@ -349,7 +359,7 @@ class bountiesMakeChannelCompetitionBounties(BaseCommand):
         params = []
         super().__init__(description, params, topic)
 
-    async def handle(self, params, message, client):
+    async def handle(self, params, message, mentioned_user, client):
         # check if user has permission to use this command
         if not await hasAdminOrDevPermissions(message):
             return
@@ -367,7 +377,7 @@ class getBounties(BaseCommand):
         params = []
         super().__init__(description, params, topic)
 
-    async def handle(self, params, message, client):
+    async def handle(self, params, message, mentioned_user, client):
         # check if user has permission to use this command
         if not await hasAdminOrDevPermissions(message):
             return
@@ -389,7 +399,7 @@ class overwriteBounties(BaseCommand):
         params = []
         super().__init__(description, params, topic)
 
-    async def handle(self, params, message, client):
+    async def handle(self, params, message, mentioned_user, client):
         # check if user has permission to use this command
         if not await hasAdminOrDevPermissions(message):
             return
@@ -440,7 +450,7 @@ class testCompetitive(BaseCommand):
         params = []
         super().__init__(description, params, topic)
 
-    async def handle(self, params, message, client):
+    async def handle(self, params, message, mentioned_user, client):
         # check if user has permission to use this command
         if not await hasAdminOrDevPermissions(message):
             return
@@ -481,7 +491,7 @@ class testBounties(BaseCommand):
         params = []
         super().__init__(description, params, topic)
 
-    async def handle(self, params, message, client):
+    async def handle(self, params, message, mentioned_user, client):
         # check if user has permission to use this command
         if not await hasAdminOrDevPermissions(message):
             return

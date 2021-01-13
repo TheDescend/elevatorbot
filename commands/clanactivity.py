@@ -30,8 +30,7 @@ class clanActivity(BaseCommand):
         # edge_list = [person, size, size_desc, display_names, colors]
         self.edge_list = []
 
-
-    async def handle(self, params, message, client):
+    async def handle(self, params, message, mentioned_user, client):
         activities = {
             "everything": 0,
             "patrol": 6,
@@ -63,9 +62,8 @@ class clanActivity(BaseCommand):
         mode = activities[params[0]] if (type(params[0]) != int) else params[0]
 
         # asking user to give time-frame
-        user = message.author
         time_msg = await message.channel.send(embed=embed_message(
-            f'{user.name}, I need one more thing',
+            f'{message.author.name}, I need one more thing',
             "Please specify the time-range you want the data for like this:\n\u200B\n\u200B\n \u2000 **Start** \u2005\u2001- \u2001 **End**\n `dd/mm/yy - dd/mm/yy` \n\u200B\n *If the end-time is now, you can exchange it with* `now`"
         ))
         time_msg = await message.channel.fetch_message(time_msg.id)
@@ -85,7 +83,7 @@ class clanActivity(BaseCommand):
         # if user is too slow, let him know and remove message after 30s
         except asyncio.TimeoutError:
             await time_msg.edit(embed=embed_message(
-                f'Sorry {user.name}',
+                f'Sorry {message.author.name}',
                 f'You took to long to answer my question, type `!friends <activity> *<user>` to start over'
             ))
             await asyncio.sleep(30)
@@ -137,7 +135,7 @@ class clanActivity(BaseCommand):
 
         # letting the user know that this might take a while
         status_msg = await message.channel.send(embed=embed_message(
-            f'Please Wait {user.name}',
+            f'Please Wait {message.author.name}',
             f"This might take a while, I'll ping you when I'm done.",
             f"Collecting data - 0% done!"
         ))
@@ -156,7 +154,7 @@ class clanActivity(BaseCommand):
         for _ in self.clan_members:
             self.estimated_total += 1
 
-        result = await asyncio.gather(*[self.handle_members(destinyID, mode, start_time, end_time, status_msg, user.name) for destinyID in self.clan_members])
+        result = await asyncio.gather(*[self.handle_members(destinyID, mode, start_time, end_time, status_msg, mentioned_user.name) for destinyID in self.clan_members])
         for res in result:
             if res is not None:
                 destinyID = res[0]
@@ -178,7 +176,7 @@ class clanActivity(BaseCommand):
 
         # some last data prep
         await status_msg.edit(embed=embed_message(
-            f'Please Wait {user.name}',
+            f'Please Wait {message.author.name}',
             f"This might take a while, I'll ping you when I'm done.",
             f"Preparing data - 0% done!"
         ))
@@ -188,12 +186,12 @@ class clanActivity(BaseCommand):
         self.estimated_total = len(self.clan_members) + 1
 
         # getting the display names, colors for users in discord, size of blob
-        orginal_user_destiny_id = lookupDestinyID(user.id)
-        await asyncio.gather(*[self.prep_data(status_msg, user.name, destinyID, orginal_user_destiny_id) for destinyID in self.clan_members])
+        orginal_user_destiny_id = lookupDestinyID(mentioned_user.id)
+        await asyncio.gather(*[self.prep_data(status_msg, mentioned_user.name, destinyID, orginal_user_destiny_id) for destinyID in self.clan_members])
 
         # building the network graph
         await status_msg.edit(embed=embed_message(
-            f'Please Wait {user.name}',
+            f'Please Wait {message.author.name}',
             f"This might take a while, I'll ping you when I'm done.",
             f"Building the graph, nearly done!"
         ))
@@ -214,7 +212,7 @@ class clanActivity(BaseCommand):
         net.show_buttons(filter_=["physics"])
 
         # saving the file
-        title = user.name + ".html"
+        title = mentioned_user.name + ".html"
         net.save_graph(title)
 
         # deleting the status
@@ -228,7 +226,7 @@ class clanActivity(BaseCommand):
         # sending them the file
         await message.channel.send(file=discord.File(title))
         # pinging the user
-        await message.channel.send(user.mention)
+        await message.channel.send(mentioned_user.mention)
 
         # delete file
         os.remove(title)

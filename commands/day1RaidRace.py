@@ -2,7 +2,7 @@ from commands.base_command import BaseCommand
 from functions.dataLoading import getProfile, getCharacterList, getPlayersPastPVE
 from functions.formating import embed_message
 from functions.network import getJSONfromURL
-from functions.roles import hasAdminOrDevPermissions
+from functions.miscFunctions import hasAdminOrDevPermissions
 from static.config import CLANID
 
 import datetime
@@ -21,7 +21,7 @@ class day1spam(BaseCommand):
 
     # Override the handle() method
     # It will be called every time the command is received
-    async def handle(self, params, message, client):
+    async def handle(self, params, message, mentioned_user, client):
         if not await hasAdminOrDevPermissions(message):
             return
 

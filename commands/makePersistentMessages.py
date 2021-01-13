@@ -19,7 +19,7 @@ class makeChannelOtherGameRoles(BaseCommand):
 
     # Override the handle() method
     # It will be called every time the command is received
-    async def handle(self, params, message, client):
+    async def handle(self, params, message, mentioned_user, client):
         # add channel id to pickle where bounty channel ids are also saved
         deleteFromGlobalVar("other_game_roles_channel_message_id")
         saveAsGlobalVar("other_game_roles_channel", message.channel.id, message.guild.id)
@@ -94,7 +94,7 @@ class makeChannelClanJoinRequest(BaseCommand):
 
     # Override the handle() method
     # It will be called every time the command is received
-    async def handle(self, params, message, client):
+    async def handle(self, params, message, mentioned_user, client):
         # add channel id to pickle where bounty channel ids are also saved
         deleteFromGlobalVar("clan_join_request_channel_message_id")
         saveAsGlobalVar("clan_join_request_channel", message.channel.id, message.guild.id)
@@ -111,7 +111,7 @@ class makeChannelReadRules(BaseCommand):
 
     # Override the handle() method
     # It will be called every time the command is received
-    async def handle(self, params, message, client):
+    async def handle(self, params, message, mentioned_user, client):
         # add channel id to pickle where bounty channel ids are also saved
         deleteFromGlobalVar("read_rules_channel_message_id")
         saveAsGlobalVar("read_rules_channel", message.channel.id, message.guild.id)

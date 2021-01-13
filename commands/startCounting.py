@@ -9,7 +9,7 @@ class startCounting(BaseCommand):
 
     # Override the handle() methodget
     # It will be called every time the command is received
-    async def handle(self, params, message, client):
+    async def handle(self, params, message, mentioned_user, client):
         await message.channel.send("Start counting, first person has to begin with `1`")
 
         i = 1

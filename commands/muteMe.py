@@ -14,13 +14,15 @@ class muteMe(BaseCommand):
 
     # Override the handle() method
     # It will be called every time the command is received
-    async def handle(self, params, message, client):
+    async def handle(self, params, message, mentioned_user, client):
         await message.channel.send("If you insist...")
-        await message.author.send("I hope you enjoy your new role, the trial automatically ends after an hour 🙃")
+        if message.author.id is not mentioned_user.id:
+            await message.channel.send("I saw what you did there, that doesn't work here mate")
+        await message.author.send("I hope you enjoy your new role, the trial automatically ends after an half an hour 🙃")
 
         # add muted role
         await assignRolesToUser([muted_role_id], message.author, message.guild)
 
         # remove muted role after an hour
-        await asyncio.sleep(60 * 60)
+        await asyncio.sleep(60 * 30)
         await removeRolesFromUser([muted_role_id], message.author, message.guild)

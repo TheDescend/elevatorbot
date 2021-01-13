@@ -5,7 +5,7 @@ from io import BytesIO
 
 from commands.base_command import BaseCommand
 
-from functions.roles import hasAdminOrDevPermissions
+from functions.miscFunctions import hasAdminOrDevPermissions
 
 
 class reply(BaseCommand):
@@ -15,7 +15,7 @@ class reply(BaseCommand):
         params = []
         super().__init__(description, params, topic)
 
-    async def handle(self, params, message, client):
+    async def handle(self, params, message, mentioned_user, client):
         if not (await hasAdminOrDevPermissions(message)):
             return
 
@@ -52,4 +52,3 @@ class reply(BaseCommand):
         else:
             await user.send(userAnswer)
             await message.channel.send(f'{message.author.name} Answered\n`{messageText}`\nto {user.mention}')
-        

@@ -11,6 +11,6 @@ class boosters(BaseCommand):
     
     # Override the handle() method
     # It will be called every time the command is received
-    async def handle(self, params, message, client):
+    async def handle(self, params, message, mentioned_user, client):
         await message.channel.send(", ".join([m.name for m in message.guild.premium_subscribers]))
 

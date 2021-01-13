@@ -3,7 +3,7 @@ from functions.dataLoading import getCharactertypeList, getCharacterList, OUTDAT
 from functions.dataTransformation import hasCollectible
 from functions.database import removeUser, lookupDestinyID, getEverything, updateUser, updateToken, getRefreshToken
 from functions.formating import embed_message
-from functions.roles import hasAdminOrDevPermissions
+from functions.miscFunctions import hasAdminOrDevPermissions
 from oauth import refresh_token
 from static.config import BUNGIE_OAUTH
 
@@ -17,7 +17,7 @@ class getDay1Completions(BaseCommand):
 
     # Override the handle() method
     # It will be called every time the command is received
-    async def handle(self, params, message, client):
+    async def handle(self, params, message, mentioned_user, client):
         # users = getEverything()
 
         # notokenlist = []

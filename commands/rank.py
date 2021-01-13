@@ -25,7 +25,7 @@ class rank(BaseCommand):
 
     # Override the handle() method
     # It will be called every time the command is received
-    async def handle(self, params, message, client):
+    async def handle(self, params, message, mentioned_user, client):
         supported = [
             "totaltime",
             "maxpower",
@@ -47,13 +47,6 @@ class rank(BaseCommand):
         ]
 
         if len(params) > 0:
-            # try to get another user obj
-            ctx = await client.get_context(message)
-            try:
-                message.author = await MemberConverter().convert(ctx, params[-1])
-            except:
-                pass
-
             if params[0].lower() == "help":
                 await message.channel.send(embed=embed_message(
                     "Info",
@@ -103,7 +96,7 @@ class rank(BaseCommand):
                         hashID = stats[name]
 
                 async with message.channel.typing():
-                    embed = await handle_users(client, params[0].lower(), message.author.display_name, message.guild, hashID, name)
+                    embed = await handle_users(client, params[0].lower(), mentioned_user.display_name, message.guild, hashID, name)
 
                 if embed:
                     await message.channel.send(embed=embed)

@@ -5,7 +5,8 @@ from commands.base_command import BaseCommand
 from functions.dataLoading import updateDB, initDB, getNameToHashMapByClanid
 from functions.database import lookupDestinyID, lookupDiscordID, getLastRaid, getFlawlessList
 from functions.formating import embed_message
-from functions.roles import hasAdminOrDevPermissions, assignRolesToUser, removeRolesFromUser, getPlayerRoles, hasRole
+from functions.roles import assignRolesToUser, removeRolesFromUser, getPlayerRoles, hasRole
+from functions.miscFunctions import hasAdminOrDevPermissions, hasMentionPermission
 from static.dict import requirementHashes, clanids
 from static.globals import dev_role_id
 
@@ -20,7 +21,7 @@ class getRoles(BaseCommand):
 
     # Override the handle() method
     # It will be called every time the command is received
-    async def handle(self, params, message, client):
+    async def handle(self, params, message, mentioned_user, client):
         # check if message too long
         if len(params) > 1:
             await message.channel.send(embed=embed_message(
@@ -29,23 +30,11 @@ class getRoles(BaseCommand):
             ))
             return
 
-        user = message.author
-        if len(params) == 1:
-            # check if user has permission to use this command
-            if not await hasAdminOrDevPermissions(message) and not message.author.id == params[0]:
-                return
+        # check perm for mention, otherwise abort
+        if not (await hasMentionPermission(message, mentioned_user)):
+            return
 
-            ctx = await client.get_context(message)
-            try:
-                user = await discord.ext.commands.MemberConverter().convert(ctx, params[0])
-            except:
-                await message.channel.send(
-                    embed=embed_message(
-                        'Error',
-                        'User not found, make sure the spelling/id is correct'
-                    ))
-                return
-        destinyID = lookupDestinyID(user.id)
+        destinyID = lookupDestinyID(mentioned_user.id)
 
         if not destinyID:
             await message.channel.send(embed=embed_message(
@@ -55,18 +44,18 @@ class getRoles(BaseCommand):
             return
 
         wait_msg = await message.channel.send(embed=embed_message(
-            f'Hi, {user.name}',
+            f'Hi, {mentioned_user.name}',
             "Your data will be available shortly"
         ))
 
         await updateDB(destinyID)
         
         async with message.channel.typing():
-            roles_at_start = [role.name for role in user.roles]
+            roles_at_start = [role.name for role in mentioned_user.roles]
             (roleList, removeRoles) = await getPlayerRoles(destinyID, roles_at_start)
 
-            roles_assignable = await assignRolesToUser(roleList, user, message.guild)
-            await removeRolesFromUser(removeRoles, user, message.guild)
+            roles_assignable = await assignRolesToUser(roleList, mentioned_user, message.guild)
+            await removeRolesFromUser(removeRoles, mentioned_user, message.guild)
 
             if not roles_assignable:
                 await wait_msg.delete()
@@ -76,7 +65,7 @@ class getRoles(BaseCommand):
                 ))
                 return
 
-            roles_now = [role.name for role in user.roles]
+            roles_now = [role.name for role in mentioned_user.roles]
 
             old_roles = {}
             new_roles = {}
@@ -109,7 +98,7 @@ class getRoles(BaseCommand):
                 return
 
             embed = embed_message(
-                f"{user.display_name}'s new Roles",
+                f"{mentioned_user.display_name}'s new Roles",
                 f'__Previous Roles:__'
             )
             if not old_roles:
@@ -145,13 +134,8 @@ class lastRaid(BaseCommand):
     # Override the handle() method
     # It will be called every time the command is received
 
-    async def handle(self, params, message, client):
-        ctx = await client.get_context(message)
-        user = message.author
-        if params:
-            user = await commands.MemberConverter().convert(ctx, params[0])
-
-        destinyID = lookupDestinyID(user.id)
+    async def handle(self, params, message, mentioned_user, client):
+        destinyID = lookupDestinyID(mentioned_user.id)
         await updateDB(destinyID)
         await message.channel.send(getLastRaid(destinyID))
 
@@ -166,13 +150,9 @@ class flawlesses(BaseCommand):
     # Override the handle() method
     # It will be called every time the command is received
 
-    async def handle(self, params, message, client):
-        ctx = await client.get_context(message)
-        user = message.author
-        if params:
-            user = await commands.MemberConverter().convert(ctx, params[0])
+    async def handle(self, params, message, mentioned_user, client):
         async with message.channel.typing():
-            destinyID = lookupDestinyID(user.id)
+            destinyID = lookupDestinyID(mentioned_user.id)
             await updateDB(destinyID)
             await message.channel.send(getFlawlessList(destinyID))
 
@@ -187,17 +167,16 @@ class removeAllRoles(BaseCommand):
 
     # Override the handle() method
     # It will be called every time the command is received
-    async def handle(self, params, message, client):
+    async def handle(self, params, message, mentioned_user, client):
         # check if user has permission to use this command
-        if not await hasAdminOrDevPermissions(message) and not message.author.id == params[0]:
+        if not await hasAdminOrDevPermissions(message) and not message.author.id == mentioned_user.id:
             return
 
-        discordID = params[0]
         roles = []
         for yeardata in requirementHashes.values():		
             for role in yeardata.keys():
                 roles.append(role)
-        await removeRolesFromUser(roles, client.get_user(int(discordID)), message.guild)
+        await removeRolesFromUser(roles, mentioned_user, message.guild)
 
 class checkNames(BaseCommand):
     def __init__(self):
@@ -209,7 +188,7 @@ class checkNames(BaseCommand):
 
     # Override the handle() method
     # It will be called every time the command is received
-    async def handle(self, params, message, client):
+    async def handle(self, params, message, mentioned_user, client):
         messagetext = ""
         for discordUser in message.guild.members:
             if destinyID := lookupDestinyID(discordUser.id):
@@ -228,7 +207,7 @@ class checkNewbies(BaseCommand):
 
     # Override the handle() method
     # It will be called every time the command is received
-    async def handle(self, params, message, client):
+    async def handle(self, params, message, mentioned_user, client):
         naughtylist = []
         for clanid,name in clanids.items():
             await message.channel.send(f'checking clan {name}')
@@ -236,8 +215,8 @@ class checkNewbies(BaseCommand):
             for username, userid in clanmap.items():
                 discordID = lookupDiscordID(userid)
                 if discordID: #if the matching exists in the DB, check whether the discordID is valid and in the server
-                    user = client.get_user(discordID)
-                    if not user: #TODO implement actual 'present in server'-check
+                    guy = client.get_user(discordID)
+                    if not guy: #TODO implement actual 'present in server'-check
                         await message.channel.send(f'[ERROR] {username} with destinyID {userid} has discordID {discordID} registered, but it is faulty or user left the server')
                         continue
                     #await message.channel.send(f'{username} is in Discord with name {user.name}')
@@ -257,7 +236,7 @@ class assignAllRoles(BaseCommand):
     
     # Override the handle() method
     # It will be called every time the command is received
-    async def handle(self, params, message, client):
+    async def handle(self, params, message, mentioned_user, client):
         # check if user has permission to use this command
         if not await hasAdminOrDevPermissions(message):
             return
@@ -292,7 +271,7 @@ class roleRequirements(BaseCommand):
 
     # Override the handle() method
     # It will be called every time the command is received
-    async def handle(self, params, message, client):
+    async def handle(self, params, message, mentioned_user, client):
         # check if message too short
         if len(params) == 0:
             await message.channel.send(embed=embed_message(
@@ -301,22 +280,7 @@ class roleRequirements(BaseCommand):
             ))
             return
 
-        #Identify the user to check
-        user = message.author
-        if len(message.mentions) == 1:
-            ctx = await client.get_context(message)
-            try:
-                user = await commands.MemberConverter().convert(ctx, params[-1])
-            except:
-                await message.channel.send(embed=embed_message(
-                    'Error',
-                    f'User not found, make sure the spelling/id is correct'
-                ))
-                return
-            
-            given_role = " ".join(params[:-1])
-        else:
-            given_role = " ".join(params)
+        given_role = " ".join(params)
 
         f_year = ""
         f_role = ""
@@ -341,9 +305,9 @@ class roleRequirements(BaseCommand):
 
         #Get user details and run analysis
         async with message.channel.typing():
-            destinyID = lookupDestinyID(user.id)
+            destinyID = lookupDestinyID(mentioned_user.id)
             wait_msg = await message.channel.send(embed=embed_message(
-                f'Hi, {user.name}',
+                f'Hi, {mentioned_user.name}',
                 "Your data will be available shortly"
             ))
 
@@ -354,7 +318,7 @@ class roleRequirements(BaseCommand):
             print(reqs[1])
 
             embed = embed_message(
-                f"{user.display_name}'s '{f_role}' Eligibility"
+                f"{mentioned_user.display_name}'s '{f_role}' Eligibility"
             )
 
             for req in reqs[1]:

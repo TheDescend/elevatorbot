@@ -27,7 +27,7 @@ from functions.bounties.bountiesBackend import getGlobalVar
 from functions.bounties.bountiesFunctions import generateBounties, registrationMessageReactions, updateExperienceLevels
 from functions.clanJoinRequests import clanJoinRequestMessageReactions, removeFromClanAfterLeftDiscord
 from functions.dataLoading import fillDictFromDB
-from functions.database import insertIntoMessageDB
+from functions.database import insertIntoMessageDB, db_connect
 from functions.formating import embed_message
 from functions.miscFunctions import update_status
 from functions.roles import assignRolesToUser, removeRolesFromUser
@@ -83,6 +83,9 @@ def main():
 
     # Initialize logging
     init_logging()
+
+    # Connect to DB
+    db_connect()
 
     # Initialize the client
     print("Starting up...")

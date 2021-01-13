@@ -3,7 +3,7 @@ from discord.ext import commands
 
 from commands.base_command import BaseCommand
 from functions.dataLoading import updateDB
-from functions.database import lookupDestinyID, getSystemAndChars
+from functions.database import lookupDestinyID, getSystemAndChars, lookupSystem
 from functions.formating import embed_message
 
 rrsystem = {
@@ -19,47 +19,20 @@ class RR(BaseCommand):
         params = []
         super().__init__(description, params, topic)
 
-    async def handle(self, params, message, client):
+    async def handle(self, params, message, mentioned_user, client):
+        destinyID = lookupDestinyID(mentioned_user.id)
+        system = lookupSystem(destinyID)
 
-        if len(params) == 1:
-            ctx = await client.get_context(message)
-            try:
-                user = await commands.MemberConverter().convert(ctx, params[0])
-            except:
-                await message.channel.send(embed=embed_message(
-                    'Error',
-                    f'User not found, make sure the spelling/id is correct'
-                ))
-                return
-
-            destinyID = lookupDestinyID(user.id)
-        else:
-            destinyID = lookupDestinyID(message.author.id)
-            
-        if destinyID:
-            syscharlist = getSystemAndChars(destinyID)
-            if not syscharlist:
-                #get them I guess
-                await message.channel.send("Player not yet in db, updating...")
-                await updateDB(destinyID)
-                syscharlist = getSystemAndChars(destinyID)
-                if not syscharlist:
-                    print(f'{destinyID} is borked')
-                    await message.channel.send(embed=embed_message(
-                        'Raid Report',
-                        f'Invalid DestinyID {destinyID}'
-                    ))
-            systemID, _ = syscharlist[0]
-            await message.channel.send(embed=embed_message(
-                'Raid Report',
-                f'https://raid.report/{rrsystem[systemID]}/{destinyID}'
-            ))
-            return
-        else:
+        if not (destinyID and system):
             await message.channel.send(embed=embed_message(
                 'Error',
-                'Name needs to be more specific or is not in Clan'
+                f'Problem getting your data, please `!registerdesc` to fix this'
             ))
+
+        await message.channel.send(embed=embed_message(
+            'Raid Report',
+            f'https://raid.report/{rrsystem[system]}/{destinyID}'
+        ))
 
 
 class DR(BaseCommand):
@@ -69,39 +42,17 @@ class DR(BaseCommand):
         params = []
         super().__init__(description, params, topic)
 
-    async def handle(self, params, message, client):
+    async def handle(self, params, message, mentioned_user, client):
+        destinyID = lookupDestinyID(mentioned_user.id)
+        system = lookupSystem(destinyID)
 
-        if len(params) == 1:
-            ctx = await client.get_context(message)
-            try:
-                user = await commands.MemberConverter().convert(ctx, params[0])
-            except:
-                await message.channel.send(embed=embed_message(
-                    'Error',
-                    f'User not found, make sure the spelling/id is correct'
-                ))
-                return
-
-            destinyID = lookupDestinyID(user.id)
-            if destinyID:
-                systemID, _ = getSystemAndChars(destinyID)[0]
-                await message.channel.send(embed=embed_message(
-                    'Dungeon Report',
-                    f'https://dungeon.report/{rrsystem[systemID]}/{destinyID}'
-                ))
-                return
-        else:
-            destinyID = lookupDestinyID(message.author.id)
-            if destinyID:
-                systemID, _ = getSystemAndChars(destinyID)[0]
-                await message.channel.send(embed=embed_message(
-                    'Dungeon Report',
-                    f'https://dungeon.report/{rrsystem[systemID]}/{destinyID}'
-                ))
-                return
+        if not (destinyID and system):
+            await message.channel.send(embed=embed_message(
+                'Error',
+                f'Problem getting your data, please `!registerdesc` to fix this'
+            ))
 
         await message.channel.send(embed=embed_message(
-            'Error',
-            'Name needs to be more specific or is not in Clan'
+            'Dungeon Report',
+            f'https://dungeon.report/{rrsystem[system]}/{destinyID}'
         ))
-        

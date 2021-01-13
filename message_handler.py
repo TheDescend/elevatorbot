@@ -1,4 +1,5 @@
 import logging
+from discord.ext.commands import MemberConverter, MemberNotFound
 
 from commands.base_command import BaseCommand
 from functions.database import getToken
@@ -15,7 +16,7 @@ COMMAND_HANDLERS = {c.__name__.lower(): c()
 ###############################################################################
 
 
-async def handle_command(command, args, message, bot_client):
+async def handle_command(command, params, message, client):
     # Check whether the command is supported, stop silently if it's not
     # (to prevent unnecesary spam if our bot shares the same command prefix 
     # with some other bot)
@@ -25,12 +26,12 @@ async def handle_command(command, args, message, bot_client):
     if command not in COMMAND_HANDLERS:
         return
 
-    print(f"{message.author.name}: {COMMAND_PREFIX}{command} " 
-          + " ".join(args))
+    print(f"{message.author.name}: {COMMAND_PREFIX}{command} "
+          + " ".join(params))
 
     # log the command - <discordID,command,arg1 arg2>
     logger = logging.getLogger('commands')
-    logger.info(f"""<{message.author.id},{command},{" ".join(args)}>""")
+    logger.info(f"""<{message.author.id},{command},{" ".join(params)}>""")
 
     # check if user is registered, otherwise command will be blocked and he will be informed
     # ignore that check if message is !register or !registerdesc
@@ -43,10 +44,20 @@ async def handle_command(command, args, message, bot_client):
                 ))
                 return
 
+    # set mentioned_user params[-1] and if that is not valid to message.author
+    mentioned_user = message.author
+    if len(params) > 0:
+        ctx = await client.get_context(message)
+        try:
+            temp = await MemberConverter().convert(ctx, params[-1])
+            mentioned_user = temp
+            params = params[:-1]
+        except MemberNotFound:
+            print(f"Tried to convert last parameter '{params[-1]}' to mentioned_user and failed")
+
     # Retrieve the command
     cmd_obj = COMMAND_HANDLERS[command]
-    if cmd_obj.params and not len(args) == len(cmd_obj.params):
-        await message.channel.send(message.author.mention
-                                      + f" Params should be {', '.join(cmd_obj.params)}")
+    if cmd_obj.params and not len(params) == len(cmd_obj.params):
+        await message.channel.send(message.author.mention + f" Params should be {', '.join(cmd_obj.params)}")
     else:
-        await cmd_obj.handle(args, message, bot_client)
+        await cmd_obj.handle(params, message, mentioned_user, client)

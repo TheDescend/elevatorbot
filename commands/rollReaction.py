@@ -12,7 +12,7 @@ class rollreaction(BaseCommand):
 
     # Override the handle() method
     # It will be called every time the command is received
-    async def handle(self, params, message, client):
+    async def handle(self, params, message, mentioned_user, client):
         #if len(params) == 0:
         tmessage = (await message.channel.history(limit=2).flatten())[1]
         # elif len(params) == 2:

@@ -13,7 +13,7 @@ class Commands(BaseCommand):
         params = None
         super().__init__(description, params)
 
-    async def handle(self, params, message, client):
+    async def handle(self, params, message, mentioned_user, client):
         if message.author.id == 367385031569702912:
             await message.channel.send('<@!367385031569702912> :Pepega:670369123716431872')
         from message_handler import COMMAND_HANDLERS
@@ -49,5 +49,5 @@ class Documentation(BaseCommand):
         params = None
         super().__init__(description, params)
 
-    async def handle(self, params, message, client):
+    async def handle(self, params, message, mentioned_user, client):
         message.channel.send('Check out https://github.com/LukasSchmid97/destinyBloodoakStats/blob/master/README.md')
