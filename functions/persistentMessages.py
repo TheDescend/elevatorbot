@@ -1,10 +1,12 @@
 import discord
 
 from functions.bounties.bountiesFunctions import getGlobalVar, saveAsGlobalVar
+from functions.database import getPersistentMessage, updatePersistentMessage, insertPersistentMessage, \
+    getallSteamJoinIDs
 from functions.formating import embed_message
 # writes the message the user will see and react to and saves the id in the pickle
 from static.globals import yes_emoji_id, destiny_emoji_id, among_us_emoji_id, barotrauma_emoji_id, gta_emoji_id, \
-    valorant_emoji_id, lol_emoji_id
+    valorant_emoji_id, lol_emoji_id, steam_join_codes
 
 
 async def persistentChannelMessages(client):
@@ -119,3 +121,49 @@ And lastly, if you have any general suggestions or ideas for new bounties, conta
                     notification = client.get_emoji(754946724237148220)
                     await msg.add_reaction(notification)
                     saveAsGlobalVar("register_channel_message_id", msg.id)
+
+
+
+async def steamJoinCodeMessage(client, guild):
+    # get all IDs
+    data = dict(getallSteamJoinIDs())
+    data = {k: v for k, v in sorted(data.items(), key=lambda item: item[1], reverse=False)}
+
+    # put in two lists for the embed
+    name = []
+    code = []
+    for i, c in data.items():
+        # get display_name. If that doesnt work user isnt in guild, thus ignore him
+        try:
+            n = guild.get_member(i).display_name
+        except AttributeError:
+            continue
+
+        name.append(n)
+        code.append(str(c))
+
+    # create new message
+    embed = embed_message(
+        "Steam Join Codes",
+        "Here you can find a updated list of Steam Join Codes. \nUse `!setID` to set appear here and `!getid <user>` to find a code without looking here"
+    )
+
+    # add name field
+    embed.add_field(name="User", value="\n".join(name), inline=True)
+
+    # add code field
+    embed.add_field(name="Code", value="\n".join(code), inline=True)
+
+    # get msg object.
+    res = getPersistentMessage("steamJoinCodes", guild.id)
+    if res:
+        channel = client.get_channel(res[0])
+        message = await channel.fetch_message(res[1])
+        await message.edit(embed=embed)
+        updatePersistentMessage("steamJoinCodes", guild.id, channel.id, message.id, [])
+
+    # Skip if no message exist and begin making one
+    else:
+        channel = client.get_channel(steam_join_codes)
+        message = await channel.send(embed=embed)
+        insertPersistentMessage("steamJoinCodes", guild.id, channel.id, message.id, [])

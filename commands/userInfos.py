@@ -7,6 +7,7 @@ from functions.database import lookupDestinyID, lookupDiscordID, lookupSystem, g
 from functions.formating import embed_message
 from functions.miscFunctions import hasAdminOrDevPermissions, hasMentionPermission
 from functions.network import getJSONfromURL
+from functions.persistentMessages import steamJoinCodeMessage
 from static.dict import clanids
 from static.globals import thumps_up_emoji_id
 
@@ -53,6 +54,9 @@ class setID(BaseCommand):
 
         # react to show that it is done
         await message.add_reaction(client.get_emoji(thumps_up_emoji_id))
+
+        # update the status msg
+        await steamJoinCodeMessage(client, message.guild)
 
 
 class getDiscordDate(BaseCommand):

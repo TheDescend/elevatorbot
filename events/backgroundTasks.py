@@ -8,6 +8,7 @@ from functions.dataLoading import getTriumphsJSON
 from functions.network import getJSONfromURL
 
 
+# todo delete
 class refreshSealPickle(BaseEvent):
     def __init__(self):
         interval_minutes = 1340  # Set the interval for this event

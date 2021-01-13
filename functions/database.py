@@ -228,18 +228,24 @@ def updateToken(destinyID, discordID, token, refresh_token, token_expiry, refres
 def setSteamJoinID(IDdiscord, IDSteamJoin):
     """ Updates a User - steamJoinId  """
     update_sql = f"""
-        UPDATE "discordGuardiansToken"
-        SET steamJoinId = %s
-        WHERE discordSnowflake = %s;"""
+        UPDATE 
+            "discordGuardiansToken"
+        SET 
+            steamJoinId = %s
+        WHERE 
+            discordSnowflake = %s;"""
     with db_connect().cursor() as cur:
         cur.execute(update_sql, (IDSteamJoin, IDdiscord))
 
 def getSteamJoinID(IDdiscord):
     """ Gets a Users steamJoinId or None"""
     select_sql = """
-        SELECT steamJoinId 
-        FROM "discordGuardiansToken"
-        WHERE discordSnowflake = %s;"""
+        SELECT 
+            steamJoinId 
+        FROM 
+            "discordGuardiansToken"
+        WHERE 
+            discordSnowflake = %s;"""
     with db_connect().cursor() as cur:
         cur.execute(select_sql, (IDdiscord,))
         results = cur.fetchone()
@@ -247,14 +253,31 @@ def getSteamJoinID(IDdiscord):
             return results[0]
     return None
 
+def getallSteamJoinIDs():
+    """ Gets all steamJoinId or []"""
+    select_sql = """
+        SELECT 
+            discordsnowflake, steamJoinId
+        FROM 
+            "discordGuardiansToken"
+        WHERE 
+            steamJoinId IS NOT NULL;"""
+    with db_connect().cursor() as cur:
+        cur.execute(select_sql, ())
+        results = cur.fetchall()
+        return results
+
+
 def updateUser(IDdiscord, IDdestiny, systemID):
     """ Updates a User - DestinyID, SystemID  """
     update_sql = f"""
-        UPDATE "discordGuardiansToken"
+        UPDATE 
+            "discordGuardiansToken"
         SET 
-        destinyID = %s,
-        systemID = %s
-        WHERE discordSnowflake = %s;"""
+            destinyID = %s,
+            systemID = %s
+        WHERE 
+            discordSnowflake = %s;"""
     with db_connect().cursor() as cur:
         cur.execute(update_sql, (IDdestiny, systemID, IDdiscord))
 
@@ -518,3 +541,49 @@ def getFlawlessList(destinyID):
         cur.execute(sqlite_select, data_tuple)
         result = [res[0] for res in cur.fetchall()]
     return result
+
+################################################################
+# Persistent Messages
+
+
+def insertPersistentMessage(messageName, guildId, channelId, messageId, reactionsIdList):
+    """ Inserts a message mapping into the database, returns True if successful False otherwise """
+    product_sql = """
+        INSERT INTO 
+            persistentMessages
+            (messageName, guildId, channelId, messageId, reactionsIdList) 
+        VALUES 
+            (%s, %s, %s, %s, %s);"""
+    with db_connect().cursor() as cur:
+        cur.execute(product_sql, (messageName, guildId, channelId, messageId, reactionsIdList))
+
+
+def updatePersistentMessage(messageName, guildId, channelId, messageId, reactionsIdList):
+    """ Updates a message mapping  """
+    update_sql = f"""
+        UPDATE 
+            persistentMessages
+        SET 
+            channelId = %s, 
+            messageId = %s,
+            reactionsIdList = %s
+        WHERE 
+            messageName = %s AND guildId = %s;"""
+    with db_connect().cursor() as cur:
+        cur.execute(update_sql, (channelId, messageId, reactionsIdList, messageName, guildId))
+
+def getPersistentMessage(messageName, guildId):
+    """ Gets a message mapping given the messageName and guildId"""
+    select_sql = """
+        SELECT 
+            channelId,
+            messageId,
+            reactionsIdList
+        FROM 
+            persistentMessages
+        WHERE 
+            messageName = %s AND guildId = %s;"""
+    with db_connect().cursor() as cur:
+        cur.execute(select_sql, (messageName, guildId,))
+        result = cur.fetchall()
+        return result[0]
