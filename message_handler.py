@@ -38,7 +38,7 @@ async def handle_command(command, params, message, client):
     if message.guild and message.guild.id == 669293365900214293:
         if (command != "register") and (command != "registerdesc"):
             if not getToken(message.author.id):
-                await message.channel.send(embed=embed_message(
+                await message.reply(embed=embed_message(
                     'Additional Action Necessary',
                     f'{message.author.name}, please first link your Destiny account by using `!register`'
                 ))
@@ -58,6 +58,11 @@ async def handle_command(command, params, message, client):
     # Retrieve the command
     cmd_obj = COMMAND_HANDLERS[command]
     if cmd_obj.params and not len(params) == len(cmd_obj.params):
-        await message.channel.send(message.author.mention + f" Params should be {', '.join(cmd_obj.params)}")
+        p = "> <".join(cmd_obj.params)
+        await message.reply(embed=embed_message(
+            "Incorrect Parameters",
+            f"Correct usage is:\n`!{command} <{p}> *<user>`",
+            "Info: The <user> parameter doesn't work for every command"
+        ))
     else:
         await cmd_obj.handle(params, message, mentioned_user, client)

@@ -3,11 +3,56 @@ from discord.ext import commands
 
 from commands.base_command import BaseCommand
 from functions.dataLoading import getProfile
-from functions.database import lookupDestinyID, lookupDiscordID, lookupSystem, getToken
+from functions.database import lookupDestinyID, lookupDiscordID, lookupSystem, getToken, getSteamJoinID, setSteamJoinID
 from functions.formating import embed_message
-from functions.miscFunctions import hasAdminOrDevPermissions
+from functions.miscFunctions import hasAdminOrDevPermissions, hasMentionPermission
 from functions.network import getJSONfromURL
 from static.dict import clanids
+from static.globals import thumps_up_emoji_id
+
+
+class getID(BaseCommand):
+    def __init__(self):
+        # A quick description for the help message
+        description = "Gets your or the @user steam join code"
+        params = []
+        topic = "Destiny"
+        super().__init__(description, params, topic)
+
+    # Override the handle() method
+    # It will be called every time the command is received
+    async def handle(self, params, message, mentioned_user, client):
+        text = getSteamJoinID(mentioned_user.id)
+        if not text:
+            text = "Nothing found. Please tell the user to set the code with \n`!setID <code>`\nYou can find your own code by typing `/id` in-game\n⁣\nSadly I do not have access to this information, since it is handled by Steam and not Bungie"
+
+        embed = embed_message(
+            f"{mentioned_user.name}'s Steam Join Code",
+            text
+        )
+        await message.reply(embed=embed)
+
+
+class setID(BaseCommand):
+    def __init__(self):
+        # A quick description for the help message
+        description = "Sets your steam join code"
+        params = ["steamJoinCode"]
+        topic = "Registration"
+        super().__init__(description, params, topic)
+
+    # Override the handle() method
+    # It will be called every time the command is received
+    async def handle(self, params, message, mentioned_user, client):
+        # check perm for mention, otherwise abort
+        if not (await hasMentionPermission(message, mentioned_user)):
+            return
+
+        # save id
+        setSteamJoinID(mentioned_user.id, params[0])
+
+        # react to show that it is done
+        await message.add_reaction(client.get_emoji(thumps_up_emoji_id))
 
 
 class getDiscordDate(BaseCommand):

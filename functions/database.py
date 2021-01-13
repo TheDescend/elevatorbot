@@ -209,7 +209,6 @@ def insertToken(discordID, destinyID, systemID, discordServerID, token, refresh_
                                         refresh_token_expiry))
         
 
-
 def updateToken(destinyID, discordID, token, refresh_token, token_expiry, refresh_token_expiry):
     """ Updates a User - Token, token refresh, token_expiry, refresh_token_expiry  """
     print('token update initiated')
@@ -225,6 +224,28 @@ def updateToken(destinyID, discordID, token, refresh_token, token_expiry, refres
     with db_connect().cursor() as cur:
         cur.execute(update_sql, (token, refresh_token, datetime.fromtimestamp(token_expiry), datetime.fromtimestamp(refresh_token_expiry), discordID, destinyID))
         return cur.rowcount > 0
+
+def setSteamJoinID(IDdiscord, IDSteamJoin):
+    """ Updates a User - steamJoinId  """
+    update_sql = f"""
+        UPDATE "discordGuardiansToken"
+        SET steamJoinId = %s
+        WHERE discordSnowflake = %s;"""
+    with db_connect().cursor() as cur:
+        cur.execute(update_sql, (IDSteamJoin, IDdiscord))
+
+def getSteamJoinID(IDdiscord):
+    """ Gets a Users steamJoinId or None"""
+    select_sql = """
+        SELECT steamJoinId 
+        FROM "discordGuardiansToken"
+        WHERE discordSnowflake = %s;"""
+    with db_connect().cursor() as cur:
+        cur.execute(select_sql, (IDdiscord,))
+        results = cur.fetchone()
+        if results:
+            return results[0]
+    return None
 
 def updateUser(IDdiscord, IDdestiny, systemID):
     """ Updates a User - DestinyID, SystemID  """
