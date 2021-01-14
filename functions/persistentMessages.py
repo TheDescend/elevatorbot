@@ -9,6 +9,7 @@ from static.globals import yes_emoji_id, destiny_emoji_id, among_us_emoji_id, ba
     valorant_emoji_id, lol_emoji_id, steam_join_codes
 
 
+# todo change this to the new format
 async def persistentChannelMessages(client):
     file = getGlobalVar()
 

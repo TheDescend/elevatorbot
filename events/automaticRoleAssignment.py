@@ -2,8 +2,8 @@ from itertools import compress
 
 import discord
 
+from events.backgroundTasks import updateActivityDB
 from events.base_event import BaseEvent
-from functions.dataLoading import initDB
 from functions.database import lookupDiscordID, lookupDestinyID, getToken
 from functions.network import getJSONfromURL
 from functions.roles import assignRolesToUser, removeRolesFromUser, getPlayerRoles
@@ -39,7 +39,8 @@ class AutomaticRoleAssignment(BaseEvent):
         newtonslab = client.get_channel(BOTDEVCHANNELID)
         #await newtonslab.send('running db update...')
         async with newtonslab.typing():
-            await initDB()
+            update = updateActivityDB()
+            await update.run(client)
         #await newtonslab.send('db done')
         #await newtonslab.send('running role update...')
 

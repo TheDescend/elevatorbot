@@ -2,7 +2,8 @@ import discord
 from discord.ext import commands
 
 from commands.base_command import BaseCommand
-from functions.dataLoading import updateDB, initDB, getNameToHashMapByClanid
+from events.backgroundTasks import updateActivityDB
+from functions.dataLoading import updateDB, getNameToHashMapByClanid
 from functions.database import lookupDestinyID, lookupDiscordID, getLastRaid, getFlawlessList
 from functions.formating import embed_message
 from functions.roles import assignRolesToUser, removeRolesFromUser, getPlayerRoles, hasRole
@@ -242,7 +243,10 @@ class assignAllRoles(BaseCommand):
             return
 
         await message.channel.send('Updating DB...')
-        await initDB()
+
+        update = updateActivityDB()
+        await update.run(client)
+
         await message.channel.send('Assigning roles...')
         for discordUser in message.guild.members:
             destinyID = lookupDestinyID(discordUser.id)

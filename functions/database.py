@@ -36,14 +36,14 @@ def db_connect():
                                     (psql_credentials.ssh_host, psql_credentials.ssh_port),
                                     ssh_username=psql_credentials.ssh_user,
                                     ssh_password=psql_credentials.ssh_password,
-                                    remote_bind_address=("127.0.0.1", bind_port))
+                                    remote_bind_address=("localhost", bind_port))
             ssh_server.start()
             print("Connected via SSH")
 
             con = psycopg2.connect(
                 dbname=psql_credentials.dbname,
                 user=psql_credentials.user,
-                host="127.0.0.1",
+                host="localhost",
                 port=ssh_server.local_bind_port,
                 password=psql_credentials.password
             )
@@ -465,27 +465,7 @@ def getSystemAndChars(destinyID):
         result = cur.fetchall()
     return result
 
-def updatedPlayer(destinyID):
-    """ sets players last updated time to now """
-    if not os.path.exists('database/playerUpdated.json'):
-        with open('database/playerUpdated.json','w') as f:
-            j = dict()
-            json.dump(j, f)
 
-    with open('database/playerUpdated.json','r') as f:
-        j = json.load(f)
-    j[str(destinyID)] = datetime.now().strftime("%d/%m/%Y %H:%M")
-    with open('database/playerUpdated.json','w') as f:
-        json.dump(j, f)
-
-def getLastUpdated(destinyID):
-    """ gets last time that player was updated as datetime object """
-    with open('database/playerUpdated.json','r') as f:
-        j = json.load(f)
-        if str(destinyID) in j.keys():
-            datestring = j[str(destinyID)]
-            return datetime.strptime(datestring, "%d/%m/%Y %H:%M")
-        return datetime.strptime("26/03/1997 21:08", "%d/%m/%Y %H:%M")
 
 def getLastRaid(destinyID, before=datetime.now()):
     sqlite_select = """
@@ -542,6 +522,7 @@ def getFlawlessList(destinyID):
         result = [res[0] for res in cur.fetchall()]
     return result
 
+
 ################################################################
 # Persistent Messages
 
@@ -572,6 +553,7 @@ def updatePersistentMessage(messageName, guildId, channelId, messageId, reaction
     with db_connect().cursor() as cur:
         cur.execute(update_sql, (channelId, messageId, reactionsIdList, messageName, guildId))
 
+
 def getPersistentMessage(messageName, guildId):
     """ Gets a message mapping given the messageName and guildId"""
     select_sql = """
@@ -587,3 +569,90 @@ def getPersistentMessage(messageName, guildId):
         cur.execute(select_sql, (messageName, guildId,))
         result = cur.fetchall()
         return result[0]
+
+
+################################################################
+# Activities
+
+
+def updatePlayer(destinyID, timestamp: datetime):
+    """ sets players activities last updated time to the last activity he has done"""
+    update_sql = """
+        UPDATE 
+            "discordGuardiansToken"
+        SET 
+            activitiesLastUpdated = %s
+        WHERE 
+            destinyID = %s;"""
+    with db_connect().cursor() as cur:
+        cur.execute(update_sql, (timestamp, destinyID,))
+
+
+def getLastUpdated(destinyID):
+    """ gets last time that players activities were updated as datetime object """
+    select_sql = """
+        SELECT 
+            activitiesLastUpdated 
+        FROM 
+            "discordGuardiansToken"
+        WHERE 
+            destinyID = %s;"""
+    with db_connect().cursor() as cur:
+        cur.execute(select_sql, (destinyID,))
+        results = cur.fetchone()
+        if results:
+            return results[0]
+    return None
+
+
+def insertPgcrActivities(instanceId, referenceId, directorActivityHash, timePeriod, startingPhaseIndex, mode, modes, isPrivate, membershipType):
+    """ Inserts an activity to the DB"""
+    product_sql = """
+        INSERT INTO 
+            pgcractivities
+            (instanceId, referenceId, directorActivityHash, period, startingPhaseIndex, mode, modes, isPrivate, membershipType) 
+        VALUES 
+            (%s, %s, %s, %s, %s, %s, %s, %s, %s);"""
+    with db_connect().cursor() as cur:
+        cur.execute(product_sql, (instanceId, referenceId, directorActivityHash, timePeriod, startingPhaseIndex, mode, modes, isPrivate, membershipType,))
+
+
+def checkIfPgcrActivityExists(instanceId):
+    """ Returns True if info is already in DB, otherwise False"""
+    select_sql = """
+        SELECT 
+            instanceId
+        FROM 
+            pgcractivities
+        WHERE 
+            instanceId = %s;"""
+    with db_connect().cursor() as cur:
+        cur.execute(select_sql, (instanceId,))
+        result = cur.fetchone()
+        return bool(result)
+
+
+def insertPgcrActivitiesUsersStats(instanceId, membershipId, characterId, characterClass, characterLevel, membershipType, lightLevel, emblemHash, standing, assists, completed, deaths, kills, opponentsDefeated, efficiency, killsDeathsRatio, killsDeathsAssists, score, activityDurationSeconds, completionReason, startSeconds, timePlayedSeconds, playerCount, teamScore, precisionKills, weaponKillsGrenade, weaponKillsMelee, weaponKillsSuper, weaponKillsAbility):
+    """ Inserts an activity to the DB"""
+    product_sql = """
+        INSERT INTO 
+            pgcractivitiesusersstats
+            (instanceId, membershipId, characterId, characterClass, characterLevel, membershipType, lightLevel, emblemHash, standing, assists, completed, deaths, kills, opponentsDefeated, efficiency, killsDeathsRatio, killsDeathsAssists, score, activityDurationSeconds, completionReason, startSeconds, timePlayedSeconds, playerCount, teamScore, precisionKills, weaponKillsGrenade, weaponKillsMelee, weaponKillsSuper, weaponKillsAbility) 
+        VALUES 
+            (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"""
+    with db_connect().cursor() as cur:
+        cur.execute(product_sql, (instanceId, membershipId, characterId, characterClass, characterLevel, membershipType, lightLevel, emblemHash, standing, assists, completed, deaths, kills, opponentsDefeated, efficiency, killsDeathsRatio, killsDeathsAssists, score, activityDurationSeconds, completionReason, startSeconds, timePlayedSeconds, playerCount, teamScore, precisionKills, weaponKillsGrenade, weaponKillsMelee, weaponKillsSuper, weaponKillsAbility,))
+
+
+def insertPgcrActivitiesUsersStatsWeapons(instanceId, characterId, membershipId, weaponId, uniqueWeaponKills, uniqueWeaponPrecisionKills):
+    """ Inserts an activity to the DB"""
+    product_sql = """
+        INSERT INTO 
+            pgcractivitiesusersstatsweapons
+            (instanceId, characterId, membershipId, weaponId, uniqueWeaponKills, uniqueWeaponPrecisionKills) 
+        VALUES 
+            (%s, %s, %s, %s, %s, %s);"""
+    with db_connect().cursor() as cur:
+        cur.execute(product_sql, (instanceId, characterId, membershipId, weaponId, uniqueWeaponKills, uniqueWeaponPrecisionKills,))
+
+

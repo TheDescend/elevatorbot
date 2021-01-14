@@ -76,6 +76,7 @@ async def getJSONfromURL(requestURL, headers=headers, params={}):
                         return None
             except asyncio.exceptions.TimeoutError:
                     print('Timeout error, retrying...')
+                    await asyncio.sleep(30)
                     continue
 
         print(f'Request failed 5 times, aborting {requestURL}')
@@ -222,6 +223,8 @@ async def errorCodeHandling(requestURL, r, res):
         elif error == "DestinyPrivacyRestriction":
             print("User has private Profile")
             return True
+        elif error == "DestinyDirectBabelClientTimeout":
+            await asyncio.sleep(30)
         else:
             print(f'Bad request for {requestURL}. Returned error {error}:')
             print(res)

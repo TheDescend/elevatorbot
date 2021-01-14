@@ -3,13 +3,15 @@ import json
 import os
 import sqlite3
 import zipfile
+import logging
 from datetime import timedelta, datetime
 
 import aiohttp
 import pandas
 
-from functions.database import insertActivity, insertCharacter, insertInstanceDetails, updatedPlayer, \
-    lookupDiscordID, lookupSystem
+from functions.database import insertActivity, insertCharacter, insertInstanceDetails, updatePlayer, \
+    lookupDiscordID, lookupSystem, insertPgcrActivities, checkIfPgcrActivityExists, insertPgcrActivitiesUsersStats, \
+    insertPgcrActivitiesUsersStatsWeapons
 from functions.database import getSystemAndChars, getLastUpdated, playerInstanceExists, getAllDestinyIDs
 from functions.network import getJSONfromURL, getComponentInfoAsJSON, getJSONwithToken
 from static.config import CLANID
@@ -127,7 +129,7 @@ async def getPlayersPastPVE(destinyID, mode : int = 7, earliest_allowed_time : d
                     # check if the activity started later than the earliest allowed, else break and continue with next char
                     # This works bc Bungie sorts the api with the newest entry on top
                     if earliest_allowed_time:
-                        if activity_time < earliest_allowed_time:
+                        if activity_time <= earliest_allowed_time:
                             br = True
                             break
 
@@ -435,62 +437,105 @@ async def insertIntoDB(destinyID, pve):
         #print(f'inserting {instanceID}')
         insertActivity(instanceID, activityHash, activityDurationSeconds, period, startingPhaseIndex, deaths, playercount, mode)
     return {'added':instanceID}
-        
+
+
 async def updateDB(destinyID):
-    if not destinyID:
-        return
+    logger = logging.getLogger('updateDB')
+    entry_time = getLastUpdated(destinyID)
 
-    charcount = len((await getCharacterList(destinyID))[1])
-    if charcount == 0:
-        print(f'no characters found for {destinyID}')
-        return
-    #print(await getCharacterList(destinyID)[1])
-    processes = []
-    lastUpdate = getLastUpdated(destinyID)
-    donechars = []
-    print(f'checking {charcount} characters')
-    error, existed, added = 0,[],[]
-    async for pve in getPlayersPastPVE(destinyID, earliest_allowed_time = lastUpdate - timedelta(days=1)):
-        if 'period' not in pve.keys():
-            print('period not in pve')
+    print(str(datetime.now()))
+    print(f"Update destinyID {destinyID}...")
 
-        if len(donechars) == charcount:
-            print(f'stopped loading {destinyID} at ' + period.strftime("%d %m %Y"))
-            updatedPlayer(destinyID)
-            break
+    async for activity in getPlayersPastPVE(destinyID, mode=0, earliest_allowed_time=entry_time):
+        instanceID = activity["activityDetails"]["instanceId"]
+        activity_time = datetime.strptime(activity["period"], "%Y-%m-%dT%H:%M:%SZ")
 
-        if pve['charid'] in donechars:
-            #print('charid in donechars... skipping...')
-            continue
-        #print(pve)
-        period = datetime.strptime(pve['period'], "%Y-%m-%dT%H:%M:%SZ")
+        # update with newest entry timestamp
+        if activity_time > entry_time:
+            entry_time = activity_time
 
-        if period < (lastUpdate - timedelta(days=1)):
-            print(f'char {pve["charid"]} caught up to {pve["period"]}')
-            donechars.append(pve['charid'])
+        # check if info is already in DB, skip if so
+        if checkIfPgcrActivityExists(instanceID):
             continue
 
-        result = await insertIntoDB(destinyID, pve)
-        if not result or 'networkerror' in result:
-            print('something went wrong')
-            error += 1
-        elif 'added' in result:
-            instanceID = result['added']
-            added.append(instanceID)
-        elif 'existed' in result:
-            instanceID = result['existed']
-            existed.append(instanceID)
+        # get PGCR
+        pcgr = (await getPGCR(instanceID))
+        if not pcgr:
+            print('Failed getting pcgr <%s>', instanceID)
+            logger.error('Failed getting pcgr <%s>', instanceID)
+            continue
+        pcgr = pcgr["Response"]
 
-    updatedPlayer(destinyID)
-    print(f'done updating {destinyID} with {error} errors and {len(added)} new entries, while {len(existed)} already were present')
-    #print(f'{existed=}\n{added=}')
+        # insert information to DB
+        insertPgcrActivities(
+            instanceID,
+            pcgr["activityDetails"]["referenceId"],
+            pcgr["activityDetails"]["directorActivityHash"],
+            activity_time,
+            pcgr["startingPhaseIndex"],
+            pcgr["activityDetails"]["mode"],
+            pcgr["activityDetails"]["modes"],
+            pcgr["activityDetails"]["isPrivate"],
+            pcgr["activityDetails"]["membershipType"]
+        )
 
+        # loop though user and save info to db
+        for user_pcgr in pcgr["entries"]:
+            characterID = user_pcgr["characterId"]
+            membershipID = user_pcgr["player"]["destinyUserInfo"]["membershipId"]
 
-async def initDB():
-    playerIDs = getAllDestinyIDs()
-    for playerID in playerIDs:
-        await updateDB(playerID)
-    print(f'done updating the db')
+            try:
+                insertPgcrActivitiesUsersStats(
+                    instanceID,
+                    membershipID,
+                    characterID,
+                    user_pcgr["player"]["characterClass"] if "characterClass" in user_pcgr["player"] else "",
+                    user_pcgr["player"]["characterLevel"],
+                    user_pcgr["player"]["destinyUserInfo"]["membershipType"],
+                    user_pcgr["player"]["lightLevel"],
+                    user_pcgr["player"]["emblemHash"],
+                    user_pcgr["standing"],
+                    int(user_pcgr["values"]["assists"]["basic"]["value"]),
+                    int(user_pcgr["values"]["completed"]["basic"]["value"]),
+                    int(user_pcgr["values"]["deaths"]["basic"]["value"]),
+                    int(user_pcgr["values"]["kills"]["basic"]["value"]),
+                    int(user_pcgr["values"]["opponentsDefeated"]["basic"]["value"]),
+                    user_pcgr["values"]["efficiency"]["basic"]["value"],
+                    user_pcgr["values"]["killsDeathsRatio"]["basic"]["value"],
+                    user_pcgr["values"]["killsDeathsAssists"]["basic"]["value"],
+                    int(user_pcgr["values"]["score"]["basic"]["value"]),
+                    int(user_pcgr["values"]["activityDurationSeconds"]["basic"]["value"]),
+                    int(user_pcgr["values"]["completionReason"]["basic"]["value"]),
+                    int(user_pcgr["values"]["startSeconds"]["basic"]["value"]),
+                    int(user_pcgr["values"]["timePlayedSeconds"]["basic"]["value"]),
+                    int(user_pcgr["values"]["playerCount"]["basic"]["value"]),
+                    int(user_pcgr["values"]["teamScore"]["basic"]["value"]),
+                    int(user_pcgr["extended"]["values"]["precisionKills"]["basic"]["value"]),
+                    int(user_pcgr["extended"]["values"]["weaponKillsGrenade"]["basic"]["value"]),
+                    int(user_pcgr["extended"]["values"]["weaponKillsMelee"]["basic"]["value"]),
+                    int(user_pcgr["extended"]["values"]["weaponKillsSuper"]["basic"]["value"]),
+                    int(user_pcgr["extended"]["values"]["weaponKillsAbility"]["basic"]["value"])
+                )
+            except Exception as exc:
+                print(pcgr)
+
+            # loop though each weapon and save that info in the DB
+            if "weapons" in user_pcgr["extended"]:
+                for weapon_user_pcgr in user_pcgr["extended"]["weapons"]:
+                    insertPgcrActivitiesUsersStatsWeapons(
+                        instanceID,
+                        characterID,
+                        membershipID,
+                        weapon_user_pcgr["referenceId"],
+                        int(weapon_user_pcgr["values"]["uniqueWeaponKills"]["basic"]["value"]),
+                        int(weapon_user_pcgr["values"]["uniqueWeaponPrecisionKills"]["basic"]["value"])
+                    )
+
+    # update with newest entry timestamp
+    updatePlayer(destinyID, entry_time)
+
+    print(f"Done updating destinyID {destinyID}")
+    print(str(datetime.now()))
 
 
 def getSeals(client):

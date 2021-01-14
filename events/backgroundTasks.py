@@ -4,7 +4,8 @@ import json
 import pandas
 
 from events.base_event import BaseEvent
-from functions.dataLoading import getTriumphsJSON
+from functions.dataLoading import getTriumphsJSON, updateDB
+from functions.database import getAllDestinyIDs, lookupDiscordID
 from functions.network import getJSONfromURL
 
 
@@ -85,3 +86,53 @@ class refreshSealPickle(BaseEvent):
         file.to_pickle('database/seals.pickle')
 
         print("Done refreshing seals.pickle")
+
+
+
+class updateActivityDB(BaseEvent):
+    def __init__(self):
+        # Set the interval for this event
+        interval_minutes = 60
+        super().__init__(scheduler_type="interval", interval_minutes=interval_minutes)
+
+    async def run(self, client):
+        """
+        This runs hourly and updates all the users infos,
+        that are in one of the servers the bot is in.
+        """
+        print("Start Updating DB...")
+        # todo enable again
+        # destinyIDs = getAllDestinyIDs()
+        #
+        # # update all users
+        # async for destinyID in getAllDestinyIDs(client, destinyIDs):
+        #     await updateDB(destinyID)
+        # print("Done Updating DB!")
+
+
+# generator - get destinyIDs of eligible users
+async def getDestinyIDs(client, destinyIDs):
+    # get all users the bot shares a guild with
+    shared_guild = []
+    for guild in client.guilds:
+        for members in guild:
+            shared_guild.append(members.id)
+    set(shared_guild)
+
+    # loop though all ids
+    for destinyID in destinyIDs:
+        discordID = lookupDiscordID(destinyID)
+
+        # check is user is in a guild with bot
+        if not discordID in shared_guild:
+            continue
+
+        yield destinyID
+
+
+
+
+
+
+
+
