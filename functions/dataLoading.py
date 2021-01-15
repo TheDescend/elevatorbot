@@ -9,10 +9,10 @@ from datetime import timedelta, datetime
 import aiohttp
 import pandas
 
-from functions.database import insertActivity, insertCharacter, insertInstanceDetails, updatePlayer, \
+from functions.database import insertCharacter, updateLastUpdated, \
     lookupDiscordID, lookupSystem, insertPgcrActivities, checkIfPgcrActivityExists, insertPgcrActivitiesUsersStats, \
     insertPgcrActivitiesUsersStatsWeapons
-from functions.database import getSystemAndChars, getLastUpdated, playerInstanceExists, getAllDestinyIDs
+from functions.database import getSystemAndChars, getLastUpdated, getAllDestinyIDs
 from functions.network import getJSONfromURL, getComponentInfoAsJSON, getJSONwithToken
 from static.config import CLANID
 
@@ -398,53 +398,11 @@ async def fillDictFromDB(dictRef, table):
             dictRef.update(json.load(json_file))
 
 
-async def insertIntoDB(destinyID, pve):
-    period = datetime.strptime(pve['period'], "%Y-%m-%dT%H:%M:%SZ")
-    activityHash = pve['activityDetails']['directorActivityHash']
-    instanceID = pve['activityDetails']['instanceId']
-
-    if playerInstanceExists(instanceID, destinyID):
-        return {'existed':instanceID}
-        
-    activityDurationSeconds = int(pve['values']['activityDurationSeconds']['basic']['value'])
-    completed = int(pve['values']['completed']['basic']['value'])
-    mode = int(pve['activityDetails']['mode'])
-    if completed and not int(pve['values']['completionReason']['basic']['value']):
-        if not (pgcr := await getPGCR(instanceID)):
-            print('Network error')
-            return {'networkerror': True}
-        pgcrdata = pgcr['Response']
-
-        startingPhaseIndex = pgcrdata['startingPhaseIndex']
-        deaths = 0
-        players = set()
-        for player in pgcrdata['entries']:
-            lightlevel = player['player']['lightLevel']
-            playerID = player['player']['destinyUserInfo']['membershipId']
-            players.add(playerID)
-            characterID = player['characterId']
-            playerdeaths = int(player['values']['deaths']['basic']['displayValue'])
-            deaths += playerdeaths
-            displayname = None
-            if 'displayName' in player['player']['destinyUserInfo']:
-                displayname = player['player']['destinyUserInfo']['displayName']
-            completed = int(player['values']['completed']['basic']['value'])
-            opponentsDefeated = player['values']['opponentsDefeated']['basic']['value']
-            system = player['player']['destinyUserInfo']['membershipType']
-            insertCharacter(playerID, characterID, system)
-            insertInstanceDetails(instanceID, playerID, characterID, lightlevel, displayname, deaths, opponentsDefeated, completed)
-        playercount = len(players)
-        #print(f'inserting {instanceID}')
-        insertActivity(instanceID, activityHash, activityDurationSeconds, period, startingPhaseIndex, deaths, playercount, mode)
-    return {'added':instanceID}
-
-
 async def updateDB(destinyID):
     logger = logging.getLogger('updateDB')
     entry_time = getLastUpdated(destinyID)
 
-    print(str(datetime.now()))
-    print(f"Update destinyID {destinyID}...")
+    logger.info('Starting activity DB update for destinyID <%s>', destinyID)
 
     async for activity in getPlayersPastPVE(destinyID, mode=0, earliest_allowed_time=entry_time):
         instanceID = activity["activityDetails"]["instanceId"]
@@ -461,7 +419,7 @@ async def updateDB(destinyID):
         # get PGCR
         pcgr = (await getPGCR(instanceID))
         if not pcgr:
-            print('Failed getting pcgr <%s>', instanceID)
+            print('Failed getting pcgr <%s>. Trying again later', instanceID)
             logger.error('Failed getting pcgr <%s>', instanceID)
             continue
         pcgr = pcgr["Response"]
@@ -484,40 +442,37 @@ async def updateDB(destinyID):
             characterID = user_pcgr["characterId"]
             membershipID = user_pcgr["player"]["destinyUserInfo"]["membershipId"]
 
-            try:
-                insertPgcrActivitiesUsersStats(
-                    instanceID,
-                    membershipID,
-                    characterID,
-                    user_pcgr["player"]["characterClass"] if "characterClass" in user_pcgr["player"] else "",
-                    user_pcgr["player"]["characterLevel"],
-                    user_pcgr["player"]["destinyUserInfo"]["membershipType"],
-                    user_pcgr["player"]["lightLevel"],
-                    user_pcgr["player"]["emblemHash"],
-                    user_pcgr["standing"],
-                    int(user_pcgr["values"]["assists"]["basic"]["value"]),
-                    int(user_pcgr["values"]["completed"]["basic"]["value"]),
-                    int(user_pcgr["values"]["deaths"]["basic"]["value"]),
-                    int(user_pcgr["values"]["kills"]["basic"]["value"]),
-                    int(user_pcgr["values"]["opponentsDefeated"]["basic"]["value"]),
-                    user_pcgr["values"]["efficiency"]["basic"]["value"],
-                    user_pcgr["values"]["killsDeathsRatio"]["basic"]["value"],
-                    user_pcgr["values"]["killsDeathsAssists"]["basic"]["value"],
-                    int(user_pcgr["values"]["score"]["basic"]["value"]),
-                    int(user_pcgr["values"]["activityDurationSeconds"]["basic"]["value"]),
-                    int(user_pcgr["values"]["completionReason"]["basic"]["value"]),
-                    int(user_pcgr["values"]["startSeconds"]["basic"]["value"]),
-                    int(user_pcgr["values"]["timePlayedSeconds"]["basic"]["value"]),
-                    int(user_pcgr["values"]["playerCount"]["basic"]["value"]),
-                    int(user_pcgr["values"]["teamScore"]["basic"]["value"]),
-                    int(user_pcgr["extended"]["values"]["precisionKills"]["basic"]["value"]),
-                    int(user_pcgr["extended"]["values"]["weaponKillsGrenade"]["basic"]["value"]),
-                    int(user_pcgr["extended"]["values"]["weaponKillsMelee"]["basic"]["value"]),
-                    int(user_pcgr["extended"]["values"]["weaponKillsSuper"]["basic"]["value"]),
-                    int(user_pcgr["extended"]["values"]["weaponKillsAbility"]["basic"]["value"])
-                )
-            except Exception as exc:
-                print(pcgr)
+            insertPgcrActivitiesUsersStats(
+                instanceID,
+                membershipID,
+                characterID,
+                user_pcgr["player"]["characterClass"] if "characterClass" in user_pcgr["player"] else "",
+                user_pcgr["player"]["characterLevel"],
+                user_pcgr["player"]["destinyUserInfo"]["membershipType"],
+                user_pcgr["player"]["lightLevel"],
+                user_pcgr["player"]["emblemHash"],
+                user_pcgr["standing"],
+                int(user_pcgr["values"]["assists"]["basic"]["value"]),
+                int(user_pcgr["values"]["completed"]["basic"]["value"]),
+                int(user_pcgr["values"]["deaths"]["basic"]["value"]),
+                int(user_pcgr["values"]["kills"]["basic"]["value"]),
+                int(user_pcgr["values"]["opponentsDefeated"]["basic"]["value"]),
+                user_pcgr["values"]["efficiency"]["basic"]["value"],
+                user_pcgr["values"]["killsDeathsRatio"]["basic"]["value"],
+                user_pcgr["values"]["killsDeathsAssists"]["basic"]["value"],
+                int(user_pcgr["values"]["score"]["basic"]["value"]),
+                int(user_pcgr["values"]["activityDurationSeconds"]["basic"]["value"]),
+                int(user_pcgr["values"]["completionReason"]["basic"]["value"]),
+                int(user_pcgr["values"]["startSeconds"]["basic"]["value"]),
+                int(user_pcgr["values"]["timePlayedSeconds"]["basic"]["value"]),
+                int(user_pcgr["values"]["playerCount"]["basic"]["value"]),
+                int(user_pcgr["values"]["teamScore"]["basic"]["value"]),
+                int(user_pcgr["extended"]["values"]["precisionKills"]["basic"]["value"]),
+                int(user_pcgr["extended"]["values"]["weaponKillsGrenade"]["basic"]["value"]),
+                int(user_pcgr["extended"]["values"]["weaponKillsMelee"]["basic"]["value"]),
+                int(user_pcgr["extended"]["values"]["weaponKillsSuper"]["basic"]["value"]),
+                int(user_pcgr["extended"]["values"]["weaponKillsAbility"]["basic"]["value"])
+            )
 
             # loop though each weapon and save that info in the DB
             if "weapons" in user_pcgr["extended"]:
@@ -532,10 +487,9 @@ async def updateDB(destinyID):
                     )
 
     # update with newest entry timestamp
-    updatePlayer(destinyID, entry_time)
+    updateLastUpdated(destinyID, entry_time)
 
-    print(f"Done updating destinyID {destinyID}")
-    print(str(datetime.now()))
+    logger.info('Starting activity DB update for destinyID <%s>', destinyID)
 
 
 def getSeals(client):

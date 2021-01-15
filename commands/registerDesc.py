@@ -41,7 +41,8 @@ async def elevatorRegistration(message):
     URL = f'https://www.bungie.net/en/oauth/authorize?client_id={BUNGIE_OAUTH}&response_type=code&state={state}'
     await message.author.send(embed=embed_message(
         f'Registration',
-        f'[Click here to register with the bot]({URL})'
+        f'[Click here to register with me]({URL})',
+        "Please be aware that I will need a while to process your data after you register for the first time, so I might react very slow to your first commands."
     ))
     await message.channel.send(embed=embed_message(
         'Registration',

@@ -356,92 +356,6 @@ def insertIntoMessageDB(messagetext, userid, channelid, msgid):
         cur.execute(product_sql, (messagetext, userid, channelid, msgid))
     return True
 
-    
-def insertActivity(instanceID, activityHash, activityDurationSeconds, period, startingPhaseIndex, deaths, playercount, mode):
-    """ adds an Activity to the database, not player-specific """
-    sqlite_insert_with_param = """INSERT INTO activities
-                        (instanceID, activityHash, activityDurationSeconds, period, startingPhaseIndex, deaths, playercount, mode) 
-                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s);"""
-    data_tuple = (instanceID, activityHash, activityDurationSeconds, period, startingPhaseIndex, deaths, playercount, mode)
-    with db_connect().cursor() as cur:
-        cur.execute(sqlite_insert_with_param, data_tuple)
-    return True
-
-def insertInstanceDetails(instanceID, playerID, characterID, lightlevel, displayname, deaths, opponentsDefeated, completed):
-    """ adds player-specific information """
-    if not playerInstanceExists(instanceID, playerID):
-        sqlite_insert_with_param = """INSERT INTO instancePlayerPerformance
-                            (instanceID, playerID, characterID, lightlevel, displayname, deaths, opponentsDefeated, completed) 
-                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING instanceID;"""
-        data_tuple = (instanceID, playerID, characterID, lightlevel, displayname, deaths, opponentsDefeated, completed)
-        with db_connect().cursor() as cur:
-            cur.execute(sqlite_insert_with_param, data_tuple)
-            return cur.fetchone()[0]
-
-def playerInstanceExists(instanceID, playerID):
-    sqlite_select = f"""SELECT instanceID FROM instancePlayerPerformance
-                        WHERE instanceID = %s AND playerID = %s;"""
-    data_tuple = (instanceID, playerID)
-    with db_connect().cursor() as cur:
-        cur.execute(sqlite_select, data_tuple)
-        result = cur.fetchall()
-    return len(result) > 0
-
-def getClearCount(playerid, activityHashes):
-    """ Gets the full-clearcount for player <playerid> of activity <activityHash> """
-    sqlite_select = f"""SELECT COUNT(t1.instanceID)
-                        FROM (  SELECT instanceID FROM activities
-                                WHERE activityHash IN ({','.join(['%s']*len(activityHashes))})
-                                AND startingPhaseIndex <= 2) t1
-                        JOIN (  SELECT DISTINCT(instanceID)
-                                FROM instancePlayerPerformance
-                                WHERE playerID = %s
-                                ) ipp 
-                        ON (ipp.instanceID = t1.instanceID);
-                        """
-    data_tuple = (*activityHashes, playerid)
-    with db_connect().cursor() as cur:
-        cur.execute(sqlite_select, data_tuple)
-        (result,) = cur.fetchone()
-    return result
-
-def getInfoOnLowManActivity(raidHashes, playercount, playerid):
-    #raidHashes = [str(r) for r in raidHashes]
-    sqlite_select = f"""SELECT t1.instanceID, t1.deaths, t1.period
-                        FROM (  SELECT instanceID, deaths, period FROM activities
-                                WHERE activityHash IN ({','.join(['%s']*len(raidHashes))})
-                                AND playercount = %s) t1 
-                        JOIN (  SELECT DISTINCT(instanceID)
-                                FROM instancePlayerPerformance
-                                WHERE playerID = %s
-                                ) ipp
-                        ON (ipp.instanceID = t1.instanceID);
-                        """
-    data_tuple = (*raidHashes,playercount, playerid)
-    with db_connect().cursor() as cur:
-        cur.execute(sqlite_select, data_tuple)
-        low_activity_info = cur.fetchall()
-    return low_activity_info
-
-def hasFlawless(playerid, activityHashes):
-    """ returns the list of all flawless raids the player <playerid> has done """
-    sqlite_select = f"""SELECT COUNT(t1.instanceID)
-                        FROM (  SELECT instanceID FROM activities
-                                WHERE activityHash IN ({','.join(['%s']*len(activityHashes))})
-                                AND startingPhaseIndex <= 2
-                                AND deaths = 0) t1
-                        JOIN (  SELECT DISTINCT(instanceID)
-                                FROM instancePlayerPerformance
-                                WHERE playerID = %s
-                                ) ipp 
-                        ON (ipp.instanceID = t1.instanceID);
-                        """
-    data_tuple = (*activityHashes, playerid)
-    with db_connect().cursor() as cur:
-        cur.execute(sqlite_select, data_tuple)
-        (count,) = cur.fetchone()
-    return count > 0
-
 def insertCharacter(playerID, characterID, system):
     """ adds player-specific information """
     charlist = getSystemAndChars(playerID)
@@ -575,7 +489,7 @@ def getPersistentMessage(messageName, guildId):
 # Activities
 
 
-def updatePlayer(destinyID, timestamp: datetime):
+def updateLastUpdated(destinyID, timestamp: datetime):
     """ sets players activities last updated time to the last activity he has done"""
     update_sql = """
         UPDATE 
@@ -656,3 +570,123 @@ def insertPgcrActivitiesUsersStatsWeapons(instanceId, characterId, membershipId,
         cur.execute(product_sql, (instanceId, characterId, membershipId, weaponId, uniqueWeaponKills, uniqueWeaponPrecisionKills,))
 
 
+# todo: test
+def getClearCount(playerid, activityHashes: list):
+    """ Gets the full-clearcount for player <playerid> of activity <activityHash> """
+    select_sql = f"""
+        SELECT 
+            COUNT(t1.instanceID)
+        FROM (
+            SELECT 
+                instanceID FROM pgcractivities
+            WHERE 
+                directorActivityHash IN ({','.join(['%s']*len(activityHashes))})
+            AND 
+                startingPhaseIndex <= 2
+        ) t1
+        JOIN (  
+            SELECT DISTINCT
+                (instanceID)
+            FROM 
+                pgcractivitiesusersstats
+            WHERE 
+                membershipid = %s AND completed = 1
+        ) ipp 
+        ON 
+            (ipp.instanceID = t1.instanceID);"""
+    with db_connect().cursor() as cur:
+        cur.execute(select_sql, (activityHashes, playerid))
+        result = cur.fetchone()
+        if result:
+            return result[0]
+    return None
+
+
+# todo: test
+def getInfoOnLowManActivity(raidHashes: list, playercount, membershipid):
+    """ Gets the lowman instanceId, deaths, period for player <membershipid> of activity list(<activityHash>) with a <= <playercount>"""
+    select_sql = f"""
+        SELECT 
+            t1.instanceId, t2.deaths, t1.period
+        FROM (
+            SELECT 
+                instanceId, period 
+            FROM 
+                pgcrActivities
+            WHERE 
+                directorActivityHash IN ({','.join(['%s'] * len(raidHashes))})
+        ) AS t1 
+        JOIN (
+            SELECT
+                st1.instanceId, st1.deaths, st2.playercount
+            FROM 
+                pgcrActivitiesUsersStats AS st1
+            JOIN (
+                SELECT
+                    instanceId, COUNT(instanceId) as playercount
+                FROM 
+                    pgcrActivitiesUsersStats
+                WHERE 
+                    completed = 1
+                GROUP BY 
+                    instanceId
+            ) AS st2
+            ON 
+                st1.instanceId = st2.instanceId
+            WHERE 
+                st1.membershipid = %s AND st1.completed = 1
+        ) AS t2
+        ON 
+            (t1.instanceID = t2.instanceID)
+        WHERE
+            t2.playercount <= %s;"""
+    with db_connect().cursor() as cur:
+        cur.execute(select_sql, (raidHashes, membershipid, playercount,))
+        result = cur.fetchall()
+    return result
+
+
+# todo: test
+def hasFlawless(membershipid, activityHashes: list):
+    """ returns the list of all flawless raids the player <playerid> has done """
+    select_sql = f"""
+        SELECT 
+            t.instanceID
+        FROM (
+            SELECT 
+                t1.instanceID, SUM(t2.deaths) AS deaths
+            FROM 
+                pgcrActivities AS t1
+            JOIN (
+                SELECT
+                    st1.instanceId, st1.membershipid, SUM(st1.deaths) AS deaths
+                FROM 
+                    pgcrActivitiesUsersStats as st1
+                JOIN (
+                    SELECT
+                        instanceId
+                    FROM 
+                        pgcrActivitiesUsersStats
+                    WHERE
+                        completed = 1
+                        AND membershipid = %s
+                ) AS st2
+                ON 
+                    st1.instanceID = st2.instanceID
+                GROUP BY 
+                    st1.instanceId, st1.membershipid
+            ) AS t2
+            ON 
+                t1.instanceID = t2.instanceID
+            WHERE 
+                t1.directorActivityHash IN ({','.join(['%s'] * len(activityHashes))})
+                AND t1.startingPhaseIndex <= 2
+            GROUP BY 
+                t1.instanceId
+        ) AS t
+        WHERE
+            t.deaths = 0;"""
+    with db_connect().cursor() as cur:
+        cur.execute(select_sql, (membershipid, activityHashes,))
+        result = cur.fetchall()
+    return True if result else False

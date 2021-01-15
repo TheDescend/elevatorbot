@@ -57,6 +57,7 @@ async def getJSONfromURL(requestURL, headers=headers, params={}):
                         print(f'Wrong content type {r.headers["Content-Type"]}! {r.status}: {r.reason})')
                         if r.status == 200:
                             print(await r.text())
+                        await asyncio.sleep(10)
                         continue
                     try:
                         res = await r.json()
@@ -76,10 +77,10 @@ async def getJSONfromURL(requestURL, headers=headers, params={}):
                         return None
             except asyncio.exceptions.TimeoutError:
                     print('Timeout error, retrying...')
-                    await asyncio.sleep(30)
+                    await asyncio.sleep(10)
                     continue
 
-        print(f'Request failed 5 times, aborting {requestURL}')
+        print(f'Request failed 10 times, aborting {requestURL}')
         return None
 
 async def getJSONwithToken(requestURL, discordID):
@@ -224,7 +225,8 @@ async def errorCodeHandling(requestURL, r, res):
             print("User has private Profile")
             return True
         elif error == "DestinyDirectBabelClientTimeout":
-            await asyncio.sleep(30)
+            print("Getting timouts <DestinyDirectBabelClientTimeout>, waiting 60s and trying again")
+            await asyncio.sleep(60)
         else:
             print(f'Bad request for {requestURL}. Returned error {error}:')
             print(res)
