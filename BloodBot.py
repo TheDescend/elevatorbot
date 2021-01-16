@@ -26,8 +26,8 @@ from events import *
 from functions.bounties.bountiesBackend import getGlobalVar
 from functions.bounties.bountiesFunctions import registrationMessageReactions
 from functions.clanJoinRequests import clanJoinRequestMessageReactions, removeFromClanAfterLeftDiscord
-from functions.dataLoading import fillDictFromDB
-from functions.database import insertIntoMessageDB, db_connect
+from functions.dataLoading import fillDictFromDB, updateDB
+from functions.database import insertIntoMessageDB, db_connect, lookupDestinyID
 from functions.formating import embed_message
 from functions.miscFunctions import update_status
 from functions.roles import assignRolesToUser, removeRolesFromUser
@@ -206,6 +206,10 @@ def main():
                 await member.remove_roles(message.guild.get_role(not_registered_role_id)) #unregistered role
                 await message.channel.send(f'{member.mention} has been marked as Registered')
                 await member.send('Registration successful!\nCome say hi in <#670400011519000616>')
+
+                # update user DB
+                destinyID = lookupDestinyID(member.id)
+                await updateDB(destinyID)
 
     tasks = []
     @client.event
