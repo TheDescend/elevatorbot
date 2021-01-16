@@ -7,7 +7,7 @@ from discord.ext.commands import MemberConverter
 from commands.base_command import BaseCommand
 from functions.dataLoading import getStats, getProfile, getCharacterList, \
     getAggregateStatsForChar, getInventoryBucket, getWeaponKills, returnManifestInfo, searchArmory, getAllGear, \
-    getItemDefinition, getArtifact, getCharacterGear, getCharacterGearAndPower, getPlayersPastPVE
+    getItemDefinition, getArtifact, getCharacterGear, getCharacterGearAndPower, getPlayersPastActivities
 from functions.database import lookupDiscordID, getToken, lookupSystem
 from functions.formating import embed_message
 from functions.network import getJSONfromURL
@@ -297,7 +297,7 @@ async def handle_user(stat, member, guild, extra_hash, extra_name):
 
         result_sort = 0
         farmed_runs = 0
-        async for activity in getPlayersPastPVE(destinyID, mode=66):
+        async for activity in getPlayersPastActivities(destinyID, mode=66):
             # set this run as a farmed run if you haven't killed anything
             if activity["values"]["opponentsDefeated"]["basic"]["value"] == 0:
                 farmed_runs += 1
@@ -312,7 +312,7 @@ async def handle_user(stat, member, guild, extra_hash, extra_name):
 
         runs = 0
         result_sort = 0
-        async for activity in getPlayersPastPVE(destinyID, mode=66):
+        async for activity in getPlayersPastActivities(destinyID, mode=66):
             # set this run as a farmed run if you haven't killed anything
             if activity["values"]["opponentsDefeated"]["basic"]["value"] == 0:
                 result_sort += 1

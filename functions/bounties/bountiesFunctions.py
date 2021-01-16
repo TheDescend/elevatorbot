@@ -12,7 +12,7 @@ from functions.bounties.bountiesBackend import saveAsGlobalVar, getGlobalVar, ad
     returnLeaderboard, getCompetitionBountiesLeaderboards, changeCompetitionBountiesLeaderboards, experiencePvp, \
     experiencePve, experienceRaids, threadingCompetitionBounties, threadingBounties
 from functions.bounties.boutiesBountyRequirements import possibleWeaponsKinetic, possibleWeaponsEnergy, possibleWeaponsPower
-from functions.dataLoading import returnManifestInfo, getPlayersPastPVE
+from functions.dataLoading import returnManifestInfo, getPlayersPastActivities
 from functions.database import insertBountyUser, getBountyUserList, getLevel, setLevel, lookupDestinyID
 from functions.formating import embed_message
 from functions.miscFunctions import checkIfUserIsRegistered
@@ -340,7 +340,7 @@ async def bountyCompletion(client):
         experience_level_raids = getLevel("exp_raids", discordID)
 
         # loop though activities
-        async for activity in getPlayersPastPVE(destinyID, mode=0):
+        async for activity in getPlayersPastActivities(destinyID, mode=0):
             # only look at activities younger than the cutoff date
             if datetime.datetime.strptime(activity["period"], "%Y-%m-%dT%H:%M:%SZ") < cutoff:
                 break

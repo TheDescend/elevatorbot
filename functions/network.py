@@ -1,5 +1,5 @@
 import asyncio
-import aiohttp, asyncio
+import aiohttp
 import random
 import time
 from datetime import datetime
@@ -7,6 +7,8 @@ from datetime import datetime
 from functions.database import getToken, getTokenExpiry
 from oauth import refresh_token
 from static.config import BUNGIE_TOKEN
+
+
 
 bungieAPI_URL = "https://www.bungie.net/Platform"
 headers = {'X-API-Key': BUNGIE_TOKEN}
@@ -16,9 +18,9 @@ class RateLimiter:
     """
     Gives out x tokens for network operations every y seconds
     Adapted from https://gist.github.com/pquentin/5d8f5408cdad73e589d85ba509091741
-    T"""
+    """
     RATE = 20               # how many requests per second - bungie allows 20/s
-    MAX_TOKENS = 200        # how many requests can we save up - bungie limits after 250 in 10s, so will put that to 200
+    MAX_TOKENS = 240        # how many requests can we save up - bungie limits after 250 in 10s, so will put that to 240
 
     def __init__(self):
         self.tokens = self.MAX_TOKENS
@@ -45,12 +47,15 @@ limiter = RateLimiter()
 
 async def getJSONfromURL(requestURL, headers=headers, params={}):
     """ Grabs JSON from the specified URL (no oauth)"""
+
     no_jar = aiohttp.DummyCookieJar()
     async with aiohttp.ClientSession(cookie_jar=no_jar) as session:
         # abort after 5 tries
         for i in range(10):
             # wait for a token from the rate limiter
-            await limiter.wait_for_token()
+            async with asyncio.Lock():
+                await limiter.wait_for_token()
+
             try:
                 async with session.get(url=requestURL, headers=headers, params=params, timeout=5) as r:
                     if 'application/json' not in r.headers['Content-Type']: #might be application/json; charset=utf-8
@@ -104,7 +109,8 @@ async def getJSONwithToken(requestURL, discordID):
         # abort after 5 tries
         for i in range(10):
             # wait for a token from the rate limiter
-            await limiter.wait_for_token()
+            async with asyncio.Lock():
+                await limiter.wait_for_token()
 
             async with session.get(url=requestURL, headers=headers) as r:
                 if 'application/json' not in r.headers['Content-Type']: #might be application/json; charset=utf-8
@@ -169,7 +175,8 @@ async def postJSONtoBungie(postURL, data, discordID):
         # abort after 10 tries
         for i in range(10):
             # wait for a token from the rate limiter
-            await limiter.wait_for_token()
+            async with asyncio.Lock():
+                await limiter.wait_for_token()
 
             async with session.post(url=postURL, json=data, headers=headers, allow_redirects=False) as r:
                 if 'application/json' not in r.headers['Content-Type']: #might be application/json; charset=utf-8

@@ -9,7 +9,7 @@ import numpy as np
 from pyvis.network import Network
 
 from commands.base_command import BaseCommand
-from functions.dataLoading import getClanMembers, getProfile, getPlayersPastPVE
+from functions.dataLoading import getClanMembers, getProfile, getPlayersPastActivities
 from functions.database import lookupDestinyID
 from functions.formating import embed_message
 from functions.network import getJSONfromURL
@@ -263,7 +263,7 @@ class clanActivity(BaseCommand):
         activities = []
 
         # loop through activities
-        async for activity in getPlayersPastPVE(destinyID, mode=mode, earliest_allowed_time=start_time, latest_allowed_time=end_time):
+        async for activity in getPlayersPastActivities(destinyID, mode=mode, earliest_allowed_time=start_time, latest_allowed_time=end_time):
             # check that activity is completed
             if activity["values"]["completionReason"]["basic"]["displayValue"] == "Objective Completed":
                 activities.append(activity["activityDetails"]["instanceId"])

@@ -1,6 +1,6 @@
 import datetime
 import json
-
+import asyncio
 import pandas
 
 from events.base_event import BaseEvent
@@ -100,35 +100,27 @@ class updateActivityDB(BaseEvent):
         This runs hourly and updates all the users infos,
         that are in one of the servers the bot is in.
         """
-        print("Start Updating DB...")
-        # todo enable again
-        # destinyIDs = getAllDestinyIDs()
-        #
-        # # update all users
-        # async for destinyID in getAllDestinyIDs(client, destinyIDs):
-        #     await updateDB(destinyID)
-        # print("Done Updating DB!")
+        print("Start updating DB...")
 
+        # get all users the bot shares a guild with
+        shared_guild = []
+        for guild in client.guilds:
+            for members in guild.members:
+                shared_guild.append(members.id)
+        set(shared_guild)
 
-# generator - get destinyIDs of eligible users
-async def getDestinyIDs(client, destinyIDs):
-    # get all users the bot shares a guild with
-    shared_guild = []
-    for guild in client.guilds:
-        for members in guild:
-            shared_guild.append(members.id)
-    set(shared_guild)
+        # loop though all ids
+        destinyIDs = getAllDestinyIDs()
+        for destinyID in destinyIDs:
+            discordID = lookupDiscordID(destinyID)
 
-    # loop though all ids
-    for destinyID in destinyIDs:
-        discordID = lookupDiscordID(destinyID)
+            # check is user is in a guild with bot
+            if discordID not in shared_guild:
+                destinyIDs.remove(destinyID)
 
-        # check is user is in a guild with bot
-        if not discordID in shared_guild:
-            continue
-
-        yield destinyID
-
+        # update all users
+        await asyncio.gather(*[updateDB(destinyID) for destinyID in destinyIDs])
+        print("Done updating DB")
 
 
 

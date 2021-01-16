@@ -3,7 +3,7 @@ from datetime import datetime
 
 import matplotlib
 
-from functions.dataLoading import getStats, getTriumphsJSON, getPGCR, getPlayersPastPVE, getNameToHashMapByClanid
+from functions.dataLoading import getStats, getTriumphsJSON, getPGCR, getPlayersPastActivities, getNameToHashMapByClanid
 from functions.network import getComponentInfoAsJSON
 from static.dict import getNameFromHashInventoryItem, clanids
 from functions.database import getInfoOnLowManActivity
@@ -102,7 +102,7 @@ async def getFullMemberMap():
 async def getGunsForPeriod(destinyID, pStart, pEnd):
     processes = []
 
-    async for pve in getPlayersPastPVE(destinyID):
+    async for pve in getPlayersPastActivities(destinyID):
         if 'period' not in pve.keys():
             continue
         period = datetime.strptime(pve['period'], "%Y-%m-%dT%H:%M:%SZ")
@@ -135,7 +135,7 @@ async def getGunsForPeriod(destinyID, pStart, pEnd):
 async def getTop10PveGuns(destinyID):
     gunids = []
     gunkills = {}
-    activities = getPlayersPastPVE(destinyID)
+    activities = getPlayersPastActivities(destinyID)
     instanceIds = [act['activityDetails']['instanceId'] for act in activities]
     pgcrlist = []
 

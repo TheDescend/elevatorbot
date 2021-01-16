@@ -1,5 +1,5 @@
 from commands.base_command import BaseCommand
-from functions.dataLoading import getProfile, getCharacterList, getPlayersPastPVE
+from functions.dataLoading import getProfile, getCharacterList, getPlayersPastActivities
 from functions.formating import embed_message
 from functions.network import getJSONfromURL
 from functions.miscFunctions import hasAdminOrDevPermissions
@@ -110,7 +110,7 @@ class day1spam(BaseCommand):
                         time_spend = 0
                         kills = 0
                         deaths = 0
-                        async for activity in getPlayersPastPVE(destinyID, mode=4):
+                        async for activity in getPlayersPastActivities(destinyID, mode=4):
                             if datetime.datetime.strptime(activity["period"], "%Y-%m-%dT%H:%M:%SZ") < start:
                                 continue
 
