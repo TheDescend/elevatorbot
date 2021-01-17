@@ -4,18 +4,15 @@ import os
 import sqlite3
 import zipfile
 import logging
-from datetime import timedelta, datetime
-import time
-
-
 import aiohttp
 import pandas
+from datetime import datetime
 
-from functions.database import insertCharacter, updateLastUpdated, \
+from functions.database import updateLastUpdated, \
     lookupDiscordID, lookupSystem, insertPgcrActivities, checkIfPgcrActivityExists, insertPgcrActivitiesUsersStats, \
     insertPgcrActivitiesUsersStatsWeapons, getFailToGetPgcrInstanceId, insertFailToGetPgcrInstanceId, \
     deleteFailToGetPgcrInstanceId
-from functions.database import getSystemAndChars, getLastUpdated, getAllDestinyIDs
+from functions.database import getLastUpdated
 from functions.network import getJSONfromURL, getComponentInfoAsJSON, getJSONwithToken
 from static.config import CLANID
 
@@ -462,7 +459,7 @@ async def updateDB(destinyID):
         if not pcgr:
             print('Failed getting pcgr <%s>. Trying again later', instanceID)
             insertFailToGetPgcrInstanceId(instanceID, activity_time)
-            logger.error('Failed getting pcgr <%s>', instanceID)
+            logger.warning('Failed getting pcgr <%s>', instanceID)
             return None
         return [instanceID, activity_time, pcgr["Response"]]
 
@@ -563,6 +560,7 @@ def getSeals(client):
 
     # returns list [[hash, name, displayName, hasExpiration], ...]
     return file["seals"][0]
+
 
 async def getClanMembers(client):
     # get all clan members {destinyID: discordID}

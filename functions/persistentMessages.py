@@ -1,4 +1,5 @@
 import discord
+import datetime
 
 from functions.bounties.bountiesFunctions import getGlobalVar, saveAsGlobalVar
 from functions.database import getPersistentMessage, updatePersistentMessage, insertPersistentMessage, \
@@ -6,7 +7,7 @@ from functions.database import getPersistentMessage, updatePersistentMessage, in
 from functions.formating import embed_message
 # writes the message the user will see and react to and saves the id in the pickle
 from static.globals import yes_emoji_id, destiny_emoji_id, among_us_emoji_id, barotrauma_emoji_id, gta_emoji_id, \
-    valorant_emoji_id, lol_emoji_id, steam_join_codes
+    valorant_emoji_id, lol_emoji_id, steam_join_codes_channel_id, admin_workboard_channel_id
 
 
 # todo change this to the new format
@@ -161,10 +162,62 @@ async def steamJoinCodeMessage(client, guild):
         channel = client.get_channel(res[0])
         message = await channel.fetch_message(res[1])
         await message.edit(embed=embed)
-        updatePersistentMessage("steamJoinCodes", guild.id, channel.id, message.id, [])
 
     # Skip if no message exist and begin making one
     else:
-        channel = client.get_channel(steam_join_codes)
+        channel = client.get_channel(steam_join_codes_channel_id)
         message = await channel.send(embed=embed)
         insertPersistentMessage("steamJoinCodes", guild.id, channel.id, message.id, [])
+
+
+async def botStatus(client, field_name: str, time: datetime.datetime):
+    """
+    takes the field (name) and the timestamp of last update
+
+    Current fields in use:
+        "Database Update"
+        "Member Role Update"
+        "Achievement Role Update"
+        "Bounties - Experience Update"
+        "Bounties - Generation"
+        "Bounties - Completion Update"
+    """
+
+    # get msg. guild id is one, since there is only gonna be one msg
+    res = getPersistentMessage("botStatus", 1)
+
+    embed = embed_message(
+        "Status: Last valid..."
+    )
+
+    if res:
+        channel = client.get_channel(res[0])
+        if not channel:
+            return
+        message = await channel.fetch_message(res[1])
+        embeds = message.embeds[0]
+        fields = embeds.fields
+
+        found = False
+        for field in fields:
+            embed.add_field(name=field.name, value=str(time) if field.name == field_name else field.value, inline=True)
+            if field.name == field_name:
+                found = True
+
+        if not found:
+            embed.add_field(name=field_name, value=str(time), inline=True)
+
+        await message.edit(embed=embed)
+
+
+    else:
+        channel = client.get_channel(admin_workboard_channel_id)
+        if not channel:
+            return
+
+        embed.add_field(name=field_name, value=str(time), inline=True)
+
+        message = await channel.send(embed=embed)
+
+        insertPersistentMessage("botStatus", 1, channel.id, message.id, [])
+

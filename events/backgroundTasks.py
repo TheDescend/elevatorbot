@@ -10,6 +10,9 @@ from functions.network import getJSONfromURL
 
 
 # todo delete
+from functions.persistentMessages import botStatus
+
+
 class refreshSealPickle(BaseEvent):
     def __init__(self):
         interval_minutes = 1340  # Set the interval for this event
@@ -124,6 +127,9 @@ class updateActivityDB(BaseEvent):
 
         # try to get the missing pgcrs
         await updateMissingPcgr()
+
+        # update the status
+        await botStatus(client, "Database Update", datetime.datetime.now())
 
 
 

@@ -1,7 +1,4 @@
-import json
-import os
 import psycopg2
-import time
 from datetime import datetime
 from sshtunnel import SSHTunnelForwarder
 
@@ -481,8 +478,8 @@ def getPersistentMessage(messageName, guildId):
             messageName = %s AND guildId = %s;"""
     with db_connect().cursor() as cur:
         cur.execute(select_sql, (messageName, guildId,))
-        result = cur.fetchall()
-        return result[0]
+        result = cur.fetchone()
+        return result
 
 
 ################################################################
@@ -684,7 +681,6 @@ def getInfoOnLowManActivity(raidHashes: list, playercount, membershipid):
     return result
 
 
-# todo: test
 def hasFlawless(membershipid, activityHashes: list):
     """ returns the list of all flawless raids the player <playerid> has done """
     select_sql = f"""

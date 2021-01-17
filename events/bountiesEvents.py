@@ -16,6 +16,7 @@ from functions.bounties.bountiesFunctions import bountyCompletion, awardCompetit
 from functions.bounties.bountiesTournament import tournamentRegistrationMessage
 from functions.bounties.boutiesBountyRequirements import bounties_dict, competition_bounties_dict
 from functions.database import getBountyUserList
+from functions.persistentMessages import botStatus
 
 
 class CheckBountyCompletion(BaseEvent):
@@ -25,6 +26,9 @@ class CheckBountyCompletion(BaseEvent):
 
     async def run(self, client):
         await bountyCompletion(client)
+
+        # update the status
+        await botStatus(client, "Bounties - Completion Update", datetime.datetime.now())
 
 
 class GenerateBounties(BaseEvent):
@@ -97,6 +101,9 @@ class GenerateBounties(BaseEvent):
         if os.path.exists('functions/bounties/playerBountyStatus.pickle'):
             os.remove('functions/bounties/playerBountyStatus.pickle')
 
+        # update the status
+        await botStatus(client, "Bounties - Generation", datetime.datetime.now())
+
 
 class UpdateExperienceLevels(BaseEvent):
     def __init__(self):
@@ -110,3 +117,6 @@ class UpdateExperienceLevels(BaseEvent):
         for user in getBountyUserList():
             await updateAllExperience(client, user)
         print("Done updating experience")
+
+        # update the status
+        await botStatus(client, "Bounties - Experience Update", datetime.datetime.now())

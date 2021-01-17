@@ -82,7 +82,7 @@ async def getJSONfromURL(requestURL, headers=headers, params={}):
                         return None
             except asyncio.exceptions.TimeoutError:
                     print('Timeout error, retrying...')
-                    await asyncio.sleep(10)
+                    await asyncio.sleep(1)
                     continue
 
         print(f'Request failed 10 times, aborting {requestURL}')

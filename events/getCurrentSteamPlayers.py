@@ -5,6 +5,7 @@ import pandas as pd
 
 from events.base_event import BaseEvent
 from functions.network import getJSONfromURL
+from functions.persistentMessages import botStatus
 from static.config import STEAM_TOKEN
 
 
@@ -51,3 +52,6 @@ class getCurrentSteamPlayers(BaseEvent):
 
         except:
             print("error getting current steam players")
+
+        # update the status
+        await botStatus(client, "Steam Player Update", datetime.now())
