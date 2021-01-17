@@ -4,7 +4,7 @@ import asyncio
 import pandas
 
 from events.base_event import BaseEvent
-from functions.dataLoading import getTriumphsJSON, updateDB
+from functions.dataLoading import getTriumphsJSON, updateDB, updateMissingPcgr
 from functions.database import getAllDestinyIDs, lookupDiscordID
 from functions.network import getJSONfromURL
 
@@ -121,6 +121,9 @@ class updateActivityDB(BaseEvent):
         # update all users
         await asyncio.gather(*[updateDB(destinyID) for destinyID in destinyIDs])
         print("Done updating DB")
+
+        # try to get the missing pgcrs
+        await updateMissingPcgr()
 
 
 

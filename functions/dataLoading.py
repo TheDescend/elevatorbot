@@ -13,7 +13,8 @@ import pandas
 
 from functions.database import insertCharacter, updateLastUpdated, \
     lookupDiscordID, lookupSystem, insertPgcrActivities, checkIfPgcrActivityExists, insertPgcrActivitiesUsersStats, \
-    insertPgcrActivitiesUsersStatsWeapons
+    insertPgcrActivitiesUsersStatsWeapons, getFailToGetPgcrInstanceId, insertFailToGetPgcrInstanceId, \
+    deleteFailToGetPgcrInstanceId
 from functions.database import getSystemAndChars, getLastUpdated, getAllDestinyIDs
 from functions.network import getJSONfromURL, getComponentInfoAsJSON, getJSONwithToken
 from static.config import CLANID
@@ -390,22 +391,83 @@ async def fillDictFromDB(dictRef, table):
             dictRef.update(json.load(json_file))
 
 
+async def insertPgcrToDB(instanceID: int, activity_time: datetime, pcgr: dict):
+    """ Saves the specified PGCR data in the DB """
+    insertPgcrActivities(
+        instanceID,
+        pcgr["activityDetails"]["referenceId"],
+        pcgr["activityDetails"]["directorActivityHash"],
+        activity_time,
+        pcgr["startingPhaseIndex"],
+        pcgr["activityDetails"]["mode"],
+        pcgr["activityDetails"]["modes"],
+        pcgr["activityDetails"]["isPrivate"],
+        pcgr["activityDetails"]["membershipType"]
+    )
+
+    # loop though user and save info to db
+    for user_pcgr in pcgr["entries"]:
+        characterID = user_pcgr["characterId"]
+        membershipID = user_pcgr["player"]["destinyUserInfo"]["membershipId"]
+
+        insertPgcrActivitiesUsersStats(
+            instanceID,
+            membershipID,
+            characterID,
+            user_pcgr["player"]["characterClass"] if "characterClass" in user_pcgr["player"] else "",
+            user_pcgr["player"]["characterLevel"],
+            user_pcgr["player"]["destinyUserInfo"]["membershipType"],
+            user_pcgr["player"]["lightLevel"],
+            user_pcgr["player"]["emblemHash"],
+            user_pcgr["standing"],
+            int(user_pcgr["values"]["assists"]["basic"]["value"]),
+            int(user_pcgr["values"]["completed"]["basic"]["value"]),
+            int(user_pcgr["values"]["deaths"]["basic"]["value"]),
+            int(user_pcgr["values"]["kills"]["basic"]["value"]),
+            int(user_pcgr["values"]["opponentsDefeated"]["basic"]["value"]),
+            user_pcgr["values"]["efficiency"]["basic"]["value"],
+            user_pcgr["values"]["killsDeathsRatio"]["basic"]["value"],
+            user_pcgr["values"]["killsDeathsAssists"]["basic"]["value"],
+            int(user_pcgr["values"]["score"]["basic"]["value"]),
+            int(user_pcgr["values"]["activityDurationSeconds"]["basic"]["value"]),
+            int(user_pcgr["values"]["completionReason"]["basic"]["value"]),
+            int(user_pcgr["values"]["startSeconds"]["basic"]["value"]),
+            int(user_pcgr["values"]["timePlayedSeconds"]["basic"]["value"]),
+            int(user_pcgr["values"]["playerCount"]["basic"]["value"]),
+            int(user_pcgr["values"]["teamScore"]["basic"]["value"]),
+            int(user_pcgr["extended"]["values"]["precisionKills"]["basic"]["value"]),
+            int(user_pcgr["extended"]["values"]["weaponKillsGrenade"]["basic"]["value"]),
+            int(user_pcgr["extended"]["values"]["weaponKillsMelee"]["basic"]["value"]),
+            int(user_pcgr["extended"]["values"]["weaponKillsSuper"]["basic"]["value"]),
+            int(user_pcgr["extended"]["values"]["weaponKillsAbility"]["basic"]["value"])
+        )
+
+        # loop though each weapon and save that info in the DB
+        if "weapons" in user_pcgr["extended"]:
+            for weapon_user_pcgr in user_pcgr["extended"]["weapons"]:
+                insertPgcrActivitiesUsersStatsWeapons(
+                    instanceID,
+                    characterID,
+                    membershipID,
+                    weapon_user_pcgr["referenceId"],
+                    int(weapon_user_pcgr["values"]["uniqueWeaponKills"]["basic"]["value"]),
+                    int(weapon_user_pcgr["values"]["uniqueWeaponPrecisionKills"]["basic"]["value"])
+                )
+
 async def updateDB(destinyID):
+    """ Gets this users not-saved history and saves it """
     async def handle(instanceID, activity_time):
         # get PGCR
         pcgr = await getPGCR(instanceID)
         if not pcgr:
             print('Failed getting pcgr <%s>. Trying again later', instanceID)
+            insertFailToGetPgcrInstanceId(instanceID, activity_time)
             logger.error('Failed getting pcgr <%s>', instanceID)
             return None
         return [instanceID, activity_time, pcgr["Response"]]
 
     async def input_data(gather_instanceID, gather_activity_time):
         result = await asyncio.gather(*[handle(instanceID, activity_time) for instanceID, activity_time in zip(gather_instanceID, gather_activity_time)])
-        end = time.time()
-        global start
-        print(f"Done 50 requests in {end - start}")
-        start = end
 
         for res in result:
             if res is not None:
@@ -415,69 +477,7 @@ async def updateDB(destinyID):
                 pcgr = res[2]
 
                 # insert information to DB
-                insertPgcrActivities(
-                    instanceID,
-                    pcgr["activityDetails"]["referenceId"],
-                    pcgr["activityDetails"]["directorActivityHash"],
-                    activity_time,
-                    pcgr["startingPhaseIndex"],
-                    pcgr["activityDetails"]["mode"],
-                    pcgr["activityDetails"]["modes"],
-                    pcgr["activityDetails"]["isPrivate"],
-                    pcgr["activityDetails"]["membershipType"]
-                )
-
-                # loop though user and save info to db
-                for user_pcgr in pcgr["entries"]:
-                    characterID = user_pcgr["characterId"]
-                    membershipID = user_pcgr["player"]["destinyUserInfo"]["membershipId"]
-
-                    insertPgcrActivitiesUsersStats(
-                        instanceID,
-                        membershipID,
-                        characterID,
-                        user_pcgr["player"]["characterClass"] if "characterClass" in user_pcgr["player"] else "",
-                        user_pcgr["player"]["characterLevel"],
-                        user_pcgr["player"]["destinyUserInfo"]["membershipType"],
-                        user_pcgr["player"]["lightLevel"],
-                        user_pcgr["player"]["emblemHash"],
-                        user_pcgr["standing"],
-                        int(user_pcgr["values"]["assists"]["basic"]["value"]),
-                        int(user_pcgr["values"]["completed"]["basic"]["value"]),
-                        int(user_pcgr["values"]["deaths"]["basic"]["value"]),
-                        int(user_pcgr["values"]["kills"]["basic"]["value"]),
-                        int(user_pcgr["values"]["opponentsDefeated"]["basic"]["value"]),
-                        user_pcgr["values"]["efficiency"]["basic"]["value"],
-                        user_pcgr["values"]["killsDeathsRatio"]["basic"]["value"],
-                        user_pcgr["values"]["killsDeathsAssists"]["basic"]["value"],
-                        int(user_pcgr["values"]["score"]["basic"]["value"]),
-                        int(user_pcgr["values"]["activityDurationSeconds"]["basic"]["value"]),
-                        int(user_pcgr["values"]["completionReason"]["basic"]["value"]),
-                        int(user_pcgr["values"]["startSeconds"]["basic"]["value"]),
-                        int(user_pcgr["values"]["timePlayedSeconds"]["basic"]["value"]),
-                        int(user_pcgr["values"]["playerCount"]["basic"]["value"]),
-                        int(user_pcgr["values"]["teamScore"]["basic"]["value"]),
-                        int(user_pcgr["extended"]["values"]["precisionKills"]["basic"]["value"]),
-                        int(user_pcgr["extended"]["values"]["weaponKillsGrenade"]["basic"]["value"]),
-                        int(user_pcgr["extended"]["values"]["weaponKillsMelee"]["basic"]["value"]),
-                        int(user_pcgr["extended"]["values"]["weaponKillsSuper"]["basic"]["value"]),
-                        int(user_pcgr["extended"]["values"]["weaponKillsAbility"]["basic"]["value"])
-                    )
-
-                    # loop though each weapon and save that info in the DB
-                    if "weapons" in user_pcgr["extended"]:
-                        for weapon_user_pcgr in user_pcgr["extended"]["weapons"]:
-                            insertPgcrActivitiesUsersStatsWeapons(
-                                instanceID,
-                                characterID,
-                                membershipID,
-                                weapon_user_pcgr["referenceId"],
-                                int(weapon_user_pcgr["values"]["uniqueWeaponKills"]["basic"]["value"]),
-                                int(weapon_user_pcgr["values"]["uniqueWeaponPrecisionKills"]["basic"]["value"])
-                            )
-        end = time.time()
-        print(f"Done DB inserts in {end - start}")
-        start = end
+                await insertPgcrToDB(instanceID, activity_time, pcgr)
 
     logger = logging.getLogger('updateDB')
     entry_time = getLastUpdated(destinyID)
@@ -486,10 +486,6 @@ async def updateDB(destinyID):
 
     gather_instanceID = []
     gather_activity_time = []
-
-    global start
-    start = time.time()
-
     async for activity in getPlayersPastActivities(destinyID, mode=0, earliest_allowed_time=entry_time):
         instanceID = activity["activityDetails"]["instanceId"]
         activity_time = datetime.strptime(activity["period"], "%Y-%m-%dT%H:%M:%SZ")
@@ -525,8 +521,30 @@ async def updateDB(destinyID):
     # update with newest entry timestamp
     updateLastUpdated(destinyID, entry_time)
 
-    logger.info('Stopping activity DB update for destinyID <%s>', destinyID)
+    logger.info('Done with activity DB update for destinyID <%s>', destinyID)
 
+
+async def updateMissingPcgr():
+    # this gets called after a lot of requests, relaxing bungie first
+    await asyncio.sleep(60)
+
+    for missing in getFailToGetPgcrInstanceId():
+        instanceID = missing[0]
+        activity_time = missing[1]
+
+        # get PGCR
+        pcgr = await getPGCR(instanceID)
+
+        # only continue if we get a response this time
+        if not pcgr:
+            continue
+
+        # add info to DB
+        pcgr = pcgr["Response"]
+        await insertPgcrToDB(instanceID, activity_time, pcgr)
+
+        # delete from to-do DB
+        deleteFailToGetPgcrInstanceId(instanceID)
 
 def getSeals(client):
     # if file doesn't exist, call the daily running event (useful for first usage)

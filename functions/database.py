@@ -570,12 +570,47 @@ def insertPgcrActivitiesUsersStatsWeapons(instanceId, characterId, membershipId,
         cur.execute(product_sql, (instanceId, characterId, membershipId, weaponId, uniqueWeaponKills, uniqueWeaponPrecisionKills,))
 
 
-# todo: test
+def insertFailToGetPgcrInstanceId(instanceID, period):
+    """ insert an instanceID that we failed to get data for """
+    product_sql = """
+        INSERT INTO 
+            pgcractivitiesfailtoget
+            (instanceId, period) 
+        VALUES 
+            (%s, %s);"""
+    with db_connect().cursor() as cur:
+        cur.execute(product_sql, (instanceID, period,))
+
+
+def getFailToGetPgcrInstanceId():
+    """ get all instanceIDs that we failed to get data for """
+    select_sql = """
+        SELECT 
+            * 
+        FROM 
+            pgcractivitiesfailtoget;"""
+    with db_connect().cursor() as cur:
+        cur.execute(select_sql)
+        result = cur.fetchall()
+        return result
+
+
+def deleteFailToGetPgcrInstanceId(instanceId):
+    """ delete instanceID that we failed to get data for """
+    delete_sql = """
+        DELETE FROM 
+            pgcractivitiesfailtoget 
+        WHERE 
+            instanceId = %s;"""
+    with db_connect().cursor() as cur:
+        cur.execute(delete_sql, (instanceId,))
+
+
 def getClearCount(playerid, activityHashes: list):
     """ Gets the full-clearcount for player <playerid> of activity <activityHash> """
     select_sql = f"""
         SELECT 
-            COUNT(t1.instanceID)
+            COUNT(t.instanceID)
         FROM (
             SELECT 
                 instanceID FROM pgcractivities
@@ -583,26 +618,27 @@ def getClearCount(playerid, activityHashes: list):
                 directorActivityHash IN ({','.join(['%s']*len(activityHashes))})
             AND 
                 startingPhaseIndex <= 2
-        ) t1
+        ) t
         JOIN (  
-            SELECT DISTINCT
-                (instanceID)
+            SELECT
+                instanceID
             FROM 
                 pgcractivitiesusersstats
             WHERE 
-                membershipid = %s AND completed = 1
-        ) ipp 
+                membershipid = %s 
+                AND completed = 1 
+                AND completionReason = 0
+        ) st 
         ON 
-            (ipp.instanceID = t1.instanceID);"""
+            (t.instanceID = st.instanceID);"""
     with db_connect().cursor() as cur:
-        cur.execute(select_sql, (activityHashes, playerid))
+        cur.execute(select_sql, (*activityHashes, playerid))
         result = cur.fetchone()
         if result:
             return result[0]
     return None
 
 
-# todo: test
 def getInfoOnLowManActivity(raidHashes: list, playercount, membershipid):
     """ Gets the lowman instanceId, deaths, period for player <membershipid> of activity list(<activityHash>) with a <= <playercount>"""
     select_sql = f"""
@@ -634,14 +670,16 @@ def getInfoOnLowManActivity(raidHashes: list, playercount, membershipid):
             ON 
                 st1.instanceId = st2.instanceId
             WHERE 
-                st1.membershipid = %s AND st1.completed = 1
+                st1.membershipid = %s 
+                AND st1.completed = 1
+                AND completionReason = 0
         ) AS t2
         ON 
             (t1.instanceID = t2.instanceID)
         WHERE
             t2.playercount <= %s;"""
     with db_connect().cursor() as cur:
-        cur.execute(select_sql, (raidHashes, membershipid, playercount,))
+        cur.execute(select_sql, (*raidHashes, membershipid, playercount,))
         result = cur.fetchall()
     return result
 
@@ -687,6 +725,6 @@ def hasFlawless(membershipid, activityHashes: list):
         WHERE
             t.deaths = 0;"""
     with db_connect().cursor() as cur:
-        cur.execute(select_sql, (membershipid, activityHashes,))
+        cur.execute(select_sql, (membershipid, *activityHashes,))
         result = cur.fetchall()
     return True if result else False
