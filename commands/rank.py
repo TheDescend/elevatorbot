@@ -6,7 +6,7 @@ from discord.ext.commands import MemberConverter
 
 from commands.base_command import BaseCommand
 from functions.dataLoading import getStats, getProfile, getCharacterList, \
-    getAggregateStatsForChar, getInventoryBucket, getWeaponKills, returnManifestInfo, searchArmory, getAllGear, \
+    getAggregateStatsForChar, getInventoryBucket, getWeaponStats, returnManifestInfo, searchArmory, getAllGear, \
     getItemDefinition, getArtifact, getCharacterGear, getCharacterGearAndPower, getPlayersPastActivities
 from functions.database import lookupDiscordID, getToken, lookupSystem
 from functions.formating import embed_message
@@ -40,6 +40,8 @@ class rank(BaseCommand):
             "raids",
             "raidtime",
             "weapon",
+            "weaponprecision",
+            "weaponprecisionpercent",
             "armor",
             "enhancementcores",
             "forges",
@@ -56,7 +58,7 @@ class rank(BaseCommand):
             elif params[0].lower() in supported:
                 name = None
                 hashID = None
-                if params[0].lower() == "weapon":
+                if params[0].lower() in ["weapon", "weaponprecision", "weaponprecisionpercent"]:
                     if len(params) == 1:
                         await message.channel.send(embed=embed_message(
                             "Info",
@@ -340,14 +342,26 @@ async def handle_user(stat, member, guild, extra_hash, extra_name):
         result = f"{result_sort:,}"
 
     elif stat == "weapon":
-        if not getToken(discordID):
-            return None
-
         leaderboard_text = f"Top Clanmembers by {extra_name} Kills"
         stat_text = "Kills"
 
-        result_sort = await getWeaponKills(destinyID, extra_hash)
+        result_sort, _ = await getWeaponStats(destinyID, extra_hash)
         result = f"{result_sort:,}"
+
+    elif stat == "weaponprecision":
+        leaderboard_text = f"Top Clanmembers by {extra_name} Precision Kills"
+        stat_text = "Kills"
+
+        _, result_sort = await getWeaponStats(destinyID, extra_hash)
+        result = f"{result_sort:,}"
+
+    elif stat == "weaponprecisionpercent":
+        leaderboard_text = f"Top Clanmembers by {extra_name} % Precision Kills"
+        stat_text = "Kills"
+
+        kills, prec_kills = await getWeaponStats(destinyID, extra_hash)
+        result_sort = prec_kills / kills if kills != 0 else 0
+        result = f"{round(result_sort*100, 2)}%"
 
     elif stat == "armor":
         leaderboard_text = f"Top Clanmembers by single Armor Piece with highest {extra_name.capitalize()}"

@@ -555,18 +555,6 @@ def insertPgcrActivitiesUsersStats(instanceId, membershipId, characterId, charac
         cur.execute(product_sql, (instanceId, membershipId, characterId, characterClass, characterLevel, membershipType, lightLevel, emblemHash, standing, assists, completed, deaths, kills, opponentsDefeated, efficiency, killsDeathsRatio, killsDeathsAssists, score, activityDurationSeconds, completionReason, startSeconds, timePlayedSeconds, playerCount, teamScore, precisionKills, weaponKillsGrenade, weaponKillsMelee, weaponKillsSuper, weaponKillsAbility,))
 
 
-def insertPgcrActivitiesUsersStatsWeapons(instanceId, characterId, membershipId, weaponId, uniqueWeaponKills, uniqueWeaponPrecisionKills):
-    """ Inserts an activity to the DB"""
-    product_sql = """
-        INSERT INTO 
-            pgcractivitiesusersstatsweapons
-            (instanceId, characterId, membershipId, weaponId, uniqueWeaponKills, uniqueWeaponPrecisionKills) 
-        VALUES 
-            (%s, %s, %s, %s, %s, %s);"""
-    with db_connect().cursor() as cur:
-        cur.execute(product_sql, (instanceId, characterId, membershipId, weaponId, uniqueWeaponKills, uniqueWeaponPrecisionKills,))
-
-
 def insertFailToGetPgcrInstanceId(instanceID, period):
     """ insert an instanceID that we failed to get data for """
     product_sql = """
@@ -724,3 +712,52 @@ def hasFlawless(membershipid, activityHashes: list):
         cur.execute(select_sql, (membershipid, *activityHashes,))
         result = cur.fetchall()
     return True if result else False
+
+################################################################
+# Activities Weapon Stats
+
+
+def insertPgcrActivitiesUsersStatsWeapons(instanceId, characterId, membershipId, weaponId, uniqueWeaponKills, uniqueWeaponPrecisionKills):
+    """ Inserts an activity to the DB"""
+    product_sql = """
+        INSERT INTO 
+            pgcractivitiesusersstatsweapons
+            (instanceId, characterId, membershipId, weaponId, uniqueWeaponKills, uniqueWeaponPrecisionKills) 
+        VALUES 
+            (%s, %s, %s, %s, %s, %s);"""
+    with db_connect().cursor() as cur:
+        cur.execute(product_sql, (instanceId, characterId, membershipId, weaponId, uniqueWeaponKills, uniqueWeaponPrecisionKills,))
+
+
+def getWeaponInfo(weaponid: int, membershipid: int, characterID: int = None, mode: int = 0):
+    """ Gets all the weapon info, optionally for specified character and mode.
+    Returns (instanceId, uniqueweaponkills, uniqueweaponprecisionkills) """
+    select_sql = f"""
+        SELECT
+            t1.instanceId, t1.uniqueweaponkills, t1.uniqueweaponprecisionkills
+        FROM (
+            SELECT 
+                instanceId, characterId, uniqueweaponkills, uniqueweaponprecisionkills
+            FROM 
+                pgcractivitiesusersstatsweapons
+            WHERE 
+                weaponid = %s 
+                AND membershipid = %s
+                {"AND characterId = %s" if characterID else ""}
+        ) AS t1
+        {"JOIN(SELECT instanceId FROM pgcrActivities WHERE %s = ANY(modes)) AS t2 ON t1.instanceID = t2.instanceID" if mode != 0 else ""}
+    ;"""
+    with db_connect().cursor() as cur:
+        if characterID:
+            if mode != 0:
+                cur.execute(select_sql, (weaponid, membershipid, characterID, mode,))
+            else:
+                cur.execute(select_sql, (weaponid, membershipid, characterID,))
+        else:
+            if mode != 0:
+                cur.execute(select_sql, (weaponid, membershipid, mode,))
+            else:
+                cur.execute(select_sql, (weaponid, membershipid,))
+        results = cur.fetchall()
+        return results
+

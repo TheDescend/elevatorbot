@@ -11,7 +11,7 @@ from datetime import datetime
 from functions.database import updateLastUpdated, \
     lookupDiscordID, lookupSystem, insertPgcrActivities, checkIfPgcrActivityExists, insertPgcrActivitiesUsersStats, \
     insertPgcrActivitiesUsersStatsWeapons, getFailToGetPgcrInstanceId, insertFailToGetPgcrInstanceId, \
-    deleteFailToGetPgcrInstanceId
+    deleteFailToGetPgcrInstanceId, getWeaponInfo
 from functions.database import getLastUpdated
 from functions.network import getJSONfromURL, getComponentInfoAsJSON, getJSONwithToken
 from static.config import CLANID
@@ -260,29 +260,24 @@ async def getGearPiece(destinyID, itemID):
     return instances
 
 
-# returns the amount of kills done with all copies of that weapon in vault / inventory
-async def getWeaponKills(destinyID, itemID):
-    async def getItemData(destinyID, system, uniqueItemID):
-        try:
-            ret = (await getItemDefinition(destinyID, system, uniqueItemID, 309))["plugObjectives"]["data"][
-                "objectivesPerPlug"]
-            ret = ret[next(iter(ret))][0]
-            return ret["progress"]
-        except KeyError:
-            return 0
 
+async def getWeaponStats(destinyID, weaponID, characterID=None, mode=0):
+    """ returns kills, prec_kills for that weapon in the specified mode"""
+
+    # get the info from the DB
+    if characterID:
+        result = getWeaponInfo(weaponID, destinyID, characterID=characterID, mode=mode)
+    else:
+        result = getWeaponInfo(weaponID, destinyID, mode=mode)
+
+    # add stats
     kills = 0
+    prec_kills = 0
+    for _, k, p_k in result:
+        kills += k
+        prec_kills += p_k
 
-    instances = await getGearPiece(destinyID, itemID)
-    if not instances:
-        return kills
-
-    system = (await getCharacterList(destinyID))[0]
-
-    for item in instances:
-        kills += await getItemData(destinyID, system, item["itemInstanceId"])
-
-    return kills
+    return kills, prec_kills
 
 
 async def getNameToHashMapByClanid(clanid):
