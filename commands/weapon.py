@@ -100,7 +100,7 @@ class weapon(BaseCommand):
                 embed = embed_message(
                     f"{weapon_name} stats for {mentioned_user.display_name}",
                     f"",
-                    f"""mode={mode}, start={start.strftime('%d/%m/%y')}, end={end.strftime('%d/%m/%y')}{", activityHash=" + str(activity_hash) if activity_hash else ""}{", class=" + str(char_class) if char_class else ""}"""
+                    f"""mode={mode}, start={start.strftime('%d/%m/%Y')}, end={end.strftime('%d/%m/%Y')}{", activityHash=" + str(activity_hash) if activity_hash else ""}{", class=" + str(char_class) if char_class else ""}"""
                 )
                 embed.add_field(name="Total Kills", value=f"**{kills:,}**", inline=True)
                 embed.add_field(name="Total Precision Kills", value=f"**{precision_kills:,}**", inline=True)
@@ -110,7 +110,7 @@ class weapon(BaseCommand):
                 await message.reply(embed=embed)
 
             elif showcase == "graph":
-                # get the time instead of the instance id and sort it so the erliest dat is first
+                # get the time instead of the instance id and sort it so the earliest date is first
                 data = []
                 for instanceID, uniqueweaponkills, uniqueweaponprecisionkills in result:
                     instance_time = getPgcrActivity(instanceID)[3]
@@ -190,7 +190,7 @@ class weapon(BaseCommand):
                 plt.savefig(title)
 
                 # sending them the file
-                await message.reply(f"""*mode={mode}, start={start.strftime('%d/%m/%y')}, end={end.strftime('%d/%m/%y')}{", activityHash=" + str(activity_hash) if activity_hash else ""}{", class=" + str(char_class) if char_class else ""}*""", file=discord.File(title))
+                await message.reply(f"""*mode={mode}, start={start.strftime('%d/%m/%Y')}, end={end.strftime('%d/%m/%Y')}{", activityHash=" + str(activity_hash) if activity_hash else ""}{", class=" + str(char_class) if char_class else ""}*""", file=discord.File(title))
 
                 # delete file
                 os.remove(title)
@@ -309,7 +309,7 @@ class topWeapons(BaseCommand):
             embed = embed_message(
                 f"Top Weapons for {mentioned_user.display_name}",
                 "\n".join(ranking),
-                f"""mode={mode}, start={start.strftime('%d/%m/%y')}, end={end.strftime('%d/%m/%y')}{", activityHash=" + str(activity_hash) if activity_hash else ""}{", class=" + str(char_class) if char_class else ""}"""
+                f"""mode={mode}, start={start.strftime('%d/%m/%Y')}, end={end.strftime('%d/%m/%Y')}{", activityHash=" + str(activity_hash) if activity_hash else ""}{", class=" + str(char_class) if char_class else ""}"""
             )
             await message.reply(embed=embed)
 
