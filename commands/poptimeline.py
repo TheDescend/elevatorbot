@@ -56,8 +56,8 @@ class poptimeline(BaseCommand):
 
         # Set title and labels for axes
         ax.set_title("Destiny 2 - Steam Player Count", fontweight="bold", size=30, pad=20)
-        ax.set_xlabel("Date", fontsize = 20)
-        ax.set_ylabel("Players", fontsize = 20)
+        ax.set_xlabel("Date", fontsize=20)
+        ax.set_ylabel("Players", fontsize=20)
 
         # adding nice lines to mark important events
         for dates in season_dates:
