@@ -105,10 +105,10 @@ CREATE TABLE DestinyActivityTypeDefinition(
 );
 
 CREATE TABLE DestinyActivityModeDefinition(
-	referenceId BIGINT PRIMARY KEY,
+	referenceId SMALLINT PRIMARY KEY,               
 	description TEXT,
 	name TEXT,
-	modeType SMALLINT,
+	hash BIGINT,
 	activityModeCategory SMALLINT,
 	isTeamBased BOOLEAN,
 	friendlyName TEXT

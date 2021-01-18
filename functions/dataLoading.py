@@ -9,7 +9,7 @@ import pandas
 from datetime import datetime
 
 from functions.database import updateLastUpdated, \
-    lookupDiscordID, lookupSystem, insertPgcrActivities, checkIfPgcrActivityExists, insertPgcrActivitiesUsersStats, \
+    lookupDiscordID, lookupSystem, insertPgcrActivities, getPgcrActivity, insertPgcrActivitiesUsersStats, \
     insertPgcrActivitiesUsersStatsWeapons, getFailToGetPgcrInstanceId, insertFailToGetPgcrInstanceId, \
     deleteFailToGetPgcrInstanceId, getWeaponInfo, updateDestinyDefinition, getDestinyDefinition
 from functions.database import getLastUpdated
@@ -298,9 +298,9 @@ async def getWeaponStats(destinyID, weaponID, characterID=None, mode=0):
 
     # get the info from the DB
     if characterID:
-        result = getWeaponInfo(weaponID, destinyID, characterID=characterID, mode=mode)
+        result = getWeaponInfo(destinyID, weaponID, characterID=characterID, mode=mode)
     else:
-        result = getWeaponInfo(weaponID, destinyID, mode=mode)
+        result = getWeaponInfo(destinyID, weaponID, mode=mode)
 
     # add stats
     kills = 0
@@ -412,10 +412,10 @@ async def updateManifest():
                 for referenceId, values in result.items():
                     updateDestinyDefinition(
                         definition,
-                        int(referenceId),
+                        values["modeType"],
                         description=values["displayProperties"]["description"] if values["displayProperties"]["description"] else None,
                         name=values["displayProperties"]["name"] if values["displayProperties"]["name"] else None,
-                        modeType=values["modeType"],
+                        hash=int(referenceId),
                         activityModeCategory=values["activityModeCategory"],
                         isTeamBased=values["isTeamBased"],
                         friendlyName=values["friendlyName"]
@@ -575,7 +575,7 @@ async def updateDB(destinyID):
             entry_time = activity_time
 
         # check if info is already in DB, skip if so
-        if checkIfPgcrActivityExists(instanceID):
+        if getPgcrActivity(instanceID):
             continue
 
         # add to gather list
@@ -613,7 +613,7 @@ async def updateMissingPcgr():
         activity_time = missing[1]
 
         # check if info is already in DB, delete and skip if so
-        if checkIfPgcrActivityExists(instanceID):
+        if getPgcrActivity(instanceID):
             deleteFailToGetPgcrInstanceId(instanceID)
             continue
 

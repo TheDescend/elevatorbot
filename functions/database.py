@@ -587,11 +587,11 @@ def insertPgcrActivities(instanceId, referenceId, directorActivityHash, timePeri
         cur.execute(product_sql, (instanceId, referenceId, directorActivityHash, timePeriod, startingPhaseIndex, mode, modes, isPrivate, membershipType,))
 
 
-def checkIfPgcrActivityExists(instanceId):
-    """ Returns True if info is already in DB, otherwise False"""
+def getPgcrActivity(instanceId):
+    """ Returns info if instance is already in DB"""
     select_sql = """
         SELECT 
-            instanceId
+            *
         FROM 
             pgcractivities
         WHERE 
@@ -599,7 +599,7 @@ def checkIfPgcrActivityExists(instanceId):
     with db_connect().cursor() as cur:
         cur.execute(select_sql, (instanceId,))
         result = cur.fetchone()
-        return bool(result)
+        return result
 
 
 def insertPgcrActivitiesUsersStats(instanceId, membershipId, characterId, characterClass, characterLevel, membershipType, lightLevel, emblemHash, standing, assists, completed, deaths, kills, opponentsDefeated, efficiency, killsDeathsRatio, killsDeathsAssists, score, activityDurationSeconds, completionReason, startSeconds, timePlayedSeconds, playerCount, teamScore, precisionKills, weaponKillsGrenade, weaponKillsMelee, weaponKillsSuper, weaponKillsAbility):
@@ -788,35 +788,37 @@ def insertPgcrActivitiesUsersStatsWeapons(instanceId, characterId, membershipId,
         cur.execute(product_sql, (instanceId, characterId, membershipId, weaponId, uniqueWeaponKills, uniqueWeaponPrecisionKills,))
 
 
-def getWeaponInfo(weaponid: int, membershipid: int, characterID: int = None, mode: int = 0):
-    """ Gets all the weapon info, optionally for specified character and mode.
+def getWeaponInfo(membershipID: int, weaponID: int, characterID: int = None, mode: int = 0, activityID: int = None, start: datetime = datetime.min, end: datetime = datetime.now()):
+    """ Gets all the weapon info, for the given parameters.
     Returns (instanceId, uniqueweaponkills, uniqueweaponprecisionkills) """
     select_sql = f"""
         SELECT
             t1.instanceId, t1.uniqueweaponkills, t1.uniqueweaponprecisionkills
         FROM (
             SELECT 
-                instanceId, characterId, uniqueweaponkills, uniqueweaponprecisionkills
+                instanceId, uniqueweaponkills, uniqueweaponprecisionkills
             FROM 
                 pgcractivitiesusersstatsweapons
             WHERE 
                 membershipid = %s
-                AND weaponid = %s 
-                {"AND characterId = %s" if characterID else ""}
+                AND weaponid = %s
+                {"AND characterId = " + str(characterID) if characterID else ""}
         ) AS t1
-        {"JOIN(SELECT instanceId FROM pgcrActivities WHERE %s = ANY(modes)) AS t2 ON t1.instanceID = t2.instanceID" if mode != 0 else ""}
-    ;"""
+        JOIN(
+            SELECT 
+                instanceId 
+            FROM 
+                pgcractivities 
+            WHERE 
+                period >= %s
+                AND period <= %s
+                {"AND " + str(mode) + " = ANY(modes)" if mode != 0 else ""}
+                {"AND directoractivityhash = " + str(activityID) if activityID else ""}
+        ) AS t2 
+        ON 
+            t1.instanceID = t2.instanceID;"""
     with db_connect().cursor() as cur:
-        if characterID:
-            if mode != 0:
-                cur.execute(select_sql, (membershipid, weaponid, characterID, mode,))
-            else:
-                cur.execute(select_sql, (membershipid, weaponid, characterID,))
-        else:
-            if mode != 0:
-                cur.execute(select_sql, (membershipid, weaponid, mode,))
-            else:
-                cur.execute(select_sql, (membershipid, weaponid,))
+        cur.execute(select_sql, (membershipID, weaponID, start, end,))
         results = cur.fetchall()
         return results
 
@@ -850,10 +852,8 @@ def getTopWeapons(membershipid: int, characterID: int = None, mode: int = 0, act
         ON 
             t1.instanceID = t2.instanceID
         GROUP BY
-            t1.weaponId
-    ;"""
+            t1.weaponId;"""
     with db_connect().cursor() as cur:
         cur.execute(select_sql, (membershipid, start, end,))
         results = cur.fetchall()
         return results
-
