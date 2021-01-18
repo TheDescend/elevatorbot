@@ -7,7 +7,7 @@ from discord.ext.commands import MemberConverter
 from commands.base_command import BaseCommand
 from functions.dataLoading import getStats, getProfile, getCharacterList, \
     getAggregateStatsForChar, getInventoryBucket, getWeaponStats, returnManifestInfo, searchArmory, getAllGear, \
-    getItemDefinition, getArtifact, getCharacterGear, getCharacterGearAndPower, getPlayersPastActivities
+    getItemDefinition, getArtifact, getCharacterGear, getCharacterGearAndPower, getPlayersPastActivities, getWeaponHash
 from functions.database import lookupDiscordID, getToken, lookupSystem
 from functions.formating import embed_message
 from functions.network import getJSONfromURL
@@ -67,15 +67,11 @@ class rank(BaseCommand):
                         return
 
                     else:
-                        hashID = await searchArmory("DestinyInventoryItemDefinition", " ".join(params[1:]))
-                        if hashID:
-                            name = (await returnManifestInfo("DestinyInventoryItemDefinition", hashID))["Response"]["displayProperties"]["name"]
-                        else:
-                            await message.channel.send(embed=embed_message(
-                                "Info",
-                                "I do not know that weapon"
-                            ))
+                        hashID, name = await getWeaponHash(message, " ".join(params[1:]))
+                        if not hashID:
                             return
+
+
                 elif params[0].lower() == "armor":
                     stats = {
                         "mobility": 2996146975,

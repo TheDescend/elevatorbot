@@ -7,6 +7,7 @@ from functions.database import getToken
 from functions.formating import embed_message
 from static.config import NOW_PLAYING
 from static.globals import admin_role_id, dev_role_id, mod_role_id
+from static.config import COMMAND_PREFIX
 
 
 async def checkIfUserIsRegistered(user):
@@ -70,3 +71,21 @@ async def hasAdminOrDevPermissions(message, send_message=True):
             ))
         return False
     return True
+
+
+# should be called if incorrect params for command call where used
+async def show_help(message, command, params):
+    # work some magic that msg looks nice
+    nice_looking_params = []
+    for param in params:
+        if param.startswith("*"):
+            nice_looking_params.append(f"{param[:1]}<{param[1:]}>")
+        else:
+            nice_looking_params.append(f"<{param}>")
+
+    await message.reply(embed=embed_message(
+        "Incorrect Parameters",
+        f"Correct usage is:\n`{COMMAND_PREFIX}{command} {' '.join(nice_looking_params)} *<user>`",
+        "Info: The <user> parameter doesn't work for every command"
+    ))
+

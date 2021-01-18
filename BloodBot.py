@@ -103,12 +103,6 @@ def main():
         t1 = Thread(target=launch_event_loops, args=(client,))
         t1.start()
 
-        # getting manifest
-        await fillDictFromDB(getNameFromHashRecords, 'DestinyRecordDefinition')
-        await fillDictFromDB(getNameFromHashActivity, 'DestinyActivityDefinition')
-        await fillDictFromDB(getNameFromHashCollectible, 'DestinyCollectibleDefinition')
-        await fillDictFromDB(getNameFromHashInventoryItem, 'DestinyInventoryItemDefinition')
-
         print("Logged in!", flush=True)
 
         # Set the playing status

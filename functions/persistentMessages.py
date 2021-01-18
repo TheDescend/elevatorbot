@@ -176,6 +176,7 @@ async def botStatus(client, field_name: str, time: datetime.datetime):
 
     Current fields in use:
         "Database Update"
+        "Manifest Update"
         "Member Role Update"
         "Achievement Role Update"
         "Bounties - Experience Update"

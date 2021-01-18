@@ -4,7 +4,7 @@ import asyncio
 import pandas
 
 from events.base_event import BaseEvent
-from functions.dataLoading import getTriumphsJSON, updateDB, updateMissingPcgr
+from functions.dataLoading import getTriumphsJSON, updateDB, updateMissingPcgr, updateManifest
 from functions.database import getAllDestinyIDs, lookupDiscordID
 from functions.network import getJSONfromURL
 
@@ -90,6 +90,20 @@ class refreshSealPickle(BaseEvent):
 
         print("Done refreshing seals.pickle")
 
+
+class UpdateManifest(BaseEvent):
+    def __init__(self):
+        # Set the interval for this event
+        dow_day_of_week = "wed"
+        dow_hour = 0
+        dow_minute = 0
+        super().__init__(scheduler_type="cron", dow_day_of_week=dow_day_of_week, dow_hour=dow_hour, dow_minute=dow_minute)
+
+    async def run(self, client):
+        await updateManifest()
+
+        # update the status
+        await botStatus(client, "Manifest Update", datetime.datetime.now())
 
 
 class updateActivityDB(BaseEvent):

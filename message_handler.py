@@ -4,6 +4,8 @@ from discord.ext.commands import MemberConverter, MemberNotFound
 from commands.base_command import BaseCommand
 from functions.database import getToken
 from functions.formating import embed_message
+from functions.miscFunctions import show_help
+
 # This, in addition to tweaking __all__ on commands/__init__.py,
 # imports all classes inside the commands package.
 from commands import *
@@ -57,12 +59,13 @@ async def handle_command(command, params, message, client):
 
     # Retrieve the command
     cmd_obj = COMMAND_HANDLERS[command]
-    if cmd_obj.params and not len(params) == len(cmd_obj.params):
-        p = "> <".join(cmd_obj.params)
-        await message.reply(embed=embed_message(
-            "Incorrect Parameters",
-            f"Correct usage is:\n`!{command} <{p}> *<user>`",
-            "Info: The <user> parameter doesn't work for every command"
-        ))
+    relevant_params = []
+    for param in cmd_obj.params:
+        if not param.startswith("*"):
+            relevant_params.append(param)
+    if (cmd_obj.params and len(params) < len(relevant_params)) or params[0].lower() == "help":
+        # show help msg
+        await show_help(message, command, cmd_obj.params)
+
     else:
         await cmd_obj.handle(params, message, mentioned_user, client)

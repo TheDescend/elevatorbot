@@ -483,6 +483,65 @@ def getPersistentMessage(messageName, guildId):
 
 
 ################################################################
+# Destiny Manifest - see database/readme.md for info on table structure
+
+
+def getDestinyDefinition(definition_name: str, referenceId: int):
+    """ gets all the info for the given definition. Return depends on which was called """
+    select_sql = f"""
+        SELECT 
+            * 
+        FROM 
+            {definition_name}
+        WHERE 
+            referenceId = %s;"""
+    with db_connect().cursor() as cur:
+        cur.execute(select_sql, (referenceId,))
+        results = cur.fetchone()
+        return results
+
+
+def updateDestinyDefinition(definition_name: str, referenceId: int, **kwargs):
+    """ Checks if row exists and inserts/updates accordingly. Input vars depend on which definition is called"""
+    result = getDestinyDefinition(definition_name, referenceId)
+
+    # insert
+    if not result:
+        sql = f"""
+            INSERT INTO 
+                {definition_name}
+                (referenceId, {", ".join([str(x) for x in kwargs.keys()])}) 
+            VALUES 
+                ({referenceId}, {', '.join(['%s']*len(kwargs))});"""
+
+    # update
+    else:
+        # check if sth has changed. Start with 1, bc the first entry is the referenceId
+        i = 0
+        changed = False
+        for arg in kwargs.values():
+            i += 1
+            if arg != result[i]:
+                changed = True
+                break
+
+        # abort if nothing changed
+        if not changed:
+            return
+
+        sql = f"""
+            UPDATE 
+                {definition_name}
+            SET 
+                {", ".join([str(x) + " = %s" for x in kwargs.keys()])}
+            WHERE 
+                referenceId = {referenceId};"""
+    with db_connect().cursor() as cur:
+        params = tuple(kwargs.values())
+        cur.execute(sql, params)
+
+
+################################################################
 # Activities
 
 
@@ -741,8 +800,8 @@ def getWeaponInfo(weaponid: int, membershipid: int, characterID: int = None, mod
             FROM 
                 pgcractivitiesusersstatsweapons
             WHERE 
-                weaponid = %s 
-                AND membershipid = %s
+                membershipid = %s
+                AND weaponid = %s 
                 {"AND characterId = %s" if characterID else ""}
         ) AS t1
         {"JOIN(SELECT instanceId FROM pgcrActivities WHERE %s = ANY(modes)) AS t2 ON t1.instanceID = t2.instanceID" if mode != 0 else ""}
@@ -750,14 +809,51 @@ def getWeaponInfo(weaponid: int, membershipid: int, characterID: int = None, mod
     with db_connect().cursor() as cur:
         if characterID:
             if mode != 0:
-                cur.execute(select_sql, (weaponid, membershipid, characterID, mode,))
+                cur.execute(select_sql, (membershipid, weaponid, characterID, mode,))
             else:
-                cur.execute(select_sql, (weaponid, membershipid, characterID,))
+                cur.execute(select_sql, (membershipid, weaponid, characterID,))
         else:
             if mode != 0:
-                cur.execute(select_sql, (weaponid, membershipid, mode,))
+                cur.execute(select_sql, (membershipid, weaponid, mode,))
             else:
-                cur.execute(select_sql, (weaponid, membershipid,))
+                cur.execute(select_sql, (membershipid, weaponid,))
+        results = cur.fetchall()
+        return results
+
+
+def getTopWeapons(membershipid: int, characterID: int = None, mode: int = 0, activityID: int = None, start: datetime = datetime.min, end: datetime = datetime.now()):
+    """ Gets Top 10 gun for the given parameters.
+    Returns (weaponId, uniqueweaponkills, uniqueweaponprecisionkills) """
+    select_sql = f"""
+        SELECT
+            t1.weaponId, SUM(t1.uniqueweaponkills), SUM(t1.uniqueweaponprecisionkills)
+        FROM (
+            SELECT 
+                instanceId, weaponId, uniqueweaponkills, uniqueweaponprecisionkills
+            FROM 
+                pgcractivitiesusersstatsweapons
+            WHERE 
+                membershipid = {membershipid}
+                {"AND characterId = " + str(characterID) if characterID else ""}
+        ) AS t1
+        JOIN(
+            SELECT 
+                instanceId 
+            FROM 
+                pgcrActivities 
+            WHERE 
+                period >= {start}
+                AND period <= {end}
+                {"AND %s = ANY(modes)" if mode != 0 else ""}
+                {"AND directoractivityhash = " + str(activityID) if activityID else ""}
+        ) AS t2 
+        ON 
+            t1.instanceID = t2.instanceID
+        GROUP BY
+            t1.weaponId
+    ;"""
+    with db_connect().cursor() as cur:
+        cur.execute(select_sql)
         results = cur.fetchall()
         return results
 

@@ -11,8 +11,9 @@ from datetime import datetime
 from functions.database import updateLastUpdated, \
     lookupDiscordID, lookupSystem, insertPgcrActivities, checkIfPgcrActivityExists, insertPgcrActivitiesUsersStats, \
     insertPgcrActivitiesUsersStatsWeapons, getFailToGetPgcrInstanceId, insertFailToGetPgcrInstanceId, \
-    deleteFailToGetPgcrInstanceId, getWeaponInfo
+    deleteFailToGetPgcrInstanceId, getWeaponInfo, updateDestinyDefinition
 from functions.database import getLastUpdated
+from functions.formating import embed_message
 from functions.network import getJSONfromURL, getComponentInfoAsJSON, getJSONwithToken
 from static.config import CLANID
 
@@ -78,6 +79,21 @@ async def getCharactertypeList(destinyID):
         return [(char["characterId"], f"{racemap[char['raceHash']]} {gendermap[char['genderHash']]} {classmap[char['classHash']]}") for char in characterinfo['Response']['characters']['data'].values()]
     print(f'no account found for destinyID {destinyID}')
     return (None,[])
+
+
+async def getCharacterID(destinyID, classID):
+    ''' returns a charID '''
+    charIDs = (await getCharactertypeList(destinyID))[0]
+    membershipType = lookupSystem(destinyID)
+
+    charURL = "https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/Character/{}/?components=100,200"
+    for charID in charIDs:
+        characterinfo = await getJSONfromURL(charURL.format(membershipType, destinyID, charID))
+        if characterinfo:
+            if classID == characterinfo['Response']['characters']['data']['classHash']:
+                return charID
+
+    return None
 
 
 async def getPlayersPastActivities(destinyID, mode : int = 7, earliest_allowed_time : datetime = None, latest_allowed_time : datetime = None):
@@ -186,6 +202,22 @@ async def getItemDefinition(destinyID, system, itemID, components):
     if statsResponse:
         return statsResponse['Response']
     return None
+
+
+# todo save in db
+# gets the weapon hash
+async def getWeaponHash(message, name):
+    hashID = await searchArmory("DestinyInventoryItemDefinition", name)
+    if hashID:
+        name = (await returnManifestInfo("DestinyInventoryItemDefinition", hashID))["Response"]["displayProperties"]["name"]
+        return hashID, name
+    else:
+        await message.reply(embed=embed_message(
+            "Info",
+            "I do not know that weapon"
+        ))
+        return None
+
 
 
 # returns all items in bucket. Deafult is vault hash, for others search "bucket" at https://data.destinysets.com/
@@ -329,58 +361,113 @@ async def searchArmory(type, searchTerm):
         return None
 
 
-async def getManifest():
+async def updateManifest():
+    # get the manifest
     manifest_url = 'http://www.bungie.net/Platform/Destiny2/Manifest/'
-    binaryLocation = "cache/MANZIP"
-    os.makedirs(os.path.dirname(binaryLocation), exist_ok=True)
+    manifest = await getJSONfromURL(manifest_url)
 
-    #get the manifest location from the json
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url=manifest_url) as r:
-            manifest = await r.json()
-    mani_url = 'http://www.bungie.net' + manifest['Response']['mobileWorldContentPaths']['en']
+    print("Starting manifest update...")
 
-    #Download the file, write it to 'MANZIP'
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url=mani_url) as r:
-            with open(binaryLocation, "wb") as zip:
-                zip.write(await r.read())
+    if manifest:
+        # loop through the relevant manifest locations and save them in the DB
+        for definition, url in manifest['Response']['jsonWorldComponentContentPaths']['en'].items():
+            if definition == "DestinyActivityDefinition":
+                print("Starting DestinyActivityDefinition update...")
+                result = await getJSONfromURL(f'http://www.bungie.net{url}')
+                # update table
+                for referenceId, values in result.items():
+                    updateDestinyDefinition(
+                        definition,
+                        int(referenceId),
+                        description=values["displayProperties"]["description"] if values["displayProperties"]["description"] else None,
+                        name=values["displayProperties"]["name"] if values["displayProperties"]["name"] else None,
+                        activityLevel=values["activityLevel"],
+                        activityLightLevel=values["activityLightLevel"],
+                        destinationHash=values["destinationHash"],
+                        placeHash=values["placeHash"],
+                        activityTypeHash=values["activityTypeHash"],
+                        isPvP=values["isPvP"],
+                        directActivityModeHash=values["directActivityModeHash"] if "directActivityModeHash" in values else None,
+                        directActivityModeType=values["directActivityModeType"] if "directActivityModeType" in values else None,
+                        activityModeHashes=values["activityModeHashes"] if "activityModeHashes" in values else None,
+                        activityModeTypes=values["activityModeTypes"] if "activityModeTypes" in values else None
+                    )
 
-    #Extract the file contents, and rename the extracted file to 'Manifest.content'
-    with zipfile.ZipFile(binaryLocation) as zip:
-        name = zip.namelist()
-        zip.extractall()
-    os.rename(name[0], 'cache/Manifest.content')
+            elif definition == "DestinyActivityTypeDefinition":
+                print("Starting DestinyActivityTypeDefinition update...")
+                result = await getJSONfromURL(f'http://www.bungie.net{url}')
+                # update table
+                for referenceId, values in result.items():
+                    updateDestinyDefinition(
+                        definition,
+                        int(referenceId),
+                        description=values["displayProperties"]["description"] if "displayProperties" in values and "description" in values["displayProperties"] and values["displayProperties"]["description"] else None,
+                        name=values["displayProperties"]["name"] if "displayProperties" in values and "name" in values["displayProperties"] and values["displayProperties"]["name"] else None
+                    )
 
-async def fillDictFromDB(dictRef, table):
-    if not os.path.exists('cache/' + table + '.json'): 
-        if not os.path.exists('cache/Manifest.content'):
-            await getManifest()
+            elif definition == "DestinyActivityModeDefinition":
+                print("Starting DestinyActivityModeDefinition update...")
+                result = await getJSONfromURL(f'http://www.bungie.net{url}')
+                # update table
+                for referenceId, values in result.items():
+                    updateDestinyDefinition(
+                        definition,
+                        int(referenceId),
+                        description=values["displayProperties"]["description"] if values["displayProperties"]["description"] else None,
+                        name=values["displayProperties"]["name"] if values["displayProperties"]["name"] else None,
+                        modeType=values["modeType"],
+                        activityModeCategory=values["activityModeCategory"],
+                        isTeamBased=values["isTeamBased"],
+                        friendlyName=values["friendlyName"]
+                    )
 
-        #Connect to DB
-        con = sqlite3.connect('cache/Manifest.content')
-        cur = con.cursor()
+            elif definition == "DestinyCollectibleDefinition":
+                print("Starting DestinyCollectibleDefinition update...")
+                result = await getJSONfromURL(f'http://www.bungie.net{url}')
+                # update table
+                for referenceId, values in result.items():
+                    updateDestinyDefinition(
+                        definition,
+                        int(referenceId),
+                        description=values["displayProperties"]["description"] if values["displayProperties"]["description"] else None,
+                        name=values["displayProperties"]["name"] if values["displayProperties"]["name"] else None,
+                        sourceHash=values["sourceHash"],
+                        itemHash=values["itemHash"],
+                        parentNodeHashes=values["parentNodeHashes"]
+                    )
 
-        #Query the DB
-        cur.execute(
-        '''SELECT 
-            json
-        FROM 
-        ''' + table
-        )
-        items = cur.fetchall()
-        item_jsons = [json.loads(item[0]) for item in items]
-        con.close()
+            elif definition == "DestinyInventoryItemDefinition":
+                print("Starting DestinyInventoryItemDefinition update...")
+                result = await getJSONfromURL(f'http://www.bungie.net{url}')
+                # update table
+                for referenceId, values in result.items():
+                    updateDestinyDefinition(
+                        definition,
+                        int(referenceId),
+                        description=values["displayProperties"]["description"] if values["displayProperties"]["description"] else None,
+                        name=values["displayProperties"]["name"] if values["displayProperties"]["name"] else None,
+                        bucketTypeHash=values["inventory"]["bucketTypeHash"],
+                        tierTypeHash=values["inventory"]["tierTypeHash"],
+                        tierTypeName=values["inventory"]["tierTypeName"] if "tierTypeName" in values["inventory"] else None,
+                        equippable=values["equippable"]
+                    )
 
-        #Iterate over DB-JSONs and put named ones into the corresponding dictionary
-        for ijson in item_jsons:
-            if 'name' in ijson['displayProperties'].keys():
-                dictRef[ijson['hash']] = ijson['displayProperties']['name']
-        with open('cache/' + table + '.json', 'w') as outfile:
-            json.dump(dictRef, outfile)
-    else:
-        with open('cache/' + table + '.json') as json_file:
-            dictRef.update(json.load(json_file))
+            elif definition == "DestinyRecordDefinition":
+                print("Starting DestinyRecordDefinition update...")
+                result = await getJSONfromURL(f'http://www.bungie.net{url}')
+                # update table
+                for referenceId, values in result.items():
+                    updateDestinyDefinition(
+                        definition,
+                        int(referenceId),
+                        description=values["displayProperties"]["description"] if values["displayProperties"]["description"] else None,
+                        name=values["displayProperties"]["name"] if values["displayProperties"]["name"] else None,
+                        objectiveHashes=values["objectiveHashes"] if "objectiveHashes" in values else None,
+                        ScoreValue=values["completionInfo"]["ScoreValue"] if "completionInfo" in values else None,
+                        parentNodeHashes=values["parentNodeHashes"] if "parentNodeHashes" in values else None
+                    )
+
+        print("Done with manifest update!")
 
 
 async def insertPgcrToDB(instanceID: int, activity_time: datetime, pcgr: dict):
@@ -445,6 +532,7 @@ async def insertPgcrToDB(instanceID: int, activity_time: datetime, pcgr: dict):
                     int(weapon_user_pcgr["values"]["uniqueWeaponKills"]["basic"]["value"]),
                     int(weapon_user_pcgr["values"]["uniqueWeaponPrecisionKills"]["basic"]["value"])
                 )
+
 
 async def updateDB(destinyID):
     """ Gets this users not-saved history and saves it """
@@ -518,7 +606,7 @@ async def updateDB(destinyID):
 
 async def updateMissingPcgr():
     # this gets called after a lot of requests, relaxing bungie first
-    await asyncio.sleep(60)
+    await asyncio.sleep(30)
 
     for missing in getFailToGetPgcrInstanceId():
         instanceID = missing[0]
