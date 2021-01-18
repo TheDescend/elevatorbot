@@ -833,7 +833,7 @@ def getTopWeapons(membershipid: int, characterID: int = None, mode: int = 0, act
             FROM 
                 pgcractivitiesusersstatsweapons
             WHERE 
-                membershipid = {membershipid}
+                membershipid = %s
                 {"AND characterId = " + str(characterID) if characterID else ""}
         ) AS t1
         JOIN(
@@ -842,9 +842,9 @@ def getTopWeapons(membershipid: int, characterID: int = None, mode: int = 0, act
             FROM 
                 pgcrActivities 
             WHERE 
-                period >= {start}
-                AND period <= {end}
-                {"AND %s = ANY(modes)" if mode != 0 else ""}
+                period >= %s
+                AND period <= %s
+                {"AND " + str(mode) + " = ANY(modes)" if mode != 0 else ""}
                 {"AND directoractivityhash = " + str(activityID) if activityID else ""}
         ) AS t2 
         ON 
@@ -853,7 +853,7 @@ def getTopWeapons(membershipid: int, characterID: int = None, mode: int = 0, act
             t1.weaponId
     ;"""
     with db_connect().cursor() as cur:
-        cur.execute(select_sql)
+        cur.execute(select_sql, (membershipid, start, end,))
         results = cur.fetchall()
         return results
 

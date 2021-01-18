@@ -26,7 +26,7 @@ from events import *
 from functions.bounties.bountiesBackend import getGlobalVar
 from functions.bounties.bountiesFunctions import registrationMessageReactions
 from functions.clanJoinRequests import clanJoinRequestMessageReactions, removeFromClanAfterLeftDiscord
-from functions.dataLoading import fillDictFromDB, updateDB
+from functions.dataLoading import updateDB
 from functions.database import insertIntoMessageDB, db_connect, lookupDestinyID
 from functions.formating import embed_message
 from functions.miscFunctions import update_status

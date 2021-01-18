@@ -11,7 +11,7 @@ from datetime import datetime
 from functions.database import updateLastUpdated, \
     lookupDiscordID, lookupSystem, insertPgcrActivities, checkIfPgcrActivityExists, insertPgcrActivitiesUsersStats, \
     insertPgcrActivitiesUsersStatsWeapons, getFailToGetPgcrInstanceId, insertFailToGetPgcrInstanceId, \
-    deleteFailToGetPgcrInstanceId, getWeaponInfo, updateDestinyDefinition
+    deleteFailToGetPgcrInstanceId, getWeaponInfo, updateDestinyDefinition, getDestinyDefinition
 from functions.database import getLastUpdated
 from functions.formating import embed_message
 from functions.network import getJSONfromURL, getComponentInfoAsJSON, getJSONwithToken
@@ -90,7 +90,7 @@ async def getCharacterID(destinyID, classID):
     for charID in charIDs:
         characterinfo = await getJSONfromURL(charURL.format(membershipType, destinyID, charID))
         if characterinfo:
-            if classID == characterinfo['Response']['characters']['data']['classHash']:
+            if classID == characterinfo['Response']['character']['data']['classHash']:
                 return charID
 
     return None
@@ -209,14 +209,14 @@ async def getItemDefinition(destinyID, system, itemID, components):
 async def getWeaponHash(message, name):
     hashID = await searchArmory("DestinyInventoryItemDefinition", name)
     if hashID:
-        name = (await returnManifestInfo("DestinyInventoryItemDefinition", hashID))["Response"]["displayProperties"]["name"]
+        name = getDestinyDefinition("DestinyInventoryItemDefinition", hashID)[2]
         return hashID, name
     else:
         await message.reply(embed=embed_message(
-            "Info",
-            "I do not know that weapon"
+            "Error",
+            f'I do not know the weapon "{name}"'
         ))
-        return None
+        return None, None
 
 
 
@@ -611,6 +611,11 @@ async def updateMissingPcgr():
     for missing in getFailToGetPgcrInstanceId():
         instanceID = missing[0]
         activity_time = missing[1]
+
+        # check if info is already in DB, delete and skip if so
+        if checkIfPgcrActivityExists(instanceID):
+            deleteFailToGetPgcrInstanceId(instanceID)
+            continue
 
         # get PGCR
         pcgr = await getPGCR(instanceID)
