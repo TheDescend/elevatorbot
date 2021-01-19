@@ -236,9 +236,10 @@ class topWeapons(BaseCommand):
             charID = await getCharacterID(destinyID, self.classes[char_class]) if char_class else None
 
             # get the real weapon name
-            _, weapon_name = await getWeaponHash(message, weapon_name)
-            if not weapon_name:
-                return
+            if weapon_name:
+                _, weapon_name = await getWeaponHash(message, weapon_name)
+                if not weapon_name:
+                    return
 
             # get all weaponID infos
             kwargs = {
@@ -277,7 +278,7 @@ class topWeapons(BaseCommand):
             # get the data for the embed
             i = 0
             ranking = []
-            found = False
+            found = False if weapon_name else True
             for name, _, statistic in sorted_data:
                 i += 1
                 if len(ranking) < 12:
