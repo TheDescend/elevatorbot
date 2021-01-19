@@ -131,7 +131,7 @@ And lastly, if you have any general suggestions or ideas for new bounties, conta
 async def steamJoinCodeMessage(client, guild):
     # get all IDs
     data = dict(getallSteamJoinIDs())
-    data = {k: v for k, v in sorted(data.items(), key=lambda item: item[1], reverse=False)}
+    data = {k: v for k, v in sorted(data.items(), key=lambda item: item[0], reverse=False)}
 
     # put in two lists for the embed
     name = []
