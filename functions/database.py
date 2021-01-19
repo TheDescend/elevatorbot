@@ -176,8 +176,8 @@ def insertToken(discordID, destinyID, systemID, discordServerID, token, refresh_
                                         discordServerID, 
                                         token, refresh_token, 
                                         systemID, 
-                                        token_expiry, 
-                                        refresh_token_expiry))
+                                        datetime.fromtimestamp(token_expiry), 
+                                        datetime.fromtimestamp(refresh_token_expiry)))
         
 
 
@@ -288,13 +288,16 @@ def insertIntoMessageDB(messagetext, userid, channelid, msgid):
     
 def insertActivity(instanceID, activityHash, activityDurationSeconds, period, startingPhaseIndex, deaths, playercount, mode):
     """ adds an Activity to the database, not player-specific """
-    sqlite_insert_with_param = """INSERT INTO activities
-                        (instanceID, activityHash, activityDurationSeconds, period, startingPhaseIndex, deaths, playercount, mode) 
-                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s);"""
-    data_tuple = (instanceID, activityHash, activityDurationSeconds, period, startingPhaseIndex, deaths, playercount, mode)
-    with db_connect().cursor() as cur:
-        cur.execute(sqlite_insert_with_param, data_tuple)
-    return True
+    if not activityExists(instanceID):
+        sqlite_insert_with_param = """INSERT INTO activities
+                            (instanceID, activityHash, activityDurationSeconds, period, startingPhaseIndex, deaths, playercount, mode) 
+                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s);"""
+        data_tuple = (instanceID, activityHash, activityDurationSeconds, period, startingPhaseIndex, deaths, playercount, mode)
+        with db_connect().cursor() as cur:
+            cur.execute(sqlite_insert_with_param, data_tuple)
+        return True
+    else:
+        return False
 
 def insertInstanceDetails(instanceID, playerID, characterID, lightlevel, displayname, deaths, opponentsDefeated, completed):
     """ adds player-specific information """
@@ -307,10 +310,26 @@ def insertInstanceDetails(instanceID, playerID, characterID, lightlevel, display
             cur.execute(sqlite_insert_with_param, data_tuple)
             return cur.fetchone()[0]
 
-def playerInstanceExists(instanceID, playerID):
-    sqlite_select = f"""SELECT instanceID FROM instancePlayerPerformance
-                        WHERE instanceID = %s AND playerID = %s;"""
-    data_tuple = (instanceID, playerID)
+def playerInstanceExists(instanceID, playerID = None):
+    if playerID:
+        sqlite_select = f"""SELECT instanceID FROM instancePlayerPerformance
+                            WHERE instanceID = %s AND playerID = %s;"""
+        data_tuple = (instanceID, playerID)
+    else:
+        sqlite_select = f"""SELECT instanceID FROM instancePlayerPerformance
+                            WHERE instanceID = %s;"""
+        data_tuple = (instanceID, )
+    
+    with db_connect().cursor() as cur:
+        cur.execute(sqlite_select, data_tuple)
+        result = cur.fetchall()
+    return len(result) > 0
+
+def activityExists(instanceID):
+    sqlite_select = f"""SELECT instanceID FROM activities
+                        WHERE instanceID = %s;"""
+    data_tuple = (instanceID, )
+    
     with db_connect().cursor() as cur:
         cur.execute(sqlite_select, data_tuple)
         result = cur.fetchall()
@@ -346,7 +365,7 @@ def getInfoOnLowManActivity(raidHashes, playercount, playerid):
                                 ) ipp
                         ON (ipp.instanceID = t1.instanceID);
                         """
-    data_tuple = (*raidHashes,playercount, playerid)
+    data_tuple = (*raidHashes, playercount, playerid)
     with db_connect().cursor() as cur:
         cur.execute(sqlite_select, data_tuple)
         low_activity_info = cur.fetchall()
