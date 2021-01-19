@@ -1,6 +1,7 @@
 from datetime import datetime
 
 import discord
+import asyncio
 
 from functions.database import hasFlawless, getClearCount
 from functions.dataTransformation import hasLowman
@@ -16,7 +17,7 @@ async def hasAdminOrDevPermissions(message, send_message=True):
     admin = discord.utils.get(message.guild.roles, id=admin_role_id)
     dev = discord.utils.get(message.guild.roles, id=dev_role_id)
     mod = discord.utils.get(message.guild.roles, id=mod_role_id)
-
+    
     # also checking for Kigstns id, to make that shit work on my local version of the bot
     if message.author.id == 238388130581839872:
         return True
@@ -30,7 +31,7 @@ async def hasAdminOrDevPermissions(message, send_message=True):
         return False
     return True
 
-
+#TODO remove year parameter
 async def hasRole(playerid, role, year, br = True):
     """ br may be set to True if only True/False is exptected, set to False to get complete data on why or why not the user earned the role """
     data = {}
@@ -117,11 +118,6 @@ async def hasRole(playerid, role, year, br = True):
 
     return [worthy, data]
 
-async def returnIfHasRoles(playerid, role, year):
-    if (await hasRole(playerid, role, year))[0]:
-        return role
-    return None
-
 async def getPlayerRoles(playerid, existingRoles = []):
     if not playerid:
         print('got empty playerid')
@@ -130,16 +126,29 @@ async def getPlayerRoles(playerid, existingRoles = []):
     roles = []
     redundantRoles = []
 
+
     for year, yeardata in requirementHashes.items():
         for role, roledata in yeardata.items():
             #do not recheck existing roles or roles that will be replaced by existing roles
             if role in existingRoles or ('replaced_by' in roledata.keys() and any([x in existingRoles for x in roledata['replaced_by']])):
                 roles.append(role)
-                continue
+    
+    #asyncio.gather keeps order
+    roleyear_to_check = [
+        (role, year)
+        for (year, yeardata) in requirementHashes.items() 
+        for role in yeardata.keys()
+        if not role in roles
+    ]
 
-            roleOrNone = await returnIfHasRoles(playerid, role, year)
-            if roleOrNone:
-                roles.append(roleOrNone)
+    #check worthyness in parallel
+    has_earned_role = await asyncio.gather(*[
+        hasRole(playerid, role, year) 
+        for (role, year) in roleyear_to_check
+    ])
+
+    roles.extend([rolename for ((rolename, roleyear), (isworthy, worthydetails)) in zip(roleyear_to_check, has_earned_role) if isworthy])
+
 
     #remove roles that are replaced by others
     for yeardata in requirementHashes.values():
