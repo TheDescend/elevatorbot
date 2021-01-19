@@ -56,6 +56,7 @@ def hasLowman(playerid, playercount, raidHashes, flawless=False, disallowed=[]):
     """ Default is flawless=False, disallowed is a list of (starttime, endtime) with datetime objects """
     low_activity_info = getInfoOnLowManActivity(raidHashes, playercount, playerid)
     verdict = False
+
     for (iid, deaths, period) in low_activity_info:
         #print(f'{deaths} on {period} in {iid}')
         if not flawless or deaths == 0:

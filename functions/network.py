@@ -211,9 +211,9 @@ async def errorCodeHandling(requestURL, r, res):
     elif r.status == 500:
         error = res["ErrorStatus"]
         # we we are getting throttled
-        if error == "PerEndpointRequestThrottleExceeded":
-            print(f"Getting throtteled, waiting  {res['ThrottleSeconds']}")
-            await asyncio.sleep(res["ThrottleSeconds"]*random.randrange(0, 5))
+        if error == "PerEndpointRequestThrottleExceeded" or error == "DestinyDirectBabelClientTimeout":
+            print(f"Getting throtteled, waiting {res['ThrottleSeconds'] or 'for Babel'}")
+            await asyncio.sleep(res["ThrottleSeconds"] + random.randrange(1, 3))
 
         # if user doesn't have that item
         elif error == "DestinyItemNotFound":
