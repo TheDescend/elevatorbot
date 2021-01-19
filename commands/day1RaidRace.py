@@ -1,8 +1,8 @@
 from commands.base_command import BaseCommand
-from functions.dataLoading import getProfile, getCharacterList, getPlayersPastPVE
+from functions.dataLoading import getProfile, getCharacterList, getPlayersPastActivities
 from functions.formating import embed_message
 from functions.network import getJSONfromURL
-from functions.roles import hasAdminOrDevPermissions
+from functions.miscFunctions import hasAdminOrDevPermissions
 from static.config import CLANID
 
 import datetime
@@ -21,7 +21,7 @@ class day1spam(BaseCommand):
 
     # Override the handle() method
     # It will be called every time the command is received
-    async def handle(self, params, message, client):
+    async def handle(self, params, message, mentioned_user, client):
         if not await hasAdminOrDevPermissions(message):
             return
 
@@ -110,7 +110,7 @@ class day1spam(BaseCommand):
                         time_spend = 0
                         kills = 0
                         deaths = 0
-                        async for activity in getPlayersPastPVE(destinyID, mode=4):
+                        async for activity in getPlayersPastActivities(destinyID, mode=4):
                             if datetime.datetime.strptime(activity["period"], "%Y-%m-%dT%H:%M:%SZ") < start:
                                 continue
 

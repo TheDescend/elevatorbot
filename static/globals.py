@@ -26,6 +26,8 @@ lol_role_id = 756076447881363486
 
 """ Channel IDs """
 admin_discussions_channel_id = 671264040974024705
+admin_workboard_channel_id = 769608204618563625
+steam_join_codes_channel_id = 701060424535113738
 
 
 """ Emoji IDs """

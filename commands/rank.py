@@ -6,8 +6,8 @@ from discord.ext.commands import MemberConverter
 
 from commands.base_command import BaseCommand
 from functions.dataLoading import getStats, getProfile, getCharacterList, \
-    getAggregateStatsForChar, getInventoryBucket, getWeaponKills, returnManifestInfo, searchArmory, getAllGear, \
-    getItemDefinition, getArtifact, getCharacterGear, getCharacterGearAndPower, getPlayersPastPVE
+    getAggregateStatsForChar, getInventoryBucket, getWeaponStats, returnManifestInfo, searchArmory, getAllGear, \
+    getItemDefinition, getArtifact, getCharacterGear, getCharacterGearAndPower, getPlayersPastActivities, getWeaponHash
 from functions.database import lookupDiscordID, getToken, lookupSystem
 from functions.formating import embed_message
 from functions.network import getJSONfromURL
@@ -25,7 +25,7 @@ class rank(BaseCommand):
 
     # Override the handle() method
     # It will be called every time the command is received
-    async def handle(self, params, message, client):
+    async def handle(self, params, message, mentioned_user, client):
         supported = [
             "totaltime",
             "maxpower",
@@ -40,6 +40,8 @@ class rank(BaseCommand):
             "raids",
             "raidtime",
             "weapon",
+            "weaponprecision",
+            "weaponprecisionpercent",
             "armor",
             "enhancementcores",
             "forges",
@@ -47,13 +49,6 @@ class rank(BaseCommand):
         ]
 
         if len(params) > 0:
-            # try to get another user obj
-            ctx = await client.get_context(message)
-            try:
-                message.author = await MemberConverter().convert(ctx, params[-1])
-            except:
-                pass
-
             if params[0].lower() == "help":
                 await message.channel.send(embed=embed_message(
                     "Info",
@@ -63,7 +58,7 @@ class rank(BaseCommand):
             elif params[0].lower() in supported:
                 name = None
                 hashID = None
-                if params[0].lower() == "weapon":
+                if params[0].lower() in ["weapon", "weaponprecision", "weaponprecisionpercent"]:
                     if len(params) == 1:
                         await message.channel.send(embed=embed_message(
                             "Info",
@@ -72,15 +67,11 @@ class rank(BaseCommand):
                         return
 
                     else:
-                        hashID = await searchArmory("DestinyInventoryItemDefinition", " ".join(params[1:]))
-                        if hashID:
-                            name = (await returnManifestInfo("DestinyInventoryItemDefinition", hashID))["Response"]["displayProperties"]["name"]
-                        else:
-                            await message.channel.send(embed=embed_message(
-                                "Info",
-                                "I do not know that weapon"
-                            ))
+                        hashID, name = await getWeaponHash(message, " ".join(params[1:]))
+                        if not hashID:
                             return
+
+
                 elif params[0].lower() == "armor":
                     stats = {
                         "mobility": 2996146975,
@@ -103,7 +94,7 @@ class rank(BaseCommand):
                         hashID = stats[name]
 
                 async with message.channel.typing():
-                    embed = await handle_users(client, params[0].lower(), message.author.display_name, message.guild, hashID, name)
+                    embed = await handle_users(client, params[0].lower(), mentioned_user.display_name, message.guild, hashID, name)
 
                 if embed:
                     await message.channel.send(embed=embed)
@@ -304,7 +295,7 @@ async def handle_user(stat, member, guild, extra_hash, extra_name):
 
         result_sort = 0
         farmed_runs = 0
-        async for activity in getPlayersPastPVE(destinyID, mode=66):
+        async for activity in getPlayersPastActivities(destinyID, mode=66):
             # set this run as a farmed run if you haven't killed anything
             if activity["values"]["opponentsDefeated"]["basic"]["value"] == 0:
                 farmed_runs += 1
@@ -319,7 +310,7 @@ async def handle_user(stat, member, guild, extra_hash, extra_name):
 
         runs = 0
         result_sort = 0
-        async for activity in getPlayersPastPVE(destinyID, mode=66):
+        async for activity in getPlayersPastActivities(destinyID, mode=66):
             # set this run as a farmed run if you haven't killed anything
             if activity["values"]["opponentsDefeated"]["basic"]["value"] == 0:
                 result_sort += 1
@@ -347,14 +338,26 @@ async def handle_user(stat, member, guild, extra_hash, extra_name):
         result = f"{result_sort:,}"
 
     elif stat == "weapon":
-        if not getToken(discordID):
-            return None
-
         leaderboard_text = f"Top Clanmembers by {extra_name} Kills"
         stat_text = "Kills"
 
-        result_sort = await getWeaponKills(destinyID, extra_hash)
+        result_sort, _ = await getWeaponStats(destinyID, extra_hash)
         result = f"{result_sort:,}"
+
+    elif stat == "weaponprecision":
+        leaderboard_text = f"Top Clanmembers by {extra_name} Precision Kills"
+        stat_text = "Kills"
+
+        _, result_sort = await getWeaponStats(destinyID, extra_hash)
+        result = f"{result_sort:,}"
+
+    elif stat == "weaponprecisionpercent":
+        leaderboard_text = f"Top Clanmembers by {extra_name} % Precision Kills"
+        stat_text = "Kills"
+
+        kills, prec_kills = await getWeaponStats(destinyID, extra_hash)
+        result_sort = prec_kills / kills if kills != 0 else 0
+        result = f"{round(result_sort*100, 2)}%"
 
     elif stat == "armor":
         leaderboard_text = f"Top Clanmembers by single Armor Piece with highest {extra_name.capitalize()}"

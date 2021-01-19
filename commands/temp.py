@@ -1,9 +1,13 @@
+import datetime
+
 from commands.base_command import BaseCommand
-from functions.dataLoading import getCharactertypeList, getCharacterList, OUTDATEDgetSystem, getInventoryBucket
+from functions.dataLoading import getCharactertypeList, getCharacterList, OUTDATEDgetSystem, getInventoryBucket, \
+    updateDB
 from functions.dataTransformation import hasCollectible
 from functions.database import removeUser, lookupDestinyID, getEverything, updateUser, updateToken, getRefreshToken
 from functions.formating import embed_message
-from functions.roles import hasAdminOrDevPermissions
+from functions.miscFunctions import hasAdminOrDevPermissions
+from functions.persistentMessages import botStatus
 from oauth import refresh_token
 from static.config import BUNGIE_OAUTH
 
@@ -17,7 +21,7 @@ class getDay1Completions(BaseCommand):
 
     # Override the handle() method
     # It will be called every time the command is received
-    async def handle(self, params, message, client):
+    async def handle(self, params, message, mentioned_user, client):
         # users = getEverything()
 
         # notokenlist = []
@@ -45,3 +49,18 @@ class getDay1Completions(BaseCommand):
                 if await hasCollectible(destinyid, 2273453972):
                     userlist.append(member.name)
         await message.channel.send(", ".join(userlist))
+
+
+class updateKigstn(BaseCommand):
+    def __init__(self):
+        # A quick description for the help message
+        description = "[dev]Register with bungie.net"
+        params = []
+        topic = "Registration"
+        super().__init__(description, params, topic)
+
+    # Override the handle() method
+    # It will be called every time the command is received
+    async def handle(self, params, message, mentioned_user, client):
+        await botStatus(client, "Role Update", datetime.datetime.now())
+

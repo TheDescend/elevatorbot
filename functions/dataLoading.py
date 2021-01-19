@@ -3,16 +3,20 @@ import json
 import os
 import sqlite3
 import zipfile
-from datetime import timedelta, datetime
-
+import logging
 import aiohttp
 import pandas
+from datetime import datetime
 
-from functions.database import insertActivity, insertCharacter, insertInstanceDetails, updatedPlayer, \
-    lookupDiscordID, lookupSystem
-from functions.database import getSystemAndChars, getLastUpdated, playerInstanceExists, activityExists, getAllDestinyIDs
+from functions.database import updateLastUpdated, \
+    lookupDiscordID, lookupSystem, insertPgcrActivities, getPgcrActivity, insertPgcrActivitiesUsersStats, \
+    insertPgcrActivitiesUsersStatsWeapons, getFailToGetPgcrInstanceId, insertFailToGetPgcrInstanceId, \
+    deleteFailToGetPgcrInstanceId, getWeaponInfo, updateDestinyDefinition, getDestinyDefinition
+from functions.database import getLastUpdated
+from functions.formating import embed_message
 from functions.network import getJSONfromURL, getComponentInfoAsJSON, getJSONwithToken
 from static.config import CLANID
+
 
 
 async def getJSONfromRR(playerID):
@@ -76,7 +80,23 @@ async def getCharactertypeList(destinyID):
     print(f'no account found for destinyID {destinyID}')
     return (None,[])
 
-async def getPlayersPastPVE(destinyID, mode : int = 7, earliest_allowed_time : datetime = None, latest_allowed_time : datetime = None):
+
+async def getCharacterID(destinyID, classID):
+    ''' returns a charID '''
+    charIDs = (await getCharactertypeList(destinyID))[0]
+    membershipType = lookupSystem(destinyID)
+
+    charURL = "https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/Character/{}/?components=100,200"
+    for charID in charIDs:
+        characterinfo = await getJSONfromURL(charURL.format(membershipType, destinyID, charID))
+        if characterinfo:
+            if classID == characterinfo['Response']['character']['data']['classHash']:
+                return charID
+
+    return None
+
+
+async def getPlayersPastActivities(destinyID, mode : int = 7, earliest_allowed_time : datetime = None, latest_allowed_time : datetime = None):
     """
     Generator which returns all activities whith an extra field < activity['charid'] = characterID >
     For more Info visit https://bungie-net.github.io/multi/schema_Destiny-HistoricalStats-DestinyHistoricalStatsPeriodGroup.html#schema_Destiny-HistoricalStats-DestinyHistoricalStatsPeriodGroup
@@ -127,7 +147,7 @@ async def getPlayersPastPVE(destinyID, mode : int = 7, earliest_allowed_time : d
                     # check if the activity started later than the earliest allowed, else break and continue with next char
                     # This works bc Bungie sorts the api with the newest entry on top
                     if earliest_allowed_time:
-                        if activity_time < earliest_allowed_time:
+                        if activity_time <= earliest_allowed_time:
                             br = True
                             break
 
@@ -182,6 +202,22 @@ async def getItemDefinition(destinyID, system, itemID, components):
     if statsResponse:
         return statsResponse['Response']
     return None
+
+
+# todo save in db
+# gets the weapon hash
+async def getWeaponHash(message, name):
+    hashID = await searchArmory("DestinyInventoryItemDefinition", name)
+    if hashID:
+        name = getDestinyDefinition("DestinyInventoryItemDefinition", hashID)[2]
+        return hashID, name
+    else:
+        await message.reply(embed=embed_message(
+            "Error",
+            f'I do not know the weapon "{name}"'
+        ))
+        return None, None
+
 
 
 # returns all items in bucket. Deafult is vault hash, for others search "bucket" at https://data.destinysets.com/
@@ -256,41 +292,25 @@ async def getGearPiece(destinyID, itemID):
     return instances
 
 
-# returns the amount of kills done with all copies of that weapon in vault / inventory
-async def getWeaponKills(destinyID, itemID):
-    async def getItemData(destinyID, system, uniqueItemID):
-        try:
-            ret = (await getItemDefinition(destinyID, system, uniqueItemID, 309))["plugObjectives"]["data"][
-                "objectivesPerPlug"]
-            ret = ret[next(iter(ret))][0]
-            return ret["progress"]
-        except KeyError:
-            return 0
 
+async def getWeaponStats(destinyID, weaponID, characterID=None, mode=0):
+    """ returns kills, prec_kills for that weapon in the specified mode"""
+
+    # get the info from the DB
+    if characterID:
+        result = getWeaponInfo(destinyID, weaponID, characterID=characterID, mode=mode)
+    else:
+        result = getWeaponInfo(destinyID, weaponID, mode=mode)
+
+    # add stats
     kills = 0
+    prec_kills = 0
+    for _, k, p_k in result:
+        kills += k
+        prec_kills += p_k
 
-    instances = await getGearPiece(destinyID, itemID)
-    if not instances:
-        return kills
+    return kills, prec_kills
 
-    system = (await getCharacterList(destinyID))[0]
-
-    for item in instances:
-        kills += await getItemData(destinyID, system, item["itemInstanceId"])
-
-    return kills
-
-
-
-# async def getStatsForChar(destinyID, characterID):
-#     url = 'https://stats.bungie.net/Platform/Destiny2/{}/Account/{}/Stats/'
-#     for system in [3,2,1,4,5,10,254]:
-#         statsResponse = await getJSONfromURL(url.format(system, destinyID))
-#         if statsResponse:
-#             for char in statsResponse['Response']['characters']:
-#                 if char['characterId'] == characterID:
-#                     return char['merged']['allTime']
-#     return None
 
 async def getNameToHashMapByClanid(clanid):
     requestURL = "https://www.bungie.net/Platform/GroupV2/{}/members/".format(clanid) #memberlist
@@ -319,8 +339,7 @@ async def getNameAndCrossaveNameToHashMapByClanid(clanid):
 
 
 async def getPGCR(instanceID):
-    pgcrurl = f'https://www.bungie.net/Platform/Destiny2/Stats/PostGameCarnageReport/{instanceID}/'
-    return await getJSONfromURL(pgcrurl)
+    return await getJSONfromURL(f'https://www.bungie.net/Platform/Destiny2/Stats/PostGameCarnageReport/{instanceID}/')
 
 
 # type = "DestinyInventoryItemDefinition" (fe.), hash = 3993415705 (fe)   - returns MT
@@ -342,165 +361,275 @@ async def searchArmory(type, searchTerm):
         return None
 
 
-async def getManifest():
+async def updateManifest():
+    # get the manifest
     manifest_url = 'http://www.bungie.net/Platform/Destiny2/Manifest/'
-    binaryLocation = "cache/MANZIP"
-    os.makedirs(os.path.dirname(binaryLocation), exist_ok=True)
+    manifest = await getJSONfromURL(manifest_url)
 
-    #get the manifest location from the json
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url=manifest_url) as r:
-            manifest = await r.json()
-    mani_url = 'http://www.bungie.net' + manifest['Response']['mobileWorldContentPaths']['en']
+    print("Starting manifest update...")
 
-    #Download the file, write it to 'MANZIP'
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url=mani_url) as r:
-            with open(binaryLocation, "wb") as zip:
-                zip.write(await r.read())
+    if manifest:
+        # loop through the relevant manifest locations and save them in the DB
+        for definition, url in manifest['Response']['jsonWorldComponentContentPaths']['en'].items():
+            if definition == "DestinyActivityDefinition":
+                print("Starting DestinyActivityDefinition update...")
+                result = await getJSONfromURL(f'http://www.bungie.net{url}')
+                # update table
+                for referenceId, values in result.items():
+                    updateDestinyDefinition(
+                        definition,
+                        int(referenceId),
+                        description=values["displayProperties"]["description"] if values["displayProperties"]["description"] else None,
+                        name=values["displayProperties"]["name"] if values["displayProperties"]["name"] else None,
+                        activityLevel=values["activityLevel"],
+                        activityLightLevel=values["activityLightLevel"],
+                        destinationHash=values["destinationHash"],
+                        placeHash=values["placeHash"],
+                        activityTypeHash=values["activityTypeHash"],
+                        isPvP=values["isPvP"],
+                        directActivityModeHash=values["directActivityModeHash"] if "directActivityModeHash" in values else None,
+                        directActivityModeType=values["directActivityModeType"] if "directActivityModeType" in values else None,
+                        activityModeHashes=values["activityModeHashes"] if "activityModeHashes" in values else None,
+                        activityModeTypes=values["activityModeTypes"] if "activityModeTypes" in values else None
+                    )
 
-    #Extract the file contents, and rename the extracted file to 'Manifest.content'
-    with zipfile.ZipFile(binaryLocation) as zip:
-        name = zip.namelist()
-        zip.extractall()
-    os.rename(name[0], 'cache/Manifest.content')
+            elif definition == "DestinyActivityTypeDefinition":
+                print("Starting DestinyActivityTypeDefinition update...")
+                result = await getJSONfromURL(f'http://www.bungie.net{url}')
+                # update table
+                for referenceId, values in result.items():
+                    updateDestinyDefinition(
+                        definition,
+                        int(referenceId),
+                        description=values["displayProperties"]["description"] if "displayProperties" in values and "description" in values["displayProperties"] and values["displayProperties"]["description"] else None,
+                        name=values["displayProperties"]["name"] if "displayProperties" in values and "name" in values["displayProperties"] and values["displayProperties"]["name"] else None
+                    )
 
-async def fillDictFromDB(dictRef, table):
-    if not os.path.exists('cache/' + table + '.json'): 
-        if not os.path.exists('cache/Manifest.content'):
-            await getManifest()
+            elif definition == "DestinyActivityModeDefinition":
+                print("Starting DestinyActivityModeDefinition update...")
+                result = await getJSONfromURL(f'http://www.bungie.net{url}')
+                # update table
+                for referenceId, values in result.items():
+                    updateDestinyDefinition(
+                        definition,
+                        values["modeType"],
+                        description=values["displayProperties"]["description"] if values["displayProperties"]["description"] else None,
+                        name=values["displayProperties"]["name"] if values["displayProperties"]["name"] else None,
+                        hash=int(referenceId),
+                        activityModeCategory=values["activityModeCategory"],
+                        isTeamBased=values["isTeamBased"],
+                        friendlyName=values["friendlyName"]
+                    )
 
-        #Connect to DB
-        con = sqlite3.connect('cache/Manifest.content')
-        cur = con.cursor()
+            elif definition == "DestinyCollectibleDefinition":
+                print("Starting DestinyCollectibleDefinition update...")
+                result = await getJSONfromURL(f'http://www.bungie.net{url}')
+                # update table
+                for referenceId, values in result.items():
+                    updateDestinyDefinition(
+                        definition,
+                        int(referenceId),
+                        description=values["displayProperties"]["description"] if values["displayProperties"]["description"] else None,
+                        name=values["displayProperties"]["name"] if values["displayProperties"]["name"] else None,
+                        sourceHash=values["sourceHash"],
+                        itemHash=values["itemHash"],
+                        parentNodeHashes=values["parentNodeHashes"]
+                    )
 
-        #Query the DB
-        cur.execute(
-        '''SELECT 
-            json
-        FROM 
-        ''' + table
+            elif definition == "DestinyInventoryItemDefinition":
+                print("Starting DestinyInventoryItemDefinition update...")
+                result = await getJSONfromURL(f'http://www.bungie.net{url}')
+                # update table
+                for referenceId, values in result.items():
+                    updateDestinyDefinition(
+                        definition,
+                        int(referenceId),
+                        description=values["displayProperties"]["description"] if values["displayProperties"]["description"] else None,
+                        name=values["displayProperties"]["name"] if values["displayProperties"]["name"] else None,
+                        bucketTypeHash=values["inventory"]["bucketTypeHash"],
+                        tierTypeHash=values["inventory"]["tierTypeHash"],
+                        tierTypeName=values["inventory"]["tierTypeName"] if "tierTypeName" in values["inventory"] else None,
+                        equippable=values["equippable"]
+                    )
+
+            elif definition == "DestinyRecordDefinition":
+                print("Starting DestinyRecordDefinition update...")
+                result = await getJSONfromURL(f'http://www.bungie.net{url}')
+                # update table
+                for referenceId, values in result.items():
+                    updateDestinyDefinition(
+                        definition,
+                        int(referenceId),
+                        description=values["displayProperties"]["description"] if values["displayProperties"]["description"] else None,
+                        name=values["displayProperties"]["name"] if values["displayProperties"]["name"] else None,
+                        objectiveHashes=values["objectiveHashes"] if "objectiveHashes" in values else None,
+                        ScoreValue=values["completionInfo"]["ScoreValue"] if "completionInfo" in values else None,
+                        parentNodeHashes=values["parentNodeHashes"] if "parentNodeHashes" in values else None
+                    )
+
+        print("Done with manifest update!")
+
+
+async def insertPgcrToDB(instanceID: int, activity_time: datetime, pcgr: dict):
+    """ Saves the specified PGCR data in the DB """
+    insertPgcrActivities(
+        instanceID,
+        pcgr["activityDetails"]["referenceId"],
+        pcgr["activityDetails"]["directorActivityHash"],
+        activity_time,
+        pcgr["startingPhaseIndex"],
+        pcgr["activityDetails"]["mode"],
+        pcgr["activityDetails"]["modes"],
+        pcgr["activityDetails"]["isPrivate"],
+        pcgr["activityDetails"]["membershipType"]
+    )
+
+    # loop though user and save info to db
+    for user_pcgr in pcgr["entries"]:
+        characterID = user_pcgr["characterId"]
+        membershipID = user_pcgr["player"]["destinyUserInfo"]["membershipId"]
+
+        insertPgcrActivitiesUsersStats(
+            instanceID,
+            membershipID,
+            characterID,
+            user_pcgr["player"]["characterClass"] if "characterClass" in user_pcgr["player"] else "",
+            user_pcgr["player"]["characterLevel"],
+            user_pcgr["player"]["destinyUserInfo"]["membershipType"],
+            user_pcgr["player"]["lightLevel"],
+            user_pcgr["player"]["emblemHash"],
+            user_pcgr["standing"],
+            int(user_pcgr["values"]["assists"]["basic"]["value"]),
+            int(user_pcgr["values"]["completed"]["basic"]["value"]),
+            int(user_pcgr["values"]["deaths"]["basic"]["value"]),
+            int(user_pcgr["values"]["kills"]["basic"]["value"]),
+            int(user_pcgr["values"]["opponentsDefeated"]["basic"]["value"]),
+            user_pcgr["values"]["efficiency"]["basic"]["value"],
+            user_pcgr["values"]["killsDeathsRatio"]["basic"]["value"],
+            user_pcgr["values"]["killsDeathsAssists"]["basic"]["value"],
+            int(user_pcgr["values"]["score"]["basic"]["value"]),
+            int(user_pcgr["values"]["activityDurationSeconds"]["basic"]["value"]),
+            int(user_pcgr["values"]["completionReason"]["basic"]["value"]),
+            int(user_pcgr["values"]["startSeconds"]["basic"]["value"]),
+            int(user_pcgr["values"]["timePlayedSeconds"]["basic"]["value"]),
+            int(user_pcgr["values"]["playerCount"]["basic"]["value"]),
+            int(user_pcgr["values"]["teamScore"]["basic"]["value"]),
+            int(user_pcgr["extended"]["values"]["precisionKills"]["basic"]["value"]),
+            int(user_pcgr["extended"]["values"]["weaponKillsGrenade"]["basic"]["value"]),
+            int(user_pcgr["extended"]["values"]["weaponKillsMelee"]["basic"]["value"]),
+            int(user_pcgr["extended"]["values"]["weaponKillsSuper"]["basic"]["value"]),
+            int(user_pcgr["extended"]["values"]["weaponKillsAbility"]["basic"]["value"])
         )
-        items = cur.fetchall()
-        item_jsons = [json.loads(item[0]) for item in items]
-        con.close()
 
-        #Iterate over DB-JSONs and put named ones into the corresponding dictionary
-        for ijson in item_jsons:
-            if 'name' in ijson['displayProperties'].keys():
-                dictRef[ijson['hash']] = ijson['displayProperties']['name']
-        with open('cache/' + table + '.json', 'w') as outfile:
-            json.dump(dictRef, outfile)
-    else:
-        with open('cache/' + table + '.json') as json_file:
-            dictRef.update(json.load(json_file))
+        # loop though each weapon and save that info in the DB
+        if "weapons" in user_pcgr["extended"]:
+            for weapon_user_pcgr in user_pcgr["extended"]["weapons"]:
+                insertPgcrActivitiesUsersStatsWeapons(
+                    instanceID,
+                    characterID,
+                    membershipID,
+                    weapon_user_pcgr["referenceId"],
+                    int(weapon_user_pcgr["values"]["uniqueWeaponKills"]["basic"]["value"]),
+                    int(weapon_user_pcgr["values"]["uniqueWeaponPrecisionKills"]["basic"]["value"])
+                )
 
 
-async def insertIntoDB(destinyID, pve):
-    period = datetime.strptime(pve['period'], "%Y-%m-%dT%H:%M:%SZ")
-    
-    activityHash = pve['activityDetails']['directorActivityHash']
-    instanceID = pve['activityDetails']['instanceId']
-
-    if playerInstanceExists(instanceID, destinyID) and activityExists(instanceID):
-        return {'existed':instanceID}
-        
-    activityDurationSeconds = int(pve['values']['activityDurationSeconds']['basic']['value'])
-    completed = int(pve['values']['completed']['basic']['value'])
-    mode = int(pve['activityDetails']['mode'])
-    if completed and not int(pve['values']['completionReason']['basic']['value']):
-        if not (pgcr := await getPGCR(instanceID)):
-            print('Network error')
-            return {'networkerror': True}
-        pgcrdata = pgcr['Response']
-
-        startingPhaseIndex = pgcrdata['startingPhaseIndex']
-        deaths = 0
-        players = set()
-        for player in pgcrdata['entries']:
-            lightlevel = player['player']['lightLevel']
-            playerID = player['player']['destinyUserInfo']['membershipId']
-            players.add(playerID)
-            characterID = player['characterId']
-            playerdeaths = int(player['values']['deaths']['basic']['displayValue'])
-            deaths += playerdeaths
-            displayname = None
-            if 'displayName' in player['player']['destinyUserInfo']:
-                displayname = player['player']['destinyUserInfo']['displayName']
-            completed = int(player['values']['completed']['basic']['value'])
-            opponentsDefeated = player['values']['opponentsDefeated']['basic']['value']
-            system = player['player']['destinyUserInfo']['membershipType']
-            insertCharacter(playerID, characterID, system)
-            insertInstanceDetails(instanceID, playerID, characterID, lightlevel, displayname, deaths, opponentsDefeated, completed)
-        playercount = len(set(players))
-        #print(f'inserting {instanceID}')
-        insertActivity(instanceID, activityHash, activityDurationSeconds, period, startingPhaseIndex, deaths, playercount, mode)
-        return {'added':instanceID}
-    else:
-        return {'not_completed': True}
-        
 async def updateDB(destinyID):
-    if not destinyID:
-        return
+    """ Gets this users not-saved history and saves it """
+    async def handle(instanceID, activity_time):
+        # get PGCR
+        pcgr = await getPGCR(instanceID)
+        if not pcgr:
+            print('Failed getting pcgr <%s>. Trying again later', instanceID)
+            insertFailToGetPgcrInstanceId(instanceID, activity_time)
+            logger.warning('Failed getting pcgr <%s>', instanceID)
+            return None
+        return [instanceID, activity_time, pcgr["Response"]]
 
-    charcount = len((await getCharacterList(destinyID))[1])
-    if charcount == 0:
-        print(f'no characters found for {destinyID}')
-        return
-    #print(await getCharacterList(destinyID)[1])
-    processes = []
-    lastUpdate = getLastUpdated(destinyID)
-    donechars = []
-    print(f'checking {charcount} characters')
-    error, not_completed, existed, added = 0,0,[],[]
-    async for pve in getPlayersPastPVE(destinyID, earliest_allowed_time = lastUpdate - timedelta(days=1)):
-        if 'period' not in pve.keys():
-            print('period not in pve')
+    async def input_data(gather_instanceID, gather_activity_time):
+        result = await asyncio.gather(*[handle(instanceID, activity_time) for instanceID, activity_time in zip(gather_instanceID, gather_activity_time)])
 
-        if len(donechars) == charcount:
-            print(f'stopped loading {destinyID} at ' + period.strftime("%d %m %Y"))
-            updatedPlayer(destinyID)
-            break
+        for res in result:
+            if res is not None:
 
-        if pve['charid'] in donechars:
-            #print('charid in donechars... skipping...')
+                instanceID = res[0]
+                activity_time = res[1]
+                pcgr = res[2]
+
+                # insert information to DB
+                await insertPgcrToDB(instanceID, activity_time, pcgr)
+
+    logger = logging.getLogger('updateDB')
+    entry_time = getLastUpdated(destinyID)
+
+    logger.info('Starting activity DB update for destinyID <%s>', destinyID)
+
+    gather_instanceID = []
+    gather_activity_time = []
+    async for activity in getPlayersPastActivities(destinyID, mode=0, earliest_allowed_time=entry_time):
+        instanceID = activity["activityDetails"]["instanceId"]
+        activity_time = datetime.strptime(activity["period"], "%Y-%m-%dT%H:%M:%SZ")
+
+        # update with newest entry timestamp
+        if activity_time > entry_time:
+            entry_time = activity_time
+
+        # check if info is already in DB, skip if so
+        if getPgcrActivity(instanceID):
             continue
-        #print(pve)
-        period = datetime.strptime(pve['period'], "%Y-%m-%dT%H:%M:%SZ")
 
-        if period < (lastUpdate - timedelta(days=1)):
-            print(f'char {pve["charid"]} caught up to {pve["period"]}')
-            donechars.append(pve['charid'])
+        # add to gather list
+        gather_instanceID.append(instanceID)
+        gather_activity_time.append(activity_time)
+
+        # gather once list is big enough
+        if len(gather_instanceID) < 50:
+            continue
+        else:
+            # get and input the data
+            await input_data(gather_instanceID, gather_activity_time)
+
+            # reset gather list and restart
+            gather_instanceID = []
+            gather_activity_time = []
+
+    # one last time to clean out the extras after the code is done
+    if gather_instanceID:
+        # get and input the data
+        await input_data(gather_instanceID, gather_activity_time)
+
+    # update with newest entry timestamp
+    updateLastUpdated(destinyID, entry_time)
+
+    logger.info('Done with activity DB update for destinyID <%s>', destinyID)
+
+
+async def updateMissingPcgr():
+    # this gets called after a lot of requests, relaxing bungie first
+    await asyncio.sleep(30)
+
+    for missing in getFailToGetPgcrInstanceId():
+        instanceID = missing[0]
+        activity_time = missing[1]
+
+        # check if info is already in DB, delete and skip if so
+        if getPgcrActivity(instanceID):
+            deleteFailToGetPgcrInstanceId(instanceID)
             continue
 
-        result = await insertIntoDB(destinyID, pve)
-        if not result or 'networkerror' in result:
-            print('something went wrong')
-            error += 1
-        elif 'added' in result:
-            instanceID = result['added']
-            added.append(instanceID)
-        elif 'existed' in result:
-            instanceID = result['existed']
-            existed.append(instanceID)
-        elif 'not_completed' in result:
-            not_completed += 1
+        # get PGCR
+        pcgr = await getPGCR(instanceID)
 
-    updatedPlayer(destinyID)
-    print(f'done updating {destinyID} with {error} errors and {len(added)} new entries, while {len(existed)} already were present and {not_completed} not completed')
-    #print(f'{existed=}\n{added=}')
+        # only continue if we get a response this time
+        if not pcgr:
+            continue
 
+        # add info to DB
+        pcgr = pcgr["Response"]
+        await insertPgcrToDB(instanceID, activity_time, pcgr)
 
-async def initDB():
-    playerIDs = getAllDestinyIDs()
-    tasks = []
-
-    for playerID in playerIDs:
-        tasks.append(updateDB(playerID))
-
-    await asyncio.gather(*tasks)
-    print(f'done updating the db')
-
+        # delete from to-do DB
+        deleteFailToGetPgcrInstanceId(instanceID)
 
 def getSeals(client):
     # if file doesn't exist, call the daily running event (useful for first usage)
@@ -519,6 +648,7 @@ def getSeals(client):
 
     # returns list [[hash, name, displayName, hasExpiration], ...]
     return file["seals"][0]
+
 
 async def getClanMembers(client):
     # get all clan members {destinyID: discordID}

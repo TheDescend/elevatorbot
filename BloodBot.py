@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-import sys
-if "http" in sys.modules:
-    raise ImportError("Crawler must be imported before http module")
-import http.cookies
-http.cookies._is_legal_key = lambda _: True
+# import sys
+# if "http" in sys.modules:
+#     raise ImportError("Crawler must be imported before http module")
+# import http.cookies
+# http.cookies._is_legal_key = lambda _: True
 
 import asyncio
 import os
@@ -24,10 +24,10 @@ from commands.makePersistentMessages import otherGameRolesMessageReactions, read
 from events.base_event import BaseEvent
 from events import *
 from functions.bounties.bountiesBackend import getGlobalVar
-from functions.bounties.bountiesFunctions import generateBounties, registrationMessageReactions, updateExperienceLevels
+from functions.bounties.bountiesFunctions import registrationMessageReactions
 from functions.clanJoinRequests import clanJoinRequestMessageReactions, removeFromClanAfterLeftDiscord
-from functions.dataLoading import fillDictFromDB
-from functions.database import insertIntoMessageDB
+from functions.dataLoading import updateDB
+from functions.database import insertIntoMessageDB, db_connect, lookupDestinyID
 from functions.formating import embed_message
 from functions.miscFunctions import update_status
 from functions.roles import assignRolesToUser, removeRolesFromUser
@@ -61,17 +61,16 @@ def launch_event_loops(client):
     n_ev = 0
     for ev in BaseEvent.__subclasses__():
         event = ev()
-        sched.add_job(event.run, 'interval', (client,),
-                        minutes=event.interval_minutes, jitter=60)
+
+        # check the type of job and schedule acordingly
+        if event.scheduler_type == "interval":
+            sched.add_job(event.run, 'interval', (client,), minutes=event.interval_minutes, jitter=60)
+        elif event.scheduler_type == "cron":
+            sched.add_job(event.run, 'cron', (client,), day_of_week=event.dow_day_of_week, hour=event.dow_hour, minute=event.dow_hour)
+        elif event.scheduler_type == "date":
+            sched.add_job(event.run, 'date', (client,), run_date=event.interval_minutes)
+
         n_ev += 1
-
-    # generate new bounties every monday at midnight
-    # sched.add_job(generateBounties, "cron", (client,), day_of_week="mon", hour=19, minute=12)
-    sched.add_job(generateBounties, "cron", (client,), day_of_week="mon", hour=0, minute=0)
-
-    # update experience levels
-    # sched.add_job(updateExperienceLevels, "cron", (client,), day_of_week="mon", hour=19, minute=13)
-    sched.add_job(updateExperienceLevels, "cron", (client,), day_of_week="sun", hour=0, minute=0)
 
     sched.start()
     print(f"{n_ev} events loaded", flush=True)
@@ -83,6 +82,9 @@ def main():
 
     # Initialize logging
     init_logging()
+
+    # Connect to DB
+    db_connect()
 
     # Initialize the client
     print("Starting up...")
@@ -100,12 +102,6 @@ def main():
 
         t1 = Thread(target=launch_event_loops, args=(client,))
         t1.start()
-
-        # getting manifest
-        await fillDictFromDB(getNameFromHashRecords, 'DestinyRecordDefinition')
-        await fillDictFromDB(getNameFromHashActivity, 'DestinyActivityDefinition')
-        await fillDictFromDB(getNameFromHashCollectible, 'DestinyCollectibleDefinition')
-        await fillDictFromDB(getNameFromHashInventoryItem, 'DestinyInventoryItemDefinition')
 
         print("Logged in!", flush=True)
 
@@ -204,6 +200,10 @@ def main():
                 await member.remove_roles(message.guild.get_role(not_registered_role_id)) #unregistered role
                 await message.channel.send(f'{member.mention} has been marked as Registered')
                 await member.send('Registration successful!\nCome say hi in <#670400011519000616>')
+
+                # update user DB
+                destinyID = lookupDestinyID(member.id)
+                await updateDB(destinyID)
 
     tasks = []
     @client.event

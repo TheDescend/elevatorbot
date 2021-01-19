@@ -1,11 +1,13 @@
+import datetime
 from itertools import compress
 
 import discord
 
+from events.backgroundTasks import updateActivityDB
 from events.base_event import BaseEvent
-from functions.dataLoading import initDB
 from functions.database import lookupDiscordID, lookupDestinyID, getToken
 from functions.network import getJSONfromURL
+from functions.persistentMessages import botStatus
 from functions.roles import assignRolesToUser, removeRolesFromUser, getPlayerRoles
 from static.config import CLANID, BOTDEVCHANNELID
 from static.globals import *
@@ -13,11 +15,9 @@ from static.globals import *
 
 class AutomaticRoleAssignment(BaseEvent):
     """Will automatically update the roles"""
-
     def __init__(self):
-        interval_minutes = 720 # Set the interval for this event 1440 = 24h
-        super().__init__(interval_minutes)
-        print('initiate automaticRoleAssignment')
+        interval_minutes = 720  # Set the interval for this event
+        super().__init__(scheduler_type="interval", interval_minutes=interval_minutes)
     
     async def run(self, client):
         print('running the automatic role assignment...')
@@ -41,49 +41,49 @@ class AutomaticRoleAssignment(BaseEvent):
         newtonslab = client.get_channel(BOTDEVCHANNELID)
         #await newtonslab.send('running db update...')
         async with newtonslab.typing():
-            await initDB()
+            update = updateActivityDB()
+            await update.run(client)
         #await newtonslab.send('db done')
         #await newtonslab.send('running role update...')
 
-        async with newtonslab.typing():
-            #Since I'm too lazy to find out the guild-id, this is how I get the guild-object
-            guild = newtonslab.guild
+        #Since I'm too lazy to find out the guild-id, this is how I get the guild-object
+        guild = newtonslab.guild
 
-            news = []
-            async for member in guild.fetch_members():
-                news.append(await updateUser(member))
+        news = []
+        async for member in guild.fetch_members():
+            news.append(await updateUser(member))
 
-            newstext = ''#'done with role update <:CaydeThumbsUp:670997683774685234>\n'
+        newstext = 'done with role update <:CaydeThumbsUp:670997683774685234>\n'
 
-            for discordUser, newRoles, removeRoles in news:
-                if not discordUser:
-                    continue
-                is_assigned = await assignRolesToUser(newRoles, discordUser, guild)
-                await removeRolesFromUser(removeRoles, discordUser, guild)
-                existingRoles = [er.name for er in discordUser.roles]
-                addBools = [nr not in existingRoles for nr in newRoles]
-                removeBools = [rr in existingRoles for rr in removeRoles]
+        for discordUser, newRoles, removeRoles in news:
+            if not discordUser:
+                continue
+            is_assigned = await assignRolesToUser(newRoles, discordUser, guild)
+            await removeRolesFromUser(removeRoles, discordUser, guild)
+            existingRoles = [er.name for er in discordUser.roles]
+            addBools = [nr not in existingRoles for nr in newRoles]
+            removeBools = [rr in existingRoles for rr in removeRoles]
 
-                addrls = list(compress(newRoles, addBools))
-                removerls = list(compress(removeRoles, removeBools))
+            addrls = list(compress(newRoles, addBools))
+            removerls = list(compress(removeRoles, removeBools))
 
-                if addrls or removerls:
-                    if is_assigned:
-                        newstext += f'Updated player {discordUser.name} by adding {", ".join(addrls or ["nothing"])} and removing {", ".join(removerls or ["nothing"])}\n'
-                    else:
-                        pass
-                        #newstext += f'Would have updated player {discordUser.name} by adding {", ".join(addrls or ["nothing"])} and removing {", ".join(removerls or ["nothing"])}, but User is currently prohibited from acquiring roles\n'
-            if newstext:
-                await newtonslab.send(newstext)
-        
-        #await newtonslab.send('done with daily update <:CaydeThumbsUp:670997683774685234>')
+            if addrls or removerls:
+                if is_assigned:
+                    newstext += f'Updated player {discordUser.name} by adding {", ".join(addrls or ["nothing"])} and removing {", ".join(removerls or ["nothing"])}\n'
+                else:
+                    newstext += f'Would have updated player {discordUser.name} by adding {", ".join(addrls or ["nothing"])} and removing {", ".join(removerls or ["nothing"])}, but User is currently prohibited from acquiring roles\n'
+
+            await newtonslab.send(newstext)
+
+        # update the status
+        await botStatus(client, "Achievement Role Update", datetime.datetime.now())
 
 
 class AutoRegisteredRole(BaseEvent):
     """Will automatically update the registration and the guest role"""
     def __init__(self):
-        interval_minutes = 30  # Set the interval for this event 1440 = 24h
-        super().__init__(interval_minutes)
+        interval_minutes = 30  # Set the interval for this event
+        super().__init__(scheduler_type="interval", interval_minutes=interval_minutes)
 
     async def run(self, client):
         # get all clan members discordID
@@ -153,3 +153,6 @@ class AutoRegisteredRole(BaseEvent):
                         await assignRolesToUser([divider_misc_role_id], member, guild)
                     if discord.utils.get(guild.roles, id=divider_legacy_role_id) not in member.roles:
                         await assignRolesToUser([divider_legacy_role_id], member, guild)
+
+        # update the status
+        await botStatus(client, "Member Role Update", datetime.datetime.now())

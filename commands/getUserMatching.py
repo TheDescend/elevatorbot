@@ -14,7 +14,7 @@ class getUserMatching(BaseCommand):
 
     # Override the handle() method
     # It will be called every time the command is received
-    async def handle(self, params, message, client):
+    async def handle(self, params, message, mentioned_user, client):
         
         for clanid,name in clanids.items():
             await message.channel.send(f'matching members for clan {name}')
@@ -25,9 +25,9 @@ class getUserMatching(BaseCommand):
                 discordID = lookupDiscordID(userid)
                 if discordID:
                     # user could be matched
-                    user = client.get_user(discordID)
-                    if user:
-                        successfulMatches.append((steamname, crosssavename, user.name))
+                    guy = client.get_user(discordID)
+                    if guy:
+                        successfulMatches.append((steamname, crosssavename, guy.name))
                     else:
                         await message.channel.send(f'[ERROR] {steamname}/{crosssavename} with destinyID {userid} has discordID {discordID} but it is faulty')
                 else:

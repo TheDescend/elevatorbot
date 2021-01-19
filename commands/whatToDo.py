@@ -18,7 +18,7 @@ class whatToDo(BaseCommand):
 
     # Override the handle() method
     # It will be called every time the command is received
-    async def handle(self, params, message, client):
+    async def handle(self, params, message, mentioned_user, client):
         # if those get edited, need to change below as well
         types = [
             "roles",
@@ -27,7 +27,7 @@ class whatToDo(BaseCommand):
         ]
 
         # check if message too long
-        if len(params) > 2:
+        if len(params) > 1:
             await message.channel.send(embed=embed_message(
                 'Error',
                 'Incorrect formatting, correct usage is: \n.B\n `!whatToDo *<type> *<user>`'
@@ -37,27 +37,6 @@ class whatToDo(BaseCommand):
         # set user to the one that send the message, or if a 2nd param was used, the one mentioned
         # do the same, if the first param can be converted to a user
         block = False
-
-        # set user to author or param
-        try:
-            user = message.guild.get_member(params[0])
-            if user:
-                block = True
-            else:
-                user = message.author
-        except IndexError:
-            user = message.author
-
-        if len(params) == 2:
-            try:
-                user = message.guild.get_member(params[1])
-            except:
-                await message.channel.send(
-                    embed=embed_message(
-                        'Error',
-                        'User not found, make sure the spelling/id is correct'
-                    ))
-                return
 
         # check if types is correct
         try:
@@ -73,7 +52,7 @@ class whatToDo(BaseCommand):
 
         async with message.channel.typing():
             embed = embed_message(
-                f"{user.display_name}'s ToDo List"
+                f"{mentioned_user.display_name}'s ToDo List"
             )
 
             # do everything if no specific type was given
@@ -85,7 +64,7 @@ class whatToDo(BaseCommand):
             if do_all or (params[0] == "roles"):
                 embed.add_field(name="⁣", value=f"__**Roles:**__", inline=False)
 
-                roles = self.missingRoles(user)
+                roles = self.missingRoles(mentioned_user)
 
                 # only do this if there are roles to get
                 if roles:
@@ -98,7 +77,7 @@ class whatToDo(BaseCommand):
             if do_all or (params[0] == "triumphs"):
                 embed.add_field(name="⁣", value=f"__**Triumphs:**__", inline=False)
 
-                missing = await self.missingTriumphs(user)
+                missing = await self.missingTriumphs(mentioned_user)
 
                 # only do this if there are triumphs to get
                 if missing:
@@ -144,7 +123,7 @@ class whatToDo(BaseCommand):
 
                 embed.add_field(name="⁣", value=f"__**Seals:**__", inline=False)
 
-                missing = await self.missingSeals(client, user)
+                missing = await self.missingSeals(client, mentioned_user)
 
                 if missing:
                     for seal in missing:

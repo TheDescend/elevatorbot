@@ -1,7 +1,7 @@
 from commands.base_command import BaseCommand
 from functions.database import removeUser, lookupDestinyID
 from functions.formating import embed_message
-from functions.roles import hasAdminOrDevPermissions
+from functions.miscFunctions import hasAdminOrDevPermissions
 from static.config import BUNGIE_OAUTH
 
 
@@ -15,7 +15,7 @@ class register(BaseCommand):
 
     # Override the handle() method
     # It will be called every time the command is received
-    async def handle(self, params, message, client):
+    async def handle(self, params, message, mentioned_user, client):
         await elevatorRegistration(message)
 
 
@@ -29,7 +29,7 @@ class registerDesc(BaseCommand):
 
     # Override the handle() method
     # It will be called every time the command is received
-    async def handle(self, params, message, client):
+    async def handle(self, params, message, mentioned_user, client):
         await elevatorRegistration(message)
 
 
@@ -41,7 +41,8 @@ async def elevatorRegistration(message):
     URL = f'https://www.bungie.net/en/oauth/authorize?client_id={BUNGIE_OAUTH}&response_type=code&state={state}'
     await message.author.send(embed=embed_message(
         f'Registration',
-        f'[Click here to register with the bot]({URL})'
+        f'[Click here to register with me]({URL})',
+        "Please be aware that I will need a while to process your data after you register for the first time, so I might react very slow to your first commands."
     ))
     await message.channel.send(embed=embed_message(
         'Registration',
@@ -59,8 +60,8 @@ class checkregister(BaseCommand):
 
     # Override the handle() method
     # It will be called every time the command is received
-    async def handle(self, params, message, client):
-        await message.channel.send(f'User {message.author.nick or message.author.name} has ID {lookupDestinyID(message.author.id)}')
+    async def handle(self, params, message, mentioned_user, client):
+        await message.channel.send(f'User {mentioned_user.nick or mentioned_user.name} has ID {lookupDestinyID(mentioned_user.id)}')
 
 
 
@@ -74,12 +75,12 @@ class unregister(BaseCommand):
 
     # Override the handle() method
     # It will be called every time the command is received
-    async def handle(self, params, message, client):
+    async def handle(self, params, message, mentioned_user, client):
         # check if user has permission to use this command
-        if not await hasAdminOrDevPermissions(message) and not message.author.id == params[0]:
+        if not await hasAdminOrDevPermissions(message) and not message.author.id == mentioned_user.id:
             return
 
-        if removeUser(params[0]):
-            await message.author.send(f'removed {params[0]}')
+        if removeUser(mentioned_user.id):
+            await message.author.send(f'removed {mentioned_user.nick or mentioned_user.name}')
         else:
-            await message.author.send('removal failed for ', params[0])
+            await message.author.send('removal failed for ', {mentioned_user.nick or mentioned_user.name})

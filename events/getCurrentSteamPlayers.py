@@ -5,14 +5,14 @@ import pandas as pd
 
 from events.base_event import BaseEvent
 from functions.network import getJSONfromURL
+from functions.persistentMessages import botStatus
 from static.config import STEAM_TOKEN
 
 
 class getCurrentSteamPlayers(BaseEvent):
     def __init__(self):
         interval_minutes = 60  # Set the interval for this event
-        super().__init__(interval_minutes)
-
+        super().__init__(scheduler_type="interval", interval_minutes=interval_minutes)
 
     # Override the run() method
     # It will be called once every {interval_minutes} minutes
@@ -52,3 +52,6 @@ class getCurrentSteamPlayers(BaseEvent):
 
         except:
             print("error getting current steam players")
+
+        # update the status
+        await botStatus(client, "Steam Player Update", datetime.now())

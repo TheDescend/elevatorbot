@@ -1,12 +1,16 @@
 import discord
+import datetime
 
 from functions.bounties.bountiesFunctions import getGlobalVar, saveAsGlobalVar
+from functions.database import getPersistentMessage, updatePersistentMessage, insertPersistentMessage, \
+    getallSteamJoinIDs
 from functions.formating import embed_message
 # writes the message the user will see and react to and saves the id in the pickle
 from static.globals import yes_emoji_id, destiny_emoji_id, among_us_emoji_id, barotrauma_emoji_id, gta_emoji_id, \
-    valorant_emoji_id, lol_emoji_id
+    valorant_emoji_id, lol_emoji_id, steam_join_codes_channel_id, admin_workboard_channel_id
 
 
+# todo change this to the new format
 async def persistentChannelMessages(client):
     file = getGlobalVar()
 
@@ -119,3 +123,103 @@ And lastly, if you have any general suggestions or ideas for new bounties, conta
                     notification = client.get_emoji(754946724237148220)
                     await msg.add_reaction(notification)
                     saveAsGlobalVar("register_channel_message_id", msg.id)
+
+
+
+async def steamJoinCodeMessage(client, guild):
+    # get all IDs
+    data = dict(getallSteamJoinIDs())
+    data = {k: v for k, v in sorted(data.items(), key=lambda item: item[1], reverse=False)}
+
+    # put in two lists for the embed
+    name = []
+    code = []
+    for i, c in data.items():
+        # get display_name. If that doesnt work user isnt in guild, thus ignore him
+        try:
+            n = guild.get_member(i).display_name
+        except AttributeError:
+            continue
+
+        name.append(n)
+        code.append(str(c))
+
+    # create new message
+    embed = embed_message(
+        "Steam Join Codes",
+        "Here you can find a updated list of Steam Join Codes. \nUse `!setID` to set appear here and `!getid <user>` to find a code without looking here"
+    )
+
+    # add name field
+    embed.add_field(name="User", value="\n".join(name), inline=True)
+
+    # add code field
+    embed.add_field(name="Code", value="\n".join(code), inline=True)
+
+    # get msg object.
+    res = getPersistentMessage("steamJoinCodes", guild.id)
+    if res:
+        channel = client.get_channel(res[0])
+        message = await channel.fetch_message(res[1])
+        await message.edit(embed=embed)
+
+    # Skip if no message exist and begin making one
+    else:
+        channel = client.get_channel(steam_join_codes_channel_id)
+        message = await channel.send(embed=embed)
+        insertPersistentMessage("steamJoinCodes", guild.id, channel.id, message.id, [])
+
+
+async def botStatus(client, field_name: str, time: datetime.datetime):
+    """
+    takes the field (name) and the timestamp of last update
+
+    Current fields in use:
+        "Database Update"
+        "Manifest Update"
+        "Member Role Update"
+        "Achievement Role Update"
+        "Bounties - Experience Update"
+        "Bounties - Generation"
+        "Bounties - Completion Update"
+        "Steam Player Update"
+    """
+
+    # get msg. guild id is one, since there is only gonna be one msg
+    res = getPersistentMessage("botStatus", 1)
+
+    embed = embed_message(
+        "Status: Last valid..."
+    )
+
+    if res:
+        channel = client.get_channel(res[0])
+        if not channel:
+            return
+        message = await channel.fetch_message(res[1])
+        embeds = message.embeds[0]
+        fields = embeds.fields
+
+        found = False
+        for field in fields:
+            embed.add_field(name=field.name, value=str(time) if field.name == field_name else field.value, inline=True)
+            if field.name == field_name:
+                found = True
+
+        if not found:
+            embed.add_field(name=field_name, value=str(time), inline=True)
+
+        await message.edit(embed=embed)
+
+
+    else:
+        channel = client.get_channel(admin_workboard_channel_id)
+        if not channel:
+            return
+
+        embed.add_field(name=field_name, value=str(time), inline=True)
+
+        message = await channel.send(embed=embed)
+
+        insertPersistentMessage("botStatus", 1, channel.id, message.id, [])
+

@@ -13,10 +13,13 @@ class getapikey(BaseCommand):
 
     # Override the handle() method
     # It will be called every time the command is received
-    async def handle(self, params, message, client):
+    async def handle(self, params, message, mentioned_user, client):
         if type(message.channel) == channel.DMChannel:
             with message.channel.typing():
                 print('getting apikey')
+                if message.author.id is not mentioned_user.id:
+                    await message.channel.send("Cant get a different users token. please try again")
+                    return
                 await message.channel.send(await getFreshToken(message.author.id))
         else:
             await message.channel.send("only usable in DMs, due to privacy/security concerns")

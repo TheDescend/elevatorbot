@@ -3,7 +3,7 @@ from functions.database import getToken, lookupDiscordID
 from functions.formating import embed_message
 from functions.network import getJSONfromURL
 from functions.roles import assignRolesToUser, removeRolesFromUser
-from functions.roles import hasAdminOrDevPermissions
+from functions.miscFunctions import hasAdminOrDevPermissions
 from static.config import CLANID
 from static.globals import registered_role_id, not_registered_role_id, member_role_id
 
@@ -20,7 +20,7 @@ class addRolesToRegistered(BaseCommand):
 
     # Override the handle() method
     # It will be called every time the command is received
-    async def handle(self, params, message, client):
+    async def handle(self, params, message, mentioned_user, client):
         if not await hasAdminOrDevPermissions(message):
             return
         await message.channel.send("Working...")
@@ -58,7 +58,7 @@ class whoIsNotRegistered(BaseCommand):
 
     # Override the handle() method
     # It will be called every time the command is received
-    async def handle(self, params, message, client):
+    async def handle(self, params, message, mentioned_user, client):
         people = []
         for member in message.guild.members:
             if not getToken(member.id):
@@ -77,7 +77,7 @@ class findNaughtyClanMembers(BaseCommand):
 
     # Override the handle() method
     # It will be called every time the command is received
-    async def handle(self, params, message, client):
+    async def handle(self, params, message, mentioned_user, client):
         # get all clan members discordID
         memberlist = []
         for member in (await getJSONfromURL(f"https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/"))["Response"]["results"]:

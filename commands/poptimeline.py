@@ -16,14 +16,13 @@ class poptimeline(BaseCommand):
         topic = "Destiny"
         super().__init__(description, params, topic)
 
-
-    async def handle(self, params, message, client):
+    async def handle(self, params, message, mentioned_user, client):
         season_dates = [
-            ["2019-10-01", "Shadowkeep / Season of the Undying"],
+            ["2019-10-01", "Shadowkeep"],
             ["2019-12-10", "Season of Dawn"],
             ["2020-03-10", "Season of the Worthy"],
             ["2020-06-09", "Season of Arrivals"],
-            ["2020-11-10", "Beyond Light / Season of the Hunt"],
+            ["2020-11-10", "Beyond Light"],
         ]
         other_dates = [
             ["2019-10-04", "GoS"],
@@ -39,7 +38,6 @@ class poptimeline(BaseCommand):
             ["2020-07-07", "Moments of Triumph"],
         ]
 
-
         # reading data and preparing it
         data = pd.read_pickle('database/steamPlayerData.pickle')
         data['datetime'] = pd.to_datetime(data['datetime'])
@@ -50,15 +48,16 @@ class poptimeline(BaseCommand):
         ax.yaxis.grid(True)
 
         # filling plot
-        ax.plot(data['datetime'],
-                data['players'],
-                "darkred"
+        ax.plot(
+            data['datetime'],
+            data['players'],
+            "darkred"
         )
 
         # Set title and labels for axes
         ax.set_title("Destiny 2 - Steam Player Count", fontweight="bold", size=30, pad=20)
-        ax.set_xlabel("Date", fontsize = 20)
-        ax.set_ylabel("Players", fontsize = 20)
+        ax.set_xlabel("Date", fontsize=20)
+        ax.set_ylabel("Players", fontsize=20)
 
         # adding nice lines to mark important events
         for dates in season_dates:
@@ -74,13 +73,12 @@ class poptimeline(BaseCommand):
             ax.axvline(date, color="mediumaquamarine")
             ax.text(date + datetime.timedelta(days=2), (max(data['players']) - min(data['players'])) * 0.90 + min(data['players']), dates[1], color="mediumaquamarine", bbox=dict(facecolor='white', edgecolor='mediumaquamarine', boxstyle='round'))
 
-
         # saving file
         title = "players.png"
         plt.savefig(title)
 
         # sending them the file
-        await message.channel.send(file=discord.File(title))
+        await message.reply(file=discord.File(title))
 
         # delete file
         os.remove(title)

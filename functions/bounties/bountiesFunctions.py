@@ -1,11 +1,8 @@
-import asyncio
 import datetime
 import io
-import json
 import os
 import pickle
 import random
-from copy import deepcopy
 
 import aiohttp
 import discord
@@ -14,10 +11,8 @@ from PIL import Image, ImageDraw, ImageFont
 from functions.bounties.bountiesBackend import saveAsGlobalVar, getGlobalVar, addPoints, formatLeaderboardMessage, \
     returnLeaderboard, getCompetitionBountiesLeaderboards, changeCompetitionBountiesLeaderboards, experiencePvp, \
     experiencePve, experienceRaids, threadingCompetitionBounties, threadingBounties
-from functions.bounties.bountiesTournament import tournamentRegistrationMessage
-from functions.bounties.boutiesBountyRequirements import bounties_dict, competition_bounties_dict, \
-    possibleWeaponsKinetic, possibleWeaponsEnergy, possibleWeaponsPower
-from functions.dataLoading import returnManifestInfo, getPlayersPastPVE
+from functions.bounties.boutiesBountyRequirements import possibleWeaponsKinetic, possibleWeaponsEnergy, possibleWeaponsPower
+from functions.dataLoading import returnManifestInfo, getPlayersPastActivities
 from functions.database import insertBountyUser, getBountyUserList, getLevel, setLevel, lookupDestinyID
 from functions.formating import embed_message
 from functions.miscFunctions import checkIfUserIsRegistered
@@ -25,67 +20,6 @@ from static.dict import activityRaidHash, speedrunActivitiesRaids, weaponTypeKin
 
 
 # randomly generate bounties. One per topic for both of the lists
-async def generateBounties(client):
-    # award points for the competition bounties
-    await awardCompetitionBountiesPoints(client)
-
-    # clean the tourn channel registration message if exist
-    file = getGlobalVar()
-    for guild in client.guilds:
-        if guild.id == file["guild_id"]:
-            try:
-                tourn_channel = discord.utils.get(guild.channels, id=file["tournament_channel"])
-                tourn_msg = await tourn_channel.fetch_message(file["tournament_channel_message_id"])
-                await tourn_msg.delete()
-            except:
-                pass
-
-    # looping though the bounties
-    copy_of_bounty_dict = deepcopy(bounties_dict)
-    file = {}
-    file["bounties"] = {}
-    for topic in copy_of_bounty_dict.keys():
-        file["bounties"][topic] = {}
-        for experience in copy_of_bounty_dict[topic].keys():
-            ret = await bountiesFormatting(client, topic, copy_of_bounty_dict[topic][experience], amount_of_bounties=2)
-            file["bounties"][topic][experience] = {}
-
-            for key in ret:
-                value = ret[key]
-                file["bounties"][topic][experience][key] = value
-
-    # looping though the competition bounties
-    copy_of_competition_bounties_dict = deepcopy(competition_bounties_dict)
-    file["competition_bounties"] = {}
-    for topic in copy_of_competition_bounties_dict.keys():
-        ret = await bountiesFormatting(client, topic, copy_of_competition_bounties_dict[topic])
-        file["competition_bounties"][topic] = {}
-
-        for key in ret:
-            value = ret[key]
-            file["competition_bounties"][topic][key] = value
-
-            # if "tournament" is in there, put the tourn message up
-            if "tournament" in value["requirements"]:
-                await tournamentRegistrationMessage(client)
-
-    # add current time to list
-    file["time"] = str(datetime.datetime.now())
-
-    # overwrite the old bounties
-    with open('functions/bounties/currentBounties.pickle', "wb+") as f:
-        pickle.dump(file, f)
-
-    print("Generated new bounties:")
-    print(json.dumps(file, indent=4))
-
-    # update the display
-    task = displayBounties(client)
-    asyncio.run_coroutine_threadsafe(task, client.loop)
-
-    # delete old bounty completion tracking pickle
-    if os.path.exists('functions/bounties/playerBountyStatus.pickle'):
-        os.remove('functions/bounties/playerBountyStatus.pickle')
 
 
 # do the random selection and the extraText formating
@@ -406,7 +340,7 @@ async def bountyCompletion(client):
         experience_level_raids = getLevel("exp_raids", discordID)
 
         # loop though activities
-        async for activity in getPlayersPastPVE(destinyID, mode=0):
+        async for activity in getPlayersPastActivities(destinyID, mode=0):
             # only look at activities younger than the cutoff date
             if datetime.datetime.strptime(activity["period"], "%Y-%m-%dT%H:%M:%SZ") < cutoff:
                 break
@@ -547,10 +481,6 @@ async def registrationMessageReactions(client, user, emoji, register_channel, re
 
 
 # loop though all users and refresh their experience level. Get's called once a week on sunday at midnight
-async def updateExperienceLevels(client):
-    for user in getBountyUserList():
-        await updateAllExperience(client, user)
-    print("Done updating experience")
 
 
 # updates / sets all experience levels for the user

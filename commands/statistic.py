@@ -1,5 +1,5 @@
 from commands.base_command import BaseCommand
-from functions.roles import hasAdminOrDevPermissions
+from functions.miscFunctions import hasAdminOrDevPermissions
 
 import re
 import discord
@@ -16,7 +16,7 @@ class statistic(BaseCommand):
 
     # Override the handle() method
     # It will be called every time the command is received
-    async def handle(self, params, message, client):
+    async def handle(self, params, message, mentioned_user, client):
         if not await hasAdminOrDevPermissions(message):
             return
 
