@@ -210,6 +210,7 @@ requirementHashes = {
             ]
         }
     },
+        #################### TODO anything above here has unchecked hashes #################################
     'Y2':{
         'Crown of Sorrow': {
             "deprecated": True,
@@ -219,9 +220,9 @@ requirementHashes = {
                 'actHashes' : cosHashes}
             ], #• Minimum 15 full clears
             'records': [
-                1575460004,    #Limited Blessings
-                1575460003,    #Total Victory
-                1575460002,    #With Both Hands
+                3308790634,    #Limited Blessings
+                3308790637,    #Total Victory
+                3308790636,    #With Both Hands
            ],
            'replaced_by': ['Y2 Raid Master', 'Crown of Sorrow Master']
        },
@@ -233,15 +234,14 @@ requirementHashes = {
                 'actHashes' : cosHashes} #Minimum 15 full clears
             ],
             'records': [
-                1558682416,    #Crown of Ease [Flawless]
-                1558682417,    #Arc Borne :Arc: 
-                1558682418,    #Void Borne :Void: 
-                1558682419,    #Solar Borne :Solar: 
-                1558682428    #Stay Classy [Same Class]
+                3292013042,    #Crown of Ease [Flawless]
+                3292013043,    #Arc Borne :Arc: 
+                3292013040,    #Void Borne :Void: 
+                3292013041,    #Solar Borne :Solar: 
+                3292013054    #Stay Classy [Same Class]
             ],
             'replaced_by':['Y2 Raid Master']
         },
-        #################### TODO anything above here has unchecked hashes #################################
         'Scourge of the Past': {
             "deprecated": True,
             'requirements': ['clears','records'],
