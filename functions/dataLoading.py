@@ -10,7 +10,7 @@ import pandas
 
 from functions.database import insertActivity, insertCharacter, insertInstanceDetails, updatedPlayer, \
     lookupDiscordID, lookupSystem
-from functions.database import getSystemAndChars, getLastUpdated, playerInstanceExists, getAllDestinyIDs
+from functions.database import getSystemAndChars, getLastUpdated, playerInstanceExists, activityExists, getAllDestinyIDs
 from functions.network import getJSONfromURL, getComponentInfoAsJSON, getJSONwithToken
 from static.config import CLANID
 
@@ -398,10 +398,11 @@ async def fillDictFromDB(dictRef, table):
 
 async def insertIntoDB(destinyID, pve):
     period = datetime.strptime(pve['period'], "%Y-%m-%dT%H:%M:%SZ")
+    
     activityHash = pve['activityDetails']['directorActivityHash']
     instanceID = pve['activityDetails']['instanceId']
 
-    if playerInstanceExists(instanceID, destinyID):
+    if playerInstanceExists(instanceID, destinyID) and activityExists(instanceID):
         return {'existed':instanceID}
         
     activityDurationSeconds = int(pve['values']['activityDurationSeconds']['basic']['value'])
@@ -431,10 +432,12 @@ async def insertIntoDB(destinyID, pve):
             system = player['player']['destinyUserInfo']['membershipType']
             insertCharacter(playerID, characterID, system)
             insertInstanceDetails(instanceID, playerID, characterID, lightlevel, displayname, deaths, opponentsDefeated, completed)
-        playercount = len(players)
+        playercount = len(set(players))
         #print(f'inserting {instanceID}')
         insertActivity(instanceID, activityHash, activityDurationSeconds, period, startingPhaseIndex, deaths, playercount, mode)
-    return {'added':instanceID}
+        return {'added':instanceID}
+    else:
+        return {'not_completed': True}
         
 async def updateDB(destinyID):
     if not destinyID:
@@ -449,7 +452,7 @@ async def updateDB(destinyID):
     lastUpdate = getLastUpdated(destinyID)
     donechars = []
     print(f'checking {charcount} characters')
-    error, existed, added = 0,[],[]
+    error, not_completed, existed, added = 0,0,[],[]
     async for pve in getPlayersPastPVE(destinyID, earliest_allowed_time = lastUpdate - timedelta(days=1)):
         if 'period' not in pve.keys():
             print('period not in pve')
@@ -480,16 +483,22 @@ async def updateDB(destinyID):
         elif 'existed' in result:
             instanceID = result['existed']
             existed.append(instanceID)
+        elif 'not_completed' in result:
+            not_completed += 1
 
     updatedPlayer(destinyID)
-    print(f'done updating {destinyID} with {error} errors and {len(added)} new entries, while {len(existed)} already were present')
+    print(f'done updating {destinyID} with {error} errors and {len(added)} new entries, while {len(existed)} already were present and {not_completed} not completed')
     #print(f'{existed=}\n{added=}')
 
 
 async def initDB():
     playerIDs = getAllDestinyIDs()
+    tasks = []
+
     for playerID in playerIDs:
-        await updateDB(playerID)
+        tasks.append(updateDB(playerID))
+
+    await asyncio.gather(*tasks)
     print(f'done updating the db')
 
 
