@@ -53,7 +53,7 @@ class AutomaticRoleAssignment(BaseEvent):
             async for member in guild.fetch_members():
                 news.append(await updateUser(member))
 
-            newstext = 'done with role update <:CaydeThumbsUp:670997683774685234>\n'
+            newstext = ''#'done with role update <:CaydeThumbsUp:670997683774685234>\n'
 
             for discordUser, newRoles, removeRoles in news:
                 if not discordUser:
@@ -71,10 +71,10 @@ class AutomaticRoleAssignment(BaseEvent):
                     if is_assigned:
                         newstext += f'Updated player {discordUser.name} by adding {", ".join(addrls or ["nothing"])} and removing {", ".join(removerls or ["nothing"])}\n'
                     else:
-                        newstext += f'Would have updated player {discordUser.name} by adding {", ".join(addrls or ["nothing"])} and removing {", ".join(removerls or ["nothing"])}, but User is currently prohibited from acquiring roles\n'
-
-
-            await newtonslab.send(newstext)
+                        pass
+                        #newstext += f'Would have updated player {discordUser.name} by adding {", ".join(addrls or ["nothing"])} and removing {", ".join(removerls or ["nothing"])}, but User is currently prohibited from acquiring roles\n'
+            if newstext:
+                await newtonslab.send(newstext)
         
         #await newtonslab.send('done with daily update <:CaydeThumbsUp:670997683774685234>')
 
