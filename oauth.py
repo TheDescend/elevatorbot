@@ -99,6 +99,9 @@ def root():
     t = int(time.time())
     r = requests.post(url, data=data, headers=headers)
     authresponse = r.json()
+    if not "access_token" in authresponse:
+        print(f"invalid authresponse: {authresponse}")
+        return "Something went wrong. Maybe an invalid token/code in your URL?"
     access_token = authresponse['access_token']
     refresh_token = authresponse['refresh_token']
     token_expiry = t + authresponse['expires_in']
