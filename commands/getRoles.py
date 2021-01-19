@@ -9,6 +9,8 @@ from functions.roles import hasAdminOrDevPermissions, assignRolesToUser, removeR
 from static.dict import requirementHashes, clanids
 from static.globals import dev_role_id
 
+import time
+
 
 class getRoles(BaseCommand):
     def __init__(self):
@@ -63,7 +65,14 @@ class getRoles(BaseCommand):
         
         async with message.channel.typing():
             roles_at_start = [role.name for role in user.roles]
+            
+            starttime = time.time()
+
             (roleList, removeRoles) = await getPlayerRoles(destinyID, roles_at_start)
+
+            endtime = time.time() - starttime
+
+            print(f'getPlayerRoles took {endtime} seconds to get roles for {destinyID}')
 
             roles_assignable = await assignRolesToUser(roleList, user, message.guild)
             await removeRolesFromUser(removeRoles, user, message.guild)
@@ -132,7 +141,11 @@ class getRoles(BaseCommand):
                 embed.add_field(name=topic, value="\n".join(new_roles[topic]), inline=True)
 
             await wait_msg.delete()
-            await message.channel.send(embed=embed)
+            await message.channel.send(
+                embed=embed,
+                reference=message,
+                mention_author=True
+            )
 
 class lastRaid(BaseCommand):
     def __init__(self):
@@ -265,21 +278,25 @@ class assignAllRoles(BaseCommand):
         await message.channel.send('Updating DB...')
         await initDB()
         await message.channel.send('Assigning roles...')
+        donemessage = ""
         for discordUser in message.guild.members:
             destinyID = lookupDestinyID(discordUser.id)
             if not destinyID:
-                await message.channel.send(f'No destinyID found for {discordUser.name}')
+                #await message.channel.send(f'No destinyID found for {discordUser.name}')
                 continue
 
             async with message.channel.typing():
+
                 (newRoles, removeRoles) = await getPlayerRoles(destinyID, [role.name for role in discordUser.roles])
                 await assignRolesToUser(newRoles, discordUser, message.guild)
                 await removeRolesFromUser(removeRoles, discordUser, message.guild)
 
                 roletext = ', '.join(newRoles)
-                await message.channel.send(f'Assigned roles {roletext} to {discordUser.name}')
+                donemessage += f'Assigned roles {roletext} to {discordUser.name}\n'
+        
+        await message.channel.send(donemessage)
 
-        await message.channel.send('All roles assigned')
+        #await message.channel.send('All roles assigned')
 
 
 class roleRequirements(BaseCommand):
@@ -361,4 +378,8 @@ class roleRequirements(BaseCommand):
                 embed.add_field(name=req, value=reqs[1][req], inline=True)
             
             await wait_msg.delete()
-            await message.channel.send(embed=embed)
+            await message.channel.send(
+                embed=embed,
+                reference=message,
+                mention_author=True
+            )
