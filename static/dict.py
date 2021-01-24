@@ -1,10 +1,3 @@
-getNameFromHashRecords = {}
-getNameFromHashActivity= {}
-getNameFromHashCollectible = {}
-getNameFromHashInventoryItem = {}
-
-
-
 # from https://data.destinysets.com/
 # raids
 spirePHashes = [3213556450]
@@ -24,6 +17,7 @@ dscHashes = [910380154, 3976949817]
 throneHashes = [1893059148, 2032534090]
 pitHashes = [1375089621, 2559374368, 2559374374, 2559374375]
 prophHashes = [1077850348, 4148187374]
+harbHashes = [1738383283,]
 
 # menagerie
 premenHashes = [2509539864, 2509539865, 2509539867, 1831470693, 3107795800, 3115455134]
@@ -329,7 +323,7 @@ requirementHashes = {
                 2381358572, #To the Top
                 2191554152, #Zero to One Hundred
             ],
-            'replaced_by':['Garden of Salvation Master']
+            'replaced_by':['Garden of Salvation Master', 'Y3 Raid Master']
        },
         'Garden of Salvation Master': {
             'requirements': ['clears', 'records', 'roles'],
@@ -491,6 +485,26 @@ requirementHashes = {
                 'endTime':'17/12/2020 18:00'
             },
             'activityHashes': prophHashes
+        },
+        'Solo Harbinger': {
+            'requirements': ['records'],
+            'records': [
+                3657275647 #Lone Harbinger
+            ],
+            'replaced_by': ['Solo Flawless Harbinger']
+        },
+        'Flawless Harbinger': {
+            'requirements': ['records'],
+            'records': [
+                2902814383 #Immortal Harbinger
+            ],
+            'replaced_by': ['Solo Flawless Harbinger']
+        },
+        'Solo Flawless Harbinger': {
+            'requirements': ['records'],
+            'records': [
+                3047181179 #Alpha Hunter
+            ]
         }
     },
     "Lowmans":{
