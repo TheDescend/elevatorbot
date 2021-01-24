@@ -497,8 +497,8 @@ def getDestinyDefinition(definition_name: str, referenceId: int):
             referenceId = %s;"""
     with db_connect().cursor() as cur:
         cur.execute(select_sql, (referenceId,))
-        results = cur.fetchone()
-        return results
+        result = cur.fetchone()
+        return result
 
 
 def updateDestinyDefinition(definition_name: str, referenceId: int, **kwargs):
@@ -575,16 +575,21 @@ def getLastUpdated(destinyID):
     return None
 
 
-def insertPgcrActivities(instanceId, referenceId, directorActivityHash, timePeriod, startingPhaseIndex, mode, modes, isPrivate, membershipType):
+def insertPgcrActivities(
+    instanceId, referenceId, directorActivityHash, timePeriod, 
+    startingPhaseIndex, mode, modes, isPrivate, membershipType):
     """ Inserts an activity to the DB"""
-    product_sql = """
-        INSERT INTO 
-            pgcractivities
-            (instanceId, referenceId, directorActivityHash, period, startingPhaseIndex, mode, modes, isPrivate, membershipType) 
-        VALUES 
-            (%s, %s, %s, %s, %s, %s, %s, %s, %s);"""
-    with db_connect().cursor() as cur:
-        cur.execute(product_sql, (instanceId, referenceId, directorActivityHash, timePeriod, startingPhaseIndex, mode, modes, isPrivate, membershipType,))
+    if not getPgcrActivity(instanceId):
+        product_sql = """
+            INSERT INTO 
+                pgcractivities
+                (instanceId, referenceId, directorActivityHash, period, startingPhaseIndex, mode, modes, isPrivate, membershipType) 
+            VALUES 
+                (%s, %s, %s, %s, %s, %s, %s, %s, %s);"""
+        with db_connect().cursor() as cur:
+            cur.execute(product_sql, 
+                (instanceId, referenceId, directorActivityHash, timePeriod, 
+                startingPhaseIndex, mode, modes, isPrivate, membershipType,))
 
 
 def getPgcrActivity(instanceId):
@@ -602,16 +607,30 @@ def getPgcrActivity(instanceId):
         return result
 
 
-def insertPgcrActivitiesUsersStats(instanceId, membershipId, characterId, characterClass, characterLevel, membershipType, lightLevel, emblemHash, standing, assists, completed, deaths, kills, opponentsDefeated, efficiency, killsDeathsRatio, killsDeathsAssists, score, activityDurationSeconds, completionReason, startSeconds, timePlayedSeconds, playerCount, teamScore, precisionKills, weaponKillsGrenade, weaponKillsMelee, weaponKillsSuper, weaponKillsAbility):
+def insertPgcrActivitiesUsersStats(
+    instanceId, membershipId, characterId, characterClass, characterLevel, 
+    membershipType, lightLevel, emblemHash, standing, assists, completed, 
+    deaths, kills, opponentsDefeated, efficiency, killsDeathsRatio, killsDeathsAssists, 
+    score, activityDurationSeconds, completionReason, startSeconds, timePlayedSeconds, 
+    playerCount, teamScore, precisionKills, weaponKillsGrenade, weaponKillsMelee, weaponKillsSuper, weaponKillsAbility):
     """ Inserts an activity to the DB"""
     product_sql = """
         INSERT INTO 
             pgcractivitiesusersstats
-            (instanceId, membershipId, characterId, characterClass, characterLevel, membershipType, lightLevel, emblemHash, standing, assists, completed, deaths, kills, opponentsDefeated, efficiency, killsDeathsRatio, killsDeathsAssists, score, activityDurationSeconds, completionReason, startSeconds, timePlayedSeconds, playerCount, teamScore, precisionKills, weaponKillsGrenade, weaponKillsMelee, weaponKillsSuper, weaponKillsAbility) 
+            (instanceId, membershipId, characterId, characterClass, characterLevel, 
+            membershipType, lightLevel, emblemHash, standing, assists, completed, 
+            deaths, kills, opponentsDefeated, efficiency, killsDeathsRatio, killsDeathsAssists, 
+            score, activityDurationSeconds, completionReason, startSeconds, timePlayedSeconds, 
+            playerCount, teamScore, precisionKills, weaponKillsGrenade, weaponKillsMelee, weaponKillsSuper, weaponKillsAbility) 
         VALUES 
             (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"""
     with db_connect().cursor() as cur:
-        cur.execute(product_sql, (instanceId, membershipId, characterId, characterClass, characterLevel, membershipType, lightLevel, emblemHash, standing, assists, completed, deaths, kills, opponentsDefeated, efficiency, killsDeathsRatio, killsDeathsAssists, score, activityDurationSeconds, completionReason, startSeconds, timePlayedSeconds, playerCount, teamScore, precisionKills, weaponKillsGrenade, weaponKillsMelee, weaponKillsSuper, weaponKillsAbility,))
+        cur.execute(product_sql, 
+            (instanceId, membershipId, characterId, characterClass, characterLevel, 
+            membershipType, lightLevel, emblemHash, standing, assists, completed, 
+            deaths, kills, opponentsDefeated, efficiency, killsDeathsRatio, killsDeathsAssists, 
+            score, activityDurationSeconds, completionReason, startSeconds, timePlayedSeconds, 
+            playerCount, teamScore, precisionKills, weaponKillsGrenade, weaponKillsMelee, weaponKillsSuper, weaponKillsAbility,))
 
 
 def insertFailToGetPgcrInstanceId(instanceID, period):
