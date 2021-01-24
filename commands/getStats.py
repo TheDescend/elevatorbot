@@ -100,7 +100,9 @@ class spoder(BaseCommand):
 
         async with message.channel.typing():
             materialtext = await getSpiderMaterials(discordID, destinyID, anyCharID)
-            if materialtext['result']:
-                await message.channel.send(materialtext['result'])
+            if 'embed' in materialtext:
+                await message.reply(embed=materialtext['embed'])
+            elif materialtext['result']:
+                await message.reply(materialtext['result'])
             else:
                 await message.channel.send(materialtext['error'])
