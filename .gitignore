@@ -22,16 +22,19 @@ raiddata/friendpickle
 *.log
 images/
 venv/
+
 database/rasputinCheck.py
 database/steamPlayerData.pickle
 database/steamPlayerData.pickle.bckp
 database/seals.pickle
 database/psql_credentials.py
+database/*.ipynb
+
 functions/bounties/channelIDs.pickle
 functions/bounties/currentBounties.pickle
 functions/bounties/playerBountyStatus.pickle
 functions/bounties/competitionBountiesLeaderboards.pickle
-4611686018470637201
+
 oauth/
 bbenv/
 checkpoint/
@@ -40,4 +43,4 @@ nohup.out
 .uwsgi_plugins_builder
 HostingDetails
 database/databasemutation.py
-database/db_mutations.ipynb
+.gitignore
