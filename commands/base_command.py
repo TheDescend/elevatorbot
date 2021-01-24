@@ -13,6 +13,8 @@ class BaseCommand:
 
         if self.params:
             desc += " " + " ".join(f"*<{p}>*" for p in params)
+        else:
+            self.params = []
 
         desc += f": {description}."
         self.description = desc
