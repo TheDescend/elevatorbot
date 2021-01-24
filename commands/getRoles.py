@@ -52,6 +52,8 @@ class getRoles(BaseCommand):
         ))
 
         await updateDB(destinyID)
+
+        print('done updating db')
         
         async with message.channel.typing():
             roles_at_start = [role.name for role in mentioned_user.roles]
@@ -60,7 +62,7 @@ class getRoles(BaseCommand):
             (roleList, removeRoles) = await getPlayerRoles(destinyID, roles_at_start)
             endtime = time.time() - starttime
             print(f'getPlayerRoles took {endtime} seconds to get roles for {destinyID}')
-            
+
             roles_assignable = await assignRolesToUser(roleList, mentioned_user, message.guild)
             await removeRolesFromUser(removeRoles, mentioned_user, message.guild)
 

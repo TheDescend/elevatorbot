@@ -5,8 +5,8 @@ import matplotlib
 
 from functions.dataLoading import getStats, getTriumphsJSON, getPGCR, getPlayersPastActivities, getNameToHashMapByClanid
 from functions.network import getComponentInfoAsJSON
-from static.dict import getNameFromHashInventoryItem, clanids
-from functions.database import getInfoOnLowManActivity
+from static.dict import clanids
+from functions.database import getInfoOnLowManActivity, getDestinyDefinition
 
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -166,10 +166,10 @@ async def getTop10PveGuns(destinyID):
     # DestinyInventoryItemDefinitionLink = "https://www.bungie.net/common/destiny2_content/json/en/DestinyInventoryItemDefinition-39a4e3a0-efbe-4356-beca-d87271a5c699.json"
     
     
-    inventoryitemdefinition = getNameFromHashInventoryItem
+    
     gunidlist = list(gunkills.keys())
     for gunid in gunidlist:
-        gunname = inventoryitemdefinition[str(gunid)]['displayProperties']['name']
+        (_, _, gunname, *_) = getDestinyDefinition("DestinyInventoryItemDefinition", gunid)
         gunkills[gunname] = int(gunkills[str(gunid)])
         del gunkills[str(gunid)]
 
