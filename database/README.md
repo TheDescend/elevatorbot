@@ -80,6 +80,29 @@ CREATE TABLE PgcrActivitiesFailToGet(
 );
 
 ################################################################
+# Userdata
+
+CREATE TABLE characters(
+	destinyID BIGINT,
+	characterID BIGINT UNIQUE,
+	systemID INTEGER DEFAULT 3,
+	UNIQUE(destinyID, characterID)
+);
+
+
+CREATE TABLE discordGuardiansToken(
+	discordSnowflake BIGINT PRIMARY KEY,
+	destinyID BIGINT,
+	signupDate DATE,
+	serverID BIGINT,
+	token TEXT,
+	refresh_token TEXT,
+	systemid INTEGER,
+	token_expiry TIMESTAMP,
+	refresh_token_expiry TIMESTAMP
+)
+
+################################################################
 # Destiny Manifest
 
 CREATE TABLE DestinyActivityDefinition(
