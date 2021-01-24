@@ -20,27 +20,33 @@ class reply(BaseCommand):
             return
 
         ctx = await client.get_context(message)
-        user = None
-        try:
-            user = await commands.MemberConverter().convert(ctx, params[-1])
-            messageText = ' '.join(params[:-1])
-        except:
-            pass
+        
+        #gets the previous message
         previousMessage = (await message.channel.history(limit=2).flatten())[1]
-        mentionedMembers = []
-        if previousMessage.author == client.user:
-            mentionedMembers = previousMessage.mentions
+        mentionedMembersInPreviousMessage = []
+        #if previous message is posted by the bot and mentions at least 1 member
+        if previousMessage.author == client.user and previousMessage.mentions:
+            mentionedMembersInPreviousMessage = previousMessage.mentions
 
-        if not user:
-            if len(mentionedMembers) == 1:
+        #someone is tagged, noone is mentioned in the previous message
+        if mentioned_user and not mentionedMembersInPreviousMessage:
+            messageText = message.clean_content
+            user = mentioned_user
+        else:
+            if len(mentionedMembersInPreviousMessage) == 1:
+                #if the previous message mentions 1
                 if '@' in message.clean_content:
+                    #but wait, the current message also mentions someone
                     await message.channel.send('Not sure if you meant to ping someone or reply above')
                     return
-                user = mentionedMembers[0]
+                #take the only mentioned member
+                user = mentionedMembersInPreviousMessage[0]
                 messageText = ' '.join(params)
             else:
+                #if the previous message mentions more than 1
                 await message.channel.send('Make sure my message above mentions the user or you mention them as the last argument')
                 return
+
         assert(user is not None)
 
         userAnswer = messageText#+ ('\n' if messageText else '') + '-' + message.author.mention
