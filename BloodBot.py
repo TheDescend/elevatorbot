@@ -14,10 +14,8 @@ from io import BytesIO
 from threading import Thread
 
 import discord
-import nltk
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from discord.ext.commands import Bot
-from nltk.sentiment.vader import SentimentIntensityAnalyzer
 
 import message_handler
 from commands.makePersistentMessages import otherGameRolesMessageReactions, readRulesMessageReactions
@@ -33,13 +31,8 @@ from functions.miscFunctions import update_status
 from functions.roles import assignRolesToUser, removeRolesFromUser
 from init_logging import init_logging
 from static.config import COMMAND_PREFIX, BOT_TOKEN
-from static.dict import getNameFromHashRecords, getNameFromHashCollectible, getNameFromHashActivity, \
-    getNameFromHashInventoryItem
 from static.globals import guest_role_id, registered_role_id, not_registered_role_id, admin_discussions_channel_id, \
     divider_raider_role_id, divider_achievement_role_id, divider_misc_role_id, muted_role_id
-
-nltk.download('vader_lexicon')
-analyzer = SentimentIntensityAnalyzer()
 
 #to enable the on_member_join and on_member_remove
 intents = discord.Intents.default()
@@ -144,15 +137,10 @@ def main():
                     await message.channel.send(f'Welcome <@109022023979667456>!')
         
         if client.user in message.mentions: #If bot has been tagged
-            sentiment = analyzer.polarity_scores(message.clean_content) #{'neg': 0.0, 'neu': 0.436, 'pos': 0.564, 'compound': 0.3802}
             notification = client.get_emoji(751771924866269214) #notification/angerping
-            sentimentPositive = client.get_emoji(670369126983794700) #POGGERS
-            sentimentNegative = client.get_emoji(670672093263822877) #SadChamp
+            # sentimentPositive = client.get_emoji(670369126983794700) #POGGERS
+            # sentimentNegative = client.get_emoji(670672093263822877) #SadChamp
             await message.add_reaction(notification)
-            if sentiment['compound'] > 0.3:
-                await message.add_reaction(sentimentPositive)
-            if sentiment['compound'] < -0.3:
-                await message.add_reaction(sentimentNegative)
 
         # mute pepe for an hour if he trashes destiny
         if message.author.id == 367385031569702912420:
