@@ -2,11 +2,12 @@ from datetime import datetime
 
 import discord
 import asyncio
+import time
 
-from functions.database import hasFlawless, getClearCount
+from functions.database import hasFlawless, getClearCount, getDestinyDefinition
 from functions.dataTransformation import hasLowman
 from functions.dataTransformation import hasCollectible, hasTriumph
-from static.dict import requirementHashes, getNameFromHashRecords, getNameFromHashCollectible
+from static.dict import requirementHashes
 # check if user has permission to use this command
 from static.globals import role_ban_id
 
@@ -20,7 +21,7 @@ async def hasRole(playerid, role, year, br = True):
         print('malformatted requirementHashes')
         return [False, data]
     worthy = True
-
+    start_reqs = time.time()
     for req in roledata['requirements']:
         if req == 'clears':
             creq = roledata['clears']
@@ -41,8 +42,8 @@ async def hasRole(playerid, role, year, br = True):
             data["Flawless"] = str(has_fla)
 
         elif req == 'collectibles':
-            for collectible in roledata['collectibles']:
-                has_col = await hasCollectible(playerid, collectible)
+            for collectibleHash in roledata['collectibles']:
+                has_col = await hasCollectible(playerid, collectibleHash)
                 worthy &= has_col
 
                 if (not worthy) and br:
@@ -52,12 +53,13 @@ async def hasRole(playerid, role, year, br = True):
                     # get name of collectible
                     name = "No name here"
                     #str conversion required because dictionary is indexed on strings, not postiions
-                    if str(collectible) in getNameFromHashCollectible.keys():
-                        name = getNameFromHashCollectible[str(collectible)]
+                    (_, _, name, *_) = getDestinyDefinition("DestinyCollectibleDefinition", collectibleHash)
                     data[name] = str(has_col)
 
         elif req == 'records':
+            start_records = time.time()
             for recordHash in roledata['records']:
+                start_record_sub = time.time()
                 has_tri = await hasTriumph(playerid, recordHash)
                 worthy &= has_tri
 
@@ -67,10 +69,17 @@ async def hasRole(playerid, role, year, br = True):
                 if not br:
                     # get name of triumph
                     name = "No name here"
-                    if str(recordHash) in getNameFromHashRecords.keys():
-                        name = getNameFromHashRecords[str(recordHash)]
+                    (_, _, name, *_) = getDestinyDefinition("DestinyRecordDefinition", recordHash)
                     data[name] = str(has_tri)
-
+                    
+                end_record_sub = time.time() - start_record_sub
+                if end_record_sub > 1:
+                    #print(f'took {end_record_sub} seconds to check record {recordHash}')
+                    pass
+            end_records = time.time() - start_records
+            if end_records > 1:
+                #print(f'took {end_records} seconds to check records for {role}')
+                pass
         elif req == 'lowman':
             denies = sum([1 if 'denyTime' in key else 0 for key in roledata.keys()])
             timeParse = lambda i, spec: datetime.strptime(roledata[f'denyTime{i}'][spec], "%d/%m/%Y %H:%M")
@@ -94,7 +103,8 @@ async def hasRole(playerid, role, year, br = True):
 
         if (not worthy) and br:
             break
-
+    end_reqs = time.time() - start_reqs
+    print(f'took {end_reqs} seconds to check requirements for {role}')
     return [worthy, data]
 
 async def getPlayerRoles(playerid, existingRoles = []):
@@ -121,10 +131,13 @@ async def getPlayerRoles(playerid, existingRoles = []):
     ]
 
     #check worthyness in parallel
+    starttime = time.time()
     has_earned_role = await asyncio.gather(*[
         hasRole(playerid, role, year) 
         for (role, year) in roleyear_to_check
     ])
+    endtime = time.time() - starttime
+    print(f'took {endtime} seconds to gather hasRoles')
 
     roles.extend([rolename for ((rolename, roleyear), (isworthy, worthydetails)) in zip(roleyear_to_check, has_earned_role) if isworthy])
 
