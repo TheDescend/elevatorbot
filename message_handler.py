@@ -55,7 +55,8 @@ async def handle_command(command, params, message, client):
             mentioned_user = temp
             params = params[:-1]
         except MemberNotFound:
-            print(f"Tried to convert last parameter '{params[-1]}' to mentioned_user and failed")
+            pass
+            #print(f"Tried to convert last parameter '{params[-1]}' to mentioned_user and failed")
 
     # Retrieve the command
     cmd_obj = COMMAND_HANDLERS[command]
@@ -63,9 +64,8 @@ async def handle_command(command, params, message, client):
     for param in cmd_obj.params:
         if not param.startswith("*"):
             relevant_params.append(param)
-    if (cmd_obj.params and len(params) < len(relevant_params)) or params[0].lower() == "help":
+    if (cmd_obj.params and len(params) < len(relevant_params)) or command.lower() == "help" or (params and 'help' in params):
         # show help msg
         await show_help(message, command, cmd_obj.params)
-
     else:
         await cmd_obj.handle(params, message, mentioned_user, client)
