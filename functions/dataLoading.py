@@ -6,6 +6,7 @@ import zipfile
 import logging
 import aiohttp
 import pandas
+from functools import reduce
 from datetime import datetime
 
 from functions.database import updateLastUpdated, \
@@ -31,7 +32,11 @@ async def getTriumphsJSON(playerID):
         return None
     if 'data' not in achJSON['Response']['profileRecords']:
         return None
-    return achJSON['Response']['profileRecords']['data']['records']
+    profileRecs = achJSON['Response']['profileRecords']['data']['records']
+    charRecs = [charrecords['records'] for charid, charrecords in achJSON['Response']['characterRecords']['data'].items()]
+    for chardic in charRecs:
+        profileRecs.update(chardic)
+    return profileRecs #reduce(lambda d1,d2: d1|d2, charRecs, initializer=profileRecs)
 
 async def getCharacterList(destinyID):
     ''' returns a (system, [characterids]) tuple '''
@@ -381,7 +386,7 @@ async def updateManifest():
                         int(referenceId),
                         description=values["displayProperties"]["description"] if values["displayProperties"]["description"] else None,
                         name=values["displayProperties"]["name"] if values["displayProperties"]["name"] else None,
-                        activityLevel=values["activityLevel"],
+                        activityLevel=values["activityLevel"] if 'activityLevel' in values else 0,
                         activityLightLevel=values["activityLightLevel"],
                         destinationHash=values["destinationHash"],
                         placeHash=values["placeHash"],
@@ -558,6 +563,7 @@ async def updateDB(destinyID):
 
                 # insert information to DB
                 await insertPgcrToDB(instanceID, activity_time, pcgr)
+                #print(f'inserted instance {instanceID}')
 
     logger = logging.getLogger('updateDB')
     entry_time = getLastUpdated(destinyID)
