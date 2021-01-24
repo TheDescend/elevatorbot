@@ -73,7 +73,7 @@ class AutomaticRoleAssignment(BaseEvent):
                 else:
                     newstext += f'Would have updated player {discordUser.name} by adding {", ".join(addrls or ["nothing"])} and removing {", ".join(removerls or ["nothing"])}, but User is currently prohibited from acquiring roles\n'
 
-            await newtonslab.send(newstext)
+        await newtonslab.send(newstext)
 
         # update the status
         await botStatus(client, "Achievement Role Update", datetime.datetime.now())
