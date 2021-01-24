@@ -22,6 +22,7 @@ barotrauma_role_id = 738438622553964636
 gta_role_id = 709120893728718910
 valorant_role_id = 709378171832893572
 lol_role_id = 756076447881363486
+eft_role_id = 800862253279608854
 
 
 """ Channel IDs """
@@ -41,3 +42,4 @@ barotrauma_emoji_id = 756077724870901830
 gta_emoji_id = 751020831382962247
 valorant_emoji_id = 751020830414209064
 lol_emoji_id = 756076309527920661
+eft_emoji_id = 800866459286503445

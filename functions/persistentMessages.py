@@ -7,7 +7,7 @@ from functions.database import getPersistentMessage, updatePersistentMessage, in
 from functions.formating import embed_message
 # writes the message the user will see and react to and saves the id in the pickle
 from static.globals import yes_emoji_id, destiny_emoji_id, among_us_emoji_id, barotrauma_emoji_id, gta_emoji_id, \
-    valorant_emoji_id, lol_emoji_id, steam_join_codes_channel_id, admin_workboard_channel_id
+    valorant_emoji_id, lol_emoji_id, steam_join_codes_channel_id, admin_workboard_channel_id, eft_emoji_id, eft_role_id
 
 
 # todo change this to the new format
@@ -62,12 +62,14 @@ async def persistentChannelMessages(client):
                     gta = client.get_emoji(gta_emoji_id)
                     valorant = client.get_emoji(valorant_emoji_id)
                     lol = client.get_emoji(lol_emoji_id)
+                    eft = client.get_emoji(eft_emoji_id)
 
                     await msg.add_reaction(among_us)
                     await msg.add_reaction(barotrauma)
                     await msg.add_reaction(gta)
                     await msg.add_reaction(valorant)
                     await msg.add_reaction(lol)
+                    await msg.add_reaction(eft)
 
                     saveAsGlobalVar("other_game_roles_channel_message_id", msg.id)
 
@@ -129,7 +131,7 @@ And lastly, if you have any general suggestions or ideas for new bounties, conta
 async def steamJoinCodeMessage(client, guild):
     # get all IDs
     data = dict(getallSteamJoinIDs())
-    data = {k: v for k, v in sorted(data.items(), key=lambda item: item[1], reverse=False)}
+    data = {k: v for k, v in sorted(data.items(), key=lambda item: item[0], reverse=False)}
 
     # put in two lists for the embed
     name = []
@@ -147,7 +149,7 @@ async def steamJoinCodeMessage(client, guild):
     # create new message
     embed = embed_message(
         "Steam Join Codes",
-        "Here you can find a updated list of Steam Join Codes. \nUse `!setID` to set appear here and `!getid <user>` to find a code without looking here"
+        "Here you can find a updated list of Steam Join Codes. \nUse `!setID <id>` to set appear here and `!getid <user>` to find a code without looking here"
     )
 
     # add name field

@@ -6,7 +6,7 @@ from functions.persistentMessages import persistentChannelMessages
 from functions.roles import assignRolesToUser, removeRolesFromUser
 from static.globals import guest_role_id, member_role_id, yes_emoji_id, among_us_emoji_id, barotrauma_emoji_id, \
     gta_emoji_id, valorant_emoji_id, lol_emoji_id, among_us_role_id, barotrauma_role_id, gta_role_id, valorant_role_id, \
-    lol_role_id
+    lol_role_id, eft_emoji_id, eft_role_id
 
 
 # writes the message the user will see and react to and saves the id in the pickle
@@ -36,6 +36,7 @@ async def otherGameRolesMessageReactions(client, user, emoji, register_channel, 
     gta = client.get_emoji(gta_emoji_id)
     valorant = client.get_emoji(valorant_emoji_id)
     lol = client.get_emoji(lol_emoji_id)
+    eft = client.get_emoji(eft_emoji_id)
 
     # role ids
     amongUs_id = among_us_role_id
@@ -43,6 +44,7 @@ async def otherGameRolesMessageReactions(client, user, emoji, register_channel, 
     gta_id = gta_role_id
     valorant_id = valorant_role_id
     lol_id = lol_role_id
+    eft_id = eft_role_id
 
     # get current roles
     roles = [role.id for role in user.roles]
@@ -82,6 +84,13 @@ async def otherGameRolesMessageReactions(client, user, emoji, register_channel, 
         else:
             await user.remove_roles(discord.utils.get(message.guild.roles, id=lol_id))
         await message.remove_reaction(lol, user)
+
+    elif emoji == eft:
+        if eft_id not in roles:
+            await user.add_roles(discord.utils.get(message.guild.roles, id=eft_id))
+        else:
+            await user.remove_roles(discord.utils.get(message.guild.roles, id=eft_id))
+        await message.remove_reaction(eft, user)
 
 
 # writes the message the user will see and react to and saves the id in the pickle
