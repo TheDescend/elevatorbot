@@ -1,7 +1,7 @@
-from functions.database     import lookupDiscordID
+from functions.database     import lookupDiscordID, getDestinyDefinition
 from functions.network      import getJSONfromURL, getJSONwithToken
-from static.dict            import getNameFromHashInventoryItem
-
+from inspect                import currentframe, getframeinfo
+from functions.formating    import embed_message
 
 async def getUserMaterials(destinyID):
     system = 3
@@ -34,74 +34,63 @@ async def getSpiderMaterials(discordID, destinyID, characterID):
         return {'result': None, 'error':res['error']}
     #gets the dictionary of sold items
     sales = res['result']['Response']['sales']['data']
-    itemhashurl = 'https://bungie.net/platform/Destiny2/Manifest/DestinyInventoryItemDefinition/{hashIdentifier}/'
     returntext = ''
     usermaterialdict = await getUserMaterials(destinyID)
     usermaterialreadabledict = {}
-    #print(getNameFromHashInventoryItem.keys())
+    
     for key,value in usermaterialdict.items():
-        if not str(key) in getNameFromHashInventoryItem:
-            #print(key)
-            continue
-        materialname = getNameFromHashInventoryItem[str(key)]
+        if keylookup := getDestinyDefinition('DestinyInventoryItemDefinition', key):
+            (_, _, materialname, *_) = keylookup
+        else:
+            materialname = 'Unknown'
         usermaterialreadabledict[materialname] = value
     #print(usermaterialreadabledict)
 
+    embed = embed_message("Spider's Stock", desc="Unlike his Fallen brethren, the stupid Spider kidnapped our bird.")
     for sale in sales.values():
+        if 'apiPurchasable' in sale.keys():
+            #We don't care about bounties
+            continue
         soldhash = sale["itemHash"]
+        #only ever costs one material, so we just get the first one
         pricehash = sale["costs"][0]["itemHash"]
+        pricequantity = sale["costs"][0]["quantity"]
         ownedamount = 0
 
         #requests to identify the items TODO save manuscript locally and look them up there?
-        soldurl = itemhashurl.format(hashIdentifier=soldhash)
-        priceurl = itemhashurl.format(hashIdentifier=pricehash)
-
-        #get the name of the sold material
-        r = await getJSONfromURL(soldurl)
-        soldname = r['Response']['displayProperties']['name'][9:]
-        if 'traitIds' in r['Response'] and 'item_type.bounty' in r['Response']['traitIds']:
-            continue
-
-        #print(r['Response'])
-        
-        #get the name of the asked material
-        pricename = getNameFromHashInventoryItem[str(pricehash)]
-
-        if soldname in usermaterialreadabledict.keys():
-            ownedamount = usermaterialreadabledict[soldname]
-        else:
-            soldnamecut = soldname[:-1]
-            if soldnamecut in usermaterialreadabledict.keys():
-                ownedamount = usermaterialreadabledict[soldnamecut]
-            elif soldname == 'Phaseglass':
-                ownedamount = usermaterialreadabledict['Phaseglass Needle']
-            elif soldname == 'Datalattice':
-                ownedamount = usermaterialreadabledict['Microphasic Datalattice']
+        (_, _, soldname, *_) = getDestinyDefinition("DestinyInventoryItemDefinition", soldhash)
+        (_, _, pricename, *_) = getDestinyDefinition("DestinyInventoryItemDefinition", int(pricehash))
+        if soldname not in usermaterialreadabledict.keys():
+            if 'Purchase ' in soldname:
+                isPlural = (soldname[-1] == "s") and (not soldname == "Purchase Helium Filaments")
+                soldname = soldname[len('Purchase '):len(soldname)-isPlural]
+                #e.g. Purchase Enhancement Prisms
             else:
-                print(soldname)
-                print(usermaterialreadabledict.keys())
-            
-            
+                print(f'getSpiderMaterials:{getframeinfo(currentframe()).lineno} Could not find {soldname}')
+                continue
 
-        #returntext += f'selling {sale["quantity"]} {soldname} for {sale["costs"][0]["quantity"]} {pricename}\n'
-        returntext += f'selling {soldname} for {pricename}, you already own{ownedamount:>12,d} {soldname}\n'
+        ownedamount = usermaterialreadabledict[soldname]
 
-    returntext = returntext.replace('Dusklight Shards', '<:DusklightShards:620647201940570133>')
-    returntext = returntext.replace(' Dusklight Shard', '<:DusklightShards:620647201940570133>')
-
-    returntext = returntext.replace('Phaseglass Needle', '<:Phaseglass:620647202418851895>')
-    returntext = returntext.replace(' Phaseglass', ' <:Phaseglass:620647202418851895>')
-
-    returntext = returntext.replace('Seraphite', '<:Seraphite:620647202297085992>')
-    returntext = returntext.replace('Legendary Shards', '<:LegendaryShards:620647202003484672>')
-    returntext = returntext.replace('Alkane Dust', '<:AlkaneDust:620647201827454990>')
-
-    returntext = returntext.replace('Microphasic Datalattice', '<:Datalattice:620647202015936536>')
-    returntext = returntext.replace(' Datalattice', ' <:Datalattice:620647202015936536>')
-    returntext = returntext.replace('Simulation Seeds', '<:SimulationSeeds:620647203635200070>')
-    returntext = returntext.replace('Glimmer', '<:Glimmer:620647202007810098>')
-    returntext = returntext.replace('Enhancement Cores', '<:EnhancementCores:620647201596637185>')
-    returntext = returntext.replace('Helium Filaments', '<:HeliumFilaments:707244746493657160>')
-    returntext = returntext.replace('Etheric Spiral', '<:EthericSpiral:620647202267594792>')
-    returntext = returntext.replace('Baryon Boughs', '<:BaryonBough:755678814427807756>')
-    return {'result': returntext, 'error': None}
+        def replaceWithEmote(name):
+            replacedict = {
+                "Dusklight Shard": '<:DusklightShards:620647201940570133>',
+                'Phaseglass Needle':'<:Phaseglass:620647202418851895>',
+                'Seraphite':'<:Seraphite:620647202297085992>',
+                'Legendary Shards':'<:LegendaryShards:620647202003484672>',
+                'Alkane Dust':'<:AlkaneDust:620647201827454990>',
+                'Microphasic Datalattice':'<:Datalattice:620647202015936536>',
+                'Simulation Seed':'<:SimulationSeeds:620647203635200070>',
+                'Glimmer':'<:Glimmer:620647202007810098>',
+                'Enhancement Core':'<:EnhancementCores:620647201596637185>',
+                'Helium Filament':'<:HeliumFilaments:707244746493657160>',
+                'Etheric Spiral':'<:EthericSpiral:620647202267594792>',
+                'Baryon Bough':'<:BaryonBough:755678814427807756>',
+                'Enhancement Prism':'<:enhancementprism:801461164781469717>',
+            }
+            filtered = filter(lambda elem, name=name: elem[0] in name, replacedict.items())
+            #result looks like ['Helium Filament', '<:HeliumFilaments:707244746493657160>']
+            emotename = list(filtered)[0][1]
+            return emotename
+        embed.add_field(name=soldname, value=f"**Owned**: {ownedamount:,} {replaceWithEmote(soldname)}\n**Cost**: {pricequantity:,} {replaceWithEmote(pricename)}", inline=True)
+        returntext += f'selling  {replaceWithEmote(soldname)} for {replaceWithEmote(pricename)}, you already own {ownedamount:>12,d} {replaceWithEmote(soldname)}\n'
+    return {'result': returntext, 'embed': embed, 'error': None}
