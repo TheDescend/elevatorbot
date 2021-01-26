@@ -44,7 +44,7 @@ class rank(BaseCommand):
 
     def __init__(self):
         # A quick description for the help message
-        description = "Shadows various Charley leaderboards with only clan members shown. `!rank help` for current leaderboards"
+        description = "Shadows various Charley leaderboards with only clan members shown. Use !rank help to get currently supported leaderboards"
         params = [f"leaderboard {'|'.join(sorted(self.supported))}"]
         topic = "Destiny"
         super().__init__(description, params, topic)

@@ -14,7 +14,7 @@ rrsystem = {
 
 class RR(BaseCommand):
     def __init__(self):
-        description = "get your personal raid.report link"
+        description = "Gets your personal raid.report link"
         topic = "Destiny"
         params = []
         super().__init__(description, params, topic)
@@ -37,7 +37,7 @@ class RR(BaseCommand):
 
 class DR(BaseCommand):
     def __init__(self):
-        description = "get your personal dungeon.report link"
+        description = "Gets your personal dungeon.report link"
         topic = "Destiny"
         params = []
         super().__init__(description, params, topic)
