@@ -17,7 +17,8 @@ class day1spam(BaseCommand):
         # A quick description for the help message
         description = "[Admin] Starts the raid announcer for day1 completions. Will announce in the same channel"
         params = []
-        super().__init__(description, params)
+        topic = "Destiny"
+        super().__init__(description, params, topic)
 
     # Override the handle() method
     # It will be called every time the command is received

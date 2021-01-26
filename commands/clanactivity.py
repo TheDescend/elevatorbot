@@ -18,12 +18,22 @@ from functions.network import getJSONfromURL
 # note: the ids later are formatted so wierd, because pyvis broke with them being 16 numbers or so. So I'm just shorting them in an ugly way that works
 
 
-# !friends <activity> <time-period> *<user>
+# !friends <activity> *<user>
 class clanActivity(BaseCommand):
+    activities = {
+        "everything": 0,
+        "patrol": 6,
+        "pve": 7,
+        "pvp": 5,
+        "raids": 4,
+        "story": 2,
+        "strikes": 3
+    }
+
     def __init__(self):
         description = f'Shows information about who you play with. For options, type "!friends"'
         topic = "Destiny"
-        params = []
+        params = [f"mode {'|'.join(list(self.activities.keys()))}"]
         super().__init__(description, params, topic)
 
         self.ignore = []
@@ -31,15 +41,7 @@ class clanActivity(BaseCommand):
         self.edge_list = []
 
     async def handle(self, params, message, mentioned_user, client):
-        activities = {
-            "everything": 0,
-            "patrol": 6,
-            "pve": 7,
-            "pvp": 5,
-            "raids": 4,
-            "story": 2,
-            "strikes": 3
-        }
+
 
         # check if message too short / long
         if len(params) == 0:
@@ -50,16 +52,16 @@ class clanActivity(BaseCommand):
             return
 
         # check if activity is correct. Also allow the int number for more activities
-        if params[0] not in activities:
+        if params[0] not in self.activities:
             try:
                 params[0] = int(params[0])
             except ValueError:
                 await message.channel.send(embed=embed_message(
                     'Error',
-                    f'Unrecognised activity, currently supported are: \n\u200B\n`{", ".join(activities)}` \n\u200B\nand all of Bungies component numbers if you know them`'
+                    f'Unrecognised activity, currently supported are: \n\u200B\n`{", ".join(self.activities)}` \n\u200B\nand all of Bungies component numbers if you know them`'
                 ))
                 return
-        mode = activities[params[0]] if (type(params[0]) != int) else params[0]
+        mode = self.activities[params[0]] if (type(params[0]) != int) else params[0]
 
         # asking user to give time-frame
         time_msg = await message.channel.send(embed=embed_message(

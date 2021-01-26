@@ -68,8 +68,8 @@ class checkregister(BaseCommand):
 class unregister(BaseCommand):
     def __init__(self):
         # A quick description for the help message
-        description = "[dev] function to delete Users from the database"
-        params = ['discordID']
+        description = "Unregister from ElevatorBot"
+        params = []
         topic = "Registration"
         super().__init__(description, params, topic)
 

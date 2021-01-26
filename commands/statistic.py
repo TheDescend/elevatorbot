@@ -11,7 +11,7 @@ class statistic(BaseCommand):
     def __init__(self):
         # A quick description for the help tmessage
         description = "[dev] shows various statistics"
-        params = []
+        params = ["type emotes|channels"]
         super().__init__(description, params)
 
     # Override the handle() method

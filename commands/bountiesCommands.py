@@ -77,39 +77,32 @@ class bounties(BaseCommand):
 
 
 class leaderboard(BaseCommand):
+    topics = {
+        "all": ["points_bounties_raids", "points_competition_raids", "points_bounties_pve", "points_competition_pve",
+                "points_bounties_pvp", "points_competition_pvp"],
+        "raids": ["points_bounties_raids", "points_competition_raids"],
+        "pve": ["points_bounties_pve", "points_competition_pve"],
+        "pvp": ["points_bounties_pvp", "points_competition_pvp"],
+        "bountiesraids": ["points_bounties_raids"],
+        "bountiespve": ["points_bounties_pve"],
+        "bountiespvp": ["points_bounties_pvp"],
+        "competitiveraids": ["points_competition_raids"],
+        "competitivepve": ["points_competition_pve"],
+        "competitivepvp": ["points_competition_pvp"],
+    }
+
     def __init__(self):
         description = f"Shows the full leaderboard for the given category"
         topic = "Bounties"
-        params = []
+        params = [f"topic {'|'.join(list(self.topics.keys()))}"]
         super().__init__(description, params, topic)
 
     async def handle(self, params, message, mentioned_user, client):
-        topics = {
-            "all": ["points_bounties_raids", "points_competition_raids", "points_bounties_pve", "points_competition_pve", "points_bounties_pvp", "points_competition_pvp"],
-            "raids": ["points_bounties_raids", "points_competition_raids"],
-            "pve": ["points_bounties_pve", "points_competition_pve"],
-            "pvp": ["points_bounties_pvp", "points_competition_pvp"],
-            "bountiesraids": ["points_bounties_raids"],
-            "bountiespve": ["points_bounties_pve"],
-            "bountiespvp": ["points_bounties_pvp"],
-            "competitiveraids": ["points_competition_raids"],
-            "competitivepve": ["points_competition_pve"],
-            "competitivepvp": ["points_competition_pvp"],
-        }
-
-        # check if message too long
-        if len(params) != 1:
-            await message.channel.send(embed=embed_message(
-                'Error',
-                f'Incorrect formatting, correct usage is: \n\u200B\n `!leaderboard <category>` \n\u200B\n Currently supported are: \n\u200B\n`{", ".join(topics)}`'
-            ))
-            return
-
         # check if topic is correct
-        elif params[0].lower() not in topics:
+        if params[0].lower() not in self.topics:
             await message.channel.send(embed=embed_message(
                 'Error',
-                f'Unrecognised category, currently supported are: \n\u200B\n`{"`, `".join(topics)}`'
+                f'Unrecognised category, currently supported are: \n\u200B\n`{"|".join(list(self.topics.keys()))}`'
             ))
             return
 
@@ -124,7 +117,7 @@ class leaderboard(BaseCommand):
 
         # get, condense and format leaderboard
         leaderboard = {}
-        for topic in topics[params[0].lower()]:
+        for topic in self.topics[params[0].lower()]:
             condense(leaderboard, returnLeaderboard(topic))
         ranking = await formatLeaderboardMessage(client, leaderboard, user_id=mentioned_user.id)
 

@@ -14,7 +14,7 @@ class boosters(BaseCommand):
     async def handle(self, params, message, mentioned_user, client):
         embed = embed_message(
             f"{message.guild.name} Nitro Boosters",
-            ", ".join(["**" + m.display_name + "** - since: " + m.premium_since.strftime('%d/%m/%Y %H:%M') for m in message.guild.premium_subscribers])
+            ", ".join(["**" + m.display_name + "** - since: " + m.premium_since.strftime('%d/%m/%Y, %H:%M') for m in message.guild.premium_subscribers])
         )
 
         await message.reply(embed=embed)

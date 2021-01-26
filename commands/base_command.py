@@ -5,17 +5,11 @@ from static.config import COMMAND_PREFIX
 # Do not modify!
 class BaseCommand:
 
-    def __init__(self, description, params, topic="Misc"):
+    def __init__(self, description, params=None, topic="Misc"):
         self.name = type(self).__name__.lower()
-        self.params = params
+        self.params = params if params else []
 
         desc = f"`{COMMAND_PREFIX}{self.name}`"
-
-        if self.params:
-            desc += " " + " ".join(f"*<{p}>*" for p in params)
-        else:
-            self.params = []
-
         desc += f": {description}."
         self.description = desc
         self.topic = topic

@@ -10,6 +10,7 @@ from functions.dataLoading import getStats, getProfile, getCharacterList, \
     getItemDefinition, getArtifact, getCharacterGear, getCharacterGearAndPower, getPlayersPastActivities, getWeaponHash
 from functions.database import lookupDiscordID, getToken, lookupSystem
 from functions.formating import embed_message
+from functions.miscFunctions import show_help
 from functions.network import getJSONfromURL
 from static.config import CLANID
 from static.dict import metricRaidCompletion, raidHashes
@@ -17,87 +18,86 @@ from static.dict import metricRaidCompletion, raidHashes
 
 class rank(BaseCommand):
     # shadows charleys rank command. Currently works with "totaltime", "maxpower"
+
+    supported = [
+        "discordjoindate",
+        "totaltime",
+        "maxpower",
+        "vaultspace",
+        "orbs",
+        "meleekills",
+        "superkills",
+        "grenadekills",
+        "deaths",
+        "suicides",
+        "kills",
+        "raids",
+        "raidtime",
+        "weapon",
+        "weaponprecision",
+        "weaponprecisionpercent",
+        "armor",
+        "enhancementcores",
+        "forges",
+        "afkforges",
+    ]
+
     def __init__(self):
         # A quick description for the help message
         description = "Shadows various Charley leaderboards with only clan members shown. `!rank help` for current leaderboards"
-        params = []
-        super().__init__(description, params)
+        params = [f"leaderboard {'|'.join(sorted(self.supported))}"]
+        topic = "Destiny"
+        super().__init__(description, params, topic)
 
     # Override the handle() method
     # It will be called every time the command is received
     async def handle(self, params, message, mentioned_user, client):
-        supported = [
-            "totaltime",
-            "maxpower",
-            "vaultspace",
-            "orbs",
-            "meleekills",
-            "superkills",
-            "grenadekills",
-            "deaths",
-            "suicides",
-            "kills",
-            "raids",
-            "raidtime",
-            "weapon",
-            "weaponprecision",
-            "weaponprecisionpercent",
-            "armor",
-            "enhancementcores",
-            "forges",
-            "afkforges",
-        ]
+        # show error msg if wrong args
+        if params[0].lower() not in self.supported:
+            await show_help(message, "rank", self.params)
+            return
 
-        if len(params) > 0:
-            if params[0].lower() == "help":
+        name = None
+        hashID = None
+        if params[0].lower() in ["weapon", "weaponprecision", "weaponprecisionpercent"]:
+            if len(params) == 1:
                 await message.channel.send(embed=embed_message(
                     "Info",
-                    f"""Currently supported are: \n`{"`, `".join(sorted(supported))}`"""
+                    "Please specify a weapon"
                 ))
+                return
 
-            elif params[0].lower() in supported:
-                name = None
-                hashID = None
-                if params[0].lower() in ["weapon", "weaponprecision", "weaponprecisionpercent"]:
-                    if len(params) == 1:
-                        await message.channel.send(embed=embed_message(
-                            "Info",
-                            "Please specify a weapon"
-                        ))
-                        return
+            else:
+                hashID, name = await getWeaponHash(message, " ".join(params[1:]))
+                if not hashID:
+                    return
 
-                    else:
-                        hashID, name = await getWeaponHash(message, " ".join(params[1:]))
-                        if not hashID:
-                            return
+        elif params[0].lower() == "armor":
+            stats = {
+                "mobility": 2996146975,
+                "resilience": 392767087,
+                "recovery": 1943323491,
+                "discipline": 1735777505,
+                "intellect": 144602215,
+                "strength": 4244567218
+            }
 
+            if len(params) == 1 or params[1] not in stats:
+                await message.channel.send(embed=embed_message(
+                    "Info",
+                    f"""Please specify a stat, available are: \n`{"`, `".join(list(stats.keys()))}`"""
+                ))
+                return
 
-                elif params[0].lower() == "armor":
-                    stats = {
-                        "mobility": 2996146975,
-                        "resilience": 392767087,
-                        "recovery": 1943323491,
-                        "discipline": 1735777505,
-                        "intellect": 144602215,
-                        "strength": 4244567218
-                    }
+            else:
+                name = params[1]
+                hashID = stats[name]
 
-                    if len(params) == 1 or params[1] not in stats:
-                        await message.channel.send(embed=embed_message(
-                            "Info",
-                            f"""Please specify a stat, available are: \n`{"`, `".join(list(stats.keys()))}`"""
-                        ))
-                        return
+        async with message.channel.typing():
+            embed = await handle_users(client, params[0].lower(), mentioned_user.display_name, message.guild, hashID, name)
 
-                    else:
-                        name = params[1]
-                        hashID = stats[name]
-
-                async with message.channel.typing():
-                    embed = await handle_users(client, params[0].lower(), mentioned_user.display_name, message.guild, hashID, name)
-
-                if embed:
-                    await message.channel.send(embed=embed)
+        if embed:
+            await message.channel.send(embed=embed)
 
 
 async def handle_users(client, stat, display_name, guild, extra_hash, extra_name):
@@ -167,13 +167,22 @@ async def handle_user(stat, member, guild, extra_hash, extra_name):
 
     # catch people that are in the clan but not in discord, shouldn't happen tho
     try:
-        name = guild.get_member(discordID).display_name
+        discord_member = guild.get_member(discordID)
+        name = discord_member.display_name
     except:
         print(f"DestinyID {destinyID} isn't in discord but he is in clan")
         return None
 
     # get the stat that we are looking for
-    if stat == "totaltime":
+    if stat == "discordjoindate":
+        sort_by_ascending = True
+        leaderboard_text = "Top Clanmembers by Discord Join Date"
+        stat_text = "Date"
+
+        result_sort = discord_member.joined_at
+        result = discord_member.joined_at.strftime("%d/%m/%Y, %H:%M")
+
+    elif stat == "totaltime":
         leaderboard_text = "Top Clanmembers by D2 Total Time Logged In"
         stat_text = "Hours"
 

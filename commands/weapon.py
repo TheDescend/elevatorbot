@@ -12,7 +12,6 @@ from commands.rank import write_line
 from functions.dataLoading import getWeaponHash, getCharacterID
 from functions.database import lookupDestinyID, getTopWeapons, getDestinyDefinition, getWeaponInfo, getPgcrActivity
 from functions.formating import embed_message
-from functions.miscFunctions import show_help
 
 
 # gets detailed info about a weapon
@@ -41,9 +40,9 @@ class weapon(BaseCommand):
     def __init__(self):
         # A quick description for the help message
         description = "Shows in-depth weapon stats with lots of room for customization"
-
         params = [f"*mode {'|'.join(list(self.activities.keys()))}", f"*activityhash hash", "*time dd/mm/yy dd/mm/yy", f"*class {'|'.join(list(self.classes.keys()))}", f"*stat {'|'.join(list(self.stats))}", "*graph", "weaponName"]
-        super().__init__(description, params)
+        topic = "Destiny"
+        super().__init__(description, params, topic)
 
     # Override the handle() method
     # It will be called every time the command is received
@@ -222,9 +221,9 @@ class topWeapons(BaseCommand):
     def __init__(self):
         # A quick description for the help message
         description = "Shows your top10 weapons with with lots of room for customization"
-
         params = [f"*mode {'|'.join(list(self.activities.keys()))}", f"*activityhash hash", "*time dd/mm/yy dd/mm/yy", f"*class {'|'.join(list(self.classes.keys()))}", f"*stat {'|'.join(list(self.stats))}", "*weaponName"]
-        super().__init__(description, params)
+        topic = "Destiny"
+        super().__init__(description, params, topic)
 
     # Override the handle() method
     # It will be called every time the command is received
@@ -365,8 +364,7 @@ async def compute_parameters(message, params, activities, classes, stats):
                 look_for = ""
                 continue
             else:
-                await error_message(message,
-                                    f"The class parameter must be in \n`{'|'.join(list(classes.keys()))}`")
+                await error_message(message, f"The class parameter must be in \n`{'|'.join(list(classes.keys()))}`")
                 return
 
         # get type of statistic
