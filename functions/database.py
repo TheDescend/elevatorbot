@@ -706,7 +706,7 @@ def getInfoOnLowManActivity(raidHashes: list, playercount, membershipid):
     """ Gets the lowman instanceId, deaths, period for player <membershipid> of activity list(<activityHash>) with a <= <playercount>"""
     select_sql = f"""
         SELECT 
-            t1.instanceId, t2.deaths, t1.period
+            selectedActivites.instanceId, userLowmanCompletions.deaths, selectedActivites.period
         FROM (
             SELECT 
                 instanceId, period 
@@ -714,35 +714,36 @@ def getInfoOnLowManActivity(raidHashes: list, playercount, membershipid):
                 pgcrActivities
             WHERE 
                 directorActivityHash IN ({','.join(['%s'] * len(raidHashes))})
-        ) AS t1 
+        ) AS selectedActivites 
         JOIN (
-            SELECT
-                st1.instanceId, st1.deaths, st2.playercount
-            FROM 
-                pgcrActivitiesUsersStats AS st1
+            SELECT memberCompletedActivities.instanceId, playercount, deaths 
+                FROM (
+                    SELECT
+                        instanceId, deaths
+                    FROM 
+                        pgcrActivitiesUsersStats
+                    WHERE 
+                        membershipid = %s 
+                        AND completed = 1
+                        AND completionReason = 0
+                ) AS memberCompletedActivities
             JOIN (
                 SELECT
-                    instanceId, COUNT(instanceId) as playercount
+                    instanceId, COUNT(DISTINCT membershipId) as playercount
                 FROM 
                     pgcrActivitiesUsersStats
-                WHERE 
-                    completed = 1
                 GROUP BY 
                     instanceId
-            ) AS st2
+                HAVING
+                    COUNT(DISTINCT membershipId) <= %s
+            ) AS lowManCompletions
             ON 
-                st1.instanceId = st2.instanceId
-            WHERE 
-                st1.membershipid = %s 
-                AND st1.completed = 1
-                AND completionReason = 0
-        ) AS t2
+                memberCompletedActivities.instanceId = lowManCompletions.instanceId
+        ) AS userLowmanCompletions
         ON 
-            (t1.instanceID = t2.instanceID)
-        WHERE
-            t2.playercount <= %s;"""
+            (selectedActivites.instanceID = userLowmanCompletions.instanceID)"""
     with db_connect().cursor() as cur:
-        cur.execute(select_sql, (*raidHashes, membershipid, playercount,))
+        cur.execute(select_sql, (*raidHashes, membershipid, playercount))
         result = cur.fetchall()
     return result
 
