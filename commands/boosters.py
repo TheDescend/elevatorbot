@@ -1,5 +1,5 @@
-
 from commands.base_command  import BaseCommand
+from functions.formating import embed_message
 
 
 class boosters(BaseCommand):
@@ -12,5 +12,11 @@ class boosters(BaseCommand):
     # Override the handle() method
     # It will be called every time the command is received
     async def handle(self, params, message, mentioned_user, client):
-        await message.channel.send(", ".join([m.name for m in message.guild.premium_subscribers]))
+        embed = embed_message(
+            f"{message.guild.name} Nitro Boosters",
+            ", ".join(["**" + m.display_name + "** - since: " + m.premium_since.strftime('%d/%m/%Y, %H:%M') for m in message.guild.premium_subscribers])
+        )
+
+        await message.reply(embed=embed)
+
 

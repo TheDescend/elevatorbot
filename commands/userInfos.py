@@ -59,18 +59,17 @@ class setID(BaseCommand):
         await steamJoinCodeMessage(client, message.guild)
 
 
-class getDiscordDate(BaseCommand):
+class getDiscordJoinDate(BaseCommand):
     def __init__(self):
         # A quick description for the help message
         description = "Check your join-datetime of the discord server"
         params = []
-        topic = "Registration"
-        super().__init__(description, params, topic)
+        super().__init__(description, params)
 
     # Override the handle() method
     # It will be called every time the command is received
     async def handle(self, params, message, mentioned_user, client):
-        await message.channel.send(f'{mentioned_user.mention} joined at {mentioned_user.joined_at.strftime("%d.%m.%Y, %H:%M")}')
+        await message.reply(f'{mentioned_user.mention} joined at {mentioned_user.joined_at.strftime("%d/%m/%Y, %H:%M")}')
 
 
 class getUserInfo(BaseCommand):

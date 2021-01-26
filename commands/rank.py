@@ -6,98 +6,100 @@ from discord.ext.commands import MemberConverter
 
 from commands.base_command import BaseCommand
 from functions.dataLoading import getStats, getProfile, getCharacterList, \
-    getAggregateStatsForChar, getInventoryBucket, getWeaponStats, returnManifestInfo, searchArmory, getAllGear, \
-    getItemDefinition, getArtifact, getCharacterGear, getCharacterGearAndPower, getPlayersPastActivities, getWeaponHash
+    getAggregateStatsForChar, getInventoryBucket, getWeaponStats, returnManifestInfo, getAllGear, \
+    getItemDefinition, getArtifact, getCharacterGear, getCharacterGearAndPower, getPlayersPastActivities, searchForItem
 from functions.database import lookupDiscordID, getToken, lookupSystem
 from functions.formating import embed_message
+from functions.miscFunctions import show_help
 from functions.network import getJSONfromURL
 from static.config import CLANID
 from static.dict import metricRaidCompletion, raidHashes
 
 
 class rank(BaseCommand):
-    # shadows charleys rank command. Currently works with "totaltime", "maxpower"
+    # shadows charleys rank command
+
+    supported = [
+        "discordjoindate",
+        "totaltime",
+        "maxpower",
+        "vaultspace",
+        "orbs",
+        "meleekills",
+        "superkills",
+        "grenadekills",
+        "deaths",
+        "suicides",
+        "kills",
+        "raids",
+        "raidtime",
+        "weapon",
+        "weaponprecision",
+        "weaponprecisionpercent",
+        "armor",
+        "enhancementcores",
+        "forges",
+        "afkforges",
+        "activetriumphs",
+        "legacytriumphs",
+        "triumphs",
+    ]
+
     def __init__(self):
         # A quick description for the help message
-        description = "Shadows various Charley leaderboards with only clan members shown. `!rank help` for current leaderboards"
-        params = []
-        super().__init__(description, params)
+        description = "Shadows various Charley leaderboards with only clan members shown. Use !rank help to get currently supported leaderboards"
+        params = [f"leaderboard {'|'.join(sorted(self.supported))}"]
+        topic = "Destiny"
+        super().__init__(description, params, topic)
 
     # Override the handle() method
     # It will be called every time the command is received
     async def handle(self, params, message, mentioned_user, client):
-        supported = [
-            "totaltime",
-            "maxpower",
-            "vaultspace",
-            "orbs",
-            "meleekills",
-            "superkills",
-            "grenadekills",
-            "deaths",
-            "suicides",
-            "kills",
-            "raids",
-            "raidtime",
-            "weapon",
-            "weaponprecision",
-            "weaponprecisionpercent",
-            "armor",
-            "enhancementcores",
-            "forges",
-            "afkforges",
-        ]
+        # ignore if not supported
+        if params[0].lower() not in self.supported:
+            return
 
-        if len(params) > 0:
-            if params[0].lower() == "help":
+        item_name = None
+        item_hashes = None
+        if params[0].lower() in ["weapon", "weaponprecision", "weaponprecisionpercent"]:
+            if len(params) == 1:
                 await message.channel.send(embed=embed_message(
                     "Info",
-                    f"""Currently supported are: \n`{"`, `".join(sorted(supported))}`"""
+                    "Please specify a weapon"
                 ))
+                return
 
-            elif params[0].lower() in supported:
-                name = None
-                hashID = None
-                if params[0].lower() in ["weapon", "weaponprecision", "weaponprecisionpercent"]:
-                    if len(params) == 1:
-                        await message.channel.send(embed=embed_message(
-                            "Info",
-                            "Please specify a weapon"
-                        ))
-                        return
+            else:
+                item_name, item_hashes = await searchForItem(client, message, " ".join(params[1:]))
+                if not item_name:
+                    return
 
-                    else:
-                        hashID, name = await getWeaponHash(message, " ".join(params[1:]))
-                        if not hashID:
-                            return
+        elif params[0].lower() == "armor":
+            stats = {
+                "mobility": 2996146975,
+                "resilience": 392767087,
+                "recovery": 1943323491,
+                "discipline": 1735777505,
+                "intellect": 144602215,
+                "strength": 4244567218
+            }
 
+            if len(params) == 1 or params[1] not in stats:
+                await message.channel.send(embed=embed_message(
+                    "Info",
+                    f"""Please specify a stat, available are: \n`{"`, `".join(list(stats.keys()))}`"""
+                ))
+                return
 
-                elif params[0].lower() == "armor":
-                    stats = {
-                        "mobility": 2996146975,
-                        "resilience": 392767087,
-                        "recovery": 1943323491,
-                        "discipline": 1735777505,
-                        "intellect": 144602215,
-                        "strength": 4244567218
-                    }
+            else:
+                item_name = params[1]
+                item_hashes = stats[item_name]
 
-                    if len(params) == 1 or params[1] not in stats:
-                        await message.channel.send(embed=embed_message(
-                            "Info",
-                            f"""Please specify a stat, available are: \n`{"`, `".join(list(stats.keys()))}`"""
-                        ))
-                        return
+        async with message.channel.typing():
+            embed = await handle_users(client, params[0].lower(), mentioned_user.display_name, message.guild, item_hashes, item_name)
 
-                    else:
-                        name = params[1]
-                        hashID = stats[name]
-
-                async with message.channel.typing():
-                    embed = await handle_users(client, params[0].lower(), mentioned_user.display_name, message.guild, hashID, name)
-
-                if embed:
-                    await message.channel.send(embed=embed)
+        if embed:
+            await message.channel.send(embed=embed)
 
 
 async def handle_users(client, stat, display_name, guild, extra_hash, extra_name):
@@ -167,13 +169,22 @@ async def handle_user(stat, member, guild, extra_hash, extra_name):
 
     # catch people that are in the clan but not in discord, shouldn't happen tho
     try:
-        name = guild.get_member(discordID).display_name
+        discord_member = guild.get_member(discordID)
+        name = discord_member.display_name
     except:
         print(f"DestinyID {destinyID} isn't in discord but he is in clan")
         return None
 
     # get the stat that we are looking for
-    if stat == "totaltime":
+    if stat == "discordjoindate":
+        sort_by_ascending = True
+        leaderboard_text = "Top Clanmembers by Discord Join Date"
+        stat_text = "Date"
+
+        result_sort = discord_member.joined_at
+        result = discord_member.joined_at.strftime("%d/%m/%Y, %H:%M")
+
+    elif stat == "totaltime":
         leaderboard_text = "Top Clanmembers by D2 Total Time Logged In"
         stat_text = "Hours"
 
@@ -378,6 +389,27 @@ async def handle_user(stat, member, guild, extra_hash, extra_name):
         for ret in results:
             if ret and (ret > result_sort):
                 result_sort = ret
+        result = f"{result_sort:,}"
+
+    elif stat == "activetriumphs":
+        leaderboard_text = f"Top Clanmembers by D2 Active Triumph Score"
+        stat_text = "Score"
+
+        result_sort = (await getProfile(destinyID, 900))["profileRecords"]["data"]["activeScore"]
+        result = f"{result_sort:,}"
+
+    elif stat == "legacytriumphs":
+        leaderboard_text = f"Top Clanmembers by D2 Legacy Triumph Score"
+        stat_text = "Score"
+
+        result_sort = (await getProfile(destinyID, 900))["profileRecords"]["data"]["legacyScore"]
+        result = f"{result_sort:,}"
+
+    elif stat == "triumphs":
+        leaderboard_text = f"Top Clanmembers by D2 Lifetime Triumph Score"
+        stat_text = "Score"
+
+        result_sort = (await getProfile(destinyID, 900))["profileRecords"]["data"]["lifetimeScore"]
         result = f"{result_sort:,}"
 
     else:

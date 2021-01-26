@@ -4,51 +4,34 @@ from commands.base_command import BaseCommand
 from functions.dataLoading import getTriumphsJSON, getSeals
 from functions.database import lookupDestinyID
 from functions.formating import embed_message
+from functions.miscFunctions import show_help
 from functions.network import getJSONfromURL
 from static.dict import requirementHashes
 
 
 class whatToDo(BaseCommand):
+    types = [
+        "roles",
+        "triumphs",
+        "seals"
+    ]
+
     def __init__(self):
         # A quick description for the help message
         description = "Tells you what you can still achieve in Destiny / this Server"
-        params = []
+        params = [f"*type {'|'.join(sorted(self.types))}"]
         topic = "Destiny"
         super().__init__(description, params, topic)
 
     # Override the handle() method
     # It will be called every time the command is received
     async def handle(self, params, message, mentioned_user, client):
-        # if those get edited, need to change below as well
-        types = [
-            "roles",
-            "triumphs",
-            "seals"
-        ]
-
-        # check if message too long
-        if len(params) > 1:
-            await message.channel.send(embed=embed_message(
-                'Error',
-                'Incorrect formatting, correct usage is: \n.B\n `!whatToDo *<type> *<user>`'
-            ))
+        # check if message too long or if types is not correct
+        if len(params) > 1 or params[0].lower() not in self.types:
+            await show_help(message, "whatToDo", self.params)
             return
 
-        # set user to the one that send the message, or if a 2nd param was used, the one mentioned
-        # do the same, if the first param can be converted to a user
-        block = False
-
-        # check if types is correct
-        try:
-            if (params[0] not in types) and (not block):
-                await message.channel.send(embed=embed_message(
-                    'Error',
-                    f'Unrecognised type, currently supported are: \n.B\n`{", ".join(types)}`'
-                ))
-                return
-        except IndexError:
-            pass
-
+        params[0] = params[0].lower()
 
         async with message.channel.typing():
             embed = embed_message(
@@ -56,9 +39,7 @@ class whatToDo(BaseCommand):
             )
 
             # do everything if no specific type was given
-            do_all = False
-            if (len(params) == 0) or block:
-                do_all = True
+            do_all = True if len(params) == 0 else False
 
             # do the missing roles display
             if do_all or (params[0] == "roles"):

@@ -7,19 +7,18 @@ from static.globals import dev_role_id
 
 
 class Commands(BaseCommand):
-
     def __init__(self):
         description = "Displays this help message"
-        params = None
+        params = []
         super().__init__(description, params)
 
     async def handle(self, params, message, mentioned_user, client):
         if message.author.id == 367385031569702912:
             await message.channel.send('<@!367385031569702912> :Pepega:670369123716431872')
         from message_handler import COMMAND_HANDLERS
-        msg = f"Contact <@&{dev_role_id}> if any problems arise\n⁣\n"
+        msg = f"Type `!<command> help` to get usage information. \nContact <@&{dev_role_id}> if any problems arise\n⁣\n"
 
-        #admin = await hasAdminOrDevPermissions(message, send_message=False)
+        # admin = await hasAdminOrDevPermissions(message, send_message=False)
         admin = (message.channel.id == 670637036641845258)
 
         # sort by topic
@@ -42,11 +41,11 @@ class Commands(BaseCommand):
             msg += "\n⁣\n"
             await message.channel.send(msg)
 
-class Documentation(BaseCommand):
 
+class Documentation(BaseCommand):
     def __init__(self):
         description = "[dev] Displays a link to the documentation"
-        params = None
+        params = []
         super().__init__(description, params)
 
     async def handle(self, params, message, mentioned_user, client):

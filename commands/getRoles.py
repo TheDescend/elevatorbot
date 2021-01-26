@@ -25,14 +25,6 @@ class getRoles(BaseCommand):
     # Override the handle() method
     # It will be called every time the command is received
     async def handle(self, params, message, mentioned_user, client):
-        # check if message too long
-        if len(params) > 1:
-            await message.channel.send(embed=embed_message(
-                'Error',
-                'Incorrect formatting, correct usage is: \n\u200B\n `!getroles *<user>`'
-            ))
-            return
-
         # check perm for mention, otherwise abort
         if not (await hasMentionPermission(message, mentioned_user)):
             return
@@ -139,7 +131,7 @@ class getRoles(BaseCommand):
 class lastRaid(BaseCommand):
     def __init__(self):
         # A quick description for the help message
-        description = "gets your last raid"
+        description = "Gets your last raid"
         topic = "Roles"
         params = []
         super().__init__(description, params, topic)
@@ -151,6 +143,7 @@ class lastRaid(BaseCommand):
         destinyID = lookupDestinyID(mentioned_user.id)
         await updateDB(destinyID)
         await message.channel.send(getLastRaid(destinyID))
+
 
 class flawlesses(BaseCommand):
     def __init__(self):
@@ -169,12 +162,13 @@ class flawlesses(BaseCommand):
             await updateDB(destinyID)
             await message.channel.send(getFlawlessList(destinyID))
 
+
 #improvable TODO
 class removeAllRoles(BaseCommand):
     def __init__(self):
         # A quick description for the help message
         description = "[dev] removes a certain users roles"
-        params = ['User']
+        params = []
         topic = "Roles"
         super().__init__(description, params, topic)
 
@@ -190,6 +184,7 @@ class removeAllRoles(BaseCommand):
             for role in yeardata.keys():
                 roles.append(role)
         await removeRolesFromUser(roles, mentioned_user, message.guild)
+
 
 class checkNames(BaseCommand):
     def __init__(self):
@@ -209,6 +204,7 @@ class checkNames(BaseCommand):
             else:
                 messagetext += f'{discordUser.name} ({discordUser.nick}): Not found\n'
         await message.channel.send(messagetext)
+
 
 class checkNewbies(BaseCommand):
     def __init__(self):
@@ -286,20 +282,12 @@ class roleRequirements(BaseCommand):
         # A quick description for the help message
         description = "Shows you what you need for a role"
         topic = "Roles"
-        params = []
+        params = ["role"]
         super().__init__(description, params, topic)
 
     # Override the handle() method
     # It will be called every time the command is received
     async def handle(self, params, message, mentioned_user, client):
-        # check if message too short
-        if len(params) == 0:
-            await message.channel.send(embed=embed_message(
-                'Error',
-                'Incorrect formatting, correct usage is: \n\u200B\n `!roleRequirements <role>`'
-            ))
-            return
-
         given_role = " ".join(params)
 
         f_year = ""

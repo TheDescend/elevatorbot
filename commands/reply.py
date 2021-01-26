@@ -10,10 +10,9 @@ from functions.miscFunctions import hasAdminOrDevPermissions
 
 class reply(BaseCommand):
     def __init__(self):
-        description = "Send a message to whoever got tagged above"
-        topic = "Destiny"
+        description = "[Admin] Send a message to whoever got tagged above"
         params = []
-        super().__init__(description, params, topic)
+        super().__init__(description, params)
 
     async def handle(self, params, message, mentioned_user, client):
         if not (await hasAdminOrDevPermissions(message)):

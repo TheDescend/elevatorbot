@@ -6,7 +6,7 @@ from commands.base_command import BaseCommand
 class rollreaction(BaseCommand):
     def __init__(self):
         # A quick description for the help tmessage
-        description = "picks a random reactor from the post above"
+        description = "Picks a random reactor from the post above"
         params = ['Number of people to draw']
         super().__init__(description, params)
 

@@ -9,9 +9,10 @@ from functions.miscFunctions import hasMentionPermission
 class mysticadd(BaseCommand):
     def __init__(self):
         # A quick description for the help message
-        description = "Add youself to mystics carry-list\nMystic and the admins can use pings to add other players"
+        description = "Add youself to mystics carry-list. Mystic and the admins can use pings to add other players"
         params = []
-        super().__init__(description, params)
+        topic = "Destiny"
+        super().__init__(description, params, topic)
 
     # Override the handle() method
     # It will be called every time the command is received
@@ -39,7 +40,8 @@ class mysticremove(BaseCommand):
         # A quick description for the help message
         description = "Remove youself from mystics carry-list\nMystic and the admins can use pings to remove other players"
         params = []
-        super().__init__(description, params)
+        topic = "Destiny"
+        super().__init__(description, params, topic)
 
     # Override the handle() method
     # It will be called every time the command is received
@@ -69,9 +71,10 @@ class mysticremove(BaseCommand):
 class mystic(BaseCommand):
     def __init__(self):
         # A quick description for the help message
-        description = "Whom to carry"
+        description = "Prints Mystics abandoned carry list. Tbf he said he tried ¯\_(ツ)_/¯"
         params = []
-        super().__init__(description, params)
+        topic = "Destiny"
+        super().__init__(description, params, topic)
 
     # Override the handle() method
     # It will be called every time the command is received

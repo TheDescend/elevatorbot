@@ -9,10 +9,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from commands.rank import write_line
-from functions.dataLoading import getWeaponHash, getCharacterID
+from functions.dataLoading import searchForItem, getCharacterID
 from functions.database import lookupDestinyID, getTopWeapons, getDestinyDefinition, getWeaponInfo, getPgcrActivity
 from functions.formating import embed_message
-from functions.miscFunctions import show_help
 
 
 # gets detailed info about a weapon
@@ -41,9 +40,9 @@ class weapon(BaseCommand):
     def __init__(self):
         # A quick description for the help message
         description = "Shows in-depth weapon stats with lots of room for customization"
-
         params = [f"*mode {'|'.join(list(self.activities.keys()))}", f"*activityhash hash", "*time dd/mm/yy dd/mm/yy", f"*class {'|'.join(list(self.classes.keys()))}", f"*stat {'|'.join(list(self.stats))}", "*graph", "weaponName"]
-        super().__init__(description, params)
+        topic = "Destiny"
+        super().__init__(description, params, topic)
 
     # Override the handle() method
     # It will be called every time the command is received
@@ -55,8 +54,8 @@ class weapon(BaseCommand):
             charID = await getCharacterID(destinyID, self.classes[char_class]) if char_class else None
 
             # get weapon info
-            weapon_hash, weapon_name = await getWeaponHash(message, weapon_name)
-            if not weapon_hash:
+            weapon_name, weapon_hashes = await searchForItem(client, message, weapon_name)
+            if not weapon_name:
                 return
 
             # get all weapon infos
@@ -67,7 +66,11 @@ class weapon(BaseCommand):
                 "start": start,
                 "end": end
             }
-            result = getWeaponInfo(destinyID, weapon_hash, **{k: v for k, v in kwargs.items() if v is not None})
+
+            # loop through every variant of the weapon and add that together
+            result = []
+            for entry in weapon_hashes:
+                result.extend(getWeaponInfo(destinyID, entry, **{k: v for k, v in kwargs.items() if v is not None}))
 
             # throw error if no weapon
             if not result:
@@ -111,19 +114,19 @@ class weapon(BaseCommand):
 
             elif showcase == "graph":
                 # get the time instead of the instance id and sort it so the earliest date is first
-                data = []
+                weapon_hashes = []
                 for instanceID, uniqueweaponkills, uniqueweaponprecisionkills in result:
                     instance_time = getPgcrActivity(instanceID)[3]
-                    data.append((instance_time, uniqueweaponkills, uniqueweaponprecisionkills))
-                data = sorted(data, key=lambda x: x[0])
+                    weapon_hashes.append((instance_time, uniqueweaponkills, uniqueweaponprecisionkills))
+                weapon_hashes = sorted(weapon_hashes, key=lambda x: x[0])
 
                 # get clean, relevant data in a DF. easier for the graph later
                 df = pd.DataFrame(columns=["datetime", "statistic"])
                 name = ""
                 statistic1 = 0
                 statistic2 = 0
-                time = data[0][0]
-                for instance_time, uniqueweaponkills, uniqueweaponprecisionkills in data:
+                time = weapon_hashes[0][0]
+                for instance_time, uniqueweaponkills, uniqueweaponprecisionkills in weapon_hashes:
                     if instance_time.date() == time.date():
                         if stat == "kills":
                             statistic1 += uniqueweaponkills
@@ -222,9 +225,9 @@ class topWeapons(BaseCommand):
     def __init__(self):
         # A quick description for the help message
         description = "Shows your top10 weapons with with lots of room for customization"
-
         params = [f"*mode {'|'.join(list(self.activities.keys()))}", f"*activityhash hash", "*time dd/mm/yy dd/mm/yy", f"*class {'|'.join(list(self.classes.keys()))}", f"*stat {'|'.join(list(self.stats))}", "*weaponName"]
-        super().__init__(description, params)
+        topic = "Destiny"
+        super().__init__(description, params, topic)
 
     # Override the handle() method
     # It will be called every time the command is received
@@ -237,7 +240,7 @@ class topWeapons(BaseCommand):
 
             # get the real weapon name
             if weapon_name:
-                _, weapon_name = await getWeaponHash(message, weapon_name)
+                weapon_name, _ = await searchForItem(client, message, weapon_name)
                 if not weapon_name:
                     return
 
@@ -365,8 +368,7 @@ async def compute_parameters(message, params, activities, classes, stats):
                 look_for = ""
                 continue
             else:
-                await error_message(message,
-                                    f"The class parameter must be in \n`{'|'.join(list(classes.keys()))}`")
+                await error_message(message, f"The class parameter must be in \n`{'|'.join(list(classes.keys()))}`")
                 return
 
         # get type of statistic
