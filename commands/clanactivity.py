@@ -41,8 +41,6 @@ class clanActivity(BaseCommand):
         self.edge_list = []
 
     async def handle(self, params, message, mentioned_user, client):
-
-
         # check if message too short / long
         if len(params) == 0:
             await message.channel.send(embed=embed_message(

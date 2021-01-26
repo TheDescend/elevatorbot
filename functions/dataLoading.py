@@ -209,20 +209,90 @@ async def getItemDefinition(destinyID, system, itemID, components):
     return None
 
 
-# todo save in db
-# gets the weapon hash
-async def getWeaponHash(message, name):
-    hashID = await searchArmory("DestinyInventoryItemDefinition", name)
-    if hashID:
-        name = getDestinyDefinition("DestinyInventoryItemDefinition", hashID)[2]
-        return hashID, name
-    else:
+# gets the weapon (name, [hash1, hash2, ...]) for the search term for all weapons found
+# more than one weapon can be found if it got reissued
+async def searchForItem(client, message, search_term):
+    # search for the weapon in the api
+    info = await getJSONfromURL(f'http://www.bungie.net/Platform/Destiny2/Armory/Search/DestinyInventoryItemDefinition/{search_term}/')
+    data = {}
+    try:
+        for weapon in info["Response"]["results"]["results"]:
+            # only add weapon if its not a catalyst
+            if "catalyst" not in weapon["displayProperties"]["name"].lower():
+                n = weapon["displayProperties"]["name"]
+                h = weapon["hash"]
+
+                if n not in data:
+                    data[n] = [h]
+                else:
+                    data[n].append(h)
+
+        if not data:
+            raise KeyError
+
+    # if no weapon was found
+    except KeyError:
         await message.reply(embed=embed_message(
             "Error",
-            f'I do not know the weapon "{name}"'
+            f'I do not know the weapon "{search_term}"'
         ))
         return None, None
 
+    # check if we found multiple items with different names. Ask user to specify which one is correct
+    index = 0
+    if len(data) > 1:
+        # asking user for the correct item
+        text = "Multiple items can be found with that search term, please specify which item you meant by sending the corresponding number:\n\u200B"
+        i = 1
+        for name in data.keys():
+            text += f"\n**{i}** - {name}"
+            i += 1
+        msg = await message.reply(embed=embed_message(
+            f'{message.author.display_name}, I need one more thing',
+            text
+        ))
+
+        # to check whether or not the one that send the msg is the original author for the function after this
+        def check(answer_msg):
+            return answer_msg.author == message.author and answer_msg.channel == message.channel
+
+        # wait for reply from original user to set the time parameters
+        try:
+            answer_msg = await client.wait_for('message', timeout=60.0, check=check)
+
+        # if user is too slow, let him know
+        except asyncio.TimeoutError:
+            await msg.edit(embed=embed_message(
+                f'Sorry {message.author.display_name}',
+                f'You took to long to answer my question, please start over'
+            ))
+            await asyncio.sleep(60)
+            await msg.delete()
+            return None, None
+
+        # try to convert the answer to int, else throw error
+        else:
+            try:
+                # check if int
+                index = int(answer_msg.content) - 1
+                # check if within length
+                if (index + 1) > len(data):
+                    raise ValueError
+
+                await msg.delete()
+                await answer_msg.delete()
+            except ValueError:
+                await msg.edit(embed=embed_message(
+                    f'Sorry {message.author.display_name}',
+                    f'{answer_msg.content} is not a valid number. Please start over'
+                ))
+                await asyncio.sleep(60)
+                await msg.delete()
+                await answer_msg.delete()
+                return None, None
+
+    name = list(data.keys())[index]
+    return name, data[name]
 
 
 # returns all items in bucket. Deafult is vault hash, for others search "bucket" at https://data.destinysets.com/
@@ -298,14 +368,16 @@ async def getGearPiece(destinyID, itemID):
 
 
 
-async def getWeaponStats(destinyID, weaponID, characterID=None, mode=0):
+async def getWeaponStats(destinyID, weaponIDs: list, characterID=None, mode=0):
     """ returns kills, prec_kills for that weapon in the specified mode"""
 
     # get the info from the DB
-    if characterID:
-        result = getWeaponInfo(destinyID, weaponID, characterID=characterID, mode=mode)
-    else:
-        result = getWeaponInfo(destinyID, weaponID, mode=mode)
+    result = []
+    for weaponID in weaponIDs:
+        if characterID:
+            result.extend(getWeaponInfo(destinyID, weaponID, characterID=characterID, mode=mode))
+        else:
+            result.extend(getWeaponInfo(destinyID, weaponID, mode=mode))
 
     # add stats
     kills = 0
@@ -354,15 +426,6 @@ async def returnManifestInfo(type, hash):
     if info:
         return info
     else:
-        return None
-
-# returns the hash of the item if found
-async def searchArmory(type, searchTerm):
-    info = await getJSONfromURL(f'http://www.bungie.net/Platform/Destiny2/Armory/Search/{type}/{searchTerm}/')
-
-    try:
-        return info["Response"]["results"]["results"][0]["hash"]
-    except:
         return None
 
 

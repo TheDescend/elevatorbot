@@ -6,8 +6,8 @@ from discord.ext.commands import MemberConverter
 
 from commands.base_command import BaseCommand
 from functions.dataLoading import getStats, getProfile, getCharacterList, \
-    getAggregateStatsForChar, getInventoryBucket, getWeaponStats, returnManifestInfo, searchArmory, getAllGear, \
-    getItemDefinition, getArtifact, getCharacterGear, getCharacterGearAndPower, getPlayersPastActivities, getWeaponHash
+    getAggregateStatsForChar, getInventoryBucket, getWeaponStats, returnManifestInfo, getAllGear, \
+    getItemDefinition, getArtifact, getCharacterGear, getCharacterGearAndPower, getPlayersPastActivities, searchForItem
 from functions.database import lookupDiscordID, getToken, lookupSystem
 from functions.formating import embed_message
 from functions.miscFunctions import show_help
@@ -57,8 +57,8 @@ class rank(BaseCommand):
             await show_help(message, "rank", self.params)
             return
 
-        name = None
-        hashID = None
+        item_name = None
+        item_hashes = None
         if params[0].lower() in ["weapon", "weaponprecision", "weaponprecisionpercent"]:
             if len(params) == 1:
                 await message.channel.send(embed=embed_message(
@@ -68,8 +68,8 @@ class rank(BaseCommand):
                 return
 
             else:
-                hashID, name = await getWeaponHash(message, " ".join(params[1:]))
-                if not hashID:
+                item_name, item_hashes = await searchForItem(client, message, " ".join(params[1:]))
+                if not item_name:
                     return
 
         elif params[0].lower() == "armor":
@@ -90,11 +90,11 @@ class rank(BaseCommand):
                 return
 
             else:
-                name = params[1]
-                hashID = stats[name]
+                item_name = params[1]
+                item_hashes = stats[item_name]
 
         async with message.channel.typing():
-            embed = await handle_users(client, params[0].lower(), mentioned_user.display_name, message.guild, hashID, name)
+            embed = await handle_users(client, params[0].lower(), mentioned_user.display_name, message.guild, item_hashes, item_name)
 
         if embed:
             await message.channel.send(embed=embed)
