@@ -1,5 +1,6 @@
 import pathlib
 from datetime import datetime
+import time
 
 import matplotlib
 
@@ -54,7 +55,9 @@ async def getPlayerCount(instanceID):
 
 def hasLowman(playerid, playercount, raidHashes, flawless=False, disallowed=[]):
     """ Default is flawless=False, disallowed is a list of (starttime, endtime) with datetime objects """
+    starttime = time.process_time()
     low_activity_info = getInfoOnLowManActivity(raidHashes, playercount, playerid)
+    print(f"getInfoOnLowManActivity took {(time.process_time()-starttime)} seconds")
     verdict = False
 
     for (iid, deaths, period) in low_activity_info:
