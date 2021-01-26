@@ -10,7 +10,7 @@ leviPHashes = [417231112, 508802457, 757116822, 771164842, 1685065161, 180050881
 scourgeHashes = [548750096] 
 lwHashes = [2122313384]
 cosHashes = [3333172150, 960175301] 
-gosHashes = [3845997235, 2659723068]
+gosHashes = [2659723068, 2497200493, 3458480158, 3845997235]
 dscHashes = [910380154, 3976949817]
 
 # dungeons
@@ -473,7 +473,10 @@ requirementHashes = {
             'replaced_by': ['Solo Flawless Prophecy']
         },
         'Solo Flawless Prophecy': {
-            'requirements': ['lowman'],
+            'requirements': ['lowman', 'records'],
+            'records' : [
+                3191784400 #Solo Flawless Prophecy
+            ],
             'playercount': 1,
             'flawless' : True,
             'denyTime0':{ #Beyond light boss CP bug
