@@ -17,7 +17,7 @@ from static.dict import metricRaidCompletion, raidHashes
 
 
 class rank(BaseCommand):
-    # shadows charleys rank command. Currently works with "totaltime", "maxpower"
+    # shadows charleys rank command
 
     supported = [
         "discordjoindate",
@@ -40,6 +40,9 @@ class rank(BaseCommand):
         "enhancementcores",
         "forges",
         "afkforges",
+        "activetriumphs",
+        "legacytriumphs",
+        "triumphs",
     ]
 
     def __init__(self):
@@ -52,9 +55,8 @@ class rank(BaseCommand):
     # Override the handle() method
     # It will be called every time the command is received
     async def handle(self, params, message, mentioned_user, client):
-        # show error msg if wrong args
+        # ignore if not supported
         if params[0].lower() not in self.supported:
-            await show_help(message, "rank", self.params)
             return
 
         item_name = None
@@ -387,6 +389,27 @@ async def handle_user(stat, member, guild, extra_hash, extra_name):
         for ret in results:
             if ret and (ret > result_sort):
                 result_sort = ret
+        result = f"{result_sort:,}"
+
+    elif stat == "activetriumphs":
+        leaderboard_text = f"Top Clanmembers by D2 Active Triumph Score"
+        stat_text = "Score"
+
+        result_sort = (await getProfile(destinyID, 900))["profileRecords"]["data"]["activeScore"]
+        result = f"{result_sort:,}"
+
+    elif stat == "legacytriumphs":
+        leaderboard_text = f"Top Clanmembers by D2 Legacy Triumph Score"
+        stat_text = "Score"
+
+        result_sort = (await getProfile(destinyID, 900))["profileRecords"]["data"]["legacyScore"]
+        result = f"{result_sort:,}"
+
+    elif stat == "triumphs":
+        leaderboard_text = f"Top Clanmembers by D2 Lifetime Triumph Score"
+        stat_text = "Score"
+
+        result_sort = (await getProfile(destinyID, 900))["profileRecords"]["data"]["lifetimeScore"]
         result = f"{result_sort:,}"
 
     else:
