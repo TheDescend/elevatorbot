@@ -27,7 +27,7 @@ class whatToDo(BaseCommand):
     # It will be called every time the command is received
     async def handle(self, params, message, mentioned_user, client):
         # check if message too long or if types is not correct
-        if len(params) > 1 or params[0].lower() not in self.types:
+        if len(params) > 1 or (len(params) == 1 and params[0].lower() not in self.types):
             await show_help(message, "whatToDo", self.params)
             return
 
@@ -157,7 +157,8 @@ class whatToDo(BaseCommand):
                                     pass
 
         # remove the empty categories
-        for role, roledata in roles.items():
+        roleitems = roles.items()
+        for role, roledata in roleitems:
             if not roledata:
                 roles.pop(role)
 
