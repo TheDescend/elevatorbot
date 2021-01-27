@@ -13,6 +13,23 @@ from static.config import BUNGIE_TOKEN
 bungieAPI_URL = "https://www.bungie.net/Platform"
 headers = {'X-API-Key': BUNGIE_TOKEN}
 
+class ConnectionProvider:
+
+    def __init__(self):
+        self.bungieSession = None
+        self.otherSession = None
+
+    def getSession(self, url):
+        if 'bungie' in url:
+            if not self.bungieSession or self.bungieSession.closed:
+                self.bungieSession = aiohttp.ClientSession(connector=aiohttp.TCPConnector(keepalive_timeout=100, limit=10))
+            return self.bungieSession
+        else:
+            if not self.otherSession or self.otherSession.closed:
+                self.otherSession = aiohttp.ClientSession()
+            return self.otherSession
+
+connProvider = ConnectionProvider()
 
 class RateLimiter:
     """
@@ -48,8 +65,7 @@ limiter = RateLimiter()
 async def getJSONfromURL(requestURL, headers=headers, params={}):
     """ Grabs JSON from the specified URL (no oauth)"""
 
-    no_jar = aiohttp.DummyCookieJar()
-    async with aiohttp.ClientSession(cookie_jar=no_jar) as session:
+    async with aiohttp.ClientSession() as session:
         # abort after 5 tries
         for i in range(10):
             # wait for a token from the rate limiter
@@ -62,7 +78,7 @@ async def getJSONfromURL(requestURL, headers=headers, params={}):
                         print(f'Wrong content type {r.headers["Content-Type"]}! {r.status}: {r.reason})')
                         if r.status == 200:
                             print(await r.text())
-                        await asyncio.sleep(10)
+                        await asyncio.sleep(3)
                         continue
                     try:
                         res = await r.json()
@@ -82,7 +98,7 @@ async def getJSONfromURL(requestURL, headers=headers, params={}):
                         return None
             except asyncio.exceptions.TimeoutError:
                     print('Timeout error, retrying...')
-                    await asyncio.sleep(1)
+                    await asyncio.sleep(random.randrange(4))
                     continue
 
         print(f'Request failed 10 times, aborting {requestURL}')
