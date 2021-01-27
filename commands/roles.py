@@ -100,10 +100,10 @@ class Roles(BaseCommand):
                                     pass
 
         # remove the empty categories
-        for role, roledata in roles.items():
+        for role, roledata in roles.copy().items():
             if not roledata:
                 roles.pop(role)
-        for role, roledata in deprecated_roles.items():
+        for role, roledata in deprecated_roles.copy().items():
             if not roledata:
                 deprecated_roles.pop(role)
 
