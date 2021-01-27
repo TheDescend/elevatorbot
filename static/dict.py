@@ -397,7 +397,8 @@ requirementHashes = {
         'Solo Flawless Shattered Throne': {
             'requirements': ['lowman'],
             'playercount': 1,
-            'flawless' : True,
+            'flawless': True,
+            'noCheckpoints': True,
             'denyTime0':{ #start is earlier Time, format is important
                 'startTime':'11/08/2020 18:00',
                 'endTime':'08/09/2020 18:00'
@@ -429,7 +430,8 @@ requirementHashes = {
         'Solo Flawless Pit of Heresy': {
             'requirements': ['lowman'],
             'playercount': 1,
-            'flawless' : True,
+            'flawless': True,
+            'noCheckpoints': True,
             'denyTime0':{ #start is earlier Time, format is important
                 'startTime':'11/08/2020 18:00',
                 'endTime':'08/09/2020 18:00'
@@ -478,7 +480,8 @@ requirementHashes = {
                 3191784400 #Solo Flawless Prophecy
             ],
             'playercount': 1,
-            'flawless' : True,
+            'flawless': True,
+            'noCheckpoints': True,
             'denyTime0':{ #Beyond light boss CP bug
                 'startTime':'10/11/2020 18:00',
                 'endTime':'08/09/2020 18:00'

@@ -53,16 +53,19 @@ async def getPlayerCount(instanceID):
     return len(ingameids)
 
 
-async def hasLowman(playerid, playercount, raidHashes, flawless=False, disallowed=[]):
+def hasLowman(playerid, playercount, raidHashes, flawless=False, noCheckpoints=False, disallowed=[]):
     """ Default is flawless=False, disallowed is a list of (starttime, endtime) with datetime objects """
     starttime = time.monotonic()
-    low_activity_info = await getInfoOnLowManActivity(raidHashes, playercount, playerid)
-    if (dbquerytime := time.monotonic()-starttime) > 1:
-        print(f"getInfoOnLowManActivity took {dbquerytime} seconds for {playercount} in {', '.join(map(lambda num:str(num), raidHashes))}")
-    verdict = False
+    low_activity_info = getInfoOnLowManActivity(
+        raidHashes,
+        playercount,
+        playerid,
+        noCheckpoints
+    )
+    print(f"getInfoOnLowManActivity took {(time.monotonic()-starttime)} seconds")
 
     for (iid, deaths, period) in low_activity_info:
-        #print(f'{deaths} on {period} in {iid}')
+        # check for flawless if asked for
         if not flawless or deaths == 0:
             verdict = True
             for starttime, endtime in disallowed:

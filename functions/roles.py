@@ -4,7 +4,7 @@ import discord
 import asyncio
 import time
 
-from functions.database import hasFlawless, getClearCount, getDestinyDefinition
+from functions.database import getFlawlessHashes, getClearCount, getDestinyDefinition
 from functions.dataTransformation import hasLowman
 from functions.dataTransformation import hasCollectible, hasTriumph
 from static.dict import requirementHashes
@@ -36,8 +36,8 @@ async def hasRole(playerid, role, year, br = True):
                 i += 1
 
         elif req == 'flawless':
-            has_fla = hasFlawless(playerid, roledata['flawless'])
-            worthy &= has_fla
+            has_fla = getFlawlessHashes(playerid, roledata['flawless'])
+            worthy &= bool(has_fla)
 
             data["Flawless"] = str(has_fla)
 
@@ -100,7 +100,8 @@ async def hasRole(playerid, role, year, br = True):
             has_low = await hasLowman(playerid,
                             roledata['playercount'], 
                             roledata['activityHashes'], 
-                            flawless=roledata.get('flawless', False), 
+                            flawless=roledata.get('flawless', False),
+                            noCheckpoints=roledata.get('noCheckpoints', False),
                             disallowed=disallowed
                             )
             worthy &= has_low
