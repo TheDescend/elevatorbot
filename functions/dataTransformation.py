@@ -53,10 +53,10 @@ async def getPlayerCount(instanceID):
     return len(ingameids)
 
 
-def hasLowman(playerid, playercount, raidHashes, flawless=False, noCheckpoints=False, disallowed=[]):
+async def hasLowman(playerid, playercount, raidHashes, flawless=False, noCheckpoints=False, disallowed=[]):
     """ Default is flawless=False, disallowed is a list of (starttime, endtime) with datetime objects """
     starttime = time.monotonic()
-    low_activity_info = getInfoOnLowManActivity(
+    low_activity_info = await getInfoOnLowManActivity(
         raidHashes,
         playercount,
         playerid,

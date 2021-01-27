@@ -7,12 +7,10 @@ from events.base_event import BaseEvent
 from functions.dataLoading import getTriumphsJSON, updateDB, updateMissingPcgr, updateManifest
 from functions.database import getAllDestinyIDs, lookupDiscordID
 from functions.network import getJSONfromURL
-
-
-# todo delete
 from functions.persistentMessages import botStatus
 
 
+# todo delete
 class refreshSealPickle(BaseEvent):
     def __init__(self):
         interval_minutes = 1340  # Set the interval for this event

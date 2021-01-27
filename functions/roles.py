@@ -97,13 +97,14 @@ async def hasRole(playerid, role, year, br = True):
             if (diff := end_lowman_reqs - start_lowman_reqs) > 1:
                 print(f'Lowman Requirements took {diff} seconds for disallowed times')
             start_lowman_read = time.monotonic()
-            has_low = await hasLowman(playerid,
-                            roledata['playercount'], 
-                            roledata['activityHashes'], 
-                            flawless=roledata.get('flawless', False),
-                            noCheckpoints=roledata.get('noCheckpoints', False),
-                            disallowed=disallowed
-                            )
+            has_low = await hasLowman(
+                playerid,
+                roledata['playercount'],
+                roledata['activityHashes'],
+                flawless=roledata.get('flawless', False),
+                noCheckpoints=roledata.get('noCheckpoints', False),
+                disallowed=disallowed
+            )
             worthy &= has_low
 
             data["Lowman (" + str(roledata['playercount']) + " Players)"] = str(has_low)
@@ -132,14 +133,13 @@ async def getPlayerRoles(playerid, existingRoles = []):
     roles = []
     redundantRoles = []
 
-
     for year, yeardata in requirementHashes.items():
         for role, roledata in yeardata.items():
             #do not recheck existing roles or roles that will be replaced by existing roles
             if role in existingRoles or ('replaced_by' in roledata.keys() and any([x in existingRoles for x in roledata['replaced_by']])):
                 roles.append(role)
     
-    #asyncio.gather keeps order
+    # asyncio.gather keeps order
     roleyear_to_check = [
         (role, year)
         for (year, yeardata) in requirementHashes.items() 
@@ -147,7 +147,7 @@ async def getPlayerRoles(playerid, existingRoles = []):
         if not role in roles
     ]
 
-    #check worthyness in parallel
+    # check worthyness in parallel
     starttime = time.time()
     has_earned_role = await asyncio.gather(*[
         hasRole(playerid, role, year) 

@@ -39,8 +39,8 @@ class getRoles(BaseCommand):
             return
 
         wait_msg = await message.channel.send(embed=embed_message(
-            f'Hi, {mentioned_user.name}',
-            "Your data will be available shortly"
+            f'Hi, {mentioned_user.display_name}',
+            "Your data will be available soon™"
         ))
 
         await updateDB(destinyID)

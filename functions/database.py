@@ -761,10 +761,10 @@ async def getInfoOnLowManActivity(raidHashes: list, playercount, membershipid, n
         ON 
             (selectedActivites.instanceID = userLowmanCompletions.instanceID)"""
     args = {
-                "dbname":psql_credentials.dbname,
-                "user":psql_credentials.user,
-                "host":psql_credentials.host,
-                "password":psql_credentials.password
+        "dbname":psql_credentials.dbname,
+        "user":psql_credentials.user,
+        "host":psql_credentials.host,
+        "password":psql_credentials.password
     }
         
     async with aiopg.create_pool(**args) as pool, pool.acquire() as conn, conn.cursor() as cur:
