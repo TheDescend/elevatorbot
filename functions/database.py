@@ -1,4 +1,6 @@
 import psycopg2
+import asyncio
+import aiopg
 from datetime import datetime
 from sshtunnel import SSHTunnelForwarder
 
@@ -7,7 +9,19 @@ import database.psql_credentials as psql_credentials
 #### ALL DATABASE ACCESS FUNCTIONS ####
 
 con = None
+asyncpool = None
 ssh_server = None
+
+def get_db_async_pool():
+    global asyncpool
+    if not asyncpool:
+        asyncpool = aiopg.create_pool(
+                dbname=psql_credentials.dbname,
+                user=psql_credentials.user,
+                host=psql_credentials.host,
+                password=psql_credentials.password
+        )
+    return asyncpool
 
 def db_connect():
     global con
@@ -623,7 +637,9 @@ def insertPgcrActivitiesUsersStats(
             score, activityDurationSeconds, completionReason, startSeconds, timePlayedSeconds, 
             playerCount, teamScore, precisionKills, weaponKillsGrenade, weaponKillsMelee, weaponKillsSuper, weaponKillsAbility) 
         VALUES 
-            (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"""
+            (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        ON CONFLICT 
+            DO NOTHING;"""
     with db_connect().cursor() as cur:
         cur.execute(product_sql, 
             (instanceId, membershipId, characterId, characterClass, characterLevel, 
@@ -702,7 +718,7 @@ def getClearCount(playerid, activityHashes: list):
     return None
 
 
-def getInfoOnLowManActivity(raidHashes: list, playercount, membershipid):
+async def getInfoOnLowManActivity(raidHashes: list, playercount, membershipid):
     """ Gets the lowman instanceId, deaths, period for player <membershipid> of activity list(<activityHash>) with a <= <playercount>"""
     select_sql = f"""
         SELECT 
@@ -742,9 +758,16 @@ def getInfoOnLowManActivity(raidHashes: list, playercount, membershipid):
         ) AS userLowmanCompletions
         ON 
             (selectedActivites.instanceID = userLowmanCompletions.instanceID)"""
-    with db_connect().cursor() as cur:
-        cur.execute(select_sql, (*raidHashes, membershipid, playercount))
-        result = cur.fetchall()
+    args = {
+                "dbname":psql_credentials.dbname,
+                "user":psql_credentials.user,
+                "host":psql_credentials.host,
+                "password":psql_credentials.password
+    }
+        
+    async with aiopg.create_pool(**args) as pool, pool.acquire() as conn, conn.cursor() as cur:
+        await cur.execute(select_sql, (*raidHashes, membershipid, playercount))
+        result = [row async for row in cur]
     return result
 
 
@@ -803,7 +826,9 @@ def insertPgcrActivitiesUsersStatsWeapons(instanceId, characterId, membershipId,
             pgcractivitiesusersstatsweapons
             (instanceId, characterId, membershipId, weaponId, uniqueWeaponKills, uniqueWeaponPrecisionKills) 
         VALUES 
-            (%s, %s, %s, %s, %s, %s);"""
+            (%s, %s, %s, %s, %s, %s)
+        ON CONFLICT
+            DO NOTHING;"""
     with db_connect().cursor() as cur:
         cur.execute(product_sql, (instanceId, characterId, membershipId, weaponId, uniqueWeaponKills, uniqueWeaponPrecisionKills,))
 
