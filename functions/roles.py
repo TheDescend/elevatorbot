@@ -21,7 +21,7 @@ async def hasRole(playerid, role, year, br = True):
         print('malformatted requirementHashes')
         return [False, data]
     worthy = True
-    start_reqs = time.time()
+    start_reqs = time.monotonic()
     for req in roledata['requirements']:
         if req == 'clears':
             creq = roledata['clears']
@@ -43,7 +43,11 @@ async def hasRole(playerid, role, year, br = True):
 
         elif req == 'collectibles':
             for collectibleHash in roledata['collectibles']:
+                has_coll_start = time.monotonic()
                 has_col = await hasCollectible(playerid, collectibleHash)
+                has_coll_end = time.monotonic()
+                if (diff := has_coll_end - has_coll_start) > 1:
+                    print(f'hasCollectible took {diff} seconds')
                 worthy &= has_col
 
                 if (not worthy) and br:
@@ -53,7 +57,11 @@ async def hasRole(playerid, role, year, br = True):
                     # get name of collectible
                     name = "No name here"
                     #str conversion required because dictionary is indexed on strings, not postiions
+                    coll_def_start = time.monotonic()
                     (_, _, name, *_) = getDestinyDefinition("DestinyCollectibleDefinition", collectibleHash)
+                    coll_def_end = time.monotonic()
+                    if (diff := coll_def_end - coll_def_start) > 1:
+                        print(f'getDestinyDefinition in collectibles took {diff} seconds')
                     data[name] = str(has_col)
 
         elif req == 'records':
@@ -81,10 +89,15 @@ async def hasRole(playerid, role, year, br = True):
                 #print(f'took {end_records} seconds to check records for {role}')
                 pass
         elif req == 'lowman':
+            start_lowman_reqs = time.monotonic()
             denies = sum([1 if 'denyTime' in key else 0 for key in roledata.keys()])
             timeParse = lambda i, spec: datetime.strptime(roledata[f'denyTime{i}'][spec], "%d/%m/%Y %H:%M")
             disallowed = [(timeParse(i, 'startTime'), timeParse(i, 'endTime')) for i in range(denies)]
-            has_low = hasLowman(playerid,
+            end_lowman_reqs = time.monotonic()
+            if (diff := end_lowman_reqs - start_lowman_reqs) > 1:
+                print(f'Lowman Requirements took {diff} seconds for disallowed times')
+            start_lowman_read = time.monotonic()
+            has_low = await hasLowman(playerid,
                             roledata['playercount'], 
                             roledata['activityHashes'], 
                             flawless=roledata.get('flawless', False), 
@@ -93,7 +106,9 @@ async def hasRole(playerid, role, year, br = True):
             worthy &= has_low
 
             data["Lowman (" + str(roledata['playercount']) + " Players)"] = str(has_low)
-
+            end_lowman_read = time.monotonic()
+            if (diff := end_lowman_read - start_lowman_read) > 1:
+                print(f'Lowman Read took {diff} seconds for hasLowman')
         elif req == 'roles':
             for required_role in roledata['roles']:
                 req_worthy, req_data = await hasRole(playerid, required_role, year, br = br)
@@ -103,8 +118,9 @@ async def hasRole(playerid, role, year, br = True):
 
         if (not worthy) and br:
             break
-    end_reqs = time.time() - start_reqs
-    print(f'took {end_reqs} seconds to check requirements for {role}')
+    end_reqs = time.monotonic() - start_reqs
+    if end_reqs > 1:
+        print(f'took {end_reqs} seconds to check requirements for {role}')
     return [worthy, data]
 
 async def getPlayerRoles(playerid, existingRoles = []):
