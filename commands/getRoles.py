@@ -50,10 +50,7 @@ class getRoles(BaseCommand):
         async with message.channel.typing():
             roles_at_start = [role.name for role in mentioned_user.roles]
 
-            starttime = time.time()
             (roleList, removeRoles) = await getPlayerRoles(destinyID, roles_at_start)
-            endtime = time.time() - starttime
-            print(f'getPlayerRoles took {endtime} seconds to get roles for {destinyID}')
 
             roles_assignable = await assignRolesToUser(roleList, mentioned_user, message.guild)
             await removeRolesFromUser(removeRoles, mentioned_user, message.guild)
@@ -66,9 +63,11 @@ class getRoles(BaseCommand):
                 ))
                 return
 
-            roles_now = [role.name for role in mentioned_user.roles]
+            #roles_now = [role.name for role in mentioned_user.roles]
 
             old_roles = {}
+            updated_roles_member = await mentioned_user.guild.fetch_member(mentioned_user.id)
+            roles_now = [role.name for role in updated_roles_member.roles]
             new_roles = {}
             for topic, topicroles in requirementHashes.items():
                 topic = topic.replace("Y1", "Year One")
