@@ -702,8 +702,8 @@ def getClearCount(playerid, activityHashes: list):
     return None
 
 
-def getInfoOnLowManActivity(raidHashes: list, playercount, membershipid):
-    """ Gets the lowman instanceId, deaths, period for player <membershipid> of activity list(<activityHash>) with a <= <playercount>"""
+def getInfoOnLowManActivity(raidHashes: list, playercount, membershipid, noCheckpoints=False):
+    """ Gets the lowman [(instanceId, deaths, kills, period), ...] for player <membershipid> of activity list(<activityHash>) with a <= <playercount>"""
     select_sql = f"""
         SELECT 
             selectedActivites.instanceId, userLowmanCompletions.deaths, selectedActivites.period
@@ -714,9 +714,10 @@ def getInfoOnLowManActivity(raidHashes: list, playercount, membershipid):
                 pgcrActivities
             WHERE 
                 directorActivityHash IN ({','.join(['%s'] * len(raidHashes))})
+                {"AND startingPhaseIndex = 0" if noCheckpoints else ""}
         ) AS selectedActivites 
         JOIN (
-            SELECT memberCompletedActivities.instanceId, playercount, deaths 
+            SELECT memberCompletedActivities.instanceId, lowManCompletions.playercount, memberCompletedActivities.deaths
                 FROM (
                     SELECT
                         instanceId, deaths
@@ -724,6 +725,7 @@ def getInfoOnLowManActivity(raidHashes: list, playercount, membershipid):
                         pgcrActivitiesUsersStats
                     WHERE 
                         membershipid = %s 
+                        AND kills > 0
                         AND completed = 1
                         AND completionReason = 0
                 ) AS memberCompletedActivities
@@ -748,8 +750,8 @@ def getInfoOnLowManActivity(raidHashes: list, playercount, membershipid):
     return result
 
 
-def hasFlawless(membershipid, activityHashes: list):
-    """ returns the list of all flawless raids the player <playerid> has done """
+def getFlawlessHashes(membershipid, activityHashes: list):
+    """ returns the list of all flawless hashes the player has done in the given activityHashes """
     select_sql = f"""
         SELECT 
             t.instanceID
@@ -789,8 +791,8 @@ def hasFlawless(membershipid, activityHashes: list):
             t.deaths = 0;"""
     with db_connect().cursor() as cur:
         cur.execute(select_sql, (membershipid, *activityHashes,))
-        result = cur.fetchall()
-    return True if result else False
+        return cur.fetchall()
+
 
 ################################################################
 # Activities Weapon Stats

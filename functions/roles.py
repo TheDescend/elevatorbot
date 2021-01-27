@@ -4,7 +4,7 @@ import discord
 import asyncio
 import time
 
-from functions.database import hasFlawless, getClearCount, getDestinyDefinition
+from functions.database import getFlawlessHashes, getClearCount, getDestinyDefinition
 from functions.dataTransformation import hasLowman
 from functions.dataTransformation import hasCollectible, hasTriumph
 from static.dict import requirementHashes
@@ -36,8 +36,8 @@ async def hasRole(playerid, role, year, br = True):
                 i += 1
 
         elif req == 'flawless':
-            has_fla = hasFlawless(playerid, roledata['flawless'])
-            worthy &= has_fla
+            has_fla = getFlawlessHashes(playerid, roledata['flawless'])
+            worthy &= bool(has_fla)
 
             data["Flawless"] = str(has_fla)
 
@@ -84,12 +84,15 @@ async def hasRole(playerid, role, year, br = True):
             denies = sum([1 if 'denyTime' in key else 0 for key in roledata.keys()])
             timeParse = lambda i, spec: datetime.strptime(roledata[f'denyTime{i}'][spec], "%d/%m/%Y %H:%M")
             disallowed = [(timeParse(i, 'startTime'), timeParse(i, 'endTime')) for i in range(denies)]
-            has_low = hasLowman(playerid,
-                            roledata['playercount'], 
-                            roledata['activityHashes'], 
-                            flawless=roledata.get('flawless', False), 
-                            disallowed=disallowed
-                            )
+            has_low = hasLowman(
+                playerid,
+                roledata['playercount'],
+                roledata['activityHashes'],
+                flawless=roledata.get('flawless', False),
+                noCheckpoints=roledata.get('noCheckpoints', False),
+                disallowed=disallowed
+            )
+
             worthy &= has_low
 
             data["Lowman (" + str(roledata['playercount']) + " Players)"] = str(has_low)
