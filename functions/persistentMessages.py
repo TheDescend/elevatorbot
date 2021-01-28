@@ -131,20 +131,22 @@ And lastly, if you have any general suggestions or ideas for new bounties, conta
 async def steamJoinCodeMessage(client, guild):
     # get all IDs
     data = dict(getallSteamJoinIDs())
-    data = {k: v for k, v in sorted(data.items(), key=lambda item: item[0], reverse=False)}
 
-    # put in two lists for the embed
-    name = []
-    code = []
-    for i, c in data.items():
+    # convert discordIDs to names
+    clean_data = {}
+    for k, v in data.items():
         # get display_name. If that doesnt work user isnt in guild, thus ignore him
         try:
-            n = guild.get_member(i).display_name
+            clean_data[guild.get_member(k).display_name] = v
         except AttributeError:
             continue
 
-        name.append(n)
-        code.append(str(c))
+    # sort and put in two lists
+    sorted_data = {k: v for k, v in sorted(clean_data.items(), key=lambda item: item[0], reverse=False)}
+
+    # put in two lists for the embed
+    name = list(sorted_data.keys())
+    code = list(sorted_data.values())
 
     # create new message
     embed = embed_message(

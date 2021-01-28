@@ -52,11 +52,11 @@ class setID(BaseCommand):
         # save id
         setSteamJoinID(mentioned_user.id, params[0])
 
-        # react to show that it is done
-        await message.add_reaction(client.get_emoji(thumps_up_emoji_id))
-
         # update the status msg
         await steamJoinCodeMessage(client, message.guild)
+
+        # react to show that it is done
+        await message.add_reaction(client.get_emoji(thumps_up_emoji_id))
 
 
 class getDiscordJoinDate(BaseCommand):

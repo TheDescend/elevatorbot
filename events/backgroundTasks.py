@@ -11,7 +11,7 @@ from functions.persistentMessages import botStatus
 
 
 # todo delete
-class refreshSealPickle(BaseEvent):
+class refrseshSealPickle(BaseEvent):
     def __init__(self):
         interval_minutes = 1340  # Set the interval for this event
         super().__init__(scheduler_type="interval", interval_minutes=interval_minutes)
