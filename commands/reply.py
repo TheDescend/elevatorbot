@@ -29,7 +29,7 @@ class reply(BaseCommand):
 
         #someone is tagged, noone is mentioned in the previous message
         if mentioned_user and not mentionedMembersInPreviousMessage:
-            messageText = message.clean_content
+            messageText = ' '.join(params)
             user = mentioned_user
         else:
             if len(mentionedMembersInPreviousMessage) == 1:

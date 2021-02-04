@@ -1,4 +1,4 @@
-from functions.database     import lookupDiscordID, getDestinyDefinition
+from functions.database import lookupDiscordID, getDestinyDefinition, lookupSystem
 from functions.network      import getJSONfromURL, getJSONwithToken
 from inspect                import currentframe, getframeinfo
 from functions.formating    import embed_message
@@ -23,13 +23,17 @@ async def getRasputinQuestProgress():
     }
     return [(obHashes[objective["objectiveHash"]],objective["progress"], objective["completionValue"]) for objective in rasputinobjectives]
 
+
+async def getVendorData(discordID, destinyID, characterID, vendorID):
+    system = lookupSystem(destinyID)
+    url = f'https://www.bungie.net/Platform/Destiny2/{system}/Profile/{destinyID}/Character/{characterID}/Vendors/{vendorID}/?components=400,401,402,304'
+    return await getJSONwithToken(url, discordID)
+
+
 async def getSpiderMaterials(discordID, destinyID, characterID):
     """ Gets spiders current selling inventory, requires OAuth"""
-
-    system = 3 #they're probably on PC
-    #863940356 is spiders vendorID
-    url = f'https://www.bungie.net/Platform/Destiny2/{system}/Profile/{destinyID}/Character/{characterID}/Vendors/863940356/?components=400,401,402'
-    res = await getJSONwithToken(url, discordID)
+    # 863940356 is spiders vendorID
+    res = await getVendorData(discordID, destinyID, characterID, 863940356)
     if not res['result']:
         return {'result': None, 'error':res['error']}
     #gets the dictionary of sold items

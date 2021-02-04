@@ -514,6 +514,7 @@ async def updateManifest():
                         int(referenceId),
                         description=values["displayProperties"]["description"] if values["displayProperties"]["description"] else None,
                         name=values["displayProperties"]["name"] if values["displayProperties"]["name"] else None,
+                        classType=values["classType"] if "classType" in values else None,
                         bucketTypeHash=values["inventory"]["bucketTypeHash"],
                         tierTypeHash=values["inventory"]["tierTypeHash"],
                         tierTypeName=values["inventory"]["tierTypeName"] if "tierTypeName" in values["inventory"] else None,
@@ -533,6 +534,21 @@ async def updateManifest():
                         objectiveHashes=values["objectiveHashes"] if "objectiveHashes" in values else None,
                         ScoreValue=values["completionInfo"]["ScoreValue"] if "completionInfo" in values else None,
                         parentNodeHashes=values["parentNodeHashes"] if "parentNodeHashes" in values else None
+                    )
+
+            elif definition == "DestinyInventoryBucketDefinition":
+                print("Starting DestinyInventoryBucketDefinition update...")
+                result = await getJSONfromURL(f'http://www.bungie.net{url}')
+                # update table
+                for referenceId, values in result.items():
+                    updateDestinyDefinition(
+                        definition,
+                        int(referenceId),
+                        description=values["displayProperties"]["description"] if "description" in values["displayProperties"] else None,
+                        name=values["displayProperties"]["name"] if "name" in values["displayProperties"] else None,
+                        category=values["category"],
+                        itemCount=values["itemCount"],
+                        location=values["location"]
                     )
 
         print("Done with manifest update!")

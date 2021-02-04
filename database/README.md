@@ -150,6 +150,7 @@ CREATE TABLE DestinyInventoryItemDefinition(
 	referenceId BIGINT PRIMARY KEY,
 	description TEXT,
 	name TEXT,
+	classType SMALLINT,                         # 0 = titan, 1 = hunter, 2 = warlock
 	bucketTypeHash BIGINT,
 	tierTypeHash BIGINT,
 	tierTypeName TEXT,
@@ -163,4 +164,13 @@ CREATE TABLE DestinyRecordDefinition(
 	objectiveHashes BIGINT [],
 	ScoreValue INTEGER,
 	parentNodeHashes BIGINT []
+);
+
+CREATE TABLE DestinyInventoryBucketDefinition(
+	referenceId BIGINT PRIMARY KEY,
+	description TEXT,
+	name TEXT,
+	category SMALLINT,
+	itemCount SMALLINT,
+	location SMALLINT
 );
