@@ -3,6 +3,9 @@ from functions.authfunctions import getVendorData
 from functions.dataLoading import getCharacterList
 from functions.database import lookupDestinyID, getDestinyDefinition
 from functions.formating import embed_message
+from functions.persistentMessages import botStatus
+
+import datetime
 
 
 class ArmorStatsNotifier(BaseEvent):
@@ -100,3 +103,6 @@ class ArmorStatsNotifier(BaseEvent):
                     # ini
                     if (item_stats[stat_names["Mobility"]]["value"] > 20) or (item_stats[stat_names["Recovery"]]["value"] > 20) or (item_stats[stat_names["Intellect"]]["value"] > 20):
                         await message_user(client, 171371726444167168, vendor_name, item_definition, item_stats, total_stats)
+
+        # update the status
+        await botStatus(client, "Vendor Armor Roll Lookup", datetime.datetime.now())

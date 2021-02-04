@@ -187,6 +187,7 @@ async def botStatus(client, field_name: str, time: datetime.datetime):
         "Bounties - Generation"
         "Bounties - Completion Update"
         "Steam Player Update"
+        "Vendor Armor Roll Lookup"
     """
 
     # get msg. guild id is one, since there is only gonna be one msg
