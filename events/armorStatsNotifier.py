@@ -118,7 +118,6 @@ class ArmorStatsNotifier(BaseEvent):
                     elif these_are_the_rolls_mystic_likes(class_types, item_definition, item_stats, stat_names):
                         await message_user(client, 171371726444167168, vendor_name, item_definition, item_stats, total_stats)
 
-
                     # red
                     if (class_types[item_definition[3]] == "Titan") and ((item_stats[stat_names["Recovery"]]["value"] + item_stats[stat_names["Resilience"]]["value"]) > 29):
                         await message_user(client, 264456189905993728, vendor_name, item_definition, item_stats, total_stats)
@@ -177,3 +176,5 @@ class GunsmithBountiesNotifier(BaseEvent):
             # ini
             if sales['itemHash'] == 2216063960:
                 await gunsmith_msg(client, 171371726444167168, "Rage of the Warmind")
+
+        print("Done with gunsmith bounty checks")
