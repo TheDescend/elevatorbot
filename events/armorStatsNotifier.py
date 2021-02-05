@@ -106,3 +106,39 @@ class ArmorStatsNotifier(BaseEvent):
 
         # update the status
         await botStatus(client, "Vendor Armor Roll Lookup", datetime.datetime.now())
+
+
+class GunsmithBountiesNotifier(BaseEvent):
+    """ Every day, this checks the gunsmith mods and dms people if they signed up for that """
+
+    def __init__(self):
+        # bot is running on est, that should give it enough time (reset is at 12pm there)
+        dow_day_of_week = "*"
+        dow_hour = 14
+        dow_minute = 0
+        super().__init__(scheduler_type="cron", dow_day_of_week=dow_day_of_week, dow_hour=dow_hour, dow_minute=dow_minute)
+
+    async def run(self, client):
+        # msg user
+        async def gunsmith_msg(client, discordID, mod_name):
+            user = client.get_user(discordID)
+            if user:
+                await user.send(f"Gunsmith is selling {mod_name}!")
+
+        # get ids for lookups, using kigstn's data for this one
+        discordID = 238388130581839872
+        destinyID = lookupDestinyID(discordID)
+        characterIDs = (await getCharacterList(destinyID))[1]
+
+        # check gunsmith mods
+        res = await getVendorData(discordID, destinyID, characterIDs[0], 672118013)
+        for sales in res['result']['Response']['sales']['data'].values():
+            """ message users """
+
+            # jayce
+            if sales['itemHash'] == 179977568:
+                await gunsmith_msg(client, 672853590465052692, "Grasp of the Warmind")
+
+            # ini
+            if sales['itemHash'] == 2216063960:
+                await gunsmith_msg(client, 672853590465052692, "Rage of the Warmind")
