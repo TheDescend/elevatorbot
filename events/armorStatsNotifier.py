@@ -19,6 +19,16 @@ class ArmorStatsNotifier(BaseEvent):
         super().__init__(scheduler_type="cron", dow_day_of_week=dow_day_of_week, dow_hour=dow_hour, dow_minute=dow_minute)
 
     async def run(self, client):
+        # check for the rolls mystic likes since everyone seems to want that
+        def these_are_the_rolls_mystic_likes(class_types, item_definition, item_stats, stat_names):
+            if (class_types[item_definition[3]] == "Hunter") and ((item_stats[stat_names["Mobility"]]["value"] + item_stats[stat_names["Recovery"]]["value"] + item_stats[stat_names["Intellect"]]["value"]) > 50):
+                return True
+            elif (class_types[item_definition[3]] == "Titan") and ((item_stats[stat_names["Resilience"]]["value"] + item_stats[stat_names["Recovery"]]["value"] + item_stats[stat_names["Intellect"]]["value"]) > 50):
+                return True
+            elif (class_types[item_definition[3]] == "Warlock") and ((item_stats[stat_names["Discipline"]]["value"] + item_stats[stat_names["Recovery"]]["value"] + item_stats[stat_names["Intellect"]]["value"]) > 50):
+                return True
+            return False
+
         # send msg to user
         async def message_user(client, discordID, vendor_name, item_definition, stats, total_stats):
             embed = embed_message(
@@ -105,12 +115,9 @@ class ArmorStatsNotifier(BaseEvent):
                     # ini
                     if (item_stats[stat_names["Mobility"]]["value"] > 20) or (item_stats[stat_names["Recovery"]]["value"] > 20) or (item_stats[stat_names["Intellect"]]["value"] > 20):
                         await message_user(client, 171371726444167168, vendor_name, item_definition, item_stats, total_stats)
-                    elif (class_types[item_definition[3]] == "Hunter") and ((item_stats[stat_names["Mobility"]]["value"] + item_stats[stat_names["Recovery"]]["value"] + item_stats[stat_names["Intellect"]]["value"]) > 50):
+                    elif these_are_the_rolls_mystic_likes(class_types, item_definition, item_stats, stat_names):
                         await message_user(client, 171371726444167168, vendor_name, item_definition, item_stats, total_stats)
-                    elif (class_types[item_definition[3]] == "Titan") and ((item_stats[stat_names["Resilience"]]["value"] + item_stats[stat_names["Recovery"]]["value"] + item_stats[stat_names["Intellect"]]["value"]) > 50):
-                        await message_user(client, 171371726444167168, vendor_name, item_definition, item_stats, total_stats)
-                    elif (class_types[item_definition[3]] == "Warlock") and ((item_stats[stat_names["Discipline"]]["value"] + item_stats[stat_names["Recovery"]]["value"] + item_stats[stat_names["Intellect"]]["value"]) > 50):
-                        await message_user(client, 171371726444167168, vendor_name, item_definition, item_stats, total_stats)
+
 
                     # red
                     if (class_types[item_definition[3]] == "Titan") and ((item_stats[stat_names["Recovery"]]["value"] + item_stats[stat_names["Resilience"]]["value"]) > 29):
@@ -119,16 +126,18 @@ class ArmorStatsNotifier(BaseEvent):
                         await message_user(client, 264456189905993728, vendor_name, item_definition, item_stats, total_stats)
 
                     # mystic
-                    if (class_types[item_definition[3]] == "Hunter") and ((item_stats[stat_names["Mobility"]]["value"] + item_stats[stat_names["Recovery"]]["value"] + item_stats[stat_names["Intellect"]]["value"]) > 50):
-                        await message_user(client, 211838266834550785, vendor_name, item_definition, item_stats, total_stats)
-                    elif (class_types[item_definition[3]] == "Titan") and ((item_stats[stat_names["Resilience"]]["value"] + item_stats[stat_names["Recovery"]]["value"] + item_stats[stat_names["Intellect"]]["value"]) > 50):
-                        await message_user(client, 211838266834550785, vendor_name, item_definition, item_stats, total_stats)
-                    elif (class_types[item_definition[3]] == "Warlock") and ((item_stats[stat_names["Discipline"]]["value"] + item_stats[stat_names["Recovery"]]["value"] + item_stats[stat_names["Intellect"]]["value"]) > 50):
+                    if these_are_the_rolls_mystic_likes(class_types, item_definition, item_stats, stat_names):
                         await message_user(client, 211838266834550785, vendor_name, item_definition, item_stats, total_stats)
 
                     # tom
                     if total_stats > 60:
                         await message_user(client, 286616836844290049, vendor_name, item_definition, item_stats, total_stats)
+                    elif these_are_the_rolls_mystic_likes(class_types, item_definition, item_stats, stat_names):
+                        await message_user(client, 286616836844290049, vendor_name, item_definition, item_stats, total_stats)
+
+                    # exiled
+                    if these_are_the_rolls_mystic_likes(class_types, item_definition, item_stats, stat_names):
+                        await message_user(client, 206878830017773568, vendor_name, item_definition, item_stats, total_stats)
 
         # update the status
         await botStatus(client, "Vendor Armor Roll Lookup", datetime.datetime.now())
