@@ -44,6 +44,7 @@ class muteMe(BaseCommand):
             await message.author.send("Better luck next time if you were hunting for the jackpot")
 
         # add muted role
+        print(f"Muting {message.author.display_name} for {timeout} minutes")
         await assignRolesToUser([muted_role_id], message.author, message.guild)
 
         # remove muted role after an hour
