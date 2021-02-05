@@ -95,6 +95,8 @@ class ArmorStatsNotifier(BaseEvent):
                     # kigstn
                     if (class_types[item_definition[3]] == "Warlock") and (item_stats[stat_names["Recovery"]]["value"] > 20) and (item_stats[stat_names["Discipline"]]["value"] > 20):
                         await message_user(client, 238388130581839872, vendor_name, item_definition, item_stats, total_stats)
+                    elif (class_types[item_definition[3]] == "Warlock") and (item_stats[stat_names["Recovery"]]["value"] >= 28):
+                        await message_user(client, 238388130581839872, vendor_name, item_definition, item_stats, total_stats)
 
                     # neria
                     if (class_types[item_definition[3]] == "Hunter") and (item_stats[stat_names["Mobility"]]["value"] > 23) and (total_stats > 63):
@@ -103,10 +105,30 @@ class ArmorStatsNotifier(BaseEvent):
                     # ini
                     if (item_stats[stat_names["Mobility"]]["value"] > 20) or (item_stats[stat_names["Recovery"]]["value"] > 20) or (item_stats[stat_names["Intellect"]]["value"] > 20):
                         await message_user(client, 171371726444167168, vendor_name, item_definition, item_stats, total_stats)
+                    elif (class_types[item_definition[3]] == "Hunter") and ((item_stats[stat_names["Mobility"]]["value"] + item_stats[stat_names["Recovery"]]["value"] + item_stats[stat_names["Intellect"]]["value"]) > 50):
+                        await message_user(client, 171371726444167168, vendor_name, item_definition, item_stats, total_stats)
+                    elif (class_types[item_definition[3]] == "Titan") and ((item_stats[stat_names["Resilience"]]["value"] + item_stats[stat_names["Recovery"]]["value"] + item_stats[stat_names["Intellect"]]["value"]) > 50):
+                        await message_user(client, 171371726444167168, vendor_name, item_definition, item_stats, total_stats)
+                    elif (class_types[item_definition[3]] == "Warlock") and ((item_stats[stat_names["Discipline"]]["value"] + item_stats[stat_names["Recovery"]]["value"] + item_stats[stat_names["Intellect"]]["value"]) > 50):
+                        await message_user(client, 171371726444167168, vendor_name, item_definition, item_stats, total_stats)
 
                     # red
                     if (class_types[item_definition[3]] == "Titan") and ((item_stats[stat_names["Recovery"]]["value"] + item_stats[stat_names["Resilience"]]["value"]) > 29):
                         await message_user(client, 264456189905993728, vendor_name, item_definition, item_stats, total_stats)
+                    elif (class_types[item_definition[3]] == "Titan") and ((item_stats[stat_names["Resilience"]]["value"] + item_stats[stat_names["Recovery"]]["value"] + item_stats[stat_names["Intellect"]]["value"]) > 50):
+                        await message_user(client, 264456189905993728, vendor_name, item_definition, item_stats, total_stats)
+
+                    # mystic
+                    if (class_types[item_definition[3]] == "Hunter") and ((item_stats[stat_names["Mobility"]]["value"] + item_stats[stat_names["Recovery"]]["value"] + item_stats[stat_names["Intellect"]]["value"]) > 50):
+                        await message_user(client, 211838266834550785, vendor_name, item_definition, item_stats, total_stats)
+                    elif (class_types[item_definition[3]] == "Titan") and ((item_stats[stat_names["Resilience"]]["value"] + item_stats[stat_names["Recovery"]]["value"] + item_stats[stat_names["Intellect"]]["value"]) > 50):
+                        await message_user(client, 211838266834550785, vendor_name, item_definition, item_stats, total_stats)
+                    elif (class_types[item_definition[3]] == "Warlock") and ((item_stats[stat_names["Discipline"]]["value"] + item_stats[stat_names["Recovery"]]["value"] + item_stats[stat_names["Intellect"]]["value"]) > 50):
+                        await message_user(client, 211838266834550785, vendor_name, item_definition, item_stats, total_stats)
+
+                    # tom
+                    if total_stats > 60:
+                        await message_user(client, 286616836844290049, vendor_name, item_definition, item_stats, total_stats)
 
         # update the status
         await botStatus(client, "Vendor Armor Roll Lookup", datetime.datetime.now())
