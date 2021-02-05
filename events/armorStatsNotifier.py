@@ -141,4 +141,4 @@ class GunsmithBountiesNotifier(BaseEvent):
 
             # ini
             if sales['itemHash'] == 2216063960:
-                await gunsmith_msg(client, 672853590465052692, "Rage of the Warmind")
+                await gunsmith_msg(client, 171371726444167168, "Rage of the Warmind")
