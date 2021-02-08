@@ -8,7 +8,7 @@ from events.base_event import BaseEvent
 from functions.database import lookupDiscordID, lookupDestinyID, getToken
 from functions.network import getJSONfromURL
 from functions.persistentMessages import botStatus
-from functions.roles import assignRolesToUser, removeRolesFromUser, getPlayerRoles
+from functions.roleLookup import assignRolesToUser, removeRolesFromUser, getPlayerRoles
 from static.config import CLANID, BOTDEVCHANNELID
 from static.globals import *
 

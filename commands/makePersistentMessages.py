@@ -3,7 +3,7 @@ import discord
 from commands.base_command import BaseCommand
 from functions.bounties.bountiesBackend import saveAsGlobalVar, deleteFromGlobalVar
 from functions.persistentMessages import persistentChannelMessages
-from functions.roles import assignRolesToUser, removeRolesFromUser
+from functions.roleLookup import assignRolesToUser, removeRolesFromUser
 from static.globals import guest_role_id, member_role_id, yes_emoji_id, among_us_emoji_id, barotrauma_emoji_id, \
     gta_emoji_id, valorant_emoji_id, lol_emoji_id, among_us_role_id, barotrauma_role_id, gta_role_id, valorant_role_id, \
     lol_role_id, eft_emoji_id, eft_role_id

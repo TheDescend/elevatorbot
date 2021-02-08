@@ -1,5 +1,5 @@
 from functions.dataTransformation import hasLowman, getClearCount
-from functions.roles import hasRole
+from functions.roleLookup import hasRole
 from static.dict import premenHashes, cosHashes, lwHashes
 
 spiderHash = 863940356

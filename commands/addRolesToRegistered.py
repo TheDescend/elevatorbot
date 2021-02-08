@@ -2,7 +2,7 @@ from commands.base_command import BaseCommand
 from functions.database import getToken, lookupDiscordID
 from functions.formating import embed_message
 from functions.network import getJSONfromURL
-from functions.roles import assignRolesToUser, removeRolesFromUser
+from functions.roleLookup import assignRolesToUser, removeRolesFromUser
 from functions.miscFunctions import hasAdminOrDevPermissions
 from static.config import CLANID
 from static.globals import registered_role_id, not_registered_role_id, member_role_id

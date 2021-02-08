@@ -5,7 +5,7 @@ import io
 import discord
 
 from commands.base_command import BaseCommand
-from functions.roles import assignRolesToUser, removeRolesFromUser
+from functions.roleLookup import assignRolesToUser, removeRolesFromUser
 from static.globals import muted_role_id
 
 

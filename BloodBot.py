@@ -40,7 +40,7 @@ from functions.dataLoading import updateDB
 from functions.database import insertIntoMessageDB, lookupDestinyID
 from functions.formating import embed_message
 from functions.miscFunctions import update_status
-from functions.roles import assignRolesToUser, removeRolesFromUser
+from functions.roleLookup import assignRolesToUser, removeRolesFromUser
 from init_logging import init_logging
 from static.config import COMMAND_PREFIX, BOT_TOKEN
 import static.dict

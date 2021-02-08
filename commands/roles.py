@@ -4,7 +4,7 @@ from functions.dataLoading import updateDB
 from functions.database import lookupDestinyID, getLastRaid, getFlawlessList
 from functions.formating import embed_message
 from functions.miscFunctions import hasMentionPermission, hasAdminOrDevPermissions
-from functions.roles import getPlayerRoles, assignRolesToUser, removeRolesFromUser, hasRole
+from functions.roleLookup import getPlayerRoles, assignRolesToUser, removeRolesFromUser, hasRole
 from static.dict import requirementHashes
 from static.globals import dev_role_id
 
