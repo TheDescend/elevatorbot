@@ -1,5 +1,4 @@
 import psycopg2
-import asyncio
 import asyncpg
 from datetime import datetime
 from sshtunnel import SSHTunnelForwarder
@@ -11,27 +10,27 @@ ssh_server = None
 
 
 async def create_connection_pool():
-    global connection_pool
+    global pool
     global ssh_server
 
-    aiopg_args = {
-        "dbname": psql_credentials.dbname,
+    args = {
+        "database": psql_credentials.dbname,
         "user": psql_credentials.user,
         "host": psql_credentials.host,
         "password": psql_credentials.password
     }
     if ssh_server:
-        aiopg_args.update({
+        args.update({
             "host": "localhost",
             "port": ssh_server.local_bind_port
         })
 
     try:
-        connection_pool = await aiopg.create_pool(**aiopg_args)
-        print("Connected to DB with aiopg")
+        pool = await asyncpg.create_pool(max_size=50, **args)
+        print("Connected to DB with asyncpg")
 
     # create an ssh tunnel to connect to the db from outside the local network and bind that to localhost
-    except psycopg2.OperationalError:
+    except OSError:
         bind_port = 5432
 
         ssh_server = SSHTunnelForwarder(
@@ -46,7 +45,7 @@ async def create_connection_pool():
         await create_connection_pool()
 
 
-# delete this after swap to aiohttp
+# todo delete this after swap to asyncpg
 con = None
 def db_connect():
     global con
@@ -74,6 +73,7 @@ def db_connect():
             con.set_session(autocommit=True)
             print('Opened a DB connection via SSH')
     return con
+# stop deleting here
 
 def removeUser(discordID):
     """ Removes a User from the DB (by discordID), returns True if successful"""
@@ -768,7 +768,7 @@ def getClearCount(playerid, activityHashes: list):
 
 async def getInfoOnLowManActivity(raidHashes: list, playercount, membershipid, noCheckpoints=False):
     """ Gets the lowman [(instanceId, deaths, kills, period), ...] for player <membershipid> of activity list(<activityHash>) with a <= <playercount>"""
-    # ({','.join(['%s'] * len(raidHashes))}) #aiopg
+
     select_sql = f"""
         SELECT 
             selectedActivites.instanceId, userLowmanCompletions.deaths, selectedActivites.period
@@ -809,20 +809,9 @@ async def getInfoOnLowManActivity(raidHashes: list, playercount, membershipid, n
         ) AS userLowmanCompletions
         ON 
             (selectedActivites.instanceID = userLowmanCompletions.instanceID)"""
-    args = {
-       #"dbname":psql_credentials.dbname, #psql/aiopg
-        "database": psql_credentials.dbname, #asyncpg
-        "user":psql_credentials.user,
-        "host":psql_credentials.host,
-        "password":psql_credentials.password
-    }
-    #aiopg  
-    # async with aiopg.create_pool(**args) as pool, pool.acquire() as conn, conn.cursor() as cur:
-    #     await cur.execute(select_sql, (*raidHashes, membershipid, playercount))
-    #     result = [row async for row in cur]
 
-    conn = await asyncpg.connect(**args)
-    result = await conn.fetch(select_sql, *raidHashes, membershipid, playercount)
+    async with pool.acquire() as connection:
+        result = await connection.fetch(select_sql, *raidHashes, membershipid, playercount)
     return result
 
 
