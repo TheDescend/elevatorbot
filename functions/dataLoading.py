@@ -297,7 +297,10 @@ async def searchForItem(client, message, search_term):
 
 # returns all items in bucket. Deafult is vault hash, for others search "bucket" at https://data.destinysets.com/
 async def getInventoryBucket(destinyID, bucket=138197802):
-    items = (await getProfile(destinyID, 102, with_token=True))["profileInventory"]["data"]["items"]
+    res = (await getProfile(destinyID, 102, with_token=True))
+    if not res:
+        return None
+    items = res["profileInventory"]["data"]["items"]
     ret = []
     print(items)
     for item in items:

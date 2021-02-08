@@ -1,5 +1,8 @@
+from functions.database import getGrandmasterHashes
+
 # from https://data.destinysets.com/
 # raids
+
 spirePHashes = [3213556450]
 spireHashes = [119944200]
 eaterPHashes = [809170886]
@@ -26,12 +29,10 @@ premenHashes = [2509539864, 2509539865, 2509539867, 1831470693, 3107795800, 3115
 zeroHashes = [3232506937] 
 herzeroHashes = [2731208666]
 
-# daily heroic missions - empty for now, since most stuff wil get deleted in BL
-# heroicStoryHashes =
+# nightfalls
+gmHashes = getGrandmasterHashes()
 
-
-
-#activityTypeHashes
+# activityTypeHashes
 activityStoryHash = [147238405, 1686739444, 1299744814, 2201105581, 2911768360]
 activityRaidHash = [2043403989]
 activityDungeonHash = [608898761]
@@ -72,7 +73,6 @@ metricWinStreakWeeklyAllocation = {
 }
 
 
-
 """ Grouped Hashes """
 # only activities which are available should be included here
 availableRaidHashes = [lwHashes, gosHashes]
@@ -85,7 +85,6 @@ metricAvailableRaidCompletion = metricLWCompletions + metricGoSCompletions
 metricRaidCompletion = metricAvailableRaidCompletion + metricLeviCompletions + metricEoWCompletions + metricSosCompletions + metricScourgeCompletions + metricCoSCompletions
 
 
-
 """" Speedrun Times: 2x WR for now https://www.speedrun.com/destiny2"""
 # has to be tuples bc lists are not hashable
 speedrunActivitiesRaids = {
@@ -96,8 +95,6 @@ speedrunActivitiesRaids = {
 }
 # consists of all of them
 speedrunActivities = speedrunActivitiesRaids
-
-
 
 
 """ Weapon Hashes """
@@ -115,9 +112,6 @@ possibleWeaponsEnergy = ["Hand Cannon", "Scout Rifle", "Auto Rifle", "Pulse Rifl
 possibleWeaponsPower = ["Grenade Launcher", "Rocket Launcher", "Linear Fusion Rifle", "Sword", "Shotgun", "Machine Gun", "Sniper Rifle"]
 
 
-
-
-
 clanids = {
     4107840 : 'The Descend'
 }
@@ -130,7 +124,7 @@ discord_channels = {
 }
 
 requirementHashes = {
-    'Y1':{
+    'Y1': {
         'Spire of Stars': {
             "deprecated": True,
             'requirements': ['clears'],
@@ -229,9 +223,9 @@ requirementHashes = {
             ],
             'records': [
                 3292013042,    #Crown of Ease [Flawless]
-                3292013043,    #Arc Borne :Arc: 
-                3292013040,    #Void Borne :Void: 
-                3292013041,    #Solar Borne :Solar: 
+                3292013043,    #Arc Borne :Arc:
+                3292013040,    #Void Borne :Void:
+                3292013041,    #Solar Borne :Solar:
                 3292013054    #Stay Classy [Same Class]
             ],
             'replaced_by':['Y2 Raid Master']
@@ -261,7 +255,7 @@ requirementHashes = {
             'records': [
                 2925485370,    #Like a Diamond
                 #Can't check since not in the api (probably)
-                # 772878705,     #Solarstruck 
+                # 772878705,     #Solarstruck
                 # 496309570,     #Voidstruck
                 # 105811740,     #Thunderstruck
                 # 3780682732,    #Stay Classy
@@ -316,7 +310,7 @@ requirementHashes = {
             'clears':[
                 {'count' : 15,
                 'actHashes' : gosHashes} #Minimum 15 full clears
-            ], 
+            ],
             'records': [
                 3719309782, #Leftovers
                 637935773, #A Link to the Chain
@@ -336,9 +330,9 @@ requirementHashes = {
             ],
             'records': [
                 1522774125, #Inherent Perfection [Flawless]
-                3427328428, #Fluorescent Foliage :Arc: 
-                277137394, #Shade in the Garden :Void: 
-                2571794337, #Photosynthesis :Solar: 
+                3427328428, #Fluorescent Foliage :Arc:
+                277137394, #Shade in the Garden :Void:
+                2571794337, #Photosynthesis :Solar:
                 1830799772, #Garden Party [Same Class]
             ],
             'replaced_by': ['Y3 Raid Master']
@@ -378,11 +372,11 @@ requirementHashes = {
             'records': [
                 3560923614, #Survival of the Fittest [Flawless]
 
-                # 134885948,    #Not a Scratch 
-                # 4216504853,    #Resource Contention 
-                # 3771160417,    #5 Seconds to Paradise 
+                # 134885948,    #Not a Scratch
+                # 4216504853,    #Resource Contention
+                # 3771160417,    #5 Seconds to Paradise
                 # 1277450448,     #Short Circuit
-                # 1487317889    #Ready, Set, Go! 
+                # 1487317889    #Ready, Set, Go!
 
                 564366615, #Control Group [Same Class]
                 3834307795, #Electric Sheep :arc:
@@ -704,6 +698,17 @@ requirementHashes = {
             'playercount' : 1,
             'flawless' : True,
             'activityHashes': herzeroHashes
+        },
+        'Flawless Grandmaster Nightfall': {
+            'requirements': ['flawless'],
+            'flawless': gmHashes,
+            'replaced_by': ['Solo Grandmaster Nightfall']
+        },
+        'Solo Grandmaster Nightfall': {
+            'requirements': ['lowman'],
+            'playercount': 1,
+            'flawless': True,
+            'activityHashes': gmHashes
         },
 
 

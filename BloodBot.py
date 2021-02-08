@@ -1,11 +1,23 @@
-#!/usr/bin/env python3
-# import sys
-# if "http" in sys.modules:
-#     raise ImportError("Crawler must be imported before http module")
-# import http.cookies
-# http.cookies._is_legal_key = lambda _: True
-
+# to begin with, start the database
+# if this is skipped, some imports will fail since they rely on database lookups
+# for example GM nightfalls, since they change each season. This allows us to create the hash list dynamically, instead of having to add to it every season
 import asyncio
+import sys
+from functions.database import create_connection_pool, db_connect
+
+# use different loop for windows. otherwise it breaks
+if sys.version_info[0] == 3 and sys.version_info[1] >= 8 and sys.platform.startswith('win'):
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
+# get event loop
+loop = asyncio.get_event_loop()
+
+# start DB
+print("Connecting to DB...")
+loop.run_until_complete(create_connection_pool())
+db_connect()
+
+
 import os
 import random
 import re
@@ -25,12 +37,13 @@ from functions.bounties.bountiesBackend import getGlobalVar
 from functions.bounties.bountiesFunctions import registrationMessageReactions
 from functions.clanJoinRequests import clanJoinRequestMessageReactions, removeFromClanAfterLeftDiscord
 from functions.dataLoading import updateDB
-from functions.database import insertIntoMessageDB, db_connect, lookupDestinyID
+from functions.database import insertIntoMessageDB, lookupDestinyID
 from functions.formating import embed_message
 from functions.miscFunctions import update_status
 from functions.roles import assignRolesToUser, removeRolesFromUser
 from init_logging import init_logging
 from static.config import COMMAND_PREFIX, BOT_TOKEN
+import static.dict
 from static.globals import guest_role_id, registered_role_id, not_registered_role_id, admin_discussions_channel_id, \
     divider_raider_role_id, divider_achievement_role_id, divider_misc_role_id, muted_role_id
 
@@ -76,9 +89,6 @@ def main():
     # Initialize logging
     init_logging()
 
-    # Connect to DB
-    db_connect()
-
     # Initialize the client
     print("Starting up...")
     client = Bot('!', intents=intents)
@@ -100,7 +110,6 @@ def main():
 
         # Set the playing status
         await update_status(client)
-
 
     # The message handler for both new message and edits
     @client.event
