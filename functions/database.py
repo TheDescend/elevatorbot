@@ -1,6 +1,6 @@
 import psycopg2
 import asyncio
-import aiopg
+import asyncpg
 from datetime import datetime
 from sshtunnel import SSHTunnelForwarder
 
@@ -9,19 +9,7 @@ import database.psql_credentials as psql_credentials
 #### ALL DATABASE ACCESS FUNCTIONS ####
 
 con = None
-asyncpool = None
 ssh_server = None
-
-def get_db_async_pool():
-    global asyncpool
-    if not asyncpool:
-        asyncpool = aiopg.create_pool(
-                dbname=psql_credentials.dbname,
-                user=psql_credentials.user,
-                host=psql_credentials.host,
-                password=psql_credentials.password
-        )
-    return asyncpool
 
 def db_connect():
     global con
@@ -720,6 +708,7 @@ def getClearCount(playerid, activityHashes: list):
 
 async def getInfoOnLowManActivity(raidHashes: list, playercount, membershipid, noCheckpoints=False):
     """ Gets the lowman [(instanceId, deaths, kills, period), ...] for player <membershipid> of activity list(<activityHash>) with a <= <playercount>"""
+    # ({','.join(['%s'] * len(raidHashes))}) #aiopg
     select_sql = f"""
         SELECT 
             selectedActivites.instanceId, userLowmanCompletions.deaths, selectedActivites.period
@@ -729,7 +718,7 @@ async def getInfoOnLowManActivity(raidHashes: list, playercount, membershipid, n
             FROM 
                 pgcrActivities
             WHERE 
-                directorActivityHash IN ({','.join(['%s'] * len(raidHashes))})
+                directorActivityHash IN ({','.join(['$' + str(i+1) for i in range(len(raidHashes))])})
                 {"AND startingPhaseIndex = 0" if noCheckpoints else ""}
         ) AS selectedActivites 
         JOIN (
@@ -740,7 +729,7 @@ async def getInfoOnLowManActivity(raidHashes: list, playercount, membershipid, n
                     FROM 
                         pgcrActivitiesUsersStats
                     WHERE 
-                        membershipid = %s 
+                        membershipid = ${len(raidHashes) + 1} 
                         AND kills > 0
                         AND completed = 1
                         AND completionReason = 0
@@ -753,7 +742,7 @@ async def getInfoOnLowManActivity(raidHashes: list, playercount, membershipid, n
                 GROUP BY 
                     instanceId
                 HAVING
-                    COUNT(DISTINCT membershipId) <= %s
+                    COUNT(DISTINCT membershipId) <= ${len(raidHashes) + 2}
             ) AS lowManCompletions
             ON 
                 memberCompletedActivities.instanceId = lowManCompletions.instanceId
@@ -761,15 +750,19 @@ async def getInfoOnLowManActivity(raidHashes: list, playercount, membershipid, n
         ON 
             (selectedActivites.instanceID = userLowmanCompletions.instanceID)"""
     args = {
-        "dbname":psql_credentials.dbname,
+       #"dbname":psql_credentials.dbname, #psql/aiopg
+        "database": psql_credentials.dbname, #asyncpg
         "user":psql_credentials.user,
         "host":psql_credentials.host,
         "password":psql_credentials.password
     }
-        
-    async with aiopg.create_pool(**args) as pool, pool.acquire() as conn, conn.cursor() as cur:
-        await cur.execute(select_sql, (*raidHashes, membershipid, playercount))
-        result = [row async for row in cur]
+    #aiopg  
+    # async with aiopg.create_pool(**args) as pool, pool.acquire() as conn, conn.cursor() as cur:
+    #     await cur.execute(select_sql, (*raidHashes, membershipid, playercount))
+    #     result = [row async for row in cur]
+
+    conn = await asyncpg.connect(**args)
+    result = await conn.fetch(select_sql, *raidHashes, membershipid, playercount)
     return result
 
 
