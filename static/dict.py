@@ -707,7 +707,6 @@ requirementHashes = {
         'Solo Grandmaster Nightfall': {
             'requirements': ['lowman'],
             'playercount': 1,
-            'flawless': True,
             'activityHashes': gmHashes
         },
 
