@@ -766,7 +766,7 @@ def getClearCount(playerid, activityHashes: list):
     return None
 
 
-async def getInfoOnLowManActivity(raidHashes: list, playercount, membershipid, noCheckpoints=False):
+async def getInfoOnLowManActivity(raidHashes: list, playercount, membershipid, noCheckpoints=False, score_threshold=None):
     """ Gets the lowman [(instanceId, deaths, kills, period), ...] for player <membershipid> of activity list(<activityHash>) with a <= <playercount>"""
 
     select_sql = f"""
@@ -793,6 +793,7 @@ async def getInfoOnLowManActivity(raidHashes: list, playercount, membershipid, n
                         AND kills > 0
                         AND completed = 1
                         AND completionReason = 0
+                        {f"AND score > {score_threshold}" if score_threshold else ""}
                 ) AS memberCompletedActivities
             JOIN (
                 SELECT

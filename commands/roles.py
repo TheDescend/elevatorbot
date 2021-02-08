@@ -361,7 +361,7 @@ class roleRequirements(BaseCommand):
         async with message.channel.typing():
             destinyID = lookupDestinyID(mentioned_user.id)
             wait_msg = await message.channel.send(embed=embed_message(
-                f'Hi, {mentioned_user.name}',
+                f'Hi, {mentioned_user.display_name}',
                 "Your data will be available shortly"
             ))
 

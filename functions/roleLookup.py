@@ -102,6 +102,7 @@ async def hasRole(playerid, role, year, br = True):
                 roledata['playercount'],
                 roledata['activityHashes'],
                 flawless=roledata.get('flawless', False),
+                score_threshold=roledata.get('score', False),
                 noCheckpoints=roledata.get('noCheckpoints', False),
                 disallowed=disallowed
             )
