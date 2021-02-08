@@ -81,7 +81,7 @@ class stat(BaseCommand):
             await message.channel.send('Use !stat help for a list of commands :)')
 
 
-class stats(BaseCommand):
+class me(BaseCommand):
     def __init__(self):
         # A quick description for the help message
         description = "Gives you various destiny stats"
