@@ -642,7 +642,7 @@ requirementHashes = {
                 'endTime':'08/09/2020 18:00'
             },
             'records': [
-                807845972, #Only the essentials
+                1662610173, #Only the essentials
             ]
         },
         'Solo Zero Hour': {
