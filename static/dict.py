@@ -699,18 +699,18 @@ requirementHashes = {
             'flawless': True,
             'activityHashes': herzeroHashes
         },
-        'Flawless Grandmaster Nightfall': {
+        'Flawless Grandmaster': {
             'requirements': ['flawless'],
             'flawless': gmHashes,
-            'replaced_by': ['Solo Grandmaster Nightfall']
+            'replaced_by': ['Solo Grandmaster']
         },
-        'Solo Grandmaster Nightfall': {
+        'Solo Grandmaster': {
             'requirements': ['lowman'],
             'playercount': 1,
             'activityHashes': gmHashes,
-            'replaced_by': ['Solo 150k Grandmaster Nightfall']
+            'replaced_by': ['Solo 150k Grandmaster']
         },
-        'Solo 150k Grandmaster Nightfall': {
+        'Solo 150k Grandmaster': {
             'requirements': ['lowman'],
             'playercount': 1,
             'score': 150_000,
