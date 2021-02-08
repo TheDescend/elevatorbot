@@ -161,6 +161,8 @@ CREATE TABLE DestinyRecordDefinition(
 	referenceId BIGINT PRIMARY KEY,
 	description TEXT,
 	name TEXT,
+	hasTitle BOOLEAN,                           # if it is a seal
+	titleName TEXT,                             # this is None for non-seals
 	objectiveHashes BIGINT [],
 	ScoreValue INTEGER,
 	parentNodeHashes BIGINT []

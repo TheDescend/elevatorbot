@@ -1,18 +1,11 @@
 import asyncio
-import json
-import os
-import sqlite3
-import zipfile
 import logging
-import aiohttp
-import pandas
-from functools import reduce
 from datetime import datetime
 
 from functions.database import updateLastUpdated, \
     lookupDiscordID, lookupSystem, insertPgcrActivities, getPgcrActivity, insertPgcrActivitiesUsersStats, \
     insertPgcrActivitiesUsersStatsWeapons, getFailToGetPgcrInstanceId, insertFailToGetPgcrInstanceId, \
-    deleteFailToGetPgcrInstanceId, getWeaponInfo, updateDestinyDefinition, getDestinyDefinition
+    deleteFailToGetPgcrInstanceId, getWeaponInfo, updateDestinyDefinition
 from functions.database import getLastUpdated
 from functions.formating import embed_message
 from functions.network import getJSONfromURL, getComponentInfoAsJSON, getJSONwithToken
@@ -48,6 +41,7 @@ async def getCharacterList(destinyID):
     print(f'no account found for destinyID {destinyID}')
     return (None,[])
 
+# todo get from DB
 racemap = {
     2803282938: 'Awoken',
     898834093: 'Exo',
@@ -63,18 +57,49 @@ classmap = {
     3655393761: 'Titan'
 }
 
-async def OUTDATEDgetSystem(destinyID):
-    ''' returns system '''
-    charURL = "https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/?components=100,200"
-    platform = None
-    for i in [3, 2, 1, 4, 5, 10, 254]:
-        characterinfo = await getJSONfromURL(charURL.format(i, destinyID))
-        if characterinfo:
-            platform = characterinfo["Response"]["profile"]["data"]["userInfo"]["membershipType"]
-            break
-    return platform
 
-# OUTDATED. Use membershipType = lookupSystem(destinyID)
+async def getCharacterInfoList(destinyID):
+    """
+    returns more detailed character info.
+    return = (
+        [characterID1, ...],
+        {
+            characterID1: {
+                "class": str,
+                "race": str,
+                "gender": str
+            },
+            ...
+        }
+    )
+    """
+    membershipType = lookupSystem(destinyID)
+
+    # get char data
+    charURL = f"https://stats.bungie.net/Platform/Destiny2/{membershipType}/Profile/{destinyID}/?components=200"
+    res = await getJSONfromURL(charURL)
+    char_list = []
+    char_data = {}
+    if res:
+        # loop through each character
+        for characterID, character_data in res['Response']['characters']['data'].items():
+            characterID = int(characterID)
+
+            # format the data correctly and convert the hashes to strings
+            char_list.append(characterID)
+            char_data[characterID] = {
+                "class": classmap[character_data["classHash"]],
+                "race": racemap[character_data["raceHash"]],
+                "gender": gendermap[character_data["genderHash"]]
+            }
+
+        return char_list, char_data
+
+    # if that fails for some reason
+    print(f'No account found for destinyID {destinyID}')
+    return None, None
+
+
 async def getCharactertypeList(destinyID):
     ''' returns a [charID, type] tuple '''
     charURL = "https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/?components=100,200"
@@ -370,7 +395,6 @@ async def getGearPiece(destinyID, itemID):
     return instances
 
 
-
 async def getWeaponStats(destinyID, weaponIDs: list, characterID=None, mode=0):
     """ returns kills, prec_kills for that weapon in the specified mode"""
 
@@ -534,6 +558,8 @@ async def updateManifest():
                         int(referenceId),
                         description=values["displayProperties"]["description"] if values["displayProperties"]["description"] else None,
                         name=values["displayProperties"]["name"] if values["displayProperties"]["name"] else None,
+                        hasTitle=values["titleInfo"]["hasTitle"],
+                        titleName=values["titleInfo"]["titlesByGender"]["Male"] if "titlesByGender" in values["titleInfo"] else None,
                         objectiveHashes=values["objectiveHashes"] if "objectiveHashes" in values else None,
                         ScoreValue=values["completionInfo"]["ScoreValue"] if "completionInfo" in values else None,
                         parentNodeHashes=values["parentNodeHashes"] if "parentNodeHashes" in values else None
@@ -718,24 +744,6 @@ async def updateMissingPcgr():
 
         # delete from to-do DB
         deleteFailToGetPgcrInstanceId(instanceID)
-
-def getSeals(client):
-    # if file doesn't exist, call the daily running event (useful for first usage)
-    try:
-        file = pandas.read_pickle('database/seals.pickle')
-    except FileNotFoundError:
-        from events.backgroundTasks import refreshSealPickle
-        rf = refreshSealPickle()
-        fut = asyncio.run_coroutine_threadsafe(rf.run(), client.loop)
-        try:
-            fut.result()
-            print(fut)
-            file = pandas.read_pickle('database/seals.pickle')
-        except Exception as exc:
-            print(f'generated an exception: {exc}')
-
-    # returns list [[hash, name, displayName, hasExpiration], ...]
-    return file["seals"][0]
 
 
 async def getClanMembers(client):

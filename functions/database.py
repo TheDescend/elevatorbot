@@ -527,7 +527,7 @@ def getDestinyDefinition(definition_name: str, referenceId: int):
 
 
 def getGrandmasterHashes():
-    """ Get's all GM nightfall hashes. Makes adding the new ones after a season obsolete """
+    """ Gets all GM nightfall hashes. Makes adding the new ones after a season obsolete """
     select_sql = f"""
         SELECT 
             referenceId
@@ -541,6 +541,25 @@ def getGrandmasterHashes():
         result = cur.fetchall()
         # remove tuples from list
         return [x[0] for x in result]
+
+
+def getSeals():
+    """ Gets all seals. returns ([referenceId, titleName], ...)"""
+    not_available = [
+        837071607,      # shaxx
+        1754815776,     # wishbringer
+    ]
+    select_sql = f"""
+        SELECT 
+            referenceId, titleName
+        FROM 
+            DestinyRecordDefinition
+        WHERE 
+            hasTitle
+            AND referenceId NOT IN ({','.join(['%s']*len(not_available))});"""
+    with db_connect().cursor() as cur:
+        cur.execute(select_sql, (*not_available,))
+        return cur.fetchall()
 
 
 def updateDestinyDefinition(definition_name: str, referenceId: int, **kwargs):
