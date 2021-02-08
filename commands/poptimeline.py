@@ -23,6 +23,7 @@ class poptimeline(BaseCommand):
             ["2020-03-10", "Season of the Worthy"],
             ["2020-06-09", "Season of Arrivals"],
             ["2020-11-10", "Beyond Light"],
+            ["2021-02-09", "Season of the Chosen"],
         ]
         other_dates = [
             ["2019-10-04", "GoS"],
