@@ -1,6 +1,6 @@
 from commands.base_command import BaseCommand
-from functions.dataLoading import getNameAndCrossaveNameToHashMapByClanid
-from functions.database import lookupDiscordID
+from functions.dataLoading import getNameAndCrossaveNameToHashMapByClanid, getNameToHashMapByClanid
+from functions.database import lookupDiscordID, lookupDestinyID
 from static.dict import clanids
 
 
@@ -56,3 +56,52 @@ class getUserMatching(BaseCommand):
                 await message.channel.send(unsuccessfulMessage)
             else:
                 await message.channel.send('No unsuccessful matches <:PogU:670369128237760522>')
+
+
+class checkNames(BaseCommand):
+    def __init__(self):
+        # A quick description for the help message
+        description = "[dev] check name mappings"
+        topic = "Roles"
+        params = []
+        super().__init__(description, params, topic)
+
+    # Override the handle() method
+    # It will be called every time the command is received
+    async def handle(self, params, message, mentioned_user, client):
+        messagetext = ""
+        for discordUser in message.guild.members:
+            if destinyID := lookupDestinyID(discordUser.id):
+                messagetext += f'{discordUser.name} ({discordUser.nick}): https://raid.report/pc/{destinyID}\n' #TODO make console-flexible
+            else:
+                messagetext += f'{discordUser.name} ({discordUser.nick}): Not found\n'
+        await message.channel.send(messagetext)
+
+
+class checkNewbies(BaseCommand):
+    def __init__(self):
+        # A quick description for the help message
+        description = "[dev] check people"
+        topic = "Roles"
+        params = []
+        super().__init__(description, params, topic)
+
+    # Override the handle() method
+    # It will be called every time the command is received
+    async def handle(self, params, message, mentioned_user, client):
+        naughtylist = []
+        for clanid,name in clanids.items():
+            await message.channel.send(f'checking clan {name}')
+            clanmap = await getNameToHashMapByClanid(clanid)
+            for username, userid in clanmap.items():
+                discordID = lookupDiscordID(userid)
+                if discordID: #if the matching exists in the DB, check whether the discordID is valid and in the server
+                    guy = client.get_user(discordID)
+                    if not guy: #TODO implement actual 'present in server'-check
+                        await message.channel.send(f'[ERROR] {username} with destinyID {userid} has discordID {discordID} registered, but it is faulty or user left the server')
+                        continue
+                    #await message.channel.send(f'{username} is in Discord with name {user.name}')
+                else:
+                    naughtylist.append(username)
+                    await message.channel.send(f'{username} with ID {userid} is not in Discord (or not recognized by the bot)')
+        await message.channel.send(f'users to check: {", ".join(naughtylist)}')

@@ -36,8 +36,8 @@ async def hasRole(playerid, role, year, br = True):
                 i += 1
 
         elif req == 'flawless':
-            has_fla = getFlawlessHashes(playerid, roledata['flawless'])
-            worthy &= bool(has_fla)
+            has_fla = bool(getFlawlessHashes(playerid, roledata['flawless']))
+            worthy &= has_fla
 
             data["Flawless"] = str(has_fla)
 

@@ -20,7 +20,6 @@ from nacl.encoding import HexEncoder
 from static.config import BOT_ACCOUNT_PUBLIC_KEY
 
 verify_key = VerifyKey(bytes.fromhex(BOT_ACCOUNT_PUBLIC_KEY))
-loop = asyncio.get_event_loop()
 
 async def refresh_token(discordID):
     url = 'https://www.bungie.net/platform/app/oauth/token/'

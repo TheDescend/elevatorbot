@@ -2,7 +2,7 @@ import datetime
 
 from commands.base_command import BaseCommand
 from events.armorStatsNotifier import ArmorStatsNotifier
-from functions.dataLoading import getCharactertypeList, getCharacterList, OUTDATEDgetSystem, getInventoryBucket, \
+from functions.dataLoading import getCharactertypeList, getCharacterList, getInventoryBucket, \
     updateDB, updateManifest
 from functions.dataTransformation import hasCollectible
 from functions.database import removeUser, lookupDestinyID, getEverything, updateUser, updateToken, getRefreshToken
@@ -63,6 +63,5 @@ class updateKigstn(BaseCommand):
     # Override the handle() method
     # It will be called every time the command is received
     async def handle(self, params, message, mentioned_user, client):
-        a = ArmorStatsNotifier()
-        await a.run(client)
+        await updateManifest()
 

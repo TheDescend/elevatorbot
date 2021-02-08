@@ -7,7 +7,7 @@ import matplotlib
 from functions.dataLoading import getStats, getTriumphsJSON, getPGCR, getPlayersPastActivities, getNameToHashMapByClanid
 from functions.network import getComponentInfoAsJSON
 from static.dict import clanids
-from functions.database import getInfoOnLowManActivity, getDestinyDefinition
+from functions.database import getInfoOnLowManActivity, getDestinyDefinition, getSeals
 
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -85,7 +85,7 @@ async def getIntStat(destinyID, statname):
 async def getCharStats(destinyID, characterID, statname):
     stats = await getStats(destinyID)
     for char in stats['characters']:
-        if char['characterId'] == characterID:
+        if char['characterId'] == str(characterID):
             return char['merged']['allTime'][statname]['basic']['value']
 
 async def getPossibleStats():
@@ -187,3 +187,15 @@ async def getTop10PveGuns(destinyID):
     plt.savefig(f'{destinyID}.png')
     plt.clf()
     return pathlib.Path(__file__).parent / f'{destinyID}.png'
+
+
+async def getPlayerSeals(destinyID):
+    """ returns all the seals and the seals a player has. returns total_seals: list, [[referenceId, titleName], ...]. removes wip seals like WF LW """
+
+    seals = getSeals()
+    completed_seals = []
+    for seal in seals:
+        if await hasTriumph(destinyID, seal[0]):
+            completed_seals.append(seal)
+
+    return seals, completed_seals

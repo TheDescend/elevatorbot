@@ -7,15 +7,51 @@ from sshtunnel import SSHTunnelForwarder
 import database.psql_credentials as psql_credentials
 
 #### ALL DATABASE ACCESS FUNCTIONS ####
-
-con = None
 ssh_server = None
 
+
+async def create_connection_pool():
+    global connection_pool
+    global ssh_server
+
+    aiopg_args = {
+        "dbname": psql_credentials.dbname,
+        "user": psql_credentials.user,
+        "host": psql_credentials.host,
+        "password": psql_credentials.password
+    }
+    if ssh_server:
+        aiopg_args.update({
+            "host": "localhost",
+            "port": ssh_server.local_bind_port
+        })
+
+    try:
+        connection_pool = await aiopg.create_pool(**aiopg_args)
+        print("Connected to DB with aiopg")
+
+    # create an ssh tunnel to connect to the db from outside the local network and bind that to localhost
+    except psycopg2.OperationalError:
+        bind_port = 5432
+
+        ssh_server = SSHTunnelForwarder(
+            (psql_credentials.ssh_host, psql_credentials.ssh_port),
+            ssh_username=psql_credentials.ssh_user,
+            ssh_password=psql_credentials.ssh_password,
+            remote_bind_address=("localhost", bind_port))
+        ssh_server.start()
+        print("Connected via SSH")
+
+        # redo connection
+        await create_connection_pool()
+
+
+# delete this after swap to aiohttp
+con = None
 def db_connect():
     global con
     """ Returns a connection object for the database """
     if not con:
-        print("Connecting to DB")
         try:
             con = psycopg2.connect(
                 dbname=psql_credentials.dbname,
@@ -26,19 +62,8 @@ def db_connect():
             con.set_session(autocommit=True)
             print('Opened a DB connection')
 
-        # create an ssh tunnel to connect to the db from outside the local network and bind that to localhost
+        # join with ssh config
         except psycopg2.OperationalError:
-            bind_port = 5432
-            global ssh_server
-
-            ssh_server = SSHTunnelForwarder(
-                                    (psql_credentials.ssh_host, psql_credentials.ssh_port),
-                                    ssh_username=psql_credentials.ssh_user,
-                                    ssh_password=psql_credentials.ssh_password,
-                                    remote_bind_address=("localhost", bind_port))
-            ssh_server.start()
-            print("Connected via SSH")
-
             con = psycopg2.connect(
                 dbname=psql_credentials.dbname,
                 user=psql_credentials.user,
@@ -48,7 +73,6 @@ def db_connect():
             )
             con.set_session(autocommit=True)
             print('Opened a DB connection via SSH')
-
     return con
 
 def removeUser(discordID):
@@ -501,6 +525,42 @@ def getDestinyDefinition(definition_name: str, referenceId: int):
         cur.execute(select_sql, (referenceId,))
         result = cur.fetchone()
         return result
+
+
+def getGrandmasterHashes():
+    """ Gets all GM nightfall hashes. Makes adding the new ones after a season obsolete """
+    select_sql = f"""
+        SELECT 
+            referenceId
+        FROM 
+            DestinyActivityDefinition
+        WHERE 
+            name LIKE '%Grandmaster%'
+            AND directActivityModeType = 46;"""
+    with db_connect().cursor() as cur:
+        cur.execute(select_sql)
+        result = cur.fetchall()
+        # remove tuples from list
+        return [x[0] for x in result]
+
+
+def getSeals():
+    """ Gets all seals. returns ([referenceId, titleName], ...)"""
+    not_available = [
+        837071607,      # shaxx
+        1754815776,     # wishbringer
+    ]
+    select_sql = f"""
+        SELECT 
+            referenceId, titleName
+        FROM 
+            DestinyRecordDefinition
+        WHERE 
+            hasTitle
+            AND referenceId NOT IN ({','.join(['%s']*len(not_available))});"""
+    with db_connect().cursor() as cur:
+        cur.execute(select_sql, (*not_available,))
+        return cur.fetchall()
 
 
 def updateDestinyDefinition(definition_name: str, referenceId: int, **kwargs):
