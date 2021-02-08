@@ -535,7 +535,7 @@ def getGrandmasterHashes():
         FROM 
             DestinyActivityDefinition
         WHERE 
-            name LIKE '%Grandmaster%'
+            (name LIKE '%Grandmaster%' OR activityLightLevel = 1100)
             AND directActivityModeType = 46;"""
     with db_connect().cursor() as cur:
         cur.execute(select_sql)
