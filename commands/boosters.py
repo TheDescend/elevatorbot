@@ -12,9 +12,12 @@ class boosters(BaseCommand):
     # Override the handle() method
     # It will be called every time the command is received
     async def handle(self, params, message, mentioned_user, client):
+
+        sorted_premium_subscribers = sorted(message.guild.premium_subscribers, key=lambda m:m.premium_since.strftime('%Y%m%d%H%M'), reverse=True)
+
         embed = embed_message(
             f"{message.guild.name} Nitro Boosters",
-            ", ".join(["**" + m.display_name + "** - since: " + m.premium_since.strftime('%d/%m/%Y, %H:%M') for m in message.guild.premium_subscribers])
+            ",\n".join(['**' + f"{m.display_name:<30}" + "** since: " + m.premium_since.strftime('%d/%m/%Y, %H:%M') for m in sorted_premium_subscribers])
         )
 
         await message.reply(embed=embed)
