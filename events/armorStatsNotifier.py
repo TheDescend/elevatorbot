@@ -139,7 +139,7 @@ class ArmorStatsNotifier(BaseEvent):
                         await message_user(client, 206878830017773568, vendor_name, item_definition, item_stats, total_stats)
 
         # update the status
-        await botStatus(client, "Vendor Armor Roll Lookup", datetime.datetime.now())
+        await botStatus(client, "Vendor Armor Roll Lookup", datetime.datetime.now(tz=datetime.timezone.utc))
 
 
 class GunsmithBountiesNotifier(BaseEvent):

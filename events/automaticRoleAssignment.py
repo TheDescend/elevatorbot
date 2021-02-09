@@ -78,7 +78,7 @@ class AutomaticRoleAssignment(BaseEvent):
             await newtonslab.send(newstext)
 
         # update the status
-        await botStatus(client, "Achievement Role Update", datetime.datetime.now())
+        await botStatus(client, "Achievement Role Update", datetime.datetime.now(tz=datetime.timezone.utc))
 
 
 class AutoRegisteredRole(BaseEvent):
@@ -157,4 +157,4 @@ class AutoRegisteredRole(BaseEvent):
                         await assignRolesToUser([divider_legacy_role_id], member, guild)
 
         # update the status
-        await botStatus(client, "Member Role Update", datetime.datetime.now())
+        await botStatus(client, "Member Role Update", datetime.datetime.now(tz=datetime.timezone.utc))

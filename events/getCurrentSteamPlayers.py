@@ -54,4 +54,4 @@ class getCurrentSteamPlayers(BaseEvent):
             print("error getting current steam players")
 
         # update the status
-        await botStatus(client, "Steam Player Update", datetime.now())
+        await botStatus(client, "Steam Player Update", datetime.now(tz=datetime.timezone.utc))

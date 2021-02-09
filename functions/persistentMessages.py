@@ -207,7 +207,7 @@ async def botStatus(client, field_name: str, time: datetime.datetime):
 
         found = False
         for field in fields:
-            embed.add_field(name=field.name, value=str(time) if field.name == field_name else field.value, inline=True)
+            embed.add_field(name=field.name, value=f"""{time.strftime("%d/%m/%Y, %H:%M")} UTC""" if field.name == field_name else field.value, inline=True)
             if field.name == field_name:
                 found = True
 

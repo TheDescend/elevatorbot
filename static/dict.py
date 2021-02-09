@@ -707,12 +707,14 @@ requirementHashes = {
         'Solo Grandmaster': {
             'requirements': ['lowman'],
             'playercount': 1,
+            'flawless': True,
             'activityHashes': gmHashes,
             'replaced_by': ['Solo 150k Grandmaster']
         },
         'Solo 150k Grandmaster': {
             'requirements': ['lowman'],
             'playercount': 1,
+            'flawless': True,
             'score': 150_000,
             'activityHashes': gmHashes,
         },

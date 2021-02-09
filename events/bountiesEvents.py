@@ -28,7 +28,7 @@ class CheckBountyCompletion(BaseEvent):
         await bountyCompletion(client)
 
         # update the status
-        await botStatus(client, "Bounties - Completion Update", datetime.datetime.now())
+        await botStatus(client, "Bounties - Completion Update", datetime.datetime.now(tz=datetime.timezone.utc))
 
 
 class GenerateBounties(BaseEvent):
@@ -102,7 +102,7 @@ class GenerateBounties(BaseEvent):
             os.remove('functions/bounties/playerBountyStatus.pickle')
 
         # update the status
-        await botStatus(client, "Bounties - Generation", datetime.datetime.now())
+        await botStatus(client, "Bounties - Generation", datetime.datetime.now(tz=datetime.timezone.utc))
 
 
 class UpdateExperienceLevels(BaseEvent):
@@ -119,4 +119,4 @@ class UpdateExperienceLevels(BaseEvent):
         print("Done updating experience")
 
         # update the status
-        await botStatus(client, "Bounties - Experience Update", datetime.datetime.now())
+        await botStatus(client, "Bounties - Experience Update", datetime.datetime.now(tz=datetime.timezone.utc))

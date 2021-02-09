@@ -101,7 +101,7 @@ class UpdateManifest(BaseEvent):
         await updateManifest()
 
         # update the status
-        await botStatus(client, "Manifest Update", datetime.datetime.now())
+        await botStatus(client, "Manifest Update", datetime.datetime.now(tz=datetime.timezone.utc))
 
 
 class updateActivityDB(BaseEvent):
@@ -141,7 +141,7 @@ class updateActivityDB(BaseEvent):
         await updateMissingPcgr()
 
         # update the status
-        await botStatus(client, "Database Update", datetime.datetime.now())
+        await botStatus(client, "Database Update", datetime.datetime.now(tz=datetime.timezone.utc))
 
 
 
