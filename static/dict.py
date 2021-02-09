@@ -699,19 +699,19 @@ requirementHashes = {
             'flawless': True,
             'activityHashes': herzeroHashes
         },
-        'Flawless Grandmaster': {
+        'Flawless GM': {
             'requirements': ['flawless'],
             'flawless': gmHashes,
-            'replaced_by': ['Solo Grandmaster']
+            'replaced_by': ['Solo Flawless GM']
         },
-        'Solo Grandmaster': {
+        'Solo Flawless GM': {
             'requirements': ['lowman'],
             'playercount': 1,
             'flawless': True,
             'activityHashes': gmHashes,
-            'replaced_by': ['Solo 150k Grandmaster']
+            'replaced_by': ['Solo Flawless 150k GM']
         },
-        'Solo 150k Grandmaster': {
+        'Solo Flawless 150k GM': {
             'requirements': ['lowman'],
             'playercount': 1,
             'flawless': True,
