@@ -29,7 +29,7 @@ class getID(BaseCommand):
 
         embed = embed_message(
             f"{mentioned_user.name}'s Steam Join Code",
-            text
+            f"/join {text}"
         )
         await message.reply(embed=embed)
 

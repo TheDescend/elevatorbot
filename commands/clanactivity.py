@@ -123,7 +123,7 @@ class clanActivity(BaseCommand):
                 return
 
             # throw error if end > start
-            if end_time < start_time:
+            if end_time < start_time:g
                 await time_msg.edit(embed=embed_message(
                     f'Incorrect Formatting',
                     f'Silly you, the start-time can not be greater than the end-time. Type `!friends <activity> *<user>` to start over'
