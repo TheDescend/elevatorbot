@@ -29,7 +29,7 @@ class getID(BaseCommand):
 
         embed = embed_message(
             f"{mentioned_user.name}'s Steam Join Code",
-            text
+            f"/join {text}"
         )
         await message.reply(embed=embed)
 
@@ -75,7 +75,7 @@ class getDiscordJoinDate(BaseCommand):
 class getUserInfo(BaseCommand):
     def __init__(self):
         # A quick description for the help message
-        description = "[dev] check a user's infos"
+        description = "[dev] check a user's infos by discord or destiny ID"
         params = []
         topic = "Registration"
         super().__init__(description, params, topic)
@@ -87,10 +87,20 @@ class getUserInfo(BaseCommand):
         if not await hasAdminOrDevPermissions(message):
             return
 
-        discordID = mentioned_user.id
-        destinyID = lookupDestinyID(discordID)
+        # if disord info is given
+        if mentioned_user is not message.author:
+            discordID = mentioned_user.id
+            destinyID = lookupDestinyID(discordID)
 
-        await message.channel.send(embed=embed_message(
+        # if destinyID is given
+        else:
+            destinyID = params[0]
+            discordID = lookupDiscordID(destinyID)
+            mentioned_user = client.get_user(discordID)
+            if not mentioned_user:
+                await message.reply(f"I don't know a user with the destinyID `{destinyID}`")
+
+        await message.reply(embed=embed_message(
             f'DB infos for {mentioned_user.name}',
             f"""DiscordID - `{discordID}` \nDestinyID: `{destinyID}` \nSystem - `{lookupSystem(destinyID)}` \nSteamName - `{(await getProfile(destinyID, 100))["profile"]["data"]["userInfo"]["displayName"]}` \nHasToken - `{bool(getToken(discordID))}`"""
         ))
