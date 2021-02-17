@@ -11,49 +11,17 @@ from flask import Flask, request, redirect, Response, render_template, jsonify, 
 from flask import send_from_directory
 from datetime import datetime
 
-from functions.database import insertToken, getRefreshToken, updateToken, lookupDestinyID
+from functions.network import getFreshToken
+from functions.database import insertToken, getRefreshToken, getToken, updateToken, lookupDestinyID, lookupDiscordID
 from static.config import BUNGIE_TOKEN, B64_SECRET, NEWTONS_WEBHOOK
 
 from nacl.signing import VerifyKey
 from nacl.exceptions import BadSignatureError
 from nacl.encoding import HexEncoder
+from nacl.hash import sha256
 from static.config import BOT_ACCOUNT_PUBLIC_KEY
 
 verify_key = VerifyKey(bytes.fromhex(BOT_ACCOUNT_PUBLIC_KEY))
-
-async def refresh_token(discordID):
-    url = 'https://www.bungie.net/platform/app/oauth/token/'
-    headers = {
-        'content-type': 'application/x-www-form-urlencoded',
-        'authorization': 'Basic ' + str(B64_SECRET)
-    }
-    refresh_token = getRefreshToken(discordID)
-    destinyID = lookupDestinyID(discordID)
-    if not refresh_token:
-        return None
-
-    data = {"grant_type":"refresh_token", "refresh_token": str(refresh_token)}
-
-    async with aiohttp.ClientSession() as session:
-        for i in range(5):
-            t = int(time.time())
-            async with session.post(url, data=data, headers=headers, allow_redirects=False) as r:
-                if r.status == 200:
-                    data = await r.json()
-                    access_token = data['access_token']
-                    refresh_token = data['refresh_token']
-                    token_expiry = t + data['expires_in']
-                    refresh_token_expiry = t + data['refresh_expires_in']
-                    updateToken(destinyID, discordID, access_token, refresh_token, token_expiry, refresh_token_expiry)
-                    return access_token
-                else:
-                    print(f"Refreshing Token failed with code {r.status} . Waiting 1s and trying again")
-                    print(await r.read(), '\n')
-                    await asyncio.sleep(1)
-
-    print(f"Refreshing Token failed with code {r.status}. Failed 5 times, aborting")
-    return None
-
 
 ########################################## FLASK STUFF ##################################################
 app = Flask(__name__)
@@ -153,6 +121,18 @@ def root():
     '''
 
 
+@app.route('/neriapi/<destinyid>')
+def neriapi(destinyid):
+    if not sha256(bytes(request.headers.get('x-neriapi-key', 'missing'), 'utf-8'), encoder=HexEncoder) == b'e3143238a43d9f1c12f47314a8c858a5589f1b2f5c174d391a0e361f869b1427':
+        return jsonify(status=500, error='Wrong api key')
+    discordID = lookupDiscordID(destinyid)
+    if not discordID:
+        return jsonify(status=500, error='Unknown destiny id')
+    token = getToken(discordID)
+    refresh_token = getRefreshToken(discordID)
+    if not token:
+        return jsonify(status=500, error='Token not found')
+    return jsonify(status=200, token=token, refresh_token=refresh_token)
 
 
 @app.route('/.well-known/acme-challenge/<challenge>')

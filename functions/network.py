@@ -4,11 +4,8 @@ import random
 import time
 from datetime import datetime
 
-from functions.database import getToken, getTokenExpiry
-from oauth import refresh_token
+from functions.database import getToken, getTokenExpiry, getRefreshToken, lookupDestinyID, updateToken
 from static.config import BUNGIE_TOKEN
-
-
 
 bungieAPI_URL = "https://www.bungie.net/Platform"
 headers = {'X-API-Key': BUNGIE_TOKEN}
@@ -103,6 +100,40 @@ async def getJSONfromURL(requestURL, headers=headers, params={}):
 
         print(f'Request failed 10 times, aborting {requestURL}')
         return None
+
+async def refresh_token(discordID):
+    url = 'https://www.bungie.net/platform/app/oauth/token/'
+    headers = {
+        'content-type': 'application/x-www-form-urlencoded',
+        'authorization': 'Basic ' + str(B64_SECRET)
+    }
+    refresh_token = getRefreshToken(discordID)
+    destinyID = lookupDestinyID(discordID)
+    if not refresh_token:
+        return None
+
+    data = {"grant_type":"refresh_token", "refresh_token": str(refresh_token)}
+
+    async with aiohttp.ClientSession() as session:
+        for i in range(5):
+            t = int(time.time())
+            async with session.post(url, data=data, headers=headers, allow_redirects=False) as r:
+                if r.status == 200:
+                    data = await r.json()
+                    access_token = data['access_token']
+                    refresh_token = data['refresh_token']
+                    token_expiry = t + data['expires_in']
+                    refresh_token_expiry = t + data['refresh_expires_in']
+                    updateToken(destinyID, discordID, access_token, refresh_token, token_expiry, refresh_token_expiry)
+                    return access_token
+                else:
+                    print(f"Refreshing Token failed with code {r.status} . Waiting 1s and trying again")
+                    print(await r.read(), '\n')
+                    await asyncio.sleep(1)
+
+    print(f"Refreshing Token failed with code {r.status}. Failed 5 times, aborting")
+    return None
+
 
 async def getJSONwithToken(requestURL, discordID):
     """ Takes url and discordID, returns dict with [token] = JSON, otherwise [error] has a errormessage """
