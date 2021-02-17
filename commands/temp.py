@@ -9,7 +9,7 @@ from functions.database import removeUser, lookupDestinyID, getEverything, updat
 from functions.formating import embed_message
 from functions.miscFunctions import hasAdminOrDevPermissions
 from functions.persistentMessages import botStatus
-from oauth import refresh_token
+from functions.network import refresh_token
 from static.config import BUNGIE_OAUTH
 
 class getDay1Completions(BaseCommand):
