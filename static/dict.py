@@ -21,7 +21,9 @@ dscHashes = [910380154, 3976949817]
 throneHashes = [1893059148, 2032534090]
 pitHashes = [1375089621, 2559374368, 2559374374, 2559374375]
 prophHashes = [1077850348, 4148187374]
-harbHashes = [1738383283, ]
+harbHashes = [1738383283,]
+presageHashes = [2124066889,]
+presageMasterHashes = [4212753278,]
 
 # menagerie
 premenHashes = [2509539864, 2509539865, 2509539867, 1831470693, 3107795800, 3115455134]
@@ -291,6 +293,7 @@ requirementHashes = {
                 3000516033,  # Thunderstruck :Arc:
                 342038729,  # The New Meta [Same Class]
                 2826160801,  # Night Owl :Void:
+                2588923804, # Winter's Rest :Stasis:
                 623283604  # Sunburn :Solar:
             ],
             'replaced_by': ['Y2 Raid Master']
@@ -333,6 +336,7 @@ requirementHashes = {
                 3427328428,  # Fluorescent Foliage :Arc:
                 277137394,  # Shade in the Garden :Void:
                 2571794337,  # Photosynthesis :Solar:
+                2629178011, # Frost on the leaves :Stasis:
                 1830799772,  # Garden Party [Same Class]
             ],
             'replaced_by': ['Y3 Raid Master']
@@ -413,7 +417,7 @@ requirementHashes = {
         'Solo Shattered Throne': {
             'requirements': ['records'],
             'denyTime0': {  # start is earlier Time, format is important
-                'startTime': '11/08/2020 18:00',
+                'startTime': '11/08/2020 18:00', #KEKW
                 'endTime': '08/09/2020 18:00'
             },
             'records': [
@@ -505,6 +509,45 @@ requirementHashes = {
             'records': [
                 3047181179  # Alpha Hunter
             ]
+        },
+        'Solo Presage': {
+            'requirements': ['lowman'],
+            'playercount': 1,
+            'flawless': False,
+            'activityHashes': presageHashes,
+            'replaced_by': ['Solo Flawless Presage', 'Solo Master Presage', 'Solo Flawless Master Presage']
+        },
+        'Flawless Presage': {
+            'requirements': ['flawless'],
+            'flawless': presageHashes,
+            'replaced_by': ['Solo Flawless Presage', 'Flawless Master Presage', 'Solo Flawless Master Presage']
+        },
+        'Solo Flawless Presage': {
+            'requirements': ['records'],
+            'records': [
+                4206923617  # Lone Gun in a Dark Place 
+            ],
+            'replaced_by': ['Solo Flawless Master Presage']
+        },
+        'Solo Master Presage': {
+            'requirements': ['lowman'],
+            'playercount': 1,
+            'flawless': False,
+            'activityHashes': presageMasterHashes,
+            'replaced_by': ['Solo Flawless Master Presage']
+        },
+        'Flawless Master Presage': {
+            'requirements': ['records'],
+            'records': [
+                2335417976  # Tale Told
+            ],
+            'replaced_by': ['Solo Flawless Master Presage']
+        },
+        'Solo Flawless Master Presage': {
+            'requirements': ['lowman'],
+            'playercount': 1,
+            'flawless': True,
+            'activityHashes': presageMasterHashes,
         }
     },
     "Lowmans": {
