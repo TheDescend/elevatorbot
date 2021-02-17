@@ -57,6 +57,9 @@ async def getSpiderMaterials(discordID, destinyID, characterID):
             continue
         soldhash = sale["itemHash"]
         #only ever costs one material, so we just get the first one
+        if not sale['costs']:
+            #probably some quest item
+            continue
         pricehash = sale["costs"][0]["itemHash"]
         pricequantity = sale["costs"][0]["quantity"]
         ownedamount = 0
@@ -66,14 +69,15 @@ async def getSpiderMaterials(discordID, destinyID, characterID):
         (_, _, pricename, *_) = getDestinyDefinition("DestinyInventoryItemDefinition", int(pricehash))
         if soldname not in usermaterialreadabledict.keys():
             if 'Purchase ' in soldname:
-                isPlural = (soldname[-1] == "s") and (not soldname == "Purchase Helium Filaments")
+                isPlural = (soldname[-1] == "s") and (not soldname == "Purchase Helium Filaments") and (not soldname == "Purchase Spinmetal Leaves")
                 soldname = soldname[len('Purchase '):len(soldname)-isPlural]
                 #e.g. Purchase Enhancement Prisms
             else:
                 print(f'getSpiderMaterials:{getframeinfo(currentframe()).lineno} Could not find {soldname}')
                 continue
-
-        ownedamount = usermaterialreadabledict[soldname]
+        if soldname == 'Datalattice':
+            soldname = 'Microphasic Datalattice'
+        ownedamount = usermaterialreadabledict.get(soldname, -1) #find value, otherwise use name
 
         def replaceWithEmote(name):
             replacedict = {
@@ -90,11 +94,10 @@ async def getSpiderMaterials(discordID, destinyID, characterID):
                 'Etheric Spiral':'<:EthericSpiral:620647202267594792>',
                 'Baryon Bough':'<:BaryonBough:755678814427807756>',
                 'Enhancement Prism':'<:enhancementprism:801461164781469717>',
+                'Spinmetal Leaves': '<:SpinmetalLeaves:810098590843535401>',
+                'Glacial Starwort': '<:GlacialStarwort:810110131076726805>'
             }
-            filtered = filter(lambda elem, name=name: elem[0] in name, replacedict.items())
-            #result looks like ['Helium Filament', '<:HeliumFilaments:707244746493657160>']
-            emotename = list(filtered)[0][1]
-            return emotename
+            return replacedict.get(name, name)
         embed.add_field(name=soldname, value=f"**Owned**: {ownedamount:,} {replaceWithEmote(soldname)}\n**Cost**: {pricequantity:,} {replaceWithEmote(pricename)}", inline=True)
         returntext += f'selling  {replaceWithEmote(soldname)} for {replaceWithEmote(pricename)}, you already own {ownedamount:>12,d} {replaceWithEmote(soldname)}\n'
     return {'result': returntext, 'embed': embed, 'error': None}
