@@ -464,13 +464,13 @@ async def updateManifest():
         print("Couldnt get manifest, aborting")
         return
 
-    print("Starting manifest update...")
-
     # check if the downloaded version is different to ours, if so drop entries and redownload info
     name = "Manifest"
     version = manifest['Response']['version']
     if version == await getVersion(name):
         return
+
+    print("Starting manifest update...")
 
     # version is different, so re-download:
     # For that we are using a transaction to not disrupt normal bot behaviour

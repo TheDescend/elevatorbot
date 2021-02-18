@@ -471,9 +471,18 @@ def getFlawlessList(destinyID):
 async def updateVersion(name: str, version: str):
     """ Updates or inserts the version info for the name, fe. the manifest """
     if not await getVersion(name):
-        await insertVersion(name, version)
+        # insert
+        insert_sql = f"""
+            INSERT INTO 
+                versions
+                (name, version)
+            VALUES 
+                ($1, $2);"""
+        async with pool.acquire() as connection:
+            await connection.execute(insert_sql, name, version)
         return
 
+    # update
     update_sql = f"""
         UPDATE 
             versions
@@ -483,18 +492,6 @@ async def updateVersion(name: str, version: str):
             name = $2;"""
     async with pool.acquire() as connection:
         await connection.execute(update_sql, version, name)
-
-
-async def insertVersion(name: str, version: str):
-    """ Inserts the version info for the name, fe. the manifest """
-    insert_sql = f"""
-        INSERT INTO 
-            versions
-            (name, version)
-        VALUES 
-            $1, $2;"""
-    async with pool.acquire() as connection:
-        await connection.execute(insert_sql, name, version)
 
 
 async def getVersion(name: str):
@@ -508,7 +505,8 @@ async def getVersion(name: str):
             name = $1;"""
     async with pool.acquire() as connection:
         result = await connection.fetchrow(select_sql, name)
-        return result
+        return result[0] if result else None
+
 
 
 ################################################################
