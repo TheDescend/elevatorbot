@@ -52,44 +52,44 @@ async def otherGameRolesMessageReactions(client, user, emoji, register_channel, 
     # remove reaction and apply role
     if emoji == among_us:
         if amongUs_id not in roles:
-            await user.add_roles(discord.utils.get(message.guild.roles, id=amongUs_id))
+            await user.add_roles(discord.utils.get(message.guild.roles, id=amongUs_id, reason="Other Game Roles"))
         else:
-            await user.remove_roles(discord.utils.get(message.guild.roles, id=amongUs_id))
+            await user.remove_roles(discord.utils.get(message.guild.roles, id=amongUs_id, reason="Other Game Roles"))
         await message.remove_reaction(among_us, user)
 
     elif emoji == barotrauma:
         if barotrauma_id not in roles:
-            await user.add_roles(discord.utils.get(message.guild.roles, id=barotrauma_id))
+            await user.add_roles(discord.utils.get(message.guild.roles, id=barotrauma_id), reason="Other Game Roles")
         else:
-            await user.remove_roles(discord.utils.get(message.guild.roles, id=barotrauma_id))
+            await user.remove_roles(discord.utils.get(message.guild.roles, id=barotrauma_id), reason="Other Game Roles")
         await message.remove_reaction(barotrauma, user)
 
     elif emoji == gta:
         if gta_id not in roles:
-            await user.add_roles(discord.utils.get(message.guild.roles, id=gta_id))
+            await user.add_roles(discord.utils.get(message.guild.roles, id=gta_id), reason="Other Game Roles")
         else:
-            await user.remove_roles(discord.utils.get(message.guild.roles, id=gta_id))
+            await user.remove_roles(discord.utils.get(message.guild.roles, id=gta_id), reason="Other Game Roles")
         await message.remove_reaction(gta, user)
 
     elif emoji == valorant:
         if valorant_id not in roles:
-            await user.add_roles(discord.utils.get(message.guild.roles, id=valorant_id))
+            await user.add_roles(discord.utils.get(message.guild.roles, id=valorant_id), reason="Other Game Roles")
         else:
-            await user.remove_roles(discord.utils.get(message.guild.roles, id=valorant_id))
+            await user.remove_roles(discord.utils.get(message.guild.roles, id=valorant_id), reason="Other Game Roles")
         await message.remove_reaction(valorant, user)
 
     elif emoji == lol:
         if lol_id not in roles:
-            await user.add_roles(discord.utils.get(message.guild.roles, id=lol_id))
+            await user.add_roles(discord.utils.get(message.guild.roles, id=lol_id), reason="Other Game Roles")
         else:
-            await user.remove_roles(discord.utils.get(message.guild.roles, id=lol_id))
+            await user.remove_roles(discord.utils.get(message.guild.roles, id=lol_id), reason="Other Game Roles")
         await message.remove_reaction(lol, user)
 
     elif emoji == eft:
         if eft_id not in roles:
-            await user.add_roles(discord.utils.get(message.guild.roles, id=eft_id))
+            await user.add_roles(discord.utils.get(message.guild.roles, id=eft_id), reason="Other Game Roles")
         else:
-            await user.remove_roles(discord.utils.get(message.guild.roles, id=eft_id))
+            await user.remove_roles(discord.utils.get(message.guild.roles, id=eft_id), reason="Other Game Roles")
         await message.remove_reaction(eft, user)
 
 

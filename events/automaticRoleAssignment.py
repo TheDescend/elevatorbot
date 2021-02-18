@@ -20,41 +20,34 @@ class AutomaticRoleAssignment(BaseEvent):
         super().__init__(scheduler_type="interval", interval_minutes=interval_minutes)
     
     async def run(self, client):
-        print('running the automatic role assignment...')
-
         async def updateUser(discordUser):
             if discordUser.bot:
-                return (None, None, None)
+                return None, None, None
 
             destinyID = lookupDestinyID(discordUser.id)
             if not destinyID:
-                return (None, None, None)
-                #await newtonslab.send(f'Auto-Matched {discordUser.name} with {destinyID} \n check https://raid.report/pc/{destinyID}' )
+                return None, None, None
 
-            #gets the roles of the specific player and assigns/removes them
-            (newRoles, removeRoles) = await getPlayerRoles(destinyID, [role.name for role in discordUser.roles]) #the list of roles may be used to not check existing roles
-            
+            # gets the roles of the specific player and assigns/removes them
+            newRoles, removeRoles = await getPlayerRoles(destinyID, [role.name for role in discordUser.roles]) #the list of roles may be used to not check existing roles
 
-            return (discordUser, newRoles, removeRoles)
-        
-        #aquires the newtonslab channel from the descend server and notifies about starting
+            return discordUser, newRoles, removeRoles
+
+        print('Running the automatic role assignment...')
+
+        # acquires the newtonslab channel from the descend server and notifies about starting
         newtonslab = client.get_channel(BOTDEVCHANNELID)
-        #await newtonslab.send('running db update...')
+        guild = newtonslab.guild
+
         async with newtonslab.typing():
             update = updateActivityDB()
             await update.run(client)
-        #await newtonslab.send('db done')
-        #await newtonslab.send('running role update...')
-
-        #Since I'm too lazy to find out the guild-id, this is how I get the guild-object
-        guild = newtonslab.guild
 
         news = []
         async for member in guild.fetch_members():
             news.append(await updateUser(member))
 
         newstext = ''
-
         for discordUser, newRoles, removeRoles in news:
             if not discordUser:
                 continue
@@ -69,10 +62,7 @@ class AutomaticRoleAssignment(BaseEvent):
 
             if addrls or removerls:
                 if is_assigned:
-                    newstext += f'Updated player {discordUser.name} by adding {", ".join(addrls or ["nothing"])} and removing {", ".join(removerls or ["nothing"])}\n'
-                else:
-                    pass
-                    #newstext += f'Would have updated player {discordUser.name} by adding {", ".join(addrls or ["nothing"])} and removing {", ".join(removerls or ["nothing"])}, but User is currently prohibited from acquiring roles\n'
+                    newstext += f'Updated player {discordUser.mention} by adding `{", ".join(addrls or ["nothing"])}` and removing `{", ".join(removerls or ["nothing"])}`\n'
 
         if newstext:
             await newtonslab.send(newstext)

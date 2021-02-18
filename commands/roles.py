@@ -148,8 +148,8 @@ class getRoles(BaseCommand):
 
             (roleList, removeRoles) = await getPlayerRoles(destinyID, roles_at_start)
 
-            roles_assignable = await assignRolesToUser(roleList, mentioned_user, message.guild)
-            await removeRolesFromUser(removeRoles, mentioned_user, message.guild)
+            roles_assignable = await assignRolesToUser(roleList, mentioned_user, message.guild, reason="Role Update")
+            await removeRolesFromUser(removeRoles, mentioned_user, message.guild, reason="Role Update")
 
             if not roles_assignable:
                 await wait_msg.delete()
@@ -278,7 +278,7 @@ class removeAllRoles(BaseCommand):
         for yeardata in requirementHashes.values():
             for role in yeardata.keys():
                 roles.append(role)
-        await removeRolesFromUser(roles, mentioned_user, message.guild)
+        await removeRolesFromUser(roles, mentioned_user, message.guild, reason="Role Update")
 
 
 class assignAllRoles(BaseCommand):
@@ -312,8 +312,8 @@ class assignAllRoles(BaseCommand):
             async with message.channel.typing():
 
                 (newRoles, removeRoles) = await getPlayerRoles(destinyID, [role.name for role in discordUser.roles])
-                await assignRolesToUser(newRoles, discordUser, message.guild)
-                await removeRolesFromUser(removeRoles, discordUser, message.guild)
+                await assignRolesToUser(newRoles, discordUser, message.guild, reason="Role Update")
+                await removeRolesFromUser(removeRoles, discordUser, message.guild, reason="Role Update")
 
                 roletext = ', '.join(newRoles)
                 donemessage += f'Assigned roles {roletext} to {discordUser.name}\n'
