@@ -13,7 +13,7 @@ from functions.persistentMessages import botStatus
 class UpdateManifest(BaseEvent):
     def __init__(self):
         # Set the interval for this event
-        dow_day_of_week = "wed"
+        dow_day_of_week = "*"
         dow_hour = 0
         dow_minute = 0
         super().__init__(scheduler_type="cron", dow_day_of_week=dow_day_of_week, dow_hour=dow_hour, dow_minute=dow_minute)

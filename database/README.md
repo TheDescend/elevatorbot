@@ -1,6 +1,14 @@
 # Queries to create database tables
 
 ################################################################
+# Versioning
+
+CREATE TABLE versions (
+    name TEXT PRIMARY KEY, 
+    version TEXT
+);
+
+################################################################
 # Persistent Messages
 
 CREATE TABLE persistentMessages (

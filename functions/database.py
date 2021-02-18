@@ -45,6 +45,10 @@ async def create_connection_pool():
         await create_connection_pool()
 
 
+async def get_connection_pool():
+    return pool
+
+
 # todo delete this after swap to asyncpg
 con = None
 def db_connect():
@@ -461,6 +465,53 @@ def getFlawlessList(destinyID):
 
 
 ################################################################
+# Versioning
+
+
+async def updateVersion(name: str, version: str):
+    """ Updates or inserts the version info for the name, fe. the manifest """
+    if not await getVersion(name):
+        await insertVersion(name, version)
+        return
+
+    update_sql = f"""
+        UPDATE 
+            versions
+        SET 
+            version = $1
+        WHERE 
+            name = $2;"""
+    async with pool.acquire() as connection:
+        await connection.execute(update_sql, version, name)
+
+
+async def insertVersion(name: str, version: str):
+    """ Inserts the version info for the name, fe. the manifest """
+    insert_sql = f"""
+        INSERT INTO 
+            versions
+            (name, version)
+        VALUES 
+            $1, $2;"""
+    async with pool.acquire() as connection:
+        await connection.execute(insert_sql, name, version)
+
+
+async def getVersion(name: str):
+    """ Gets the version info for the name, fe. the manifest """
+    select_sql = f"""
+        SELECT 
+            version
+        FROM 
+            versions
+        WHERE 
+            name = $1;"""
+    async with pool.acquire() as connection:
+        result = await connection.fetchrow(select_sql, name)
+        return result
+
+
+################################################################
 # Persistent Messages
 
 
@@ -510,6 +561,26 @@ def getPersistentMessage(messageName, guildId):
 
 ################################################################
 # Destiny Manifest - see database/readme.md for info on table structure
+
+async def deleteEntries(connection, definition_name: str):
+    """ Deletes all entries from this definition - clean slate """
+    delete_sql = f"""
+        DELETE FROM 
+            {definition_name};"""
+    await connection.execute(delete_sql)
+
+
+
+async def updateDestinyDefinition(connection, definition_name: str, referenceId: int, **kwargs):
+    """ Insert Rows. Input vars depend on which definition is called"""
+    insert_sql = f"""
+        INSERT INTO 
+            {definition_name}
+            (referenceId, {", ".join([str(x) for x in kwargs.keys()])}) 
+        VALUES 
+            ($1, {', '.join(['$' + str(i+2) for i in range(len(kwargs))])});"""
+
+    await connection.execute(insert_sql, referenceId, *list(kwargs.values()))
 
 
 def getDestinyDefinition(definition_name: str, referenceId: int):
@@ -561,46 +632,6 @@ def getSeals():
     with db_connect().cursor() as cur:
         cur.execute(select_sql, (*not_available,))
         return cur.fetchall()
-
-
-def updateDestinyDefinition(definition_name: str, referenceId: int, **kwargs):
-    """ Checks if row exists and inserts/updates accordingly. Input vars depend on which definition is called"""
-    result = getDestinyDefinition(definition_name, referenceId)
-
-    # insert
-    if not result:
-        sql = f"""
-            INSERT INTO 
-                {definition_name}
-                (referenceId, {", ".join([str(x) for x in kwargs.keys()])}) 
-            VALUES 
-                ({referenceId}, {', '.join(['%s']*len(kwargs))});"""
-
-    # update
-    else:
-        # check if sth has changed. Start with 1, bc the first entry is the referenceId
-        i = 0
-        changed = False
-        for arg in kwargs.values():
-            i += 1
-            if arg != result[i]:
-                changed = True
-                break
-
-        # abort if nothing changed
-        if not changed:
-            return
-
-        sql = f"""
-            UPDATE 
-                {definition_name}
-            SET 
-                {", ".join([str(x) + " = %s" for x in kwargs.keys()])}
-            WHERE 
-                referenceId = {referenceId};"""
-    with db_connect().cursor() as cur:
-        params = tuple(kwargs.values())
-        cur.execute(sql, params)
 
 
 ################################################################

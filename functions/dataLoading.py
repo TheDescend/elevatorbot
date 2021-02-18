@@ -2,10 +2,10 @@ import asyncio
 import logging
 from datetime import datetime
 
-from functions.database import updateLastUpdated, \
+from functions.database import get_connection_pool, updateLastUpdated, \
     lookupDiscordID, lookupSystem, insertPgcrActivities, getPgcrActivity, insertPgcrActivitiesUsersStats, \
     insertPgcrActivitiesUsersStatsWeapons, getFailToGetPgcrInstanceId, insertFailToGetPgcrInstanceId, \
-    deleteFailToGetPgcrInstanceId, getWeaponInfo, updateDestinyDefinition
+    deleteFailToGetPgcrInstanceId, getWeaponInfo, updateDestinyDefinition, getVersion, updateVersion, deleteEntries
 from functions.database import getLastUpdated
 from functions.formating import embed_message
 from functions.network import getJSONfromURL, getComponentInfoAsJSON, getJSONwithToken
@@ -460,127 +460,157 @@ async def updateManifest():
     # get the manifest
     manifest_url = 'http://www.bungie.net/Platform/Destiny2/Manifest/'
     manifest = await getJSONfromURL(manifest_url)
+    if not manifest:
+        print("Couldnt get manifest, aborting")
+        return
 
     print("Starting manifest update...")
 
-    if manifest:
-        # loop through the relevant manifest locations and save them in the DB
-        for definition, url in manifest['Response']['jsonWorldComponentContentPaths']['en'].items():
-            if definition == "DestinyActivityDefinition":
-                print("Starting DestinyActivityDefinition update...")
-                result = await getJSONfromURL(f'http://www.bungie.net{url}')
-                # update table
-                for referenceId, values in result.items():
-                    updateDestinyDefinition(
-                        definition,
-                        int(referenceId),
-                        description=values["displayProperties"]["description"] if values["displayProperties"]["description"] else None,
-                        name=values["displayProperties"]["name"] if values["displayProperties"]["name"] else None,
-                        activityLevel=values["activityLevel"] if 'activityLevel' in values else 0,
-                        activityLightLevel=values["activityLightLevel"],
-                        destinationHash=values["destinationHash"],
-                        placeHash=values["placeHash"],
-                        activityTypeHash=values["activityTypeHash"],
-                        isPvP=values["isPvP"],
-                        directActivityModeHash=values["directActivityModeHash"] if "directActivityModeHash" in values else None,
-                        directActivityModeType=values["directActivityModeType"] if "directActivityModeType" in values else None,
-                        activityModeHashes=values["activityModeHashes"] if "activityModeHashes" in values else None,
-                        activityModeTypes=values["activityModeTypes"] if "activityModeTypes" in values else None
-                    )
+    # check if the downloaded version is different to ours, if so drop entries and redownload info
+    name = "Manifest"
+    version = manifest['Response']['version']
+    if version == await getVersion(name):
+        return
 
-            elif definition == "DestinyActivityTypeDefinition":
-                print("Starting DestinyActivityTypeDefinition update...")
-                result = await getJSONfromURL(f'http://www.bungie.net{url}')
-                # update table
-                for referenceId, values in result.items():
-                    updateDestinyDefinition(
-                        definition,
-                        int(referenceId),
-                        description=values["displayProperties"]["description"] if "displayProperties" in values and "description" in values["displayProperties"] and values["displayProperties"]["description"] else None,
-                        name=values["displayProperties"]["name"] if "displayProperties" in values and "name" in values["displayProperties"] and values["displayProperties"]["name"] else None
-                    )
+    # version is different, so re-download:
+    # For that we are using a transaction to not disrupt normal bot behaviour
+    pool = await get_connection_pool()
+    async with pool.acquire() as connection:
+        async with connection.transaction():
+            # Now Drop all the table entries and then loop through the relevant manifest locations and save them in the DB
+            for definition, url in manifest['Response']['jsonWorldComponentContentPaths']['en'].items():
+                if definition == "DestinyActivityDefinition":
+                    print("Starting DestinyActivityDefinition update...")
+                    await deleteEntries(connection, "DestinyActivityDefinition")
+                    result = await getJSONfromURL(f'http://www.bungie.net{url}')
+                    # update table
+                    for referenceId, values in result.items():
+                        await updateDestinyDefinition(
+                            connection,
+                            definition,
+                            int(referenceId),
+                            description=values["displayProperties"]["description"] if values["displayProperties"]["description"] else None,
+                            name=values["displayProperties"]["name"] if values["displayProperties"]["name"] else None,
+                            activityLevel=values["activityLevel"] if 'activityLevel' in values else 0,
+                            activityLightLevel=values["activityLightLevel"],
+                            destinationHash=values["destinationHash"],
+                            placeHash=values["placeHash"],
+                            activityTypeHash=values["activityTypeHash"],
+                            isPvP=values["isPvP"],
+                            directActivityModeHash=values["directActivityModeHash"] if "directActivityModeHash" in values else None,
+                            directActivityModeType=values["directActivityModeType"] if "directActivityModeType" in values else None,
+                            activityModeHashes=values["activityModeHashes"] if "activityModeHashes" in values else None,
+                            activityModeTypes=values["activityModeTypes"] if "activityModeTypes" in values else None
+                        )
 
-            elif definition == "DestinyActivityModeDefinition":
-                print("Starting DestinyActivityModeDefinition update...")
-                result = await getJSONfromURL(f'http://www.bungie.net{url}')
-                # update table
-                for referenceId, values in result.items():
-                    updateDestinyDefinition(
-                        definition,
-                        values["modeType"],
-                        description=values["displayProperties"]["description"] if values["displayProperties"]["description"] else None,
-                        name=values["displayProperties"]["name"] if values["displayProperties"]["name"] else None,
-                        hash=int(referenceId),
-                        activityModeCategory=values["activityModeCategory"],
-                        isTeamBased=values["isTeamBased"],
-                        friendlyName=values["friendlyName"]
-                    )
+                elif definition == "DestinyActivityTypeDefinition":
+                    print("Starting DestinyActivityTypeDefinition update...")
+                    await deleteEntries(connection, "DestinyActivityTypeDefinition")
+                    result = await getJSONfromURL(f'http://www.bungie.net{url}')
+                    # update table
+                    for referenceId, values in result.items():
+                        await updateDestinyDefinition(
+                            connection,
+                            definition,
+                            int(referenceId),
+                            description=values["displayProperties"]["description"] if "displayProperties" in values and "description" in values["displayProperties"] and values["displayProperties"]["description"] else None,
+                            name=values["displayProperties"]["name"] if "displayProperties" in values and "name" in values["displayProperties"] and values["displayProperties"]["name"] else None
+                        )
 
-            elif definition == "DestinyCollectibleDefinition":
-                print("Starting DestinyCollectibleDefinition update...")
-                result = await getJSONfromURL(f'http://www.bungie.net{url}')
-                # update table
-                for referenceId, values in result.items():
-                    updateDestinyDefinition(
-                        definition,
-                        int(referenceId),
-                        description=values["displayProperties"]["description"] if values["displayProperties"]["description"] else None,
-                        name=values["displayProperties"]["name"] if values["displayProperties"]["name"] else None,
-                        sourceHash=values["sourceHash"] if "sourceHash" in values else None,
-                        itemHash=values["itemHash"] if "itemHash" in values else None,
-                        parentNodeHashes=values["parentNodeHashes"] if "parentNodeHashes" in values else None
-                    )
+                elif definition == "DestinyActivityModeDefinition":
+                    print("Starting DestinyActivityModeDefinition update...")
+                    await deleteEntries(connection, "DestinyActivityModeDefinition")
+                    result = await getJSONfromURL(f'http://www.bungie.net{url}')
+                    # update table
+                    for referenceId, values in result.items():
+                        await updateDestinyDefinition(
+                            connection,
+                            definition,
+                            values["modeType"],
+                            description=values["displayProperties"]["description"] if values["displayProperties"]["description"] else None,
+                            name=values["displayProperties"]["name"] if values["displayProperties"]["name"] else None,
+                            hash=int(referenceId),
+                            activityModeCategory=values["activityModeCategory"],
+                            isTeamBased=values["isTeamBased"],
+                            friendlyName=values["friendlyName"]
+                        )
 
-            elif definition == "DestinyInventoryItemDefinition":
-                print("Starting DestinyInventoryItemDefinition update...")
-                result = await getJSONfromURL(f'http://www.bungie.net{url}')
-                # update table
-                for referenceId, values in result.items():
-                    updateDestinyDefinition(
-                        definition,
-                        int(referenceId),
-                        description=values["displayProperties"]["description"] if values["displayProperties"]["description"] else None,
-                        name=values["displayProperties"]["name"] if values["displayProperties"]["name"] else None,
-                        classType=values["classType"] if "classType" in values else None,
-                        bucketTypeHash=values["inventory"]["bucketTypeHash"],
-                        tierTypeHash=values["inventory"]["tierTypeHash"],
-                        tierTypeName=values["inventory"]["tierTypeName"] if "tierTypeName" in values["inventory"] else None,
-                        equippable=values["equippable"]
-                    )
+                elif definition == "DestinyCollectibleDefinition":
+                    print("Starting DestinyCollectibleDefinition update...")
+                    await deleteEntries(connection, "DestinyCollectibleDefinition")
+                    result = await getJSONfromURL(f'http://www.bungie.net{url}')
+                    # update table
+                    for referenceId, values in result.items():
+                        await updateDestinyDefinition(
+                            connection,
+                            definition,
+                            int(referenceId),
+                            description=values["displayProperties"]["description"] if values["displayProperties"]["description"] else None,
+                            name=values["displayProperties"]["name"] if values["displayProperties"]["name"] else None,
+                            sourceHash=values["sourceHash"] if "sourceHash" in values else None,
+                            itemHash=values["itemHash"] if "itemHash" in values else None,
+                            parentNodeHashes=values["parentNodeHashes"] if "parentNodeHashes" in values else None
+                        )
 
-            elif definition == "DestinyRecordDefinition":
-                print("Starting DestinyRecordDefinition update...")
-                result = await getJSONfromURL(f'http://www.bungie.net{url}')
-                # update table
-                for referenceId, values in result.items():
-                    updateDestinyDefinition(
-                        definition,
-                        int(referenceId),
-                        description=values["displayProperties"]["description"] if values["displayProperties"]["description"] else None,
-                        name=values["displayProperties"]["name"] if values["displayProperties"]["name"] else None,
-                        hasTitle=values["titleInfo"]["hasTitle"],
-                        titleName=values["titleInfo"]["titlesByGender"]["Male"] if "titlesByGender" in values["titleInfo"] else None,
-                        objectiveHashes=values["objectiveHashes"] if "objectiveHashes" in values else None,
-                        ScoreValue=values["completionInfo"]["ScoreValue"] if "completionInfo" in values else None,
-                        parentNodeHashes=values["parentNodeHashes"] if "parentNodeHashes" in values else None
-                    )
+                elif definition == "DestinyInventoryItemDefinition":
+                    print("Starting DestinyInventoryItemDefinition update...")
+                    await deleteEntries(connection, "DestinyInventoryItemDefinition")
+                    result = await getJSONfromURL(f'http://www.bungie.net{url}')
+                    # update table
+                    for referenceId, values in result.items():
+                        await updateDestinyDefinition(
+                            connection,
+                            definition,
+                            int(referenceId),
+                            description=values["displayProperties"]["description"] if values["displayProperties"]["description"] else None,
+                            name=values["displayProperties"]["name"] if values["displayProperties"]["name"] else None,
+                            classType=values["classType"] if "classType" in values else None,
+                            bucketTypeHash=values["inventory"]["bucketTypeHash"],
+                            tierTypeHash=values["inventory"]["tierTypeHash"],
+                            tierTypeName=values["inventory"]["tierTypeName"] if "tierTypeName" in values["inventory"] else None,
+                            equippable=values["equippable"]
+                        )
 
-            elif definition == "DestinyInventoryBucketDefinition":
-                print("Starting DestinyInventoryBucketDefinition update...")
-                result = await getJSONfromURL(f'http://www.bungie.net{url}')
-                # update table
-                for referenceId, values in result.items():
-                    updateDestinyDefinition(
-                        definition,
-                        int(referenceId),
-                        description=values["displayProperties"]["description"] if "description" in values["displayProperties"] else None,
-                        name=values["displayProperties"]["name"] if "name" in values["displayProperties"] else None,
-                        category=values["category"],
-                        itemCount=values["itemCount"],
-                        location=values["location"]
-                    )
+                elif definition == "DestinyRecordDefinition":
+                    print("Starting DestinyRecordDefinition update...")
+                    await deleteEntries(connection, "DestinyRecordDefinition")
+                    result = await getJSONfromURL(f'http://www.bungie.net{url}')
+                    # update table
+                    for referenceId, values in result.items():
+                        await updateDestinyDefinition(
+                            connection,
+                            definition,
+                            int(referenceId),
+                            description=values["displayProperties"]["description"] if values["displayProperties"]["description"] else None,
+                            name=values["displayProperties"]["name"] if values["displayProperties"]["name"] else None,
+                            hasTitle=values["titleInfo"]["hasTitle"],
+                            titleName=values["titleInfo"]["titlesByGender"]["Male"] if "titlesByGender" in values["titleInfo"] else None,
+                            objectiveHashes=values["objectiveHashes"] if "objectiveHashes" in values else None,
+                            ScoreValue=values["completionInfo"]["ScoreValue"] if "completionInfo" in values else None,
+                            parentNodeHashes=values["parentNodeHashes"] if "parentNodeHashes" in values else None
+                        )
 
-        print("Done with manifest update!")
+                elif definition == "DestinyInventoryBucketDefinition":
+                    print("Starting DestinyInventoryBucketDefinition update...")
+                    await deleteEntries(connection, "DestinyInventoryBucketDefinition")
+                    result = await getJSONfromURL(f'http://www.bungie.net{url}')
+                    # update table
+                    for referenceId, values in result.items():
+                        await updateDestinyDefinition(
+                            connection,
+                            definition,
+                            int(referenceId),
+                            description=values["displayProperties"]["description"] if "description" in values["displayProperties"] else None,
+                            name=values["displayProperties"]["name"] if "name" in values["displayProperties"] else None,
+                            category=values["category"],
+                            itemCount=values["itemCount"],
+                            location=values["location"]
+                        )
+
+    # update version entry
+    await updateVersion(name, version)
+
+    print("Done with manifest update!")
 
 
 async def insertPgcrToDB(instanceID: int, activity_time: datetime, pcgr: dict):
