@@ -64,4 +64,5 @@ class updateKigstn(BaseCommand):
     # It will be called every time the command is received
     async def handle(self, params, message, mentioned_user, client):
         await updateManifest()
+        print("Done")
 

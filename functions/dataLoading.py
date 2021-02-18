@@ -526,9 +526,9 @@ async def updateManifest():
                         int(referenceId),
                         description=values["displayProperties"]["description"] if values["displayProperties"]["description"] else None,
                         name=values["displayProperties"]["name"] if values["displayProperties"]["name"] else None,
-                        sourceHash=values["sourceHash"],
-                        itemHash=values["itemHash"],
-                        parentNodeHashes=values["parentNodeHashes"]
+                        sourceHash=values["sourceHash"] if "sourceHash" in values else None,
+                        itemHash=values["itemHash"] if "itemHash" in values else None,
+                        parentNodeHashes=values["parentNodeHashes"] if "parentNodeHashes" in values else None
                     )
 
             elif definition == "DestinyInventoryItemDefinition":
