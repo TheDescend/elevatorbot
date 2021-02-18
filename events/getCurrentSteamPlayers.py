@@ -1,5 +1,5 @@
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 
 import pandas as pd
 
@@ -54,4 +54,4 @@ class getCurrentSteamPlayers(BaseEvent):
             print("error getting current steam players")
 
         # update the status
-        await botStatus(client, "Steam Player Update", datetime.now(tz=datetime.timezone.utc))
+        await botStatus(client, "Steam Player Update", datetime.now(tz=timezone.utc))
