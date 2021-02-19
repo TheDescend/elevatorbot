@@ -17,10 +17,10 @@ class challenges(BaseCommand):
 
     # Override the handle() method
     # It will be called every time the command is received
-    async def handle(self, params, message, mentioned_user, client, old_message=None, seasonal_challenges=None, week=None):
-        async with message.channel.typing():
-            # recursive commmand. if this is the first time this command is called get the data
-            if not old_message:
+    async def handle(self, params, message, mentioned_user, client, old_message=None, seasonal_challenges=None, user_triumphs=None, week=None):
+        # recursive commmand. if this is the first time this command is called get the data
+        if not old_message:
+            async with message.channel.typing():
                 # get seasonal challenge info
                 seasonal_challenges = await getSeasonalChallengeInfo()
                 index = list(seasonal_challenges)
@@ -30,47 +30,49 @@ class challenges(BaseCommand):
                 if week not in seasonal_challenges:
                     week = index[0]
 
+                # get player triumphs
+                destinyID = lookupDestinyID(mentioned_user.id)
+                user_triumphs = await getTriumphsJSON(destinyID)
+
+        else:
+            index = list(seasonal_challenges)
+
+        embed = embed_message(
+            f"{mentioned_user.display_name}'s Seasonal Challenges - {week}"
+        )
+
+        # add the triumphs and what the user has done
+        for triumph in seasonal_challenges[week]:
+            user_triumph = user_triumphs[str(triumph["referenceID"])]
+
+            # calculate completion rate
+            rate = []
+            for objective in user_triumph["objectives"]:
+                rate.append(objective["progress"] / objective["completionValue"] if not objective["complete"] else 1)
+            rate = sum(rate) / len(rate)
+
+            # make emoji art for completion rate
+            rate_text = "|"
+            if rate > 0:
+                rate_text += "🟩"
             else:
-                index = list(seasonal_challenges)
+                rate_text += "🟥"
+            if rate > 0.25:
+                rate_text += "🟩"
+            else:
+                rate_text += "🟥"
+            if rate > 0.5:
+                rate_text += "🟩"
+            else:
+                rate_text += "🟥"
+            if rate == 1:
+                rate_text += "🟩"
+            else:
+                rate_text += "🟥"
+            rate_text += "|"
 
-            embed = embed_message(
-                f"{mentioned_user.display_name}'s Seasonal Challenges - {week}"
-            )
-
-            # add the triumphs and what the user has done
-            destinyID = lookupDestinyID(mentioned_user.id)
-            user_triumphs = await getTriumphsJSON(destinyID)
-            for triumph in seasonal_challenges[week]:
-                user_triumph = user_triumphs[str(triumph["referenceID"])]
-
-                # calculate completion rate
-                rate = []
-                for objective in user_triumph["objectives"]:
-                    rate.append(objective["progress"] / objective["completionValue"] if not objective["complete"] else 1)
-                rate = sum(rate) / len(rate)
-
-                # make emoji art for completion rate
-                rate_text = "|"
-                if rate > 0:
-                    rate_text += "🟩"
-                else:
-                    rate_text += "🟥"
-                if rate > 0.25:
-                    rate_text += "🟩"
-                else:
-                    rate_text += "🟥"
-                if rate > 0.5:
-                    rate_text += "🟩"
-                else:
-                    rate_text += "🟥"
-                if rate == 1:
-                    rate_text += "🟩"
-                else:
-                    rate_text += "🟥"
-                rate_text += "|"
-
-                # add field to embed
-                embed.add_field(name=f"""{triumph["name"]} {rate_text}""", value=triumph["description"], inline=False)
+            # add field to embed
+            embed.add_field(name=f"""{triumph["name"]} {rate_text}""", value=triumph["description"], inline=False)
 
         # send message
         if not old_message:
@@ -105,4 +107,4 @@ class challenges(BaseCommand):
             # recursively call this function
             new_index = index[current_index - 1] if str(reaction.emoji) == "⬅" else index[current_index + 1]
             new_call = challenges()
-            await new_call.handle(params, message, mentioned_user, client, old_message, seasonal_challenges, new_index)
+            await new_call.handle(params, message, mentioned_user, client, old_message, seasonal_challenges, user_triumphs, new_index)
