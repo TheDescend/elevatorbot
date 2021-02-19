@@ -458,11 +458,12 @@ def getFlawlessList(destinyID):
 
 ################################################################
 # General
+# todo swap most requests to use this. Stops this module from getting really full
 
 
 async def getEverything(database_table_name: str, select_name: list = None, **where_requirements):
     """
-    Gets the complete row(s) or just the asked for value(s) from the given params. Params are not required
+    Gets the complete rows or just the asked for value(s) from the given params. Params are not required
     This is a generator!
     """
     async with pool.acquire() as connection:
@@ -479,6 +480,24 @@ async def getEverything(database_table_name: str, select_name: list = None, **wh
         async with connection.transaction():
             async for record in select_sql.cursor(*where_requirements.values()):
                 yield record
+
+
+async def getEverythingRow(database_table_name: str, select_name: list = None, **where_requirements):
+    """
+    Gets the complete row or just the asked for value(s) from the given params. Params are not required
+    Returns only one row
+    """
+    select_sql = f"""
+        SELECT 
+            {", ".join(select_name) if select_name else "*"}
+        FROM 
+            {database_table_name}
+        {"WHERE" if where_requirements else ""} 
+            {", ".join([f"{name}=${i}" for name, i in zip(where_requirements.keys(), range(1, len(where_requirements) + 1))])};"""
+
+    async with pool.acquire() as connection:
+        return await connection.fetchrow(select_sql, *where_requirements.values())
+
 
 
 ################################################################

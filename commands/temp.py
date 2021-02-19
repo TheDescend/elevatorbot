@@ -5,7 +5,7 @@ from events.armorStatsNotifier import ArmorStatsNotifier
 from functions.dataLoading import getCharactertypeList, getCharacterList, getInventoryBucket, \
     updateDB, updateManifest
 from functions.dataTransformation import hasCollectible
-from functions.database import removeUser, lookupDestinyID, getEverything, updateUser, updateToken, getRefreshToken
+from functions.database import removeUser, lookupDestinyID, updateUser, updateToken, getRefreshToken
 from functions.formating import embed_message
 from functions.miscFunctions import hasAdminOrDevPermissions
 from functions.persistentMessages import botStatus
@@ -52,7 +52,7 @@ class getDay1Completions(BaseCommand):
         await message.channel.send(", ".join(userlist))
 
 
-class updateKigstn(BaseCommand):
+class temp(BaseCommand):
     def __init__(self):
         # A quick description for the help message
         description = "[dev]Register with bungie.net"
@@ -65,4 +65,3 @@ class updateKigstn(BaseCommand):
     async def handle(self, params, message, mentioned_user, client):
         await updateManifest()
         print("Done")
-

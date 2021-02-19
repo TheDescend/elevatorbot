@@ -74,6 +74,9 @@ metricWinStreakWeeklyAllocation = {
     tuple(activityPVPHash): metricWinStreakCrucibleWeekly
 }
 
+# seasonal challenges hashes
+seasonalChallengesCategoryHash = 3443694067
+
 """ Grouped Hashes """
 # only activities which are available should be included here
 availableRaidHashes = [lwHashes, gosHashes]
