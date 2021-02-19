@@ -88,7 +88,7 @@ def removeUser(discordID):
         cur.execute(product_sql, (discordID,))
     return True
 
-    
+
 def insertBountyUser(discordID):
     """ Inserts a discordID mapping into the database, returns True if successful False otherwise """
     product_sql = """INSERT INTO bountyGoblins 
@@ -181,7 +181,7 @@ def getRefreshToken(discordID):
     if len(results) == 1:
         return results[0]
     return None
-    
+
 
 def getToken(discordID):
     """ Gets a Users Bungie-Token or None"""
@@ -224,17 +224,17 @@ def insertToken(discordID, destinyID, systemID, discordServerID, token, refresh_
         insert_sql = """INSERT INTO "discordGuardiansToken"
             (discordSnowflake, destinyID, signupDate, serverID, token, refresh_token, systemID, token_expiry, refresh_token_expiry) 
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);"""
-        
+
         with db_connect().cursor() as cur:
-            cur.execute(insert_sql,     (discordID, 
-                                        destinyID, 
-                                        datetime.today().date(), 
-                                        discordServerID, 
-                                        token, refresh_token, 
-                                        systemID, 
-                                        datetime.fromtimestamp(token_expiry), 
+            cur.execute(insert_sql,     (discordID,
+                                        destinyID,
+                                        datetime.today().date(),
+                                        discordServerID,
+                                        token, refresh_token,
+                                        systemID,
+                                        datetime.fromtimestamp(token_expiry),
                                         datetime.fromtimestamp(refresh_token_expiry)))
-        
+
 
 def updateToken(destinyID, discordID, token, refresh_token, token_expiry, refresh_token_expiry):
     """ Updates a User - Token, token refresh, token_expiry, refresh_token_expiry  """
@@ -357,14 +357,6 @@ def printall():
         for row in cur.fetchall():
             print(row)
 
-def getEverything():
-    """ **DEBUG** Prints the DB to console """
-    getAll = """SELECT discordSnowflake, destinyID, serverID, systemID, token, refresh_token, token_expiry, refresh_token_expiry FROM "discordGuardiansToken";"""
-    with db_connect().cursor() as cur:
-        cur.execute(getAll)
-        result = cur.fetchall()
-    return result
-
 def getAllDestinyIDs():
     """ Returns a list with all discord members destiny ids """
     getAll = """SELECT destinyID FROM "discordGuardiansToken";"""
@@ -462,6 +454,31 @@ def getFlawlessList(destinyID):
         cur.execute(sqlite_select, data_tuple)
         result = [res[0] for res in cur.fetchall()]
     return result
+
+
+################################################################
+# General
+
+
+async def getEverything(database_table_name: str, select_name: list = None, **where_requirements):
+    """
+    Gets the complete row(s) or just the asked for value(s) from the given params. Params are not required
+    This is a generator!
+    """
+    async with pool.acquire() as connection:
+        # prepare statement
+        select_sql = await connection.prepare(
+            f"""
+            SELECT 
+                {", ".join(select_name) if select_name else "*"}
+            FROM 
+                {database_table_name}
+            {"WHERE" if where_requirements else ""} 
+                {", ".join([f"{name}=${i}" for name, i in zip(where_requirements.keys(), range(1, len(where_requirements) + 1))])};"""
+        )
+        async with connection.transaction():
+            async for record in select_sql.cursor(*where_requirements.values()):
+                yield record
 
 
 ################################################################
@@ -667,7 +684,7 @@ def getLastUpdated(destinyID):
 
 
 def insertPgcrActivities(
-    instanceId, referenceId, directorActivityHash, timePeriod, 
+    instanceId, referenceId, directorActivityHash, timePeriod,
     startingPhaseIndex, mode, modes, isPrivate, membershipType):
     """ Inserts an activity to the DB"""
     if not getPgcrActivity(instanceId):
@@ -678,8 +695,8 @@ def insertPgcrActivities(
             VALUES 
                 (%s, %s, %s, %s, %s, %s, %s, %s, %s);"""
         with db_connect().cursor() as cur:
-            cur.execute(product_sql, 
-                (instanceId, referenceId, directorActivityHash, timePeriod, 
+            cur.execute(product_sql,
+                (instanceId, referenceId, directorActivityHash, timePeriod,
                 startingPhaseIndex, mode, modes, isPrivate, membershipType,))
 
 
@@ -699,10 +716,10 @@ def getPgcrActivity(instanceId):
 
 
 def insertPgcrActivitiesUsersStats(
-    instanceId, membershipId, characterId, characterClass, characterLevel, 
-    membershipType, lightLevel, emblemHash, standing, assists, completed, 
-    deaths, kills, opponentsDefeated, efficiency, killsDeathsRatio, killsDeathsAssists, 
-    score, activityDurationSeconds, completionReason, startSeconds, timePlayedSeconds, 
+    instanceId, membershipId, characterId, characterClass, characterLevel,
+    membershipType, lightLevel, emblemHash, standing, assists, completed,
+    deaths, kills, opponentsDefeated, efficiency, killsDeathsRatio, killsDeathsAssists,
+    score, activityDurationSeconds, completionReason, startSeconds, timePlayedSeconds,
     playerCount, teamScore, precisionKills, weaponKillsGrenade, weaponKillsMelee, weaponKillsSuper, weaponKillsAbility):
     """ Inserts an activity to the DB"""
     product_sql = """
@@ -718,11 +735,11 @@ def insertPgcrActivitiesUsersStats(
         ON CONFLICT 
             DO NOTHING;"""
     with db_connect().cursor() as cur:
-        cur.execute(product_sql, 
-            (instanceId, membershipId, characterId, characterClass, characterLevel, 
-            membershipType, lightLevel, emblemHash, standing, assists, completed, 
-            deaths, kills, opponentsDefeated, efficiency, killsDeathsRatio, killsDeathsAssists, 
-            score, activityDurationSeconds, completionReason, startSeconds, timePlayedSeconds, 
+        cur.execute(product_sql,
+            (instanceId, membershipId, characterId, characterClass, characterLevel,
+            membershipType, lightLevel, emblemHash, standing, assists, completed,
+            deaths, kills, opponentsDefeated, efficiency, killsDeathsRatio, killsDeathsAssists,
+            score, activityDurationSeconds, completionReason, startSeconds, timePlayedSeconds,
             playerCount, teamScore, precisionKills, weaponKillsGrenade, weaponKillsMelee, weaponKillsSuper, weaponKillsAbility,))
 
 
