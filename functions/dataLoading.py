@@ -607,6 +607,29 @@ async def updateManifest():
                             location=values["location"]
                         )
 
+                elif definition == "DestinyPresentationNodeDefinition":
+                    print("Starting DestinyPresentationNodeDefinition update...")
+                    await deleteEntries(connection, "DestinyPresentationNodeDefinition")
+                    result = await getJSONfromURL(f'http://www.bungie.net{url}')
+                    # update table
+                    for referenceId, values in result.items():
+                        await updateDestinyDefinition(
+                            connection,
+                            definition,
+                            int(referenceId),
+                            description=values["displayProperties"]["description"] if "description" in values["displayProperties"] else None,
+                            name=values["displayProperties"]["name"] if "name" in values["displayProperties"] else None,
+                            objectiveHash=values["objectiveHash"] if "objectiveHash" in values else None,
+                            presentationNodeType=values["presentationNodeType"],
+                            childrenPresentationNodeHash=[list(x.values())[0] for x in values["children"]["presentationNodes"]] if "children" in values and values["children"]["presentationNodes"] else None,
+                            childrenCollectibleHash=[list(x.values())[0] for x in values["children"]["collectibles"]] if "children" in values and values["children"]["collectibles"] else None,
+                            childrenRecordHash=[list(x.values())[0] for x in values["children"]["records"]] if "children" in values and values["children"]["records"] else None,
+                            childrenMetricHash=[list(x.values())[0] for x in values["children"]["metrics"]] if "children" in values and values["children"]["metrics"] else None,
+                            parentNodeHashes=values["parentNodeHashes"] if "parentNodeHashes" in values else None,
+                            index=values["index"],
+                            redacted=values["redacted"]
+                        )
+
     # update version entry
     await updateVersion(name, version)
 

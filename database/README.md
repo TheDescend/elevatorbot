@@ -184,3 +184,19 @@ CREATE TABLE DestinyInventoryBucketDefinition(
 	itemCount SMALLINT,
 	location SMALLINT
 );
+
+CREATE TABLE DestinyPresentationNodeDefinition(
+	referenceId BIGINT PRIMARY KEY,
+	description TEXT,
+	name TEXT,
+	objectiveHash BIGINT,
+	presentationNodeType SMALLINT,
+	childrenPresentationNodeHash BIGINT [],
+	childrenCollectibleHash BIGINT [],
+	childrenRecordHash BIGINT [],
+	childrenMetricHash BIGINT [],
+	parentNodeHashes BIGINT [],
+	index SMALLINT,
+	redacted BOOLEAN
+);
+
