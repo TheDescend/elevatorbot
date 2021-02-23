@@ -20,8 +20,22 @@ class statistic(BaseCommand):
         if not await hasAdminOrDevPermissions(message):
             return
 
+        # gives role statistics
+        if params[0] == "roles":
+            text = {}
+            for role in message.guild.roles:
+                if role.name != "@everyone":
+                    text[role.name] = []
+                    for role_haver in role.members:
+                        text[role.name].append(role_haver.display_name)
+
+            sort = {k: v for k, v in sorted(text.items(), key=lambda item: len(item[1]), reverse=True)}
+
+            for role, users in sort.items():
+                await message.channel.send(f"**__{role}__ ({len(users)}):** {', '.join(users)}")
+
         # outputs info about emote usage
-        if params[0] == "emotes":
+        elif params[0] == "emotes":
             a = await message.channel.send("Working, will take a long while...")
             lock = asyncio.Lock()
             async with message.channel.typing():
