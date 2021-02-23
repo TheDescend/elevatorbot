@@ -44,6 +44,7 @@ class mute(BaseCommand):
         status = await message.reply(f"Muted {mentioned_user.mention} for {hours} hours.\nI will edit this message once the time is over.")
         await assignRolesToUser([muted_role_id], mentioned_user, message.guild)
         await asyncio.sleep(hours*60*60)
+        await removeRolesFromUser([muted_role_id], mentioned_user, message.guild)
         await status.edit(f"{mentioned_user.mention} is no longer muted.")
 
 
