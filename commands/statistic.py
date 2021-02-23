@@ -32,7 +32,7 @@ class statistic(BaseCommand):
             sort = {k: v for k, v in sorted(text.items(), key=lambda item: len(item[1]), reverse=True)}
 
             for role, users in sort.items():
-                await message.channel.send(f"**__{role}__ ({len(users)}):** {', '.join(users)}")
+                await message.channel.send(f"**{role}** - {len(users)} have it")
 
         # outputs info about emote usage
         elif params[0] == "emotes":
