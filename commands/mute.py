@@ -5,8 +5,46 @@ import io
 import discord
 
 from commands.base_command import BaseCommand
+from functions.miscFunctions import hasAdminOrDevPermissions
 from functions.roleLookup import assignRolesToUser, removeRolesFromUser
 from static.globals import muted_role_id
+
+
+class mute(BaseCommand):
+    def __init__(self):
+        # A quick description for the help message
+        description = "[Admin] Mutes mentioned user for x hours"
+        params = ["hours"]
+        super().__init__(description, params)
+
+    # Override the handle() method
+    # It will be called every time the command is received
+    async def handle(self, params, message, mentioned_user, client):
+        # check for perms
+        if not await hasAdminOrDevPermissions(message):
+            return
+
+        # check that sb got mentioned
+        if mentioned_user == message.author:
+            await message.reply("You can't mute yourself :)")
+            return
+
+        # check that parms are correct
+        if not len(params) == 1:
+            await message.reply("Incorrect parameters, please try again")
+            return
+
+        # check that hours is int
+        try:
+            hours = int(params[0])
+        except ValueError:
+            await message.reply("Incorrect parameters, please try again")
+            return
+
+        status = await message.reply(f"Muted {mentioned_user.mention} for {hours} hours.\nI will edit this message once the time is over.")
+        await assignRolesToUser([muted_role_id], mentioned_user, message.guild)
+        await asyncio.sleep(hours*60*60)
+        await status.edit(f"{mentioned_user.mention} is no longer muted.")
 
 
 class muteMe(BaseCommand):
