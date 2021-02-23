@@ -5,7 +5,7 @@ import time
 from datetime import datetime
 
 from functions.database import getToken, getTokenExpiry, getRefreshToken, lookupDestinyID, updateToken
-from static.config import BUNGIE_TOKEN
+from static.config import BUNGIE_TOKEN, B64_SECRET
 
 bungieAPI_URL = "https://www.bungie.net/Platform"
 headers = {'X-API-Key': BUNGIE_TOKEN}

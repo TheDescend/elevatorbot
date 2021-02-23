@@ -701,6 +701,16 @@ def getLastUpdated(destinyID):
             return results[0]
     return None
 
+def setMembersLastUpdated(setdatetime):
+    set_sql = f'''
+    UPDATE "discordGuardiansToken"
+    SET activitiesLastUpdated = %s
+    WHERE activitiesLastUpdated > %s;
+    '''
+    with db_connect().cursor() as cur:
+        cur.execute(set_sql, (setdatetime, setdatetime,))
+        return True
+
 
 def insertPgcrActivities(
     instanceId, referenceId, directorActivityHash, timePeriod,

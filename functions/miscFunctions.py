@@ -41,9 +41,9 @@ async def update_status(client):
 
 
 # checks if user is allowed to use the command for other user.
-async def hasMentionPermission(message, user):
+async def hasMentionPermission(message, user, additionalUsers=[]):
     # if no other user is mentioned its ok anyways
-    if user.id is not message.author.id:
+    if user.id not in [message.author.id, *additionalUsers]:
         if not await hasAdminOrDevPermissions(message):
             await message.channel.send(embed=embed_message(
                 'Error',
