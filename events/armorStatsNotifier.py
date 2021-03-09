@@ -125,7 +125,15 @@ class ArmorStatsNotifier(BaseEvent):
                         await message_user(client, 264456189905993728, vendor_name, item_definition, item_stats, total_stats)
 
                     # mystic
-                    if these_are_the_rolls_mystic_likes(class_types, item_definition, item_stats, stat_names):
+                    if (class_types[item_definition[3]] == "Hunter") and ((item_stats[stat_names["Mobility"]]["value"] + item_stats[stat_names["Recovery"]]["value"] + item_stats[stat_names["Intellect"]]["value"] + item_stats[stat_names["Resilience"]]["value"]) > 58):
+                        await message_user(client, 211838266834550785, vendor_name, item_definition, item_stats, total_stats)
+                    elif (class_types[item_definition[3]] == "Hunter") and ((item_stats[stat_names["Mobility"]]["value"] + item_stats[stat_names["Recovery"]]["value"] + item_stats[stat_names["Discipline"]]["value"] + item_stats[stat_names["Resilience"]]["value"]) > 58):
+                        await message_user(client, 211838266834550785, vendor_name, item_definition, item_stats, total_stats)
+                    elif (class_types[item_definition[3]] == "Hunter") and ((item_stats[stat_names["Mobility"]]["value"] + item_stats[stat_names["Recovery"]]["value"] + item_stats[stat_names["Strength"]]["value"] + item_stats[stat_names["Resilience"]]["value"]) > 58):
+                        await message_user(client, 211838266834550785, vendor_name, item_definition, item_stats, total_stats)
+                    elif (class_types[item_definition[3]] == "Titan") and ((item_stats[stat_names["Resilience"]]["value"] + item_stats[stat_names["Recovery"]]["value"] + item_stats[stat_names["Intellect"]]["value"] + item_stats[stat_names["Discipline"]]["value"]) > 58):
+                        await message_user(client, 211838266834550785, vendor_name, item_definition, item_stats, total_stats)
+                    elif (class_types[item_definition[3]] == "Warlock") and ((item_stats[stat_names["Discipline"]]["value"] + item_stats[stat_names["Recovery"]]["value"] + item_stats[stat_names["Intellect"]]["value"] + item_stats[stat_names["Resilience"]]["value"]) > 58):
                         await message_user(client, 211838266834550785, vendor_name, item_definition, item_stats, total_stats)
 
                     # tom
