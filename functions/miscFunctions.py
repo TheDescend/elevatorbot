@@ -25,10 +25,7 @@ async def checkIfUserIsRegistered(user):
 async def update_status(client):
     status_messages = [
         "DM me to contact Staff",
-        "#MakeHäbidöpfelMascot",
-        "!startCounting",
-        "!muteMe",
-        "Send me funny memes please",
+        "Please welcome Neria to the clan, she is new"
     ]
 
     if NOW_PLAYING:
