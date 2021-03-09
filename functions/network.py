@@ -1,11 +1,15 @@
 import asyncio
 import aiohttp
+
 import random
 import time
 from datetime import datetime
 
-from functions.database import getToken, getTokenExpiry, getRefreshToken, lookupDestinyID, updateToken
-from static.config import BUNGIE_TOKEN, B64_SECRET
+
+from static.config import B64_SECRET, BUNGIE_TOKEN
+
+from functions.database import (getRefreshToken, getToken, getTokenExpiry,
+                                lookupDestinyID, updateToken)
 
 bungieAPI_URL = "https://www.bungie.net/Platform"
 headers = {'X-API-Key': BUNGIE_TOKEN}
