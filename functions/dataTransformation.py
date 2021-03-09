@@ -65,13 +65,16 @@ async def hasLowman(playerid, playercount, raidHashes, flawless=False, noCheckpo
     )
     print(f"getInfoOnLowManActivity took {(time.monotonic()-starttime)} seconds")
 
-    for (iid, deaths, period) in low_activity_info:
+    for (iid, deaths, kills, timePlayedSeconds, period) in low_activity_info:
         # check for flawless if asked for
         if not flawless or deaths == 0:
             verdict = True
+
             for starttime, endtime in disallowed:
                 if starttime < period < endtime:
                     verdict = False
+            if 910380154 in raidHashes and kills * 60 / timePlayedSeconds < 1:
+                verdict = False
             if verdict:
                 return True
     return False
