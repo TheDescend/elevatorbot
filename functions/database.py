@@ -842,11 +842,11 @@ def getClearCount(playerid, activityHashes: list):
 
 
 async def getInfoOnLowManActivity(raidHashes: list, playercount, membershipid, noCheckpoints=False, score_threshold=None):
-    """ Gets the lowman [(instanceId, deaths, kills, period), ...] for player <membershipid> of activity list(<activityHash>) with a <= <playercount>"""
+    """ Gets the lowman [(instanceId, deaths, kills, timePlayedSeconds, period), ...] for player <membershipid> of activity list(<activityHash>) with a == <playercount>"""
 
     select_sql = f"""
         SELECT 
-            selectedActivites.instanceId, userLowmanCompletions.deaths, selectedActivites.period
+            selectedActivites.instanceId, userLowmanCompletions.deaths, userLowmanCompletions.kills, userLowmanCompletions.timePlayedSeconds, selectedActivites.period
         FROM (
             SELECT 
                 instanceId, period 
@@ -857,10 +857,10 @@ async def getInfoOnLowManActivity(raidHashes: list, playercount, membershipid, n
                 {"AND startingPhaseIndex = 0" if noCheckpoints else ""}
         ) AS selectedActivites 
         JOIN (
-            SELECT memberCompletedActivities.instanceId, lowManCompletions.playercount, memberCompletedActivities.deaths
+            SELECT memberCompletedActivities.instanceId, lowManCompletions.playercount, memberCompletedActivities.deaths, memberCompletedActivities.kills, memberCompletedActivities.timePlayedSeconds
                 FROM (
                     SELECT
-                        instanceId, deaths
+                        instanceId, deaths, kills, timePlayedSeconds
                     FROM 
                         pgcrActivitiesUsersStats
                     WHERE 
@@ -878,7 +878,7 @@ async def getInfoOnLowManActivity(raidHashes: list, playercount, membershipid, n
                 GROUP BY 
                     instanceId
                 HAVING
-                    COUNT(DISTINCT membershipId) <= ${len(raidHashes) + 2}
+                    COUNT(DISTINCT membershipId) = ${len(raidHashes) + 2}
             ) AS lowManCompletions
             ON 
                 memberCompletedActivities.instanceId = lowManCompletions.instanceId
