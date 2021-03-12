@@ -142,7 +142,7 @@ async def steamJoinCodeMessage(client, guild):
             continue
 
     # sort and put in two lists
-    sorted_data = {k: v for k, v in sorted(clean_data.items(), key=lambda item: item[0], reverse=False)}
+    sorted_data = {k: str(v) for k, v in sorted(clean_data.items(), key=lambda item: item[0], reverse=False)}
 
     # put in two lists for the embed
     name = list(sorted_data.keys())
