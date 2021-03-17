@@ -22,6 +22,7 @@ import os
 import random
 import re
 import sys
+from datetime import datetime
 from io import BytesIO
 from threading import Thread
 
@@ -114,6 +115,23 @@ def main():
     # The message handler for both new message and edits
     @client.event
     async def common_handle_message(message):
+        """ april fools stuff from now on """
+        # check thats its april first
+        if not message.author.bot:
+            if datetime.utcnow().day == 1:
+                # get original stuff
+                text = message.content
+                author = message.author
+                channel = message.channel
+
+                # delete old stuff
+                await message.delete()
+
+                # make new stuff
+                message = await channel.send(text)
+                message.author = author
+        """ end of april fools stuff """
+
         text = message.content
         if charley_spam in text:
             await asyncio.sleep(1)
