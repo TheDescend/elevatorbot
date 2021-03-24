@@ -76,12 +76,7 @@ class TokenUpdater(BaseEvent):
         super().__init__(scheduler_type="cron", dow_day_of_week=dow_day_of_week, dow_hour=dow_hour, dow_minute=dow_minute)
 
     async def run(self, client):
-        fails = []
-
         for user in client.users:
-            if not await refresh_token(user.id):
-                fails.append(user.name)
+            await refresh_token(user.id)
 
-        print(fails)
-        return fails
 
