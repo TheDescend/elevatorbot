@@ -132,6 +132,9 @@ async def refresh_token(discordID):
                     updateToken(destinyID, discordID, access_token, refresh_token, token_expiry, refresh_token_expiry)
                     return access_token
                 else:
+                    if data["error_description"] == "ApplicationTokenKeyIdDoesNotExist":
+                        print(f"Can't update token for destinyID {destinyID} - refresh token is outdated")
+                        return None
                     print(f"Refreshing Token failed with code {r.status} . Waiting 1s and trying again")
                     print(await r.read(), '\n')
                     await asyncio.sleep(1)
