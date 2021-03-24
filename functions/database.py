@@ -178,7 +178,7 @@ def getRefreshToken(discordID):
         cur.execute(select_sql, (discordID,))
         results = cur.fetchone()
 
-    if len(results) == 1:
+    if results and len(results) == 1:
         return results[0]
     return None
 

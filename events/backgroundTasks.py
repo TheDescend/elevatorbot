@@ -6,7 +6,7 @@ import pandas
 from events.base_event import BaseEvent
 from functions.dataLoading import getTriumphsJSON, updateDB, updateMissingPcgr, updateManifest
 from functions.database import getAllDestinyIDs, lookupDiscordID
-from functions.network import getJSONfromURL
+from functions.network import getJSONfromURL, refresh_token
 from functions.persistentMessages import botStatus
 
 
@@ -65,8 +65,23 @@ class updateActivityDB(BaseEvent):
         await botStatus(client, "Database Update", datetime.datetime.now(tz=datetime.timezone.utc))
 
 
+class TokenUpdater(BaseEvent):
+    """ Every week, this updates user tokens, so they dont have to re-register so much """
 
+    def __init__(self):
+        # bot is running on est, that should give it enough time (reset is at 12pm there)
+        dow_day_of_week = "fri"
+        dow_hour = 0
+        dow_minute = 0
+        super().__init__(scheduler_type="cron", dow_day_of_week=dow_day_of_week, dow_hour=dow_hour, dow_minute=dow_minute)
 
+    async def run(self, client):
+        fails = []
 
+        for user in client.users:
+            if not await refresh_token(user.id):
+                fails.append(user.name)
 
+        print(fails)
+        return fails
 

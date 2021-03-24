@@ -2,6 +2,7 @@ import datetime
 
 from commands.base_command import BaseCommand
 from events.armorStatsNotifier import ArmorStatsNotifier
+from events.backgroundTasks import TokenUpdater
 from functions.dataLoading import getCharactertypeList, getCharacterList, getInventoryBucket, \
     updateDB, updateManifest
 from functions.dataTransformation import hasCollectible
@@ -63,5 +64,6 @@ class temp(BaseCommand):
     # Override the handle() method
     # It will be called every time the command is received
     async def handle(self, params, message, mentioned_user, client):
-        await updateManifest()
-        print("Done")
+        a = TokenUpdater()
+        fails = await a.run(client)
+        await message.channel.send(f"Updating tokens failed for: {', '.join(fails)}")

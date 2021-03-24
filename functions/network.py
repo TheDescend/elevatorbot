@@ -112,9 +112,10 @@ async def refresh_token(discordID):
         'authorization': 'Basic ' + str(B64_SECRET)
     }
     refresh_token = getRefreshToken(discordID)
-    destinyID = lookupDestinyID(discordID)
     if not refresh_token:
         return None
+
+    destinyID = lookupDestinyID(discordID)
 
     data = {"grant_type":"refresh_token", "refresh_token": str(refresh_token)}
 
