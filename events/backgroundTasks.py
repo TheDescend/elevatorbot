@@ -79,4 +79,8 @@ class TokenUpdater(BaseEvent):
         for user in client.users:
             await refresh_token(user.id)
 
+        # update the status
+        await botStatus(client, "Token Refresh", datetime.datetime.now(tz=datetime.timezone.utc))
+
+
 
