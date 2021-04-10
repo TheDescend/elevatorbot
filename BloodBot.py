@@ -29,6 +29,7 @@ from threading import Thread
 import discord
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from discord.ext.commands import Bot
+from discord_slash import SlashCommand
 
 import message_handler
 from commands.makePersistentMessages import otherGameRolesMessageReactions, readRulesMessageReactions
@@ -59,6 +60,7 @@ this.running = False
 
 # Scheduler that will be used to manage events
 sched = AsyncIOScheduler()
+sched.start()
 
 charley_spam = "Please enter a valid leaderboard name. Type `!help rank` for more information."
 ###############################################################################
@@ -79,7 +81,6 @@ def launch_event_loops(client):
 
         n_ev += 1
 
-    sched.start()
     print(f"{n_ev} events loaded", flush=True)
     print(f"Startup complete!", flush=True)
 
@@ -93,6 +94,19 @@ def main():
     # Initialize the client
     print("Starting up...")
     client = Bot('!', intents=intents)
+
+    # enable slash commands and send them to the discord API
+    slash = SlashCommand(client, sync_commands=True)
+
+    # load slash command cogs
+    # to do that, loop through the files and import all classes and commands
+    slash_dir = "slash_commands"
+    for file in os.listdir(slash_dir):
+        if file.endswith(".py"):
+            file = file.removesuffix(".py")
+            extension = f"{slash_dir}.{file}"
+            client.load_extension(extension)
+
 
     # Define event handlers for the client
     # on_ready may be called multiple times in the event of a reconnect,
