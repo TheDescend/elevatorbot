@@ -6,6 +6,8 @@ from functions.miscFunctions import hasAdminOrDevPermissions
 
 from datetime import datetime
 
+
+# todo: slashify when you can hide commands
 class setLastUpdated(BaseCommand):
     def __init__(self):
         # A quick description for the help message
@@ -22,4 +24,4 @@ class setLastUpdated(BaseCommand):
 
         targetdate = datetime(int(params[0]), int(params[1]), int(params[2]), 0, 0)
         setMembersLastUpdated(targetdate)
-        await message.channel.send(f'Successfully set lastUpdated to {targetdate.strftime("%Y-%m-%d")}')
+        await message.channel.send(f'Successfully set lastUpdated to {targetdate.strftime("%d/%m/%Y")}')

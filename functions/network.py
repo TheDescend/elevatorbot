@@ -330,7 +330,7 @@ async def handleAndReturnToken(discordID):
 
     # check refresh token first, since they need to re-register otherwise
     if t > expiry[1]:
-        print(f'Expiry Dates for refreshed token passed ({datetime.fromtimestamp(expiry[1]).strftime("%Y-%m-%d")}) for discordID {discordID}. Needs to re-register')
+        print(f'Expiry Dates for refreshed token passed ({datetime.fromtimestamp(expiry[1]).strftime("%d/%m/%Y")}) for discordID {discordID}. Needs to re-register')
         return {
             'result': None,
             'error': 'Registration is outdated, please re-register using `!registerdesc`'
@@ -338,7 +338,7 @@ async def handleAndReturnToken(discordID):
 
     # refresh token if outdated
     elif t > expiry[0]:
-        print(f'Refreshing token for discordID {discordID}, expired  ({datetime.fromtimestamp(expiry[0]).strftime("%Y-%m-%d")})')
+        print(f'Refreshing token for discordID {discordID}, expired  ({datetime.fromtimestamp(expiry[0]).strftime("%d/%m/%Y")})')
         token = await getFreshToken(discordID)
         if not token:
 

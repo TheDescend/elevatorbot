@@ -1,6 +1,7 @@
 from commands.base_command import BaseCommand
 
 
+# todo wait for perms, only allow for @socialists
 class socialist(BaseCommand):
     def __init__(self):
         # A quick description for the help message

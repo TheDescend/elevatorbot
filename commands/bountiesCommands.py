@@ -22,6 +22,7 @@ from functions.persistentMessages import persistentChannelMessages
 from functions.miscFunctions import hasAdminOrDevPermissions, hasMentionPermission
 
 
+# todo delete
 # --------------------------------------------------------------------------------------------
 # normal user commands
 class bounties(BaseCommand):
@@ -158,6 +159,7 @@ class experienceLevel(BaseCommand):
 
 # --------------------------------------------------------------------------------------------
 # admin commands
+# todo rewrite
 class startTournament(BaseCommand):
     def __init__(self):
         description = f"[Admin] Starts the tournament"
@@ -179,7 +181,7 @@ class startTournament(BaseCommand):
         await asyncio.sleep(60 * 60)  # wait one hour before deleting annoucements and stuff
         await tournamentChannelMessage(client)
 
-
+# todo rewrite
 class generateTournament(BaseCommand):
     def __init__(self):
         description = f"[Admin] Generate an out of the order tournament"

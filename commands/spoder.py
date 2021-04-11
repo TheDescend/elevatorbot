@@ -4,7 +4,7 @@ from functions.dataLoading import getCharacterList
 from functions.database import lookupDestinyID
 from functions.miscFunctions import hasMentionPermission
 
-
+# has been slashified
 class spoder(BaseCommand):
     def __init__(self):
         # A quick description for the help message

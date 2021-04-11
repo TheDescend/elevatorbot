@@ -16,6 +16,7 @@ from static.config import CLANID
 from static.dict import metricRaidCompletion, raidHashes
 
 
+# has been slashified
 class rank(BaseCommand):
     # shadows charleys rank command
 
@@ -463,7 +464,7 @@ async def add_activity_stats(destinyID, hashes, stat):
                             result_sort += int(activities["values"][stat]["basic"]["value"])
                             found = True
                             break
-        except:
+        except Exception:
             pass
 
     return result_sort

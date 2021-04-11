@@ -400,41 +400,77 @@ def getSystemAndChars(destinyID):
 
 
 
-def getLastRaid(destinyID, before=datetime.now()):
+def getLastActivity(destinyID, mode, before=datetime.now()):
     sqlite_select = """
-                    SELECT t1.instanceID, t1.period
-                    FROM (  SELECT instanceID,period FROM activities
-                            WHERE period < %s
-                                AND mode = 4) t1
-                    JOIN (  SELECT instanceID
-                            FROM instancePlayerPerformance
-                            WHERE playerID = %s
-                            ) ipp 
-                    ON (ipp.instanceID = t1.instanceID)
-                    ORDER BY period DESC
-                    LIMIT 1;
-                    """
-    data_tuple = (before, destinyID)
+        SELECT t1.instanceID, t1.period, t1.directorActivityHash
+        FROM (  
+            SELECT 
+                instanceID, period, directorActivityHash
+            FROM 
+                PgcrActivities
+            WHERE 
+                period < %s
+                AND %s = ANY(modes)
+        ) AS t1
+        JOIN (  
+            SELECT 
+                instanceID
+            FROM 
+                PgcrActivitiesUsersStats
+            WHERE 
+                membershipId = %s
+        ) AS ipp 
+        ON (
+            ipp.instanceID = t1.instanceID
+        )
+        ORDER BY 
+            period DESC
+        LIMIT 1;"""
+    data_tuple = (before, mode, destinyID)
     with db_connect().cursor() as cur:
         cur.execute(sqlite_select, data_tuple)
-        (instanceID, period) = cur.fetchone()
-    result = period.strftime("%d %m %Y") + '\n'
+        (instanceID, period, directorActivityHash) = cur.fetchone()
+
+    # prepare return as a dict
+    result = {
+        "instanceID": instanceID,
+        "period": period,
+        "directorActivityHash": directorActivityHash,
+    }
+
     if not instanceID:
         return None
     sqlite_select = """
-                    SELECT lightlevel, displayname, deaths, opponentsDefeated, completed 
-                    FROM instancePlayerPerformance
-                    WHERE instanceID = %s;
-                    """
+        SELECT 
+            lightlevel, membershipId, characterClass, deaths, opponentsDefeated, completed, score, timePlayedSeconds, activityDurationSeconds, assists, membershipType
+        FROM 
+            PgcrActivitiesUsersStats
+        WHERE 
+        instanceID = %s; """
     data_tuple = (instanceID,)
     with db_connect().cursor() as cur:
         cur.execute(sqlite_select, data_tuple)
         instanceInfo = cur.fetchall()
+
+    # prepare return as a dict
+    result["activityDurationSeconds"] = instanceInfo[0][8]
+    result["score"] = instanceInfo[0][6]
+    result["entries"] = []
     for row in instanceInfo:
-        (lightlevel, displayname, deaths, opponentsDefeated, completed) = row
-        finished = 'finished' if completed else 'left'
-        result += f'{displayname} L{lightlevel}: {opponentsDefeated}/{deaths} {finished}\n'
+        data = {
+            "membershipID": row[1],
+            "membershipType": row[10],
+            "characterClass": row[2],
+            "lightLevel": row[0],
+            "completed": row[5],
+            "timePlayedSeconds": row[7],
+            "opponentsDefeated": row[4],
+            "deaths": row[3],
+            "assists": row[9],
+        }
+        result["entries"].append(data)
     return result
+
 
 def getFlawlessList(destinyID):
     """ returns hashes of the flawlessly completed activities """
@@ -933,6 +969,30 @@ def getFlawlessHashes(membershipid, activityHashes: list):
     with db_connect().cursor() as cur:
         cur.execute(select_sql, (membershipid, *activityHashes,))
         return cur.fetchall()
+
+
+def getForges(destinyID):
+    """ Returns # of forges and # of afkforges for destinyID """
+    select_sql = """
+        SELECT 
+            t1.instanceId, t2.kills
+        FROM 
+            pgcractivities as t1
+        JOIN (
+            SELECT
+                instanceId, membershipid, kills
+            FROM 
+                pgcrActivitiesUsersStats
+        ) as t2
+        ON 
+            t1.instanceId = t2.instanceId
+        WHERE 
+            t2.membershipId = %s
+            AND t1.mode = 66;"""
+    with db_connect().cursor() as cur:
+        cur.execute(select_sql, (destinyID,))
+        result = cur.fetchall()
+        return result
 
 
 ################################################################

@@ -7,6 +7,8 @@ import matplotlib.pyplot as plt
 import os
 import asyncio
 
+
+# todo: slashify when you can hide commands. Also please god rewrite
 class statistic(BaseCommand):
     def __init__(self):
         # A quick description for the help tmessage

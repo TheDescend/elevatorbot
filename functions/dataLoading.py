@@ -193,9 +193,11 @@ async def getPlayersPastActivities(destinyID, mode : int = 7, earliest_allowed_t
 
 
 # https://bungie-net.github.io/multi/schema_Destiny-DestinyComponentType.html#schema_Destiny-DestinyComponentType
-async def getProfile(destinyID, *components, with_token=False):
+async def getProfile(destinyID, *components, with_token=False, membershipType=None):
     url = 'https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/?components={}'
-    membershipType = lookupSystem(destinyID)
+    if not membershipType:
+        membershipType = lookupSystem(destinyID)
+
     if with_token:
         statsResponse = await getJSONwithToken(url.format(membershipType, destinyID, ','.join(map(str, components))), lookupDiscordID(destinyID))
         if statsResponse["result"]:
@@ -206,6 +208,16 @@ async def getProfile(destinyID, *components, with_token=False):
         if statsResponse:
             return statsResponse['Response']
     return None
+
+
+async def getDestinyName(destinyID, membershipType=None):
+    """ Returns a destinyIDs current user name"""
+
+    data = await getProfile(destinyID, 100, membershipType=membershipType)
+    if data:
+        return data["profile"]["data"]["userInfo"]["displayName"]
+    else:
+        return "Unkown Name"
 
 
 async def getStats(destinyID):
@@ -236,7 +248,7 @@ async def getItemDefinition(destinyID, system, itemID, components):
 
 # gets the weapon (name, [hash1, hash2, ...]) for the search term for all weapons found
 # more than one weapon can be found if it got reissued
-async def searchForItem(client, message, search_term):
+async def searchForItem(ctx, search_term):
     # search for the weapon in the api
     info = await getJSONfromURL(f'http://www.bungie.net/Platform/Destiny2/Armory/Search/DestinyInventoryItemDefinition/{search_term}/')
     data = {}
@@ -257,10 +269,10 @@ async def searchForItem(client, message, search_term):
 
     # if no weapon was found
     except KeyError:
-        await message.reply(embed=embed_message(
+        await ctx.send(embed=embed_message(
             "Error",
             f'I do not know the weapon "{search_term}"'
-        ))
+        ), hidden=True)
         return None, None
 
     # check if we found multiple items with different names. Ask user to specify which one is correct
@@ -272,26 +284,25 @@ async def searchForItem(client, message, search_term):
         for name in data.keys():
             text += f"\n**{i}** - {name}"
             i += 1
-        msg = await message.reply(embed=embed_message(
-            f'{message.author.display_name}, I need one more thing',
+        msg = await ctx.channel.send(embed=embed_message(
+            f'{ctx.author.display_name}, I need one more thing',
             text
         ))
 
         # to check whether or not the one that send the msg is the original author for the function after this
         def check(answer_msg):
-            return answer_msg.author == message.author and answer_msg.channel == message.channel
+            return answer_msg.author == ctx.author and answer_msg.channel == ctx.channel
 
         # wait for reply from original user to set the time parameters
         try:
-            answer_msg = await client.wait_for('message', timeout=60.0, check=check)
+            answer_msg = await ctx.bot.wait_for('message', timeout=60.0, check=check)
 
         # if user is too slow, let him know
         except asyncio.TimeoutError:
-            await msg.edit(embed=embed_message(
-                f'Sorry {message.author.display_name}',
+            await ctx.send(embed=embed_message(
+                f'Sorry {ctx.author.display_name}',
                 f'You took to long to answer my question, please start over'
             ))
-            await asyncio.sleep(60)
             await msg.delete()
             return None, None
 
@@ -307,13 +318,12 @@ async def searchForItem(client, message, search_term):
                 await msg.delete()
                 await answer_msg.delete()
             except ValueError:
-                await msg.edit(embed=embed_message(
-                    f'Sorry {message.author.display_name}',
-                    f'{answer_msg.content} is not a valid number. Please start over'
-                ))
-                await asyncio.sleep(60)
                 await msg.delete()
                 await answer_msg.delete()
+                await ctx.send(embed=embed_message(
+                    f'Sorry {ctx.author.display_name}',
+                    f'{answer_msg.content} is not a valid number. Please start over'
+                ))
                 return None, None
 
     name = list(data.keys())[index]

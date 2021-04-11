@@ -10,6 +10,7 @@ from functions.roleLookup import assignRolesToUser, removeRolesFromUser
 from static.globals import muted_role_id
 
 
+# todo: slashify when you can hide commands
 class mute(BaseCommand):
     def __init__(self):
         # A quick description for the help message
@@ -48,6 +49,7 @@ class mute(BaseCommand):
         await status.edit(f"{mentioned_user.mention} is no longer muted.")
 
 
+# has been slashified
 class muteMe(BaseCommand):
     def __init__(self):
         # A quick description for the help message

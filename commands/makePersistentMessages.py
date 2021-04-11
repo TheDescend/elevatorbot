@@ -9,6 +9,7 @@ from static.globals import guest_role_id, member_role_id, yes_emoji_id, among_us
     lol_role_id, eft_emoji_id, eft_role_id
 
 
+# todo: slashify when you can hide commands
 # writes the message the user will see and react to and saves the id in the pickle
 class makeChannelOtherGameRoles(BaseCommand):
     def __init__(self):
@@ -93,6 +94,7 @@ async def otherGameRolesMessageReactions(client, user, emoji, register_channel, 
         await message.remove_reaction(eft, user)
 
 
+# todo: slashify when you can hide commands
 # writes the message the user will see and react to and saves the id in the pickle
 class makeChannelClanJoinRequest(BaseCommand):
     def __init__(self):
@@ -110,6 +112,7 @@ class makeChannelClanJoinRequest(BaseCommand):
         await persistentChannelMessages(client)
 
 
+# todo: slashify when you can hide commands
 # writes the message the user will see and react to and saves the id in the pickle
 class makeChannelReadRules(BaseCommand):
     def __init__(self):

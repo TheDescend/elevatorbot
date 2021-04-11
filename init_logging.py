@@ -17,5 +17,6 @@ def init_logging():
 
     # Initialize logging for command usage
     make_logger("commands")
+    make_logger("slash_commands")
 
     make_logger("updateDB")

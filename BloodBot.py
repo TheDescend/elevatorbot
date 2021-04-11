@@ -2,7 +2,10 @@
 # if this is skipped, some imports will fail since they rely on database lookups
 # for example GM nightfalls, since they change each season. This allows us to create the hash list dynamically, instead of having to add to it every season
 import asyncio
+import logging
 import sys
+import traceback
+
 from functions.database import create_connection_pool, db_connect
 
 # use different loop for windows. otherwise it breaks
@@ -29,7 +32,7 @@ from threading import Thread
 import discord
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from discord.ext.commands import Bot
-from discord_slash import SlashCommand
+from discord_slash import SlashCommand, SlashContext
 
 import message_handler
 from commands.makePersistentMessages import otherGameRolesMessageReactions, readRulesMessageReactions
@@ -47,7 +50,7 @@ from init_logging import init_logging
 from static.config import COMMAND_PREFIX, BOT_TOKEN
 import static.dict
 from static.globals import guest_role_id, registered_role_id, not_registered_role_id, admin_discussions_channel_id, \
-    divider_raider_role_id, divider_achievement_role_id, divider_misc_role_id, muted_role_id
+    divider_raider_role_id, divider_achievement_role_id, divider_misc_role_id, muted_role_id, dev_role_id
 
 #to enable the on_member_join and on_member_remove
 intents = discord.Intents.default()
@@ -66,7 +69,7 @@ charley_spam = "Please enter a valid leaderboard name. Type `!help rank` for mor
 ###############################################################################
 
 def launch_event_loops(client):
-    print("Loading events...", flush=True)
+    print("Loading events...")
     n_ev = 0
     for ev in BaseEvent.__subclasses__():
         event = ev()
@@ -81,8 +84,8 @@ def launch_event_loops(client):
 
         n_ev += 1
 
-    print(f"{n_ev} events loaded", flush=True)
-    print(f"Startup complete!", flush=True)
+    print(f"{n_ev} events loaded")
+    print(f"Startup complete!")
 
 
 def main():
@@ -100,6 +103,7 @@ def main():
 
     # load slash command cogs
     # to do that, loop through the files and import all classes and commands
+    print("Loading commands...")
     slash_dir = "slash_commands"
     for file in os.listdir(slash_dir):
         if file.endswith(".py"):
@@ -107,10 +111,11 @@ def main():
             extension = f"{slash_dir}.{file}"
             client.load_extension(extension)
 
+    print(f"{len(client.slash.commands)} commands loaded")
+
 
     # Define event handlers for the client
     # on_ready may be called multiple times in the event of a reconnect,
-    # hence the running fla
     @client.event
     async def on_ready():
         if this.running:
@@ -129,23 +134,6 @@ def main():
     # The message handler for both new message and edits
     @client.event
     async def common_handle_message(message):
-        """ april fools stuff from now on """
-        # check thats its april first
-        if not message.author.bot:
-            if datetime.utcnow().day == 1:
-                # get original stuff
-                text = message.content
-                author = message.author
-                channel = message.channel
-
-                # delete old stuff
-                await message.delete()
-
-                # make new stuff
-                message = await channel.send(text)
-                message.author = author
-        """ end of april fools stuff """
-
         text = message.content
         if charley_spam in text:
             await asyncio.sleep(1)
@@ -322,6 +310,34 @@ def main():
             await joined_channel(member, after.channel)
             await left_channel(member, before.channel)
             return
+
+
+    @client.event
+    async def on_slash_command(ctx: SlashContext):
+        """ Gets triggered every slash command """
+
+        # log the command
+        logger = logging.getLogger('slash_commands')
+        logger.info(f"InteractionID '{ctx.interaction_id}' - User '{ctx.author.name}' with discordID '{ctx.author.id}' executed '/{ctx.name}' with kwargs '{ctx.kwargs}' in guildID '{ctx.guild.id}', channelID '{ctx.channel.id}'")
+
+
+    @client.event
+    async def on_slash_command_error(ctx: SlashContext, error: Exception):
+        """ Gets triggered on slash errors """
+
+        await ctx.send(embed=embed_message(
+            "Error",
+            f"Sorry, something went wrong \nPlease contact a {ctx.guild.get_role(dev_role_id)}",
+            error
+        ))
+
+        # log the error
+        logger = logging.getLogger('slash_commands')
+        logger.exception(f"InteractionID '{ctx.interaction_id}' - Error {error} - Traceback: \n{''.join(traceback.format_tb(error.__traceback__))}")
+
+        # raising error again to making deving easier
+        raise error
+
 
     async def joined_channel(member, channel):
         nummatch = re.findall(r'\d\d', channel.name)

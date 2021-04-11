@@ -10,6 +10,7 @@ from static.globals import registered_role_id, not_registered_role_id, member_ro
 import discord
 
 
+# todo: slashify when you can hide commands
 class addRolesToRegistered(BaseCommand):
     def __init__(self):
         # A quick description for the help message
@@ -48,6 +49,7 @@ class addRolesToRegistered(BaseCommand):
         await message.channel.send(f"**NOT** registered:\n {','.join(notregisteredlist)}")
 
 
+# todo: slashify when you can hide commands
 class whoIsNotRegistered(BaseCommand):
     def __init__(self):
         # A quick description for the help message
@@ -67,6 +69,7 @@ class whoIsNotRegistered(BaseCommand):
         await message.channel.send(", ".join(people))
 
 
+# todo: slashify when you can hide commands
 class findNaughtyClanMembers(BaseCommand):
     def __init__(self):
         # A quick description for the help message

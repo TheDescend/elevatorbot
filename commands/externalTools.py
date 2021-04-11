@@ -12,6 +12,7 @@ rrsystem = {
     3: 'pc'
 }
 
+# has been slashified
 class RR(BaseCommand):
     def __init__(self):
         description = "Gets your personal raid.report link"
@@ -35,6 +36,7 @@ class RR(BaseCommand):
         ))
 
 
+# has been slashified
 class DR(BaseCommand):
     def __init__(self):
         description = "Gets your personal dungeon.report link"
@@ -58,6 +60,7 @@ class DR(BaseCommand):
         ))
 
 
+# has been slashified
 class GR(BaseCommand):
     def __init__(self):
         description = "Gets your personal grandmaster.report link"
@@ -81,6 +84,7 @@ class GR(BaseCommand):
         ))
 
 
+# has been slashified
 class NR(BaseCommand):
     def __init__(self):
         description = "Gets your personal nightfall.report link"
@@ -104,6 +108,7 @@ class NR(BaseCommand):
         ))
 
 
+# has been slashified
 class TR(BaseCommand):
     def __init__(self):
         description = "Gets your personal destinytrialsreport link"

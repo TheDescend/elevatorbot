@@ -316,7 +316,7 @@ async def bountyCompletion(client):
     # load bounties
     with open('functions/bounties/currentBounties.pickle', "rb") as f:
         bounties = pickle.load(f)
-    cutoff = datetime.datetime.strptime(bounties["time"], "%Y-%m-%d %H:%M:%S.%f")
+    cutoff = datetime.datetime.strptime(bounties["time"], "%Y-%m-%dT%H:%M:%SZ")
 
     # load channel ids
     file = getGlobalVar()

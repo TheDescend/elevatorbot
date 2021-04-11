@@ -2,6 +2,7 @@ import asyncio
 import itertools
 
 import discord
+from discord_slash import SlashContext
 
 from functions.database import getToken
 from functions.formating import embed_message
@@ -25,7 +26,8 @@ async def checkIfUserIsRegistered(user):
 async def update_status(client):
     status_messages = [
         "DM me to contact Staff",
-        "No more welcoming Neria please, she is no longer new"
+        "No more welcoming Neria please, she is no longer new",
+        "Basically v.2 on now"
     ]
 
     if NOW_PLAYING:
@@ -70,6 +72,27 @@ async def hasAdminOrDevPermissions(message, send_message=True):
     return True
 
 
+# todo swap old hasAdminOrDevPermissions stuff with this
+async def has_elevated_permissions(user, guild, ctx: SlashContext = None):
+    """ checks for admin or dev permissions, otherwise returns False. If ctx is given, return error message """
+    admin = discord.utils.get(guild.roles, id=admin_role_id)
+    dev = discord.utils.get(guild.roles, id=dev_role_id)
+    mod = discord.utils.get(guild.roles, id=mod_role_id)
+
+    # also checking for Kigstns id, to make that shit work on my local version of the bot
+    if user.id == 238388130581839872:
+        return True
+
+    if admin not in user.roles and dev not in user.roles and mod not in user.roles:
+        if ctx:
+            await ctx.send(hidden=True, embed=embed_message(
+                'Error',
+                'You do not have permission do to this'
+            ))
+        return False
+    return True
+
+
 # should be called if incorrect params for command call where used
 async def show_help(message, command, params):
     # work some magic that msg looks nice
@@ -85,4 +108,16 @@ async def show_help(message, command, params):
         f"Correct usage is:\n`{COMMAND_PREFIX}{command} {' '.join(nice_looking_params)} *<user>`",
         "Info: The <user> parameter doesn't work for every command"
     ))
+
+
+async def get_emoji(client, emoji_id):
+    """ Return an emoji obj """
+
+    return client.get_emoji(emoji_id)
+
+
+def write_line(index, member, stat_text, stat):
+    """ Write a line like charley does"""
+
+    return f"{index}) **{member}** _({stat_text}: {stat})_"
 
