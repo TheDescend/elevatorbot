@@ -106,18 +106,18 @@ async def getCharactertypeList(destinyID):
     membershipType = lookupSystem(destinyID)
     characterinfo = await getJSONfromURL(charURL.format(membershipType, destinyID))
     if characterinfo:
-        return [(char["characterId"], f"{racemap[char['raceHash']]} {gendermap[char['genderHash']]} {classmap[char['classHash']]}") for char in characterinfo['Response']['characters']['data'].values()]
+        return [(int(char["characterId"]), f"{racemap[char['raceHash']]} {gendermap[char['genderHash']]} {classmap[char['classHash']]}") for char in characterinfo['Response']['characters']['data'].values()]
     print(f'no account found for destinyID {destinyID}')
     return (None,[])
 
 
 async def getCharacterID(destinyID, classID):
-    ''' returns a charID '''
-    charIDs = (await getCharactertypeList(destinyID))[0]
+    ''' returns a charID for the specified class '''
+    charIDs = (await getCharactertypeList(destinyID))
     membershipType = lookupSystem(destinyID)
 
     charURL = "https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/Character/{}/?components=100,200"
-    for charID in charIDs:
+    for charID, _ in charIDs:
         characterinfo = await getJSONfromURL(charURL.format(membershipType, destinyID, charID))
         if characterinfo:
             if classID == characterinfo['Response']['character']['data']['classHash']:

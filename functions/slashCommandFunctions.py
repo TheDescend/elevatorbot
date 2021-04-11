@@ -1,3 +1,5 @@
+import datetime
+
 import discord
 
 from discord_slash import SlashContext
@@ -52,5 +54,16 @@ async def get_destinyID_and_system(ctx: SlashContext, discord_user):
 
     return user, destinyID, system
 
+async def verify_time_input(ctx, input):
+    """ Verifies that the user input is a valid time and returns the datetime obj. Else returns False """
 
+    # make sure the times are valid
+    try:
+        return datetime.datetime.strptime(input, "%d/%m/%y")
+    except ValueError:
+        await ctx.send(embed=embed_message(
+            "Error",
+            "The time parameters must be in this format - `DD/MM/YY`"
+        ))
+        return False
 

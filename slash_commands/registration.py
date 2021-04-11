@@ -93,7 +93,7 @@ class RegistrationCommands(commands.Cog):
             create_option(
                 name="steamid",
                 description="Your Steam ID which you want to set",
-                option_type=4,
+                option_type=3,
                 required=True
             ),
             create_option(
@@ -105,7 +105,6 @@ class RegistrationCommands(commands.Cog):
         ]
     )
     async def _set(self, ctx: SlashContext, **kwargs):
-        # allow mystic himself
         user = await get_user_obj_admin(ctx, kwargs)
         if not user:
             return

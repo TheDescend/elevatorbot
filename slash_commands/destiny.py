@@ -1,29 +1,36 @@
 import json
 import datetime
+from collections import Counter
+
 import discord
 import asyncio
 import os
+import concurrent.futures
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 
 from discord.ext import commands
 from discord_slash import cog_ext, SlashContext
 from discord_slash.utils.manage_commands import create_option, create_choice
+from pyvis.network import Network
 
 from functions.authfunctions import getSpiderMaterials
 from functions.dataLoading import searchForItem, getStats, getArtifact, getCharacterGearAndPower, getInventoryBucket, \
     getProfile, getCharacterList, getAggregateStatsForChar, getPlayersPastActivities, getWeaponStats, getAllGear, \
-    updateDB, getDestinyName, getTriumphsJSON, getCharacterInfoList
+    updateDB, getDestinyName, getTriumphsJSON, getCharacterInfoList, getCharacterID, getClanMembers
 from functions.dataTransformation import getSeasonalChallengeInfo, getCharStats, getPlayerSeals, getIntStat
 from functions.database import lookupDestinyID, lookupSystem, lookupDiscordID, getToken, getForges, getLastActivity, \
-    getDestinyDefinition, getWeaponInfo, getPgcrActivity, getTopWeapons
+    getDestinyDefinition, getWeaponInfo, getPgcrActivity, getTopWeapons, getActivityHistory, getPgcrActivitiesUsersStats
 from functions.formating import embed_message
 from functions.miscFunctions import get_emoji, write_line
 from functions.network import getJSONfromURL
-from functions.slashCommandFunctions import get_user_obj, get_destinyID_and_system, get_user_obj_admin
+from functions.slashCommandFunctions import get_user_obj, get_destinyID_and_system, get_user_obj_admin, \
+    verify_time_input
 from static.config import GUILD_IDS, CLANID
 from static.dict import metricRaidCompletion, raidHashes
 from static.globals import titan_emoji_id, hunter_emoji_id, warlock_emoji_id, light_level_icon_emoji_id
+from static.slashCommandOptions import choices_mode
 
 
 class DestinyCommands(commands.Cog):
@@ -578,8 +585,204 @@ class DestinyCommands(commands.Cog):
         stat = await getIntStat(destinyID, kwargs["name"])
         await ctx.send(embed=embed_message(
             f"{user.display_name}'s Stat Info",
-            f"Your `kwargs['name']` stat is currently at **{stat}**"
+            f"Your `{kwargs['name']}` stat is currently at **{stat:,}**"
         ))
+
+
+class ClanActivitiesCommands(commands.Cog):
+    def __init__(self, client):
+        self.client = client
+
+        # edge_list = [person, size, size_desc, display_names, colors]
+        self.edge_list = []
+        self.ignore = []
+
+
+    @cog_ext.cog_slash(
+        name="clanactivities",
+        description="Shows information about who from the clan you play with how much",
+        options=[
+            create_option(
+                name="mode",
+                description="You can restrict the game mode",
+                option_type=3,
+                required=False,
+                choices=choices_mode
+            ),
+            create_option(
+                name="starttime",
+                description="Format: 'DD/MM/YY' - You can restrict the start-time (lower cutoff)",
+                option_type=3,
+                required=False
+            ),
+            create_option(
+                name="endtime",
+                description="Format: 'DD/MM/YY' - You can restrict the end-time (higher cutoff)",
+                option_type=3,
+                required=False
+            ),
+            create_option(
+                name="user",
+                description="The name of the user you want to look up",
+                option_type=6,
+                required=False
+            )
+        ]
+    )
+    async def _clanactivities(self, ctx: SlashContext, **kwargs):
+        user = await get_user_obj(ctx, kwargs)
+        _, orginal_user_destiny_id, system = await get_destinyID_and_system(ctx, user)
+        if not orginal_user_destiny_id:
+            return
+
+        # get params
+        mode = int(kwargs["mode"]) if "mode" in kwargs else 0
+        start_time = await verify_time_input(ctx, kwargs["starttime"]) if "starttime" in kwargs else datetime.datetime.min
+        if not start_time:
+            return
+        end_time = await verify_time_input(ctx, kwargs["endtime"]) if "endtime" in kwargs else datetime.datetime.now()
+        if not end_time:
+            return
+
+        # this might take a sec
+        await ctx.defer()
+
+        # get clanmembers
+        self.clan_members = await getClanMembers(self.client)
+        self.activities_from_user_who_got_looked_at = {}
+        self.friends = {}
+
+        result = await asyncio.gather(*[self._handle_members(destinyID, mode, start_time, end_time, user.display_name) for destinyID in self.clan_members])
+        for res in result:
+            if res is not None:
+                destinyID = res[0]
+
+                self.activities_from_user_who_got_looked_at[destinyID] = res[1]
+                self.friends[destinyID] = res[2]
+
+        data_temp = []
+        for destinyID in self.friends:
+            for friend in self.friends[destinyID]:
+                # data = [destinyID1, destinyID2, number of activities together]
+                data_temp.append([int(str(destinyID)[-9:]), int(str(friend)[-9:]), self.friends[destinyID][friend]])
+
+        data = np.array(data_temp)
+        del data_temp
+
+        # getting the display names, colors for users in discord, size of blob
+        await asyncio.gather(*[self._prep_data(destinyID, orginal_user_destiny_id) for destinyID in self.clan_members])
+
+        # building the network graph
+        net = Network()
+
+        # adding nodes
+        # edge_list = [person, size, size_desc, display_names, colors]
+        for edge_data in self.edge_list:
+            net.add_node(int(str(edge_data[0])[-9:]), value=edge_data[1], title=edge_data[2], label=edge_data[3], color=edge_data[4])
+
+        # adding edges with data = [user1, user2, number of activities together]
+        with concurrent.futures.ThreadPoolExecutor(os.cpu_count() * 5) as pool:
+            futurelist = [pool.submit(self._add_edge, net, edge) for edge in data]
+            for _ in concurrent.futures.as_completed(futurelist):
+                pass
+
+        net.barnes_hut(gravity=-200000, central_gravity=0.3, spring_length=200, spring_strength=0.005, damping=0.09, overlap=0)
+        net.show_buttons(filter_=["physics"])
+
+        # saving the file
+        title = user.display_name + ".html"
+        net.save_graph(title)
+
+        # letting user know it's done
+        await ctx.send(embed=embed_message(
+            f"{user.display_name}'s Friends",
+            f"Use the Link below to download your Network",
+            f"The file may load for a while, that's normal."
+        ))
+        # sending them the file
+        await ctx.channel.send(file=discord.File(title))
+
+        # delete file
+        os.remove(title)
+
+
+    async def _handle_members(self, destinyID, mode, start_time, end_time, name):
+        # getting the activities for the
+        result = await self._return_activities(destinyID, mode, start_time, end_time)
+        activities_from_user_who_got_looked_at = len(result[1])
+
+        # getting the friends from his activities
+        destinyIDs_friends = []
+        for ID in result[1]:
+            result = await self._return_friends(destinyID, ID)
+            destinyIDs_friends.extend(result)
+        friends = dict(Counter(destinyIDs_friends))
+
+        return [destinyID, activities_from_user_who_got_looked_at, friends]
+
+
+    async def _return_activities(self, destinyID, mode, start_time, end_time):
+        destinyID = int(destinyID)
+
+        # get all activities
+        activities = getActivityHistory(destinyID, mode=mode, start_time=start_time, end_time=end_time)
+
+        list_of_activities = []
+        for instanceID, _ in activities:
+            list_of_activities.append(instanceID)
+
+        return [destinyID, set(list_of_activities)]
+
+
+    async def _return_friends(self, destinyID, instanceID):
+        # waiting a bit so we don't get throttled by bungie
+        await asyncio.sleep(0.3)
+
+        # list in which the connections are saved
+        friends = []
+
+        # get instance id info
+        data = getPgcrActivitiesUsersStats(instanceID)
+        for player in data:
+            friendID = player[1]
+
+            # only look at clan members
+            if friendID in self.clan_members:
+                # doesn't make sense to add yourself
+                if friendID != destinyID:
+                    friends.append(friendID)
+
+        # sort and count friends
+        return friends
+
+
+    async def _prep_data(self, destinyID, orginal_user_destiny_id):
+        display_name = await self._get_display_name(destinyID)
+
+        size = self.activities_from_user_who_got_looked_at[destinyID] * 50
+        size_desc = str(self.activities_from_user_who_got_looked_at[destinyID]) + " Activities"
+
+        colors = "#850404" if orginal_user_destiny_id == destinyID else "#006aff"
+
+        # edge_list = [person, size, size_desc, display_names, colors]
+        self.edge_list.append([destinyID, size, size_desc, display_name, colors])
+
+
+    async def _get_display_name(self, destinyID):
+        display_name = (await getProfile(destinyID, 100))
+        return display_name["profile"]["data"]["userInfo"]["displayName"] if display_name else "Unknown Name"
+
+
+    def _add_edge(self, network, edge):
+        src = int(edge[0])
+        dst = int(edge[1])
+        value = int(edge[2])
+
+        # add the edge
+        try:
+            network.add_edge(dst, src, value=value, title=value, physics=True)
+        except Exception:
+            print("error adding node")
 
 
 class MysticCommands(commands.Cog):
@@ -1243,7 +1446,6 @@ class RankCommands(commands.Cog):
         return result_sort
 
 
-
 class WeaponCommands(commands.Cog):
     def __init__(self, client):
         self.client = client
@@ -1322,52 +1524,7 @@ class WeaponCommands(commands.Cog):
                 description="You can restrict the game mode where the weapon stats count",
                 option_type=3,
                 required=False,
-                choices=[
-                    create_choice(
-                        name="Everything (default value)",
-                        value="0"
-                    ),
-                    create_choice(
-                        name="Raids",
-                        value="4"
-                    ),
-                    create_choice(
-                        name="Dungeon",
-                        value="82"
-                    ),
-                    create_choice(
-                        name="Story (including stuff like Presage)",
-                        value="2"
-                    ),
-                    create_choice(
-                        name="Strike",
-                        value="3"
-                    ),
-                    create_choice(
-                        name="Nightfall",
-                        value="16"
-                    ),
-                    create_choice(
-                        name="Everything PvE",
-                        value="7"
-                    ),
-                    create_choice(
-                        name="Trials",
-                        value="84"
-                    ),
-                    create_choice(
-                        name="Iron Banner",
-                        value="19"
-                    ),
-                    create_choice(
-                        name="Everything PvP",
-                        value="5"
-                    ),
-                    create_choice(
-                        name="Gambit",
-                        value="63"
-                    ),
-                ]
+                choices=choices_mode
             ),
             create_option(
                 name="activityhash",
@@ -1390,7 +1547,7 @@ class WeaponCommands(commands.Cog):
             return
 
         # get other params
-        stat, graph, character_class, mode, activity_hash, starttime, endtime = self._compute_params(ctx, kwargs)
+        stat, graph, character_class, mode, activity_hash, starttime, endtime = await self._compute_params(ctx, kwargs)
         if not stat:
             return
 
@@ -1402,9 +1559,12 @@ class WeaponCommands(commands.Cog):
         if not weapon_name:
             return
 
+        # get the char class if that is asked for
+        charID = await getCharacterID(destinyID, character_class) if character_class else None
+
         # get all weapon infos
         kwargs = {
-            "characterID": character_class,
+            "characterID": charID,
             "mode": mode,
             "activityID": activity_hash,
             "start": starttime,
@@ -1547,6 +1707,7 @@ class WeaponCommands(commands.Cog):
             # delete file
             os.remove(title)
 
+
     @cog_ext.cog_slash(
         name="topweapons",
         description="Shows your top weapon ranking with in-depth customisation",
@@ -1614,52 +1775,7 @@ class WeaponCommands(commands.Cog):
                 description="You can restrict the game mode where the weapon stats count",
                 option_type=3,
                 required=False,
-                choices=[
-                    create_choice(
-                        name="Everything (default value)",
-                        value="0"
-                    ),
-                    create_choice(
-                        name="Raids",
-                        value="4"
-                    ),
-                    create_choice(
-                        name="Dungeon",
-                        value="82"
-                    ),
-                    create_choice(
-                        name="Story (including stuff like Presage)",
-                        value="2"
-                    ),
-                    create_choice(
-                        name="Strike",
-                        value="3"
-                    ),
-                    create_choice(
-                        name="Nightfall",
-                        value="16"
-                    ),
-                    create_choice(
-                        name="Everything PvE",
-                        value="7"
-                    ),
-                    create_choice(
-                        name="Trials",
-                        value="84"
-                    ),
-                    create_choice(
-                        name="Iron Banner",
-                        value="19"
-                    ),
-                    create_choice(
-                        name="Everything PvP",
-                        value="5"
-                    ),
-                    create_choice(
-                        name="Gambit",
-                        value="63"
-                    ),
-                ]
+                choices=choices_mode
             ),
             create_option(
                 name="activityhash",
@@ -1682,9 +1798,12 @@ class WeaponCommands(commands.Cog):
             return
 
         # get other params
-        stat, _, character_class, mode, activity_hash, starttime, endtime = self._compute_params(ctx, kwargs)
+        stat, _, character_class, mode, activity_hash, starttime, endtime = await self._compute_params(ctx, kwargs)
         if not stat:
             return
+
+        # this might take a sec
+        await ctx.defer()
 
         # get the real weapon name if that param is given
         weapon_name = None
@@ -1693,9 +1812,12 @@ class WeaponCommands(commands.Cog):
             if not weapon_name:
                 return
 
+        # get the char class if that is asked for
+        charID = await getCharacterID(destinyID, character_class) if character_class else None
+
         # get all weaponID infos
         kwargs = {
-            "characterID": character_class,
+            "characterID": charID,
             "mode": mode,
             "activityID": activity_hash,
             "start": starttime,
@@ -1770,21 +1892,31 @@ class WeaponCommands(commands.Cog):
         # set default values for the args
         stat = kwargs["stat"] if "stat" in kwargs else "kills"
         graph = bool(kwargs["graph"]) if "graph" in kwargs else False
-        character_class = kwargs["class"] if "class" in kwargs else None
-        mode = kwargs["mode"] if "mode" in kwargs else "0"
-        activity_hash = kwargs["activityhash"] if "activityhash" in kwargs else None
-
-        # make sure the times are valid
+        character_class = int(kwargs["class"]) if "class" in kwargs else None
+        mode = int(kwargs["mode"]) if "mode" in kwargs else 0
         try:
-            starttime = datetime.datetime.strptime(kwargs["starttime"], "%d/%m/%y") if "starttime" in kwargs else datetime.datetime.min
-            endtime = datetime.datetime.strptime(kwargs["endtime"], "%d/%m/%y") if "endtime" in kwargs else datetime.datetime.now()
+            activity_hash = int(kwargs["activityhash"]) if "activityhash" in kwargs else None
         except ValueError:
             await ctx.send(hidden=True, embed=embed_message(
                 "Error",
-                "The time parameters must be in this format - `DD/MM/YY`"
+                "The activityhash parameters must be an integer"
             ))
             return None, None, None, None, None, None, None
+
+        # make sure the times are valid
+        starttime = await verify_time_input(ctx, kwargs["starttime"]) if "starttime" in kwargs else datetime.datetime.min
+        if not starttime:
+            return None, None, None, None, None, None, None
+        endtime = await verify_time_input(ctx, kwargs["endtime"]) if "endtime" in kwargs else datetime.datetime.now()
+        if not endtime:
+            return None, None, None, None, None, None, None
+
         return stat, graph, character_class, mode, activity_hash, starttime, endtime
+
+
+class TournamentCommands(commands.Cog):
+    def __init__(self, client):
+        self.client = client
 
 
 def setup(client):
@@ -1792,4 +1924,5 @@ def setup(client):
     client.add_cog(MysticCommands(client))
     client.add_cog(RankCommands(client))
     client.add_cog(WeaponCommands(client))
-
+    client.add_cog(ClanActivitiesCommands(client))
+    client.add_cog(TournamentCommands(client))

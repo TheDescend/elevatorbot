@@ -17,7 +17,7 @@ from functions.network import getJSONfromURL
 
 # note: the ids later are formatted so wierd, because pyvis broke with them being 16 numbers or so. So I'm just shorting them in an ugly way that works
 
-# todo slashify
+# has been slashified
 # !friends <activity> *<user>
 class clanActivity(BaseCommand):
     activities = {

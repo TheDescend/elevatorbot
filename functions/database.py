@@ -780,6 +780,21 @@ def getPgcrActivity(instanceId):
         return result
 
 
+def getPgcrActivitiesUsersStats(instanceId):
+    """ Returns info on PgcrActivitiesUsersStats"""
+    select_sql = """
+        SELECT 
+            *
+        FROM 
+            PgcrActivitiesUsersStats
+        WHERE 
+            instanceId = %s;"""
+    with db_connect().cursor() as cur:
+        cur.execute(select_sql, (instanceId,))
+        result = cur.fetchall()
+        return result
+
+
 def insertPgcrActivitiesUsersStats(
     instanceId, membershipId, characterId, characterClass, characterLevel,
     membershipType, lightLevel, emblemHash, standing, assists, completed,
@@ -991,6 +1006,35 @@ def getForges(destinyID):
             AND t1.mode = 66;"""
     with db_connect().cursor() as cur:
         cur.execute(select_sql, (destinyID,))
+        result = cur.fetchall()
+        return result
+
+
+def getActivityHistory(destinyID, mode: int = None, activityHashes: list = None, start_time: datetime = datetime.min, end_time: datetime = datetime.now()):
+    """ Returns the activity history for destinyID as a list of tuples """
+    select_sql = f"""
+        SELECT 
+            t1.instanceId
+        FROM 
+            pgcractivities as t1
+        JOIN (
+            SELECT
+                instanceId, membershipid, completed, completionReason
+            FROM 
+                pgcrActivitiesUsersStats
+        ) as t2
+        ON 
+            t1.instanceId = t2.instanceId
+        WHERE 
+            t2.completed = 1
+            AND t2.completionReason = 0
+            AND t2.membershipId = %s
+            AND period >= %s 
+            AND period <= %s
+            {"AND t1.directorActivityHash IN (" + ",".join(['%s'] * len(activityHashes)) + ")" if activityHashes else ""}
+            {"AND t1.mode = " + str(mode) if mode else ""};"""
+    with db_connect().cursor() as cur:
+        cur.execute(select_sql, (destinyID, start_time, end_time))
         result = cur.fetchall()
         return result
 

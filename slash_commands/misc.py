@@ -145,7 +145,7 @@ class MiscCommands(commands.Cog):
         user = await get_user_obj(ctx, kwargs)
         await ctx.send(embed=embed_message(
             f"{user.display_name}'s Discord Join Date",
-            f'You joined at {user.joined_at.strftime("%d/%m/%Y, %H:%M")}'
+            f'You joined on `{user.joined_at.strftime("%d/%m/%Y, %H:%M")}`'
         ))
 
 
