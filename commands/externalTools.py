@@ -130,3 +130,25 @@ class TR(BaseCommand):
             'Trials Report',
             f'https://destinytrialsreport.com/report/{system}/{destinyID}'
         ))
+
+class SR(BaseCommand):
+    def __init__(self):
+        description = "Gets your personal soloreport link [under construction]"
+        topic = "Destiny"
+        params = []
+        super().__init__(description, params, topic)
+
+    async def handle(self, params, message, mentioned_user, client):
+        destinyID = lookupDestinyID(mentioned_user.id)
+        system = lookupSystem(destinyID)
+
+        if not (destinyID and system):
+            await message.channel.send(embed=embed_message(
+                'Error',
+                f'Problem getting your data, please `!registerdesc` to fix this'
+            ))
+
+        await message.channel.send(embed=embed_message(
+            'Solo Report',
+            f'https://elevatorbot.ch/soloreport/{system}/{destinyID}'
+        ))
