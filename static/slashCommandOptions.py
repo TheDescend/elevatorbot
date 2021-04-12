@@ -24,7 +24,7 @@ choices_mode = [
     ),
     create_choice(
         name="Nightfall",
-        value="16"
+        value="46"
     ),
     create_choice(
         name="Everything PvE",

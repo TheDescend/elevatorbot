@@ -307,7 +307,7 @@ async def getLastActivity(destinyID, mode, before=datetime.now()):
             period DESC
         LIMIT 1;"""
     async with pool.acquire() as connection:
-        res = await connection.fetchrow(select_sql, before, mode, destinyID)
+        res = await connection.fetchrow(select_sql, before, int(mode), destinyID)
 
     # prepare return as a dict
     result = {
@@ -581,7 +581,7 @@ async def getDestinyDefinition(definition_name: str, referenceId: int):
         WHERE 
             referenceId = $1;"""
     async with pool.acquire() as connection:
-        return await connection.fetchrow(select_sql, referenceId)
+        return await connection.fetchrow(select_sql, int(referenceId))
 
 
 async def getGrandmasterHashes():

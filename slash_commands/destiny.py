@@ -95,15 +95,15 @@ class DestinyCommands(commands.Cog):
 
         # adding nice lines to mark important events
         for dates in season_dates:
-            date = datetime.datetime.strptime(dates[0], '%d/%m/%Y')
+            date = datetime.datetime.strptime(dates[0], '%Y-%m-%d')
             ax.axvline(date, color="darkgreen")
             ax.text(date + datetime.timedelta(days=2), (max(data['players']) - min(data['players'])) * 1.02 + min(data['players']), dates[1], color="darkgreen", fontweight="bold", bbox=dict(facecolor='white', edgecolor='darkgreen', pad=4))
         for dates in other_dates:
-            date = datetime.datetime.strptime(dates[0], '%d/%m/%Y')
+            date = datetime.datetime.strptime(dates[0], '%Y-%m-%d')
             ax.axvline(date, color="mediumaquamarine")
             ax.text(date + datetime.timedelta(days=2), (max(data['players']) - min(data['players'])) * 0.95 + min(data['players']), dates[1], color="mediumaquamarine", bbox=dict(facecolor='white', edgecolor='mediumaquamarine', boxstyle='round'))
         for dates in other_dates_lower:
-            date = datetime.datetime.strptime(dates[0], '%d/%m/%Y')
+            date = datetime.datetime.strptime(dates[0], '%Y-%m-%d')
             ax.axvline(date, color="mediumaquamarine")
             ax.text(date + datetime.timedelta(days=2), (max(data['players']) - min(data['players'])) * 0.90 + min(data['players']), dates[1], color="mediumaquamarine", bbox=dict(facecolor='white', edgecolor='mediumaquamarine', boxstyle='round'))
 
@@ -127,48 +127,7 @@ class DestinyCommands(commands.Cog):
                 description="The type of the activity",
                 option_type=3,
                 required=True,
-                choices=[
-                    create_choice(
-                        name="Raids",
-                        value="4"
-                    ),
-                    create_choice(
-                        name="Dungeon",
-                        value="82"
-                    ),
-                    create_choice(
-                        name="Story (including stuff like Presage)",
-                        value="2"
-                    ),
-                    create_choice(
-                        name="Strike",
-                        value="3"
-                    ),
-                    create_choice(
-                        name="Nightfall",
-                        value="16"
-                    ),
-                    create_choice(
-                        name="Everything PvE",
-                        value="7"
-                    ),
-                    create_choice(
-                        name="Trials",
-                        value="84"
-                    ),
-                    create_choice(
-                        name="Iron Banner",
-                        value="19"
-                    ),
-                    create_choice(
-                        name="Everything PvP",
-                        value="5"
-                    ),
-                    create_choice(
-                        name="Gambit",
-                        value="63"
-                    ),
-                ]
+                choices=choices_mode
             ),
             create_option(
                 name="user",
@@ -1558,9 +1517,6 @@ class WeaponCommands(commands.Cog):
         if not stat:
             return
 
-        # might take a sec
-        await ctx.defer()
-
         # get weapon info
         weapon_name, weapon_hashes = await searchForItem(ctx, kwargs["weapon"])
         if not weapon_name:
@@ -1808,9 +1764,6 @@ class WeaponCommands(commands.Cog):
         stat, _, character_class, mode, activity_hash, starttime, endtime = await self._compute_params(ctx, kwargs)
         if not stat:
             return
-
-        # this might take a sec
-        await ctx.defer()
 
         # get the real weapon name if that param is given
         weapon_name = None

@@ -272,6 +272,9 @@ async def searchForItem(ctx, search_term):
         await ctx.send(f'Error: I do not know the weapon `{search_term}`', hidden=True)
         return None, None
 
+    # defer now that we know the weapon exists
+    await ctx.defer()
+
     # check if we found multiple items with different names. Ask user to specify which one is correct
     index = 0
     if len(data) > 1:
