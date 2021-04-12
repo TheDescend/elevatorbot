@@ -4,6 +4,7 @@
 
 > Using discord-py for the bot and flask for the webserver
 
+- requires python 3.9+
 - dependencies are in requirements.txt
 - for issues, check this github
 

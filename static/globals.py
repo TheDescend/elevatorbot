@@ -5,7 +5,6 @@ admin_role_id = 670383817147809814
 dev_role_id = 670397357120159776
 mod_role_id = 671261823584043040
 member_role_id = 769612980978843668
-guest_role_id = 670385220037509132
 registered_role_id = 670396064007979009
 not_registered_role_id = 670396109088358437
 clan_role_id = 670384239489056768
@@ -43,3 +42,29 @@ gta_emoji_id = 751020831382962247
 valorant_emoji_id = 751020830414209064
 lol_emoji_id = 756076309527920661
 eft_emoji_id = 800866459286503445
+
+warlock_emoji_id = 830747907488612402
+hunter_emoji_id = 830747907829006346
+titan_emoji_id = 830747907576823808
+light_level_icon_emoji_id = 830750430816108564
+
+
+""" Persistent Messages """
+other_game_roles = [
+    (among_us_emoji_id, among_us_role_id),
+    (barotrauma_emoji_id, barotrauma_role_id),
+    (gta_emoji_id, gta_role_id),
+    (valorant_emoji_id, valorant_role_id),
+    (lol_emoji_id, lol_role_id),
+    (eft_emoji_id, eft_role_id),
+]
+clan_join_request = [
+    destiny_emoji_id
+]
+tournament = [
+    destiny_emoji_id
+]
+
+
+# guild ids for testing purposes. If not in it, command can take up to an hour to load
+guild_ids = [280456587464933376, 669293365900214293, 768902336914391070, 724676552175910934, 556418279015448596, 697720309847162921]

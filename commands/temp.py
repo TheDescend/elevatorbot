@@ -13,6 +13,8 @@ from functions.persistentMessages import botStatus
 from functions.network import refresh_token
 from static.config import BUNGIE_OAUTH
 
+
+# todo: slashify when you can hide commands
 class getDay1Completions(BaseCommand):
     def __init__(self):
         # A quick description for the help message
@@ -52,18 +54,3 @@ class getDay1Completions(BaseCommand):
                     userlist.append(member.name)
         await message.channel.send(", ".join(userlist))
 
-
-class temp(BaseCommand):
-    def __init__(self):
-        # A quick description for the help message
-        description = "[dev]Register with bungie.net"
-        params = []
-        topic = "Registration"
-        super().__init__(description, params, topic)
-
-    # Override the handle() method
-    # It will be called every time the command is received
-    async def handle(self, params, message, mentioned_user, client):
-        a = TokenUpdater()
-        fails = await a.run(client)
-        await message.channel.send(f"Updating tokens failed for: {', '.join(fails)}")

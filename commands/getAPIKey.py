@@ -4,6 +4,7 @@ from commands.base_command import BaseCommand
 from functions.network import getFreshToken
 
 
+# todo: slashify when you can hide commands
 class getapikey(BaseCommand):
     def __init__(self):
         # A quick description for the help message

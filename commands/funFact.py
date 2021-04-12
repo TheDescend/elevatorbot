@@ -6,6 +6,7 @@ import discord
 from commands.base_command import BaseCommand
 
 
+# has been slashified
 class funFact(BaseCommand):
     def __init__(self):
         description = "Very fun fun facts just for fun"

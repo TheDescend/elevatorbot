@@ -2,6 +2,7 @@ from commands.base_command  import BaseCommand
 from functions.formating import embed_message
 
 
+# has been slashified
 class boosters(BaseCommand):
     def __init__(self):
         # A quick description for the help message
@@ -13,7 +14,7 @@ class boosters(BaseCommand):
     # It will be called every time the command is received
     async def handle(self, params, message, mentioned_user, client):
 
-        sorted_premium_subscribers = sorted(message.guild.premium_subscribers, key=lambda m:m.premium_since.strftime('%Y%m%d%H%M'), reverse=True)
+        sorted_premium_subscribers = sorted(message.guild.premium_subscribers, key=lambda m:m.premium_since.strftime('%d/%m/%Y, %H:%M'), reverse=True)
 
         embed = embed_message(
             f"{message.guild.name} Nitro Boosters",

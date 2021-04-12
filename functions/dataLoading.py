@@ -34,7 +34,7 @@ async def getTriumphsJSON(playerID):
 async def getCharacterList(destinyID):
     ''' returns a (system, [characterids]) tuple '''
     charURL = "https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/?components=100,200"
-    membershipType = lookupSystem(destinyID)
+    membershipType = await lookupSystem(destinyID)
     characterinfo = await getJSONfromURL(charURL.format(membershipType, destinyID))
     if characterinfo:
         return (membershipType, list(characterinfo['Response']['characters']['data'].keys()))
@@ -73,7 +73,7 @@ async def getCharacterInfoList(destinyID):
         }
     )
     """
-    membershipType = lookupSystem(destinyID)
+    membershipType = await lookupSystem(destinyID)
 
     # get char data
     charURL = f"https://stats.bungie.net/Platform/Destiny2/{membershipType}/Profile/{destinyID}/?components=200"
@@ -103,21 +103,21 @@ async def getCharacterInfoList(destinyID):
 async def getCharactertypeList(destinyID):
     ''' returns a [charID, type] tuple '''
     charURL = "https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/?components=100,200"
-    membershipType = lookupSystem(destinyID)
+    membershipType = await lookupSystem(destinyID)
     characterinfo = await getJSONfromURL(charURL.format(membershipType, destinyID))
     if characterinfo:
-        return [(char["characterId"], f"{racemap[char['raceHash']]} {gendermap[char['genderHash']]} {classmap[char['classHash']]}") for char in characterinfo['Response']['characters']['data'].values()]
+        return [(int(char["characterId"]), f"{racemap[char['raceHash']]} {gendermap[char['genderHash']]} {classmap[char['classHash']]}") for char in characterinfo['Response']['characters']['data'].values()]
     print(f'no account found for destinyID {destinyID}')
     return (None,[])
 
 
 async def getCharacterID(destinyID, classID):
-    ''' returns a charID '''
-    charIDs = (await getCharactertypeList(destinyID))[0]
-    membershipType = lookupSystem(destinyID)
+    ''' returns a charID for the specified class '''
+    charIDs = (await getCharactertypeList(destinyID))
+    membershipType = await lookupSystem(destinyID)
 
     charURL = "https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/Character/{}/?components=100,200"
-    for charID in charIDs:
+    for charID, _ in charIDs:
         characterinfo = await getJSONfromURL(charURL.format(membershipType, destinyID, charID))
         if characterinfo:
             if classID == characterinfo['Response']['character']['data']['classHash']:
@@ -193,11 +193,13 @@ async def getPlayersPastActivities(destinyID, mode : int = 7, earliest_allowed_t
 
 
 # https://bungie-net.github.io/multi/schema_Destiny-DestinyComponentType.html#schema_Destiny-DestinyComponentType
-async def getProfile(destinyID, *components, with_token=False):
+async def getProfile(destinyID, *components, with_token=False, membershipType=None):
     url = 'https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/?components={}'
-    membershipType = lookupSystem(destinyID)
+    if not membershipType:
+        membershipType = await lookupSystem(destinyID)
+
     if with_token:
-        statsResponse = await getJSONwithToken(url.format(membershipType, destinyID, ','.join(map(str, components))), lookupDiscordID(destinyID))
+        statsResponse = await getJSONwithToken(url.format(membershipType, destinyID, ','.join(map(str, components))), await lookupDiscordID(destinyID))
         if statsResponse["result"]:
             return statsResponse["result"]['Response']
 
@@ -208,9 +210,19 @@ async def getProfile(destinyID, *components, with_token=False):
     return None
 
 
+async def getDestinyName(destinyID, membershipType=None):
+    """ Returns a destinyIDs current user name"""
+
+    data = await getProfile(destinyID, 100, membershipType=membershipType)
+    if data:
+        return data["profile"]["data"]["userInfo"]["displayName"]
+    else:
+        return "Unkown Name"
+
+
 async def getStats(destinyID):
     url = 'https://stats.bungie.net/Platform/Destiny2/{}/Account/{}/Stats/'
-    membershipType = lookupSystem(destinyID)
+    membershipType = await lookupSystem(destinyID)
     statsResponse = await getJSONfromURL(url.format(membershipType, destinyID))
     if statsResponse:
         return statsResponse['Response']
@@ -236,7 +248,7 @@ async def getItemDefinition(destinyID, system, itemID, components):
 
 # gets the weapon (name, [hash1, hash2, ...]) for the search term for all weapons found
 # more than one weapon can be found if it got reissued
-async def searchForItem(client, message, search_term):
+async def searchForItem(ctx, search_term):
     # search for the weapon in the api
     info = await getJSONfromURL(f'http://www.bungie.net/Platform/Destiny2/Armory/Search/DestinyInventoryItemDefinition/{search_term}/')
     data = {}
@@ -257,11 +269,11 @@ async def searchForItem(client, message, search_term):
 
     # if no weapon was found
     except KeyError:
-        await message.reply(embed=embed_message(
-            "Error",
-            f'I do not know the weapon "{search_term}"'
-        ))
+        await ctx.send(f'Error: I do not know the weapon `{search_term}`', hidden=True)
         return None, None
+
+    # defer now that we know the weapon exists
+    await ctx.defer()
 
     # check if we found multiple items with different names. Ask user to specify which one is correct
     index = 0
@@ -272,26 +284,25 @@ async def searchForItem(client, message, search_term):
         for name in data.keys():
             text += f"\n**{i}** - {name}"
             i += 1
-        msg = await message.reply(embed=embed_message(
-            f'{message.author.display_name}, I need one more thing',
+        msg = await ctx.channel.send(embed=embed_message(
+            f'{ctx.author.display_name}, I need one more thing',
             text
         ))
 
         # to check whether or not the one that send the msg is the original author for the function after this
         def check(answer_msg):
-            return answer_msg.author == message.author and answer_msg.channel == message.channel
+            return answer_msg.author == ctx.author and answer_msg.channel == ctx.channel
 
         # wait for reply from original user to set the time parameters
         try:
-            answer_msg = await client.wait_for('message', timeout=60.0, check=check)
+            answer_msg = await ctx.bot.wait_for('message', timeout=60.0, check=check)
 
         # if user is too slow, let him know
         except asyncio.TimeoutError:
-            await msg.edit(embed=embed_message(
-                f'Sorry {message.author.display_name}',
+            await ctx.send(embed=embed_message(
+                f'Sorry {ctx.author.display_name}',
                 f'You took to long to answer my question, please start over'
             ))
-            await asyncio.sleep(60)
             await msg.delete()
             return None, None
 
@@ -307,13 +318,12 @@ async def searchForItem(client, message, search_term):
                 await msg.delete()
                 await answer_msg.delete()
             except ValueError:
-                await msg.edit(embed=embed_message(
-                    f'Sorry {message.author.display_name}',
-                    f'{answer_msg.content} is not a valid number. Please start over'
-                ))
-                await asyncio.sleep(60)
                 await msg.delete()
                 await answer_msg.delete()
+                await ctx.send(embed=embed_message(
+                    f'Sorry {ctx.author.display_name}',
+                    f'{answer_msg.content} is not a valid number. Please start over'
+                ))
                 return None, None
 
     name = list(data.keys())[index]
@@ -402,9 +412,9 @@ async def getWeaponStats(destinyID, weaponIDs: list, characterID=None, mode=0):
     result = []
     for weaponID in weaponIDs:
         if characterID:
-            result.extend(getWeaponInfo(destinyID, weaponID, characterID=characterID, mode=mode))
+            result.extend(await getWeaponInfo(destinyID, weaponID, characterID=characterID, mode=mode))
         else:
-            result.extend(getWeaponInfo(destinyID, weaponID, mode=mode))
+            result.extend(await getWeaponInfo(destinyID, weaponID, mode=mode))
 
     # add stats
     kills = 0
@@ -638,7 +648,7 @@ async def updateManifest():
 
 async def insertPgcrToDB(instanceID: int, activity_time: datetime, pcgr: dict):
     """ Saves the specified PGCR data in the DB """
-    insertPgcrActivities(
+    await insertPgcrActivities(
         instanceID,
         pcgr["activityDetails"]["referenceId"],
         pcgr["activityDetails"]["directorActivityHash"],
@@ -655,7 +665,7 @@ async def insertPgcrToDB(instanceID: int, activity_time: datetime, pcgr: dict):
         characterID = user_pcgr["characterId"]
         membershipID = user_pcgr["player"]["destinyUserInfo"]["membershipId"]
 
-        insertPgcrActivitiesUsersStats(
+        await insertPgcrActivitiesUsersStats(
             instanceID,
             membershipID,
             characterID,
@@ -690,7 +700,7 @@ async def insertPgcrToDB(instanceID: int, activity_time: datetime, pcgr: dict):
         # loop though each weapon and save that info in the DB
         if "weapons" in user_pcgr["extended"]:
             for weapon_user_pcgr in user_pcgr["extended"]["weapons"]:
-                insertPgcrActivitiesUsersStatsWeapons(
+                await insertPgcrActivitiesUsersStatsWeapons(
                     instanceID,
                     characterID,
                     membershipID,
@@ -707,7 +717,7 @@ async def updateDB(destinyID):
         pcgr = await getPGCR(instanceID)
         if not pcgr:
             print('Failed getting pcgr <%s>. Trying again later', instanceID)
-            insertFailToGetPgcrInstanceId(instanceID, activity_time)
+            await insertFailToGetPgcrInstanceId(instanceID, activity_time)
             logger.warning('Failed getting pcgr <%s>', instanceID)
             return None
         return [instanceID, activity_time, pcgr["Response"]]
@@ -727,7 +737,7 @@ async def updateDB(destinyID):
                 #print(f'inserted instance {instanceID}')
 
     logger = logging.getLogger('updateDB')
-    entry_time = getLastUpdated(destinyID)
+    entry_time = await getLastUpdated(destinyID)
 
     logger.info('Starting activity DB update for destinyID <%s>', destinyID)
 
@@ -742,7 +752,7 @@ async def updateDB(destinyID):
             entry_time = activity_time
 
         # check if info is already in DB, skip if so
-        if getPgcrActivity(instanceID):
+        if await getPgcrActivity(instanceID):
             continue
 
         # add to gather list
@@ -766,7 +776,7 @@ async def updateDB(destinyID):
         await input_data(gather_instanceID, gather_activity_time)
 
     # update with newest entry timestamp
-    updateLastUpdated(destinyID, entry_time)
+    await updateLastUpdated(destinyID, entry_time)
 
     logger.info('Done with activity DB update for destinyID <%s>', destinyID)
 
@@ -775,13 +785,13 @@ async def updateMissingPcgr():
     # this gets called after a lot of requests, relaxing bungie first
     await asyncio.sleep(30)
 
-    for missing in getFailToGetPgcrInstanceId():
+    for missing in await getFailToGetPgcrInstanceId():
         instanceID = missing[0]
         activity_time = missing[1]
 
         # check if info is already in DB, delete and skip if so
-        if getPgcrActivity(instanceID):
-            deleteFailToGetPgcrInstanceId(instanceID)
+        if await getPgcrActivity(instanceID):
+            await deleteFailToGetPgcrInstanceId(instanceID)
             continue
 
         # get PGCR
@@ -796,7 +806,7 @@ async def updateMissingPcgr():
         await insertPgcrToDB(instanceID, activity_time, pcgr)
 
         # delete from to-do DB
-        deleteFailToGetPgcrInstanceId(instanceID)
+        await deleteFailToGetPgcrInstanceId(instanceID)
 
 
 async def getClanMembers(client):
@@ -805,7 +815,7 @@ async def getClanMembers(client):
     for member in (await getJSONfromURL(f"https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/"))["Response"][
         "results"]:
         destinyID = int(member["destinyUserInfo"]["membershipId"])
-        discordID = lookupDiscordID(destinyID)
+        discordID = await lookupDiscordID(destinyID)
         if discordID is not None:
             memberlist.update({destinyID: discordID})
 

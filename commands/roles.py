@@ -1,7 +1,7 @@
 from commands.base_command import BaseCommand
 from events.backgroundTasks import updateActivityDB
 from functions.dataLoading import updateDB
-from functions.database import lookupDestinyID, getLastRaid, getFlawlessList
+from functions.database import lookupDestinyID, getLastActivity, getFlawlessList
 from functions.formating import embed_message
 from functions.miscFunctions import hasMentionPermission, hasAdminOrDevPermissions
 from functions.roleLookup import getPlayerRoles, assignRolesToUser, removeRolesFromUser, hasRole
@@ -9,6 +9,7 @@ from static.dict import requirementHashes
 from static.globals import dev_role_id
 
 
+# has been slashified
 class roles(BaseCommand):
     def __init__(self):
         # A quick description for the help message
@@ -109,7 +110,7 @@ class roles(BaseCommand):
 
         return roles, deprecated_roles
 
-
+# has been slashified
 class getRoles(BaseCommand):
     def __init__(self):
         # A quick description for the help message
@@ -223,7 +224,7 @@ class getRoles(BaseCommand):
                 mention_author=True
             )
 
-
+# has been slashified
 class lastRaid(BaseCommand):
     def __init__(self):
         # A quick description for the help message
@@ -238,9 +239,10 @@ class lastRaid(BaseCommand):
     async def handle(self, params, message, mentioned_user, client):
         destinyID = lookupDestinyID(mentioned_user.id)
         await updateDB(destinyID)
-        await message.channel.send(getLastRaid(destinyID))
+        await message.channel.send(getLastActivity(destinyID, mode=4))
 
 
+# todo: slashify when you can hide commands
 class flawlesses(BaseCommand):
     def __init__(self):
         # A quick description for the help message
@@ -256,9 +258,10 @@ class flawlesses(BaseCommand):
         async with message.channel.typing():
             destinyID = lookupDestinyID(mentioned_user.id)
             await updateDB(destinyID)
-            await message.channel.send(getFlawlessList(destinyID))
+            await message.channel.send(await getFlawlessList(destinyID))
 
 
+# todo: slashify when you can hide commands
 class removeAllRoles(BaseCommand):
     def __init__(self):
         # A quick description for the help message
@@ -281,6 +284,7 @@ class removeAllRoles(BaseCommand):
         await removeRolesFromUser(roles, mentioned_user, message.guild, reason="Role Update")
 
 
+# todo: slashify when you can hide commands
 class assignAllRoles(BaseCommand):
     def __init__(self):
         # A quick description for the help message
@@ -322,7 +326,7 @@ class assignAllRoles(BaseCommand):
 
         #await message.channel.send('All roles assigned')
 
-
+# has been slashified
 class roleRequirements(BaseCommand):
     def __init__(self):
         # A quick description for the help message

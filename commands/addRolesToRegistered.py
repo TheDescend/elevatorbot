@@ -10,6 +10,7 @@ from static.globals import registered_role_id, not_registered_role_id, member_ro
 import discord
 
 
+# todo: slashify when you can hide commands
 class addRolesToRegistered(BaseCommand):
     def __init__(self):
         # A quick description for the help message
@@ -48,6 +49,7 @@ class addRolesToRegistered(BaseCommand):
         await message.channel.send(f"**NOT** registered:\n {','.join(notregisteredlist)}")
 
 
+# todo: slashify when you can hide commands
 class whoIsNotRegistered(BaseCommand):
     def __init__(self):
         # A quick description for the help message
@@ -67,6 +69,7 @@ class whoIsNotRegistered(BaseCommand):
         await message.channel.send(", ".join(people))
 
 
+# todo: slashify when you can hide commands
 class findNaughtyClanMembers(BaseCommand):
     def __init__(self):
         # A quick description for the help message
@@ -83,8 +86,6 @@ class findNaughtyClanMembers(BaseCommand):
         for member in (await getJSONfromURL(f"https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/"))["Response"]["results"]:
             destinyID = int(member["destinyUserInfo"]["membershipId"])
             memberlist.append(destinyID)
-
-        rules = discord.utils.get(message.guild.roles, id=member_role_id)
 
         not_in_discord_or_registered = []       # list of destinyID
         no_token = []                           # list of guild.member.mention
@@ -107,7 +108,7 @@ class findNaughtyClanMembers(BaseCommand):
                 no_token.append(member.mention)
 
             # check if accepted rules
-            if rules not in member.roles:
+            if member.pending:
                 not_accepted_rules.append(member.mention)
 
         if not_in_discord_or_registered:

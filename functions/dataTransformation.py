@@ -118,8 +118,8 @@ async def getGunsForPeriod(destinyID, pStart, pEnd):
         if 'period' not in pve.keys():
             continue
         period = datetime.strptime(pve['period'], "%Y-%m-%dT%H:%M:%SZ")
-        pS = datetime.strptime(pStart, "%Y-%m-%d")
-        pE = datetime.strptime(pEnd, "%Y-%m-%d")
+        pS = datetime.strptime(pStart, "%d/%m/%Y")
+        pE = datetime.strptime(pEnd, "%d/%m/%Y")
 
         if pS < period < pE:
             result = await getPGCR(pve['activityDetails']['instanceId'])
@@ -196,7 +196,7 @@ async def getTop10PveGuns(destinyID):
 async def getPlayerSeals(destinyID):
     """ returns all the seals and the seals a player has. returns total_seals: list, [[referenceId, titleName], ...]. removes wip seals like WF LW """
 
-    seals = getSeals()
+    seals = await getSeals()
     completed_seals = []
     for seal in seals:
         if await hasTriumph(destinyID, seal[0]):

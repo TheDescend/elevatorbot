@@ -8,7 +8,7 @@ import pandas as pd
 from commands.base_command import BaseCommand
 
 
-# !poptimeline
+# has been slashified
 class poptimeline(BaseCommand):
     def __init__(self):
         description = f'Shows the steam d2 population timeline'
@@ -62,15 +62,15 @@ class poptimeline(BaseCommand):
 
         # adding nice lines to mark important events
         for dates in season_dates:
-            date = datetime.datetime.strptime(dates[0], '%Y-%m-%d')
+            date = datetime.datetime.strptime(dates[0], '%d/%m/%y')
             ax.axvline(date, color="darkgreen")
             ax.text(date + datetime.timedelta(days=2), (max(data['players']) - min(data['players'])) * 1.02 + min(data['players']), dates[1], color="darkgreen", fontweight="bold", bbox=dict(facecolor='white', edgecolor='darkgreen', pad=4))
         for dates in other_dates:
-            date = datetime.datetime.strptime(dates[0], '%Y-%m-%d')
+            date = datetime.datetime.strptime(dates[0], '%d/%m/%y')
             ax.axvline(date, color="mediumaquamarine")
             ax.text(date + datetime.timedelta(days=2), (max(data['players']) - min(data['players'])) * 0.95 + min(data['players']), dates[1], color="mediumaquamarine", bbox=dict(facecolor='white', edgecolor='mediumaquamarine', boxstyle='round'))
         for dates in other_dates_lower:
-            date = datetime.datetime.strptime(dates[0], '%Y-%m-%d')
+            date = datetime.datetime.strptime(dates[0], '%d/%m/%y')
             ax.axvline(date, color="mediumaquamarine")
             ax.text(date + datetime.timedelta(days=2), (max(data['players']) - min(data['players'])) * 0.90 + min(data['players']), dates[1], color="mediumaquamarine", bbox=dict(facecolor='white', edgecolor='mediumaquamarine', boxstyle='round'))
 

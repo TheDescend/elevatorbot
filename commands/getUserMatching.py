@@ -4,6 +4,7 @@ from functions.database import lookupDiscordID, lookupDestinyID
 from static.dict import clanids
 
 
+# todo: slashify when you can hide commands
 class getUserMatching(BaseCommand):
     def __init__(self):
         # A quick description for the help message
@@ -58,6 +59,7 @@ class getUserMatching(BaseCommand):
                 await message.channel.send('No unsuccessful matches <:PogU:670369128237760522>')
 
 
+# todo: slashify when you can hide commands
 class checkNames(BaseCommand):
     def __init__(self):
         # A quick description for the help message
@@ -78,6 +80,7 @@ class checkNames(BaseCommand):
         await message.channel.send(messagetext)
 
 
+# todo: slashify when you can hide commands
 class checkNewbies(BaseCommand):
     def __init__(self):
         # A quick description for the help message

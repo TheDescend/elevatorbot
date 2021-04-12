@@ -10,6 +10,7 @@ import json
 def names(userdict, client):
     return ', '.join(map(lambda p:c.name if (c:=client.get_user(p['id'])) else 'user gone', userdict))
 
+# has been slashified
 #angessi,Neria,Lordopott,Meg,Stian,Tøm ♡
 class mysticadd(BaseCommand):
     def __init__(self):
@@ -39,7 +40,7 @@ class mysticadd(BaseCommand):
             json.dump(players, mlist)
         await message.channel.send(f"Added {mentioned_user.name} to the mysticlist, it now has {names(players, client)}")
 
-
+# has been slashified
 class mysticremove(BaseCommand):
     def __init__(self):
         # A quick description for the help message
@@ -71,7 +72,7 @@ class mysticremove(BaseCommand):
         
         await message.channel.send(f"User {mentioned_user.name} no found in the playerlist: \n{names(playerlist, client)}")
 
-
+# has been slashified
 class mystic(BaseCommand):
     def __init__(self):
         # A quick description for the help message

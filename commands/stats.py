@@ -11,7 +11,7 @@ from functions.database import lookupDestinyID, lookupSystem
 from functions.formating import embed_message
 from static.globals import dev_role_id
 
-
+# has been slashified
 class stat(BaseCommand):
     def __init__(self):
         # A quick description for the help message
@@ -44,17 +44,7 @@ class stat(BaseCommand):
         elif name == 'longrangekill':
             snips = await getIntStat(destinyID, 'longestKillDistance')
             await message.channel.send(f'{mentioned_user.mention}, you sniped an enemy as far as **{snips}** meters away <:Kapp:670369121808154645>')
-        elif name == 'top10pveguns':
-            async with message.channel.typing():
-                imgpath = await getTop10PveGuns(destinyID)
-                with open(imgpath, 'rb') as f:
-                    await message.channel.send(f'{mentioned_user.mention}, here are your top10 guns used in raids', file=discord.File(f))
-                os.remove(imgpath)
-        elif name == 'pve': #starttime endtime
-            start = params[1]
-            end = params[2]
-            await message.channel.send(await getGunsForPeriod(destinyID, start, end))
-            #"2020-03-31"
+
         elif name == 'deaths':
             stats = []
             for charid, chardesc in await getCharactertypeList(destinyID):
@@ -80,7 +70,7 @@ class stat(BaseCommand):
         else:
             await message.channel.send('Use !stat help for a list of commands :)')
 
-
+# has been slashified
 class me(BaseCommand):
     def __init__(self):
         # A quick description for the help message

@@ -14,8 +14,8 @@ from functions.database import (getRefreshToken, getToken, getTokenExpiry,
 bungieAPI_URL = "https://www.bungie.net/Platform"
 headers = {'X-API-Key': BUNGIE_TOKEN}
 
-class ConnectionProvider:
 
+class ConnectionProvider:
     def __init__(self):
         self.bungieSession = None
         self.otherSession = None
@@ -111,11 +111,11 @@ async def refresh_token(discordID):
         'content-type': 'application/x-www-form-urlencoded',
         'authorization': 'Basic ' + str(B64_SECRET)
     }
-    refresh_token = getRefreshToken(discordID)
+    refresh_token = await getRefreshToken(discordID)
     if not refresh_token:
         return None
 
-    destinyID = lookupDestinyID(discordID)
+    destinyID = await lookupDestinyID(discordID)
 
     data = {"grant_type":"refresh_token", "refresh_token": str(refresh_token)}
 
@@ -129,7 +129,7 @@ async def refresh_token(discordID):
                     refresh_token = data['refresh_token']
                     token_expiry = t + data['expires_in']
                     refresh_token_expiry = t + data['refresh_expires_in']
-                    updateToken(destinyID, discordID, access_token, refresh_token, token_expiry, refresh_token_expiry)
+                    await updateToken(destinyID, discordID, access_token, refresh_token, token_expiry, refresh_token_expiry)
                     return access_token
                 else:
                     if data["error_description"] == "ApplicationTokenKeyIdDoesNotExist":
@@ -309,7 +309,7 @@ async def errorCodeHandling(requestURL, r, res):
     return False
 
 async def handleAndReturnToken(discordID):
-    token = getToken(discordID)
+    token = await getToken(discordID)
     if not token:
         print(f'Token not found for discordID {discordID}')
         return {
@@ -318,7 +318,7 @@ async def handleAndReturnToken(discordID):
         }
 
     # refresh token if expired
-    expiry = getTokenExpiry(discordID)
+    expiry = await getTokenExpiry(discordID)
     if not expiry:
         print(f'Expiry Dates not found for discordID {discordID}, refreshing tokens')
         return {
@@ -330,7 +330,7 @@ async def handleAndReturnToken(discordID):
 
     # check refresh token first, since they need to re-register otherwise
     if t > expiry[1]:
-        print(f'Expiry Dates for refreshed token passed ({datetime.fromtimestamp(expiry[1]).strftime("%Y-%m-%d")}) for discordID {discordID}. Needs to re-register')
+        print(f'Expiry Dates for refreshed token passed ({datetime.fromtimestamp(expiry[1]).strftime("%d/%m/%Y")}) for discordID {discordID}. Needs to re-register')
         return {
             'result': None,
             'error': 'Registration is outdated, please re-register using `!registerdesc`'
@@ -338,7 +338,7 @@ async def handleAndReturnToken(discordID):
 
     # refresh token if outdated
     elif t > expiry[0]:
-        print(f'Refreshing token for discordID {discordID}, expired  ({datetime.fromtimestamp(expiry[0]).strftime("%Y-%m-%d")})')
+        print(f'Refreshing token for discordID {discordID}, expired  ({datetime.fromtimestamp(expiry[0]).strftime("%d/%m/%Y")})')
         token = await getFreshToken(discordID)
         if not token:
 

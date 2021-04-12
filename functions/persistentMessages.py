@@ -1,136 +1,132 @@
 import discord
 import datetime
 
-from functions.bounties.bountiesFunctions import getGlobalVar, saveAsGlobalVar
-from functions.database import getPersistentMessage, updatePersistentMessage, insertPersistentMessage, \
-    getallSteamJoinIDs
+from functions.clanJoinRequests import clanJoinRequestMessageReactions
+from functions.database import getPersistentMessage, insertPersistentMessage, \
+    getallSteamJoinIDs, updatePersistentMessage, getAllPersistentMessages, deletePersistentMessage, getToken
 from functions.formating import embed_message
-# writes the message the user will see and react to and saves the id in the pickle
-from static.globals import yes_emoji_id, destiny_emoji_id, among_us_emoji_id, barotrauma_emoji_id, gta_emoji_id, \
-    valorant_emoji_id, lol_emoji_id, steam_join_codes_channel_id, admin_workboard_channel_id, eft_emoji_id, eft_role_id
+from static.globals import among_us_emoji_id, barotrauma_emoji_id, gta_emoji_id, valorant_emoji_id, lol_emoji_id, \
+    eft_emoji_id, among_us_role_id, barotrauma_role_id, gta_role_id, valorant_role_id, lol_role_id, eft_role_id, \
+    other_game_roles
 
 
-# todo change this to the new format
-async def persistentChannelMessages(client):
-    file = getGlobalVar()
+async def get_persistent_message(client, message_name, guild_id):
+    """
+    Gets the persisten message for the specified name and guild and channel. If it doesnt exist, it will return False
+    Returns message obj or False
+    """
 
-    for guild in client.guilds:
-        if guild.id == file["guild_id"]:
-            # the read rules feature
-            if "read_rules_channel" in file:
-                if "read_rules_channel_message_id" not in file:
-                    channel = discord.utils.get(guild.channels, id=file["read_rules_channel"])
+    res = await getPersistentMessage(message_name, guild_id)
 
-                    msg = await channel.send(embed=embed_message(
-                        "Access The Server",
-                        "If you have read the information above and **Agree** to the rules, please react accordingly"
-                    ))
-                    join = client.get_emoji(yes_emoji_id)
-                    await msg.add_reaction(join)
+    # check if msg exist
+    if not res:
+        return False
 
-                    saveAsGlobalVar("read_rules_channel_message_id", msg.id)
+    # otherwise return message. Return False should botStatus be asked for on other servers then descend
+    channel = client.get_channel(res[0])
+    if not channel:
+        return False
+    return await channel.fetch_message(res[1])
 
-            # the clan join request feature
-            if "clan_join_request_channel" in file:
-                if "clan_join_request_channel_message_id" not in file:
-                    channel = discord.utils.get(guild.channels, id=file["clan_join_request_channel"])
 
-                    # send register msg and save the id
-                    msg = await channel.send(embed=embed_message(
-                        f'Clan Application',
-                        f'React if you want to join the clan'
-                    ))
+async def make_persistent_message(client, message_name, guild_id, channel_id, reaction_id_list=None, message_text=None, message_embed=None):
+    """
+    Creates a new persistent message entry in the DB or changes the old one
+    Returns message obj
+    """
 
-                    join = client.get_emoji(destiny_emoji_id)
-                    await msg.add_reaction(join)
+    if reaction_id_list is None:
+        reaction_id_list = []
+    assert (not message_text and not message_embed, "Need to input either text or embed")
+    assert (message_text and message_embed, "Need to input either text or embed, not both")
 
-                    saveAsGlobalVar("clan_join_request_channel_message_id", msg.id)
+    # make new message
+    channel = client.get_channel(channel_id)
+    if message_text:
+        message = await channel.send(message_text)
+    else:
+        message = await channel.send(embed=message_embed)
 
-            # the other games role channel message
-            if "other_game_roles_channel" in file:
-                if "other_game_roles_channel_message_id" not in file:
-                    channel = discord.utils.get(guild.channels, id=file["other_game_roles_channel"])
+    # react if wanted
+    for emoji_id in reaction_id_list:
+        emoji = client.get_emoji(emoji_id)
+        await message.add_reaction(emoji)
 
-                    # send register msg and save the id
-                    msg = await channel.send(embed=embed_message(
-                        f'Other Game Roles',
-                        f'React to add / remove other game roles'
-                    ))
+    # save msg in DB
+    # check if msg exists
+    res = await getPersistentMessage(message_name, guild_id)
 
-                    among_us = client.get_emoji(among_us_emoji_id)
-                    barotrauma = client.get_emoji(barotrauma_emoji_id)
-                    gta = client.get_emoji(gta_emoji_id)
-                    valorant = client.get_emoji(valorant_emoji_id)
-                    lol = client.get_emoji(lol_emoji_id)
-                    eft = client.get_emoji(eft_emoji_id)
+    # update
+    if res:
+        # delete old msg
+        channel = client.get_channel(res[0])
+        old_message = await channel.fetch_message(res[1])
+        await old_message.delete()
 
-                    await msg.add_reaction(among_us)
-                    await msg.add_reaction(barotrauma)
-                    await msg.add_reaction(gta)
-                    await msg.add_reaction(valorant)
-                    await msg.add_reaction(lol)
-                    await msg.add_reaction(eft)
+        await updatePersistentMessage(message_name, guild_id, channel_id, message.id, reaction_id_list)
 
-                    saveAsGlobalVar("other_game_roles_channel_message_id", msg.id)
+    # insert
+    else:
+        await insertPersistentMessage(message_name, guild_id, channel_id, message.id, reaction_id_list)
 
-            # put message in #register channel if there is none
-            if "register_channel" in file:
-                if "register_channel_message_id" not in file:
-                    channel = discord.utils.get(guild.channels, id=file["register_channel"])
+    return message
 
-                    # send welcome and info message
-                    await channel.send(
-f"""Welcome the the **Bounty Goblins**!
-⁣
-After you register to this truly **remarkable** program, you will be assigned an experience level and given a bunch of bounties you can complete at your leisure.
-⁣
-**Normal bounties** can be completed once and award you the shown points.
-**Competitive bounties** are meant to be a competition between all participants and reward a lot of points, but only one player can win. If there are any ties, both parties will of course get the points.
-⁣
-Your experience level determines which normal bounties you can complete. That way we can have easier bounties for new players compared to veterans. 
-```
-+-----------------------------------------------------------+
-|            Requirements for Experienced Players           |
-+--------------------+---------------------+----------------+
-|        Raids       |         PvE         |       PvP      |
-+--------------------+---------------------+----------------+
-|   35 total clears  | 500h total Playtime | K/D above 1.11 |
-| Every raid cleared |                     |                |
-+--------------------+---------------------+----------------+```
-"""
-                    )
-                    await channel.send(
-f"""There are a bunch of commands which will give you more thorough information than visible in the channels:
-⁣
-__Commands:__
-`!leaderboard <category>` - Prints various leaderboards.
-`!experienceLevel` - Updates and DMs you your experience levels. 
-`!bounties` - DMs you an overview of you current bounties and their status.
-⁣
-The bounties change every monday at midnight and will get displayed in their respective channels. You can also sign up to get notified when that happened.
-⁣
-And lastly, if you have any general suggestions or ideas for new bounties, contact <@!238388130581839872>
-⁣
-⁣
-"""
-                    )
 
-                    # send register msg and save the id
-                    msg = await channel.send(embed=embed_message(
-                        f'Registration',
-                        f'If you want to register to the **Bounty Goblins**, react with <:desc_bungie:754928322403631216>  \n\n If you want to receive a notification whenever new bounties are available, react with <:elevator_ping:754946724237148220>'
-                    ))
-                    register = client.get_emoji(754928322403631216)
-                    await msg.add_reaction(register)
-                    notification = client.get_emoji(754946724237148220)
-                    await msg.add_reaction(notification)
-                    saveAsGlobalVar("register_channel_message_id", msg.id)
+async def delete_persistent_message(message, message_name, guild_id):
+    """ Delete the persisten message for the specified name and guild """
 
+    await message.delete()
+    await deletePersistentMessage(message_name, guild_id)
+
+
+async def check_reaction_for_persistent_message(client, payload):
+    # get all persistent messages
+    persistent_messages = await getAllPersistentMessages()
+
+    # loop through the msgs and check if reaction was on in
+    for persistent_message in persistent_messages:
+        persistent_message_id = persistent_message[3]
+
+        # if it was, handle it
+        if payload.message_id == persistent_message_id:
+            await handle_persistent_message_reaction(client, payload, persistent_message)
+
+
+async def handle_persistent_message_reaction(client, payload, persistent_message):
+    message_name = persistent_message[0]
+    guild_id = persistent_message[1]
+    channel_id = persistent_message[2]
+    message_id = persistent_message[3]
+    reactions_id_list = persistent_message[4]
+
+    channel = client.get_channel(channel_id)
+    message = await channel.fetch_message(message_id)
+
+    # check if the reactions are ok, else remove them. Only do that when set reactions exist tho
+    if reactions_id_list and payload.emoji.id not in reactions_id_list:
+        await message.remove_reaction(payload.emoji, payload.member)
+        return
+
+    # handling depends on the type of message, so if statement incoming
+    if message_name == "otherGameRoles":
+        await otherGameRolesMessageReactions(payload.member, payload.emoji, channel_id, message_id)
+
+    elif message_name == "clanJoinRequest":
+        await clanJoinRequestMessageReactions(client, payload.member, payload.emoji, channel_id, message_id)
+
+    # only allow registered users to participate
+    elif message_name == "tournament":
+        if not await getToken(payload.member.id):
+            await message.remove_reaction(payload.emoji, payload.member)
+            await payload.member.send(embed=embed_message(
+                "Error",
+                "You need to register first before you can join a tournament. \nTo do that please use `/registerdesc` in <#670401854496309268>"
+            ))
 
 
 async def steamJoinCodeMessage(client, guild):
     # get all IDs
-    data = dict(getallSteamJoinIDs())
+    data = await getallSteamJoinIDs()
 
     # convert discordIDs to names
     clean_data = {}
@@ -160,18 +156,11 @@ async def steamJoinCodeMessage(client, guild):
     # add code field
     embed.add_field(name="Code", value="\n".join(code), inline=True)
 
-    # get msg object.
-    res = getPersistentMessage("steamJoinCodes", guild.id)
-    if res:
-        channel = client.get_channel(res[0])
-        message = await channel.fetch_message(res[1])
-        await message.edit(embed=embed)
+    # get msg object
+    message = await get_persistent_message(client, "steamJoinCodes", guild.id)
 
-    # Skip if no message exist and begin making one
-    else:
-        channel = client.get_channel(steam_join_codes_channel_id)
-        message = await channel.send(embed=embed)
-        insertPersistentMessage("steamJoinCodes", guild.id, channel.id, message.id, [])
+    # edit msg
+    await message.edit(embed=embed)
 
 
 async def botStatus(client, field_name: str, time: datetime.datetime):
@@ -192,40 +181,41 @@ async def botStatus(client, field_name: str, time: datetime.datetime):
     """
 
     # get msg. guild id is one, since there is only gonna be one msg
-    res = getPersistentMessage("botStatus", 1)
+    message = await get_persistent_message(client, "botStatus", 1)
 
     embed = embed_message(
         "Status: Last valid..."
     )
 
-    if res:
-        channel = client.get_channel(res[0])
-        if not channel:
-            return
-        message = await channel.fetch_message(res[1])
-        embeds = message.embeds[0]
-        fields = embeds.fields
+    embeds = message.embeds[0]
+    fields = embeds.fields
 
-        found = False
-        for field in fields:
-            embed.add_field(name=field.name, value=f"""{time.strftime("%d/%m/%Y, %H:%M")} UTC""" if field.name == field_name else field.value, inline=True)
-            if field.name == field_name:
-                found = True
+    found = False
+    for field in fields:
+        embed.add_field(name=field.name, value=f"""{time.strftime("%d/%m/%Y, %H:%M")} UTC""" if field.name == field_name else field.value, inline=True)
+        if field.name == field_name:
+            found = True
 
-        if not found:
-            embed.add_field(name=field_name, value=str(time), inline=True)
-
-        await message.edit(embed=embed)
-
-
-    else:
-        channel = client.get_channel(admin_workboard_channel_id)
-        if not channel:
-            return
-
+    if not found:
         embed.add_field(name=field_name, value=str(time), inline=True)
 
-        message = await channel.send(embed=embed)
+    await message.edit(embed=embed)
 
-        insertPersistentMessage("botStatus", 1, channel.id, message.id, [])
 
+async def otherGameRolesMessageReactions(user, emoji, channel_id, channel_message_id):
+    async def handle_reaction(m, u, r, e_id, r_id):
+        if r_id not in r:
+            await u.add_roles(discord.utils.get(m.guild.roles, id=r_id), reason="Other Game Roles")
+        else:
+            await u.remove_roles(discord.utils.get(m.guild.roles, id=r_id), reason="Other Game Roles")
+        await m.remove_reaction(e_id, u)
+
+    message = await channel_id.fetch_message(channel_message_id)
+
+    # get current roles
+    roles = [role.id for role in user.roles]
+
+    # remove reaction and apply role
+    for emoji_id, role_id in other_game_roles:
+        if emoji.id == emoji_id:
+            await handle_reaction(message, user, roles, emoji_id, role_id)

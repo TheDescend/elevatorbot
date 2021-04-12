@@ -12,6 +12,7 @@ import aiohttp
 import discord
 
 
+# todo: slashify when you can hide commands
 class day1spam(BaseCommand):
     def __init__(self):
         # A quick description for the help message

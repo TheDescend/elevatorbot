@@ -9,7 +9,9 @@ from functions.dataTransformation import hasLowman
 from functions.dataTransformation import hasCollectible, hasTriumph
 from static.dict import requirementHashes
 # check if user has permission to use this command
-from static.globals import role_ban_id
+from static.globals import role_ban_id, not_registered_role_id, divider_raider_role_id, \
+    divider_achievement_role_id, divider_misc_role_id, member_role_id
+
 
 #TODO remove year parameter
 async def hasRole(playerid, role, year, br = True):
@@ -27,7 +29,7 @@ async def hasRole(playerid, role, year, br = True):
             creq = roledata['clears']
             i = 1
             for raid in creq:
-                actualclears = getClearCount(playerid, raid['actHashes'])
+                actualclears = await getClearCount(playerid, raid['actHashes'])
                 if not actualclears>= raid['count']:
                     #print(f'{playerid} is only has {actualclears} out of {raid["count"]} for {",".join([str(x) for x in raid["actHashes"]])}')
                     worthy = False
@@ -36,10 +38,10 @@ async def hasRole(playerid, role, year, br = True):
                 i += 1
 
         elif req == 'flawless':
-            has_fla = bool(getFlawlessHashes(playerid, roledata['flawless']))
+            has_fla = bool(await getFlawlessHashes(playerid, roledata['flawless']))
             worthy &= has_fla
 
-            data["Flawless"] = str(has_fla)
+            data["Flawless"] = bool(has_fla)
 
         elif req == 'collectibles':
             for collectibleHash in roledata['collectibles']:
@@ -58,11 +60,11 @@ async def hasRole(playerid, role, year, br = True):
                     name = "No name here"
                     #str conversion required because dictionary is indexed on strings, not postiions
                     coll_def_start = time.monotonic()
-                    (_, _, name, *_) = getDestinyDefinition("DestinyCollectibleDefinition", collectibleHash)
+                    (_, _, name, *_) = await getDestinyDefinition("DestinyCollectibleDefinition", collectibleHash)
                     coll_def_end = time.monotonic()
                     if (diff := coll_def_end - coll_def_start) > 1:
                         print(f'getDestinyDefinition in collectibles took {diff} seconds')
-                    data[name] = str(has_col)
+                    data[name] = bool(has_col)
 
         elif req == 'records':
             start_records = time.time()
@@ -77,8 +79,8 @@ async def hasRole(playerid, role, year, br = True):
                 if not br:
                     # get name of triumph
                     name = "No name here"
-                    (_, _, name, *_) = getDestinyDefinition("DestinyRecordDefinition", recordHash)
-                    data[name] = str(has_tri)
+                    (_, _, name, *_) = await getDestinyDefinition("DestinyRecordDefinition", recordHash)
+                    data[name] = bool(has_tri)
                     
                 end_record_sub = time.time() - start_record_sub
                 if end_record_sub > 1:
@@ -108,16 +110,16 @@ async def hasRole(playerid, role, year, br = True):
             )
             worthy &= has_low
 
-            data["Lowman (" + str(roledata['playercount']) + " Players)"] = str(has_low)
+            data["Lowman (" + str(roledata['playercount']) + " Players)"] = bool(has_low)
             end_lowman_read = time.monotonic()
             if (diff := end_lowman_read - start_lowman_read) > 1:
                 print(f'Lowman Read took {diff} seconds for hasLowman')
         elif req == 'roles':
             for required_role in roledata['roles']:
-                req_worthy, req_data = await hasRole(playerid, required_role, year, br = br)
+                req_worthy, req_data = await hasRole(playerid, required_role, year, br=br)
                 worthy &= req_worthy #only worthy if worthy for all required roles
                 data = {**req_data, **data} #merging dicts, data dominates
-                data[f'Role: {required_role}'] = req_worthy
+                data[f'Role: {required_role}'] = bool(req_worthy)
 
         if (not worthy) and br:
             break
@@ -216,3 +218,7 @@ async def removeRolesFromUser(roleStringList, discordUser, guild, reason=None):
             except discord.errors.Forbidden:
                 return False
     return True
+
+
+
+

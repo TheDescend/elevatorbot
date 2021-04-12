@@ -1,5 +1,6 @@
 from commands.base_command import BaseCommand
 
+# delete I'd say
 class startCounting(BaseCommand):
     def __init__(self):
         # A quick description for the help message

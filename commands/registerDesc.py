@@ -4,7 +4,7 @@ from functions.formating import embed_message
 from functions.miscFunctions import hasAdminOrDevPermissions
 from static.config import BUNGIE_OAUTH
 
-
+# has been slashified
 class register(BaseCommand):
     def __init__(self):
         # A quick description for the help message
@@ -18,7 +18,7 @@ class register(BaseCommand):
     async def handle(self, params, message, mentioned_user, client):
         await elevatorRegistration(message)
 
-
+# has been slashified
 class registerDesc(BaseCommand):
     def __init__(self):
         # A quick description for the help message
@@ -50,6 +50,7 @@ async def elevatorRegistration(message):
     ))
 
 
+# todo: slashify when you can hide commands
 class checkregister(BaseCommand):
     def __init__(self):
         # A quick description for the help message
@@ -64,7 +65,7 @@ class checkregister(BaseCommand):
         await message.channel.send(f'User {mentioned_user.nick or mentioned_user.name} has ID {lookupDestinyID(mentioned_user.id)}')
 
 
-
+# has been slashified
 class unregister(BaseCommand):
     def __init__(self):
         # A quick description for the help message
@@ -80,7 +81,6 @@ class unregister(BaseCommand):
         if not await hasAdminOrDevPermissions(message) and not message.author.id == mentioned_user.id:
             return
 
-        if removeUser(mentioned_user.id):
-            await message.author.send(f'removed {mentioned_user.nick or mentioned_user.name}')
-        else:
-            await message.author.send('removal failed for ', {mentioned_user.nick or mentioned_user.name})
+        await removeUser(mentioned_user.id)
+        await message.author.send(f'removed {mentioned_user.nick or mentioned_user.name}')
+

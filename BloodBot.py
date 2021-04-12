@@ -2,8 +2,11 @@
 # if this is skipped, some imports will fail since they rely on database lookups
 # for example GM nightfalls, since they change each season. This allows us to create the hash list dynamically, instead of having to add to it every season
 import asyncio
+import logging
 import sys
-from functions.database import create_connection_pool, db_connect
+import traceback
+
+from functions.database import create_connection_pool
 
 # use different loop for windows. otherwise it breaks
 if sys.version_info[0] == 3 and sys.version_info[1] >= 8 and sys.platform.startswith('win'):
@@ -15,7 +18,6 @@ loop = asyncio.get_event_loop()
 # start DB
 print("Connecting to DB...")
 loop.run_until_complete(create_connection_pool())
-db_connect()
 
 
 import os
@@ -29,13 +31,12 @@ from threading import Thread
 import discord
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from discord.ext.commands import Bot
+from discord_slash import SlashCommand, SlashContext
 
 import message_handler
-from commands.makePersistentMessages import otherGameRolesMessageReactions, readRulesMessageReactions
+from functions.persistentMessages import otherGameRolesMessageReactions, check_reaction_for_persistent_message
 from events.base_event import BaseEvent
 from events import *
-from functions.bounties.bountiesBackend import getGlobalVar
-from functions.bounties.bountiesFunctions import registrationMessageReactions
 from functions.clanJoinRequests import clanJoinRequestMessageReactions, removeFromClanAfterLeftDiscord
 from functions.dataLoading import updateDB
 from functions.database import insertIntoMessageDB, lookupDestinyID
@@ -45,8 +46,9 @@ from functions.roleLookup import assignRolesToUser, removeRolesFromUser
 from init_logging import init_logging
 from static.config import COMMAND_PREFIX, BOT_TOKEN
 import static.dict
-from static.globals import guest_role_id, registered_role_id, not_registered_role_id, admin_discussions_channel_id, \
-    divider_raider_role_id, divider_achievement_role_id, divider_misc_role_id, muted_role_id
+from static.globals import registered_role_id, not_registered_role_id, admin_discussions_channel_id, \
+    divider_raider_role_id, divider_achievement_role_id, divider_misc_role_id, muted_role_id, dev_role_id, \
+    member_role_id
 
 #to enable the on_member_join and on_member_remove
 intents = discord.Intents.default()
@@ -59,12 +61,13 @@ this.running = False
 
 # Scheduler that will be used to manage events
 sched = AsyncIOScheduler()
+sched.start()
 
 charley_spam = "Please enter a valid leaderboard name. Type `!help rank` for more information."
 ###############################################################################
 
 def launch_event_loops(client):
-    print("Loading events...", flush=True)
+    print("Loading events...")
     n_ev = 0
     for ev in BaseEvent.__subclasses__():
         event = ev()
@@ -79,9 +82,8 @@ def launch_event_loops(client):
 
         n_ev += 1
 
-    sched.start()
-    print(f"{n_ev} events loaded", flush=True)
-    print(f"Startup complete!", flush=True)
+    print(f"{n_ev} events loaded")
+    print(f"Startup complete!")
 
 
 def main():
@@ -94,9 +96,24 @@ def main():
     print("Starting up...")
     client = Bot('!', intents=intents)
 
+    # enable slash commands and send them to the discord API
+    slash = SlashCommand(client, sync_commands=True)
+
+    # load slash command cogs
+    # to do that, loop through the files and import all classes and commands
+    print("Loading commands...")
+    slash_dir = "slash_commands"
+    for file in os.listdir(slash_dir):
+        if file.endswith(".py"):
+            file = file.removesuffix(".py")
+            extension = f"{slash_dir}.{file}"
+            client.load_extension(extension)
+
+    print(f"{len(client.slash.commands)} commands loaded")
+
+
     # Define event handlers for the client
     # on_ready may be called multiple times in the event of a reconnect,
-    # hence the running fla
     @client.event
     async def on_ready():
         if this.running:
@@ -115,37 +132,6 @@ def main():
     # The message handler for both new message and edits
     @client.event
     async def common_handle_message(message):
-        """ april fools stuff from now on """
-        # check thats its april first
-        if not message.author.bot and message.channel.id not in [793522620405383188,]: #charleygroupfinder
-            if datetime.utcnow().day == 1 and datetime.utcnow().month == 4:
-                # get original stuff
-
-                if message.channel.id not in [670401854496309268,]: #botspam
-                    text = message.content + f"\n-||{message.author.nick or message.author.name}||"
-
-                    if message.author.id == 263808067425140736 or random.randrange(1, 30) == 1:
-                        text = f"**{text.upper()}**"
-                else:
-                    text = message.content
-
-                author = message.author
-                channel = message.channel
-
-                # delete old stuff
-                await message.delete()
-
-                attached_files = [discord.File(BytesIO(await attachment.read()),filename=attachment.filename) for attachment in message.attachments]
-                message = await channel.send(
-                    content = text, 
-                    files = attached_files,
-                    allowed_mentions = discord.AllowedMentions(everyone=False, users=False)
-                )
-
-                # keep author in backend
-                message.author = author
-        """ end of april fools stuff """
-
         text = message.content
         if charley_spam in text:
             await asyncio.sleep(1)
@@ -220,7 +206,7 @@ def main():
                 #672541982157045791 #markov-chat-channel
                 ] 
             if not message.content.startswith('http') and len(message.clean_content) > 5 and not any([badword in message.clean_content.lower() for badword in badwords]) and message.channel.id in goodchannels:
-                success = insertIntoMessageDB(message.clean_content,message.author.id,message.channel.id,message.id)
+                await insertIntoMessageDB(message.clean_content,message.author.id,message.channel.id,message.id)
         
         if message.author.name == 'EscalatorBot':
             for user in message.mentions:
@@ -231,7 +217,7 @@ def main():
                 await member.send('Registration successful!\nCome say hi in <#670400011519000616>')
 
                 # update user DB
-                destinyID = lookupDestinyID(member.id)
+                destinyID = await lookupDestinyID(member.id)
                 await updateDB(destinyID)
 
     tasks = []
@@ -244,15 +230,6 @@ def main():
 
     @client.event
     async def on_member_join(member):
-        # add @guest and @Not Registered to user
-        await assignRolesToUser([guest_role_id], member, member.guild)
-        await assignRolesToUser([not_registered_role_id], member, member.guild)
-
-        # add filler roles
-        await assignRolesToUser([divider_raider_role_id], member, member.guild)
-        await assignRolesToUser([divider_achievement_role_id], member, member.guild)
-        await assignRolesToUser([divider_misc_role_id], member, member.guild)
-
         # inform the user that they should register with the bot
         await member.send(embed=embed_message(
             f'Welcome to Descend {member.name}!',
@@ -273,37 +250,8 @@ def main():
         if not payload.member or payload.member.bot:
             return
 
-        # for checking reactions to the bounties registration page
-        if os.path.exists('functions/bounties/channelIDs.pickle'):
-            file = getGlobalVar()
-
-            # check if reaction is on the registration page
-            if "register_channel_message_id" in file:
-                channel_message_id = file["register_channel_message_id"]
-                if payload.message_id == channel_message_id:
-                    register_channel = discord.utils.get(client.get_all_channels(), guild__id=payload.guild_id, id=file["register_channel"])
-                    await registrationMessageReactions(client, payload.member, payload.emoji, register_channel, channel_message_id)
-
-            # check if reaction is on the other game role page
-            if "other_game_roles_channel_message_id" in file:
-                channel_message_id = file["other_game_roles_channel_message_id"]
-                if payload.message_id == channel_message_id:
-                    register_channel = discord.utils.get(client.get_all_channels(), guild__id=payload.guild_id, id=file["other_game_roles_channel"])
-                    await otherGameRolesMessageReactions(client, payload.member, payload.emoji, register_channel, channel_message_id)
-
-            # check if reaction is on the clan join request page
-            if "clan_join_request_channel_message_id" in file:
-                channel_message_id = file["clan_join_request_channel_message_id"]
-                if payload.message_id == channel_message_id:
-                    register_channel = discord.utils.get(client.get_all_channels(), guild__id=payload.guild_id, id=file["clan_join_request_channel"])
-                    await clanJoinRequestMessageReactions(client, payload.member, payload.emoji, register_channel, channel_message_id)
-
-            # check if reaction is on the rules page
-            if "read_rules_channel_message_id" in file:
-                channel_message_id = file["read_rules_channel_message_id"]
-                if payload.message_id == channel_message_id:
-                    register_channel = discord.utils.get(client.get_all_channels(), guild__id=payload.guild_id, id=file["read_rules_channel"])
-                    await readRulesMessageReactions(client, payload.member, payload.emoji, register_channel, channel_message_id)
+        # check if reaction is on a persistent message
+        await check_reaction_for_persistent_message(client, payload)
 
     @client.event
     async def on_voice_state_update(member, before, after):
@@ -322,6 +270,54 @@ def main():
             await joined_channel(member, after.channel)
             await left_channel(member, before.channel)
             return
+
+    @client.event
+    async def on_member_update(before, after):
+        """ Add member role after Role Screening """
+
+        if before.bot or after.bot:
+            return
+        if before.pending and not after.pending:
+            member = client.get_guild(before.guild.id).get_member(before.id)
+
+            # add @member
+            await assignRolesToUser([member_role_id], member, member.guild)
+
+            # add @Not Registered to user
+            await assignRolesToUser([not_registered_role_id], member, member.guild)
+
+            # add filler roles
+            await assignRolesToUser([divider_raider_role_id], member, member.guild)
+            await assignRolesToUser([divider_achievement_role_id], member, member.guild)
+            await assignRolesToUser([divider_misc_role_id], member, member.guild)
+
+
+    @client.event
+    async def on_slash_command(ctx: SlashContext):
+        """ Gets triggered every slash command """
+
+        # log the command
+        logger = logging.getLogger('slash_commands')
+        logger.info(f"InteractionID '{ctx.interaction_id}' - User '{ctx.author.name}' with discordID '{ctx.author.id}' executed '/{ctx.name}' with kwargs '{ctx.kwargs}' in guildID '{ctx.guild.id}', channelID '{ctx.channel.id}'")
+
+
+    @client.event
+    async def on_slash_command_error(ctx: SlashContext, error: Exception):
+        """ Gets triggered on slash errors """
+
+        await ctx.send(embed=embed_message(
+            "Error",
+            f"Sorry, something went wrong \nPlease contact a {ctx.guild.get_role(dev_role_id)}",
+            error
+        ))
+
+        # log the error
+        logger = logging.getLogger('slash_commands')
+        logger.exception(f"InteractionID '{ctx.interaction_id}' - Error {error} - Traceback: \n{''.join(traceback.format_tb(error.__traceback__))}")
+
+        # raising error again to making deving easier
+        raise error
+
 
     async def joined_channel(member, channel):
         nummatch = re.findall(r'\d\d', channel.name)

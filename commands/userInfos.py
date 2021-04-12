@@ -11,7 +11,7 @@ from functions.persistentMessages import steamJoinCodeMessage
 from static.dict import clanids
 from static.globals import thumps_up_emoji_id
 
-
+# has been slashified
 class getID(BaseCommand):
     def __init__(self):
         # A quick description for the help message
@@ -34,6 +34,7 @@ class getID(BaseCommand):
         await message.reply(embed=embed)
 
 
+# has been slashified
 class setID(BaseCommand):
     def __init__(self):
         # A quick description for the help message
@@ -50,7 +51,7 @@ class setID(BaseCommand):
             return
 
         # save id
-        setSteamJoinID(mentioned_user.id, params[0])
+        await setSteamJoinID(mentioned_user.id, params[0])
 
         # update the status msg
         await steamJoinCodeMessage(client, message.guild)
@@ -58,7 +59,7 @@ class setID(BaseCommand):
         # react to show that it is done
         await message.add_reaction(client.get_emoji(thumps_up_emoji_id))
 
-
+# has been slashified
 class getDiscordJoinDate(BaseCommand):
     def __init__(self):
         # A quick description for the help message
@@ -72,6 +73,7 @@ class getDiscordJoinDate(BaseCommand):
         await message.reply(f'{mentioned_user.mention} joined at {mentioned_user.joined_at.strftime("%d/%m/%Y, %H:%M")}')
 
 
+# todo: slashify when you can hide commands
 class getUserInfo(BaseCommand):
     def __init__(self):
         # A quick description for the help message
@@ -106,6 +108,7 @@ class getUserInfo(BaseCommand):
         ))
 
 
+# todo: slashify when you can hide commands
 class getDiscordFuzzy(BaseCommand):
     def __init__(self):
         # A quick description for the help message

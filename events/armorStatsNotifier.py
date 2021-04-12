@@ -33,7 +33,7 @@ class ArmorStatsNotifier(BaseEvent):
         async def message_user(client, discordID, vendor_name, item_definition, stats, total_stats):
             embed = embed_message(
                 f"{vendor_name} is selling {item_definition[2]}",
-                f"**Class:** {class_types[item_definition[3]]}\n**Slot:** {getDestinyDefinition('DestinyInventoryBucketDefinition', item_definition[4])[2]}\n**Total Stats:** {total_stats}"
+                f"**Class:** {class_types[item_definition[3]]}\n**Slot:** {(await getDestinyDefinition('DestinyInventoryBucketDefinition', item_definition[4]))[2]}\n**Total Stats:** {total_stats}"
             )
             for stat_name, statID in stat_names.items():
                 embed.add_field(name=stat_name, value=f"Total: {stats[statID]['value']}", inline=True)
@@ -71,7 +71,7 @@ class ArmorStatsNotifier(BaseEvent):
 
         # get ids for lookups, using kigstn's data for this one
         discordID = 238388130581839872
-        destinyID = lookupDestinyID(discordID)
+        destinyID = await lookupDestinyID(discordID)
         characterIDs = (await getCharacterList(destinyID))[1]
 
         # loop through charIDs
@@ -97,7 +97,7 @@ class ArmorStatsNotifier(BaseEvent):
 
                     # catch dummy armors that are not sold but show up for some reason. Also class items are meh
                     try:
-                        item_definition = getDestinyDefinition("DestinyInventoryItemDefinition", definitions[saleID]['itemHash'])
+                        item_definition = await getDestinyDefinition("DestinyInventoryItemDefinition", definitions[saleID]['itemHash'])
                     except KeyError:
                         continue
 
@@ -169,7 +169,7 @@ class GunsmithBountiesNotifier(BaseEvent):
 
         # get ids for lookups, using kigstn's data for this one
         discordID = 238388130581839872
-        destinyID = lookupDestinyID(discordID)
+        destinyID = await lookupDestinyID(discordID)
         characterIDs = (await getCharacterList(destinyID))[1]
 
         # check gunsmith mods

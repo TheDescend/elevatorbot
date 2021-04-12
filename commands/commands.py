@@ -6,6 +6,7 @@ from commands.base_command import BaseCommand
 from static.globals import dev_role_id
 
 
+# todo delete I guess since obsolete
 class Commands(BaseCommand):
     def __init__(self):
         description = "Displays this help message"
@@ -42,6 +43,7 @@ class Commands(BaseCommand):
             await message.channel.send(msg)
 
 
+# has been slashified
 class Documentation(BaseCommand):
     def __init__(self):
         description = "[dev] Displays a link to the documentation"

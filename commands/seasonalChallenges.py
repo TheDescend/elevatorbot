@@ -7,6 +7,7 @@ from functions.formating import embed_message
 import asyncio
 
 
+# has been shlashified
 class challenges(BaseCommand):
     def __init__(self):
         # A quick description for the help message
