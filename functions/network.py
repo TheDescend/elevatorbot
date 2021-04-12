@@ -111,11 +111,11 @@ async def refresh_token(discordID):
         'content-type': 'application/x-www-form-urlencoded',
         'authorization': 'Basic ' + str(B64_SECRET)
     }
-    refresh_token = getRefreshToken(discordID)
+    refresh_token = await getRefreshToken(discordID)
     if not refresh_token:
         return None
 
-    destinyID = lookupDestinyID(discordID)
+    destinyID = await lookupDestinyID(discordID)
 
     data = {"grant_type":"refresh_token", "refresh_token": str(refresh_token)}
 
@@ -129,7 +129,7 @@ async def refresh_token(discordID):
                     refresh_token = data['refresh_token']
                     token_expiry = t + data['expires_in']
                     refresh_token_expiry = t + data['refresh_expires_in']
-                    updateToken(destinyID, discordID, access_token, refresh_token, token_expiry, refresh_token_expiry)
+                    await updateToken(destinyID, discordID, access_token, refresh_token, token_expiry, refresh_token_expiry)
                     return access_token
                 else:
                     if data["error_description"] == "ApplicationTokenKeyIdDoesNotExist":
@@ -309,7 +309,7 @@ async def errorCodeHandling(requestURL, r, res):
     return False
 
 async def handleAndReturnToken(discordID):
-    token = getToken(discordID)
+    token = await getToken(discordID)
     if not token:
         print(f'Token not found for discordID {discordID}')
         return {
@@ -318,7 +318,7 @@ async def handleAndReturnToken(discordID):
         }
 
     # refresh token if expired
-    expiry = getTokenExpiry(discordID)
+    expiry = await getTokenExpiry(discordID)
     if not expiry:
         print(f'Expiry Dates not found for discordID {discordID}, refreshing tokens')
         return {

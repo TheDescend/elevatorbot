@@ -3,7 +3,7 @@ from discord.ext import commands
 
 from commands.base_command import BaseCommand
 from functions.dataLoading import updateDB
-from functions.database import lookupDestinyID, getSystemAndChars, lookupSystem
+from functions.database import lookupDestinyID, lookupSystem
 from functions.formating import embed_message
 
 rrsystem = {

@@ -26,6 +26,8 @@ verify_key = VerifyKey(bytes.fromhex(BOT_ACCOUNT_PUBLIC_KEY))
 ########################################## FLASK STUFF ##################################################
 app = Flask(__name__)
 
+loop = asyncio.get_event_loop()
+
 
 def shutdown_server():
     func = request.environ.get('werkzeug.server.shutdown')
@@ -101,7 +103,7 @@ def root():
     destinyID = int(primarymembership['membershipId'])
     systemID = int(primarymembership['membershipType'])
 
-    insertToken(int(discordID), destinyID, systemID, int(serverID), access_token, refresh_token, token_expiry, refresh_token_expiry)
+    loop.run_until_complete(insertToken(int(discordID), destinyID, systemID, int(serverID), access_token, refresh_token, token_expiry, refresh_token_expiry))
     print(f"Inserted token. <@{discordID}> has destinyID `{destinyID}`, Bungie-Name `{display_name}`, Steam-Name `{steam_name}`")
     webhookURL = NEWTONS_WEBHOOK
     requestdata = {
@@ -125,11 +127,11 @@ def root():
 def neriapi(destinyid):
     if not sha256(bytes(request.headers.get('x-neriapi-key', 'missing'), 'utf-8'), encoder=HexEncoder) == b'e3143238a43d9f1c12f47314a8c858a5589f1b2f5c174d391a0e361f869b1427':
         return jsonify(status=500, error='Wrong api key')
-    discordID = lookupDiscordID(destinyid)
+    discordID = loop.run_until_complete(lookupDiscordID(destinyid))
     if not discordID:
         return jsonify(status=500, error='Unknown destiny id')
-    token = getToken(discordID)
-    refresh_token = getRefreshToken(discordID)
+    token = loop.run_until_complete(getToken(discordID))
+    refresh_token = loop.run_until_complete(getRefreshToken(discordID))
     if not token:
         return jsonify(status=500, error='Token not found')
     return jsonify(status=200, token=token, refresh_token=refresh_token)

@@ -87,8 +87,6 @@ class findNaughtyClanMembers(BaseCommand):
             destinyID = int(member["destinyUserInfo"]["membershipId"])
             memberlist.append(destinyID)
 
-        rules = discord.utils.get(message.guild.roles, id=member_role_id)
-
         not_in_discord_or_registered = []       # list of destinyID
         no_token = []                           # list of guild.member.mention
         not_accepted_rules = []                 # list of guild.member.mention
@@ -110,7 +108,7 @@ class findNaughtyClanMembers(BaseCommand):
                 no_token.append(member.mention)
 
             # check if accepted rules
-            if rules not in member.roles:
+            if member.pending:
                 not_accepted_rules.append(member.mention)
 
         if not_in_discord_or_registered:

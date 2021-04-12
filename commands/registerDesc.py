@@ -81,7 +81,6 @@ class unregister(BaseCommand):
         if not await hasAdminOrDevPermissions(message) and not message.author.id == mentioned_user.id:
             return
 
-        if removeUser(mentioned_user.id):
-            await message.author.send(f'removed {mentioned_user.nick or mentioned_user.name}')
-        else:
-            await message.author.send('removal failed for ', {mentioned_user.nick or mentioned_user.name})
+        await removeUser(mentioned_user.id)
+        await message.author.send(f'removed {mentioned_user.nick or mentioned_user.name}')
+

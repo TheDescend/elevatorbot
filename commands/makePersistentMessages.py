@@ -1,10 +1,10 @@
 import discord
 
 from commands.base_command import BaseCommand
-from functions.bounties.bountiesBackend import saveAsGlobalVar, deleteFromGlobalVar
+#from functions.bounties.bountiesBackend import saveAsGlobalVar, deleteFromGlobalVar
 from functions.persistentMessages import persistentChannelMessages
 from functions.roleLookup import assignRolesToUser, removeRolesFromUser
-from static.globals import guest_role_id, member_role_id, yes_emoji_id, among_us_emoji_id, barotrauma_emoji_id, \
+from static.globals import member_role_id, yes_emoji_id, among_us_emoji_id, barotrauma_emoji_id, \
     gta_emoji_id, valorant_emoji_id, lol_emoji_id, among_us_role_id, barotrauma_role_id, gta_role_id, valorant_role_id, \
     lol_role_id, eft_emoji_id, eft_role_id
 
@@ -22,8 +22,8 @@ class makeChannelOtherGameRoles(BaseCommand):
     # It will be called every time the command is received
     async def handle(self, params, message, mentioned_user, client):
         # add channel id to pickle where bounty channel ids are also saved
-        deleteFromGlobalVar("other_game_roles_channel_message_id")
-        saveAsGlobalVar("other_game_roles_channel", message.channel.id, message.guild.id)
+        #deleteFromGlobalVar("other_game_roles_channel_message_id")
+        #saveAsGlobalVar("other_game_roles_channel", message.channel.id, message.guild.id)
         await persistentChannelMessages(client)
 
 
@@ -107,39 +107,8 @@ class makeChannelClanJoinRequest(BaseCommand):
     # It will be called every time the command is received
     async def handle(self, params, message, mentioned_user, client):
         # add channel id to pickle where bounty channel ids are also saved
-        deleteFromGlobalVar("clan_join_request_channel_message_id")
-        saveAsGlobalVar("clan_join_request_channel", message.channel.id, message.guild.id)
+        #deleteFromGlobalVar("clan_join_request_channel_message_id")
+        #saveAsGlobalVar("clan_join_request_channel", message.channel.id, message.guild.id)
         await persistentChannelMessages(client)
 
 
-# todo: slashify when you can hide commands
-# writes the message the user will see and react to and saves the id in the pickle
-class makeChannelReadRules(BaseCommand):
-    def __init__(self):
-        # A quick description for the help message
-        description = "[dev] make channel for accepting the rules"
-        params = []
-        super().__init__(description, params)
-
-    # Override the handle() method
-    # It will be called every time the command is received
-    async def handle(self, params, message, mentioned_user, client):
-        # add channel id to pickle where bounty channel ids are also saved
-        deleteFromGlobalVar("read_rules_channel_message_id")
-        saveAsGlobalVar("read_rules_channel", message.channel.id, message.guild.id)
-        await persistentChannelMessages(client)
-
-
-# assign the role. get's called from bloodbot.py
-async def readRulesMessageReactions(client, user, emoji, register_channel, channel_message_id):
-    message = await register_channel.fetch_message(channel_message_id)
-    emote = client.get_emoji(yes_emoji_id)
-
-    if emoji == emote:
-        await message.remove_reaction(emote, user)
-
-        # adds the read rules role to the user
-        await assignRolesToUser([member_role_id], user, message.guild)
-
-        # removes the guest role
-        await removeRolesFromUser([guest_role_id], user, message.guild)

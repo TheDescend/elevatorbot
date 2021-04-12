@@ -6,7 +6,7 @@ from functions.formating    import embed_message
 async def getUserMaterials(destinyID):
     system = 3
     url = f'https://stats.bungie.net/Platform/Destiny2/{system}/Profile/{destinyID}/?components=600'
-    res = await getJSONwithToken(url, lookupDiscordID(destinyID))
+    res = await getJSONwithToken(url, await lookupDiscordID(destinyID))
     if not res['result']:
         return res['error']
     materialdict = list(res['result']['Response']['characterCurrencyLookups']['data'].values())[0]['itemQuantities']
@@ -25,7 +25,7 @@ async def getRasputinQuestProgress():
 
 
 async def getVendorData(discordID, destinyID, characterID, vendorID):
-    system = lookupSystem(destinyID)
+    system = await lookupSystem(destinyID)
     url = f'https://www.bungie.net/Platform/Destiny2/{system}/Profile/{destinyID}/Character/{characterID}/Vendors/{vendorID}/?components=400,401,402,304'
     return await getJSONwithToken(url, discordID)
 
@@ -43,7 +43,7 @@ async def getSpiderMaterials(discordID, destinyID, characterID):
     usermaterialreadabledict = {}
     
     for key,value in usermaterialdict.items():
-        if keylookup := getDestinyDefinition('DestinyInventoryItemDefinition', key):
+        if keylookup := await getDestinyDefinition('DestinyInventoryItemDefinition', key):
             (_, _, materialname, *_) = keylookup
         else:
             materialname = 'Unknown'
@@ -65,8 +65,8 @@ async def getSpiderMaterials(discordID, destinyID, characterID):
         ownedamount = 0
 
         #requests to identify the items TODO save manuscript locally and look them up there?
-        (_, _, soldname, *_) = getDestinyDefinition("DestinyInventoryItemDefinition", soldhash)
-        (_, _, pricename, *_) = getDestinyDefinition("DestinyInventoryItemDefinition", int(pricehash))
+        (_, _, soldname, *_) = await getDestinyDefinition("DestinyInventoryItemDefinition", soldhash)
+        (_, _, pricename, *_) = await getDestinyDefinition("DestinyInventoryItemDefinition", int(pricehash))
         if soldname not in usermaterialreadabledict.keys():
             if 'Purchase ' in soldname:
                 isPlural = (soldname[-1] == "s") and (not soldname == "Purchase Helium Filaments") and (not soldname == "Purchase Spinmetal Leaves")

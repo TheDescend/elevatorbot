@@ -196,7 +196,7 @@ async def getTop10PveGuns(destinyID):
 async def getPlayerSeals(destinyID):
     """ returns all the seals and the seals a player has. returns total_seals: list, [[referenceId, titleName], ...]. removes wip seals like WF LW """
 
-    seals = getSeals()
+    seals = await getSeals()
     completed_seals = []
     for seal in seals:
         if await hasTriumph(destinyID, seal[0]):

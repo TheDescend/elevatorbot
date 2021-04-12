@@ -46,9 +46,9 @@ class updateActivityDB(BaseEvent):
         set(shared_guild)
 
         # loop though all ids
-        destinyIDs = getAllDestinyIDs()
+        destinyIDs = await getAllDestinyIDs()
         for destinyID in destinyIDs:
-            discordID = lookupDiscordID(destinyID)
+            discordID = await lookupDiscordID(destinyID)
 
             # check is user is in a guild with bot
             if discordID not in shared_guild:

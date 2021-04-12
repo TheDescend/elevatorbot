@@ -1,8 +1,8 @@
 import discord
 import datetime
 
-from functions.bounties.bountiesFunctions import getGlobalVar, saveAsGlobalVar
-from functions.database import getPersistentMessage, updatePersistentMessage, insertPersistentMessage, \
+
+from functions.database import getPersistentMessage, insertPersistentMessage, \
     getallSteamJoinIDs
 from functions.formating import embed_message
 # writes the message the user will see and react to and saves the id in the pickle
@@ -12,24 +12,10 @@ from static.globals import yes_emoji_id, destiny_emoji_id, among_us_emoji_id, ba
 
 # todo change this to the new format
 async def persistentChannelMessages(client):
-    file = getGlobalVar()
+    file = 1#getGlobalVar()
 
     for guild in client.guilds:
         if guild.id == file["guild_id"]:
-            # the read rules feature
-            if "read_rules_channel" in file:
-                if "read_rules_channel_message_id" not in file:
-                    channel = discord.utils.get(guild.channels, id=file["read_rules_channel"])
-
-                    msg = await channel.send(embed=embed_message(
-                        "Access The Server",
-                        "If you have read the information above and **Agree** to the rules, please react accordingly"
-                    ))
-                    join = client.get_emoji(yes_emoji_id)
-                    await msg.add_reaction(join)
-
-                    saveAsGlobalVar("read_rules_channel_message_id", msg.id)
-
             # the clan join request feature
             if "clan_join_request_channel" in file:
                 if "clan_join_request_channel_message_id" not in file:
@@ -44,7 +30,7 @@ async def persistentChannelMessages(client):
                     join = client.get_emoji(destiny_emoji_id)
                     await msg.add_reaction(join)
 
-                    saveAsGlobalVar("clan_join_request_channel_message_id", msg.id)
+                    #saveAsGlobalVar("clan_join_request_channel_message_id", msg.id)
 
             # the other games role channel message
             if "other_game_roles_channel" in file:
@@ -71,7 +57,7 @@ async def persistentChannelMessages(client):
                     await msg.add_reaction(lol)
                     await msg.add_reaction(eft)
 
-                    saveAsGlobalVar("other_game_roles_channel_message_id", msg.id)
+                    #saveAsGlobalVar("other_game_roles_channel_message_id", msg.id)
 
             # put message in #register channel if there is none
             if "register_channel" in file:
@@ -124,13 +110,13 @@ And lastly, if you have any general suggestions or ideas for new bounties, conta
                     await msg.add_reaction(register)
                     notification = client.get_emoji(754946724237148220)
                     await msg.add_reaction(notification)
-                    saveAsGlobalVar("register_channel_message_id", msg.id)
+                    #saveAsGlobalVar("register_channel_message_id", msg.id)
 
 
 
 async def steamJoinCodeMessage(client, guild):
     # get all IDs
-    data = dict(getallSteamJoinIDs())
+    data = await getallSteamJoinIDs()
 
     # convert discordIDs to names
     clean_data = {}
@@ -161,7 +147,7 @@ async def steamJoinCodeMessage(client, guild):
     embed.add_field(name="Code", value="\n".join(code), inline=True)
 
     # get msg object.
-    res = getPersistentMessage("steamJoinCodes", guild.id)
+    res = await getPersistentMessage("steamJoinCodes", guild.id)
     if res:
         channel = client.get_channel(res[0])
         message = await channel.fetch_message(res[1])
@@ -171,7 +157,7 @@ async def steamJoinCodeMessage(client, guild):
     else:
         channel = client.get_channel(steam_join_codes_channel_id)
         message = await channel.send(embed=embed)
-        insertPersistentMessage("steamJoinCodes", guild.id, channel.id, message.id, [])
+        await insertPersistentMessage("steamJoinCodes", guild.id, channel.id, message.id, [])
 
 
 async def botStatus(client, field_name: str, time: datetime.datetime):
@@ -192,7 +178,7 @@ async def botStatus(client, field_name: str, time: datetime.datetime):
     """
 
     # get msg. guild id is one, since there is only gonna be one msg
-    res = getPersistentMessage("botStatus", 1)
+    res = await getPersistentMessage("botStatus", 1)
 
     embed = embed_message(
         "Status: Last valid..."
@@ -227,5 +213,5 @@ async def botStatus(client, field_name: str, time: datetime.datetime):
 
         message = await channel.send(embed=embed)
 
-        insertPersistentMessage("botStatus", 1, channel.id, message.id, [])
+        await insertPersistentMessage("botStatus", 1, channel.id, message.id, [])
 

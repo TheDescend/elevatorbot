@@ -9,7 +9,9 @@ from functions.dataTransformation import hasLowman
 from functions.dataTransformation import hasCollectible, hasTriumph
 from static.dict import requirementHashes
 # check if user has permission to use this command
-from static.globals import role_ban_id
+from static.globals import role_ban_id, not_registered_role_id, divider_raider_role_id, \
+    divider_achievement_role_id, divider_misc_role_id, member_role_id
+
 
 #TODO remove year parameter
 async def hasRole(playerid, role, year, br = True):
@@ -27,7 +29,7 @@ async def hasRole(playerid, role, year, br = True):
             creq = roledata['clears']
             i = 1
             for raid in creq:
-                actualclears = getClearCount(playerid, raid['actHashes'])
+                actualclears = await getClearCount(playerid, raid['actHashes'])
                 if not actualclears>= raid['count']:
                     #print(f'{playerid} is only has {actualclears} out of {raid["count"]} for {",".join([str(x) for x in raid["actHashes"]])}')
                     worthy = False
@@ -36,7 +38,7 @@ async def hasRole(playerid, role, year, br = True):
                 i += 1
 
         elif req == 'flawless':
-            has_fla = bool(getFlawlessHashes(playerid, roledata['flawless']))
+            has_fla = bool(await getFlawlessHashes(playerid, roledata['flawless']))
             worthy &= has_fla
 
             data["Flawless"] = bool(has_fla)
@@ -58,7 +60,7 @@ async def hasRole(playerid, role, year, br = True):
                     name = "No name here"
                     #str conversion required because dictionary is indexed on strings, not postiions
                     coll_def_start = time.monotonic()
-                    (_, _, name, *_) = getDestinyDefinition("DestinyCollectibleDefinition", collectibleHash)
+                    (_, _, name, *_) = await getDestinyDefinition("DestinyCollectibleDefinition", collectibleHash)
                     coll_def_end = time.monotonic()
                     if (diff := coll_def_end - coll_def_start) > 1:
                         print(f'getDestinyDefinition in collectibles took {diff} seconds')
@@ -77,7 +79,7 @@ async def hasRole(playerid, role, year, br = True):
                 if not br:
                     # get name of triumph
                     name = "No name here"
-                    (_, _, name, *_) = getDestinyDefinition("DestinyRecordDefinition", recordHash)
+                    (_, _, name, *_) = await getDestinyDefinition("DestinyRecordDefinition", recordHash)
                     data[name] = bool(has_tri)
                     
                 end_record_sub = time.time() - start_record_sub
@@ -216,3 +218,7 @@ async def removeRolesFromUser(roleStringList, discordUser, guild, reason=None):
             except discord.errors.Forbidden:
                 return False
     return True
+
+
+
+

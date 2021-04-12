@@ -12,7 +12,7 @@ from static.config import COMMAND_PREFIX
 
 
 async def checkIfUserIsRegistered(user):
-    if getToken(user.id):
+    if await getToken(user.id):
         return True
     else:
         embed = embed_message(
@@ -27,7 +27,7 @@ async def update_status(client):
     status_messages = [
         "DM me to contact Staff",
         "No more welcoming Neria please, she is no longer new",
-        "Basically v.2 on now"
+        "I have been upgraded to v.2"
     ]
 
     if NOW_PLAYING:
@@ -120,4 +120,6 @@ def write_line(index, member, stat_text, stat):
     """ Write a line like charley does"""
 
     return f"{index}) **{member}** _({stat_text}: {stat})_"
+
+
 

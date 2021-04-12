@@ -51,7 +51,7 @@ class setID(BaseCommand):
             return
 
         # save id
-        setSteamJoinID(mentioned_user.id, params[0])
+        await setSteamJoinID(mentioned_user.id, params[0])
 
         # update the status msg
         await steamJoinCodeMessage(client, message.guild)

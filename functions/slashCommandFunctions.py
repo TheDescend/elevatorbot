@@ -42,8 +42,8 @@ async def get_destinyID_and_system(ctx: SlashContext, discord_user):
     else:
         return None, None, None
 
-    destinyID = lookupDestinyID(user.id)
-    system = lookupSystem(destinyID)
+    destinyID = await lookupDestinyID(user.id)
+    system = await lookupSystem(destinyID)
 
     if not (destinyID and system):
         await ctx.send(hidden=True, embed=embed_message(

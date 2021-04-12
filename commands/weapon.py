@@ -94,7 +94,7 @@ class weapon(BaseCommand):
                         max_kills_id = instanceID
                 percent_precision_kills = precision_kills / kills if kills else 0
                 avg_kills = kills / len(result)
-                res = getPgcrActivity(max_kills_id)
+                res = await getPgcrActivity(max_kills_id)
                 max_kills_date = res[3]
                 max_kills_mode = getDestinyDefinition("DestinyActivityModeDefinition", res[5])[2]
                 max_kills_name = getDestinyDefinition("DestinyActivityDefinition", res[2])[2]
@@ -116,7 +116,7 @@ class weapon(BaseCommand):
                 # get the time instead of the instance id and sort it so the earliest date is first
                 weapon_hashes = []
                 for instanceID, uniqueweaponkills, uniqueweaponprecisionkills in result:
-                    instance_time = getPgcrActivity(instanceID)[3]
+                    instance_time = await getPgcrActivity(instanceID)[3]
                     weapon_hashes.append((instance_time, uniqueweaponkills, uniqueweaponprecisionkills))
                 weapon_hashes = sorted(weapon_hashes, key=lambda x: x[0])
 
@@ -258,7 +258,7 @@ class topWeapons(BaseCommand):
             data = []
             for weaponID, uniqueweaponkills, uniqueweaponprecisionkills in result:
                 # get the name
-                weapon_data = [getDestinyDefinition("DestinyInventoryItemDefinition", weaponID)[2]]
+                weapon_data = [(await getDestinyDefinition("DestinyInventoryItemDefinition", weaponID))[2]]
 
                 if stat == "kills":
                     statistic = uniqueweaponkills

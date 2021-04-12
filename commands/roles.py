@@ -258,7 +258,7 @@ class flawlesses(BaseCommand):
         async with message.channel.typing():
             destinyID = lookupDestinyID(mentioned_user.id)
             await updateDB(destinyID)
-            await message.channel.send(getFlawlessList(destinyID))
+            await message.channel.send(await getFlawlessList(destinyID))
 
 
 # todo: slashify when you can hide commands

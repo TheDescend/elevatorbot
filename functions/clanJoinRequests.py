@@ -14,7 +14,7 @@ async def clanJoinRequestMessageReactions(client, user, emoji, channel, channel_
     newtonslab = client.get_channel(BOTDEVCHANNELID)
     message = await channel.fetch_message(channel_message_id)
     join = client.get_emoji(destiny_emoji_id)
-    destinyID = lookupDestinyID(user.id)
+    destinyID = await lookupDestinyID(user.id)
 
     # if the reaction is the correct one
     if emoji.id == join.id:
@@ -33,7 +33,7 @@ async def clanJoinRequestMessageReactions(client, user, emoji, channel, channel_
             return
 
         # abort if member hasnt accepted the rules
-        if discord.utils.get(newtonslab.guild.roles, id=member_role_id) not in user.roles:
+        if user.pending:
             await user.send("Please accept the rules first. Try again after")
             return
 
@@ -51,7 +51,7 @@ async def clanJoinRequestMessageReactions(client, user, emoji, channel, channel_
             return
 
         # send user a clan invite (using kigstn's id / token since he is an admin and not the owner for some safety)
-        membershipType = lookupSystem(destinyID)
+        membershipType = await lookupSystem(destinyID)
         postURL = f'https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/IndividualInvite/{membershipType}/{destinyID}/'
         data = {
             "message": "Welcome"
@@ -82,7 +82,7 @@ async def removeFromClanAfterLeftDiscord(client, member):
     await asyncio.sleep(10 * 60)
 
     # check if user was in clan
-    destinyID = lookupDestinyID(member.id)
+    destinyID = await lookupDestinyID(member.id)
     found = False
     for clan_member in (await getJSONfromURL(f"https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/"))["Response"]["results"]:
         clan_memberID = int(clan_member["destinyUserInfo"]["membershipId"])
@@ -114,7 +114,7 @@ async def removeFromClanAfterLeftDiscord(client, member):
 
     # if yes is pressed he is removed (using kigstn's id / token since he is an admin and not the owner for some safety)
     if reaction.emoji == yes:
-        membershipType = lookupSystem(destinyID)
+        membershipType = await lookupSystem(destinyID)
         postURL = f'https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/{membershipType}/{destinyID}/Kick/'
         data = {}
         #Kigstns discord ID

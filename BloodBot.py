@@ -6,7 +6,7 @@ import logging
 import sys
 import traceback
 
-from functions.database import create_connection_pool, db_connect
+from functions.database import create_connection_pool
 
 # use different loop for windows. otherwise it breaks
 if sys.version_info[0] == 3 and sys.version_info[1] >= 8 and sys.platform.startswith('win'):
@@ -18,7 +18,6 @@ loop = asyncio.get_event_loop()
 # start DB
 print("Connecting to DB...")
 loop.run_until_complete(create_connection_pool())
-db_connect()
 
 
 import os
@@ -35,11 +34,9 @@ from discord.ext.commands import Bot
 from discord_slash import SlashCommand, SlashContext
 
 import message_handler
-from commands.makePersistentMessages import otherGameRolesMessageReactions, readRulesMessageReactions
+from commands.makePersistentMessages import otherGameRolesMessageReactions
 from events.base_event import BaseEvent
 from events import *
-from functions.bounties.bountiesBackend import getGlobalVar
-from functions.bounties.bountiesFunctions import registrationMessageReactions
 from functions.clanJoinRequests import clanJoinRequestMessageReactions, removeFromClanAfterLeftDiscord
 from functions.dataLoading import updateDB
 from functions.database import insertIntoMessageDB, lookupDestinyID
@@ -49,8 +46,9 @@ from functions.roleLookup import assignRolesToUser, removeRolesFromUser
 from init_logging import init_logging
 from static.config import COMMAND_PREFIX, BOT_TOKEN
 import static.dict
-from static.globals import guest_role_id, registered_role_id, not_registered_role_id, admin_discussions_channel_id, \
-    divider_raider_role_id, divider_achievement_role_id, divider_misc_role_id, muted_role_id, dev_role_id
+from static.globals import registered_role_id, not_registered_role_id, admin_discussions_channel_id, \
+    divider_raider_role_id, divider_achievement_role_id, divider_misc_role_id, muted_role_id, dev_role_id, \
+    member_role_id
 
 #to enable the on_member_join and on_member_remove
 intents = discord.Intents.default()
@@ -208,7 +206,7 @@ def main():
                 #672541982157045791 #markov-chat-channel
                 ] 
             if not message.content.startswith('http') and len(message.clean_content) > 5 and not any([badword in message.clean_content.lower() for badword in badwords]) and message.channel.id in goodchannels:
-                success = insertIntoMessageDB(message.clean_content,message.author.id,message.channel.id,message.id)
+                await insertIntoMessageDB(message.clean_content,message.author.id,message.channel.id,message.id)
         
         if message.author.name == 'EscalatorBot':
             for user in message.mentions:
@@ -219,7 +217,7 @@ def main():
                 await member.send('Registration successful!\nCome say hi in <#670400011519000616>')
 
                 # update user DB
-                destinyID = lookupDestinyID(member.id)
+                destinyID = await lookupDestinyID(member.id)
                 await updateDB(destinyID)
 
     tasks = []
@@ -232,15 +230,6 @@ def main():
 
     @client.event
     async def on_member_join(member):
-        # add @guest and @Not Registered to user
-        await assignRolesToUser([guest_role_id], member, member.guild)
-        await assignRolesToUser([not_registered_role_id], member, member.guild)
-
-        # add filler roles
-        await assignRolesToUser([divider_raider_role_id], member, member.guild)
-        await assignRolesToUser([divider_achievement_role_id], member, member.guild)
-        await assignRolesToUser([divider_misc_role_id], member, member.guild)
-
         # inform the user that they should register with the bot
         await member.send(embed=embed_message(
             f'Welcome to Descend {member.name}!',
@@ -261,37 +250,30 @@ def main():
         if not payload.member or payload.member.bot:
             return
 
-        # for checking reactions to the bounties registration page
-        if os.path.exists('functions/bounties/channelIDs.pickle'):
-            file = getGlobalVar()
-
-            # check if reaction is on the registration page
-            if "register_channel_message_id" in file:
-                channel_message_id = file["register_channel_message_id"]
-                if payload.message_id == channel_message_id:
-                    register_channel = discord.utils.get(client.get_all_channels(), guild__id=payload.guild_id, id=file["register_channel"])
-                    await registrationMessageReactions(client, payload.member, payload.emoji, register_channel, channel_message_id)
-
-            # check if reaction is on the other game role page
-            if "other_game_roles_channel_message_id" in file:
-                channel_message_id = file["other_game_roles_channel_message_id"]
-                if payload.message_id == channel_message_id:
-                    register_channel = discord.utils.get(client.get_all_channels(), guild__id=payload.guild_id, id=file["other_game_roles_channel"])
-                    await otherGameRolesMessageReactions(client, payload.member, payload.emoji, register_channel, channel_message_id)
-
-            # check if reaction is on the clan join request page
-            if "clan_join_request_channel_message_id" in file:
-                channel_message_id = file["clan_join_request_channel_message_id"]
-                if payload.message_id == channel_message_id:
-                    register_channel = discord.utils.get(client.get_all_channels(), guild__id=payload.guild_id, id=file["clan_join_request_channel"])
-                    await clanJoinRequestMessageReactions(client, payload.member, payload.emoji, register_channel, channel_message_id)
-
-            # check if reaction is on the rules page
-            if "read_rules_channel_message_id" in file:
-                channel_message_id = file["read_rules_channel_message_id"]
-                if payload.message_id == channel_message_id:
-                    register_channel = discord.utils.get(client.get_all_channels(), guild__id=payload.guild_id, id=file["read_rules_channel"])
-                    await readRulesMessageReactions(client, payload.member, payload.emoji, register_channel, channel_message_id)
+        # # for checking reactions to the bounties registration page
+        # if os.path.exists('functions/bounties/channelIDs.pickle'):
+        #     file = getGlobalVar()
+        #
+        #     # check if reaction is on the registration page
+        #     if "register_channel_message_id" in file:
+        #         channel_message_id = file["register_channel_message_id"]
+        #         if payload.message_id == channel_message_id:
+        #             register_channel = discord.utils.get(client.get_all_channels(), guild__id=payload.guild_id, id=file["register_channel"])
+        #             await registrationMessageReactions(client, payload.member, payload.emoji, register_channel, channel_message_id)
+        #
+        #     # check if reaction is on the other game role page
+        #     if "other_game_roles_channel_message_id" in file:
+        #         channel_message_id = file["other_game_roles_channel_message_id"]
+        #         if payload.message_id == channel_message_id:
+        #             register_channel = discord.utils.get(client.get_all_channels(), guild__id=payload.guild_id, id=file["other_game_roles_channel"])
+        #             await otherGameRolesMessageReactions(client, payload.member, payload.emoji, register_channel, channel_message_id)
+        #
+        #     # check if reaction is on the clan join request page
+        #     if "clan_join_request_channel_message_id" in file:
+        #         channel_message_id = file["clan_join_request_channel_message_id"]
+        #         if payload.message_id == channel_message_id:
+        #             register_channel = discord.utils.get(client.get_all_channels(), guild__id=payload.guild_id, id=file["clan_join_request_channel"])
+        #             await clanJoinRequestMessageReactions(client, payload.member, payload.emoji, register_channel, channel_message_id)
 
     @client.event
     async def on_voice_state_update(member, before, after):
@@ -310,6 +292,26 @@ def main():
             await joined_channel(member, after.channel)
             await left_channel(member, before.channel)
             return
+
+    @client.event
+    async def on_member_update(before, after):
+        """ Add member role after Role Screening """
+
+        if before.bot or after.bot:
+            return
+        if before.pending and not after.pending:
+            member = client.get_guild(before.guild.id).get_member(before.id)
+
+            # add @member
+            await assignRolesToUser([member_role_id], member, member.guild)
+
+            # add @Not Registered to user
+            await assignRolesToUser([not_registered_role_id], member, member.guild)
+
+            # add filler roles
+            await assignRolesToUser([divider_raider_role_id], member, member.guild)
+            await assignRolesToUser([divider_achievement_role_id], member, member.guild)
+            await assignRolesToUser([divider_misc_role_id], member, member.guild)
 
 
     @client.event

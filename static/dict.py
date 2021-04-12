@@ -1,4 +1,8 @@
+import asyncio
+
 from functions.database import getGrandmasterHashes
+
+loop = asyncio.get_event_loop()
 
 # from https://data.destinysets.com/
 # raids
@@ -33,7 +37,7 @@ zeroHashes = [3232506937]
 herzeroHashes = [2731208666]
 
 # nightfalls
-gmHashes = getGrandmasterHashes()
+gmHashes = loop.run_until_complete(getGrandmasterHashes())
 
 # activityTypeHashes
 activityStoryHash = [147238405, 1686739444, 1299744814, 2201105581, 2911768360]

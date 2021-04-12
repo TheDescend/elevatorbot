@@ -184,10 +184,10 @@ class DestinyCommands(commands.Cog):
 
         # get data for the mode specified
         await updateDB(destinyID)
-        data = getLastActivity(destinyID, mode=kwargs["activity"])
+        data = await getLastActivity(destinyID, mode=kwargs["activity"])
 
         # make data pretty and send msg
-        (_, _, activity_name, _, _, _, _, _, _, _, _, _, _) = getDestinyDefinition("DestinyActivityDefinition", data['directorActivityHash'])
+        activity_name = (await getDestinyDefinition("DestinyActivityDefinition", data['directorActivityHash']))[2]
         embed = embed_message(
             f"{user.display_name}'s Last Activity",
             f"**{activity_name}{(' - ' + str(data['score']) + ' Points') if data['score'] > 0 else ''} - {str(datetime.timedelta(seconds=data['activityDurationSeconds']))}**",
@@ -599,8 +599,8 @@ class ClanActivitiesCommands(commands.Cog):
 
 
     @cog_ext.cog_slash(
-        name="clanactivities",
-        description="Shows information about who from the clan you play with how much",
+        name="clanactivity",
+        description="Shows information about who from the clan plays with whom (Default: in the last 7 days)",
         options=[
             create_option(
                 name="mode",
@@ -623,13 +623,13 @@ class ClanActivitiesCommands(commands.Cog):
             ),
             create_option(
                 name="user",
-                description="The name of the user you want to look up",
+                description="The name of the user you want to highlight",
                 option_type=6,
                 required=False
             )
         ]
     )
-    async def _clanactivities(self, ctx: SlashContext, **kwargs):
+    async def _clanactivity(self, ctx: SlashContext, **kwargs):
         user = await get_user_obj(ctx, kwargs)
         _, orginal_user_destiny_id, system = await get_destinyID_and_system(ctx, user)
         if not orginal_user_destiny_id:
@@ -637,7 +637,7 @@ class ClanActivitiesCommands(commands.Cog):
 
         # get params
         mode = int(kwargs["mode"]) if "mode" in kwargs else 0
-        start_time = await verify_time_input(ctx, kwargs["starttime"]) if "starttime" in kwargs else datetime.datetime.min
+        start_time = await verify_time_input(ctx, kwargs["starttime"]) if "starttime" in kwargs else datetime.datetime.now() - datetime.timedelta(days=7)
         if not start_time:
             return
         end_time = await verify_time_input(ctx, kwargs["endtime"]) if "endtime" in kwargs else datetime.datetime.now()
@@ -696,7 +696,7 @@ class ClanActivitiesCommands(commands.Cog):
         # letting user know it's done
         await ctx.send(embed=embed_message(
             f"{user.display_name}'s Friends",
-            f"Use the Link below to download your Network",
+            f"Click the download button below and open the file with your browser to view your Network",
             f"The file may load for a while, that's normal."
         ))
         # sending them the file
@@ -725,24 +725,21 @@ class ClanActivitiesCommands(commands.Cog):
         destinyID = int(destinyID)
 
         # get all activities
-        activities = getActivityHistory(destinyID, mode=mode, start_time=start_time, end_time=end_time)
+        activities = await getActivityHistory(destinyID, mode=mode, start_time=start_time, end_time=end_time)
 
         list_of_activities = []
-        for instanceID, _ in activities:
+        for instanceID in activities:
             list_of_activities.append(instanceID)
 
         return [destinyID, set(list_of_activities)]
 
 
     async def _return_friends(self, destinyID, instanceID):
-        # waiting a bit so we don't get throttled by bungie
-        await asyncio.sleep(0.3)
-
         # list in which the connections are saved
         friends = []
 
         # get instance id info
-        data = getPgcrActivitiesUsersStats(instanceID)
+        data = await getPgcrActivitiesUsersStats(instanceID)
         for player in data:
             friendID = player[1]
 
@@ -1121,10 +1118,10 @@ class RankCommands(commands.Cog):
 
     async def _handle_user(self, stat, member, guild, extra_hash, extra_name):
         destinyID = int(member["destinyUserInfo"]["membershipId"])
-        discordID = lookupDiscordID(destinyID)
+        discordID = await lookupDiscordID(destinyID)
         sort_by_ascending = False
 
-        if not getToken(discordID):
+        if not await getToken(discordID):
             return None
 
         # catch people that are in the clan but not in discord, shouldn't happen tho
@@ -1211,14 +1208,13 @@ class RankCommands(commands.Cog):
 
         elif stat == "maxpower":
             # TODO efficiency
-            if not getToken(discordID):
+            if not await getToken(discordID):
                 return None
 
             leaderboard_text = "Top Clanmembers by D2 Maximum Reported Power"
             stat_text = "Power"
 
             artifact_power = (await getArtifact(destinyID))["powerBonus"]
-            system = lookupSystem(destinyID)
 
             items = await getCharacterGearAndPower(destinyID)
             items = self._sort_gear_by_slot(items)
@@ -1267,7 +1263,7 @@ class RankCommands(commands.Cog):
 
             result_sort = 0
             farmed_runs = 0
-            for _, kills in getForges(destinyID):
+            for _, kills in await getForges(destinyID):
                 if kills > 0:
                     result_sort += 1
                 else:
@@ -1281,7 +1277,7 @@ class RankCommands(commands.Cog):
 
             farmed_runs = 0
             result_sort = 0
-            for _, kills in getForges(destinyID):
+            for _, kills in await getForges(destinyID):
                 if kills > 0:
                     farmed_runs += 1
                 else:
@@ -1574,7 +1570,7 @@ class WeaponCommands(commands.Cog):
         # loop through every variant of the weapon and add that together
         result = []
         for entry in weapon_hashes:
-            result.extend(getWeaponInfo(destinyID, entry, **{k: v for k, v in kwargs.items() if v is not None}))
+            result.extend(await getWeaponInfo(destinyID, entry, **{k: v for k, v in kwargs.items() if v is not None}))
 
         # throw error if no weapon
         if not result:
@@ -1599,10 +1595,10 @@ class WeaponCommands(commands.Cog):
                     max_kills_id = instanceID
             percent_precision_kills = precision_kills / kills if kills else 0
             avg_kills = kills / len(result)
-            res = getPgcrActivity(max_kills_id)
+            res = await getPgcrActivity(max_kills_id)
             max_kills_date = res[3]
-            max_kills_mode = getDestinyDefinition("DestinyActivityModeDefinition", res[5])[2]
-            max_kills_name = getDestinyDefinition("DestinyActivityDefinition", res[2])[2]
+            max_kills_mode = (await getDestinyDefinition("DestinyActivityModeDefinition", res[5]))[2]
+            max_kills_name = (await getDestinyDefinition("DestinyActivityDefinition", res[2]))[2]
 
             # make and post embed
             embed = embed_message(
@@ -1625,7 +1621,7 @@ class WeaponCommands(commands.Cog):
             # get the time instead of the instance id and sort it so the earliest date is first
             weapon_hashes = []
             for instanceID, uniqueweaponkills, uniqueweaponprecisionkills in result:
-                instance_time = getPgcrActivity(instanceID)[3]
+                instance_time = (await getPgcrActivity(instanceID))[3]
                 weapon_hashes.append((instance_time, uniqueweaponkills, uniqueweaponprecisionkills))
             weapon_hashes = sorted(weapon_hashes, key=lambda x: x[0])
 
@@ -1823,13 +1819,13 @@ class WeaponCommands(commands.Cog):
             "start": starttime,
             "end": endtime
         }
-        result = getTopWeapons(destinyID, **{k: v for k, v in kwargs.items() if v is not None})
+        result = await getTopWeapons(destinyID, **{k: v for k, v in kwargs.items() if v is not None})
 
         # loop through that and get data
         data = []
         for weaponID, uniqueweaponkills, uniqueweaponprecisionkills in result:
             # get the name
-            weapon_data = [getDestinyDefinition("DestinyInventoryItemDefinition", weaponID)[2]]
+            weapon_data = [(await getDestinyDefinition("DestinyInventoryItemDefinition", weaponID))[2]]
 
             if stat == "kills":
                 statistic = uniqueweaponkills

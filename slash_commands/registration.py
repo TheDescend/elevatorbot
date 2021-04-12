@@ -48,10 +48,8 @@ class RegistrationCommands(commands.Cog):
         if not user:
             return
 
-        if removeUser(user.id):
-            await ctx.send(f'Removed {user.display_name}', hidden=True)
-        else:
-            await ctx.send(f'Removal failed for {user.display_name}. Please send me a DM to get in touch with my developers', hidden=True)
+        await removeUser(user.id)
+        await ctx.send(f'Removed {user.display_name}', hidden=True)
 
 
     # todo can we add a good permission sysstem here too?
@@ -72,7 +70,7 @@ class RegistrationCommands(commands.Cog):
     async def _get(self, ctx: SlashContext, **kwargs):
         user = await get_user_obj(ctx, kwargs)
 
-        text = getSteamJoinID(user.id)
+        text = await getSteamJoinID(user.id)
         if not text:
             text = "Nothing found. Please tell the user to set the code with \n`!setID <code>`\nYou can find your own code by typing `/id` in-game\n⁣\nSadly I do not have access to this information, since it is handled by Steam and not Bungie"
 
@@ -110,7 +108,7 @@ class RegistrationCommands(commands.Cog):
             return
 
         # save id
-        setSteamJoinID(user.id, kwargs["steamid"])
+        await setSteamJoinID(user.id, kwargs["steamid"])
 
         # update the status msg
         await steamJoinCodeMessage(self.client, ctx.guild)
