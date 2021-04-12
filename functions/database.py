@@ -690,7 +690,7 @@ async def getPgcrActivitiesUsersStats(instanceId):
         WHERE 
             instanceId = $1;"""
     async with pool.acquire() as connection:
-        return await connection.fetch(select_sql, instanceId)
+        return await connection.fetch(select_sql, int(instanceId))
 
 
 async def insertPgcrActivitiesUsersStats(instanceId, membershipId, characterId, characterClass, characterLevel, membershipType, lightLevel, emblemHash, standing, assists, completed, deaths, kills, opponentsDefeated, efficiency, killsDeathsRatio, killsDeathsAssists, score, activityDurationSeconds, completionReason, startSeconds, timePlayedSeconds, playerCount, teamScore, precisionKills, weaponKillsGrenade, weaponKillsMelee, weaponKillsSuper, weaponKillsAbility):
