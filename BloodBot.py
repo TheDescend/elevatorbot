@@ -117,18 +117,32 @@ def main():
     async def common_handle_message(message):
         """ april fools stuff from now on """
         # check thats its april first
-        if not message.author.bot:
-            if datetime.utcnow().day == 1:
+        if not message.author.bot and message.channel.id not in [793522620405383188,]: #charleygroupfinder
+            if datetime.utcnow().day == 1 and datetime.utcnow().month == 4:
                 # get original stuff
-                text = message.content
+
+                if message.channel.id not in [670401854496309268,]: #botspam
+                    text = message.content + f"\n-||{message.author.nick or message.author.name}||"
+
+                    if message.author.id == 263808067425140736 or random.randrange(1, 30) == 1:
+                        text = f"**{text.upper()}**"
+                else:
+                    text = message.content
+
                 author = message.author
                 channel = message.channel
 
                 # delete old stuff
                 await message.delete()
 
-                # make new stuff
-                message = await channel.send(text)
+                attached_files = [discord.File(BytesIO(await attachment.read()),filename=attachment.filename) for attachment in message.attachments]
+                message = await channel.send(
+                    content = text, 
+                    files = attached_files,
+                    allowed_mentions = discord.AllowedMentions(everyone=False, users=False)
+                )
+
+                # keep author in backend
                 message.author = author
         """ end of april fools stuff """
 
