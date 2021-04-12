@@ -25,7 +25,7 @@ async def checkIfUserIsRegistered(user):
 async def update_status(client):
     status_messages = [
         "DM me to contact Staff",
-        "Please welcome Neria to the clan, she is new"
+        "No more welcoming Neria please, she is no longer new"
     ]
 
     if NOW_PLAYING:
