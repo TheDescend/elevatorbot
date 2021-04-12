@@ -105,11 +105,6 @@ class Tournament:
 
             user1 = self.player_id_translation[player1]
             user2 = self.player_id_translation[player2]
-            # discordID1 = self.player_id_translation[player1]
-            # discordID2 = self.player_id_translation[player2]
-            #
-            # user1 = client.get_user(discordID1)
-            # user2 = client.get_user(discordID2)
 
             destinyID1 = await lookupDestinyID(user1.id)
             destinyID2 = await lookupDestinyID(user2.id)
@@ -230,4 +225,3 @@ async def returnCustomGameWinner(destinyID1, charIDs1, membershipType1, destinyI
                     else:
                         return destinyID2
     return None
-

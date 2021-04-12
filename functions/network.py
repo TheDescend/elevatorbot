@@ -14,8 +14,8 @@ from functions.database import (getRefreshToken, getToken, getTokenExpiry,
 bungieAPI_URL = "https://www.bungie.net/Platform"
 headers = {'X-API-Key': BUNGIE_TOKEN}
 
-class ConnectionProvider:
 
+class ConnectionProvider:
     def __init__(self):
         self.bungieSession = None
         self.otherSession = None

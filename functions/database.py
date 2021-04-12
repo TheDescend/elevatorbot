@@ -64,13 +64,27 @@ async def removeUser(discordID):
     async with pool.acquire() as connection:
         await connection.execute(delete_sql, discordID)
 
+async def updateUser(IDdiscord, IDdestiny, systemID):
+    """ Updates a User - DestinyID, SystemID  """
 
-async def getRefreshToken(discordID):
-    """ Gets a Users Bungie-Refreshtoken or None """
+    update_sql = f"""
+        UPDATE 
+            "discordGuardiansToken"
+        SET 
+            destinyID = $1,
+            systemID = $2
+        WHERE 
+            discordSnowflake = $3;"""
+    async with pool.acquire() as connection:
+        await connection.execute(update_sql, IDdestiny, systemID, IDdiscord)
+
+
+async def lookupDestinyID(discordID):
+    """ Takes discordID and returns destinyID """
 
     select_sql = """
         SELECT 
-            refresh_token 
+            destinyID 
         FROM 
             "discordGuardiansToken"
         WHERE 
@@ -79,12 +93,67 @@ async def getRefreshToken(discordID):
         return await connection.fetchval(select_sql, discordID)
 
 
+async def lookupDiscordID(destinyID):
+    """ Takes destinyID and returns discordID """
+
+    select_sql = """
+        SELECT 
+            discordSnowflake 
+        FROM 
+            "discordGuardiansToken"
+        WHERE 
+            destinyID = $1;"""
+    async with pool.acquire() as connection:
+        return await connection.fetchval(select_sql, destinyID)
+
+
+async def lookupSystem(destinyID):
+    """ Takes destinyID and returns system """
+
+    select_sql = """
+        SELECT 
+            systemID 
+        FROM 
+            "discordGuardiansToken"
+        WHERE 
+            destinyID = $1;"""
+    async with pool.acquire() as connection:
+        return await connection.fetchval(select_sql, destinyID)
+
+
+async def getAllDestinyIDs():
+    """ Returns a list with all discord members destiny ids """
+
+    select_sql = """
+        SELECT 
+            destinyID 
+        FROM 
+            "discordGuardiansToken";"""
+    async with pool.acquire() as connection:
+        result = await connection.fetch(select_sql)
+    return [x[0] for x in result]
+
+
 async def getToken(discordID):
     """ Gets a Users Bungie-Token or None"""
 
     select_sql = """
         SELECT 
             token 
+        FROM 
+            "discordGuardiansToken"
+        WHERE 
+            discordSnowflake = $1;"""
+    async with pool.acquire() as connection:
+        return await connection.fetchval(select_sql, discordID)
+
+
+async def getRefreshToken(discordID):
+    """ Gets a Users Bungie-Refreshtoken or None """
+
+    select_sql = """
+        SELECT 
+            refresh_token 
         FROM 
             "discordGuardiansToken"
         WHERE 
@@ -193,76 +262,6 @@ async def getallSteamJoinIDs():
             steamJoinId IS NOT NULL;"""
     async with pool.acquire() as connection:
         return await connection.fetch(select_sql)
-
-
-async def updateUser(IDdiscord, IDdestiny, systemID):
-    """ Updates a User - DestinyID, SystemID  """
-
-    update_sql = f"""
-        UPDATE 
-            "discordGuardiansToken"
-        SET 
-            destinyID = $1,
-            systemID = $2
-        WHERE 
-            discordSnowflake = $3;"""
-    async with pool.acquire() as connection:
-        await connection.execute(update_sql, IDdestiny, systemID, IDdiscord)
-
-
-async def lookupDestinyID(discordID):
-    """ Takes discordID and returns destinyID """
-
-    select_sql = """
-        SELECT 
-            destinyID 
-        FROM 
-            "discordGuardiansToken"
-        WHERE 
-            discordSnowflake = $1;"""
-    async with pool.acquire() as connection:
-        return await connection.fetchval(select_sql, discordID)
-
-
-async def lookupDiscordID(destinyID):
-    """ Takes destinyID and returns discordID """
-
-    select_sql = """
-        SELECT 
-            discordSnowflake 
-        FROM 
-            "discordGuardiansToken"
-        WHERE 
-            destinyID = $1;"""
-    async with pool.acquire() as connection:
-        return await connection.fetchval(select_sql, destinyID)
-
-
-async def lookupSystem(destinyID):
-    """ Takes destinyID and returns system """
-
-    select_sql = """
-        SELECT 
-            systemID 
-        FROM 
-            "discordGuardiansToken"
-        WHERE 
-            destinyID = $1;"""
-    async with pool.acquire() as connection:
-        return await connection.fetchval(select_sql, destinyID)
-
-
-async def getAllDestinyIDs():
-    """ Returns a list with all discord members destiny ids """
-
-    select_sql = """
-        SELECT 
-            destinyID 
-        FROM 
-            "discordGuardiansToken";"""
-    async with pool.acquire() as connection:
-        result = await connection.fetch(select_sql)
-    return [x[0] for x in result]
 
 
 async def insertIntoMessageDB(messagetext, userid, channelid, msgid):

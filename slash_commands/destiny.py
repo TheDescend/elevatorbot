@@ -21,7 +21,8 @@ from functions.dataLoading import searchForItem, getStats, getArtifact, getChara
     updateDB, getDestinyName, getTriumphsJSON, getCharacterInfoList, getCharacterID, getClanMembers
 from functions.dataTransformation import getSeasonalChallengeInfo, getCharStats, getPlayerSeals, getIntStat
 from functions.database import lookupDestinyID, lookupSystem, lookupDiscordID, getToken, getForges, getLastActivity, \
-    getDestinyDefinition, getWeaponInfo, getPgcrActivity, getTopWeapons, getActivityHistory, getPgcrActivitiesUsersStats
+    getDestinyDefinition, getWeaponInfo, getPgcrActivity, getTopWeapons, getActivityHistory, \
+    getPgcrActivitiesUsersStats, getClearCount
 from functions.formating import embed_message
 from functions.miscFunctions import get_emoji, write_line, has_elevated_permissions
 from functions.network import getJSONfromURL
@@ -30,7 +31,7 @@ from functions.slashCommandFunctions import get_user_obj, get_destinyID_and_syst
     verify_time_input
 from functions.tournament import startTournamentEvents
 from static.config import GUILD_IDS, CLANID
-from static.dict import metricRaidCompletion, raidHashes
+from static.dict import metricRaidCompletion, raidHashes, gmHashes
 from static.globals import titan_emoji_id, hunter_emoji_id, warlock_emoji_id, light_level_icon_emoji_id, tournament
 from static.slashCommandOptions import choices_mode
 
@@ -978,6 +979,10 @@ class RankCommands(commands.Cog):
                         value="raidtime"
                     ),
                     create_choice(
+                        name="Grandmaster Nightfalls Done",
+                        value="gm"
+                    ),
+                    create_choice(
                         name="Weapon Kills",
                         value="weapon"
                     ),
@@ -1343,6 +1348,13 @@ class RankCommands(commands.Cog):
             stat_text = "Score"
 
             result_sort = (await getProfile(destinyID, 900))["profileRecords"]["data"]["lifetimeScore"]
+            result = f"{result_sort:,}"
+
+        elif stat == "gm":
+            leaderboard_text = f"Top Clanmembers by D2 Grandmaster Nightfall Completions"
+            stat_text = "Total"
+
+            result_sort = await getClearCount(destinyID, activityHashes=gmHashes)
             result = f"{result_sort:,}"
 
         else:
