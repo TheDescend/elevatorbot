@@ -61,6 +61,9 @@ other_game_roles = [
 clan_join_request = [
     destiny_emoji_id
 ]
+tournament = [
+    destiny_emoji_id
+]
 
 
 # guild ids for testing purposes. If not in it, command can take up to an hour to load

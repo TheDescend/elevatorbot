@@ -56,13 +56,13 @@ async def get_connection_pool():
 async def removeUser(discordID):
     """ Removes a User from the DB (by discordID), returns True if successful"""
 
-    insert_sql = """
+    delete_sql = """
         DELETE FROM 
-            "discordGuardiansToken" 
+            discordGuardiansToken
         WHERE 
             discordSnowflake = $1;"""
     async with pool.acquire() as connection:
-        await connection.execute(insert_sql, discordID)
+        await connection.execute(delete_sql, discordID)
 
 
 async def getRefreshToken(discordID):
@@ -518,6 +518,19 @@ async def getPersistentMessage(messageName, guildId):
             AND guildId = $2;"""
     async with pool.acquire() as connection:
         return await connection.fetchrow(select_sql, messageName, guildId)
+
+
+async def deletePersistentMessage(messageName, guildId):
+    """ Delete a message given the messageName and guildId"""
+
+    delete_sql = """
+        DELETE FROM 
+            persistentMessages
+        WHERE 
+            messageName = $1
+            AND guildId = $2;"""
+    async with pool.acquire() as connection:
+        await connection.execute(delete_sql, messageName, guildId)
 
 
 async def getAllPersistentMessages():

@@ -3,7 +3,7 @@ import datetime
 
 from functions.clanJoinRequests import clanJoinRequestMessageReactions
 from functions.database import getPersistentMessage, insertPersistentMessage, \
-    getallSteamJoinIDs, updatePersistentMessage, getAllPersistentMessages
+    getallSteamJoinIDs, updatePersistentMessage, getAllPersistentMessages, deletePersistentMessage, getToken
 from functions.formating import embed_message
 from static.globals import among_us_emoji_id, barotrauma_emoji_id, gta_emoji_id, valorant_emoji_id, lol_emoji_id, \
     eft_emoji_id, among_us_role_id, barotrauma_role_id, gta_role_id, valorant_role_id, lol_role_id, eft_role_id, \
@@ -22,8 +22,10 @@ async def get_persistent_message(client, message_name, guild_id):
     if not res:
         return False
 
-    # otherwise return message
+    # otherwise return message. Return False should botStatus be asked for on other servers then descend
     channel = client.get_channel(res[0])
+    if not channel:
+        return False
     return await channel.fetch_message(res[1])
 
 
@@ -36,10 +38,14 @@ async def make_persistent_message(client, message_name, guild_id, channel_id, re
     if reaction_id_list is None:
         reaction_id_list = []
     assert (not message_text and not message_embed, "Need to input either text or embed")
+    assert (message_text and message_embed, "Need to input either text or embed, not both")
 
     # make new message
     channel = client.get_channel(channel_id)
-    message = await channel.send(message_name)
+    if message_text:
+        message = await channel.send(message_text)
+    else:
+        message = await channel.send(embed=message_embed)
 
     # react if wanted
     for emoji_id in reaction_id_list:
@@ -66,6 +72,13 @@ async def make_persistent_message(client, message_name, guild_id, channel_id, re
     return message
 
 
+async def delete_persistent_message(message, message_name, guild_id):
+    """ Delete the persisten message for the specified name and guild """
+
+    await message.delete()
+    await deletePersistentMessage(message_name, guild_id)
+
+
 async def check_reaction_for_persistent_message(client, payload):
     # get all persistent messages
     persistent_messages = await getAllPersistentMessages()
@@ -86,10 +99,11 @@ async def handle_persistent_message_reaction(client, payload, persistent_message
     message_id = persistent_message[3]
     reactions_id_list = persistent_message[4]
 
-    # check if the reactions are ok, else remove them
-    if payload.emoji.id not in reactions_id_list:
-        channel = client.get_channel(channel_id)
-        message = await channel.fetch_message(message_id)
+    channel = client.get_channel(channel_id)
+    message = await channel.fetch_message(message_id)
+
+    # check if the reactions are ok, else remove them. Only do that when set reactions exist tho
+    if reactions_id_list and payload.emoji.id not in reactions_id_list:
         await message.remove_reaction(payload.emoji, payload.member)
         return
 
@@ -99,6 +113,15 @@ async def handle_persistent_message_reaction(client, payload, persistent_message
 
     elif message_name == "clanJoinRequest":
         await clanJoinRequestMessageReactions(client, payload.member, payload.emoji, channel_id, message_id)
+
+    # only allow registered users to participate
+    elif message_name == "tournament":
+        if not await getToken(payload.member.id):
+            await message.remove_reaction(payload.emoji, payload.member)
+            await payload.member.send(embed=embed_message(
+                "Error",
+                "You need to register first before you can join a tournament. \nTo do that please use `/registerdesc` in <#670401854496309268>"
+            ))
 
 
 async def steamJoinCodeMessage(client, guild):

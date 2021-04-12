@@ -46,10 +46,7 @@ async def get_destinyID_and_system(ctx: SlashContext, discord_user):
     system = await lookupSystem(destinyID)
 
     if not (destinyID and system):
-        await ctx.send(hidden=True, embed=embed_message(
-            'Error',
-            f'I possess no information about {user.display_name}. \nPlease `/registerdesc` first'
-        ))
+        await ctx.send(f'Error: I possess no information about {user.display_name}. \nPlease `/registerdesc` first', hidden=True)
         return None, None, None
 
     return user, destinyID, system

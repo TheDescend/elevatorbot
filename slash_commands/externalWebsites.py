@@ -18,6 +18,30 @@ class ExternalWebsitesCommands(commands.Cog):
         }
 
     @cog_ext.cog_slash(
+        name="sr",
+        description="Gets your personal soloreport link",
+        options=[
+            create_option(
+                name="user",
+                description="The name of the user you want to look up",
+                option_type=6,
+                required=False
+            )
+        ]
+    )
+    async def _sr(self, ctx: SlashContext, **kwargs):
+        user = await get_user_obj(ctx, kwargs)
+
+        _, destinyID, system = await get_destinyID_and_system(ctx, user)
+
+        if destinyID:
+            await ctx.send(embed=embed_message(
+                'Solo Report',
+                f'https://elevatorbot.ch/soloreport/{system}/{destinyID}'
+            ))
+
+
+    @cog_ext.cog_slash(
         name="rr",
         description="Gets your personal raid.report link",
         options=[

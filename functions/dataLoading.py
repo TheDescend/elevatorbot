@@ -269,10 +269,7 @@ async def searchForItem(ctx, search_term):
 
     # if no weapon was found
     except KeyError:
-        await ctx.send(embed=embed_message(
-            "Error",
-            f'I do not know the weapon "{search_term}"'
-        ), hidden=True)
+        await ctx.send(f'Error: I do not know the weapon `{search_term}`', hidden=True)
         return None, None
 
     # check if we found multiple items with different names. Ask user to specify which one is correct

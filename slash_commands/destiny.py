@@ -23,13 +23,15 @@ from functions.dataTransformation import getSeasonalChallengeInfo, getCharStats,
 from functions.database import lookupDestinyID, lookupSystem, lookupDiscordID, getToken, getForges, getLastActivity, \
     getDestinyDefinition, getWeaponInfo, getPgcrActivity, getTopWeapons, getActivityHistory, getPgcrActivitiesUsersStats
 from functions.formating import embed_message
-from functions.miscFunctions import get_emoji, write_line
+from functions.miscFunctions import get_emoji, write_line, has_elevated_permissions
 from functions.network import getJSONfromURL
+from functions.persistentMessages import get_persistent_message, make_persistent_message, delete_persistent_message
 from functions.slashCommandFunctions import get_user_obj, get_destinyID_and_system, get_user_obj_admin, \
     verify_time_input
+from functions.tournament import startTournamentEvents
 from static.config import GUILD_IDS, CLANID
 from static.dict import metricRaidCompletion, raidHashes
-from static.globals import titan_emoji_id, hunter_emoji_id, warlock_emoji_id, light_level_icon_emoji_id
+from static.globals import titan_emoji_id, hunter_emoji_id, warlock_emoji_id, light_level_icon_emoji_id, tournament
 from static.slashCommandOptions import choices_mode
 
 
@@ -1044,10 +1046,7 @@ class RankCommands(commands.Cog):
 
             # send error message and exit
             else:
-                await ctx.send(hidden=True, embed=embed_message(
-                    "Info",
-                    "Please specify a weapon in the command argument `arg`"
-                ))
+                await ctx.send("Error: Please specify a weapon in the command argument `arg`", hidden=True)
                 return
 
         # calculate the leaderboard
@@ -1893,10 +1892,7 @@ class WeaponCommands(commands.Cog):
         try:
             activity_hash = int(kwargs["activityhash"]) if "activityhash" in kwargs else None
         except ValueError:
-            await ctx.send(hidden=True, embed=embed_message(
-                "Error",
-                "The activityhash parameters must be an integer"
-            ))
+            await ctx.send("Error: The activityhash parameters must be an integer", hidden=True)
             return None, None, None, None, None, None, None
 
         # make sure the times are valid
@@ -1913,6 +1909,119 @@ class WeaponCommands(commands.Cog):
 class TournamentCommands(commands.Cog):
     def __init__(self, client):
         self.client = client
+        self.creator = None
+
+
+    @cog_ext.cog_subcommand(
+        base="tournament",
+        base_description="Everything you need for in-house PvP tournaments",
+        name="create",
+        description="Opens up registration. Can only be used if no other tournament is currently running",
+    )
+    async def _create(self, ctx: SlashContext):
+        # check if tourn already exists
+        message = await get_persistent_message(self.client, "tournament", ctx.guild.id)
+        if message:
+            await ctx.send("Error: A tournament already exists. \nPlease wait until it is completed and then try again", hidden=True)
+            return
+
+        # get the tourn channel id
+        channel = (await get_persistent_message(self.client, "tournamentChannel", ctx.guild.id)).channel
+
+        # make registration message
+        embed = embed_message(
+            "Registration",
+            f"{ctx.author.display_name} startet a tournament!\nTo enter it, please react accordingly"
+        )
+        await make_persistent_message(self.client, "tournament", ctx.guild.id, channel.id, reaction_id_list=tournament, message_embed=embed)
+
+        # to remember who started the tournament, we set ctx.author as the message author
+        self.creator = ctx.author
+
+        # let user know
+        await ctx.send(embed=embed_message(
+            "Success",
+            f"Registration for the tournament has started, visit {channel.mention} to join the fun!"
+        ))
+
+
+    @cog_ext.cog_subcommand(
+        base="tournament",
+        base_description="Everything you need for in-house PvP tournaments",
+        name="start",
+        description="Starts the tournament. Can only be used by the user who used '/tournament create' or an Admin",
+    )
+    async def _start(self, ctx: SlashContext):
+        # check if tourn exists
+        message = await get_persistent_message(self.client, "tournament", ctx.guild.id)
+        if not message:
+            await ctx.send("Error: You need to start the registration by using `/tournament create` first", hidden=True)
+            return
+
+        # check if author has permissions to start
+        if not (message.author == ctx.author) and not (await has_elevated_permissions(ctx.author, ctx.guild)):
+            await ctx.send("Error: Only admins and the tournament creator can start the tournament", hidden=True)
+            return
+
+        # check that at least two people (3, since bot counts too) have reacted and get the users
+        for reaction in message.reactions:
+            if reaction.emoji.id in tournament:
+                if reaction.count < 3:
+                    await ctx.send("Error: At least two people need to sign up", hidden=True)
+                    return
+                participants = []
+                async for user in reaction.users():
+                    if not user.bot:
+                        participants.append(user)
+
+        # start the tourn and wait for it to play out
+        await ctx.send(embed=embed_message(
+            "Success",
+            "The tournament is now starting"
+        ))
+        winner = await startTournamentEvents(self.client, message, message.channel, participants)
+
+        # delete registration message
+        channel = message.channel
+        await delete_persistent_message(message, "tournament", ctx.guild.id)
+
+        # announce winner
+        embed = embed_message(
+            "We have a winner",
+            f"Congratulation {winner.mention}!"
+        )
+        msg = await channel.send(embed=embed)
+
+        # wait 10 mins and then delete
+        await asyncio.sleep(60 * 10)
+        await msg.delete()
+
+
+    @cog_ext.cog_subcommand(
+        base="tournament",
+        base_description="Everything you need for in-house PvP tournaments",
+        name="delete",
+        description="Delete the tournament. Can only be used by the user who used '/tournament create' or an Admin",
+    )
+    async def _delete(self, ctx: SlashContext):
+        # check if tourn exists
+        message = await get_persistent_message(self.client, "tournament", ctx.guild.id)
+        if not message:
+            await ctx.send("Error: There is no tournament to delete", hidden=True)
+            return
+
+        # check if author has permissions to start
+        if not (message.author == ctx.author) and not (await has_elevated_permissions(ctx.author, ctx.guild)):
+            await ctx.send("Error: Only admins and the tournament creator can delete the tournament", hidden=True)
+            return
+
+        # delete msg
+        await delete_persistent_message(message, "tournament", ctx.guild.id)
+
+        await ctx.send(embed=embed_message(
+            "Success",
+            "The tournament has been deleted"
+        ))
 
 
 def setup(client):

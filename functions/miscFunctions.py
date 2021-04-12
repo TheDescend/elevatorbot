@@ -85,10 +85,7 @@ async def has_elevated_permissions(user, guild, ctx: SlashContext = None):
 
     if admin not in user.roles and dev not in user.roles and mod not in user.roles:
         if ctx:
-            await ctx.send(hidden=True, embed=embed_message(
-                'Error',
-                'You do not have permission do to this'
-            ))
+            await ctx.send('Error: You do not have permission do to this', hidden=True)
         return False
     return True
 

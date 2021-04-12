@@ -102,10 +102,7 @@ class RoleCommands(commands.Cog):
         await removeRolesFromUser(removeRoles, user, ctx.guild, reason="Role Update")
 
         if not roles_assignable:
-            await ctx.send(hidden=True, embed=embed_message(
-                'Error',
-                f'You seem to have been banned from acquiring any roles.\nIf you believe this is a mistake, refer to the admin team or DM <@386490723223994371>'
-            ))
+            await ctx.send(f'Error: You seem to have been banned from acquiring any roles.\nIf you believe this is a mistake, refer to the admin team or DM <@386490723223994371>', hidden=True)
             return
 
         # refreshing user obj to display the new roles
@@ -213,10 +210,7 @@ class RoleCommands(commands.Cog):
                         break
 
         if not found:
-            await ctx.send(hidden=True, embed=embed_message(
-                'Error',
-                f"This role can't be achieved through Destiny 2 \nPlease try again with a different role"
-            ))
+            await ctx.send(f"Error: This role can't be achieved through Destiny 2 \nPlease try again with a different role", hidden=True)
             return
 
         # Get user details
