@@ -16,64 +16,62 @@ async def clanJoinRequestMessageReactions(client, user, emoji, channel, channel_
     join = client.get_emoji(destiny_emoji_id)
     destinyID = await lookupDestinyID(user.id)
 
-    # if the reaction is the correct one
-    if emoji.id == join.id:
-        # remove reaction
-        await message.remove_reaction(join, user)
+    # remove reaction
+    await message.remove_reaction(join, user)
 
-        # abort if user already is in clan
-        for member in (await getJSONfromURL(f"https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/"))["Response"]["results"]:
-            memberID = int(member["destinyUserInfo"]["membershipId"])
-            if memberID == destinyID:
-                print(f"{user.display_name} tried to join the clan while being in it")
-                return
-
-        # abort if user is @not_registered
-        if not await checkIfUserIsRegistered(user):
+    # abort if user already is in clan
+    for member in (await getJSONfromURL(f"https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/"))["Response"]["results"]:
+        memberID = int(member["destinyUserInfo"]["membershipId"])
+        if memberID == destinyID:
+            print(f"{user.display_name} tried to join the clan while being in it")
             return
 
-        # abort if member hasnt accepted the rules
-        if user.pending:
-            await user.send("Please accept the rules first. Try again after")
-            return
+    # abort if user is @not_registered
+    if not await checkIfUserIsRegistered(user):
+        return
 
-        # abort if user doesn't fulfill requirements
-        req = await checkRequirements(user.id)
-        if req:
-            embed = embed_message(
-                "Clan Application",
-                "Sorry, you don't fulfill the needed requirements"
-            )
-            for name, value in req.items():
-                embed.add_field(name=name, value=value, inline=True)
+    # abort if member hasnt accepted the rules
+    if user.pending:
+        await user.send("Please accept the rules first. Try again after")
+        return
 
-            await user.send(embed=embed)
-            return
-
-        # send user a clan invite (using kigstn's id / token since he is an admin and not the owner for some safety)
-        membershipType = await lookupSystem(destinyID)
-        postURL = f'https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/IndividualInvite/{membershipType}/{destinyID}/'
-        data = {
-            "message": "Welcome"
-        }
-        ret = await postJSONtoBungie(postURL, data, 171650677607497730) #Halis ID
-
-        # inform user if invite was send / sth went wrong
-        if ret["error"] is None:
-            text = "Sent you a clan application"
-            embed = embed_message(
-                "Clan Update",
-                f"{user.display_name} with discordID <{user.id}> and destinyID <{destinyID}> has been sent a clan invite"
-            )
-            await newtonslab.send(embed=embed)
-        else:
-            text = ret["error"]
-
+    # abort if user doesn't fulfill requirements
+    req = await checkRequirements(user.id)
+    if req:
         embed = embed_message(
             "Clan Application",
-            text
+            "Sorry, you don't fulfill the needed requirements"
         )
+        for name, value in req.items():
+            embed.add_field(name=name, value=value, inline=True)
+
         await user.send(embed=embed)
+        return
+
+    # send user a clan invite (using kigstn's id / token since he is an admin and not the owner for some safety)
+    membershipType = await lookupSystem(destinyID)
+    postURL = f'https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/IndividualInvite/{membershipType}/{destinyID}/'
+    data = {
+        "message": "Welcome"
+    }
+    ret = await postJSONtoBungie(postURL, data, 171650677607497730) #Halis ID
+
+    # inform user if invite was send / sth went wrong
+    if ret["error"] is None:
+        text = "Sent you a clan application"
+        embed = embed_message(
+            "Clan Update",
+            f"{user.display_name} with discordID <{user.id}> and destinyID <{destinyID}> has been sent a clan invite"
+        )
+        await newtonslab.send(embed=embed)
+    else:
+        text = ret["error"]
+
+    embed = embed_message(
+        "Clan Application",
+        text
+    )
+    await user.send(embed=embed)
 
 
 # if a user leaves discord, he will be removed from the clan as well if admins react to the msg in the bot dev channel

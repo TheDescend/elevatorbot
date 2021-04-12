@@ -504,7 +504,7 @@ async def updatePersistentMessage(messageName, guildId, channelId, messageId, re
 
 
 async def getPersistentMessage(messageName, guildId):
-    """ Gets a message mapping given the messageName and guildId"""
+    """ Gets a message mapping given the messageName and guildId and channelId"""
 
     select_sql = """
         SELECT 
@@ -518,6 +518,18 @@ async def getPersistentMessage(messageName, guildId):
             AND guildId = $2;"""
     async with pool.acquire() as connection:
         return await connection.fetchrow(select_sql, messageName, guildId)
+
+
+async def getAllPersistentMessages():
+    """ Gets all messages"""
+
+    select_sql = """
+        SELECT 
+            *
+        FROM 
+            persistentMessages;"""
+    async with pool.acquire() as connection:
+        return await connection.fetch(select_sql)
 
 
 ################################################################

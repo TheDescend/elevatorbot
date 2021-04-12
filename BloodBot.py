@@ -34,7 +34,7 @@ from discord.ext.commands import Bot
 from discord_slash import SlashCommand, SlashContext
 
 import message_handler
-from commands.makePersistentMessages import otherGameRolesMessageReactions
+from functions.persistentMessages import otherGameRolesMessageReactions, check_reaction_for_persistent_message
 from events.base_event import BaseEvent
 from events import *
 from functions.clanJoinRequests import clanJoinRequestMessageReactions, removeFromClanAfterLeftDiscord
@@ -250,30 +250,8 @@ def main():
         if not payload.member or payload.member.bot:
             return
 
-        # # for checking reactions to the bounties registration page
-        # if os.path.exists('functions/bounties/channelIDs.pickle'):
-        #     file = getGlobalVar()
-        #
-        #     # check if reaction is on the registration page
-        #     if "register_channel_message_id" in file:
-        #         channel_message_id = file["register_channel_message_id"]
-        #         if payload.message_id == channel_message_id:
-        #             register_channel = discord.utils.get(client.get_all_channels(), guild__id=payload.guild_id, id=file["register_channel"])
-        #             await registrationMessageReactions(client, payload.member, payload.emoji, register_channel, channel_message_id)
-        #
-        #     # check if reaction is on the other game role page
-        #     if "other_game_roles_channel_message_id" in file:
-        #         channel_message_id = file["other_game_roles_channel_message_id"]
-        #         if payload.message_id == channel_message_id:
-        #             register_channel = discord.utils.get(client.get_all_channels(), guild__id=payload.guild_id, id=file["other_game_roles_channel"])
-        #             await otherGameRolesMessageReactions(client, payload.member, payload.emoji, register_channel, channel_message_id)
-        #
-        #     # check if reaction is on the clan join request page
-        #     if "clan_join_request_channel_message_id" in file:
-        #         channel_message_id = file["clan_join_request_channel_message_id"]
-        #         if payload.message_id == channel_message_id:
-        #             register_channel = discord.utils.get(client.get_all_channels(), guild__id=payload.guild_id, id=file["clan_join_request_channel"])
-        #             await clanJoinRequestMessageReactions(client, payload.member, payload.emoji, register_channel, channel_message_id)
+        # check if reaction is on a persistent message
+        await check_reaction_for_persistent_message(client, payload)
 
     @client.event
     async def on_voice_state_update(member, before, after):
