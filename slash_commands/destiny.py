@@ -30,7 +30,7 @@ from functions.persistentMessages import get_persistent_message, make_persistent
 from functions.slashCommandFunctions import get_user_obj, get_destinyID_and_system, get_user_obj_admin, \
     verify_time_input
 from functions.tournament import startTournamentEvents
-from static.config import GUILD_IDS, CLANID
+from static.config import CLANID
 from static.dict import metricRaidCompletion, raidHashes, gmHashes
 from static.globals import titan_emoji_id, hunter_emoji_id, warlock_emoji_id, light_level_icon_emoji_id, tournament
 from static.slashCommandOptions import choices_mode
