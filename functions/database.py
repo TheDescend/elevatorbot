@@ -676,7 +676,7 @@ async def getPgcrActivity(instanceId):
         WHERE 
             instanceId = $1;"""
     async with pool.acquire() as connection:
-        return await connection.fetchrow(select_sql, instanceId)
+        return await connection.fetchrow(select_sql, int(instanceId))
 
 
 async def getPgcrActivitiesUsersStats(instanceId):
