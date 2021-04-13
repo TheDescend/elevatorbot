@@ -709,11 +709,11 @@ async def insertPgcrActivitiesUsersStats(instanceId, membershipId, characterId, 
         ON CONFLICT 
             DO NOTHING;"""
     async with pool.acquire() as connection:
-        await connection.execute(insert_sql, int(instanceId), int(membershipId), int(characterId), characterClass, characterLevel,
-            membershipType, lightLevel, emblemHash, standing, assists, completed,
-            deaths, kills, opponentsDefeated, efficiency, killsDeathsRatio, killsDeathsAssists,
-            score, activityDurationSeconds, completionReason, startSeconds, timePlayedSeconds,
-            playerCount, teamScore, precisionKills, weaponKillsGrenade, weaponKillsMelee, weaponKillsSuper, weaponKillsAbility)
+        await connection.execute(insert_sql, int(instanceId), int(membershipId), int(characterId), characterClass, int(characterLevel),
+            int(membershipType), int(lightLevel), int(emblemHash), int(standing), int(assists), int(completed),
+            int(deaths), int(kills), int(opponentsDefeated), float(efficiency), float(killsDeathsRatio), float(killsDeathsAssists),
+            int(score), int(activityDurationSeconds), int(completionReason), int(startSeconds), int(timePlayedSeconds),
+            int(playerCount), int(teamScore), int(precisionKills), int(weaponKillsGrenade), int(weaponKillsMelee), int(weaponKillsSuper), int(weaponKillsAbility))
 
 
 async def insertFailToGetPgcrInstanceId(instanceID, period):
