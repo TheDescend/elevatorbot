@@ -150,60 +150,60 @@ def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
                                'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
-@app.route('/elevatorgateway/', methods=['POST'])
-def elevatorgateway():
-    signature = request.headers["X-Signature-Ed25519"]
-    timestamp = request.headers["X-Signature-Timestamp"]
-    body = request.data
-    
-    try:
-        verify_key.verify(timestamp.encode() + body, bytes.fromhex(signature))
-    except BadSignatureError:
-        abort(401, 'invalid request signature') #https://i.imgflip.com/48ybrs.jpg
-        return
-
-
-    if request.json["type"] == 1: #responding to discords pings
-        return jsonify({
-            "type": 1 
-        })
-    
-    else: #https://discord.com/developers/docs/interactions/slash-commands -> responding to an interaction
-        print(request.json['data'])
-        data = request.json['data']
-        if data['name'] == 'lenny': #check name of command
-            if 'options' in request.json['data'].keys() and request.json['data']['options'][0]['value'] > 0:
-                return jsonify({
-                    "type": 4,
-                    "data": {
-                        "tts": False,
-                        "content": "( ͡° ͜ʖ ͡°)" * request.json['data']['options'][0]['value'],
-                        "embeds": [],
-                        "allowed_mentions": []
-                    }
-                })
-            else:
-                return jsonify({
-                    "type": 4,
-                    "data": {
-                        "tts": False,
-                        "content": "( ͡° ͜ʖ ͡°)",
-                        "embeds": [],
-                        "allowed_mentions": []
-                    }
-                })
-        elif data['name'] == 'newCommand':
-            pass
-        else:
-            return jsonify({
-                    "type": 4,
-                    "data": {
-                        "tts": False,
-                        "content": "Command not implemented",
-                        "embeds": [],
-                        "allowed_mentions": []
-                    }
-                })
+# @app.route('/elevatorgateway/', methods=['POST'])
+# def elevatorgateway():
+#     signature = request.headers["X-Signature-Ed25519"]
+#     timestamp = request.headers["X-Signature-Timestamp"]
+#     body = request.data
+#
+#     try:
+#         verify_key.verify(timestamp.encode() + body, bytes.fromhex(signature))
+#     except BadSignatureError:
+#         abort(401, 'invalid request signature') #https://i.imgflip.com/48ybrs.jpg
+#         return
+#
+#
+#     if request.json["type"] == 1: #responding to discords pings
+#         return jsonify({
+#             "type": 1
+#         })
+#
+#     else: #https://discord.com/developers/docs/interactions/slash-commands -> responding to an interaction
+#         print(request.json['data'])
+#         data = request.json['data']
+#         if data['name'] == 'lenny': #check name of command
+#             if 'options' in request.json['data'].keys() and request.json['data']['options'][0]['value'] > 0:
+#                 return jsonify({
+#                     "type": 4,
+#                     "data": {
+#                         "tts": False,
+#                         "content": "( ͡° ͜ʖ ͡°)" * request.json['data']['options'][0]['value'],
+#                         "embeds": [],
+#                         "allowed_mentions": []
+#                     }
+#                 })
+#             else:
+#                 return jsonify({
+#                     "type": 4,
+#                     "data": {
+#                         "tts": False,
+#                         "content": "( ͡° ͜ʖ ͡°)",
+#                         "embeds": [],
+#                         "allowed_mentions": []
+#                     }
+#                 })
+#         elif data['name'] == 'newCommand':
+#             pass
+#         else:
+#             return jsonify({
+#                     "type": 4,
+#                     "data": {
+#                         "tts": False,
+#                         "content": "Command not implemented",
+#                         "embeds": [],
+#                         "allowed_mentions": []
+#                     }
+#                 })
 
 @app.before_request
 def before_request():
