@@ -942,7 +942,7 @@ async def insertPgcrActivitiesUsersStatsWeapons(instanceId, characterId, members
         ON CONFLICT
             DO NOTHING;"""
     async with pool.acquire() as connection:
-        await connection.execute(insert_sql, int(instanceId), characterId, membershipId, weaponId, uniqueWeaponKills, uniqueWeaponPrecisionKills)
+        await connection.execute(insert_sql, int(instanceId), int(characterId), membershipId, weaponId, uniqueWeaponKills, uniqueWeaponPrecisionKills)
 
 
 async def getWeaponInfo(membershipID: int, weaponID: int, characterID: int = None, mode: int = 0, activityID: int = None, start: datetime = datetime.min, end: datetime = datetime.now()):
