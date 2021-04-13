@@ -233,7 +233,7 @@ async def setSteamJoinID(IDdiscord, IDSteamJoin):
         WHERE 
             discordSnowflake = $2;"""
     async with pool.acquire() as connection:
-        await connection.execute(update_sql, IDSteamJoin, IDdiscord)
+        await connection.execute(update_sql, int(IDSteamJoin), IDdiscord)
 
 
 async def getSteamJoinID(IDdiscord):
