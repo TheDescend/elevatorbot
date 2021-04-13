@@ -28,21 +28,22 @@ class addRolesToRegistered(BaseCommand):
         notregisteredlist = []
         registeredlist = []
         for member in message.guild.members:
-            await removeRolesFromUser([registered_role_id], member, message.guild)
-            await removeRolesFromUser([not_registered_role_id], member, message.guild)
+            if not member.pending:
+                await removeRolesFromUser([registered_role_id], member, message.guild)
+                await removeRolesFromUser([not_registered_role_id], member, message.guild)
 
-            if getToken(member.id):
-                await assignRolesToUser([registered_role_id], member, message.guild)
-                registeredlist.append(member.name)
-            else:
-                await assignRolesToUser([not_registered_role_id], member, message.guild)
-                notregisteredlist.append(member.name)
-            
-            roleids = [role.id for role in member.roles]
-            if (registered_role_id not in roleids) and (not_registered_role_id not in roleids):
-                print(getToken(member.id))
-                print(member.id)
-                break
+                if getToken(member.id):
+                    await assignRolesToUser([registered_role_id], member, message.guild)
+                    registeredlist.append(member.name)
+                else:
+                    await assignRolesToUser([not_registered_role_id], member, message.guild)
+                    notregisteredlist.append(member.name)
+
+                roleids = [role.id for role in member.roles]
+                if (registered_role_id not in roleids) and (not_registered_role_id not in roleids):
+                    print(getToken(member.id))
+                    print(member.id)
+                    break
         
 
         await message.channel.send(f"Registered:\n {','.join(registeredlist)}")
