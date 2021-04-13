@@ -296,6 +296,9 @@ def main():
     async def on_slash_command(ctx: SlashContext):
         """ Gets triggered every slash command """
 
+        # print the command
+        print(f"{ctx.author.display_name} used '/{ctx.name}' with kwargs '{ctx.kwargs}'")
+
         # log the command
         logger = logging.getLogger('slash_commands')
         logger.info(f"InteractionID '{ctx.interaction_id}' - User '{ctx.author.name}' with discordID '{ctx.author.id}' executed '/{ctx.name}' with kwargs '{ctx.kwargs}' in guildID '{ctx.guild.id}', channelID '{ctx.channel.id}'")
