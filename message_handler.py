@@ -31,6 +31,9 @@ async def handle_command(command, params, message, client):
     print(f"{message.author.name}: {COMMAND_PREFIX}{command} "
           + " ".join(params))
 
+    # tell them to use / commands
+    await message.reply("Did you know we have slash commands now? Please use those, normal commands might not work anymore. \nType `/` to see a list of commands")
+
     # log the command - <discordID,command,arg1 arg2>
     logger = logging.getLogger('commands')
     logger.info(f"""<{message.author.id},{command},{" ".join(params)}>""")
