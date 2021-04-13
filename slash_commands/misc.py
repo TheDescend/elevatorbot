@@ -35,12 +35,12 @@ class MiscCommands(commands.Cog):
         await ctx.send(embed=embed)
 
 
-    @cog_ext.cog_slash(
-        name="documentation",
-        description="Links the bots' documentation"
-    )
-    async def _documentation(self, ctx: SlashContext):
-        await ctx.send('Check out https://github.com/LukasSchmid97/destinyBloodoakStats/blob/master/README.md')
+    # @cog_ext.cog_slash(
+    #     name="documentation",
+    #     description="Links the bots' documentation"
+    # )
+    # async def _documentation(self, ctx: SlashContext):
+    #     await ctx.send('Check out https://github.com/LukasSchmid97/destinyBloodoakStats/blob/master/README.md')
 
 
     @cog_ext.cog_slash(
