@@ -709,7 +709,7 @@ async def insertPgcrActivitiesUsersStats(instanceId, membershipId, characterId, 
         ON CONFLICT 
             DO NOTHING;"""
     async with pool.acquire() as connection:
-        await connection.execute(insert_sql, int(instanceId), membershipId, characterId, characterClass, characterLevel,
+        await connection.execute(insert_sql, int(instanceId), int(membershipId), int(characterId), characterClass, characterLevel,
             membershipType, lightLevel, emblemHash, standing, assists, completed,
             deaths, kills, opponentsDefeated, efficiency, killsDeathsRatio, killsDeathsAssists,
             score, activityDurationSeconds, completionReason, startSeconds, timePlayedSeconds,
