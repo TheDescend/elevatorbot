@@ -143,11 +143,17 @@ class DestinyCommands(commands.Cog):
         if not destinyID:
             return
 
+        # might take a sec
+        await ctx.defer()
+
         # get data for the mode specified
         await updateDB(destinyID)
         data = await getLastActivity(destinyID, mode=int(kwargs["activity"]) if "activity" in kwargs and kwargs["activity"] != "0" else None)
         if not data:
-            await ctx.send("Error: Couldn't find any data for that mode. If you think this is an error DM me", hidden=True)
+            await ctx.send(embed=embed_message(
+                "Error",
+                "Couldn't find any data for that mode. If you think this is an error DM me"
+            ))
             return
 
         # make data pretty and send msg
