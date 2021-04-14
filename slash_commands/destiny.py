@@ -1114,12 +1114,12 @@ class RankCommands(commands.Cog):
 
         elif stat == "totaltime":
             leaderboard_text = "Top Clanmembers by D2 Total Time Logged In"
-            stat_text = "Hours"
+            stat_text = ""
 
             # in hours
             json = await getStats(destinyID)
-            result_sort = self._add_stats(json, "secondsPlayed") / 60 / 60
-            result = f"{result_sort:,}"
+            result_sort = self._add_stats(json, "secondsPlayed")
+            result = str(datetime.timedelta(seconds=result_sort))
 
         elif stat == "orbs":
             leaderboard_text = "Top Clanmembers by PvE Orbs Generated"
