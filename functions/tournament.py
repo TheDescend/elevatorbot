@@ -148,7 +148,7 @@ class Tournament:
                 msg = await tourn_channel.fetch_message(msg.id)
                 for reaction in msg.reactions:
                     async for user in reaction.users():
-                        if user != client.user:
+                        if not user.bot:
                             if await has_elevated_permissions(user, tourn_channel.guild):
                                 print("Detected manual game winner overwrite")
                                 for reaction_id in which_user_is_which_emoji:
