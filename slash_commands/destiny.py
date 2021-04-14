@@ -1114,7 +1114,7 @@ class RankCommands(commands.Cog):
 
         elif stat == "totaltime":
             leaderboard_text = "Top Clanmembers by D2 Total Time Logged In"
-            stat_text = ""
+            stat_text = "Total"
 
             # in hours
             json = await getStats(destinyID)
