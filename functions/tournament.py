@@ -110,8 +110,8 @@ class Tournament:
             destinyID2 = await lookupDestinyID(user2.id)
 
             which_user_is_which_emoji = {
-                569576890512179220: destinyID1,
-                569576890470498315: destinyID2,
+                755044614850740304: destinyID1,
+                755044614733561916: destinyID2,
             }
 
             membershipType1, charIDs1 = await getCharacterList(destinyID1)
