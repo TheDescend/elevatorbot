@@ -25,8 +25,10 @@ async def get_user_obj_admin(ctx: SlashContext, kwargs: dict = None, allowed_use
 
     user = await get_user_obj(ctx, kwargs)
 
-    if await has_elevated_permissions(ctx.author, ctx.guild, ctx) or user == ctx.author or ctx.author.id in allowed_users:
+    if await has_elevated_permissions(ctx.author, ctx.guild) or user == ctx.author or ctx.author.id in allowed_users:
         return user
+
+    await ctx.send('Error: You do not have permission do to this', hidden=True)
     return
 
 
