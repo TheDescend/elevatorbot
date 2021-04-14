@@ -28,7 +28,7 @@ verify_key = VerifyKey(bytes.fromhex(BOT_ACCOUNT_PUBLIC_KEY))
 app = Flask(__name__)
 
 loop = asyncio.get_event_loop()
-loop.run_until_complete(create_connection_pool)
+loop.run_until_complete(create_connection_pool())
 
 
 def shutdown_server():
