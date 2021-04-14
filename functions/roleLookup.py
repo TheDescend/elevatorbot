@@ -177,7 +177,7 @@ async def getPlayerRoles(playerid, existingRoles = []):
     return (roles, redundantRoles)
 
 async def assignRolesToUser(roleList, discordUser, guild, reason=None):
-    #takes rolelist as string array, userSnowflake, guild object
+    # takes rolelist as string array, userSnowflake, guild object
     if not discordUser:
         return False
     

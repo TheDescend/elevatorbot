@@ -182,6 +182,8 @@ async def botStatus(client, field_name: str, time: datetime.datetime):
 
     # get msg. guild id is one, since there is only gonna be one msg
     message = await get_persistent_message(client, "botStatus", 1)
+    if not message:
+        return
 
     embed = embed_message(
         "Status: Last valid..."

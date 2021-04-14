@@ -93,7 +93,7 @@ class Tournament:
                 elif bracket[1] in to_play:
                     bracket[1] = await playBracket(client, tourn_channel, bracket[1])
 
-            won, lost, msg = await playGame(client, tourn_channel, bracket[0], bracket[1])
+            won = await playGame(client, tourn_channel, bracket[0], bracket[1])
 
             return won
 

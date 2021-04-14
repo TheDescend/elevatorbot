@@ -36,14 +36,6 @@ class MiscCommands(commands.Cog):
         await ctx.send(embed=embed)
 
 
-    # @cog_ext.cog_slash(
-    #     name="documentation",
-    #     description="Links the bots' documentation"
-    # )
-    # async def _documentation(self, ctx: SlashContext):
-    #     await ctx.send('Check out https://github.com/LukasSchmid97/destinyBloodoakStats/blob/master/README.md')
-
-
     @cog_ext.cog_slash(
         name="funfact",
         description="Very fun fun facts just for the funny fun of it"
@@ -83,8 +75,8 @@ class MiscCommands(commands.Cog):
 
         user = await get_user_obj(ctx, kwargs)
 
-        author = copy.deepcopy(ctx.author)
-        guild = copy.deepcopy(ctx.guild)
+        author = ctx.author
+        guild = ctx.guild
 
         if author.id is not user.id:
             await ctx.send("I saw what you did there, that doesn't work here mate")
@@ -97,7 +89,7 @@ class MiscCommands(commands.Cog):
         await asyncio.sleep(2)
         await author.send("_Rolling dice..._")
         await asyncio.sleep(5)
-        timeout = random.choice([5, 10, 15, 30, 45, 60, 120])
+        timeout = random.choice([17])# 5, 10, 15, 30, 45, 60, 120])
         if timeout == 120:
             await author.send("**__!!! CONGRATULATIONS !!!__**")
             async with aiohttp.ClientSession() as session:
@@ -118,6 +110,10 @@ class MiscCommands(commands.Cog):
 
         # remove muted role after time is over
         await asyncio.sleep(60 * timeout)
+
+        # refresh user obj
+        author = await guild.fetch_member(author.id)
+
         await removeRolesFromUser([muted_role_id], author, guild)
         await author.send("Sadly your victory is no more. Hope to see you back again soon!")
 
