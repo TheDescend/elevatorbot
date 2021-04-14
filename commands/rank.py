@@ -192,7 +192,7 @@ async def handle_user(stat, member, guild, extra_hash, extra_name):
         # in hours
         json = await getStats(destinyID)
         result_sort = add_stats(json, "secondsPlayed") / 60 / 60
-        result = f"{result_sort:,}"
+        result = f"{int(result_sort):,}"
 
     elif stat == "orbs":
         leaderboard_text = "Top Clanmembers by PvE Orbs Generated"
