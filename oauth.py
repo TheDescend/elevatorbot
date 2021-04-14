@@ -12,7 +12,8 @@ from flask import send_from_directory
 from datetime import datetime
 
 from functions.network import getFreshToken
-from functions.database import insertToken, getRefreshToken, getToken, updateToken, lookupDestinyID, lookupDiscordID
+from functions.database import insertToken, getRefreshToken, getToken, updateToken, lookupDestinyID, lookupDiscordID, \
+    create_connection_pool
 from static.config import BUNGIE_TOKEN, B64_SECRET, NEWTONS_WEBHOOK
 
 from nacl.signing import VerifyKey
@@ -27,6 +28,7 @@ verify_key = VerifyKey(bytes.fromhex(BOT_ACCOUNT_PUBLIC_KEY))
 app = Flask(__name__)
 
 loop = asyncio.get_event_loop()
+loop.run_until_complete(create_connection_pool)
 
 
 def shutdown_server():

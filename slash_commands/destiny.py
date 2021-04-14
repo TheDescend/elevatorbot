@@ -581,13 +581,13 @@ class ClanActivitiesCommands(commands.Cog):
             ),
             create_option(
                 name="starttime",
-                description="Format: 'DD/MM/YY' - You can restrict the start-time (lower cutoff)",
+                description="Format: 'DD/MM/YY' - You can restrict the start (lower cutoff). Note: Can break for long timespan",
                 option_type=3,
                 required=False
             ),
             create_option(
                 name="endtime",
-                description="Format: 'DD/MM/YY' - You can restrict the end-time (higher cutoff)",
+                description="Format: 'DD/MM/YY' - You can restrict the end  (higher cutoff)",
                 option_type=3,
                 required=False
             ),

@@ -1,6 +1,7 @@
 import asyncio
 import io
 import random
+import copy
 
 import aiohttp
 import discord
@@ -25,7 +26,7 @@ class MiscCommands(commands.Cog):
         description="Prints all premium subscribers"
     )
     async def _boosters(self, ctx: SlashContext):
-        sorted_premium_subscribers = sorted(ctx.guild.premium_subscribers, key=lambda m:m.premium_since.strftime('%d/%m/%Y, %H:%M'), reverse=True)
+        sorted_premium_subscribers = sorted(ctx.guild.premium_subscribers, key=lambda m: m.premium_since, reverse=True)
 
         embed = embed_message(
             f"{ctx.guild.name} Nitro Boosters",
@@ -82,8 +83,8 @@ class MiscCommands(commands.Cog):
 
         user = await get_user_obj(ctx, kwargs)
 
-        author = ctx.author
-        guild = ctx.guild
+        author = copy.deepcopy(ctx.author)
+        guild = copy.deepcopy(ctx.guild)
 
         if author.id is not user.id:
             await ctx.send("I saw what you did there, that doesn't work here mate")
