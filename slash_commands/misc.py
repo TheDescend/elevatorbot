@@ -89,7 +89,7 @@ class MiscCommands(commands.Cog):
         await asyncio.sleep(2)
         await author.send("_Rolling dice..._")
         await asyncio.sleep(5)
-        timeout = random.choice([17])# 5, 10, 15, 30, 45, 60, 120])
+        timeout = random.choice([5, 10, 15, 30, 45, 60, 120])
         if timeout == 120:
             await author.send("**__!!! CONGRATULATIONS !!!__**")
             async with aiohttp.ClientSession() as session:
