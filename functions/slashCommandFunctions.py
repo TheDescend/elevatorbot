@@ -58,9 +58,6 @@ async def verify_time_input(ctx, input):
     try:
         return datetime.datetime.strptime(input, "%d/%m/%y")
     except ValueError:
-        await ctx.send(embed=embed_message(
-            "Error",
-            "The time parameters must be in this format - `DD/MM/YY`"
-        ))
+        await ctx.send("Error: The time parameters must be in this format - `DD/MM/YY`", hidden=True)
         return False
 

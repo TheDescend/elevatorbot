@@ -107,6 +107,13 @@ class RegistrationCommands(commands.Cog):
         if not user:
             return
 
+        # check if id is an int
+        try:
+            kwargs["steamid"] = int(kwargs["steamid"])
+        except ValueError:
+            await ctx.send("Error: `steamid` must be an integer", hidden=True)
+            return
+
         # save id
         await setSteamJoinID(user.id, kwargs["steamid"])
 

@@ -138,7 +138,6 @@ class DestinyCommands(commands.Cog):
         ],
     )
     async def _last(self, ctx: SlashContext, **kwargs):
-        await ctx.defer()
         user = await get_user_obj(ctx, kwargs)
         _, destinyID, system = await get_destinyID_and_system(ctx, user)
         if not destinyID:
@@ -146,7 +145,10 @@ class DestinyCommands(commands.Cog):
 
         # get data for the mode specified
         await updateDB(destinyID)
-        data = await getLastActivity(destinyID, mode=kwargs["activity"])
+        data = await getLastActivity(destinyID, mode=int(kwargs["activity"]) if "activity" in kwargs and kwargs["activity"] != "0" else None)
+        if not data:
+            await ctx.send("Error: Couldn't find any data for that mode. If you think this is an error DM me", hidden=True)
+            return
 
         # make data pretty and send msg
         activity_name = (await getDestinyDefinition("DestinyActivityDefinition", data['directorActivityHash']))[2]
@@ -598,7 +600,7 @@ class ClanActivitiesCommands(commands.Cog):
             return
 
         # get params
-        mode = int(kwargs["mode"]) if "mode" in kwargs else 0
+        mode = int(kwargs["mode"]) if "mode" in kwargs else None
         start_time = await verify_time_input(ctx, kwargs["starttime"]) if "starttime" in kwargs else datetime.datetime.now() - datetime.timedelta(days=7)
         if not start_time:
             return

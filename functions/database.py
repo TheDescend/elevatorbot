@@ -277,10 +277,10 @@ async def insertIntoMessageDB(messagetext, userid, channelid, msgid):
         await connection.execute(insert_sql, messagetext, userid, channelid, msgid, datetime.now())
 
 
-async def getLastActivity(destinyID, mode, before=datetime.now()):
+async def getLastActivity(destinyID, mode=None, before=datetime.now()):
     """ Gets the last activity in the specified mode """
 
-    select_sql = """
+    select_sql = f"""
         SELECT 
             t1.instanceID, t1.period, t1.directorActivityHash
         FROM (  
@@ -290,7 +290,7 @@ async def getLastActivity(destinyID, mode, before=datetime.now()):
                 PgcrActivities
             WHERE 
                 period < $1
-                AND $2 = ANY(modes)
+                {f"AND {mode} = ANY(modes)" if mode else ""}
         ) AS t1
         JOIN (  
             SELECT 
@@ -298,7 +298,7 @@ async def getLastActivity(destinyID, mode, before=datetime.now()):
             FROM 
                 PgcrActivitiesUsersStats
             WHERE 
-                membershipId = $3
+                membershipId = $2
         ) AS ipp 
         ON (
             ipp.instanceID = t1.instanceID
@@ -307,7 +307,10 @@ async def getLastActivity(destinyID, mode, before=datetime.now()):
             period DESC
         LIMIT 1;"""
     async with pool.acquire() as connection:
-        res = await connection.fetchrow(select_sql, before, int(mode), destinyID)
+        res = await connection.fetchrow(select_sql, before, destinyID)
+
+    if not res:
+        return None
 
     # prepare return as a dict
     result = {
@@ -316,8 +319,6 @@ async def getLastActivity(destinyID, mode, before=datetime.now()):
         "directorActivityHash": res[2],
     }
 
-    if not res[0]:
-        return None
     select_sql = """
         SELECT 
             lightlevel, membershipId, characterClass, deaths, opponentsDefeated, completed, score, timePlayedSeconds, activityDurationSeconds, assists, membershipType
@@ -923,7 +924,8 @@ async def getActivityHistory(destinyID, mode: int = None, activityHashes: list =
             {"AND t1.directorActivityHash IN (" + ",".join([str(x) for x in activityHashes]) + ")" if activityHashes else ""}
             {"AND t1.mode = " + str(mode) if mode else ""};"""
     async with pool.acquire() as connection:
-        return await connection.fetch(select_sql, destinyID, start_time, end_time)
+        result = await connection.fetch(select_sql, destinyID, start_time, end_time)
+    return [x[0] for x in result]
 
 
 ################################################################

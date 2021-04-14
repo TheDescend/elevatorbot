@@ -3,7 +3,7 @@ from discord_slash.utils.manage_commands import create_choice
 
 choices_mode = [
     create_choice(
-        name="Everything (default value)",
+        name="Everything (Default)",
         value="0"
     ),
     create_choice(
