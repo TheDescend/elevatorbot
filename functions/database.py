@@ -304,8 +304,7 @@ async def getLastActivity(destinyID, mode=None, before=datetime.now()):
             ipp.instanceID = t1.instanceID
         )
         ORDER BY 
-            period DESC
-        LIMIT 1;"""
+            t1.period DESC;"""
     async with pool.acquire() as connection:
         res = await connection.fetchrow(select_sql, before, destinyID)
 
