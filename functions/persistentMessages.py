@@ -147,7 +147,7 @@ async def steamJoinCodeMessage(client, guild):
     # create new message
     embed = embed_message(
         "Steam Join Codes",
-        "Here you can find a updated list of Steam Join Codes. \nUse `!setID <id>` to set appear here and `!getid <user>` to find a code without looking here"
+        "Here you can find a updated list of Steam Join Codes. \nUse `/id set <id>` to set appear here and `/id get <user>` to find a code without looking here"
     )
 
     # add name field
