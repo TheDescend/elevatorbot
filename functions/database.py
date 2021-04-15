@@ -923,7 +923,7 @@ async def getActivityHistory(destinyID, mode: int = None, activityHashes: list =
             AND period >= $2 
             AND period <= $3
             {"AND t1.directorActivityHash IN (" + ",".join([str(x) for x in activityHashes]) + ")" if activityHashes else ""}
-            {"AND t1.mode = " + str(mode) if mode else ""};"""
+            {f"AND {mode} = ANY(modes)" if mode else ""};"""
     async with pool.acquire() as connection:
         result = await connection.fetch(select_sql, destinyID, start_time, end_time)
     return [x[0] for x in result]
