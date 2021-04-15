@@ -130,10 +130,10 @@ async def steamJoinCodeMessage(client, guild):
 
     # convert discordIDs to names
     clean_data = {}
-    for k, v in data.items():
+    for entry in data:
         # get display_name. If that doesnt work user isnt in guild, thus ignore him
         try:
-            clean_data[guild.get_member(k).display_name] = v
+            clean_data[guild.get_member(entry[0]).display_name] = entry[1]
         except AttributeError:
             continue
 

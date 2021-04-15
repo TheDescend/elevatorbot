@@ -72,7 +72,7 @@ class RegistrationCommands(commands.Cog):
 
         text = await getSteamJoinID(user.id)
         if not text:
-            text = "Nothing found. Please tell the user to set the code with \n`!setID <code>`\nYou can find your own code by typing `/id` in-game\n⁣\nSadly I do not have access to this information, since it is handled by Steam and not Bungie"
+            text = "Nothing found. Please tell the user to set the code with \n`/id set <code>`\nYou can find your own code by typing `/id` in-game\n⁣\nSadly I do not have access to this information, since it is handled by Steam and not Bungie"
 
         embed = embed_message(
             f"{user.display_name}'s Steam Join Code",
