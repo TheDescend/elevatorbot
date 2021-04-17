@@ -107,6 +107,8 @@ class ArmorStatsNotifier(BaseEvent):
                         await message_user(client, 238388130581839872, vendor_name, item_definition, item_stats, total_stats)
                     elif (class_types[item_definition[3]] == "Warlock") and (item_stats[stat_names["Recovery"]]["value"] >= 28):
                         await message_user(client, 238388130581839872, vendor_name, item_definition, item_stats, total_stats)
+                    elif (class_types[item_definition[3]] == "Hunter") and (item_stats[stat_names["Recovery"]]["value"] > 20) and (item_stats[stat_names["Mobility"]]["value"] > 20):
+                        await message_user(client, 238388130581839872, vendor_name, item_definition, item_stats, total_stats)
 
                     # neria
                     if (class_types[item_definition[3]] == "Hunter") and (item_stats[stat_names["Mobility"]]["value"] > 23) and (total_stats > 63):
