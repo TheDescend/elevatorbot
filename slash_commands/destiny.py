@@ -1530,6 +1530,9 @@ class WeaponCommands(commands.Cog):
         if not weapon_name:
             return
 
+        # update user db
+        await updateDB(destinyID)
+
         # get the char class if that is asked for
         charID = await getCharacterID(destinyID, character_class) if character_class else None
 
@@ -1779,6 +1782,9 @@ class WeaponCommands(commands.Cog):
             weapon_name, _ = await searchForItem(ctx, kwargs["weapon"])
             if not weapon_name:
                 return
+
+        # update user db
+        await updateDB(destinyID)
 
         # get the char class if that is asked for
         charID = await getCharacterID(destinyID, character_class) if character_class else None
