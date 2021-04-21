@@ -1005,8 +1005,11 @@ class RankCommands(commands.Cog):
             )
         ]
     )
-    async def _rank(self, ctx: SlashContext, **kwargs):
+    async def _rank(self, ctx: SlashContext, *args, **kwargs):
         await ctx.defer()
+
+        if args:
+            print(f'Got unexpected args: {args}')
 
         user = await get_user_obj(ctx, kwargs)
         leaderboard = kwargs["leaderboard"]
@@ -1030,6 +1033,8 @@ class RankCommands(commands.Cog):
 
         if embed:
             await ctx.send(embed=embed)
+        else:
+            await ctx.send('')
 
 
     async def _handle_users(self, stat, display_name, guild, extra_hash, extra_name):
@@ -1326,6 +1331,18 @@ class RankCommands(commands.Cog):
             stat_text = "Total"
 
             result_sort = await getClearCount(destinyID, activityHashes=gmHashes)
+            result = f"{result_sort:,}"
+
+        elif stat == "laurels":
+            leaderboard_text = f"Top Clanmembers by Laurels collected in S13"
+            stat_text = "Count"
+
+            result_sort = (await getProfile(destinyID, 1100))["metrics"]["data"]
+            print(result_sort.keys()[:5])
+            if "473272243" in result_sort.keys():
+                result_sort = result_sort["473272243"]["objectiveProgress"]["progress"]
+            else:
+                result_sort = 0
             result = f"{result_sort:,}"
 
         else:
