@@ -969,10 +969,10 @@ class RankCommands(commands.Cog):
                         name="Forges Done",
                         value="forges"
                     ),
-                    create_choice(
-                        name="AFK Forges Done",
-                        value="afkforges"
-                    ),
+                    # create_choice(
+                    #     name="AFK Forges Done",
+                    #     value="afkforges"
+                    # ),
                     create_choice(
                         name="Active Triumph Score",
                         value="activetriumphs"
@@ -984,6 +984,10 @@ class RankCommands(commands.Cog):
                     create_choice(
                         name="Triumph Score",
                         value="triumphs"
+                    ),
+                    create_choice(
+                        name="Laurels",
+                        value="laurels"
                     ),
                 ]
             ),

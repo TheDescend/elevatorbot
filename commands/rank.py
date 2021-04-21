@@ -40,10 +40,11 @@ class rank(BaseCommand):
         "armor",
         "enhancementcores",
         "forges",
-        "afkforges",
+        #"afkforges",
         "activetriumphs",
         "legacytriumphs",
         "triumphs",
+        "laurels"
     ]
 
     def __init__(self):
@@ -411,6 +412,13 @@ async def handle_user(stat, member, guild, extra_hash, extra_name):
         stat_text = "Score"
 
         result_sort = (await getProfile(destinyID, 900))["profileRecords"]["data"]["lifetimeScore"]
+        result = f"{result_sort:,}"
+
+    elif stat == "laurels":
+        leaderboard_text = f"Top Clanmembers by Laurels collected in S13"
+        stat_text = "Count"
+
+        result_sort = (await getProfile(destinyID, 1100))["metrics"]["data"]["473272243"]["objectiveProgress"]["progress"]
         result = f"{result_sort:,}"
 
     else:
