@@ -11,7 +11,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from discord.ext import commands
-from discord_slash import cog_ext, SlashContext
+from discord_slash import cog_ext, SlashContext, error
 from discord_slash.utils.manage_commands import create_option, create_choice
 from pyvis.network import Network
 
@@ -986,7 +986,7 @@ class RankCommands(commands.Cog):
                         value="triumphs"
                     ),
                     create_choice(
-                        name="Laurels created",
+                        name="Laurels",
                         value="laurels"
                     ),
                 ]
@@ -1006,11 +1006,12 @@ class RankCommands(commands.Cog):
         ]
     )
     async def _rank(self, ctx: SlashContext, *args, **kwargs):
-        await ctx.defer()
+        if not ctx.deferred:
+            await ctx.defer()
 
         if args:
             print(f'Got unexpected args: {args}')
-
+        
         user = await get_user_obj(ctx, kwargs)
         leaderboard = kwargs["leaderboard"]
         item_name = None
@@ -1029,12 +1030,10 @@ class RankCommands(commands.Cog):
                 return
 
         # calculate the leaderboard
-        embed = await self._handle_users(leaderboard, user.display_name, ctx.guild, item_hashes, item_name)
-
-        if embed:
+        if embed := (await self._handle_users(leaderboard, user.display_name, ctx.guild, item_hashes, item_name)):
             await ctx.send(embed=embed)
         else:
-            await ctx.send('')
+            await ctx.send(embed_message('Error', 'Failed handling users'))
 
 
     async def _handle_users(self, stat, display_name, guild, extra_hash, extra_name):
@@ -1061,6 +1060,12 @@ class RankCommands(commands.Cog):
                 stat_text = ret[4]
                 # for some stats lower might be better
                 sort_by_ascending = ret[5]
+
+        if data.empty:
+            return embed_message(
+                "Error",
+                "No data found"
+            )
 
         # sort and prepare DF
         data.sort_values(by=["stat_sort"], inplace=True, ascending=sort_by_ascending)
@@ -1126,64 +1131,64 @@ class RankCommands(commands.Cog):
             stat_text = "Total"
 
             # in hours
-            json = await getStats(destinyID)
-            result_sort = self._add_stats(json, "secondsPlayed")
+            stat_json = await getStats(destinyID)
+            result_sort = self._add_stats(stat_json, "secondsPlayed")
             result = str(datetime.timedelta(seconds=result_sort))
 
         elif stat == "orbs":
             leaderboard_text = "Top Clanmembers by PvE Orbs Generated"
             stat_text = "Orbs"
 
-            json = await getStats(destinyID)
-            result_sort = self._add_stats(json, "orbsDropped", scope="pve")
+            stat_json = await getStats(destinyID)
+            result_sort = self._add_stats(stat_json, "orbsDropped", scope="pve")
             result = f"{result_sort:,}"
 
         elif stat == "meleekills":
             leaderboard_text = "Top Clanmembers by D2 PvE Meleekills"
             stat_text = "Kills"
 
-            json = await getStats(destinyID)
-            result_sort = self._add_stats(json, "weaponKillsMelee", scope="pve")
+            stat_json = await getStats(destinyID)
+            result_sort = self._add_stats(stat_json, "weaponKillsMelee", scope="pve")
             result = f"{result_sort:,}"
 
         elif stat == "superkills":
             leaderboard_text = "Top Clanmembers by D2 PvE Superkills"
             stat_text = "Kills"
 
-            json = await getStats(destinyID)
-            result_sort = self._add_stats(json, "weaponKillsSuper", scope="pve")
+            stat_json = await getStats(destinyID)
+            result_sort = self._add_stats(stat_json, "weaponKillsSuper", scope="pve")
             result = f"{result_sort:,}"
 
         elif stat == "grenadekills":
             leaderboard_text = "Top Clanmembers by D2 PvE Grenadekills"
             stat_text = "Kills"
 
-            json = await getStats(destinyID)
-            result_sort = self._add_stats(json, "weaponKillsGrenade", scope="pve")
+            stat_json = await getStats(destinyID)
+            result_sort = self._add_stats(stat_json, "weaponKillsGrenade", scope="pve")
             result = f"{result_sort:,}"
 
         elif stat == "deaths":
             leaderboard_text = "Top Clanmembers by D2 PvE Deaths"
             stat_text = "Deaths"
 
-            json = await getStats(destinyID)
-            result_sort = self._add_stats(json, "deaths", scope="pve")
+            stat_json = await getStats(destinyID)
+            result_sort = self._add_stats(stat_json, "deaths", scope="pve")
             result = f"{result_sort:,}"
 
         elif stat == "suicides":
             leaderboard_text = "Top Clanmembers by D2 PvE Suicides"
             stat_text = "Suicides"
 
-            json = await getStats(destinyID)
-            result_sort = self._add_stats(json, "suicides", scope="pve")
+            stat_json = await getStats(destinyID)
+            result_sort = self._add_stats(stat_json, "suicides", scope="pve")
             result = f"{result_sort:,}"
 
         elif stat == "kills":
             leaderboard_text = "Top Clanmembers by D2 PvE Kills"
             stat_text = "Kills"
 
-            json = await getStats(destinyID)
-            result_sort = self._add_stats(json, "kills", scope="pve")
+            stat_json = await getStats(destinyID)
+            result_sort = self._add_stats(stat_json, "kills", scope="pve")
             result = f"{result_sort:,}"
 
         elif stat == "maxpower":
@@ -1223,10 +1228,10 @@ class RankCommands(commands.Cog):
             leaderboard_text = "Top Clanmembers by D2 Total Raid Completions"
             stat_text = "Total"
 
-            json = await getProfile(destinyID, 1100)
+            stat_json = await getProfile(destinyID, 1100)
             result_sort = 0
             for raid in metricRaidCompletion:
-                result_sort += json["metrics"]["data"]["metrics"][str(raid)]["objectiveProgress"]["progress"]
+                result_sort += stat_json["metrics"]["data"]["metrics"][str(raid)]["objectiveProgress"]["progress"]
             result = f"{result_sort:,}"
 
         elif stat == "raidtime":
@@ -1337,7 +1342,7 @@ class RankCommands(commands.Cog):
             leaderboard_text = f"Top Clanmembers by Laurels collected in S13"
             stat_text = "Count"
 
-            result_sort = (await getProfile(destinyID, 1100))["metrics"]["data"]
+            result_sort = (await getProfile(destinyID, 1100))["metrics"]["data"]['metrics']
             if "473272243" in result_sort.keys():
                 result_sort = result_sort["473272243"]["objectiveProgress"]["progress"]
             else:
@@ -1415,26 +1420,26 @@ class RankCommands(commands.Cog):
         return [helmet, gauntlet, chest, leg, class_item, kinetic, energy, power]
 
 
-    def _add_stats(self, json, stat, scope="all"):
+    def _add_stats(self, stat_json, stat, scope="all"):
         result_sort = 0
         if scope == "all":
-            result_sort = int(json["mergedAllCharacters"]["merged"]["allTime"][stat]["basic"]["value"])
+            result_sort = int(stat_json["mergedAllCharacters"]["merged"]["allTime"][stat]["basic"]["value"])
             try:
-                result_sort += int(json["mergedDeletedCharacters"]["merged"]["allTime"][stat]["basic"]["value"])
+                result_sort += int(stat_json["mergedDeletedCharacters"]["merged"]["allTime"][stat]["basic"]["value"])
             except:
                 pass
         elif scope == "pve":
-            result_sort = int(json["mergedAllCharacters"]["results"]["allPvE"]["allTime"][stat]["basic"]["value"])
+            result_sort = int(stat_json["mergedAllCharacters"]["results"]["allPvE"]["allTime"][stat]["basic"]["value"])
             try:
                 result_sort += int(
-                    json["mergedDeletedCharacters"]["results"]["allPvE"]["allTime"][stat]["basic"]["value"])
+                    stat_json["mergedDeletedCharacters"]["results"]["allPvE"]["allTime"][stat]["basic"]["value"])
             except:
                 pass
         elif scope == "pvp":
-            result_sort = int(json["mergedAllCharacters"]["results"]["allPvP"]["allTime"][stat]["basic"]["value"])
+            result_sort = int(stat_json["mergedAllCharacters"]["results"]["allPvP"]["allTime"][stat]["basic"]["value"])
             try:
                 result_sort += int(
-                    json["mergedDeletedCharacters"]["results"]["allPvP"]["allTime"][stat]["basic"]["value"])
+                    stat_json["mergedDeletedCharacters"]["results"]["allPvP"]["allTime"][stat]["basic"]["value"])
             except:
                 pass
         return result_sort
