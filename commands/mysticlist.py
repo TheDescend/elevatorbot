@@ -28,7 +28,7 @@ class mysticadd(BaseCommand):
             players = json.load(mlist)
 
         # check perm for other user mention, otherwise abort
-        if not (await hasMentionPermission(message, mentioned_user, additionalUsers=[211838266834550785])): #mystic
+        if not (await hasMentionPermission(message, mentioned_user, additional_users=[211838266834550785])): #mystic
             return
 
         players.append({'name': mentioned_user.name, 'id':mentioned_user.id})
@@ -53,7 +53,7 @@ class mysticremove(BaseCommand):
     # It will be called every time the command is received
     async def handle(self, params, message, mentioned_user, client):
         # check perm for other user mention, otherwise abort
-        if not (await hasMentionPermission(message, mentioned_user, additionalUsers=[211838266834550785])): #mystic
+        if not (await hasMentionPermission(message, mentioned_user, additional_users=[211838266834550785])): #mystic
             return
 
         playerlist = []

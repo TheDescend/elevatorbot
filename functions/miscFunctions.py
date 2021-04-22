@@ -25,9 +25,10 @@ async def checkIfUserIsRegistered(user):
 
 async def update_status(client):
     status_messages = [
-        "DM me to contact Staff",
+        "Type '/' to see available commands",
+        "DM me to contact staff",
         "No more welcoming Neria please, she is no longer new",
-        "I have been upgraded to v.2"
+        "Slashing through life"
     ]
 
     if NOW_PLAYING:
@@ -40,9 +41,12 @@ async def update_status(client):
 
 
 # checks if user is allowed to use the command for other user.
-async def hasMentionPermission(message, user, additionalUsers=[]):
+async def hasMentionPermission(message, user, additional_users=None):
+    if additional_users is None:
+        additional_users = []
+
     # if no other user is mentioned its ok anyways
-    if user.id not in [message.author.id, *additionalUsers]:
+    if user.id not in [message.author.id, *additional_users]:
         if not await hasAdminOrDevPermissions(message):
             await message.channel.send(embed=embed_message(
                 'Error',

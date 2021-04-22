@@ -986,7 +986,7 @@ class RankCommands(commands.Cog):
                         value="triumphs"
                     ),
                     create_choice(
-                        name="Laurels",
+                        name="Laurels created",
                         value="laurels"
                     ),
                 ]
@@ -1338,7 +1338,6 @@ class RankCommands(commands.Cog):
             stat_text = "Count"
 
             result_sort = (await getProfile(destinyID, 1100))["metrics"]["data"]
-            print(result_sort.keys()[:5])
             if "473272243" in result_sort.keys():
                 result_sort = result_sort["473272243"]["objectiveProgress"]["progress"]
             else:
