@@ -752,7 +752,7 @@ requirementHashes = {
         'Flawless GM': {
             'requirements': ['flawless'],
             'flawless': gmHashes,
-            'replaced_by': ['Solo Flawless GM']
+            'replaced_by': ['Solo Flawless GM', "Solo Flawless 150k GM"]
         },
         'Solo Flawless GM': {
             'requirements': ['lowman'],
