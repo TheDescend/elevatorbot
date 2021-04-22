@@ -17,7 +17,7 @@ async def checkIfUserIsRegistered(user):
     else:
         embed = embed_message(
             "Error",
-            "Please register with `!register` first (not via DMs)"
+            "Please register with `/registerdesc` first (not via DMs)"
         )
         await user.send(embed=embed)
         return False
