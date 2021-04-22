@@ -986,7 +986,7 @@ class RankCommands(commands.Cog):
                         value="triumphs"
                     ),
                     create_choice(
-                        name="Laurels",
+                        name="Laurels collected",
                         value="laurels"
                     ),
                 ]
