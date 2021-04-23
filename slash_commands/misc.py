@@ -122,7 +122,7 @@ class MiscCommands(commands.Cog):
         name="saymyname",
         description="Say your name"
     )
-    async def _boosters(self, ctx: SlashContext):
+    async def _saymyname(self, ctx: SlashContext):
         await ctx.send(ctx.author.display_name, tts=True)
 
 
