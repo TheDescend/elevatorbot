@@ -27,7 +27,7 @@ async def update_status(client):
     status_messages = [
         "type '/' to see available commands",
         "DM me to contact staff",
-        "No more welcoming Neria please, she is no longer new",
+        "no more welcoming Neria please, she is no longer new",
         "slashing through life"
     ]
 
