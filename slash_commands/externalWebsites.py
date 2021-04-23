@@ -20,7 +20,7 @@ class ExternalWebsitesCommands(commands.Cog):
 
 
     @cog_ext.cog_slash(
-        name="site",
+        name="website",
         description="Gets your personalised link to a bunch of Destiny 2 related websites",
         options=[
             create_option(
@@ -36,6 +36,10 @@ class ExternalWebsitesCommands(commands.Cog):
                     create_choice(
                         name="D2 Checklist",
                         value="D2 Checklist"
+                    ),
+                    create_choice(
+                        name="Destiny Tracker",
+                        value="Destiny Tracker"
                     ),
                     create_choice(
                         name="Dungeon Report",
@@ -70,7 +74,7 @@ class ExternalWebsitesCommands(commands.Cog):
             options_user()
         ]
     )
-    async def _site(self, ctx: SlashContext, site, **kwargs):
+    async def _website(self, ctx: SlashContext, website, **kwargs):
         user = await get_user_obj(ctx, kwargs)
         _, destinyID, system = await get_destinyID_and_system(ctx, user)
         if not destinyID:
@@ -78,27 +82,29 @@ class ExternalWebsitesCommands(commands.Cog):
 
         # get the text
         text = ""
-        if site == "Solo Report":
+        if website == "Solo Report":
             text = f'https://elevatorbot.ch/soloreport/{system}/{destinyID}'
-        elif site == "Raid Report":
+        elif website == "Raid Report":
             text = f'https://raid.report/{self.rrsystem[system]}/{destinyID}'
-        elif site == "Dungeon Report":
+        elif website == "Dungeon Report":
             text = f'https://dungeon.report/{self.rrsystem[system]}/{destinyID}'
-        elif site == "Grandmaster Report":
+        elif website == "Grandmaster Report":
             text = f'https://grandmaster.report/user/{system}/{destinyID}'
-        elif site == "Nightfall Report":
+        elif website == "Nightfall Report":
             text = f'https://nightfall.report/guardian/{system}/{destinyID}'
-        elif site == "Trials Report":
+        elif website == "Trials Report":
             text = f'https://destinytrialsreport.com/report/{system}/{destinyID}'
-        elif site == "Triumph Report":
+        elif website == "Triumph Report":
             text = f'https://triumph.report/{system}/{destinyID}'
-        elif site == "Braytech.org":
+        elif website == "Braytech.org":
             text = f'https://braytech.org/{system}/{destinyID}'
-        elif site == "D2 Checklist":
+        elif website == "D2 Checklist":
             text = f'https://www.d2checklist.com/{system}/{destinyID}'
+        elif website == "Destiny Tracker":
+            text = f'https://destinytracker.com/destiny-2/profile/{system}/{destinyID}'
 
         await ctx.send(embed=embed_message(
-            site,
+            website,
             text
         ))
 

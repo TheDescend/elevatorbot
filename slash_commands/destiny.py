@@ -440,7 +440,7 @@ class DestinyCommands(commands.Cog):
             options_user()
         ]
     )
-    async def _stat_everything(self, ctx: SlashContext, **kwargs):
+    async def _stat_pve(self, ctx: SlashContext, **kwargs):
         # get basic user data
         user = await get_user_obj(ctx, kwargs)
         _, destinyID, system = await get_destinyID_and_system(ctx, user)
@@ -468,7 +468,7 @@ class DestinyCommands(commands.Cog):
             options_user()
         ]
     )
-    async def _stat_everything(self, ctx: SlashContext, **kwargs):
+    async def _stat_pvp(self, ctx: SlashContext, **kwargs):
         # get basic user data
         user = await get_user_obj(ctx, kwargs)
         _, destinyID, system = await get_destinyID_and_system(ctx, user)
