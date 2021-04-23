@@ -25,14 +25,11 @@ async def checkIfUserIsRegistered(user):
 
 async def update_status(client):
     status_messages = [
-        "Type '/' to see available commands",
+        "type '/' to see available commands",
         "DM me to contact staff",
         "No more welcoming Neria please, she is no longer new",
-        "Slashing through life"
+        "slashing through life"
     ]
-
-    if NOW_PLAYING:
-        status_messages.append(NOW_PLAYING)
 
     print("Launching the Status Changer Loop", flush=True)
     for element in itertools.cycle(status_messages):
