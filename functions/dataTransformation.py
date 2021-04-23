@@ -79,12 +79,23 @@ async def hasLowman(playerid, playercount, raidHashes, flawless=False, noCheckpo
                 return True
     return False
 
-async def getIntStat(destinyID, statname):
+
+async def getIntStat(destinyID, statname, category=None):
     stats = await getStats(destinyID)
     if not stats:
         return -1
-    stat = stats['mergedAllCharacters']['merged']['allTime'][statname]['basic']['value']
+    if not category:
+        stat = stats['mergedAllCharacters']['merged']['allTime'][statname]['basic']['value']
+    else:
+        if category == "pve":
+            stat = stats['mergedAllCharacters']['results']['allPvE']['allTime'][statname]['basic']['value']
+        elif category == "pvp":
+            stat = stats['mergedAllCharacters']['results']['allPvP']['allTime'][statname]['basic']['value']
+        else:
+            return -1
+
     return int(stat)
+
 
 async def getCharStats(destinyID, characterID, statname):
     stats = await getStats(destinyID)

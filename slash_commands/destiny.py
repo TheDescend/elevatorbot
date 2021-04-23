@@ -402,27 +402,86 @@ class DestinyCommands(commands.Cog):
         await ctx.send(embed=embed)
 
 
-    @cog_ext.cog_slash(
-        name="stat",
-        description="Shows you various Destiny 2 Stats",
+    @cog_ext.cog_subcommand(
+        base="stat",
+        base_description="Shows you various Destiny 2 stats",
+        name="everything",
+        description="Displays information for all activities",
         options=[
             options_stat,
             options_user()
         ]
     )
-    async def _stat(self, ctx: SlashContext, **kwargs):
-        await ctx.defer()
-
+    async def _stat_everything(self, ctx: SlashContext, **kwargs):
         # get basic user data
         user = await get_user_obj(ctx, kwargs)
         _, destinyID, system = await get_destinyID_and_system(ctx, user)
         if not destinyID:
             return
 
+        # might take a sec
+        await ctx.defer()
+
         # get stat
         stat = await getIntStat(destinyID, kwargs["name"])
         await ctx.send(embed=embed_message(
             f"{user.display_name}'s Stat Info",
+            f"Your `{kwargs['name']}` stat is currently at **{stat:,}**"
+        ))
+
+
+    @cog_ext.cog_subcommand(
+        base="stat",
+        base_description="Shows you various Destiny 2 stats",
+        name="pve",
+        description="Displays information for all PvE activities",
+        options=[
+            options_stat,
+            options_user()
+        ]
+    )
+    async def _stat_everything(self, ctx: SlashContext, **kwargs):
+        # get basic user data
+        user = await get_user_obj(ctx, kwargs)
+        _, destinyID, system = await get_destinyID_and_system(ctx, user)
+        if not destinyID:
+            return
+
+        # might take a sec
+        await ctx.defer()
+
+        # get stat
+        stat = await getIntStat(destinyID, kwargs["name"], category="pve")
+        await ctx.send(embed=embed_message(
+            f"{user.display_name}'s PvE Stat Info",
+            f"Your `{kwargs['name']}` stat is currently at **{stat:,}**"
+        ))
+
+
+    @cog_ext.cog_subcommand(
+        base="stat",
+        base_description="Shows you various Destiny 2 stats",
+        name="pvp",
+        description="Displays information for all PvP activities",
+        options=[
+            options_stat,
+            options_user()
+        ]
+    )
+    async def _stat_everything(self, ctx: SlashContext, **kwargs):
+        # get basic user data
+        user = await get_user_obj(ctx, kwargs)
+        _, destinyID, system = await get_destinyID_and_system(ctx, user)
+        if not destinyID:
+            return
+
+        # might take a sec
+        await ctx.defer()
+
+        # get stat
+        stat = await getIntStat(destinyID, kwargs["name"], category="pvp")
+        await ctx.send(embed=embed_message(
+            f"{user.display_name}'s PvP Stat Info",
             f"Your `{kwargs['name']}` stat is currently at **{stat:,}**"
         ))
 
