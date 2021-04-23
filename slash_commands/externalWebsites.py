@@ -6,6 +6,7 @@ from functions.database import lookupDestinyID, lookupSystem
 from functions.formating import embed_message
 from functions.slashCommandFunctions import get_user_obj, get_destinyID_and_system
 from static.config import GUILD_IDS
+from static.slashCommandOptions import options_user
 
 
 class ExternalWebsitesCommands(commands.Cog):
@@ -66,12 +67,7 @@ class ExternalWebsitesCommands(commands.Cog):
                     ),
                 ],
             ),
-            create_option(
-                name="user",
-                description="The name of the user you want to look up",
-                option_type=6,
-                required=False
-            )
+            options_user()
         ]
     )
     async def _site(self, ctx: SlashContext, site, **kwargs):

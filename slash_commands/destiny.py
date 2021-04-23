@@ -33,7 +33,7 @@ from functions.tournament import startTournamentEvents
 from static.config import CLANID
 from static.dict import metricRaidCompletion, raidHashes, gmHashes
 from static.globals import titan_emoji_id, hunter_emoji_id, warlock_emoji_id, light_level_icon_emoji_id, tournament
-from static.slashCommandOptions import choices_mode
+from static.slashCommandOptions import choices_mode, options_stat, options_user
 
 
 class DestinyCommands(commands.Cog):
@@ -129,12 +129,7 @@ class DestinyCommands(commands.Cog):
                 required=True,
                 choices=choices_mode
             ),
-            create_option(
-                name="user",
-                description="The name of the user you want to look up",
-                option_type=6,
-                required=False
-            ),
+            options_user()
         ],
     )
     async def _last(self, ctx: SlashContext, **kwargs):
@@ -190,12 +185,7 @@ class DestinyCommands(commands.Cog):
                 option_type=4,
                 required=False,
             ),
-            create_option(
-                name="user",
-                description="The name of the user you want to look up",
-                option_type=6,
-                required=False
-            ),
+            options_user()
         ],
     )
     async def _challenges(self, ctx: SlashContext, **kwargs):
@@ -311,12 +301,7 @@ class DestinyCommands(commands.Cog):
         name="spoder",
         description="The better /spider command to show Spiders current inventory",
         options=[
-            create_option(
-                name="user",
-                description="Requires elevated permissions",
-                option_type=6,
-                required=False
-            ),
+            options_user()
         ],
     )
     async def _spoder(self, ctx: SlashContext, **kwargs):
@@ -344,12 +329,7 @@ class DestinyCommands(commands.Cog):
         name="destiny",
         description="Gives you various destiny stats",
         options=[
-            create_option(
-                name="user",
-                description="The name of the user you want to look up",
-                option_type=6,
-                required=False
-            )
+            options_user()
         ]
     )
     async def _destiny(self, ctx: SlashContext, **kwargs):
@@ -426,120 +406,8 @@ class DestinyCommands(commands.Cog):
         name="stat",
         description="Shows you various Destiny 2 Stats",
         options=[
-            create_option(
-                name="name",
-                description="The name of the leaderboard you want to see",
-                option_type=3,
-                required=True,
-                choices=[
-                    create_choice(
-                        name="Kills",
-                        value="kills"
-                    ),
-                    create_choice(
-                        name="Precision Kills",
-                        value="precisionKills"
-                    ),
-                    create_choice(
-                        name="Assists",
-                        value="assists"
-                    ),
-                    create_choice(
-                        name="Deaths",
-                        value="deaths"
-                    ),
-                    create_choice(
-                        name="Suicides",
-                        value="suicides"
-                    ),
-                    create_choice(
-                        name="KDA",
-                        value="efficiency"
-                    ),
-                    create_choice(
-                        name="Longest Kill Distance",
-                        value="longestKillDistance"
-                    ),
-                    create_choice(
-                        name="Average Kill Distance",
-                        value="averageKillDistance"
-                    ),
-                    create_choice(
-                        name="Total Kill Distance",
-                        value="totalKillDistance"
-                    ),
-                    create_choice(
-                        name="Longest Kill Spree",
-                        value="longestKillSpree"
-                    ),
-                    create_choice(
-                        name="Average Lifespan",
-                        value="averageLifespan"
-                    ),
-                    create_choice(
-                        name="Resurrections Given",
-                        value="resurrectionsPerformed"
-                    ),
-                    create_choice(
-                        name="Resurrections Received",
-                        value="resurrectionsReceived"
-                    ),
-                    create_choice(
-                        name="Number of Players Played With",
-                        value="allParticipantsCount"
-                    ),
-                    create_choice(
-                        name="Longest Single Life (in s)",
-                        value="longestSingleLife"
-                    ),
-                    create_choice(
-                        name="Orbs of Power Dropped",
-                        value="orbsDropped"
-                    ),
-                    create_choice(
-                        name="Orbs of Power Gathered",
-                        value="orbsGathered"
-                    ),
-                    create_choice(
-                        name="Time Played (in s)",
-                        value="secondsPlayed"
-                    ),
-                    create_choice(
-                        name="Activities Cleared",
-                        value="activitiesCleared"
-                    ),
-                    create_choice(
-                        name="Public Events Completed",
-                        value="publicEventsCompleted"
-                    ),
-                    create_choice(
-                        name="Heroic Public Events Completed",
-                        value="heroicPublicEventsCompleted"
-                    ),
-                    create_choice(
-                        name="Kills with: Super",
-                        value="weaponKillsSuper"
-                    ),
-                    create_choice(
-                        name="Kills with: Melee",
-                        value="weaponKillsMelee"
-                    ),
-                    create_choice(
-                        name="Kills with: Grenade",
-                        value="weaponKillsGrenade"
-                    ),
-                    create_choice(
-                        name="Kills with: Ability",
-                        value="weaponKillsAbility"
-                    )
-                ]
-            ),
-            create_option(
-                name="user",
-                description="The name of the user you want to look up",
-                option_type=6,
-                required=False
-            )
+            options_stat,
+            options_user()
         ]
     )
     async def _stat(self, ctx: SlashContext, **kwargs):
@@ -591,12 +459,7 @@ class ClanActivitiesCommands(commands.Cog):
                 option_type=3,
                 required=False
             ),
-            create_option(
-                name="user",
-                description="The name of the user you want to highlight",
-                option_type=6,
-                required=False
-            )
+            options_user(flavor_text="The name of the user you want to highlight")
         ]
     )
     async def _clanactivity(self, ctx: SlashContext, **kwargs):
@@ -787,12 +650,7 @@ class MysticCommands(commands.Cog):
         name="add",
         description="Add a user to the list",
         options=[
-            create_option(
-                name="user",
-                description="Requires elevated permissions",
-                option_type=6,
-                required=False
-            )
+            options_user(flavor_text="Requires elevated permissions")
         ]
     )
     async def _add(self, ctx: SlashContext, **kwargs):
@@ -829,12 +687,7 @@ class MysticCommands(commands.Cog):
         name="remove",
         description="Remove a user from the list",
         options=[
-            create_option(
-                name="user",
-                description="Requires elevated permissions",
-                option_type=6,
-                required=False
-            )
+            options_user(flavor_text="Requires elevated permissions")
         ]
     )
     async def _remove(self, ctx: SlashContext, **kwargs):
@@ -997,12 +850,7 @@ class RankCommands(commands.Cog):
                 option_type=3,
                 required=False
             ),
-            create_option(
-                name="user",
-                description="The name of the user you want to look up",
-                option_type=6,
-                required=False
-            )
+            options_user()
         ]
     )
     async def _rank(self, ctx: SlashContext, *args, **kwargs):
@@ -1531,12 +1379,7 @@ class WeaponCommands(commands.Cog):
                 option_type=4,
                 required=False
             ),
-            create_option(
-                name="user",
-                description="The name of the user you want to look up",
-                option_type=6,
-                required=False
-            ),
+            options_user()
         ]
     )
     async def _weapon(self, ctx: SlashContext, **kwargs):
@@ -1782,12 +1625,7 @@ class WeaponCommands(commands.Cog):
                 option_type=4,
                 required=False
             ),
-            create_option(
-                name="user",
-                description="The name of the user you want to look up",
-                option_type=6,
-                required=False
-            ),
+            options_user()
         ]
     )
     async def _topweapons(self, ctx: SlashContext, **kwargs):

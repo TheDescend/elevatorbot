@@ -9,6 +9,7 @@ from functions.slashCommandFunctions import get_user_obj, get_user_obj_admin, ge
 from static.config import GUILD_IDS
 from static.dict import requirementHashes
 from static.globals import dev_role_id
+from static.slashCommandOptions import options_user
 
 
 class RoleCommands(commands.Cog):
@@ -22,12 +23,7 @@ class RoleCommands(commands.Cog):
         name="overview",
         description="Shows you what roles you can still achieve in this clan",
         options=[
-            create_option(
-                name="user",
-                description="The name of the user you want to look up",
-                option_type=6,
-                required=False
-            )
+            options_user()
         ]
     )
     async def _roles_overview(self, ctx: SlashContext, **kwargs):
@@ -68,12 +64,7 @@ class RoleCommands(commands.Cog):
         name="get",
         description="Assigns you all the roles you've earned",
         options=[
-            create_option(
-                name="user",
-                description="Requires elevated permissions",
-                option_type=6,
-                required=False
-            )
+            options_user(flavor_text="Requires elevated permissions")
         ]
     )
     async def _roles_get(self, ctx: SlashContext, **kwargs):
@@ -179,12 +170,7 @@ class RoleCommands(commands.Cog):
                 option_type=8,
                 required=True
             ),
-            create_option(
-                name="user",
-                description="The name of the user you want to look up",
-                option_type=6,
-                required=False
-            )
+            options_user()
         ]
     )
     async def _roles_requirements(self, ctx: SlashContext, **kwargs):

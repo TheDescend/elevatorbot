@@ -14,6 +14,7 @@ from functions.roleLookup import assignRolesToUser, removeRolesFromUser
 from functions.slashCommandFunctions import get_user_obj
 from static.config import GUILD_IDS
 from static.globals import muted_role_id
+from static.slashCommandOptions import options_user
 
 
 class MiscCommands(commands.Cog):
@@ -62,12 +63,7 @@ class MiscCommands(commands.Cog):
         name="muteme",
         description="I wonder what this does...",
         options=[
-            create_option(
-                name="user",
-                description="The name of the user you want to look up",
-                option_type=6,
-                required=False
-            )
+            options_user()
         ]
     )
     async def _muteme(self, ctx: SlashContext, **kwargs):
@@ -130,12 +126,7 @@ class MiscCommands(commands.Cog):
         name="discordjoindate",
         description="Check your join date of this discord server",
         options=[
-            create_option(
-                name="user",
-                description="The name of the user you want to look up",
-                option_type=6,
-                required=False
-            )
+            options_user()
         ]
     )
     async def _discordjoindate(self, ctx: SlashContext, **kwargs):

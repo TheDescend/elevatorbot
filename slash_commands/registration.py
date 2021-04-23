@@ -7,6 +7,7 @@ from functions.formating import embed_message
 from functions.persistentMessages import steamJoinCodeMessage
 from functions.slashCommandFunctions import get_user_obj_admin, get_user_obj
 from static.config import GUILD_IDS, BUNGIE_OAUTH
+from static.slashCommandOptions import options_user
 
 
 class RegistrationCommands(commands.Cog):
@@ -35,12 +36,7 @@ class RegistrationCommands(commands.Cog):
         description="Unlink your Destiny 2 account from ElevatorBot",
         guild_ids=GUILD_IDS,
         options=[
-            create_option(
-                name="user",
-                description="Requires elevated permissions",
-                option_type=6,
-                required=False
-            )
+            options_user(flavor_text="Requires elevated permissions")
         ]
     )
     async def _unregisterdesc(self, ctx: SlashContext, **kwargs):
@@ -59,12 +55,7 @@ class RegistrationCommands(commands.Cog):
         name="get",
         description="Get a Steam ID",
         options=[
-            create_option(
-                name="user",
-                description="The user you want to look up",
-                option_type=6,
-                required=False
-            )
+            options_user()
         ]
     )
     async def _get(self, ctx: SlashContext, **kwargs):
@@ -96,12 +87,7 @@ class RegistrationCommands(commands.Cog):
                 option_type=3,
                 required=True
             ),
-            create_option(
-                name="user",
-                description="Requires elevated permissions",
-                option_type=6,
-                required=False
-            )
+            options_user(flavor_text="Requires elevated permissions")
         ]
     )
     async def _set(self, ctx: SlashContext, **kwargs):
