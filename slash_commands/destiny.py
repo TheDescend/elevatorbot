@@ -1129,7 +1129,6 @@ class RankCommands(commands.Cog):
             result = f"{int(total_power):,} + {artifact_power:,}"
 
         elif stat == "vaultspace":
-            # todo doesnt work all the time
             sort_by_ascending = True
 
             leaderboard_text = "Top Clanmembers by D2 Vaultspace Used"

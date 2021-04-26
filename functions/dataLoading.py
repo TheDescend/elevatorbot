@@ -338,7 +338,6 @@ async def getInventoryBucket(destinyID, bucket=138197802):
         return None
     items = res["profileInventory"]["data"]["items"]
     ret = []
-    print(items)
     for item in items:
         if item["bucketHash"] == bucket:    # vault hash
             ret.append(item)
