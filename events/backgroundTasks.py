@@ -76,11 +76,14 @@ class TokenUpdater(BaseEvent):
         super().__init__(scheduler_type="cron", dow_day_of_week=dow_day_of_week, dow_hour=dow_hour, dow_minute=dow_minute)
 
     async def run(self, client):
+        print("Starting to refresh Tokens...")
+
         for user in client.users:
             await handleAndReturnToken(user.id)
 
         # update the status
         await botStatus(client, "Token Refresh", datetime.datetime.now(tz=datetime.timezone.utc))
 
+        print("Done refreshing Tokens")
 
 
