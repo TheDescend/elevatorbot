@@ -7,6 +7,7 @@ from discord_slash import SlashContext
 from functions.database import lookupDestinyID, lookupSystem
 from functions.formating import embed_message
 from functions.miscFunctions import has_elevated_permissions
+from functions.network import handleAndReturnToken
 
 
 async def get_user_obj(ctx: SlashContext, kwargs: dict = None):
@@ -47,8 +48,9 @@ async def get_destinyID_and_system(ctx: SlashContext, discord_user):
     destinyID = await lookupDestinyID(user.id)
     system = await lookupSystem(destinyID)
 
-    if not (destinyID and system):
-        await ctx.send(f'Error: I possess no information about {user.display_name}. \nPlease `/registerdesc` first', hidden=True)
+    # check if user is registered and has a valid token
+    if not (destinyID and system) or not (await handleAndReturnToken(user.id))["result"]:
+        await ctx.send(f'Error: I either possess no information about {user.display_name} or their authentication is outdated. \nPlease `/registerdesc` to fix this issue', hidden=True)
         return None, None, None
 
     return user, destinyID, system

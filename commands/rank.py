@@ -166,7 +166,7 @@ async def handle_user(stat, member, guild, extra_hash, extra_name):
     discordID = lookupDiscordID(destinyID)
     sort_by_ascending = False
 
-    if not getToken(discordID):
+    if not await getToken(discordID):
         return None
 
     # catch people that are in the clan but not in discord, shouldn't happen tho

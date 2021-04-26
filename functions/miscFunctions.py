@@ -6,12 +6,13 @@ from discord_slash import SlashContext
 
 from functions.database import getToken
 from functions.formating import embed_message
+from functions.network import handleAndReturnToken
 from static.globals import admin_role_id, dev_role_id, mod_role_id
 from static.config import COMMAND_PREFIX
 
 
 async def checkIfUserIsRegistered(user):
-    if await getToken(user.id):
+    if (await handleAndReturnToken(user.id))["result"]:
         return True
     else:
         embed = embed_message(

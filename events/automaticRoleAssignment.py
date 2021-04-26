@@ -6,7 +6,7 @@ import discord
 from events.backgroundTasks import updateActivityDB
 from events.base_event import BaseEvent
 from functions.database import lookupDiscordID, lookupDestinyID, getToken
-from functions.network import getJSONfromURL
+from functions.network import getJSONfromURL, handleAndReturnToken
 from functions.persistentMessages import botStatus
 from functions.roleLookup import assignRolesToUser, removeRolesFromUser, getPlayerRoles
 from static.config import CLANID, BOTDEVCHANNELID
@@ -108,7 +108,7 @@ class AutoRegisteredRole(BaseEvent):
                     continue
 
                 # add "Registered" if they have a token but not the role
-                if await getToken(member.id):
+                if (await handleAndReturnToken(member.id))["result"]:
                     if discord.utils.get(guild.roles, id=not_registered_role_id) in member.roles:
                         await removeRolesFromUser([not_registered_role_id], member, guild)
                     await assignRolesToUser([registered_role_id], member, guild)

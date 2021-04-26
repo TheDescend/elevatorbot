@@ -6,7 +6,7 @@ import pandas
 from events.base_event import BaseEvent
 from functions.dataLoading import getTriumphsJSON, updateDB, updateMissingPcgr, updateManifest
 from functions.database import getAllDestinyIDs, lookupDiscordID
-from functions.network import getJSONfromURL, refresh_token
+from functions.network import getJSONfromURL, refresh_token, handleAndReturnToken
 from functions.persistentMessages import botStatus
 
 
@@ -77,7 +77,7 @@ class TokenUpdater(BaseEvent):
 
     async def run(self, client):
         for user in client.users:
-            await refresh_token(user.id)
+            await handleAndReturnToken(user.id)
 
         # update the status
         await botStatus(client, "Token Refresh", datetime.datetime.now(tz=datetime.timezone.utc))

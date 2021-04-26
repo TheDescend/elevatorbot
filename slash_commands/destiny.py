@@ -25,7 +25,7 @@ from functions.database import lookupDestinyID, lookupSystem, lookupDiscordID, g
     getPgcrActivitiesUsersStats, getClearCount
 from functions.formating import embed_message
 from functions.miscFunctions import get_emoji, write_line, has_elevated_permissions
-from functions.network import getJSONfromURL
+from functions.network import getJSONfromURL, handleAndReturnToken
 from functions.persistentMessages import get_persistent_message, make_persistent_message, delete_persistent_message
 from functions.slashCommandFunctions import get_user_obj, get_destinyID_and_system, get_user_obj_admin, \
     verify_time_input
@@ -1013,7 +1013,7 @@ class RankCommands(commands.Cog):
         discordID = await lookupDiscordID(destinyID)
         sort_by_ascending = False
 
-        if not await getToken(discordID):
+        if not (await handleAndReturnToken(discordID))["result"]:
             return None
 
         # catch people that are in the clan but not in discord, shouldn't happen tho
@@ -1100,9 +1100,6 @@ class RankCommands(commands.Cog):
 
         elif stat == "maxpower":
             # TODO efficiency
-            if not await getToken(discordID):
-                return None
-
             leaderboard_text = "Top Clanmembers by D2 Maximum Reported Power"
             stat_text = "Power"
 

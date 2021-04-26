@@ -5,6 +5,7 @@ from functions.clanJoinRequests import clanJoinRequestMessageReactions
 from functions.database import getPersistentMessage, insertPersistentMessage, \
     getallSteamJoinIDs, updatePersistentMessage, getAllPersistentMessages, deletePersistentMessage, getToken
 from functions.formating import embed_message
+from functions.network import handleAndReturnToken
 from static.globals import among_us_emoji_id, barotrauma_emoji_id, gta_emoji_id, valorant_emoji_id, lol_emoji_id, \
     eft_emoji_id, among_us_role_id, barotrauma_role_id, gta_role_id, valorant_role_id, lol_role_id, eft_role_id, \
     other_game_roles
@@ -119,7 +120,7 @@ async def handle_persistent_message_reaction(client, payload, persistent_message
 
     # only allow registered users to participate
     elif message_name == "tournament":
-        if not await getToken(payload.member.id):
+        if not (await handleAndReturnToken(payload.member.id))["result"]:
             await message.remove_reaction(payload.emoji, payload.member)
             await payload.member.send(embed=embed_message(
                 "Error",
