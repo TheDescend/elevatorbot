@@ -5,7 +5,7 @@ from functions.database import getPersistentMessage
 class GetMemberCount(BaseEvent):
     """ Updates the member count channel to show how many members are currently in it """
     def __init__(self):
-        interval_minutes = 10  # Set the interval for this event
+        interval_minutes = 30  # Set the interval for this event
         super().__init__(scheduler_type="interval", interval_minutes=interval_minutes)
 
     # Override the run() method
@@ -27,7 +27,7 @@ class GetMemberCount(BaseEvent):
 class GetBoosterCount(BaseEvent):
     """ Updates the booster count channel to show how many members are currently in it """
     def __init__(self):
-        interval_minutes = 10  # Set the interval for this event
+        interval_minutes = 30  # Set the interval for this event
         super().__init__(scheduler_type="interval", interval_minutes=interval_minutes)
 
     # Override the run() method

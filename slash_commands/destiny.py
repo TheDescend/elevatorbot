@@ -909,6 +909,12 @@ class RankCommands(commands.Cog):
                 option_type=3,
                 required=False
             ),
+            create_option(
+                name="reverse",
+                description="Default: 'False' - If you want to flip the sorting",
+                option_type=5,
+                required=False
+            ),
             options_user()
         ]
     )
@@ -937,13 +943,13 @@ class RankCommands(commands.Cog):
                 return
 
         # calculate the leaderboard
-        if embed := (await self._handle_users(leaderboard, user.display_name, ctx.guild, item_hashes, item_name)):
+        if embed := (await self._handle_users(leaderboard, user.display_name, ctx.guild, item_hashes, item_name, reverse=kwargs["reverse"] if "reverse" in kwargs else False)):
             await ctx.send(embed=embed)
         else:
             await ctx.send(embed_message('Error', 'Failed handling users'))
 
 
-    async def _handle_users(self, stat, display_name, guild, extra_hash, extra_name):
+    async def _handle_users(self, stat, display_name, guild, extra_hash, extra_name, reverse=False):
         # init DF. "stat_sort" is only here, since I want to save numbers fancy (1,000,000) and that is a string and not an int so sorting wont work
         data = pd.DataFrame(columns=["member", "stat", "stat_sort"])
 
@@ -956,6 +962,7 @@ class RankCommands(commands.Cog):
                 "Error",
                 "No users found"
             )
+        sort_by_ascending = None
         for ret in results:
             # add user to DF
             if ret:
@@ -973,6 +980,9 @@ class RankCommands(commands.Cog):
                 "Error",
                 "No data found"
             )
+
+        if reverse:
+            sort_by_ascending = not sort_by_ascending
 
         # sort and prepare DF
         data.sort_values(by=["stat_sort"], inplace=True, ascending=sort_by_ascending)
