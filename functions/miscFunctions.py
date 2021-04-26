@@ -6,7 +6,6 @@ from discord_slash import SlashContext
 
 from functions.database import getToken
 from functions.formating import embed_message
-from static.config import NOW_PLAYING
 from static.globals import admin_role_id, dev_role_id, mod_role_id
 from static.config import COMMAND_PREFIX
 

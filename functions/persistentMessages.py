@@ -12,7 +12,7 @@ from static.globals import among_us_emoji_id, barotrauma_emoji_id, gta_emoji_id,
 
 async def get_persistent_message(client, message_name, guild_id):
     """
-    Gets the persisten message for the specified name and guild and channel. If it doesnt exist, it will return False
+    Gets the persistent message for the specified name and guild and channel. If it doesnt exist, it will return False
     Returns message obj or False
     """
 
@@ -29,7 +29,7 @@ async def get_persistent_message(client, message_name, guild_id):
     return await channel.fetch_message(res[1])
 
 
-async def make_persistent_message(client, message_name, guild_id, channel_id, reaction_id_list=None, message_text=None, message_embed=None):
+async def make_persistent_message(client, message_name, guild_id, channel_id, reaction_id_list=None, message_text=None, message_embed=None, no_message=False):
     """
     Creates a new persistent message entry in the DB or changes the old one
     Returns message obj
@@ -37,20 +37,23 @@ async def make_persistent_message(client, message_name, guild_id, channel_id, re
 
     if reaction_id_list is None:
         reaction_id_list = []
-    assert (not message_text and not message_embed, "Need to input either text or embed")
-    assert (message_text and message_embed, "Need to input either text or embed, not both")
 
-    # make new message
-    channel = client.get_channel(channel_id)
-    if message_text:
-        message = await channel.send(message_text)
-    else:
-        message = await channel.send(embed=message_embed)
+    message = None
+    if not no_message:
+        assert (not message_text and not message_embed, "Need to input either text or embed")
+        assert (message_text and message_embed, "Need to input either text or embed, not both")
 
-    # react if wanted
-    for emoji_id in reaction_id_list:
-        emoji = client.get_emoji(emoji_id)
-        await message.add_reaction(emoji)
+        # make new message
+        channel = client.get_channel(channel_id)
+        if message_text:
+            message = await channel.send(message_text)
+        else:
+            message = await channel.send(embed=message_embed)
+
+        # react if wanted
+        for emoji_id in reaction_id_list:
+            emoji = client.get_emoji(emoji_id)
+            await message.add_reaction(emoji)
 
     # save msg in DB
     # check if msg exists
@@ -63,17 +66,17 @@ async def make_persistent_message(client, message_name, guild_id, channel_id, re
         old_message = await channel.fetch_message(res[1])
         await old_message.delete()
 
-        await updatePersistentMessage(message_name, guild_id, channel_id, message.id, reaction_id_list)
+        await updatePersistentMessage(message_name, guild_id, channel_id, message.id if message else 0, reaction_id_list)
 
     # insert
     else:
-        await insertPersistentMessage(message_name, guild_id, channel_id, message.id, reaction_id_list)
+        await insertPersistentMessage(message_name, guild_id, channel_id, message.id if message else 0, reaction_id_list)
 
     return message
 
 
 async def delete_persistent_message(message, message_name, guild_id):
-    """ Delete the persisten message for the specified name and guild """
+    """ Delete the persistent message for the specified name and guild """
 
     await message.delete()
     await deletePersistentMessage(message_name, guild_id)

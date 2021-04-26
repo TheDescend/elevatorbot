@@ -130,6 +130,43 @@ On your command, I can start a private PvP tournament for all the masochist in t
         await ctx.send("Done", hidden=True)
 
 
+    @cog_ext.cog_subcommand(
+        base="persistentmessage",
+        base_description="[Admin] Make new / replace old persistent messages ",
+        name="membercount",
+        description="Sets this channel as the member count channel",
+        options=[
+            create_option(
+                name="channel",
+                description="Which channel to the message should be in",
+                option_type=7,
+                required=True
+            )
+        ]
+    )
+    async def _membercount(self, ctx: SlashContext, channel):
+        await make_persistent_message(self.client, "memberCount", ctx.guild.id, channel.id, no_message=True)
+        await ctx.send("Done", hidden=True)
+
+    @cog_ext.cog_subcommand(
+        base="persistentmessage",
+        base_description="[Admin] Make new / replace old persistent messages ",
+        name="boostercount",
+        description="Sets this channel as the booster count channel",
+        options=[
+            create_option(
+                name="channel",
+                description="Which channel to the message should be in",
+                option_type=7,
+                required=True
+            )
+        ]
+    )
+    async def _boostercount(self, ctx: SlashContext, channel):
+        await make_persistent_message(self.client, "boosterCount", ctx.guild.id, channel.id, no_message=True)
+        await ctx.send("Done", hidden=True)
+
+
 def setup(client):
     client.add_cog(AdminCommands(client))
     # todo enable when persmissions are implemented
