@@ -5,7 +5,8 @@ from datetime import datetime
 from functions.database import get_connection_pool, updateLastUpdated, \
     lookupDiscordID, lookupSystem, insertPgcrActivities, getPgcrActivity, insertPgcrActivitiesUsersStats, \
     insertPgcrActivitiesUsersStatsWeapons, getFailToGetPgcrInstanceId, insertFailToGetPgcrInstanceId, \
-    deleteFailToGetPgcrInstanceId, getWeaponInfo, updateDestinyDefinition, getVersion, updateVersion, deleteEntries
+    deleteFailToGetPgcrInstanceId, getWeaponInfo, updateDestinyDefinition, getVersion, updateVersion, deleteEntries, \
+    getDestinyDefinition
 from functions.database import getLastUpdated
 from functions.formating import embed_message
 from functions.network import getJSONfromURL, getComponentInfoAsJSON, getJSONwithToken
@@ -273,7 +274,7 @@ async def searchForItem(ctx, search_term):
         return None, None
 
     # defer now that we know the weapon exists
-    if not ctx.deffered:
+    if not ctx.deferred:
         await ctx.defer()
 
     # check if we found multiple items with different names. Ask user to specify which one is correct
@@ -821,6 +822,18 @@ async def getClanMembers(client):
 
     return memberlist
 
+
+async def getWeaponNameAndSlot(weapon_id):
+    """ Returns name, slotname """
+
+    weapon_data = await getDestinyDefinition("DestinyInventoryItemDefinition", weapon_id)
+    slot = {
+        1498876634: "Kinetic",
+        2465295065: "Energy",
+        953998645: "Power"
+    }
+
+    return weapon_data[2], slot[weapon_data[4]]
 
 #TODO replace with DB and version checks
 

@@ -983,7 +983,7 @@ async def getWeaponInfo(membershipID: int, weaponID: int, characterID: int = Non
 
 
 async def getTopWeapons(membershipid: int, characterID: int = None, mode: int = 0, activityID: int = None, start: datetime = datetime.min, end: datetime = datetime.now()):
-    """ Gets Top 10 gun for the given parameters.
+    """ Gets Top gun for the given parameters.
     Returns (weaponId, uniqueweaponkills, uniqueweaponprecisionkills) """
 
     select_sql = f"""

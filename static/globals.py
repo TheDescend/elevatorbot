@@ -34,6 +34,7 @@ steam_join_codes_channel_id = 701060424535113738
 thumps_up_emoji_id = 754946723612196975
 thumps_down_emoji_id = 754946723503276124
 yes_emoji_id = 768908985557844028
+enter_emoji_id = 768906489103384688
 destiny_emoji_id = 768906489472876574
 
 among_us_emoji_id = 751020830376591420

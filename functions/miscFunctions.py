@@ -10,7 +10,6 @@ from functions.network import handleAndReturnToken
 from static.globals import admin_role_id, dev_role_id, mod_role_id
 from static.config import COMMAND_PREFIX
 
-
 async def checkIfUserIsRegistered(user):
     if (await handleAndReturnToken(user.id))["result"]:
         return True
@@ -114,10 +113,10 @@ async def get_emoji(client, emoji_id):
     return client.get_emoji(emoji_id)
 
 
-def write_line(index, member, stat_text, stat):
+def write_line(index, member, stat_text, stat, emoji):
     """ Write a line like charley does"""
 
-    return f"{index}) **{member}** _({stat_text}: {stat})_"
+    return f"**{index})** {member} \n{emoji} {stat_text}: {stat}"
 
 
 

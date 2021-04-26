@@ -1,3 +1,4 @@
+import itertools
 import json
 import datetime
 from collections import Counter
@@ -18,7 +19,8 @@ from pyvis.network import Network
 from functions.authfunctions import getSpiderMaterials
 from functions.dataLoading import searchForItem, getStats, getArtifact, getCharacterGearAndPower, getInventoryBucket, \
     getProfile, getCharacterList, getAggregateStatsForChar, getPlayersPastActivities, getWeaponStats, getAllGear, \
-    updateDB, getDestinyName, getTriumphsJSON, getCharacterInfoList, getCharacterID, getClanMembers
+    updateDB, getDestinyName, getTriumphsJSON, getCharacterInfoList, getCharacterID, getClanMembers, \
+    getWeaponNameAndSlot
 from functions.dataTransformation import getSeasonalChallengeInfo, getCharStats, getPlayerSeals, getIntStat
 from functions.database import lookupDestinyID, lookupSystem, lookupDiscordID, getToken, getForges, getLastActivity, \
     getDestinyDefinition, getWeaponInfo, getPgcrActivity, getTopWeapons, getActivityHistory, \
@@ -32,7 +34,8 @@ from functions.slashCommandFunctions import get_user_obj, get_destinyID_and_syst
 from functions.tournament import startTournamentEvents
 from static.config import CLANID
 from static.dict import metricRaidCompletion, raidHashes, gmHashes
-from static.globals import titan_emoji_id, hunter_emoji_id, warlock_emoji_id, light_level_icon_emoji_id, tournament
+from static.globals import titan_emoji_id, hunter_emoji_id, warlock_emoji_id, light_level_icon_emoji_id, tournament, \
+    enter_emoji_id
 from static.slashCommandOptions import choices_mode, options_stat, options_user
 
 
@@ -490,11 +493,6 @@ class ClanActivitiesCommands(commands.Cog):
     def __init__(self, client):
         self.client = client
 
-        # edge_list = [person, size, size_desc, display_names, colors]
-        self.edge_list = []
-        self.ignore = []
-
-
     @cog_ext.cog_slash(
         name="clanactivity",
         description="Shows information about who from the clan plays with whom (Default: in the last 7 days)",
@@ -522,6 +520,11 @@ class ClanActivitiesCommands(commands.Cog):
         ]
     )
     async def _clanactivity(self, ctx: SlashContext, **kwargs):
+        # edge_list = [person, size, size_desc, display_names, colors]
+        self.edge_list = []
+        self.ignore = []
+
+
         user = await get_user_obj(ctx, kwargs)
         _, orginal_user_destiny_id, system = await get_destinyID_and_system(ctx, user)
         if not orginal_user_destiny_id:
@@ -990,22 +993,23 @@ class RankCommands(commands.Cog):
 
         # calculate the data for the embed
         ranking = []
+        emoji = self.client.get_emoji(enter_emoji_id)
         found = False
         for index, row in data.iterrows():
             if len(ranking) < 12:
                 # setting a flag if user is in list
                 if row["member"] == display_name:
                     found = True
-                    ranking.append(write_line(index + 1, f"""[{row["member"]}]""", stat_text, row["stat"]))
+                    ranking.append(write_line(index + 1, f"""**{row["member"]}**""", stat_text, row["stat"], emoji))
                 else:
-                    ranking.append(write_line(index + 1, row["member"], stat_text, row["stat"]))
+                    ranking.append(write_line(index + 1, row["member"], stat_text, row["stat"], emoji))
 
             # looping through rest until original user is found
             elif (len(ranking) >= 12) and (not found):
                 # adding only this user
                 if row["member"] == display_name:
                     ranking.append("...")
-                    ranking.append(write_line(index + 1, row["member"], stat_text, row["stat"]))
+                    ranking.append(write_line(index + 1, row["member"], stat_text, row["stat"], emoji))
                     break
 
             else:
@@ -1707,9 +1711,14 @@ class WeaponCommands(commands.Cog):
         # get the real weapon name if that param is given
         weapon_name = None
         if "weapon" in kwargs:
-            weapon_name, _ = await searchForItem(ctx, kwargs["weapon"])
+            weapon_name, weapon_id = await searchForItem(ctx, kwargs["weapon"])
+            weapon_id = weapon_id[0]
             if not weapon_name:
                 return
+
+        # might take a sec
+        if not ctx.deferred:
+            await ctx.defer()
 
         # update user db
         await updateDB(destinyID)
@@ -1731,7 +1740,7 @@ class WeaponCommands(commands.Cog):
         data = []
         for weaponID, uniqueweaponkills, uniqueweaponprecisionkills in result:
             # get the name
-            weapon_data = [(await getDestinyDefinition("DestinyInventoryItemDefinition", weaponID))[2]]
+            weapon_data = [weaponID, (await getDestinyDefinition("DestinyInventoryItemDefinition", weaponID))[2]]
 
             if stat == "kills":
                 statistic = uniqueweaponkills
@@ -1749,28 +1758,29 @@ class WeaponCommands(commands.Cog):
             data.append(tuple(weapon_data))
 
         # sort by index specified
-        sorted_data = sorted(data, key=lambda x: x[1], reverse=True)
+        sorted_data = sorted(data, key=lambda x: x[2], reverse=True)
 
         # get the data for the embed
         i = 0
         ranking = []
+        emoji = self.client.get_emoji(enter_emoji_id)
         found = False if weapon_name else True
-        for name, _, statistic in sorted_data:
+        for w_id, name, _, statistic in sorted_data:
             i += 1
             if len(ranking) < 12:
                 # setting a flag if name is in list
                 if weapon_name == name:
                     found = True
-                    ranking.append(write_line(i, f"""[{name}]""", stat.capitalize(), statistic))
+                    ranking.append(write_line(i, f"""**[{name}](https://www.light.gg/db/items/{w_id})**""", stat.capitalize(), statistic, emoji))
                 else:
-                    ranking.append(write_line(i, name, stat.capitalize(), statistic))
+                    ranking.append(write_line(i, f"""[{name}](https://www.light.gg/db/items/{w_id})""", stat.capitalize(), statistic, emoji))
 
             # looping through rest until original user is found
             elif (len(ranking) >= 12) and (not found):
                 # adding only this name
                 if weapon_name == name:
                     ranking.append("...")
-                    ranking.append(write_line(i, name, stat.capitalize(), statistic))
+                    ranking.append(write_line(i, f"""[{name}](https://www.light.gg/db/items/{w_id})""", stat.capitalize(), statistic, emoji))
                     found = True
                     break
 
@@ -1780,7 +1790,7 @@ class WeaponCommands(commands.Cog):
         # write "0" as data, since it is not in there
         if not found:
             ranking.append("...")
-            ranking.append(write_line(i, weapon_name, stat.capitalize(), 0))
+            ranking.append(write_line(i, f"""[{weapon_name}](https://www.light.gg/db/items/{weapon_id})""", stat.capitalize(), 0, emoji))
 
         # make and post embed
         embed = embed_message(
@@ -1931,6 +1941,155 @@ class TournamentCommands(commands.Cog):
         ))
 
 
+class MetaCommands(commands.Cog):
+    def __init__(self, client):
+        self.client = client
+
+
+    @cog_ext.cog_slash(
+        name="meta",
+        description="Displays most used weapons by clanmembers (Default: in the last 30 days)",
+        options=[
+            create_option(
+                name="class",
+                description="You can restrict the class where the weapon stats count",
+                option_type=3,
+                required=False,
+                choices=[
+                    create_choice(
+                        name="Warlock",
+                        value="2271682572"
+                    ),
+                    create_choice(
+                        name="Hunter",
+                        value="671679327"
+                    ),
+                    create_choice(
+                        name="Titan",
+                        value="3655393761"
+                    ),
+                ]
+            ),
+            create_option(
+                name="starttime",
+                description="Format: 'DD/MM/YY' - You can restrict the time from when the weapon stats start counting",
+                option_type=3,
+                required=False
+            ),
+            create_option(
+                name="endtime",
+                description="Format: 'DD/MM/YY' - You can restrict the time up until which the weapon stats count",
+                option_type=3,
+                required=False
+            ),
+            create_option(
+                name="mode",
+                description="You can restrict the game mode (Default: Everything)",
+                option_type=3,
+                required=False,
+                choices=choices_mode
+            ),
+            create_option(
+                name="activityhash",
+                description="You can restrict the activity (advanced)",
+                option_type=4,
+                required=False
+            )
+        ]
+    )
+    async def _meta(self, ctx: SlashContext, **kwargs):
+        self.weapon_stats = {}
+        self.weapon_stats_slots = {
+            "Kinetic": {},
+            "Energy": {},
+            "Power": {},
+        }
+
+        # might take a sec
+        await ctx.defer()
+
+        # set default values for the args
+        character_class = int(kwargs["class"]) if "class" in kwargs else None
+        mode = int(kwargs["mode"]) if "mode" in kwargs else 0
+        try:
+            activity_hash = int(kwargs["activityhash"]) if "activityhash" in kwargs else None
+        except ValueError:
+            await ctx.send("Error: The activityhash parameters must be an integer", hidden=True)
+            return
+
+        # make sure the times are valid
+        starttime = await verify_time_input(ctx, kwargs["starttime"]) if "starttime" in kwargs else datetime.datetime.now() - datetime.timedelta(days=30)
+        if not starttime:
+            return
+        endtime = await verify_time_input(ctx, kwargs["endtime"]) if "endtime" in kwargs else datetime.datetime.now()
+        if not endtime:
+            return
+
+        # loop through all users and get their stats
+        clan_members = await getClanMembers(self.client)
+        result = await asyncio.gather(*[self._handle_user(destinyID, mode, activity_hash, starttime, endtime, character_class) for destinyID in clan_members])
+
+        for clan_member in result:
+            if clan_member is not None:
+                for weapon in clan_member:
+                    if weapon[0] not in self.weapon_stats:
+                        self.weapon_stats[weapon[0]] = weapon[1]
+                    else:
+                        self.weapon_stats[weapon[0]] += weapon[1]
+
+        # loop through all weapons and divide them into kinetic / energy / power
+        await asyncio.gather(*[self._handle_weapon(weapon_id, weapon_kills) for weapon_id, weapon_kills in self.weapon_stats.items()])
+
+        slot_text = {}
+        emoji = self.client.get_emoji(enter_emoji_id)
+        for slot, weapon_data in self.weapon_stats_slots.items():
+            # sort it and only take the top 10
+            weapon_data_sorted = {k: v for k, v in sorted(weapon_data.items(), key=lambda item: item[1]["weapon_kills"], reverse=True)[:8]}
+
+            # loop through the top
+            slot_text[slot] = []
+            i = 1
+            for weapon_id, weapon_stats in weapon_data_sorted.items():
+                text = write_line(i, f"[{weapon_stats['weapon_name']}](https://www.light.gg/db/items/{weapon_id})", "Kills", f"{weapon_stats['weapon_kills']:,}", emoji)
+                slot_text[slot].append(text)
+                i += 1
+
+        embed = embed_message(
+            "Clanmember Weapon Meta"
+        )
+        for slot in slot_text:
+            embed.add_field(name=slot, value="\n".join(slot_text[slot]), inline=True)
+
+        await ctx.send(embed=embed)
+
+
+    async def _handle_user(self, destinyID, mode, activity_hash, starttime, endtime, character_class):
+        # get character id if asked for
+        charID = await getCharacterID(destinyID, character_class) if character_class else None
+
+        # get all weapon kills
+        kwargs = {
+            "characterID": charID,
+            "mode": mode,
+            "activityID": activity_hash,
+            "start": starttime,
+            "end": endtime
+        }
+        return await getTopWeapons(destinyID, **{k: v for k, v in kwargs.items() if v is not None})
+
+
+    async def _handle_weapon(self, weapon_id, weapon_kills):
+        weapon_name, weapon_slot = await getWeaponNameAndSlot(weapon_id)
+
+        self.weapon_stats_slots[weapon_slot].update({
+           weapon_id: {
+                "weapon_name": weapon_name,
+                "weapon_kills": weapon_kills,
+            }
+        })
+
+
+
 def setup(client):
     client.add_cog(DestinyCommands(client))
     client.add_cog(MysticCommands(client))
@@ -1938,3 +2097,4 @@ def setup(client):
     client.add_cog(WeaponCommands(client))
     client.add_cog(ClanActivitiesCommands(client))
     client.add_cog(TournamentCommands(client))
+    client.add_cog(MetaCommands(client))
