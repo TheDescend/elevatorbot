@@ -69,6 +69,10 @@ class ExternalWebsitesCommands(commands.Cog):
                         name="Triumph Report",
                         value="Triumph Report"
                     ),
+                    create_choice(
+                        name="Wasted on Destiny",
+                        value="Wasted on Destiny"
+                    ),
                 ],
             ),
             options_user()
@@ -102,6 +106,8 @@ class ExternalWebsitesCommands(commands.Cog):
             text = f'https://www.d2checklist.com/{system}/{destinyID}'
         elif website == "Destiny Tracker":
             text = f'https://destinytracker.com/destiny-2/profile/{system}/{destinyID}'
+        elif website == "Wasted on Destiny":
+            text = f'https://wastedondestiny.com/{system}_{destinyID}'
 
         await ctx.send(embed=embed_message(
             website,
