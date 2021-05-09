@@ -155,8 +155,30 @@ def main():
 
         if "welcome" in text.lower() and message.mentions:
             for mention in message.mentions:
-                if mention.id == 109022023979667456: #@Neria
-                    await message.channel.send(f'Welcome <@109022023979667456>!')
+                neria_id = 109022023979667456
+                if mention.id == neria_id:
+                    welcome_choice = [
+                        "Welcome",
+                        "I mirëpritur",
+                        "Dobrodošli",
+                        "Vitejte",
+                        "Welkom",
+                        "Tere tulemast",
+                        "Tervetuloa",
+                        "Bienvenue",
+                        "Herzlich willkommen",
+                        "Üdvözöljük",
+                        "Velkominn",
+                        "Fáilte",
+                        "Benvenuta",
+                        "Velkommen",
+                        "Witamy",
+                        "Bine ati venit",
+                        "Bienvenidas",
+                        "Välkommen",
+                        "Croeso",
+                    ]
+                    await message.channel.send(f'{random.choice(welcome_choice)} <@{neria_id}>!')
         
         if client.user in message.mentions: #If bot has been tagged
             notification = client.get_emoji(751771924866269214) #notification/angerping
