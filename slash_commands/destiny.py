@@ -75,7 +75,7 @@ class DestinyCommands(commands.Cog):
         other_dates_lower = [
             ["2020-02-04", "Empyrean Foundation"],
             ["2020-07-07", "Moments of Triumph"],
-            ["2021-05-22", "VOG"],
+            ["2021-05-22", "VoG"],
         ]
 
         # reading data and preparing it
