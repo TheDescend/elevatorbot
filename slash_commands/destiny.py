@@ -942,7 +942,10 @@ class RankCommands(commands.Cog):
 
             # send error message and exit
             else:
-                await ctx.send("Error: Please specify a weapon in the command argument `arg`", hidden=True)
+                await ctx.send(hidden=True, embed=embed_message(
+                    f"Error",
+                    f"Please specify a weapon in the command argument `arg`"
+                ))
                 return
 
         # calculate the leaderboard
@@ -1809,7 +1812,10 @@ class WeaponCommands(commands.Cog):
         try:
             activity_hash = int(kwargs["activityhash"]) if "activityhash" in kwargs else None
         except ValueError:
-            await ctx.send("Error: The activityhash parameters must be an integer", hidden=True)
+            await ctx.send(hidden=True, embed=embed_message(
+                f"Error",
+                f"The argument `activityhash` must be a number"
+            ))
             return None, None, None, None, None, None, None
 
         # make sure the times are valid
@@ -1839,7 +1845,10 @@ class TournamentCommands(commands.Cog):
         # check if tourn already exists
         message = await get_persistent_message(self.client, "tournament", ctx.guild.id)
         if message:
-            await ctx.send("Error: A tournament already exists. \nPlease wait until it is completed and then try again", hidden=True)
+            await ctx.send(hidden=True, embed=embed_message(
+                f"Error",
+                f"A tournament already exists. \nPlease wait until it is completed and then try again or ask a member of staff to delete it"
+            ))
             return
 
         # get the tourn channel id
@@ -1872,19 +1881,28 @@ class TournamentCommands(commands.Cog):
         # check if tourn exists
         message = await get_persistent_message(self.client, "tournament", ctx.guild.id)
         if not message:
-            await ctx.send("Error: You need to start the registration by using `/tournament create` first", hidden=True)
+            await ctx.send(hidden=True, embed=embed_message(
+                f"Error",
+                f"You need to start the registration by using `/tournament create` first"
+            ))
             return
 
         # check if author has permissions to start
         if not (message.author == ctx.author) and not (await has_elevated_permissions(ctx.author, ctx.guild)):
-            await ctx.send("Error: Only admins and the tournament creator can start the tournament", hidden=True)
+            await ctx.send(hidden=True, embed=embed_message(
+                f"Error",
+                f"Only admins and the tournament creator can start the tournament"
+            ))
             return
 
         # check that at least two people (3, since bot counts too) have reacted and get the users
         for reaction in message.reactions:
             if reaction.emoji.id in tournament:
                 if reaction.count < 3:
-                    await ctx.send("Error: At least two people need to sign up", hidden=True)
+                    await ctx.send(hidden=True, embed=embed_message(
+                        f"Error",
+                        f"At least two people need to sign up"
+                    ))
                     return
                 participants = []
                 async for user in reaction.users():
@@ -1924,12 +1942,18 @@ class TournamentCommands(commands.Cog):
         # check if tourn exists
         message = await get_persistent_message(self.client, "tournament", ctx.guild.id)
         if not message:
-            await ctx.send("Error: There is no tournament to delete", hidden=True)
+            await ctx.send(hidden=True, embed=embed_message(
+                f"Error",
+                f"There is no tournament to delete"
+            ))
             return
 
         # check if author has permissions to start
         if not (message.author == ctx.author) and not (await has_elevated_permissions(ctx.author, ctx.guild)):
-            await ctx.send("Error: Only admins and the tournament creator can delete the tournament", hidden=True)
+            await ctx.send(hidden=True, embed=embed_message(
+                f"Error",
+                f"Only admins and the tournament creator can delete the tournament"
+            ))
             return
 
         # delete msg
@@ -2014,7 +2038,10 @@ class MetaCommands(commands.Cog):
         try:
             activity_hash = int(kwargs["activityhash"]) if "activityhash" in kwargs else None
         except ValueError:
-            await ctx.send("Error: The activityhash parameters must be an integer", hidden=True)
+            await ctx.send(hidden=True, embed=embed_message(
+                f"Error",
+                f"The argument `activityhash` must be a number"
+            ))
             return
 
         # make sure the times are valid
