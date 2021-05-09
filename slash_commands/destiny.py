@@ -71,11 +71,11 @@ class DestinyCommands(commands.Cog):
             ["2020-08-11", "Solstice of Heroes"],
             ["2020-11-21", "DSC"],
             ["2021-04-21", "Guardian Games"],
-            ["2021-05-22", "VOG"],
         ]
         other_dates_lower = [
             ["2020-02-04", "Empyrean Foundation"],
             ["2020-07-07", "Moments of Triumph"],
+            ["2021-05-22", "VOG"],
         ]
 
         # reading data and preparing it
