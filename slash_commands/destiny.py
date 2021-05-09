@@ -60,6 +60,7 @@ class DestinyCommands(commands.Cog):
             ["2020-06-09", "Season of Arrivals"],
             ["2020-11-10", "Beyond Light"],
             ["2021-02-09", "Season of the Chosen"],
+            ["2021-05-11", "Season of the Splicer"],
         ]
         other_dates = [
             ["2019-10-04", "GoS"],
@@ -69,6 +70,8 @@ class DestinyCommands(commands.Cog):
             ["2020-06-06", "Almighty Live Event"],
             ["2020-08-11", "Solstice of Heroes"],
             ["2020-11-21", "DSC"],
+            ["2021-04-21", "Guardian Games"],
+            ["2021-05-22", "VOG"],
         ]
         other_dates_lower = [
             ["2020-02-04", "Empyrean Foundation"],
