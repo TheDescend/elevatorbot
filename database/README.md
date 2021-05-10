@@ -9,6 +9,14 @@ CREATE TABLE versions (
 );
 
 ################################################################
+# D2 Steam Players
+
+CREATE TABLE d2SteamPlayers (
+    dateObj TIMESTAMP WITHOUT TIME ZONE PRIMARY KEY, 
+    numberOfPlayers INT
+);
+
+################################################################
 # Persistent Messages
 
 CREATE TABLE persistentMessages (

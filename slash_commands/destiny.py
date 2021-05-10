@@ -24,7 +24,7 @@ from functions.dataLoading import searchForItem, getStats, getArtifact, getChara
 from functions.dataTransformation import getSeasonalChallengeInfo, getCharStats, getPlayerSeals, getIntStat
 from functions.database import lookupDestinyID, lookupSystem, lookupDiscordID, getToken, getForges, getLastActivity, \
     getDestinyDefinition, getWeaponInfo, getPgcrActivity, getTopWeapons, getActivityHistory, \
-    getPgcrActivitiesUsersStats, getClearCount
+    getPgcrActivitiesUsersStats, getClearCount, get_d2_steam_player_info
 from functions.formating import embed_message
 from functions.miscFunctions import get_emoji, write_line, has_elevated_permissions
 from functions.network import getJSONfromURL, handleAndReturnToken
@@ -35,7 +35,7 @@ from functions.tournament import startTournamentEvents
 from static.config import CLANID
 from static.dict import metricRaidCompletion, raidHashes, gmHashes
 from static.globals import titan_emoji_id, hunter_emoji_id, warlock_emoji_id, light_level_icon_emoji_id, tournament, \
-    enter_emoji_id
+    enter_emoji_id, guild_ids
 from static.slashCommandOptions import choices_mode, options_stat, options_user
 
 
@@ -60,25 +60,26 @@ class DestinyCommands(commands.Cog):
             ["2020-06-09", "Season of Arrivals"],
             ["2020-11-10", "Beyond Light"],
             ["2021-02-09", "Season of the Chosen"],
+            ["2021-05-11", "Season of the Splicer"],
         ]
         other_dates = [
             ["2019-10-04", "GoS"],
             ["2019-10-29", "PoH"],
             ["2020-01-14", "Corridors of Time"],
-            ["2020-04-21", "Guardian Games"],
             ["2020-06-06", "Almighty Live Event"],
             ["2020-08-11", "Solstice of Heroes"],
             ["2020-11-21", "DSC"],
+            ["2021-04-21", "Guardian Games"],
         ]
         other_dates_lower = [
             ["2020-02-04", "Empyrean Foundation"],
+            ["2020-04-21", "Guardian Games"],
             ["2020-07-07", "Moments of Triumph"],
+            ["2021-05-22", "VoG"],
         ]
 
-        # reading data and preparing it
-        data = pd.read_pickle('database/steamPlayerData.pickle')
-        data['datetime'] = pd.to_datetime(data['datetime'])
-        data['players'] = pd.to_numeric(data['players'])
+        # reading data from the DB
+        data = await get_d2_steam_player_info()
 
         # Create figure and plot space
         fig, ax = plt.subplots(figsize=(20, 10))
@@ -86,36 +87,41 @@ class DestinyCommands(commands.Cog):
 
         # filling plot
         ax.plot(
-            data['datetime'],
-            data['players'],
-            "darkred"
+            data['dateobj'],
+            data['numberofplayers'],
+            "darkred",
+            zorder=2
         )
 
         # Set title and labels for axes
-        ax.set_title("Destiny 2 - Steam Player Count", fontweight="bold", size=30, pad=20)
-        ax.set_xlabel("Date", fontsize=20)
-        ax.set_ylabel("Players", fontsize=20)
+        ax.set_xlabel("Date", fontsize=20, fontweight="bold")
+        ax.set_ylabel("Players", fontsize=20, fontweight="bold")
 
         # adding nice lines to mark important events
         for dates in season_dates:
             date = datetime.datetime.strptime(dates[0], '%Y-%m-%d')
-            ax.axvline(date, color="darkgreen")
-            ax.text(date + datetime.timedelta(days=2), (max(data['players']) - min(data['players'])) * 1.02 + min(data['players']), dates[1], color="darkgreen", fontweight="bold", bbox=dict(facecolor='white', edgecolor='darkgreen', pad=4))
+            ax.axvline(date, color="darkgreen", zorder=1)
+            ax.text(date + datetime.timedelta(days=2), (max(data['numberofplayers']) - min(data['numberofplayers'])) * 1.02 + min(data['numberofplayers']), dates[1], color="darkgreen", fontweight="bold", bbox=dict(facecolor='white', edgecolor='darkgreen', pad=4, zorder=3))
         for dates in other_dates:
             date = datetime.datetime.strptime(dates[0], '%Y-%m-%d')
-            ax.axvline(date, color="mediumaquamarine")
-            ax.text(date + datetime.timedelta(days=2), (max(data['players']) - min(data['players'])) * 0.95 + min(data['players']), dates[1], color="mediumaquamarine", bbox=dict(facecolor='white', edgecolor='mediumaquamarine', boxstyle='round'))
+            ax.axvline(date, color="mediumaquamarine", zorder=1)
+            ax.text(date + datetime.timedelta(days=2), (max(data['numberofplayers']) - min(data['numberofplayers'])) * 0.95 + min(data['numberofplayers']), dates[1], color="mediumaquamarine", bbox=dict(facecolor='white', edgecolor='mediumaquamarine', boxstyle='round', zorder=3))
         for dates in other_dates_lower:
             date = datetime.datetime.strptime(dates[0], '%Y-%m-%d')
-            ax.axvline(date, color="mediumaquamarine")
-            ax.text(date + datetime.timedelta(days=2), (max(data['players']) - min(data['players'])) * 0.90 + min(data['players']), dates[1], color="mediumaquamarine", bbox=dict(facecolor='white', edgecolor='mediumaquamarine', boxstyle='round'))
+            ax.axvline(date, color="mediumaquamarine", zorder=1)
+            ax.text(date + datetime.timedelta(days=2), (max(data['numberofplayers']) - min(data['numberofplayers'])) * 0.90 + min(data['numberofplayers']), dates[1], color="mediumaquamarine", bbox=dict(facecolor='white', edgecolor='mediumaquamarine', boxstyle='round', zorder=3))
 
         # saving file
-        title = "players.png"
-        plt.savefig(title)
+        title = "d2population.png"
+        plt.savefig(title, bbox_inches='tight')
 
         # sending them the file
-        await ctx.send(file=discord.File(title))
+        embed = embed_message(
+            "Destiny 2 - Steam Player Count"
+        )
+        image = discord.File(title)
+        embed.set_image(url=f"attachment://{title}")
+        await ctx.send(file=image, embed=embed)
 
         # delete file
         os.remove(title)
@@ -942,7 +948,10 @@ class RankCommands(commands.Cog):
 
             # send error message and exit
             else:
-                await ctx.send("Error: Please specify a weapon in the command argument `arg`", hidden=True)
+                await ctx.send(hidden=True, embed=embed_message(
+                    f"Error",
+                    f"Please specify a weapon in the command argument `arg`"
+                ))
                 return
 
         # calculate the leaderboard
@@ -1809,7 +1818,10 @@ class WeaponCommands(commands.Cog):
         try:
             activity_hash = int(kwargs["activityhash"]) if "activityhash" in kwargs else None
         except ValueError:
-            await ctx.send("Error: The activityhash parameters must be an integer", hidden=True)
+            await ctx.send(hidden=True, embed=embed_message(
+                f"Error",
+                f"The argument `activityhash` must be a number"
+            ))
             return None, None, None, None, None, None, None
 
         # make sure the times are valid
@@ -1839,7 +1851,10 @@ class TournamentCommands(commands.Cog):
         # check if tourn already exists
         message = await get_persistent_message(self.client, "tournament", ctx.guild.id)
         if message:
-            await ctx.send("Error: A tournament already exists. \nPlease wait until it is completed and then try again", hidden=True)
+            await ctx.send(hidden=True, embed=embed_message(
+                f"Error",
+                f"A tournament already exists. \nPlease wait until it is completed and then try again or ask a member of staff to delete it"
+            ))
             return
 
         # get the tourn channel id
@@ -1872,19 +1887,28 @@ class TournamentCommands(commands.Cog):
         # check if tourn exists
         message = await get_persistent_message(self.client, "tournament", ctx.guild.id)
         if not message:
-            await ctx.send("Error: You need to start the registration by using `/tournament create` first", hidden=True)
+            await ctx.send(hidden=True, embed=embed_message(
+                f"Error",
+                f"You need to start the registration by using `/tournament create` first"
+            ))
             return
 
         # check if author has permissions to start
         if not (message.author == ctx.author) and not (await has_elevated_permissions(ctx.author, ctx.guild)):
-            await ctx.send("Error: Only admins and the tournament creator can start the tournament", hidden=True)
+            await ctx.send(hidden=True, embed=embed_message(
+                f"Error",
+                f"Only admins and the tournament creator can start the tournament"
+            ))
             return
 
         # check that at least two people (3, since bot counts too) have reacted and get the users
         for reaction in message.reactions:
             if reaction.emoji.id in tournament:
                 if reaction.count < 3:
-                    await ctx.send("Error: At least two people need to sign up", hidden=True)
+                    await ctx.send(hidden=True, embed=embed_message(
+                        f"Error",
+                        f"At least two people need to sign up"
+                    ))
                     return
                 participants = []
                 async for user in reaction.users():
@@ -1924,12 +1948,18 @@ class TournamentCommands(commands.Cog):
         # check if tourn exists
         message = await get_persistent_message(self.client, "tournament", ctx.guild.id)
         if not message:
-            await ctx.send("Error: There is no tournament to delete", hidden=True)
+            await ctx.send(hidden=True, embed=embed_message(
+                f"Error",
+                f"There is no tournament to delete"
+            ))
             return
 
         # check if author has permissions to start
         if not (message.author == ctx.author) and not (await has_elevated_permissions(ctx.author, ctx.guild)):
-            await ctx.send("Error: Only admins and the tournament creator can delete the tournament", hidden=True)
+            await ctx.send(hidden=True, embed=embed_message(
+                f"Error",
+                f"Only admins and the tournament creator can delete the tournament"
+            ))
             return
 
         # delete msg
@@ -2014,7 +2044,10 @@ class MetaCommands(commands.Cog):
         try:
             activity_hash = int(kwargs["activityhash"]) if "activityhash" in kwargs else None
         except ValueError:
-            await ctx.send("Error: The activityhash parameters must be an integer", hidden=True)
+            await ctx.send(hidden=True, embed=embed_message(
+                f"Error",
+                f"The argument `activityhash` must be a number"
+            ))
             return
 
         # make sure the times are valid

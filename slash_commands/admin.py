@@ -46,7 +46,10 @@ class PersistenMessagesCommands(commands.Cog):
 
         await make_persistent_message(self.client, "otherGameRoles", ctx.guild.id, channel.id, reaction_id_list=emoji_id_list, message_embed=embed)
 
-        await ctx.send("Done", hidden=True)
+        await ctx.send(hidden=True, embed=embed_message(
+            f"Success",
+            f"I've done as you asked"
+        ))
 
 
     @cog_ext.cog_subcommand(
@@ -71,7 +74,10 @@ class PersistenMessagesCommands(commands.Cog):
 
         await make_persistent_message(self.client, "clanJoinRequest", ctx.guild.id, channel.id, reaction_id_list=clan_join_request, message_embed=embed)
 
-        await ctx.send("Done", hidden=True)
+        await ctx.send(hidden=True, embed=embed_message(
+            f"Success",
+            f"I've done as you asked"
+        ))
 
 
     @cog_ext.cog_subcommand(
@@ -94,7 +100,10 @@ class PersistenMessagesCommands(commands.Cog):
         # fill the empty message
         await steamJoinCodeMessage(self.client, ctx.guild)
 
-        await ctx.send("Done", hidden=True)
+        await ctx.send(hidden=True, embed=embed_message(
+            f"Success",
+            f"I've done as you asked"
+        ))
 
 
     @cog_ext.cog_subcommand(
@@ -127,7 +136,10 @@ On your command, I can start a private PvP tournament for all the masochist in t
 
         await make_persistent_message(self.client, "tournamentChannel", ctx.guild.id, channel.id, message_text=text)
 
-        await ctx.send("Done", hidden=True)
+        await ctx.send(hidden=True, embed=embed_message(
+            f"Success",
+            f"I've done as you asked"
+        ))
 
 
     @cog_ext.cog_subcommand(
@@ -146,7 +158,10 @@ On your command, I can start a private PvP tournament for all the masochist in t
     )
     async def _membercount(self, ctx: SlashContext, channel):
         await make_persistent_message(self.client, "memberCount", ctx.guild.id, channel.id, no_message=True)
-        await ctx.send("Done", hidden=True)
+        await ctx.send(hidden=True, embed=embed_message(
+            f"Success",
+            f"I've done as you asked"
+        ))
 
     @cog_ext.cog_subcommand(
         base="persistentmessage",
@@ -164,7 +179,10 @@ On your command, I can start a private PvP tournament for all the masochist in t
     )
     async def _boostercount(self, ctx: SlashContext, channel):
         await make_persistent_message(self.client, "boosterCount", ctx.guild.id, channel.id, no_message=True)
-        await ctx.send("Done", hidden=True)
+        await ctx.send(hidden=True, embed=embed_message(
+            f"Success",
+            f"I've done as you asked"
+        ))
 
 
 def setup(client):

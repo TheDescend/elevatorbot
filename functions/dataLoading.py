@@ -270,7 +270,10 @@ async def searchForItem(ctx, search_term):
 
     # if no weapon was found
     except KeyError:
-        await ctx.send(f'Error: I do not know the weapon `{search_term}`', hidden=True)
+        await ctx.send(hidden=True, embed=embed_message(
+            f"Error",
+            f"I do not know the weapon `{search_term}`. \nPlease try again"
+        ))
         return None, None
 
     # defer now that we know the weapon exists

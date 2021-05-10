@@ -24,10 +24,18 @@ async def checkIfUserIsRegistered(user):
 
 async def update_status(client):
     status_messages = [
-        "type '/' to see available commands",
+        "Type '/' to see available commands",
         "DM me to contact staff",
-        "no more welcoming Neria please, she is no longer new",
-        "slashing through life"
+        "While Neria is no longer new, welcoming someone is polite - just saying ¯\_(ツ)_/¯",
+        "↓ Psst! Did you know this person stinks",
+        "Slashing through life",
+        "Dear god please stop using old commands and use slash commands",
+        "Get ready for VOG race on the 22/05",
+        "Go sports!",
+        "We all now who the best bot is",
+        "Hint: Checkmarks are lame",
+        "Now running v2.1 ('world_domination_test.py')",
+        "Can I get vaccinated too? Technically I'm still a baby",
     ]
 
     print("Launching the Status Changer Loop", flush=True)
@@ -85,7 +93,10 @@ async def has_elevated_permissions(user, guild, ctx: SlashContext = None):
 
     if admin not in user.roles and dev not in user.roles and mod not in user.roles:
         if ctx:
-            await ctx.send('Error: You do not have permission do to this', hidden=True)
+            await ctx.send(hidden=True, embed=embed_message(
+                f"Error",
+                f"You do not have permission do to this"
+            ))
         return False
     return True
 

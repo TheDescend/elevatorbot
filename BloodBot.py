@@ -6,6 +6,8 @@ import logging
 import sys
 import traceback
 
+from apscheduler.events import EVENT_JOB_EXECUTED, EVENT_JOB_ERROR, EVENT_JOB_MISSED, EVENT_JOB_SUBMITTED
+
 from functions.database import create_connection_pool
 
 # use different loop for windows. otherwise it breaks
@@ -81,6 +83,37 @@ def launch_event_loops(client):
 
         n_ev += 1
 
+    # add listeners to catch and format errors also to log
+    def event_submitted(sched_event):
+        job_name = sched.get_job(sched_event.job_id)
+        print(f"Running '{job_name}'")
+
+    sched.add_listener(event_submitted, EVENT_JOB_SUBMITTED)
+
+    def event_executed(sched_event):
+        job_name = sched.get_job(sched_event.job_id)
+
+        # log the execution
+        logger = logging.getLogger('events')
+        logger.info(f"Event '{job_name}' successfully run")
+    sched.add_listener(event_executed, EVENT_JOB_EXECUTED)
+
+    def event_missed(sched_event):
+        job_name = sched.get_job(sched_event.job_id)
+
+        # log the execution
+        logger = logging.getLogger('events')
+        logger.warning(f"Event '{job_name}' missed")
+    sched.add_listener(event_missed, EVENT_JOB_MISSED)
+
+    def event_error(sched_event):
+        job_name = sched.get_job(sched_event.job_id)
+
+        # log the execution
+        logger = logging.getLogger('events')
+        logger.error(f"Event '{job_name}' failed - Error '{sched_event.exception}' - Traceback: \n{sched_event.traceback}")
+    sched.add_listener(event_error, EVENT_JOB_ERROR)
+
     print(f"{n_ev} events loaded")
     print(f"Startup complete!")
 
@@ -155,8 +188,30 @@ def main():
 
         if "welcome" in text.lower() and message.mentions:
             for mention in message.mentions:
-                if mention.id == 109022023979667456: #@Neria
-                    await message.channel.send(f'Welcome <@109022023979667456>!')
+                neria_id = 109022023979667456
+                if mention.id == neria_id:
+                    welcome_choice = [
+                        "Welcome",
+                        "I mirëpritur",
+                        "Dobrodošli",
+                        "Vitejte",
+                        "Welkom",
+                        "Tere tulemast",
+                        "Tervetuloa",
+                        "Bienvenue",
+                        "Herzlich willkommen",
+                        "Üdvözöljük",
+                        "Velkominn",
+                        "Fáilte",
+                        "Benvenuta",
+                        "Velkommen",
+                        "Witamy",
+                        "Bine ati venit",
+                        "Bienvenidas",
+                        "Välkommen",
+                        "Croeso",
+                    ]
+                    await message.channel.send(f'{random.choice(welcome_choice)} <@{neria_id}>!')
         
         if client.user in message.mentions: #If bot has been tagged
             notification = client.get_emoji(751771924866269214) #notification/angerping

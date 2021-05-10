@@ -12,11 +12,9 @@ def init_logging():
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
 
-    # Initialize logging for bounties
-    make_logger("bounties")
-
     # Initialize logging for command usage
     make_logger("commands")
     make_logger("slash_commands")
+    make_logger("events")
 
     make_logger("updateDB")

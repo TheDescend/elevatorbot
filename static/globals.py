@@ -68,4 +68,4 @@ tournament = [
 
 
 # guild ids for testing purposes. If not in it, command can take up to an hour to load
-guild_ids = [280456587464933376, 669293365900214293, 768902336914391070, 724676552175910934, 556418279015448596, 697720309847162921]
+guild_ids = [280456587464933376]

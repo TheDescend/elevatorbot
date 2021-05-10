@@ -21,7 +21,10 @@ class RegistrationCommands(commands.Cog):
         guild_ids=GUILD_IDS,
     )
     async def _registerdesc(self, ctx: SlashContext):
-        await ctx.send("Thanks, I sent you a DM with the next steps!", hidden=True)
+        await ctx.send(hidden=True, embed=embed_message(
+            f"Thanks for Registering",
+            f"I sent you a DM with the next steps!"
+        ))
 
         URL = f"https://www.bungie.net/en/oauth/authorize?client_id={BUNGIE_OAUTH}&response_type=code&state={str(ctx.author.id) + ':' + str(ctx.guild.id)}"
         await ctx.author.send(embed=embed_message(
@@ -45,7 +48,10 @@ class RegistrationCommands(commands.Cog):
             return
 
         await removeUser(user.id)
-        await ctx.send(f'Removed {user.display_name}', hidden=True)
+        await ctx.send(hidden=True, embed=embed_message(
+            f"Sucess",
+            f"Removed {user.display_name}"
+        ))
 
 
     # todo can we add a good permission sysstem here too?
@@ -99,7 +105,10 @@ class RegistrationCommands(commands.Cog):
         try:
             kwargs["steamid"] = int(kwargs["steamid"])
         except ValueError:
-            await ctx.send("Error: `steamid` must be an integer", hidden=True)
+            await ctx.send(hidden=True, embed=embed_message(
+                f"Error",
+                f"The argument `steamid` must be a number. \nPlease try again"
+            ))
             return
 
         # save id
@@ -109,7 +118,10 @@ class RegistrationCommands(commands.Cog):
         await steamJoinCodeMessage(self.client, ctx.guild)
 
         # react to show that it is done
-        await ctx.send("Done, thanks!", hidden=True)
+        await ctx.send(hidden=True, embed=embed_message(
+            f"Success",
+            f"I've done as you asked"
+        ))
 
 
 

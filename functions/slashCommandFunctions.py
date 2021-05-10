@@ -29,7 +29,10 @@ async def get_user_obj_admin(ctx: SlashContext, kwargs: dict = None, allowed_use
     if await has_elevated_permissions(ctx.author, ctx.guild) or user == ctx.author or ctx.author.id in allowed_users:
         return user
 
-    await ctx.send('Error: You do not have permission do to this', hidden=True)
+    await ctx.send(hidden=True, embed=embed_message(
+        f"Error",
+        f"You do not have permission do to this"
+    ))
     return
 
 
@@ -50,7 +53,10 @@ async def get_destinyID_and_system(ctx: SlashContext, discord_user):
 
     # check if user is registered and has a valid token
     if not (destinyID and system) or not (await handleAndReturnToken(user.id))["result"]:
-        await ctx.send(f'Error: I either possess no information about {user.display_name} or their authentication is outdated. \nPlease `/registerdesc` to fix this issue', hidden=True)
+        await ctx.send(hidden=True, embed=embed_message(
+            f"Error",
+            f"I either possess no information about {user.display_name} or their authentication is outdated. \nPlease `/registerdesc` to fix this issue'"
+        ))
         return None, None, None
 
     return user, destinyID, system
@@ -62,6 +68,9 @@ async def verify_time_input(ctx, input):
     try:
         return datetime.datetime.strptime(input, "%d/%m/%y")
     except ValueError:
-        await ctx.send("Error: The time parameters must be in this format - `DD/MM/YY`", hidden=True)
+        await ctx.send(hidden=True, embed=embed_message(
+            f"Error",
+            f"The time parameters must be in this format - `DD/MM/YY`"
+        ))
         return False
 
