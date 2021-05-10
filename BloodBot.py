@@ -6,6 +6,8 @@ import logging
 import sys
 import traceback
 
+from apscheduler.events import EVENT_JOB_EXECUTED, EVENT_JOB_ERROR, EVENT_JOB_MISSED, EVENT_JOB_SUBMITTED
+
 from functions.database import create_connection_pool
 
 # use different loop for windows. otherwise it breaks
@@ -80,6 +82,37 @@ def launch_event_loops(client):
             sched.add_job(event.run, 'date', (client,), run_date=event.interval_minutes)
 
         n_ev += 1
+
+    # add listeners to catch and format errors also to log
+    def event_submitted(sched_event):
+        job_name = sched.get_job(sched_event.job_id)
+        print(f"Running '{job_name}'")
+
+    sched.add_listener(event_submitted, EVENT_JOB_SUBMITTED)
+
+    def event_executed(sched_event):
+        job_name = sched.get_job(sched_event.job_id)
+
+        # log the execution
+        logger = logging.getLogger('events')
+        logger.info(f"Event '{job_name}' successfully run")
+    sched.add_listener(event_executed, EVENT_JOB_EXECUTED)
+
+    def event_missed(sched_event):
+        job_name = sched.get_job(sched_event.job_id)
+
+        # log the execution
+        logger = logging.getLogger('events')
+        logger.warning(f"Event '{job_name}' missed")
+    sched.add_listener(event_missed, EVENT_JOB_MISSED)
+
+    def event_error(sched_event):
+        job_name = sched.get_job(sched_event.job_id)
+
+        # log the execution
+        logger = logging.getLogger('events')
+        logger.error(f"Event '{job_name}' failed - Error '{sched_event.exception}' - Traceback: \n{sched_event.traceback}")
+    sched.add_listener(event_error, EVENT_JOB_ERROR)
 
     print(f"{n_ev} events loaded")
     print(f"Startup complete!")

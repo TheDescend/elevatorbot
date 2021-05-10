@@ -1,6 +1,6 @@
-import psycopg2
+import pandas
 import asyncpg
-from datetime import datetime
+from datetime import datetime, date
 from sshtunnel import SSHTunnelForwarder
 
 import database.psql_credentials as psql_credentials
@@ -48,6 +48,15 @@ async def create_connection_pool():
 
 async def get_connection_pool():
     return pool
+
+
+async def fetch_as_dataframe(con: asyncpg.Connection, query: str, *args):
+    """ Gets the DB query as a pandas dataframe"""
+
+    stmt = await con.prepare(query)
+    columns = [a.name for a in stmt.get_attributes()]
+    data = await stmt.fetch(*args)
+    return pandas.DataFrame(data, columns=columns)
 
 
 ################################################################
@@ -469,8 +478,63 @@ async def getVersion(name: str):
 
 
 ################################################################
-# Persistent Messages
+# D2 Steam Players
 
+async def update_d2_steam_players(current_date: date, number_of_players: int):
+    """ Inserts the amount of players into the DB for that day. Updates instead, if there already is a lower value for that day """
+
+    # get current value
+    select_sql = f"""
+        SELECT 
+            numberOfPlayers
+        FROM 
+            d2SteamPlayers
+        WHERE 
+            dateObj = $1;"""
+    async with pool.acquire() as connection:
+        old_number_of_players = await connection.fetchval(select_sql, current_date)
+
+    # insert value
+    if not old_number_of_players:
+        insert_sql = f"""
+            INSERT INTO 
+                d2SteamPlayers
+                (dateObj, numberOfPlayers)
+            VALUES 
+                ($1, $2);"""
+        async with pool.acquire() as connection:
+            await connection.execute(insert_sql, current_date, number_of_players)
+            return
+
+    # check if update is needed
+    if number_of_players > old_number_of_players:
+        update_sql = f"""
+            UPDATE 
+                d2SteamPlayers
+            SET 
+                numberOfPlayers = $1
+            WHERE 
+                dateObj = $2;"""
+        async with pool.acquire() as connection:
+            await connection.execute(update_sql, number_of_players, current_date)
+
+
+async def get_d2_steam_player_info():
+    """ Gets all the data as a pandas dataframe """
+
+    select_sql = """
+        SELECT 
+            *
+        FROM 
+            d2SteamPlayers
+        ORDER BY 
+            dateObj DESC;"""
+    async with pool.acquire() as connection:
+        return await fetch_as_dataframe(connection, select_sql)
+
+
+################################################################
+# Persistent Messages
 
 async def insertPersistentMessage(messageName, guildId, channelId, messageId, reactionsIdList):
     """ Inserts a message mapping into the database, returns True if successful False otherwise """

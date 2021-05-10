@@ -27,7 +27,7 @@ async def update_status(client):
         "Type '/' to see available commands",
         "DM me to contact staff",
         "While Neria is no longer new, welcoming someone is polite - just saying ¯\_(ツ)_/¯",
-        "↓ Psst! Did you know this one stinks",
+        "↓ Psst! Did you know this person stinks",
         "Slashing through life",
         "Dear god please stop using old commands and use slash commands",
         "Get ready for VOG race on the 22/05",
