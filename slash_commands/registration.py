@@ -22,7 +22,7 @@ class RegistrationCommands(commands.Cog):
     )
     async def _registerdesc(self, ctx: SlashContext):
         await ctx.send(hidden=True, embed=embed_message(
-            f"Thank you for registering",
+            f"Thanks for Registering",
             f"I sent you a DM with the next steps!"
         ))
 
