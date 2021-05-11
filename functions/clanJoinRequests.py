@@ -10,8 +10,9 @@ from static.config import CLANID, BOTDEVCHANNELID
 from static.globals import member_role_id, thumps_up_emoji_id, thumps_down_emoji_id, destiny_emoji_id
 
 
-async def clanJoinRequestMessageReactions(client, user, emoji, channel, channel_message_id):
+async def clanJoinRequestMessageReactions(client, user, emoji, channel_id, channel_message_id):
     newtonslab = client.get_channel(BOTDEVCHANNELID)
+    channel = client.get_channel(channel_id)
     message = await channel.fetch_message(channel_message_id)
     join = client.get_emoji(destiny_emoji_id)
     destinyID = await lookupDestinyID(user.id)
