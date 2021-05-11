@@ -14,6 +14,7 @@ async def checkIfUserIsRegistered(user):
     if (await handleAndReturnToken(user.id))["result"]:
         return True
     else:
+        print(f"{user.display_name} is not registered")
         embed = embed_message(
             "Error",
             "Please register with `/registerdesc` first (not via DMs)"
