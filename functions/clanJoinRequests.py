@@ -55,7 +55,7 @@ async def clanJoinRequestMessageReactions(client, user, emoji, channel_id, chann
     data = {
         "message": "Welcome"
     }
-    ret = await postJSONtoBungie(postURL, data, 171650677607497730) #Halis ID
+    ret = await postJSONtoBungie(postURL, data, 219517105249189888) #Halis ID
 
     # inform user if invite was send / sth went wrong
     if ret["error"] is None:
