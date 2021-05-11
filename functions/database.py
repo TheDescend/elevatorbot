@@ -196,8 +196,12 @@ async def insertToken(discordID, destinyID, systemID, discordServerID, token, re
     if destinyID in await getAllDestinyIDs():
         print('User exists, updating token...')
         await updateUser(discordID, destinyID, systemID)
-        await updateToken(destinyID, discordID, token, refresh_token, token_expiry, refresh_token_expiry)
-
+        try:
+            await updateToken(destinyID, discordID, token, refresh_token, token_expiry, refresh_token_expiry)
+            return True
+        except asyncpg.exceptions.UniqueViolationError:
+            #Already matched to a different account
+            return False
     # new users
     else:
         print('User new, inserting token...')
@@ -210,7 +214,7 @@ async def insertToken(discordID, destinyID, systemID, discordServerID, token, re
 
         async with pool.acquire() as connection:
             await connection.execute(insert_sql, discordID, destinyID, datetime.today().date(), discordServerID, token, refresh_token, systemID, datetime.fromtimestamp(token_expiry), datetime.fromtimestamp(refresh_token_expiry))
-
+        return True
 
 async def updateToken(destinyID, discordID, token, refresh_token, token_expiry, refresh_token_expiry):
     """ Updates a User - Token, token refresh, token_expiry, refresh_token_expiry  """

@@ -105,7 +105,13 @@ def root():
     destinyID = int(primarymembership['membershipId'])
     systemID = int(primarymembership['membershipType'])
 
-    loop.run_until_complete(insertToken(int(discordID), destinyID, systemID, int(serverID), access_token, refresh_token, token_expiry, refresh_token_expiry))
+    success = loop.run_until_complete(insertToken(int(discordID), destinyID, systemID, int(serverID), access_token, refresh_token, token_expiry, refresh_token_expiry))
+    if not success:
+        return f'''
+        You already seem to be signed up
+        Please verify that the ID {destinyID} belongs to you and notify one of the developers
+        '''
+    
     print(f"Inserted token. <@{discordID}> has destinyID `{destinyID}`, Bungie-Name `{display_name}`, Steam-Name `{steam_name}`")
     webhookURL = NEWTONS_WEBHOOK
     requestdata = {
