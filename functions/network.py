@@ -250,6 +250,8 @@ async def postJSONtoBungie(postURL, data, discordID):
                         return {'result': None, 'error': f"Status Code <{r.status}>"}
                     if res["ErrorStatus"] == "PerEndpointRequestThrottleExceeded":
                         return await postJSONtoBungie(postURL, data, discordID)
+                    elif res["ErrorStatus"] == "ClanTargetDisallowsInvites":
+                        return {'result': None, 'error': f"You are currently disallowing clan invites from other people.\nTo change this, go to your account settings on `bungie.net` and then try again"}
 
         print('Request failed 5 times, aborting')
         try:
