@@ -26,6 +26,7 @@ async def checkIfUserIsRegistered(user):
 async def update_status(client):
     status_messages = [
         "Type '/' to see available commands",
+        "Type '/registerdesc' to register your Destiny 2 account",
         "DM me to contact staff",
         "While Neria is no longer new, welcoming someone is polite - just saying ¯\_(ツ)_/¯",
         "↓ Psst! Did you know this person stinks",
