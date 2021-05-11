@@ -113,7 +113,7 @@ async def handle_persistent_message_reaction(client, payload, persistent_message
 
     # handling depends on the type of message, so if statement incoming
     if message_name == "otherGameRoles":
-        await otherGameRolesMessageReactions(payload.member, payload.emoji, channel_id, message_id)
+        await otherGameRolesMessageReactions(client, payload.member, payload.emoji, channel_id, message_id)
 
     elif message_name == "clanJoinRequest":
         await clanJoinRequestMessageReactions(client, payload.member, payload.emoji, channel_id, message_id)
@@ -208,7 +208,7 @@ async def botStatus(client, field_name: str, time: datetime.datetime):
     await message.edit(embed=embed)
 
 
-async def otherGameRolesMessageReactions(user, emoji, channel_id, channel_message_id):
+async def otherGameRolesMessageReactions(client, user, emoji, channel_id, channel_message_id):
     async def handle_reaction(m, u, r, e_id, r_id):
         if r_id not in r:
             await u.add_roles(discord.utils.get(m.guild.roles, id=r_id), reason="Other Game Roles")
@@ -216,7 +216,8 @@ async def otherGameRolesMessageReactions(user, emoji, channel_id, channel_messag
             await u.remove_roles(discord.utils.get(m.guild.roles, id=r_id), reason="Other Game Roles")
         await m.remove_reaction(e_id, u)
 
-    message = await channel_id.fetch_message(channel_message_id)
+    channel = client.get_channel(channel_id)
+    message = await channel.fetch_message(channel_message_id)
 
     # get current roles
     roles = [role.id for role in user.roles]
