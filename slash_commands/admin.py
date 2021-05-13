@@ -220,7 +220,7 @@ class AdminCommands(commands.Cog):
     )
     async def _reply(self, ctx: SlashContext, message: str, user=None):
         # gets the previous message
-        previousMessage = (await ctx.channel.history(limit=2).flatten())[1]
+        previousMessage = (await ctx.channel.history(limit=1).flatten())[0]
         mentionedMembersInPreviousMessage = []
 
         # if previous message is posted by the bot and mentions at least 1 member
@@ -393,7 +393,7 @@ class AdminCommands(commands.Cog):
                     i += 1
                     steam_name = guy['destinyUserInfo']['LastSeenDisplayName']
                     bungie_name = guy['bungieNetUserInfo']['displayName']
-                    destinyID = guy['destinyUserInfo']['membershipId']
+                    destinyID = int(guy['destinyUserInfo']['membershipId'])
                     discordID = await lookupDiscordID(destinyID)
                     embed.add_field(name=f"Option {i}", value=f"Discord - <@{discordID}>\nSteamName - {steam_name}\nBungieName - {bungie_name}", inline=False)
 
