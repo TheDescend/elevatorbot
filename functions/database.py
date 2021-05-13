@@ -102,7 +102,7 @@ async def lookupDestinyID(discordID):
         return await connection.fetchval(select_sql, discordID)
 
 
-async def lookupDiscordID(destinyID):
+async def lookupDiscordID(destinyID: int):
     """ Takes destinyID and returns discordID """
 
     select_sql = """
@@ -116,7 +116,7 @@ async def lookupDiscordID(destinyID):
         return await connection.fetchval(select_sql, destinyID)
 
 
-async def lookupSystem(destinyID):
+async def lookupSystem(destinyID: int):
     """ Takes destinyID and returns system """
 
     select_sql = """

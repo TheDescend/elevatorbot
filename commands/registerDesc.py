@@ -50,7 +50,6 @@ async def elevatorRegistration(message):
     ))
 
 
-# todo: slashify when you can hide commands
 class checkregister(BaseCommand):
     def __init__(self):
         # A quick description for the help message

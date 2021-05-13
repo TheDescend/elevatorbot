@@ -10,7 +10,6 @@ from functions.roleLookup import assignRolesToUser, removeRolesFromUser
 from static.globals import muted_role_id
 
 
-# todo: slashify when you can hide commands
 class mute(BaseCommand):
     def __init__(self):
         # A quick description for the help message

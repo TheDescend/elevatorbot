@@ -14,7 +14,6 @@ from functions.network import refresh_token
 from static.config import BUNGIE_OAUTH
 
 
-# todo: slashify when you can hide commands
 class getDay1Completions(BaseCommand):
     def __init__(self):
         # A quick description for the help message

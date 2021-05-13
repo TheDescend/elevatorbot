@@ -1,10 +1,12 @@
 import pathlib
 from datetime import datetime
 import time
+from typing import Union
 
 import matplotlib
 
-from functions.dataLoading import getStats, getTriumphsJSON, getPGCR, getPlayersPastActivities, getNameToHashMapByClanid
+from functions.dataLoading import getStats, getTriumphsJSON, getPGCR, getPlayersPastActivities, \
+    getNameToHashMapByClanid, getProfile
 from functions.network import getComponentInfoAsJSON
 from static.dict import clanids, seasonalChallengesCategoryHash
 from functions.database import getInfoOnLowManActivity, getDestinyDefinition, getSeals, getEverything, getEverythingRow
@@ -26,6 +28,7 @@ async def hasCollectible(playerid, cHash):
 #   Check whether it's not (not aquired), which means that the firstbit can't be 1   
 #   https://bungie-net.github.io/multi/schema_Destiny-DestinyCollectibleState.html
 
+
 async def hasTriumph(playerid, recordHash):
     """ returns True if the player <playerid> has the triumph <recordHash> """
     status = True
@@ -43,6 +46,18 @@ async def hasTriumph(playerid, recordHash):
     for part in triumphs[str(recordHash)]['objectives']:
         status &= part['complete']
     return status
+
+
+async def getMetricValue(destinyID: int, metric_hash: Union[int, str]):
+    """ Returns the value of the given metric hash """
+
+    metrics = (await getProfile(destinyID, 1100))["metrics"]["data"]['metrics']
+
+    if str(metric_hash) in metrics.keys():
+        return metrics[str(metric_hash)]["objectiveProgress"]["progress"]
+    else:
+        return None
+
 
 async def getPlayerCount(instanceID):
     pgcr = await getPGCR(instanceID)

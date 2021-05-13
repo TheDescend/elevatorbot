@@ -6,7 +6,6 @@ from commands.base_command import BaseCommand
 from static.globals import dev_role_id
 
 
-# todo delete I guess since obsolete
 class Commands(BaseCommand):
     def __init__(self):
         description = "Displays this help message"

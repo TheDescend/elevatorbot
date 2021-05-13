@@ -691,7 +691,6 @@ class MysticCommands(commands.Cog):
         return '\n'.join(map(lambda p: c.name if (c := self.client.get_user(p['id'])) else "InvalidUser", userdict))
 
 
-    # todo can we add a good permission sysstem here too?
     @cog_ext.cog_subcommand(
         base="mystic",
         base_description="Everything concerning Mystic's abandoned carry list. Tbf he said he tried ¯\_(ツ)_/¯",

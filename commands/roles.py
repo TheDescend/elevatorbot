@@ -242,7 +242,6 @@ class lastRaid(BaseCommand):
         await message.channel.send(getLastActivity(destinyID, mode=4))
 
 
-# todo: slashify when you can hide commands
 class flawlesses(BaseCommand):
     def __init__(self):
         # A quick description for the help message
@@ -261,7 +260,6 @@ class flawlesses(BaseCommand):
             await message.channel.send(await getFlawlessList(destinyID))
 
 
-# todo: slashify when you can hide commands
 class removeAllRoles(BaseCommand):
     def __init__(self):
         # A quick description for the help message
@@ -284,7 +282,6 @@ class removeAllRoles(BaseCommand):
         await removeRolesFromUser(roles, mentioned_user, message.guild, reason="Role Update")
 
 
-# todo: slashify when you can hide commands
 class assignAllRoles(BaseCommand):
     def __init__(self):
         # A quick description for the help message

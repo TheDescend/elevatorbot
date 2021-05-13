@@ -6,7 +6,7 @@ from functions.dataLoading import getProfile
 from functions.database import lookupDestinyID, lookupDiscordID, lookupSystem, getToken, getSteamJoinID, setSteamJoinID
 from functions.formating import embed_message
 from functions.miscFunctions import hasAdminOrDevPermissions, hasMentionPermission
-from functions.network import getJSONfromURL
+from functions.network import getJSONfromURL, handleAndReturnToken
 from functions.persistentMessages import steamJoinCodeMessage
 from static.dict import clanids
 from static.globals import thumps_up_emoji_id
@@ -73,7 +73,7 @@ class getDiscordJoinDate(BaseCommand):
         await message.reply(f'{mentioned_user.mention} joined at {mentioned_user.joined_at.strftime("%d/%m/%Y, %H:%M")}')
 
 
-# todo: slashify when you can hide commands
+
 class getUserInfo(BaseCommand):
     def __init__(self):
         # A quick description for the help message
@@ -104,11 +104,11 @@ class getUserInfo(BaseCommand):
 
         await message.reply(embed=embed_message(
             f'DB infos for {mentioned_user.name}',
-            f"""DiscordID - `{discordID}` \nDestinyID: `{destinyID}` \nSystem - `{lookupSystem(destinyID)}` \nSteamName - `{(await getProfile(destinyID, 100))["profile"]["data"]["userInfo"]["displayName"]}` \nHasToken - `{bool(getToken(discordID))}`"""
+            f"""DiscordID - `{discordID}` \nDestinyID: `{destinyID}` \nSystem - `{lookupSystem(destinyID)}` \nSteamName - `{(await getProfile(destinyID, 100))["profile"]["data"]["userInfo"]["displayName"]}` \nHasToken - `{bool((await handleAndReturnToken(discordID))["result"])}`"""
         ))
 
 
-# todo: slashify when you can hide commands
+
 class getDiscordFuzzy(BaseCommand):
     def __init__(self):
         # A quick description for the help message

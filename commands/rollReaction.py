@@ -3,7 +3,6 @@ import random
 from commands.base_command import BaseCommand
 
 
-# todo wait until hideable
 class rollreaction(BaseCommand):
     def __init__(self):
         # A quick description for the help tmessage

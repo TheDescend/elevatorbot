@@ -7,7 +7,6 @@ from commands.base_command import BaseCommand
 from functions.miscFunctions import hasAdminOrDevPermissions
 
 
-# todo slashify when you can hide commands
 class reply(BaseCommand):
     def __init__(self):
         description = "[Admin] Send a message to whoever got tagged above"
