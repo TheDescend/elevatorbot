@@ -30,11 +30,6 @@ database/seals.pickle
 database/psql_credentials.py
 database/*.ipynb
 
-functions/bounties/channelIDs.pickle
-functions/bounties/currentBounties.pickle
-functions/bounties/playerBountyStatus.pickle
-functions/bounties/competitionBountiesLeaderboards.pickle
-
 static/slashCommandConfig.py
 
 oauth/
