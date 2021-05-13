@@ -123,8 +123,8 @@ async def refresh_token(discordID):
         for i in range(5):
             t = int(time.time())
             async with session.post(url, data=data, headers=headers, allow_redirects=False) as r:
+                data = await r.json()
                 if r.status == 200:
-                    data = await r.json()
                     access_token = data['access_token']
                     refresh_token = data['refresh_token']
                     token_expiry = t + data['expires_in']
@@ -132,11 +132,11 @@ async def refresh_token(discordID):
                     await updateToken(destinyID, discordID, access_token, refresh_token, token_expiry, refresh_token_expiry)
                     return access_token
                 else:
-                    if data["error_description"] == "ApplicationTokenKeyIdDoesNotExist":
+                    if "error_description" in data and data["error_description"] == "AuthorizationRecordRevoked":
                         print(f"Can't update token for destinyID {destinyID} - refresh token is outdated")
                         return None
                     print(f"Refreshing Token failed with code {r.status} . Waiting 1s and trying again")
-                    print(await r.read(), '\n')
+                    print(data, '\n')
                     await asyncio.sleep(1)
 
     print(f"Refreshing Token failed with code {r.status}. Failed 5 times, aborting")
