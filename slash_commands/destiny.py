@@ -182,6 +182,7 @@ class DestinyCommands(commands.Cog):
 
         await ctx.send(embed=embed)
 
+
     @cog_ext.cog_slash(
         name="poptimeline",
         description="Shows the Destiny 2 steam population timeline",
@@ -233,6 +234,7 @@ class DestinyCommands(commands.Cog):
         await ctx.send(file=image, embed=embed)
 
         # delete file
+        await asyncio.sleep(10)
         os.remove(title)
 
 
