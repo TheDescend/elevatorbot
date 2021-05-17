@@ -18,7 +18,6 @@ class RegistrationCommands(commands.Cog):
     @cog_ext.cog_slash(
         name="registerdesc",
         description="Link your Destiny 2 account with ElevatorBot",
-        guild_ids=GUILD_IDS,
     )
     async def _registerdesc(self, ctx: SlashContext):
         await ctx.send(hidden=True, embed=embed_message(
@@ -37,7 +36,6 @@ class RegistrationCommands(commands.Cog):
     @cog_ext.cog_slash(
         name="unregisterdesc",
         description="Unlink your Destiny 2 account from ElevatorBot",
-        guild_ids=GUILD_IDS,
         options=[
             options_user(flavor_text="Requires elevated permissions")
         ]
