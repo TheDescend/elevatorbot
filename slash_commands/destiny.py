@@ -122,13 +122,13 @@ class DestinyCommands(commands.Cog):
         # init the db request function with all the args
         args = {
             "destinyID": destinyID,
-            "character_class": kwargs["class"] if "class" in kwargs else None,
+            "character_class": kwargs["class"] if "class" in kwargs and kwargs["class"] is not "Everything" else None,
         }
 
         # prepare embed for later use
         embed = embed_message(
             f"""{user.display_name} D2 Time Played {"- " + args["character_class"] if args["character_class"] else ""}""",
-            f"**Total:** {str(datetime.timedelta(seconds=await getTimePlayed(**args)))} \n**PvE:** {str(datetime.timedelta(seconds=await getTimePlayed(**args, mode=5)))} \n**PvP:** {str(datetime.timedelta(seconds=await getTimePlayed(**args, mode=7)))}"
+            f"**Total:** {str(datetime.timedelta(seconds=await getTimePlayed(**args)))} \n**PvE:** {str(datetime.timedelta(seconds=await getTimePlayed(**args, mode=7)))} \n**PvP:** {str(datetime.timedelta(seconds=await getTimePlayed(**args, mode=5)))}"
         )
 
         # init the dict where the results get saved
