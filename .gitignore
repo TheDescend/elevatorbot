@@ -8,6 +8,7 @@ __pycache__/
 *.xlsx
 test.py
 .gitignore
+*.pickle
 userlist
 Lib/
 tcl/

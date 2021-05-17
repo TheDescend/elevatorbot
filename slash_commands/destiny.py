@@ -24,7 +24,7 @@ from functions.dataLoading import searchForItem, getStats, getArtifact, getChara
 from functions.dataTransformation import getSeasonalChallengeInfo, getCharStats, getPlayerSeals, getIntStat
 from functions.database import lookupDestinyID, lookupSystem, lookupDiscordID, getToken, getForges, getLastActivity, \
     getDestinyDefinition, getWeaponInfo, getPgcrActivity, getTopWeapons, getActivityHistory, \
-    getPgcrActivitiesUsersStats, getClearCount, get_d2_steam_player_info
+    getPgcrActivitiesUsersStats, getClearCount, get_d2_steam_player_info, getTimePlayed
 from functions.formating import embed_message
 from functions.miscFunctions import get_emoji, write_line, has_elevated_permissions
 from functions.network import getJSONfromURL, handleAndReturnToken
@@ -47,13 +47,14 @@ class DestinyCommands(commands.Cog):
             "Hunter": hunter_emoji_id,
             "Titan": titan_emoji_id,
         }
-
-    @cog_ext.cog_slash(
-        name="poptimeline",
-        description="Shows the Destiny 2 steam population timeline",
-    )
-    async def _poptimeline(self, ctx: SlashContext):
-        season_dates = [
+        self.season_dates = [
+            ["2017-09-06", "Vanilla"],
+            ["2017-12-05", "Curse of Osiris"],
+            ["2018-05-08", "Warmind"],
+            ["2018-09-04", "Forsaken"],
+            ["2018-12-04", "Season of the Forge"],
+            ["2019-03-05", "Season of the Drifter"],
+            ["2019-06-04", "Season of Opulence"],
             ["2019-10-01", "Shadowkeep"],
             ["2019-12-10", "Season of Dawn"],
             ["2020-03-10", "Season of the Worthy"],
@@ -62,7 +63,7 @@ class DestinyCommands(commands.Cog):
             ["2021-02-09", "Season of the Chosen"],
             ["2021-05-11", "Season of the Splicer"],
         ]
-        other_dates = [
+        self.other_dates = [
             ["2019-10-04", "GoS"],
             ["2019-10-29", "PoH"],
             ["2020-01-14", "Corridors of Time"],
@@ -71,13 +72,123 @@ class DestinyCommands(commands.Cog):
             ["2020-11-21", "DSC"],
             ["2021-04-21", "Guardian Games"],
         ]
-        other_dates_lower = [
+        self.other_dates_lower = [
             ["2020-02-04", "Empyrean Foundation"],
             ["2020-04-21", "Guardian Games"],
             ["2020-07-07", "Moments of Triumph"],
             ["2021-05-22", "VoG"],
         ]
 
+
+    @cog_ext.cog_slash(
+        name="time",
+        description="Shows you your Destiny 2 playtime split up by season",
+        options=[
+            create_option(
+                name="class",
+                description="Default: 'Everything' - Which class you want to limit your playtime to",
+                option_type=3,
+                required=False,
+                choices=[
+                    create_choice(
+                        name="Everything",
+                        value="Everything"
+                    ),
+                    create_choice(
+                        name="Warlock",
+                        value="Warlock"
+                    ),
+                    create_choice(
+                        name="Hunter",
+                        value="Hunter"
+                    ),
+                    create_choice(
+                        name="Titan",
+                        value="Titan"
+                    ),
+                ]
+            ),
+            options_user()
+        ],
+    )
+    async def _time(self, ctx: SlashContext, **kwargs):
+        user = await get_user_obj(ctx, kwargs)
+
+        destinyID = 4611686018467765462
+        # _, destinyID, system = await get_destinyID_and_system(ctx, user)
+        if not destinyID:
+            return
+
+        await ctx.defer()
+
+        # init the db request function with all the args
+        args = {
+            "destinyID": destinyID,
+            "character_class": kwargs["class"] if "class" in kwargs else None,
+        }
+
+        # prepare embed for later use
+        embed = embed_message(
+            f"""{user.display_name} D2 Time Played {"- " + args["character_class"] if args["character_class"] else ""}""",
+            f"**Total:** {str(datetime.timedelta(seconds=await getTimePlayed(**args)))} \n**PvE:** {str(datetime.timedelta(seconds=await getTimePlayed(**args, mode=5)))} \n**PvP:** {str(datetime.timedelta(seconds=await getTimePlayed(**args, mode=7)))}"
+        )
+
+        # init the dict where the results get saved
+        results = {}
+
+        # loop through the seasons
+        for season in self.season_dates:
+            season_date = datetime.datetime.strptime(season[0], '%Y-%m-%d')
+            season_name = season[1]
+
+            results[season_name] = {
+                "Total": 0,
+                "PvE": 0,
+                "PvP": 0,
+            }
+
+            # get the next seasons start time as the cutoff or now if its the current season
+            try:
+                next_season_date = self.season_dates[(self.season_dates.index(season) + 1)][0]
+                next_season_date = datetime.datetime.strptime(next_season_date, '%Y-%m-%d')
+            except IndexError:
+                next_season_date = datetime.datetime.now()
+
+            args.update({
+                "start_time": season_date,
+                "end_time": next_season_date,
+            })
+
+            # loop through the modes
+            for mode_name, mode in {"Total": None, "PvE": 7, "PvP": 5}.items():
+                args.update({
+                    "mode": mode
+                })
+
+                # actually get time played now, using the definied args
+                time_played = await getTimePlayed(**args)
+                results[season_name].update({
+                    mode_name: time_played
+                })
+
+        # loop through the results and add embed fields
+        for season_name, season_values in results.items():
+            # only append season info if they actually played that season
+            if season_values["Total"] == 0:
+                continue
+
+            text = []
+            for activity, value in season_values.items():
+                text.append(f"**{activity}**: {str(datetime.timedelta(seconds=value))}")
+            embed.add_field(name=season_name, value="\n".join(text), inline=True)
+
+        await ctx.send(embed=embed)
+
+    @cog_ext.cog_slash(
+        name="poptimeline",
+        description="Shows the Destiny 2 steam population timeline",
+    )
+    async def _poptimeline(self, ctx: SlashContext):
         # reading data from the DB
         data = await get_d2_steam_player_info()
 
@@ -98,15 +209,15 @@ class DestinyCommands(commands.Cog):
         ax.set_ylabel("Players", fontsize=20, fontweight="bold")
 
         # adding nice lines to mark important events
-        for dates in season_dates:
+        for dates in self.season_dates[7:]:
             date = datetime.datetime.strptime(dates[0], '%Y-%m-%d')
             ax.axvline(date, color="darkgreen", zorder=1)
             ax.text(date + datetime.timedelta(days=2), (max(data['numberofplayers']) - min(data['numberofplayers'])) * 1.02 + min(data['numberofplayers']), dates[1], color="darkgreen", fontweight="bold", bbox=dict(facecolor='white', edgecolor='darkgreen', pad=4, zorder=3))
-        for dates in other_dates:
+        for dates in self.other_dates:
             date = datetime.datetime.strptime(dates[0], '%Y-%m-%d')
             ax.axvline(date, color="mediumaquamarine", zorder=1)
             ax.text(date + datetime.timedelta(days=2), (max(data['numberofplayers']) - min(data['numberofplayers'])) * 0.95 + min(data['numberofplayers']), dates[1], color="mediumaquamarine", bbox=dict(facecolor='white', edgecolor='mediumaquamarine', boxstyle='round', zorder=3))
-        for dates in other_dates_lower:
+        for dates in self.other_dates_lower:
             date = datetime.datetime.strptime(dates[0], '%Y-%m-%d')
             ax.axvline(date, color="mediumaquamarine", zorder=1)
             ax.text(date + datetime.timedelta(days=2), (max(data['numberofplayers']) - min(data['numberofplayers'])) * 0.90 + min(data['numberofplayers']), dates[1], color="mediumaquamarine", bbox=dict(facecolor='white', edgecolor='mediumaquamarine', boxstyle='round', zorder=3))

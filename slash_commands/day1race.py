@@ -2,6 +2,7 @@ import asyncio
 import copy
 import datetime
 import io
+import pickle
 
 import aiohttp
 import discord
@@ -51,9 +52,11 @@ class Day1Race(commands.Cog):
         self.emblem_collectible_hash = 2172413746
         cutoff_time = datetime.datetime(2021, 5, 23, 17, 0, tzinfo=datetime.timezone.utc)
         image_url = "https://static.wikia.nocookie.net/destinypedia/images/6/62/Vault.jpg/revision/latest/scale-to-width-down/1000?cb=20150330170833"
-        activity_name = "Ishtar Sink, Venus - Vault of Glass"
+        raid_name = "Vault of Glass"
+        location_name = "Ishtar Sink, Venus"
 
         # printing the raid image. Taken from data.destinysets.com
+        activity_name = f"{location_name} - {raid_name}"
         async with aiohttp.ClientSession() as session:
             async with session.get(image_url) as resp:
                 if resp.status == 200:
@@ -69,12 +72,19 @@ class Day1Race(commands.Cog):
         for encounter in self.activity_triumph_encounters:
             self.finished_encounters_blueprint[encounter] = 0
 
-        self.finished_raid = {}
-        self.finished_encounters = {}
         self.clan_members = (await getJSONfromURL(f"https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/"))["Response"]["results"]
-        for member in self.clan_members:
-            destinyID = int(member['destinyUserInfo']['membershipId'])
-            self.finished_encounters[destinyID] = copy.deepcopy(self.finished_encounters_blueprint)
+
+        try:
+            with open(f'{raid_name}_finished_encounters.pickle', 'rb') as handle:
+                self.finished_encounters = pickle.load(handle)
+            with open(f'{raid_name}_finished_raid.pickle', 'rb') as handle:
+                self.finished_raid = pickle.load(handle)
+        except FileNotFoundError:
+            self.finished_raid = {}
+            self.finished_encounters = {}
+            for member in self.clan_members:
+                destinyID = int(member['destinyUserInfo']['membershipId'])
+                self.finished_encounters[destinyID] = copy.deepcopy(self.finished_encounters_blueprint)
 
         # loop until raid race is done
         now = datetime.datetime.now(datetime.timezone.utc)
@@ -100,6 +110,12 @@ class Day1Race(commands.Cog):
 
             # update leaderboard message
             await self.update_leaderboard()
+
+            # save data as pickle
+            with open(f'{raid_name}_finished_encounters.pickle', 'wb') as handle:
+                pickle.dump(self.finished_encounters, handle)
+            with open(f'{raid_name}_finished_raid.pickle', 'wb') as handle:
+                pickle.dump(self.finished_raid, handle)
 
             # wait 1 min before checking again
             await asyncio.sleep(60)

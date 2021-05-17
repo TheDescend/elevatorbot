@@ -1,3 +1,5 @@
+from typing import Union
+
 import pandas
 import asyncpg
 from datetime import datetime, date
@@ -995,6 +997,35 @@ async def getActivityHistory(destinyID, mode: int = None, activityHashes: list =
     async with pool.acquire() as connection:
         result = await connection.fetch(select_sql, destinyID, start_time, end_time)
     return [x[0] for x in result]
+
+
+async def getTimePlayed(destinyID: int, character_class: str = None, mode: Union[int, str] = None, start_time: datetime = datetime.min, end_time: datetime = datetime.now()) -> int:
+    """ Returns the time played in seconds for the specified time period """
+
+    select_sql = f"""
+        SELECT 
+            SUM(t2.activityDurationSeconds)
+        FROM 
+            pgcractivities as t1
+        JOIN (
+            SELECT
+                instanceId, activityDurationSeconds, membershipId, characterClass
+            FROM 
+                pgcrActivitiesUsersStats
+        ) as t2
+        ON 
+            t1.instanceId = t2.instanceId
+        WHERE 
+            t2.membershipId = $1
+            AND t1.period >= $2 
+            AND t1.period <= $3
+            {f"AND t2.characterClass = '{character_class}'" if character_class else ""}
+            {f"AND {mode} = ANY(t1.modes)" if mode else ""};"""
+    async with pool.acquire() as connection:
+        result = await connection.fetchval(select_sql, destinyID, start_time, end_time)
+        if not result:
+            result = 0
+        return result
 
 
 ################################################################
