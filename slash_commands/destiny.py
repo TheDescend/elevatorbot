@@ -113,9 +113,7 @@ class DestinyCommands(commands.Cog):
     )
     async def _time(self, ctx: SlashContext, **kwargs):
         user = await get_user_obj(ctx, kwargs)
-
-        destinyID = 4611686018467765462
-        # _, destinyID, system = await get_destinyID_and_system(ctx, user)
+        _, destinyID, system = await get_destinyID_and_system(ctx, user)
         if not destinyID:
             return
 
