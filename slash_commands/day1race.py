@@ -343,30 +343,33 @@ class Day1Race(commands.Cog):
         member_role = ctx.guild.get_role(member_role_id)
         clan_role = ctx.guild.get_role(clan_role_id)
 
-        clan_list = []
-        user_list = []
-        for member in ctx.guild.members:
+        self.clan_list = []
+        self.user_list = []
+
+        async def check_member(member):
             if member_role in member.roles:
                 destinyID = await lookupDestinyID(member.id)
                 if destinyID:
                     if await hasCollectible(destinyID, raid_to_emblem_hash[raid]):
                         if clan_role in member.roles:
-                            clan_list.append(member.display_name)
+                            self.clan_list.append(member.display_name)
                         else:
-                            user_list.append(member.display_name)
+                            self.user_list.append(member.display_name)
+
+        await asyncio.gather(*[check_member(member) for member in ctx.guild.members])
 
         embed = embed_message(
             f"{raid} - Day One Completions"
         )
 
-        if not clan_list and not user_list:
+        if not self.clan_list and not self.user_list:
             embed.description = "Sadly nobody here cleared this raid :("
 
-        if clan_list:
-            embed.add_field(name="Clan Members", value="\n".join(clan_list), inline=True)
+        if self.clan_list:
+            embed.add_field(name="Clan Members", value="\n".join(self.clan_list), inline=True)
 
-        if user_list:
-            embed.add_field(name="Other People", value="\n".join(user_list), inline=True)
+        if self.user_list:
+            embed.add_field(name="Other People", value="\n".join(self.user_list), inline=True)
 
         await ctx.send(embed=embed)
 
