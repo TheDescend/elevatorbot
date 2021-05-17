@@ -22,9 +22,16 @@ async def hasCollectible(playerid, cHash):
     if not userCollectibles or 'data' not in userCollectibles['Response']['profileCollectibles']:
         return False
     collectibles = userCollectibles['Response']['profileCollectibles']['data']['collectibles']
-    if str(cHash) not in collectibles:
-        return False
-    return collectibles[str(cHash)]['state'] & 1 == 0
+    if str(cHash) in collectibles:
+        return collectibles[str(cHash)]['state'] & 1 == 0
+
+    # test if its a character specific one
+    for character in userCollectibles['Response']['characterCollectibles']['data'].values():
+        if str(cHash) in character['collectibles']:
+            return character['collectibles'][str(cHash)]['state'] & 1 == 0
+
+    return False
+
 #   Check whether it's not (not aquired), which means that the firstbit can't be 1   
 #   https://bungie-net.github.io/multi/schema_Destiny-DestinyCollectibleState.html
 
