@@ -122,7 +122,7 @@ class DestinyCommands(commands.Cog):
         # init the db request function with all the args
         args = {
             "destinyID": destinyID,
-            "character_class": kwargs["class"] if "class" in kwargs and kwargs["class"] is not "Everything" else None,
+            "character_class": kwargs["class"] if ("class" in kwargs and kwargs["class"] != "Everything") else None,
         }
 
         # prepare embed for later use

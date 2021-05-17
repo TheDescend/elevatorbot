@@ -34,7 +34,7 @@ async def update_status(client):
         "Dear god please stop using old commands and use slash commands",
         "Get ready for VOG race on the 22/05",
         "Go sports!",
-        "We all now who the best bot is",
+        "We all know who the best bot is",
         "Hint: Checkmarks are lame",
         "Now running v2.1 ('world_domination_test.py')",
         "Can I get vaccinated too? Technically I'm still a baby",
