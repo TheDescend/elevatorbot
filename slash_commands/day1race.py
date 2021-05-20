@@ -129,10 +129,10 @@ class Day1Race(commands.Cog):
                 # get total time spend in raid
                 completions = []
                 for member in self.finished_raid:
-                    try:
-                        name = member[0]
-                        destinyID = member[1]
+                    name = member[0]
+                    destinyID = member[1]
 
+                    try:
                         # loop though activities
                         time_spend = 0
                         kills = 0
@@ -150,6 +150,7 @@ class Day1Race(commands.Cog):
                         completions.append(f"""<:desc_circle_b:768906489464619008>**{name}** - Kills: *{int(kills):,}*, Deaths: *{int(deaths):,}*, Time: *{str(datetime.timedelta(seconds=time_spend))}*""")
                     except:
                         print(f"Failed member {name}")
+                        completions.append(f"""<:desc_circle_b:768906489464619008>**{name}** finished the raid, but there is no info in the API yet""")
 
                 completion_text = "\n".join(completions)
                 msg = f"""The raid race is over :(. But some clan members managed to get a completion!\n⁣\n<:desc_logo_b:768907515193720874> __**Completions:**__\n{completion_text}"""
@@ -221,7 +222,8 @@ class Day1Race(commands.Cog):
                         await channel.send(f"**{name}** finished `{self.activity_triumph_encounters[4240665]}` <:PeepoDPS:754785311489523754>")
 
                 # check for the emblem, if exist do the msg for every other encounter done
-                if await hasCollectible(destinyID, self.emblem_collectible_hash):
+                has_emblem = await hasCollectible(destinyID, self.emblem_collectible_hash)
+                if has_emblem:
                     for encounter_hash, description in self.activity_triumph_encounters.items():
                         if self.finished_encounters[destinyID][encounter_hash] == 0:
                             self.finished_encounters[destinyID][encounter_hash] = 1
