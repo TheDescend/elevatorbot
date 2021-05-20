@@ -45,6 +45,7 @@ class ArmorStatsNotifier(BaseEvent):
 
         # vendors that sell armor
         armor_selling_vendors = {
+            "Ada-1": 350061650,
             "Zavala": 69482069,
             "Drifter": 248695599,
             "Shaxx": 3603221665,
