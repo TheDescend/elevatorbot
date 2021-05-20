@@ -1,6 +1,3 @@
-from datetime import datetime
-
-
 # Base event class
 # Do not modify!
 class BaseEvent:

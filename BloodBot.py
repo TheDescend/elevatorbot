@@ -49,7 +49,10 @@ from static.globals import registered_role_id, not_registered_role_id, admin_dis
     divider_raider_role_id, divider_achievement_role_id, divider_misc_role_id, muted_role_id, dev_role_id, \
     member_role_id
 
-#to enable the on_member_join and on_member_remove
+# vital, do not delete. Otherwise no events get loaded
+from events import *
+
+# to enable the on_member_join and on_member_remove
 intents = discord.Intents.default()
 intents.members = True
 
