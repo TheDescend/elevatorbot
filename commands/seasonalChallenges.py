@@ -1,7 +1,7 @@
 from commands.base_command import BaseCommand
 from functions.dataLoading import getTriumphsJSON
 from functions.dataTransformation import getSeasonalChallengeInfo
-from functions.database import lookupDestinyID
+from database.database import lookupDestinyID
 from functions.formating import embed_message
 
 import asyncio

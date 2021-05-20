@@ -1,5 +1,5 @@
 from commands.base_command import BaseCommand
-from functions.database import removeUser, lookupDestinyID
+from database.database import removeUser, lookupDestinyID
 from functions.formating import embed_message
 from functions.miscFunctions import hasAdminOrDevPermissions
 from static.config import BUNGIE_OAUTH

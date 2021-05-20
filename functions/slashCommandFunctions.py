@@ -4,7 +4,7 @@ import discord
 
 from discord_slash import SlashContext
 
-from functions.database import lookupDestinyID, lookupSystem
+from database.database import lookupDestinyID, lookupSystem
 from functions.formating import embed_message
 from functions.miscFunctions import has_elevated_permissions
 from functions.network import handleAndReturnToken

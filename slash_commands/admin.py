@@ -1,23 +1,19 @@
 import asyncio
 import random
-from io import BytesIO
 
-from discord import File
 from discord.ext import commands
 from discord_slash import cog_ext, SlashContext
 from discord_slash.utils.manage_commands import create_option, create_choice
 
 from functions.dataLoading import getNameAndCrossaveNameToHashMapByClanid, getProfile
-from functions.database import lookupDiscordID, lookupDestinyID, lookupSystem
+from database.database import lookupDiscordID, lookupDestinyID, lookupSystem
 from functions.formating import embed_message
-from functions.network import getJSONfromURL, handleAndReturnToken, getFreshToken
+from functions.network import getJSONfromURL, handleAndReturnToken
 from functions.persistentMessages import make_persistent_message, steamJoinCodeMessage
 from functions.roleLookup import assignRolesToUser, removeRolesFromUser
-from static.config import GUILD_IDS, CLANID
-from static.globals import among_us_emoji_id, barotrauma_emoji_id, gta_emoji_id, valorant_emoji_id, lol_emoji_id, \
-    eft_emoji_id, destiny_emoji_id, other_game_roles, clan_join_request, muted_role_id
+from static.config import CLANID
+from static.globals import other_game_roles, clan_join_request, muted_role_id
 from static.slashCommandConfig import permissions_admin
-from static.slashCommandOptions import options_user
 
 
 class AdminCommands(commands.Cog):

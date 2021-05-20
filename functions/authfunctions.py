@@ -1,5 +1,5 @@
-from functions.database import lookupDiscordID, getDestinyDefinition, lookupSystem
-from functions.network      import getJSONfromURL, getJSONwithToken
+from database.database import lookupDiscordID, getDestinyDefinition, lookupSystem
+from functions.network      import getJSONwithToken
 from inspect                import currentframe, getframeinfo
 from functions.formating    import embed_message
 

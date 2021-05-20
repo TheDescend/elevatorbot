@@ -2,10 +2,8 @@ from discord.ext import commands
 from discord_slash import cog_ext, SlashContext
 from discord_slash.utils.manage_commands import create_option, create_choice
 
-from functions.database import lookupDestinyID, lookupSystem
 from functions.formating import embed_message
 from functions.slashCommandFunctions import get_user_obj, get_destinyID_and_system
-from static.config import GUILD_IDS
 from static.slashCommandOptions import options_user
 
 

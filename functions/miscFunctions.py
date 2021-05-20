@@ -4,7 +4,6 @@ import itertools
 import discord
 from discord_slash import SlashContext
 
-from functions.database import getToken
 from functions.formating import embed_message
 from functions.network import handleAndReturnToken
 from static.globals import admin_role_id, dev_role_id, mod_role_id

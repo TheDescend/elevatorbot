@@ -1,17 +1,6 @@
-import datetime
-
 from commands.base_command import BaseCommand
-from events.armorStatsNotifier import ArmorStatsNotifier
-from events.backgroundTasks import TokenUpdater
-from functions.dataLoading import getCharactertypeList, getCharacterList, getInventoryBucket, \
-    updateDB, updateManifest
 from functions.dataTransformation import hasCollectible
-from functions.database import removeUser, lookupDestinyID, updateUser, updateToken, getRefreshToken
-from functions.formating import embed_message
-from functions.miscFunctions import hasAdminOrDevPermissions
-from functions.persistentMessages import botStatus
-from functions.network import refresh_token
-from static.config import BUNGIE_OAUTH
+from database.database import lookupDestinyID
 
 
 class getDay1Completions(BaseCommand):

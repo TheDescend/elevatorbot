@@ -1083,16 +1083,24 @@ async def getWeaponInfo(membershipID: int, weaponID: int, characterID: int = Non
 
 async def getTopWeapons(membershipid: int, characterID: int = None, mode: int = 0, activityID: int = None, start: datetime = datetime.min, end: datetime = datetime.now()):
     """ Gets Top gun for the given parameters.
-    Returns (weaponId, uniqueweaponkills, uniqueweaponprecisionkills) """
+    Returns (weaponId, uniqueweaponkills, uniqueweaponprecisionkills, weapon_name, weapon_slot) """
 
     select_sql = f"""
         SELECT
-            t1.weaponId, SUM(t1.uniqueweaponkills), SUM(t1.uniqueweaponprecisionkills)
+            t1.weaponId, SUM(t1.uniqueweaponkills), SUM(t1.uniqueweaponprecisionkills), t1.name, t1.bucketTypeHash
         FROM (
             SELECT 
-                instanceId, weaponId, uniqueweaponkills, uniqueweaponprecisionkills
+                instanceId, weaponId, uniqueweaponkills, uniqueweaponprecisionkills, t3.name, t3.bucketTypeHash
             FROM 
                 pgcractivitiesusersstatsweapons
+            JOIN(
+                SELECT 
+                    referenceId, name, bucketTypeHash
+                FROM 
+                    destinyInventoryItemDefinition
+            ) as t3
+            ON 
+                t3.referenceId = weaponId
             WHERE 
                 membershipid = $1
                 {"AND characterId = " + str(characterID) if characterID else ""}
@@ -1111,6 +1119,6 @@ async def getTopWeapons(membershipid: int, characterID: int = None, mode: int = 
         ON 
             t1.instanceID = t2.instanceID
         GROUP BY
-            t1.weaponId;"""
+            t1.weaponId, t1.name, t1.bucketTypeHash;"""
     async with pool.acquire() as connection:
         return await connection.fetch(select_sql, membershipid, start, end)

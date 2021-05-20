@@ -2,15 +2,13 @@ from commands.base_command import BaseCommand
 
 import datetime
 import discord
-import asyncio
 import os
 import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
 
 from commands.rank import write_line
 from functions.dataLoading import searchForItem, getCharacterID
-from functions.database import lookupDestinyID, getTopWeapons, getDestinyDefinition, getWeaponInfo, getPgcrActivity
+from database.database import lookupDestinyID, getTopWeapons, getDestinyDefinition, getWeaponInfo, getPgcrActivity
 from functions.formating import embed_message
 
 

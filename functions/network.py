@@ -8,8 +8,8 @@ from datetime import datetime
 
 from static.config import B64_SECRET, BUNGIE_TOKEN
 
-from functions.database import (getRefreshToken, getToken, getTokenExpiry,
-                                lookupDestinyID, updateToken)
+from database.database import (getRefreshToken, getToken, getTokenExpiry,
+                               lookupDestinyID, updateToken)
 
 bungieAPI_URL = "https://www.bungie.net/Platform"
 headers = {'X-API-Key': BUNGIE_TOKEN}

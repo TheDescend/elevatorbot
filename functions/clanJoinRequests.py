@@ -1,13 +1,11 @@
 import asyncio
 
-import discord
-
-from functions.database import lookupDestinyID, lookupSystem
+from database.database import lookupDestinyID, lookupSystem
 from functions.formating import embed_message
 from functions.miscFunctions import checkIfUserIsRegistered
 from functions.network import getJSONfromURL, postJSONtoBungie
 from static.config import CLANID, BOTDEVCHANNELID
-from static.globals import member_role_id, thumps_up_emoji_id, thumps_down_emoji_id, destiny_emoji_id
+from static.globals import thumps_up_emoji_id, thumps_down_emoji_id, destiny_emoji_id
 
 
 async def clanJoinRequestMessageReactions(client, user, emoji, channel_id, channel_message_id):

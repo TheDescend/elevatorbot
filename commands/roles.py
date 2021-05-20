@@ -1,7 +1,7 @@
 from commands.base_command import BaseCommand
 from events.backgroundTasks import updateActivityDB
 from functions.dataLoading import updateDB
-from functions.database import lookupDestinyID, getLastActivity, getFlawlessList
+from database.database import lookupDestinyID, getLastActivity, getFlawlessList
 from functions.formating import embed_message
 from functions.miscFunctions import hasMentionPermission, hasAdminOrDevPermissions
 from functions.roleLookup import getPlayerRoles, assignRolesToUser, removeRolesFromUser, hasRole

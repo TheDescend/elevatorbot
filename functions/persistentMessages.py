@@ -2,13 +2,11 @@ import discord
 import datetime
 
 from functions.clanJoinRequests import clanJoinRequestMessageReactions
-from functions.database import getPersistentMessage, insertPersistentMessage, \
-    getallSteamJoinIDs, updatePersistentMessage, getAllPersistentMessages, deletePersistentMessage, getToken
+from database.database import getPersistentMessage, insertPersistentMessage, \
+    getallSteamJoinIDs, updatePersistentMessage, getAllPersistentMessages, deletePersistentMessage
 from functions.formating import embed_message
 from functions.network import handleAndReturnToken
-from static.globals import among_us_emoji_id, barotrauma_emoji_id, gta_emoji_id, valorant_emoji_id, lol_emoji_id, \
-    eft_emoji_id, among_us_role_id, barotrauma_role_id, gta_role_id, valorant_role_id, lol_role_id, eft_role_id, \
-    other_game_roles
+from static.globals import other_game_roles
 
 
 async def get_persistent_message(client, message_name, guild_id):

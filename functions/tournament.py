@@ -1,13 +1,10 @@
 import asyncio
 import json
-import pickle
 import random
 import time
 
-import discord
-
 from functions.dataLoading import getCharacterList
-from functions.database import lookupDestinyID, lookupSystem
+from database.database import lookupDestinyID
 from functions.formating import embed_message
 from functions.miscFunctions import has_elevated_permissions
 from functions.network import getJSONfromURL

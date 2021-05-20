@@ -9,7 +9,7 @@ from functions.dataLoading import getStats, getTriumphsJSON, getPGCR, getPlayers
     getNameToHashMapByClanid, getProfile
 from functions.network import getComponentInfoAsJSON
 from static.dict import clanids, seasonalChallengesCategoryHash
-from functions.database import getInfoOnLowManActivity, getDestinyDefinition, getSeals, getEverything, getEverythingRow
+from database.database import getInfoOnLowManActivity, getDestinyDefinition, getSeals, getEverything, getEverythingRow
 
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt

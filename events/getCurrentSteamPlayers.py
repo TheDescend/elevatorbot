@@ -1,10 +1,7 @@
-import os
 import datetime
 
-import pandas as pd
-
 from events.base_event import BaseEvent
-from functions.database import update_d2_steam_players
+from database.database import update_d2_steam_players
 from functions.network import getJSONfromURL
 from functions.persistentMessages import botStatus
 from static.config import STEAM_TOKEN

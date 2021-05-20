@@ -1,13 +1,9 @@
 import datetime
-import os
-
-import discord
 
 from commands.base_command import BaseCommand
 from functions.dataLoading import getCharacterInfoList, getProfile, getCharactertypeList
-from functions.dataTransformation import getCharStats, getPlayerSeals, getIntStat, getTop10PveGuns, getGunsForPeriod, \
-    getPossibleStats
-from functions.database import lookupDestinyID, lookupSystem
+from functions.dataTransformation import getCharStats, getPlayerSeals, getIntStat, getPossibleStats
+from database.database import lookupDestinyID, lookupSystem
 from functions.formating import embed_message
 from static.globals import dev_role_id
 

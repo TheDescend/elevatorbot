@@ -4,13 +4,12 @@ import discord
 import asyncio
 import time
 
-from functions.database import getFlawlessHashes, getClearCount, getDestinyDefinition
+from database.database import getFlawlessHashes, getClearCount, getDestinyDefinition
 from functions.dataTransformation import hasLowman
 from functions.dataTransformation import hasCollectible, hasTriumph
 from static.dict import requirementHashes
 # check if user has permission to use this command
-from static.globals import role_ban_id, not_registered_role_id, divider_raider_role_id, \
-    divider_achievement_role_id, divider_misc_role_id, member_role_id
+from static.globals import role_ban_id
 
 
 #TODO remove year parameter

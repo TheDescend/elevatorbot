@@ -1,7 +1,7 @@
 from events.base_event import BaseEvent
 from functions.authfunctions import getVendorData
 from functions.dataLoading import getCharacterList
-from functions.database import lookupDestinyID, getDestinyDefinition
+from database.database import lookupDestinyID, getDestinyDefinition
 from functions.formating import embed_message
 from functions.persistentMessages import botStatus
 

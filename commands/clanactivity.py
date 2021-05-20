@@ -10,7 +10,7 @@ from pyvis.network import Network
 
 from commands.base_command import BaseCommand
 from functions.dataLoading import getClanMembers, getProfile, getPlayersPastActivities
-from functions.database import lookupDestinyID
+from database.database import lookupDestinyID
 from functions.formating import embed_message
 from functions.network import getJSONfromURL
 

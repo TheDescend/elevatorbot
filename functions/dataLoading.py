@@ -2,16 +2,16 @@ import asyncio
 import logging
 from datetime import datetime
 
-from functions.database import get_connection_pool, updateLastUpdated, \
+from database.database import get_connection_pool, updateLastUpdated, \
     lookupDiscordID, lookupSystem, insertPgcrActivities, getPgcrActivity, insertPgcrActivitiesUsersStats, \
     insertPgcrActivitiesUsersStatsWeapons, getFailToGetPgcrInstanceId, insertFailToGetPgcrInstanceId, \
     deleteFailToGetPgcrInstanceId, getWeaponInfo, updateDestinyDefinition, getVersion, updateVersion, deleteEntries, \
     getDestinyDefinition
-from functions.database import getLastUpdated
+from database.database import getLastUpdated
 from functions.formating import embed_message
 from functions.network import getJSONfromURL, getComponentInfoAsJSON, getJSONwithToken
 from static.config import CLANID
-
+from static.dict import weaponTypeKinetic, weaponTypeEnergy, weaponTypePower
 
 
 async def getJSONfromRR(playerID):
@@ -826,17 +826,16 @@ async def getClanMembers(client):
     return memberlist
 
 
-async def getWeaponNameAndSlot(weapon_id):
-    """ Returns name, slotname """
+def translateWeaponSlot(weapon_slot: int) -> str:
+    """ Returns weapon_slot as a string"""
 
-    weapon_data = await getDestinyDefinition("DestinyInventoryItemDefinition", weapon_id)
     slot = {
-        1498876634: "Kinetic",
-        2465295065: "Energy",
-        953998645: "Power"
+        weaponTypeKinetic: "Kinetic",
+        weaponTypeEnergy: "Energy",
+        weaponTypePower: "Power"
     }
 
-    return weapon_data[2], slot[weapon_data[4]]
+    return slot[weapon_slot]
 
 #TODO replace with DB and version checks
 

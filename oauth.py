@@ -4,20 +4,16 @@ import asyncio
 import os
 import time
 
-import aiohttp
 import json
 import requests
-from flask import Flask, request, redirect, Response, render_template, jsonify, abort
+from flask import Flask, request, redirect, Response, render_template, jsonify
 from flask import send_from_directory
-from datetime import datetime
 
-from functions.network import getFreshToken
-from functions.database import insertToken, getRefreshToken, getToken, updateToken, lookupDestinyID, lookupDiscordID, \
+from database.database import insertToken, getRefreshToken, getToken, lookupDiscordID, \
     create_connection_pool
 from static.config import BUNGIE_TOKEN, B64_SECRET, NEWTONS_WEBHOOK
 
 from nacl.signing import VerifyKey
-from nacl.exceptions import BadSignatureError
 from nacl.encoding import HexEncoder
 from nacl.hash import sha256
 from static.config import BOT_ACCOUNT_PUBLIC_KEY

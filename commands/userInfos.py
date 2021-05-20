@@ -1,9 +1,6 @@
-import discord
-from discord.ext import commands
-
 from commands.base_command import BaseCommand
 from functions.dataLoading import getProfile
-from functions.database import lookupDestinyID, lookupDiscordID, lookupSystem, getToken, getSteamJoinID, setSteamJoinID
+from database.database import lookupDestinyID, lookupDiscordID, lookupSystem, getSteamJoinID, setSteamJoinID
 from functions.formating import embed_message
 from functions.miscFunctions import hasAdminOrDevPermissions, hasMentionPermission
 from functions.network import getJSONfromURL, handleAndReturnToken

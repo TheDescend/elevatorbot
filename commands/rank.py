@@ -1,16 +1,13 @@
 import asyncio
 
 import pandas
-import discord
-from discord.ext.commands import MemberConverter
 
 from commands.base_command import BaseCommand
 from functions.dataLoading import getStats, getProfile, getCharacterList, \
-    getAggregateStatsForChar, getInventoryBucket, getWeaponStats, returnManifestInfo, getAllGear, \
-    getItemDefinition, getArtifact, getCharacterGear, getCharacterGearAndPower, getPlayersPastActivities, searchForItem
-from functions.database import lookupDiscordID, getToken, lookupSystem
+    getAggregateStatsForChar, getInventoryBucket, getWeaponStats, getAllGear, \
+    getItemDefinition, getArtifact, getCharacterGearAndPower, getPlayersPastActivities, searchForItem
+from database.database import lookupDiscordID, getToken, lookupSystem
 from functions.formating import embed_message
-from functions.miscFunctions import show_help
 from functions.network import getJSONfromURL
 from static.config import CLANID
 from static.dict import metricRaidCompletion, raidHashes

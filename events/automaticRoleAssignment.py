@@ -5,7 +5,7 @@ import discord
 
 from events.backgroundTasks import updateActivityDB
 from events.base_event import BaseEvent
-from functions.database import lookupDiscordID, lookupDestinyID, getToken
+from database.database import lookupDiscordID, lookupDestinyID
 from functions.network import getJSONfromURL, handleAndReturnToken
 from functions.persistentMessages import botStatus
 from functions.roleLookup import assignRolesToUser, removeRolesFromUser, getPlayerRoles

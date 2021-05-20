@@ -1,6 +1,6 @@
 from commands.base_command import BaseCommand
 from functions.dataLoading import getNameAndCrossaveNameToHashMapByClanid, getNameToHashMapByClanid
-from functions.database import lookupDiscordID, lookupDestinyID
+from database.database import lookupDiscordID, lookupDestinyID
 from static.dict import clanids
 
 

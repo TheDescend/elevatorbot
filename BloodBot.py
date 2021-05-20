@@ -8,7 +8,7 @@ import traceback
 
 from apscheduler.events import EVENT_JOB_EXECUTED, EVENT_JOB_ERROR, EVENT_JOB_MISSED, EVENT_JOB_SUBMITTED
 
-from functions.database import create_connection_pool
+from database.database import create_connection_pool
 
 # use different loop for windows. otherwise it breaks
 if sys.version_info[0] == 3 and sys.version_info[1] >= 8 and sys.platform.startswith('win'):
@@ -26,7 +26,6 @@ import os
 import random
 import re
 import sys
-from datetime import datetime
 from io import BytesIO
 from threading import Thread
 
@@ -36,18 +35,16 @@ from discord.ext.commands import Bot
 from discord_slash import SlashCommand, SlashContext
 
 import message_handler
-from functions.persistentMessages import otherGameRolesMessageReactions, check_reaction_for_persistent_message
+from functions.persistentMessages import check_reaction_for_persistent_message
 from events.base_event import BaseEvent
-from events import *
-from functions.clanJoinRequests import clanJoinRequestMessageReactions, removeFromClanAfterLeftDiscord
+from functions.clanJoinRequests import removeFromClanAfterLeftDiscord
 from functions.dataLoading import updateDB
-from functions.database import insertIntoMessageDB, lookupDestinyID
+from database.database import insertIntoMessageDB, lookupDestinyID
 from functions.formating import embed_message
 from functions.miscFunctions import update_status
 from functions.roleLookup import assignRolesToUser, removeRolesFromUser
 from init_logging import init_logging
 from static.config import COMMAND_PREFIX, BOT_TOKEN
-import static.dict
 from static.globals import registered_role_id, not_registered_role_id, admin_discussions_channel_id, \
     divider_raider_role_id, divider_achievement_role_id, divider_misc_role_id, muted_role_id, dev_role_id, \
     member_role_id

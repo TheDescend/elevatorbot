@@ -12,7 +12,7 @@ from discord_slash.utils.manage_commands import create_option, create_choice
 
 from functions.dataLoading import getPlayersPastActivities, getProfile
 from functions.dataTransformation import getMetricValue, hasCollectible
-from functions.database import lookupDestinyID
+from database.database import lookupDestinyID
 from functions.formating import embed_message
 from functions.network import getJSONfromURL
 from static.config import CLANID

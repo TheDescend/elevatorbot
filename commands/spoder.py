@@ -1,7 +1,7 @@
 from commands.base_command import BaseCommand
 from functions.authfunctions import getSpiderMaterials
 from functions.dataLoading import getCharacterList
-from functions.database import lookupDestinyID
+from database.database import lookupDestinyID
 from functions.miscFunctions import hasMentionPermission
 
 # has been slashified

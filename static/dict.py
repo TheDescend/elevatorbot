@@ -1,6 +1,6 @@
 import asyncio
 
-from functions.database import getGrandmasterHashes
+from database.database import getGrandmasterHashes
 
 loop = asyncio.get_event_loop()
 
