@@ -210,6 +210,7 @@ def main():
                         "Bienvenidas",
                         "Välkommen",
                         "Croeso",
+                        "Yeeeeeeeeeeeeeeeeeeeeeeeeeeeeehaw",
                     ]
                     await message.channel.send(f'{random.choice(welcome_choice)} <@{neria_id}>!')
         
