@@ -49,8 +49,11 @@ async def create_connection_pool():
 
 
 async def get_connection_pool():
-    return pool
-
+    if "pool" in globals():
+        return pool
+    else:
+        await create_connection_pool()
+        return pool
 
 async def fetch_as_dataframe(con: asyncpg.Connection, query: str, *args):
     """ Gets the DB query as a pandas dataframe"""
@@ -72,7 +75,7 @@ async def removeUser(discordID):
             discordGuardiansToken
         WHERE 
             discordSnowflake = $1;"""
-    async with pool.acquire() as connection:
+    async with (await get_connection_pool()).acquire() as connection:
         await connection.execute(delete_sql, discordID)
 
 async def updateUser(IDdiscord, IDdestiny, systemID):
@@ -86,7 +89,7 @@ async def updateUser(IDdiscord, IDdestiny, systemID):
             systemID = $2
         WHERE 
             discordSnowflake = $3;"""
-    async with pool.acquire() as connection:
+    async with (await get_connection_pool()).acquire() as connection:
         await connection.execute(update_sql, IDdestiny, systemID, IDdiscord)
 
 
@@ -100,7 +103,7 @@ async def lookupDestinyID(discordID):
             "discordGuardiansToken"
         WHERE 
             discordSnowflake = $1;"""
-    async with pool.acquire() as connection:
+    async with (await get_connection_pool()).acquire() as connection:
         return await connection.fetchval(select_sql, discordID)
 
 
@@ -114,7 +117,7 @@ async def lookupDiscordID(destinyID: int):
             "discordGuardiansToken"
         WHERE 
             destinyID = $1;"""
-    async with pool.acquire() as connection:
+    async with (await get_connection_pool()).acquire() as connection:
         return await connection.fetchval(select_sql, destinyID)
 
 
@@ -128,7 +131,7 @@ async def lookupSystem(destinyID: int):
             "discordGuardiansToken"
         WHERE 
             destinyID = $1;"""
-    async with pool.acquire() as connection:
+    async with (await get_connection_pool()).acquire() as connection:
         return await connection.fetchval(select_sql, destinyID)
 
 
@@ -140,7 +143,7 @@ async def getAllDestinyIDs():
             destinyID 
         FROM 
             "discordGuardiansToken";"""
-    async with pool.acquire() as connection:
+    async with (await get_connection_pool()).acquire() as connection:
         result = await connection.fetch(select_sql)
     return [x[0] for x in result]
 
@@ -155,7 +158,7 @@ async def getToken(discordID):
             "discordGuardiansToken"
         WHERE 
             discordSnowflake = $1;"""
-    async with pool.acquire() as connection:
+    async with (await get_connection_pool()).acquire() as connection:
         return await connection.fetchval(select_sql, discordID)
 
 
@@ -169,7 +172,7 @@ async def getRefreshToken(discordID):
             "discordGuardiansToken"
         WHERE 
             discordSnowflake = $1;"""
-    async with pool.acquire() as connection:
+    async with (await get_connection_pool()).acquire() as connection:
         return await connection.fetchval(select_sql, discordID)
 
 
@@ -185,7 +188,7 @@ async def getTokenExpiry(discordID):
         WHERE 
             discordSnowflake = $1;'''
 
-    async with pool.acquire() as connection:
+    async with (await get_connection_pool()).acquire() as connection:
         results = await connection.fetchrow(select_sql, discordID)
 
     return list(map(datetime.timestamp, results))
@@ -214,7 +217,7 @@ async def insertToken(discordID, destinyID, systemID, discordServerID, token, re
             VALUES 
                 ($1, $2, $3, $4, $5, $6, $7, $8, $9);"""
 
-        async with pool.acquire() as connection:
+        async with (await get_connection_pool()).acquire() as connection:
             await connection.execute(insert_sql, discordID, destinyID, datetime.today().date(), discordServerID, token, refresh_token, systemID, datetime.fromtimestamp(token_expiry), datetime.fromtimestamp(refresh_token_expiry))
         return True
 
@@ -233,7 +236,7 @@ async def updateToken(destinyID, discordID, token, refresh_token, token_expiry, 
             discordSnowflake = $5
         WHERE 
             destinyID = $6;"""
-    async with pool.acquire() as connection:
+    async with (await get_connection_pool()).acquire() as connection:
         await connection.execute(update_sql, token, refresh_token, datetime.fromtimestamp(token_expiry), datetime.fromtimestamp(refresh_token_expiry), discordID, destinyID)
 
 
@@ -247,7 +250,7 @@ async def setSteamJoinID(IDdiscord, IDSteamJoin):
             steamJoinId = $1
         WHERE 
             discordSnowflake = $2;"""
-    async with pool.acquire() as connection:
+    async with (await get_connection_pool()).acquire() as connection:
         await connection.execute(update_sql, int(IDSteamJoin), IDdiscord)
 
 
@@ -261,7 +264,7 @@ async def getSteamJoinID(IDdiscord):
             "discordGuardiansToken"
         WHERE 
             discordSnowflake = $1;"""
-    async with pool.acquire() as connection:
+    async with (await get_connection_pool()).acquire() as connection:
         return await connection.fetchval(select_sql, IDdiscord)
 
 
@@ -275,7 +278,7 @@ async def getallSteamJoinIDs():
             "discordGuardiansToken"
         WHERE 
             steamJoinId IS NOT NULL;"""
-    async with pool.acquire() as connection:
+    async with (await get_connection_pool()).acquire() as connection:
         return await connection.fetch(select_sql)
 
 
@@ -288,7 +291,7 @@ async def insertIntoMessageDB(messagetext, userid, channelid, msgid):
             (msg, userid, channelid, msgid, msgdate) 
         VALUES 
             ($1, $2, $3, $4, $5);"""
-    async with pool.acquire() as connection:
+    async with (await get_connection_pool()).acquire() as connection:
         await connection.execute(insert_sql, messagetext, userid, channelid, msgid, datetime.now())
 
 
@@ -320,7 +323,7 @@ async def getLastActivity(destinyID, mode=None, before=datetime.now()):
         )
         ORDER BY 
             t1.period DESC;"""
-    async with pool.acquire() as connection:
+    async with (await get_connection_pool()).acquire() as connection:
         res = await connection.fetchrow(select_sql, before, destinyID)
 
     if not res:
@@ -340,7 +343,7 @@ async def getLastActivity(destinyID, mode=None, before=datetime.now()):
             PgcrActivitiesUsersStats
         WHERE 
         instanceID = $1; """
-    async with pool.acquire() as connection:
+    async with (await get_connection_pool()).acquire() as connection:
         instanceInfo = await connection.fetch(select_sql, res[0])
 
     # prepare return as a dict
@@ -388,7 +391,7 @@ async def getFlawlessList(destinyID):
         ON 
             (ipp.instanceID = t1.instanceID);
         """
-    async with pool.acquire() as connection:
+    async with (await get_connection_pool()).acquire() as connection:
         result = await connection.fetch(select_sql, destinyID)
     return [res[0] for res in result]
 
@@ -404,7 +407,7 @@ async def getEverything(database_table_name: str, select_name: list = None, **wh
     This is a generator!
     """
 
-    async with pool.acquire() as connection:
+    async with (await get_connection_pool()).acquire() as connection:
         # prepare statement
         select_sql = await connection.prepare(
             f"""
@@ -434,7 +437,7 @@ async def getEverythingRow(database_table_name: str, select_name: list = None, *
         {"WHERE" if where_requirements else ""} 
             {", ".join([f"{name}=${i}" for name, i in zip(where_requirements.keys(), range(1, len(where_requirements) + 1))])};"""
 
-    async with pool.acquire() as connection:
+    async with (await get_connection_pool()).acquire() as connection:
         return await connection.fetchrow(select_sql, *where_requirements.values())
 
 
@@ -453,7 +456,7 @@ async def updateVersion(name: str, version: str):
                 (name, version)
             VALUES 
                 ($1, $2);"""
-        async with pool.acquire() as connection:
+        async with (await get_connection_pool()).acquire() as connection:
             await connection.execute(insert_sql, name, version)
         return
 
@@ -465,7 +468,7 @@ async def updateVersion(name: str, version: str):
             version = $1
         WHERE 
             name = $2;"""
-    async with pool.acquire() as connection:
+    async with (await get_connection_pool()).acquire() as connection:
         await connection.execute(update_sql, version, name)
 
 
@@ -479,7 +482,7 @@ async def getVersion(name: str):
             versions
         WHERE 
             name = $1;"""
-    async with pool.acquire() as connection:
+    async with (await get_connection_pool()).acquire() as connection:
         return await connection.fetchval(select_sql, name)
 
 
@@ -497,7 +500,7 @@ async def update_d2_steam_players(current_date: date, number_of_players: int):
             d2SteamPlayers
         WHERE 
             dateObj = $1;"""
-    async with pool.acquire() as connection:
+    async with (await get_connection_pool()).acquire() as connection:
         old_number_of_players = await connection.fetchval(select_sql, current_date)
 
     # insert value
@@ -508,7 +511,7 @@ async def update_d2_steam_players(current_date: date, number_of_players: int):
                 (dateObj, numberOfPlayers)
             VALUES 
                 ($1, $2);"""
-        async with pool.acquire() as connection:
+        async with (await get_connection_pool()).acquire() as connection:
             await connection.execute(insert_sql, current_date, number_of_players)
             return
 
@@ -521,7 +524,7 @@ async def update_d2_steam_players(current_date: date, number_of_players: int):
                 numberOfPlayers = $1
             WHERE 
                 dateObj = $2;"""
-        async with pool.acquire() as connection:
+        async with (await get_connection_pool()).acquire() as connection:
             await connection.execute(update_sql, number_of_players, current_date)
 
 
@@ -535,7 +538,7 @@ async def get_d2_steam_player_info():
             d2SteamPlayers
         ORDER BY 
             dateObj DESC;"""
-    async with pool.acquire() as connection:
+    async with (await get_connection_pool()).acquire() as connection:
         return await fetch_as_dataframe(connection, select_sql)
 
 
@@ -551,7 +554,7 @@ async def insertPersistentMessage(messageName, guildId, channelId, messageId, re
             (messageName, guildId, channelId, messageId, reactionsIdList) 
         VALUES 
             ($1, $2, $3, $4, $5);"""
-    async with pool.acquire() as connection:
+    async with (await get_connection_pool()).acquire() as connection:
         await connection.execute(insert_sql, messageName, guildId, channelId, messageId, reactionsIdList)
 
 
@@ -568,7 +571,7 @@ async def updatePersistentMessage(messageName, guildId, channelId, messageId, re
         WHERE 
             messageName = $4 
             AND guildId = $5;"""
-    async with pool.acquire() as connection:
+    async with (await get_connection_pool()).acquire() as connection:
         await connection.execute(update_sql, channelId, messageId, reactionsIdList, messageName, guildId)
 
 
@@ -585,7 +588,7 @@ async def getPersistentMessage(messageName, guildId):
         WHERE 
             messageName = $1 
             AND guildId = $2;"""
-    async with pool.acquire() as connection:
+    async with (await get_connection_pool()).acquire() as connection:
         return await connection.fetchrow(select_sql, messageName, guildId)
 
 
@@ -598,7 +601,7 @@ async def deletePersistentMessage(messageName, guildId):
         WHERE 
             messageName = $1
             AND guildId = $2;"""
-    async with pool.acquire() as connection:
+    async with (await get_connection_pool()).acquire() as connection:
         await connection.execute(delete_sql, messageName, guildId)
 
 
@@ -610,7 +613,7 @@ async def getAllPersistentMessages():
             *
         FROM 
             persistentMessages;"""
-    async with pool.acquire() as connection:
+    async with (await get_connection_pool()).acquire() as connection:
         return await connection.fetch(select_sql)
 
 
@@ -650,7 +653,7 @@ async def getDestinyDefinition(definition_name: str, referenceId: int):
             {definition_name}
         WHERE 
             referenceId = $1;"""
-    async with pool.acquire() as connection:
+    async with (await get_connection_pool()).acquire() as connection:
         return await connection.fetchrow(select_sql, int(referenceId))
 
 
@@ -665,7 +668,7 @@ async def getGrandmasterHashes():
         WHERE 
             (name LIKE '%Grandmaster%' OR activityLightLevel = 1100)
             AND directActivityModeType = 46;"""
-    async with pool.acquire() as connection:
+    async with (await get_connection_pool()).acquire() as connection:
         result = await connection.fetch(select_sql)
     return [x[0] for x in result]
 
@@ -685,7 +688,7 @@ async def getSeals():
         WHERE 
             hasTitle
             AND referenceId NOT IN ({','.join(['$' + str(i+1) for i in range(len(not_available))])});"""
-    async with pool.acquire() as connection:
+    async with (await get_connection_pool()).acquire() as connection:
         return await connection.fetch(select_sql, *not_available)
 
 
@@ -703,7 +706,7 @@ async def updateLastUpdated(destinyID, timestamp: datetime):
             activitiesLastUpdated = $1
         WHERE 
             destinyID = $2;"""
-    async with pool.acquire() as connection:
+    async with (await get_connection_pool()).acquire() as connection:
         await connection.execute(update_sql, timestamp, destinyID)
 
 
@@ -717,7 +720,7 @@ async def getLastUpdated(destinyID):
             "discordGuardiansToken"
         WHERE 
             destinyID = $1;"""
-    async with pool.acquire() as connection:
+    async with (await get_connection_pool()).acquire() as connection:
         return await connection.fetchval(select_sql, destinyID)
 
 
@@ -733,7 +736,7 @@ async def insertPgcrActivities(instanceId, referenceId, directorActivityHash, ti
                 ($1, $2, $3, $4, $5, $6, $7, $8, $9)
             ON CONFLICT 
                 DO NOTHING;"""
-        async with pool.acquire() as connection:
+        async with (await get_connection_pool()).acquire() as connection:
             await connection.execute(insert_sql, int(instanceId), int(referenceId), int(directorActivityHash), timePeriod, int(startingPhaseIndex), int(mode), modes, isPrivate, int(membershipType))
 
 
@@ -747,7 +750,7 @@ async def getPgcrActivity(instanceId):
             pgcractivities
         WHERE 
             instanceId = $1;"""
-    async with pool.acquire() as connection:
+    async with (await get_connection_pool()).acquire() as connection:
         return await connection.fetchrow(select_sql, int(instanceId))
 
 
@@ -761,7 +764,7 @@ async def getPgcrActivitiesUsersStats(instanceId):
             PgcrActivitiesUsersStats
         WHERE 
             instanceId = $1;"""
-    async with pool.acquire() as connection:
+    async with (await get_connection_pool()).acquire() as connection:
         return await connection.fetch(select_sql, int(instanceId))
 
 
@@ -780,7 +783,7 @@ async def insertPgcrActivitiesUsersStats(instanceId, membershipId, characterId, 
             ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29)
         ON CONFLICT 
             DO NOTHING;"""
-    async with pool.acquire() as connection:
+    async with (await get_connection_pool()).acquire() as connection:
         await connection.execute(insert_sql, int(instanceId), int(membershipId), int(characterId), characterClass, int(characterLevel),
             int(membershipType), int(lightLevel), int(emblemHash), int(standing), int(assists), int(completed),
             int(deaths), int(kills), int(opponentsDefeated), float(efficiency), float(killsDeathsRatio), float(killsDeathsAssists),
@@ -797,7 +800,7 @@ async def insertFailToGetPgcrInstanceId(instanceID, period):
             (instanceId, period) 
         VALUES 
             ($1, $2);"""
-    async with pool.acquire() as connection:
+    async with (await get_connection_pool()).acquire() as connection:
         await connection.execute(insert_sql, int(instanceID), period)
 
 
@@ -809,7 +812,7 @@ async def getFailToGetPgcrInstanceId():
             * 
         FROM 
             pgcractivitiesfailtoget;"""
-    async with pool.acquire() as connection:
+    async with (await get_connection_pool()).acquire() as connection:
         return await connection.fetch(select_sql)
 
 
@@ -821,7 +824,7 @@ async def deleteFailToGetPgcrInstanceId(instanceId):
             pgcractivitiesfailtoget 
         WHERE 
             instanceId = $1;"""
-    async with pool.acquire() as connection:
+    async with (await get_connection_pool()).acquire() as connection:
         await connection.execute(delete_sql, int(instanceId))
 
 
@@ -851,7 +854,7 @@ async def getClearCount(playerid, activityHashes: list):
         ) st 
         ON 
             (t.instanceID = st.instanceID);"""
-    async with pool.acquire() as connection:
+    async with (await get_connection_pool()).acquire() as connection:
         return await connection.fetchval(select_sql, *activityHashes, playerid)
 
 
@@ -899,7 +902,7 @@ async def getInfoOnLowManActivity(raidHashes: list, playercount, membershipid, n
         ) AS userLowmanCompletions
         ON 
             (selectedActivites.instanceID = userLowmanCompletions.instanceID)"""
-    async with pool.acquire() as connection:
+    async with (await get_connection_pool()).acquire() as connection:
         return await connection.fetch(select_sql, *raidHashes, membershipid, playercount)
 
 
@@ -943,7 +946,7 @@ async def getFlawlessHashes(membershipid, activityHashes: list):
         ) AS t
         WHERE
             t.deaths = 0;"""
-    async with pool.acquire() as connection:
+    async with (await get_connection_pool()).acquire() as connection:
         return await connection.fetch(select_sql, membershipid, *activityHashes)
 
 
@@ -966,7 +969,7 @@ async def getForges(destinyID):
         WHERE 
             t2.membershipId = $1
             AND t1.mode = 66;"""
-    async with pool.acquire() as connection:
+    async with (await get_connection_pool()).acquire() as connection:
         return await connection.fetch(select_sql, destinyID)
 
 
@@ -994,7 +997,7 @@ async def getActivityHistory(destinyID, mode: int = None, activityHashes: list =
             AND period <= $3
             {"AND t1.directorActivityHash IN (" + ",".join([str(x) for x in activityHashes]) + ")" if activityHashes else ""}
             {f"AND {mode} = ANY(modes)" if mode else ""};"""
-    async with pool.acquire() as connection:
+    async with (await get_connection_pool()).acquire() as connection:
         result = await connection.fetch(select_sql, destinyID, start_time, end_time)
     return [x[0] for x in result]
 
@@ -1021,7 +1024,7 @@ async def getTimePlayed(destinyID: int, character_class: str = None, mode: Union
             AND t1.period <= $3
             {f"AND t2.characterClass = '{character_class}'" if character_class else ""}
             {f"AND {mode} = ANY(t1.modes)" if mode else ""};"""
-    async with pool.acquire() as connection:
+    async with (await get_connection_pool()).acquire() as connection:
         result = await connection.fetchval(select_sql, destinyID, start_time, end_time)
         if not result:
             result = 0
@@ -1043,7 +1046,7 @@ async def insertPgcrActivitiesUsersStatsWeapons(instanceId, characterId, members
             ($1, $2, $3, $4, $5, $6)
         ON CONFLICT
             DO NOTHING;"""
-    async with pool.acquire() as connection:
+    async with (await get_connection_pool()).acquire() as connection:
         await connection.execute(insert_sql, int(instanceId), int(characterId), int(membershipId), int(weaponId), int(uniqueWeaponKills), int(uniqueWeaponPrecisionKills))
 
 
@@ -1077,7 +1080,7 @@ async def getWeaponInfo(membershipID: int, weaponID: int, characterID: int = Non
         ) AS t2 
         ON 
             t1.instanceID = t2.instanceID;"""
-    async with pool.acquire() as connection:
+    async with (await get_connection_pool()).acquire() as connection:
         return await connection.fetch(select_sql, membershipID, weaponID, start, end)
 
 
@@ -1120,5 +1123,5 @@ async def getTopWeapons(membershipid: int, characterID: int = None, mode: int = 
             t1.instanceID = t2.instanceID
         GROUP BY
             t1.weaponId, t1.name, t1.bucketTypeHash;"""
-    async with pool.acquire() as connection:
+    async with (await get_connection_pool()).acquire() as connection:
         return await connection.fetch(select_sql, membershipid, start, end)
