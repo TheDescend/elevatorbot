@@ -206,7 +206,7 @@ def main():
                         "Benvenuta",
                         "Velkommen",
                         "Witamy",
-                        "Bine ati venit",
+                        "Bine ați venit (this is spelled correctly thanks to <@171371726444167168>)",
                         "Bienvenidas",
                         "Välkommen",
                         "Croeso",
