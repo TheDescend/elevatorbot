@@ -1,4 +1,5 @@
 import asyncio
+import datetime
 import itertools
 
 import discord
@@ -6,6 +7,7 @@ from discord_slash import SlashContext
 
 from functions.formating import embed_message
 from functions.network import handleAndReturnToken
+from static.dict import expansion_dates, season_dates
 from static.globals import admin_role_id, dev_role_id, mod_role_id
 from static.config import COMMAND_PREFIX
 
@@ -131,4 +133,50 @@ def write_line(index, member, stat_text, stat, emoji):
     return f"**{index})** {member} \n{emoji} {stat_text}: {stat}"
 
 
+def check_if_mutually_exclusive(possible_args: list, kwargs):
+    """"
+    Checks if at most one of the allowed arguments has been used.
 
+    Returns False if more than one arg was used
+    Returns True if at most one arg was used
+    """
+
+    count = 0
+    for arg in possible_args:
+        if type(arg) == str:
+            if arg in kwargs:
+                count += 1
+        elif type(arg) == list:
+            for subarg in arg:
+                if subarg in kwargs:
+                    count += 1
+                    break
+
+    return count <= 1
+
+
+def convert_expansion_or_season_dates(kwargs):
+    """ This takes in kwargs, looks if 'expansion' or 'season' are in them and return None, None if not, or the datetime objects """
+
+    starttime = None
+    endtime = None
+
+    # convert expansion dates to datetimes
+    if "expansion" in kwargs:
+        starttime = datetime.datetime.strptime(kwargs["expansion"].split(",")[0], '%Y-%m-%d')
+        try:
+            endtime = expansion_dates[(expansion_dates.index(kwargs["expansion"].split(",")) + 1)][0]
+            endtime = datetime.datetime.strptime(endtime, '%Y-%m-%d')
+        except IndexError:
+            endtime = datetime.datetime.now()
+
+    # or convert season dates to datetimes
+    elif "season" in kwargs:
+        starttime = datetime.datetime.strptime(kwargs["season"].split(",")[0], '%Y-%m-%d')
+        try:
+            endtime = expansion_dates[(season_dates.index(kwargs["season"].split(",")) + 1)][0]
+            endtime = datetime.datetime.strptime(endtime, '%Y-%m-%d')
+        except IndexError:
+            endtime = datetime.datetime.now()
+
+    return starttime, endtime

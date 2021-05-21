@@ -24,14 +24,15 @@ from database.database import lookupDiscordID, getForges, getLastActivity, \
     getDestinyDefinition, getWeaponInfo, getPgcrActivity, getTopWeapons, getActivityHistory, \
     getPgcrActivitiesUsersStats, getClearCount, get_d2_steam_player_info, getTimePlayed
 from functions.formating import embed_message
-from functions.miscFunctions import get_emoji, write_line, has_elevated_permissions
+from functions.miscFunctions import get_emoji, write_line, has_elevated_permissions, check_if_mutually_exclusive, \
+    convert_expansion_or_season_dates
 from functions.network import getJSONfromURL, handleAndReturnToken
 from functions.persistentMessages import get_persistent_message, make_persistent_message, delete_persistent_message
 from functions.slashCommandFunctions import get_user_obj, get_destinyID_and_system, get_user_obj_admin, \
     verify_time_input
 from functions.tournament import startTournamentEvents
 from static.config import CLANID
-from static.dict import metricRaidCompletion, raidHashes, gmHashes
+from static.dict import metricRaidCompletion, raidHashes, gmHashes, expansion_dates, season_dates
 from static.globals import titan_emoji_id, hunter_emoji_id, warlock_emoji_id, light_level_icon_emoji_id, tournament, \
     enter_emoji_id
 from static.slashCommandOptions import choices_mode, options_stat, options_user
@@ -45,22 +46,7 @@ class DestinyCommands(commands.Cog):
             "Hunter": hunter_emoji_id,
             "Titan": titan_emoji_id,
         }
-        self.season_dates = [
-            ["2017-09-06", "Vanilla"],
-            ["2017-12-05", "Curse of Osiris"],
-            ["2018-05-08", "Warmind"],
-            ["2018-09-04", "Forsaken"],
-            ["2018-12-04", "Season of the Forge"],
-            ["2019-03-05", "Season of the Drifter"],
-            ["2019-06-04", "Season of Opulence"],
-            ["2019-10-01", "Shadowkeep"],
-            ["2019-12-10", "Season of Dawn"],
-            ["2020-03-10", "Season of the Worthy"],
-            ["2020-06-09", "Season of Arrivals"],
-            ["2020-11-10", "Beyond Light"],
-            ["2021-02-09", "Season of the Chosen"],
-            ["2021-05-11", "Season of the Splicer"],
-        ]
+        self.season_and_expansion_dates = sorted(expansion_dates + season_dates, key=lambda x: x[0])
         self.other_dates = [
             ["2019-10-04", "GoS"],
             ["2019-10-29", "PoH"],
@@ -133,7 +119,7 @@ class DestinyCommands(commands.Cog):
         results = {}
 
         # loop through the seasons
-        for season in self.season_dates:
+        for season in self.season_and_expansion_dates:
             season_date = datetime.datetime.strptime(season[0], '%Y-%m-%d')
             season_name = season[1]
 
@@ -145,7 +131,7 @@ class DestinyCommands(commands.Cog):
 
             # get the next seasons start time as the cutoff or now if its the current season
             try:
-                next_season_date = self.season_dates[(self.season_dates.index(season) + 1)][0]
+                next_season_date = self.season_and_expansion_dates[(self.season_and_expansion_dates.index(season) + 1)][0]
                 next_season_date = datetime.datetime.strptime(next_season_date, '%Y-%m-%d')
             except IndexError:
                 next_season_date = datetime.datetime.now()
@@ -206,7 +192,7 @@ class DestinyCommands(commands.Cog):
         ax.set_ylabel("Players", fontsize=20, fontweight="bold")
 
         # adding nice lines to mark important events
-        for dates in self.season_dates[7:]:
+        for dates in self.season_and_expansion_dates[7:]:
             date = datetime.datetime.strptime(dates[0], '%Y-%m-%d')
             ax.axvline(date, color="darkgreen", zorder=1)
             ax.text(date + datetime.timedelta(days=2), (max(data['numberofplayers']) - min(data['numberofplayers'])) * 1.02 + min(data['numberofplayers']), dates[1], color="darkgreen", fontweight="bold", bbox=dict(facecolor='white', edgecolor='darkgreen', pad=4, zorder=3))
@@ -1787,6 +1773,30 @@ class WeaponCommands(commands.Cog):
                 ]
             ),
             create_option(
+                name="expansion",
+                description="You can restrict the expansion (usually a year) to look at",
+                option_type=3,
+                required=False,
+                choices=[
+                    create_choice(
+                        name=expansion[1],
+                        value=f"{expansion[0]},{expansion[1]}"
+                    ) for expansion in expansion_dates
+                ]
+            ),
+            create_option(
+                name="season",
+                description="You can restrict the season to look at",
+                option_type=3,
+                required=False,
+                choices=[
+                    create_choice(
+                        name=season[1],
+                        value=f"{season[0]},{season[1]}"
+                    ) for season in season_dates
+                ]
+            ),
+            create_option(
                 name="starttime",
                 description="Format: 'DD/MM/YY' - You can restrict the time from when the weapon stats start counting",
                 option_type=3,
@@ -1879,7 +1889,8 @@ class WeaponCommands(commands.Cog):
 
         # prepare embed
         embed = embed_message(
-            f"Top Weapons for {user.display_name}"
+            f"Top Weapons for {user.display_name}",
+            footer=f"Date: {starttime.strftime('%d/%m/%Y')} - {endtime.strftime('%d/%m/%Y')}"
         )
         emoji = self.client.get_emoji(enter_emoji_id)
 
@@ -1941,6 +1952,14 @@ class WeaponCommands(commands.Cog):
             ))
             return None, None, None, None, None, None, None
 
+        # parse the three different time arguments, since they are mutually exclusive
+        if not check_if_mutually_exclusive(["expansion", "season", ["starttime", "endtime"]], kwargs):
+            await ctx.send(hidden=True, embed=embed_message(
+                f"Error",
+                f"You can only specify one time parameter"
+            ))
+            return None, None, None, None, None, None, None
+
         # make sure the times are valid
         starttime = await verify_time_input(ctx, kwargs["starttime"]) if "starttime" in kwargs else datetime.datetime.min
         if not starttime:
@@ -1948,6 +1967,12 @@ class WeaponCommands(commands.Cog):
         endtime = await verify_time_input(ctx, kwargs["endtime"]) if "endtime" in kwargs else datetime.datetime.now()
         if not endtime:
             return None, None, None, None, None, None, None
+
+        # convert expansion dates to datetimes
+        dummy_starttime, dummy_endtime = convert_expansion_or_season_dates(kwargs)
+        if dummy_starttime:
+            starttime = dummy_starttime
+            endtime = dummy_endtime
 
         return stat, graph, character_class, mode, activity_hash, starttime, endtime
 
@@ -1974,6 +1999,30 @@ class WeaponCommands(commands.Cog):
                         name="Titan",
                         value="3655393761"
                     ),
+                ]
+            ),
+            create_option(
+                name="expansion",
+                description="You can restrict the expansion (usually a year) to look at",
+                option_type=3,
+                required=False,
+                choices=[
+                    create_choice(
+                        name=expansion[1],
+                        value=f"{expansion[0]},{expansion[1]}"
+                    ) for expansion in expansion_dates
+                ]
+            ),
+            create_option(
+                name="season",
+                description="You can restrict the season to look at",
+                option_type=3,
+                required=False,
+                choices=[
+                    create_choice(
+                        name=season[1],
+                        value=f"{season[0]},{season[1]}"
+                    ) for season in season_dates
                 ]
             ),
             create_option(
@@ -2011,9 +2060,6 @@ class WeaponCommands(commands.Cog):
         }
         weapons_by_id = {}
 
-        # might take a sec
-        await ctx.defer()
-
         # set default values for the args
         character_class = int(kwargs["class"]) if "class" in kwargs else None
         mode = int(kwargs["mode"]) if "mode" in kwargs else 0
@@ -2026,13 +2072,30 @@ class WeaponCommands(commands.Cog):
             ))
             return
 
-        # make sure the times are valid
+        # parse the three different time arguments, since they are mutually exclusive
+        if not check_if_mutually_exclusive(["expansion", "season", ["starttime", "endtime"]], kwargs):
+            await ctx.send(hidden=True, embed=embed_message(
+                f"Error",
+                f"You can only specify one time parameter"
+            ))
+            return
+
+        # if given, make sure the times are valid
         starttime = await verify_time_input(ctx, kwargs["starttime"]) if "starttime" in kwargs else datetime.datetime.now() - datetime.timedelta(days=30)
         if not starttime:
             return
         endtime = await verify_time_input(ctx, kwargs["endtime"]) if "endtime" in kwargs else datetime.datetime.now()
         if not endtime:
             return
+
+        # convert expansion dates to datetimes
+        dummy_starttime, dummy_endtime = convert_expansion_or_season_dates(kwargs)
+        if dummy_starttime:
+            starttime = dummy_starttime
+            endtime = dummy_endtime
+
+        # might take a sec
+        await ctx.defer()
 
         # loop through all users and get their stats
         clan_members = await getClanMembers(self.client)
@@ -2056,7 +2119,8 @@ class WeaponCommands(commands.Cog):
 
         # prepare embed
         embed = embed_message(
-            "Clanmember Weapon Meta"
+            "Clanmember Weapon Meta",
+            footer=f"Date: {starttime.strftime('%d/%m/%Y')} - {endtime.strftime('%d/%m/%Y')}"
         )
 
         # loop through the slots and write the text
