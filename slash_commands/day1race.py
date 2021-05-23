@@ -287,7 +287,10 @@ class Day1Race(commands.Cog):
 
         if self.finished_raid or running_raid:
             if not self.leaderboard_msg:
-                self.leaderboard_msg = await self.leaderboard_channel.send(embed=embed)
+                try:
+                    self.leaderboard_msg = await self.leaderboard_channel.send(embed=embed)
+                except:
+                    pass
             else:
                 await self.leaderboard_msg.edit(embed=embed)
 
