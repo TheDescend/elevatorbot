@@ -3,6 +3,7 @@ import copy
 import datetime
 import io
 import pickle
+import pytz
 
 import aiohttp
 import discord
@@ -16,7 +17,7 @@ from database.database import lookupDestinyID
 from functions.formating import embed_message
 from functions.network import getJSONfromURL
 from static.config import CLANID
-from static.globals import member_role_id, clan_role_id
+from static.globals import member_role_id, clan_role_id, guild_ids
 from static.slashCommandConfig import permissions_kigstn
 
 
@@ -50,6 +51,7 @@ class Day1Race(commands.Cog):
         self.activity_metric = 2506886274
         self.activity_hashes = [1485585878, 3711931140, 3881495763]
         self.emblem_collectible_hash = 2172413746
+        start = datetime.datetime(2021, 5, 22, 17, 0, tzinfo=datetime.timezone.utc)
         cutoff_time = datetime.datetime(2021, 5, 23, 17, 0, tzinfo=datetime.timezone.utc)
         image_url = "https://static.wikia.nocookie.net/destinypedia/images/6/62/Vault.jpg/revision/latest/scale-to-width-down/1000?cb=20150330170833"
         raid_name = "Vault of Glass"
@@ -64,7 +66,6 @@ class Day1Race(commands.Cog):
                     await channel.send(f"__**{activity_name}**__\nMy day one mode is now activated and I will (hopefully) inform about completions. \nGood luck to everyone competing, will see you on the other side.")
                     await channel.send(file=discord.File(data, f'raid_image.png'))
 
-        start = datetime.datetime.now()  # Need that for calculating total time. this time without utc timezone since bungie return doesnt care about that
         self.leaderboard_msg = None
         self.leaderboard_channel = self.client.get_channel(leaderboard_channel)
 
@@ -124,46 +125,51 @@ class Day1Race(commands.Cog):
             now = datetime.datetime.now(datetime.timezone.utc)
             print(f"Done with loop at {str(now)}")
 
-        async with channel.typing():
-            if self.finished_raid:
-                # get total time spend in raid
-                completions = []
-                for member in self.finished_raid:
-                    name = member[0]
-                    destinyID = member[1]
+        # write the completion message
+        if self.finished_raid:
+            # get total time spend in raid
+            completions = []
+            for member in self.finished_raid:
+                name = member[0]
+                destinyID = member[1]
 
-                    try:
-                        # loop though activities
-                        time_spend = 0
-                        kills = 0
-                        deaths = 0
-                        async for activity in getPlayersPastActivities(destinyID, mode=4):
-                            if datetime.datetime.strptime(activity["period"], "%Y-%m-%dT%H:%M:%SZ") < start:
-                                continue
+                # loop though activities
+                time_spend = 0
+                kills = 0
+                deaths = 0
+                try:
+                    async for activity in getPlayersPastActivities(destinyID, mode=4):
+                        period = datetime.datetime.strptime(activity['period'], "%Y-%m-%dT%H:%M:%SZ")
+                        tz_period = pytz.utc.localize(period)
 
-                            if activity["activityDetails"]["directorActivityHash"] in self.activity_hashes:
-                                time_spend += activity["values"]["activityDurationSeconds"]["basic"]["value"]
-                                kills += activity["values"]["kills"]["basic"]["value"]
-                                deaths += activity["values"]["deaths"]["basic"]["value"]
+                        if tz_period < start:
+                            continue
+                        if tz_period > cutoff_time:
+                            continue
 
-                        # write the fancy text
-                        completions.append(f"""<:desc_circle_b:768906489464619008>**{name}** - Kills: *{int(kills):,}*, Deaths: *{int(deaths):,}*, Time: *{str(datetime.timedelta(seconds=time_spend))}*""")
-                    except:
-                        print(f"Failed member {name}")
-                        completions.append(f"""<:desc_circle_b:768906489464619008>**{name}** finished the raid, but there is no info in the API yet""")
+                        if activity["activityDetails"]["directorActivityHash"] in self.activity_hashes:
+                            time_spend += activity["values"]["timePlayedSeconds"]["basic"]["value"]
+                            kills += activity["values"]["kills"]["basic"]["value"]
+                            deaths += activity["values"]["deaths"]["basic"]["value"]
 
-                completion_text = "\n".join(completions)
-                msg = f"""The raid race is over :(. But some clan members managed to get a completion!\n⁣\n<:desc_logo_b:768907515193720874> __**Completions:**__\n{completion_text}"""
-            else:
-                msg = "Sadly nobody here finished the raid in time, good luck next time!"
+                    # write the fancy text
+                    completions.append(f"""<:desc_circle_b:768906489464619008>**{name}** - Kills: *{int(kills):,}*, Deaths: *{int(deaths):,}*, Time: *{str(datetime.timedelta(seconds=time_spend))}*""")
+                except:
+                    print(f"Failed member {name}")
+                    completions.append(f"""<:desc_circle_b:768906489464619008>**{name}** finished the raid, but there is no info in the API yet""")
 
-            embed = embed_message(
-                "Raid Race Summary",
-                msg
-            )
+            completion_text = "\n".join(completions)
+            msg = f"""The raid race is over :(. But some clan members managed to get a completion!\n⁣\n<:desc_logo_b:768907515193720874> __**Completions:**__\n{completion_text}"""
+        else:
+            msg = "Sadly nobody here finished the raid in time, good luck next time!"
 
-            stats = await channel.send(embed=embed)
-            await stats.pin()
+        embed = embed_message(
+            "Raid Race Summary",
+            msg
+        )
+
+        stats = await channel.send(embed=embed)
+        await stats.pin()
 
 
     async def look_for_completion(self, member, channel):
@@ -379,7 +385,71 @@ class Day1Race(commands.Cog):
         await ctx.send(embed=embed)
 
 
+    @cog_ext.cog_slash(
+        name="day1summary",
+        description="Bot pls [temp]",
+        default_permission=False,
+        permissions=permissions_kigstn,
+        guild_ids=guild_ids,
+    )
+    async def _day1summary(self, ctx: SlashContext):
+        await ctx.send("done", hidden=True)
 
+        raid_name = "Vault of Glass"
+        with open(f'{raid_name}_finished_encounters.pickle', 'rb') as handle:
+            self.finished_encounters = pickle.load(handle)
+        with open(f'{raid_name}_finished_raid.pickle', 'rb') as handle:
+            self.finished_raid = pickle.load(handle)
+
+        start = datetime.datetime(2021, 5, 22, 17, 0, tzinfo=datetime.timezone.utc)
+        cutoff_time = datetime.datetime(2021, 5, 23, 17, 0, tzinfo=datetime.timezone.utc)
+        self.activity_hashes = [1485585878, 3711931140, 3881495763]
+        channel = ctx.channel
+
+        # write the completion message
+        if self.finished_raid:
+            # get total time spend in raid
+            completions = []
+            for member in self.finished_raid:
+                name = member[0]
+                destinyID = member[1]
+
+                # loop though activities
+                time_spend = 0
+                kills = 0
+                deaths = 0
+                try:
+                    async for activity in getPlayersPastActivities(destinyID, mode=4):
+                        period = datetime.datetime.strptime(activity['period'], "%Y-%m-%dT%H:%M:%SZ")
+                        tz_period = pytz.utc.localize(period)
+
+                        if tz_period < start:
+                            continue
+                        if tz_period > cutoff_time:
+                            continue
+
+                        if activity["activityDetails"]["directorActivityHash"] in self.activity_hashes:
+                            time_spend += activity["values"]["timePlayedSeconds"]["basic"]["value"]
+                            kills += activity["values"]["kills"]["basic"]["value"]
+                            deaths += activity["values"]["deaths"]["basic"]["value"]
+
+                    # write the fancy text
+                    completions.append(f"""<:desc_circle_b:768906489464619008>**{name}** - Kills: *{int(kills):,}*, Deaths: *{int(deaths):,}*, Time: *{str(datetime.timedelta(seconds=time_spend))}*""")
+                except:
+                    print(f"Failed member {name}")
+                    completions.append(f"""<:desc_circle_b:768906489464619008>**{name}** finished the raid, but there is no info in the API yet""")
+
+            completion_text = "\n".join(completions)
+            msg = f"""The raid race is over :(. But some clan members managed to get a completion!\n⁣\n<:desc_logo_b:768907515193720874> __**Completions:**__\n{completion_text}"""
+        else:
+            msg = "Sadly nobody here finished the raid in time, good luck next time!"
+
+        embed = embed_message(
+            "Raid Race Summary",
+            msg
+        )
+
+        stats = await channel.send(embed=embed)
 
 def setup(client):
     client.add_cog(Day1Race(client))
