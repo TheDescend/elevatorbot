@@ -16,8 +16,8 @@ from functions.dataTransformation import getMetricValue, hasCollectible
 from database.database import lookupDestinyID
 from functions.formating import embed_message
 from functions.network import getJSONfromURL
-from static.config import CLANID
-from static.globals import member_role_id, clan_role_id, guild_ids
+from static.config import CLANID, GUILD_IDS
+from static.globals import member_role_id, clan_role_id
 from static.slashCommandConfig import permissions_kigstn
 
 
@@ -390,7 +390,7 @@ class Day1Race(commands.Cog):
         description="Bot pls [temp]",
         default_permission=False,
         permissions=permissions_kigstn,
-        guild_ids=guild_ids,
+        guild_ids=GUILD_IDS,
     )
     async def _day1summary(self, ctx: SlashContext):
         await ctx.send("done", hidden=True)

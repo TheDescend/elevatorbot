@@ -66,7 +66,3 @@ clan_join_request = [
 tournament = [
     destiny_emoji_id
 ]
-
-
-# guild ids for testing purposes. If not in it, command can take up to an hour to load
-guild_ids = [280456587464933376]
