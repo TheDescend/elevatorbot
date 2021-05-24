@@ -20,6 +20,8 @@ lwHashes = [2122313384]
 cosHashes = [3333172150, 960175301]
 gosHashes = [2659723068, 2497200493, 3458480158, 3845997235]
 dscHashes = [910380154, 3976949817]
+vogHashes = [1485585878, 3711931140, 3881495763]
+vogMasterHashes = []
 
 # dungeons
 throneHashes = [1893059148, 2032534090]
@@ -417,6 +419,63 @@ requirementHashes = {
             ],
             # 'replaced_by':[]
         },
+        'Vault of Glass': {
+            'requirements': ['clears', 'records'],
+            'clears': [
+                {'count': 15,
+                 'actHashes': vogHashes + vogMasterHashes},  # Minimum 15 full clears
+            ],
+            'records': [
+                # challenges
+                706596766, #wait for it / conflux
+                1888851130, #the only oracle for you / oracles
+                154213552, #out of its way / templar
+                2464700601, #strangers in time / gatekeeper
+                1129667036, #ensemble's refrain / atheon
+            ],
+            'replaced_by': ['Vault of Glass Master', 'Vault of Glass Grandmaster']
+        },
+        'Vault of Glass Master': {
+            'requirements': ['roles', 'clears', 'records'],
+            'roles': [
+                'Vault of Glass'
+            ],
+            'clears': [
+                {'count': 30,
+                 'actHashes': vogHashes + vogMasterHashes}
+            ],  # Minimum 30 full clears
+            'records': [
+                2750088202, #Flawless Vault of Glass
+
+                1983700615, #Charged Glass (Arc)
+                2592913942, #Melted Glass (Solar)
+                1961032859, #Empty Glass (Void)
+
+                3969659747, #Vault of Class (same class)
+            ],
+            'replaced_by': ['Vault of Glass Grandmaster']
+        },
+        'Vault of Glass Grandmaster': {
+            'requirements': ['roles', 'clears', 'records'],
+            'roles': [
+                'Vault of Glass',
+                'Vault of Glass Master'
+            ],
+            'clears': [
+                {'count': 30,
+                 'actHashes': vogHashes + vogMasterHashes},
+                 {'count': 15,
+                 'actHashes': vogMasterHashes}
+            ],
+            'records': [
+                874956966, #Break No Plates (lose no sync plates)
+                4170123161, #Dragon's Den (wyvern only with supers)
+                787552349, #Take Cover (Oracle no goblin kills)
+                3903615031, #no Templar teleports
+                3106039192, #Rapid Relic (only relic super damage for praetorians)
+                1024875083, #Eyes on Atheon (don't kill supplicants)
+            ],
+        },
     },
     'Dungeons': {
         'Solo Flawless Shattered Throne': {
@@ -688,6 +747,17 @@ requirementHashes = {
             'requirements': ['lowman'],
             'playercount': 2,
             'activityHashes': dscHashes
+        },
+        'Trio Atheon': {
+            'requirements': ['lowman'],
+            'playercount': 3,
+            'activityHashes': vogHashes + vogMasterHashes,
+            'replaced_by': ['Duo Taniks']
+        },
+        'Duo Atheon': {
+            'requirements': ['lowman'],
+            'playercount': 2,
+            'activityHashes': vogHashes + vogMasterHashes
         },
     },
     'Addition': {
