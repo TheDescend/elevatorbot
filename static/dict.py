@@ -462,17 +462,19 @@ requirementHashes = {
                 'Vault of Glass Master'
             ],
             'clears': [
-                {'count': 30,
+                {'count': 45,
                  'actHashes': vogHashes + vogMasterHashes},
                  {'count': 15,
                  'actHashes': vogMasterHashes}
             ],
             'records': [
+                3790077074, #Maestro Glasser
+
                 874956966, #Break No Plates (lose no sync plates)
                 4170123161, #Dragon's Den (wyvern only with supers)
                 787552349, #Take Cover (Oracle no goblin kills)
-                3903615031, #no Templar teleports
-                3106039192, #Rapid Relic (only relic super damage for praetorians)
+                3903615031, #Tempered Teleport (Never block teleport)
+                3106039192, #Rabid Relic (only relic super damage for praetorians)
                 1024875083, #Eyes on Atheon (don't kill supplicants)
             ],
         },
