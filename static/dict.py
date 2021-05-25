@@ -361,12 +361,17 @@ requirementHashes = {
                  'actHashes': gosHashes}  # Minimum 30 full clears
             ],
             'records': [
-                1522774125,  # Inherent Perfection [Flawless]
-                3427328428,  # Fluorescent Foliage :Arc:
-                277137394,  # Shade in the Garden :Void:
-                2571794337,  # Photosynthesis :Solar:
-                2629178011, # Frost on the leaves :Stasis:
-                1830799772,  # Garden Party [Same Class]
+                1522774125,     # Inherent Perfection [Flawless]
+                3427328428,     # Fluorescent Foliage :Arc:
+                277137394,      # Shade in the Garden :Void:
+                2571794337,     # Photosynthesis :Solar:
+                2629178011,     # Frost on the leaves :Stasis:
+                1830799772,     # Garden Party [Same Class]
+
+                4105510833,     # Voltaic Tether
+                44547560,       # Repulsion Theory
+                3860668859,     # Relay Rally
+                3949104239,     # Stop Hitting Yourself
             ],
             'replaced_by': ['Y3 Raid Master']
         },
@@ -386,10 +391,10 @@ requirementHashes = {
                  'actHashes': dscHashes},  # Minimum 15 full clears
             ],
             'records': [
-                22094034,  # Red Rover Challenge
-                64856166,  # Copies of Copies Challenge
-                337542929,  # Of All Trades Challenge
-                2530940166,  # The Core Four Challenge
+                22094034,       # Red Rover Challenge
+                64856166,       # Copies of Copies Challenge
+                337542929,      # Of All Trades Challenge
+                2530940166,     # The Core Four Challenge
             ],
             'replaced_by': ['Deep Stone Crypt Master']
         },
@@ -405,17 +410,17 @@ requirementHashes = {
             'records': [
                 3560923614,  # Survival of the Fittest [Flawless]
 
-                # 134885948,    #Not a Scratch
-                # 4216504853,    #Resource Contention
-                # 3771160417,    #5 Seconds to Paradise
-                # 1277450448,     #Short Circuit
-                # 1487317889    #Ready, Set, Go!
+                134885948,      # Not a Scratch
+                4216504853,     # Resource Contention
+                3771160417,     # 5 Seconds to Paradise
+                1277450448,     # Short Circuit
+                1487317889,     # Ready, Set, Go!
 
-                564366615,  # Control Group [Same Class]
-                3834307795,  # Electric Sheep :arc:
-                3200831458,  # Meltdown :solar:
-                513707022,  # Freezing Point :stasis:
-                3875695735,  # Devoid of the Rest :void:
+                564366615,      # Control Group [Same Class]
+                3834307795,     # Electric Sheep :arc:
+                3200831458,     # Meltdown :solar:
+                513707022,      # Freezing Point :stasis:
+                3875695735,     # Devoid of the Rest :void:
             ],
             # 'replaced_by':[]
         },
@@ -427,11 +432,11 @@ requirementHashes = {
             ],
             'records': [
                 # challenges
-                706596766, #wait for it / conflux
-                1888851130, #the only oracle for you / oracles
-                154213552, #out of its way / templar
-                2464700601, #strangers in time / gatekeeper
-                1129667036, #ensemble's refrain / atheon
+                706596766,      # wait for it / conflux
+                1888851130,     # the only oracle for you / oracles
+                154213552,      # out of its way / templar
+                2464700601,     # strangers in time / gatekeeper
+                1129667036,     # ensemble's refrain / atheon
             ],
             'replaced_by': ['Vault of Glass Master', 'Vault of Glass Grandmaster']
         },
@@ -445,13 +450,19 @@ requirementHashes = {
                  'actHashes': vogHashes + vogMasterHashes}
             ],  # Minimum 30 full clears
             'records': [
-                2750088202, #Flawless Vault of Glass
+                2750088202,     # Flawless Vault of Glass
 
-                1983700615, #Charged Glass (Arc)
-                2592913942, #Melted Glass (Solar)
-                1961032859, #Empty Glass (Void)
+                1983700615,     # Charged Glass (Arc)
+                2592913942,     # Melted Glass (Solar)
+                1961032859,     # Empty Glass (Void)
+                3969659747,     # Vault of Class (same class)
 
-                3969659747, #Vault of Class (same class)
+                874956966,      # Break No Plates (lose no sync plates)
+                4170123161,     # Dragon's Den (wyvern only with supers)
+                787552349,      # Take Cover (Oracle no goblin kills)
+                3903615031,     # Tempered Teleport (Never block teleport)
+                3106039192,     # Rabid Relic (only relic super damage for praetorians)
+                1024875083,     # Eyes on Atheon (don't kill supplicants)
             ],
             'replaced_by': ['Vault of Glass Grandmaster']
         },
@@ -464,18 +475,11 @@ requirementHashes = {
             'clears': [
                 {'count': 45,
                  'actHashes': vogHashes + vogMasterHashes},
-                 {'count': 15,
+                {'count': 15,
                  'actHashes': vogMasterHashes}
             ],
             'records': [
-                3790077074, #Maestro Glasser
-
-                874956966, #Break No Plates (lose no sync plates)
-                4170123161, #Dragon's Den (wyvern only with supers)
-                787552349, #Take Cover (Oracle no goblin kills)
-                3903615031, #Tempered Teleport (Never block teleport)
-                3106039192, #Rabid Relic (only relic super damage for praetorians)
-                1024875083, #Eyes on Atheon (don't kill supplicants)
+                3790077074,     # Maestro Glasser
             ],
         },
     },
@@ -754,7 +758,7 @@ requirementHashes = {
             'requirements': ['lowman'],
             'playercount': 3,
             'activityHashes': vogHashes + vogMasterHashes,
-            'replaced_by': ['Duo Taniks']
+            'replaced_by': ['Duo Atheon']
         },
         'Duo Atheon': {
             'requirements': ['lowman'],
