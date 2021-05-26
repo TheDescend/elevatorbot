@@ -33,12 +33,13 @@ async def update_status(client):
         "↓ Psst! Did you know this person stinks",
         "Slashing through life",
         "Dear god please stop using old commands and use slash commands",
-        "Get ready for VOG race on the 22/05",
+        "This message has been removed due to a request from @Feedy",
         "Go sports!",
         "We all know who the best bot is",
         "Hint: Checkmarks are lame",
         "Now running v2.1 ('world_domination_test.py')",
         "Can I get vaccinated too? Technically I'm still a baby",
+        "Chillin' in my Hot Tub right now 🍑💦",
     ]
 
     print("Launching the Status Changer Loop", flush=True)
