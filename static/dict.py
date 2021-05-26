@@ -21,7 +21,7 @@ cosHashes = [3333172150, 960175301]
 gosHashes = [2659723068, 2497200493, 3458480158, 3845997235]
 dscHashes = [910380154, 3976949817]
 vogHashes = [1485585878, 3711931140, 3881495763]
-vogMasterHashes = []
+vogMasterHashes = [1]
 
 # dungeons
 throneHashes = [1893059148, 2032534090]
