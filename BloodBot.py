@@ -5,10 +5,45 @@ import asyncio
 import logging
 import sys
 import traceback
+import os
+import random
+import re
 
-from apscheduler.events import EVENT_JOB_EXECUTED, EVENT_JOB_ERROR, EVENT_JOB_MISSED, EVENT_JOB_SUBMITTED
+from io import BytesIO
+from threading import Thread
 
+import discord
+from discord.ext.commands import Bot
+from discord_slash import SlashCommand, SlashContext
+
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.events import EVENT_JOB_EXECUTED, EVENT_JOB_ERROR
+from apscheduler.events import EVENT_JOB_MISSED, EVENT_JOB_SUBMITTED
+
+import message_handler
+from init_logging import init_logging
+
+from functions.clanJoinRequests import removeFromClanAfterLeftDiscord
+from functions.dataLoading import updateDB
+from functions.formating import embed_message
+from functions.miscFunctions import update_status
+from functions.persistentMessages import check_reaction_for_persistent_message
+from functions.roleLookup import assignRolesToUser, removeRolesFromUser
+
+from events.base_event import BaseEvent
+
+from database.database import insertIntoMessageDB, lookupDestinyID
 from database.database import create_connection_pool
+
+from static.config import COMMAND_PREFIX, BOT_TOKEN
+from static.globals import registered_role_id, not_registered_role_id, admin_discussions_channel_id, \
+    divider_raider_role_id, divider_achievement_role_id, divider_misc_role_id, muted_role_id, dev_role_id, \
+    member_role_id
+
+# vital, do not delete. Otherwise no events get loaded
+# pylint: disable=wildcard-import, unused-wildcard-import
+from events import *
+
 
 # use different loop for windows. otherwise it breaks
 if sys.version_info[0] == 3 and sys.version_info[1] >= 8 and sys.platform.startswith('win'):
@@ -20,37 +55,6 @@ loop = asyncio.get_event_loop()
 # start DB
 print("Connecting to DB...")
 loop.run_until_complete(create_connection_pool())
-
-
-import os
-import random
-import re
-import sys
-from io import BytesIO
-from threading import Thread
-
-import discord
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from discord.ext.commands import Bot
-from discord_slash import SlashCommand, SlashContext
-
-import message_handler
-from functions.persistentMessages import check_reaction_for_persistent_message
-from events.base_event import BaseEvent
-from functions.clanJoinRequests import removeFromClanAfterLeftDiscord
-from functions.dataLoading import updateDB
-from database.database import insertIntoMessageDB, lookupDestinyID
-from functions.formating import embed_message
-from functions.miscFunctions import update_status
-from functions.roleLookup import assignRolesToUser, removeRolesFromUser
-from init_logging import init_logging
-from static.config import COMMAND_PREFIX, BOT_TOKEN
-from static.globals import registered_role_id, not_registered_role_id, admin_discussions_channel_id, \
-    divider_raider_role_id, divider_achievement_role_id, divider_misc_role_id, muted_role_id, dev_role_id, \
-    member_role_id
-
-# vital, do not delete. Otherwise no events get loaded
-from events import *
 
 # to enable the on_member_join and on_member_remove
 intents = discord.Intents.default()
@@ -95,7 +99,7 @@ def launch_event_loops(client):
 
         # log the execution
         logger = logging.getLogger('events')
-        logger.info(f"Event '{job_name}' successfully run")
+        logger.info("Event '%s' successfully run", job_name)
     sched.add_listener(event_executed, EVENT_JOB_EXECUTED)
 
     def event_missed(sched_event):
@@ -103,7 +107,7 @@ def launch_event_loops(client):
 
         # log the execution
         logger = logging.getLogger('events')
-        logger.warning(f"Event '{job_name}' missed")
+        logger.warning("Event '%s' missed", job_name)
     sched.add_listener(event_missed, EVENT_JOB_MISSED)
 
     def event_error(sched_event):
@@ -111,11 +115,14 @@ def launch_event_loops(client):
 
         # log the execution
         logger = logging.getLogger('events')
-        logger.error(f"Event '{job_name}' failed - Error '{sched_event.exception}' - Traceback: \n{sched_event.traceback}")
+        logger.error(
+            "Event '%s' failed - Error '%s' - Traceback: \n%s",
+            job_name, sched_event.exception, sched_event.traceback
+        )
     sched.add_listener(event_error, EVENT_JOB_ERROR)
 
     print(f"{n_ev} events loaded")
-    print(f"Startup complete!")
+    print("Startup complete!")
 
 
 def main():
@@ -129,7 +136,7 @@ def main():
     client = Bot('!', intents=intents)
 
     # enable slash commands and send them to the discord API
-    slash = SlashCommand(client, sync_commands=True)
+    SlashCommand(client, sync_commands=True)
 
     # load slash command cogs
     # to do that, loop through the files and import all classes and commands
@@ -141,6 +148,7 @@ def main():
             extension = f"{slash_dir}.{file}"
             client.load_extension(extension)
 
+    # pylint: disable=no-member
     print(f"{len(client.slash.commands)} commands loaded")
 
 
@@ -271,7 +279,6 @@ def main():
                 destinyID = await lookupDestinyID(member.id)
                 await updateDB(destinyID)
 
-    tasks = []
     @client.event
     async def on_message(message):
         # ignore msg from itself
@@ -284,7 +291,7 @@ def main():
         # inform the user that they should register with the bot
         await member.send(embed=embed_message(
             f'Welcome to Descend {member.name}!',
-            f'You can join the destiny clan in **#registration**. \nYou can find our current requirements in the same channel. \n⁣\nWe have a wide variety of roles you can earn, for more information, check out #community-roles. \n⁣\nIf you have any problems / questions, do not hesitate to write **@ElevatorBot** (me) a personal message with your problem / question'
+            'You can join the destiny clan in **#registration**. \nYou can find our current requirements in the same channel. \n⁣\nWe have a wide variety of roles you can earn, for more information, check out #community-roles. \n⁣\nIf you have any problems / questions, do not hesitate to write **@ElevatorBot** (me) a personal message with your problem / question'
         ))
 
     @client.event
