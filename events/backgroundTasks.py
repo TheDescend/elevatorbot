@@ -12,7 +12,7 @@ class UpdateManifest(BaseEvent):
     def __init__(self):
         # Set the interval for this event
         dow_day_of_week = "*"
-        dow_hour = 0
+        dow_hour = 1
         dow_minute = 0
         super().__init__(scheduler_type="cron", dow_day_of_week=dow_day_of_week, dow_hour=dow_hour, dow_minute=dow_minute)
 
@@ -69,7 +69,7 @@ class TokenUpdater(BaseEvent):
     def __init__(self):
         # bot is running on est, that should give it enough time (reset is at 12pm there)
         dow_day_of_week = "fri"
-        dow_hour = 0
+        dow_hour = 3
         dow_minute = 0
         super().__init__(scheduler_type="cron", dow_day_of_week=dow_day_of_week, dow_hour=dow_hour, dow_minute=dow_minute)
 

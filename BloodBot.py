@@ -73,7 +73,6 @@ sched.start()
 
 def launch_event_loops(client):
     print("Loading events...")
-    n_ev = 0
     for ev in BaseEvent.__subclasses__():
         event = ev()
 
@@ -81,11 +80,15 @@ def launch_event_loops(client):
         if event.scheduler_type == "interval":
             sched.add_job(event.run, 'interval', (client,), minutes=event.interval_minutes, jitter=60)
         elif event.scheduler_type == "cron":
-            sched.add_job(event.run, 'cron', (client,), day_of_week=event.dow_day_of_week, hour=event.dow_hour, minute=event.dow_hour)
+            sched.add_job(event.run, 'cron', (client,), day_of_week=event.dow_day_of_week, hour=event.dow_hour, minute=event.dow_minute)
         elif event.scheduler_type == "date":
             sched.add_job(event.run, 'date', (client,), run_date=event.interval_minutes)
+        else:
+            print(f"Failed to load event {event}")
 
-        n_ev += 1
+    print(f"{len(sched.get_jobs())} events loaded")
+
+    a = sched.get_jobs()
 
     # add listeners to catch and format errors also to log
     def event_submitted(sched_event):
@@ -121,7 +124,6 @@ def launch_event_loops(client):
         )
     sched.add_listener(event_error, EVENT_JOB_ERROR)
 
-    print(f"{n_ev} events loaded")
     print("Startup complete!")
 
 
