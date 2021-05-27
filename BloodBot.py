@@ -86,9 +86,10 @@ def launch_event_loops(client):
         else:
             print(f"Failed to load event {event}")
 
-    print(f"{len(sched.get_jobs())} events loaded")
-
-    a = sched.get_jobs()
+    # log that
+    jobs = sched.get_jobs()
+    print(f"{len(jobs)} events loaded")
+    logging.getLogger('events').info("%s events loaded: \n%s", len(jobs), '\n'.join([f"name: {job.name}, trigger: {job.trigger}, next run: {job.next_run_time}" for job in jobs]))
 
     # add listeners to catch and format errors also to log
     def event_submitted(sched_event):
