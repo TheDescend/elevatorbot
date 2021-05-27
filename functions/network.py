@@ -49,8 +49,12 @@ class RateLimiter:
 limiter = RateLimiter()
 
 
-async def getJSONfromURL(requestURL, params=None):
+async def getJSONfromURL(requestURL, params=None, headers=None):
     """ Grabs JSON from the specified URL (no oauth)"""
+
+    # allows different urls than bungies to be called (fe. steam players)
+    if headers is None:
+        headers = HEADERS
 
     async with aiohttp.ClientSession() as session:
         # abort after 5 tries
@@ -62,7 +66,7 @@ async def getJSONfromURL(requestURL, params=None):
             try:
                 async with session.get(
                         url=requestURL,
-                        headers=HEADERS,
+                        headers=headers,
                         params=params,
                         timeout=5
                 ) as request:
