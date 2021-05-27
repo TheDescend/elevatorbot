@@ -135,18 +135,18 @@ async def getPlayerRoles(playerid, existingRoles = []):
     roles = []
     redundantRoles = []
 
-    for year, yeardata in requirementHashes.items():
-        for role, roledata in yeardata.items():
-            #do not recheck existing roles or roles that will be replaced by existing roles
-            if role in existingRoles or ('replaced_by' in roledata.keys() and any([x in existingRoles for x in roledata['replaced_by']])):
-                roles.append(role)
+    # for year, yeardata in requirementHashes.items():
+    #     for role, roledata in yeardata.items():
+    #         # do not recheck existing roles or roles that will be replaced by existing roles
+    #         if role in existingRoles or ('replaced_by' in roledata.keys() and any([x in existingRoles for x in roledata['replaced_by']])):
+    #             roles.append(role)
     
     # asyncio.gather keeps order
     roleyear_to_check = [
         (role, year)
         for (year, yeardata) in requirementHashes.items() 
         for role in yeardata.keys()
-        if not role in roles
+        # if not role in roles
     ]
 
     # check worthyness in parallel
@@ -160,8 +160,7 @@ async def getPlayerRoles(playerid, existingRoles = []):
 
     roles.extend([rolename for ((rolename, roleyear), (isworthy, worthydetails)) in zip(roleyear_to_check, has_earned_role) if isworthy])
 
-
-    #remove roles that are replaced by others
+    # remove roles that are replaced by others
     for yeardata in requirementHashes.values():
         for roleName, roledata in yeardata.items():
             if roleName not in roles:
