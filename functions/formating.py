@@ -12,7 +12,7 @@ def embed_message(title, desc="", footer=None):
     embed = discord.Embed(
         title=title,
         description=desc,
-        color=discord.Colour.blue(),
+        color=discord.Colour.from_rgb(r=115, g=215, b=248),     # Descend Turquoise Blue
     )
     if footer:
         embed.set_footer(
