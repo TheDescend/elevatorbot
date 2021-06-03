@@ -60,6 +60,10 @@ class ExternalWebsitesCommands(commands.Cog):
                         value="Solo Report"
                     ),
                     create_choice(
+                        name="Expunge Report",
+                        value="Expunge Report"
+                    ),
+                    create_choice(
                         name="Trials Report",
                         value="Trials Report"
                     ),
@@ -86,6 +90,8 @@ class ExternalWebsitesCommands(commands.Cog):
         text = ""
         if website == "Solo Report":
             text = f'https://elevatorbot.ch/soloreport/{system}/{destinyID}'
+        elif website == "Expunge Report":
+            text = f'https://elevatorbot.ch/expungereport/{self.rrsystem[system]}/{destinyID}'
         elif website == "Raid Report":
             text = f'https://raid.report/{self.rrsystem[system]}/{destinyID}'
         elif website == "Dungeon Report":
