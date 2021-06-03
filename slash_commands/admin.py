@@ -550,11 +550,14 @@ On your command, I can start a private PvP tournament for all the masochist in t
 Hello fellow humans, and welcome to this easy, 465 steps, guide:
 ⁣
 {str(circle_emoji)} **Step 1:**
-First, head to {str(ctx.bot.get_channel(bot_spam_channel_id))}, or really any other channel (although you might get yelled at for that)
+First, head to <#{bot_spam_channel_id}>, or really any other channel (although you ~~might~~ will get yelled at for that)
 ⁣
 {str(circle_emoji)} **Step 2:**
 Then, use `/lfg create` and follow the instructions to make an event. 
 Due to timezones sucking and there being at least 16789 of them, you might not find your own timezone in the list. In that case please use UTC and an online converter
+⁣
+{str(circle_emoji)} **Step 3-464:**
+Praise {ctx.bot.user.mention}!
 ⁣
 {str(circle_emoji)} **Step 465:**
 After you made the LFG post, or if you just want to join an existing post, use the fancy buttons to interact with the event
@@ -570,7 +573,7 @@ If you want to feel like an [expert](https://www.youtube.com/watch?v=BKorP55Aqvg
 ⁣
 ⁣
 Basically just type `/lfg` and look around. There are many other cool commands too, so maybe just type `/`""",
-                "If you find bugs / have any feature request, DM me"
+                "If you find bugs or have feature requests, DM me"
             ))
             await ctx.send(hidden=True, embed=embed_message(
                 f"Success",
