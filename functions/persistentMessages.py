@@ -207,12 +207,12 @@ async def botStatus(client, field_name: str, time: datetime.datetime):
 
 
 async def otherGameRolesMessageReactions(client, user, emoji, channel_id, channel_message_id):
-    async def handle_reaction(m, u, r, e_id, r_id):
+    async def handle_reaction(m, u, r, e, r_id):
         if r_id not in r:
             await u.add_roles(discord.utils.get(m.guild.roles, id=r_id), reason="Other Game Roles")
         else:
             await u.remove_roles(discord.utils.get(m.guild.roles, id=r_id), reason="Other Game Roles")
-        await m.remove_reaction(e_id, u)
+        await m.remove_reaction(e, u)
 
     channel = client.get_channel(channel_id)
     message = await channel.fetch_message(channel_message_id)
@@ -223,4 +223,4 @@ async def otherGameRolesMessageReactions(client, user, emoji, channel_id, channe
     # remove reaction and apply role
     for emoji_id, role_id in other_game_roles:
         if emoji.id == emoji_id:
-            await handle_reaction(message, user, roles, emoji_id, role_id)
+            await handle_reaction(message, user, roles, emoji, role_id)
