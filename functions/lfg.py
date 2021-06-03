@@ -105,7 +105,7 @@ class LfgMessage:
     # notifies joined members that the event is about to start
     async def notify_about_start(self, time_to_start: datetime.timedelta):
         embed = embed_message(
-            "LFG Event",
+            f"LFG Event - {self.activity}",
             f"The LFG event with the ID `{self.id}` is going to start in **{int(time_to_start.seconds/60)} minutes**\nPlease start gathering in a voice channel"
         )
         embed.add_field(name="Guardians", value=", ".join(self.get_joined_members_display_names()), inline=False)

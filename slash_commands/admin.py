@@ -12,7 +12,8 @@ from functions.network import getJSONfromURL, handleAndReturnToken
 from functions.persistentMessages import make_persistent_message, steamJoinCodeMessage
 from functions.roleLookup import assignRolesToUser, removeRolesFromUser
 from static.config import CLANID, GUILD_IDS
-from static.globals import other_game_roles, clan_join_request, muted_role_id
+from static.globals import other_game_roles, clan_join_request, muted_role_id, bot_spam_channel_id, enter_emoji_id, \
+    circle_emoji_id
 from static.slashCommandConfig import permissions_admin
 
 
@@ -540,6 +541,37 @@ On your command, I can start a private PvP tournament for all the masochist in t
 
         elif channel_type == "lfg":
             await make_persistent_message(self.client, "lfg", ctx.guild.id, channel.id, no_message=True)
+
+            enter_emoji = ctx.bot.get_emoji(enter_emoji_id)
+            circle_emoji = ctx.bot.get_emoji(circle_emoji_id)
+            await ctx.channel.send(embed=embed_message(
+                "How to make an LFG post",
+                f"""
+Hello fellow humans, and welcome to this easy, 465 steps, guide:
+⁣
+{str(circle_emoji)} **Step 1:**
+First, head to {str(ctx.bot.get_channel(bot_spam_channel_id))}, or really any other channel (although you might get yelled at for that)
+⁣
+{str(circle_emoji)} **Step 2:**
+Then, use `/lfg create` and follow the instructions to make an event. 
+Due to timezones sucking and there being at least 16789 of them, you might not find your own timezone in the list. In that case please use UTC and an online converter
+⁣
+{str(circle_emoji)} **Step 465:**
+After you made the LFG post, or if you just want to join an existing post, use the fancy buttons to interact with the event
+⁣
+⁣
+If you want to feel like an [expert](https://www.youtube.com/watch?v=BKorP55Aqvg), there are a bunch of additional commands you can use to interact with LFG events:
+{str(enter_emoji)} `/lfg create` - Create a new LFG event
+{str(enter_emoji)} `/lfg edit` - Edit parts of an LFG event
+{str(enter_emoji)} `/lfg remove` - Remove the LFG event
+{str(enter_emoji)} `/lfg add` - Add a user to your own LFG event
+{str(enter_emoji)} `/lfg kick` - Kick a user from your own LFG event
+{str(enter_emoji)} `/lfg blacklist` - Blacklist a user from joining any of your own LFG events
+⁣
+⁣
+Basically just type `/lfg` and look around. There are many other cool commands too, so maybe just type `/`""",
+                "If you find bugs / have any feature request, DM me"
+            ))
             await ctx.send(hidden=True, embed=embed_message(
                 f"Success",
                 f"I've done as you asked"
@@ -556,6 +588,13 @@ On your command, I can start a private PvP tournament for all the masochist in t
                 f"I've done as you asked"
             ))
 
+    # @cog_ext.cog_slash(
+    #     name="test",
+    #     description="tests",
+    #     guild_ids=GUILD_IDS
+    # )
+    # async def _test(self, ctx: SlashContext):
+    #     pass
 
 def setup(client):
     client.add_cog(AdminCommands(client))

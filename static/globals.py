@@ -29,6 +29,7 @@ eft_role_id = 800862253279608854
 admin_discussions_channel_id = 671264040974024705
 admin_workboard_channel_id = 769608204618563625
 steam_join_codes_channel_id = 701060424535113738
+bot_spam_channel_id = 670401854496309268
 
 
 """ Emoji IDs """
@@ -37,6 +38,7 @@ thumps_down_emoji_id = 754946723503276124
 yes_emoji_id = 768908985557844028
 enter_emoji_id = 768906489103384688
 destiny_emoji_id = 768906489472876574
+circle_emoji_id = 768906489464619008
 
 among_us_emoji_id = 751020830376591420
 barotrauma_emoji_id = 756077724870901830
