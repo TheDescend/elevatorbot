@@ -544,7 +544,7 @@ On your command, I can start a private PvP tournament for all the masochist in t
 
             enter_emoji = ctx.bot.get_emoji(enter_emoji_id)
             circle_emoji = ctx.bot.get_emoji(circle_emoji_id)
-            await ctx.channel.send(embed=embed_message(
+            await channel.send(embed=embed_message(
                 "How to make an LFG post",
                 f"""
 Hello fellow humans, and welcome to this easy, 465 steps, guide:
