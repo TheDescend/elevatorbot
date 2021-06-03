@@ -438,6 +438,10 @@ class PersistentMessagesCommands(commands.Cog):
                         name="Looking For Group",
                         value="lfg"
                     ),
+                    create_choice(
+                        name="Bot Status",
+                        value="botstatus"
+                    ),
                 ],
             ),
             create_option(
@@ -536,6 +540,17 @@ On your command, I can start a private PvP tournament for all the masochist in t
 
         elif channel_type == "lfg":
             await make_persistent_message(self.client, "lfg", ctx.guild.id, channel.id, no_message=True)
+            await ctx.send(hidden=True, embed=embed_message(
+                f"Success",
+                f"I've done as you asked"
+            ))
+
+        elif channel_type == "botstatus":
+            embed = embed_message(
+                'Status: Last valid...'
+            )
+
+            await make_persistent_message(self.client, "botStatus", 1, channel.id, message_embed=embed)
             await ctx.send(hidden=True, embed=embed_message(
                 f"Success",
                 f"I've done as you asked"
