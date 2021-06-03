@@ -62,9 +62,10 @@ async def make_persistent_message(client, message_name, guild_id, channel_id, re
     if res:
         # delete old msg
         channel = client.get_channel(res[0])
-        old_message = await channel.fetch_message(res[1])
-        if old_message:
-            await old_message.delete()
+        if channel:
+            old_message = await channel.fetch_message(res[1])
+            if old_message:
+                await old_message.delete()
 
         await updatePersistentMessage(message_name, guild_id, channel_id, message.id if message else 0, reaction_id_list)
 
