@@ -97,7 +97,7 @@ class LfgCommands(commands.Cog):
             ))
             return
         tz = pytz.timezone(timezone)
-        start_time = start_time.astimezone(tz)
+        start_time = pytz.utc.localize(start_time).astimezone(tz)
 
         # make sure thats in the future
         if start_time < datetime.datetime.now(datetime.timezone.utc):
