@@ -112,12 +112,13 @@ class LfgMessage:
 
         # if the event was not full
         missing = self.max_joined_members - len(self.joined_members)
-        if (missing > 0) and self.alternate_members:
+        if self.alternate_members:
             embed.add_field(name="Backup", value=", ".join(self.get_alternate_members_display_names()), inline=False)
 
-            # dm the backup
-            for user in self.alternate_members:
-                await user.send(embed=embed)
+            # dm the backup if they are needed
+            if missing > 0:
+                for user in self.alternate_members:
+                    await user.send(embed=embed)
 
         # dm the users
         for user in self.joined_members:

@@ -130,6 +130,7 @@ class LfgCommands(commands.Cog):
         try:
             reaction, _ = await self.client.wait_for('reaction_add', check=check, timeout=60)
         except asyncio.TimeoutError:
+            await message.clear_reactions()
             await message.edit(embed=self.timeout_embed)
             return
         else:
@@ -153,6 +154,7 @@ class LfgCommands(commands.Cog):
                 try:
                     reaction2, _ = await self.client.wait_for('reaction_add', check=check, timeout=60)
                 except asyncio.TimeoutError:
+                    await message.clear_reactions()
                     await message.edit(embed=self.timeout_embed)
                     return
                 else:
@@ -197,6 +199,7 @@ class LfgCommands(commands.Cog):
                 try:
                     reaction2, _ = await self.client.wait_for('reaction_add', check=check, timeout=60)
                 except asyncio.TimeoutError:
+                    await message.clear_reactions()
                     await message.edit(embed=self.timeout_embed)
                     return
                 else:
@@ -240,6 +243,7 @@ class LfgCommands(commands.Cog):
                 try:
                     answer_msg = await self.client.wait_for('message', timeout=60.0, check=check)
                 except asyncio.TimeoutError:
+                    await message.clear_reactions()
                     await message.edit(embed=self.timeout_embed)
                     return
                 else:
@@ -266,6 +270,7 @@ class LfgCommands(commands.Cog):
         try:
             answer_msg = await self.client.wait_for('message', timeout=60.0, check=check)
         except asyncio.TimeoutError:
+            await message.clear_reactions()
             await message.edit(embed=self.timeout_embed)
             return
         else:
