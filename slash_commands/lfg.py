@@ -97,7 +97,7 @@ class LfgCommands(commands.Cog):
             ))
             return
         tz = pytz.timezone(timezone)
-        start_time = pytz.utc.localize(start_time).astimezone(tz)
+        start_time = tz.localize(start_time)
 
         # make sure thats in the future
         if start_time < datetime.datetime.now(datetime.timezone.utc):
@@ -417,25 +417,21 @@ class LfgCommands(commands.Cog):
                 else:
                     if str(reaction) == "1️⃣":
                         tz = pytz.timezone("UTC")
-                        start_time = start_time.astimezone(tz)
                     elif str(reaction) == "2️⃣":
                         tz = pytz.timezone("Europe/Berlin")
-                        start_time = start_time.astimezone(tz)
                     elif str(reaction) == "3️⃣":
                         tz = pytz.timezone("Europe/Tallinn")
-                        start_time = start_time.astimezone(tz)
                     elif str(reaction) == "4️⃣":
                         tz = pytz.timezone("Europe/Moscow")
-                        start_time = start_time.astimezone(tz)
                     elif str(reaction) == "5️⃣":
                         tz = pytz.timezone("US/Central")
-                        start_time = start_time.astimezone(tz)
                     elif str(reaction) == "6️⃣":
                         tz = pytz.timezone("US/Eastern")
-                        start_time = start_time.astimezone(tz)
                     elif str(reaction) == "7️⃣":
                         tz = pytz.timezone("US/Pacific")
-                        start_time = start_time.astimezone(tz)
+                    else:
+                        return
+                    start_time = tz.localize(start_time)
 
                     # make sure thats in the future
                     if start_time < datetime.datetime.now(datetime.timezone.utc):
