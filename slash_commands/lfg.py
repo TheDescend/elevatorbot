@@ -38,7 +38,7 @@ class LfgCommands(commands.Cog):
             ),
             create_option(
                 name="date",
-                description="Format: 'DD/MM/YY' - When the event is supposed to start",
+                description="Format: 'DD/MM' - When the event is supposed to start",
                 option_type=3,
                 required=True,
             ),
