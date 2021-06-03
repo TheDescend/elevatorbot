@@ -39,8 +39,8 @@ async def make_persistent_message(client, message_name, guild_id, channel_id, re
 
     message = None
     if not no_message:
-        assert (not message_text and not message_embed), "Need to input either text or embed"
-        assert (message_text and message_embed), "Need to input either text or embed, not both"
+        assert (message_text or message_embed), "Need to input either text or embed"
+        assert (not (message_text and message_embed)), "Need to input either text or embed, not both"
 
         # make new message
         channel = client.get_channel(channel_id)
