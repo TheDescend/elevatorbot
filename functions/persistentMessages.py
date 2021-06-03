@@ -62,10 +62,11 @@ async def make_persistent_message(client, message_name, guild_id, channel_id, re
     if res:
         # delete old msg
         channel = client.get_channel(res[0])
-        if channel:
+        try:
             old_message = await channel.fetch_message(res[1])
-            if old_message:
-                await old_message.delete()
+            await old_message.delete()
+        except discord.errors.NotFound:
+            pass
 
         await updatePersistentMessage(message_name, guild_id, channel_id, message.id if message else 0, reaction_id_list)
 
