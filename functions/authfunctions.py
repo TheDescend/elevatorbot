@@ -50,7 +50,7 @@ async def getSpiderMaterials(discordID, destinyID, characterID):
         usermaterialreadabledict[materialname] = value
     #print(usermaterialreadabledict)
 
-    embed = embed_message("Spider's Stock", desc="Unlike his Fallen brethren, the stupid Spider ~~kidnapped our bird.~~ Update: He's free now")
+    embed = embed_message("Spider's Stock", description="Unlike his Fallen brethren, the stupid Spider ~~kidnapped our bird.~~ Update: He's free now")
     for sale in sales.values():
         if 'apiPurchasable' in sale.keys():
             #We don't care about bounties

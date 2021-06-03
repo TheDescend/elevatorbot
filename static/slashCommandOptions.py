@@ -158,10 +158,10 @@ options_stat = create_option(
 )
 
 
-def options_user(flavor_text: str = "The name of the user you want to look up"):
+def options_user(flavor_text: str = "The name of the user you want to look up", required=False):
     return create_option(
         name="user",
         description=flavor_text,
         option_type=6,
-        required=False
+        required=required
     )

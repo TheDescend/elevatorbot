@@ -50,6 +50,10 @@ hunter_emoji_id = 830747907829006346
 titan_emoji_id = 830747907576823808
 light_level_icon_emoji_id = 830750430816108564
 
+join_emoji_id = 850000522101391400
+leave_emoji_id = 850000522048045106
+backup_emoji_id = 850000522107027466
+
 
 """ Persistent Messages """
 other_game_roles = [

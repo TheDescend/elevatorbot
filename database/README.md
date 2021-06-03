@@ -208,3 +208,24 @@ CREATE TABLE DestinyPresentationNodeDefinition(
 	redacted BOOLEAN
 );
 
+################################################################
+# LFG System
+
+CREATE TABLE LfgUsers(
+	user_id BIGINT PRIMARY KEY,
+	blacklisted_members BIGINT []
+);
+
+CREATE TABLE LfgMessages(
+	id INT PRIMARY KEY,
+	guild_id BIGINT,
+	channel_id BIGINT,
+	message_id BIGINT,
+	author_id BIGINT,
+	activity TEXT,
+	description TEXT,
+	start_time TIMESTAMP WITH TIME ZONE,
+	max_joined_members INT,
+	joined_members BIGINT [],
+	alternate_members BIGINT []
+);

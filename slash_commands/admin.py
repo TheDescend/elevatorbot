@@ -11,7 +11,7 @@ from functions.formating import embed_message
 from functions.network import getJSONfromURL, handleAndReturnToken
 from functions.persistentMessages import make_persistent_message, steamJoinCodeMessage
 from functions.roleLookup import assignRolesToUser, removeRolesFromUser
-from static.config import CLANID
+from static.config import CLANID, GUILD_IDS
 from static.globals import other_game_roles, clan_join_request, muted_role_id
 from static.slashCommandConfig import permissions_admin
 
@@ -434,15 +434,19 @@ class PersistentMessagesCommands(commands.Cog):
                         name="Booster Count",
                         value="boostercount"
                     ),
+                    create_choice(
+                        name="Looking For Group",
+                        value="lfg"
+                    ),
                 ],
             ),
-             create_option(
+            create_option(
                  name="channel",
                  description="Which channel to the message should be in",
                  option_type=7,
                  required=True
-             )
-         ],
+            )
+        ],
         default_permission=False,
         permissions=permissions_admin,
     )
@@ -525,6 +529,13 @@ On your command, I can start a private PvP tournament for all the masochist in t
 
         elif channel_type == "boostercount":
             await make_persistent_message(self.client, "boosterCount", ctx.guild.id, channel.id, no_message=True)
+            await ctx.send(hidden=True, embed=embed_message(
+                f"Success",
+                f"I've done as you asked"
+            ))
+
+        elif channel_type == "lfg":
+            await make_persistent_message(self.client, "lfg", ctx.guild.id, channel.id, no_message=True)
             await ctx.send(hidden=True, embed=embed_message(
                 f"Success",
                 f"I've done as you asked"

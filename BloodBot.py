@@ -1,39 +1,43 @@
-# to begin with, start the database
+# to begin with, start the event loop
 # if this is skipped, some imports will fail since they rely on database lookups
 # for example GM nightfalls, since they change each season. This allows us to create the hash list dynamically, instead of having to add to it every season
 import asyncio
-import logging
+import datetime
 import sys
+
+import logging
 import traceback
 import os
 import random
 import re
 
 from io import BytesIO
-from threading import Thread
 
 import discord
+import discord_components
 from discord.ext.commands import Bot
+from discord_components import DiscordComponents
 from discord_slash import SlashCommand, SlashContext
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from apscheduler.events import EVENT_JOB_EXECUTED, EVENT_JOB_ERROR
+from apscheduler.events import EVENT_JOB_EXECUTED, EVENT_JOB_ERROR, EVENT_JOB_ADDED, EVENT_JOB_REMOVED
 from apscheduler.events import EVENT_JOB_MISSED, EVENT_JOB_SUBMITTED
 
 import message_handler
+from functions.lfg import notify_about_lfg_event_start, get_lfg_message
 from init_logging import init_logging
 
 from functions.clanJoinRequests import removeFromClanAfterLeftDiscord
 from functions.dataLoading import updateDB
 from functions.formating import embed_message
-from functions.miscFunctions import update_status
+from functions.miscFunctions import update_status, get_scheduler
 from functions.persistentMessages import check_reaction_for_persistent_message
 from functions.roleLookup import assignRolesToUser, removeRolesFromUser
 
 from events.base_event import BaseEvent
 
-from database.database import insertIntoMessageDB, lookupDestinyID
-from database.database import create_connection_pool
+from database.database import insertIntoMessageDB, lookupDestinyID, get_connection_pool, \
+    select_lfg_datetimes_and_users
 
 from static.config import COMMAND_PREFIX, BOT_TOKEN
 from static.globals import registered_role_id, not_registered_role_id, admin_discussions_channel_id, \
@@ -44,18 +48,6 @@ from static.globals import registered_role_id, not_registered_role_id, admin_dis
 # pylint: disable=wildcard-import, unused-wildcard-import
 from events import *
 
-
-# use different loop for windows. otherwise it breaks
-if sys.version_info[0] == 3 and sys.version_info[1] >= 8 and sys.platform.startswith('win'):
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-
-# get event loop
-loop = asyncio.get_event_loop()
-
-# start DB
-print("Connecting to DB...")
-loop.run_until_complete(create_connection_pool())
-
 # to enable the on_member_join and on_member_remove
 intents = discord.Intents.default()
 intents.members = True
@@ -65,33 +57,34 @@ intents.members = True
 this = sys.modules[__name__]
 this.running = False
 
-# Scheduler that will be used to manage events
-sched = AsyncIOScheduler()
-sched.start()
 
 ###############################################################################
 
-def launch_event_loops(client):
-    print("Loading events...")
-    for ev in BaseEvent.__subclasses__():
-        event = ev()
 
-        # check the type of job and schedule acordingly
-        if event.scheduler_type == "interval":
-            sched.add_job(event.run, 'interval', (client,), minutes=event.interval_minutes, jitter=60)
-        elif event.scheduler_type == "cron":
-            sched.add_job(event.run, 'cron', (client,), day_of_week=event.dow_day_of_week, hour=event.dow_hour, minute=event.dow_minute)
-        elif event.scheduler_type == "date":
-            sched.add_job(event.run, 'date', (client,), run_date=event.interval_minutes)
-        else:
-            print(f"Failed to load event {event}")
+async def launch_event_loops(client):
+    await get_connection_pool()
+    print("Made sure we are connected to the DB")
 
-    # log that
-    jobs = sched.get_jobs()
-    print(f"{len(jobs)} events loaded")
-    logging.getLogger('events').info("%s events loaded: \n%s", len(jobs), '\n'.join([f"name: {job.name}, trigger: {job.trigger}, next run: {job.next_run_time}" for job in jobs]))
+    # Scheduler that will be used to manage events
+    sched = get_scheduler()
 
     # add listeners to catch and format errors also to log
+    def event_added(sched_event):
+        job_name = sched.get_job(sched_event.job_id)
+
+        # log the execution
+        logger = logging.getLogger('events')
+        logger.info("Event '%s' with ID '%s' has been added", job_name, sched_event.job_id)
+
+    sched.add_listener(event_added, EVENT_JOB_ADDED)
+
+    def event_removed(sched_event):
+        # log the execution
+        logger = logging.getLogger('events')
+        logger.info("Event with ID '%s' has been removed", sched_event.job_id)
+
+    sched.add_listener(event_removed, EVENT_JOB_REMOVED)
+
     def event_submitted(sched_event):
         job_name = sched.get_job(sched_event.job_id)
         print(f"Running '{job_name}'")
@@ -104,6 +97,7 @@ def launch_event_loops(client):
         # log the execution
         logger = logging.getLogger('events')
         logger.info("Event '%s' successfully run", job_name)
+
     sched.add_listener(event_executed, EVENT_JOB_EXECUTED)
 
     def event_missed(sched_event):
@@ -112,6 +106,7 @@ def launch_event_loops(client):
         # log the execution
         logger = logging.getLogger('events')
         logger.warning("Event '%s' missed", job_name)
+
     sched.add_listener(event_missed, EVENT_JOB_MISSED)
 
     def event_error(sched_event):
@@ -123,9 +118,39 @@ def launch_event_loops(client):
             "Event '%s' failed - Error '%s' - Traceback: \n%s",
             job_name, sched_event.exception, sched_event.traceback
         )
+
     sched.add_listener(event_error, EVENT_JOB_ERROR)
 
+    print("Loading events...")
+    for ev in BaseEvent.__subclasses__():
+        event = ev()
+
+        # check the type of job and schedule acordingly
+        if event.scheduler_type == "interval":
+            sched.add_job(event.run, 'interval', (client,), minutes=event.interval_minutes, jitter=60)
+        elif event.scheduler_type == "cron":
+            sched.add_job(event.run, 'cron', (client,), day_of_week=event.dow_day_of_week, hour=event.dow_hour,
+                          minute=event.dow_minute)
+        elif event.scheduler_type == "date":
+            sched.add_job(event.run, 'date', (client,), run_date=event.interval_minutes)
+        else:
+            print(f"Failed to load event {event}")
+    jobs = sched.get_jobs()
+    print(f"{len(jobs)} events loaded")
+
+    # load the lfg events
+    lfg_events = await select_lfg_datetimes_and_users()
+    for lfg_event in lfg_events:
+        guild = client.get_guild(lfg_event["guild_id"])
+        timedelta = datetime.timedelta(minutes=10)
+        sched.add_job(notify_about_lfg_event_start, 'date', (client, guild, lfg_event["id"], timedelta),
+                      run_date=lfg_event["start_time"] - timedelta, id=str(lfg_event["id"]))
+    print(f"{len(sched.get_jobs()) - len(jobs)} LFG events loaded")
+
     print("Startup complete!")
+
+    # Set the playing status
+    await update_status(client)
 
 
 def main():
@@ -141,6 +166,9 @@ def main():
     # enable slash commands and send them to the discord API
     SlashCommand(client, sync_commands=True)
 
+    # enable buttons
+    DiscordComponents(client)
+
     # load slash command cogs
     # to do that, loop through the files and import all classes and commands
     print("Loading commands...")
@@ -154,23 +182,17 @@ def main():
     # pylint: disable=no-member
     print(f"{len(client.slash.commands)} commands loaded")
 
-
     # Define event handlers for the client
     # on_ready may be called multiple times in the event of a reconnect,
     @client.event
     async def on_ready():
         if this.running:
             return
-
         this.running = True
+        print("Logged in")
 
-        t1 = Thread(target=launch_event_loops, args=(client,))
-        t1.start()
-
-        print("Logged in!", flush=True)
-
-        # Set the playing status
-        await update_status(client)
+        # run further launch event loops
+        await launch_event_loops(client)
 
     # The message handler for both new message and edits
     @client.event
@@ -183,17 +205,21 @@ def main():
                 if not text.startswith(COMMAND_PREFIX):
                     admin_discussions_channel = client.get_channel(admin_discussions_channel_id)
                     if message.attachments:
-                        attached_files = [discord.File(BytesIO(await attachment.read()),filename=attachment.filename) for attachment in message.attachments]
-                        await admin_discussions_channel.send(f"From {message.author.mention}: \n{text}", files=attached_files)
+                        attached_files = [discord.File(BytesIO(await attachment.read()), filename=attachment.filename)
+                                          for attachment in message.attachments]
+                        await admin_discussions_channel.send(f"From {message.author.mention}: \n{text}",
+                                                             files=attached_files)
                     else:
                         await admin_discussions_channel.send(f"From {message.author.mention}: \n{text}")
                     await message.author.send("Forwarded your message to staff, you will be contacted shortly 🙃")
 
         if 'äbidöpfel' in text:
-            texts = [   '<:NeriaHeart:671389916277506063> <:NeriaHeart:671389916277506063> <:NeriaHeart:671389916277506063>', 
-                        'knows what`s up', 'knows you can do the thing', 'has been voted plushie of the month', 'knows da wey',
-                        'yes!', 'does`nt yeet teammtes of the map, be like Häbidöpfel', 'debuggin has proven effective 99.9% of the time (editors note: now 98.9%)',
-                        'is cuteness incarnate']
+            texts = [
+                '<:NeriaHeart:671389916277506063> <:NeriaHeart:671389916277506063> <:NeriaHeart:671389916277506063>',
+                'knows what`s up', 'knows you can do the thing', 'has been voted plushie of the month', 'knows da wey',
+                'yes!', 'does`nt yeet teammtes of the map, be like Häbidöpfel',
+                'debuggin has proven effective 99.9% of the time (editors note: now 98.9%)',
+                'is cuteness incarnate']
             addition = random.choice(texts)
             await message.channel.send(f'Häbidöpfel {addition}')
 
@@ -224,9 +250,9 @@ def main():
                         "Yeeeeeeeeeeeeeeeeeeeeeeeeeeeeehaw",
                     ]
                     await message.channel.send(f'{random.choice(welcome_choice)} <@{neria_id}>!')
-        
-        if client.user in message.mentions: #If bot has been tagged
-            notification = client.get_emoji(751771924866269214) #notification/angerping
+
+        if client.user in message.mentions:  # If bot has been tagged
+            notification = client.get_emoji(751771924866269214)  # notification/angerping
             # sentimentPositive = client.get_emoji(670369126983794700) #POGGERS
             # sentimentNegative = client.get_emoji(670672093263822877) #SadChamp
             await message.add_reaction(notification)
@@ -254,27 +280,30 @@ def main():
             cmd_split = text[len(COMMAND_PREFIX):].split()
             try:
                 await message_handler.handle_command(cmd_split[0].lower(),
-                                      cmd_split[1:], message, client)
+                                                     cmd_split[1:], message, client)
             except:
                 print("Error while handling message", flush=True)
                 raise
         else:
-            badwords = ['kanen', 'cyber', 'dicknugget', 'nigg', 'cmonbrug', ' bo ', 'bloodoak', 'ascend', 'cock', 'cunt']
+            badwords = ['kanen', 'cyber', 'dicknugget', 'nigg', 'cmonbrug', ' bo ', 'bloodoak', 'ascend', 'cock',
+                        'cunt']
             goodchannels = [
-                670400011519000616, #general
-                670400027155365929, #media
-                670402166103474190, #spoiler-chat
-                670362162660900895, #off-topic
-                #672541982157045791 #markov-chat-channel
-                ] 
-            if not message.content.startswith('http') and len(message.clean_content) > 5 and not any([badword in message.clean_content.lower() for badword in badwords]) and message.channel.id in goodchannels:
-                await insertIntoMessageDB(message.clean_content,message.author.id,message.channel.id,message.id)
-        
+                670400011519000616,  # general
+                670400027155365929,  # media
+                670402166103474190,  # spoiler-chat
+                670362162660900895,  # off-topic
+                # 672541982157045791 #markov-chat-channel
+            ]
+            if not message.content.startswith('http') and len(message.clean_content) > 5 and not any(
+                    [badword in message.clean_content.lower() for badword in
+                     badwords]) and message.channel.id in goodchannels:
+                await insertIntoMessageDB(message.clean_content, message.author.id, message.channel.id, message.id)
+
         if message.author.name == 'EscalatorBot':
             for user in message.mentions:
                 member = await message.guild.fetch_member(user.id)
-                await member.add_roles(message.guild.get_role(registered_role_id)) #registered role
-                await member.remove_roles(message.guild.get_role(not_registered_role_id)) #unregistered role
+                await member.add_roles(message.guild.get_role(registered_role_id))  # registered role
+                await member.remove_roles(message.guild.get_role(not_registered_role_id))  # unregistered role
                 await message.channel.send(f'{member.mention} has been marked as Registered')
                 await member.send('Registration successful!\nCome say hi in <#670400011519000616>')
 
@@ -317,17 +346,17 @@ def main():
     @client.event
     async def on_voice_state_update(member, before, after):
         if before.channel is None:
-            #print(f'{member.name} joined VC {after.channel.name}')
+            # print(f'{member.name} joined VC {after.channel.name}')
             await joined_channel(member, after.channel)
             return
 
         if after.channel is None:
-            #print(f'{member.name} left VC {before.channel.name}')
+            # print(f'{member.name} left VC {before.channel.name}')
             await left_channel(member, before.channel)
             return
 
         if before.channel != after.channel:
-            #print(f'{member.name} changed VC from {before.channel.name} to {after.channel.name}')
+            # print(f'{member.name} changed VC from {before.channel.name} to {after.channel.name}')
             await joined_channel(member, after.channel)
             await left_channel(member, before.channel)
             return
@@ -352,7 +381,6 @@ def main():
             await assignRolesToUser([divider_achievement_role_id], member, member.guild)
             await assignRolesToUser([divider_misc_role_id], member, member.guild)
 
-
     @client.event
     async def on_slash_command(ctx: SlashContext):
         """ Gets triggered every slash command """
@@ -362,8 +390,8 @@ def main():
 
         # log the command
         logger = logging.getLogger('slash_commands')
-        logger.info(f"InteractionID '{ctx.interaction_id}' - User '{ctx.author.name}' with discordID '{ctx.author.id}' executed '/{ctx.name}' with kwargs '{ctx.kwargs}' in guildID '{ctx.guild.id}', channelID '{ctx.channel.id}'")
-
+        logger.info(
+            f"InteractionID '{ctx.interaction_id}' - User '{ctx.author.name}' with discordID '{ctx.author.id}' executed '/{ctx.name}' with kwargs '{ctx.kwargs}' in guildID '{ctx.guild.id}', channelID '{ctx.channel.id}'")
 
     @client.event
     async def on_slash_command_error(ctx: SlashContext, error: Exception):
@@ -377,10 +405,48 @@ def main():
 
         # log the error
         logger = logging.getLogger('slash_commands')
-        logger.exception(f"InteractionID '{ctx.interaction_id}' - Error {error} - Traceback: \n{''.join(traceback.format_tb(error.__traceback__))}")
+        logger.exception(
+            f"InteractionID '{ctx.interaction_id}' - Error {error} - Traceback: \n{''.join(traceback.format_tb(error.__traceback__))}")
 
         # raising error again to making deving easier
         raise error
+
+    @client.event
+    async def on_button_click(interaction: discord_components.Context):
+        # look if they are lfg buttons
+        if interaction.component.id.startswith("lfg"):
+            # get the lfg message
+            lfg_message = await get_lfg_message(client=interaction.bot, lfg_message_id=interaction.message.id, guild=interaction.guild)
+
+            if interaction.component.label == "Join":
+                res = await lfg_message.add_member(member=interaction.guild.get_member(interaction.author.id))
+                if res:
+                    await interaction.respond(type=6)
+                else:
+                    await interaction.respond(type=discord_components.InteractionType.ChannelMessageWithSource, embed=embed_message(
+                        "Error",
+                        "You could not be added to the event\nThis is either because you are already in the event, the event is full, or the creator has blacklisted you from their events"
+                    ))
+
+            if interaction.component.label == "Leave":
+                res = await lfg_message.remove_member(member=interaction.guild.get_member(interaction.author.id))
+                if res:
+                    await interaction.respond(type=6)
+                else:
+                    await interaction.respond(type=discord_components.InteractionType.ChannelMessageWithSource, embed=embed_message(
+                        "Error",
+                        "You could not be removed from the event\nThis is because you are neither in the main nor in the backup roster"
+                    ))
+
+            if interaction.component.label == "Backup":
+                res = await lfg_message.add_backup(member=interaction.guild.get_member(interaction.author.id))
+                if res:
+                    await interaction.respond(type=6)
+                else:
+                    await interaction.respond(type=discord_components.InteractionType.ChannelMessageWithSource, embed=embed_message(
+                        "Error",
+                        "You could not be added as a backup to the event\nThis is either because you are already in the backup roster, or the creator has blacklisted you from their events"
+                    ))
 
 
     async def joined_channel(member, channel):
@@ -389,7 +455,7 @@ def main():
             number = int(nummatch[-1])
             nextnumber = number + 1
             if nextnumber == 8:
-                #await member.send('What the fuck are you doing')
+                # await member.send('What the fuck are you doing')
                 return
             nextnumberstring = str(nextnumber).zfill(2)
 
@@ -401,8 +467,7 @@ def main():
                 await newchannel.edit(position=channel.position + 1)
                 if 'PVP' in channel.name:
                     await newchannel.edit(position=channel.position + 1, user_limit=6)
-       
-    
+
     async def left_channel(member, channel):
         defaultchannels = 2
         nummatch = re.findall(r'\d\d', channel.name)
@@ -412,28 +477,29 @@ def main():
             previousnumberstring = str(previousnumber).zfill(2)
 
             channelnamebase = channel.name.replace(nummatch[-1], '')
-            
+
             achannel = channel
             while achannel is not None:
                 number = number + 1
                 achannel = discord.utils.get(member.guild.voice_channels, name=channelnamebase + str(number).zfill(2))
             number = number - 1
 
-            for i in range(defaultchannels+1, number+1, 1):
+            for i in range(defaultchannels + 1, number + 1, 1):
                 higher = discord.utils.get(member.guild.voice_channels, name=channelnamebase + str(i).zfill(2))
                 below = discord.utils.get(member.guild.voice_channels, name=channelnamebase + str(i - 1).zfill(2))
                 if higher and not higher.members:
                     if below and not below.members:
                         await higher.delete()
-            
-            for i in range(defaultchannels+1, number + 1, 1):
+
+            for i in range(defaultchannels + 1, number + 1, 1):
                 higher = discord.utils.get(member.guild.voice_channels, name=channelnamebase + str(i).zfill(2))
                 below = discord.utils.get(member.guild.voice_channels, name=channelnamebase + str(i - 1).zfill(2))
                 if higher and not below:
-                        await higher.edit(name=channelnamebase + str(i-1).zfill(2))
+                    await higher.edit(name=channelnamebase + str(i - 1).zfill(2))
 
     # Finally, set the bot running
     client.run(BOT_TOKEN)
+
 
 ###############################################################################
 
@@ -445,4 +511,4 @@ if __name__ == "__main__":
 
     main()
 
-    #p.join()
+    # p.join()

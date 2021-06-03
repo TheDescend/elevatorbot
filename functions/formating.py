@@ -7,12 +7,17 @@ await message.channel.send(embed=embed_message(
     'Desc'
 ))
 """
-def embed_message(title, desc="", footer=None):
-    """  Takes title and optionally *desc*ription/*footer* and returns an discord.Embed """
+
+
+def embed_message(title: str = "", description: str = "", footer: str = None) -> discord.Embed:
+    """  Takes title description and footer and returns an discord.Embed """
+
+    assert (title or description or footer), "Need to input either title or description or footer"
+
     embed = discord.Embed(
         title=title,
-        description=desc,
-        color=discord.Colour.from_rgb(r=115, g=215, b=248),     # Descend Turquoise Blue
+        description=description,
+        color=discord.Colour.from_rgb(r=115, g=215, b=248),  # Descend Turquoise Blue
     )
     if footer:
         embed.set_footer(

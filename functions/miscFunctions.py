@@ -3,6 +3,7 @@ import datetime
 import itertools
 
 import discord
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from discord_slash import SlashContext
 
 from functions.formating import embed_message
@@ -10,6 +11,10 @@ from functions.network import handleAndReturnToken
 from static.dict import expansion_dates, season_dates
 from static.globals import admin_role_id, dev_role_id, mod_role_id
 from static.config import COMMAND_PREFIX
+
+
+scheduler = None
+
 
 async def checkIfUserIsRegistered(user):
     if (await handleAndReturnToken(user.id))["result"]:
@@ -37,12 +42,14 @@ async def update_status(client):
         "Go sports!",
         "We all know who the best bot is",
         "Hint: Checkmarks are lame",
-        "Now running v2.1 ('world_domination_test.py')",
+        "Now running v2.2 ('world_domination_test.py')",
         "Can I get vaccinated too? Technically I'm still a baby",
         "Chillin' in my Hot Tub right now 🍑💦",
+        "Buttons are cool!",
+        "LFG System Online",
+        "Now using Descend Blue™ instead of Blue"
     ]
 
-    print("Launching the Status Changer Loop", flush=True)
     for element in itertools.cycle(status_messages):
         await client.change_presence(activity=discord.Game(name=element))
         await asyncio.sleep(30)
@@ -181,3 +188,13 @@ def convert_expansion_or_season_dates(kwargs):
             endtime = datetime.datetime.now()
 
     return starttime, endtime
+
+
+def get_scheduler():
+    """ Returns the apscheduler object """
+
+    global scheduler
+    if not scheduler:
+        scheduler = AsyncIOScheduler()
+        scheduler.start()
+    return scheduler

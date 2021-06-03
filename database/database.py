@@ -1,4 +1,5 @@
-from typing import Union
+import asyncio
+from typing import Union, List
 
 import pandas
 import asyncpg
@@ -49,11 +50,12 @@ async def create_connection_pool():
 
 
 async def get_connection_pool():
-    if "pool" in globals():
-        return pool
-    else:
-        await create_connection_pool()
-        return pool
+    async with asyncio.Lock():
+        if "pool" in globals():
+            return pool
+        else:
+            await create_connection_pool()
+            return pool
 
 async def fetch_as_dataframe(con: asyncpg.Connection, query: str, *args):
     """ Gets the DB query as a pandas dataframe"""
@@ -1125,3 +1127,170 @@ async def getTopWeapons(membershipid: int, characterID: int = None, mode: int = 
             t1.weaponId, t1.name, t1.bucketTypeHash;"""
     async with (await get_connection_pool()).acquire() as connection:
         return await connection.fetch(select_sql, membershipid, start, end)
+
+
+################################################################
+# LFG System
+
+async def select_lfg_message(lfg_id: int = 0, lfg_message_id: int = 0) -> asyncpg.Record:
+    """ Gets the lfg message with the specified id.
+    Returns (id, guild_id, channel_id, message_id, author_id, activity, description, start_time, max_joined_members, joined_members, alternate_members) """
+
+    assert (lfg_id or lfg_message_id), "Either lfg id or message id need to be specified"
+    select_sql = f"""
+        SELECT 
+            id, guild_id, channel_id, message_id, author_id, activity, description, start_time, max_joined_members, joined_members, alternate_members
+        FROM 
+            lfgmessages
+        WHERE
+            id = $1 OR 
+            message_id = $2;"""
+    async with (await get_connection_pool()).acquire() as connection:
+        return await connection.fetchrow(select_sql, lfg_id, lfg_message_id)
+
+
+async def insert_lfg_message(lfg_message_id: int, guild_id: int, channel_id: int, message_id: int, author_id: int, activity: str, description: str, start_time: datetime, max_joined_members: int, joined_members: list[int], alternate_members: list[int]):
+    """ Inserts the lfg message with the specified id """
+
+    update_sql = f"""
+        UPDATE 
+            lfgmessages
+        SET 
+            guild_id = $1,
+            channel_id = $2,
+            message_id = $3,
+            author_id = $4,
+            activity = $5,
+            description = $6,
+            start_time = $7,
+            max_joined_members = $8,
+            joined_members = $9,
+            alternate_members = $10
+        WHERE 
+            id = $11;"""
+    async with (await get_connection_pool()).acquire() as connection:
+        await connection.execute(update_sql, guild_id, channel_id, message_id, author_id, activity, description,start_time, max_joined_members, joined_members, alternate_members, lfg_message_id)
+
+
+async def delete_lfg_message(lfg_message_id: int):
+    """ Delete the lfg message with the specified id """
+
+    delete_sql = f"""
+        DELETE FROM 
+            lfgmessages
+        WHERE 
+            id = $1;"""
+    async with (await get_connection_pool()).acquire() as connection:
+        await connection.execute(delete_sql, lfg_message_id)
+
+
+async def get_next_free_lfg_message_id() -> int:
+    """ Gets the next lfg message id and reserves it in the DB """
+
+    async with asyncio.Lock():
+        select_sql = f"""
+            SELECT 
+                id
+            FROM 
+                lfgmessages
+            ORDER BY
+                id ASC;"""
+        async with (await get_connection_pool()).acquire() as connection:
+            lfg_ids = await connection.fetch(select_sql)
+
+        # get first free id
+        i = 1
+        for lfg_id in lfg_ids:
+            if lfg_id["id"] != i:
+                break
+            i += 1
+        free_id = i
+
+        # insert that in the DB to reserve it
+        insert_sql = f"""
+            INSERT INTO  
+                lfgmessages
+                (id, guild_id, channel_id, message_id, author_id, activity, description, start_time, max_joined_members, joined_members, alternate_members)
+            VALUES 
+                ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11);"""
+        async with (await get_connection_pool()).acquire() as connection:
+            await connection.execute(insert_sql, free_id, None, None, None, None, None, None, None, None, None, None)
+
+        return free_id
+
+
+async def select_lfg_datetimes_and_users() -> list[asyncpg.Record]:
+    """ Gets the lfg message datetimes and the users to ping for scheduler events """
+
+    select_sql = f"""
+        SELECT 
+            id, start_time, guild_id, joined_members
+        FROM 
+            lfgmessages
+        WHERE 
+            start_time IS NOT NULL
+        ORDER BY
+            start_time ASC;"""
+    async with (await get_connection_pool()).acquire() as connection:
+        return await connection.fetch(select_sql)
+
+
+async def get_lfg_blacklisted_members(user_id: int) -> list[int]:
+    """ Returns the blacklisted member_ids """
+
+    select_sql = f"""
+        SELECT 
+            blacklisted_members
+        FROM 
+            lfgusers
+        WHERE
+            user_id = $1;"""
+    async with (await get_connection_pool()).acquire() as connection:
+        res = await connection.fetchval(select_sql, user_id)
+        return res if res else []
+
+
+async def add_lfg_blacklisted_member(user_id: int, to_blacklist_user_id: int):
+    """ Adds a member to the users blacklist """
+
+    # get current blacklist
+    to_blacklist_user_ids = await get_lfg_blacklisted_members(user_id)
+    if to_blacklist_user_id not in to_blacklist_user_ids:
+        to_blacklist_user_ids.append(to_blacklist_user_id)
+
+    insert_sql = f"""
+        INSERT INTO 
+            lfgusers 
+            (user_id, blacklisted_members)
+        VALUES
+            ($1, $2) 
+        ON 
+            CONFLICT (user_id) 
+        DO 
+            UPDATE SET 
+                blacklisted_members = $2;"""
+    async with (await get_connection_pool()).acquire() as connection:
+        await connection.execute(insert_sql, user_id, to_blacklist_user_ids)
+
+
+async def remove_lfg_blacklisted_member(user_id: int, to_blacklist_user_id: int):
+    """ Remove a member from the users blacklist """
+
+    # get current blacklist
+    to_blacklist_user_ids = await get_lfg_blacklisted_members(user_id)
+    if to_blacklist_user_id in to_blacklist_user_ids:
+        to_blacklist_user_ids.remove(to_blacklist_user_id)
+
+    insert_sql = f"""
+        INSERT INTO 
+            lfgusers 
+            (user_id, blacklisted_members)
+        VALUES
+            ($1, $2) 
+        ON 
+            CONFLICT (user_id) 
+        DO 
+            UPDATE SET 
+                blacklisted_members = $2;"""
+    async with (await get_connection_pool()).acquire() as connection:
+        await connection.execute(insert_sql, user_id, to_blacklist_user_ids)
