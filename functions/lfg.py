@@ -106,7 +106,7 @@ class LfgMessage:
     async def notify_about_start(self, time_to_start: datetime.timedelta):
         embed = embed_message(
             "LFG Event",
-            f"The LFG event with the ID `{self.id}` is going to start in **{int(time_to_start.seconds/60)} minutes**\nPlease starting gathering in a voice channel"
+            f"The LFG event with the ID `{self.id}` is going to start in **{int(time_to_start.seconds/60)} minutes**\nPlease start gathering in a voice channel"
         )
         embed.add_field(name="Guardians", value=", ".join(self.get_joined_members_display_names()), inline=False)
 
@@ -124,7 +124,7 @@ class LfgMessage:
             await user.send(embed=embed)
 
         # edit the channel message
-        await self.message.edit(embed=embed)
+        await self.message.edit(embed=embed, components=[])
 
         # wait timedelta + 10 mins
         await asyncio.sleep(time_to_start.seconds + 60*10)
