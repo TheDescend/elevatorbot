@@ -1139,7 +1139,7 @@ async def select_lfg_message(lfg_id: int = 0, lfg_message_id: int = 0) -> asyncp
     assert (lfg_id or lfg_message_id), "Either lfg id or message id need to be specified"
     select_sql = f"""
         SELECT 
-            id, guild_id, channel_id, message_id, author_id, activity, description, start_time, max_joined_members, joined_members, alternate_members
+            id, guild_id, channel_id, message_id, author_id, activity, description, start_time, creation_time, max_joined_members, joined_members, alternate_members
         FROM 
             lfgmessages
         WHERE
@@ -1149,7 +1149,7 @@ async def select_lfg_message(lfg_id: int = 0, lfg_message_id: int = 0) -> asyncp
         return await connection.fetchrow(select_sql, lfg_id, lfg_message_id)
 
 
-async def insert_lfg_message(lfg_message_id: int, guild_id: int, channel_id: int, message_id: int, author_id: int, activity: str, description: str, start_time: datetime, max_joined_members: int, joined_members: list[int], alternate_members: list[int]):
+async def insert_lfg_message(lfg_message_id: int, guild_id: int, channel_id: int, message_id: int, author_id: int, activity: str, description: str, start_time: datetime, creation_time: datetime, max_joined_members: int, joined_members: list[int], alternate_members: list[int]):
     """ Inserts the lfg message with the specified id """
 
     update_sql = f"""
@@ -1165,11 +1165,12 @@ async def insert_lfg_message(lfg_message_id: int, guild_id: int, channel_id: int
             start_time = $7,
             max_joined_members = $8,
             joined_members = $9,
-            alternate_members = $10
+            alternate_members = $10,
+            creation_time = $11
         WHERE 
-            id = $11;"""
+            id = $12;"""
     async with (await get_connection_pool()).acquire() as connection:
-        await connection.execute(update_sql, guild_id, channel_id, message_id, author_id, activity, description,start_time, max_joined_members, joined_members, alternate_members, lfg_message_id)
+        await connection.execute(update_sql, guild_id, channel_id, message_id, author_id, activity, description,start_time, max_joined_members, joined_members, alternate_members, creation_time, lfg_message_id)
 
 
 async def delete_lfg_message(lfg_message_id: int):
@@ -1210,11 +1211,11 @@ async def get_next_free_lfg_message_id() -> int:
         insert_sql = f"""
             INSERT INTO  
                 lfgmessages
-                (id, guild_id, channel_id, message_id, author_id, activity, description, start_time, max_joined_members, joined_members, alternate_members)
+                (id, guild_id, channel_id, message_id, author_id, activity, description, start_time, creation_time, max_joined_members, joined_members, alternate_members)
             VALUES 
-                ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11);"""
+                ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12);"""
         async with (await get_connection_pool()).acquire() as connection:
-            await connection.execute(insert_sql, free_id, None, None, None, None, None, None, None, None, None, None)
+            await connection.execute(insert_sql, free_id, None, None, None, None, None, None, None, None, None, None, None)
 
         return free_id
 
@@ -1233,6 +1234,22 @@ async def select_lfg_datetimes_and_users() -> list[asyncpg.Record]:
             start_time ASC;"""
     async with (await get_connection_pool()).acquire() as connection:
         return await connection.fetch(select_sql)
+
+
+async def select_guild_lfg_events(guild_id: int) -> list[asyncpg.Record]:
+    """ Gets the lfg messages for a specific guild ordered by the youngest creation date"""
+
+    select_sql = f"""
+        SELECT 
+            id, message_id, creation_time
+        FROM 
+            lfgmessages
+        WHERE 
+            guild_id = $1
+        ORDER BY
+            creation_time ASC;"""
+    async with (await get_connection_pool()).acquire() as connection:
+        return await connection.fetch(select_sql, guild_id)
 
 
 async def get_lfg_blacklisted_members(user_id: int) -> list[int]:

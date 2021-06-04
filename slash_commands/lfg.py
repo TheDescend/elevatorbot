@@ -447,11 +447,13 @@ class LfgCommands(commands.Cog):
                         ))
                         return
 
-                # edit the message
-                lfg_message.edit_start_time(start_time)
-
                 # delete old msgs
                 await message.delete()
+
+                # edit the message
+                await lfg_message.edit_start_time_and_send(start_time)
+                return
+
 
         if section == "Maximum Members":
             message = await ctx.send(embed=embed_message(
@@ -480,6 +482,7 @@ class LfgCommands(commands.Cog):
                 # delete old msgs
                 await message.delete()
                 await answer_msg.delete()
+
 
         # resend msg
         await lfg_message.send()

@@ -225,6 +225,7 @@ CREATE TABLE LfgMessages(
 	activity TEXT,
 	description TEXT,
 	start_time TIMESTAMP WITH TIME ZONE,
+	creation_time TIMESTAMP WITH TIME ZONE,
 	max_joined_members INT,
 	joined_members BIGINT [],
 	alternate_members BIGINT []

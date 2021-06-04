@@ -11,7 +11,7 @@ from apscheduler.jobstores.base import JobLookupError
 from discord_slash import SlashContext
 
 from database.database import get_next_free_lfg_message_id, getPersistentMessage, get_lfg_blacklisted_members, \
-    insert_lfg_message, select_lfg_message, delete_lfg_message
+    insert_lfg_message, select_lfg_message, delete_lfg_message, select_guild_lfg_events
 from functions.formating import embed_message
 from functions.miscFunctions import has_elevated_permissions, get_scheduler
 from static.globals import join_emoji_id, leave_emoji_id, backup_emoji_id
@@ -35,7 +35,7 @@ class LfgMessage:
     blacklisted_members: list[int]
 
     message: discord.Message = None
-
+    creation_time: datetime = None
     joined_members: list[discord.Member] = None
     alternate_members: list[discord.Member] = dataclasses.field(default_factory=list)
 
@@ -58,10 +58,17 @@ class LfgMessage:
         self._leave_emoji = self.client.get_emoji(leave_emoji_id)
         self._backup_emoji = self.client.get_emoji(backup_emoji_id)
 
-    # edit start time
-    def edit_start_time(self, start_time: datetime.datetime):
+    # less than operator to sort the classes by their start time
+    def __lt__(self, other):
+        return self.start_time < other.start_time
+
+    # edit start time and sort messages again
+    async def edit_start_time_and_send(self, start_time: datetime.datetime):
         self.start_time = start_time
         self.utc_start_time = start_time.astimezone(pytz.utc)
+
+        # sort again
+        await self.sort_lfg_messages()
 
     # add a member
     async def add_member(self, member: discord.Member) -> bool:
@@ -132,6 +139,33 @@ class LfgMessage:
 
         # remove the post
         await self.delete()
+
+    # sort all the lfg messages in the guild by start_time
+    async def sort_lfg_messages(self):
+        # get all lfg ids
+        results = await select_guild_lfg_events(self.guild.id)
+
+        # only continue if there is more than one event
+        if len(results) <= 1:
+            return
+
+        # create three lists. A list with the current message objs (sorted by asc creation date), a list with the creation_time, and a list with the LfgMessage objs
+        sorted_messages_by_creation_time = []
+        sorted_creation_times_by_creation_time = []
+        lfg_messages = []
+        for r in results:
+            sorted_messages_by_creation_time.append(await self.channel.fetch_message(r["message_id"]))
+            sorted_creation_times_by_creation_time.append(r["creation_time"])
+            lfg_messages.append(await get_lfg_message(self.client, lfg_id=r["id"], guild=self.guild))
+
+        # sort the LfgMessages by their start_time
+        sorted_lfg_messages = sorted(lfg_messages, reverse=True)
+
+        # update the messages with their new message obj
+        for message, creation_time, lfg_message in zip(sorted_messages_by_creation_time, sorted_creation_times_by_creation_time, sorted_lfg_messages):
+            lfg_message.message = message
+            lfg_message.creation_time = creation_time
+            await lfg_message.send()
 
     # gets the display name of the joined members
     def get_joined_members_display_names(self) -> list[str]:
@@ -204,6 +238,7 @@ class LfgMessage:
             activity=self.activity,
             description=self.description,
             start_time=self.start_time,
+            creation_time=self.creation_time,
             max_joined_members=self.max_joined_members,
             joined_members=[member.id for member in self.joined_members],
             alternate_members=[member.id for member in self.alternate_members],
@@ -229,14 +264,21 @@ class LfgMessage:
 
         if not self.message:
             self.message = await self.channel.send(embed=embed, components=buttons)
+            self.creation_time = datetime.datetime.now(tz=datetime.timezone.utc)
+            first_send = True
         else:
             await self.message.edit(embed=embed, components=buttons)
+            first_send = False
 
         # update the database entry
         await self.dump_to_db()
 
         # schedule the event
         await self.schedule_event()
+
+        # if message was freshly send, sort messages
+        if first_send:
+            await self.sort_lfg_messages()
 
     # removes the message and also the database entries
     async def delete(self):
@@ -278,6 +320,7 @@ async def get_lfg_message(client: discord.Client, lfg_id: int = None, ctx: Slash
     activity = res["activity"]
     description = res["description"]
     start_time = res["start_time"]
+    creation_time = res["creation_time"]
     max_joined_members = res["max_joined_members"]
     joined_members = [guild.get_member(member) for member in res["joined_members"]]
     alternate_members = [guild.get_member(member) for member in res["alternate_members"]]
@@ -310,6 +353,7 @@ async def get_lfg_message(client: discord.Client, lfg_id: int = None, ctx: Slash
         activity=activity,
         description=description,
         start_time=start_time,
+        creation_time=creation_time,
         max_joined_members=max_joined_members,
         blacklisted_members=blacklisted_members,
         message=message,
