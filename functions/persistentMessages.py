@@ -198,13 +198,14 @@ async def botStatus(client, field_name: str, time: datetime.datetime):
     fields = embeds.fields
 
     found = False
+    formated_time = f"""{time.strftime("%d/%m/%Y, %H:%M")} UTC"""
     for field in fields:
-        embed.add_field(name=field.name, value=f"""{time.strftime("%d/%m/%Y, %H:%M")} UTC""" if field.name == field_name else field.value, inline=True)
+        embed.add_field(name=field.name, value=formated_time if field.name == field_name else field.value, inline=True)
         if field.name == field_name:
             found = True
 
     if not found:
-        embed.add_field(name=field_name, value=str(time), inline=True)
+        embed.add_field(name=field_name, value=formated_time, inline=True)
 
     await message.edit(embed=embed)
 
