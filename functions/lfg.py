@@ -67,6 +67,9 @@ class LfgMessage:
         self.start_time = start_time
         self.utc_start_time = start_time.astimezone(pytz.utc)
 
+        # send
+        await self.send()
+
         # sort again
         await self.sort_lfg_messages()
 
