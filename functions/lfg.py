@@ -155,7 +155,7 @@ class LfgMessage:
 
             # make fancy text
             if voice_channel:
-                voice_text = f"Click here to join the voice channel {voice_channel.mention}"
+                voice_text = f"Click here to join the voice channel -> {voice_channel.mention}"
 
         # prepare embed
         embed = embed_message(
