@@ -342,7 +342,7 @@ def main():
 
     @client.event
     async def on_voice_state_update(member, before, after):
-        guild = before.channel.guild
+        guild = member.guild
         lfg_voice_category_channel = await get_persistent_message_or_channel(client, "lfgVoiceCategory", guild.id)
 
         if before.channel is None:

@@ -178,6 +178,7 @@ class LfgMessage:
 
         # edit the channel message
         await self.message.edit(embed=embed, components=[])
+        await self.dump_to_db()
 
         # wait timedelta + 10 mins
         await asyncio.sleep(time_to_start.seconds + 60*10)

@@ -206,7 +206,7 @@ async def left_channel(client, member, before_channel, after_channel, lfg_voice_
     # check if the channel was an lfg channel (correct category)
     if before_channel.category_id == lfg_voice_category_channel.id:
         # get current guild lfg channels
-        guild = before_channel.guild
+        guild = member.guild
         guild_lfg_events = await select_guild_lfg_events(guild.id)
         guild_lfg_voice_channels = []
         for event in guild_lfg_events:
