@@ -139,9 +139,10 @@ async def launch_event_loops(client):
     lfg_events = await select_lfg_datetimes_and_users()
     for lfg_event in lfg_events:
         guild = client.get_guild(lfg_event["guild_id"])
-        timedelta = datetime.timedelta(minutes=10)
-        sched.add_job(notify_about_lfg_event_start, 'date', (client, guild, lfg_event["id"], timedelta),
-                      run_date=lfg_event["start_time"] - timedelta, id=str(lfg_event["id"]))
+        if guild:
+            timedelta = datetime.timedelta(minutes=10)
+            sched.add_job(notify_about_lfg_event_start, 'date', (client, guild, lfg_event["id"], timedelta),
+                          run_date=lfg_event["start_time"] - timedelta, id=str(lfg_event["id"]))
     print(f"{len(sched.get_jobs()) - len(jobs)} LFG events loaded")
 
     print("Startup complete!")
