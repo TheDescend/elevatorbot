@@ -339,7 +339,10 @@ class LfgMessage:
 
         # try to delete voice channel, if that is currently empty
         if self.voice_channel and not self.voice_channel.members:
-            await self.voice_channel.delete()
+            try:
+                await self.voice_channel.delete()
+            except discord.NotFound:
+                pass
 
         # delete DB entry
         await delete_lfg_message(self.id)
