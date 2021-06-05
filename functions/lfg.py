@@ -156,9 +156,11 @@ class LfgMessage:
         # prepare embed
         embed = embed_message(
             f"LFG Event - {self.activity}",
-            f"The LFG event with the ID `{self.id}` is going to start in **{int(time_to_start.seconds/60)} minutes**\n{voice_text}"
+            f"The LFG event with the ID `{self.id}` is going to start in **{int(time_to_start.seconds/60)} minutes**\n{voice_text}",
+            "Start Time"
         )
         embed.add_field(name="Guardians", value=", ".join(self.get_joined_members_display_names()), inline=False)
+        embed.timestamp = self.utc_start_time
 
         # if the event was not full
         missing = self.max_joined_members - len(self.joined_members)
