@@ -14,6 +14,7 @@ from database.database import get_next_free_lfg_message_id, getPersistentMessage
     insert_lfg_message, select_lfg_message, delete_lfg_message, select_guild_lfg_events
 from functions.formating import embed_message
 from functions.miscFunctions import has_elevated_permissions, get_scheduler
+from functions.persistentMessages import get_persistent_message_or_channel
 from static.globals import join_emoji_id, leave_emoji_id, backup_emoji_id, discord_server_id, raid_category_channel_id, \
     vanguard_category_channel_id, crucible_category_channel_id
 
@@ -27,7 +28,6 @@ class LfgMessage:
 
     guild: discord.Guild
     channel: discord.TextChannel
-    voice_category: Union[str, None]
 
     author: discord.Member
     activity: str
@@ -37,6 +37,7 @@ class LfgMessage:
     blacklisted_members: list[int]
 
     message: discord.Message = None
+    voice_channel: discord.VoiceChannel = None
     creation_time: datetime = None
     joined_members: list[discord.Member] = None
     alternate_members: list[discord.Member] = dataclasses.field(default_factory=list)
@@ -116,46 +117,41 @@ class LfgMessage:
 
     # notifies joined members that the event is about to start
     async def notify_about_start(self, time_to_start: datetime.timedelta):
-        # get the correct voice channel, if that is set
         voice_text = "Please start gathering in a voice channel"
-        if self.voice_category and discord_server_id == self.guild.id:
-            # get channel category
-            if self.voice_category == "raid":
-                category_channel = self.guild.get_channel(raid_category_channel_id)
-            elif self.voice_category == "dungeon":
-                category_channel = self.guild.get_channel(vanguard_category_channel_id)
-            elif self.voice_category == "trials":
-                category_channel = self.guild.get_channel(crucible_category_channel_id)
-            else:   # self.voice_category == "iron banner"
-                category_channel = self.guild.get_channel(crucible_category_channel_id)
 
-            # get the first free channel
-            # special behaviour for the pvp category, since there are multiple things in it
-            voice_channels = category_channel.voice_channels
-            if self.voice_category == "trials":
-                clean_voice_channels = []
-                for channel in voice_channels:
-                    if channel.user_limit == 3:
-                        clean_voice_channels.append(channel)
-                voice_channels = clean_voice_channels
+        # get the voice channel category and make a voice channel
+        voice_category_channel = await get_persistent_message_or_channel(self.client, "lfgVoiceCategory", self.guild.id)
+        if voice_category_channel:
+            voice_channel_name = f"[ID: {self.id}] {self.activity}"
 
-            elif self.voice_category == "iron banner":
-                clean_voice_channels = []
-                for channel in voice_channels:
-                    if channel.user_limit == 6:
-                        clean_voice_channels.append(channel)
-                voice_channels = clean_voice_channels
+            # allow each participant to move members
+            permission_overrides = {}
+            for member in self.joined_members:
+                # allow the author to also mute
+                if member == self.author:
+                    permission_overrides.update({
+                        member: discord.PermissionOverwrite(
+                            move_members=True,
+                            mute_members=True,
+                        )
+                    })
+                else:
+                    permission_overrides.update({
+                        member: discord.PermissionOverwrite(
+                            move_members=True,
+                        )
+                    })
 
-            # okay now get the first channel with no members in it
-            voice_channel = None
-            for channel in voice_channels:
-                if not channel.members:
-                    voice_channel = channel
-                    break
+            self.voice_channel = await voice_category_channel.create_voice_channel(
+                name=voice_channel_name,
+                bitrate=self.guild.bitrate_limit,
+                user_limit=self.max_joined_members,
+                overwrites=permission_overrides,
+                reason="LFG event starting"
+            )
 
             # make fancy text
-            if voice_channel:
-                voice_text = f"Click here to join the voice channel -> {voice_channel.mention}"
+            voice_text = f"Click here to join the voice channel -> {self.voice_channel.mention}"
 
         # prepare embed
         embed = embed_message(
@@ -282,7 +278,7 @@ class LfgMessage:
             channel_id=self.channel.id,
             message_id=self.message.id,
             author_id=self.author.id,
-            voice_category=self.voice_category,
+            voice_channel=self.voice_channel,
             activity=self.activity,
             description=self.description,
             start_time=self.start_time,
@@ -334,6 +330,10 @@ class LfgMessage:
         if self.message:
             await self.message.delete()
 
+        # try to delete voice channel, if that is currently empty
+        if self.voice_channel and not self.voice_channel.members:
+            await self.voice_channel.delete()
+
         # delete DB entry
         await delete_lfg_message(self.id)
 
@@ -364,7 +364,7 @@ async def get_lfg_message(client: discord.Client, lfg_id: int = None, ctx: Slash
     lfg_id = res["id"]
     channel = guild.get_channel(res["channel_id"])
     message = await channel.fetch_message(res["message_id"])
-    voice_category = res["voice_category"]
+    voice_channel = guild.get_channel(res["voice_channel_id"]) if res["voice_channel_id"] else None
     author = guild.get_member(res["author_id"])
     activity = res["activity"]
     description = res["description"]
@@ -398,7 +398,7 @@ async def get_lfg_message(client: discord.Client, lfg_id: int = None, ctx: Slash
         id=lfg_id,
         guild=guild,
         channel=channel,
-        voice_category=voice_category,
+        voice_channel=voice_channel,
         author=author,
         activity=activity,
         description=description,
@@ -415,7 +415,7 @@ async def get_lfg_message(client: discord.Client, lfg_id: int = None, ctx: Slash
 
 
 async def create_lfg_message(client: discord.Client, guild: discord.Guild, author: discord.Member, activity: str, description: str,
-                             start_time: datetime, max_joined_members: int, voice_category: Union[str, None]):
+                             start_time: datetime, max_joined_members: int):
     # get next free id
     lfg_id = await get_next_free_lfg_message_id()
 
@@ -434,7 +434,6 @@ async def create_lfg_message(client: discord.Client, guild: discord.Guild, autho
         id=lfg_id,
         guild=guild,
         channel=channel,
-        voice_category=voice_category,
         author=author,
         activity=activity,
         description=description,

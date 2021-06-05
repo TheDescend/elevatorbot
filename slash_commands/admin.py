@@ -440,6 +440,10 @@ class PersistentMessagesCommands(commands.Cog):
                         value="lfg"
                     ),
                     create_choice(
+                        name="LFG Voice Channel Category",
+                        value="lfgvoicecategory"
+                    ),
+                    create_choice(
                         name="Bot Status",
                         value="botstatus"
                     ),
@@ -469,11 +473,6 @@ class PersistentMessagesCommands(commands.Cog):
 
             await make_persistent_message(self.client, "otherGameRoles", ctx.guild.id, channel.id, reaction_id_list=emoji_id_list, message_embed=embed)
 
-            await ctx.send(hidden=True, embed=embed_message(
-                f"Success",
-                f"I've done as you asked"
-            ))
-
 
         elif channel_type == "clanjoinrequest":
             embed = embed_message(
@@ -484,23 +483,12 @@ class PersistentMessagesCommands(commands.Cog):
             await make_persistent_message(self.client, "clanJoinRequest", ctx.guild.id, channel.id,
                                           reaction_id_list=clan_join_request, message_embed=embed)
 
-            await ctx.send(hidden=True, embed=embed_message(
-                f"Success",
-                f"I've done as you asked"
-            ))
-
 
         elif channel_type == "steamjoincodes":
             await make_persistent_message(self.client, "steamJoinCodes", ctx.guild.id, channel.id, message_text="...")
 
             # fill the empty message
             await steamJoinCodeMessage(self.client, ctx.guild)
-
-            await ctx.send(hidden=True, embed=embed_message(
-                f"Success",
-                f"I've done as you asked"
-            ))
-
 
         elif channel_type == "tournament":
             text = """
@@ -518,26 +506,14 @@ On your command, I can start a private PvP tournament for all the masochist in t
 
             await make_persistent_message(self.client, "tournamentChannel", ctx.guild.id, channel.id, message_text=text)
 
-            await ctx.send(hidden=True, embed=embed_message(
-                f"Success",
-                f"I've done as you asked"
-            ))
-
 
         elif channel_type == "membercount":
             await make_persistent_message(self.client, "memberCount", ctx.guild.id, channel.id, no_message=True)
-            await ctx.send(hidden=True, embed=embed_message(
-                f"Success",
-                f"I've done as you asked"
-            ))
 
 
         elif channel_type == "boostercount":
             await make_persistent_message(self.client, "boosterCount", ctx.guild.id, channel.id, no_message=True)
-            await ctx.send(hidden=True, embed=embed_message(
-                f"Success",
-                f"I've done as you asked"
-            ))
+
 
         elif channel_type == "lfg":
             await make_persistent_message(self.client, "lfg", ctx.guild.id, channel.id, no_message=True)
@@ -575,10 +551,6 @@ If you want to feel like an [expert](https://www.youtube.com/watch?v=BKorP55Aqvg
 Basically just type `/lfg` and look around. There are many other cool commands too, so maybe just type `/`""",
                 "If you find bugs or have feature requests, DM me"
             ))
-            await ctx.send(hidden=True, embed=embed_message(
-                f"Success",
-                f"I've done as you asked"
-            ))
 
         elif channel_type == "botstatus":
             embed = embed_message(
@@ -586,20 +558,26 @@ Basically just type `/lfg` and look around. There are many other cool commands t
             )
 
             await make_persistent_message(self.client, "botStatus", 1, channel.id, message_embed=embed)
-            await ctx.send(hidden=True, embed=embed_message(
-                f"Success",
-                f"I've done as you asked"
-            ))
 
-    @cog_ext.cog_slash(
-        name="test",
-        description="tests",
-        guild_ids=GUILD_IDS
-    )
-    async def _test(self, ctx: SlashContext):
-        channels = ctx.guild.get_channel(667789269968093184)
-        x = channels.voice_channels
-        print(1)
+
+        elif channel_type == "lfgvoicecategory":
+            await make_persistent_message(self.client, "lfgVoiceCategory", ctx.guild.id, channel.id, no_message=True)
+
+        await ctx.send(hidden=True, embed=embed_message(
+            f"Success",
+            f"I've done as you asked"
+        ))
+
+
+    # @cog_ext.cog_slash(
+    #     name="test",
+    #     description="tests",
+    #     guild_ids=GUILD_IDS
+    # )
+    # async def _test(self, ctx: SlashContext):
+    #     channels = ctx.guild.get_channel(667789269968093184)
+    #     x = channels.voice_channels
+    #     print(1)
 
 def setup(client):
     client.add_cog(AdminCommands(client))

@@ -109,7 +109,6 @@ class LfgCommands(commands.Cog):
 
         activity = "Easter Egg Search"
         max_joined_members = 69
-        voice_category = None
 
         # might take a sec
         await ctx.defer()
@@ -137,7 +136,6 @@ class LfgCommands(commands.Cog):
         else:
             # Raids
             if str(reaction) == "1️⃣":
-                voice_category = "raid"
 
                 await message.clear_reactions()
                 await message.edit(embed=embed_message(
@@ -183,7 +181,6 @@ class LfgCommands(commands.Cog):
 
             # Dungeons
             elif str(reaction) == "2️⃣":
-                voice_category = "dungeon"
 
                 await message.clear_reactions()
                 await message.edit(embed=embed_message(
@@ -225,15 +222,11 @@ class LfgCommands(commands.Cog):
 
             # Trials
             elif str(reaction) == "3️⃣":
-                voice_category = "trials"
-
                 activity = "Trials"
                 max_joined_members = 3
 
             # Iron Banner
             elif str(reaction) == "4️⃣":
-                voice_category = "iron banner"
-
                 activity = "Iron Banner"
                 max_joined_members = 6
 
@@ -290,7 +283,7 @@ class LfgCommands(commands.Cog):
         await message.delete()
 
         # create and post the lfg message
-        await create_lfg_message(ctx.bot, ctx.guild, ctx.author, activity, description, start_time, max_joined_members, voice_category)
+        await create_lfg_message(ctx.bot, ctx.guild, ctx.author, activity, description, start_time, max_joined_members)
 
 
     @cog_ext.cog_subcommand(

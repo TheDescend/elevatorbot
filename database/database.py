@@ -1,6 +1,7 @@
 import asyncio
 from typing import Union, List
 
+import discord
 import pandas
 import asyncpg
 from datetime import datetime, date
@@ -1134,12 +1135,12 @@ async def getTopWeapons(membershipid: int, characterID: int = None, mode: int = 
 
 async def select_lfg_message(lfg_id: int = 0, lfg_message_id: int = 0) -> asyncpg.Record:
     """ Gets the lfg message with the specified id.
-    Returns (id, guild_id, channel_id, message_id, author_id, activity, description, start_time, max_joined_members, joined_members, alternate_members, voice_category) """
+    Returns (id, guild_id, channel_id, message_id, author_id, activity, description, start_time, max_joined_members, joined_members, alternate_members, voice_channel_id) """
 
     assert (lfg_id or lfg_message_id), "Either lfg id or message id need to be specified"
     select_sql = f"""
         SELECT 
-            id, guild_id, channel_id, message_id, author_id, activity, description, start_time, creation_time, max_joined_members, joined_members, alternate_members, voice_category
+            id, guild_id, channel_id, message_id, author_id, activity, description, start_time, creation_time, max_joined_members, joined_members, alternate_members, voice_channel_id
         FROM 
             lfgmessages
         WHERE
@@ -1149,7 +1150,7 @@ async def select_lfg_message(lfg_id: int = 0, lfg_message_id: int = 0) -> asyncp
         return await connection.fetchrow(select_sql, lfg_id, lfg_message_id)
 
 
-async def insert_lfg_message(lfg_message_id: int, guild_id: int, channel_id: int, message_id: int, author_id: int, voice_category: Union[str, None], activity: str, description: str, start_time: datetime, creation_time: datetime, max_joined_members: int, joined_members: list[int], alternate_members: list[int]):
+async def insert_lfg_message(lfg_message_id: int, guild_id: int, channel_id: int, message_id: int, author_id: int, activity: str, description: str, start_time: datetime, creation_time: datetime, max_joined_members: int, joined_members: list[int], alternate_members: list[int], voice_channel: discord.VoiceChannel = None):
     """ Inserts the lfg message with the specified id """
 
     update_sql = f"""
@@ -1166,12 +1167,12 @@ async def insert_lfg_message(lfg_message_id: int, guild_id: int, channel_id: int
             max_joined_members = $8,
             joined_members = $9,
             alternate_members = $10,
-            creation_time = $11,
-            voice_category = $12
+            creation_time = $11
+            {f", voice_channel_id = {voice_channel.id}" if voice_channel else ""}
         WHERE 
-            id = $13;"""
+            id = $12;"""
     async with (await get_connection_pool()).acquire() as connection:
-        await connection.execute(update_sql, guild_id, channel_id, message_id, author_id, activity, description,start_time, max_joined_members, joined_members, alternate_members, creation_time, voice_category, lfg_message_id)
+        await connection.execute(update_sql, guild_id, channel_id, message_id, author_id, activity, description, start_time, max_joined_members, joined_members, alternate_members, creation_time, lfg_message_id)
 
 
 async def delete_lfg_message(lfg_message_id: int):
@@ -1212,7 +1213,7 @@ async def get_next_free_lfg_message_id() -> int:
         insert_sql = f"""
             INSERT INTO  
                 lfgmessages
-                (id, guild_id, channel_id, message_id, author_id, activity, description, start_time, creation_time, max_joined_members, joined_members, alternate_members, voice_category)
+                (id, guild_id, channel_id, message_id, author_id, activity, description, start_time, creation_time, max_joined_members, joined_members, alternate_members, voice_channel_id)
             VALUES 
                 ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13);"""
         async with (await get_connection_pool()).acquire() as connection:
@@ -1242,7 +1243,7 @@ async def select_guild_lfg_events(guild_id: int) -> list[asyncpg.Record]:
 
     select_sql = f"""
         SELECT 
-            id, message_id, creation_time
+            id, message_id, creation_time, voice_channel_id
         FROM 
             lfgmessages
         WHERE 

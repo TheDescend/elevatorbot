@@ -9,9 +9,9 @@ from functions.network import handleAndReturnToken
 from static.globals import other_game_roles
 
 
-async def get_persistent_message(client, message_name, guild_id):
+async def get_persistent_message_or_channel(client, message_name, guild_id):
     """
-    Gets the persistent message for the specified name and guild and channel. If it doesnt exist, it will return False
+    Gets the persistent message for the specified name and guild and channel. If it doesnt exist, it will return the channel and if that doesnt exit it will return False
     Returns message obj or False
     """
 
@@ -25,7 +25,11 @@ async def get_persistent_message(client, message_name, guild_id):
     channel = client.get_channel(res[0])
     if not channel:
         return False
-    return await channel.fetch_message(res[1])
+    try:
+        message = await channel.fetch_message(res[1])
+        return message
+    except AttributeError:
+        return channel
 
 
 async def make_persistent_message(client, message_name, guild_id, channel_id, reaction_id_list=None, message_text=None, message_embed=None, no_message=False):
@@ -162,7 +166,7 @@ async def steamJoinCodeMessage(client, guild):
     embed.add_field(name="Code", value="\n".join(code), inline=True)
 
     # get msg object
-    message = await get_persistent_message(client, "steamJoinCodes", guild.id)
+    message = await get_persistent_message_or_channel(client, "steamJoinCodes", guild.id)
 
     # edit msg
     await message.edit(embed=embed)
@@ -186,7 +190,7 @@ async def botStatus(client, field_name: str, time: datetime.datetime):
     """
 
     # get msg. guild id is one, since there is only gonna be one msg
-    message = await get_persistent_message(client, "botStatus", 1)
+    message = await get_persistent_message_or_channel(client, "botStatus", 1)
     if not message:
         return
 

@@ -9,7 +9,6 @@ import logging
 import traceback
 import os
 import random
-import re
 
 from io import BytesIO
 
@@ -19,7 +18,6 @@ from discord.ext.commands import Bot
 from discord_components import DiscordComponents
 from discord_slash import SlashCommand, SlashContext
 
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.events import EVENT_JOB_EXECUTED, EVENT_JOB_ERROR, EVENT_JOB_ADDED, EVENT_JOB_REMOVED
 from apscheduler.events import EVENT_JOB_MISSED, EVENT_JOB_SUBMITTED
 
@@ -30,8 +28,8 @@ from init_logging import init_logging
 from functions.clanJoinRequests import removeFromClanAfterLeftDiscord
 from functions.dataLoading import updateDB
 from functions.formating import embed_message
-from functions.miscFunctions import update_status, get_scheduler
-from functions.persistentMessages import check_reaction_for_persistent_message
+from functions.miscFunctions import update_status, get_scheduler, left_channel, joined_channel
+from functions.persistentMessages import check_reaction_for_persistent_message, get_persistent_message_or_channel
 from functions.roleLookup import assignRolesToUser, removeRolesFromUser
 
 from events.base_event import BaseEvent
@@ -46,7 +44,6 @@ from static.globals import registered_role_id, not_registered_role_id, admin_dis
 
 # vital, do not delete. Otherwise no events get loaded
 # pylint: disable=wildcard-import, unused-wildcard-import
-from events import *
 
 # to enable the on_member_join and on_member_remove
 intents = discord.Intents.default()
@@ -345,20 +342,22 @@ def main():
 
     @client.event
     async def on_voice_state_update(member, before, after):
+        lfg_voice_category_channel_id = await get_persistent_message_or_channel(client, "lfgVoiceCategory", before.channel.guild.id)
+
         if before.channel is None:
             # print(f'{member.name} joined VC {after.channel.name}')
-            await joined_channel(member, after.channel)
+            await joined_channel(client, member, after.channel)
             return
 
         if after.channel is None:
             # print(f'{member.name} left VC {before.channel.name}')
-            await left_channel(member, before.channel)
+            await left_channel(client, member, before.channel, lfg_voice_category_channel_id)
             return
 
         if before.channel != after.channel:
             # print(f'{member.name} changed VC from {before.channel.name} to {after.channel.name}')
-            await joined_channel(member, after.channel)
-            await left_channel(member, before.channel)
+            await joined_channel(client, member, after.channel)
+            await left_channel(client, member, before.channel, lfg_voice_category_channel_id)
             return
 
     @client.event
@@ -447,55 +446,6 @@ def main():
                         "Error",
                         "You could not be added as a backup to the event\nThis is either because you are already in the backup roster, or the creator has blacklisted you from their events"
                     ))
-
-
-    async def joined_channel(member, channel):
-        nummatch = re.findall(r'\d\d', channel.name)
-        if nummatch:
-            number = int(nummatch[-1])
-            nextnumber = number + 1
-            if nextnumber == 8:
-                # await member.send('What the fuck are you doing')
-                return
-            nextnumberstring = str(nextnumber).zfill(2)
-
-            channelnamebase = channel.name.replace(nummatch[-1], '')
-
-            if not discord.utils.get(member.guild.voice_channels, name=channelnamebase + nextnumberstring):
-                await channel.clone(name=channelnamebase + nextnumberstring)
-                newchannel = discord.utils.get(member.guild.voice_channels, name=channelnamebase + nextnumberstring)
-                await newchannel.edit(position=channel.position + 1)
-                if 'PVP' in channel.name:
-                    await newchannel.edit(position=channel.position + 1, user_limit=6)
-
-    async def left_channel(member, channel):
-        defaultchannels = 2
-        nummatch = re.findall(r'\d\d', channel.name)
-        if nummatch:
-            number = int(nummatch[-1])
-            previousnumber = number - 1
-            previousnumberstring = str(previousnumber).zfill(2)
-
-            channelnamebase = channel.name.replace(nummatch[-1], '')
-
-            achannel = channel
-            while achannel is not None:
-                number = number + 1
-                achannel = discord.utils.get(member.guild.voice_channels, name=channelnamebase + str(number).zfill(2))
-            number = number - 1
-
-            for i in range(defaultchannels + 1, number + 1, 1):
-                higher = discord.utils.get(member.guild.voice_channels, name=channelnamebase + str(i).zfill(2))
-                below = discord.utils.get(member.guild.voice_channels, name=channelnamebase + str(i - 1).zfill(2))
-                if higher and not higher.members:
-                    if below and not below.members:
-                        await higher.delete()
-
-            for i in range(defaultchannels + 1, number + 1, 1):
-                higher = discord.utils.get(member.guild.voice_channels, name=channelnamebase + str(i).zfill(2))
-                below = discord.utils.get(member.guild.voice_channels, name=channelnamebase + str(i - 1).zfill(2))
-                if higher and not below:
-                    await higher.edit(name=channelnamebase + str(i - 1).zfill(2))
 
     # Finally, set the bot running
     client.run(BOT_TOKEN)

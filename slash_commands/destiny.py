@@ -27,7 +27,7 @@ from functions.formating import embed_message
 from functions.miscFunctions import get_emoji, write_line, has_elevated_permissions, check_if_mutually_exclusive, \
     convert_expansion_or_season_dates
 from functions.network import getJSONfromURL, handleAndReturnToken
-from functions.persistentMessages import get_persistent_message, make_persistent_message, delete_persistent_message
+from functions.persistentMessages import get_persistent_message_or_channel, make_persistent_message, delete_persistent_message
 from functions.slashCommandFunctions import get_user_obj, get_destinyID_and_system, get_user_obj_admin, \
     verify_time_input
 from functions.tournament import startTournamentEvents
@@ -2174,7 +2174,7 @@ class TournamentCommands(commands.Cog):
     )
     async def _create(self, ctx: SlashContext):
         # check if tourn already exists
-        message = await get_persistent_message(self.client, "tournament", ctx.guild.id)
+        message = await get_persistent_message_or_channel(self.client, "tournament", ctx.guild.id)
         if message:
             await ctx.send(hidden=True, embed=embed_message(
                 f"Error",
@@ -2183,7 +2183,7 @@ class TournamentCommands(commands.Cog):
             return
 
         # get the tourn channel id
-        channel = (await get_persistent_message(self.client, "tournamentChannel", ctx.guild.id)).channel
+        channel = (await get_persistent_message_or_channel(self.client, "tournamentChannel", ctx.guild.id)).channel
 
         # make registration message
         embed = embed_message(
@@ -2210,7 +2210,7 @@ class TournamentCommands(commands.Cog):
     )
     async def _start(self, ctx: SlashContext):
         # check if tourn exists
-        message = await get_persistent_message(self.client, "tournament", ctx.guild.id)
+        message = await get_persistent_message_or_channel(self.client, "tournament", ctx.guild.id)
         if not message:
             await ctx.send(hidden=True, embed=embed_message(
                 f"Error",
@@ -2271,7 +2271,7 @@ class TournamentCommands(commands.Cog):
     )
     async def _delete(self, ctx: SlashContext):
         # check if tourn exists
-        message = await get_persistent_message(self.client, "tournament", ctx.guild.id)
+        message = await get_persistent_message_or_channel(self.client, "tournament", ctx.guild.id)
         if not message:
             await ctx.send(hidden=True, embed=embed_message(
                 f"Error",
