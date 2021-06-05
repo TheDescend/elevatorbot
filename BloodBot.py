@@ -43,7 +43,7 @@ from static.globals import registered_role_id, not_registered_role_id, admin_dis
     member_role_id
 
 # vital, do not delete. Otherwise no events get loaded
-# pylint: disable=wildcard-import, unused-wildcard-import
+from events import *
 
 # to enable the on_member_join and on_member_remove
 intents = discord.Intents.default()
