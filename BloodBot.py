@@ -351,13 +351,13 @@ def main():
 
         if after.channel is None:
             # print(f'{member.name} left VC {before.channel.name}')
-            await left_channel(client, member, before.channel, lfg_voice_category_channel_id)
+            await left_channel(client, member, before.channel, after.channel, lfg_voice_category_channel_id)
             return
 
         if before.channel != after.channel:
             # print(f'{member.name} changed VC from {before.channel.name} to {after.channel.name}')
             await joined_channel(client, member, after.channel)
-            await left_channel(client, member, before.channel, lfg_voice_category_channel_id)
+            await left_channel(client, member, before.channel, after.channel, lfg_voice_category_channel_id)
             return
 
     @client.event
