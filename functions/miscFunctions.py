@@ -202,19 +202,19 @@ def get_scheduler():
     return scheduler
 
 
-async def left_channel(client, member, before_channel, after_channel, lfg_voice_category_channel_id=None):
+async def left_channel(client, member, before_channel, after_channel, lfg_voice_category_channel=None):
     # check if the channel was an lfg channel (correct category)
-    if before_channel.category_id == lfg_voice_category_channel_id and after_channel:
+    if before_channel.category_id == lfg_voice_category_channel.id:
         # get current guild lfg channels
-        guild_lfg_events = await select_guild_lfg_events(after_channel.guild.id)
+        guild_lfg_events = await select_guild_lfg_events(before_channel.guild.id)
         guild_lfg_voice_channels = []
         for event in guild_lfg_events:
             if event["voice_channel_id"]:
                 guild_lfg_voice_channels.append(event["voice_channel_id"])
 
         # check if channel is now empty, and is not in the DB anymore (more than 10 min since start have passed)
-        if (not after_channel.members) and (after_channel.id not in guild_lfg_voice_channels):
-            await after_channel.delete(reason="LFG event over")
+        if (not before_channel.members) and (before_channel.id not in guild_lfg_voice_channels):
+            await before_channel.delete(reason="LFG event over")
 
     # or do whatever hali think this does. no idea honestly
     else:

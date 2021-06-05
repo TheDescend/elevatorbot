@@ -342,7 +342,8 @@ def main():
 
     @client.event
     async def on_voice_state_update(member, before, after):
-        lfg_voice_category_channel_id = await get_persistent_message_or_channel(client, "lfgVoiceCategory", before.channel.guild.id)
+        guild = before.channel.guild
+        lfg_voice_category_channel = await get_persistent_message_or_channel(client, "lfgVoiceCategory", guild.id)
 
         if before.channel is None:
             # print(f'{member.name} joined VC {after.channel.name}')
@@ -351,13 +352,13 @@ def main():
 
         if after.channel is None:
             # print(f'{member.name} left VC {before.channel.name}')
-            await left_channel(client, member, before.channel, after.channel, lfg_voice_category_channel_id)
+            await left_channel(client, member, before.channel, after.channel, lfg_voice_category_channel)
             return
 
         if before.channel != after.channel:
             # print(f'{member.name} changed VC from {before.channel.name} to {after.channel.name}')
             await joined_channel(client, member, after.channel)
-            await left_channel(client, member, before.channel, after.channel, lfg_voice_category_channel_id)
+            await left_channel(client, member, before.channel, after.channel, lfg_voice_category_channel)
             return
 
     @client.event

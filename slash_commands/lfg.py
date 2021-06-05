@@ -279,12 +279,13 @@ class LfgCommands(commands.Cog):
             description = answer_msg.content
             await answer_msg.delete()
 
-        # delete message
-        await message.delete()
-
         # create and post the lfg message
         await create_lfg_message(ctx.bot, ctx.guild, ctx.author, activity, description, start_time, max_joined_members)
 
+        await message.edit(embed=embed_message(
+            f"Success",
+            f"I've create the post"
+        ))
 
     @cog_ext.cog_subcommand(
         base="lfg",
@@ -353,7 +354,6 @@ class LfgCommands(commands.Cog):
                 lfg_message.activity = answer_msg.content
 
                 # delete old msgs
-                await message.delete()
                 await answer_msg.delete()
 
         elif section == "Description":
@@ -373,7 +373,6 @@ class LfgCommands(commands.Cog):
                 lfg_message.description = answer_msg.content
 
                 # delete old msgs
-                await message.delete()
                 await answer_msg.delete()
 
         elif section == "Start Time":
@@ -449,15 +448,12 @@ class LfgCommands(commands.Cog):
                         ))
                         return
 
-                # delete old msgs
-                await message.delete()
-
                 # edit the message
                 await lfg_message.edit_start_time_and_send(start_time)
                 return
 
 
-        if section == "Maximum Members":
+        else:   # section == "Maximum Members":
             message = await ctx.send(embed=embed_message(
                 "Maximum Members",
                 "Please enter the new maximum members"
@@ -482,12 +478,16 @@ class LfgCommands(commands.Cog):
                     return
 
                 # delete old msgs
-                await message.delete()
                 await answer_msg.delete()
 
 
         # resend msg
         await lfg_message.send()
+
+        await message.edit(embed=embed_message(
+            f"Success",
+            f"I've edited the post"
+        ))
 
 
     @cog_ext.cog_subcommand(
