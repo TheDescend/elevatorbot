@@ -1,5 +1,7 @@
 # bot dev channel id and clan id are in static.config.py
 
+discord_server_id = 669293365900214293
+
 """ Role IDs """
 admin_role_id = 670383817147809814
 dev_role_id = 670397357120159776
@@ -30,6 +32,12 @@ admin_discussions_channel_id = 671264040974024705
 admin_workboard_channel_id = 769608204618563625
 steam_join_codes_channel_id = 701060424535113738
 bot_spam_channel_id = 670401854496309268
+
+social_category_channel_id = 669658612377059370
+vanguard_category_channel_id = 670402918922321959
+drifter_category_channel_id = 686490872778719239
+crucible_category_channel_id = 671258449455218691
+raid_category_channel_id = 670403431424458793
 
 
 """ Emoji IDs """

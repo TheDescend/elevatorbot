@@ -591,13 +591,15 @@ Basically just type `/lfg` and look around. There are many other cool commands t
                 f"I've done as you asked"
             ))
 
-    # @cog_ext.cog_slash(
-    #     name="test",
-    #     description="tests",
-    #     guild_ids=GUILD_IDS
-    # )
-    # async def _test(self, ctx: SlashContext):
-    #     pass
+    @cog_ext.cog_slash(
+        name="test",
+        description="tests",
+        guild_ids=GUILD_IDS
+    )
+    async def _test(self, ctx: SlashContext):
+        channels = ctx.guild.get_channel(667789269968093184)
+        x = channels.voice_channels
+        print(1)
 
 def setup(client):
     client.add_cog(AdminCommands(client))

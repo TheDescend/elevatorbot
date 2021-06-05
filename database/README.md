@@ -222,6 +222,7 @@ CREATE TABLE LfgMessages(
 	channel_id BIGINT,
 	message_id BIGINT,
 	author_id BIGINT,
+	voice_category TEXT,
 	activity TEXT,
 	description TEXT,
 	start_time TIMESTAMP WITH TIME ZONE,

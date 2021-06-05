@@ -1134,12 +1134,12 @@ async def getTopWeapons(membershipid: int, characterID: int = None, mode: int = 
 
 async def select_lfg_message(lfg_id: int = 0, lfg_message_id: int = 0) -> asyncpg.Record:
     """ Gets the lfg message with the specified id.
-    Returns (id, guild_id, channel_id, message_id, author_id, activity, description, start_time, max_joined_members, joined_members, alternate_members) """
+    Returns (id, guild_id, channel_id, message_id, author_id, activity, description, start_time, max_joined_members, joined_members, alternate_members, voice_category) """
 
     assert (lfg_id or lfg_message_id), "Either lfg id or message id need to be specified"
     select_sql = f"""
         SELECT 
-            id, guild_id, channel_id, message_id, author_id, activity, description, start_time, creation_time, max_joined_members, joined_members, alternate_members
+            id, guild_id, channel_id, message_id, author_id, activity, description, start_time, creation_time, max_joined_members, joined_members, alternate_members, voice_category
         FROM 
             lfgmessages
         WHERE
@@ -1149,7 +1149,7 @@ async def select_lfg_message(lfg_id: int = 0, lfg_message_id: int = 0) -> asyncp
         return await connection.fetchrow(select_sql, lfg_id, lfg_message_id)
 
 
-async def insert_lfg_message(lfg_message_id: int, guild_id: int, channel_id: int, message_id: int, author_id: int, activity: str, description: str, start_time: datetime, creation_time: datetime, max_joined_members: int, joined_members: list[int], alternate_members: list[int]):
+async def insert_lfg_message(lfg_message_id: int, guild_id: int, channel_id: int, message_id: int, author_id: int, voice_category: Union[str, None], activity: str, description: str, start_time: datetime, creation_time: datetime, max_joined_members: int, joined_members: list[int], alternate_members: list[int]):
     """ Inserts the lfg message with the specified id """
 
     update_sql = f"""
@@ -1166,11 +1166,12 @@ async def insert_lfg_message(lfg_message_id: int, guild_id: int, channel_id: int
             max_joined_members = $8,
             joined_members = $9,
             alternate_members = $10,
-            creation_time = $11
+            creation_time = $11,
+            voice_category = $12
         WHERE 
-            id = $12;"""
+            id = $13;"""
     async with (await get_connection_pool()).acquire() as connection:
-        await connection.execute(update_sql, guild_id, channel_id, message_id, author_id, activity, description,start_time, max_joined_members, joined_members, alternate_members, creation_time, lfg_message_id)
+        await connection.execute(update_sql, guild_id, channel_id, message_id, author_id, activity, description,start_time, max_joined_members, joined_members, alternate_members, creation_time, voice_category, lfg_message_id)
 
 
 async def delete_lfg_message(lfg_message_id: int):
@@ -1211,11 +1212,11 @@ async def get_next_free_lfg_message_id() -> int:
         insert_sql = f"""
             INSERT INTO  
                 lfgmessages
-                (id, guild_id, channel_id, message_id, author_id, activity, description, start_time, creation_time, max_joined_members, joined_members, alternate_members)
+                (id, guild_id, channel_id, message_id, author_id, activity, description, start_time, creation_time, max_joined_members, joined_members, alternate_members, voice_category)
             VALUES 
-                ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12);"""
+                ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13);"""
         async with (await get_connection_pool()).acquire() as connection:
-            await connection.execute(insert_sql, free_id, None, None, None, None, None, None, None, None, None, None, None)
+            await connection.execute(insert_sql, free_id, None, None, None, None, None, None, None, None, None, None, None, None)
 
         return free_id
 
