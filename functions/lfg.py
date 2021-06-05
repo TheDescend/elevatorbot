@@ -298,8 +298,12 @@ class LfgMessage:
 
         # using the id the job gets added
         timedelta = datetime.timedelta(minutes=10)
+        run_date = self.utc_start_time - timedelta
+        now = datetime.datetime.now(tz=datetime.timezone.utc)
+        if run_date < now:
+            run_date = now
         self.scheduler.add_job(notify_about_lfg_event_start, 'date', (self.client, self.guild, self.id, timedelta),
-                               run_date=self.utc_start_time - timedelta, id=str(self.id))
+                               run_date=run_date, id=str(self.id))
 
     # send / edit the message in the channel
     async def send(self):
