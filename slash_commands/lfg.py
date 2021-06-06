@@ -31,14 +31,8 @@ class LfgCommands(commands.Cog):
         description="Creates an LFG post",
         options=[
             create_option(
-                name="time",
-                description="Format: 'HH:MM' - When the event is supposed to start",
-                option_type=3,
-                required=True,
-            ),
-            create_option(
-                name="date",
-                description="Format: 'DD/MM' - When the event is supposed to start",
+                name="start_time",
+                description="Format: 'HH:MM DD/MM' - When the event is supposed to start",
                 option_type=3,
                 required=True,
             ),
@@ -86,10 +80,10 @@ class LfgCommands(commands.Cog):
             ),
         ],
     )
-    async def _create(self, ctx: SlashContext, time, date, timezone, overwrite_max_members=None):
+    async def _create(self, ctx: SlashContext, time, timezone, overwrite_max_members=None):
         # get start time
         try:
-            start_time = dateutil.parser.parse(f"{time} {date}/{datetime.datetime.now().year}", dayfirst=True)
+            start_time = dateutil.parser.parse(time, dayfirst=True)
         except dateutil.parser.ParserError:
             await ctx.send(hidden=True, embed=embed_message(
                 "Error",
@@ -390,7 +384,7 @@ class LfgCommands(commands.Cog):
             else:
                 # get the datetime
                 try:
-                    start_time = dateutil.parser.parse(f"{answer_msg.content}/{datetime.datetime.now().year}", dayfirst=True)
+                    start_time = dateutil.parser.parse(answer_msg.content, dayfirst=True)
                 except dateutil.parser.ParserError:
                     await message.edit(embed=embed_message(
                         "Error",
