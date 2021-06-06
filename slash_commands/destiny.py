@@ -1248,7 +1248,7 @@ class RankCommands(commands.Cog):
             leaderboard_text = "Top Clanmembers by D2 Total Raid Completions"
             stat_text = "Total"
 
-            result_sort = await getClearCount(discordID, mode=4)
+            result_sort = await getClearCount(destinyID, mode=4)
             result = f"{result_sort:,}"
 
         elif stat == "raidtime":
