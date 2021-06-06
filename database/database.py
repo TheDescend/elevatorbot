@@ -831,8 +831,9 @@ async def deleteFailToGetPgcrInstanceId(instanceId):
         await connection.execute(delete_sql, int(instanceId))
 
 
-async def getClearCount(playerid, activityHashes: list):
+async def getClearCount(playerid, activityHashes: list = None, mode: int = None):
     """ Gets the full-clearcount for player <playerid> of activity <activityHash> """
+    assert not (activityHashes and mode), "You can only specify either the mode or the hashes"
 
     select_sql = f"""
         SELECT 
@@ -841,7 +842,8 @@ async def getClearCount(playerid, activityHashes: list):
             SELECT 
                 instanceID FROM pgcractivities
             WHERE 
-                directorActivityHash IN ({','.join(['$' + str(i+1) for i in range(len(activityHashes))])})
+                {f"directorActivityHash IN ({','.join(['$' + str(i+2) for i in range(len(activityHashes))])})" if activityHashes else ""}
+                {f"{mode} = ANY(modes)" if mode else ""}
             AND 
                 startingPhaseIndex <= 2
         ) t
@@ -851,14 +853,17 @@ async def getClearCount(playerid, activityHashes: list):
             FROM 
                 pgcractivitiesusersstats
             WHERE 
-                membershipid = ${len(activityHashes) + 1}  
+                membershipid = $1  
                 AND completed = 1 
                 AND completionReason = 0
         ) st 
         ON 
             (t.instanceID = st.instanceID);"""
     async with (await get_connection_pool()).acquire() as connection:
-        return await connection.fetchval(select_sql, *activityHashes, playerid)
+        args = [playerid]
+        if activityHashes:
+            args.extend(activityHashes)
+        return await connection.fetchval(select_sql, *args)
 
 
 async def getInfoOnLowManActivity(raidHashes: list, playercount, membershipid, noCheckpoints=False, score_threshold=None):

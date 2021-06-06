@@ -284,7 +284,7 @@ class LfgCommands(commands.Cog):
 
         await message.edit(embed=embed_message(
             f"Success",
-            f"I've create the post"
+            f"I've created the post"
         ))
 
     @cog_ext.cog_subcommand(
@@ -410,14 +410,15 @@ class LfgCommands(commands.Cog):
                     await message.add_reaction(reaction)
 
                 # wait 60s for reaction
-                def check(reaction_reaction, reaction_user):
-                    return (str(reaction_reaction.emoji) in reactions) \
+                def check_reaction(reaction_reaction, reaction_user):
+                    res = (str(reaction_reaction.emoji) in reactions) \
                            and (reaction_reaction.message.id == message.id) \
                            and (ctx.author == reaction_user)
-
+                    return res
                 try:
-                    reaction, _ = await self.client.wait_for('reaction_add', check=check, timeout=60)
+                    reaction, _ = await self.client.wait_for('reaction_add', check=check_reaction, timeout=60)
                 except asyncio.TimeoutError:
+                    await message.clear_reactions()
                     await message.edit(embed=self.timeout_embed)
                     return
                 else:
@@ -450,6 +451,11 @@ class LfgCommands(commands.Cog):
 
                 # edit the message
                 await lfg_message.edit_start_time_and_send(start_time)
+                await message.clear_reactions()
+                await message.edit(embed=embed_message(
+                    f"Success",
+                    f"I've edited the post"
+                ))
                 return
 
 
