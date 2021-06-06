@@ -12,6 +12,7 @@ import database.psql_credentials as psql_credentials
 
 """ ALL DATABASE ACCESS FUNCTIONS """
 ssh_server = None
+timeout = 60
 
 
 async def create_connection_pool():
@@ -859,7 +860,7 @@ async def getClearCount(playerid, activityHashes: list = None, mode: int = None)
         ) st 
         ON 
             (t.instanceID = st.instanceID);"""
-    async with (await get_connection_pool()).acquire() as connection:
+    async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
         args = [playerid]
         if activityHashes:
             args.extend(activityHashes)
