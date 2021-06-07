@@ -1,12 +1,13 @@
 import asyncio
+import datetime
 import random
 
 from discord.ext import commands
 from discord_slash import cog_ext, SlashContext
 from discord_slash.utils.manage_commands import create_option, create_choice
 
-from functions.dataLoading import getNameAndCrossaveNameToHashMapByClanid, getProfile
-from database.database import lookupDiscordID, lookupDestinyID, lookupSystem
+from functions.dataLoading import getNameAndCrossaveNameToHashMapByClanid, getProfile, updateDB
+from database.database import lookupDiscordID, lookupDestinyID, lookupSystem, getAllDestinyIDs, getLastUpdated
 from functions.formating import embed_message
 from functions.network import getJSONfromURL, handleAndReturnToken
 from functions.persistentMessages import make_persistent_message, steamJoinCodeMessage
@@ -14,7 +15,7 @@ from functions.roleLookup import assignRolesToUser, removeRolesFromUser
 from static.config import CLANID, GUILD_IDS
 from static.globals import other_game_roles, clan_join_request, muted_role_id, bot_spam_channel_id, enter_emoji_id, \
     circle_emoji_id
-from static.slashCommandConfig import permissions_admin
+from static.slashCommandConfig import permissions_admin, permissions_kigstn_hali
 
 
 class AdminCommands(commands.Cog):
@@ -567,6 +568,52 @@ Basically just type `/lfg` and look around. There are many other cool commands t
             f"Success",
             f"I've done as you asked"
         ))
+
+
+    @cog_ext.cog_slash(
+        name="updatedb",
+        description="Forces a DB update with looks through ALL activities. Takes a long time",
+        default_permission=False,
+        permissions=permissions_kigstn_hali,
+    )
+    async def _update_db(self, ctx: SlashContext):
+        print("Start updating DB...")
+        message = await ctx.send("Forcing DB update, this is gonna take a while. Will let you know once done")
+
+        # get all users the bot shares a guild with
+        shared_guild = []
+        for guild in self.client.guilds:
+            for members in guild.members:
+                shared_guild.append(members.id)
+        shared_guild = set(shared_guild)
+
+        # loop though all ids
+        to_update = []
+        destiny_ids = await getAllDestinyIDs()
+        for destiny_id in destiny_ids:
+            discord_id = await lookupDiscordID(destiny_id)
+
+            # check is user is in a guild with bot
+            if discord_id in shared_guild:
+                # get system
+                system = await lookupSystem(destiny_id)
+                if not system:
+                    continue
+
+                # set entry_time to min, to force update everything
+                to_update.append({
+                    "destiny_id": destiny_id,
+                    "system": system,
+                    "entry_time": datetime.datetime.min
+                })
+
+        # update all users
+        await asyncio.gather(*[updateDB(destiny_id=user["destiny_id"], system=user["system"], entry_time=user["entry_time"]) for user in to_update])
+        print("Done updating DB")
+
+        await message.reply("Done with the DB update")
+
+
 
 
     # @cog_ext.cog_slash(

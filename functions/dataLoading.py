@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import typing
 from datetime import datetime
 
 from database.database import get_connection_pool, updateLastUpdated, \
@@ -57,6 +58,39 @@ classmap = {
     2271682572: 'Warlock',
     3655393761: 'Titan'
 }
+
+
+async def get_existing_and_deleted_characters(destiny_id: int, system: int = None) -> typing.Union[tuple[int, list[dict]], tuple[None, None]]:
+    """
+    return = (system: int, [
+        {
+            char_id: int,
+            deleted: bool
+        },
+        ...
+    ])
+    """
+
+    if not system:
+        system = await lookupSystem(destiny_id)
+    if not system:
+        return None, None
+
+    # have to use the stats endpoint, since thats the only place where deleted characters show up
+    url = f"https://stats.bungie.net/Platform/Destiny2/{system}/Account/{destiny_id}/Stats/"
+    stats = await getJSONfromURL(url)
+
+    if stats and stats["Response"]:
+        characters = []
+        for char in stats["Response"]["characters"]:
+            characters.append({
+                "char_id": int(char["characterId"]),
+                "deleted": char["deleted"],
+            })
+
+        return system, characters
+    print(f'No characters found for destinyID {destiny_id}')
+    return None, None
 
 
 async def getCharacterInfoList(destinyID):
@@ -127,9 +161,9 @@ async def getCharacterID(destinyID, classID):
     return None
 
 
-async def getPlayersPastActivities(destinyID, mode : int = 7, earliest_allowed_time : datetime = None, latest_allowed_time : datetime = None):
+async def getPlayersPastActivities(destiny_id: int, mode: int = 7, earliest_allowed_time: datetime = None, latest_allowed_time: datetime = None, system: int = None) -> typing.AsyncGenerator:
     """
-    Generator which returns all activities whith an extra field < activity['charid'] = characterID >
+    Generator which returns all activities whith an extra field < activity['charid'] = character_id >
     For more Info visit https://bungie-net.github.io/multi/schema_Destiny-HistoricalStats-DestinyHistoricalStatsPeriodGroup.html#schema_Destiny-HistoricalStats-DestinyHistoricalStatsPeriodGroup
 
     :mode - Describes the mode, see https://bungie-net.github.io/multi/schema_Destiny-HistoricalStats-Definitions-DestinyActivityModeType.html#schema_Destiny-HistoricalStats-Definitions-DestinyActivityModeType
@@ -145,25 +179,27 @@ async def getPlayersPastActivities(destinyID, mode : int = 7, earliest_allowed_t
     :latest_allowed_time - takes datetime.datetime and describes the higher cutoff
     """
 
-    platform, charIDs = await getCharacterList(destinyID)
+    system, char_ids = await get_existing_and_deleted_characters(destiny_id, system=system)
 
     # if player has no characters for some reason
-    if not charIDs:
+    if not char_ids:
         return
 
-    for characterID in charIDs:
+    for character in char_ids:
+        character_id = character["char_id"]
+
         br = False
         page = -1
         while True:
             page += 1
-            staturl = f"https://www.bungie.net/Platform/Destiny2/{platform}/Account/{destinyID}/Character/{characterID}/Stats/Activities/?mode={mode}&count=250&page={page}"
+            url = f"https://www.bungie.net/Platform/Destiny2/{system}/Account/{destiny_id}/Character/{character_id}/Stats/Activities/?mode={mode}&count=250&page={page}"
 
             # break once threshold is reached
             if br:
                 break
 
             # get activities
-            rep = await getJSONfromURL(staturl)
+            rep = await getJSONfromURL(url)
 
             # break if empty, fe. when pages are over
             if not rep or not rep['Response']:
@@ -188,7 +224,7 @@ async def getPlayersPastActivities(destinyID, mode : int = 7, earliest_allowed_t
                             pass
 
                 # add character info to the activity
-                activity['charid'] = characterID
+                activity['charid'] = character_id
 
                 yield activity
 
@@ -714,7 +750,7 @@ async def insertPgcrToDB(instanceID: int, activity_time: datetime, pcgr: dict):
                 )
 
 
-async def updateDB(destinyID):
+async def updateDB(destiny_id: int, system: int = None, entry_time: datetime = None) -> None:
     """ Gets this users not-saved history and saves it """
     async def handle(instanceID, activity_time):
         # get PGCR
@@ -726,8 +762,8 @@ async def updateDB(destinyID):
             return None
         return [instanceID, activity_time, pcgr["Response"]]
 
-    async def input_data(gather_instanceID, gather_activity_time):
-        result = await asyncio.gather(*[handle(instanceID, activity_time) for instanceID, activity_time in zip(gather_instanceID, gather_activity_time)])
+    async def input_data(gather_instance_id, gather_activity_time):
+        result = await asyncio.gather(*[handle(instanceID, activity_time) for instanceID, activity_time in zip(gather_instance_id, gather_activity_time)])
 
         for res in result:
             if res is not None:
@@ -741,13 +777,17 @@ async def updateDB(destinyID):
                 #print(f'inserted instance {instanceID}')
 
     logger = logging.getLogger('updateDB')
-    entry_time = await getLastUpdated(destinyID)
 
-    logger.info('Starting activity DB update for destinyID <%s>', destinyID)
+    if not entry_time:
+        entry_time = await getLastUpdated(destiny_id)
+    else:
+        entry_time = datetime.min
+
+    logger.info('Starting activity DB update for destinyID <%s>', destiny_id)
 
     gather_instanceID = []
     gather_activity_time = []
-    async for activity in getPlayersPastActivities(destinyID, mode=0, earliest_allowed_time=entry_time):
+    async for activity in getPlayersPastActivities(destiny_id, mode=0, earliest_allowed_time=entry_time, system=system):
         instanceID = activity["activityDetails"]["instanceId"]
         activity_time = datetime.strptime(activity["period"], "%Y-%m-%dT%H:%M:%SZ")
 
@@ -780,9 +820,9 @@ async def updateDB(destinyID):
         await input_data(gather_instanceID, gather_activity_time)
 
     # update with newest entry timestamp
-    await updateLastUpdated(destinyID, entry_time)
+    await updateLastUpdated(destiny_id, entry_time)
 
-    logger.info('Done with activity DB update for destinyID <%s>', destinyID)
+    logger.info('Done with activity DB update for destinyID <%s>', destiny_id)
 
 
 async def updateMissingPcgr():

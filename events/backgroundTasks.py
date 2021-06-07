@@ -1,9 +1,11 @@
 import datetime
 import asyncio
 
+import discord
+
 from events.base_event import BaseEvent
 from functions.dataLoading import updateDB, updateMissingPcgr, updateManifest
-from database.database import getAllDestinyIDs, lookupDiscordID
+from database.database import getAllDestinyIDs, lookupDiscordID, getLastUpdated, lookupSystem
 from functions.network import handleAndReturnToken
 from functions.persistentMessages import botStatus
 
@@ -29,7 +31,7 @@ class updateActivityDB(BaseEvent):
         interval_minutes = 60
         super().__init__(scheduler_type="interval", interval_minutes=interval_minutes)
 
-    async def run(self, client):
+    async def run(self, client: discord.Client):
         """
         This runs hourly and updates all the users infos,
         that are in one of the servers the bot is in.
@@ -44,16 +46,28 @@ class updateActivityDB(BaseEvent):
         set(shared_guild)
 
         # loop though all ids
-        destinyIDs = await getAllDestinyIDs()
-        for destinyID in destinyIDs:
-            discordID = await lookupDiscordID(destinyID)
+        to_update = []
+        destiny_ids = await getAllDestinyIDs()
+        for destiny_id in destiny_ids:
+            discord_id = await lookupDiscordID(destiny_id)
 
             # check is user is in a guild with bot
-            if discordID not in shared_guild:
-                destinyIDs.remove(destinyID)
+            if discord_id in shared_guild:
+                # get system
+                system = await lookupSystem(destiny_id)
+                if not system:
+                    continue
+
+                # get last updated for the users
+                entry_time = await getLastUpdated(destiny_id)
+                to_update.append({
+                    "destiny_id": destiny_id,
+                    "system": system,
+                    "entry_time": entry_time
+                })
 
         # update all users
-        await asyncio.gather(*[updateDB(destinyID) for destinyID in destinyIDs])
+        await asyncio.gather(*[updateDB(destiny_id=user["destiny_id"], system=user["system"], entry_time=user["entry_time"]) for user in to_update])
         print("Done updating DB")
 
         # try to get the missing pgcrs

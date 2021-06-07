@@ -235,7 +235,7 @@ class LfgMessage:
         )
         embed.add_field(
             name="Start Time",
-            value=self.utc_start_time.strftime("%H:%M %Z, %d/%m"),
+            value=f"""[{self.utc_start_time.strftime("%H:%M %Z, %d/%m")}]({f"https://time.is/compare/{self.utc_start_time.strftime('%H%M')}_{self.utc_start_time.strftime('%d')}_{self.utc_start_time.strftime('%B')}_{self.utc_start_time.strftime('%Y')}_in_UTC"})""",
             inline=True,
         )
         embed.add_field(
