@@ -9,7 +9,7 @@ from functions.dataTransformation import hasLowman
 from functions.dataTransformation import hasCollectible, hasTriumph
 from static.dict import requirementHashes
 # check if user has permission to use this command
-from static.globals import role_ban_id
+from static.globals import role_ban_id, divider_legacy_role_id
 
 
 #TODO remove year parameter
@@ -171,6 +171,10 @@ async def getPlayerRoles(playerid, existingRoles = []):
                         if roleName in roles:
                             roles.remove(roleName)
                             redundantRoles.append(roleName)
+
+            # also append the legacy divider roles should it be needed
+            if ("deprecated" in roledata.keys()) and (divider_legacy_role_id not in roles):
+                roles.append(divider_legacy_role_id)
     
     return (roles, redundantRoles)
 
