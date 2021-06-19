@@ -2,6 +2,8 @@
 # if this is skipped, some imports will fail since they rely on database lookups
 # for example GM nightfalls, since they change each season. This allows us to create the hash list dynamically, instead of having to add to it every season
 import asyncio
+import threading
+from aiohttp import web
 import datetime
 import sys
 
@@ -9,6 +11,8 @@ import logging
 import traceback
 import os
 import random
+
+import urllib
 
 from io import BytesIO
 
@@ -53,6 +57,117 @@ intents.members = True
 # more than once on reconnects
 this = sys.modules[__name__]
 this.running = False
+
+###############################################################################
+from functions.ytdl import play
+
+def aiohttp_server(discord_client):
+    def say_hello(request):
+        if 'join' in request.query and 'guild' in request.query and 'req' in request.query and not request.query['req'] == '':
+            print('received join')
+            print(request.query['join'])
+            
+            print(request.query['guild'])
+            guild = discord_client.get_guild(int(request.query['guild']))
+            voice_chat = guild.get_channel(int(request.query['join']))
+            connections = discord_client.voice_clients
+            active = list(filter(lambda voice_client: voice_client.guild.id == guild.id and voice_client.is_connected(), connections))
+            if len(active) == 1:
+                move_task = loop.create_task(active[0].move_to(voice_chat))
+                if active[0].is_playing():
+                    active[0].stop()
+                loop.create_task(play(urllib.parse.unquote(request.query['req']), discord_client, move_task, voice_client=active[0]))
+            else:
+                print(f'joining {voice_chat.name}')
+                connection_task = loop.create_task(voice_chat.connect(timeout=5, reconnect=True))
+                print(f"starting to play {request.query['req']}")
+                loop.create_task(play(urllib.parse.unquote(request.query['req']), discord_client, connection_task))
+            return web.Response(text=f"Playing {request.query['req']}")
+        elif 'disconnect' in request.query and 'guild' in request.query:
+            guild = discord_client.get_guild(int(request.query['guild']))
+            connections = discord_client.voice_clients
+            active = list(filter(lambda voice_client: voice_client.guild.id == guild.id and voice_client.is_connected(), connections))
+            if len(active) == 1:
+                loop.create_task(active[0].disconnect())
+            return web.Response(text='Disconnected')
+        elif 'stop' in request.query and 'guild' in request.query:
+            guild = discord_client.get_guild(int(request.query['guild']))
+            connections = discord_client.voice_clients
+            active = list(filter(lambda voice_client: voice_client.guild.id == guild.id and voice_client.is_connected(), connections))
+            if len(active) == 1:
+                active[0].stop()
+            return web.Response(text='Stopped')
+
+        if guild := discord_client.get_guild(669293365900214293):
+            return web.Response(text= 
+            "Songname:<input id='songname' type='text'></input> <br/> Click Channel to join/start playing <br/> (might take up to 10s, depending on song size) <br/><br/>" + \
+            "<br/>".join(f"""
+                    <button type="button" onclick="join{vc.id}()">{vc.name}</button> {', '.join([m.name for m in vc.members])}
+                    <script>
+                    function join{vc.id}() {{
+                        const xhttp = new XMLHttpRequest();
+                        const song_req = encodeURI(document.getElementById("songname").value);
+                        xhttp.onreadystatechange = function() {{
+                            if (this.readyState == 4 && this.status == 200) {{
+                            document.getElementById("news").innerHTML = this.responseText;
+                            }}
+                        }};
+                        xhttp.open("GET", "/elevatoradmin?guild={vc.guild.id}&join={vc.id}&req=" + song_req);
+                        xhttp.send();
+                        document.getElementById("songname").value
+                    }}
+                    </script>
+            """ for vc in guild.voice_channels) + \
+            f"""
+            <br/><br/>
+            <button type="button" onclick="stop()">Stop playing</button>
+            <script>
+                    function stop() {{
+                        const xhttp = new XMLHttpRequest();
+                        xhttp.onreadystatechange = function() {{
+                            if (this.readyState == 4 && this.status == 200) {{
+                            document.getElementById("news").innerHTML = this.responseText;
+                            }}
+                        }};
+                        const song_req = encodeURI(document.getElementById("songname").value);
+                        xhttp.open("GET", "/elevatoradmin?stop=1&guild={guild.id}");
+                        xhttp.send();
+                    }}
+            </script>
+            <button type="button" onclick="disconnect()">Disconnect</button>
+            <script>
+                    function disconnect() {{
+                        const xhttp = new XMLHttpRequest();
+                        xhttp.onreadystatechange = function() {{
+                            if (this.readyState == 4 && this.status == 200) {{
+                            document.getElementById("news").innerHTML = this.responseText;
+                            }}
+                        }};
+                        const song_req = encodeURI(document.getElementById("songname").value);
+                        xhttp.open("GET", "/elevatoradmin?disconnect=1&guild={guild.id}");
+                        xhttp.send();
+                    }}
+            </script>
+            <br/><br/>
+            <div id="news"></div>
+            """, content_type='text/html')
+        return web.Response(text='500')
+    loop = asyncio.get_event_loop()
+
+    app = web.Application()
+    app.add_routes([web.get('/', say_hello)])
+    runner = web.AppRunner(app)
+    return runner
+
+
+def run_server(runner):
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    loop.run_until_complete(runner.setup())
+    site = web.TCPSite(runner, '0.0.0.0', 8080)
+    print(f'webserver running {site}')
+    loop.run_until_complete(site.start())
+    loop.run_forever()
 
 
 ###############################################################################
@@ -160,6 +275,11 @@ def main():
     # Initialize the client
     print("Starting up...")
     client = Bot('!', intents=intents)
+
+    
+    #start webserver
+    webserver_thread = threading.Thread(target=run_server, args=(aiohttp_server(client),))
+    webserver_thread.start()
 
     # enable slash commands and send them to the discord API
     SlashCommand(client, sync_commands=True)
