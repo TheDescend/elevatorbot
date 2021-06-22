@@ -218,38 +218,28 @@ class AdminCommands(commands.Cog):
     )
     async def _reply(self, ctx: SlashContext, message: str, user=None):
         # gets the previous message
-        previousMessage = (await ctx.channel.history(limit=1).flatten())[0]
-        mentionedMembersInPreviousMessage = []
+        last_ten_messages = (await ctx.channel.history(limit=10).flatten())
 
-        # if previous message is posted by the bot and mentions at least 1 member
-        if previousMessage.author == self.client.user and previousMessage.mentions:
-            mentionedMembersInPreviousMessage = previousMessage.mentions
-
-        # no one is tagged, someone is mentioned in the previous message
         if not user:
-            if not mentionedMembersInPreviousMessage:
-                await ctx.send('Make sure my message above mentions the user or fill them in as an argument')
+            is_bot_dm = lambda previousMessage: previousMessage.author == self.client.user and previousMessage.mentions
+            bot_messages = filter(is_bot_dm, last_ten_messages)
+            
+            if not bot_messages:
+                await ctx.send(embed=embed_message(
+                    "Error",
+                    f'There is not recent DM. Please specify a user'
+                ))
                 return
 
-            else:
-                if len(mentionedMembersInPreviousMessage) == 1:
-                    # if the previous message mentions 1
-                    if '@' in ctx.message.clean_content:
-                        # but wait, the current message also mentions someone
-                        await ctx.send('Not sure if you meant to ping someone or reply above')
-                        return
-                    # take the only mentioned member
-                    user = mentionedMembersInPreviousMessage[0]
-
-                else:
-                    # if the previous message mentions more than 1
-                    await ctx.send('Make sure my message above mentions the user or fill them in as an argument')
-                    return
-
-        assert(user is not None)
+            most_recent = bot_messages[0]
+            mentioned_user = most_recent.mentions[0]
+            user = mentioned_user
 
         await user.send(message)
-        await ctx.send(f'{ctx.author.name} Answered\n`{message}`\nto {user.mention}')
+        await ctx.send(embed=embed_message(
+            "Success",
+            f'{ctx.author.name} replied\n`{message}`\nto {user.mention}'
+        ))
 
 
     @cog_ext.cog_slash(
