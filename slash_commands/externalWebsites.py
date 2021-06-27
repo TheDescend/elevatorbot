@@ -1,5 +1,6 @@
 from discord.ext import commands
-from discord_slash import cog_ext, SlashContext
+from discord_slash import cog_ext, SlashContext, ButtonStyle
+from discord_slash.utils import manage_components
 from discord_slash.utils.manage_commands import create_option, create_choice
 
 from functions.formating import embed_message
@@ -113,10 +114,16 @@ class ExternalWebsitesCommands(commands.Cog):
         elif website == "Wasted on Destiny":
             text = f'https://wastedondestiny.com/{system}_{destinyID}'
 
-        await ctx.send(embed=embed_message(
-            website,
-            text
-        ))
+        components = [
+            manage_components.create_actionrow(
+                manage_components.create_button(
+                    style=ButtonStyle.URL,
+                    label=f"{user.display_name} - {website}",
+                    url=text
+                ),
+            ),
+        ]
+        await ctx.send(content="⁣", components=components)
 
 
 def setup(client):
