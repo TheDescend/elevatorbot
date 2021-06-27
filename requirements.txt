@@ -54,3 +54,4 @@ urllib3==1.26.4
 wcwidth==0.2.5
 Werkzeug==1.0.1
 yarl==1.6.3
+youtube-dl==2021.6.6
