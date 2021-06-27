@@ -13,8 +13,7 @@ colorama==0.4.4
 cryptography==3.4.7
 cycler==0.10.0
 decorator==4.4.2
-discord-components==0.5.2.4
-discord-py-slash-command==1.2.0
+discord-py-slash-command==2.0.4
 discord.py==1.7.2
 Flask==1.1.2
 idna==3.1
