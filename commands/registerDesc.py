@@ -1,3 +1,9 @@
+from typing import Union
+
+import discord
+from discord_slash import ButtonStyle
+from discord_slash.utils import manage_components
+
 from commands.base_command import BaseCommand
 from database.database import removeUser, lookupDestinyID
 from functions.formating import embed_message
@@ -16,7 +22,10 @@ class register(BaseCommand):
     # Override the handle() method
     # It will be called every time the command is received
     async def handle(self, params, message, mentioned_user, client):
-        await elevatorRegistration(message)
+        if not message.guild:
+            await message.author.send('Please use this command in your clans bot-channel')
+            return
+        await elevatorRegistration(message.author)
 
 # has been slashified
 class registerDesc(BaseCommand):
@@ -30,23 +39,29 @@ class registerDesc(BaseCommand):
     # Override the handle() method
     # It will be called every time the command is received
     async def handle(self, params, message, mentioned_user, client):
-        await elevatorRegistration(message)
+        if not message.guild:
+            await message.author.send('Please use this command in your clans bot-channel')
+            return
+        await elevatorRegistration(message.author)
 
 
-async def elevatorRegistration(message):
-    if not message.guild:
-        await message.author.send('Please use this command in your clans bot-channel')
-        return
-    state = str(message.author.id) + ':' + str(message.guild.id)
-    URL = f'https://www.bungie.net/en/oauth/authorize?client_id={BUNGIE_OAUTH}&response_type=code&state={state}'
-    await message.author.send(embed=embed_message(
+async def elevatorRegistration(user: discord.Member):
+    URL = f"https://www.bungie.net/en/oauth/authorize?client_id={BUNGIE_OAUTH}&response_type=code&state={str(user.id) + ':' + str(user.guild.id)}"
+
+    components = [
+        manage_components.create_actionrow(
+            manage_components.create_button(
+                style=ButtonStyle.URL,
+                label=f"Registration Link",
+                url=URL
+            ),
+        ),
+    ]
+
+    await user.send(components=components, embed=embed_message(
         f'Registration',
-        f'[Click here to register with me]({URL})',
+        f'Use the button below to register with me',
         "Please be aware that I will need a while to process your data after you register for the first time, so I might react very slow to your first commands."
-    ))
-    await message.channel.send(embed=embed_message(
-        'Registration',
-        f'Sent a DM to {message.author.nick or message.author.name}'
     ))
 
 

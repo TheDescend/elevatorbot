@@ -1,7 +1,9 @@
 from discord.ext import commands
-from discord_slash import cog_ext, SlashContext
+from discord_slash import cog_ext, SlashContext, ButtonStyle
+from discord_slash.utils import manage_components
 from discord_slash.utils.manage_commands import create_option
 
+from commands.registerDesc import elevatorRegistration
 from database.database import removeUser, setSteamJoinID, getSteamJoinID
 from functions.formating import embed_message
 from functions.persistentMessages import steamJoinCodeMessage
@@ -20,17 +22,16 @@ class RegistrationCommands(commands.Cog):
         description="Link your Destiny 2 account with ElevatorBot",
     )
     async def _registerdesc(self, ctx: SlashContext):
+        if not ctx.guild:
+            await ctx.author.send('Please use this command in your clans bot-channel')
+            return
+
         await ctx.send(hidden=True, embed=embed_message(
             f"Thanks for Registering",
             f"I sent you a DM with the next steps!"
         ))
 
-        URL = f"https://www.bungie.net/en/oauth/authorize?client_id={BUNGIE_OAUTH}&response_type=code&state={str(ctx.author.id) + ':' + str(ctx.guild.id)}"
-        await ctx.author.send(embed=embed_message(
-            f'Registration',
-            f'[Click here to register with me]({URL})',
-            "Please be aware that I will need a while to process your data after you register for the first time, so I might react very slow to your first commands."
-        ))
+        await elevatorRegistration(ctx.author)
 
 
     @cog_ext.cog_slash(
