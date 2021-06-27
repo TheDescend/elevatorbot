@@ -20,10 +20,8 @@ import urllib
 from io import BytesIO
 
 import discord
-import discord_components
 from discord.ext.commands import Bot
-from discord_components import DiscordComponents
-from discord_slash import SlashCommand, SlashContext
+from discord_slash import SlashCommand, SlashContext, ComponentContext
 
 from apscheduler.events import EVENT_JOB_EXECUTED, EVENT_JOB_ERROR, EVENT_JOB_ADDED, EVENT_JOB_REMOVED
 from apscheduler.events import EVENT_JOB_MISSED, EVENT_JOB_SUBMITTED
@@ -32,7 +30,7 @@ import message_handler
 from functions.lfg import notify_about_lfg_event_start, get_lfg_message
 from init_logging import init_logging
 
-from functions.clanJoinRequests import removeFromClanAfterLeftDiscord
+from functions.clanJoinRequests import removeFromClanAfterLeftDiscord, on_clan_join_request
 from functions.dataLoading import updateDB
 from functions.formating import embed_message
 from functions.miscFunctions import update_status, get_scheduler, left_channel, joined_channel
@@ -349,16 +347,13 @@ def main():
     print("Starting up...")
     client = Bot('!', intents=intents)
 
-    
-    #start webserver
-    webserver_thread = threading.Thread(target=run_server, args=(aiohttp_server(client),))
-    webserver_thread.start()
+    # start webserver
+    if ELEVATOR_ADMIN_CLIENT_SECRET:
+        webserver_thread = threading.Thread(target=run_server, args=(aiohttp_server(client),))
+        webserver_thread.start()
 
     # enable slash commands and send them to the discord API
-    SlashCommand(client, sync_commands=True)
-
-    # enable buttons
-    DiscordComponents(client)
+    slash = SlashCommand(client, sync_commands=True)
 
     # load slash command cogs
     # to do that, loop through the files and import all classes and commands
@@ -605,42 +600,45 @@ def main():
         # raising error again to making deving easier
         raise error
 
-    @client.event
-    async def on_button_click(interaction: discord_components.Context):
-        # look if they are lfg buttons
-        if interaction.component.id.startswith("lfg"):
-            # get the lfg message
-            lfg_message = await get_lfg_message(client=interaction.bot, lfg_message_id=interaction.message.id, guild=interaction.guild)
 
-            if interaction.component.label == "Join":
-                res = await lfg_message.add_member(member=interaction.guild.get_member(interaction.author.id))
-                if res:
-                    await interaction.respond(type=6)
-                else:
-                    await interaction.respond(type=discord_components.InteractionType.ChannelMessageWithSource, embed=embed_message(
-                        "Error",
-                        "You could not be added to the event\nThis is either because you are already in the event, the event is full, or the creator has blacklisted you from their events"
-                    ))
+    # handle lfg messages
+    @slash.component_callback()
+    async def lfg(ctx: ComponentContext):
+        # get the lfg message
+        lfg_message = await get_lfg_message(client=ctx.bot, lfg_message_id=ctx.message.id, guild=ctx.guild)
+        if not lfg_message:
+            return
 
-            if interaction.component.label == "Leave":
-                res = await lfg_message.remove_member(member=interaction.guild.get_member(interaction.author.id))
-                if res:
-                    await interaction.respond(type=6)
-                else:
-                    await interaction.respond(type=discord_components.InteractionType.ChannelMessageWithSource, embed=embed_message(
-                        "Error",
-                        "You could not be removed from the event\nThis is because you are neither in the main nor in the backup roster"
-                    ))
+        if ctx.component.label == "Join":
+            res = await lfg_message.add_member(member=ctx.guild.get_member(ctx.author.id), ctx=ctx)
+            if not res:
+                await ctx.send(hidden=True, embed=embed_message(
+                    "Error",
+                    "You could not be added to the event\nThis is either because you are already in the event, the event is full, or the creator has blacklisted you from their events"
+                ))
 
-            if interaction.component.label == "Backup":
-                res = await lfg_message.add_backup(member=interaction.guild.get_member(interaction.author.id))
-                if res:
-                    await interaction.respond(type=6)
-                else:
-                    await interaction.respond(type=discord_components.InteractionType.ChannelMessageWithSource, embed=embed_message(
-                        "Error",
-                        "You could not be added as a backup to the event\nThis is either because you are already in the backup roster, or the creator has blacklisted you from their events"
-                    ))
+        if ctx.component.label == "Leave":
+            res = await lfg_message.remove_member(member=ctx.guild.get_member(ctx.author.id), ctx=ctx)
+            if not res:
+                await ctx.send(hidden=True, embed=embed_message(
+                    "Error",
+                    "You could not be removed from the event\nThis is because you are neither in the main nor in the backup roster"
+                ))
+
+        if ctx.component.label == "Backup":
+            res = await lfg_message.add_backup(member=ctx.guild.get_member(ctx.author.id), ctx=ctx)
+            if not res:
+                await ctx.send(hidden=True, embed=embed_message(
+                    "Error",
+                    "You could not be added as a backup to the event\nThis is either because you are already in the backup roster, or the creator has blacklisted you from their events"
+                ))
+
+
+    # handle clan join requests
+    @slash.component_callback()
+    async def clan_join_request(ctx: ComponentContext):
+        await on_clan_join_request(ctx)
+
 
     # Finally, set the bot running
     client.run(BOT_TOKEN)

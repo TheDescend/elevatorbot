@@ -1,5 +1,8 @@
 import asyncio
 
+import discord
+from discord_slash import ComponentContext
+
 from database.database import lookupDestinyID, lookupSystem
 from functions.formating import embed_message
 from functions.miscFunctions import checkIfUserIsRegistered
@@ -8,34 +11,41 @@ from static.config import CLANID, BOTDEVCHANNELID
 from static.globals import thumps_up_emoji_id, thumps_down_emoji_id, destiny_emoji_id
 
 
-async def clanJoinRequestMessageReactions(client, user, emoji, channel_id, channel_message_id):
-    newtonslab = client.get_channel(BOTDEVCHANNELID)
-    channel = client.get_channel(channel_id)
-    message = await channel.fetch_message(channel_message_id)
-    join = client.get_emoji(destiny_emoji_id)
-    destinyID = await lookupDestinyID(user.id)
+async def on_clan_join_request(ctx: ComponentContext):
+    await ctx.defer(hidden=True)
 
-    # remove reaction
-    await message.remove_reaction(join, user)
+    newtonslab = ctx.guild.get_channel(BOTDEVCHANNELID)
+    destinyID = await lookupDestinyID(ctx.author.id)
 
     # abort if user already is in clan
     for member in (await getJSONfromURL(f"https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/"))["Response"]["results"]:
         memberID = int(member["destinyUserInfo"]["membershipId"])
         if memberID == destinyID:
-            print(f"{user.display_name} tried to join the clan while being in it")
+            print(f"{ctx.author.display_name} tried to join the clan while being in it")
+            await ctx.send(hidden=True, embed=embed_message(
+                "Clan Application",
+                "You are already in the clan"
+            ))
             return
 
     # abort if user is @not_registered
-    if not await checkIfUserIsRegistered(user):
+    if not await checkIfUserIsRegistered(ctx.author):
+        await ctx.send(hidden=True, embed=embed_message(
+            "Clan Application",
+            "Please `/registerdesc` and then try again"
+        ))
         return
 
     # abort if member hasnt accepted the rules
-    if user.pending:
-        await user.send("Please accept the rules first. Try again after")
+    if ctx.author.pending:
+        await ctx.send(hidden=True, embed=embed_message(
+            "Clan Application",
+            "Please accept the rules and then try again"
+        ))
         return
 
     # abort if user doesn't fulfill requirements
-    req = await checkRequirements(user.id)
+    req = await checkRequirements(ctx.author.id)
     if req:
         embed = embed_message(
             "Clan Application",
@@ -44,7 +54,7 @@ async def clanJoinRequestMessageReactions(client, user, emoji, channel_id, chann
         for name, value in req.items():
             embed.add_field(name=name, value=value, inline=True)
 
-        await user.send(embed=embed)
+        await ctx.send(hidden=True, embed=embed)
         return
 
     # send user a clan invite (using kigstn's id / token since he is an admin and not the owner for some safety)
@@ -60,7 +70,7 @@ async def clanJoinRequestMessageReactions(client, user, emoji, channel_id, chann
         text = "Sent you a clan application"
         embed = embed_message(
             "Clan Update",
-            f"{user.display_name} with discordID <{user.id}> and destinyID <{destinyID}> has been sent a clan invite"
+            f"{ctx.author.display_name} with discordID <{ctx.author.id}> and destinyID <{destinyID}> has been sent a clan invite"
         )
         await newtonslab.send(embed=embed)
     else:
@@ -70,7 +80,7 @@ async def clanJoinRequestMessageReactions(client, user, emoji, channel_id, chann
         "Clan Application",
         text
     )
-    await user.send(embed=embed)
+    await ctx.send(hidden=True, embed=embed)
 
 
 # if a user leaves discord, he will be removed from the clan as well if admins react to the msg in the bot dev channel
@@ -128,7 +138,6 @@ async def removeFromClanAfterLeftDiscord(client, member):
 
 
 # returns a dict with the requirements which are not fulfilled, otherwise return None
-async def checkRequirements(discordID):
+async def checkRequirements(discordID) -> dict:
 
-    return None
-
+    return {}

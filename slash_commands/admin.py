@@ -3,7 +3,8 @@ import datetime
 import random
 
 from discord.ext import commands
-from discord_slash import cog_ext, SlashContext
+from discord_slash import cog_ext, SlashContext, ButtonStyle
+from discord_slash.utils import manage_components
 from discord_slash.utils.manage_commands import create_option, create_choice
 
 from functions.dataLoading import getNameAndCrossaveNameToHashMapByClanid, getProfile, updateDB
@@ -466,13 +467,17 @@ class PersistentMessagesCommands(commands.Cog):
 
 
         elif channel_type == "clanjoinrequest":
-            embed = embed_message(
-                f'Clan Application',
-                f'React if you want to join the clan'
-            )
+            components = [
+                manage_components.create_actionrow(
+                    manage_components.create_button(
+                        custom_id="clan_join_request",
+                        style=ButtonStyle.blue,
+                        label="Click to Join the Clan"
+                    ),
+                ),
+            ]
 
-            await make_persistent_message(self.client, "clanJoinRequest", ctx.guild.id, channel.id,
-                                          reaction_id_list=clan_join_request, message_embed=embed)
+            await make_persistent_message(self.client, "clanJoinRequest", ctx.guild.id, channel.id, components=components, message_text="⁣")
 
 
         elif channel_type == "steamjoincodes":

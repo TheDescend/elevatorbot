@@ -4,11 +4,11 @@ from typing import Union
 
 import pytz
 import discord
-import discord_components
 import dataclasses
 
 from apscheduler.jobstores.base import JobLookupError
-from discord_slash import SlashContext
+from discord_slash import SlashContext, ComponentContext, ButtonStyle
+from discord_slash.utils import manage_components
 
 from database.database import get_next_free_lfg_message_id, getPersistentMessage, get_lfg_blacklisted_members, \
     insert_lfg_message, select_lfg_message, delete_lfg_message, select_guild_lfg_events
@@ -77,7 +77,7 @@ class LfgMessage:
         await self.sort_lfg_messages()
 
     # add a member
-    async def add_member(self, member: discord.Member) -> bool:
+    async def add_member(self, member: discord.Member, ctx: ComponentContext = None) -> bool:
         if (member not in self.joined_members) and (member.id not in self.blacklisted_members):
             if len(self.joined_members) < self.max_joined_members:
                 self.joined_members.append(member)
@@ -89,29 +89,34 @@ class LfgMessage:
                 else:
                     return False
 
-            await self.send()
+            await self.send(ctx=ctx)
             return True
         return False
 
     # add a backup or move member to backup
-    async def add_backup(self, member: discord.Member) -> bool:
+    async def add_backup(self, member: discord.Member, ctx: ComponentContext = None) -> bool:
         if (member not in self.alternate_members) and (member.id not in self.blacklisted_members):
             self.alternate_members.append(member)
+
             if member in self.joined_members:
                 self.joined_members.remove(member)
-            await self.send()
+
+            await self.send(ctx=ctx)
             return True
         return False
 
     # remove a member
-    async def remove_member(self, member: discord.Member) -> bool:
+    async def remove_member(self, member: discord.Member, ctx: ComponentContext = None) -> bool:
         if member in self.joined_members:
             self.joined_members.remove(member)
-            await self.send()
+
+            await self.send(ctx=ctx)
             return True
+
         elif member in self.alternate_members:
             self.alternate_members.remove(member)
-            await self.send()
+
+            await self.send(ctx=ctx)
             return True
         return False
 
@@ -266,12 +271,27 @@ class LfgMessage:
         return embed
 
     # returns the buttons for the message
-    def return_buttons(self) -> list[list[discord_components.Button]]:
-        return [[
-            discord_components.Button(id="lfg_join", style=discord_components.ButtonStyle.green, label="Join", emoji=self._join_emoji, disabled=len(self.joined_members) >= self.max_joined_members),
-            discord_components.Button(id="lfg_leave", style=discord_components.ButtonStyle.red, label="Leave", emoji=self._leave_emoji),
-            discord_components.Button(id="lfg_backup", style=discord_components.ButtonStyle.blue, label="Backup", emoji=self._backup_emoji),
-        ]]
+    @staticmethod
+    def return_buttons() -> list:
+        return [
+            manage_components.create_actionrow(
+                manage_components.create_button(
+                    custom_id="lfg",
+                    style=ButtonStyle.green,
+                    label="Join"
+                ),
+                manage_components.create_button(
+                    custom_id="lfg",
+                    style=ButtonStyle.red,
+                    label="Leave"
+                ),
+                manage_components.create_button(
+                    custom_id="lfg",
+                    style=ButtonStyle.blue,
+                    label="Backup"
+                ),
+            ),
+        ]
 
     # updates the database entry
     async def dump_to_db(self):
@@ -309,7 +329,7 @@ class LfgMessage:
                                run_date=run_date, id=str(self.id))
 
     # send / edit the message in the channel
-    async def send(self):
+    async def send(self, ctx: ComponentContext = None):
         embed = self.return_embed()
         buttons = self.return_buttons()
 
@@ -318,7 +338,11 @@ class LfgMessage:
             self.creation_time = datetime.datetime.now(tz=datetime.timezone.utc)
             first_send = True
         else:
-            await self.message.edit(embed=embed, components=buttons)
+            # acknodlege the button press
+            if ctx:
+                self.message = await ctx.edit_origin(embed=embed, components=buttons)
+            else:
+                await self.message.edit(embed=embed, components=buttons)
             first_send = False
 
         # update the database entry

@@ -1,7 +1,7 @@
 import discord
 import datetime
 
-from functions.clanJoinRequests import clanJoinRequestMessageReactions
+from functions.clanJoinRequests import on_clan_join_request
 from database.database import getPersistentMessage, insertPersistentMessage, \
     getallSteamJoinIDs, updatePersistentMessage, getAllPersistentMessages, deletePersistentMessage
 from functions.formating import embed_message
@@ -32,7 +32,7 @@ async def get_persistent_message_or_channel(client, message_name, guild_id):
         return channel
 
 
-async def make_persistent_message(client, message_name, guild_id, channel_id, reaction_id_list=None, message_text=None, message_embed=None, no_message=False):
+async def make_persistent_message(client, message_name, guild_id, channel_id, reaction_id_list=None, components: dict = None, message_text=None, message_embed=None, no_message=False):
     """
     Creates a new persistent message entry in the DB or changes the old one
     Returns message obj
@@ -48,10 +48,7 @@ async def make_persistent_message(client, message_name, guild_id, channel_id, re
 
         # make new message
         channel = client.get_channel(channel_id)
-        if message_text:
-            message = await channel.send(message_text)
-        else:
-            message = await channel.send(embed=message_embed)
+        message = await channel.send(content=message_text, embed=message_embed, components=components)
 
         # react if wanted
         for emoji_id in reaction_id_list:
@@ -119,9 +116,6 @@ async def handle_persistent_message_reaction(client, payload, persistent_message
     # handling depends on the type of message, so if statement incoming
     if message_name == "otherGameRoles":
         await otherGameRolesMessageReactions(client, payload.member, payload.emoji, channel_id, message_id)
-
-    elif message_name == "clanJoinRequest":
-        await clanJoinRequestMessageReactions(client, payload.member, payload.emoji, channel_id, message_id)
 
     # only allow registered users to participate
     elif message_name == "tournament":
