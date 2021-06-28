@@ -625,7 +625,7 @@ def main():
             ),
         ]
         embed = ctx.origin_message.embeds[0]
-        embed.description = f"Last used by {ctx.author.mention} <:peepoZoom:658300542111449088> "
+        embed.description = f"Last used by {ctx.author.mention} <:PeepoZoom:670369608498151456>"
 
         await ctx.edit_origin(components=components, embed=embed)
 
