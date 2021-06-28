@@ -21,10 +21,11 @@ from io import BytesIO
 
 import discord
 from discord.ext.commands import Bot
-from discord_slash import SlashCommand, SlashContext, ComponentContext
+from discord_slash import SlashCommand, SlashContext, ComponentContext, ButtonStyle
 
 from apscheduler.events import EVENT_JOB_EXECUTED, EVENT_JOB_ERROR, EVENT_JOB_ADDED, EVENT_JOB_REMOVED
 from apscheduler.events import EVENT_JOB_MISSED, EVENT_JOB_SUBMITTED
+from discord_slash.utils import manage_components
 
 import message_handler
 from commands.registerDesc import elevatorRegistration
@@ -610,6 +611,21 @@ def main():
             f"Thanks for Registering",
             f"I sent you a DM with the next steps!"
         ))
+
+    # handle increment button
+    @slash.component_callback()
+    async def increment_button(ctx: ComponentContext):
+        components = [
+            manage_components.create_actionrow(
+                manage_components.create_button(
+                    custom_id="increment_button",
+                    style=ButtonStyle.blue,
+                    label=str(int(ctx.component["label"]) + 1)
+                ),
+            ),
+        ]
+
+        await ctx.edit_origin(components=components)
 
     # handle lfg messages
     @slash.component_callback()

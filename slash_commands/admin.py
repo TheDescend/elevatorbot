@@ -443,6 +443,10 @@ class PersistentMessagesCommands(commands.Cog):
                         name="Bot Status",
                         value="botstatus"
                     ),
+                    create_choice(
+                        name="Increment Button",
+                        value="increment_button"
+                    ),
                 ],
             ),
             create_option(
@@ -494,6 +498,23 @@ class PersistentMessagesCommands(commands.Cog):
             ]
 
             await make_persistent_message(self.client, "registration", ctx.guild.id, channel.id, components=components, message_text="⁣")
+
+        elif channel_type == "increment_button":
+            components = [
+                manage_components.create_actionrow(
+                    manage_components.create_button(
+                        custom_id="increment_button",
+                        style=ButtonStyle.blue,
+                        label="0"
+                    ),
+                ),
+            ]
+            embed = embed_message(
+                "Click the button to count up. Road to max int!"
+            )
+
+            await make_persistent_message(self.client, "incrementButton", ctx.guild.id, channel.id, components=components, message_embed=embed)
+
 
         elif channel_type == "steamjoincodes":
             await make_persistent_message(self.client, "steamJoinCodes", ctx.guild.id, channel.id, message_text="...")
