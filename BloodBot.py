@@ -625,9 +625,6 @@ def main():
             ),
         ]
         embed = ctx.origin_message.embeds[0]
-        embed = embed_message(
-            "Use the button to increase the count! Road to ram overflow!"
-        )
         embed.description = f"Last used by {ctx.author.mention} <:PeepoZoom:670369608498151456>"
 
         await ctx.edit_origin(components=components, embed=embed)
