@@ -600,38 +600,48 @@ def main():
         # raising error again to making deving easier
         raise error
 
-
     # handle lfg messages
     @slash.component_callback()
-    async def lfg(ctx: ComponentContext):
+    async def lfg_join(ctx: ComponentContext):
         # get the lfg message
-        lfg_message = await get_lfg_message(client=ctx.bot, lfg_message_id=ctx.message.id, guild=ctx.guild)
+        lfg_message = await get_lfg_message(client=ctx.bot, lfg_message_id=ctx.origin_message.id, guild=ctx.guild)
         if not lfg_message:
             return
 
-        if ctx.component.label == "Join":
-            res = await lfg_message.add_member(member=ctx.guild.get_member(ctx.author.id), ctx=ctx)
-            if not res:
-                await ctx.send(hidden=True, embed=embed_message(
-                    "Error",
-                    "You could not be added to the event\nThis is either because you are already in the event, the event is full, or the creator has blacklisted you from their events"
-                ))
+        res = await lfg_message.add_member(member=ctx.guild.get_member(ctx.author.id), ctx=ctx)
+        if not res:
+            await ctx.send(hidden=True, embed=embed_message(
+                "Error",
+                "You could not be added to the event\nThis is either because you are already in the event, the event is full, or the creator has blacklisted you from their events"
+            ))
 
-        if ctx.component.label == "Leave":
-            res = await lfg_message.remove_member(member=ctx.guild.get_member(ctx.author.id), ctx=ctx)
-            if not res:
-                await ctx.send(hidden=True, embed=embed_message(
-                    "Error",
-                    "You could not be removed from the event\nThis is because you are neither in the main nor in the backup roster"
-                ))
+    @slash.component_callback()
+    async def lfg_leave(ctx: ComponentContext):
+        # get the lfg message
+        lfg_message = await get_lfg_message(client=ctx.bot, lfg_message_id=ctx.origin_message.id, guild=ctx.guild)
+        if not lfg_message:
+            return
 
-        if ctx.component.label == "Backup":
-            res = await lfg_message.add_backup(member=ctx.guild.get_member(ctx.author.id), ctx=ctx)
-            if not res:
-                await ctx.send(hidden=True, embed=embed_message(
-                    "Error",
-                    "You could not be added as a backup to the event\nThis is either because you are already in the backup roster, or the creator has blacklisted you from their events"
-                ))
+        res = await lfg_message.remove_member(member=ctx.guild.get_member(ctx.author.id), ctx=ctx)
+        if not res:
+            await ctx.send(hidden=True, embed=embed_message(
+                "Error",
+                "You could not be removed from the event\nThis is because you are neither in the main nor in the backup roster"
+            ))
+
+    @slash.component_callback()
+    async def lfg_backup(ctx: ComponentContext):
+        # get the lfg message
+        lfg_message = await get_lfg_message(client=ctx.bot, lfg_message_id=ctx.origin_message.id, guild=ctx.guild)
+        if not lfg_message:
+            return
+
+        res = await lfg_message.add_backup(member=ctx.guild.get_member(ctx.author.id), ctx=ctx)
+        if not res:
+            await ctx.send(hidden=True, embed=embed_message(
+                "Error",
+                "You could not be added as a backup to the event\nThis is either because you are already in the backup roster, or the creator has blacklisted you from their events"
+            ))
 
 
     # handle clan join requests

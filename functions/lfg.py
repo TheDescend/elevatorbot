@@ -240,7 +240,7 @@ class LfgMessage:
         )
         embed.add_field(
             name="Start Time",
-            value=f"""[{self.utc_start_time.strftime("%H:%M %Z, %d/%m")}]({f"https://time.is/compare/{self.utc_start_time.strftime('%H%M')}_{self.utc_start_time.strftime('%d')}_{self.utc_start_time.strftime('%B')}_{self.utc_start_time.strftime('%Y')}_in_UTC"})""",
+            value=f"<t:{int(self.start_time.timestamp())}:f>",
             inline=True,
         )
         embed.add_field(
@@ -276,17 +276,17 @@ class LfgMessage:
         return [
             manage_components.create_actionrow(
                 manage_components.create_button(
-                    custom_id="lfg",
+                    custom_id="lfg_join",
                     style=ButtonStyle.green,
                     label="Join"
                 ),
                 manage_components.create_button(
-                    custom_id="lfg",
+                    custom_id="lfg_leave",
                     style=ButtonStyle.red,
                     label="Leave"
                 ),
                 manage_components.create_button(
-                    custom_id="lfg",
+                    custom_id="lfg_backup",
                     style=ButtonStyle.blue,
                     label="Backup"
                 ),
@@ -340,7 +340,7 @@ class LfgMessage:
         else:
             # acknodlege the button press
             if ctx:
-                self.message = await ctx.edit_origin(embed=embed, components=buttons)
+                await ctx.edit_origin(embed=embed, components=buttons)
             else:
                 await self.message.edit(embed=embed, components=buttons)
             first_send = False

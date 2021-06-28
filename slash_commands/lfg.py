@@ -3,7 +3,8 @@ import datetime
 import dateutil
 import pytz
 from discord.ext import commands
-from discord_slash import cog_ext, SlashContext
+from discord_slash import cog_ext, SlashContext, ButtonStyle, ComponentContext
+from discord_slash.utils import manage_components
 from discord_slash.utils.manage_commands import create_option, create_choice
 
 from database.database import add_lfg_blacklisted_member, remove_lfg_blacklisted_member
@@ -79,10 +80,10 @@ class LfgCommands(commands.Cog):
             ),
         ],
     )
-    async def _create(self, ctx: SlashContext, time, timezone, overwrite_max_members=None):
+    async def _create(self, ctx: SlashContext, start_time, timezone, overwrite_max_members=None):
         # get start time
         try:
-            start_time = dateutil.parser.parse(time, dayfirst=True)
+            start_time = dateutil.parser.parse(start_time, dayfirst=True)
         except dateutil.parser.ParserError:
             await ctx.send(hidden=True, embed=embed_message(
                 "Error",
@@ -107,126 +108,130 @@ class LfgCommands(commands.Cog):
         await ctx.defer()
 
         # ask for the activity
-        message = await ctx.send(embed=embed_message(
+        components = [
+            manage_components.create_actionrow(
+                manage_components.create_button(
+                    style=ButtonStyle.blue,
+                    label="Raids"
+                ),
+                manage_components.create_button(
+                    style=ButtonStyle.blue,
+                    label="Dungeons"
+                ),
+                manage_components.create_button(
+                    style=ButtonStyle.blue,
+                    label="Trials"
+                ),
+                manage_components.create_button(
+                    style=ButtonStyle.blue,
+                    label="Iron Banner"
+                ),
+                manage_components.create_button(
+                    style=ButtonStyle.blue,
+                    label="Other"
+                ),
+            ),
+        ]
+        embed = embed_message(
             "Please Select the Activity",
-            "\n".join(["1️⃣ Raids", "2️⃣ Dungeons", "3️⃣ Trials", "4️⃣ Iron Banner", "5️⃣ Other"])
-        ))
-        reactions = ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣"]
-        for reaction in reactions:
-            await message.add_reaction(reaction)
+        )
 
-        # wait 60s for reaction
-        def check(reaction_reaction, reaction_user):
-            return (str(reaction_reaction.emoji) in reactions) \
-                   and (reaction_reaction.message.id == message.id) \
-                   and (ctx.author == reaction_user)
+        message = await ctx.send(components=components, embed=embed)
+
+        # wait 60s for button press
         try:
-            reaction, _ = await self.client.wait_for('reaction_add', check=check, timeout=60)
+            button_ctx: ComponentContext = await manage_components.wait_for_component(ctx.bot, components=components, timeout=60)
         except asyncio.TimeoutError:
-            await message.clear_reactions()
-            await message.edit(embed=self.timeout_embed)
+            await message.edit(components=None, embed=self.timeout_embed)
             return
         else:
             # Raids
-            if str(reaction) == "1️⃣":
-
-                await message.clear_reactions()
-                await message.edit(embed=embed_message(
+            if button_ctx.component["label"] == "Raids":
+                components = manage_components.spread_to_rows(
+                    manage_components.create_button(
+                        style=ButtonStyle.blue,
+                        label="Last Wish"
+                    ),
+                    manage_components.create_button(
+                        style=ButtonStyle.blue,
+                        label="Garden of Salvation"
+                    ),
+                    manage_components.create_button(
+                        style=ButtonStyle.blue,
+                        label="Deep Stone Crypt"
+                    ),
+                    manage_components.create_button(
+                        style=ButtonStyle.blue,
+                        label="Vault of Glass"
+                    ),
+                )
+                embed = embed_message(
                     "Please Select the Raid",
-                    "\n".join(["1️⃣ Last Wish", "2️⃣ Garden of Salvation", "3️⃣ Deep Stone Crypt", "4️⃣ Vault of Glass"])
-                ))
-                reactions2 = ["1️⃣", "2️⃣", "3️⃣", "4️⃣"]
-                for reaction in reactions2:
-                    await message.add_reaction(reaction)
+                )
 
-                # wait 60s for reaction
-                def check(reaction_reaction, reaction_user):
-                    return (str(reaction_reaction.emoji) in reactions2) \
-                           and (reaction_reaction.message.id == message.id) \
-                           and (ctx.author == reaction_user)
+                await button_ctx.edit_origin(components=components, embed=embed)
 
+                # wait 60s for button press
                 try:
-                    reaction2, _ = await self.client.wait_for('reaction_add', check=check, timeout=60)
+                    button_ctx: ComponentContext = await manage_components.wait_for_component(ctx.bot, components=components, timeout=60)
                 except asyncio.TimeoutError:
-                    await message.clear_reactions()
-                    await message.edit(embed=self.timeout_embed)
+                    await message.edit(components=None, embed=self.timeout_embed)
                     return
                 else:
-                    # lw
-                    if str(reaction2) == "1️⃣":
-                        activity = "Last Wish"
-                        max_joined_members = 6
-
-                    # gos
-                    elif str(reaction2) == "2️⃣":
-                        activity = "Garden of Salvation"
-                        max_joined_members = 6
-
-                    # dsc
-                    elif str(reaction2) == "3️⃣":
-                        activity = "Deep Stone Crypt"
-                        max_joined_members = 6
-
-                    # vog
-                    elif str(reaction2) == "4️⃣":
-                        activity = "Vault of Glass"
-                        max_joined_members = 6
+                    await button_ctx.edit_origin(embed=embed)
+                    activity = button_ctx.component["label"]
+                    max_joined_members = 3
 
             # Dungeons
-            elif str(reaction) == "2️⃣":
-
-                await message.clear_reactions()
-                await message.edit(embed=embed_message(
+            elif button_ctx.component["label"] == "Dungeons":
+                components = [
+                    manage_components.create_actionrow(
+                        manage_components.create_button(
+                            style=ButtonStyle.blue,
+                            label="Shattered Throne"
+                        ),
+                        manage_components.create_button(
+                            style=ButtonStyle.blue,
+                            label="Pit of Hersey"
+                        ),
+                        manage_components.create_button(
+                            style=ButtonStyle.blue,
+                            label="Prophecy"
+                        ),
+                    ),
+                ]
+                embed = embed_message(
                     "Please Select the Dungeon",
-                    "\n".join(
-                        ["1️⃣ Shattered Throne", "2️⃣ Pit of Hersey", "3️⃣ Prophecy"])
-                ))
-                reactions2 = ["1️⃣", "2️⃣", "3️⃣"]
-                for reaction in reactions2:
-                    await message.add_reaction(reaction)
+                )
 
-                # wait 60s for reaction
-                def check(reaction_reaction, reaction_user):
-                    return (str(reaction_reaction.emoji) in reactions2) \
-                           and (reaction_reaction.message.id == message.id) \
-                           and (ctx.author == reaction_user)
+                await button_ctx.edit_origin(components=components, embed=embed)
 
+                # wait 60s for button press
                 try:
-                    reaction2, _ = await self.client.wait_for('reaction_add', check=check, timeout=60)
+                    button_ctx: ComponentContext = await manage_components.wait_for_component(ctx.bot, components=components, timeout=60)
                 except asyncio.TimeoutError:
-                    await message.clear_reactions()
                     await message.edit(embed=self.timeout_embed)
                     return
                 else:
-                    # st
-                    if str(reaction2) == "1️⃣":
-                        activity = "Last Wish"
-                        max_joined_members = 3
-
-                    # pit
-                    elif str(reaction2) == "2️⃣":
-                        activity = "Pit of Hersey"
-                        max_joined_members = 3
-
-                    # proph
-                    elif str(reaction2) == "3️⃣":
-                        activity = "Prophecy"
-                        max_joined_members = 3
+                    await button_ctx.edit_origin(embed=embed)
+                    activity = button_ctx.component["label"]
+                    max_joined_members = 3
 
             # Trials
-            elif str(reaction) == "3️⃣":
-                activity = "Trials"
+            elif button_ctx.component["label"] == "Trials":
+                await button_ctx.edit_origin(embed=embed)
+                activity = button_ctx.component["label"]
                 max_joined_members = 3
 
             # Iron Banner
-            elif str(reaction) == "4️⃣":
-                activity = "Iron Banner"
+            elif button_ctx.component["label"] == "Iron Banner":
+                await button_ctx.edit_origin(embed=embed)
+                activity = button_ctx.component["label"]
                 max_joined_members = 6
 
             # Other
-            elif str(reaction) == "5️⃣":
-                await message.clear_reactions()
-                await message.edit(embed=embed_message(
+            elif button_ctx.component["label"] == "Other":
+                await button_ctx.edit_origin(components=None, embed=embed_message(
                     "Activity Name",
                     "Please enter a name"
                 ))
@@ -238,7 +243,6 @@ class LfgCommands(commands.Cog):
                 try:
                     answer_msg = await self.client.wait_for('message', timeout=60.0, check=check)
                 except asyncio.TimeoutError:
-                    await message.clear_reactions()
                     await message.edit(embed=self.timeout_embed)
                     return
                 else:
@@ -252,8 +256,7 @@ class LfgCommands(commands.Cog):
             max_joined_members = int(overwrite_max_members)
 
         # get the description
-        await message.clear_reactions()
-        await message.edit(embed=embed_message(
+        await message.edit(components=None, embed=embed_message(
             "Description",
             "Please enter a description"
         ))
@@ -265,7 +268,6 @@ class LfgCommands(commands.Cog):
         try:
             answer_msg = await self.client.wait_for('message', timeout=60.0, check=check)
         except asyncio.TimeoutError:
-            await message.clear_reactions()
             await message.edit(embed=self.timeout_embed)
             return
         else:
