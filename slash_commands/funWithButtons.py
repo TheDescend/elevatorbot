@@ -13,8 +13,7 @@ class TicTacToe(commands.Cog):
 
     @cog_ext.cog_slash(
         name="tictactoe",
-        description="Try to beat me in a tic tac toe game",
-        guild_ids=GUILD_IDS
+        description="Try to beat me in a tic tac toe game. First person to win again me gets a free nitro",
     )
     async def _tictactoe(self, ctx: SlashContext):
         game = TicTacToeGame(ctx)
