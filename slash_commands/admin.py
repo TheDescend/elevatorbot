@@ -408,6 +408,10 @@ class PersistentMessagesCommands(commands.Cog):
                         value="clanjoinrequest"
                     ),
                     create_choice(
+                        name="Registration",
+                        value="registration"
+                    ),
+                    create_choice(
                         name="Other Game Roles",
                         value="othergameroles"
                     ),
@@ -465,7 +469,6 @@ class PersistentMessagesCommands(commands.Cog):
 
             await make_persistent_message(self.client, "otherGameRoles", ctx.guild.id, channel.id, reaction_id_list=emoji_id_list, message_embed=embed)
 
-
         elif channel_type == "clanjoinrequest":
             components = [
                 manage_components.create_actionrow(
@@ -479,6 +482,18 @@ class PersistentMessagesCommands(commands.Cog):
 
             await make_persistent_message(self.client, "clanJoinRequest", ctx.guild.id, channel.id, components=components, message_text="⁣")
 
+        elif channel_type == "registration":
+            components = [
+                manage_components.create_actionrow(
+                    manage_components.create_button(
+                        custom_id="registration",
+                        style=ButtonStyle.blue,
+                        label="Click to Register your Destiny 2 Account"
+                    ),
+                ),
+            ]
+
+            await make_persistent_message(self.client, "registration", ctx.guild.id, channel.id, components=components, message_text="⁣")
 
         elif channel_type == "steamjoincodes":
             await make_persistent_message(self.client, "steamJoinCodes", ctx.guild.id, channel.id, message_text="...")

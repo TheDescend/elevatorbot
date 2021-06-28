@@ -27,6 +27,7 @@ from apscheduler.events import EVENT_JOB_EXECUTED, EVENT_JOB_ERROR, EVENT_JOB_AD
 from apscheduler.events import EVENT_JOB_MISSED, EVENT_JOB_SUBMITTED
 
 import message_handler
+from commands.registerDesc import elevatorRegistration
 from functions.lfg import notify_about_lfg_event_start, get_lfg_message
 from init_logging import init_logging
 
@@ -599,6 +600,16 @@ def main():
 
         # raising error again to making deving easier
         raise error
+
+    # handle registrations
+    @slash.component_callback()
+    async def registration(ctx: ComponentContext):
+        await elevatorRegistration(ctx.author)
+
+        await ctx.send(hidden=True, embed=embed_message(
+            f"Thanks for Registering",
+            f"I sent you a DM with the next steps!"
+        ))
 
     # handle lfg messages
     @slash.component_callback()
