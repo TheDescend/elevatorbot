@@ -13,6 +13,7 @@ from functions.formating import embed_message
 @dataclasses.dataclass()
 class TicTacToeGame:
     ctx: SlashContext
+    easy_mode: bool
 
     message: SlashMessage = None
     current_state: list = dataclasses.field(init=False)
@@ -143,8 +144,12 @@ class TicTacToeGame:
             await self.send_message(winner=has_ended, disable_buttons=True)
             return
 
-        best_move = self.minimax(self.current_state, is_maximizing=True)
-        x, y = best_move[0], best_move[1]
+        if self.easy_mode:
+            empty_cell = random.choice(self.get_empty())
+            x, y = empty_cell[0], empty_cell[1]
+        else:
+            best_move = self.minimax(self.current_state, is_maximizing=True)
+            x, y = best_move[0], best_move[1]
 
         await self.make_move(x, y, self.ai_symbol)
 
@@ -252,7 +257,7 @@ class TicTacToeGame:
         if not self.message:
             embed = embed_message(
                 f"{self.ctx.author.display_name}'s TicTacToe Game",
-                footer="Hint: You are blue"
+                footer=f"""Hint: You are blue{f" - Easy Mode: On" if self.easy_mode else ""}"""
             )
             self.message = await self.ctx.send(components=self.buttons, embed=embed)
         else:
