@@ -4,11 +4,11 @@ from discord_slash.utils import manage_components
 from discord_slash.utils.manage_commands import create_option
 
 from functions.formating import embed_message
-from functions.ticTacToe import TicTacToeGame
+from functions.funWithButtons import TicTacToeGame, Calculator
 from static.config import GUILD_IDS
 
 
-class TicTacToe(commands.Cog):
+class Games(commands.Cog):
     def __init__(self, client):
         self.client = client
 
@@ -28,8 +28,15 @@ class TicTacToe(commands.Cog):
         game = TicTacToeGame(ctx=ctx, easy_mode=easy_mode)
         await game.play_game()
 
-
+    @cog_ext.cog_slash(
+        name="calculator",
+        description="A handy calculator!",
+        guild_ids=GUILD_IDS
+    )
+    async def _calculator(self, ctx: SlashContext):
+        calc = Calculator(ctx)
+        await calc.start()
 
 
 def setup(client):
-    client.add_cog(TicTacToe(client))
+    client.add_cog(Games(client))
