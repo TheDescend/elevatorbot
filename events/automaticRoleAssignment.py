@@ -16,9 +16,12 @@ from static.globals import *
 class AutomaticRoleAssignment(BaseEvent):
     """Will automatically update the roles"""
     def __init__(self):
-        interval_minutes = 720  # Set the interval for this event
-        super().__init__(scheduler_type="interval", interval_minutes=interval_minutes)
-    
+        # Set the interval for this event
+        dow_day_of_week = "*"
+        dow_hour = 0
+        dow_minute = 0
+        super().__init__(scheduler_type="cron", dow_day_of_week=dow_day_of_week, dow_hour=dow_hour, dow_minute=dow_minute)
+
     async def run(self, client):
         async def updateUser(discordUser):
             if discordUser.bot:
