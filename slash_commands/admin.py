@@ -510,7 +510,7 @@ class PersistentMessagesCommands(commands.Cog):
                 ),
             ]
             embed = embed_message(
-                "Click the button to count up. Road to max int!"
+                "Use the button increase the count! Road to max int!"
             )
 
             await make_persistent_message(self.client, "incrementButton", ctx.guild.id, channel.id, components=components, message_embed=embed)

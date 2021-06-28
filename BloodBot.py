@@ -624,8 +624,10 @@ def main():
                 ),
             ),
         ]
+        embed = ctx.origin_message.embeds[0]
+        embed.description = f"Last used by {ctx.author.mention} <:peepoZoom:658300542111449088> "
 
-        await ctx.edit_origin(components=components)
+        await ctx.edit_origin(components=components, embed=embed)
 
     # handle lfg messages
     @slash.component_callback()
