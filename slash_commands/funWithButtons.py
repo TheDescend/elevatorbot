@@ -31,7 +31,6 @@ class Games(commands.Cog):
     @cog_ext.cog_slash(
         name="calculator",
         description="A handy calculator!",
-        guild_ids=GUILD_IDS
     )
     async def _calculator(self, ctx: SlashContext):
         calc = Calculator(ctx)
