@@ -488,7 +488,7 @@ class PersistentMessagesCommands(commands.Cog):
                     manage_components.create_button(
                         custom_id="registration",
                         style=ButtonStyle.blue,
-                        label="Click to Register your Destiny 2 Account"
+                        label="Click to Connect your Destiny 2 Account"
                     ),
                 ),
             ]
