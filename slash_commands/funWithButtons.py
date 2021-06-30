@@ -12,9 +12,11 @@ class Games(commands.Cog):
     def __init__(self, client):
         self.client = client
 
-    @cog_ext.cog_slash(
-        name="tictactoe",
-        description="Try to beat me in a tic tac toe game. First person to win again me in normal mode gets a free nitro",
+    @cog_ext.cog_subcommand(
+        base="tictactoe",
+        base_description="You know and love it - TicTacToe",
+        name="computer",
+        description="Try to beat me in a tic tac toe game. First person to win again me in hard mode gets a free nitro",
         options=[
             create_option(
                 name="easy_mode",
@@ -22,11 +24,23 @@ class Games(commands.Cog):
                 option_type=5,
                 required=False
             ),
-        ],
+        ]
     )
-    async def _tictactoe(self, ctx: SlashContext, easy_mode: bool = False):
+    async def _tictactoe_ai(self, ctx: SlashContext, easy_mode: bool = False):
         game = TicTacToeGame(ctx=ctx, easy_mode=easy_mode)
         await game.play_game()
+
+
+    @cog_ext.cog_subcommand(
+        base="tictactoe",
+        base_description="You know and love it - TicTacToe",
+        name="versus",
+        description="Play against other humans",
+    )
+    async def _tictactoe_versus(self, ctx: SlashContext):
+        game = TicTacToeGame(ctx=ctx, versus=True)
+        await game.play_game()
+
 
     @cog_ext.cog_slash(
         name="calculator",

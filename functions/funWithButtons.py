@@ -3,6 +3,7 @@ import dataclasses
 import random
 from typing import Union
 
+import discord
 from discord_slash import SlashContext, ComponentContext
 from discord_slash.model import SlashMessage, ButtonStyle
 from discord_slash.utils import manage_components
@@ -228,7 +229,15 @@ class Calculator:
 @dataclasses.dataclass()
 class TicTacToeGame:
     ctx: SlashContext
-    easy_mode: bool
+
+    # if versus is off
+    easy_mode: bool = False
+
+    # if versus is on
+    versus: bool = False
+    player1: discord.Member = None
+    player2: discord.Member = None
+    player_turn: discord.Member = None
 
     message: SlashMessage = None
     current_state: list = dataclasses.field(init=False)
@@ -329,7 +338,19 @@ class TicTacToeGame:
 
     # checks that the button press author is the same as the message command invoker and that the message matches
     def check_author_and_message(self, ctx: ComponentContext):
-        return (ctx.author == self.ctx.author) and (self.ctx.message.id == ctx.origin_message.id)
+        # versus mode
+        if self.versus:
+            check = (self.ctx.message.id == ctx.origin_message.id)
+            if self.player_turn:
+                check = (check and (ctx.author == self.player_turn))
+            elif self.player1:
+                check = (check and (ctx.author != self.player1))
+
+        # ai mode
+        else:
+            check = (ctx.author == self.ctx.author) and (self.ctx.message.id == ctx.origin_message.id)
+
+        return check
 
     # play the move and change the board
     async def make_move(self, x: int, y: int, symbol: str, button_ctx: ComponentContext = None) -> bool:
@@ -343,8 +364,8 @@ class TicTacToeGame:
 
             # either enable or disable the buttons, depending on who plays next
             kwargs = {
-                "disable_buttons": symbol == self.player_symbol,
-                "enable_buttons": symbol == self.ai_symbol,
+                "disable_buttons": (symbol == self.player_symbol) and not self.versus,
+                "enable_buttons": (symbol == self.ai_symbol) and not self.versus,
             }
             await self.send_message(button_ctx=button_ctx, **kwargs)
             return True
@@ -387,6 +408,13 @@ class TicTacToeGame:
             await self.send_message(timeout=True, disable_buttons=True)
             return
         else:
+            # make sure the players are set
+            if self.versus:
+                if not self.player1:
+                    self.player1 = button_ctx.author
+                elif not self.player2:
+                    self.player2 = button_ctx.author
+
             # possible player moves (button ids) and their corresponding x, y values
             moves = {
                 "1": [0, 0], "2": [0, 1], "3": [0, 2],
@@ -397,12 +425,24 @@ class TicTacToeGame:
             # get the move from the button id
             player_move = moves[button_ctx.component_id]
 
+            # set the symbol
+            symbol = self.ai_symbol if self.versus and self.player2 == button_ctx.author else self.player_symbol
+
             # make the move
-            valid = await self.make_move(player_move[0], player_move[1], self.player_symbol, button_ctx)
+            valid = await self.make_move(player_move[0], player_move[1], symbol, button_ctx)
             assert (valid, "Move was not valid for some reason")
 
+            # make the other human turn
+            if self.versus:
+                # set the next turn to belong to the other player
+                self.player_turn = self.player2 if button_ctx.author == self.player1 else self.player1
+
+                # wait for other players move
+                await self.human_turn()
+
             # make the ai turn
-            await self.ai_turn()
+            else:
+                await self.ai_turn()
 
     # Checks if the game has ended and returns the winner in each case
     def is_end(self) -> Union[bool, str]:
@@ -472,7 +512,7 @@ class TicTacToeGame:
         if not self.message:
             embed = embed_message(
                 f"{self.ctx.author.display_name}'s TicTacToe Game",
-                footer=f"""Hint: You are blue{f" - Easy Mode: On" if self.easy_mode else ""}"""
+                footer=f"""You are blue{f" - Easy Mode: On" if self.easy_mode else ""}""" if not self.versus else "First user to press a button plays blue, second plays red"
             )
             self.message = await self.ctx.send(components=self.buttons, embed=embed)
         else:
@@ -481,12 +521,12 @@ class TicTacToeGame:
 
             # check if message reason is a timeout
             if timeout:
-                embed.description = "**You Lost:** You took to long to play"
+                embed.description = "**You Lost:** You took to long to play" if not self.versus else f"""{"**Red Wins:** Blue took to long to play" if self.player_turn == self.player1 else "**Blue Wins:** Red took to long to play"}"""
 
             # check if there is a winner
             elif winner:
                 if winner == self.player_symbol:
-                    text = "**You Won:** Try the hard mode next time 🙃"
+                    text = "**You Won:** Try the hard mode next time 🙃" if not self.versus else f"**Blue Wins**"
                 elif winner == self.ai_symbol:
                     banter = [
                         "Imagine losing in Tic Tac Toe",
@@ -500,7 +540,7 @@ class TicTacToeGame:
                         "Hopefully that was not your A game",
                         "You know you can win nitro here right?",
                     ]
-                    text = f"**You Lost:** {random.choice(banter)}"
+                    text = f"**You Lost:** {random.choice(banter)}" if not self.versus else f"**Red Wins**"
                 else:
                     text = "**Tie:** Better luck next time"
 
