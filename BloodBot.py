@@ -28,11 +28,10 @@ from apscheduler.events import EVENT_JOB_MISSED, EVENT_JOB_SUBMITTED
 from discord_slash.utils import manage_components
 
 import message_handler
-from commands.registerDesc import elevatorRegistration
 from functions.lfg import notify_about_lfg_event_start, get_lfg_message
 from init_logging import init_logging
 
-from functions.clanJoinRequests import removeFromClanAfterLeftDiscord, on_clan_join_request
+from functions.clanJoinRequests import removeFromClanAfterLeftDiscord, on_clan_join_request, elevatorRegistration
 from functions.dataLoading import updateDB
 from functions.formating import embed_message
 from functions.miscFunctions import update_status, get_scheduler, left_channel, joined_channel
@@ -462,30 +461,6 @@ def main():
                         await message.author.edit(nick=nick)
                         await message.author.send("Unmuted again :(")
                         return
-
-        # run the command if starts with !
-        if text.startswith(COMMAND_PREFIX) and text != COMMAND_PREFIX:
-            cmd_split = text[len(COMMAND_PREFIX):].split()
-            try:
-                await message_handler.handle_command(cmd_split[0].lower(),
-                                                     cmd_split[1:], message, client)
-            except:
-                print("Error while handling message", flush=True)
-                raise
-        else:
-            badwords = ['kanen', 'cyber', 'dicknugget', 'nigg', 'cmonbrug', ' bo ', 'bloodoak', 'ascend', 'cock',
-                        'cunt']
-            goodchannels = [
-                670400011519000616,  # general
-                670400027155365929,  # media
-                670402166103474190,  # spoiler-chat
-                670362162660900895,  # off-topic
-                # 672541982157045791 #markov-chat-channel
-            ]
-            if not message.content.startswith('http') and len(message.clean_content) > 5 and not any(
-                    [badword in message.clean_content.lower() for badword in
-                     badwords]) and message.channel.id in goodchannels:
-                await insertIntoMessageDB(message.clean_content, message.author.id, message.channel.id, message.id)
 
         if message.author.name == 'EscalatorBot':
             for user in message.mentions:

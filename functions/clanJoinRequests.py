@@ -1,13 +1,14 @@
 import asyncio
 
 import discord
-from discord_slash import ComponentContext
+from discord_slash import ComponentContext, ButtonStyle
+from discord_slash.utils import manage_components
 
 from database.database import lookupDestinyID, lookupSystem
 from functions.formating import embed_message
 from functions.miscFunctions import checkIfUserIsRegistered
 from functions.network import getJSONfromURL, postJSONtoBungie
-from static.config import CLANID, BOTDEVCHANNELID
+from static.config import CLANID, BOTDEVCHANNELID, BUNGIE_OAUTH
 from static.globals import thumps_up_emoji_id, thumps_down_emoji_id, destiny_emoji_id
 
 
@@ -141,3 +142,23 @@ async def removeFromClanAfterLeftDiscord(client, member):
 async def checkRequirements(discordID) -> dict:
 
     return {}
+
+
+async def elevatorRegistration(user: discord.Member):
+    URL = f"https://www.bungie.net/en/oauth/authorize?client_id={BUNGIE_OAUTH}&response_type=code&state={str(user.id) + ':' + str(user.guild.id)}"
+
+    components = [
+        manage_components.create_actionrow(
+            manage_components.create_button(
+                style=ButtonStyle.URL,
+                label=f"Registration Link",
+                url=URL
+            ),
+        ),
+    ]
+
+    await user.send(components=components, embed=embed_message(
+        f'Registration',
+        f'Use the button below to register with me',
+        "Please be aware that I will need a while to process your data after you register for the first time, so I might react very slow to your first commands."
+    ))

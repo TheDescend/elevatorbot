@@ -3,7 +3,7 @@ from discord_slash import cog_ext, SlashContext, ButtonStyle
 from discord_slash.utils import manage_components
 from discord_slash.utils.manage_commands import create_option
 
-from commands.registerDesc import elevatorRegistration
+from functions.clanJoinRequests import elevatorRegistration
 from database.database import removeUser, setSteamJoinID, getSteamJoinID
 from functions.formating import embed_message
 from functions.persistentMessages import steamJoinCodeMessage
