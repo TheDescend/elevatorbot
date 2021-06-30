@@ -27,7 +27,6 @@ from apscheduler.events import EVENT_JOB_EXECUTED, EVENT_JOB_ERROR, EVENT_JOB_AD
 from apscheduler.events import EVENT_JOB_MISSED, EVENT_JOB_SUBMITTED
 from discord_slash.utils import manage_components
 
-import message_handler
 from functions.lfg import notify_about_lfg_event_start, get_lfg_message
 from init_logging import init_logging
 
