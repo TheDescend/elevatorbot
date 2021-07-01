@@ -388,7 +388,7 @@ class DestinyCommands(commands.Cog):
         await self._send_challenge_info(user, start, seasonal_challenges, user_triumphs, components, ctx=ctx)
 
 
-    async def _send_challenge_info(self, user: discord.Member, week: str, seasonal_challenges: dict, user_triumphs: dict, select_components: list, ctx: SlashContext = None, select_ctx: ComponentContext = None) -> None:
+    async def _send_challenge_info(self, user: discord.Member, week: str, seasonal_challenges: dict, user_triumphs: dict, select_components: list, ctx: SlashContext = None, select_ctx: ComponentContext = None, message: discord.Message = None) -> None:
         # this is a recursive commmand.
 
         # make data pretty
@@ -396,7 +396,7 @@ class DestinyCommands(commands.Cog):
 
         # send message
         if not select_ctx:
-            await ctx.send(embed=embed, components=select_components)
+            message = await ctx.send(embed=embed, components=select_components)
         else:
             await select_ctx.edit_origin(embed=embed)
 
@@ -404,13 +404,13 @@ class DestinyCommands(commands.Cog):
         try:
             select_ctx: ComponentContext = await manage_components.wait_for_component(select_ctx.bot if select_ctx else ctx.bot, components=select_components, timeout=60)
         except asyncio.TimeoutError:
-            await select_ctx.edit_origin(components=None)
+            await message.edit(components=None)
             return
         else:
             new_week = select_ctx.selected_options[0]
 
             # recursively call this function
-            await self._send_challenge_info(user, new_week, seasonal_challenges, user_triumphs, select_components, select_ctx=select_ctx)
+            await self._send_challenge_info(user, new_week, seasonal_challenges, user_triumphs, select_components, select_ctx=select_ctx, message=message)
 
 
     @staticmethod
