@@ -113,10 +113,6 @@ async def handle_persistent_message_reaction(client, payload, persistent_message
         await message.remove_reaction(payload.emoji, payload.member)
         return
 
-    # handling depends on the type of message, so if statement incoming
-    if message_name == "otherGameRoles":
-        await otherGameRolesMessageReactions(client, payload.member, payload.emoji, channel_id, message_id)
-
     # only allow registered users to participate
     elif message_name == "tournament":
         if not (await handleAndReturnToken(payload.member.id))["result"]:
@@ -206,23 +202,3 @@ async def botStatus(client, field_name: str, time: datetime.datetime):
         embed.add_field(name=field_name, value=formated_time, inline=True)
 
     await message.edit(embed=embed)
-
-
-async def otherGameRolesMessageReactions(client, user, emoji, channel_id, channel_message_id):
-    async def handle_reaction(m, u, r, e, r_id):
-        if r_id not in r:
-            await u.add_roles(discord.utils.get(m.guild.roles, id=r_id), reason="Other Game Roles")
-        else:
-            await u.remove_roles(discord.utils.get(m.guild.roles, id=r_id), reason="Other Game Roles")
-        await m.remove_reaction(e, u)
-
-    channel = client.get_channel(channel_id)
-    message = await channel.fetch_message(channel_message_id)
-
-    # get current roles
-    roles = [role.id for role in user.roles]
-
-    # remove reaction and apply role
-    for emoji_id, role_id in other_game_roles:
-        if emoji.id == emoji_id:
-            await handle_reaction(message, user, roles, emoji, role_id)

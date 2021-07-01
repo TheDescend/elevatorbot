@@ -586,6 +586,40 @@ def main():
             f"I sent you a DM with the next steps!"
         ))
 
+    # handle other game roles
+    @slash.component_callback()
+    async def other_game_roles(ctx: ComponentContext):
+        user_role_ids = [role.id for role in ctx.author.roles]
+
+        added = []
+        removed = []
+
+        # loop through the roles the user want (to loose)
+        for role in ctx.selected_options:
+            role_name, role_id = role.split("|")
+            role_id = int(role_id)
+
+            # add role
+            if role_id not in user_role_ids:
+                await assignRolesToUser([role_id], ctx.author, ctx.guild)
+                added.append(role_name)
+
+            # remove role
+            else:
+                await removeRolesFromUser([role_id], ctx.author, ctx.guild)
+                removed.append(role_name)
+
+        # send message to user
+        embed = embed_message(
+            f"Role Update",
+        )
+        if added:
+            embed.add_field(name="Roles Added", value="\n".join(added), inline=True)
+        if removed:
+            embed.add_field(name="Roles Removed", value="\n".join(removed), inline=True)
+
+        await ctx.send(hidden=True, embed=embed)
+
     # handle increment button
     @slash.component_callback()
     async def increment_button(ctx: ComponentContext):

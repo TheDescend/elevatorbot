@@ -25,6 +25,7 @@ gta_role_id = 709120893728718910
 valorant_role_id = 709378171832893572
 lol_role_id = 756076447881363486
 eft_role_id = 800862253279608854
+minecraft_role_id = 860099222769631242
 
 
 """ Channel IDs """
@@ -54,6 +55,7 @@ gta_emoji_id = 751020831382962247
 valorant_emoji_id = 751020830414209064
 lol_emoji_id = 756076309527920661
 eft_emoji_id = 800866459286503445
+minecraft_emoji_id = 860099796123123712
 
 warlock_emoji_id = 830747907488612402
 hunter_emoji_id = 830747907829006346
@@ -66,14 +68,37 @@ backup_emoji_id = 850000522107027466
 
 
 """ Persistent Messages """
-other_game_roles = [
-    (among_us_emoji_id, among_us_role_id),
-    (barotrauma_emoji_id, barotrauma_role_id),
-    (gta_emoji_id, gta_role_id),
-    (valorant_emoji_id, valorant_role_id),
-    (lol_emoji_id, lol_role_id),
-    (eft_emoji_id, eft_role_id),
-]
+other_game_roles = {
+    "Among Us": {
+        "emoji_id": among_us_emoji_id,
+        "role_id": among_us_role_id,
+    },
+    "Barotrauma": {
+        "emoji_id": barotrauma_emoji_id,
+        "role_id": barotrauma_role_id,
+    },
+    "Escape from Tarkov": {
+        "emoji_id": eft_emoji_id,
+        "role_id": eft_role_id,
+    },
+    "GTA V": {
+        "emoji_id": gta_emoji_id,
+        "role_id": gta_role_id,
+    },
+    "League of Legends": {
+        "emoji_id": lol_emoji_id,
+        "role_id": lol_role_id,
+    },
+    "Minecraft": {
+        "emoji_id": minecraft_emoji_id,
+        "role_id": minecraft_role_id,
+    },
+    "Varlorant": {
+        "emoji_id": valorant_emoji_id,
+        "role_id": valorant_role_id,
+    },
+}
+
 clan_join_request = [
     destiny_emoji_id
 ]

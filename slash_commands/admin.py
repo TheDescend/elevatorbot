@@ -463,15 +463,30 @@ class PersistentMessagesCommands(commands.Cog):
         if channel_type == "othergameroles":
             embed = embed_message(
                 f'Other Game Roles',
-                f'React to add / remove other game roles'
+                "Select options to add / remove the related roles"
             )
 
-            # react with those please thanks
-            emoji_id_list = []
-            for emoji_id, _ in other_game_roles:
-                emoji_id_list.append(emoji_id)
+            components = [
+                manage_components.create_actionrow(
+                    manage_components.create_select(
+                        options=[
+                            manage_components.create_select_option(
+                                emoji=self.client.get_emoji(game_values["emoji_id"]),
+                                label=game_name,
+                                value=f"{game_name}|{game_values['role_id']}",
+                            )
+                            # Options for games. Using the role id as value and emoji as emoji
+                            for game_name, game_values in other_game_roles.items()
+                        ],
+                        custom_id="other_game_roles",
+                        placeholder="Select options here",
+                        min_values=1,
+                        max_values=len(other_game_roles),
+                    )
+                ),
+            ]
 
-            await make_persistent_message(self.client, "otherGameRoles", ctx.guild.id, channel.id, reaction_id_list=emoji_id_list, message_embed=embed)
+            await make_persistent_message(self.client, "otherGameRoles", ctx.guild.id, channel.id, components=components, message_embed=embed)
 
         elif channel_type == "clanjoinrequest":
             components = [
@@ -647,15 +662,28 @@ Basically just type `/lfg` and look around. There are many other cool commands t
 
 
 
-    # @cog_ext.cog_slash(
-    #     name="test",
-    #     description="tests",
-    #     guild_ids=GUILD_IDS
-    # )
-    # async def _test(self, ctx: SlashContext):
-    #     channels = ctx.guild.get_channel(667789269968093184)
-    #     x = channels.voice_channels
-    #     print(1)
+    @cog_ext.cog_slash(
+        name="test",
+        description="tests",
+        guild_ids=GUILD_IDS
+    )
+    async def _test(self, ctx: SlashContext):
+        select = manage_components.create_select(
+            options=[# the options in your dropdown
+                manage_components.create_select_option("Lab Coat", value="coat", emoji="🥼"),
+                manage_components.create_select_option("Test Tube", value="tube", emoji="🧪"),
+                manage_components.create_select_option("Petri Dish", value="dish", emoji="🧫"),
+            ],
+            placeholder="Choose your option",  # the placeholder text to show when no options have been chosen
+            min_values=1,  # the minimum number of options a user must select
+            max_values=2,  # the maximum number of options a user can select
+        )
+        print("ran")
+        select_action = manage_components.create_actionrow(select)
+        await ctx.send(content="dropdowns here", components=[select_action])
+
+        button_ctx = await manage_components.wait_for_component(self.client, components=select_action)
+        await button_ctx.send(content=f"You selected {button_ctx.selected_options}")
 
 def setup(client):
     client.add_cog(AdminCommands(client))
