@@ -1,4 +1,5 @@
 import datetime
+from typing import Optional
 
 import discord
 
@@ -10,7 +11,7 @@ from functions.miscFunctions import has_elevated_permissions
 from functions.network import handleAndReturnToken
 
 
-async def get_user_obj(ctx: SlashContext, kwargs: dict = None):
+async def get_user_obj(ctx: SlashContext, kwargs: dict = None) -> discord.Member:
     """ Returns the user object of the mentioned user in the kwargs, if emtpy, return author """
 
     if "user" in kwargs:
@@ -36,7 +37,7 @@ async def get_user_obj_admin(ctx: SlashContext, kwargs: dict = None, allowed_use
     return
 
 
-async def get_destinyID_and_system(ctx: SlashContext, discord_user):
+async def get_destinyID_and_system(ctx: SlashContext, discord_user) -> Optional[tuple[discord.Member, int, int]]:
     """" takes either a discord user_id or the user obj and return user obj, destinyID and system or None """
 
     var_type = type(discord_user)

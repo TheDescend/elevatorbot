@@ -1,7 +1,7 @@
 import pathlib
-from datetime import datetime
+from datetime import datetime, timedelta
 import time
-from typing import Union
+from typing import Union, Optional
 
 import matplotlib
 
@@ -9,7 +9,7 @@ from functions.dataLoading import getStats, getTriumphsJSON, getPGCR, getPlayers
     getNameToHashMapByClanid, getProfile
 from functions.network import getComponentInfoAsJSON
 from static.dict import clanids, seasonalChallengesCategoryHash
-from database.database import getInfoOnLowManActivity, getDestinyDefinition, getSeals, getEverything, getEverythingRow
+from database.database import get_info_on_low_man_activity, getDestinyDefinition, getSeals, getEverything, getEverythingRow
 
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -78,7 +78,7 @@ async def getPlayerCount(instanceID):
 async def hasLowman(playerid, playercount, raidHashes, flawless=False, noCheckpoints=False, disallowed=[], score_threshold=False):
     """ Default is flawless=False, disallowed is a list of (starttime, endtime) with datetime objects """
     starttime = time.monotonic()
-    low_activity_info = await getInfoOnLowManActivity(
+    low_activity_info = await get_info_on_low_man_activity(
         raidHashes,
         playercount,
         playerid,
@@ -289,3 +289,26 @@ async def getSeasonalChallengeInfo():
                         })
 
     return seasonal_challenges
+
+
+async def get_lowman_count(destiny_id: int, activity_hashes: list[int]) -> list[int, int, Optional[timedelta]]:
+    """ Returns [solo_count, solo_is_flawless_count, Optional[solo_fastest]] """
+    solo_count, solo_is_flawless_count, solo_fastest = 0, 0, None
+
+    # get player data
+    records = await get_info_on_low_man_activity(
+        activity_hashes=activity_hashes,
+        player_count=1,
+        destiny_id=destiny_id,
+        no_checkpoints=True
+    )
+
+    # prepare player data
+    for solo in records:
+        solo_count += 1
+        if solo["deaths"] == 0:
+            solo_is_flawless_count += 1
+        if not solo_fastest or (solo["timeplayedseconds"] < solo_fastest):
+            solo_fastest = solo["timeplayedseconds"]
+
+    return [solo_count, solo_is_flawless_count, timedelta(seconds=solo_fastest) if solo_fastest else solo_fastest]

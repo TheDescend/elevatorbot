@@ -19,7 +19,8 @@ from functions.authfunctions import getSpiderMaterials
 from functions.dataLoading import searchForItem, getStats, getArtifact, getCharacterGearAndPower, getInventoryBucket, \
     getProfile, getCharacterList, getAggregateStatsForChar, getWeaponStats, updateDB, getDestinyName, getTriumphsJSON, getCharacterInfoList, getCharacterID, getClanMembers, \
     translateWeaponSlot
-from functions.dataTransformation import getSeasonalChallengeInfo, getCharStats, getPlayerSeals, getIntStat
+from functions.dataTransformation import getSeasonalChallengeInfo, getCharStats, getPlayerSeals, getIntStat, \
+    get_lowman_count
 from database.database import lookupDiscordID, getForges, getLastActivity, \
     getDestinyDefinition, getWeaponInfo, getPgcrActivity, getTopWeapons, getActivityHistory, \
     getPgcrActivitiesUsersStats, getClearCount, get_d2_steam_player_info, getTimePlayed
@@ -31,8 +32,10 @@ from functions.persistentMessages import get_persistent_message_or_channel, make
 from functions.slashCommandFunctions import get_user_obj, get_destinyID_and_system, get_user_obj_admin, \
     verify_time_input
 from functions.tournament import startTournamentEvents
-from static.config import CLANID
-from static.dict import metricRaidCompletion, raidHashes, gmHashes, expansion_dates, season_dates
+from static.config import CLANID, GUILD_IDS
+from static.dict import metricRaidCompletion, raidHashes, gmHashes, expansion_dates, season_dates, zeroHashes, \
+    herzeroHashes, whisperHashes, herwhisperHashes, presageHashes, presageMasterHashes, prophHashes, pitHashes, \
+    throneHashes, harbHashes
 from static.globals import titan_emoji_id, hunter_emoji_id, warlock_emoji_id, light_level_icon_emoji_id, tournament, \
     enter_emoji_id
 from static.slashCommandOptions import choices_mode, options_stat, options_user
@@ -62,6 +65,67 @@ class DestinyCommands(commands.Cog):
             ["2020-07-07", "Moments of Triumph"],
             ["2021-05-22", "VoG"],
         ]
+
+    @cog_ext.cog_slash(
+        name="solos",
+        description="Shows you an overview of your Destiny 2 solo activity completions",
+        options=[
+            options_user()
+        ],
+    )
+    async def _solos(self, ctx: SlashContext, **kwargs):
+        user = await get_user_obj(ctx, kwargs)
+        _, destinyID, system = await get_destinyID_and_system(ctx, user)
+        if not destinyID:
+            return
+
+        await ctx.defer()
+
+        interesting_solos = {
+            "Shattered Throne": throneHashes,
+            "Pit of Heresy": pitHashes,
+            "Prophecy": prophHashes,
+            "Harbinger": harbHashes,
+            "Presage": presageHashes,
+            "Master Presage": presageMasterHashes,
+            "The Whisper": whisperHashes + herwhisperHashes,
+            "Zero Hour": zeroHashes + herzeroHashes,
+            "Grandmaster Nightfalls": gmHashes,
+        }
+
+        # get the return text in a gather
+        interesting_solos_texts = await asyncio.gather(*[
+            self.get_formatted_solos_data(
+                destiny_id=destinyID,
+                solo_activity_ids=solo_activity_ids,
+            ) for solo_activity_ids in interesting_solos.values()
+        ])
+
+        # start building the return embed
+        embed = embed_message(
+            f"{user.display_name}'s Destiny Solos"
+        )
+
+        # add the fields
+        for solo_name, solo_activity_ids, solo_text in zip(interesting_solos.keys(), interesting_solos.values(), interesting_solos_texts):
+            embed.add_field(
+                name=solo_name,
+                value=solo_text,
+                inline=True,
+            )
+
+        await ctx.send(embed=embed)
+
+
+    @staticmethod
+    async def get_formatted_solos_data(destiny_id: int, solo_activity_ids: list[int]) -> str:
+        """ returns the formatted string to be used in self.solos() """
+
+        results = await get_lowman_count(
+            destiny_id=destiny_id,
+            activity_hashes=solo_activity_ids,
+        )
+        return f"Solo Completions: **{results[0]}**\nSolo Flawless Count: **{results[1]}**\nFastest Solo: **{results[2]}**"
 
 
     @cog_ext.cog_slash(
@@ -588,6 +652,7 @@ class DestinyCommands(commands.Cog):
             f"{user.display_name}'s PvP Stat Info",
             f"Your `{kwargs['name']}` stat is currently at **{stat:,}**"
         ))
+
 
 
 class ClanActivitiesCommands(commands.Cog):

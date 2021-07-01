@@ -28,14 +28,16 @@ vogMasterHashes = [1]
 throneHashes = [1893059148, 2032534090]
 pitHashes = [1375089621, 2559374368, 2559374374, 2559374375]
 prophHashes = [1077850348, 4148187374]
-harbHashes = [1738383283,]
-presageHashes = [2124066889,]
-presageMasterHashes = [4212753278,]
+harbHashes = [1738383283, ]
+presageHashes = [2124066889, ]
+presageMasterHashes = [4212753278, ]
 
 # menagerie
 premenHashes = [2509539864, 2509539865, 2509539867, 1831470693, 3107795800, 3115455134]
 
 # secret missions
+whisperHashes = [74501540]
+herwhisperHashes = [1099555105]
 zeroHashes = [3232506937]
 herzeroHashes = [2731208666]
 
