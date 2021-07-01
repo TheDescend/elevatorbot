@@ -11,7 +11,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from discord.ext import commands
-from discord_slash import cog_ext, SlashContext
+from discord_slash import cog_ext, SlashContext, ComponentContext
+from discord_slash.utils import manage_components
 from discord_slash.utils.manage_commands import create_option, create_choice
 from pyvis.network import Network
 
@@ -347,82 +348,73 @@ class DestinyCommands(commands.Cog):
         name="challenges",
         description="Shows you the seasonal challenges and your completion status",
         options=[
-            create_option(
-                name="week",
-                description="The specific week you want to see",
-                option_type=4,
-                required=False,
-            ),
             options_user()
         ],
     )
     async def _challenges(self, ctx: SlashContext, **kwargs):
         await ctx.defer()
         user = await get_user_obj(ctx, kwargs)
-        author = ctx.author
         _, destinyID, system = await get_destinyID_and_system(ctx, user)
         if not destinyID:
             return
 
         # get seasonal challenge info
         seasonal_challenges = await getSeasonalChallengeInfo()
-        index = list(seasonal_challenges)
-
-        # get the week (or the default - whatever is first)
-        week = f"Week {kwargs['week']}" if "week" in kwargs else ""
-        if week not in seasonal_challenges:
-            week = index[0]
+        start = list(seasonal_challenges)[0]
 
         # get player triumphs
         user_triumphs = await getTriumphsJSON(destinyID)
 
+        # get select components
+        components = [
+            manage_components.create_actionrow(
+                manage_components.create_select(
+                    options=[
+                        manage_components.create_select_option(
+                            emoji="📅",
+                            label=week,
+                            value=week,
+                        )
+                        for week in seasonal_challenges
+                    ],
+                    placeholder="Select the week you want to see",
+                    min_values=1,
+                    max_values=1,
+                )
+            ),
+        ]
+
         # send data and wait for new user input
-        await self._send_challenge_info(user, author, week, seasonal_challenges, index, user_triumphs, ctx=ctx, message=None)
+        await self._send_challenge_info(user, start, seasonal_challenges, user_triumphs, components, ctx=ctx)
 
 
-    async def _send_challenge_info(self, user, author, week, seasonal_challenges, index, user_triumphs, ctx=None, message=None):
+    async def _send_challenge_info(self, user: discord.Member, week: str, seasonal_challenges: dict, user_triumphs: dict, select_components: list, ctx: SlashContext = None, select_ctx: ComponentContext = None) -> None:
         # this is a recursive commmand.
 
         # make data pretty
         embed = await self._get_challenge_info(user, week, seasonal_challenges, user_triumphs)
 
         # send message
-        if not message:
-            message = await ctx.send(embed=embed)
+        if not select_ctx:
+            await ctx.send(embed=embed, components=select_components)
         else:
-            await message.edit(embed=embed)
+            await select_ctx.edit_origin(embed=embed)
 
-        # get current indexes - to look whether to add arrows to right
-        current_index = index.index(week)
-        max_index = len(index) - 1
-
-        # add reactions
-        if current_index > 0:
-            await message.add_reaction("⬅")
-        if current_index < max_index:
-            await message.add_reaction("➡")
-
-        # wait 60s for reaction
-        def check(reaction_reaction, reaction_user):
-            return (str(reaction_reaction.emoji) == "⬅" or str(reaction_reaction.emoji) == "➡") \
-                   and (reaction_reaction.message.id == message.id) \
-                   and (author == reaction_user)
-
+        # wait 60s for selection
         try:
-            reaction, _ = await self.client.wait_for('reaction_add', check=check, timeout=60)
+            select_ctx: ComponentContext = await manage_components.wait_for_component(select_ctx.bot if select_ctx else ctx.bot, components=select_components, timeout=60)
         except asyncio.TimeoutError:
-            # clear reactions
-            await message.clear_reactions()
+            await select_ctx.edit_origin(components=None)
+            return
         else:
-            # clear reactions
-            await message.clear_reactions()
+            new_week = select_ctx.selected_options[0]
 
             # recursively call this function
-            new_index = index[current_index - 1] if str(reaction.emoji) == "⬅" else index[current_index + 1]
-            await self._send_challenge_info(user, author, new_index, seasonal_challenges, index, user_triumphs, message=message)
+            await self._send_challenge_info(user, new_week, seasonal_challenges, user_triumphs, select_components, select_ctx=select_ctx)
 
 
-    async def _get_challenge_info(self, user, week, seasonal_challenges, user_triumphs):
+    @staticmethod
+    async def _get_challenge_info(user: discord.Member, week: str, seasonal_challenges: dict, user_triumphs: dict) -> discord.Embed:
         """ Returns an embed for the specified week """
         embed = embed_message(
             f"{user.display_name}'s Seasonal Challenges - {week}"
