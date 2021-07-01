@@ -664,26 +664,23 @@ Basically just type `/lfg` and look around. There are many other cool commands t
 
     @cog_ext.cog_slash(
         name="test",
-        description="tests",
         guild_ids=GUILD_IDS
     )
     async def _test(self, ctx: SlashContext):
         select = manage_components.create_select(
-            options=[# the options in your dropdown
-                manage_components.create_select_option("Lab Coat", value="coat", emoji="🥼"),
-                manage_components.create_select_option("Test Tube", value="tube", emoji="🧪"),
-                manage_components.create_select_option("Petri Dish", value="dish", emoji="🧫"),
+            options=[
+                manage_components.create_select_option("Option", value="option"),
             ],
-            placeholder="Choose your option",  # the placeholder text to show when no options have been chosen
-            min_values=1,  # the minimum number of options a user must select
-            max_values=2,  # the maximum number of options a user can select
+            placeholder="Choose your option",
+            min_values=1,
+            max_values=1,
         )
-        print("ran")
         select_action = manage_components.create_actionrow(select)
-        await ctx.send(content="dropdowns here", components=[select_action])
+        await ctx.send(content="select", components=[select_action])
 
         button_ctx = await manage_components.wait_for_component(self.client, components=select_action)
-        await button_ctx.send(content=f"You selected {button_ctx.selected_options}")
+        await button_ctx.edit_origin(content="edited", components=None)
+
 
 def setup(client):
     client.add_cog(AdminCommands(client))

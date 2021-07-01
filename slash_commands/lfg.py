@@ -23,7 +23,6 @@ class LfgCommands(commands.Cog):
             "I AM IMPATIENT. PLEASE BE QUICKER NEXT TIME. THANKS"
         )
 
-
     @cog_ext.cog_subcommand(
         base="lfg",
         base_description="Everything concerning my awesome Destiny 2 LFG system",
@@ -396,63 +395,67 @@ class LfgCommands(commands.Cog):
                 await answer_msg.delete()
 
                 # ask for the timezone
-                await message.edit(embed=embed_message(
-                    "Please Select your Timezone",
-                    "\n".join(["1️⃣ GMT / UTC", "2️⃣ Central Europe", "3️⃣ Eastern Europe", "4️⃣ Moscow / Turkey", "5️⃣ Central US", "6️⃣ Eastern US", "7️⃣ Pacific US"])
-                ))
-                reactions = ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣"]
-                for reaction in reactions:
-                    await message.add_reaction(reaction)
+                components = [
+                    manage_components.create_actionrow(
+                        manage_components.create_select(
+                            options=[
+                                manage_components.create_select_option(
+                                    emoji="🕑",
+                                    label=timezone_name,
+                                    value=timezone_value,
+                                )
+                                # Options for timezones
+                                for timezone_name, timezone_value in {
+                                    "GMT / UTC": "UTC",
+                                    "Central Europe": "Europe/Berlin",
+                                    "Eastern Europe": "Europe/Tallinn",
+                                    "Moscow / Turkey": "Europe/Moscow",
+                                    "Central US": "US/Central",
+                                    "Eastern US": "US/Eastern",
+                                    "Pacific US": "US/Pacific"
+                                }.items()
 
-                # wait 60s for reaction
-                def check_reaction(reaction_reaction, reaction_user):
-                    res = (str(reaction_reaction.emoji) in reactions) \
-                           and (reaction_reaction.message.id == message.id) \
-                           and (ctx.author == reaction_user)
-                    return res
+                            ],
+                            placeholder="Select timezone here",
+                            min_values=1,
+                            max_values=1,
+                        )
+                    ),
+                ]
+                embed = embed_message(
+                    "Please Select the Timezone",
+                )
+
+                await message.edit(components=components, embed=embed)
+
+                # wait 60s for selection
                 try:
-                    reaction, _ = await self.client.wait_for('reaction_add', check=check_reaction, timeout=60)
+                    select_ctx: ComponentContext = await manage_components.wait_for_component(ctx.bot, components=components, timeout=60)
                 except asyncio.TimeoutError:
-                    await message.clear_reactions()
                     await message.edit(embed=self.timeout_embed)
                     return
                 else:
-                    if str(reaction) == "1️⃣":
-                        tz = pytz.timezone("UTC")
-                    elif str(reaction) == "2️⃣":
-                        tz = pytz.timezone("Europe/Berlin")
-                    elif str(reaction) == "3️⃣":
-                        tz = pytz.timezone("Europe/Tallinn")
-                    elif str(reaction) == "4️⃣":
-                        tz = pytz.timezone("Europe/Moscow")
-                    elif str(reaction) == "5️⃣":
-                        tz = pytz.timezone("US/Central")
-                    elif str(reaction) == "6️⃣":
-                        tz = pytz.timezone("US/Eastern")
-                    elif str(reaction) == "7️⃣":
-                        tz = pytz.timezone("US/Pacific")
-                    else:
-                        return
+                    selected = select_ctx.selected_options[0]
+
+                    # localize to that timezone
+                    tz = pytz.timezone(selected)
                     start_time = tz.localize(start_time)
 
                     # make sure thats in the future
                     if start_time < datetime.datetime.now(datetime.timezone.utc):
-                        await message.clear_reactions()
-                        await message.edit(embed=embed_message(
+                        await select_ctx.edit_origin(components=None, embed=embed_message(
                             "Error",
                             "The event cannot start in the past. Please try again"
                         ))
                         return
 
-                # edit the message
-                await lfg_message.edit_start_time_and_send(start_time)
-                await message.clear_reactions()
-                await message.edit(embed=embed_message(
-                    f"Success",
-                    f"I've edited the post"
-                ))
-                return
-
+                    # edit the message
+                    await lfg_message.edit_start_time_and_send(start_time)
+                    await select_ctx.edit_origin(components=None, embed=embed_message(
+                        f"Success",
+                        f"I've edited the post"
+                    ))
+                    return
 
         else:   # section == "Maximum Members":
             message = await ctx.send(embed=embed_message(
