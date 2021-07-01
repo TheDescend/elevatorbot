@@ -1,7 +1,7 @@
 Flask==1.1.2
 pytz==2021.1
 asyncpg==0.22.0
-discord_py_slash_command==2.0.4
+discord_py_slash_command==2.1.0
 numpy==1.20.2
 aiohttp==3.7.4.post0
 APScheduler==3.7.0
