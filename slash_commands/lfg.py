@@ -14,14 +14,25 @@ from static.config import GUILD_IDS
 from static.globals import join_emoji_id, leave_emoji_id, backup_emoji_id
 from static.slashCommandOptions import options_user
 
+timezones_dict = {
+    "GMT / UTC": "UTC",
+    "Central Europe": "Europe/Berlin",
+    "Eastern Europe": "Europe/Tallinn",
+    "Moscow / Turkey": "Europe/Moscow",
+    "Central US": "US/Central",
+    "Eastern US": "US/Eastern",
+    "Pacific US": "US/Pacific"
+}
+
 
 class LfgCommands(commands.Cog):
+    timeout_embed = embed_message(
+        "Error",
+        "I AM IMPATIENT. PLEASE BE QUICKER NEXT TIME. THANKS"
+    )
+
     def __init__(self, client):
         self.client = client
-        self.timeout_embed = embed_message(
-            "Error",
-            "I AM IMPATIENT. PLEASE BE QUICKER NEXT TIME. THANKS"
-        )
 
     @cog_ext.cog_subcommand(
         base="lfg",
@@ -42,33 +53,9 @@ class LfgCommands(commands.Cog):
                 required=True,
                 choices=[
                     create_choice(
-                        name="GMT / UTC",
-                        value="UTC"
-                    ),
-                    create_choice(
-                        name="Central Europe",
-                        value='Europe/Berlin'
-                    ),
-                    create_choice(
-                        name="Eastern Europe",
-                        value='Europe/Tallinn'
-                    ),
-                    create_choice(
-                        name="Moscow / Turkey",
-                        value='Europe/Moscow'
-                    ),
-                    create_choice(
-                        name="Central US",
-                        value='US/Central'
-                    ),
-                    create_choice(
-                        name="Eastern US",
-                        value='US/Eastern'
-                    ),
-                    create_choice(
-                        name="Pacific US",
-                        value='US/Pacific'
-                    ),
+                        name=timezone_name,
+                        value=timezone_value,
+                    ) for timezone_name, timezone_value in timezones_dict.items()
                 ]
             ),
             create_option(
@@ -405,15 +392,7 @@ class LfgCommands(commands.Cog):
                                     value=timezone_value,
                                 )
                                 # Options for timezones
-                                for timezone_name, timezone_value in {
-                                    "GMT / UTC": "UTC",
-                                    "Central Europe": "Europe/Berlin",
-                                    "Eastern Europe": "Europe/Tallinn",
-                                    "Moscow / Turkey": "Europe/Moscow",
-                                    "Central US": "US/Central",
-                                    "Eastern US": "US/Eastern",
-                                    "Pacific US": "US/Pacific"
-                                }.items()
+                                for timezone_name, timezone_value in timezones_dict.items()
 
                             ],
                             placeholder="Select timezone here",
