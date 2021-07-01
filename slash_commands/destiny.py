@@ -385,10 +385,10 @@ class DestinyCommands(commands.Cog):
         ]
 
         # send data and wait for new user input
-        await self._send_challenge_info(user, start, seasonal_challenges, user_triumphs, components, ctx=ctx)
+        await self._send_challenge_info(ctx.author, user, start, seasonal_challenges, user_triumphs, components, ctx=ctx)
 
 
-    async def _send_challenge_info(self, user: discord.Member, week: str, seasonal_challenges: dict, user_triumphs: dict, select_components: list, ctx: SlashContext = None, select_ctx: ComponentContext = None, message: discord.Message = None) -> None:
+    async def _send_challenge_info(self, author: discord.Member, user: discord.Member, week: str, seasonal_challenges: dict, user_triumphs: dict, select_components: list, ctx: SlashContext = None, select_ctx: ComponentContext = None, message: discord.Message = None) -> None:
         # this is a recursive commmand.
 
         # make data pretty
@@ -401,6 +401,8 @@ class DestinyCommands(commands.Cog):
             await select_ctx.edit_origin(embed=embed)
 
         # wait 60s for selection
+        def check(select_ctx: ComponentContext):
+            return select_ctx.author == author
         try:
             select_ctx: ComponentContext = await manage_components.wait_for_component(select_ctx.bot if select_ctx else ctx.bot, components=select_components, timeout=60)
         except asyncio.TimeoutError:
@@ -410,7 +412,7 @@ class DestinyCommands(commands.Cog):
             new_week = select_ctx.selected_options[0]
 
             # recursively call this function
-            await self._send_challenge_info(user, new_week, seasonal_challenges, user_triumphs, select_components, select_ctx=select_ctx, message=message)
+            await self._send_challenge_info(author, user, new_week, seasonal_challenges, user_triumphs, select_components, select_ctx=select_ctx, message=message)
 
 
     @staticmethod
@@ -431,27 +433,16 @@ class DestinyCommands(commands.Cog):
             rate = sum(rate) / len(rate)
 
             # make emoji art for completion rate
-            rate_text = "|"
-            if rate > 0:
-                rate_text += "🟩"
-            else:
-                rate_text += "🟥"
-            if rate > 0.25:
-                rate_text += "🟩"
-            else:
-                rate_text += "🟥"
-            if rate > 0.5:
-                rate_text += "🟩"
-            else:
-                rate_text += "🟥"
-            if rate == 1:
-                rate_text += "🟩"
-            else:
-                rate_text += "🟥"
-            rate_text += "|"
+            bar_length = 10
+            bar_text = ""
+            for i in range(bar_length):
+                if round(rate, 1) <= 1 / bar_length * i:
+                    bar_text += "░"
+                else:
+                    bar_text += "▓"
 
             # add field to embed
-            embed.add_field(name=f"""{triumph["name"]} {rate_text}""", value=triumph["description"], inline=False)
+            embed.add_field(name=f"""{triumph["name"]}   |   {bar_text}  {int(rate * 100)}%""", value=triumph["description"], inline=False)
 
         return embed
 

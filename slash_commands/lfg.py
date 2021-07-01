@@ -408,8 +408,10 @@ class LfgCommands(commands.Cog):
                 await message.edit(components=components, embed=embed)
 
                 # wait 60s for selection
+                def check(select_ctx: ComponentContext):
+                    return select_ctx.author == ctx.author
                 try:
-                    select_ctx: ComponentContext = await manage_components.wait_for_component(ctx.bot, components=components, timeout=60)
+                    select_ctx: ComponentContext = await manage_components.wait_for_component(ctx.bot, components=components, timeout=60, check=check)
                 except asyncio.TimeoutError:
                     await message.edit(embed=self.timeout_embed)
                     return
