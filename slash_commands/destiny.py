@@ -36,7 +36,7 @@ from functions.tournament import startTournamentEvents
 from static.config import CLANID, GUILD_IDS
 from static.dict import metricRaidCompletion, raidHashes, gmHashes, expansion_dates, season_dates, zeroHashes, \
     herzeroHashes, whisperHashes, herwhisperHashes, presageHashes, presageMasterHashes, prophHashes, pitHashes, \
-    throneHashes, harbHashes
+    throneHashes, harbHashes, requirementHashes
 from static.globals import titan_emoji_id, hunter_emoji_id, warlock_emoji_id, light_level_icon_emoji_id, tournament, \
     enter_emoji_id
 from static.slashCommandOptions import choices_mode, options_stat, options_user
@@ -961,6 +961,10 @@ class RankCommands(commands.Cog):
                         value="discordjoindate"
                     ),
                     create_choice(
+                        name="Roles Earned on this Discord Server",
+                        value="roles"
+                    ),
+                    create_choice(
                         name="Total Playtime",
                         value="totaltime"
                     ),
@@ -1048,10 +1052,10 @@ class RankCommands(commands.Cog):
                         name="Triumph Score",
                         value="triumphs"
                     ),
-                    create_choice(
-                        name="Laurels collected",
-                        value="laurels"
-                    ),
+                    # create_choice(
+                    #     name="Laurels collected",
+                    #     value="laurels"
+                    # ),
                 ]
             ),
             create_option(
@@ -1197,6 +1201,28 @@ class RankCommands(commands.Cog):
 
             result_sort = discord_member.joined_at
             result = discord_member.joined_at.strftime("%d/%m/%Y, %H:%M")
+
+        elif stat == "roles":
+            sort_by_ascending = True
+            leaderboard_text = "Top Clanmembers by Discord Roles Earned"
+            stat_text = "Roles missing"
+
+            earned_roles = [role.name for role in discord_member.roles]
+            missing_roles = []
+
+            # loop through the dict
+            for topic in requirementHashes:
+                for role in requirementHashes[topic]:
+                    # check if user has the role / a superior one
+                    if role not in earned_roles:
+                        if "replaced_by" in requirementHashes[topic][role]:
+                            for replaced_role in requirementHashes[topic][role]["replaced_by"]:
+                                if replaced_role not in earned_roles:
+                                    missing_roles.append(role)
+
+            result_sort = len(set(missing_roles))
+            result = f"{result_sort:,}"
+
 
         elif stat == "totaltime":
             leaderboard_text = "Top Clanmembers by D2 Total Time Logged In"
@@ -1665,8 +1691,7 @@ class WeaponCommands(commands.Cog):
 
             # make and post embed
             embed = embed_message(
-                f"{weapon_name} stats for {user.display_name}",
-                f""
+                f"{weapon_name} stats for {user.display_name}"
             )
             embed.add_field(name="Total Kills", value=f"**{kills:,}**", inline=True)
             embed.add_field(name="Total Precision Kills", value=f"**{precision_kills:,}**", inline=True)
@@ -1935,7 +1960,7 @@ class WeaponCommands(commands.Cog):
         # prepare embed
         embed = embed_message(
             f"Top Weapons for {user.display_name}",
-            footer=f"Date: {starttime.strftime('%d/%m/%Y')} - {endtime.strftime('%d/%m/%Y')}"
+            footer=f"""Date: <t:{int(starttime.timestamp())}:D> - <t:{int(endtime.timestamp())}:D>"""
         )
         emoji = self.client.get_emoji(enter_emoji_id)
 
