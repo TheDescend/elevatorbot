@@ -166,7 +166,7 @@ class LfgCommands(commands.Cog):
                 else:
                     await button_ctx.edit_origin(embed=embed)
                     activity = button_ctx.component["label"]
-                    max_joined_members = 3
+                    max_joined_members = 6
 
             # Dungeons
             elif button_ctx.component["label"] == "Dungeons":
