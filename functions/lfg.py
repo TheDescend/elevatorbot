@@ -220,11 +220,11 @@ class LfgMessage:
 
     # gets the display name of the joined members
     def get_joined_members_display_names(self) -> list[str]:
-        return [member.display_name for member in self.joined_members]
+        return [member.mention for member in self.joined_members]
 
     # gets the display name of the alternate members
     def get_alternate_members_display_names(self) -> list[str]:
-        return [member.display_name for member in self.alternate_members]
+        return [member.mention for member in self.alternate_members]
 
     # return the formatted embed
     def return_embed(self) -> discord.Embed:
