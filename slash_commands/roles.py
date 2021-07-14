@@ -57,7 +57,6 @@ class RoleCommands(commands.Cog):
         await ctx.send(embed=embed)
 
 
-    # todo can we add a good permission sysstem here too?
     @cog_ext.cog_subcommand(
         base="roles",
         base_description="Various commands concerning Destiny 2 achievement discord roles",
