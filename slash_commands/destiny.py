@@ -1216,9 +1216,13 @@ class RankCommands(commands.Cog):
                     # check if user has the role / a superior one
                     if role not in earned_roles:
                         if "replaced_by" in requirementHashes[topic][role]:
+                            replaced_by_role_earned = False
                             for replaced_role in requirementHashes[topic][role]["replaced_by"]:
-                                if replaced_role not in earned_roles:
-                                    missing_roles.append(role)
+                                if replaced_role in earned_roles:
+                                    replaced_by_role_earned = True
+
+                            if not replaced_by_role_earned:
+                                missing_roles.append(role)
 
             result_sort = len(set(missing_roles))
             if destinyID == 4611686018467765462:
