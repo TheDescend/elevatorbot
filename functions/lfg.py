@@ -179,7 +179,10 @@ class LfgMessage:
 
         # dm the users
         for user in self.joined_members:
-            await user.send(embed=embed)
+            try:
+                await user.send(embed=embed)
+            except discord.Forbidden:
+                pass
 
         # edit the channel message
         await self.message.edit(embed=embed, components=[])
