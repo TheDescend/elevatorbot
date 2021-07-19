@@ -77,9 +77,9 @@ class LfgMessage:
         await self.sort_lfg_messages()
 
     # add a member
-    async def add_member(self, member: discord.Member, ctx: ComponentContext = None) -> bool:
+    async def add_member(self, member: discord.Member, ctx: ComponentContext = None, force_into_joined: bool = False) -> bool:
         if (member not in self.joined_members) and (member.id not in self.blacklisted_members):
-            if len(self.joined_members) < self.max_joined_members:
+            if (len(self.joined_members) < self.max_joined_members) or force_into_joined:
                 self.joined_members.append(member)
                 if member in self.alternate_members:
                     self.alternate_members.remove(member)

@@ -523,7 +523,7 @@ class LfgCommands(commands.Cog):
         if not lfg_message:
             return
 
-        if await lfg_message.add_member(user):
+        if await lfg_message.add_member(user, force_into_joined=True):
             await ctx.send(hidden=True, embed=embed_message(
                 "Success",
                 f"{user.display_name} has been added to the LFG post with the id `{lfg_id}`"
