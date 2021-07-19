@@ -1221,7 +1221,8 @@ class RankCommands(commands.Cog):
                                     missing_roles.append(role)
 
             result_sort = len(set(missing_roles))
-            print(set(missing_roles))
+            if destinyID == 4611686018467765462:
+                print(set(missing_roles))
             result = f"{result_sort:,}"
 
 
