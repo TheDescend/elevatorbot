@@ -1209,6 +1209,7 @@ class RankCommands(commands.Cog):
 
             earned_roles = [role.name for role in discord_member.roles]
             missing_roles = []
+            missing_roles_legacy = []
 
             # loop through the dict
             for topic in requirementHashes:
@@ -1222,10 +1223,13 @@ class RankCommands(commands.Cog):
                                     replaced_by_role_earned = True
 
                         if not replaced_by_role_earned:
-                            missing_roles.append(role)
+                            if "deprecated" not in requirementHashes[topic][role]:
+                                missing_roles.append(role)
+                            else:
+                                missing_roles_legacy.append(role)
 
             result_sort = len(set(missing_roles))
-            result = f"{result_sort:,}"
+            result = f"{result_sort:,} ({len(set(missing_roles_legacy)):,} Legacy Roles)"
 
 
         elif stat == "totaltime":
