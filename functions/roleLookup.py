@@ -174,7 +174,7 @@ async def getPlayerRoles(playerid, existingRoles = []):
 
             # also append the legacy divider roles should it be needed
             if ("deprecated" in roledata.keys()) and (divider_legacy_role_id not in roles):
-                roles.append(divider_legacy_role_id)
+                roles.append(str(divider_legacy_role_id))
     
     return (roles, redundantRoles)
 

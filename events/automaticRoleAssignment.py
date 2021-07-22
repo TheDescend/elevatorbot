@@ -59,8 +59,8 @@ class AutomaticRoleAssignment(BaseEvent):
             is_assigned = await assignRolesToUser(newRoles, discordUser, guild)
             await removeRolesFromUser(removeRoles, discordUser, guild)
             existingRoles = [er.name for er in discordUser.roles]
-            addBools = [str(nr) not in existingRoles for nr in newRoles]
-            removeBools = [str(rr) in existingRoles for rr in removeRoles]
+            addBools = [nr not in existingRoles for nr in newRoles]
+            removeBools = [rr in existingRoles for rr in removeRoles]
 
             addrls = list(compress(newRoles, addBools))
             removerls = list(compress(removeRoles, removeBools))
