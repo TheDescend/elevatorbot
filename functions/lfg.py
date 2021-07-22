@@ -10,7 +10,7 @@ from apscheduler.jobstores.base import JobLookupError
 from discord_slash import SlashContext, ComponentContext, ButtonStyle
 from discord_slash.utils import manage_components
 
-from database.database import get_next_free_lfg_message_id, getPersistentMessage, get_lfg_blacklisted_members, \
+from database.database import get_next_free_lfg_message_id, get_persistent_message, get_lfg_blacklisted_members, \
     insert_lfg_message, select_lfg_message, delete_lfg_message, select_guild_lfg_events
 from functions.formating import embed_message
 from functions.miscFunctions import has_elevated_permissions, get_scheduler
@@ -460,7 +460,7 @@ async def create_lfg_message(client: discord.Client, guild: discord.Guild, autho
     blacklisted_members = await get_lfg_blacklisted_members(author.id)
 
     # get channel id
-    result = await getPersistentMessage("lfg", guild.id)
+    result = await get_persistent_message("lfg", guild.id)
     if not result:
         return
     channel = guild.get_channel(result[0])

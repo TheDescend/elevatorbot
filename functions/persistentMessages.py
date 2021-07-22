@@ -1,34 +1,36 @@
+from typing import Union, Optional
+
 import discord
 import datetime
 
 from functions.clanJoinRequests import on_clan_join_request
-from database.database import getPersistentMessage, insertPersistentMessage, \
+from database.database import get_persistent_message, insertPersistentMessage, \
     getallSteamJoinIDs, updatePersistentMessage, getAllPersistentMessages, deletePersistentMessage
 from functions.formating import embed_message
 from functions.network import handleAndReturnToken
 from static.globals import other_game_roles
 
 
-async def get_persistent_message_or_channel(client, message_name, guild_id):
+async def get_persistent_message_or_channel(client: discord.Client, message_name: str, guild_id: int) -> Optional[Union[discord.VoiceChannel, discord.TextChannel, discord.Message]]:
     """
     Gets the persistent message for the specified name and guild and channel. If it doesnt exist, it will return the channel and if that doesnt exit it will return False
-    Returns message obj or False
+    Returns message obj or None
     """
 
-    res = await getPersistentMessage(message_name, guild_id)
+    res = await get_persistent_message(message_name, guild_id)
 
     # check if msg exist
     if not res:
-        return False
+        return None
 
-    # otherwise return message. Return False should botStatus be asked for on other servers then descend
-    channel = client.get_channel(res[0])
+    # otherwise return message. Return False should bot_status be asked for on other servers then descend
+    channel: Union[discord.VoiceChannel, discord.TextChannel] = client.get_channel(res[0])
     if not channel:
-        return False
+        return None
     try:
-        message = await channel.fetch_message(res[1])
+        message: discord.Message = await channel.fetch_message(res[1])
         return message
-    except AttributeError:
+    except discord.NotFound:
         return channel
 
 
@@ -57,7 +59,7 @@ async def make_persistent_message(client, message_name, guild_id, channel_id, re
 
     # save msg in DB
     # check if msg exists
-    res = await getPersistentMessage(message_name, guild_id)
+    res = await get_persistent_message(message_name, guild_id)
 
     # update
     if res:
@@ -162,7 +164,7 @@ async def steamJoinCodeMessage(client, guild):
     await message.edit(embed=embed)
 
 
-async def botStatus(client, field_name: str, time: datetime.datetime):
+async def bot_status(client: discord.Client, field_name: str, time: datetime.datetime) -> None:
     """
     takes the field (name) and the timestamp of last update
 
@@ -180,7 +182,7 @@ async def botStatus(client, field_name: str, time: datetime.datetime):
     """
 
     # get msg. guild id is one, since there is only gonna be one msg
-    message = await get_persistent_message_or_channel(client, "botStatus", 1)
+    message: discord.Message = await get_persistent_message_or_channel(client, "bot_status", 1)
     if not message:
         return
 

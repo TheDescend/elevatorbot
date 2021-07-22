@@ -3,7 +3,7 @@ import datetime
 from events.base_event import BaseEvent
 from database.database import update_d2_steam_players
 from functions.network import getJSONfromURL
-from functions.persistentMessages import botStatus
+from functions.persistentMessages import bot_status
 from static.config import STEAM_TOKEN
 
 
@@ -28,4 +28,4 @@ class getCurrentSteamPlayers(BaseEvent):
         await update_d2_steam_players(now, number_of_players)
 
         # update the status
-        await botStatus(client, "Steam Player Update", datetime.datetime.now(tz=datetime.timezone.utc))
+        await bot_status(client, "Steam Player Update", datetime.datetime.now(tz=datetime.timezone.utc))

@@ -579,7 +579,7 @@ async def updatePersistentMessage(messageName, guildId, channelId, messageId, re
         await connection.execute(update_sql, channelId, messageId, reactionsIdList, messageName, guildId)
 
 
-async def getPersistentMessage(messageName, guildId):
+async def get_persistent_message(message_name: str, guild_id: int) -> asyncpg.Record:
     """ Gets a message mapping given the messageName and guildId and channelId"""
 
     select_sql = """
@@ -593,7 +593,7 @@ async def getPersistentMessage(messageName, guildId):
             messageName = $1 
             AND guildId = $2;"""
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
-        return await connection.fetchrow(select_sql, messageName, guildId)
+        return await connection.fetchrow(select_sql, message_name, guild_id)
 
 
 async def deletePersistentMessage(messageName, guildId):
@@ -1319,3 +1319,35 @@ async def remove_lfg_blacklisted_member(user_id: int, to_blacklist_user_id: int)
                 blacklisted_members = $2;"""
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
         await connection.execute(insert_sql, user_id, to_blacklist_user_ids)
+
+
+################################################################
+# RSS Feed Reader
+
+async def rss_item_exist(item_id: str) -> bool:
+    """ Check if an RSS item exists, meaning we already send its info to a channel """
+
+    select_sql = f"""
+        SELECT 
+            id
+        FROM 
+            rssfeeditems
+        WHERE 
+            id = $1;
+    """
+    async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
+        return bool(await connection.fetchval(select_sql, item_id))
+
+
+async def rss_item_add(item_id: str) -> None:
+    """ Add an RSS item to the DB """
+
+    insert_sql = f"""
+        INSERT INTO 
+            rssfeeditems 
+            (id)
+        VALUES
+            ($1);
+    """
+    async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
+        await connection.execute(insert_sql, item_id)

@@ -7,7 +7,7 @@ from events.backgroundTasks import updateActivityDB
 from events.base_event import BaseEvent
 from database.database import lookupDiscordID, lookupDestinyID
 from functions.network import getJSONfromURL, handleAndReturnToken
-from functions.persistentMessages import botStatus
+from functions.persistentMessages import bot_status
 from functions.roleLookup import assignRolesToUser, removeRolesFromUser, getPlayerRoles
 from static.config import CLANID, BOTDEVCHANNELID
 from static.globals import *
@@ -73,7 +73,7 @@ class AutomaticRoleAssignment(BaseEvent):
             await newtonslab.send(newstext)
 
         # update the status
-        await botStatus(client, "Achievement Role Update", datetime.datetime.now(tz=datetime.timezone.utc))
+        await bot_status(client, "Achievement Role Update", datetime.datetime.now(tz=datetime.timezone.utc))
 
 
 class AutoRegisteredRole(BaseEvent):
@@ -137,4 +137,4 @@ class AutoRegisteredRole(BaseEvent):
 
 
         # update the status
-        await botStatus(client, "Member Role Update", datetime.datetime.now(tz=datetime.timezone.utc))
+        await bot_status(client, "Member Role Update", datetime.datetime.now(tz=datetime.timezone.utc))

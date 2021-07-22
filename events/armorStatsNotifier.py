@@ -3,7 +3,7 @@ from functions.authfunctions import getVendorData
 from functions.dataLoading import getCharacterList
 from database.database import lookupDestinyID, getDestinyDefinition
 from functions.formating import embed_message
-from functions.persistentMessages import botStatus
+from functions.persistentMessages import bot_status
 
 import datetime
 
@@ -150,7 +150,7 @@ class ArmorStatsNotifier(BaseEvent):
                         await message_user(client, 206878830017773568, vendor_name, item_definition, item_stats, total_stats)
 
         # update the status
-        await botStatus(client, "Vendor Armor Roll Lookup", datetime.datetime.now(tz=datetime.timezone.utc))
+        await bot_status(client, "Vendor Armor Roll Lookup", datetime.datetime.now(tz=datetime.timezone.utc))
 
 
 class GunsmithBountiesNotifier(BaseEvent):

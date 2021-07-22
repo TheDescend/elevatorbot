@@ -7,7 +7,7 @@ from events.base_event import BaseEvent
 from functions.dataLoading import updateDB, updateMissingPcgr, updateManifest
 from database.database import getAllDestinyIDs, lookupDiscordID, getLastUpdated, lookupSystem
 from functions.network import handleAndReturnToken
-from functions.persistentMessages import botStatus
+from functions.persistentMessages import bot_status
 
 
 class UpdateManifest(BaseEvent):
@@ -22,7 +22,7 @@ class UpdateManifest(BaseEvent):
         await updateManifest()
 
         # update the status
-        await botStatus(client, "Manifest Update", datetime.datetime.now(tz=datetime.timezone.utc))
+        await bot_status(client, "Manifest Update", datetime.datetime.now(tz=datetime.timezone.utc))
 
 
 class updateActivityDB(BaseEvent):
@@ -74,7 +74,7 @@ class updateActivityDB(BaseEvent):
         await updateMissingPcgr()
 
         # update the status
-        await botStatus(client, "Database Update", datetime.datetime.now(tz=datetime.timezone.utc))
+        await bot_status(client, "Database Update", datetime.datetime.now(tz=datetime.timezone.utc))
 
 
 class TokenUpdater(BaseEvent):
@@ -94,7 +94,7 @@ class TokenUpdater(BaseEvent):
             await handleAndReturnToken(user.id)
 
         # update the status
-        await botStatus(client, "Token Refresh", datetime.datetime.now(tz=datetime.timezone.utc))
+        await bot_status(client, "Token Refresh", datetime.datetime.now(tz=datetime.timezone.utc))
 
         print("Done refreshing Tokens")
 

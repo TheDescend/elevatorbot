@@ -447,6 +447,10 @@ class PersistentMessagesCommands(commands.Cog):
                         name="Increment Button",
                         value="increment_button"
                     ),
+                    create_choice(
+                        name="Bungie RSS Feed",
+                        value="rss"
+                    ),
                 ],
             ),
             create_option(
@@ -604,11 +608,15 @@ Basically just type `/lfg` and look around. There are many other cool commands t
                 'Status: Last valid...'
             )
 
-            await make_persistent_message(self.client, "botStatus", 1, channel.id, message_embed=embed)
+            await make_persistent_message(self.client, "bot_status", 1, channel.id, message_embed=embed)
 
 
         elif channel_type == "lfgvoicecategory":
             await make_persistent_message(self.client, "lfgVoiceCategory", ctx.guild.id, channel.id, no_message=True)
+
+        elif channel_type == "rss":
+            await make_persistent_message(self.client, "rss", ctx.guild.id, channel.id, no_message=True)
+
 
         await ctx.send(hidden=True, embed=embed_message(
             f"Success",
@@ -662,24 +670,24 @@ Basically just type `/lfg` and look around. There are many other cool commands t
 
 
 
-    @cog_ext.cog_slash(
-        name="test",
-        guild_ids=GUILD_IDS
-    )
-    async def _test(self, ctx: SlashContext):
-        select = manage_components.create_select(
-            options=[
-                manage_components.create_select_option("Option", value="option"),
-            ],
-            placeholder="Choose your option",
-            min_values=1,
-            max_values=1,
-        )
-        select_action = manage_components.create_actionrow(select)
-        await ctx.send(content="select", components=[select_action])
-
-        button_ctx = await manage_components.wait_for_component(self.client, components=select_action)
-        await button_ctx.edit_origin(content="edited", components=None)
+    # @cog_ext.cog_slash(
+    #     name="test",
+    #     guild_ids=GUILD_IDS
+    # )
+    # async def _test(self, ctx: SlashContext):
+    #     select = manage_components.create_select(
+    #         options=[
+    #             manage_components.create_select_option("Option", value="option"),
+    #         ],
+    #         placeholder="Choose your option",
+    #         min_values=1,
+    #         max_values=1,
+    #     )
+    #     select_action = manage_components.create_actionrow(select)
+    #     await ctx.send(content="select", components=[select_action])
+    #
+    #     button_ctx = await manage_components.wait_for_component(self.client, components=select_action)
+    #     await button_ctx.edit_origin(content="edited", components=None)
 
 
 def setup(client):

@@ -231,3 +231,10 @@ CREATE TABLE LfgMessages(
 	joined_members BIGINT [],
 	alternate_members BIGINT []
 );
+
+################################################################
+# RSS Feed Reader
+
+CREATE TABLE RssFeedItems(
+	id TEXT PRIMARY KEY
+);

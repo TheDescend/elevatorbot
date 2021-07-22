@@ -1,5 +1,5 @@
 from events.base_event import BaseEvent
-from database.database import getPersistentMessage
+from database.database import get_persistent_message
 
 
 class GetMemberCount(BaseEvent):
@@ -13,7 +13,7 @@ class GetMemberCount(BaseEvent):
     async def run(self, client):
         # loop through all guilds, get the channel id if exists and update that
         for guild in client.guilds:
-            result = await getPersistentMessage("memberCount", guild.id)
+            result = await get_persistent_message("memberCount", guild.id)
             if not result:
                 continue
             channel = guild.get_channel(result[0])
@@ -35,7 +35,7 @@ class GetBoosterCount(BaseEvent):
     async def run(self, client):
         # loop through all guilds, get the channel id if exists and update that
         for guild in client.guilds:
-            result = await getPersistentMessage("boosterCount", guild.id)
+            result = await get_persistent_message("boosterCount", guild.id)
             if not result:
                 continue
             channel = guild.get_channel(result[0])
