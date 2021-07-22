@@ -635,7 +635,11 @@ def main():
         embed = ctx.origin_message.embeds[0]
         embed.description = f"Last used by {ctx.author.mention} <:PeepoZoom:670369608498151456>"
 
-        await ctx.edit_origin(components=components, embed=embed)
+        if int(ctx.component["label"]) == 69420:
+            await ctx.send(hidden=True, content=f"Sorry, the game has been won and is over!")
+        else:
+            await ctx.edit_origin(components=components, embed=embed)
+
 
     # handle lfg messages
     @slash.component_callback()
