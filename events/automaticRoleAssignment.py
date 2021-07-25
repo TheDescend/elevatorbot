@@ -6,6 +6,7 @@ import discord
 from events.backgroundTasks import updateActivityDB
 from events.base_event import BaseEvent
 from database.database import lookupDiscordID, lookupDestinyID
+from functions.formating import split_into_chucks_of_max_4000_characters
 from functions.network import getJSONfromURL, handleAndReturnToken
 from functions.persistentMessages import bot_status
 from functions.roleLookup import assignRolesToUser, removeRolesFromUser, getPlayerRoles
@@ -52,7 +53,7 @@ class AutomaticRoleAssignment(BaseEvent):
             if not member.pending:
                 news.append(await updateUser(member))
 
-        newstext = ''
+        newstext = []
         for discordUser, newRoles, removeRoles in news:
             if not discordUser:
                 continue
@@ -67,10 +68,11 @@ class AutomaticRoleAssignment(BaseEvent):
 
             if addrls or removerls:
                 if is_assigned:
-                    newstext += f'Updated player {discordUser.mention} by adding `{", ".join(addrls or ["nothing"])}` and removing `{", ".join(removerls or ["nothing"])}`\n'
+                    newstext.append(f'Updated player {discordUser.mention} by adding `{", ".join(addrls or ["nothing"])}` and removing `{", ".join(removerls or ["nothing"])}`\n')
 
         if newstext:
-            await newtonslab.send(newstext)
+            for chunk in split_into_chucks_of_max_4000_characters(text_list=newstext):
+                await newtonslab.send(chunk)
 
         # update the status
         await bot_status(client, "Achievement Role Update", datetime.datetime.now(tz=datetime.timezone.utc))
