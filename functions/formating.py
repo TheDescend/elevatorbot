@@ -47,7 +47,8 @@ def split_into_chucks_of_max_4000_characters(text_str: str = None, text_list: li
             else:
                 return_list.append(return_text)
                 return_text = str(text)
-        return_list.append(return_text)
+        if return_text:
+            return_list.append(return_text)
         return return_list
 
 
