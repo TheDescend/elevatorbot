@@ -68,7 +68,7 @@ class Poll:
             # get value text
             text = ""
             try:
-                progress = int(option_users_count / total_users_count)
+                progress = option_users_count / total_users_count
             except ZeroDivisionError:
                 progress = 0
             for i in range(progress * n):
@@ -78,7 +78,7 @@ class Poll:
 
             embed.add_field(
                 name=option_name,
-                value=f"{text} {progress * 100}%",
+                value=f"{text} {int(progress * 100)}%",
                 inline=False,
             )
 
