@@ -182,7 +182,7 @@ async def bot_status(client: discord.Client, field_name: str, time: datetime.dat
     """
 
     # get msg. guild id is one, since there is only gonna be one msg
-    message = await get_persistent_message_or_channel(client, "bot_status", 1)
+    message = await get_persistent_message_or_channel(client, "botStatus", 1)
     if not message:
         return
 

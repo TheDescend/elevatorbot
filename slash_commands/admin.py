@@ -608,7 +608,7 @@ Basically just type `/lfg` and look around. There are many other cool commands t
                 'Status: Last valid...'
             )
 
-            await make_persistent_message(self.client, "bot_status", 1, channel.id, message_embed=embed)
+            await make_persistent_message(self.client, "botStatus", 1, channel.id, message_embed=embed)
 
 
         elif channel_type == "lfgvoicecategory":
