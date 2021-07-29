@@ -228,7 +228,6 @@ async def insertToken(discordID, destinyID, systemID, discordServerID, token, re
 async def updateToken(destinyID, discordID, token, refresh_token, token_expiry, refresh_token_expiry):
     """ Updates a User - Token, token refresh, token_expiry, refresh_token_expiry  """
 
-    print('Token update initiated')
     update_sql = f"""
         UPDATE 
             "discordGuardiansToken"

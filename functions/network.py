@@ -344,7 +344,6 @@ async def errorCodeHandling(requestURL, r, res):
 async def handleAndReturnToken(discordID):
     token = await getToken(discordID)
     if not token:
-        print(f'Token not found for discordID {discordID}')
         return {
             'result': None,
             'error': 'User has not registered'
@@ -353,7 +352,6 @@ async def handleAndReturnToken(discordID):
     # refresh token if expired
     expiry = await getTokenExpiry(discordID)
     if not expiry:
-        print(f'Expiry Dates not found for discordID {discordID}, refreshing tokens')
         return {
             'result': None,
             'error': 'User tokens have no expiry date'
@@ -363,8 +361,6 @@ async def handleAndReturnToken(discordID):
 
     # check refresh token first, since they need to re-register otherwise
     if current_time > expiry[1]:
-        formatted_expiry = datetime.fromtimestamp(expiry[1]).strftime("%d/%m/%Y")
-        print(f'Expiry Dates for refreshed token passed ({formatted_expiry}) for discordID {discordID}. Needs to re-register')
         return {
             'result': None,
             'error': 'Registration is outdated, please re-register using `/registerdesc`'
@@ -373,7 +369,6 @@ async def handleAndReturnToken(discordID):
     # refresh token if outdated
     if current_time > expiry[0]:
         formatted_expiry = datetime.fromtimestamp(expiry[0]).strftime("%d/%m/%Y")
-        print(f'Refreshing token for discordID {discordID}, expired  ({formatted_expiry})')
         token = await getFreshToken(discordID)
         if not token:
             return {
