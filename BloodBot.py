@@ -3,6 +3,8 @@
 # for example GM nightfalls, since they change each season. This allows us to create the hash list dynamically, instead of having to add to it every season
 import asyncio
 import threading
+
+import pytz
 from aiohttp import web
 import datetime
 import sys
@@ -312,7 +314,7 @@ async def launch_event_loops(client):
         if event.scheduler_type == "interval":
             sched.add_job(event.run, 'interval', (client,), minutes=event.interval_minutes, jitter=60)
         elif event.scheduler_type == "cron":
-            sched.add_job(event.run, 'cron', (client,), day_of_week=event.dow_day_of_week, hour=event.dow_hour, minute=event.dow_minute, timezone=datetime.timezone.utc)
+            sched.add_job(event.run, 'cron', (client,), day_of_week=event.dow_day_of_week, hour=event.dow_hour, minute=event.dow_minute, timezone=pytz.utc)
         elif event.scheduler_type == "date":
             sched.add_job(event.run, 'date', (client,), run_date=event.run_date)
         else:
