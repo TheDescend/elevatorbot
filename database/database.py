@@ -1,4 +1,5 @@
 import asyncio
+import json
 from typing import Union, List
 
 import discord
@@ -1192,27 +1193,33 @@ async def delete_lfg_message(lfg_message_id: int):
         await connection.execute(delete_sql, lfg_message_id)
 
 
+async def get_free_id(id_column_name: str, table_name: str) -> int:
+    """ Gets the next free id using my fancy numbering system """
+
+    select_sql = f"""
+        SELECT 
+            {id_column_name}
+        FROM 
+            {table_name}
+        ORDER BY
+            {id_column_name} ASC;"""
+    async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
+        lfg_ids = await connection.fetch(select_sql)
+
+    # get first free id
+    i = 1
+    for lfg_id in lfg_ids:
+        if lfg_id["id"] != i:
+            break
+        i += 1
+    return i
+
+
 async def get_next_free_lfg_message_id() -> int:
     """ Gets the next lfg message id and reserves it in the DB """
 
     async with asyncio.Lock():
-        select_sql = f"""
-            SELECT 
-                id
-            FROM 
-                lfgmessages
-            ORDER BY
-                id ASC;"""
-        async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
-            lfg_ids = await connection.fetch(select_sql)
-
-        # get first free id
-        i = 1
-        for lfg_id in lfg_ids:
-            if lfg_id["id"] != i:
-                break
-            i += 1
-        free_id = i
+        free_id = await get_free_id(id_column_name="id", table_name="lfgmessages")
 
         # insert that in the DB to reserve it
         insert_sql = f"""
@@ -1350,3 +1357,62 @@ async def rss_item_add(item_id: str) -> None:
     """
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
         await connection.execute(insert_sql, item_id)
+
+
+################################################################
+# Polls
+
+async def get_poll(poll_id: int = None, poll_message_id: int = None) -> asyncpg.Record:
+    """ Get Poll Info """
+    assert (poll_id or poll_message_id), "Only one param can be chosen and one must be"
+
+    select_sql = f"""
+        SELECT 
+            id, name, description, data::json, author_id, guild_id, channel_id, message_id
+        FROM 
+            polls
+        WHERE 
+            {"id" if poll_id else "message_id"} = $1;
+    """
+    async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
+        await connection.set_type_codec(
+            'json',
+            encoder=json.dumps,
+            decoder=json.loads,
+            schema='pg_catalog'
+        )
+        return await connection.fetchrow(select_sql, poll_id or poll_message_id)
+
+
+async def insert_poll(poll_name: str, poll_description: str, poll_data: dict, author_id: int, guild_id: int, channel_id: int, message_id: int, poll_id: int = None) -> int:
+    """ Insert / Update Poll. Gets a random ID if none gets specified. Returns the ID """
+
+    async with asyncio.Lock():
+        if not poll_id:
+            # get free id
+            poll_id = await get_free_id(id_column_name="id", table_name="polls")
+
+        # insert / update
+        insert_sql = f"""
+            INSERT INTO 
+                polls 
+                (id, name, description, data, author_id, guild_id, channel_id, message_id)
+            VALUES
+                ($1, $2, $3, $4, $5, $6, $7, $8)
+            ON 
+                CONFLICT 
+                    (id)
+            DO UPDATE 
+                SET
+                    data = $4,
+                    message_id = $8;
+        """
+        async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
+            await connection.set_type_codec(
+                'json',
+                encoder=json.dumps,
+                decoder=json.loads,
+                schema='pg_catalog'
+            )
+            await connection.execute(insert_sql, poll_id, poll_name, poll_description, poll_data, author_id, guild_id, channel_id, message_id)
+            return poll_id

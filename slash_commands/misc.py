@@ -10,6 +10,8 @@ from discord_slash import cog_ext, SlashContext
 from discord_slash.utils.manage_commands import create_option
 
 from functions.formating import embed_message
+from functions.miscFunctions import has_elevated_permissions
+from functions.poll import Poll, get_poll_object, create_poll_object
 from functions.roleLookup import assignRolesToUser, removeRolesFromUser
 from functions.slashCommandFunctions import get_user_obj
 from static.config import GUILD_IDS
@@ -21,6 +23,153 @@ from static.slashCommandOptions import options_user
 class MiscCommands(commands.Cog):
     def __init__(self, client):
         self.client = client
+
+    @cog_ext.cog_subcommand(
+        base="poll",
+        base_description="Making polls easy",
+        name="create",
+        description="Create a poll",
+        options=[
+            create_option(
+                name="name",
+                description="The name the poll should have",
+                option_type=3,
+                required=True
+            ),
+            create_option(
+                name="description",
+                description="The description the poll should have",
+                option_type=3,
+                required=True
+            ),
+        ]
+    )
+    async def _poll_create(self, ctx: SlashContext, name: str, description: str):
+        await create_poll_object(
+            ctx=ctx,
+            name=name,
+            description=description,
+            guild=ctx.guild,
+            channel=ctx.channel,
+        )
+
+
+    @cog_ext.cog_subcommand(
+        base="poll",
+        base_description="Making polls easy",
+        name="add",
+        description="Add an option to a poll",
+        options=[
+            create_option(
+                name="poll_id",
+                description="The id of the poll",
+                option_type=3,
+                required=True
+            ),
+            create_option(
+                name="option",
+                description="The name the option should have",
+                option_type=3,
+                required=True
+            ),
+        ]
+    )
+    async def _poll_add(self, ctx: SlashContext, poll_id: str, option: str):
+        poll = await get_poll_object(
+            guild=ctx.guild,
+            poll_id=poll_id,
+        )
+        if not poll:
+            await ctx.send(
+                hidden=True,
+                embed=embed_message(
+                    "Error",
+                    f"Poll with `poll_id = {poll_id}` was not found in this guild"
+                )
+            )
+        else:
+            # check if user is allowed
+            if ctx.author == poll.author or await has_elevated_permissions(user=ctx.author, guild=ctx.guild, ctx=ctx):
+                await poll.add_new_option(
+                    ctx=ctx,
+                    option=option,
+                )
+
+    @cog_ext.cog_subcommand(
+        base="poll",
+        base_description="Making polls easy",
+        name="remove",
+        description="Remove an option from a poll",
+        options=[
+            create_option(
+                name="poll_id",
+                description="The id of the poll",
+                option_type=3,
+                required=True
+            ),
+            create_option(
+                name="option",
+                description="The name of the option",
+                option_type=3,
+                required=True
+            ),
+        ]
+    )
+    async def _poll_remove(self, ctx: SlashContext, poll_id: str, option: str):
+        poll = await get_poll_object(
+            guild=ctx.guild,
+            poll_id=poll_id,
+        )
+        if not poll:
+            await ctx.send(
+                hidden=True,
+                embed=embed_message(
+                    "Error",
+                    f"Poll with `poll_id = {poll_id}` was not found in this guild"
+                )
+            )
+        else:
+            # check if user is allowed
+            if ctx.author == poll.author or await has_elevated_permissions(user=ctx.author, guild=ctx.guild, ctx=ctx):
+                await poll.remove_option(
+                    ctx=ctx,
+                    option=option,
+                )
+
+    @cog_ext.cog_subcommand(
+        base="poll",
+        base_description="Making polls easy",
+        name="disable",
+        description="Disable a poll",
+        options=[
+            create_option(
+                name="poll_id",
+                description="The id of the poll",
+                option_type=3,
+                required=True
+            ),
+        ]
+    )
+    async def _poll_disable(self, ctx: SlashContext, poll_id: str):
+        poll = await get_poll_object(
+            guild=ctx.guild,
+            poll_id=poll_id,
+        )
+        if not poll:
+            await ctx.send(
+                hidden=True,
+                embed=embed_message(
+                    "Error",
+                    f"Poll with `poll_id = {poll_id}` was not found in this guild"
+                )
+            )
+        else:
+            # check if user is allowed
+            if ctx.author == poll.author or await has_elevated_permissions(user=ctx.author, guild=ctx.guild, ctx=ctx):
+                await poll.disable(
+                    edit_ctx=ctx
+                )
+
 
     @cog_ext.cog_slash(
         name="socialist",

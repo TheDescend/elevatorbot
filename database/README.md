@@ -238,3 +238,17 @@ CREATE TABLE LfgMessages(
 CREATE TABLE RssFeedItems(
 	id TEXT PRIMARY KEY
 );
+
+################################################################
+# Polls
+
+CREATE TABLE polls(
+	id int PRIMARY KEY,
+	name TEXT,
+	description TEXT,
+	data JSON,
+	author_id BIGINT,
+	guild_id BIGINT,
+	channel_id BIGINT,
+	message_id BIGINT
+);

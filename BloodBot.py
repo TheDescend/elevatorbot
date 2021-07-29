@@ -30,6 +30,7 @@ from apscheduler.events import EVENT_JOB_MISSED, EVENT_JOB_SUBMITTED
 from discord_slash.utils import manage_components
 
 from functions.lfg import notify_about_lfg_event_start, get_lfg_message
+from functions.poll import get_poll_object
 from init_logging import init_logging
 
 from functions.clanJoinRequests import removeFromClanAfterLeftDiscord, on_clan_join_request, elevatorRegistration
@@ -685,11 +686,23 @@ def main():
                 "You could not be added as a backup to the event\nThis is either because you are already in the backup roster, or the creator has blacklisted you from their events"
             ))
 
-
     # handle clan join requests
     @slash.component_callback()
     async def clan_join_request(ctx: ComponentContext):
         await on_clan_join_request(ctx)
+
+    # handle poll selects
+    @slash.component_callback()
+    async def poll(ctx: ComponentContext):
+        poll = await get_poll_object(
+            guild=ctx.guild,
+            poll_message_id=ctx.origin_message.id
+        )
+        await poll.add_user(
+            select_ctx=ctx,
+            member=ctx.author,
+            option=ctx.selected_options[0]
+        )
 
 
     # Finally, set the bot running
