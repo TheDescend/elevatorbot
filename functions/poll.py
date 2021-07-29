@@ -71,9 +71,9 @@ class Poll:
                 progress = option_users_count / total_users_count
             except ZeroDivisionError:
                 progress = 0
-            for i in range(progress * n):
+            for i in range(int(progress * n)):
                 text += "▓"
-            for i in range(n - (progress * n)):
+            for i in range(n - int(progress * n)):
                 text += "░"
 
             embed.add_field(
