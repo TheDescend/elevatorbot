@@ -41,8 +41,8 @@ def split_into_chucks_of_max_4000_characters(text_str: str = None, text_list: li
 
     elif text_list:
         return_text = ""
-        for text in return_list:
-            if len(return_list + str(text)) <= n:
+        for text in text_list:
+            if len(return_text + str(text)) <= n:
                 return_text += str(text)
             else:
                 return_list.append(return_text)
