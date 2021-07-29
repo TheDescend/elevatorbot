@@ -12,9 +12,8 @@ class ArmorStatsNotifier(BaseEvent):
     """ Every week, this checks the vendor rolls and dms people if they signed up for that """
 
     def __init__(self):
-        # bot is running on est, that should give it enough time (reset is at 12pm there)
         dow_day_of_week = "tue"
-        dow_hour = 14
+        dow_hour = 20
         dow_minute = 0
         super().__init__(scheduler_type="cron", dow_day_of_week=dow_day_of_week, dow_hour=dow_hour, dow_minute=dow_minute)
 
@@ -157,10 +156,9 @@ class GunsmithBountiesNotifier(BaseEvent):
     """ Every day, this checks the gunsmith mods and dms people if they signed up for that """
 
     def __init__(self):
-        # bot is running on est, that should give it enough time (reset is at 12pm there)
         dow_day_of_week = "*"
-        dow_hour = 14
-        dow_minute = 0
+        dow_hour = 19
+        dow_minute = 30
         super().__init__(scheduler_type="cron", dow_day_of_week=dow_day_of_week, dow_hour=dow_hour, dow_minute=dow_minute)
 
     async def run(self, client):

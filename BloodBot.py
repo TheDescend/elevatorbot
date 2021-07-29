@@ -312,10 +312,9 @@ async def launch_event_loops(client):
         if event.scheduler_type == "interval":
             sched.add_job(event.run, 'interval', (client,), minutes=event.interval_minutes, jitter=60)
         elif event.scheduler_type == "cron":
-            sched.add_job(event.run, 'cron', (client,), day_of_week=event.dow_day_of_week, hour=event.dow_hour,
-                          minute=event.dow_minute)
+            sched.add_job(event.run, 'cron', (client,), day_of_week=event.dow_day_of_week, hour=event.dow_hour, minute=event.dow_minute, timezone=datetime.timezone.utc)
         elif event.scheduler_type == "date":
-            sched.add_job(event.run, 'date', (client,), run_date=event.interval_minutes)
+            sched.add_job(event.run, 'date', (client,), run_date=event.run_date)
         else:
             print(f"Failed to load event {event}")
     jobs = sched.get_jobs()
