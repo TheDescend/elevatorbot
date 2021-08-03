@@ -27,8 +27,8 @@ timezones_dict = {
 
 class LfgCommands(commands.Cog):
     timeout_embed = embed_message(
-        "Error",
-        "I AM IMPATIENT. PLEASE BE QUICKER NEXT TIME. THANKS"
+        "Error - Time Is Money",
+        "You took too long. If you weren't finished, please try again. \nI can give you my grandmas phone number, her doing the typing might make it a bit faster 🙃"
     )
 
     def __init__(self, client):
