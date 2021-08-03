@@ -398,22 +398,7 @@ async def get_lfg_message(client: discord.Client, lfg_id: int = None, ctx: Slash
 
     if ctx:
         guild = ctx.bot.get_guild(res["guild_id"])
-    lfg_id = res["id"]
-    channel = guild.get_channel(res["channel_id"]) if guild else None
-    try:
-        message = await channel.fetch_message(res["message_id"]) if channel else None
-    except discord.NotFound:
-        message = None
-    voice_channel = guild.get_channel(res["voice_channel_id"]) if res["voice_channel_id"] else None
-    author = guild.get_member(res["author_id"])
-    activity = res["activity"]
-    description = res["description"]
-    start_time = res["start_time"]
-    creation_time = res["creation_time"]
-    max_joined_members = res["max_joined_members"]
-    joined_members = [guild.get_member(member) for member in res["joined_members"]]
-    alternate_members = [guild.get_member(member) for member in res["alternate_members"]]
-    blacklisted_members = await get_lfg_blacklisted_members(author.id)
+    author = guild.get_member(res["author_id"]) if guild else None
 
     # check that the lfg post is in the correct server
     if ctx:
@@ -431,6 +416,22 @@ async def get_lfg_message(client: discord.Client, lfg_id: int = None, ctx: Slash
                 f"You do not have permissions to do stuff to the LFG with ID `{lfg_id}`"
             ))
             return None
+
+    lfg_id = res["id"]
+    channel = guild.get_channel(res["channel_id"])
+    try:
+        message = await channel.fetch_message(res["message_id"]) if channel else None
+    except discord.NotFound:
+        message = None
+    voice_channel = guild.get_channel(res["voice_channel_id"]) if res["voice_channel_id"] else None
+    activity = res["activity"]
+    description = res["description"]
+    start_time = res["start_time"]
+    creation_time = res["creation_time"]
+    max_joined_members = res["max_joined_members"]
+    joined_members = [guild.get_member(member) for member in res["joined_members"]]
+    alternate_members = [guild.get_member(member) for member in res["alternate_members"]]
+    blacklisted_members = await get_lfg_blacklisted_members(author.id)
 
     # create LfgMessage object
     lfg_message = LfgMessage(
