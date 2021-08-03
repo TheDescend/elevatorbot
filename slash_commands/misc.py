@@ -214,7 +214,7 @@ class MiscCommands(commands.Cog):
 
                 await ctx.send(embed=embed_message(
                     'Did you know?',
-                    text
+                    text.replace("`", "'")
                 ))
 
 
