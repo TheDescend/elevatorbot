@@ -1968,7 +1968,7 @@ class WeaponCommands(commands.Cog):
         # prepare embed
         embed = embed_message(
             f"Top Weapons for {user.display_name}",
-            footer=f"""Date: <t:{int(starttime.timestamp())}:D> - <t:{int(endtime.timestamp())}:D>"""
+            footer=f"""Date: {starttime.strftime("%d/%m/%Y")} - {endtime.strftime("%d/%m/%Y")}"""
         )
         emoji = self.client.get_emoji(enter_emoji_id)
 
