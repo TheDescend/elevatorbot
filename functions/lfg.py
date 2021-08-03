@@ -399,8 +399,8 @@ async def get_lfg_message(client: discord.Client, lfg_id: int = None, ctx: Slash
     if ctx:
         guild = ctx.bot.get_guild(res["guild_id"])
     lfg_id = res["id"]
-    channel = guild.get_channel(res["channel_id"])
-    message = await channel.fetch_message(res["message_id"])
+    channel = guild.get_channel(res["channel_id"]) if guild else None
+    message = await channel.fetch_message(res["message_id"]) if channel else None
     voice_channel = guild.get_channel(res["voice_channel_id"]) if res["voice_channel_id"] else None
     author = guild.get_member(res["author_id"])
     activity = res["activity"]
