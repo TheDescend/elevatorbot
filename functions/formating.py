@@ -26,13 +26,13 @@ def embed_message(title: str = "", description: str = "", footer: str = None) ->
     return embed
 
 
-def split_into_chucks_of_max_4000_characters(text_str: str = None, text_list: list = None) -> list[str]:
+def split_into_chucks_of_max_2000_characters(text_str: str = None, text_list: list = None) -> list[str]:
     """ Takes either a list of strings or a string and returns a list of strings with a max length of 4000 """
 
     assert (text_str or text_list), "Only one param can be chosen and one must be"
 
     return_list = []
-    n = 4000
+    n = 2000
 
     if text_str:
         for return_text in [text_str[i:i + n] for i in range(0, len(text_str), n)]:

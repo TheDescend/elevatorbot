@@ -6,7 +6,7 @@ import discord
 from events.backgroundTasks import updateActivityDB
 from events.base_event import BaseEvent
 from database.database import lookupDiscordID, lookupDestinyID
-from functions.formating import split_into_chucks_of_max_4000_characters
+from functions.formating import split_into_chucks_of_max_2000_characters
 from functions.network import getJSONfromURL, handleAndReturnToken
 from functions.persistentMessages import bot_status
 from functions.roleLookup import assignRolesToUser, removeRolesFromUser, getPlayerRoles
@@ -71,7 +71,7 @@ class AutomaticRoleAssignment(BaseEvent):
                     newstext.append(f'Updated player {discordUser.mention} by adding `{", ".join(addrls or ["nothing"])}` and removing `{", ".join(removerls or ["nothing"])}`\n')
 
         if newstext:
-            for chunk in split_into_chucks_of_max_4000_characters(text_list=newstext):
+            for chunk in split_into_chucks_of_max_2000_characters(text_list=newstext):
                 await newtonslab.send(chunk)
 
         # update the status
