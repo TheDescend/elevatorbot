@@ -110,7 +110,7 @@ async def has_role(destiny_id: int, role: discord.Role, return_as_bool: bool = T
                     req_worthy = False
                     req_data = {}
                 else:
-                    req_worthy, req_data = await has_role(destiny_id, required_role_discord)
+                    req_worthy, req_data = await has_role(destiny_id, required_role_discord, return_as_bool=False)
 
                 # only worthy if worthy for all required roles
                 worthy &= req_worthy
