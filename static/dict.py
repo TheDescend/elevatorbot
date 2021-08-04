@@ -870,6 +870,11 @@ requirementHashes = {
         },
     }
 }
+requirement_hashes_without_years = {
+    rolename: roledata
+    for year, yeardata in requirementHashes.items()
+    for rolename, roledata in yeardata.items()
+}
 
 platform = {
     1: 'Xbox',

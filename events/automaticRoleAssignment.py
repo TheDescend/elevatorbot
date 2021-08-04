@@ -1,5 +1,6 @@
 import datetime
 from itertools import compress
+from typing import Optional
 
 import discord
 
@@ -9,7 +10,7 @@ from database.database import lookupDiscordID, lookupDestinyID
 from functions.formating import split_into_chucks_of_max_2000_characters
 from functions.network import getJSONfromURL, handleAndReturnToken
 from functions.persistentMessages import bot_status
-from functions.roleLookup import assignRolesToUser, removeRolesFromUser, getPlayerRoles
+from functions.roleLookup import assignRolesToUser, removeRolesFromUser, get_player_roles
 from static.config import CLANID, BOTDEVCHANNELID
 from static.globals import *
 
@@ -19,23 +20,30 @@ class AutomaticRoleAssignment(BaseEvent):
     def __init__(self):
         # Set the interval for this event
         dow_day_of_week = "*"
-        dow_hour = 4
+        dow_hour = 1
         dow_minute = 0
         super().__init__(scheduler_type="cron", dow_day_of_week=dow_day_of_week, dow_hour=dow_hour, dow_minute=dow_minute)
 
     async def run(self, client):
-        async def updateUser(discordUser):
-            if discordUser.bot:
-                return None, None, None
+        async def update_user(discord_member: discord.Member) -> Optional[str]:
+            if discord_member.bot:
+                return None
 
-            destinyID = await lookupDestinyID(discordUser.id)
+            destinyID = await lookupDestinyID(discord_member.id)
             if not destinyID:
-                return None, None, None
+                return None
 
             # gets the roles of the specific player and assigns/removes them
-            newRoles, removeRoles = await getPlayerRoles(destinyID, [role.name for role in discordUser.roles]) #the list of roles may be used to not check existing roles
+            new_roles, remove_roles = await get_player_roles(guild, destinyID)
 
-            return discordUser, newRoles, removeRoles
+            # assign roles
+            await discord_member.add_roles(*new_roles, reason="Achievement Role Update")
+
+            # remove roles
+            await discord_member.remove_roles(*remove_roles, reason="Achievement Role Update")
+
+            return f'Updated player {discord_member.mention} by adding `{", ".join(new_roles or ["nothing"])}` and removing `{", ".join(remove_roles or ["nothing"])}`\n'
+
 
         print('Running the automatic role assignment...')
 
@@ -51,27 +59,12 @@ class AutomaticRoleAssignment(BaseEvent):
         async for member in guild.fetch_members():
             # only allow people who accepted the rules
             if not member.pending:
-                news.append(await updateUser(member))
+                result = await update_user(member)
+                if result:
+                    news.append(result)
 
-        newstext = []
-        for discordUser, newRoles, removeRoles in news:
-            if not discordUser:
-                continue
-            is_assigned = await assignRolesToUser(newRoles, discordUser, guild)
-            await removeRolesFromUser(removeRoles, discordUser, guild)
-            existingRoles = [er.name for er in discordUser.roles]
-            addBools = [nr not in existingRoles for nr in newRoles]
-            removeBools = [rr in existingRoles for rr in removeRoles]
-
-            addrls = list(compress(newRoles, addBools))
-            removerls = list(compress(removeRoles, removeBools))
-
-            if addrls or removerls:
-                if is_assigned:
-                    newstext.append(f'Updated player {discordUser.mention} by adding `{", ".join(addrls or ["nothing"])}` and removing `{", ".join(removerls or ["nothing"])}`\n')
-
-        if newstext:
-            for chunk in split_into_chucks_of_max_2000_characters(text_list=newstext):
+        if news:
+            for chunk in split_into_chucks_of_max_2000_characters(text_list=news):
                 await newtonslab.send(chunk)
 
         # update the status

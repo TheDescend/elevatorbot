@@ -4,7 +4,7 @@ from discord_slash.utils.manage_commands import create_option
 
 from functions.dataLoading import updateDB
 from functions.formating import embed_message
-from functions.roleLookup import getPlayerRoles, assignRolesToUser, removeRolesFromUser, hasRole
+from functions.roleLookup import get_player_roles, assignRolesToUser, removeRolesFromUser, has_role
 from functions.slashCommandFunctions import get_user_obj, get_user_obj_admin, get_destinyID_and_system
 from static.config import GUILD_IDS
 from static.dict import requirementHashes
@@ -85,18 +85,13 @@ class RoleCommands(commands.Cog):
 
         # get new roles
         roles_at_start = [role.name for role in user.roles]
-        (roleList, removeRoles) = await getPlayerRoles(destinyID, roles_at_start)
+        (roleList, removeRoles) = await get_player_roles(ctx.guild, destinyID, roles_at_start)
 
-        # asign and remove roles
-        roles_assignable = await assignRolesToUser(roleList, user, ctx.guild, reason="Role Update")
-        await removeRolesFromUser(removeRoles, user, ctx.guild, reason="Role Update")
+        # assign roles
+        await ctx.author.add_roles(*roleList, reason="Achievement Role Update")
 
-        if not roles_assignable:
-            await ctx.send(hidden=True, embed=embed_message(
-                f"Error",
-                f"You seem to have been banned from acquiring any roles.\nIf you believe this is a mistake, refer to the admin team or DM <@386490723223994371>"
-            ))
-            return
+        # remove roles
+        await ctx.author.remove_roles(*removeRoles, reason="Achievement Role Update")
 
         # refreshing user obj to display the new roles
         updated_roles_member = await user.guild.fetch_member(user.id)
@@ -177,49 +172,34 @@ class RoleCommands(commands.Cog):
     )
     async def _roles_requirements(self, ctx: SlashContext, **kwargs):
         user = await get_user_obj(ctx, kwargs)
+        role = kwargs["role"]
 
         # might take a sec
         await ctx.defer()
-
-        # search for the role in our role dict
-        given_role = kwargs["role"].name
-        f_year = ""
-        f_role = ""
-        found = False
-        for topic, roles in requirementHashes.items():
-            if found:
-                break
-            else:
-                for role, roledata in roles.items():
-                    if given_role.lower() == role.lower():
-                        found = True
-                        f_year = topic
-                        f_role = role
-                        break
-
-        if not found:
-            await ctx.send(hidden=True, embed=embed_message(
-                f"Error",
-                f"This role can't be achieved through Destiny 2 \nPlease try again with a different role"
-            ))
-            return
 
         # Get user details
         _, destinyID, system = await get_destinyID_and_system(ctx, user)
 
         # update user DB
         await updateDB(destinyID)
-        reqs = await hasRole(destinyID, f_role, f_year, br=False)
+        reqs = await has_role(destinyID, role, return_as_bool=False)
 
-        # construct reply msg
-        embed = embed_message(
-            f"{user.display_name}'s '{f_role}' Eligibility"
-        )
+        if not reqs:
+            await ctx.send(hidden=True, embed=embed_message(
+                f"Error",
+                f"This role can't be achieved through Destiny 2 \nPlease try again with a different role"
+            ))
 
-        for req in reqs[1]:
-            embed.add_field(name=req, value=reqs[1][req], inline=True)
+        else:
+            # construct reply msg
+            embed = embed_message(
+                f"{user.display_name}'s '{role.name}' Eligibility"
+            )
 
-        await ctx.send(embed=embed)
+            for req in reqs[1]:
+                embed.add_field(name=req, value=reqs[1][req], inline=True)
+
+            await ctx.send(embed=embed)
 
 
     def missingRoles(self, user):
