@@ -115,6 +115,20 @@ async def has_role(destiny_id: int, role: discord.Role, return_as_bool: bool = T
                 # only worthy if worthy for all required roles
                 worthy &= req_worthy
 
+                # make sure the clears dont get overwridden
+                i = 0
+                while True:
+                    i += 1
+                    if f"Clears #{i}" in req_data and f"Clears #{i}" in data:
+                        old_i = i
+                        while True:
+                            i += 1
+                            if f"Clears #{i}" not in req_data and f"Clears #{i}" not in data:
+                                req_data[f"Clears #{i}"] = req_data.pop(f"Clears #{old_i}")
+                                break
+                    else:
+                        break
+
                 # merging dicts, data dominates
                 data = {**req_data, **data}
                 data[f'Role: {required_role}'] = bool(req_worthy)
