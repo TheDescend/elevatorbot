@@ -48,7 +48,7 @@ from database.database import insertIntoMessageDB, lookupDestinyID, get_connecti
 from static.config import COMMAND_PREFIX, BOT_TOKEN, ELEVATOR_ADMIN_CLIENT_SECRET
 from static.globals import registered_role_id, not_registered_role_id, admin_discussions_channel_id, \
     divider_raider_role_id, divider_achievement_role_id, divider_misc_role_id, muted_role_id, dev_role_id, \
-    member_role_id
+    member_role_id, discord_server_id, join_log_channel_id
 
 # vital, do not delete. Otherwise no events get loaded
 from events import *
@@ -491,7 +491,11 @@ def main():
         ))
 
     @client.event
-    async def on_member_remove(member):
+    async def on_member_remove(member: discord.Member):
+        # send a message in the join log channel if the server is descend
+        if member.guild.id == discord_server_id:
+            await member.guild.get_channel(join_log_channel_id).send(f"{member.mention} (discordID: {member.id} has left the server)")
+
         await removeFromClanAfterLeftDiscord(client, member)
 
     @client.event

@@ -33,6 +33,7 @@ admin_discussions_channel_id = 671264040974024705
 admin_workboard_channel_id = 769608204618563625
 steam_join_codes_channel_id = 701060424535113738
 bot_spam_channel_id = 670401854496309268
+join_log_channel_id = 669293365900214298
 
 social_category_channel_id = 669658612377059370
 vanguard_category_channel_id = 670402918922321959
