@@ -42,6 +42,10 @@ class AutomaticRoleAssignment(BaseEvent):
             # remove roles
             await discord_member.remove_roles(*remove_roles, reason="Achievement Role Update")
 
+            # convert to str
+            new_roles = [role.name for role in new_roles]
+            remove_roles = [role.name for role in remove_roles]
+
             return f'Updated player {discord_member.mention} by adding `{", ".join(new_roles or ["nothing"])}` and removing `{", ".join(remove_roles or ["nothing"])}`\n'
 
 
