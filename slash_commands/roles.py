@@ -1,3 +1,4 @@
+import discord
 from discord.ext import commands
 from discord_slash import cog_ext, SlashContext
 from discord_slash.utils.manage_commands import create_option
@@ -85,20 +86,24 @@ class RoleCommands(commands.Cog):
 
         # get new roles
         roles_at_start = [role.name for role in user.roles]
-        (roleList, removeRoles) = await get_player_roles(ctx.guild, destinyID, roles_at_start)
+        roles_to_add, roles_to_remove, all_roles_earned, all_roles_not_earned = await get_player_roles(user, destinyID, roles_at_start)
+
+        # if user has no roles show
+        if not all_roles_earned:
+            await ctx.send(embed=embed_message(
+                'Info',
+                f'You don\'t seem to have any roles.\nIf you believe this is an Error, refer to one of the <@&{dev_role_id}>\nOtherwise check <#686568386590802000> to see what you could acquire'
+            ))
+            return
 
         # assign roles
-        await ctx.author.add_roles(*roleList, reason="Achievement Role Update")
+        await ctx.author.add_roles(*roles_to_add, reason="Achievement Role Update")
 
         # remove roles
-        await ctx.author.remove_roles(*removeRoles, reason="Achievement Role Update")
-
-        # refreshing user obj to display the new roles
-        updated_roles_member = await user.guild.fetch_member(user.id)
+        await ctx.author.remove_roles(*roles_to_remove, reason="Achievement Role Update")
 
         # compare them with old roles for a better result msg
         old_roles = {}
-        roles_now = [role.name for role in updated_roles_member.roles]
         new_roles = {}
         for topic, topicroles in requirementHashes.items():
             topic = topic.replace("Y1", "Year One")
@@ -108,25 +113,20 @@ class RoleCommands(commands.Cog):
 
             topic = topic.replace("Addition", "Miscellaneous")
 
-            for role in topicroles.keys():
-                if role in roles_at_start:
-                    try:
-                        old_roles[topic].append(role)
-                    except KeyError:
-                        old_roles[topic] = [role]
-                elif (role not in roles_at_start) and (role in roles_now):
-                    try:
-                        new_roles[topic].append(role)
-                    except KeyError:
-                        new_roles[topic] = [role]
-
-        # if user has no roles show
-        if not roleList:
-            await ctx.send(embed=embed_message(
-                'Info',
-                f'You don\'t seem to have any roles.\nIf you believe this is an Error, refer to one of the <@&{dev_role_id}>\nOtherwise check <#686568386590802000> to see what you could acquire'
-            ))
-            return
+            for role_name in topicroles.keys():
+                discord_role = discord.utils.get(ctx.guild.roles, name=role_name)
+                if discord_role:
+                    if discord_role in roles_to_add:
+                        try:
+                            new_roles[topic].append(discord_role.mention)
+                        except KeyError:
+                            new_roles[topic] = [discord_role.mention]
+                    else:
+                        if discord_role in all_roles_earned:
+                            try:
+                                old_roles[topic].append(discord_role.mention)
+                            except KeyError:
+                                old_roles[topic] = [discord_role.mention]
 
         # construct reply msg
         embed = embed_message(
@@ -138,8 +138,8 @@ class RoleCommands(commands.Cog):
 
         for topic in old_roles:
             roles = []
-            for role in topic:
-                roles.append(role)
+            for role_name in topic:
+                roles.append(role_name)
             embed.add_field(name=topic, value="\n".join(old_roles[topic]), inline=True)
 
         embed.add_field(name="⁣", value=f"__New Roles:__", inline=False)
@@ -148,8 +148,8 @@ class RoleCommands(commands.Cog):
 
         for topic in new_roles:
             roles = []
-            for role in topic:
-                roles.append(role)
+            for role_name in topic:
+                roles.append(role_name)
             embed.add_field(name=topic, value="\n".join(new_roles[topic]), inline=True)
 
         await ctx.send(embed=embed)

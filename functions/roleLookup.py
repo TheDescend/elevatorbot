@@ -141,8 +141,12 @@ async def has_role(destiny_id: int, role: discord.Role, return_as_bool: bool = T
     return [worthy, data]
 
 
-async def get_player_roles(guild: discord.Guild, destiny_id: int, role_names_to_ignore: list[str] = None) -> tuple[list[discord.Role], list[discord.Role]]:
-    """ Returns destiny achievement roles for the player """
+async def get_player_roles(member: discord.Member, destiny_id: int, role_names_to_ignore: list[str] = None) -> tuple[list[discord.Role], list[discord.Role], list[discord.Role], list[discord.Role]]:
+    """ Returns destiny achievement roles for the player
+
+    Returns:
+        (roles_to_add, roles_to_remove, all_roles_earned, all_roles_not_earned)
+    """
 
     # get all roles from the dict to check them later. asyncio.gather keeps order
     roles_to_check = [
@@ -154,15 +158,15 @@ async def get_player_roles(guild: discord.Guild, destiny_id: int, role_names_to_
 
     # do not recheck existing roles or roles that will be replaced by existing roles
     if role_names_to_ignore:
-        for year, yeardata in requirementHashes.items():
-            for role, roledata in yeardata.items():
-                if role in role_names_to_ignore or ('replaced_by' in roledata.keys() and any([x in role_names_to_ignore for x in roledata['replaced_by']])):
+        for year, year_data in requirementHashes.items():
+            for role, role_data in year_data.items():
+                if role in role_names_to_ignore or ('replaced_by' in role_data.keys() and any([x in role_names_to_ignore for x in role_data['replaced_by']])):
                     roles_to_check.remove(role)
 
     # ignore those, who don't exist in the specified discord guild and convert the strings to the actual discord roles.
     discord_roles_to_check = []
     for role in roles_to_check:
-        discord_role = discord.utils.get(guild.roles, name=role)
+        discord_role = discord.utils.get(member.guild.roles, name=role)
         if discord_role:
             discord_roles_to_check.append(discord_role)
 
@@ -176,38 +180,69 @@ async def get_player_roles(guild: discord.Guild, destiny_id: int, role_names_to_
     endtime = time.time() - starttime
     print(f'Took {endtime} seconds to gather has_oles for destinyID {destiny_id}')
 
-    earned_discord_roles = [discord_role for (discord_role, (isworthy, worthydetails)) in zip(discord_roles_to_check, result) if isworthy]
-    earned_roles = [discord_role.name for discord_role in earned_discord_roles]
+    all_roles_earned = [discord_role for (discord_role, (isworthy, worthydetails)) in zip(discord_roles_to_check, result) if isworthy]
+    roles_to_add = all_roles_earned.copy()
+    earned_roles = [discord_role.name for discord_role in roles_to_add]
+    current_discord_roles = [role.name for role in member.roles]
 
-    # remove roles that are replaced by others
-    redundant_roles = []
-    for yeardata in requirementHashes.values():
-        for roleName, roledata in yeardata.items():
-            if roleName not in earned_roles:
-                redundant_roles.append(roleName)
-            if 'replaced_by' in roledata.keys():
-                for superior in roledata['replaced_by']:
+    # remove roles that are replaced by others. Also put roles that have already been earned into a different dict
+    roles_to_remove_name = []
+    all_roles_not_earned_name = []
+    divider_role = member.guild.get_role(divider_legacy_role_id)
+    for year_data in requirementHashes.values():
+        for role_name, role_data in year_data.items():
+            if (role_name not in earned_roles) and (role_name not in role_names_to_ignore):
+                all_roles_not_earned_name.append(role_name)
+
+                # check if member has the role currently
+                if role_name in current_discord_roles:
+                    roles_to_remove_name.append(role_name)
+
+            if 'replaced_by' in role_data.keys():
+                for superior in role_data['replaced_by']:
                     if superior in earned_roles:
-                        if roleName in earned_roles:
-                            earned_discord_roles.pop(earned_roles.index(roleName))
-                            earned_roles.remove(roleName)
-                            redundant_roles.append(roleName)
+                        if role_name in earned_roles:
+                            roles_to_add.pop(earned_roles.index(role_name))
+                            earned_roles.remove(role_name)
+
+                            # check if role has been earned in past, if not append to achieved_roles_to_remove
+                            if role_name in current_discord_roles:
+                                roles_to_remove_name.append(role_name)
+                            break
+
+            # check if role is currently already earned
+            if (role_name in current_discord_roles) and (role_name in roles_to_add):
+                roles_to_add.pop(earned_roles.index(role_name))
+                earned_roles.remove(role_name)
 
             # give the user the divider role if they have a legacy role
-            if ("deprecated" in roledata.keys()) and (divider_legacy_role_id not in earned_roles):
-                earned_roles.append(divider_legacy_role_id)
-                divider_role = guild.get_role(divider_legacy_role_id)
-                if divider_role:
-                    earned_discord_roles.append(divider_role)
+            if divider_role and (divider_role.name not in current_discord_roles) and (divider_role.name not in earned_roles) and ("deprecated" in role_data.keys()):
+                earned_roles.append(divider_role.name)
+                roles_to_add.append(divider_role)
+
+    # we're just gonna act like the member has earned a role if they have it but it was ignored
+    if role_names_to_ignore:
+        for role_name in role_names_to_ignore:
+            if role_name in requirement_hashes_without_years:
+                if role_name in current_discord_roles:
+                    all_roles_earned.append(discord.utils.get(member.guild.roles, name=role_name))
+                else:
+                    all_roles_not_earned_name.append(role_name)
 
     # ignore those, who don't exist in the specified discord guild and convert the strings to the actual discord roles.
-    redundant_discord_roles = []
-    for role in redundant_roles:
-        discord_role = discord.utils.get(guild.roles, name=role)
+    roles_to_remove = []
+    for role in roles_to_remove_name:
+        discord_role = discord.utils.get(member.guild.roles, name=role)
         if discord_role:
-            redundant_discord_roles.append(discord_role)
+            roles_to_remove.append(discord_role)
 
-    return earned_discord_roles, redundant_discord_roles
+    all_roles_not_earned = []
+    for role in all_roles_not_earned_name:
+        discord_role = discord.utils.get(member.guild.roles, name=role)
+        if discord_role:
+            all_roles_not_earned.append(discord_role)
+
+    return roles_to_add, roles_to_remove, all_roles_earned, all_roles_not_earned
 
 
 async def assignRolesToUser(roleList, discordUser, guild, reason=None):

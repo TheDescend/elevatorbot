@@ -34,17 +34,17 @@ class AutomaticRoleAssignment(BaseEvent):
                 return None
 
             # gets the roles of the specific player and assigns/removes them
-            new_roles, remove_roles = await get_player_roles(guild, destinyID)
+            roles_to_add, roles_to_remove, _, _ = await get_player_roles(discord_member, destinyID)
 
             # assign roles
-            await discord_member.add_roles(*new_roles, reason="Achievement Role Update")
+            await discord_member.add_roles(*roles_to_add, reason="Achievement Role Update")
 
             # remove roles
-            await discord_member.remove_roles(*remove_roles, reason="Achievement Role Update")
+            await discord_member.remove_roles(*roles_to_remove, reason="Achievement Role Update")
 
             # convert to str
-            new_roles = [role.name for role in new_roles]
-            remove_roles = [role.name for role in remove_roles]
+            new_roles = [role.name for role in roles_to_add]
+            remove_roles = [role.name for role in roles_to_remove]
 
             return f'Updated player {discord_member.mention} by adding `{", ".join(new_roles or ["nothing"])}` and removing `{", ".join(remove_roles or ["nothing"])}`\n'
 
