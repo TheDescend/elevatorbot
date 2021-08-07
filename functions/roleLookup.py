@@ -162,6 +162,8 @@ async def get_player_roles(member: discord.Member, destiny_id: int, role_names_t
             for role, role_data in year_data.items():
                 if role in role_names_to_ignore or ('replaced_by' in role_data.keys() and any([x in role_names_to_ignore for x in role_data['replaced_by']])):
                     roles_to_check.remove(role)
+    else:
+        role_names_to_ignore = []
 
     # ignore those, who don't exist in the specified discord guild and convert the strings to the actual discord roles.
     discord_roles_to_check = []
