@@ -213,7 +213,7 @@ async def get_player_roles(member: discord.Member, destiny_id: int, role_names_t
                             break
 
             # check if role is currently already earned
-            if (role_name in current_discord_roles) and (role_name in roles_to_add):
+            if (role_name in current_discord_roles) and (role_name in earned_roles):
                 roles_to_add.pop(earned_roles.index(role_name))
                 earned_roles.remove(role_name)
 
@@ -223,13 +223,12 @@ async def get_player_roles(member: discord.Member, destiny_id: int, role_names_t
                 roles_to_add.append(divider_role)
 
     # we're just gonna act like the member has earned a role if they have it but it was ignored
-    if role_names_to_ignore:
-        for role_name in role_names_to_ignore:
-            if role_name in requirement_hashes_without_years:
-                if role_name in current_discord_roles:
-                    all_roles_earned.append(discord.utils.get(member.guild.roles, name=role_name))
-                else:
-                    all_roles_not_earned_name.append(role_name)
+    for role_name in role_names_to_ignore:
+        if role_name in requirement_hashes_without_years:
+            if role_name in current_discord_roles:
+                all_roles_earned.append(discord.utils.get(member.guild.roles, name=role_name))
+            else:
+                all_roles_not_earned_name.append(role_name)
 
     # ignore those, who don't exist in the specified discord guild and convert the strings to the actual discord roles.
     roles_to_remove = []

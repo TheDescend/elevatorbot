@@ -1,3 +1,4 @@
+import asyncio
 import datetime
 from itertools import compress
 from typing import Optional
@@ -46,8 +47,10 @@ class AutomaticRoleAssignment(BaseEvent):
             new_roles = [role.name for role in roles_to_add]
             remove_roles = [role.name for role in roles_to_remove]
 
-            return f'Updated player {discord_member.mention} by adding `{", ".join(new_roles or ["nothing"])}` and removing `{", ".join(remove_roles or ["nothing"])}`\n'
-
+            if new_roles or remove_roles:
+                return f'Updated player {discord_member.mention} by adding `{", ".join(new_roles or ["nothing"])}` and removing `{", ".join(remove_roles or ["nothing"])}`\n'
+            else:
+                return None
 
         print('Running the automatic role assignment...')
 
@@ -59,13 +62,17 @@ class AutomaticRoleAssignment(BaseEvent):
             update = updateActivityDB()
             await update.run(client)
 
-        news = []
-        async for member in guild.fetch_members():
+        joblist = []
+        for member in guild.members:
             # only allow people who accepted the rules
             if not member.pending:
-                result = await update_user(member)
-                if result:
-                    news.append(result)
+                joblist.append(update_user(member))
+
+        results = await asyncio.gather(*joblist)
+        news = []
+        for result in results:
+            if result:
+                news.append(result)
 
         if news:
             for chunk in split_into_chucks_of_max_2000_characters(text_list=news):
