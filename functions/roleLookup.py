@@ -207,10 +207,10 @@ async def get_player_roles(member: discord.Member, destiny_id: int, role_names_t
                             roles_to_add.pop(earned_roles.index(role_name))
                             earned_roles.remove(role_name)
 
-                            # check if role has been earned in past, if not append to achieved_roles_to_remove
-                            if role_name in current_discord_roles:
-                                roles_to_remove_name.append(role_name)
-                            break
+                        # check if role has been earned in past, if not append to achieved_roles_to_remove
+                        if role_name in current_discord_roles:
+                            roles_to_remove_name.append(role_name)
+                        break
 
             # check if role is currently already earned
             if (role_name in current_discord_roles) and (role_name in earned_roles):
