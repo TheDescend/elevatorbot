@@ -494,7 +494,14 @@ def main():
     async def on_member_remove(member: discord.Member):
         # send a message in the join log channel if the server is descend
         if member.guild.id == discord_server_id:
-            await member.guild.get_channel(join_log_channel_id).send(f"{member.mention} (discordID: {member.id} has left the server)")
+            embed = embed_message(
+                "Member Left the Server",
+                f"{member.mention} has left the server"
+            )
+            embed.add_field(name="Display Name", value=member.display_name)
+            embed.add_field(name="Name", value=member.name)
+            embed.add_field(name="Discord ID", value=member.id)
+            await member.guild.get_channel(join_log_channel_id).send(embed=embed)
 
         await removeFromClanAfterLeftDiscord(client, member)
 
