@@ -13,7 +13,7 @@ import database.psql_credentials as psql_credentials
 
 """ ALL DATABASE ACCESS FUNCTIONS """
 ssh_server = None
-timeout = 300
+timeout = None
 
 
 async def create_connection_pool():
