@@ -97,10 +97,10 @@ class RoleCommands(commands.Cog):
             return
 
         # assign roles
-        await ctx.author.add_roles(*roles_to_add, reason="Achievement Role Update")
+        await user.add_roles(*roles_to_add, reason="Achievement Role Update")
 
         # remove roles
-        await ctx.author.remove_roles(*roles_to_remove, reason="Achievement Role Update")
+        await user.remove_roles(*roles_to_remove, reason="Achievement Role Update")
 
         # compare them with old roles for a better result msg
         old_roles = {}
