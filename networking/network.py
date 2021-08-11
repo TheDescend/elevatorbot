@@ -54,7 +54,7 @@ async def get_json_from_url(url: str, headers: dict = None, params: dict = None,
 
         # do not use cache
         else:
-            with session.disabled():
+            async with session.disabled():
                 return await get_request(
                     session=session,
                     url=url,
@@ -97,7 +97,7 @@ async def get_json_from_bungie_with_token(url: str, discord_id: int, headers: di
 
         # do not use cache
         else:
-            with session.disabled():
+            async with session.disabled():
                 return await get_request(
                     session=session,
                     url=url,
@@ -127,7 +127,7 @@ async def post_json_to_url(url: str, data: dict, discord_id: int, headers: dict 
 
     async with aiohttp_client_cache.CachedSession(cache=cache) as session:
         # do not use cache here
-        with session.disabled():
+        async with session.disabled():
             return await post_request(
                 session=session,
                 url=url,
