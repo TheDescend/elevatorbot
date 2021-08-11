@@ -17,5 +17,5 @@ def init_logging():
     make_logger("slash_commands")
     make_logger("events")
 
-    make_logger("updateDB")
+    make_logger("update_activity_db")
     make_logger("network")
