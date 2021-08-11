@@ -5,9 +5,9 @@ import discord
 
 from events.base_event import BaseEvent
 from functions.dataLoading import updateDB, updateMissingPcgr, updateManifest
+from functions.persistentMessages import bot_status
 from database.database import getAllDestinyIDs, lookupDiscordID, getLastUpdated, lookupSystem
 from networking.bungieAuth import handle_and_return_token
-from functions.persistentMessages import bot_status
 
 
 class UpdateManifest(BaseEvent):
@@ -39,11 +39,10 @@ class updateActivityDB(BaseEvent):
         print("Start updating DB...")
 
         # get all users the bot shares a guild with
-        shared_guild = []
+        shared_guild = set()
         for guild in client.guilds:
             for members in guild.members:
-                shared_guild.append(members.id)
-        set(shared_guild)
+                shared_guild.add(members.id)
 
         # loop though all ids
         to_update = []
@@ -67,7 +66,13 @@ class updateActivityDB(BaseEvent):
                 })
 
         # update all users
-        await asyncio.gather(*[updateDB(destiny_id=user["destiny_id"], system=user["system"], entry_time=user["entry_time"]) for user in to_update])
+        await asyncio.gather(*[updateDB(
+            destiny_id=user["destiny_id"], 
+            system=user["system"], 
+            entry_time=user["entry_time"]) 
+            for user in to_update
+        ])
+        
         print("Done updating DB")
 
         # try to get the missing pgcrs
