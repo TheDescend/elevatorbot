@@ -115,8 +115,15 @@ CREATE TABLE discordGuardiansToken(
 	refresh_token TEXT,
 	systemid INTEGER,
 	token_expiry TIMESTAMP,
-	refresh_token_expiry TIMESTAMP
-)
+	refresh_token_expiry TIMESTAMP,
+	steamjoinid BIGINT,
+	activitiesLastUpdated TIMESTAMP
+);
+
+CREATE TABLE owned_emblems (
+	destiny_id BIGINT, 
+	emblem_hash BIGINT
+);
 
 ################################################################
 # Destiny Manifest
