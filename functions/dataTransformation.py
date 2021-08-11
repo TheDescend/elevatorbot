@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 
 #https://data.destinysets.com/
 
-
+# todo ported
 async def has_collectible(destiny_id: int, collectible_hash: int) -> bool:
     """ Returns boolean whether the player <playerid> has the collecible <cHash> """
 
@@ -36,7 +36,7 @@ async def has_collectible(destiny_id: int, collectible_hash: int) -> bool:
 #   Check whether it's not (not aquired), which means that the firstbit can't be 1   
 #   https://bungie-net.github.io/multi/schema_Destiny-DestinyCollectibleState.html
 
-
+# todo ported
 async def hasTriumph(playerid, recordHash):
     """ returns True if the player <playerid> has the triumph <recordHash> """
     status = True
@@ -55,7 +55,7 @@ async def hasTriumph(playerid, recordHash):
         status &= part['complete']
     return status
 
-
+# todo ported
 async def getMetricValue(destinyID: int, metric_hash: Union[int, str]):
     """ Returns the value of the given metric hash """
 
@@ -66,16 +66,7 @@ async def getMetricValue(destinyID: int, metric_hash: Union[int, str]):
     else:
         return None
 
-
-async def getPlayerCount(instanceID):
-    pgcr = await get_pgcr(instanceID)
-    ingamechars = pgcr.content['Response']['entries']
-    ingameids = set()
-    for char in ingamechars:
-        ingameids.add(char['player']['destinyUserInfo']['membershipId'])
-    return len(ingameids)
-
-
+# todo ported
 async def hasLowman(playerid, playercount, raidHashes, flawless=False, noCheckpoints=False, disallowed=[], score_threshold=False):
     """ Default is flawless=False, disallowed is a list of (starttime, endtime) with datetime objects """
     starttime = time.monotonic()
@@ -102,7 +93,7 @@ async def hasLowman(playerid, playercount, raidHashes, flawless=False, noCheckpo
                 return True
     return False
 
-
+# todo ported
 async def getIntStat(destinyID, statname, category=None):
     stats = await getStats(destinyID)
     if not stats:
@@ -119,114 +110,14 @@ async def getIntStat(destinyID, statname, category=None):
 
     return int(stat)
 
-
+# todo ported
 async def getCharStats(destinyID, characterID, statname):
     stats = await getStats(destinyID)
     for char in stats['characters']:
         if char['characterId'] == str(characterID):
             return char['merged']['allTime'][statname]['basic']['value']
 
-async def getPossibleStats():
-    stats = await getStats(4611686018468695677)
-    for char in stats['characters']:
-        return char['merged']['allTime'].keys()
-
-async def isUserInClan(destinyID, clanid):
-    isin = destinyID in await getNameToHashMapByClanid(clanid).values()
-    print(f'{destinyID} is {isin} in {clanid}')
-    return isin
-
-fullMemberMap = {}
-async def getFullMemberMap():
-    if len(fullMemberMap) > 0:
-        return fullMemberMap
-    else:
-        for clanid in clanids:
-            fullMemberMap.update(await getNameToHashMapByClanid(clanid))
-        return fullMemberMap
-
-async def getGunsForPeriod(destinyID, pStart, pEnd):
-    processes = []
-
-    async for pve in getPlayersPastActivities(destinyID):
-        if 'period' not in pve.keys():
-            continue
-        period = datetime.strptime(pve['period'], "%Y-%m-%dT%H:%M:%SZ")
-        pS = datetime.strptime(pStart, "%d/%m/%Y")
-        pE = datetime.strptime(pEnd, "%d/%m/%Y")
-
-        if pS < period < pE:
-            result = await get_pgcr(pve['activityDetails']['instanceId'])
-            if result:
-                for entry in result.content['Response']['entries']:
-                    if int(entry['player']['destinyUserInfo']['membershipId']) != int(destinyID):
-                        # print(entry['player']['destinyUserInfo'])
-                        continue
-                    if not 'weapons' in entry['extended'].keys():
-                        continue
-                    # guns = entry['extended']['weapons']
-                    # for gun in guns:
-                    #     # gunids.append(gun['referenceId'])
-                    #     if str(gun['referenceId']) not in gunkills:
-                    #         gunkills[str(gun['referenceId'])] = 0
-                    #     gunkills[str(gun['referenceId'])] += int(
-                    #         gun['values']['uniqueWeaponKills']['basic']['displayValue'])
-
-                # TODO
-
-        if period < pS:
-            break
-
-
-async def getTop10PveGuns(destinyID):
-    gunids = []
-    gunkills = {}
-    activities = getPlayersPastActivities(destinyID)
-    instanceIds = [act['activityDetails']['instanceId'] for act in activities]
-    pgcrlist = []
-
-    processes = []
-    for instanceId in instanceIds:
-        result = await get_pgcr(instanceId)
-        if result:
-            pgcrlist.append(result.content['Response'])
-
-    for pgcr in pgcrlist:
-        for entry in pgcr['entries']:
-            if int(entry['player']['destinyUserInfo']['membershipId']) != int(destinyID):
-               # print(entry['player']['destinyUserInfo'])
-                continue
-            if not 'weapons' in entry['extended'].keys():
-                continue
-            guns = entry['extended']['weapons']
-            for gun in guns:
-                #gunids.append(gun['referenceId'])
-                if str(gun['referenceId']) not in gunkills:
-                    gunkills[str(gun['referenceId'])] = 0
-                gunkills[str(gun['referenceId'])] += int(gun['values']['uniqueWeaponKills']['basic']['displayValue'])
-
-    #manifest = getManifestJson()
-
-    #DestinyInventoryItemDefinitionLink = f"https://www.bungie.net{manifest['jsonWorldComponentContentPaths']['en']['DestinyInventoryItemDefinition']}"
-    # DestinyInventoryItemDefinitionLink = "https://www.bungie.net/common/destiny2_content/json/en/DestinyInventoryItemDefinition-39a4e3a0-efbe-4356-beca-d87271a5c699.json"
-    
-    
-    
-    gunidlist = list(gunkills.keys())
-    for gunid in gunidlist:
-        (_, _, gunname, *_) = getDestinyDefinition("DestinyInventoryItemDefinition", gunid)
-        gunkills[gunname] = int(gunkills[str(gunid)])
-        del gunkills[str(gunid)]
-
-    gunkillsorder = sorted(gunkills, reverse=True, key=lambda x : gunkills[x])    
-
-    piedataraw = [gunkills[rankeditem] for rankeditem in gunkillsorder][:10]
-    plt.pie(piedataraw, labels=gunkillsorder[:10])
-    plt.savefig(f'{destinyID}.png')
-    plt.clf()
-    return pathlib.Path(__file__).parent / f'{destinyID}.png'
-
-
+# todo ported
 async def getPlayerSeals(destinyID):
     """ returns all the seals and the seals a player has. returns total_seals: list, [[referenceId, titleName], ...]. removes wip seals like WF LW """
 
@@ -237,6 +128,29 @@ async def getPlayerSeals(destinyID):
             completed_seals.append(seal)
 
     return seals, completed_seals
+
+# todo ported
+async def get_lowman_count(destiny_id: int, activity_hashes: list[int]) -> list[int, int, Optional[timedelta]]:
+    """ Returns [solo_count, solo_is_flawless_count, Optional[solo_fastest]] """
+    solo_count, solo_is_flawless_count, solo_fastest = 0, 0, None
+
+    # get player data
+    records = await get_info_on_low_man_activity(
+        activity_hashes=activity_hashes,
+        player_count=1,
+        destiny_id=destiny_id,
+        no_checkpoints=True
+    )
+
+    # prepare player data
+    for solo in records:
+        solo_count += 1
+        if solo["deaths"] == 0:
+            solo_is_flawless_count += 1
+        if not solo_fastest or (solo["timeplayedseconds"] < solo_fastest):
+            solo_fastest = solo["timeplayedseconds"]
+
+    return [solo_count, solo_is_flawless_count, timedelta(seconds=solo_fastest) if solo_fastest else solo_fastest]
 
 
 async def getSeasonalChallengeInfo():
@@ -291,25 +205,19 @@ async def getSeasonalChallengeInfo():
 
     return seasonal_challenges
 
+fullMemberMap = {}
+async def getFullMemberMap():
+    if len(fullMemberMap) > 0:
+        return fullMemberMap
+    else:
+        for clanid in clanids:
+            fullMemberMap.update(await getNameToHashMapByClanid(clanid))
+        return fullMemberMap
 
-async def get_lowman_count(destiny_id: int, activity_hashes: list[int]) -> list[int, int, Optional[timedelta]]:
-    """ Returns [solo_count, solo_is_flawless_count, Optional[solo_fastest]] """
-    solo_count, solo_is_flawless_count, solo_fastest = 0, 0, None
-
-    # get player data
-    records = await get_info_on_low_man_activity(
-        activity_hashes=activity_hashes,
-        player_count=1,
-        destiny_id=destiny_id,
-        no_checkpoints=True
-    )
-
-    # prepare player data
-    for solo in records:
-        solo_count += 1
-        if solo["deaths"] == 0:
-            solo_is_flawless_count += 1
-        if not solo_fastest or (solo["timeplayedseconds"] < solo_fastest):
-            solo_fastest = solo["timeplayedseconds"]
-
-    return [solo_count, solo_is_flawless_count, timedelta(seconds=solo_fastest) if solo_fastest else solo_fastest]
+async def getPlayerCount(instanceID):
+    pgcr = await get_pgcr(instanceID)
+    ingamechars = pgcr.content['Response']['entries']
+    ingameids = set()
+    for char in ingamechars:
+        ingameids.add(char['player']['destinyUserInfo']['membershipId'])
+    return len(ingameids)

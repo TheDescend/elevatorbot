@@ -16,14 +16,19 @@ from static.config import CLANID
 from static.dict import weaponTypeKinetic, weaponTypeEnergy, weaponTypePower
 
 
-async def get_json_from_rr(destiny_id: int) -> Optional[dict]:
-    """ Gets a Players stats from the RR-API """
+# todo ported
+async def getCharacterList(destinyID):
+    ''' returns a (system, [characterids]) tuple '''
+    charURL = "https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/?components=100,200"
+    membershipType = await lookupSystem(destinyID)
+    characterinfo = await get_json_from_url(charURL.format(membershipType, destinyID))
+    if characterinfo:
+        return (membershipType, list(characterinfo.content['Response']['characters']['data'].keys()))
+    print(f'no account found for destinyID {destinyID}')
+    return (None,[])
 
-    requestURL = 'https://b9bv2wd97h.execute-api.us-west-2.amazonaws.com/prod/api/player/{}'.format(destiny_id)
-    result = await get_json_from_url(requestURL)
-    return result.content if result else None
 
-
+# todo ported
 async def get_triumphs_json(destiny_id: int) -> Optional[dict]:
     """ returns the json containing all triumphs the player <playerID> has """
 
@@ -39,15 +44,6 @@ async def get_triumphs_json(destiny_id: int) -> Optional[dict]:
         profileRecs.update(chardic)
     return profileRecs
 
-async def getCharacterList(destinyID):
-    ''' returns a (system, [characterids]) tuple '''
-    charURL = "https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/?components=100,200"
-    membershipType = await lookupSystem(destinyID)
-    characterinfo = await get_json_from_url(charURL.format(membershipType, destinyID))
-    if characterinfo:
-        return (membershipType, list(characterinfo.content['Response']['characters']['data'].keys()))
-    print(f'no account found for destinyID {destinyID}')
-    return (None,[])
 
 # todo get from DB
 racemap = {
@@ -65,7 +61,7 @@ classmap = {
     3655393761: 'Titan'
 }
 
-
+# todo ported
 async def get_existing_and_deleted_characters(destiny_id: int, system: int = None) -> Union[tuple[int, list[dict]], tuple[None, None]]:
     """
     return = (system: int, [
@@ -98,7 +94,7 @@ async def get_existing_and_deleted_characters(destiny_id: int, system: int = Non
     print(f'No characters found for destinyID {destiny_id}')
     return None, None
 
-
+# todo ported
 async def getCharacterInfoList(destinyID):
     """
     returns more detailed character info.
@@ -140,33 +136,7 @@ async def getCharacterInfoList(destinyID):
     print(f'No account found for destinyID {destinyID}')
     return None, None
 
-
-async def getCharactertypeList(destinyID):
-    ''' returns a [charID, type] tuple '''
-    charURL = "https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/?components=100,200"
-    membershipType = await lookupSystem(destinyID)
-    characterinfo = await get_json_from_url(charURL.format(membershipType, destinyID))
-    if characterinfo:
-        return [(int(char["characterId"]), f"{racemap[char['raceHash']]} {gendermap[char['genderHash']]} {classmap[char['classHash']]}") for char in characterinfo.content['Response']['characters']['data'].values()]
-    print(f'no account found for destinyID {destinyID}')
-    return (None,[])
-
-
-async def getCharacterID(destinyID, classID):
-    ''' returns a charID for the specified class '''
-    charIDs = (await getCharactertypeList(destinyID))
-    membershipType = await lookupSystem(destinyID)
-
-    charURL = "https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/Character/{}/?components=100,200"
-    for charID, _ in charIDs:
-        characterinfo = await get_json_from_url(charURL.format(membershipType, destinyID, charID))
-        if characterinfo:
-            if classID == characterinfo.content['Response']['character']['data']['classHash']:
-                return charID
-
-    return None
-
-
+# todo ported
 async def getPlayersPastActivities(destiny_id: int, mode: int = 7, earliest_allowed_time: datetime = None, latest_allowed_time: datetime = None, system: int = None) -> AsyncGenerator:
     """
     Generator which returns all activities whith an extra field < activity['charid'] = character_id >
@@ -235,6 +205,7 @@ async def getPlayersPastActivities(destiny_id: int, mode: int = 7, earliest_allo
                 yield activity
 
 
+# todo ported
 # https://bungie-net.github.io/multi/schema_Destiny-DestinyComponentType.html#schema_Destiny-DestinyComponentType
 async def getProfile(destinyID, *components, with_token=False, membershipType=None):
     url = 'https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/?components={}'
@@ -252,7 +223,7 @@ async def getProfile(destinyID, *components, with_token=False, membershipType=No
             return statsResponse.content['Response']
     return None
 
-
+# todo ported
 async def getDestinyName(destinyID, membershipType=None):
     """ Returns a destinyIDs current user name"""
 
@@ -262,7 +233,7 @@ async def getDestinyName(destinyID, membershipType=None):
     else:
         return "Unkown Name"
 
-
+# todo ported
 async def getStats(destinyID):
     url = 'https://stats.bungie.net/Platform/Destiny2/{}/Account/{}/Stats/'
     membershipType = await lookupSystem(destinyID)
@@ -271,7 +242,7 @@ async def getStats(destinyID):
         return statsResponse.content['Response']
     return None
 
-
+# todo ported
 async def getAggregateStatsForChar(destinyID, system, characterID):
     url = 'https://stats.bungie.net/Platform/Destiny2/{}/Account/{}/Character/{}/Stats/AggregateActivityStats/'
     statsResponse = await get_json_from_url(url.format(system, destinyID, characterID))
@@ -280,13 +251,173 @@ async def getAggregateStatsForChar(destinyID, system, characterID):
     return None
 
 
-# returns the item data - https://bungie-net.github.io/#/components/schemas/Destiny.Entities.Items.DestinyItemComponent
-async def getItemDefinition(destinyID, system, itemID, components):
-    url = 'https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/Item/{}/?components={}'
-    statsResponse = await get_json_from_url(url.format(system, destinyID, itemID, components))
-    if statsResponse:
-        return statsResponse.content['Response']
+
+# todo ported
+# returns all items in bucket. Deafult is vault hash, for others search "bucket" at https://data.destinysets.com/
+async def getInventoryBucket(destinyID, bucket=138197802):
+    res = (await getProfile(destinyID, 102, with_token=True))
+    if not res:
+        return None
+    items = res["profileInventory"]["data"]["items"]
+    ret = []
+    for item in items:
+        if item["bucketHash"] == bucket:    # vault hash
+            ret.append(item)
+
+    return ret
+
+# todo ported
+# gets the current artifact, which includes the level
+async def getArtifact(destinyID):
+    return (await getProfile(destinyID, 104, with_token=True))['profileProgression']['data']['seasonalArtifact']
+
+# todo ported
+async def getCharacterGearAndPower(destinyID):
+    items = []
+    chars = await getCharacterList(destinyID)
+
+    # not equiped on chars
+    playerProfile = (await getProfile(destinyID, 201, 205, 300, with_token=True))
+    itempower = {weaponid:int(weapondata.get("primaryStat", {"value":0})['value']) for weaponid, weapondata in playerProfile["itemComponents"]["instances"]["data"].items()}
+    itempower['none'] = 0
+    for char in chars[1]:
+        charitems = playerProfile["characterInventories"]["data"][char]["items"] + playerProfile['characterEquipment']["data"][char]["items"]
+        charpoweritems = map(lambda charitem:dict(charitem, **{'lightlevel':itempower[charitem.get('itemInstanceId', 'none')]}), charitems)
+        items.extend(charpoweritems)
+
+    return items
+
+
+
+
+# todo ported
+async def getWeaponStats(destinyID, weaponIDs: list, characterID=None, mode=0):
+    """ returns kills, prec_kills for that weapon in the specified mode"""
+
+    # get the info from the DB
+    result = []
+    for weaponID in weaponIDs:
+        if characterID:
+            result.extend(await getWeaponInfo(destinyID, weaponID, characterID=characterID, mode=mode))
+        else:
+            result.extend(await getWeaponInfo(destinyID, weaponID, mode=mode))
+
+    # add stats
+    kills = 0
+    prec_kills = 0
+    for _, k, p_k in result:
+        kills += k
+        prec_kills += p_k
+
+    return kills, prec_kills
+
+# todo ported
+async def getCharactertypeList(destinyID):
+    ''' returns a [charID, type] tuple '''
+    charURL = "https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/?components=100,200"
+    membershipType = await lookupSystem(destinyID)
+    characterinfo = await get_json_from_url(charURL.format(membershipType, destinyID))
+    if characterinfo:
+        return [(int(char["characterId"]), f"{racemap[char['raceHash']]} {gendermap[char['genderHash']]} {classmap[char['classHash']]}") for char in characterinfo.content['Response']['characters']['data'].values()]
+    print(f'no account found for destinyID {destinyID}')
+    return (None,[])
+
+# todo ported
+async def getCharacterID(destinyID, classID):
+    ''' returns a charID for the specified class '''
+    charIDs = (await getCharactertypeList(destinyID))
+    membershipType = await lookupSystem(destinyID)
+
+    charURL = "https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/Character/{}/?components=100,200"
+    for charID, _ in charIDs:
+        characterinfo = await get_json_from_url(charURL.format(membershipType, destinyID, charID))
+        if characterinfo:
+            if classID == characterinfo.content['Response']['character']['data']['classHash']:
+                return charID
+
     return None
+
+
+# todo ported
+async def updateDB(destiny_id: int, system: int = None, entry_time: datetime = None) -> None:
+    """ Gets this users not-saved history and saves it """
+    async def handle(instanceID, activity_time):
+        # get PGCR
+        pcgr = await get_pgcr(instanceID)
+        if not pcgr:
+            print('Failed getting pcgr <%s>. Trying again later', instanceID)
+            await insertFailToGetPgcrInstanceId(instanceID, activity_time)
+            logger.warning('Failed getting pcgr <%s>', instanceID)
+            return None
+        return [instanceID, activity_time, pcgr.content["Response"]]
+
+    async def input_data(gather_instance_id, gather_activity_time):
+        result = await asyncio.gather(*[handle(instanceID, activity_time) for instanceID, activity_time in zip(gather_instance_id, gather_activity_time)])
+
+        for res in result:
+            if res is not None:
+
+                instanceID = res[0]
+                activity_time = res[1]
+                pcgr = res[2]
+
+                # insert information to DB
+                await insertPgcrToDB(instanceID, activity_time, pcgr)
+                #print(f'inserted instance {instanceID}')
+
+    logger = logging.getLogger('update_activity_db')
+
+    if not entry_time:
+        entry_time = await getLastUpdated(destiny_id)
+    else:
+        entry_time = datetime.min
+
+    logger.info('Starting activity DB update for destinyID <%s>', destiny_id)
+
+    gather_instanceID = []
+    gather_activity_time = []
+    async for activity in getPlayersPastActivities(destiny_id, mode=0, earliest_allowed_time=entry_time, system=system):
+        instanceID = activity["activityDetails"]["instanceId"]
+        activity_time = datetime.strptime(activity["period"], "%Y-%m-%dT%H:%M:%SZ")
+
+        # update with newest entry timestamp
+        if activity_time > entry_time:
+            entry_time = activity_time
+
+        # check if info is already in DB, skip if so
+        if await getPgcrActivity(instanceID):
+            continue
+
+        # add to gather list
+        gather_instanceID.append(instanceID)
+        gather_activity_time.append(activity_time)
+
+        # gather once list is big enough
+        if len(gather_instanceID) < 50:
+            continue
+        else:
+            # get and input the data
+            await input_data(gather_instanceID, gather_activity_time)
+
+            # reset gather list and restart
+            gather_instanceID = []
+            gather_activity_time = []
+
+    # one last time to clean out the extras after the code is done
+    if gather_instanceID:
+        # get and input the data
+        await input_data(gather_instanceID, gather_activity_time)
+
+    # update with newest entry timestamp
+    await updateLastUpdated(destiny_id, entry_time)
+
+    logger.info('Done with activity DB update for destinyID <%s>', destiny_id)
+
+
+
+
+
+
 
 
 # gets the weapon (name, [hash1, hash2, ...]) for the search term for all weapons found
@@ -378,106 +509,11 @@ async def searchForItem(ctx, search_term):
     return name, data[name]
 
 
-# returns all items in bucket. Deafult is vault hash, for others search "bucket" at https://data.destinysets.com/
-async def getInventoryBucket(destinyID, bucket=138197802):
-    res = (await getProfile(destinyID, 102, with_token=True))
-    if not res:
-        return None
-    items = res["profileInventory"]["data"]["items"]
-    ret = []
-    for item in items:
-        if item["bucketHash"] == bucket:    # vault hash
-            ret.append(item)
-
-    return ret
-
-
-# gets the current artifact, which includes the level
-async def getArtifact(destinyID):
-    return (await getProfile(destinyID, 104, with_token=True))['profileProgression']['data']['seasonalArtifact']
-
-
-# returns all items in inventory
-async def getCharacterGear(destinyID):
-    items = []
-    chars = await getCharacterList(destinyID)
-
-    # not equiped on chars
-    char_inventory = (await getProfile(destinyID, 201, with_token=True))["characterInventories"]["data"]
-    for char in chars[1]:
-        items.extend(char_inventory[char]["items"])
-
-    # equiped on chars
-    char_inventory = (await getProfile(destinyID, 205))['characterEquipment']["data"]
-    for char in chars[1]:
-        items.extend(char_inventory[char]["items"])
-
-    return items
-
-async def getCharacterGearAndPower(destinyID):
-    items = []
-    chars = await getCharacterList(destinyID)
-
-    # not equiped on chars
-    playerProfile = (await getProfile(destinyID, 201, 205, 300, with_token=True))
-    itempower = {weaponid:int(weapondata.get("primaryStat", {"value":0})['value']) for weaponid, weapondata in playerProfile["itemComponents"]["instances"]["data"].items()}
-    itempower['none'] = 0
-    for char in chars[1]:
-        charitems = playerProfile["characterInventories"]["data"][char]["items"] + playerProfile['characterEquipment']["data"][char]["items"]
-        charpoweritems = map(lambda charitem:dict(charitem, **{'lightlevel':itempower[charitem.get('itemInstanceId', 'none')]}), charitems)
-        items.extend(charpoweritems)
-
-    return items
-
-# returns all items in vault + inventory. Also gets ships and stuff - not only armor / weapons
-async def getAllGear(destinyID):
-    # vault
-    items = await getInventoryBucket(destinyID)
-
-    items.extend(await getCharacterGear(destinyID))
-
-    # returns a list with the dicts of the items
-    return items
-
-
-# returns list of all copies of that piece
-async def getGearPiece(destinyID, itemID):
-    items = await getAllGear(destinyID)
-
-    instances = []
-    for item in items:
-        if item["itemHash"] == itemID:
-            instances.append(item)
-
-    return instances
-
-
-async def getWeaponStats(destinyID, weaponIDs: list, characterID=None, mode=0):
-    """ returns kills, prec_kills for that weapon in the specified mode"""
-
-    # get the info from the DB
-    result = []
-    for weaponID in weaponIDs:
-        if characterID:
-            result.extend(await getWeaponInfo(destinyID, weaponID, characterID=characterID, mode=mode))
-        else:
-            result.extend(await getWeaponInfo(destinyID, weaponID, mode=mode))
-
-    # add stats
-    kills = 0
-    prec_kills = 0
-    for _, k, p_k in result:
-        kills += k
-        prec_kills += p_k
-
-    return kills, prec_kills
-
-
 async def getNameToHashMapByClanid(clanid):
     requestURL = "https://www.bungie.net/Platform/GroupV2/{}/members/".format(clanid) #memberlist
     memberJSON = await get_json_from_url(requestURL)
     if not memberJSON:
-        return {} 
+        return {}
     memberlist = memberJSON.content['Response']['results']
     memberids  = dict()
     for member in memberlist:
@@ -747,80 +783,6 @@ async def insertPgcrToDB(instanceID: int, activity_time: datetime, pcgr: dict):
                 )
 
 
-async def updateDB(destiny_id: int, system: int = None, entry_time: datetime = None) -> None:
-    """ Gets this users not-saved history and saves it """
-    async def handle(instanceID, activity_time):
-        # get PGCR
-        pcgr = await get_pgcr(instanceID)
-        if not pcgr:
-            print('Failed getting pcgr <%s>. Trying again later', instanceID)
-            await insertFailToGetPgcrInstanceId(instanceID, activity_time)
-            logger.warning('Failed getting pcgr <%s>', instanceID)
-            return None
-        return [instanceID, activity_time, pcgr.content["Response"]]
-
-    async def input_data(gather_instance_id, gather_activity_time):
-        result = await asyncio.gather(*[handle(instanceID, activity_time) for instanceID, activity_time in zip(gather_instance_id, gather_activity_time)])
-
-        for res in result:
-            if res is not None:
-
-                instanceID = res[0]
-                activity_time = res[1]
-                pcgr = res[2]
-
-                # insert information to DB
-                await insertPgcrToDB(instanceID, activity_time, pcgr)
-                #print(f'inserted instance {instanceID}')
-
-    logger = logging.getLogger('updateDB')
-
-    if not entry_time:
-        entry_time = await getLastUpdated(destiny_id)
-    else:
-        entry_time = datetime.min
-
-    logger.info('Starting activity DB update for destinyID <%s>', destiny_id)
-
-    gather_instanceID = []
-    gather_activity_time = []
-    async for activity in getPlayersPastActivities(destiny_id, mode=0, earliest_allowed_time=entry_time, system=system):
-        instanceID = activity["activityDetails"]["instanceId"]
-        activity_time = datetime.strptime(activity["period"], "%Y-%m-%dT%H:%M:%SZ")
-
-        # update with newest entry timestamp
-        if activity_time > entry_time:
-            entry_time = activity_time
-
-        # check if info is already in DB, skip if so
-        if await getPgcrActivity(instanceID):
-            continue
-
-        # add to gather list
-        gather_instanceID.append(instanceID)
-        gather_activity_time.append(activity_time)
-
-        # gather once list is big enough
-        if len(gather_instanceID) < 50:
-            continue
-        else:
-            # get and input the data
-            await input_data(gather_instanceID, gather_activity_time)
-
-            # reset gather list and restart
-            gather_instanceID = []
-            gather_activity_time = []
-
-    # one last time to clean out the extras after the code is done
-    if gather_instanceID:
-        # get and input the data
-        await input_data(gather_instanceID, gather_activity_time)
-
-    # update with newest entry timestamp
-    await updateLastUpdated(destiny_id, entry_time)
-
-    logger.info('Done with activity DB update for destinyID <%s>', destiny_id)
-
 
 async def updateMissingPcgr():
     # this gets called after a lot of requests, relaxing bungie first
@@ -873,6 +835,3 @@ def translateWeaponSlot(weapon_slot: int) -> str:
     }
 
     return slot[weapon_slot]
-
-#TODO replace with DB and version checks
-
