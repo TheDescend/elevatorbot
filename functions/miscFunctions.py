@@ -36,20 +36,18 @@ async def update_status(client):
         "Type '/' to see available commands",
         "Type '/registerdesc' to register your Destiny 2 account",
         "DM me to contact staff",
-        "While Neria is no longer new, welcoming someone is polite - just saying ¯\_(ツ)_/¯",
         "↓ Psst! Did you know this person stinks",
-        "Slashing through life",
-        "Dear god please stop using old commands and use slash commands",
+        "I head @Tom wants to be sherpa'd through GoS to finally get Divinity, but is too afraid to ask",
         "This message has been removed due to a request from @Feedy",
-        "Go sports!",
         "We all know who the best bot is",
         "Hint: Checkmarks are lame",
-        "Now running v2.2 ('world_domination_test.py')",
+        "Hmm, maybe an actual versioning system would be about time",
         "Can I get vaccinated too? Technically I'm still a baby",
         "Chillin' in my Hot Tub right now 🍑💦",
-        "Buttons are cool!",
-        "LFG System Online",
-        "Now using Descend Blue™ instead of Blue"
+        "I can win the hard mode TicTacToe, can you?",
+        "Presenting: Extra context! Right click a message or a user to be amazed",
+        "I am fluent in over six million forms of communication"
+        "dis-snek > d.py"
     ]
 
     for element in itertools.cycle(status_messages):
