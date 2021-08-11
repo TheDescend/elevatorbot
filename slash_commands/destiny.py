@@ -18,7 +18,7 @@ from pyvis.network import Network
 
 from functions.authfunctions import getSpiderMaterials
 from functions.dataLoading import searchForItem, getStats, getArtifact, getCharacterGearAndPower, getInventoryBucket, \
-    getProfile, getCharacterList, getAggregateStatsForChar, getWeaponStats, updateDB, getDestinyName, getTriumphsJSON, getCharacterInfoList, getCharacterID, getClanMembers, \
+    getProfile, getCharacterList, getAggregateStatsForChar, getWeaponStats, updateDB, getDestinyName, get_triumphs_json, getCharacterInfoList, getCharacterID, getClanMembers, \
     translateWeaponSlot
 from functions.dataTransformation import getSeasonalChallengeInfo, getCharStats, getPlayerSeals, getIntStat, \
     get_lowman_count
@@ -28,13 +28,14 @@ from database.database import lookupDiscordID, getForges, getLastActivity, \
 from functions.formating import embed_message
 from functions.miscFunctions import get_emoji, write_line, has_elevated_permissions, check_if_mutually_exclusive, \
     convert_expansion_or_season_dates
-from functions.network import getJSONfromURL, handleAndReturnToken
+from networking.network import get_json_from_url
+from networking.bungieAuth import handle_and_return_token
 from functions.persistentMessages import get_persistent_message_or_channel, make_persistent_message, delete_persistent_message
 from functions.slashCommandFunctions import get_user_obj, get_destinyID_and_system, get_user_obj_admin, \
     verify_time_input
 from functions.tournament import startTournamentEvents
-from static.config import CLANID, GUILD_IDS
-from static.dict import metricRaidCompletion, raidHashes, gmHashes, expansion_dates, season_dates, zeroHashes, \
+from static.config import CLANID
+from static.dict import raidHashes, gmHashes, expansion_dates, season_dates, zeroHashes, \
     herzeroHashes, whisperHashes, herwhisperHashes, presageHashes, presageMasterHashes, prophHashes, pitHashes, \
     throneHashes, harbHashes, requirementHashes
 from static.globals import titan_emoji_id, hunter_emoji_id, warlock_emoji_id, light_level_icon_emoji_id, tournament, \
@@ -363,7 +364,7 @@ class DestinyCommands(commands.Cog):
         start = list(seasonal_challenges)[0]
 
         # get player triumphs
-        user_triumphs = await getTriumphsJSON(destinyID)
+        user_triumphs = await get_triumphs_json(destinyID)
 
         # get select components
         components = [
@@ -1112,7 +1113,7 @@ class RankCommands(commands.Cog):
         data = pd.DataFrame(columns=["member", "stat", "stat_sort"])
 
         # loop through the clan members
-        clan_members = (await getJSONfromURL(f"https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/"))["Response"][
+        clan_members = (await get_json_from_url(f"https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/")).content["Response"][
             "results"]
         results = await asyncio.gather(*[self._handle_user(stat, member, guild, extra_hash, extra_name) for member in clan_members])
         if len(results) < 1:
@@ -1182,7 +1183,7 @@ class RankCommands(commands.Cog):
         discordID = await lookupDiscordID(destinyID)
         sort_by_ascending = False
 
-        if not (await handleAndReturnToken(discordID))["result"]:
+        if not (await handle_and_return_token(discordID)).token:
             return None
 
         # catch people that are in the clan but not in discord, shouldn't happen tho

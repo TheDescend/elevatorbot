@@ -7,9 +7,9 @@ from discord_slash.utils import manage_components
 from database.database import lookupDestinyID, lookupSystem
 from functions.formating import embed_message
 from functions.miscFunctions import checkIfUserIsRegistered
-from functions.network import getJSONfromURL, postJSONtoBungie
+from networking.network import get_json_from_url, post_json_to_url
 from static.config import CLANID, BOTDEVCHANNELID, BUNGIE_OAUTH
-from static.globals import thumps_up_emoji_id, thumps_down_emoji_id, destiny_emoji_id
+from static.globals import thumps_up_emoji_id, thumps_down_emoji_id
 
 
 async def on_clan_join_request(ctx: ComponentContext):
@@ -19,7 +19,7 @@ async def on_clan_join_request(ctx: ComponentContext):
     destinyID = await lookupDestinyID(ctx.author.id)
 
     # abort if user already is in clan
-    for member in (await getJSONfromURL(f"https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/"))["Response"]["results"]:
+    for member in (await get_json_from_url(f"https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/")).content["Response"]["results"]:
         memberID = int(member["destinyUserInfo"]["membershipId"])
         if memberID == destinyID:
             print(f"{ctx.author.display_name} tried to join the clan while being in it")
@@ -64,10 +64,10 @@ async def on_clan_join_request(ctx: ComponentContext):
     data = {
         "message": "Welcome"
     }
-    ret = await postJSONtoBungie(postURL, data, 219517105249189888) #Halis ID
+    ret = await post_json_to_url(postURL, data, 219517105249189888) # Halis ID
 
     # inform user if invite was send / sth went wrong
-    if ret["error"] is None:
+    if ret.success:
         text = "Sent you a clan application"
         embed = embed_message(
             "Clan Update",
@@ -75,7 +75,10 @@ async def on_clan_join_request(ctx: ComponentContext):
         )
         await newtonslab.send(embed=embed)
     else:
-        text = ret["error"]
+        if ret.error == "ClanTargetDisallowsInvites":
+            text = "You are currently disallowing clan invites from other people. \nTo change this, go to your account settings on `bungie.net` and then try again"
+        else:
+            text = ret.error
 
     embed = embed_message(
         "Clan Application",
@@ -92,7 +95,7 @@ async def removeFromClanAfterLeftDiscord(client, member):
     # check if user was in clan
     destinyID = await lookupDestinyID(member.id)
     found = False
-    for clan_member in (await getJSONfromURL(f"https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/"))["Response"]["results"]:
+    for clan_member in (await get_json_from_url(f"https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/")).content["Response"]["results"]:
         clan_memberID = int(clan_member["destinyUserInfo"]["membershipId"])
         if clan_memberID == destinyID:
             found = True
@@ -126,12 +129,12 @@ async def removeFromClanAfterLeftDiscord(client, member):
         postURL = f'https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/{membershipType}/{destinyID}/Kick/'
         data = {}
         #Kigstns discord ID
-        ret = await postJSONtoBungie(postURL, data, 238388130581839872)
+        ret = await post_json_to_url(postURL, data, 238388130581839872)
 
-        if ret["error"] is None:
+        if ret.success:
             text = "Successfully removed!"
         else:
-            text = ret["error"]
+            text = ret.error
     else:
         text = "Aborted"
 

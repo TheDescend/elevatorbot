@@ -7,7 +7,7 @@ from functions.dataLoading import getCharacterList
 from database.database import lookupDestinyID
 from functions.formating import embed_message
 from functions.miscFunctions import has_elevated_permissions
-from functions.network import getJSONfromURL
+from networking.network import get_json_from_url
 
 
 async def startTournamentEvents(client, tourn_msg, tourn_channel, tourn_participants):
@@ -187,29 +187,29 @@ class Tournament:
 async def returnCustomGameWinner(destinyID1, charIDs1, membershipType1, destinyID2):
     for char in charIDs1:
         staturl = f"https://www.bungie.net/Platform/Destiny2/{membershipType1}/Account/{destinyID1}/Character/{char}/Stats/Activities/?mode=0&count=1&page=0"
-        rep = await getJSONfromURL(staturl)
-        if rep and rep['Response']:
-            rep = json.loads(json.dumps(rep))
+        rep = await get_json_from_url(staturl)
+        if rep:
+            rep.content = json.loads(json.dumps(rep.content))
             # if it's not a private game
-            if not rep["Response"]["activities"][0]["activityDetails"]["isPrivate"]:
+            if not rep.content["Response"]["activities"][0]["activityDetails"]["isPrivate"]:
                 return None
 
             # if it's not completed
-            if not int(rep["Response"]["activities"][0]["values"]["completed"]["basic"]["value"]) == 1:
+            if not int(rep.content["Response"]["activities"][0]["values"]["completed"]["basic"]["value"]) == 1:
                 return None
 
-            ID = rep["Response"]["activities"][0]["activityDetails"]["instanceId"]
+            ID = rep.content["Response"]["activities"][0]["activityDetails"]["instanceId"]
             staturl = f"https://stats.bungie.net/Platform/Destiny2/Stats/PostGameCarnageReport/{ID}/"
-            rep2 = await getJSONfromURL(staturl)
-            if rep2 and rep2['Response']:
-                rep2 = json.loads(json.dumps(rep2))
+            rep2 = await get_json_from_url(staturl)
+            if rep2:
+                rep2.content = json.loads(json.dumps(rep2.content))
 
                 # if more / less than 2 players
-                if len(rep2["Response"]["entries"]) != 2:
+                if len(rep2.content["Response"]["entries"]) != 2:
                     return None
 
                 found1, found2 = False, False
-                for player in rep2["Response"]["entries"]:
+                for player in rep2.content["Response"]["entries"]:
                     if int(player["player"]["destinyUserInfo"]["membershipId"]) == int(destinyID1):
                         found1 = True
                     elif int(player["player"]["destinyUserInfo"]["membershipId"]) == int(destinyID2):
@@ -217,7 +217,7 @@ async def returnCustomGameWinner(destinyID1, charIDs1, membershipType1, destinyI
 
                 # players need to be the once specified
                 if found1 and found2:
-                    if rep["Response"]["activities"][0]["values"]["standing"]["basic"]["displayValue"] == "Victory":
+                    if rep.content["Response"]["activities"][0]["values"]["standing"]["basic"]["displayValue"] == "Victory":
                         return destinyID1
                     else:
                         return destinyID2

@@ -1,21 +1,22 @@
 from database.database import lookupDiscordID, getDestinyDefinition, lookupSystem
-from functions.network      import getJSONwithToken
+from networking.models import WebResponse
+from networking.network import get_json_from_bungie_with_token
 from inspect                import currentframe, getframeinfo
 from functions.formating    import embed_message
 
 async def getUserMaterials(destinyID):
     system = 3
     url = f'https://stats.bungie.net/Platform/Destiny2/{system}/Profile/{destinyID}/?components=600'
-    res = await getJSONwithToken(url, await lookupDiscordID(destinyID))
-    if not res['result']:
-        return res['error']
-    materialdict = list(res['result']['Response']['characterCurrencyLookups']['data'].values())[0]['itemQuantities']
+    res = await get_json_from_bungie_with_token(url, await lookupDiscordID(destinyID))
+    if not res.success:
+        return res.error
+    materialdict = list(res.content['Response']['characterCurrencyLookups']['data'].values())[0]['itemQuantities']
     return materialdict
 
 async def getRasputinQuestProgress():
     haliUrl = 'https://stats.bungie.net/Platform/Destiny2/3/Profile/4611686018468695677/?components=301'
-    res = await getJSONwithToken(haliUrl, '171650677607497730')
-    rasputinobjectives = res['result']['Response']["characterUninstancedItemComponents"]["2305843009410156755"]["objectives"]["data"]["1797229574"]['objectives']
+    res = await get_json_from_bungie_with_token(haliUrl, 171650677607497730)
+    rasputinobjectives = res.content['Response']["characterUninstancedItemComponents"]["2305843009410156755"]["objectives"]["data"]["1797229574"]['objectives']
     obHashes = {
         1851115127 : 'EDZ',
         1851115126 : 'Moon',
@@ -24,10 +25,10 @@ async def getRasputinQuestProgress():
     return [(obHashes[objective["objectiveHash"]],objective["progress"], objective["completionValue"]) for objective in rasputinobjectives]
 
 
-async def getVendorData(discordID, destinyID, characterID, vendorID):
+async def getVendorData(discordID, destinyID, characterID, vendorID) -> WebResponse:
     system = await lookupSystem(destinyID)
     url = f'https://www.bungie.net/Platform/Destiny2/{system}/Profile/{destinyID}/Character/{characterID}/Vendors/{vendorID}/?components=400,401,402,304'
-    return await getJSONwithToken(url, discordID)
+    return await get_json_from_bungie_with_token(url, discordID)
 
 
 async def getSpiderMaterials(discordID, destinyID, characterID):

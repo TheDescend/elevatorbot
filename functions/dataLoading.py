@@ -1,45 +1,51 @@
 import asyncio
 import logging
-import typing
+
 from datetime import datetime
+from typing import Optional, Union, AsyncGenerator
 
 from database.database import get_connection_pool, updateLastUpdated, \
     lookupDiscordID, lookupSystem, insertPgcrActivities, getPgcrActivity, insertPgcrActivitiesUsersStats, \
     insertPgcrActivitiesUsersStatsWeapons, getFailToGetPgcrInstanceId, insertFailToGetPgcrInstanceId, \
-    deleteFailToGetPgcrInstanceId, getWeaponInfo, updateDestinyDefinition, getVersion, updateVersion, deleteEntries, \
-    getDestinyDefinition
+    deleteFailToGetPgcrInstanceId, getWeaponInfo, updateDestinyDefinition, getVersion, updateVersion, deleteEntries
 from database.database import getLastUpdated
 from functions.formating import embed_message
-from functions.network import getJSONfromURL, getComponentInfoAsJSON, getJSONwithToken
+from networking.models import WebResponse
+from networking.network import get_json_from_url, get_json_from_bungie_with_token
 from static.config import CLANID
 from static.dict import weaponTypeKinetic, weaponTypeEnergy, weaponTypePower
 
 
-async def getJSONfromRR(playerID):
+async def get_json_from_rr(destiny_id: int) -> Optional[dict]:
     """ Gets a Players stats from the RR-API """
-    requestURL = 'https://b9bv2wd97h.execute-api.us-west-2.amazonaws.com/prod/api/player/{}'.format(playerID)
-    return await getJSONfromURL(requestURL)
 
-async def getTriumphsJSON(playerID):
+    requestURL = 'https://b9bv2wd97h.execute-api.us-west-2.amazonaws.com/prod/api/player/{}'.format(destiny_id)
+    result = await get_json_from_url(requestURL)
+    return result.content if result else None
+
+
+async def get_triumphs_json(destiny_id: int) -> Optional[dict]:
     """ returns the json containing all triumphs the player <playerID> has """
-    achJSON = await getComponentInfoAsJSON(playerID, 900)
-    if not achJSON:
+
+    triumphs = await getProfile(destiny_id, 900)
+
+    if not triumphs:
         return None
-    if 'data' not in achJSON['Response']['profileRecords']:
+    if 'data' not in triumphs['profileRecords']:
         return None
-    profileRecs = achJSON['Response']['profileRecords']['data']['records']
-    charRecs = [charrecords['records'] for charid, charrecords in achJSON['Response']['characterRecords']['data'].items()]
+    profileRecs = triumphs['profileRecords']['data']['records']
+    charRecs = [charrecords['records'] for charid, charrecords in triumphs['characterRecords']['data'].items()]
     for chardic in charRecs:
         profileRecs.update(chardic)
-    return profileRecs #reduce(lambda d1,d2: d1|d2, charRecs, initializer=profileRecs)
+    return profileRecs
 
 async def getCharacterList(destinyID):
     ''' returns a (system, [characterids]) tuple '''
     charURL = "https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/?components=100,200"
     membershipType = await lookupSystem(destinyID)
-    characterinfo = await getJSONfromURL(charURL.format(membershipType, destinyID))
+    characterinfo = await get_json_from_url(charURL.format(membershipType, destinyID))
     if characterinfo:
-        return (membershipType, list(characterinfo['Response']['characters']['data'].keys()))
+        return (membershipType, list(characterinfo.content['Response']['characters']['data'].keys()))
     print(f'no account found for destinyID {destinyID}')
     return (None,[])
 
@@ -60,7 +66,7 @@ classmap = {
 }
 
 
-async def get_existing_and_deleted_characters(destiny_id: int, system: int = None) -> typing.Union[tuple[int, list[dict]], tuple[None, None]]:
+async def get_existing_and_deleted_characters(destiny_id: int, system: int = None) -> Union[tuple[int, list[dict]], tuple[None, None]]:
     """
     return = (system: int, [
         {
@@ -78,11 +84,11 @@ async def get_existing_and_deleted_characters(destiny_id: int, system: int = Non
 
     # have to use the stats endpoint, since thats the only place where deleted characters show up
     url = f"https://stats.bungie.net/Platform/Destiny2/{system}/Account/{destiny_id}/Stats/"
-    stats = await getJSONfromURL(url)
+    stats = await get_json_from_url(url)
 
-    if stats and stats["Response"]:
+    if stats.success:
         characters = []
-        for char in stats["Response"]["characters"]:
+        for char in stats.content["Response"]["characters"]:
             characters.append({
                 "char_id": int(char["characterId"]),
                 "deleted": char["deleted"],
@@ -112,12 +118,12 @@ async def getCharacterInfoList(destinyID):
 
     # get char data
     charURL = f"https://stats.bungie.net/Platform/Destiny2/{membershipType}/Profile/{destinyID}/?components=200"
-    res = await getJSONfromURL(charURL)
+    res = await get_json_from_url(charURL)
     char_list = []
     char_data = {}
     if res:
         # loop through each character
-        for characterID, character_data in res['Response']['characters']['data'].items():
+        for characterID, character_data in res.content['Response']['characters']['data'].items():
             characterID = int(characterID)
 
             # format the data correctly and convert the hashes to strings
@@ -139,9 +145,9 @@ async def getCharactertypeList(destinyID):
     ''' returns a [charID, type] tuple '''
     charURL = "https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/?components=100,200"
     membershipType = await lookupSystem(destinyID)
-    characterinfo = await getJSONfromURL(charURL.format(membershipType, destinyID))
+    characterinfo = await get_json_from_url(charURL.format(membershipType, destinyID))
     if characterinfo:
-        return [(int(char["characterId"]), f"{racemap[char['raceHash']]} {gendermap[char['genderHash']]} {classmap[char['classHash']]}") for char in characterinfo['Response']['characters']['data'].values()]
+        return [(int(char["characterId"]), f"{racemap[char['raceHash']]} {gendermap[char['genderHash']]} {classmap[char['classHash']]}") for char in characterinfo.content['Response']['characters']['data'].values()]
     print(f'no account found for destinyID {destinyID}')
     return (None,[])
 
@@ -153,15 +159,15 @@ async def getCharacterID(destinyID, classID):
 
     charURL = "https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/Character/{}/?components=100,200"
     for charID, _ in charIDs:
-        characterinfo = await getJSONfromURL(charURL.format(membershipType, destinyID, charID))
+        characterinfo = await get_json_from_url(charURL.format(membershipType, destinyID, charID))
         if characterinfo:
-            if classID == characterinfo['Response']['character']['data']['classHash']:
+            if classID == characterinfo.content['Response']['character']['data']['classHash']:
                 return charID
 
     return None
 
 
-async def getPlayersPastActivities(destiny_id: int, mode: int = 7, earliest_allowed_time: datetime = None, latest_allowed_time: datetime = None, system: int = None) -> typing.AsyncGenerator:
+async def getPlayersPastActivities(destiny_id: int, mode: int = 7, earliest_allowed_time: datetime = None, latest_allowed_time: datetime = None, system: int = None) -> AsyncGenerator:
     """
     Generator which returns all activities whith an extra field < activity['charid'] = character_id >
     For more Info visit https://bungie-net.github.io/multi/schema_Destiny-HistoricalStats-DestinyHistoricalStatsPeriodGroup.html#schema_Destiny-HistoricalStats-DestinyHistoricalStatsPeriodGroup
@@ -199,14 +205,14 @@ async def getPlayersPastActivities(destiny_id: int, mode: int = 7, earliest_allo
                 break
 
             # get activities
-            rep = await getJSONfromURL(url)
+            rep = await get_json_from_url(url)
 
             # break if empty, fe. when pages are over
-            if not rep or not rep['Response']:
+            if not rep:
                 break
 
             # loop through all activities
-            for activity in rep['Response']['activities']:
+            for activity in rep.content['Response']['activities']:
                 # check times if wanted
                 if earliest_allowed_time or latest_allowed_time:
                     activity_time = datetime.strptime(activity["period"], "%Y-%m-%dT%H:%M:%SZ")
@@ -236,14 +242,14 @@ async def getProfile(destinyID, *components, with_token=False, membershipType=No
         membershipType = await lookupSystem(destinyID)
 
     if with_token:
-        statsResponse = await getJSONwithToken(url.format(membershipType, destinyID, ','.join(map(str, components))), await lookupDiscordID(destinyID))
-        if statsResponse["result"]:
-            return statsResponse["result"]['Response']
+        statsResponse = await get_json_from_bungie_with_token(url.format(membershipType, destinyID, ','.join(map(str, components))), await lookupDiscordID(destinyID))
+        if statsResponse.success:
+            return statsResponse.content['Response']
 
     else:
-        statsResponse = await getJSONfromURL(url.format(membershipType, destinyID, ','.join(map(str, components))))
+        statsResponse = await get_json_from_url(url.format(membershipType, destinyID, ','.join(map(str, components))))
         if statsResponse:
-            return statsResponse['Response']
+            return statsResponse.content['Response']
     return None
 
 
@@ -260,26 +266,26 @@ async def getDestinyName(destinyID, membershipType=None):
 async def getStats(destinyID):
     url = 'https://stats.bungie.net/Platform/Destiny2/{}/Account/{}/Stats/'
     membershipType = await lookupSystem(destinyID)
-    statsResponse = await getJSONfromURL(url.format(membershipType, destinyID))
+    statsResponse = await get_json_from_url(url.format(membershipType, destinyID))
     if statsResponse:
-        return statsResponse['Response']
+        return statsResponse.content['Response']
     return None
 
 
 async def getAggregateStatsForChar(destinyID, system, characterID):
     url = 'https://stats.bungie.net/Platform/Destiny2/{}/Account/{}/Character/{}/Stats/AggregateActivityStats/'
-    statsResponse = await getJSONfromURL(url.format(system, destinyID, characterID))
+    statsResponse = await get_json_from_url(url.format(system, destinyID, characterID))
     if statsResponse:
-        return statsResponse['Response']
+        return statsResponse.content['Response']
     return None
 
 
 # returns the item data - https://bungie-net.github.io/#/components/schemas/Destiny.Entities.Items.DestinyItemComponent
 async def getItemDefinition(destinyID, system, itemID, components):
     url = 'https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/Item/{}/?components={}'
-    statsResponse = await getJSONfromURL(url.format(system, destinyID, itemID, components))
+    statsResponse = await get_json_from_url(url.format(system, destinyID, itemID, components))
     if statsResponse:
-        return statsResponse['Response']
+        return statsResponse.content['Response']
     return None
 
 
@@ -287,10 +293,11 @@ async def getItemDefinition(destinyID, system, itemID, components):
 # more than one weapon can be found if it got reissued
 async def searchForItem(ctx, search_term):
     # search for the weapon in the api
-    info = await getJSONfromURL(f'http://www.bungie.net/Platform/Destiny2/Armory/Search/DestinyInventoryItemDefinition/{search_term}/')
+    info = await get_json_from_url(
+        f'http://www.bungie.net/Platform/Destiny2/Armory/Search/DestinyInventoryItemDefinition/{search_term}/')
     data = {}
     try:
-        for weapon in info["Response"]["results"]["results"]:
+        for weapon in info.content["Response"]["results"]["results"]:
             # only add weapon if its not a catalyst
             if "catalyst" not in weapon["displayProperties"]["name"].lower():
                 n = weapon["displayProperties"]["name"]
@@ -468,10 +475,10 @@ async def getWeaponStats(destinyID, weaponIDs: list, characterID=None, mode=0):
 
 async def getNameToHashMapByClanid(clanid):
     requestURL = "https://www.bungie.net/Platform/GroupV2/{}/members/".format(clanid) #memberlist
-    memberJSON = await getJSONfromURL(requestURL)
+    memberJSON = await get_json_from_url(requestURL)
     if not memberJSON:
         return {} 
-    memberlist = memberJSON['Response']['results']
+    memberlist = memberJSON.content['Response']['results']
     memberids  = dict()
     for member in memberlist:
         memberids[member['destinyUserInfo']['LastSeenDisplayName']] = member['destinyUserInfo']['membershipId']
@@ -479,10 +486,10 @@ async def getNameToHashMapByClanid(clanid):
 
 async def getNameAndCrossaveNameToHashMapByClanid(clanid):
     requestURL = "https://www.bungie.net/Platform/GroupV2/{}/members/".format(clanid) #memberlist
-    memberJSON = await getJSONfromURL(requestURL)
+    memberJSON = await get_json_from_url(requestURL)
     if not memberJSON:
         return {}
-    memberlist = memberJSON['Response']['results']
+    memberlist = memberJSON.content['Response']['results']
     memberids  = dict()
     for member in memberlist:
         if 'bungieNetUserInfo' in member.keys():
@@ -492,31 +499,21 @@ async def getNameAndCrossaveNameToHashMapByClanid(clanid):
     return memberids
 
 
-async def getPGCR(instanceID):
-    return await getJSONfromURL(f'https://www.bungie.net/Platform/Destiny2/Stats/PostGameCarnageReport/{instanceID}/')
-
-
-# type = "DestinyInventoryItemDefinition" (fe.), hash = 3993415705 (fe)   - returns MT
-async def returnManifestInfo(type, hash):
-    info = await getJSONfromURL(f'http://www.bungie.net/Platform/Destiny2/Manifest/{type}/{hash}/')
-
-    if info:
-        return info
-    else:
-        return None
+async def get_pgcr(instance_id: int) -> WebResponse:
+    return await get_json_from_url(f'https://www.bungie.net/Platform/Destiny2/Stats/PostGameCarnageReport/{instance_id}/')
 
 
 async def updateManifest():
     # get the manifest
     manifest_url = 'http://www.bungie.net/Platform/Destiny2/Manifest/'
-    manifest = await getJSONfromURL(manifest_url)
+    manifest = await get_json_from_url(manifest_url)
     if not manifest:
         print("Couldnt get manifest, aborting")
         return
 
     # check if the downloaded version is different to ours, if so drop entries and redownload info
     name = "Manifest"
-    version = manifest['Response']['version']
+    version = manifest.content['Response']['version']
     if version == await getVersion(name):
         return
 
@@ -528,13 +525,13 @@ async def updateManifest():
     async with pool.acquire() as connection:
         async with connection.transaction():
             # Now Drop all the table entries and then loop through the relevant manifest locations and save them in the DB
-            for definition, url in manifest['Response']['jsonWorldComponentContentPaths']['en'].items():
+            for definition, url in manifest.content['Response']['jsonWorldComponentContentPaths']['en'].items():
                 if definition == "DestinyActivityDefinition":
                     print("Starting DestinyActivityDefinition update...")
                     await deleteEntries(connection, "DestinyActivityDefinition")
-                    result = await getJSONfromURL(f'http://www.bungie.net{url}')
+                    result = await get_json_from_url(f'http://www.bungie.net{url}')
                     # update table
-                    for referenceId, values in result.items():
+                    for referenceId, values in result.content.items():
                         await updateDestinyDefinition(
                             connection,
                             definition,
@@ -556,9 +553,9 @@ async def updateManifest():
                 elif definition == "DestinyActivityTypeDefinition":
                     print("Starting DestinyActivityTypeDefinition update...")
                     await deleteEntries(connection, "DestinyActivityTypeDefinition")
-                    result = await getJSONfromURL(f'http://www.bungie.net{url}')
+                    result = await get_json_from_url(f'http://www.bungie.net{url}')
                     # update table
-                    for referenceId, values in result.items():
+                    for referenceId, values in result.content.items():
                         await updateDestinyDefinition(
                             connection,
                             definition,
@@ -570,9 +567,9 @@ async def updateManifest():
                 elif definition == "DestinyActivityModeDefinition":
                     print("Starting DestinyActivityModeDefinition update...")
                     await deleteEntries(connection, "DestinyActivityModeDefinition")
-                    result = await getJSONfromURL(f'http://www.bungie.net{url}')
+                    result = await get_json_from_url(f'http://www.bungie.net{url}')
                     # update table
-                    for referenceId, values in result.items():
+                    for referenceId, values in result.content.items():
                         await updateDestinyDefinition(
                             connection,
                             definition,
@@ -588,9 +585,9 @@ async def updateManifest():
                 elif definition == "DestinyCollectibleDefinition":
                     print("Starting DestinyCollectibleDefinition update...")
                     await deleteEntries(connection, "DestinyCollectibleDefinition")
-                    result = await getJSONfromURL(f'http://www.bungie.net{url}')
+                    result = await get_json_from_url(f'http://www.bungie.net{url}')
                     # update table
-                    for referenceId, values in result.items():
+                    for referenceId, values in result.content.items():
                         await updateDestinyDefinition(
                             connection,
                             definition,
@@ -605,9 +602,9 @@ async def updateManifest():
                 elif definition == "DestinyInventoryItemDefinition":
                     print("Starting DestinyInventoryItemDefinition update...")
                     await deleteEntries(connection, "DestinyInventoryItemDefinition")
-                    result = await getJSONfromURL(f'http://www.bungie.net{url}')
+                    result = await get_json_from_url(f'http://www.bungie.net{url}')
                     # update table
-                    for referenceId, values in result.items():
+                    for referenceId, values in result.content.items():
                         await updateDestinyDefinition(
                             connection,
                             definition,
@@ -624,9 +621,9 @@ async def updateManifest():
                 elif definition == "DestinyRecordDefinition":
                     print("Starting DestinyRecordDefinition update...")
                     await deleteEntries(connection, "DestinyRecordDefinition")
-                    result = await getJSONfromURL(f'http://www.bungie.net{url}')
+                    result = await get_json_from_url(f'http://www.bungie.net{url}')
                     # update table
-                    for referenceId, values in result.items():
+                    for referenceId, values in result.content.items():
                         await updateDestinyDefinition(
                             connection,
                             definition,
@@ -643,9 +640,9 @@ async def updateManifest():
                 elif definition == "DestinyInventoryBucketDefinition":
                     print("Starting DestinyInventoryBucketDefinition update...")
                     await deleteEntries(connection, "DestinyInventoryBucketDefinition")
-                    result = await getJSONfromURL(f'http://www.bungie.net{url}')
+                    result = await get_json_from_url(f'http://www.bungie.net{url}')
                     # update table
-                    for referenceId, values in result.items():
+                    for referenceId, values in result.content.items():
                         await updateDestinyDefinition(
                             connection,
                             definition,
@@ -660,9 +657,9 @@ async def updateManifest():
                 elif definition == "DestinyPresentationNodeDefinition":
                     print("Starting DestinyPresentationNodeDefinition update...")
                     await deleteEntries(connection, "DestinyPresentationNodeDefinition")
-                    result = await getJSONfromURL(f'http://www.bungie.net{url}')
+                    result = await get_json_from_url(f'http://www.bungie.net{url}')
                     # update table
-                    for referenceId, values in result.items():
+                    for referenceId, values in result.content.items():
                         await updateDestinyDefinition(
                             connection,
                             definition,
@@ -754,13 +751,13 @@ async def updateDB(destiny_id: int, system: int = None, entry_time: datetime = N
     """ Gets this users not-saved history and saves it """
     async def handle(instanceID, activity_time):
         # get PGCR
-        pcgr = await getPGCR(instanceID)
+        pcgr = await get_pgcr(instanceID)
         if not pcgr:
             print('Failed getting pcgr <%s>. Trying again later', instanceID)
             await insertFailToGetPgcrInstanceId(instanceID, activity_time)
             logger.warning('Failed getting pcgr <%s>', instanceID)
             return None
-        return [instanceID, activity_time, pcgr["Response"]]
+        return [instanceID, activity_time, pcgr.content["Response"]]
 
     async def input_data(gather_instance_id, gather_activity_time):
         result = await asyncio.gather(*[handle(instanceID, activity_time) for instanceID, activity_time in zip(gather_instance_id, gather_activity_time)])
@@ -839,14 +836,14 @@ async def updateMissingPcgr():
             continue
 
         # get PGCR
-        pcgr = await getPGCR(instanceID)
+        pcgr = await get_pgcr(instanceID)
 
         # only continue if we get a response this time
         if not pcgr:
             continue
 
         # add info to DB
-        pcgr = pcgr["Response"]
+        pcgr = pcgr.content["Response"]
         await insertPgcrToDB(instanceID, activity_time, pcgr)
 
         # delete from to-do DB
@@ -856,7 +853,7 @@ async def updateMissingPcgr():
 async def getClanMembers(client):
     # get all clan members {destinyID: discordID}
     memberlist = {}
-    for member in (await getJSONfromURL(f"https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/"))["Response"][
+    for member in (await get_json_from_url(f"https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/")).content["Response"][
         "results"]:
         destinyID = int(member["destinyUserInfo"]["membershipId"])
         discordID = await lookupDiscordID(destinyID)

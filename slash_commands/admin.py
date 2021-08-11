@@ -8,13 +8,14 @@ from discord_slash.utils import manage_components
 from discord_slash.utils.manage_commands import create_option, create_choice
 
 from functions.dataLoading import getNameAndCrossaveNameToHashMapByClanid, getProfile, updateDB
-from database.database import lookupDiscordID, lookupDestinyID, lookupSystem, getAllDestinyIDs, getLastUpdated
+from database.database import lookupDiscordID, lookupDestinyID, lookupSystem, getAllDestinyIDs
 from functions.formating import embed_message
-from functions.network import getJSONfromURL, handleAndReturnToken
+from networking.network import get_json_from_url
+from networking.bungieAuth import handle_and_return_token
 from functions.persistentMessages import make_persistent_message, steamJoinCodeMessage
 from functions.roleLookup import assignRolesToUser, removeRolesFromUser
-from static.config import CLANID, GUILD_IDS
-from static.globals import other_game_roles, clan_join_request, muted_role_id, bot_spam_channel_id, enter_emoji_id, \
+from static.config import CLANID
+from static.globals import other_game_roles, muted_role_id, bot_spam_channel_id, enter_emoji_id, \
     circle_emoji_id
 from static.slashCommandConfig import permissions_admin, permissions_kigstn_hali
 
@@ -38,7 +39,7 @@ class AdminCommands(commands.Cog):
 
         # get all clan members discordID
         memberlist = []
-        for member in (await getJSONfromURL(f"https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/"))["Response"][
+        for member in (await get_json_from_url(f"https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/")).content["Response"][
             "results"]:
             destinyID = int(member["destinyUserInfo"]["membershipId"])
             memberlist.append(destinyID)
@@ -60,7 +61,7 @@ class AdminCommands(commands.Cog):
                 continue
 
             # check if no token
-            if not (await handleAndReturnToken(discordID)):
+            if not (await handle_and_return_token(discordID)).token:
                 no_token.append(member.mention)
 
             # check if accepted rules
@@ -104,7 +105,7 @@ class AdminCommands(commands.Cog):
     async def _getapikey(self, ctx: SlashContext):
         await ctx.send(hidden=True, embed=embed_message(
             "Your API Key",
-            (await handleAndReturnToken(ctx.author.id))["result"]
+            (await handle_and_return_token(ctx.author.id)).token
         ))
 
 
@@ -347,7 +348,7 @@ class AdminCommands(commands.Cog):
                 ))
                 return
             title = f'Database Infos for {mentioned_user.display_name}'
-            text = f"""DiscordID - `{discordID}` \nDestinyID: `{destinyID}` \nSystem - `{await lookupSystem(destinyID)}` \nSteamName - `{(await getProfile(destinyID, 100))["profile"]["data"]["userInfo"]["displayName"]}` \nHasToken - `{bool((await handleAndReturnToken(discordID))["result"])}`"""
+            text = f"""DiscordID - `{discordID}` \nDestinyID: `{destinyID}` \nSystem - `{await lookupSystem(destinyID)}` \nSteamName - `{(await getProfile(destinyID, 100))["profile"]["data"]["userInfo"]["displayName"]}` \nHasToken - `{bool((await handle_and_return_token(discordID)).token)}`"""
 
         # if destiny id is given
         elif discorduser:
@@ -355,7 +356,7 @@ class AdminCommands(commands.Cog):
             discordID = mentioned_user.id
             destinyID = await lookupDestinyID(discordID)
             title = f'Database Infos for {mentioned_user.display_name}'
-            text = f"""DiscordID - `{discordID}` \nDestinyID: `{destinyID}` \nSystem - `{await lookupSystem(destinyID)}` \nSteamName - `{(await getProfile(destinyID, 100))["profile"]["data"]["userInfo"]["displayName"] if destinyID else None}` \nHasToken - `{bool((await handleAndReturnToken(discordID))["result"])}`"""
+            text = f"""DiscordID - `{discordID}` \nDestinyID: `{destinyID}` \nSystem - `{await lookupSystem(destinyID)}` \nSteamName - `{(await getProfile(destinyID, 100))["profile"]["data"]["userInfo"]["displayName"] if destinyID else None}` \nHasToken - `{bool((await handle_and_return_token(discordID)).token)}`"""
 
         embed = embed_message(
             title,
@@ -365,11 +366,12 @@ class AdminCommands(commands.Cog):
         # if fuzzy name is given
         if fuzzyname:
             clansearch = []
-            returnjson = await getJSONfromURL(f"https://www.bungie.net/Platform/GroupV2/{CLANID}/Members?nameSearch={fuzzyname}")
+            returnjson = await get_json_from_url(
+                f"https://www.bungie.net/Platform/GroupV2/{CLANID}/Members?nameSearch={fuzzyname}")
             clansearch.append(returnjson)
 
             for result in clansearch:
-                resp = result['Response']
+                resp = result.content['Response']
                 if not resp['results']:
                     await ctx.send(embed=embed_message(
                         f'Error',

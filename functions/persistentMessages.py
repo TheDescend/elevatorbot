@@ -3,12 +3,10 @@ from typing import Union, Optional
 import discord
 import datetime
 
-from functions.clanJoinRequests import on_clan_join_request
 from database.database import get_persistent_message, insertPersistentMessage, \
     getallSteamJoinIDs, updatePersistentMessage, getAllPersistentMessages, deletePersistentMessage
 from functions.formating import embed_message
-from functions.network import handleAndReturnToken
-from static.globals import other_game_roles
+from networking.bungieAuth import handle_and_return_token
 
 
 async def get_persistent_message_or_channel(client: discord.Client, message_name: str, guild_id: int) -> Optional[Union[discord.VoiceChannel, discord.TextChannel, discord.Message]]:
@@ -117,7 +115,7 @@ async def handle_persistent_message_reaction(client, payload, persistent_message
 
     # only allow registered users to participate
     elif message_name == "tournament":
-        if not (await handleAndReturnToken(payload.member.id))["result"]:
+        if not (await handle_and_return_token(payload.member.id)).token:
             await message.remove_reaction(payload.emoji, payload.member)
             await payload.member.send(embed=embed_message(
                 "Error",

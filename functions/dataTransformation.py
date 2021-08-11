@@ -5,9 +5,8 @@ from typing import Union, Optional
 
 import matplotlib
 
-from functions.dataLoading import getStats, getTriumphsJSON, getPGCR, getPlayersPastActivities, \
+from functions.dataLoading import getStats, get_triumphs_json, get_pgcr, getPlayersPastActivities, \
     getNameToHashMapByClanid, getProfile
-from functions.network import getComponentInfoAsJSON
 from static.dict import clanids, seasonalChallengesCategoryHash
 from database.database import get_info_on_low_man_activity, getDestinyDefinition, getSeals, getEverything, getEverythingRow
 
@@ -16,19 +15,21 @@ import matplotlib.pyplot as plt
 
 #https://data.destinysets.com/
 
-async def hasCollectible(playerid, cHash):
+
+async def has_collectible(destiny_id: int, collectible_hash: int) -> bool:
     """ Returns boolean whether the player <playerid> has the collecible <cHash> """
-    userCollectibles = await getComponentInfoAsJSON(playerid, 800)
-    if not userCollectibles or 'data' not in userCollectibles['Response']['profileCollectibles']:
+
+    userCollectibles = await getProfile(destiny_id, 800)
+    if not userCollectibles or 'data' not in userCollectibles['profileCollectibles']:
         return False
-    collectibles = userCollectibles['Response']['profileCollectibles']['data']['collectibles']
-    if str(cHash) in collectibles:
-        return collectibles[str(cHash)]['state'] & 1 == 0
+    collectibles = userCollectibles['profileCollectibles']['data']['collectibles']
+    if str(collectible_hash) in collectibles:
+        return collectibles[str(collectible_hash)]['state'] & 1 == 0
 
     # test if its a character specific one
-    for character in userCollectibles['Response']['characterCollectibles']['data'].values():
-        if str(cHash) in character['collectibles']:
-            return character['collectibles'][str(cHash)]['state'] & 1 == 0
+    for character in userCollectibles['characterCollectibles']['data'].values():
+        if str(collectible_hash) in character['collectibles']:
+            return character['collectibles'][str(collectible_hash)]['state'] & 1 == 0
 
     return False
 
@@ -39,7 +40,7 @@ async def hasCollectible(playerid, cHash):
 async def hasTriumph(playerid, recordHash):
     """ returns True if the player <playerid> has the triumph <recordHash> """
     status = True
-    triumphs = await getTriumphsJSON(playerid)
+    triumphs = await get_triumphs_json(playerid)
     if triumphs is None:
         return False
     if str(recordHash) not in triumphs:
@@ -67,8 +68,8 @@ async def getMetricValue(destinyID: int, metric_hash: Union[int, str]):
 
 
 async def getPlayerCount(instanceID):
-    pgcr = await getPGCR(instanceID)
-    ingamechars = pgcr['Response']['entries']
+    pgcr = await get_pgcr(instanceID)
+    ingamechars = pgcr.content['Response']['entries']
     ingameids = set()
     for char in ingamechars:
         ingameids.add(char['player']['destinyUserInfo']['membershipId'])
@@ -155,9 +156,9 @@ async def getGunsForPeriod(destinyID, pStart, pEnd):
         pE = datetime.strptime(pEnd, "%d/%m/%Y")
 
         if pS < period < pE:
-            result = await getPGCR(pve['activityDetails']['instanceId'])
-            if result['Response']:
-                for entry in result['Response']['entries']:
+            result = await get_pgcr(pve['activityDetails']['instanceId'])
+            if result:
+                for entry in result.content['Response']['entries']:
                     if int(entry['player']['destinyUserInfo']['membershipId']) != int(destinyID):
                         # print(entry['player']['destinyUserInfo'])
                         continue
@@ -186,9 +187,9 @@ async def getTop10PveGuns(destinyID):
 
     processes = []
     for instanceId in instanceIds:
-        result = await getPGCR(instanceId)
+        result = await get_pgcr(instanceId)
         if result:
-            pgcrlist.append(result['Response'])
+            pgcrlist.append(result.content['Response'])
 
     for pgcr in pgcrlist:
         for entry in pgcr['entries']:

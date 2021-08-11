@@ -8,7 +8,7 @@ from discord_slash import SlashContext
 from database.database import lookupDestinyID, lookupSystem
 from functions.formating import embed_message
 from functions.miscFunctions import has_elevated_permissions
-from functions.network import handleAndReturnToken
+from networking.bungieAuth import handle_and_return_token
 
 
 async def get_user_obj(ctx: SlashContext, kwargs: dict = None) -> discord.Member:
@@ -37,7 +37,7 @@ async def get_user_obj_admin(ctx: SlashContext, kwargs: dict = None, allowed_use
     return
 
 
-async def get_destinyID_and_system(ctx: SlashContext, discord_user) -> Optional[tuple[discord.Member, int, int]]:
+async def get_destinyID_and_system(ctx: SlashContext, discord_user) -> tuple[Optional[discord.Member], Optional[int], Optional[int]]:
     """" takes either a discord user_id or the user obj and return user obj, destinyID and system or None """
 
     var_type = type(discord_user)
@@ -53,7 +53,7 @@ async def get_destinyID_and_system(ctx: SlashContext, discord_user) -> Optional[
     system = await lookupSystem(destinyID)
 
     # check if user is registered and has a valid token
-    if not (destinyID and system) or not (await handleAndReturnToken(user.id))["result"]:
+    if not (destinyID and system) or not (await handle_and_return_token(user.id)).token:
         await ctx.send(hidden=True, embed=embed_message(
             f"Error",
             f"I either possess no information about {user.display_name} or their authentication is outdated. \nPlease `/registerdesc` to fix this issue'"

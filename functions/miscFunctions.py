@@ -9,7 +9,7 @@ from discord_slash import SlashContext
 
 from database.database import select_guild_lfg_events
 from functions.formating import embed_message
-from functions.network import handleAndReturnToken
+from networking.bungieAuth import handle_and_return_token
 from static.dict import expansion_dates, season_dates
 from static.globals import admin_role_id, dev_role_id, mod_role_id
 from static.config import COMMAND_PREFIX
@@ -19,7 +19,7 @@ scheduler = None
 
 
 async def checkIfUserIsRegistered(user):
-    if (await handleAndReturnToken(user.id))["result"]:
+    if (await handle_and_return_token(user.id)).token:
         return True
     else:
         print(f"{user.display_name} is not registered")

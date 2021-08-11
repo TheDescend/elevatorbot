@@ -42,3 +42,4 @@ nohup.out
 HostingDetails
 database/databasemutation.py
 .pylintrc
+/networking/bungie_networking_cache.sqlite

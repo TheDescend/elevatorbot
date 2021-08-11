@@ -7,7 +7,7 @@ import time
 
 from database.database import getFlawlessHashes, getClearCount, getDestinyDefinition
 from functions.dataTransformation import hasLowman
-from functions.dataTransformation import hasCollectible, hasTriumph
+from functions.dataTransformation import has_collectible, hasTriumph
 from static.dict import requirementHashes, requirement_hashes_without_years
 # check if user has permission to use this command
 from static.globals import role_ban_id, divider_legacy_role_id
@@ -47,7 +47,7 @@ async def has_role(destiny_id: int, role: discord.Role, return_as_bool: bool = T
         elif req == 'collectibles':
             for collectibleHash in roledata['collectibles']:
                 has_coll_start = time.monotonic()
-                has_col = await hasCollectible(destiny_id, collectibleHash)
+                has_col = await has_collectible(destiny_id, collectibleHash)
                 has_coll_end = time.monotonic()
                 if (diff := has_coll_end - has_coll_start) > 1:
                     print(f'hasCollectible took {diff} seconds')
@@ -180,7 +180,7 @@ async def get_player_roles(member: discord.Member, destiny_id: int, role_names_t
     ])
 
     endtime = time.time() - starttime
-    print(f'Took {endtime} seconds to gather has_oles for destinyID {destiny_id}')
+    print(f'Took {endtime} seconds to gather has_roles() for destinyID {destiny_id}')
 
     all_roles_earned = [discord_role for (discord_role, (isworthy, worthydetails)) in zip(discord_roles_to_check, result) if isworthy]
     roles_to_add = all_roles_earned.copy()

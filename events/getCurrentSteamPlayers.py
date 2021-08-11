@@ -2,7 +2,7 @@ import datetime
 
 from events.base_event import BaseEvent
 from database.database import update_d2_steam_players
-from functions.network import getJSONfromURL
+from networking.network import get_json_from_url
 from functions.persistentMessages import bot_status
 from static.config import STEAM_TOKEN
 
@@ -18,12 +18,13 @@ class getCurrentSteamPlayers(BaseEvent):
         now = datetime.date.today()
 
         # get current amount of players
-        rep = await getJSONfromURL(
-            requestURL='https://api.steampowered.com/ISteamUserStats/GetNumberOfCurrentPlayers/v1/',
+        rep = await get_json_from_url(
+            url='https://api.steampowered.com/ISteamUserStats/GetNumberOfCurrentPlayers/v1/',
             headers={'X-API-Key': STEAM_TOKEN},
-            params={'appid': '1085660'}
+            params={'appid': '1085660'},
+            use_cache=False,
         )
-        number_of_players = int(rep['response']["player_count"])
+        number_of_players = int(rep.content['response']["player_count"])
 
         await update_d2_steam_players(now, number_of_players)
 

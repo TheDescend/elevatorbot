@@ -18,3 +18,4 @@ def init_logging():
     make_logger("events")
 
     make_logger("updateDB")
+    make_logger("network")

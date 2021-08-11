@@ -81,8 +81,8 @@ class ArmorStatsNotifier(BaseEvent):
                 res = await getVendorData(discordID, destinyID, characterID, vendorID)
 
                 try:
-                    sales = res['result']['Response']['itemComponents']['stats']['data']
-                    definitions = res['result']['Response']['sales']['data']
+                    sales = res.content['Response']['itemComponents']['stats']['data']
+                    definitions = res.content['Response']['sales']['data']
                 except KeyError:
                     print(f"Vendor {vendor_name} has no sold items")
                     continue
@@ -175,15 +175,16 @@ class GunsmithBountiesNotifier(BaseEvent):
 
         # check gunsmith mods
         res = await getVendorData(discordID, destinyID, characterIDs[0], 672118013)
-        for sales in res['result']['Response']['sales']['data'].values():
-            """ message users """
+        if res.success:
+            for sales in res.content['Response']['sales']['data'].values():
+                """ message users """
 
-            # jayce
-            if sales['itemHash'] == 179977568:
-                await gunsmith_msg(client, 672853590465052692, "Grasp of the Warmind")
+                # jayce
+                if sales['itemHash'] == 179977568:
+                    await gunsmith_msg(client, 672853590465052692, "Grasp of the Warmind")
 
-            # ini
-            if sales['itemHash'] == 2216063960:
-                await gunsmith_msg(client, 171371726444167168, "Rage of the Warmind")
+                # ini
+                if sales['itemHash'] == 2216063960:
+                    await gunsmith_msg(client, 171371726444167168, "Rage of the Warmind")
 
         print("Done with gunsmith bounty checks")

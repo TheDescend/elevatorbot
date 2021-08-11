@@ -12,11 +12,11 @@ from discord_slash import cog_ext, SlashContext
 from discord_slash.utils.manage_commands import create_option, create_choice
 
 from functions.dataLoading import getPlayersPastActivities, getProfile
-from functions.dataTransformation import getMetricValue, hasCollectible
+from functions.dataTransformation import getMetricValue, has_collectible
 from database.database import lookupDestinyID
 from functions.formating import embed_message
-from functions.network import getJSONfromURL
-from static.config import CLANID, GUILD_IDS
+from networking.network import get_json_from_url
+from static.config import CLANID
 from static.globals import member_role_id, clan_role_id
 from static.slashCommandConfig import permissions_kigstn
 
@@ -73,7 +73,7 @@ class Day1Race(commands.Cog):
         for encounter in self.activity_triumph_encounters:
             self.finished_encounters_blueprint[encounter] = 0
 
-        self.clan_members = (await getJSONfromURL(f"https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/"))["Response"]["results"]
+        self.clan_members = (await get_json_from_url(f"https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/")).content["Response"]["results"]
 
         try:
             with open(f'{raid_name}_finished_encounters.pickle', 'rb') as handle:
@@ -92,7 +92,7 @@ class Day1Race(commands.Cog):
         while cutoff_time > now:
             # gets all online users. Returns list with tuples (name, destinyID)
             online = []
-            for member in (await getJSONfromURL(f"https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/"))["Response"]["results"]:
+            for member in (await get_json_from_url(f"https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/")).content["Response"]["results"]:
                 if member['isOnline']:
                     online.append((member['destinyUserInfo']['LastSeenDisplayName'], int(member['destinyUserInfo']['membershipId'])))
 
@@ -228,7 +228,7 @@ class Day1Race(commands.Cog):
                         await channel.send(f"**{name}** finished `{self.activity_triumph_encounters[4240665]}` <:PeepoDPS:754785311489523754>")
 
                 # check for the emblem, if exist do the msg for every other encounter done
-                has_emblem = await hasCollectible(destinyID, self.emblem_collectible_hash)
+                has_emblem = await has_collectible(destinyID, self.emblem_collectible_hash)
                 if has_emblem:
                     for encounter_hash, description in self.activity_triumph_encounters.items():
                         if self.finished_encounters[destinyID][encounter_hash] == 0:
@@ -361,7 +361,7 @@ class Day1Race(commands.Cog):
             if member_role in member.roles:
                 destinyID = await lookupDestinyID(member.id)
                 if destinyID:
-                    if await hasCollectible(destinyID, raid_to_emblem_hash[raid]):
+                    if await has_collectible(destinyID, raid_to_emblem_hash[raid]):
                         if clan_role in member.roles:
                             self.clan_list.append(member.display_name)
                         else:

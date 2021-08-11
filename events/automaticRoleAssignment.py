@@ -1,6 +1,5 @@
 import asyncio
 import datetime
-from itertools import compress
 from typing import Optional
 
 import discord
@@ -9,7 +8,8 @@ from events.backgroundTasks import updateActivityDB
 from events.base_event import BaseEvent
 from database.database import lookupDiscordID, lookupDestinyID
 from functions.formating import split_into_chucks_of_max_2000_characters
-from functions.network import getJSONfromURL, handleAndReturnToken
+from networking.network import get_json_from_url
+from networking.bungieAuth import handle_and_return_token
 from functions.persistentMessages import bot_status
 from functions.roleLookup import assignRolesToUser, removeRolesFromUser, get_player_roles
 from static.config import CLANID, BOTDEVCHANNELID
@@ -91,7 +91,7 @@ class AutoRegisteredRole(BaseEvent):
     async def run(self, client):
         # get all clan members discordID
         memberlist = []
-        for member in (await getJSONfromURL(f"https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/"))["Response"]["results"]:
+        for member in (await get_json_from_url(f"https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/")).content["Response"]["results"]:
             destinyID = int(member["destinyUserInfo"]["membershipId"])
             discordID = await lookupDiscordID(destinyID)
             if discordID is not None:
@@ -117,7 +117,7 @@ class AutoRegisteredRole(BaseEvent):
                     continue
 
                 # add "Registered" if they have a token but not the role
-                if (await handleAndReturnToken(member.id))["result"]:
+                if (await handle_and_return_token(member.id)).token:
                     if discord.utils.get(guild.roles, id=not_registered_role_id) in member.roles:
                         await removeRolesFromUser([not_registered_role_id], member, guild)
                     await assignRolesToUser([registered_role_id], member, guild)

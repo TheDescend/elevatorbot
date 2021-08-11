@@ -6,7 +6,7 @@ import discord
 from events.base_event import BaseEvent
 from functions.dataLoading import updateDB, updateMissingPcgr, updateManifest
 from database.database import getAllDestinyIDs, lookupDiscordID, getLastUpdated, lookupSystem
-from functions.network import handleAndReturnToken
+from networking.bungieAuth import handle_and_return_token
 from functions.persistentMessages import bot_status
 
 
@@ -91,7 +91,7 @@ class TokenUpdater(BaseEvent):
         print("Starting to refresh Tokens...")
 
         for user in client.users:
-            await handleAndReturnToken(user.id)
+            await handle_and_return_token(user.id)
 
         # update the status
         await bot_status(client, "Token Refresh", datetime.datetime.now(tz=datetime.timezone.utc))
