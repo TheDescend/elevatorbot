@@ -4,14 +4,16 @@ import time
 from typing import Union, Optional
 
 import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 
 from functions.dataLoading import getStats, get_triumphs_json, get_pgcr, getPlayersPastActivities, \
     getNameToHashMapByClanid, getProfile
 from static.dict import clanids, seasonalChallengesCategoryHash
-from database.database import get_info_on_low_man_activity, getDestinyDefinition, getSeals, getEverything, getEverythingRow
+from database.database import get_info_on_low_man_activity, getDestinyDefinition, getSeals, getEverything, getEverythingRow, \
+    insertEmblem, hasEmblem
 
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
+
 
 #https://data.destinysets.com/
 
@@ -19,22 +21,34 @@ import matplotlib.pyplot as plt
 async def has_collectible(destiny_id: int, collectible_hash: int) -> bool:
     """ Returns boolean whether the player <playerid> has the collecible <cHash> """
 
-    userCollectibles = await getProfile(destiny_id, 800)
-    if not userCollectibles or 'data' not in userCollectibles['profileCollectibles']:
+    #check if collectible in collectibleDB
+    
+    if await hasEmblem(destiny_id, collectible_hash):
+        return True
+
+    user_collectibles = await getProfile(destiny_id, 800)
+    if not user_collectibles or 'data' not in user_collectibles['profileCollectibles']:
         return False
-    collectibles = userCollectibles['profileCollectibles']['data']['collectibles']
+    collectibles = user_collectibles['profileCollectibles']['data']['collectibles']
     if str(collectible_hash) in collectibles:
-        return collectibles[str(collectible_hash)]['state'] & 1 == 0
+        
+        #   Check whether it's not (not aquired), which means that the firstbit can't be 1   
+        #   https://bungie-net.github.io/multi/schema_Destiny-DestinyCollectibleState.html
+        has_emblem = collectibles[str(collectible_hash)]['state'] & 1 == 0
+        if has_emblem:
+            await insertEmblem(destiny_id, collectible_hash)
+        return has_emblem
 
     # test if its a character specific one
-    for character in userCollectibles['characterCollectibles']['data'].values():
+    for character in user_collectibles['characterCollectibles']['data'].values():
         if str(collectible_hash) in character['collectibles']:
-            return character['collectibles'][str(collectible_hash)]['state'] & 1 == 0
+            has_emblem = character['collectibles'][str(collectible_hash)]['state'] & 1 == 0
+            if has_emblem:
+                await insertEmblem(destiny_id, collectible_hash)
+            return has_emblem
 
     return False
 
-#   Check whether it's not (not aquired), which means that the firstbit can't be 1   
-#   https://bungie-net.github.io/multi/schema_Destiny-DestinyCollectibleState.html
 
 # todo ported
 async def hasTriumph(playerid, recordHash):

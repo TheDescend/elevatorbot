@@ -741,7 +741,18 @@ async def insertPgcrActivities(instanceId, referenceId, directorActivityHash, ti
             ON CONFLICT 
                 DO NOTHING;"""
         async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
-            await connection.execute(insert_sql, int(instanceId), int(referenceId), int(directorActivityHash), timePeriod, int(startingPhaseIndex), int(mode), modes, isPrivate, int(membershipType))
+            await connection.execute(
+                insert_sql, 
+                int(instanceId), 
+                int(referenceId), 
+                int(directorActivityHash), 
+                timePeriod, 
+                int(startingPhaseIndex), 
+                int(mode), 
+                modes, 
+                isPrivate, 
+                int(membershipType)
+            )
 
 
 async def getPgcrActivity(instanceId):
@@ -913,6 +924,45 @@ async def get_info_on_low_man_activity(activity_hashes: list, player_count: int,
             (selectedActivites.instanceID = userLowmanCompletions.instanceID)"""
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
         return await connection.fetch(select_sql, *activity_hashes, destiny_id, player_count)
+
+################################################################
+# Emblems
+
+async def insertEmblem(destiny_id: int, emblem_hash: int) -> None:
+    """ Inserts an owned emblem to the DB"""
+    insert_sql = """
+        INSERT INTO 
+            owned_emblems
+            (destiny_id, emblem_hash) 
+        VALUES 
+            ($1, $2)
+        ON CONFLICT 
+            DO NOTHING;"""
+    async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
+        await connection.execute(
+            insert_sql,
+            destiny_id,
+            emblem_hash
+        )
+    print(f"{destiny_id} owns emlem {emblem_hash}")
+
+
+async def hasEmblem(destiny_id: int, emblem_hash: int) -> bool:
+    """ Returns whether the emblem is owned """
+    select_sql = """
+        SELECT 
+            emblem_hash
+        FROM 
+            owned_emblems
+        WHERE 
+            destiny_id = $1
+            AND emblem_hash = $2;"""
+
+    async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
+        return len(await connection.fetch(select_sql, destiny_id, emblem_hash)) > 0
+
+################################################################
+# MISC
 
 
 async def getFlawlessHashes(membershipid, activityHashes: list):

@@ -213,7 +213,14 @@ async def getProfile(destinyID, *components, with_token=False, membershipType=No
         membershipType = await lookupSystem(destinyID)
 
     if with_token:
-        statsResponse = await get_json_from_bungie_with_token(url.format(membershipType, destinyID, ','.join(map(str, components))), await lookupDiscordID(destinyID))
+        statsResponse = await get_json_from_bungie_with_token(
+            url.format(
+                membershipType,
+                destinyID,
+                ','.join(map(str, components))
+            ),
+            await lookupDiscordID(destinyID)
+        )
         if statsResponse.success:
             return statsResponse.content['Response']
 
@@ -783,14 +790,96 @@ async def insertPgcrToDB(instanceID: int, activity_time: datetime, pcgr: dict):
                 )
 
 
+async def updateDB(destiny_id: int, system: int = None, entry_time: datetime = None) -> None:
+    """ Gets this users not-saved history and saves it """
+    async def handle(instanceID, activity_time):
+        # get PGCR
+        pcgr = await get_pgcr(instanceID)
+        if not pcgr:
+            print('Failed getting pcgr <%s>. Trying again later', instanceID)
+            await insertFailToGetPgcrInstanceId(instanceID, activity_time)
+            logger.warning('Failed getting pcgr <%s>', instanceID)
+            return None
+        return [instanceID, activity_time, pcgr.content["Response"]]
+
+    async def input_data(gather_instance_id, gather_activity_time):
+        result = await asyncio.gather(*[
+            handle(instanceID, activity_time) 
+            for instanceID, activity_time 
+            in zip(gather_instance_id, gather_activity_time)
+        ])
+
+        for res in result:
+            if res is not None:
+                instanceID, activity_time, pcgr = res
+                # activity_time = res[1]
+                # pcgr = res[2]
+
+                # insert information to DB
+                await insertPgcrToDB(instanceID, activity_time, pcgr)
+                #print(f'inserted instance {instanceID}')
+
+    logger = logging.getLogger('updateDB')
+
+    if not entry_time:
+        entry_time = await getLastUpdated(destiny_id)
+    else:
+        entry_time = datetime.min
+        logger.warn('Updated User <%s> for the first time', destiny_id)
+
+    logger.info('Starting activity DB update for destinyID <%s>', destiny_id)
+
+    gather_instanceID = []
+    gather_activity_time = []
+    async for activity in getPlayersPastActivities(
+            destiny_id, 
+            mode=0, 
+            earliest_allowed_time=entry_time, 
+            system=system):
+        instanceID = activity["activityDetails"]["instanceId"]
+        activity_time = datetime.strptime(activity["period"], "%Y-%m-%dT%H:%M:%SZ")
+
+        # update with newest entry timestamp
+        if activity_time > entry_time:
+            entry_time = activity_time
+
+        # check if info is already in DB, skip if so
+        if await getPgcrActivity(instanceID):
+            continue
+
+        # add to gather list
+        gather_instanceID.append(instanceID)
+        gather_activity_time.append(activity_time)
+
+        # gather once list is big enough
+        if len(gather_instanceID) < 20:
+            continue
+        else:
+            # get and input the data
+            await input_data(gather_instanceID, gather_activity_time)
+
+            # reset gather list and restart
+            gather_instanceID = []
+            gather_activity_time = []
+
+    # one last time to clean out the extras after the code is done
+    if gather_instanceID:
+        # get and input the data
+        await input_data(gather_instanceID, gather_activity_time)
+
+    # update with newest entry timestamp
+    await updateLastUpdated(destiny_id, entry_time)
+
+    logger.info('Done with activity DB update for destinyID <%s>', destiny_id)
+
 
 async def updateMissingPcgr():
     # this gets called after a lot of requests, relaxing bungie first
     await asyncio.sleep(30)
 
-    for missing in await getFailToGetPgcrInstanceId():
-        instanceID = missing[0]
-        activity_time = missing[1]
+    for (instanceID, activity_time) in await getFailToGetPgcrInstanceId():
+        # instanceID = missing[0]
+        # activity_time = missing[1]
 
         # check if info is already in DB, delete and skip if so
         if await getPgcrActivity(instanceID):
