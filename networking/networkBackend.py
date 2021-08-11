@@ -40,7 +40,6 @@ async def get_request(session: Union[aiohttp_client_cache.CachedSession, aiohttp
                 url=url,
                 headers=headers,
                 params=params,
-                timeout=5
             ) as request:
                 response = await handle_request_data(
                     request=request,
@@ -93,7 +92,6 @@ async def post_request(session: Union[aiohttp_client_cache.CachedSession, aiohtt
                 data=data,
                 headers=headers,
                 params=params,
-                timeout=5,
                 allow_redirects=False,
             ) as request:
                 response = await handle_request_data(
