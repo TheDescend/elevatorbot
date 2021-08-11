@@ -48,7 +48,7 @@ async def get_request(session: Union[aiohttp_client_cache.CachedSession, aiohttp
                 )
 
                 # try again
-                if not response:
+                if response is None:
                     continue
 
                 # return response
@@ -102,7 +102,7 @@ async def post_request(session: Union[aiohttp_client_cache.CachedSession, aiohtt
                 )
 
                 # try again
-                if not response:
+                if response is None:
                     continue
 
                 # return response
