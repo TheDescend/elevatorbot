@@ -19,23 +19,6 @@ from database.database import get_info_on_low_man_activity, getSeals, getEveryth
 
 
 # todo ported
-async def getIntStat(destinyID, statname, category=None):
-    stats = await getStats(destinyID)
-    if not stats:
-        return -1
-    if not category:
-        stat = stats['mergedAllCharacters']['merged']['allTime'][statname]['basic']['value']
-    else:
-        if category == "pve":
-            stat = stats['mergedAllCharacters']['results']['allPvE']['allTime'][statname]['basic']['value']
-        elif category == "pvp":
-            stat = stats['mergedAllCharacters']['results']['allPvP']['allTime'][statname]['basic']['value']
-        else:
-            return -1
-
-    return int(stat)
-
-# todo ported
 async def getCharStats(destinyID, characterID, statname):
     stats = await getStats(destinyID)
     for char in stats['characters']:

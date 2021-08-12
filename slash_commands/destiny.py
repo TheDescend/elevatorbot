@@ -571,7 +571,7 @@ class DestinyCommands(commands.Cog):
         await ctx.defer()
 
         # get stat
-        stat = await getIntStat(destiny_player.destiny_id, kwargs["name"])
+        stat = await destiny_player.get_stat_value(kwargs["name"])
         await ctx.send(embed=embed_message(
             f"{user.display_name}'s Stat Info",
             f"Your `{kwargs['name']}` stat is currently at **{stat:,}**"
@@ -599,7 +599,7 @@ class DestinyCommands(commands.Cog):
         await ctx.defer()
 
         # get stat
-        stat = await getIntStat(destinyID, kwargs["name"], category="pve")
+        stat = await destiny_player.get_stat_value(kwargs["name"], stat_category="allPvE")
         await ctx.send(embed=embed_message(
             f"{user.display_name}'s PvE Stat Info",
             f"Your `{kwargs['name']}` stat is currently at **{stat:,}**"
@@ -627,7 +627,7 @@ class DestinyCommands(commands.Cog):
         await ctx.defer()
 
         # get stat
-        stat = await getIntStat(destinyID, kwargs["name"], category="pvp")
+        stat = await destiny_player.get_stat_value(kwargs["name"], stat_category="allPvP")
         await ctx.send(embed=embed_message(
             f"{user.display_name}'s PvP Stat Info",
             f"Your `{kwargs['name']}` stat is currently at **{stat:,}**"
