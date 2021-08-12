@@ -1452,7 +1452,7 @@ class RankCommands(commands.Cog):
         result_sort = 0
         chars = await destiny_player.get_character_info()
         for characterID in chars:
-            aggregateStats = await getAggregateStatsForChar(destiny_player.destiny_id, chars[0], characterID)
+            aggregateStats = await destiny_player.get_character_activity_stats(characterID)
 
             try:
                 for activities in aggregateStats["activities"]:

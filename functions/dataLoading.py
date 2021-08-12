@@ -40,14 +40,6 @@ async def getProfile(destinyID, *components, with_token=False, membershipType=No
             return statsResponse.content['Response']
     return None
 
-# todo ported
-async def getStats(destinyID):
-    url = 'https://stats.bungie.net/Platform/Destiny2/{}/Account/{}/Stats/'
-    membershipType = await lookupSystem(destinyID)
-    statsResponse = await get_json_from_url(url.format(membershipType, destinyID))
-    if statsResponse:
-        return statsResponse.content['Response']
-    return None
 
 # todo ported
 async def getAggregateStatsForChar(destinyID, system, characterID):
