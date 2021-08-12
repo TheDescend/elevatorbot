@@ -435,7 +435,6 @@ class DestinyPlayer:
         return self._gear
 
 
-
     async def get_weapon_stats(
         self,
         weapon_ids: list[int],
@@ -544,7 +543,7 @@ class DestinyPlayer:
         mode: int = 0,
         earliest_allowed_datetime: datetime.datetime = None,
         latest_allowed_datetime: datetime.datetime = None
-    ) -> AsyncGenerator[dict]:
+    ) -> AsyncGenerator[Optional[dict]]:
         """
         Generator which returns all activities with an extra field < activity['charid'] = character_id >
         For more Info visit https://bungie-net.github.io/multi/schema_Destiny-HistoricalStats-DestinyHistoricalStatsPeriodGroup.html#schema_Destiny-HistoricalStats-DestinyHistoricalStatsPeriodGroup
@@ -586,6 +585,13 @@ class DestinyPlayer:
                     url=url,
                     params=params
                 )
+
+                # break process if no web response is gotten and log that
+                if not rep:
+                    logger = logging.getLogger('update_activity_db')
+                    logger.error("Failed to get web response for destinyID '%s': WebResponse = '%s'", self.destiny_id, rep)
+
+                    yield None
 
                 # break if empty, fe. when pages are over
                 if not rep.content['Response']:
@@ -667,10 +673,16 @@ class DestinyPlayer:
 
         instance_ids = []
         activity_times = []
+        success = True
         async for activity in self.get_activity_history(
             mode=0,
             earliest_allowed_datetime=entry_time,
         ):
+            # break if we dont get a result
+            if not activity:
+                success = False
+                break
+
             instance_id = activity["activityDetails"]["instanceId"]
             activity_time = datetime.datetime.strptime(activity["period"], "%Y-%m-%dT%H:%M:%SZ")
 
@@ -703,7 +715,8 @@ class DestinyPlayer:
             await input_data(instance_ids, activity_times)
 
         # update with newest entry timestamp
-        await updateLastUpdated(self.destiny_id, entry_time)
+        if success:
+            await updateLastUpdated(self.destiny_id, entry_time)
 
         logger.info('Done with activity DB update for destinyID <%s>', self.destiny_id)
 
