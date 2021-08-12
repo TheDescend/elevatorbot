@@ -168,7 +168,7 @@ class DestinyCommands(commands.Cog):
 
         # init the db request function with all the args
         args = {
-            "destinyID": destinyID,
+            "destinyID": destiny_player.destiny_id,
             "character_class": kwargs["class"] if ("class" in kwargs and kwargs["class"] != "Everything") else None,
         }
 
@@ -1645,7 +1645,7 @@ class WeaponCommands(commands.Cog):
         # loop through every variant of the weapon and add that together
         result = []
         for entry in weapon_hashes:
-            result.extend(await getWeaponInfo(destinyID, entry, **{k: v for k, v in kwargs.items() if v is not None}))
+            result.extend(await getWeaponInfo(destiny_player.destiny_id, entry, **{k: v for k, v in kwargs.items() if v is not None}))
 
         # throw error if no weapon
         if not result:
@@ -1917,7 +1917,7 @@ class WeaponCommands(commands.Cog):
             "start": starttime,
             "end": endtime
         }
-        result = await getTopWeapons(destinyID, **{k: v for k, v in kwargs.items() if v is not None})
+        result = await getTopWeapons(destiny_player.destiny_id, **{k: v for k, v in kwargs.items() if v is not None})
 
         # loop through all weapons and divide them into kinetic / energy / power
         weapons_by_slot = {
@@ -2212,7 +2212,7 @@ class WeaponCommands(commands.Cog):
             "start": starttime,
             "end": endtime
         }
-        return await getTopWeapons(destinyID, **{k: v for k, v in kwargs.items() if v is not None})
+        return await getTopWeapons(destiny_player.destiny_id, **{k: v for k, v in kwargs.items() if v is not None})
 
 
 

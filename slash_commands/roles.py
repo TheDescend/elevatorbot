@@ -85,7 +85,7 @@ class RoleCommands(commands.Cog):
 
         # get new roles
         roles_at_start = [role.name for role in user.roles]
-        roles_to_add, roles_to_remove, all_roles_earned, all_roles_not_earned = await get_player_roles(user, destinyID, roles_at_start)
+        roles_to_add, roles_to_remove, all_roles_earned, all_roles_not_earned = await get_player_roles(user, destiny_player, roles_at_start)
 
         # if user has no roles show
         if not all_roles_earned:
@@ -183,7 +183,7 @@ class RoleCommands(commands.Cog):
 
         # update user DB
         await destiny_player.update_activity_db()
-        reqs = await has_role(destinyID, role, return_as_bool=False)
+        reqs = await has_role(destiny_player, role, return_as_bool=False)
 
         if not reqs:
             await ctx.send(hidden=True, embed=embed_message(

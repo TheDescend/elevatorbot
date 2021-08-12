@@ -6,7 +6,6 @@ from typing import Optional, Union
 import discord
 
 from database.database import getFlawlessHashes, getClearCount, getDestinyDefinition
-from functions.dataTransformation import hasLowman
 from functions.destinyPlayer import DestinyPlayer
 from static.dict import requirementHashes, requirement_hashes_without_years
 # check if user has permission to use this command
@@ -127,7 +126,7 @@ async def has_role(destiny_player: DestinyPlayer, role: discord.Role, return_as_
                     req_data = {}
                 else:
                     req_worthy, req_data = await has_role(
-                        destiny_id, required_role_discord, return_as_bool=False
+                        destiny_player, required_role_discord, return_as_bool=False
                     )
 
                 # only worthy if worthy for all required roles
@@ -164,11 +163,7 @@ async def has_role(destiny_player: DestinyPlayer, role: discord.Role, return_as_
     return [worthy, data]
 
 
-async def get_player_roles(
-    member: discord.Member, destiny_id: int, role_names_to_ignore: list[str] = None
-) -> tuple[
-    list[discord.Role], list[discord.Role], list[discord.Role], list[discord.Role]
-]:
+async def get_player_roles(member: discord.Member, destiny_player: DestinyPlayer, role_names_to_ignore: list[str] = None) -> tuple[list[discord.Role], list[discord.Role], list[discord.Role], list[discord.Role]]:
     """Returns destiny achievement roles for the player
 
     Returns:
@@ -207,11 +202,11 @@ async def get_player_roles(
     # check worthiness in parallel
     starttime = time.time()
     result = await asyncio.gather(
-        *[has_role(destiny_id, role) for role in discord_roles_to_check]
+        *[has_role(destiny_player, role) for role in discord_roles_to_check]
     )
 
     endtime = time.time() - starttime
-    print(f"Took {endtime} seconds to gather has_roles() for destinyID {destiny_id}")
+    print(f"Took {endtime} seconds to gather has_roles() for destinyID {destiny_player.destiny_id}")
 
     all_roles_earned = [
         discord_role

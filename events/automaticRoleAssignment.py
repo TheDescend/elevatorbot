@@ -7,6 +7,7 @@ import discord
 from database.database import lookupDiscordID, lookupDestinyID
 from events.backgroundTasks import UpdateActivityDB
 from events.base_event import BaseEvent
+from functions.destinyPlayer import DestinyPlayer
 from functions.formating import split_into_chucks_of_max_2000_characters
 from functions.persistentMessages import bot_status
 from functions.roleLookup import assignRolesToUser, removeRolesFromUser, get_player_roles
@@ -30,12 +31,12 @@ class AutomaticRoleAssignment(BaseEvent):
             if discord_member.bot:
                 return None
 
-            destinyID = await lookupDestinyID(discord_member.id)
-            if not destinyID:
-                return None
+            destiny_player = await DestinyPlayer.from_discord_id(member.id)
+            if not destiny_player:
+                return
 
             # gets the roles of the specific player and assigns/removes them
-            roles_to_add, roles_to_remove, _, _ = await get_player_roles(discord_member, destinyID)
+            roles_to_add, roles_to_remove, _, _ = await get_player_roles(discord_member, destiny_player)
 
             # assign roles
             await discord_member.add_roles(*roles_to_add, reason="Achievement Role Update")

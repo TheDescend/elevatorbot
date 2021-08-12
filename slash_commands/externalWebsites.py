@@ -90,29 +90,29 @@ class ExternalWebsitesCommands(commands.Cog):
         # get the text
         text = ""
         if website == "Solo Report":
-            text = f'https://elevatorbot.ch/soloreport/{system}/{destinyID}'
+            text = f'https://elevatorbot.ch/soloreport/{destiny_player.system}/{destiny_player.destiny_id}'
         elif website == "Expunge Report":
-            text = f'https://elevatorbot.ch/expungereport/{self.rrsystem[system]}/{destinyID}'
+            text = f'https://elevatorbot.ch/expungereport/{self.rrsystem[destiny_player.system]}/{destiny_player.destiny_id}'
         elif website == "Raid Report":
-            text = f'https://raid.report/{self.rrsystem[system]}/{destinyID}'
+            text = f'https://raid.report/{self.rrsystem[destiny_player.system]}/{destiny_player.destiny_id}'
         elif website == "Dungeon Report":
-            text = f'https://dungeon.report/{self.rrsystem[system]}/{destinyID}'
+            text = f'https://dungeon.report/{self.rrsystem[destiny_player.system]}/{destiny_player.destiny_id}'
         elif website == "Grandmaster Report":
-            text = f'https://grandmaster.report/user/{system}/{destinyID}'
+            text = f'https://grandmaster.report/user/{destiny_player.system}/{destiny_player.destiny_id}'
         elif website == "Nightfall Report":
-            text = f'https://nightfall.report/guardian/{system}/{destinyID}'
+            text = f'https://nightfall.report/guardian/{destiny_player.system}/{destiny_player.destiny_id}'
         elif website == "Trials Report":
-            text = f'https://destinytrialsreport.com/report/{system}/{destinyID}'
+            text = f'https://destinytrialsreport.com/report/{destiny_player.system}/{destiny_player.destiny_id}'
         elif website == "Triumph Report":
-            text = f'https://triumph.report/{system}/{destinyID}'
+            text = f'https://triumph.report/{destiny_player.system}/{destiny_player.destiny_id}'
         elif website == "Braytech.org":
-            text = f'https://braytech.org/{system}/{destinyID}'
+            text = f'https://braytech.org/{destiny_player.system}/{destiny_player.destiny_id}'
         elif website == "D2 Checklist":
-            text = f'https://www.d2checklist.com/{system}/{destinyID}'
+            text = f'https://www.d2checklist.com/{destiny_player.system}/{destiny_player.destiny_id}'
         elif website == "Destiny Tracker":
-            text = f'https://destinytracker.com/destiny-2/profile/{system}/{destinyID}'
+            text = f'https://destinytracker.com/destiny-2/profile/{destiny_player.system}/{destiny_player.destiny_id}'
         elif website == "Wasted on Destiny":
-            text = f'https://wastedondestiny.com/{system}_{destinyID}'
+            text = f'https://wastedondestiny.com/{destiny_player.system}_{destiny_player.destiny_id}'
 
         components = [
             manage_components.create_actionrow(
