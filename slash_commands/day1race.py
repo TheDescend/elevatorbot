@@ -176,10 +176,10 @@ class Day1Race(commands.Cog):
     async def look_for_completion(self, member, channel):
         try:
             name = member[0]
-            destinyID = member[1]
+            destiny_player = await DestinyPlayer.from_destiny_id(member[1])
 
             if member not in self.finished_raid:
-                records = await getProfile(destinyID, 900)
+                records = await destiny_player.get_triumphs()
                 record_list = []
                 try:
                     """ vog only stuff from here on. Vog triumph is class specific """
@@ -197,19 +197,19 @@ class Day1Race(commands.Cog):
                                 break
 
                             # abort if user has already completed that encounter
-                            if self.finished_encounters[destinyID][encounter_hash] == 0:
+                            if self.finished_encounters[destiny_player.destiny_id][encounter_hash] == 0:
                                 for record_objective_hash in record["objectives"]:
                                     if encounter_hash == record_objective_hash["objectiveHash"]:
                                         # check if is complete
                                         if record_objective_hash["complete"]:
-                                            self.finished_encounters[destinyID][encounter_hash] = 1
+                                            self.finished_encounters[destiny_player.destiny_id][encounter_hash] = 1
                                             await channel.send(f"**{name}** finished `{description}` <:PeepoDPS:754785311489523754>")
                                             br = True
                                         break
 
                 """ vog only stuff from here on. Change that back if a raid comes out which you dont need to finish twice """
                 # check if a completion was counted via the triumph. if not, look at the other triumph to at least set first completion as done
-                if self.finished_encounters_blueprint == self.finished_encounters[destinyID]:
+                if self.finished_encounters_blueprint == self.finished_encounters[destiny_player.destiny_id]:
                     try:
                         record2 = records["profileRecords"]["data"]["records"][str(self.alternative_activity_triumph)]
                     except KeyError:
@@ -217,23 +217,23 @@ class Day1Race(commands.Cog):
                     if record2:
                         for record_objective_hash in record2["objectives"]:
                             if record_objective_hash["complete"]:
-                                self.finished_encounters[destinyID][4240665] = 1
+                                self.finished_encounters[destiny_player.destiny_id][4240665] = 1
                                 await channel.send(f"**{name}** finished `{self.activity_triumph_encounters[4240665]}` <:PeepoDPS:754785311489523754>")
                                 break
 
                 # check if a completion was counted via the triumph. if not, look at the metric to at least set first completion as done
-                if self.finished_encounters_blueprint == self.finished_encounters[destinyID]:
-                    metric_completions = await getMetricValue(destinyID, self.activity_metric)
+                if self.finished_encounters_blueprint == self.finished_encounters[destiny_player.destiny_id]:
+                    metric_completions = await getMetricValue(destiny_player.destiny_id, self.activity_metric)
                     if metric_completions > 0:
-                        self.finished_encounters[destinyID][4240665] = 1
+                        self.finished_encounters[destiny_player.destiny_id][4240665] = 1
                         await channel.send(f"**{name}** finished `{self.activity_triumph_encounters[4240665]}` <:PeepoDPS:754785311489523754>")
 
                 # check for the emblem, if exist do the msg for every other encounter done
-                has_emblem = await has_collectible(destinyID, self.emblem_collectible_hash)
+                has_emblem = await has_collectible(destiny_player.destiny_id, self.emblem_collectible_hash)
                 if has_emblem:
                     for encounter_hash, description in self.activity_triumph_encounters.items():
-                        if self.finished_encounters[destinyID][encounter_hash] == 0:
-                            self.finished_encounters[destinyID][encounter_hash] = 1
+                        if self.finished_encounters[destiny_player.destiny_id][encounter_hash] == 0:
+                            self.finished_encounters[destiny_player.destiny_id][encounter_hash] = 1
                             await channel.send(f"**{name}** finished `{description}` <:PeepoDPS:754785311489523754>")
 
                 """ vog only stuff over """

@@ -325,10 +325,7 @@ class AdminCommands(commands.Cog):
             return
         await ctx.defer()
 
-        title = f"Database Infos"
-        text = None
-
-        # if disord info is given
+        # if discord info is given
         if destinyid:
             try:
                 destinyid = int(destinyid)
@@ -339,25 +336,28 @@ class AdminCommands(commands.Cog):
                 ))
                 return
 
-            destinyID = destinyid
-            discordID = await lookupDiscordID(destinyID)
-            mentioned_user = self.client.get_user(discordID)
+            destiny_player = await DestinyPlayer.from_destiny_id(destinyid)
+            mentioned_user = destiny_player.get_discord_member(ctx.guild)
             if not mentioned_user:
                 await ctx.send(embed=embed_message(
                     "Error",
-                    f"I don't know a user with the destinyID `{destinyID}`"
+                    f"I don't know a user with the destinyID `{destiny_player.destiny_id}`"
                 ))
                 return
-            title = f'Database Infos for {mentioned_user.display_name}'
-            text = f"""DiscordID - `{discordID}` \nDestinyID: `{destinyID}` \nSystem - `{await lookupSystem(destinyID)}` \nSteamName - `{(await getProfile(destinyID, 100))["profile"]["data"]["userInfo"]["displayName"]}` \nHasToken - `{bool((await handle_and_return_token(discordID)).token)}`"""
 
         # if destiny id is given
-        elif discorduser:
+        else:
             mentioned_user = discorduser
-            discordID = mentioned_user.id
-            destinyID = await lookupDestinyID(discordID)
-            title = f'Database Infos for {mentioned_user.display_name}'
-            text = f"""DiscordID - `{discordID}` \nDestinyID: `{destinyID}` \nSystem - `{await lookupSystem(destinyID)}` \nSteamName - `{(await getProfile(destinyID, 100))["profile"]["data"]["userInfo"]["displayName"] if destinyID else None}` \nHasToken - `{bool((await handle_and_return_token(discordID)).token)}`"""
+            destiny_player = await DestinyPlayer.from_discord_id(mentioned_user.id)
+            if not destiny_player:
+                await ctx.send(embed=embed_message(
+                    "Error",
+                    f"I don't know a user with the discordID `{mentioned_user.id}`"
+                ))
+                return
+
+        title = f'Database Infos for {mentioned_user.display_name}'
+        text = f"""DiscordID - `{destiny_player.discord_id}` \nDestinyID: `{destiny_player.destiny_id}` \nSystem - `{destiny_player.system}` \nSteamName - `{(await destiny_player.get_destiny_name_and_last_played())[0]}` \nHasToken - `{await destiny_player.has_token()}`"""
 
         embed = embed_message(
             title,

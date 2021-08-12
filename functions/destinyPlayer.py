@@ -185,7 +185,7 @@ class DestinyPlayer:
         return False
 
 
-    async def get_metric_value(self, metric_hash: str) -> Optional[Union[int, str]]:
+    async def get_metric_value(self, metric_hash: str) -> Optional[int]:
         """ Returns the value of the given metric hash """
 
         if not await self._get_collectibles():

@@ -14,42 +14,6 @@ from static.dict import weaponTypeKinetic, weaponTypeEnergy, weaponTypePower
 
 
 
-
-# todo ported
-# https://bungie-net.github.io/multi/schema_Destiny-DestinyComponentType.html#schema_Destiny-DestinyComponentType
-async def getProfile(destinyID, *components, with_token=False, membershipType=None):
-    url = 'https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/?components={}'
-    if not membershipType:
-        membershipType = await lookupSystem(destinyID)
-
-    if with_token:
-        statsResponse = await get_json_from_bungie_with_token(
-            url.format(
-                membershipType,
-                destinyID,
-                ','.join(map(str, components))
-            ),
-            await lookupDiscordID(destinyID)
-        )
-        if statsResponse.success:
-            return statsResponse.content['Response']
-
-    else:
-        statsResponse = await get_json_from_url(url.format(membershipType, destinyID, ','.join(map(str, components))))
-        if statsResponse:
-            return statsResponse.content['Response']
-    return None
-
-
-
-
-
-
-
-
-
-
-
 # gets the weapon (name, [hash1, hash2, ...]) for the search term for all weapons found
 # more than one weapon can be found if it got reissued
 async def searchForItem(ctx, search_term):
@@ -412,7 +376,6 @@ async def insertPgcrToDB(instanceID: int, activity_time: datetime, pcgr: dict):
                     int(weapon_user_pcgr["values"]["uniqueWeaponKills"]["basic"]["value"]),
                     int(weapon_user_pcgr["values"]["uniqueWeaponPrecisionKills"]["basic"]["value"])
                 )
-
 
 
 async def updateMissingPcgr():

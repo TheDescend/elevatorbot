@@ -519,7 +519,7 @@ class DestinyCommands(commands.Cog):
         embed.add_field(name="⁣", value=f"__**Triumphs:**__", inline=False)
 
         # get triumph data
-        triumphs = await getProfile(destiny_player.destiny_id, 900)
+        triumphs = await destiny_player.get_triumphs()
         embed.add_field(name="Lifetime Triumph Score", value=f"""{triumphs["profileRecords"]["data"]["lifetimeScore"]:,}""", inline=True)
         embed.add_field(name="Active Triumph Score", value=f"""{triumphs["profileRecords"]["data"]["activeScore"]:,}""", inline=True)
         embed.add_field(name="Legacy Triumph Score", value=f"""{triumphs["profileRecords"]["data"]["legacyScore"]:,}""", inline=True)
@@ -546,14 +546,6 @@ class DestinyCommands(commands.Cog):
         # get seal completion rate
         seals, completed_seals = await getPlayerSeals(destiny_player.destiny_id)
         embed.add_field(name="Seals", value=f"{len(completed_seals)} / {len(seals)}", inline=True)
-
-        # collection completion data
-        collections_data = (await getProfile(destiny_player.destiny_id, 800))["profileCollectibles"]["data"]["collectibles"]
-        collectibles_completed = 0
-        for collectible in collections_data.values():
-            if collectible['state'] & 1 == 0:
-                collectibles_completed += 1
-        embed.add_field(name="Collections", value=f"{collectibles_completed} / {len(collections_data)}", inline=True)
 
         await ctx.send(embed=embed)
 
@@ -719,7 +711,7 @@ class ClanActivitiesCommands(commands.Cog):
         del data_temp
 
         # getting the display names, colors for users in discord, size of blob
-        await asyncio.gather(*[self._prep_data(destinyID, destiny_player.destiny_id) for destinyID in self.clan_members])
+        await asyncio.gather(*[self._prep_data(await DestinyPlayer.from_destiny_id(destinyID), destiny_player.destiny_id) for destinyID in self.clan_members])
 
         # building the network graph
         net = Network()
@@ -802,22 +794,16 @@ class ClanActivitiesCommands(commands.Cog):
         return friends
 
 
-    async def _prep_data(self, destinyID, orginal_user_destiny_id):
-        display_name = await self._get_display_name(destinyID)
+    async def _prep_data(self, destiny_player: DestinyPlayer, orginal_user_destiny_id):
+        display_name, _ = await destiny_player.get_destiny_name_and_last_played()
 
-        size = self.activities_from_user_who_got_looked_at[destinyID] * 50
-        size_desc = str(self.activities_from_user_who_got_looked_at[destinyID]) + " Activities"
+        size = self.activities_from_user_who_got_looked_at[destiny_player.destiny_id] * 50
+        size_desc = str(self.activities_from_user_who_got_looked_at[destiny_player.destiny_id]) + " Activities"
 
-        colors = "#850404" if orginal_user_destiny_id == destinyID else "#006aff"
+        colors = "#850404" if orginal_user_destiny_id == destiny_player.destiny_id else "#006aff"
 
         # edge_list = [person, size, size_desc, display_names, colors]
-        self.edge_list.append([destinyID, size, size_desc, display_name, colors])
-
-
-    async def _get_display_name(self, destinyID):
-        display_name = (await getProfile(destinyID, 100))
-        return display_name["profile"]["data"]["userInfo"]["displayName"] if display_name else "Unknown Name"
-
+        self.edge_list.append([destiny_player.destiny_id, size, size_desc, display_name, colors])
 
     def _add_edge(self, network, edge):
         src = int(edge[0])
@@ -1412,21 +1398,21 @@ class RankCommands(commands.Cog):
             leaderboard_text = f"Top Clanmembers by D2 Active Triumph Score"
             stat_text = "Score"
 
-            result_sort = (await getProfile(destiny_player.destiny_id, 900))["profileRecords"]["data"]["activeScore"]
+            result_sort = (await destiny_player.get_triumphs())["profileRecords"]["data"]["activeScore"]
             result = f"{result_sort:,}"
 
         elif stat == "legacytriumphs":
             leaderboard_text = f"Top Clanmembers by D2 Legacy Triumph Score"
             stat_text = "Score"
 
-            result_sort = (await getProfile(destiny_player.destiny_id, 900))["profileRecords"]["data"]["legacyScore"]
+            result_sort = (await destiny_player.get_triumphs())["profileRecords"]["data"]["legacyScore"]
             result = f"{result_sort:,}"
 
         elif stat == "triumphs":
             leaderboard_text = f"Top Clanmembers by D2 Lifetime Triumph Score"
             stat_text = "Score"
 
-            result_sort = (await getProfile(destiny_player.destiny_id, 900))["profileRecords"]["data"]["lifetimeScore"]
+            result_sort = (await destiny_player.get_triumphs())["profileRecords"]["data"]["lifetimeScore"]
             result = f"{result_sort:,}"
 
         elif stat == "gm":
@@ -1440,10 +1426,8 @@ class RankCommands(commands.Cog):
             leaderboard_text = f"Top Clanmembers by Laurels collected in S13"
             stat_text = "Count"
 
-            result_sort = (await getProfile(destiny_player.destiny_id, 1100))["metrics"]["data"]['metrics']
-            if "473272243" in result_sort.keys():
-                result_sort = result_sort["473272243"]["objectiveProgress"]["progress"]
-            else:
+            result_sort = await destiny_player.get_metric_value("473272243")
+            if not result_sort:
                 result_sort = 0
             result = f"{result_sort:,}"
 
