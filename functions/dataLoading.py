@@ -41,12 +41,6 @@ async def getProfile(destinyID, *components, with_token=False, membershipType=No
     return None
 
 
-
-# todo ported
-# gets the current artifact, which includes the level
-async def getArtifact(destinyID):
-    return (await getProfile(destinyID, 104, with_token=True))['profileProgression']['data']['seasonalArtifact']
-
 # todo ported
 async def getCharacterGearAndPower(destinyID):
     items = []

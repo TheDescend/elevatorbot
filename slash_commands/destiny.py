@@ -1296,7 +1296,7 @@ class RankCommands(commands.Cog):
             leaderboard_text = "Top Clanmembers by D2 Maximum Reported Power"
             stat_text = "Power"
 
-            artifact_power = (await getArtifact(destiny_player.destiny_id))["powerBonus"]
+            artifact_power = (await destiny_player.get_artifact())["powerBonus"]
 
             items = await getCharacterGearAndPower(destiny_player.destiny_id)
             items = self._sort_gear_by_slot(items)
