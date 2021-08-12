@@ -99,7 +99,7 @@ class DestinyPlayer:
             await ctx.send(hidden=True, embed=dont_know_user_error_message)
 
         return cls(
-            destiny_id=discord_id,
+            destiny_id=destiny_id,
             system=system,
             discord_id=discord_id
         )
@@ -123,7 +123,7 @@ class DestinyPlayer:
         system = await lookupSystem(destiny_id)
 
         return cls(
-            destiny_id=discord_id,
+            destiny_id=destiny_id,
             system=system,
             discord_id=discord_id
         )
