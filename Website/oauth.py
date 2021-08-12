@@ -27,6 +27,7 @@ loop = asyncio.get_event_loop()
 loop.run_until_complete(create_connection_pool())
 
 
+
 def shutdown_server():
     func = request.environ.get('werkzeug.server.shutdown')
     if func is None:
