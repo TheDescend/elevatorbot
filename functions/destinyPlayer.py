@@ -15,6 +15,7 @@ from database.database import lookupDiscordID, lookupSystem, lookupDestinyID, in
     getLastUpdated, getPgcrActivity, updateLastUpdated, get_info_on_low_man_activity, getSeals, getWeaponInfo
 from functions.dataLoading import get_pgcr, insertPgcrToDB
 from functions.formating import embed_message
+from networking.bungieAuth import handle_and_return_token
 from networking.network import get_json_from_bungie_with_token, get_json_from_url
 
 race_map = {
@@ -109,6 +110,11 @@ class DestinyPlayer:
             discord_id=discord_id
         )
 
+    async def has_token(self) -> bool:
+        """ Returns if the user has a valid token """
+
+        return bool((await handle_and_return_token(self.discord_id)).token)
+
 
     async def get_clan_id_and_online_status(self) -> tuple[Optional[int], Optional[bool]]:
         """ Get in-game clan or None """
@@ -124,13 +130,13 @@ class DestinyPlayer:
         return self._clan_id, self._clan_is_online
 
 
-    async def get_discord_user(self, client: discord.Client) -> Optional[discord.User]:
+    def get_discord_user(self, client: discord.Client) -> Optional[discord.User]:
         """ Get discord.User or None """
 
         return client.get_user(self.discord_id) if self.discord_id else None
 
 
-    async def get_discord_member(self, guild: discord.Guild) -> Optional[discord.Member]:
+    def get_discord_member(self, guild: discord.Guild) -> Optional[discord.Member]:
         """ Get discord.Member for specified guild or None"""
 
         return guild.get_member(self.discord_id) if self.discord_id else None

@@ -4,6 +4,7 @@ from database.database import lookupDestinyID, getDestinyDefinition
 from events.base_event import BaseEvent
 from functions.authfunctions import getVendorData
 from functions.dataLoading import getCharacterList
+from functions.destinyPlayer import DestinyPlayer
 from functions.formating import embed_message
 from functions.persistentMessages import bot_status
 
@@ -70,15 +71,14 @@ class ArmorStatsNotifier(BaseEvent):
         }
 
         # get ids for lookups, using kigstn's data for this one
-        discordID = 238388130581839872
-        destinyID = await lookupDestinyID(discordID)
-        characterIDs = (await getCharacterList(destinyID))[1]
+        destiny_player = await DestinyPlayer.from_discord_id(238388130581839872)
+        characters = await destiny_player.get_character_info()
 
         # loop through charIDs
-        for characterID in characterIDs:
+        for character_id in characters:
             # loop through vendors
             for vendor_name, vendorID in armor_selling_vendors.items():
-                res = await getVendorData(discordID, destinyID, characterID, vendorID)
+                res = await getVendorData(destiny_player.discord_id, destiny_player.destiny_id, character_id, vendorID)
 
                 try:
                     sales = res.content['Response']['itemComponents']['stats']['data']
@@ -169,12 +169,11 @@ class GunsmithBountiesNotifier(BaseEvent):
                 await user.send(f"Gunsmith is selling {mod_name}!")
 
         # get ids for lookups, using kigstn's data for this one
-        discordID = 238388130581839872
-        destinyID = await lookupDestinyID(discordID)
-        characterIDs = (await getCharacterList(destinyID))[1]
+        destiny_player = await DestinyPlayer.from_discord_id(238388130581839872)
+        characters = await destiny_player.get_character_info()
 
         # check gunsmith mods
-        res = await getVendorData(discordID, destinyID, characterIDs[0], 672118013)
+        res = await getVendorData(destiny_player.discord_id, destiny_player.destiny_id, list(characters)[0], 672118013)
         if res.success:
             for sales in res.content['Response']['sales']['data'].values():
                 """ message users """

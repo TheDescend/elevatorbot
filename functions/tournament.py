@@ -5,6 +5,7 @@ import time
 
 from database.database import lookupDestinyID
 from functions.dataLoading import getCharacterList
+from functions.destinyPlayer import DestinyPlayer
 from functions.formating import embed_message
 from functions.miscFunctions import has_elevated_permissions
 from networking.network import get_json_from_url
@@ -103,15 +104,15 @@ class Tournament:
             user1 = self.player_id_translation[player1]
             user2 = self.player_id_translation[player2]
 
-            destinyID1 = await lookupDestinyID(user1.id)
-            destinyID2 = await lookupDestinyID(user2.id)
+            destiny_player1 = await DestinyPlayer.from_discord_id(user1.id)
+            destiny_player2 = await DestinyPlayer.from_discord_id(user2.id)
 
             which_user_is_which_emoji = {
-                755044614850740304: destinyID1,
-                755044614733561916: destinyID2,
+                755044614850740304: destiny_player1.destiny_id,
+                755044614733561916: destiny_player2.destiny_id,
             }
 
-            membershipType1, charIDs1 = await getCharacterList(destinyID1)
+            characters1 = await destiny_player1.get_character_info()
 
             timeout = time.time() + 60 * 60  # 60 minutes from now
 
@@ -138,7 +139,7 @@ class Tournament:
                     return False
 
                 # look up winner of game
-                won = await returnCustomGameWinner(destinyID1, charIDs1, membershipType1, destinyID2)
+                won = await returnCustomGameWinner(destiny_player1.destiny_id, characters1, destiny_player1.system, destiny_player2.destiny_id)
 
                 # check if there are new reactions, delete them and check if an admin reacted and make that reaction the winner
                 # msg object has to be reloaded
@@ -155,7 +156,7 @@ class Tournament:
 
                 # return winner if found
                 if won:
-                    if won == destinyID1:
+                    if won == destiny_player1.destiny_id:
                         won = player1
                         self.eliminated.append(user2)
                     else:

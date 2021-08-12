@@ -466,7 +466,7 @@ class DestinyCommands(commands.Cog):
         destiny_player = await DestinyPlayer.from_discord_id(user.id, ctx=ctx)
         if not destiny_player:
             return
-        anyCharID = (await getCharacterList(destiny_player.destiny_id))[1][0]
+        anyCharID = list(await destiny_player.get_character_info())[0]
 
         # get and send spider inv
         materialtext = await getSpiderMaterials(destiny_player.discord_id, destiny_player.destiny_id, anyCharID)
@@ -1180,20 +1180,18 @@ class RankCommands(commands.Cog):
 
 
     async def _handle_user(self, stat, member, guild, extra_hash, extra_name):
-        destinyID = int(member["destinyUserInfo"]["membershipId"])
-        discordID = await lookupDiscordID(destinyID)
+        destiny_player = await DestinyPlayer.from_destiny_id(int(member["destinyUserInfo"]["membershipId"]))
+
+        if not (destiny_player and await destiny_player.has_token()):
+            return None
+
         sort_by_ascending = False
 
-        if not (await handle_and_return_token(discordID)).token:
-            return None
-
         # catch people that are in the clan but not in discord, shouldn't happen tho
-        try:
-            discord_member = guild.get_member(discordID)
-            name = discord_member.display_name
-        except Exception:
-            print(f"DestinyID {destinyID} isn't in discord but he is in clan")
+        discord_member = destiny_player.get_discord_member(guild)
+        if not discord_member:
             return None
+        name = discord_member.display_name
 
         # get the stat that we are looking for
         if stat == "discordjoindate":
@@ -1239,7 +1237,7 @@ class RankCommands(commands.Cog):
             stat_text = "Total"
 
             # in hours
-            stat_json = await getStats(destinyID)
+            stat_json = await getStats(destiny_player.destiny_id)
             result_sort = self._add_stats(stat_json, "secondsPlayed")
             result = str(datetime.timedelta(seconds=result_sort))
 
@@ -1247,7 +1245,7 @@ class RankCommands(commands.Cog):
             leaderboard_text = "Top Clanmembers by PvE Orbs Generated"
             stat_text = "Orbs"
 
-            stat_json = await getStats(destinyID)
+            stat_json = await getStats(destiny_player.destiny_id)
             result_sort = self._add_stats(stat_json, "orbsDropped", scope="pve")
             result = f"{result_sort:,}"
 
@@ -1255,7 +1253,7 @@ class RankCommands(commands.Cog):
             leaderboard_text = "Top Clanmembers by D2 PvE Meleekills"
             stat_text = "Kills"
 
-            stat_json = await getStats(destinyID)
+            stat_json = await getStats(destiny_player.destiny_id)
             result_sort = self._add_stats(stat_json, "weaponKillsMelee", scope="pve")
             result = f"{result_sort:,}"
 
@@ -1263,7 +1261,7 @@ class RankCommands(commands.Cog):
             leaderboard_text = "Top Clanmembers by D2 PvE Superkills"
             stat_text = "Kills"
 
-            stat_json = await getStats(destinyID)
+            stat_json = await getStats(destiny_player.destiny_id)
             result_sort = self._add_stats(stat_json, "weaponKillsSuper", scope="pve")
             result = f"{result_sort:,}"
 
@@ -1271,7 +1269,7 @@ class RankCommands(commands.Cog):
             leaderboard_text = "Top Clanmembers by D2 PvE Grenadekills"
             stat_text = "Kills"
 
-            stat_json = await getStats(destinyID)
+            stat_json = await getStats(destiny_player.destiny_id)
             result_sort = self._add_stats(stat_json, "weaponKillsGrenade", scope="pve")
             result = f"{result_sort:,}"
 
@@ -1279,7 +1277,7 @@ class RankCommands(commands.Cog):
             leaderboard_text = "Top Clanmembers by D2 PvE Deaths"
             stat_text = "Deaths"
 
-            stat_json = await getStats(destinyID)
+            stat_json = await getStats(destiny_player.destiny_id)
             result_sort = self._add_stats(stat_json, "deaths", scope="pve")
             result = f"{result_sort:,}"
 
@@ -1287,7 +1285,7 @@ class RankCommands(commands.Cog):
             leaderboard_text = "Top Clanmembers by D2 PvE Suicides"
             stat_text = "Suicides"
 
-            stat_json = await getStats(destinyID)
+            stat_json = await getStats(destiny_player.destiny_id)
             result_sort = self._add_stats(stat_json, "suicides", scope="pve")
             result = f"{result_sort:,}"
 
@@ -1295,7 +1293,7 @@ class RankCommands(commands.Cog):
             leaderboard_text = "Top Clanmembers by D2 PvE Kills"
             stat_text = "Kills"
 
-            stat_json = await getStats(destinyID)
+            stat_json = await getStats(destiny_player.destiny_id)
             result_sort = self._add_stats(stat_json, "kills", scope="pve")
             result = f"{result_sort:,}"
 
@@ -1304,9 +1302,9 @@ class RankCommands(commands.Cog):
             leaderboard_text = "Top Clanmembers by D2 Maximum Reported Power"
             stat_text = "Power"
 
-            artifact_power = (await getArtifact(destinyID))["powerBonus"]
+            artifact_power = (await getArtifact(destiny_player.destiny_id))["powerBonus"]
 
-            items = await getCharacterGearAndPower(destinyID)
+            items = await getCharacterGearAndPower(destiny_player.destiny_id)
             items = self._sort_gear_by_slot(items)
 
             results = await asyncio.gather(*[self._get_highest_item_light_level(slot) for slot in items])
@@ -1325,14 +1323,14 @@ class RankCommands(commands.Cog):
             leaderboard_text = "Top Clanmembers by D2 Vaultspace Used"
             stat_text = "Used Space"
 
-            result_sort = len(await getInventoryBucket(destinyID))
+            result_sort = len(await getInventoryBucket(destiny_player.destiny_id))
             result = f"{result_sort:,}"
 
         elif stat == "raids":
             leaderboard_text = "Top Clanmembers by D2 Total Raid Completions"
             stat_text = "Total"
 
-            result_sort = await getClearCount(destinyID, mode=4)
+            result_sort = await getClearCount(destiny_player.destiny_id, mode=4)
             result = f"{result_sort:,}"
 
         elif stat == "raidtime":
@@ -1340,7 +1338,7 @@ class RankCommands(commands.Cog):
             stat_text = "Hours"
 
             # in hours
-            result_sort = int((await self._add_activity_stats(destinyID, raidHashes, "activitySecondsPlayed")) / 60 / 60)
+            result_sort = int((await self._add_activity_stats(destiny_player.destiny_id, raidHashes, "activitySecondsPlayed")) / 60 / 60)
             result = f"{result_sort:,}"
 
         elif stat == "forges":
@@ -1349,7 +1347,7 @@ class RankCommands(commands.Cog):
 
             result_sort = 0
             farmed_runs = 0
-            for _, kills in await getForges(destinyID):
+            for _, kills in await getForges(destiny_player.destiny_id):
                 if kills > 0:
                     result_sort += 1
                 else:
@@ -1363,7 +1361,7 @@ class RankCommands(commands.Cog):
 
             farmed_runs = 0
             result_sort = 0
-            for _, kills in await getForges(destinyID):
+            for _, kills in await getForges(destiny_player.destiny_id):
                 if kills > 0:
                     farmed_runs += 1
                 else:
@@ -1378,12 +1376,12 @@ class RankCommands(commands.Cog):
             result_sort = 0
 
             # check vault
-            items = await getInventoryBucket(destinyID)
+            items = await getInventoryBucket(destiny_player.destiny_id)
             for item in items:
                 if item["itemHash"] == 3853748946:
                     result_sort += item["quantity"]
 
-            items = await getInventoryBucket(destinyID, bucket=1469714392)
+            items = await getInventoryBucket(destiny_player.destiny_id, bucket=1469714392)
             for item in items:
                 if item["itemHash"] == 3853748946:
                     result_sort += item["quantity"]
@@ -1393,21 +1391,21 @@ class RankCommands(commands.Cog):
             leaderboard_text = f"Top Clanmembers by {extra_name} Kills"
             stat_text = "Kills"
 
-            result_sort, _ = await getWeaponStats(destinyID, extra_hash)
+            result_sort, _ = await getWeaponStats(destiny_player.destiny_id, extra_hash)
             result = f"{result_sort:,}"
 
         elif stat == "weaponprecision":
             leaderboard_text = f"Top Clanmembers by {extra_name} Precision Kills"
             stat_text = "Kills"
 
-            _, result_sort = await getWeaponStats(destinyID, extra_hash)
+            _, result_sort = await getWeaponStats(destiny_player.destiny_id, extra_hash)
             result = f"{result_sort:,}"
 
         elif stat == "weaponprecisionpercent":
             leaderboard_text = f"Top Clanmembers by {extra_name} % Precision Kills"
             stat_text = "Kills"
 
-            kills, prec_kills = await getWeaponStats(destinyID, extra_hash)
+            kills, prec_kills = await getWeaponStats(destiny_player.destiny_id, extra_hash)
             result_sort = prec_kills / kills if kills != 0 else 0
             result = f"{round(result_sort * 100, 2)}%"
 
@@ -1415,35 +1413,35 @@ class RankCommands(commands.Cog):
             leaderboard_text = f"Top Clanmembers by D2 Active Triumph Score"
             stat_text = "Score"
 
-            result_sort = (await getProfile(destinyID, 900))["profileRecords"]["data"]["activeScore"]
+            result_sort = (await getProfile(destiny_player.destiny_id, 900))["profileRecords"]["data"]["activeScore"]
             result = f"{result_sort:,}"
 
         elif stat == "legacytriumphs":
             leaderboard_text = f"Top Clanmembers by D2 Legacy Triumph Score"
             stat_text = "Score"
 
-            result_sort = (await getProfile(destinyID, 900))["profileRecords"]["data"]["legacyScore"]
+            result_sort = (await getProfile(destiny_player.destiny_id, 900))["profileRecords"]["data"]["legacyScore"]
             result = f"{result_sort:,}"
 
         elif stat == "triumphs":
             leaderboard_text = f"Top Clanmembers by D2 Lifetime Triumph Score"
             stat_text = "Score"
 
-            result_sort = (await getProfile(destinyID, 900))["profileRecords"]["data"]["lifetimeScore"]
+            result_sort = (await getProfile(destiny_player.destiny_id, 900))["profileRecords"]["data"]["lifetimeScore"]
             result = f"{result_sort:,}"
 
         elif stat == "gm":
             leaderboard_text = f"Top Clanmembers by D2 Grandmaster Nightfall Completions"
             stat_text = "Total"
 
-            result_sort = await getClearCount(destinyID, activityHashes=gmHashes)
+            result_sort = await getClearCount(destiny_player.destiny_id, activityHashes=gmHashes)
             result = f"{result_sort:,}"
 
         elif stat == "laurels":
             leaderboard_text = f"Top Clanmembers by Laurels collected in S13"
             stat_text = "Count"
 
-            result_sort = (await getProfile(destinyID, 1100))["metrics"]["data"]['metrics']
+            result_sort = (await getProfile(destiny_player.destiny_id, 1100))["metrics"]["data"]['metrics']
             if "473272243" in result_sort.keys():
                 result_sort = result_sort["473272243"]["objectiveProgress"]["progress"]
             else:
@@ -1456,11 +1454,11 @@ class RankCommands(commands.Cog):
         return [name, result, result_sort, leaderboard_text, stat_text, sort_by_ascending]
 
 
-    async def _add_activity_stats(self, destinyID, hashes, stat):
+    async def _add_activity_stats(self, destiny_player: DestinyPlayer, hashes, stat):
         result_sort = 0
-        chars = await getCharacterList(destinyID)
-        for characterID in chars[1]:
-            aggregateStats = await getAggregateStatsForChar(destinyID, chars[0], characterID)
+        chars = await destiny_player.get_character_info()
+        for characterID in chars:
+            aggregateStats = await getAggregateStatsForChar(destiny_player.destiny_id, chars[0], characterID)
 
             try:
                 for activities in aggregateStats["activities"]:
