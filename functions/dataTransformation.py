@@ -18,16 +18,6 @@ from database.database import get_info_on_low_man_activity, getSeals, getEveryth
 
 
 
-# todo ported
-async def getMetricValue(destinyID: int, metric_hash: Union[int, str]):
-    """ Returns the value of the given metric hash """
-
-    metrics = (await getProfile(destinyID, 1100))["metrics"]["data"]['metrics']
-
-    if str(metric_hash) in metrics.keys():
-        return metrics[str(metric_hash)]["objectiveProgress"]["progress"]
-    else:
-        return None
 
 # todo ported
 async def hasLowman(playerid, playercount, raidHashes, flawless=False, noCheckpoints=False, disallowed=[], score_threshold=False):

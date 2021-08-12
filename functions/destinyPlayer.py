@@ -146,8 +146,10 @@ class DestinyPlayer:
         return guild.get_member(self.discord_id) if self.discord_id else None
 
 
-    async def has_triumph(self, triumph_hash: str) -> bool:
+    async def has_triumph(self, triumph_hash: Union[str, int]) -> bool:
         """ Returns if the triumph is gotten """
+
+        triumph_hash = str(triumph_hash)
 
         if not await self.get_triumphs():
             return False
@@ -156,7 +158,7 @@ class DestinyPlayer:
 
         # calculate if the triumph is gotten
         status = True
-        if "objectives" not in self._triumphs[str(triumph_hash)]:
+        if "objectives" not in self._triumphs[triumph_hash]:
             # make sure it's RewardUnavailable aka legacy
             assert self._triumphs[triumph_hash]['state'] & 2
 
@@ -171,8 +173,10 @@ class DestinyPlayer:
         return status
 
 
-    async def has_collectible(self, collectible_hash: str) -> bool:
+    async def has_collectible(self, collectible_hash: Union[str, int]) -> bool:
         """ Returns if the collectible is gotten """
+
+        collectible_hash = str(collectible_hash)
 
         if not await self._get_collectibles():
             return False
@@ -189,8 +193,10 @@ class DestinyPlayer:
         return False
 
 
-    async def get_metric_value(self, metric_hash: str) -> Optional[int]:
+    async def get_metric_value(self, metric_hash: Union[str, int]) -> Optional[int]:
         """ Returns the value of the given metric hash """
+
+        metric_hash = str(metric_hash)
 
         if not await self._get_collectibles():
             return False

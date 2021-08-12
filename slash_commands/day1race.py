@@ -223,13 +223,13 @@ class Day1Race(commands.Cog):
 
                 # check if a completion was counted via the triumph. if not, look at the metric to at least set first completion as done
                 if self.finished_encounters_blueprint == self.finished_encounters[destiny_player.destiny_id]:
-                    metric_completions = await getMetricValue(destiny_player.destiny_id, self.activity_metric)
+                    metric_completions = await destiny_player.get_metric_value(self.activity_metric)
                     if metric_completions > 0:
                         self.finished_encounters[destiny_player.destiny_id][4240665] = 1
                         await channel.send(f"**{name}** finished `{self.activity_triumph_encounters[4240665]}` <:PeepoDPS:754785311489523754>")
 
                 # check for the emblem, if exist do the msg for every other encounter done
-                has_emblem = await destiny_player.has_collectible(str(self.emblem_collectible_hash))
+                has_emblem = await destiny_player.has_collectible(self.emblem_collectible_hash)
                 if has_emblem:
                     for encounter_hash, description in self.activity_triumph_encounters.items():
                         if self.finished_encounters[destiny_player.destiny_id][encounter_hash] == 0:
