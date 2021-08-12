@@ -14,6 +14,7 @@ from discord_slash.utils.manage_commands import create_option, create_choice
 from database.database import lookupDestinyID
 from functions.dataLoading import getPlayersPastActivities, getProfile
 from functions.dataTransformation import getMetricValue, has_collectible
+from functions.destinyPlayer import DestinyPlayer
 from functions.formating import embed_message
 from networking.network import get_json_from_url
 from static.config import CLANID
@@ -131,14 +132,14 @@ class Day1Race(commands.Cog):
             completions = []
             for member in self.finished_raid:
                 name = member[0]
-                destinyID = member[1]
+                destiny_player = await DestinyPlayer.from_discord_id(member[1])
 
                 # loop though activities
                 time_spend = 0
                 kills = 0
                 deaths = 0
                 try:
-                    async for activity in getPlayersPastActivities(destinyID, mode=4):
+                    async for activity in destiny_player.get_activity_history(mode=4):
                         period = datetime.datetime.strptime(activity['period'], "%Y-%m-%dT%H:%M:%SZ")
                         tz_period = pytz.utc.localize(period)
 

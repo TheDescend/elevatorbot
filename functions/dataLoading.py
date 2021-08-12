@@ -16,48 +16,6 @@ from static.dict import weaponTypeKinetic, weaponTypeEnergy, weaponTypePower
 
 
 # todo ported
-async def getCharacterInfoList(destinyID):
-    """
-    returns more detailed character info.
-    return = (
-        [characterID1, ...],
-        {
-            characterID1: {
-                "class": str,
-                "race": str,
-                "gender": str
-            },
-            ...
-        }
-    )
-    """
-    membershipType = await lookupSystem(destinyID)
-
-    # get char data
-    charURL = f"https://stats.bungie.net/Platform/Destiny2/{membershipType}/Profile/{destinyID}/?components=200"
-    res = await get_json_from_url(charURL)
-    char_list = []
-    char_data = {}
-    if res:
-        # loop through each character
-        for characterID, character_data in res.content['Response']['characters']['data'].items():
-            characterID = int(characterID)
-
-            # format the data correctly and convert the hashes to strings
-            char_list.append(characterID)
-            char_data[characterID] = {
-                "class": classmap[character_data["classHash"]],
-                "race": racemap[character_data["raceHash"]],
-                "gender": gendermap[character_data["genderHash"]]
-            }
-
-        return char_list, char_data
-
-    # if that fails for some reason
-    print(f'No account found for destinyID {destinyID}')
-    return None, None
-
-# todo ported
 async def getPlayersPastActivities(destiny_id: int, mode: int = 7, earliest_allowed_time: datetime = None, latest_allowed_time: datetime = None, system: int = None) -> AsyncGenerator:
     """
     Generator which returns all activities whith an extra field < activity['charid'] = character_id >
