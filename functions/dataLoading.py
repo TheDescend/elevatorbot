@@ -13,33 +13,8 @@ from static.config import CLANID
 from static.dict import weaponTypeKinetic, weaponTypeEnergy, weaponTypePower
 
 
-# todo ported
-async def getCharacterList(destinyID):
-    ''' returns a (system, [characterids]) tuple '''
-    charURL = "https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/?components=100,200"
-    membershipType = await lookupSystem(destinyID)
-    characterinfo = await get_json_from_url(charURL.format(membershipType, destinyID))
-    if characterinfo:
-        return (membershipType, list(characterinfo.content['Response']['characters']['data'].keys()))
-    print(f'no account found for destinyID {destinyID}')
-    return (None,[])
 
 
-# todo ported
-async def get_triumphs_json(destiny_id: int) -> Optional[dict]:
-    """ returns the json containing all triumphs the player <playerID> has """
-
-    triumphs = await getProfile(destiny_id, 900)
-
-    if not triumphs:
-        return None
-    if 'data' not in triumphs['profileRecords']:
-        return None
-    profileRecs = triumphs['profileRecords']['data']['records']
-    charRecs = [charrecords['records'] for charid, charrecords in triumphs['characterRecords']['data'].items()]
-    for chardic in charRecs:
-        profileRecs.update(chardic)
-    return profileRecs
 
 
 # todo get from DB

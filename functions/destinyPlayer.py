@@ -145,7 +145,7 @@ class DestinyPlayer:
     async def has_triumph(self, triumph_hash: str) -> bool:
         """ Returns if the triumph is gotten """
 
-        if not await self._get_triumphs():
+        if not await self.get_triumphs():
             return False
         if triumph_hash not in self._triumphs:
             return False
@@ -618,7 +618,7 @@ class DestinyPlayer:
         return response.content['Response'] if response else None
 
 
-    async def _get_triumphs(self) -> Optional[dict]:
+    async def get_triumphs(self) -> Optional[dict]:
         """ Populate the triumphs and then return them """
 
         if not self._triumphs:

@@ -366,7 +366,7 @@ class DestinyCommands(commands.Cog):
         start = list(seasonal_challenges)[0]
 
         # get player triumphs
-        user_triumphs = await get_triumphs_json(destiny_player.destiny_id)
+        user_triumphs = await destiny_player.get_triumphs()
 
         # get select components
         components = [
