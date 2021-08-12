@@ -9,6 +9,7 @@ import pandas
 from sshtunnel import SSHTunnelForwarder
 
 import database.psql_credentials as psql_credentials
+from database.database_models import database_tables
 
 """ ALL DATABASE ACCESS FUNCTIONS """
 ssh_server = None
@@ -57,6 +58,12 @@ async def get_connection_pool():
             return pool
         else:
             await create_connection_pool()
+
+            # load the db models
+            async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
+                for table in database_tables:
+                    await connection.execute(table)
+
             return pool
 
 async def fetch_as_dataframe(con: asyncpg.Connection, query: str, *args):
