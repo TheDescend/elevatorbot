@@ -19,15 +19,25 @@ from static.globals import *
 
 class AutomaticRoleAssignment(BaseEvent):
     """Will automatically update the roles"""
-    def __init__(self):
+
+
+    def __init__(
+        self
+    ):
         # Set the interval for this event
         dow_day_of_week = "*"
         dow_hour = 1
         dow_minute = 0
         super().__init__(scheduler_type="cron", dow_day_of_week=dow_day_of_week, dow_hour=dow_hour, dow_minute=dow_minute)
 
-    async def run(self, client):
-        async def update_user(discord_member: discord.Member) -> Optional[str]:
+
+    async def run(
+        self,
+        client
+    ):
+        async def update_user(
+            discord_member: discord.Member
+        ) -> Optional[str]:
             if discord_member.bot:
                 return None
 
@@ -52,6 +62,7 @@ class AutomaticRoleAssignment(BaseEvent):
                 return f'Updated player {discord_member.mention} by adding `{", ".join(new_roles or ["nothing"])}` and removing `{", ".join(remove_roles or ["nothing"])}`\n'
             else:
                 return None
+
 
         print('Running the automatic role assignment...')
 
@@ -85,11 +96,19 @@ class AutomaticRoleAssignment(BaseEvent):
 
 class AutoRegisteredRole(BaseEvent):
     """Will automatically update the registration and clan roles"""
-    def __init__(self):
+
+
+    def __init__(
+        self
+    ):
         interval_minutes = 30  # Set the interval for this event
         super().__init__(scheduler_type="interval", interval_minutes=interval_minutes)
 
-    async def run(self, client):
+
+    async def run(
+        self,
+        client
+    ):
         # get all clan members discordID
         memberlist = []
         for member in (await get_json_from_url(f"https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/")).content["Response"]["results"]:
@@ -99,7 +118,7 @@ class AutoRegisteredRole(BaseEvent):
                 memberlist.append(discordID)
 
         if not len(memberlist) > 5:
-            #error.log
+            # error.log
             print('something broke at AutoRegisteredRole, clansize <= 5')
             return
 
@@ -141,7 +160,6 @@ class AutoRegisteredRole(BaseEvent):
                         await removeRolesFromUser([clan_role_id], member, guild)
                         if newtonsLab:
                             await newtonsLab.send(f"Removed Descend role from {member.mention}")
-
 
         # update the status
         await bot_status(client, "Member Role Update", datetime.datetime.now(tz=datetime.timezone.utc))

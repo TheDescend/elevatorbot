@@ -5,8 +5,14 @@ from discord_slash.utils.manage_commands import create_option, create_choice
 
 
 class ToSCommands(commands.Cog):
-    def __init__(self, client):
+
+
+    def __init__(
+        self,
+        client
+    ):
         self.client = client
+
 
     @cog_ext.cog_slash(
         name="discordactivity",
@@ -42,7 +48,11 @@ class ToSCommands(commands.Cog):
             ),
         ],
     )
-    async def _discordactivity(self, ctx: SlashContext, activity: str):
+    async def _discordactivity(
+        self,
+        ctx: SlashContext,
+        activity: str
+    ):
         voice = ctx.author.voice
 
         activity_name = activity.split("|")[0]
@@ -65,5 +75,7 @@ class ToSCommands(commands.Cog):
         await ctx.send(content=f'[Click here to join the voice channel and play {activity_name}!](https://discord.gg/{code})')
 
 
-def setup(client):
+def setup(
+    client
+):
     client.add_cog(ToSCommands(client))

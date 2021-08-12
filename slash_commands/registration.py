@@ -11,7 +11,12 @@ from static.slashCommandOptions import options_user
 
 
 class RegistrationCommands(commands.Cog):
-    def __init__(self, client):
+
+
+    def __init__(
+        self,
+        client
+    ):
         self.client = client
 
 
@@ -19,15 +24,20 @@ class RegistrationCommands(commands.Cog):
         name="registerdesc",
         description="Link your Destiny 2 account with ElevatorBot",
     )
-    async def _registerdesc(self, ctx: SlashContext):
+    async def _registerdesc(
+        self,
+        ctx: SlashContext
+    ):
         if not ctx.guild:
             await ctx.author.send('Please use this command in your clans bot-channel')
             return
 
-        await ctx.send(hidden=True, embed=embed_message(
-            f"Thanks for Registering",
-            f"I sent you a DM with the next steps!"
-        ))
+        await ctx.send(
+            hidden=True, embed=embed_message(
+                f"Thanks for Registering",
+                f"I sent you a DM with the next steps!"
+            )
+        )
 
         await elevatorRegistration(ctx.author)
 
@@ -39,16 +49,22 @@ class RegistrationCommands(commands.Cog):
             options_user(flavor_text="Requires elevated permissions")
         ]
     )
-    async def _unregisterdesc(self, ctx: SlashContext, **kwargs):
+    async def _unregisterdesc(
+        self,
+        ctx: SlashContext,
+        **kwargs
+    ):
         user = await get_user_obj_admin(ctx, kwargs)
         if not user:
             return
 
         await removeUser(user.id)
-        await ctx.send(hidden=True, embed=embed_message(
-            f"Sucess",
-            f"Removed {user.display_name}"
-        ))
+        await ctx.send(
+            hidden=True, embed=embed_message(
+                f"Sucess",
+                f"Removed {user.display_name}"
+            )
+        )
 
 
     # todo can we add a good permission sysstem here too?
@@ -61,7 +77,11 @@ class RegistrationCommands(commands.Cog):
             options_user()
         ]
     )
-    async def _get(self, ctx: SlashContext, **kwargs):
+    async def _get(
+        self,
+        ctx: SlashContext,
+        **kwargs
+    ):
         user = await get_user_obj(ctx, kwargs)
 
         text = await getSteamJoinID(user.id)
@@ -93,7 +113,11 @@ class RegistrationCommands(commands.Cog):
             options_user(flavor_text="Requires elevated permissions")
         ]
     )
-    async def _set(self, ctx: SlashContext, **kwargs):
+    async def _set(
+        self,
+        ctx: SlashContext,
+        **kwargs
+    ):
         user = await get_user_obj_admin(ctx, kwargs)
         if not user:
             return
@@ -102,10 +126,12 @@ class RegistrationCommands(commands.Cog):
         try:
             kwargs["steamid"] = int(kwargs["steamid"])
         except ValueError:
-            await ctx.send(hidden=True, embed=embed_message(
-                f"Error",
-                f"The argument `steamid` must be a number. \nPlease try again"
-            ))
+            await ctx.send(
+                hidden=True, embed=embed_message(
+                    f"Error",
+                    f"The argument `steamid` must be a number. \nPlease try again"
+                )
+            )
             return
 
         # save id
@@ -115,12 +141,15 @@ class RegistrationCommands(commands.Cog):
         await steamJoinCodeMessage(self.client, ctx.guild)
 
         # react to show that it is done
-        await ctx.send(hidden=True, embed=embed_message(
-            f"Success",
-            f"I've done as you asked"
-        ))
+        await ctx.send(
+            hidden=True, embed=embed_message(
+                f"Success",
+                f"I've done as you asked"
+            )
+        )
 
 
-
-def setup(client):
+def setup(
+    client
+):
     client.add_cog(RegistrationCommands(client))

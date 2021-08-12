@@ -14,10 +14,13 @@ from static.config import COMMAND_PREFIX
 from static.dict import expansion_dates, season_dates
 from static.globals import admin_role_id, dev_role_id, mod_role_id
 
+
 scheduler = None
 
 
-async def checkIfUserIsRegistered(user):
+async def checkIfUserIsRegistered(
+    user
+):
     if (await handle_and_return_token(user.id)).token:
         return True
     else:
@@ -30,7 +33,9 @@ async def checkIfUserIsRegistered(user):
         return False
 
 
-async def update_status(client):
+async def update_status(
+    client
+):
     status_messages = [
         "Type '/' to see available commands",
         "Type '/registerdesc' to register your Destiny 2 account",
@@ -55,23 +60,32 @@ async def update_status(client):
 
 
 # checks if user is allowed to use the command for other user.
-async def hasMentionPermission(message, user, additional_users=None):
+async def hasMentionPermission(
+    message,
+    user,
+    additional_users=None
+):
     if additional_users is None:
         additional_users = []
 
     # if no other user is mentioned its ok anyways
     if user.id not in [message.author.id, *additional_users]:
         if not await hasAdminOrDevPermissions(message):
-            await message.channel.send(embed=embed_message(
-                'Error',
-                'You are not allowed to use this command for a different user here, please try again`'
-            ))
+            await message.channel.send(
+                embed=embed_message(
+                    'Error',
+                    'You are not allowed to use this command for a different user here, please try again`'
+                )
+            )
             return False
     return True
 
 
 # checks for admin or  dev permissions
-async def hasAdminOrDevPermissions(message, send_message=True):
+async def hasAdminOrDevPermissions(
+    message,
+    send_message=True
+):
     admin = discord.utils.get(message.guild.roles, id=admin_role_id)
     dev = discord.utils.get(message.guild.roles, id=dev_role_id)
     mod = discord.utils.get(message.guild.roles, id=mod_role_id)
@@ -82,16 +96,22 @@ async def hasAdminOrDevPermissions(message, send_message=True):
 
     if admin not in message.author.roles and dev not in message.author.roles and mod not in message.author.roles:
         if send_message:
-            await message.channel.send(embed=embed_message(
-                'Error',
-                'You are not allowed to do that'
-            ))
+            await message.channel.send(
+                embed=embed_message(
+                    'Error',
+                    'You are not allowed to do that'
+                )
+            )
         return False
     return True
 
 
 # todo swap old hasAdminOrDevPermissions stuff with this
-async def has_elevated_permissions(user, guild, ctx: SlashContext = None):
+async def has_elevated_permissions(
+    user,
+    guild,
+    ctx: SlashContext = None
+):
     """ checks for admin or dev permissions, otherwise returns False. If ctx is given, return error message """
     admin = discord.utils.get(guild.roles, id=admin_role_id)
     dev = discord.utils.get(guild.roles, id=dev_role_id)
@@ -103,16 +123,22 @@ async def has_elevated_permissions(user, guild, ctx: SlashContext = None):
 
     if admin not in user.roles and dev not in user.roles and mod not in user.roles:
         if ctx:
-            await ctx.send(hidden=True, embed=embed_message(
-                f"Error",
-                f"You do not have permission do to this"
-            ))
+            await ctx.send(
+                hidden=True, embed=embed_message(
+                    f"Error",
+                    f"You do not have permission do to this"
+                )
+            )
         return False
     return True
 
 
 # should be called if incorrect params for command call where used
-async def show_help(message, command, params):
+async def show_help(
+    message,
+    command,
+    params
+):
     # work some magic that msg looks nice
     nice_looking_params = []
     for param in params:
@@ -121,26 +147,40 @@ async def show_help(message, command, params):
         else:
             nice_looking_params.append(f"<{param}>")
 
-    await message.reply(embed=embed_message(
-        "Incorrect Parameters",
-        f"Correct usage is:\n`{COMMAND_PREFIX}{command} {' '.join(nice_looking_params)} *<user>`",
-        "Info: The <user> parameter doesn't work for every command"
-    ))
+    await message.reply(
+        embed=embed_message(
+            "Incorrect Parameters",
+            f"Correct usage is:\n`{COMMAND_PREFIX}{command} {' '.join(nice_looking_params)} *<user>`",
+            "Info: The <user> parameter doesn't work for every command"
+        )
+    )
 
 
-async def get_emoji(client, emoji_id):
+async def get_emoji(
+    client,
+    emoji_id
+):
     """ Return an emoji obj """
 
     return client.get_emoji(emoji_id)
 
 
-def write_line(index, member, stat_text, stat, emoji):
+def write_line(
+    index,
+    member,
+    stat_text,
+    stat,
+    emoji
+):
     """ Write a line like charley does"""
 
     return f"**{index})** {member} \n{emoji} {stat_text}: {stat}"
 
 
-def check_if_mutually_exclusive(possible_args: list, kwargs):
+def check_if_mutually_exclusive(
+    possible_args: list,
+    kwargs
+):
     """"
     Checks if at most one of the allowed arguments has been used.
 
@@ -162,7 +202,9 @@ def check_if_mutually_exclusive(possible_args: list, kwargs):
     return count <= 1
 
 
-def convert_expansion_or_season_dates(kwargs):
+def convert_expansion_or_season_dates(
+    kwargs
+):
     """ This takes in kwargs, looks if 'expansion' or 'season' are in them and return None, None if not, or the datetime objects """
 
     starttime = None
@@ -199,7 +241,13 @@ def get_scheduler():
     return scheduler
 
 
-async def left_channel(client, member, before_channel, after_channel, lfg_voice_category_channel=None):
+async def left_channel(
+    client,
+    member,
+    before_channel,
+    after_channel,
+    lfg_voice_category_channel=None
+):
     # check if the channel was an lfg channel (correct category)
     if before_channel.category_id == lfg_voice_category_channel.id:
         # get current guild lfg channels
@@ -245,7 +293,11 @@ async def left_channel(client, member, before_channel, after_channel, lfg_voice_
                     await higher.edit(name=channelnamebase + str(i - 1).zfill(2))
 
 
-async def joined_channel(client, member, channel):
+async def joined_channel(
+    client,
+    member,
+    channel
+):
     nummatch = re.findall(r'\d\d', channel.name)
     if nummatch:
         number = int(nummatch[-1])

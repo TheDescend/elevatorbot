@@ -4,13 +4,21 @@ from events.base_event import BaseEvent
 
 class GetMemberCount(BaseEvent):
     """ Updates the member count channel to show how many members are currently in it """
-    def __init__(self):
+
+
+    def __init__(
+        self
+    ):
         interval_minutes = 30  # Set the interval for this event
         super().__init__(scheduler_type="interval", interval_minutes=interval_minutes)
 
+
     # Override the run() method
     # It will be called once every {interval_minutes} minutes
-    async def run(self, client):
+    async def run(
+        self,
+        client
+    ):
         # loop through all guilds, get the channel id if exists and update that
         for guild in client.guilds:
             result = await get_persistent_message("memberCount", guild.id)
@@ -26,13 +34,21 @@ class GetMemberCount(BaseEvent):
 
 class GetBoosterCount(BaseEvent):
     """ Updates the booster count channel to show how many members are currently in it """
-    def __init__(self):
+
+
+    def __init__(
+        self
+    ):
         interval_minutes = 30  # Set the interval for this event
         super().__init__(scheduler_type="interval", interval_minutes=interval_minutes)
 
+
     # Override the run() method
     # It will be called once every {interval_minutes} minutes
-    async def run(self, client):
+    async def run(
+        self,
+        client
+    ):
         # loop through all guilds, get the channel id if exists and update that
         for guild in client.guilds:
             result = await get_persistent_message("boosterCount", guild.id)

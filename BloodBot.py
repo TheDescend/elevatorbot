@@ -42,6 +42,7 @@ from static.globals import registered_role_id, not_registered_role_id, admin_dis
 # vital, do not delete. Otherwise no events get loaded
 from events import *
 
+
 # to enable the on_member_join and on_member_remove
 intents = discord.Intents.default()
 intents.members = True
@@ -54,8 +55,13 @@ this.running = False
 ###############################################################################
 from functions.ytdl import play
 
-def aiohttp_server(discord_client):
-    def say_hello(request):
+
+def aiohttp_server(
+    discord_client
+):
+    def say_hello(
+        request
+    ):
         logged_in = {}
 
         if 'code' in request.query:
@@ -81,7 +87,11 @@ def aiohttp_server(discord_client):
 
             data_url = "%s/users/@me" % api_url
             print('requesting data...')
-            data_request = requests.get(data_url, headers= {'Authorization': f'Bearer {access_token}'})
+            data_request = requests.get(
+                data_url, headers={
+                    'Authorization': f'Bearer {access_token}'
+                }
+            )
             user_data = data_request.json()
             user_id = user_data['id']
             user_name = user_data['username']
@@ -93,7 +103,7 @@ def aiohttp_server(discord_client):
             }
             print('logged in!')
         elif 'user_id' in request.query:
-            #TODO save in cookie
+            # TODO save in cookie
             logged_in = {
                 'user_id': request.query['user_id'],
                 'user_name': request.query['user_name'],
@@ -107,7 +117,8 @@ def aiohttp_server(discord_client):
         connections = discord_client.voice_clients
         if not 'guild' in request.query:
             login_json = urllib.parse.urlencode(logged_in)
-            return web.Response(text=f"""
+            return web.Response(
+                text=f"""
             Select guild:
             <script>
                 function setGuild() {{
@@ -115,16 +126,19 @@ def aiohttp_server(discord_client):
                 }}
                 </script>
             <button type="button" onclick="setGuild()">Descend</button>
-            """, content_type='text/html')
-        
+            """, content_type='text/html'
+            )
+
         guild = discord_client.get_guild(int(request.query['guild']))
         discord_member = guild.get_member(int(logged_in['user_id']))
 
         if not discord_member:
             print(f'{logged_in["user_name"]} not in guild')
-            return web.Response(text="Member not in guild"
-                r"""<script>window.history.pushState({page: 1}, "Login Failed", "/elevatoradmin");</script>"""
-                , content_type='text/html')
+            return web.Response(
+                text="Member not in guild"
+                     r"""<script>window.history.pushState({page: 1}, "Login Failed", "/elevatoradmin");</script>"""
+                , content_type='text/html'
+            )
 
         member_roles = [role.name for role in discord_member.roles]
         good_roles = ['Moderator', 'Developer', 'Admin']
@@ -135,7 +149,12 @@ def aiohttp_server(discord_client):
             voice_chat = guild.get_channel(int(request.query['join']))
             print(f"{logged_in['user_name']}#{logged_in['user_discriminator']} joined bot to {request.query['join']}")
 
-            active = list(filter(lambda voice_client: voice_client.guild.id == guild.id and voice_client.is_connected(), connections))
+            active = list(
+                filter(
+                    lambda
+                        voice_client: voice_client.guild.id == guild.id and voice_client.is_connected(), connections
+                )
+            )
             if len(active) == 1:
                 move_task = loop.create_task(active[0].move_to(voice_chat))
                 if active[0].is_playing():
@@ -149,22 +168,34 @@ def aiohttp_server(discord_client):
                     loop.create_task(play(urllib.parse.unquote(request.query['req']), discord_client, connection_task))
             return web.Response(text=f"Playing {request.query['req']}")
         elif 'disconnect' in request.query:
-            active = list(filter(lambda voice_client: voice_client.guild.id == guild.id and voice_client.is_connected(), connections))
+            active = list(
+                filter(
+                    lambda
+                        voice_client: voice_client.guild.id == guild.id and voice_client.is_connected(), connections
+                )
+            )
             if len(active) == 1:
                 loop.create_task(active[0].disconnect())
             return web.Response(text='Disconnected')
         elif 'stop' in request.query:
-            active = list(filter(lambda voice_client: voice_client.guild.id == guild.id and voice_client.is_connected(), connections))
+            active = list(
+                filter(
+                    lambda
+                        voice_client: voice_client.guild.id == guild.id and voice_client.is_connected(), connections
+                )
+            )
             if len(active) == 1:
                 active[0].stop()
             return web.Response(text='Stopped')
 
         if guild := discord_client.get_guild(669293365900214293):
-            return web.Response(text= 
+            return web.Response(
+                text=
                 f"Logged in as {logged_in['user_name']}#{logged_in['user_discriminator']}<br/>"
                 r"""<script>window.history.pushState({page: 1}, "MusicBot Admin", "/elevatoradmin");</script>"""
                 "Songname:<input id='songname' type='text'></input> <br/> Click Channel to join/start playing <br/> (might take up to 10s, depending on song size) <br/><br/>" + \
-                "<br/>".join(f"""
+                "<br/>".join(
+                    f"""
                         <button type="button" onclick="join{vc.id}()">{vc.name}</button> {', '.join([m.name for m in vc.members])}
                         <script>
                         function join{vc.id}() {{
@@ -180,7 +211,8 @@ def aiohttp_server(discord_client):
                             xhttp.send();
                         }}
                         </script>
-                """ for vc in guild.voice_channels) + \
+                """ for vc in guild.voice_channels
+                ) + \
                 f"""
                 <br/><br/>
                 <button type="button" onclick="stop()">Stop playing</button>
@@ -213,8 +245,11 @@ def aiohttp_server(discord_client):
                 </script>
                 <br/><br/>
                 <div id="news"></div>
-            """, content_type='text/html')
+            """, content_type='text/html'
+            )
         return web.Response(text='500')
+
+
     loop = asyncio.get_event_loop()
 
     app = web.Application()
@@ -223,7 +258,9 @@ def aiohttp_server(discord_client):
     return runner
 
 
-def run_server(runner):
+def run_server(
+    runner
+):
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     loop.run_until_complete(runner.setup())
@@ -236,55 +273,80 @@ def run_server(runner):
 ###############################################################################
 
 
-async def launch_event_loops(client):
+async def launch_event_loops(
+    client
+):
     await get_connection_pool()
     print("Made sure we are connected to the DB")
 
     # Scheduler that will be used to manage events
     sched = get_scheduler()
 
+
     # add listeners to catch and format errors also to log
-    def event_added(sched_event):
+    def event_added(
+        sched_event
+    ):
         job_name = sched.get_job(sched_event.job_id)
 
         # log the execution
         logger = logging.getLogger('events')
         logger.info("Event '%s' with ID '%s' has been added", job_name, sched_event.job_id)
 
+
     sched.add_listener(event_added, EVENT_JOB_ADDED)
 
-    def event_removed(sched_event):
+
+    def event_removed(
+        sched_event
+    ):
         # log the execution
         logger = logging.getLogger('events')
         logger.info("Event with ID '%s' has been removed", sched_event.job_id)
 
+
     sched.add_listener(event_removed, EVENT_JOB_REMOVED)
 
-    def event_submitted(sched_event):
+
+    def event_submitted(
+        sched_event
+    ):
         job_name = sched.get_job(sched_event.job_id)
         print(f"Running '{job_name}'")
 
+
     sched.add_listener(event_submitted, EVENT_JOB_SUBMITTED)
 
-    def event_executed(sched_event):
+
+    def event_executed(
+        sched_event
+    ):
         job_name = sched.get_job(sched_event.job_id)
 
         # log the execution
         logger = logging.getLogger('events')
         logger.info("Event '%s' successfully run", job_name)
 
+
     sched.add_listener(event_executed, EVENT_JOB_EXECUTED)
 
-    def event_missed(sched_event):
+
+    def event_missed(
+        sched_event
+    ):
         job_name = sched.get_job(sched_event.job_id)
 
         # log the execution
         logger = logging.getLogger('events')
         logger.warning("Event '%s' missed", job_name)
 
+
     sched.add_listener(event_missed, EVENT_JOB_MISSED)
 
-    def event_error(sched_event):
+
+    def event_error(
+        sched_event
+    ):
         job_name = sched.get_job(sched_event.job_id)
 
         # log the execution
@@ -293,6 +355,7 @@ async def launch_event_loops(client):
             "Event '%s' failed - Error '%s' - Traceback: \n%s",
             job_name, sched_event.exception, sched_event.traceback
         )
+
 
     sched.add_listener(event_error, EVENT_JOB_ERROR)
 
@@ -318,8 +381,10 @@ async def launch_event_loops(client):
         guild = client.get_guild(lfg_event["guild_id"])
         if guild:
             timedelta = datetime.timedelta(minutes=10)
-            sched.add_job(notify_about_lfg_event_start, 'date', (client, guild, lfg_event["id"], timedelta),
-                          run_date=lfg_event["start_time"] - timedelta, id=str(lfg_event["id"]))
+            sched.add_job(
+                notify_about_lfg_event_start, 'date', (client, guild, lfg_event["id"], timedelta),
+                run_date=lfg_event["start_time"] - timedelta, id=str(lfg_event["id"])
+            )
     print(f"{len(sched.get_jobs()) - len(jobs)} LFG events loaded")
 
     print("Startup complete!")
@@ -359,6 +424,7 @@ def main():
     # pylint: disable=no-member
     print(f"{len(client.slash.commands)} commands loaded")
 
+
     # Define event handlers for the client
     # on_ready may be called multiple times in the event of a reconnect,
     @client.event
@@ -371,9 +437,12 @@ def main():
         # run further launch event loops
         await launch_event_loops(client)
 
+
     # The message handler for both new message and edits
     @client.event
-    async def common_handle_message(message):
+    async def common_handle_message(
+        message
+    ):
         text = message.content
 
         # if the message was from an dm, post it in #admin-discussions: Don't do that if bot send an command
@@ -384,8 +453,10 @@ def main():
                     if message.attachments:
                         attached_files = [discord.File(BytesIO(await attachment.read()), filename=attachment.filename)
                                           for attachment in message.attachments]
-                        await admin_discussions_channel.send(f"From {message.author.mention}: \n{text}",
-                                                             files=attached_files)
+                        await admin_discussions_channel.send(
+                            f"From {message.author.mention}: \n{text}",
+                            files=attached_files
+                        )
                     else:
                         await admin_discussions_channel.send(f"From {message.author.mention}: \n{text}")
                     await message.author.send("Forwarded your message to staff, you will be contacted shortly 🙃")
@@ -464,23 +535,34 @@ def main():
                 destiny_player = await DestinyPlayer.from_discord_id(member.id)
                 await destiny_player.update_activity_db()
 
+
     @client.event
-    async def on_message(message):
+    async def on_message(
+        message
+    ):
         # ignore msg from itself
         if (message.author == client.user):
             return
         asyncio.ensure_future(common_handle_message(message))
 
-    @client.event
-    async def on_member_join(member):
-        # inform the user that they should register with the bot
-        await member.send(embed=embed_message(
-            f'Welcome to Descend {member.name}!',
-            'You can join the destiny clan in **#registration**. \nYou can find our current requirements in the same channel. \n⁣\nWe have a wide variety of roles you can earn, for more information, check out #community-roles. \n⁣\nIf you have any problems / questions, do not hesitate to write **@ElevatorBot** (me) a personal message with your problem / question'
-        ))
 
     @client.event
-    async def on_member_remove(member: discord.Member):
+    async def on_member_join(
+        member
+    ):
+        # inform the user that they should register with the bot
+        await member.send(
+            embed=embed_message(
+                f'Welcome to Descend {member.name}!',
+                'You can join the destiny clan in **#registration**. \nYou can find our current requirements in the same channel. \n⁣\nWe have a wide variety of roles you can earn, for more information, check out #community-roles. \n⁣\nIf you have any problems / questions, do not hesitate to write **@ElevatorBot** (me) a personal message with your problem / question'
+            )
+        )
+
+
+    @client.event
+    async def on_member_remove(
+        member: discord.Member
+    ):
         # send a message in the join log channel if the server is descend
         if member.guild.id == discord_server_id:
             embed = embed_message(
@@ -494,21 +576,33 @@ def main():
 
         await removeFromClanAfterLeftDiscord(client, member)
 
+
     @client.event
-    async def on_message_edit(before, after):
+    async def on_message_edit(
+        before,
+        after
+    ):
         await common_handle_message(after)
+
 
     # https://discordpy.readthedocs.io/en/latest/api.html#discord.RawReactionActionEvent
     @client.event
-    async def on_raw_reaction_add(payload):
+    async def on_raw_reaction_add(
+        payload
+    ):
         if not payload.member or payload.member.bot:
             return
 
         # check if reaction is on a persistent message
         await check_reaction_for_persistent_message(client, payload)
 
+
     @client.event
-    async def on_voice_state_update(member, before, after):
+    async def on_voice_state_update(
+        member,
+        before,
+        after
+    ):
         guild = member.guild
         lfg_voice_category_channel = await get_persistent_message_or_channel(client, "lfgVoiceCategory", guild.id)
 
@@ -528,8 +622,12 @@ def main():
             await left_channel(client, member, before.channel, after.channel, lfg_voice_category_channel)
             return
 
+
     @client.event
-    async def on_member_update(before, after):
+    async def on_member_update(
+        before,
+        after
+    ):
         """ Add member role after Role Screening """
 
         if before.bot or after.bot:
@@ -548,8 +646,11 @@ def main():
             await assignRolesToUser([divider_achievement_role_id], member, member.guild)
             await assignRolesToUser([divider_misc_role_id], member, member.guild)
 
+
     @client.event
-    async def on_slash_command(ctx: SlashContext):
+    async def on_slash_command(
+        ctx: SlashContext
+    ):
         """ Gets triggered every slash command """
 
         # print the command
@@ -558,39 +659,55 @@ def main():
         # log the command
         logger = logging.getLogger('slash_commands')
         logger.info(
-            f"InteractionID '{ctx.interaction_id}' - User '{ctx.author.name}' with discordID '{ctx.author.id}' executed '/{ctx.name}' with kwargs '{ctx.kwargs}' in guildID '{ctx.guild.id}', channelID '{ctx.channel.id}'")
+            f"InteractionID '{ctx.interaction_id}' - User '{ctx.author.name}' with discordID '{ctx.author.id}' executed '/{ctx.name}' with kwargs '{ctx.kwargs}' in guildID '{ctx.guild.id}', channelID '{ctx.channel.id}'"
+        )
+
 
     @client.event
-    async def on_slash_command_error(ctx: SlashContext, error: Exception):
+    async def on_slash_command_error(
+        ctx: SlashContext,
+        error: Exception
+    ):
         """ Gets triggered on slash errors """
 
-        await ctx.send(embed=embed_message(
-            "Error",
-            f"Sorry, something went wrong \nPlease contact a {ctx.guild.get_role(dev_role_id)}",
-            error
-        ))
+        await ctx.send(
+            embed=embed_message(
+                "Error",
+                f"Sorry, something went wrong \nPlease contact a {ctx.guild.get_role(dev_role_id)}",
+                error
+            )
+        )
 
         # log the error
         logger = logging.getLogger('slash_commands')
         logger.exception(
-            f"InteractionID '{ctx.interaction_id}' - Error {error} - Traceback: \n{''.join(traceback.format_tb(error.__traceback__))}")
+            f"InteractionID '{ctx.interaction_id}' - Error {error} - Traceback: \n{''.join(traceback.format_tb(error.__traceback__))}"
+        )
 
         # raising error again to making deving easier
         raise error
 
+
     # handle registrations
     @slash.component_callback()
-    async def registration(ctx: ComponentContext):
+    async def registration(
+        ctx: ComponentContext
+    ):
         await elevatorRegistration(ctx.author)
 
-        await ctx.send(hidden=True, embed=embed_message(
-            f"Thanks for Registering",
-            f"I sent you a DM with the next steps!"
-        ))
+        await ctx.send(
+            hidden=True, embed=embed_message(
+                f"Thanks for Registering",
+                f"I sent you a DM with the next steps!"
+            )
+        )
+
 
     # handle other game roles
     @slash.component_callback()
-    async def other_game_roles(ctx: ComponentContext):
+    async def other_game_roles(
+        ctx: ComponentContext
+    ):
         user_role_ids = [role.id for role in ctx.author.roles]
 
         added = []
@@ -622,9 +739,12 @@ def main():
 
         await ctx.send(hidden=True, embed=embed)
 
+
     # handle increment button
     @slash.component_callback()
-    async def increment_button(ctx: ComponentContext):
+    async def increment_button(
+        ctx: ComponentContext
+    ):
         components = [
             manage_components.create_actionrow(
                 manage_components.create_button(
@@ -645,7 +765,9 @@ def main():
 
     # handle lfg messages
     @slash.component_callback()
-    async def lfg_join(ctx: ComponentContext):
+    async def lfg_join(
+        ctx: ComponentContext
+    ):
         # get the lfg message
         lfg_message = await get_lfg_message(client=ctx.bot, lfg_message_id=ctx.origin_message.id, guild=ctx.guild)
         if not lfg_message:
@@ -653,13 +775,18 @@ def main():
 
         res = await lfg_message.add_member(member=ctx.guild.get_member(ctx.author.id), ctx=ctx)
         if not res:
-            await ctx.send(hidden=True, embed=embed_message(
-                "Error",
-                "You could not be added to the event\nThis is either because you are already in the event, the event is full, or the creator has blacklisted you from their events"
-            ))
+            await ctx.send(
+                hidden=True, embed=embed_message(
+                    "Error",
+                    "You could not be added to the event\nThis is either because you are already in the event, the event is full, or the creator has blacklisted you from their events"
+                )
+            )
+
 
     @slash.component_callback()
-    async def lfg_leave(ctx: ComponentContext):
+    async def lfg_leave(
+        ctx: ComponentContext
+    ):
         # get the lfg message
         lfg_message = await get_lfg_message(client=ctx.bot, lfg_message_id=ctx.origin_message.id, guild=ctx.guild)
         if not lfg_message:
@@ -667,13 +794,18 @@ def main():
 
         res = await lfg_message.remove_member(member=ctx.guild.get_member(ctx.author.id), ctx=ctx)
         if not res:
-            await ctx.send(hidden=True, embed=embed_message(
-                "Error",
-                "You could not be removed from the event\nThis is because you are neither in the main nor in the backup roster"
-            ))
+            await ctx.send(
+                hidden=True, embed=embed_message(
+                    "Error",
+                    "You could not be removed from the event\nThis is because you are neither in the main nor in the backup roster"
+                )
+            )
+
 
     @slash.component_callback()
-    async def lfg_backup(ctx: ComponentContext):
+    async def lfg_backup(
+        ctx: ComponentContext
+    ):
         # get the lfg message
         lfg_message = await get_lfg_message(client=ctx.bot, lfg_message_id=ctx.origin_message.id, guild=ctx.guild)
         if not lfg_message:
@@ -681,19 +813,27 @@ def main():
 
         res = await lfg_message.add_backup(member=ctx.guild.get_member(ctx.author.id), ctx=ctx)
         if not res:
-            await ctx.send(hidden=True, embed=embed_message(
-                "Error",
-                "You could not be added as a backup to the event\nThis is either because you are already in the backup roster, or the creator has blacklisted you from their events"
-            ))
+            await ctx.send(
+                hidden=True, embed=embed_message(
+                    "Error",
+                    "You could not be added as a backup to the event\nThis is either because you are already in the backup roster, or the creator has blacklisted you from their events"
+                )
+            )
+
 
     # handle clan join requests
     @slash.component_callback()
-    async def clan_join_request(ctx: ComponentContext):
+    async def clan_join_request(
+        ctx: ComponentContext
+    ):
         await on_clan_join_request(ctx)
+
 
     # handle poll selects
     @slash.component_callback()
-    async def poll(ctx: ComponentContext):
+    async def poll(
+        ctx: ComponentContext
+    ):
         poll = await get_poll_object(
             guild=ctx.guild,
             poll_message_id=ctx.origin_message.id

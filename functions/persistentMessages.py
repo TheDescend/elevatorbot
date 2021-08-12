@@ -9,7 +9,11 @@ from functions.formating import embed_message
 from networking.bungieAuth import handle_and_return_token
 
 
-async def get_persistent_message_or_channel(client: discord.Client, message_name: str, guild_id: int) -> Optional[Union[discord.VoiceChannel, discord.TextChannel, discord.Message]]:
+async def get_persistent_message_or_channel(
+    client: discord.Client,
+    message_name: str,
+    guild_id: int
+) -> Optional[Union[discord.VoiceChannel, discord.TextChannel, discord.Message]]:
     """
     Gets the persistent message for the specified name and guild and channel. If it doesnt exist, it will return the channel and if that doesnt exit it will return False
     Returns message obj or None
@@ -32,7 +36,17 @@ async def get_persistent_message_or_channel(client: discord.Client, message_name
         return channel
 
 
-async def make_persistent_message(client, message_name, guild_id, channel_id, reaction_id_list=None, components: dict = None, message_text=None, message_embed=None, no_message=False):
+async def make_persistent_message(
+    client,
+    message_name,
+    guild_id,
+    channel_id,
+    reaction_id_list=None,
+    components: dict = None,
+    message_text=None,
+    message_embed=None,
+    no_message=False
+):
     """
     Creates a new persistent message entry in the DB or changes the old one
     Returns message obj
@@ -78,14 +92,21 @@ async def make_persistent_message(client, message_name, guild_id, channel_id, re
     return message
 
 
-async def delete_persistent_message(message, message_name, guild_id):
+async def delete_persistent_message(
+    message,
+    message_name,
+    guild_id
+):
     """ Delete the persistent message for the specified name and guild """
 
     await message.delete()
     await deletePersistentMessage(message_name, guild_id)
 
 
-async def check_reaction_for_persistent_message(client, payload):
+async def check_reaction_for_persistent_message(
+    client,
+    payload
+):
     # get all persistent messages
     persistent_messages = await getAllPersistentMessages()
 
@@ -98,7 +119,11 @@ async def check_reaction_for_persistent_message(client, payload):
             await handle_persistent_message_reaction(client, payload, persistent_message)
 
 
-async def handle_persistent_message_reaction(client, payload, persistent_message):
+async def handle_persistent_message_reaction(
+    client,
+    payload,
+    persistent_message
+):
     message_name = persistent_message[0]
     guild_id = persistent_message[1]
     channel_id = persistent_message[2]
@@ -117,13 +142,18 @@ async def handle_persistent_message_reaction(client, payload, persistent_message
     elif message_name == "tournament":
         if not (await handle_and_return_token(payload.member.id)).token:
             await message.remove_reaction(payload.emoji, payload.member)
-            await payload.member.send(embed=embed_message(
-                "Error",
-                "You need to register first before you can join a tournament. \nTo do that please use `/registerdesc` in <#670401854496309268>"
-            ))
+            await payload.member.send(
+                embed=embed_message(
+                    "Error",
+                    "You need to register first before you can join a tournament. \nTo do that please use `/registerdesc` in <#670401854496309268>"
+                )
+            )
 
 
-async def steamJoinCodeMessage(client, guild):
+async def steamJoinCodeMessage(
+    client,
+    guild
+):
     # get all IDs
     data = await getallSteamJoinIDs()
 
@@ -137,7 +167,10 @@ async def steamJoinCodeMessage(client, guild):
             continue
 
     # sort and put in two lists
-    sorted_data = {k: str(v) for k, v in sorted(clean_data.items(), key=lambda item: item[0], reverse=False)}
+    sorted_data = {k: str(v) for k, v in sorted(
+        clean_data.items(), key=lambda
+            item: item[0], reverse=False
+    )}
 
     # put in two lists for the embed
     name = list(sorted_data.keys())
@@ -162,7 +195,11 @@ async def steamJoinCodeMessage(client, guild):
     await message.edit(embed=embed)
 
 
-async def bot_status(client: discord.Client, field_name: str, time: datetime.datetime) -> None:
+async def bot_status(
+    client: discord.Client,
+    field_name: str,
+    time: datetime.datetime
+) -> None:
     """
     takes the field (name) and the timestamp of last update
 

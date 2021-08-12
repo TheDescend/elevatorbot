@@ -1,10 +1,9 @@
 from database.database import getGrandmasterHashes
 
-
-
 # from https://data.destinysets.com/
 # raids
 from functions.event_loop import get_asyncio_loop
+
 
 spirePHashes = [3213556450]
 spireHashes = [119944200]
@@ -162,8 +161,10 @@ requirementHashes = {
             "deprecated": True,
             'requirements': ['clears'],
             'clears': [
-                {'count': 4,
-                 'actHashes': spireHashes + spirePHashes},  # normal
+                {
+                    'count': 4,
+                    'actHashes': spireHashes + spirePHashes
+                },  # normal
             ],
             'replaced_by': ['Spire of Stars Master', 'Y1 Raid Master']
         },
@@ -171,8 +172,10 @@ requirementHashes = {
             "deprecated": True,
             'requirements': ['clears', 'flawless'],
             'clears': [
-                {'count': 10,
-                 'actHashes': spirePHashes}  # prestige
+                {
+                    'count': 10,
+                    'actHashes': spirePHashes
+                }  # prestige
             ],
             'flawless': spireHashes + spirePHashes,
             'replaced_by': ['Y1 Raid Master']
@@ -181,8 +184,10 @@ requirementHashes = {
             "deprecated": True,
             'requirements': ['clears'],
             'clears': [
-                {'count': 4,
-                 'actHashes': eaterHashes + eaterPHashes},  # normal
+                {
+                    'count': 4,
+                    'actHashes': eaterHashes + eaterPHashes
+                },  # normal
             ],
             'replaced_by': ['Eater of Worlds Master', 'Y1 Raid Master']
         },
@@ -190,8 +195,10 @@ requirementHashes = {
             "deprecated": True,
             'requirements': ['clears', 'flawless'],
             'clears': [
-                {'count': 10,
-                 'actHashes': eaterPHashes}
+                {
+                    'count': 10,
+                    'actHashes': eaterPHashes
+                }
             ],  # prestige
             'flawless': eaterHashes + eaterPHashes,
             'replaced_by': ['Y1 Raid Master']
@@ -200,8 +207,10 @@ requirementHashes = {
             "deprecated": True,
             'requirements': ['clears'],
             'clears': [
-                {'count': 4,
-                 'actHashes': leviHashes + leviPHashes},  # normal
+                {
+                    'count': 4,
+                    'actHashes': leviHashes + leviPHashes
+                },  # normal
             ],
             'replaced_by': ['Leviathan Master', 'Y1 Raid Master']
         },
@@ -209,8 +218,10 @@ requirementHashes = {
             "deprecated": True,
             'requirements': ['clears', 'flawless', 'collectibles'],
             'clears': [
-                {'count': 10,
-                 'actHashes': leviPHashes},  # prestige
+                {
+                    'count': 10,
+                    'actHashes': leviPHashes
+                },  # prestige
             ],
             'flawless': leviHashes + leviPHashes,
             'collectibles': [
@@ -237,8 +248,10 @@ requirementHashes = {
             "deprecated": True,
             'requirements': ['clears', 'records'],
             'clears': [
-                {'count': 15,
-                 'actHashes': cosHashes}
+                {
+                    'count': 15,
+                    'actHashes': cosHashes
+                }
             ],  # • Minimum 15 full clears
             'records': [
                 3308790634,  # Limited Blessings
@@ -251,8 +264,10 @@ requirementHashes = {
             "deprecated": True,
             'requirements': ['clears', 'records'],
             'clears': [
-                {'count': 30,
-                 'actHashes': cosHashes}  # Minimum 15 full clears
+                {
+                    'count': 30,
+                    'actHashes': cosHashes
+                }  # Minimum 15 full clears
             ],
             'records': [
                 3292013042,  # Crown of Ease [Flawless]
@@ -267,8 +282,10 @@ requirementHashes = {
             "deprecated": True,
             'requirements': ['clears', 'records'],
             'clears': [
-                {'count': 15,
-                 'actHashes': scourgeHashes}
+                {
+                    'count': 15,
+                    'actHashes': scourgeHashes
+                }
             ],
             'records': [
                 223175561,  # All For One, One For All
@@ -282,8 +299,10 @@ requirementHashes = {
             "deprecated": True,
             'requirements': ['clears', 'records'],
             'clears': [
-                {'count': 30,
-                 'actHashes': scourgeHashes}
+                {
+                    'count': 30,
+                    'actHashes': scourgeHashes
+                }
             ],
             'records': [
                 2925485370,  # Like a Diamond
@@ -298,8 +317,10 @@ requirementHashes = {
         'Last Wish': {
             'requirements': ['clears', 'records'],
             'clears': [
-                {'count': 15,
-                 'actHashes': lwHashes},  # Minimum 15 full clears
+                {
+                    'count': 15,
+                    'actHashes': lwHashes
+                },  # Minimum 15 full clears
             ],
             'records': [
                 1847670729,  # Summoning Ritual
@@ -316,15 +337,17 @@ requirementHashes = {
                 'Last Wish'
             ],
             'clears': [
-                {'count': 30,
-                 'actHashes': lwHashes}
+                {
+                    'count': 30,
+                    'actHashes': lwHashes
+                }
             ],  # Minimum 15 full clears
             'records': [
                 380332968,  # Petra's Run [Flawless]
                 3000516033,  # Thunderstruck :Arc:
                 342038729,  # The New Meta [Same Class]
                 2826160801,  # Night Owl :Void:
-                2588923804, # Winter's Rest :Stasis:
+                2588923804,  # Winter's Rest :Stasis:
                 623283604  # Sunburn :Solar:
             ],
             'replaced_by': ['Y2 Raid Master']
@@ -342,8 +365,10 @@ requirementHashes = {
         'Garden of Salvation': {
             'requirements': ['clears', 'records'],
             'clears': [
-                {'count': 15,
-                 'actHashes': gosHashes}  # Minimum 15 full clears
+                {
+                    'count': 15,
+                    'actHashes': gosHashes
+                }  # Minimum 15 full clears
             ],
             'records': [
                 3719309782,  # Leftovers
@@ -359,21 +384,23 @@ requirementHashes = {
                 'Garden of Salvation'
             ],
             'clears': [
-                {'count': 30,
-                 'actHashes': gosHashes}  # Minimum 30 full clears
+                {
+                    'count': 30,
+                    'actHashes': gosHashes
+                }  # Minimum 30 full clears
             ],
             'records': [
-                1522774125,     # Inherent Perfection [Flawless]
-                3427328428,     # Fluorescent Foliage :Arc:
-                277137394,      # Shade in the Garden :Void:
-                2571794337,     # Photosynthesis :Solar:
-                2629178011,     # Frost on the leaves :Stasis:
-                1830799772,     # Garden Party [Same Class]
+                1522774125,  # Inherent Perfection [Flawless]
+                3427328428,  # Fluorescent Foliage :Arc:
+                277137394,  # Shade in the Garden :Void:
+                2571794337,  # Photosynthesis :Solar:
+                2629178011,  # Frost on the leaves :Stasis:
+                1830799772,  # Garden Party [Same Class]
 
-                4105510833,     # Voltaic Tether
-                44547560,       # Repulsion Theory
-                3860668859,     # Relay Rally
-                3949104239,     # Stop Hitting Yourself
+                4105510833,  # Voltaic Tether
+                44547560,  # Repulsion Theory
+                3860668859,  # Relay Rally
+                3949104239,  # Stop Hitting Yourself
             ],
             'replaced_by': ['Y3 Raid Master']
         },
@@ -389,14 +416,16 @@ requirementHashes = {
         'Deep Stone Crypt': {
             'requirements': ['clears', 'records'],
             'clears': [
-                {'count': 15,
-                 'actHashes': dscHashes},  # Minimum 15 full clears
+                {
+                    'count': 15,
+                    'actHashes': dscHashes
+                },  # Minimum 15 full clears
             ],
             'records': [
-                22094034,       # Red Rover Challenge
-                64856166,       # Copies of Copies Challenge
-                337542929,      # Of All Trades Challenge
-                2530940166,     # The Core Four Challenge
+                22094034,  # Red Rover Challenge
+                64856166,  # Copies of Copies Challenge
+                337542929,  # Of All Trades Challenge
+                2530940166,  # The Core Four Challenge
             ],
             'replaced_by': ['Deep Stone Crypt Master']
         },
@@ -406,39 +435,43 @@ requirementHashes = {
                 'Deep Stone Crypt'
             ],
             'clears': [
-                {'count': 30,
-                 'actHashes': dscHashes}
+                {
+                    'count': 30,
+                    'actHashes': dscHashes
+                }
             ],  # Minimum 30 full clears
             'records': [
                 3560923614,  # Survival of the Fittest [Flawless]
 
-                134885948,      # Not a Scratch
-                4216504853,     # Resource Contention
-                3771160417,     # 5 Seconds to Paradise
-                1277450448,     # Short Circuit
-                1487317889,     # Ready, Set, Go!
+                134885948,  # Not a Scratch
+                4216504853,  # Resource Contention
+                3771160417,  # 5 Seconds to Paradise
+                1277450448,  # Short Circuit
+                1487317889,  # Ready, Set, Go!
 
-                564366615,      # Control Group [Same Class]
-                3834307795,     # Electric Sheep :arc:
-                3200831458,     # Meltdown :solar:
-                513707022,      # Freezing Point :stasis:
-                3875695735,     # Devoid of the Rest :void:
+                564366615,  # Control Group [Same Class]
+                3834307795,  # Electric Sheep :arc:
+                3200831458,  # Meltdown :solar:
+                513707022,  # Freezing Point :stasis:
+                3875695735,  # Devoid of the Rest :void:
             ],
             # 'replaced_by':[]
         },
         'Vault of Glass': {
             'requirements': ['clears', 'records'],
             'clears': [
-                {'count': 15,
-                 'actHashes': vogHashes + vogMasterHashes},  # Minimum 15 full clears
+                {
+                    'count': 15,
+                    'actHashes': vogHashes + vogMasterHashes
+                },  # Minimum 15 full clears
             ],
             'records': [
                 # challenges
-                706596766,      # wait for it / conflux
-                1888851130,     # the only oracle for you / oracles
-                154213552,      # out of its way / templar
-                2464700601,     # strangers in time / gatekeeper
-                1129667036,     # ensemble's refrain / atheon
+                706596766,  # wait for it / conflux
+                1888851130,  # the only oracle for you / oracles
+                154213552,  # out of its way / templar
+                2464700601,  # strangers in time / gatekeeper
+                1129667036,  # ensemble's refrain / atheon
             ],
             'replaced_by': ['Vault of Glass Master', 'Vault of Glass Grandmaster']
         },
@@ -448,23 +481,25 @@ requirementHashes = {
                 'Vault of Glass'
             ],
             'clears': [
-                {'count': 30,
-                 'actHashes': vogHashes + vogMasterHashes}
+                {
+                    'count': 30,
+                    'actHashes': vogHashes + vogMasterHashes
+                }
             ],  # Minimum 30 full clears
             'records': [
-                2750088202,     # Flawless Vault of Glass
+                2750088202,  # Flawless Vault of Glass
 
-                1983700615,     # Charged Glass (Arc)
-                2592913942,     # Melted Glass (Solar)
-                1961032859,     # Empty Glass (Void)
-                3969659747,     # Vault of Class (same class)
+                1983700615,  # Charged Glass (Arc)
+                2592913942,  # Melted Glass (Solar)
+                1961032859,  # Empty Glass (Void)
+                3969659747,  # Vault of Class (same class)
 
-                874956966,      # Break No Plates (lose no sync plates)
-                4170123161,     # Dragon's Den (wyvern only with supers)
-                787552349,      # Take Cover (Oracle no goblin kills)
-                3903615031,     # Tempered Teleport (Never block teleport)
-                3106039192,     # Rabid Relic (only relic super damage for praetorians)
-                1024875083,     # Eyes on Atheon (don't kill supplicants)
+                874956966,  # Break No Plates (lose no sync plates)
+                4170123161,  # Dragon's Den (wyvern only with supers)
+                787552349,  # Take Cover (Oracle no goblin kills)
+                3903615031,  # Tempered Teleport (Never block teleport)
+                3106039192,  # Rabid Relic (only relic super damage for praetorians)
+                1024875083,  # Eyes on Atheon (don't kill supplicants)
             ],
             'replaced_by': ['Vault of Glass Grandmaster']
         },
@@ -475,13 +510,17 @@ requirementHashes = {
                 'Vault of Glass Master'
             ],
             'clears': [
-                {'count': 45,
-                 'actHashes': vogHashes + vogMasterHashes},
-                {'count': 15,
-                 'actHashes': vogMasterHashes}
+                {
+                    'count': 45,
+                    'actHashes': vogHashes + vogMasterHashes
+                },
+                {
+                    'count': 15,
+                    'actHashes': vogMasterHashes
+                }
             ],
             'records': [
-                3790077074,     # Maestro Glasser
+                3790077074,  # Maestro Glasser
             ],
         },
     },
@@ -511,7 +550,7 @@ requirementHashes = {
         'Solo Shattered Throne': {
             'requirements': ['records'],
             'denyTime0': {  # start is earlier Time, format is important
-                'startTime': '11/08/2020 18:00', #KEKW
+                'startTime': '11/08/2020 18:00',  # KEKW
                 'endTime': '08/09/2020 18:00'
             },
             'records': [
@@ -784,7 +823,7 @@ requirementHashes = {
                 'endTime': '08/09/2020 18:00'
             },
             'records': [
-                1662610173, #Only the essentials
+                1662610173,  # Only the essentials
             ]
         },
         'Solo Zero Hour': {

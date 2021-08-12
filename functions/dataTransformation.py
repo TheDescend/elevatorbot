@@ -1,5 +1,6 @@
 import matplotlib
 
+
 matplotlib.use('Agg')
 
 from functions.dataLoading import get_pgcr, getNameToHashMapByClanid
@@ -51,15 +52,20 @@ async def getSeasonalChallengeInfo():
                         description = r4["description"]
 
                         # adding info to dict
-                        seasonal_challenges[r3["name"]].append({
-                            "referenceID": referenceID,
-                            "name": name,
-                            "description": description
-                        })
+                        seasonal_challenges[r3["name"]].append(
+                            {
+                                "referenceID": referenceID,
+                                "name": name,
+                                "description": description
+                            }
+                        )
 
     return seasonal_challenges
 
+
 fullMemberMap = {}
+
+
 async def getFullMemberMap():
     if len(fullMemberMap) > 0:
         return fullMemberMap
@@ -68,7 +74,10 @@ async def getFullMemberMap():
             fullMemberMap.update(await getNameToHashMapByClanid(clanid))
         return fullMemberMap
 
-async def getPlayerCount(instanceID):
+
+async def getPlayerCount(
+    instanceID
+):
     pgcr = await get_pgcr(instanceID)
     ingamechars = pgcr.content['Response']['entries']
     ingameids = set()

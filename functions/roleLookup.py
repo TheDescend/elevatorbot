@@ -12,7 +12,11 @@ from static.dict import requirementHashes, requirement_hashes_without_years
 from static.globals import role_ban_id, divider_legacy_role_id
 
 
-async def has_role(destiny_player: DestinyPlayer, role: discord.Role, return_as_bool: bool = True) -> Optional[list[Union[bool, dict]]]:
+async def has_role(
+    destiny_player: DestinyPlayer,
+    role: discord.Role,
+    return_as_bool: bool = True
+) -> Optional[list[Union[bool, dict]]]:
     """return_as_bool may be set to True if only True/False is expected, set to False to get complete data on why or why not the user earned the role"""
 
     data = {}
@@ -89,7 +93,9 @@ async def has_role(destiny_player: DestinyPlayer, role: discord.Role, return_as_
         elif req == "lowman":
             start_lowman_reqs = time.monotonic()
             denies = sum([1 if "denyTime" in key else 0 for key in role_data.keys()])
-            timeParse = lambda i, spec: datetime.strptime(
+            timeParse = lambda \
+                    i, \
+                    spec: datetime.strptime(
                 role_data[f"denyTime{i}"][spec], "%d/%m/%Y %H:%M"
             )
             disallowed = [
@@ -163,7 +169,11 @@ async def has_role(destiny_player: DestinyPlayer, role: discord.Role, return_as_
     return [worthy, data]
 
 
-async def get_player_roles(member: discord.Member, destiny_player: DestinyPlayer, role_names_to_ignore: list[str] = None) -> tuple[list[discord.Role], list[discord.Role], list[discord.Role], list[discord.Role]]:
+async def get_player_roles(
+    member: discord.Member,
+    destiny_player: DestinyPlayer,
+    role_names_to_ignore: list[str] = None
+) -> tuple[list[discord.Role], list[discord.Role], list[discord.Role], list[discord.Role]]:
     """Returns destiny achievement roles for the player
 
     Returns:
@@ -185,8 +195,8 @@ async def get_player_roles(member: discord.Member, destiny_player: DestinyPlayer
                 if role in role_names_to_ignore or (
                     "replaced_by" in role_data.keys()
                     and any(
-                        [x in role_names_to_ignore for x in role_data["replaced_by"]]
-                    )
+                    [x in role_names_to_ignore for x in role_data["replaced_by"]]
+                )
                 ):
                     roles_to_check.remove(role)
     else:
@@ -289,7 +299,12 @@ async def get_player_roles(member: discord.Member, destiny_player: DestinyPlayer
     return roles_to_add, roles_to_remove, all_roles_earned, all_roles_not_earned
 
 
-async def assignRolesToUser(roleList, discordUser, guild, reason=None):
+async def assignRolesToUser(
+    roleList,
+    discordUser,
+    guild,
+    reason=None
+):
     # takes rolelist as string array, userSnowflake, guild object
     if not discordUser:
         return False
@@ -327,11 +342,16 @@ async def assignRolesToUser(roleList, discordUser, guild, reason=None):
     return True
 
 
-async def removeRolesFromUser(roleStringList, discordUser, guild, reason=None):
+async def removeRolesFromUser(
+    roleStringList,
+    discordUser,
+    guild,
+    reason=None
+):
     for role in roleStringList:
         role_obj = discord.utils.get(guild.roles, name=role) or discord.utils.get(
             guild.roles, id=role
-        ) 
+        )
         if role_obj is None and guild.id not in [556418279015448596, 724676552175910934]:
             print(f"removeable role doesn't exist: {role}")
             continue

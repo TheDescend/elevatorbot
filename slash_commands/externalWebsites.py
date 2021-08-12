@@ -9,7 +9,12 @@ from static.slashCommandOptions import options_user
 
 
 class ExternalWebsitesCommands(commands.Cog):
-    def __init__(self, client):
+
+
+    def __init__(
+        self,
+        client
+    ):
         self.client = client
         self.rrsystem = {
             1: 'xb',
@@ -81,7 +86,12 @@ class ExternalWebsitesCommands(commands.Cog):
             options_user()
         ]
     )
-    async def _website(self, ctx: SlashContext, website, **kwargs):
+    async def _website(
+        self,
+        ctx: SlashContext,
+        website,
+        **kwargs
+    ):
         user = await get_user_obj(ctx, kwargs)
         destiny_player = await DestinyPlayer.from_discord_id(user.id, ctx=ctx)
         if not destiny_player:
@@ -126,5 +136,7 @@ class ExternalWebsitesCommands(commands.Cog):
         await ctx.send(content="⁣", components=components)
 
 
-def setup(client):
+def setup(
+    client
+):
     client.add_cog(ExternalWebsitesCommands(client))

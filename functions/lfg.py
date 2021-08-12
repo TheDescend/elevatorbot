@@ -42,8 +42,11 @@ class LfgMessage:
 
     utc_start_time: datetime = dataclasses.field(init=False)
 
+
     # post init to do list
-    def __post_init__(self):
+    def __post_init__(
+        self
+    ):
         # sets the author as a joined member, if empty otherwise
         if self.joined_members is None:
             self.joined_members = [self.author]
@@ -59,12 +62,20 @@ class LfgMessage:
         self._leave_emoji = self.client.get_emoji(leave_emoji_id)
         self._backup_emoji = self.client.get_emoji(backup_emoji_id)
 
+
     # less than operator to sort the classes by their start time
-    def __lt__(self, other):
+    def __lt__(
+        self,
+        other
+    ):
         return self.start_time < other.start_time
 
+
     # edit start time and sort messages again
-    async def edit_start_time_and_send(self, start_time: datetime.datetime):
+    async def edit_start_time_and_send(
+        self,
+        start_time: datetime.datetime
+    ):
         self.start_time = start_time
         self.utc_start_time = start_time.astimezone(pytz.utc)
 
@@ -74,8 +85,14 @@ class LfgMessage:
         # sort again
         await self.sort_lfg_messages()
 
+
     # add a member
-    async def add_member(self, member: discord.Member, ctx: ComponentContext = None, force_into_joined: bool = False) -> bool:
+    async def add_member(
+        self,
+        member: discord.Member,
+        ctx: ComponentContext = None,
+        force_into_joined: bool = False
+    ) -> bool:
         if (member not in self.joined_members) and (member.id not in self.blacklisted_members):
             if (len(self.joined_members) < self.max_joined_members) or force_into_joined:
                 self.joined_members.append(member)
@@ -91,8 +108,13 @@ class LfgMessage:
             return True
         return False
 
+
     # add a backup or move member to backup
-    async def add_backup(self, member: discord.Member, ctx: ComponentContext = None) -> bool:
+    async def add_backup(
+        self,
+        member: discord.Member,
+        ctx: ComponentContext = None
+    ) -> bool:
         if (member not in self.alternate_members) and (member.id not in self.blacklisted_members):
             self.alternate_members.append(member)
 
@@ -103,8 +125,13 @@ class LfgMessage:
             return True
         return False
 
+
     # remove a member
-    async def remove_member(self, member: discord.Member, ctx: ComponentContext = None) -> bool:
+    async def remove_member(
+        self,
+        member: discord.Member,
+        ctx: ComponentContext = None
+    ) -> bool:
         if member in self.joined_members:
             self.joined_members.remove(member)
 
@@ -118,8 +145,12 @@ class LfgMessage:
             return True
         return False
 
+
     # notifies joined members that the event is about to start
-    async def notify_about_start(self, time_to_start: datetime.timedelta):
+    async def notify_about_start(
+        self,
+        time_to_start: datetime.timedelta
+    ):
         voice_text = "Please start gathering in a voice channel"
 
         # get the voice channel category and make a voice channel
@@ -132,18 +163,22 @@ class LfgMessage:
             for member in self.joined_members:
                 # allow the author to also mute
                 if member == self.author:
-                    permission_overrides.update({
-                        member: discord.PermissionOverwrite(
-                            move_members=True,
-                            mute_members=True,
-                        )
-                    })
+                    permission_overrides.update(
+                        {
+                            member: discord.PermissionOverwrite(
+                                move_members=True,
+                                mute_members=True,
+                            )
+                        }
+                    )
                 else:
-                    permission_overrides.update({
-                        member: discord.PermissionOverwrite(
-                            move_members=True,
-                        )
-                    })
+                    permission_overrides.update(
+                        {
+                            member: discord.PermissionOverwrite(
+                                move_members=True,
+                            )
+                        }
+                    )
 
             self.voice_channel = await voice_category_channel.create_voice_channel(
                 name=voice_channel_name,
@@ -159,7 +194,7 @@ class LfgMessage:
         # prepare embed
         embed = embed_message(
             f"LFG Event - {self.activity}",
-            f"The LFG event with the ID `{self.id}` is going to start in **{int(time_to_start.seconds/60)} minutes**\n{voice_text}",
+            f"The LFG event with the ID `{self.id}` is going to start in **{int(time_to_start.seconds / 60)} minutes**\n{voice_text}",
             "Start Time"
         )
         embed.add_field(name="Guardians", value=", ".join(self.get_joined_members_display_names()), inline=False)
@@ -187,13 +222,16 @@ class LfgMessage:
         await self.dump_to_db()
 
         # wait timedelta + 10 mins
-        await asyncio.sleep(time_to_start.seconds + 60*10)
+        await asyncio.sleep(time_to_start.seconds + 60 * 10)
 
         # remove the post
         await self.delete()
 
+
     # sort all the lfg messages in the guild by start_time
-    async def sort_lfg_messages(self):
+    async def sort_lfg_messages(
+        self
+    ):
         # get all lfg ids
         results = await select_guild_lfg_events(self.guild.id)
 
@@ -219,16 +257,25 @@ class LfgMessage:
             lfg_message.creation_time = creation_time
             await lfg_message.send()
 
+
     # gets the display name of the joined members
-    def get_joined_members_display_names(self) -> list[str]:
+    def get_joined_members_display_names(
+        self
+    ) -> list[str]:
         return [member.mention for member in self.joined_members]
 
+
     # gets the display name of the alternate members
-    def get_alternate_members_display_names(self) -> list[str]:
+    def get_alternate_members_display_names(
+        self
+    ) -> list[str]:
         return [member.mention for member in self.alternate_members]
 
+
     # return the formatted embed
-    def return_embed(self) -> discord.Embed:
+    def return_embed(
+        self
+    ) -> discord.Embed:
         embed = embed_message(
             footer=f"Creator: {self.author.display_name}   |   Your Time",
         )
@@ -271,6 +318,7 @@ class LfgMessage:
 
         return embed
 
+
     # returns the buttons for the message
     @staticmethod
     def return_buttons() -> list:
@@ -294,8 +342,11 @@ class LfgMessage:
             ),
         ]
 
+
     # updates the database entry
-    async def dump_to_db(self):
+    async def dump_to_db(
+        self
+    ):
         await insert_lfg_message(
             lfg_message_id=self.id,
             guild_id=self.guild.id,
@@ -312,8 +363,11 @@ class LfgMessage:
             alternate_members=[member.id for member in self.alternate_members],
         )
 
+
     # (re-) scheduled the event with apscheduler using the lfg_id as event_id
-    async def schedule_event(self):
+    async def schedule_event(
+        self
+    ):
         # try to delete old job
         try:
             self.scheduler.remove_job(str(self.id))
@@ -326,11 +380,17 @@ class LfgMessage:
         now = datetime.datetime.now(tz=datetime.timezone.utc)
         if run_date < now:
             run_date = now
-        self.scheduler.add_job(notify_about_lfg_event_start, 'date', (self.client, self.guild, self.id, timedelta),
-                               run_date=run_date, id=str(self.id))
+        self.scheduler.add_job(
+            notify_about_lfg_event_start, 'date', (self.client, self.guild, self.id, timedelta),
+            run_date=run_date, id=str(self.id)
+        )
+
 
     # send / edit the message in the channel
-    async def send(self, ctx: ComponentContext = None):
+    async def send(
+        self,
+        ctx: ComponentContext = None
+    ):
         embed = self.return_embed()
         buttons = self.return_buttons()
 
@@ -356,8 +416,11 @@ class LfgMessage:
         if first_send:
             await self.sort_lfg_messages()
 
+
     # removes the message and also the database entries
-    async def delete(self):
+    async def delete(
+        self
+    ):
         # delete message
         if self.message:
             await self.message.delete()
@@ -380,7 +443,13 @@ class LfgMessage:
             pass
 
 
-async def get_lfg_message(client: discord.Client, lfg_id: int = None, ctx: SlashContext = None, lfg_message_id: int = None, guild: discord.Guild = None) -> Union[LfgMessage, None]:
+async def get_lfg_message(
+    client: discord.Client,
+    lfg_id: int = None,
+    ctx: SlashContext = None,
+    lfg_message_id: int = None,
+    guild: discord.Guild = None
+) -> Union[LfgMessage, None]:
     assert (ctx or guild), "Either ctx or client need to be specified"
     assert (lfg_id or lfg_message_id), "Either lfg id or message id need to be specified"
 
@@ -388,10 +457,12 @@ async def get_lfg_message(client: discord.Client, lfg_id: int = None, ctx: Slash
     res = await select_lfg_message(lfg_id=lfg_id, lfg_message_id=lfg_message_id)
     if not res:
         if ctx:
-            await ctx.send(hidden=True, embed=embed_message(
-                "Error",
-                f"ID `{lfg_id}` does not exist. Please try again"
-            ))
+            await ctx.send(
+                hidden=True, embed=embed_message(
+                    "Error",
+                    f"ID `{lfg_id}` does not exist. Please try again"
+                )
+            )
         return None
 
     if ctx:
@@ -401,18 +472,22 @@ async def get_lfg_message(client: discord.Client, lfg_id: int = None, ctx: Slash
     # check that the lfg post is in the correct server
     if ctx:
         if ctx.guild != guild:
-            await ctx.send(hidden=True, embed=embed_message(
-                "Error",
-                f"ID `{lfg_id}` belongs to a different server. Please try again"
-            ))
+            await ctx.send(
+                hidden=True, embed=embed_message(
+                    "Error",
+                    f"ID `{lfg_id}` belongs to a different server. Please try again"
+                )
+            )
             return None
 
         # check that the author matches or user has elevated permissions
         if (ctx.author != author) and (not await has_elevated_permissions(ctx.author, ctx.guild)):
-            await ctx.send(hidden=True, embed=embed_message(
-                "Error",
-                f"You do not have permissions to do stuff to the LFG with ID `{lfg_id}`"
-            ))
+            await ctx.send(
+                hidden=True, embed=embed_message(
+                    "Error",
+                    f"You do not have permissions to do stuff to the LFG with ID `{lfg_id}`"
+                )
+            )
             return None
 
     lfg_id = res["id"]
@@ -453,8 +528,15 @@ async def get_lfg_message(client: discord.Client, lfg_id: int = None, ctx: Slash
     return lfg_message
 
 
-async def create_lfg_message(client: discord.Client, guild: discord.Guild, author: discord.Member, activity: str, description: str,
-                             start_time: datetime, max_joined_members: int):
+async def create_lfg_message(
+    client: discord.Client,
+    guild: discord.Guild,
+    author: discord.Member,
+    activity: str,
+    description: str,
+    start_time: datetime,
+    max_joined_members: int
+):
     # get next free id
     lfg_id = await get_next_free_lfg_message_id()
 
@@ -485,9 +567,13 @@ async def create_lfg_message(client: discord.Client, guild: discord.Guild, autho
     await lfg_message.send()
 
 
-async def notify_about_lfg_event_start(client: discord.Client, guild: discord.Guild, lfg_id: int, time_to_start: datetime.timedelta):
+async def notify_about_lfg_event_start(
+    client: discord.Client,
+    guild: discord.Guild,
+    lfg_id: int,
+    time_to_start: datetime.timedelta
+):
     """ DMs the given list of users that the event is about to start """
 
     lfg_message = await get_lfg_message(client, lfg_id, guild=guild)
     await lfg_message.notify_about_start(time_to_start)
-

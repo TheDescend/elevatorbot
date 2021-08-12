@@ -22,7 +22,12 @@ from static.slashCommandConfig import permissions_admin, permissions_kigstn_hali
 
 
 class AdminCommands(commands.Cog):
-    def __init__(self, client):
+
+
+    def __init__(
+        self,
+        client
+    ):
         self.client = client
 
 
@@ -32,11 +37,16 @@ class AdminCommands(commands.Cog):
         default_permission=False,
         permissions=permissions_admin,
     )
-    async def _getnaughtyclanmembers(self, ctx: SlashContext):
-        await ctx.send(hidden=True, embed=embed_message(
-            "Please wait...",
-            "The results will be here in a second"
-        ))
+    async def _getnaughtyclanmembers(
+        self,
+        ctx: SlashContext
+    ):
+        await ctx.send(
+            hidden=True, embed=embed_message(
+                "Please wait...",
+                "The results will be here in a second"
+            )
+        )
 
         # get all clan members discordID
         memberlist = []
@@ -103,11 +113,16 @@ class AdminCommands(commands.Cog):
         default_permission=False,
         permissions=permissions_admin,
     )
-    async def _getapikey(self, ctx: SlashContext):
-        await ctx.send(hidden=True, embed=embed_message(
-            "Your API Key",
-            (await handle_and_return_token(ctx.author.id)).token
-        ))
+    async def _getapikey(
+        self,
+        ctx: SlashContext
+    ):
+        await ctx.send(
+            hidden=True, embed=embed_message(
+                "Your API Key",
+                (await handle_and_return_token(ctx.author.id)).token
+            )
+        )
 
 
     @cog_ext.cog_slash(
@@ -116,11 +131,16 @@ class AdminCommands(commands.Cog):
         default_permission=False,
         permissions=permissions_admin,
     )
-    async def _getUserMatching(self, ctx: SlashContext):
-        await ctx.send(hidden=True, embed=embed_message(
-            "Please wait...",
-            "The results will be here in a second"
-        ))
+    async def _getUserMatching(
+        self,
+        ctx: SlashContext
+    ):
+        await ctx.send(
+            hidden=True, embed=embed_message(
+                "Please wait...",
+                "The results will be here in a second"
+            )
+        )
 
         clanmap = await getNameAndCrossaveNameToHashMapByClanid(CLANID)
         successfulMatches = []
@@ -139,7 +159,10 @@ class AdminCommands(commands.Cog):
                 unsuccessfulMatches.append((steamname, crosssavename, userid))
 
         await ctx.channel.send('SUCCESSFUL MATCHES:')
-        sortedSuccessfulMatches = sorted(successfulMatches, key=lambda pair: pair[2].lower())
+        sortedSuccessfulMatches = sorted(
+            successfulMatches, key=lambda
+                pair: pair[2].lower()
+        )
         successfulMessage = ''
         for (steamname, crosssavename, username) in sortedSuccessfulMatches:
             successfulMessage += f'{username:<30} - {steamname} / {crosssavename}\n'
@@ -182,21 +205,30 @@ class AdminCommands(commands.Cog):
         default_permission=False,
         permissions=permissions_admin,
     )
-    async def _mute(self, ctx: SlashContext, user, hours: int):
+    async def _mute(
+        self,
+        ctx: SlashContext,
+        user,
+        hours: int
+    ):
         await assignRolesToUser([muted_role_id], user, ctx.guild)
 
-        status = await ctx.send(embed=embed_message(
-            "Success",
-            f"Muted {user.mention} for {hours} hours\nI will edit this message once the time is over"
-        ))
+        status = await ctx.send(
+            embed=embed_message(
+                "Success",
+                f"Muted {user.mention} for {hours} hours\nI will edit this message once the time is over"
+            )
+        )
 
-        await asyncio.sleep(hours*60*60)
+        await asyncio.sleep(hours * 60 * 60)
         await removeRolesFromUser([muted_role_id], user, ctx.guild)
 
-        await status.edit(embed=embed_message(
-            "Success",
-            f"{user.mention} is no longer muted"
-        ))
+        await status.edit(
+            embed=embed_message(
+                "Success",
+                f"{user.mention} is no longer muted"
+            )
+        )
 
 
     @cog_ext.cog_slash(
@@ -219,19 +251,27 @@ class AdminCommands(commands.Cog):
         default_permission=False,
         permissions=permissions_admin,
     )
-    async def _reply(self, ctx: SlashContext, message: str, user=None):
+    async def _reply(
+        self,
+        ctx: SlashContext,
+        message: str,
+        user=None
+    ):
         # gets the previous message
         last_ten_messages = (await ctx.channel.history(limit=10).flatten())
 
         if not user:
-            is_bot_dm = lambda previousMessage: previousMessage.author == self.client.user and previousMessage.mentions
+            is_bot_dm = lambda \
+                    previousMessage: previousMessage.author == self.client.user and previousMessage.mentions
             bot_messages = filter(is_bot_dm, last_ten_messages)
-            
+
             if not bot_messages:
-                await ctx.send(embed=embed_message(
-                    "Error",
-                    f'There is not recent DM. Please specify a user'
-                ))
+                await ctx.send(
+                    embed=embed_message(
+                        "Error",
+                        f'There is not recent DM. Please specify a user'
+                    )
+                )
                 return
 
             most_recent = bot_messages[0]
@@ -239,10 +279,12 @@ class AdminCommands(commands.Cog):
             user = mentioned_user
 
         await user.send(message)
-        await ctx.send(embed=embed_message(
-            "Success",
-            f'{ctx.author.name} replied\n`{message}`\nto {user.mention}'
-        ))
+        await ctx.send(
+            embed=embed_message(
+                "Success",
+                f'{ctx.author.name} replied\n`{message}`\nto {user.mention}'
+            )
+        )
 
 
     @cog_ext.cog_slash(
@@ -259,13 +301,19 @@ class AdminCommands(commands.Cog):
         default_permission=False,
         permissions=permissions_admin,
     )
-    async def _rollreaction(self, ctx: SlashContext, draws: int):
+    async def _rollreaction(
+        self,
+        ctx: SlashContext,
+        draws: int
+    ):
         tmessage = (await ctx.channel.history(limit=1).flatten())[0]
         if not tmessage:
-            await ctx.send(hidden=True, embed=embed_message(
-                "Error",
-                "Getting message failed"
-            ))
+            await ctx.send(
+                hidden=True, embed=embed_message(
+                    "Error",
+                    "Getting message failed"
+                )
+            )
             return
 
         reactionlist = tmessage.reactions
@@ -278,16 +326,20 @@ class AdminCommands(commands.Cog):
                 uniqueusers.append(u)
 
         if len(uniqueusers) < draws:
-            await ctx.send(hidden=True, embed=embed_message(
-                "Error",
-                "Not enough reactions found"
-            ))
+            await ctx.send(
+                hidden=True, embed=embed_message(
+                    "Error",
+                    "Not enough reactions found"
+                )
+            )
             return
         winners = [winner.mention for winner in random.sample(uniqueusers, draws)]
-        await ctx.send(embed=embed_message(
-            "Draw Result",
-            f"Selected users {', '.join(winners)}"
-        ))
+        await ctx.send(
+            embed=embed_message(
+                "Draw Result",
+                f"Selected users {', '.join(winners)}"
+            )
+        )
 
 
     @cog_ext.cog_slash(
@@ -316,12 +368,21 @@ class AdminCommands(commands.Cog):
         default_permission=False,
         permissions=permissions_admin,
     )
-    async def _getuserinfo(self, ctx: SlashContext, discorduser=None, destinyid: str = None, fuzzyname: str = None):
-        if (not (discorduser or destinyid or fuzzyname)) or (discorduser and destinyid) or (discorduser and fuzzyname) or (destinyid and fuzzyname) or (destinyid and discorduser and fuzzyname):
-            await ctx.send(hidden=True, embed=embed_message(
-                "Error",
-                "Exactly one of the arguments must be used"
-            ))
+    async def _getuserinfo(
+        self,
+        ctx: SlashContext,
+        discorduser=None,
+        destinyid: str = None,
+        fuzzyname: str = None
+    ):
+        if (not (discorduser or destinyid or fuzzyname)) or (discorduser and destinyid) or (discorduser and fuzzyname) or (destinyid and fuzzyname) or (
+            destinyid and discorduser and fuzzyname):
+            await ctx.send(
+                hidden=True, embed=embed_message(
+                    "Error",
+                    "Exactly one of the arguments must be used"
+                )
+            )
             return
         await ctx.defer()
 
@@ -330,19 +391,23 @@ class AdminCommands(commands.Cog):
             try:
                 destinyid = int(destinyid)
             except ValueError:
-                await ctx.send(embed=embed_message(
-                    "Error",
-                    f"DestinyID must be a number"
-                ))
+                await ctx.send(
+                    embed=embed_message(
+                        "Error",
+                        f"DestinyID must be a number"
+                    )
+                )
                 return
 
             destiny_player = await DestinyPlayer.from_destiny_id(destinyid)
             mentioned_user = destiny_player.get_discord_member(ctx.guild)
             if not mentioned_user:
-                await ctx.send(embed=embed_message(
-                    "Error",
-                    f"I don't know a user with the destinyID `{destiny_player.destiny_id}`"
-                ))
+                await ctx.send(
+                    embed=embed_message(
+                        "Error",
+                        f"I don't know a user with the destinyID `{destiny_player.destiny_id}`"
+                    )
+                )
                 return
 
         # if destiny id is given
@@ -350,10 +415,12 @@ class AdminCommands(commands.Cog):
             mentioned_user = discorduser
             destiny_player = await DestinyPlayer.from_discord_id(mentioned_user.id)
             if not destiny_player:
-                await ctx.send(embed=embed_message(
-                    "Error",
-                    f"I don't know a user with the discordID `{mentioned_user.id}`"
-                ))
+                await ctx.send(
+                    embed=embed_message(
+                        "Error",
+                        f"I don't know a user with the discordID `{mentioned_user.id}`"
+                    )
+                )
                 return
 
         title = f'Database Infos for {mentioned_user.display_name}'
@@ -368,16 +435,19 @@ class AdminCommands(commands.Cog):
         if fuzzyname:
             clansearch = []
             returnjson = await get_json_from_url(
-                f"https://www.bungie.net/Platform/GroupV2/{CLANID}/Members?nameSearch={fuzzyname}")
+                f"https://www.bungie.net/Platform/GroupV2/{CLANID}/Members?nameSearch={fuzzyname}"
+            )
             clansearch.append(returnjson)
 
             for result in clansearch:
                 resp = result.content['Response']
                 if not resp['results']:
-                    await ctx.send(embed=embed_message(
-                        f'Error',
-                        f"No matches found for `{fuzzyname}`"
-                    ))
+                    await ctx.send(
+                        embed=embed_message(
+                            f'Error',
+                            f"No matches found for `{fuzzyname}`"
+                        )
+                    )
                     return
 
                 i = 0
@@ -393,8 +463,14 @@ class AdminCommands(commands.Cog):
 
 
 class PersistentMessagesCommands(commands.Cog):
-    def __init__(self, client):
+
+
+    def __init__(
+        self,
+        client
+    ):
         self.client = client
+
 
     @cog_ext.cog_slash(
         name="channel",
@@ -457,16 +533,21 @@ class PersistentMessagesCommands(commands.Cog):
                 ],
             ),
             create_option(
-                 name="channel",
-                 description="Which channel to the message should be in",
-                 option_type=7,
-                 required=True
+                name="channel",
+                description="Which channel to the message should be in",
+                option_type=7,
+                required=True
             )
         ],
         default_permission=False,
         permissions=permissions_admin,
     )
-    async def _channel(self, ctx: SlashContext, channel_type, channel):
+    async def _channel(
+        self,
+        ctx: SlashContext,
+        channel_type,
+        channel
+    ):
         if channel_type == "othergameroles":
             embed = embed_message(
                 f'Other Game Roles',
@@ -574,9 +655,10 @@ On your command, I can start a private PvP tournament for all the masochist in t
 
             enter_emoji = ctx.bot.get_emoji(enter_emoji_id)
             circle_emoji = ctx.bot.get_emoji(circle_emoji_id)
-            await channel.send(embed=embed_message(
-                "How to make an LFG post",
-                f"""
+            await channel.send(
+                embed=embed_message(
+                    "How to make an LFG post",
+                    f"""
 Hello fellow humans, and welcome to this easy, 465 steps, guide:
 ⁣
 {str(circle_emoji)} **Step 1:**
@@ -603,8 +685,9 @@ If you want to feel like an [expert](https://www.youtube.com/watch?v=BKorP55Aqvg
 ⁣
 ⁣
 Basically just type `/lfg` and look around. There are many other cool commands too, so maybe just type `/`""",
-                "If you find bugs or have feature requests, DM me"
-            ))
+                    "If you find bugs or have feature requests, DM me"
+                )
+            )
 
         elif channel_type == "botstatus":
             embed = embed_message(
@@ -620,11 +703,12 @@ Basically just type `/lfg` and look around. There are many other cool commands t
         elif channel_type == "rss":
             await make_persistent_message(self.client, "rss", ctx.guild.id, channel.id, no_message=True)
 
-
-        await ctx.send(hidden=True, embed=embed_message(
-            f"Success",
-            f"I've done as you asked"
-        ))
+        await ctx.send(
+            hidden=True, embed=embed_message(
+                f"Success",
+                f"I've done as you asked"
+            )
+        )
 
 
     @cog_ext.cog_slash(
@@ -633,7 +717,10 @@ Basically just type `/lfg` and look around. There are many other cool commands t
         default_permission=False,
         permissions=permissions_kigstn_hali,
     )
-    async def _update_db(self, ctx: SlashContext):
+    async def _update_db(
+        self,
+        ctx: SlashContext
+    ):
         print("Start updating DB...")
         message = await ctx.send("Forcing DB update, this is gonna take a while. Will let you know once done")
 
@@ -648,15 +735,14 @@ Basically just type `/lfg` and look around. There are many other cool commands t
                     to_update.append(destiny_player)
 
         # update all users in a gather for zooms
-        await asyncio.gather(*[
-            destiny_player.update_activity_db(entry_time=datetime.datetime.min)
-            for destiny_player in to_update
-        ])
+        await asyncio.gather(
+            *[
+                destiny_player.update_activity_db(entry_time=datetime.datetime.min)
+                for destiny_player in to_update
+            ]
+        )
 
         await message.reply("Done with the DB update")
-
-
-
 
     # @cog_ext.cog_slash(
     #     name="test",
@@ -678,6 +764,8 @@ Basically just type `/lfg` and look around. There are many other cool commands t
     #     await button_ctx.edit_origin(content="edited", components=None)
 
 
-def setup(client):
+def setup(
+    client
+):
     client.add_cog(AdminCommands(client))
     client.add_cog(PersistentMessagesCommands(client))

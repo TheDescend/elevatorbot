@@ -8,6 +8,7 @@ from networking.models import WebResponse
 from networking.networkBackend import get_request, post_request
 from static.config import BUNGIE_TOKEN
 
+
 # base bungie headers
 HEADERS = {
     'X-API-Key': BUNGIE_TOKEN,
@@ -28,7 +29,12 @@ no_token_response = WebResponse(
 no_token_response.error = "NoToken"
 
 
-async def get_json_from_url(url: str, headers: dict = None, params: dict = None, use_cache: bool = True) -> WebResponse:
+async def get_json_from_url(
+    url: str,
+    headers: dict = None,
+    params: dict = None,
+    use_cache: bool = True
+) -> WebResponse:
     """
     Grabs JSON from the specified URL (no oauth)
     """
@@ -62,7 +68,13 @@ async def get_json_from_url(url: str, headers: dict = None, params: dict = None,
                 )
 
 
-async def get_json_from_bungie_with_token(url: str, discord_id: int, headers: dict = None, params: dict = None, use_cache: bool = True) -> WebResponse:
+async def get_json_from_bungie_with_token(
+    url: str,
+    discord_id: int,
+    headers: dict = None,
+    params: dict = None,
+    use_cache: bool = True
+) -> WebResponse:
     """
     Takes url and discordID, returns dict with [token] = JSON
     """
@@ -75,9 +87,11 @@ async def get_json_from_bungie_with_token(url: str, discord_id: int, headers: di
 
     # use special token headers or the supplied ones
     if not headers:
-        headers = HEADERS.copy().update({
-            'Authorization': f'Bearer {token.token}',
-        })
+        headers = HEADERS.copy().update(
+            {
+                'Authorization': f'Bearer {token.token}',
+            }
+        )
 
     # ignore cookies
     no_jar = aiohttp.DummyCookieJar()
@@ -105,7 +119,13 @@ async def get_json_from_bungie_with_token(url: str, discord_id: int, headers: di
                 )
 
 
-async def post_json_to_url(url: str, data: dict, discord_id: int, headers: dict = None, params: dict = None) -> WebResponse:
+async def post_json_to_url(
+    url: str,
+    data: dict,
+    discord_id: int,
+    headers: dict = None,
+    params: dict = None
+) -> WebResponse:
     """
     Post info to bungie
     Parm discord_id must have the authentication for the action
@@ -119,9 +139,11 @@ async def post_json_to_url(url: str, data: dict, discord_id: int, headers: dict 
 
     # use special token headers or the supplied ones
     if not headers:
-        headers = HEADERS.copy().update({
-            'Authorization': f'Bearer {token.token}',
-        })
+        headers = HEADERS.copy().update(
+            {
+                'Authorization': f'Bearer {token.token}',
+            }
+        )
 
     async with aiohttp_client_cache.CachedSession(cache=cache) as session:
         # do not use cache here

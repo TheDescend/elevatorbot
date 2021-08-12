@@ -9,6 +9,7 @@ import aiohttp_client_cache
 from networking.bungieRatelimiting import BungieRateLimiter
 from networking.models import WebResponse
 
+
 # get logger
 logger = logging.getLogger('network')
 
@@ -19,7 +20,13 @@ bungie_limiter = BungieRateLimiter()
 max_web_request_tries = 10
 
 
-async def get_request(session: Union[aiohttp_client_cache.CachedSession, aiohttp.ClientSession], url: str, headers: dict = None, params: dict = None, bungie_request: bool = True) -> WebResponse:
+async def get_request(
+    session: Union[aiohttp_client_cache.CachedSession, aiohttp.ClientSession],
+    url: str,
+    headers: dict = None,
+    params: dict = None,
+    bungie_request: bool = True
+) -> WebResponse:
     """
     Makes a get request to the specified url
     Returns instance of WebResponse()
@@ -70,7 +77,14 @@ async def get_request(session: Union[aiohttp_client_cache.CachedSession, aiohttp
     return no_response
 
 
-async def post_request(session: Union[aiohttp_client_cache.CachedSession, aiohttp.ClientSession], url: str, data: dict, headers: dict = None, params: dict = None, bungie_request: bool = True) -> WebResponse:
+async def post_request(
+    session: Union[aiohttp_client_cache.CachedSession, aiohttp.ClientSession],
+    url: str,
+    data: dict,
+    headers: dict = None,
+    params: dict = None,
+    bungie_request: bool = True
+) -> WebResponse:
     """
     Makes a post request to the specified url
     Returns instance of WebResponse()
@@ -123,7 +137,10 @@ async def post_request(session: Union[aiohttp_client_cache.CachedSession, aiohtt
     return no_response
 
 
-async def handle_request_data(request: Union[aiohttp.ClientResponse, aiohttp_client_cache.CachedResponse], url: str) -> Optional[WebResponse]:
+async def handle_request_data(
+    request: Union[aiohttp.ClientResponse, aiohttp_client_cache.CachedResponse],
+    url: str
+) -> Optional[WebResponse]:
     """
     Handle the request results
     """
@@ -179,7 +196,10 @@ async def handle_request_data(request: Union[aiohttp.ClientResponse, aiohttp_cli
         return response
 
 
-async def handle_bungie_errors(url: str, response: WebResponse) -> bool:
+async def handle_bungie_errors(
+    url: str,
+    response: WebResponse
+) -> bool:
     """
     Looks for typical bungie errors and handles / logs them
     Returns: if_loop_should_be_stopped: bool
@@ -209,7 +229,10 @@ async def handle_bungie_errors(url: str, response: WebResponse) -> bool:
     elif response.error == "PerEndpointRequestThrottleExceeded" or response.error == "DestinyDirectBabelClientTimeout":
         throttle_seconds = response.content['ErrorStatus']["ThrottleSeconds"]
 
-        logger.warning("'%s - %s': Getting throttled, waiting '%s' for '%s' - '%s'", response.status, response.error, throttle_seconds or 'for Babel', url, response.error_message)
+        logger.warning(
+            "'%s - %s': Getting throttled, waiting '%s' for '%s' - '%s'", response.status, response.error, throttle_seconds or 'for Babel', url,
+            response.error_message
+        )
         await asyncio.sleep(throttle_seconds + random.randrange(1, 3))
 
     # if user doesn't have that item
@@ -234,7 +257,10 @@ async def handle_bungie_errors(url: str, response: WebResponse) -> bool:
 
     # user has disallowed clan invites
     elif response.error == "AuthorizationRecordRevoked":
-        logger.error("'%s - %s': User refresh token is outdated and they need to re-register for '%s' - '%s'", response.status, response.error, url, response.error_message)
+        logger.error(
+            "'%s - %s': User refresh token is outdated and they need to re-register for '%s' - '%s'", response.status, response.error, url,
+            response.error_message
+        )
         return True
 
     else:

@@ -10,12 +10,20 @@ from functions.persistentMessages import get_persistent_message_or_channel, bot_
 
 class RssFeedChecker(BaseEvent):
     """Will check for new Bungie Articles"""
-    def __init__(self):
+
+
+    def __init__(
+        self
+    ):
         # Set the interval for this event
         interval_minutes = 5
         super().__init__(scheduler_type="interval", interval_minutes=interval_minutes)
 
-    async def run(self, client: discord.Client):
+
+    async def run(
+        self,
+        client: discord.Client
+    ):
         feed = feedparser.parse('https://www.bungie.net/en/rss/News')
 
         # loop through the articles and check if they have been published

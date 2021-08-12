@@ -13,6 +13,7 @@ from functions.formating import embed_message
 from functions.lfg import create_lfg_message, get_lfg_message
 from static.slashCommandOptions import options_user
 
+
 timezones_dict = {
     "GMT / UTC": "UTC",
     "Central Europe": "Europe/Berlin",
@@ -30,8 +31,13 @@ class LfgCommands(commands.Cog):
         "You took too long. If you weren't finished, please try again. \nI can give you my grandmas phone number, her doing the typing might make it a bit faster 🙃"
     )
 
-    def __init__(self, client):
+
+    def __init__(
+        self,
+        client
+    ):
         self.client = client
+
 
     @cog_ext.cog_subcommand(
         base="lfg",
@@ -65,25 +71,35 @@ class LfgCommands(commands.Cog):
             ),
         ],
     )
-    async def _create(self, ctx: SlashContext, start_time, timezone, overwrite_max_members=None):
+    async def _create(
+        self,
+        ctx: SlashContext,
+        start_time,
+        timezone,
+        overwrite_max_members=None
+    ):
         # get start time
         try:
             start_time = dateutil.parser.parse(start_time, dayfirst=True)
         except dateutil.parser.ParserError:
-            await ctx.send(hidden=True, embed=embed_message(
-                "Error",
-                "There was an error with the formatting of the time parameters. Please try again"
-            ))
+            await ctx.send(
+                hidden=True, embed=embed_message(
+                    "Error",
+                    "There was an error with the formatting of the time parameters. Please try again"
+                )
+            )
             return
         tz = pytz.timezone(timezone)
         start_time = tz.localize(start_time)
 
         # make sure thats in the future
         if start_time < datetime.datetime.now(datetime.timezone.utc):
-            await ctx.send(hidden=True, embed=embed_message(
-                "Error",
-                "The event cannot start in the past. Please try again"
-            ))
+            await ctx.send(
+                hidden=True, embed=embed_message(
+                    "Error",
+                    "The event cannot start in the past. Please try again"
+                )
+            )
             return
 
         activity = "Easter Egg Search"
@@ -216,14 +232,20 @@ class LfgCommands(commands.Cog):
 
             # Other
             elif button_ctx.component["label"] == "Other":
-                await button_ctx.edit_origin(components=None, embed=embed_message(
-                    "Activity Name",
-                    "Please enter a name"
-                ))
+                await button_ctx.edit_origin(
+                    components=None, embed=embed_message(
+                        "Activity Name",
+                        "Please enter a name"
+                    )
+                )
+
 
                 # wait 60s for message
-                def check(answer_msg):
+                def check(
+                    answer_msg
+                ):
                     return answer_msg.author == ctx.author and answer_msg.channel == message.channel
+
 
                 try:
                     answer_msg = await self.client.wait_for('message', timeout=60.0, check=check)
@@ -241,14 +263,20 @@ class LfgCommands(commands.Cog):
             max_joined_members = int(overwrite_max_members)
 
         # get the description
-        await message.edit(components=None, embed=embed_message(
-            "Description",
-            "Please enter a description"
-        ))
+        await message.edit(
+            components=None, embed=embed_message(
+                "Description",
+                "Please enter a description"
+            )
+        )
+
 
         # wait 60s for message
-        def check(answer_msg):
+        def check(
+            answer_msg
+        ):
             return answer_msg.author == ctx.author and answer_msg.channel == message.channel
+
 
         try:
             answer_msg = await self.client.wait_for('message', timeout=60.0, check=check)
@@ -262,10 +290,13 @@ class LfgCommands(commands.Cog):
         # create and post the lfg message
         await create_lfg_message(ctx.bot, ctx.guild, ctx.author, activity, description, start_time, max_joined_members)
 
-        await message.edit(embed=embed_message(
-            f"Success",
-            f"I've created the post"
-        ))
+        await message.edit(
+            embed=embed_message(
+                f"Success",
+                f"I've created the post"
+            )
+        )
+
 
     @cog_ext.cog_subcommand(
         base="lfg",
@@ -305,7 +336,12 @@ class LfgCommands(commands.Cog):
             ),
         ],
     )
-    async def _edit(self, ctx: SlashContext, lfg_id, section):
+    async def _edit(
+        self,
+        ctx: SlashContext,
+        lfg_id,
+        section
+    ):
         # get the message obj
         lfg_message = await get_lfg_message(ctx.bot, lfg_id, ctx)
         if not lfg_message:
@@ -314,14 +350,20 @@ class LfgCommands(commands.Cog):
         # might take a sec
         await ctx.defer()
 
-        def check(answer_msg):
+
+        def check(
+            answer_msg
+        ):
             return answer_msg.author == ctx.author and answer_msg.channel == ctx.channel
 
+
         if section == "Activity":
-            message = await ctx.send(embed=embed_message(
-                "Activity Name",
-                "Please enter a new name"
-            ))
+            message = await ctx.send(
+                embed=embed_message(
+                    "Activity Name",
+                    "Please enter a new name"
+                )
+            )
 
             # wait 60s for message
             try:
@@ -337,10 +379,12 @@ class LfgCommands(commands.Cog):
                 await answer_msg.delete()
 
         elif section == "Description":
-            message = await ctx.send(embed=embed_message(
-                "Description",
-                "Please enter a new description"
-            ))
+            message = await ctx.send(
+                embed=embed_message(
+                    "Description",
+                    "Please enter a new description"
+                )
+            )
 
             # wait 60s for message
             try:
@@ -356,10 +400,12 @@ class LfgCommands(commands.Cog):
                 await answer_msg.delete()
 
         elif section == "Start Time":
-            message = await ctx.send(embed=embed_message(
-                "Start Time",
-                "Please enter a new start time like this \n`HH:MM DD/MM`"
-            ))
+            message = await ctx.send(
+                embed=embed_message(
+                    "Start Time",
+                    "Please enter a new start time like this \n`HH:MM DD/MM`"
+                )
+            )
 
             # wait 60s for message
             try:
@@ -372,10 +418,12 @@ class LfgCommands(commands.Cog):
                 try:
                     start_time = dateutil.parser.parse(answer_msg.content, dayfirst=True)
                 except dateutil.parser.ParserError:
-                    await message.edit(embed=embed_message(
-                        "Error",
-                        "There was an error with the formatting of the time parameters, please try again"
-                    ))
+                    await message.edit(
+                        embed=embed_message(
+                            "Error",
+                            "There was an error with the formatting of the time parameters, please try again"
+                        )
+                    )
                     await answer_msg.delete()
                     return
                 await answer_msg.delete()
@@ -406,9 +454,14 @@ class LfgCommands(commands.Cog):
 
                 await message.edit(components=components, embed=embed)
 
+
                 # wait 60s for selection
-                def check(select_ctx: ComponentContext):
+                def check(
+                    select_ctx: ComponentContext
+                ):
                     return select_ctx.author == ctx.author
+
+
                 try:
                     select_ctx: ComponentContext = await manage_components.wait_for_component(ctx.bot, components=components, timeout=60, check=check)
                 except asyncio.TimeoutError:
@@ -423,25 +476,31 @@ class LfgCommands(commands.Cog):
 
                     # make sure thats in the future
                     if start_time < datetime.datetime.now(datetime.timezone.utc):
-                        await select_ctx.edit_origin(components=None, embed=embed_message(
-                            "Error",
-                            "The event cannot start in the past. Please try again"
-                        ))
+                        await select_ctx.edit_origin(
+                            components=None, embed=embed_message(
+                                "Error",
+                                "The event cannot start in the past. Please try again"
+                            )
+                        )
                         return
 
                     # edit the message
                     await lfg_message.edit_start_time_and_send(start_time)
-                    await select_ctx.edit_origin(components=None, embed=embed_message(
-                        f"Success",
-                        f"I've edited the post"
-                    ))
+                    await select_ctx.edit_origin(
+                        components=None, embed=embed_message(
+                            f"Success",
+                            f"I've edited the post"
+                        )
+                    )
                     return
 
-        else:   # section == "Maximum Members":
-            message = await ctx.send(embed=embed_message(
-                "Maximum Members",
-                "Please enter the new maximum members"
-            ))
+        else:  # section == "Maximum Members":
+            message = await ctx.send(
+                embed=embed_message(
+                    "Maximum Members",
+                    "Please enter the new maximum members"
+                )
+            )
 
             # wait 60s for message
             try:
@@ -454,24 +513,27 @@ class LfgCommands(commands.Cog):
                 try:
                     lfg_message.max_joined_members = int(answer_msg.content)
                 except ValueError:
-                    await message.edit(embed=embed_message(
-                        "Error",
-                        f"`{answer_msg.content}` is not a number. Please try again"
-                    ))
+                    await message.edit(
+                        embed=embed_message(
+                            "Error",
+                            f"`{answer_msg.content}` is not a number. Please try again"
+                        )
+                    )
                     await answer_msg.delete()
                     return
 
                 # delete old msgs
                 await answer_msg.delete()
 
-
         # resend msg
         await lfg_message.send()
 
-        await message.edit(embed=embed_message(
-            f"Success",
-            f"I've edited the post"
-        ))
+        await message.edit(
+            embed=embed_message(
+                f"Success",
+                f"I've edited the post"
+            )
+        )
 
 
     @cog_ext.cog_subcommand(
@@ -488,17 +550,23 @@ class LfgCommands(commands.Cog):
             ),
         ],
     )
-    async def _remove(self, ctx: SlashContext, lfg_id):
+    async def _remove(
+        self,
+        ctx: SlashContext,
+        lfg_id
+    ):
         # get the message obj
         lfg_message = await get_lfg_message(ctx.bot, lfg_id, ctx)
         if not lfg_message:
             return
 
         await lfg_message.delete()
-        await ctx.send(hidden=True, embed=embed_message(
-            "Success",
-            f"The LFG post with the id `{lfg_id}` has been deleted"
-        ))
+        await ctx.send(
+            hidden=True, embed=embed_message(
+                "Success",
+                f"The LFG post with the id `{lfg_id}` has been deleted"
+            )
+        )
 
 
     @cog_ext.cog_subcommand(
@@ -516,22 +584,31 @@ class LfgCommands(commands.Cog):
             options_user(flavor_text="The user you want to add", required=True)
         ],
     )
-    async def _add(self, ctx: SlashContext, lfg_id, user):
+    async def _add(
+        self,
+        ctx: SlashContext,
+        lfg_id,
+        user
+    ):
         # get the message obj
         lfg_message = await get_lfg_message(ctx.bot, lfg_id, ctx)
         if not lfg_message:
             return
 
         if await lfg_message.add_member(user, force_into_joined=True):
-            await ctx.send(hidden=True, embed=embed_message(
-                "Success",
-                f"{user.display_name} has been added to the LFG post with the id `{lfg_id}`"
-            ))
+            await ctx.send(
+                hidden=True, embed=embed_message(
+                    "Success",
+                    f"{user.display_name} has been added to the LFG post with the id `{lfg_id}`"
+                )
+            )
         else:
-            await ctx.send(hidden=True, embed=embed_message(
-                "Error",
-                f"{user.display_name} could not be added to the LFG post with the id `{lfg_id}`, because they are already in it or they are blacklisted by the creator"
-            ))
+            await ctx.send(
+                hidden=True, embed=embed_message(
+                    "Error",
+                    f"{user.display_name} could not be added to the LFG post with the id `{lfg_id}`, because they are already in it or they are blacklisted by the creator"
+                )
+            )
 
 
     @cog_ext.cog_subcommand(
@@ -549,22 +626,31 @@ class LfgCommands(commands.Cog):
             options_user(flavor_text="The user you want to add", required=True)
         ],
     )
-    async def _kick(self, ctx: SlashContext, lfg_id, user):
+    async def _kick(
+        self,
+        ctx: SlashContext,
+        lfg_id,
+        user
+    ):
         # get the message obj
         lfg_message = await get_lfg_message(ctx.bot, lfg_id, ctx)
         if not lfg_message:
             return
 
         if await lfg_message.remove_member(user):
-            await ctx.send(hidden=True, embed=embed_message(
-                "Success",
-                f"{user.display_name} has been removed from the LFG post with the id `{lfg_id}`"
-            ))
+            await ctx.send(
+                hidden=True, embed=embed_message(
+                    "Success",
+                    f"{user.display_name} has been removed from the LFG post with the id `{lfg_id}`"
+                )
+            )
         else:
-            await ctx.send(hidden=True, embed=embed_message(
-                "Error",
-                f"{user.display_name} could not be remove from the LFG post with the id `{lfg_id}`, because they are not in it"
-            ))
+            await ctx.send(
+                hidden=True, embed=embed_message(
+                    "Error",
+                    f"{user.display_name} could not be remove from the LFG post with the id `{lfg_id}`, because they are not in it"
+                )
+            )
 
 
     @cog_ext.cog_subcommand(
@@ -592,28 +678,41 @@ class LfgCommands(commands.Cog):
             options_user(flavor_text="The user you want to add / remove", required=True)
         ],
     )
-    async def _blacklist(self, ctx: SlashContext, action, user):
+    async def _blacklist(
+        self,
+        ctx: SlashContext,
+        action,
+        user
+    ):
         if action == "Blacklist":
             if ctx.author == user:
-                await ctx.send(hidden=True, embed=embed_message(
-                    "Error",
-                    f"Mate, you cannot blacklist yourself. That is just stupid"
-                ))
+                await ctx.send(
+                    hidden=True, embed=embed_message(
+                        "Error",
+                        f"Mate, you cannot blacklist yourself. That is just stupid"
+                    )
+                )
                 return
 
             await add_lfg_blacklisted_member(ctx.author.id, user.id)
-            await ctx.send(hidden=True, embed=embed_message(
-                "Success",
-                f"{user.display_name} has been added to your personal blacklist and will not be able to join your events"
-            ))
+            await ctx.send(
+                hidden=True, embed=embed_message(
+                    "Success",
+                    f"{user.display_name} has been added to your personal blacklist and will not be able to join your events"
+                )
+            )
 
         elif action == "Un-Blacklist":
             await remove_lfg_blacklisted_member(ctx.author.id, user.id)
-            await ctx.send(hidden=True, embed=embed_message(
-                "Success",
-                f"{user.display_name} has been removed from your personal blacklist and will be able to join your events again"
-            ))
+            await ctx.send(
+                hidden=True, embed=embed_message(
+                    "Success",
+                    f"{user.display_name} has been removed from your personal blacklist and will be able to join your events again"
+                )
+            )
 
 
-def setup(client):
+def setup(
+    client
+):
     client.add_cog(LfgCommands(client))

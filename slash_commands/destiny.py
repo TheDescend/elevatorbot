@@ -43,14 +43,22 @@ from static.slashCommandOptions import choices_mode, options_stat, options_user
 
 
 class DestinyCommands(commands.Cog):
-    def __init__(self, client):
+
+
+    def __init__(
+        self,
+        client
+    ):
         self.client = client
         self.classes = {
             "Warlock": warlock_emoji_id,
             "Hunter": hunter_emoji_id,
             "Titan": titan_emoji_id,
         }
-        self.season_and_expansion_dates = sorted(expansion_dates + season_dates, key=lambda x: x[0])
+        self.season_and_expansion_dates = sorted(
+            expansion_dates + season_dates, key=lambda
+                x: x[0]
+        )
         self.other_dates = [
             ["2019-10-04", "GoS"],
             ["2019-10-29", "PoH"],
@@ -67,6 +75,7 @@ class DestinyCommands(commands.Cog):
             ["2021-05-22", "VoG"],
         ]
 
+
     @cog_ext.cog_slash(
         name="solos",
         description="Shows you an overview of your Destiny 2 solo activity completions",
@@ -74,7 +83,11 @@ class DestinyCommands(commands.Cog):
             options_user()
         ],
     )
-    async def _solos(self, ctx: SlashContext, **kwargs):
+    async def _solos(
+        self,
+        ctx: SlashContext,
+        **kwargs
+    ):
         user = await get_user_obj(ctx, kwargs)
         destiny_player = await DestinyPlayer.from_discord_id(user.id, ctx=ctx)
         if not destiny_player:
@@ -95,12 +108,14 @@ class DestinyCommands(commands.Cog):
         }
 
         # get the return text in a gather
-        interesting_solos_texts = await asyncio.gather(*[
-            self.get_formatted_solos_data(
-                destiny_player=destiny_player,
-                solo_activity_ids=solo_activity_ids,
-            ) for solo_activity_ids in interesting_solos.values()
-        ])
+        interesting_solos_texts = await asyncio.gather(
+            *[
+                self.get_formatted_solos_data(
+                    destiny_player=destiny_player,
+                    solo_activity_ids=solo_activity_ids,
+                ) for solo_activity_ids in interesting_solos.values()
+            ]
+        )
 
         # start building the return embed
         embed = embed_message(
@@ -119,7 +134,10 @@ class DestinyCommands(commands.Cog):
 
 
     @staticmethod
-    async def get_formatted_solos_data(destiny_player: DestinyPlayer, solo_activity_ids: list[int]) -> str:
+    async def get_formatted_solos_data(
+        destiny_player: DestinyPlayer,
+        solo_activity_ids: list[int]
+    ) -> str:
         """ returns the formatted string to be used in self.solos() """
 
         results = await destiny_player.get_lowman_count(solo_activity_ids)
@@ -158,7 +176,11 @@ class DestinyCommands(commands.Cog):
             options_user()
         ],
     )
-    async def _time(self, ctx: SlashContext, **kwargs):
+    async def _time(
+        self,
+        ctx: SlashContext,
+        **kwargs
+    ):
         user = await get_user_obj(ctx, kwargs)
         destiny_player = await DestinyPlayer.from_discord_id(user.id, ctx=ctx)
         if not destiny_player:
@@ -199,22 +221,32 @@ class DestinyCommands(commands.Cog):
             except IndexError:
                 next_season_date = datetime.datetime.now()
 
-            args.update({
-                "start_time": season_date,
-                "end_time": next_season_date,
-            })
+            args.update(
+                {
+                    "start_time": season_date,
+                    "end_time": next_season_date,
+                }
+            )
 
             # loop through the modes
-            for mode_name, mode in {"Total": None, "PvE": 7, "PvP": 5}.items():
-                args.update({
-                    "mode": mode
-                })
+            for mode_name, mode in {
+                "Total": None,
+                "PvE": 7,
+                "PvP": 5
+            }.items():
+                args.update(
+                    {
+                        "mode": mode
+                    }
+                )
 
                 # actually get time played now, using the definied args
                 time_played = await getTimePlayed(**args)
-                results[season_name].update({
-                    mode_name: time_played
-                })
+                results[season_name].update(
+                    {
+                        mode_name: time_played
+                    }
+                )
 
         # loop through the results and add embed fields
         for season_name, season_values in results.items():
@@ -234,7 +266,10 @@ class DestinyCommands(commands.Cog):
         name="poptimeline",
         description="Shows the Destiny 2 steam population timeline",
     )
-    async def _poptimeline(self, ctx: SlashContext):
+    async def _poptimeline(
+        self,
+        ctx: SlashContext
+    ):
         # reading data from the DB
         data = await get_d2_steam_player_info()
 
@@ -258,15 +293,24 @@ class DestinyCommands(commands.Cog):
         for dates in self.season_and_expansion_dates[7:]:
             date = datetime.datetime.strptime(dates[0], '%Y-%m-%d')
             ax.axvline(date, color="darkgreen", zorder=1)
-            ax.text(date + datetime.timedelta(days=2), (max(data['numberofplayers']) - min(data['numberofplayers'])) * 1.02 + min(data['numberofplayers']), dates[1], color="darkgreen", fontweight="bold", bbox=dict(facecolor='white', edgecolor='darkgreen', pad=4, zorder=3))
+            ax.text(
+                date + datetime.timedelta(days=2), (max(data['numberofplayers']) - min(data['numberofplayers'])) * 1.02 + min(data['numberofplayers']),
+                dates[1], color="darkgreen", fontweight="bold", bbox=dict(facecolor='white', edgecolor='darkgreen', pad=4, zorder=3)
+            )
         for dates in self.other_dates:
             date = datetime.datetime.strptime(dates[0], '%Y-%m-%d')
             ax.axvline(date, color="mediumaquamarine", zorder=1)
-            ax.text(date + datetime.timedelta(days=2), (max(data['numberofplayers']) - min(data['numberofplayers'])) * 0.95 + min(data['numberofplayers']), dates[1], color="mediumaquamarine", bbox=dict(facecolor='white', edgecolor='mediumaquamarine', boxstyle='round', zorder=3))
+            ax.text(
+                date + datetime.timedelta(days=2), (max(data['numberofplayers']) - min(data['numberofplayers'])) * 0.95 + min(data['numberofplayers']),
+                dates[1], color="mediumaquamarine", bbox=dict(facecolor='white', edgecolor='mediumaquamarine', boxstyle='round', zorder=3)
+            )
         for dates in self.other_dates_lower:
             date = datetime.datetime.strptime(dates[0], '%Y-%m-%d')
             ax.axvline(date, color="mediumaquamarine", zorder=1)
-            ax.text(date + datetime.timedelta(days=2), (max(data['numberofplayers']) - min(data['numberofplayers'])) * 0.90 + min(data['numberofplayers']), dates[1], color="mediumaquamarine", bbox=dict(facecolor='white', edgecolor='mediumaquamarine', boxstyle='round', zorder=3))
+            ax.text(
+                date + datetime.timedelta(days=2), (max(data['numberofplayers']) - min(data['numberofplayers'])) * 0.90 + min(data['numberofplayers']),
+                dates[1], color="mediumaquamarine", bbox=dict(facecolor='white', edgecolor='mediumaquamarine', boxstyle='round', zorder=3)
+            )
 
         # saving file
         title = "d2population.png"
@@ -299,7 +343,11 @@ class DestinyCommands(commands.Cog):
             options_user()
         ],
     )
-    async def _last(self, ctx: SlashContext, **kwargs):
+    async def _last(
+        self,
+        ctx: SlashContext,
+        **kwargs
+    ):
         user = await get_user_obj(ctx, kwargs)
         destiny_player = await DestinyPlayer.from_discord_id(user.id, ctx=ctx)
         if not destiny_player:
@@ -312,10 +360,12 @@ class DestinyCommands(commands.Cog):
         await destiny_player.update_activity_db()
         data = await getLastActivity(destiny_player.destiny_id, mode=int(kwargs["activity"]) if "activity" in kwargs and kwargs["activity"] != "0" else None)
         if not data:
-            await ctx.send(embed=embed_message(
-                "Error",
-                "Couldn't find any data for that mode. If you think this is an error DM me"
-            ))
+            await ctx.send(
+                embed=embed_message(
+                    "Error",
+                    "Couldn't find any data for that mode. If you think this is an error DM me"
+                )
+            )
             return
 
         # make data pretty and send msg
@@ -336,7 +386,10 @@ class DestinyCommands(commands.Cog):
             # sometimes people dont have a class for some reason. Skipping that
             if player['characterClass'] == '':
                 continue
-            embed.add_field(name=f"{await get_emoji(self.client, self.classes[player['characterClass']])} {(await destiny_player.get_destiny_name_and_last_played())[0]} {await get_emoji(self.client, light_level_icon_emoji_id)} {player['lightLevel']}", value="\n".join(player_data), inline=True)
+            embed.add_field(
+                name=f"{await get_emoji(self.client, self.classes[player['characterClass']])} {(await destiny_player.get_destiny_name_and_last_played())[0]} {await get_emoji(self.client, light_level_icon_emoji_id)} {player['lightLevel']}",
+                value="\n".join(player_data), inline=True
+            )
 
         await ctx.send(embed=embed)
 
@@ -348,7 +401,11 @@ class DestinyCommands(commands.Cog):
             options_user()
         ],
     )
-    async def _challenges(self, ctx: SlashContext, **kwargs):
+    async def _challenges(
+        self,
+        ctx: SlashContext,
+        **kwargs
+    ):
         await ctx.defer()
         user = await get_user_obj(ctx, kwargs)
         destiny_player = await DestinyPlayer.from_discord_id(user.id, ctx=ctx)
@@ -385,7 +442,18 @@ class DestinyCommands(commands.Cog):
         await self._send_challenge_info(ctx.author, user, start, seasonal_challenges, user_triumphs, components, ctx=ctx)
 
 
-    async def _send_challenge_info(self, author: discord.Member, user: discord.Member, week: str, seasonal_challenges: dict, user_triumphs: dict, select_components: list, ctx: SlashContext = None, select_ctx: ComponentContext = None, message: discord.Message = None) -> None:
+    async def _send_challenge_info(
+        self,
+        author: discord.Member,
+        user: discord.Member,
+        week: str,
+        seasonal_challenges: dict,
+        user_triumphs: dict,
+        select_components: list,
+        ctx: SlashContext = None,
+        select_ctx: ComponentContext = None,
+        message: discord.Message = None
+    ) -> None:
         # this is a recursive commmand.
 
         # make data pretty
@@ -397,11 +465,18 @@ class DestinyCommands(commands.Cog):
         else:
             await select_ctx.edit_origin(embed=embed)
 
+
         # wait 60s for selection
-        def check(select_ctx: ComponentContext):
+        def check(
+            select_ctx: ComponentContext
+        ):
             return select_ctx.author == author
+
+
         try:
-            select_ctx: ComponentContext = await manage_components.wait_for_component(select_ctx.bot if select_ctx else ctx.bot, components=select_components, timeout=60)
+            select_ctx: ComponentContext = await manage_components.wait_for_component(
+                select_ctx.bot if select_ctx else ctx.bot, components=select_components, timeout=60
+            )
         except asyncio.TimeoutError:
             await message.edit(components=None)
             return
@@ -409,11 +484,18 @@ class DestinyCommands(commands.Cog):
             new_week = select_ctx.selected_options[0]
 
             # recursively call this function
-            await self._send_challenge_info(author, user, new_week, seasonal_challenges, user_triumphs, select_components, select_ctx=select_ctx, message=message)
+            await self._send_challenge_info(
+                author, user, new_week, seasonal_challenges, user_triumphs, select_components, select_ctx=select_ctx, message=message
+            )
 
 
     @staticmethod
-    async def _get_challenge_info(user: discord.Member, week: str, seasonal_challenges: dict, user_triumphs: dict) -> discord.Embed:
+    async def _get_challenge_info(
+        user: discord.Member,
+        week: str,
+        seasonal_challenges: dict,
+        user_triumphs: dict
+    ) -> discord.Embed:
         """ Returns an embed for the specified week """
         embed = embed_message(
             f"{user.display_name}'s Seasonal Challenges - {week}"
@@ -452,7 +534,11 @@ class DestinyCommands(commands.Cog):
             options_user()
         ],
     )
-    async def _spoder(self, ctx: SlashContext, **kwargs):
+    async def _spoder(
+        self,
+        ctx: SlashContext,
+        **kwargs
+    ):
         await ctx.defer()
         user = await get_user_obj_admin(ctx, kwargs)
         if not user:
@@ -479,7 +565,11 @@ class DestinyCommands(commands.Cog):
             options_user()
         ]
     )
-    async def _destiny(self, ctx: SlashContext, **kwargs):
+    async def _destiny(
+        self,
+        ctx: SlashContext,
+        **kwargs
+    ):
         await ctx.defer()
 
         # get basic user data
@@ -493,7 +583,7 @@ class DestinyCommands(commands.Cog):
         # get character infos
         characters = await destiny_player.get_character_info()
 
-        character_playtime = {}     # in seconds
+        character_playtime = {}  # in seconds
         for characterID in characters:
             character_playtime[characterID] = await destiny_player.get_stat_value("secondsPlayed", character_id=characterID)
 
@@ -507,7 +597,10 @@ class DestinyCommands(commands.Cog):
         embed.add_field(name="⁣", value=f"__**Characters:**__", inline=False)
         for characterID in characters:
             text = f"""Playtime: {str(datetime.timedelta(seconds=character_playtime[characterID]))} \n⁣\nPower: {await destiny_player.get_stat_value("highestLightLevel", character_id=characterID):,} \nActivities: {await destiny_player.get_stat_value("activitiesCleared", character_id=characterID):,} \nKills: {await destiny_player.get_stat_value("kills", character_id=characterID):,} \nDeaths: {await destiny_player.get_stat_value("deaths", character_id=characterID):,} \nEfficiency: {round(await destiny_player.get_stat_value("efficiency", character_id=characterID), 2)}"""
-            embed.add_field(name=f"""{characters[characterID]["class"]} ({characters[characterID]["race"]} / {characters[characterID]["gender"]})""", value=text, inline=True)
+            embed.add_field(
+                name=f"""{characters[characterID]["class"]} ({characters[characterID]["race"]} / {characters[characterID]["gender"]})""", value=text,
+                inline=True
+            )
 
         """ triumph info field """
         embed.add_field(name="⁣", value=f"__**Triumphs:**__", inline=False)
@@ -554,7 +647,11 @@ class DestinyCommands(commands.Cog):
             options_user()
         ]
     )
-    async def _stat_everything(self, ctx: SlashContext, **kwargs):
+    async def _stat_everything(
+        self,
+        ctx: SlashContext,
+        **kwargs
+    ):
         # get basic user data
         user = await get_user_obj(ctx, kwargs)
         destiny_player = await DestinyPlayer.from_discord_id(user.id, ctx=ctx)
@@ -566,10 +663,12 @@ class DestinyCommands(commands.Cog):
 
         # get stat
         stat = await destiny_player.get_stat_value(kwargs["name"])
-        await ctx.send(embed=embed_message(
-            f"{user.display_name}'s Stat Info",
-            f"Your `{kwargs['name']}` stat is currently at **{stat:,}**"
-        ))
+        await ctx.send(
+            embed=embed_message(
+                f"{user.display_name}'s Stat Info",
+                f"Your `{kwargs['name']}` stat is currently at **{stat:,}**"
+            )
+        )
 
 
     @cog_ext.cog_subcommand(
@@ -582,7 +681,11 @@ class DestinyCommands(commands.Cog):
             options_user()
         ]
     )
-    async def _stat_pve(self, ctx: SlashContext, **kwargs):
+    async def _stat_pve(
+        self,
+        ctx: SlashContext,
+        **kwargs
+    ):
         # get basic user data
         user = await get_user_obj(ctx, kwargs)
         destiny_player = await DestinyPlayer.from_discord_id(user.id, ctx=ctx)
@@ -594,10 +697,12 @@ class DestinyCommands(commands.Cog):
 
         # get stat
         stat = await destiny_player.get_stat_value(kwargs["name"], stat_category="allPvE")
-        await ctx.send(embed=embed_message(
-            f"{user.display_name}'s PvE Stat Info",
-            f"Your `{kwargs['name']}` stat is currently at **{stat:,}**"
-        ))
+        await ctx.send(
+            embed=embed_message(
+                f"{user.display_name}'s PvE Stat Info",
+                f"Your `{kwargs['name']}` stat is currently at **{stat:,}**"
+            )
+        )
 
 
     @cog_ext.cog_subcommand(
@@ -610,7 +715,11 @@ class DestinyCommands(commands.Cog):
             options_user()
         ]
     )
-    async def _stat_pvp(self, ctx: SlashContext, **kwargs):
+    async def _stat_pvp(
+        self,
+        ctx: SlashContext,
+        **kwargs
+    ):
         # get basic user data
         user = await get_user_obj(ctx, kwargs)
         destiny_player = await DestinyPlayer.from_discord_id(user.id, ctx=ctx)
@@ -622,16 +731,23 @@ class DestinyCommands(commands.Cog):
 
         # get stat
         stat = await destiny_player.get_stat_value(kwargs["name"], stat_category="allPvP")
-        await ctx.send(embed=embed_message(
-            f"{user.display_name}'s PvP Stat Info",
-            f"Your `{kwargs['name']}` stat is currently at **{stat:,}**"
-        ))
-
+        await ctx.send(
+            embed=embed_message(
+                f"{user.display_name}'s PvP Stat Info",
+                f"Your `{kwargs['name']}` stat is currently at **{stat:,}**"
+            )
+        )
 
 
 class ClanActivitiesCommands(commands.Cog):
-    def __init__(self, client):
+
+
+    def __init__(
+        self,
+        client
+    ):
         self.client = client
+
 
     @cog_ext.cog_slash(
         name="clanactivity",
@@ -659,11 +775,14 @@ class ClanActivitiesCommands(commands.Cog):
             options_user(flavor_text="The name of the user you want to highlight")
         ]
     )
-    async def _clanactivity(self, ctx: SlashContext, **kwargs):
+    async def _clanactivity(
+        self,
+        ctx: SlashContext,
+        **kwargs
+    ):
         # edge_list = [person, size, size_desc, display_names, colors]
         self.edge_list = []
         self.ignore = []
-
 
         user = await get_user_obj(ctx, kwargs)
         destiny_player = await DestinyPlayer.from_discord_id(user.id, ctx=ctx)
@@ -729,11 +848,13 @@ class ClanActivitiesCommands(commands.Cog):
         net.save_graph(title)
 
         # letting user know it's done
-        await ctx.send(embed=embed_message(
-            f"{user.display_name}'s Friends",
-            f"Click the download button below and open the file with your browser to view your Network",
-            f"The file may load for a while, that's normal."
-        ))
+        await ctx.send(
+            embed=embed_message(
+                f"{user.display_name}'s Friends",
+                f"Click the download button below and open the file with your browser to view your Network",
+                f"The file may load for a while, that's normal."
+            )
+        )
         # sending them the file
         await ctx.channel.send(file=discord.File(title))
 
@@ -741,7 +862,14 @@ class ClanActivitiesCommands(commands.Cog):
         os.remove(title)
 
 
-    async def _handle_members(self, destinyID, mode, start_time, end_time, name):
+    async def _handle_members(
+        self,
+        destinyID,
+        mode,
+        start_time,
+        end_time,
+        name
+    ):
         # getting the activities for the
         result = await self._return_activities(destinyID, mode, start_time, end_time)
         activities_from_user_who_got_looked_at = len(result[1])
@@ -756,7 +884,13 @@ class ClanActivitiesCommands(commands.Cog):
         return [destinyID, activities_from_user_who_got_looked_at, friends]
 
 
-    async def _return_activities(self, destinyID, mode, start_time, end_time):
+    async def _return_activities(
+        self,
+        destinyID,
+        mode,
+        start_time,
+        end_time
+    ):
         destinyID = int(destinyID)
 
         # get all activities
@@ -769,7 +903,11 @@ class ClanActivitiesCommands(commands.Cog):
         return [destinyID, set(list_of_activities)]
 
 
-    async def _return_friends(self, destinyID, instanceID):
+    async def _return_friends(
+        self,
+        destinyID,
+        instanceID
+    ):
         # list in which the connections are saved
         friends = []
 
@@ -788,7 +926,11 @@ class ClanActivitiesCommands(commands.Cog):
         return friends
 
 
-    async def _prep_data(self, destiny_player: DestinyPlayer, orginal_user_destiny_id):
+    async def _prep_data(
+        self,
+        destiny_player: DestinyPlayer,
+        orginal_user_destiny_id
+    ):
         display_name, _ = await destiny_player.get_destiny_name_and_last_played()
 
         size = self.activities_from_user_who_got_looked_at[destiny_player.destiny_id] * 50
@@ -799,7 +941,12 @@ class ClanActivitiesCommands(commands.Cog):
         # edge_list = [person, size, size_desc, display_names, colors]
         self.edge_list.append([destiny_player.destiny_id, size, size_desc, display_name, colors])
 
-    def _add_edge(self, network, edge):
+
+    def _add_edge(
+        self,
+        network,
+        edge
+    ):
         src = int(edge[0])
         dst = int(edge[1])
         value = int(edge[2])
@@ -812,11 +959,25 @@ class ClanActivitiesCommands(commands.Cog):
 
 
 class MysticCommands(commands.Cog):
-    def __init__(self, client):
+
+
+    def __init__(
+        self,
+        client
+    ):
         self.client = client
 
-    def names(self, userdict):
-        return '\n'.join(map(lambda p: c.name if (c := self.client.get_user(p['id'])) else "InvalidUser", userdict))
+
+    def names(
+        self,
+        userdict
+    ):
+        return '\n'.join(
+            map(
+                lambda
+                    p: c.name if (c := self.client.get_user(p['id'])) else "InvalidUser", userdict
+            )
+        )
 
 
     @cog_ext.cog_subcommand(
@@ -825,7 +986,10 @@ class MysticCommands(commands.Cog):
         name="list",
         description="Displays the current list",
     )
-    async def _list(self, ctx: SlashContext):
+    async def _list(
+        self,
+        ctx: SlashContext
+    ):
         with open('database/mysticlist.json', 'r+') as mlist:
             players = json.load(mlist)
 
@@ -848,7 +1012,11 @@ class MysticCommands(commands.Cog):
             options_user(flavor_text="Requires elevated permissions")
         ]
     )
-    async def _add(self, ctx: SlashContext, **kwargs):
+    async def _add(
+        self,
+        ctx: SlashContext,
+        **kwargs
+    ):
         # allow mystic himself
         user = await get_user_obj_admin(ctx, kwargs, allowed_users=[211838266834550785])
         if not user:
@@ -858,7 +1026,12 @@ class MysticCommands(commands.Cog):
             players = json.load(mlist)
 
         # add new player
-        players.append({'name': user.display_name, 'id': user.id})
+        players.append(
+            {
+                'name': user.display_name,
+                'id': user.id
+            }
+        )
 
         with open('commands/mysticlog.log', 'a') as mlog:
             mlog.write(f'\n{ctx.author.name} added {user.name}')
@@ -885,7 +1058,11 @@ class MysticCommands(commands.Cog):
             options_user(flavor_text="Requires elevated permissions")
         ]
     )
-    async def _remove(self, ctx: SlashContext, **kwargs):
+    async def _remove(
+        self,
+        ctx: SlashContext,
+        **kwargs
+    ):
         # allow mystic himself
         user = await get_user_obj_admin(ctx, kwargs, allowed_users=[211838266834550785])
         if not user:
@@ -894,7 +1071,14 @@ class MysticCommands(commands.Cog):
         with open('database/mysticlist.json', 'r') as mlist:
             players = json.load(mlist)
 
-        if len(player := list(filter(lambda muser: muser['id'] == user.id, players))) == 1:
+        if len(
+            player := list(
+                filter(
+                    lambda
+                        muser: muser['id'] == user.id, players
+                )
+            )
+        ) == 1:
             # remove player
             players.remove(player[0])
             with open('commands/mysticlog.log', 'a') as mlog:
@@ -912,14 +1096,21 @@ class MysticCommands(commands.Cog):
             await ctx.send(embed=embed)
             return
 
-        await ctx.send(embed=embed_message(
-            'Mystic List',
-            f"User {user.name} was not found in the player list"
-        ))
+        await ctx.send(
+            embed=embed_message(
+                'Mystic List',
+                f"User {user.name} was not found in the player list"
+            )
+        )
 
 
 class RankCommands(commands.Cog):
-    def __init__(self, client):
+
+
+    def __init__(
+        self,
+        client
+    ):
         self.client = client
         self.stats = {
             "mobility": 2996146975,
@@ -1058,13 +1249,18 @@ class RankCommands(commands.Cog):
             options_user()
         ]
     )
-    async def _rank(self, ctx: SlashContext, *args, **kwargs):
+    async def _rank(
+        self,
+        ctx: SlashContext,
+        *args,
+        **kwargs
+    ):
         if not ctx.deferred:
             await ctx.defer()
 
         if args:
             print(f'Got unexpected args: {args}')
-        
+
         user = await get_user_obj(ctx, kwargs)
         leaderboard = kwargs["leaderboard"]
         item_name = None
@@ -1079,20 +1275,32 @@ class RankCommands(commands.Cog):
 
             # send error message and exit
             else:
-                await ctx.send(hidden=True, embed=embed_message(
-                    f"Error",
-                    f"Please specify a weapon in the command argument `arg`"
-                ))
+                await ctx.send(
+                    hidden=True, embed=embed_message(
+                        f"Error",
+                        f"Please specify a weapon in the command argument `arg`"
+                    )
+                )
                 return
 
         # calculate the leaderboard
-        if embed := (await self._handle_users(leaderboard, user.display_name, ctx.guild, item_hashes, item_name, reverse=kwargs["reverse"] if "reverse" in kwargs else False)):
+        if embed := (await self._handle_users(
+            leaderboard, user.display_name, ctx.guild, item_hashes, item_name, reverse=kwargs["reverse"] if "reverse" in kwargs else False
+        )):
             await ctx.send(embed=embed)
         else:
             await ctx.send(embed_message('Error', 'Failed handling users'))
 
 
-    async def _handle_users(self, stat, display_name, guild, extra_hash, extra_name, reverse=False):
+    async def _handle_users(
+        self,
+        stat,
+        display_name,
+        guild,
+        extra_hash,
+        extra_name,
+        reverse=False
+    ):
         # init DF. "stat_sort" is only here, since I want to save numbers fancy (1,000,000) and that is a string and not an int so sorting wont work
         data = pd.DataFrame(columns=["member", "stat", "stat_sort"])
 
@@ -1109,7 +1317,13 @@ class RankCommands(commands.Cog):
         for ret in results:
             # add user to DF
             if ret:
-                data = data.append({"member": ret[0], "stat": ret[1], "stat_sort": ret[2]}, ignore_index=True)
+                data = data.append(
+                    {
+                        "member": ret[0],
+                        "stat": ret[1],
+                        "stat_sort": ret[2]
+                    }, ignore_index=True
+                )
 
                 # the flavor text of the leaderboard, fe "Top Clanmembers by D2 Total Time Logged In" for totaltime
                 leaderboard_text = ret[3]
@@ -1162,7 +1376,14 @@ class RankCommands(commands.Cog):
         )
 
 
-    async def _handle_user(self, stat, member, guild, extra_hash, extra_name):
+    async def _handle_user(
+        self,
+        stat,
+        member,
+        guild,
+        extra_hash,
+        extra_name
+    ):
         destiny_player = await DestinyPlayer.from_destiny_id(int(member["destinyUserInfo"]["membershipId"]))
 
         if not (destiny_player and await destiny_player.has_token()):
@@ -1431,7 +1652,12 @@ class RankCommands(commands.Cog):
         return [name, result, result_sort, leaderboard_text, stat_text, sort_by_ascending]
 
 
-    async def _add_activity_stats(self, destiny_player: DestinyPlayer, hashes, stat):
+    async def _add_activity_stats(
+        self,
+        destiny_player: DestinyPlayer,
+        hashes,
+        stat
+    ):
         result_sort = 0
         chars = await destiny_player.get_character_info()
         for characterID in chars:
@@ -1454,7 +1680,10 @@ class RankCommands(commands.Cog):
         return result_sort
 
 
-    async def _get_highest_item_light_level(self, items):
+    async def _get_highest_item_light_level(
+        self,
+        items
+    ):
         max_power = 0
 
         for item in items:
@@ -1463,7 +1692,10 @@ class RankCommands(commands.Cog):
         return max_power
 
 
-    def _sort_gear_by_slot(self, items):
+    def _sort_gear_by_slot(
+        self,
+        items
+    ):
         helmet = []  # 3448274439
         gauntlet = []  # 3551918588
         chest = []  # 14239492
@@ -1497,7 +1729,12 @@ class RankCommands(commands.Cog):
 
 
     # todo delete
-    def _add_stats(self, stat_json, stat, scope="all"):
+    def _add_stats(
+        self,
+        stat_json,
+        stat,
+        scope="all"
+    ):
         result_sort = 0
         if scope == "all":
             result_sort = int(stat_json["mergedAllCharacters"]["merged"]["allTime"][stat]["basic"]["value"])
@@ -1509,21 +1746,28 @@ class RankCommands(commands.Cog):
             result_sort = int(stat_json["mergedAllCharacters"]["results"]["allPvE"]["allTime"][stat]["basic"]["value"])
             try:
                 result_sort += int(
-                    stat_json["mergedDeletedCharacters"]["results"]["allPvE"]["allTime"][stat]["basic"]["value"])
+                    stat_json["mergedDeletedCharacters"]["results"]["allPvE"]["allTime"][stat]["basic"]["value"]
+                )
             except:
                 pass
         elif scope == "pvp":
             result_sort = int(stat_json["mergedAllCharacters"]["results"]["allPvP"]["allTime"][stat]["basic"]["value"])
             try:
                 result_sort += int(
-                    stat_json["mergedDeletedCharacters"]["results"]["allPvP"]["allTime"][stat]["basic"]["value"])
+                    stat_json["mergedDeletedCharacters"]["results"]["allPvP"]["allTime"][stat]["basic"]["value"]
+                )
             except:
                 pass
         return result_sort
 
 
 class WeaponCommands(commands.Cog):
-    def __init__(self, client):
+
+
+    def __init__(
+        self,
+        client
+    ):
         self.client = client
 
 
@@ -1611,7 +1855,11 @@ class WeaponCommands(commands.Cog):
             options_user()
         ]
     )
-    async def _weapon(self, ctx: SlashContext, **kwargs):
+    async def _weapon(
+        self,
+        ctx: SlashContext,
+        **kwargs
+    ):
         user = await get_user_obj(ctx, kwargs)
         destiny_player = await DestinyPlayer.from_discord_id(user.id, ctx=ctx)
         if not destiny_player:
@@ -1649,10 +1897,12 @@ class WeaponCommands(commands.Cog):
 
         # throw error if no weapon
         if not result:
-            await ctx.send(embed=embed_message(
-                "Error",
-                f'No weapon stats found for {weapon_name}'
-            ))
+            await ctx.send(
+                embed=embed_message(
+                    "Error",
+                    f'No weapon stats found for {weapon_name}'
+                )
+            )
             return
 
         # either text
@@ -1681,13 +1931,19 @@ class WeaponCommands(commands.Cog):
             )
             embed.add_field(name="Total Kills", value=f"**{kills:,}**", inline=True)
             embed.add_field(name="Total Precision Kills", value=f"**{precision_kills:,}**", inline=True)
-            embed.add_field(name="% Precision Kills", value=f"**{round(percent_precision_kills * 100, 2)}%**",
-                            inline=True)
-            embed.add_field(name="Average Kills", value=f"**{round(avg_kills, 2)}**\nIn {len(result)} Activities",
-                            inline=True)
-            embed.add_field(name="Maximum Kills",
-                            value=f"**{max_kills:,}**\nIn Activity ID: {max_kills_id}\n{max_kills_mode} - {max_kills_name}\nOn: {max_kills_date.strftime('%d/%m/%y')}",
-                            inline=True)
+            embed.add_field(
+                name="% Precision Kills", value=f"**{round(percent_precision_kills * 100, 2)}%**",
+                inline=True
+            )
+            embed.add_field(
+                name="Average Kills", value=f"**{round(avg_kills, 2)}**\nIn {len(result)} Activities",
+                inline=True
+            )
+            embed.add_field(
+                name="Maximum Kills",
+                value=f"**{max_kills:,}**\nIn Activity ID: {max_kills_id}\n{max_kills_mode} - {max_kills_name}\nOn: {max_kills_date.strftime('%d/%m/%y')}",
+                inline=True
+            )
             await ctx.send(embed=embed)
 
         # or do a graph
@@ -1697,7 +1953,10 @@ class WeaponCommands(commands.Cog):
             for instanceID, uniqueweaponkills, uniqueweaponprecisionkills in result:
                 instance_time = (await getPgcrActivity(instanceID))[3]
                 weapon_hashes.append((instance_time, uniqueweaponkills, uniqueweaponprecisionkills))
-            weapon_hashes = sorted(weapon_hashes, key=lambda x: x[0])
+            weapon_hashes = sorted(
+                weapon_hashes, key=lambda
+                    x: x[0]
+            )
 
             # get clean, relevant data in a DF. easier for the graph later
             df = pd.DataFrame(columns=["datetime", "statistic"])
@@ -1880,7 +2139,11 @@ class WeaponCommands(commands.Cog):
             options_user()
         ]
     )
-    async def _topweapons(self, ctx: SlashContext, **kwargs):
+    async def _topweapons(
+        self,
+        ctx: SlashContext,
+        **kwargs
+    ):
         user = await get_user_obj(ctx, kwargs)
         destiny_player = await DestinyPlayer.from_discord_id(user.id, ctx=ctx)
         if not destiny_player:
@@ -1932,16 +2195,18 @@ class WeaponCommands(commands.Cog):
             elif stat == "precisionkills":
                 statistic_data = weapon[2]
                 statistic_visual = f"{statistic_data:,}"
-            else:   # precisionkillspercent
+            else:  # precisionkillspercent
                 statistic_data = weapon[1] / weapon[2] if weapon[2] != 0 else 0
                 statistic_visual = f"{round(statistic_data * 100, 2)}%"
 
-            weapons_by_slot[translateWeaponSlot(weapon[4])].append({
-                "weapon_id": weapon[0],
-                "weapon_name": weapon[3],
-                "weapon_stat": statistic_data,
-                "weapon_stat_visual": statistic_visual,
-            })
+            weapons_by_slot[translateWeaponSlot(weapon[4])].append(
+                {
+                    "weapon_id": weapon[0],
+                    "weapon_name": weapon[3],
+                    "weapon_stat": statistic_data,
+                    "weapon_stat_visual": statistic_visual,
+                }
+            )
 
         # prepare embed
         embed = embed_message(
@@ -1954,7 +2219,10 @@ class WeaponCommands(commands.Cog):
         found = False if weapon_name else True
         for slot, weapons in weapons_by_slot.items():
             # sort the slots
-            sorted_weapons = sorted(weapons, key=lambda x: x["weapon_stat"], reverse=True)
+            sorted_weapons = sorted(
+                weapons, key=lambda
+                    x: x["weapon_stat"], reverse=True
+            )
 
             # loop through the weapons
             i = 0
@@ -1966,16 +2234,31 @@ class WeaponCommands(commands.Cog):
                     # setting a flag if name is in list
                     if weapon_name == weapon["weapon_name"]:
                         found = True
-                        ranking.append(write_line(i, f"""**[{weapon["weapon_name"]}](https://www.light.gg/db/items/{weapon["weapon_id"]})**""", stat.capitalize(), weapon["weapon_stat_visual"], emoji))
+                        ranking.append(
+                            write_line(
+                                i, f"""**[{weapon["weapon_name"]}](https://www.light.gg/db/items/{weapon["weapon_id"]})**""", stat.capitalize(),
+                                weapon["weapon_stat_visual"], emoji
+                            )
+                        )
                     else:
-                        ranking.append(write_line(i, f"""[{weapon["weapon_name"]}](https://www.light.gg/db/items/{weapon["weapon_id"]})""", stat.capitalize(), weapon["weapon_stat_visual"], emoji))
+                        ranking.append(
+                            write_line(
+                                i, f"""[{weapon["weapon_name"]}](https://www.light.gg/db/items/{weapon["weapon_id"]})""", stat.capitalize(),
+                                weapon["weapon_stat_visual"], emoji
+                            )
+                        )
 
                 # looping through rest until original user is found
                 elif (len(ranking) >= max_weapons) and (not found):
                     # adding only this name
                     if weapon_name == weapon["weapon_name"]:
                         ranking.append("...")
-                        ranking.append(write_line(i, f"""[{weapon["weapon_name"]}](https://www.light.gg/db/items/{weapon["weapon_id"]})""", stat.capitalize(), weapon["weapon_stat_visual"], emoji))
+                        ranking.append(
+                            write_line(
+                                i, f"""[{weapon["weapon_name"]}](https://www.light.gg/db/items/{weapon["weapon_id"]})""", stat.capitalize(),
+                                weapon["weapon_stat_visual"], emoji
+                            )
+                        )
                         found = True
                         break
 
@@ -1993,7 +2276,11 @@ class WeaponCommands(commands.Cog):
         await ctx.send(embed=embed)
 
 
-    async def _compute_params(self, ctx, kwargs):
+    async def _compute_params(
+        self,
+        ctx,
+        kwargs
+    ):
         # set default values for the args
         stat = kwargs["stat"] if "stat" in kwargs else "kills"
         graph = bool(kwargs["graph"]) if "graph" in kwargs else False
@@ -2002,18 +2289,22 @@ class WeaponCommands(commands.Cog):
         try:
             activity_hash = int(kwargs["activityhash"]) if "activityhash" in kwargs else None
         except ValueError:
-            await ctx.send(hidden=True, embed=embed_message(
-                f"Error",
-                f"The argument `activityhash` must be a number"
-            ))
+            await ctx.send(
+                hidden=True, embed=embed_message(
+                    f"Error",
+                    f"The argument `activityhash` must be a number"
+                )
+            )
             return None, None, None, None, None, None, None
 
         # parse the three different time arguments, since they are mutually exclusive
         if not check_if_mutually_exclusive(["expansion", "season", ["starttime", "endtime"]], kwargs):
-            await ctx.send(hidden=True, embed=embed_message(
-                f"Error",
-                f"You can only specify one time parameter"
-            ))
+            await ctx.send(
+                hidden=True, embed=embed_message(
+                    f"Error",
+                    f"You can only specify one time parameter"
+                )
+            )
             return None, None, None, None, None, None, None
 
         # make sure the times are valid
@@ -2108,7 +2399,11 @@ class WeaponCommands(commands.Cog):
             )
         ]
     )
-    async def _meta(self, ctx: SlashContext, **kwargs):
+    async def _meta(
+        self,
+        ctx: SlashContext,
+        **kwargs
+    ):
         weapons_by_slot = {
             "Kinetic": {},
             "Energy": {},
@@ -2122,18 +2417,22 @@ class WeaponCommands(commands.Cog):
         try:
             activity_hash = int(kwargs["activityhash"]) if "activityhash" in kwargs else None
         except ValueError:
-            await ctx.send(hidden=True, embed=embed_message(
-                f"Error",
-                f"The argument `activityhash` must be a number"
-            ))
+            await ctx.send(
+                hidden=True, embed=embed_message(
+                    f"Error",
+                    f"The argument `activityhash` must be a number"
+                )
+            )
             return
 
         # parse the three different time arguments, since they are mutually exclusive
         if not check_if_mutually_exclusive(["expansion", "season", ["starttime", "endtime"]], kwargs):
-            await ctx.send(hidden=True, embed=embed_message(
-                f"Error",
-                f"You can only specify one time parameter"
-            ))
+            await ctx.send(
+                hidden=True, embed=embed_message(
+                    f"Error",
+                    f"You can only specify one time parameter"
+                )
+            )
             return
 
         # if given, make sure the times are valid
@@ -2155,23 +2454,32 @@ class WeaponCommands(commands.Cog):
 
         # loop through all users and get their stats
         clan_members = await getClanMembers(self.client)
-        result = await asyncio.gather(*[self._handle_user(await DestinyPlayer.from_destiny_id(destinyID), mode, activity_hash, starttime, endtime, character_class) for destinyID in clan_members])
+        result = await asyncio.gather(
+            *[self._handle_user(await DestinyPlayer.from_destiny_id(destinyID), mode, activity_hash, starttime, endtime, character_class) for destinyID in
+              clan_members]
+        )
 
         for clan_member in result:
             if clan_member is not None:
                 for weapon in clan_member:
                     translated_weapon_slot = translateWeaponSlot(weapon[4])
                     try:
-                        weapons_by_slot[translated_weapon_slot].update({
-                            weapon[0]: weapons_by_slot[translated_weapon_slot][weapon[0]] + weapon[1]
-                        })
+                        weapons_by_slot[translated_weapon_slot].update(
+                            {
+                                weapon[0]: weapons_by_slot[translated_weapon_slot][weapon[0]] + weapon[1]
+                            }
+                        )
                     except KeyError:
-                        weapons_by_slot[translated_weapon_slot].update({
-                            weapon[0]: weapon[1]
-                        })
-                        weapons_by_id.update({
-                            weapon[0]: weapon[3]
-                        })
+                        weapons_by_slot[translated_weapon_slot].update(
+                            {
+                                weapon[0]: weapon[1]
+                            }
+                        )
+                        weapons_by_id.update(
+                            {
+                                weapon[0]: weapon[3]
+                            }
+                        )
 
         # prepare embed
         embed = embed_message(
@@ -2183,7 +2491,12 @@ class WeaponCommands(commands.Cog):
         emoji = self.client.get_emoji(enter_emoji_id)
         for slot, weapons in weapons_by_slot.items():
             # sort it and only get the first 8 slots
-            sorted_weapons = dict(sorted(weapons.items(), key=lambda x: x[1], reverse=True)[:8])
+            sorted_weapons = dict(
+                sorted(
+                    weapons.items(), key=lambda
+                        x: x[1], reverse=True
+                )[:8]
+            )
 
             # loop through the top
             slot_text = []
@@ -2200,7 +2513,15 @@ class WeaponCommands(commands.Cog):
         await ctx.send(embed=embed)
 
 
-    async def _handle_user(self, destiny_player: Optional[DestinyPlayer], mode, activity_hash, starttime, endtime, character_class):
+    async def _handle_user(
+        self,
+        destiny_player: Optional[DestinyPlayer],
+        mode,
+        activity_hash,
+        starttime,
+        endtime,
+        character_class
+    ):
         # get character id if asked for
         charID = await destiny_player.get_character_id_by_class(character_class) if character_class else None
 
@@ -2215,9 +2536,13 @@ class WeaponCommands(commands.Cog):
         return await getTopWeapons(destiny_player.destiny_id, **{k: v for k, v in kwargs.items() if v is not None})
 
 
-
 class TournamentCommands(commands.Cog):
-    def __init__(self, client):
+
+
+    def __init__(
+        self,
+        client
+    ):
         self.client = client
         self.creator = None
 
@@ -2228,14 +2553,19 @@ class TournamentCommands(commands.Cog):
         name="create",
         description="Opens up registration. Can only be used if no other tournament is currently running",
     )
-    async def _create(self, ctx: SlashContext):
+    async def _create(
+        self,
+        ctx: SlashContext
+    ):
         # check if tourn already exists
         message = await get_persistent_message_or_channel(self.client, "tournament", ctx.guild.id)
         if message:
-            await ctx.send(hidden=True, embed=embed_message(
-                f"Error",
-                f"A tournament already exists. \nPlease wait until it is completed and then try again or ask a member of staff to delete it"
-            ))
+            await ctx.send(
+                hidden=True, embed=embed_message(
+                    f"Error",
+                    f"A tournament already exists. \nPlease wait until it is completed and then try again or ask a member of staff to delete it"
+                )
+            )
             return
 
         # get the tourn channel id
@@ -2252,10 +2582,12 @@ class TournamentCommands(commands.Cog):
         self.creator = ctx.author
 
         # let user know
-        await ctx.send(embed=embed_message(
-            "Success",
-            f"Registration for the tournament has started, visit {channel.mention} to join the fun!"
-        ))
+        await ctx.send(
+            embed=embed_message(
+                "Success",
+                f"Registration for the tournament has started, visit {channel.mention} to join the fun!"
+            )
+        )
 
 
     @cog_ext.cog_subcommand(
@@ -2264,32 +2596,41 @@ class TournamentCommands(commands.Cog):
         name="start",
         description="Starts the tournament. Can only be used by the user who used '/tournament create' or an Admin",
     )
-    async def _start(self, ctx: SlashContext):
+    async def _start(
+        self,
+        ctx: SlashContext
+    ):
         # check if tourn exists
         message = await get_persistent_message_or_channel(self.client, "tournament", ctx.guild.id)
         if not message:
-            await ctx.send(hidden=True, embed=embed_message(
-                f"Error",
-                f"You need to start the registration by using `/tournament create` first"
-            ))
+            await ctx.send(
+                hidden=True, embed=embed_message(
+                    f"Error",
+                    f"You need to start the registration by using `/tournament create` first"
+                )
+            )
             return
 
         # check if author has permissions to start
         if not (message.author == ctx.author) and not (await has_elevated_permissions(ctx.author, ctx.guild)):
-            await ctx.send(hidden=True, embed=embed_message(
-                f"Error",
-                f"Only admins and the tournament creator can start the tournament"
-            ))
+            await ctx.send(
+                hidden=True, embed=embed_message(
+                    f"Error",
+                    f"Only admins and the tournament creator can start the tournament"
+                )
+            )
             return
 
         # check that at least two people (3, since bot counts too) have reacted and get the users
         for reaction in message.reactions:
             if reaction.emoji.id in tournament:
                 if reaction.count < 3:
-                    await ctx.send(hidden=True, embed=embed_message(
-                        f"Error",
-                        f"At least two people need to sign up"
-                    ))
+                    await ctx.send(
+                        hidden=True, embed=embed_message(
+                            f"Error",
+                            f"At least two people need to sign up"
+                        )
+                    )
                     return
                 participants = []
                 async for user in reaction.users():
@@ -2297,10 +2638,12 @@ class TournamentCommands(commands.Cog):
                         participants.append(user)
 
         # start the tourn and wait for it to play out
-        await ctx.send(embed=embed_message(
-            "Success",
-            "The tournament is now starting"
-        ))
+        await ctx.send(
+            embed=embed_message(
+                "Success",
+                "The tournament is now starting"
+            )
+        )
         winner = await startTournamentEvents(self.client, message, message.channel, participants)
 
         # delete registration message
@@ -2325,35 +2668,45 @@ class TournamentCommands(commands.Cog):
         name="delete",
         description="Delete the tournament. Can only be used by the user who used '/tournament create' or an Admin",
     )
-    async def _delete(self, ctx: SlashContext):
+    async def _delete(
+        self,
+        ctx: SlashContext
+    ):
         # check if tourn exists
         message = await get_persistent_message_or_channel(self.client, "tournament", ctx.guild.id)
         if not message:
-            await ctx.send(hidden=True, embed=embed_message(
-                f"Error",
-                f"There is no tournament to delete"
-            ))
+            await ctx.send(
+                hidden=True, embed=embed_message(
+                    f"Error",
+                    f"There is no tournament to delete"
+                )
+            )
             return
 
         # check if author has permissions to start
         if not (message.author == ctx.author) and not (await has_elevated_permissions(ctx.author, ctx.guild)):
-            await ctx.send(hidden=True, embed=embed_message(
-                f"Error",
-                f"Only admins and the tournament creator can delete the tournament"
-            ))
+            await ctx.send(
+                hidden=True, embed=embed_message(
+                    f"Error",
+                    f"Only admins and the tournament creator can delete the tournament"
+                )
+            )
             return
 
         # delete msg
         await delete_persistent_message(message, "tournament", ctx.guild.id)
 
-        await ctx.send(embed=embed_message(
-            "Success",
-            "The tournament has been deleted"
-        ))
+        await ctx.send(
+            embed=embed_message(
+                "Success",
+                "The tournament has been deleted"
+            )
+        )
 
 
-
-def setup(client):
+def setup(
+    client
+):
     client.add_cog(DestinyCommands(client))
     client.add_cog(MysticCommands(client))
     client.add_cog(RankCommands(client))

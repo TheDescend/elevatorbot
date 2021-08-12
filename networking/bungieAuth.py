@@ -9,7 +9,9 @@ from networking.networkBackend import post_request
 from static.config import B64_SECRET
 
 
-async def handle_and_return_token(discord_id: int) -> BungieToken:
+async def handle_and_return_token(
+    discord_id: int
+) -> BungieToken:
     """ Returns token if exists with an error message """
 
     token = BungieToken(
@@ -42,7 +44,9 @@ async def handle_and_return_token(discord_id: int) -> BungieToken:
     return token
 
 
-async def refresh_token(discord_id: int) -> Optional[str]:
+async def refresh_token(
+    discord_id: int
+) -> Optional[str]:
     """
     takes the discord snowflakes, writes a new refresh token, access token to the DB and
     returns the access token or None if failed

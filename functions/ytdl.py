@@ -4,6 +4,7 @@ import functools
 import discord
 import youtube_dl
 
+
 youtube_dl.utils.bug_reports_message = lambda: ''
 
 
@@ -13,6 +14,7 @@ class VoiceError(Exception):
 
 class YTDLError(Exception):
     pass
+
 
 class YTDLSource(discord.PCMVolumeTransformer):
     YTDL_OPTIONS = {
@@ -38,7 +40,14 @@ class YTDLSource(discord.PCMVolumeTransformer):
 
     ytdl = youtube_dl.YoutubeDL(YTDL_OPTIONS)
 
-    def __init__(self, source: discord.FFmpegPCMAudio, *, data: dict, volume: float = 0.5):
+
+    def __init__(
+        self,
+        source: discord.FFmpegPCMAudio,
+        *,
+        data: dict,
+        volume: float = 0.5
+    ):
         super().__init__(source, volume)
 
         self.data = data
@@ -58,11 +67,20 @@ class YTDLSource(discord.PCMVolumeTransformer):
         self.dislikes = data.get('dislike_count')
         self.stream_url = data.get('url')
 
-    def __str__(self):
+
+    def __str__(
+        self
+    ):
         return '**{0.title}** by **{0.uploader}**'.format(self)
 
+
     @classmethod
-    async def create_source(cls, search: str, *, loop: asyncio.BaseEventLoop = None):
+    async def create_source(
+        cls,
+        search: str,
+        *,
+        loop: asyncio.BaseEventLoop = None
+    ):
         loop = loop or asyncio.get_event_loop()
 
         partial = functools.partial(cls.ytdl.extract_info, search, download=False, process=False)
@@ -99,11 +117,14 @@ class YTDLSource(discord.PCMVolumeTransformer):
                     info = processed_info['entries'].pop(0)
                 except IndexError:
                     raise YTDLError('Couldn\'t retrieve any matches for `{}`'.format(webpage_url))
-        #print(info)
+        # print(info)
         return cls(discord.FFmpegPCMAudio(info['url'], **cls.FFMPEG_OPTIONS), data=info)
 
+
     @staticmethod
-    def parse_duration(duration: int):
+    def parse_duration(
+        duration: int
+    ):
         minutes, seconds = divmod(duration, 60)
         hours, minutes = divmod(minutes, 60)
         days, hours = divmod(hours, 24)
@@ -120,7 +141,13 @@ class YTDLSource(discord.PCMVolumeTransformer):
 
         return ', '.join(duration)
 
-async def play(search: str, bot, connection_task, voice_client=None):
+
+async def play(
+    search: str,
+    bot,
+    connection_task,
+    voice_client=None
+):
     if not (connection := voice_client):
         connection = await connection_task
     print('finished connecting')

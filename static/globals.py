@@ -27,7 +27,6 @@ lol_role_id = 756076447881363486
 eft_role_id = 800862253279608854
 minecraft_role_id = 860099222769631242
 
-
 """ Channel IDs """
 admin_discussions_channel_id = 671264040974024705
 admin_workboard_channel_id = 769608204618563625
@@ -40,7 +39,6 @@ vanguard_category_channel_id = 670402918922321959
 drifter_category_channel_id = 686490872778719239
 crucible_category_channel_id = 671258449455218691
 raid_category_channel_id = 670403431424458793
-
 
 """ Emoji IDs """
 thumps_up_emoji_id = 754946723612196975
@@ -66,7 +64,6 @@ light_level_icon_emoji_id = 830750430816108564
 join_emoji_id = 850000522101391400
 leave_emoji_id = 850000522048045106
 backup_emoji_id = 850000522107027466
-
 
 """ Persistent Messages """
 other_game_roles = {

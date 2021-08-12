@@ -19,8 +19,14 @@ from static.slashCommandOptions import options_user
 
 
 class MiscCommands(commands.Cog):
-    def __init__(self, client):
+
+
+    def __init__(
+        self,
+        client
+    ):
         self.client = client
+
 
     @cog_ext.cog_subcommand(
         base="poll",
@@ -42,7 +48,12 @@ class MiscCommands(commands.Cog):
             ),
         ]
     )
-    async def _poll_create(self, ctx: SlashContext, name: str, description: str):
+    async def _poll_create(
+        self,
+        ctx: SlashContext,
+        name: str,
+        description: str
+    ):
         await create_poll_object(
             ctx=ctx,
             name=name,
@@ -72,7 +83,12 @@ class MiscCommands(commands.Cog):
             ),
         ]
     )
-    async def _poll_add(self, ctx: SlashContext, poll_id: str, option: str):
+    async def _poll_add(
+        self,
+        ctx: SlashContext,
+        poll_id: str,
+        option: str
+    ):
         poll = await get_poll_object(
             guild=ctx.guild,
             poll_id=poll_id,
@@ -92,6 +108,7 @@ class MiscCommands(commands.Cog):
                     ctx=ctx,
                     option=option,
                 )
+
 
     @cog_ext.cog_subcommand(
         base="poll",
@@ -113,7 +130,12 @@ class MiscCommands(commands.Cog):
             ),
         ]
     )
-    async def _poll_remove(self, ctx: SlashContext, poll_id: str, option: str):
+    async def _poll_remove(
+        self,
+        ctx: SlashContext,
+        poll_id: str,
+        option: str
+    ):
         poll = await get_poll_object(
             guild=ctx.guild,
             poll_id=poll_id,
@@ -134,6 +156,7 @@ class MiscCommands(commands.Cog):
                     option=option,
                 )
 
+
     @cog_ext.cog_subcommand(
         base="poll",
         base_description="Making polls easy",
@@ -148,7 +171,11 @@ class MiscCommands(commands.Cog):
             ),
         ]
     )
-    async def _poll_disable(self, ctx: SlashContext, poll_id: str):
+    async def _poll_disable(
+        self,
+        ctx: SlashContext,
+        poll_id: str
+    ):
         poll = await get_poll_object(
             guild=ctx.guild,
             poll_id=poll_id,
@@ -175,7 +202,10 @@ class MiscCommands(commands.Cog):
         default_permission=False,
         permissions=permissions_socialist,
     )
-    async def _socialist(self, ctx: SlashContext):
+    async def _socialist(
+        self,
+        ctx: SlashContext
+    ):
         await ctx.send("No 🙃")
 
 
@@ -183,8 +213,14 @@ class MiscCommands(commands.Cog):
         name="boosters",
         description="Prints all premium subscribers"
     )
-    async def _boosters(self, ctx: SlashContext):
-        sorted_premium_subscribers = sorted(ctx.guild.premium_subscribers, key=lambda m: m.premium_since, reverse=True)
+    async def _boosters(
+        self,
+        ctx: SlashContext
+    ):
+        sorted_premium_subscribers = sorted(
+            ctx.guild.premium_subscribers, key=lambda
+                m: m.premium_since, reverse=True
+        )
 
         embed = embed_message(
             f"{ctx.guild.name} Nitro Boosters",
@@ -198,7 +234,10 @@ class MiscCommands(commands.Cog):
         name="funfact",
         description="Very fun fun facts just for the funny fun of it"
     )
-    async def _funfact(self, ctx: SlashContext):
+    async def _funfact(
+        self,
+        ctx: SlashContext
+    ):
         await ctx.defer()
 
         url = "https://uselessfacts.jsph.pl/random.json?language=en"
@@ -210,10 +249,12 @@ class MiscCommands(commands.Cog):
                 else:
                     text = "Offline servers make it difficult to get fun facts :("
 
-                await ctx.send(embed=embed_message(
-                    'Did you know?',
-                    text.replace("`", "'")
-                ))
+                await ctx.send(
+                    embed=embed_message(
+                        'Did you know?',
+                        text.replace("`", "'")
+                    )
+                )
 
 
     @cog_ext.cog_slash(
@@ -223,7 +264,11 @@ class MiscCommands(commands.Cog):
             options_user()
         ]
     )
-    async def _muteme(self, ctx: SlashContext, **kwargs):
+    async def _muteme(
+        self,
+        ctx: SlashContext,
+        **kwargs
+    ):
         await ctx.defer()
 
         user = await get_user_obj(ctx, kwargs)
@@ -246,7 +291,9 @@ class MiscCommands(commands.Cog):
         if timeout == 120:
             await author.send("**__!!! CONGRATULATIONS !!!__**")
             async with aiohttp.ClientSession() as session:
-                async with session.get("https://media.istockphoto.com/videos/amazing-explosion-animation-with-text-congratulations-video-id1138902499?s=640x640") as resp:
+                async with session.get(
+                    "https://media.istockphoto.com/videos/amazing-explosion-animation-with-text-congratulations-video-id1138902499?s=640x640"
+                ) as resp:
                     if resp.status == 200:
                         data = io.BytesIO(await resp.read())
                         await author.send(file=discord.File(data, 'congratulations.png'))
@@ -275,7 +322,10 @@ class MiscCommands(commands.Cog):
         name="saymyname",
         description="Say your name"
     )
-    async def _saymyname(self, ctx: SlashContext):
+    async def _saymyname(
+        self,
+        ctx: SlashContext
+    ):
         await ctx.send(ctx.author.display_name, tts=True)
 
 
@@ -286,13 +336,21 @@ class MiscCommands(commands.Cog):
             options_user()
         ]
     )
-    async def _discordjoindate(self, ctx: SlashContext, **kwargs):
+    async def _discordjoindate(
+        self,
+        ctx: SlashContext,
+        **kwargs
+    ):
         user = await get_user_obj(ctx, kwargs)
-        await ctx.send(embed=embed_message(
-            f"{user.display_name}'s Discord Join Date",
-            f'You joined on `{user.joined_at.strftime("%d/%m/%Y, %H:%M")}`'
-        ))
+        await ctx.send(
+            embed=embed_message(
+                f"{user.display_name}'s Discord Join Date",
+                f'You joined on `{user.joined_at.strftime("%d/%m/%Y, %H:%M")}`'
+            )
+        )
 
 
-def setup(client):
+def setup(
+    client
+):
     client.add_cog(MiscCommands(client))

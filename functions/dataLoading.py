@@ -14,10 +14,14 @@ from static.dict import weaponTypeKinetic, weaponTypeEnergy, weaponTypePower
 
 # gets the weapon (name, [hash1, hash2, ...]) for the search term for all weapons found
 # more than one weapon can be found if it got reissued
-async def searchForItem(ctx, search_term):
+async def searchForItem(
+    ctx,
+    search_term
+):
     # search for the weapon in the api
     info = await get_json_from_url(
-        f'http://www.bungie.net/Platform/Destiny2/Armory/Search/DestinyInventoryItemDefinition/{search_term}/')
+        f'http://www.bungie.net/Platform/Destiny2/Armory/Search/DestinyInventoryItemDefinition/{search_term}/'
+    )
     data = {}
     try:
         for weapon in info.content["Response"]["results"]["results"]:
@@ -36,10 +40,12 @@ async def searchForItem(ctx, search_term):
 
     # if no weapon was found
     except KeyError:
-        await ctx.send(hidden=True, embed=embed_message(
-            f"Error",
-            f"I do not know the weapon `{search_term}`. \nPlease try again"
-        ))
+        await ctx.send(
+            hidden=True, embed=embed_message(
+                f"Error",
+                f"I do not know the weapon `{search_term}`. \nPlease try again"
+            )
+        )
         return None, None
 
     # defer now that we know the weapon exists
@@ -55,14 +61,20 @@ async def searchForItem(ctx, search_term):
         for name in data.keys():
             text += f"\n**{i}** - {name}"
             i += 1
-        msg = await ctx.channel.send(embed=embed_message(
-            f'{ctx.author.display_name}, I need one more thing',
-            text
-        ))
+        msg = await ctx.channel.send(
+            embed=embed_message(
+                f'{ctx.author.display_name}, I need one more thing',
+                text
+            )
+        )
+
 
         # to check whether or not the one that send the msg is the original author for the function after this
-        def check(answer_msg):
+        def check(
+            answer_msg
+        ):
             return answer_msg.author == ctx.author and answer_msg.channel == ctx.channel
+
 
         # wait for reply from original user to set the time parameters
         try:
@@ -70,10 +82,12 @@ async def searchForItem(ctx, search_term):
 
         # if user is too slow, let him know
         except asyncio.TimeoutError:
-            await ctx.send(embed=embed_message(
-                f'Sorry {ctx.author.display_name}',
-                f'You took to long to answer my question, please start over'
-            ))
+            await ctx.send(
+                embed=embed_message(
+                    f'Sorry {ctx.author.display_name}',
+                    f'You took to long to answer my question, please start over'
+                )
+            )
             await msg.delete()
             return None, None
 
@@ -91,44 +105,53 @@ async def searchForItem(ctx, search_term):
             except ValueError:
                 await msg.delete()
                 await answer_msg.delete()
-                await ctx.send(embed=embed_message(
-                    f'Sorry {ctx.author.display_name}',
-                    f'{answer_msg.content} is not a valid number. Please start over'
-                ))
+                await ctx.send(
+                    embed=embed_message(
+                        f'Sorry {ctx.author.display_name}',
+                        f'{answer_msg.content} is not a valid number. Please start over'
+                    )
+                )
                 return None, None
 
     name = list(data.keys())[index]
     return name, data[name]
 
 
-async def getNameToHashMapByClanid(clanid):
-    requestURL = "https://www.bungie.net/Platform/GroupV2/{}/members/".format(clanid) #memberlist
+async def getNameToHashMapByClanid(
+    clanid
+):
+    requestURL = "https://www.bungie.net/Platform/GroupV2/{}/members/".format(clanid)  # memberlist
     memberJSON = await get_json_from_url(requestURL)
     if not memberJSON:
         return {}
     memberlist = memberJSON.content['Response']['results']
-    memberids  = dict()
+    memberids = dict()
     for member in memberlist:
         memberids[member['destinyUserInfo']['LastSeenDisplayName']] = member['destinyUserInfo']['membershipId']
     return memberids
 
 
-async def getNameAndCrossaveNameToHashMapByClanid(clanid):
-    requestURL = "https://www.bungie.net/Platform/GroupV2/{}/members/".format(clanid) #memberlist
+async def getNameAndCrossaveNameToHashMapByClanid(
+    clanid
+):
+    requestURL = "https://www.bungie.net/Platform/GroupV2/{}/members/".format(clanid)  # memberlist
     memberJSON = await get_json_from_url(requestURL)
     if not memberJSON:
         return {}
     memberlist = memberJSON.content['Response']['results']
-    memberids  = dict()
+    memberids = dict()
     for member in memberlist:
         if 'bungieNetUserInfo' in member.keys():
-            memberids[member['destinyUserInfo']['membershipId']] = (member['destinyUserInfo']['LastSeenDisplayName'], member['bungieNetUserInfo']['displayName'])
+            memberids[member['destinyUserInfo']['membershipId']] = (
+                member['destinyUserInfo']['LastSeenDisplayName'], member['bungieNetUserInfo']['displayName'])
         else:
             memberids[member['destinyUserInfo']['membershipId']] = (member['destinyUserInfo']['LastSeenDisplayName'], 'none')
     return memberids
 
 
-async def get_pgcr(instance_id: int) -> WebResponse:
+async def get_pgcr(
+    instance_id: int
+) -> WebResponse:
     return await get_json_from_url(f'https://www.bungie.net/Platform/Destiny2/Stats/PostGameCarnageReport/{instance_id}/')
 
 
@@ -189,8 +212,10 @@ async def updateManifest():
                             connection,
                             definition,
                             int(referenceId),
-                            description=values["displayProperties"]["description"] if "displayProperties" in values and "description" in values["displayProperties"] and values["displayProperties"]["description"] else None,
-                            name=values["displayProperties"]["name"] if "displayProperties" in values and "name" in values["displayProperties"] and values["displayProperties"]["name"] else None
+                            description=values["displayProperties"]["description"] if "displayProperties" in values and "description" in values[
+                                "displayProperties"] and values["displayProperties"]["description"] else None,
+                            name=values["displayProperties"]["name"] if "displayProperties" in values and "name" in values["displayProperties"] and
+                                                                        values["displayProperties"]["name"] else None
                         )
 
                 elif definition == "DestinyActivityModeDefinition":
@@ -297,10 +322,16 @@ async def updateManifest():
                             name=values["displayProperties"]["name"] if "name" in values["displayProperties"] else None,
                             objectiveHash=values["objectiveHash"] if "objectiveHash" in values else None,
                             presentationNodeType=values["presentationNodeType"],
-                            childrenPresentationNodeHash=[list(x.values())[0] for x in values["children"]["presentationNodes"]] if "children" in values and values["children"]["presentationNodes"] else None,
-                            childrenCollectibleHash=[list(x.values())[0] for x in values["children"]["collectibles"]] if "children" in values and values["children"]["collectibles"] else None,
-                            childrenRecordHash=[list(x.values())[0] for x in values["children"]["records"]] if "children" in values and values["children"]["records"] else None,
-                            childrenMetricHash=[list(x.values())[0] for x in values["children"]["metrics"]] if "children" in values and values["children"]["metrics"] else None,
+                            childrenPresentationNodeHash=[list(x.values())[0] for x in values["children"]["presentationNodes"]] if "children" in values and
+                                                                                                                                   values["children"][
+                                                                                                                                       "presentationNodes"] else None,
+                            childrenCollectibleHash=[list(x.values())[0] for x in values["children"]["collectibles"]] if "children" in values and
+                                                                                                                         values["children"][
+                                                                                                                             "collectibles"] else None,
+                            childrenRecordHash=[list(x.values())[0] for x in values["children"]["records"]] if "children" in values and values["children"][
+                                "records"] else None,
+                            childrenMetricHash=[list(x.values())[0] for x in values["children"]["metrics"]] if "children" in values and values["children"][
+                                "metrics"] else None,
                             parentNodeHashes=values["parentNodeHashes"] if "parentNodeHashes" in values else None,
                             index=values["index"],
                             redacted=values["redacted"]
@@ -312,7 +343,11 @@ async def updateManifest():
     print("Done with manifest update!")
 
 
-async def insertPgcrToDB(instanceID: int, activity_time: datetime, pcgr: dict):
+async def insertPgcrToDB(
+    instanceID: int,
+    activity_time: datetime,
+    pcgr: dict
+):
     """ Saves the specified PGCR data in the DB """
     await insertPgcrActivities(
         instanceID,
@@ -404,7 +439,9 @@ async def updateMissingPcgr():
         await deleteFailToGetPgcrInstanceId(instanceID)
 
 
-async def getClanMembers(client):
+async def getClanMembers(
+    client
+):
     # get all clan members {destinyID: discordID}
     memberlist = {}
     for member in (await get_json_from_url(f"https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/")).content["Response"][
@@ -412,12 +449,18 @@ async def getClanMembers(client):
         destinyID = int(member["destinyUserInfo"]["membershipId"])
         discordID = await lookupDiscordID(destinyID)
         if discordID is not None:
-            memberlist.update({destinyID: discordID})
+            memberlist.update(
+                {
+                    destinyID: discordID
+                }
+            )
 
     return memberlist
 
 
-def translateWeaponSlot(weapon_slot: int) -> str:
+def translateWeaponSlot(
+    weapon_slot: int
+) -> str:
     """ Returns weapon_slot as a string"""
 
     slot = {

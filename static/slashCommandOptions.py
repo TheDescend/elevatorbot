@@ -1,5 +1,6 @@
 from discord_slash.utils.manage_commands import create_choice, create_option
 
+
 choices_mode = [
     create_choice(
         name="Everything (Default)",
@@ -46,7 +47,6 @@ choices_mode = [
         value="63"
     ),
 ]
-
 
 options_stat = create_option(
     name="name",
@@ -158,7 +158,10 @@ options_stat = create_option(
 )
 
 
-def options_user(flavor_text: str = "The name of the user you want to look up", required=False):
+def options_user(
+    flavor_text: str = "The name of the user you want to look up",
+    required=False
+):
     return create_option(
         name="user",
         description=flavor_text,

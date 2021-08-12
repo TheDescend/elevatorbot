@@ -20,8 +20,14 @@ from static.slashCommandConfig import permissions_kigstn
 
 
 class Day1Race(commands.Cog):
-    def __init__(self, client):
+
+
+    def __init__(
+        self,
+        client
+    ):
         self.client = client
+
 
     @cog_ext.cog_slash(
         name="day1race",
@@ -29,7 +35,10 @@ class Day1Race(commands.Cog):
         default_permission=False,
         permissions=permissions_kigstn,
     )
-    async def _day1race(self, ctx: SlashContext):
+    async def _day1race(
+        self,
+        ctx: SlashContext
+    ):
         channel = ctx.channel
         await ctx.send("Done", hidden=True)
 
@@ -61,7 +70,9 @@ class Day1Race(commands.Cog):
             async with session.get(image_url) as resp:
                 if resp.status == 200:
                     data = io.BytesIO(await resp.read())
-                    await channel.send(f"__**{activity_name}**__\nMy day one mode is now activated and I will (hopefully) inform about completions. \nGood luck to everyone competing, will see you on the other side.")
+                    await channel.send(
+                        f"__**{activity_name}**__\nMy day one mode is now activated and I will (hopefully) inform about completions. \nGood luck to everyone competing, will see you on the other side."
+                    )
                     await channel.send(file=discord.File(data, f'raid_image.png'))
 
         self.leaderboard_msg = None
@@ -151,7 +162,9 @@ class Day1Race(commands.Cog):
                             deaths += activity["values"]["deaths"]["basic"]["value"]
 
                     # write the fancy text
-                    completions.append(f"""<:desc_circle_b:768906489464619008>**{name}** - Kills: *{int(kills):,}*, Deaths: *{int(deaths):,}*, Time: *{str(datetime.timedelta(seconds=time_spend))}*""")
+                    completions.append(
+                        f"""<:desc_circle_b:768906489464619008>**{name}** - Kills: *{int(kills):,}*, Deaths: *{int(deaths):,}*, Time: *{str(datetime.timedelta(seconds=time_spend))}*"""
+                    )
                 except:
                     print(f"Failed member {name}")
                     completions.append(f"""<:desc_circle_b:768906489464619008>**{name}** finished the raid, but there is no info in the API yet""")
@@ -170,7 +183,11 @@ class Day1Race(commands.Cog):
         await stats.pin()
 
 
-    async def look_for_completion(self, member, channel):
+    async def look_for_completion(
+        self,
+        member,
+        channel
+    ):
         try:
             name = member[0]
             destiny_player = await DestinyPlayer.from_destiny_id(member[1])
@@ -240,7 +257,9 @@ class Day1Race(commands.Cog):
         return member
 
 
-    async def update_leaderboard(self):
+    async def update_leaderboard(
+        self
+    ):
         running_raid = {}
 
         # loop through clan members
@@ -266,7 +285,10 @@ class Day1Race(commands.Cog):
         if self.finished_raid:
             embed.add_field(name="⁣", value=f"__Finished:__", inline=False)
 
-            sort = {k: v for k, v in sorted(self.finished_raid.items(), key=lambda item: item[1], reverse=False)}
+            sort = {k: v for k, v in sorted(
+                self.finished_raid.items(), key=lambda
+                    item: item[1], reverse=False
+            )}
             times = []
             names = []
             for key, value in sort.items():
@@ -279,7 +301,10 @@ class Day1Race(commands.Cog):
         if running_raid:
             embed.add_field(name="⁣", value=f"__Running:__", inline=False)
 
-            sort = {k: v for k, v in sorted(running_raid.items(), key=lambda item: len(item[1]), reverse=True)}
+            sort = {k: v for k, v in sorted(
+                running_raid.items(), key=lambda
+                    item: len(item[1]), reverse=True
+            )}
             done = []
             names = []
             for key, value in sort.items():
@@ -337,7 +362,11 @@ class Day1Race(commands.Cog):
             ),
         ],
     )
-    async def _day1completions(self, ctx: SlashContext, raid: str):
+    async def _day1completions(
+        self,
+        ctx: SlashContext,
+        raid: str
+    ):
         raid_to_emblem_hash = {
             "Last Wish": 1171206947,
             "Scourge of the Past": 2473783710,
@@ -355,7 +384,10 @@ class Day1Race(commands.Cog):
         self.clan_list = []
         self.user_list = []
 
-        async def check_member(member):
+
+        async def check_member(
+            member
+        ):
             if member_role in member.roles:
                 destiny_player = await DestinyPlayer.from_discord_id(member.id)
                 if destiny_player:
@@ -364,6 +396,7 @@ class Day1Race(commands.Cog):
                             self.clan_list.append(member.display_name)
                         else:
                             self.user_list.append(member.display_name)
+
 
         await asyncio.gather(*[check_member(member) for member in ctx.guild.members])
 
@@ -383,5 +416,7 @@ class Day1Race(commands.Cog):
         await ctx.send(embed=embed)
 
 
-def setup(client):
+def setup(
+    client
+):
     client.add_cog(Day1Race(client))

@@ -9,7 +9,12 @@ from functions.miscFunctions import has_elevated_permissions
 from networking.network import get_json_from_url
 
 
-async def startTournamentEvents(client, tourn_msg, tourn_channel, tourn_participants):
+async def startTournamentEvents(
+    client,
+    tourn_msg,
+    tourn_channel,
+    tourn_participants
+):
     await edit_tourn_message(tourn_msg, tourn_participants)
 
     # start the tourn
@@ -17,7 +22,11 @@ async def startTournamentEvents(client, tourn_msg, tourn_channel, tourn_particip
     return await tourn.playTournament(client, tourn_channel)
 
 
-async def edit_tourn_message(msg, tourn_participants, eliminated=None):
+async def edit_tourn_message(
+    msg,
+    tourn_participants,
+    eliminated=None
+):
     if eliminated is None:
         eliminated = []
 
@@ -39,17 +48,34 @@ __Participants:__
 
 
 class Tournament:
-    def __init__(self, players, tourn_message):
+
+
+    def __init__(
+        self,
+        players,
+        tourn_message
+    ):
         self.player_id_translation = {}
         self.players = players
         self.tourn_message = tourn_message
         self.eliminated = []
 
-    async def playTournament(self, client, tourn_channel):
+
+    async def playTournament(
+        self,
+        client,
+        tourn_channel
+    ):
         # takes players[discordID1, discordID2, ...] and returns bracket = [], player_id_translation = {}
-        def getBracket(players):
+        def getBracket(
+            players
+        ):
             # makes the bracket
-            def divide(arr, depth, m):
+            def divide(
+                arr,
+                depth,
+                m
+            ):
                 if len(complements) <= depth:
                     complements.append(2 ** (depth + 2) + 1)
                 complement = complements[depth]
@@ -57,6 +83,7 @@ class Tournament:
                     if complement - arr[i] <= m:
                         arr[i] = [arr[i], complement - arr[i]]
                         divide(arr[i], depth + 1, m)
+
 
             m = len(players)
             complements = []
@@ -69,8 +96,13 @@ class Tournament:
 
             return bracket, player_id_translation
 
+
         # loops through the bracket and plays the games
-        async def playBracket(client, tourn_channel, bracket):
+        async def playBracket(
+            client,
+            tourn_channel,
+            bracket
+        ):
             print(f"Bracket: {bracket}")
 
             # checks if bracket has sub-brackets that need to play first
@@ -83,7 +115,9 @@ class Tournament:
             # if there are any sub brackets, play them first
             if to_play:
                 if len(to_play) == 2:
-                    bracket[0], bracket[1] = await asyncio.gather(*[playBracket(client, tourn_channel, bracket[0]), playBracket(client, tourn_channel, bracket[1])])
+                    bracket[0], bracket[1] = await asyncio.gather(
+                        *[playBracket(client, tourn_channel, bracket[0]), playBracket(client, tourn_channel, bracket[1])]
+                    )
                 elif bracket[0] in to_play:
                     bracket[0] = await playBracket(client, tourn_channel, bracket[0])
                 elif bracket[1] in to_play:
@@ -93,8 +127,14 @@ class Tournament:
 
             return won
 
+
         # waits for the end of the game and then returns the winner
-        async def playGame(client, tourn_channel, player1, player2):
+        async def playGame(
+            client,
+            tourn_channel,
+            player1,
+            player2
+        ):
             # this pretty much needs to look at player1's match history every 10s and return the winner whenever the game with just both players ends up the in the api
 
             print(f"Playing game: {player1} vs {player2}")
@@ -115,11 +155,13 @@ class Tournament:
             timeout = time.time() + 60 * 60  # 60 minutes from now
 
             # send message in chat with reactions for both players. If an admin / dev reacts to them, he can overwrite the auto detection, if it breaks for some reason
-            msg = await tourn_channel.send(embed=embed_message(
-                f"(1) - **{user1.display_name}** vs ** {user2.display_name}** - (2)",
-                f"To play, create a private crucible game where __only__ you two take part in and **finish the game and not leave early**",
-                "If for some reason the auto detect fails, ask an admin / dev to react on the winner"
-            ))
+            msg = await tourn_channel.send(
+                embed=embed_message(
+                    f"(1) - **{user1.display_name}** vs ** {user2.display_name}** - (2)",
+                    f"To play, create a private crucible game where __only__ you two take part in and **finish the game and not leave early**",
+                    "If for some reason the auto detect fails, ask an admin / dev to react on the winner"
+                )
+            )
             reaction1 = client.get_emoji(755044614850740304)
             reaction2 = client.get_emoji(755044614733561916)
             await msg.add_reaction(reaction1)
@@ -171,6 +213,7 @@ class Tournament:
                 # wait a bit
                 await asyncio.sleep(10)
 
+
         # randomize the bracket
         players = random.sample(self.players, len(self.players))
         # generate the bracket
@@ -183,7 +226,12 @@ class Tournament:
         return winner
 
 
-async def returnCustomGameWinner(destinyID1, charIDs1, membershipType1, destinyID2):
+async def returnCustomGameWinner(
+    destinyID1,
+    charIDs1,
+    membershipType1,
+    destinyID2
+):
     for char in charIDs1:
         staturl = f"https://www.bungie.net/Platform/Destiny2/{membershipType1}/Account/{destinyID1}/Character/{char}/Stats/Activities/?mode=0&count=1&page=0"
         rep = await get_json_from_url(staturl)

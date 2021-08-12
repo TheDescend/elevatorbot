@@ -13,7 +13,12 @@ from static.slashCommandOptions import options_user
 
 
 class RoleCommands(commands.Cog):
-    def __init__(self, client):
+
+
+    def __init__(
+        self,
+        client
+    ):
         self.client = client
 
 
@@ -26,7 +31,11 @@ class RoleCommands(commands.Cog):
             options_user()
         ]
     )
-    async def _roles_overview(self, ctx: SlashContext, **kwargs):
+    async def _roles_overview(
+        self,
+        ctx: SlashContext,
+        **kwargs
+    ):
         user = await get_user_obj(ctx, kwargs)
 
         # might take a sec
@@ -66,7 +75,11 @@ class RoleCommands(commands.Cog):
             options_user(flavor_text="Requires elevated permissions")
         ]
     )
-    async def _roles_get(self, ctx: SlashContext, **kwargs):
+    async def _roles_get(
+        self,
+        ctx: SlashContext,
+        **kwargs
+    ):
         # check perm for mention, otherwise abort
         user = await get_user_obj_admin(ctx, kwargs)
         if not user:
@@ -89,10 +102,12 @@ class RoleCommands(commands.Cog):
 
         # if user has no roles show
         if not all_roles_earned:
-            await ctx.send(embed=embed_message(
-                'Info',
-                f'You don\'t seem to have any roles.\nIf you believe this is an Error, refer to one of the <@&{dev_role_id}>\nOtherwise check <#686568386590802000> to see what you could acquire'
-            ))
+            await ctx.send(
+                embed=embed_message(
+                    'Info',
+                    f'You don\'t seem to have any roles.\nIf you believe this is an Error, refer to one of the <@&{dev_role_id}>\nOtherwise check <#686568386590802000> to see what you could acquire'
+                )
+            )
             return
 
         # assign roles
@@ -169,7 +184,11 @@ class RoleCommands(commands.Cog):
             options_user()
         ]
     )
-    async def _roles_requirements(self, ctx: SlashContext, **kwargs):
+    async def _roles_requirements(
+        self,
+        ctx: SlashContext,
+        **kwargs
+    ):
         user = await get_user_obj(ctx, kwargs)
         role = kwargs["role"]
 
@@ -186,10 +205,12 @@ class RoleCommands(commands.Cog):
         reqs = await has_role(destiny_player, role, return_as_bool=False)
 
         if not reqs:
-            await ctx.send(hidden=True, embed=embed_message(
-                f"Error",
-                f"This role can't be achieved through Destiny 2 \nPlease try again with a different role"
-            ))
+            await ctx.send(
+                hidden=True, embed=embed_message(
+                    f"Error",
+                    f"This role can't be achieved through Destiny 2 \nPlease try again with a different role"
+                )
+            )
 
         else:
             # construct reply msg
@@ -203,7 +224,10 @@ class RoleCommands(commands.Cog):
             await ctx.send(embed=embed)
 
 
-    def missingRoles(self, user):
+    def missingRoles(
+        self,
+        user
+    ):
         roles = {}
         deprecated_roles = {}
 
@@ -268,11 +292,7 @@ class RoleCommands(commands.Cog):
         return roles, deprecated_roles
 
 
-
-
-
-
-def setup(client):
+def setup(
+    client
+):
     client.add_cog(RoleCommands(client))
-
-
