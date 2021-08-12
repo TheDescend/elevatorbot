@@ -101,7 +101,7 @@ class DestinyCommands(commands.Cog):
         # get the return text in a gather
         interesting_solos_texts = await asyncio.gather(*[
             self.get_formatted_solos_data(
-                destiny_id=destiny_player.destiny_id,
+                destiny_player=destiny_player,
                 solo_activity_ids=solo_activity_ids,
             ) for solo_activity_ids in interesting_solos.values()
         ])
@@ -123,13 +123,11 @@ class DestinyCommands(commands.Cog):
 
 
     @staticmethod
-    async def get_formatted_solos_data(destiny_id: int, solo_activity_ids: list[int]) -> str:
+    async def get_formatted_solos_data(destiny_player: DestinyPlayer, solo_activity_ids: list[int]) -> str:
         """ returns the formatted string to be used in self.solos() """
 
-        results = await get_lowman_count(
-            destiny_id=destiny_id,
-            activity_hashes=solo_activity_ids,
-        )
+        results = await destiny_player.get_lowman_count(solo_activity_ids)
+
         return f"Solo Completions: **{results[0]}**\nSolo Flawless Count: **{results[1]}**\nFastest Solo: **{results[2]}**"
 
 

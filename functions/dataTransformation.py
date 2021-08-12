@@ -18,30 +18,6 @@ from database.database import get_info_on_low_man_activity, getSeals, getEveryth
 
 
 
-# todo ported
-async def get_lowman_count(destiny_id: int, activity_hashes: list[int]) -> list[int, int, Optional[timedelta]]:
-    """ Returns [solo_count, solo_is_flawless_count, Optional[solo_fastest]] """
-    solo_count, solo_is_flawless_count, solo_fastest = 0, 0, None
-
-    # get player data
-    records = await get_info_on_low_man_activity(
-        activity_hashes=activity_hashes,
-        player_count=1,
-        destiny_id=destiny_id,
-        no_checkpoints=True
-    )
-
-    # prepare player data
-    for solo in records:
-        solo_count += 1
-        if solo["deaths"] == 0:
-            solo_is_flawless_count += 1
-        if not solo_fastest or (solo["timeplayedseconds"] < solo_fastest):
-            solo_fastest = solo["timeplayedseconds"]
-
-    return [solo_count, solo_is_flawless_count, timedelta(seconds=solo_fastest) if solo_fastest else solo_fastest]
-
-
 async def getSeasonalChallengeInfo():
     """
     Returns dict:
