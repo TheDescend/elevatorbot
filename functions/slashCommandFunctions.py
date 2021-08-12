@@ -1,13 +1,10 @@
 import datetime
-from typing import Optional
 
 import discord
 from discord_slash import SlashContext
 
-from database.database import lookupDestinyID, lookupSystem
 from functions.formating import embed_message
 from functions.miscFunctions import has_elevated_permissions
-from networking.bungieAuth import handle_and_return_token
 
 
 async def get_user_obj(ctx: SlashContext, kwargs: dict = None) -> discord.Member:

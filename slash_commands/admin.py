@@ -7,8 +7,8 @@ from discord_slash import cog_ext, SlashContext, ButtonStyle
 from discord_slash.utils import manage_components
 from discord_slash.utils.manage_commands import create_option, create_choice
 
-from database.database import lookupDiscordID, lookupDestinyID, lookupSystem
-from functions.dataLoading import getNameAndCrossaveNameToHashMapByClanid, getProfile
+from database.database import lookupDiscordID
+from functions.dataLoading import getNameAndCrossaveNameToHashMapByClanid
 from functions.destinyPlayer import DestinyPlayer
 from functions.formating import embed_message
 from functions.persistentMessages import make_persistent_message, steamJoinCodeMessage

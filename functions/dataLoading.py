@@ -1,17 +1,15 @@
 import asyncio
 from datetime import datetime
-from typing import Optional, Union, AsyncGenerator
 
-from database.database import get_connection_pool, lookupDiscordID, lookupSystem, insertPgcrActivities, getPgcrActivity, \
+from database.database import get_connection_pool, lookupDiscordID, insertPgcrActivities, getPgcrActivity, \
     insertPgcrActivitiesUsersStats, \
-    insertPgcrActivitiesUsersStatsWeapons, getFailToGetPgcrInstanceId, deleteFailToGetPgcrInstanceId, getWeaponInfo, \
+    insertPgcrActivitiesUsersStatsWeapons, getFailToGetPgcrInstanceId, deleteFailToGetPgcrInstanceId, \
     updateDestinyDefinition, getVersion, updateVersion, deleteEntries
 from functions.formating import embed_message
 from networking.models import WebResponse
-from networking.network import get_json_from_url, get_json_from_bungie_with_token
+from networking.network import get_json_from_url
 from static.config import CLANID
 from static.dict import weaponTypeKinetic, weaponTypeEnergy, weaponTypePower
-
 
 
 # gets the weapon (name, [hash1, hash2, ...]) for the search term for all weapons found

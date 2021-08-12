@@ -1,9 +1,8 @@
 import datetime
 
-from database.database import lookupDestinyID, getDestinyDefinition
+from database.database import getDestinyDefinition
 from events.base_event import BaseEvent
 from functions.authfunctions import getVendorData
-from functions.dataLoading import getCharacterList
 from functions.destinyPlayer import DestinyPlayer
 from functions.formating import embed_message
 from functions.persistentMessages import bot_status

@@ -7,7 +7,6 @@ import discord
 
 from database.database import getFlawlessHashes, getClearCount, getDestinyDefinition
 from functions.dataTransformation import hasLowman
-from functions.dataTransformation import has_collectible, hasTriumph
 from functions.destinyPlayer import DestinyPlayer
 from static.dict import requirementHashes, requirement_hashes_without_years
 # check if user has permission to use this command

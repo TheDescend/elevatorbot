@@ -1,21 +1,10 @@
-from datetime import timedelta
-import time
-from typing import Union, Optional
-
-import matplotlib
-import time
-from datetime import timedelta
-from typing import Union, Optional
-
 import matplotlib
 
 matplotlib.use('Agg')
 
-from functions.dataLoading import getStats, get_triumphs_json, get_pgcr, getNameToHashMapByClanid, getProfile
+from functions.dataLoading import get_pgcr, getNameToHashMapByClanid
 from static.dict import clanids, seasonalChallengesCategoryHash
-from database.database import get_info_on_low_man_activity, getSeals, getEverything, getEverythingRow, \
-    insertEmblem, hasEmblem
-
+from database.database import getEverything, getEverythingRow
 
 
 async def getSeasonalChallengeInfo():

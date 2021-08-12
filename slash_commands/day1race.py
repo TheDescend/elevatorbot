@@ -11,9 +11,6 @@ from discord.ext import commands
 from discord_slash import cog_ext, SlashContext
 from discord_slash.utils.manage_commands import create_option, create_choice
 
-from database.database import lookupDestinyID
-from functions.dataLoading import getPlayersPastActivities, getProfile
-from functions.dataTransformation import getMetricValue, has_collectible
 from functions.destinyPlayer import DestinyPlayer
 from functions.formating import embed_message
 from networking.network import get_json_from_url
