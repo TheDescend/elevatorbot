@@ -435,6 +435,7 @@ class DestinyPlayer:
         return self._gear
 
 
+
     async def get_weapon_stats(
         self,
         weapon_ids: list[int],
