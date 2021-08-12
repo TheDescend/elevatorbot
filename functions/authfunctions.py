@@ -1,8 +1,10 @@
+from inspect import currentframe, getframeinfo
+
 from database.database import lookupDiscordID, getDestinyDefinition, lookupSystem
+from functions.formating import embed_message
 from networking.models import WebResponse
 from networking.network import get_json_from_bungie_with_token
-from inspect                import currentframe, getframeinfo
-from functions.formating    import embed_message
+
 
 async def getUserMaterials(destinyID):
     system = 3

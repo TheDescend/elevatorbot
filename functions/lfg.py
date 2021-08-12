@@ -1,11 +1,10 @@
 import asyncio
+import dataclasses
 import datetime
 from typing import Union
 
-import pytz
 import discord
-import dataclasses
-
+import pytz
 from apscheduler.jobstores.base import JobLookupError
 from discord_slash import SlashContext, ComponentContext, ButtonStyle
 from discord_slash.utils import manage_components
@@ -15,8 +14,7 @@ from database.database import get_next_free_lfg_message_id, get_persistent_messa
 from functions.formating import embed_message
 from functions.miscFunctions import has_elevated_permissions, get_scheduler
 from functions.persistentMessages import get_persistent_message_or_channel
-from static.globals import join_emoji_id, leave_emoji_id, backup_emoji_id, discord_server_id, raid_category_channel_id, \
-    vanguard_category_channel_id, crucible_category_channel_id
+from static.globals import join_emoji_id, leave_emoji_id, backup_emoji_id
 
 
 @dataclasses.dataclass()

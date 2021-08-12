@@ -3,17 +3,17 @@ import copy
 import datetime
 import io
 import pickle
-import pytz
 
 import aiohttp
 import discord
+import pytz
 from discord.ext import commands
 from discord_slash import cog_ext, SlashContext
 from discord_slash.utils.manage_commands import create_option, create_choice
 
+from database.database import lookupDestinyID
 from functions.dataLoading import getPlayersPastActivities, getProfile
 from functions.dataTransformation import getMetricValue, has_collectible
-from database.database import lookupDestinyID
 from functions.formating import embed_message
 from networking.network import get_json_from_url
 from static.config import CLANID

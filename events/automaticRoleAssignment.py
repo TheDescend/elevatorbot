@@ -4,14 +4,14 @@ from typing import Optional
 
 import discord
 
-from events.backgroundTasks import updateActivityDB
-from events.base_event import BaseEvent
 from database.database import lookupDiscordID, lookupDestinyID
+from events.backgroundTasks import UpdateActivityDB
+from events.base_event import BaseEvent
 from functions.formating import split_into_chucks_of_max_2000_characters
-from networking.network import get_json_from_url
-from networking.bungieAuth import handle_and_return_token
 from functions.persistentMessages import bot_status
 from functions.roleLookup import assignRolesToUser, removeRolesFromUser, get_player_roles
+from networking.bungieAuth import handle_and_return_token
+from networking.network import get_json_from_url
 from static.config import CLANID, BOTDEVCHANNELID
 from static.globals import *
 
@@ -59,7 +59,7 @@ class AutomaticRoleAssignment(BaseEvent):
         guild = newtonslab.guild
 
         async with newtonslab.typing():
-            update = updateActivityDB()
+            update = UpdateActivityDB()
             await update.run(client)
 
         joblist = []

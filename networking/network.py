@@ -1,14 +1,12 @@
+from datetime import timedelta
+
 import aiohttp
 import aiohttp_client_cache
 
-from datetime import timedelta
-
 from networking.bungieAuth import handle_and_return_token
-from networking.networkBackend import get_request, post_request
 from networking.models import WebResponse
+from networking.networkBackend import get_request, post_request
 from static.config import BUNGIE_TOKEN
-
-
 
 # base bungie headers
 HEADERS = {

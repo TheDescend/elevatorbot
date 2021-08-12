@@ -10,10 +10,9 @@ from discord_slash import SlashContext
 from database.database import select_guild_lfg_events
 from functions.formating import embed_message
 from networking.bungieAuth import handle_and_return_token
+from static.config import COMMAND_PREFIX
 from static.dict import expansion_dates, season_dates
 from static.globals import admin_role_id, dev_role_id, mod_role_id
-from static.config import COMMAND_PREFIX
-
 
 scheduler = None
 

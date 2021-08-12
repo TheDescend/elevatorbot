@@ -7,13 +7,14 @@ from discord_slash import cog_ext, SlashContext, ButtonStyle
 from discord_slash.utils import manage_components
 from discord_slash.utils.manage_commands import create_option, create_choice
 
-from functions.dataLoading import getNameAndCrossaveNameToHashMapByClanid, getProfile, updateDB
-from database.database import lookupDiscordID, lookupDestinyID, lookupSystem, getAllDestinyIDs
+from database.database import lookupDiscordID, lookupDestinyID, lookupSystem
+from functions.dataLoading import getNameAndCrossaveNameToHashMapByClanid, getProfile
+from functions.destinyPlayer import DestinyPlayer
 from functions.formating import embed_message
-from networking.network import get_json_from_url
-from networking.bungieAuth import handle_and_return_token
 from functions.persistentMessages import make_persistent_message, steamJoinCodeMessage
 from functions.roleLookup import assignRolesToUser, removeRolesFromUser
+from networking.bungieAuth import handle_and_return_token
+from networking.network import get_json_from_url
 from static.config import CLANID
 from static.globals import other_game_roles, muted_role_id, bot_spam_channel_id, enter_emoji_id, \
     circle_emoji_id
@@ -637,35 +638,20 @@ Basically just type `/lfg` and look around. There are many other cool commands t
         message = await ctx.send("Forcing DB update, this is gonna take a while. Will let you know once done")
 
         # get all users the bot shares a guild with
-        shared_guild = []
-        for guild in self.client.guilds:
-            for members in guild.members:
-                shared_guild.append(members.id)
-        shared_guild = set(shared_guild)
-
-        # loop though all ids
         to_update = []
-        destiny_ids = await getAllDestinyIDs()
-        for destiny_id in destiny_ids:
-            discord_id = await lookupDiscordID(destiny_id)
+        for guild in ctx.bot.guilds:
+            for member in guild.members:
+                destiny_player = await DestinyPlayer.from_discord_id(member.id)
 
-            # check is user is in a guild with bot
-            if discord_id in shared_guild:
-                # get system
-                system = await lookupSystem(destiny_id)
-                if not system:
-                    continue
+                # check if exists / already in list
+                if destiny_player and destiny_player not in to_update:
+                    to_update.append(destiny_player)
 
-                # set entry_time to min, to force update everything
-                to_update.append({
-                    "destiny_id": destiny_id,
-                    "system": system,
-                    "entry_time": datetime.datetime.min
-                })
-
-        # update all users
-        await asyncio.gather(*[updateDB(destiny_id=user["destiny_id"], system=user["system"], entry_time=user["entry_time"]) for user in to_update])
-        print("Done updating DB")
+        # update all users in a gather for zooms
+        await asyncio.gather(*[
+            destiny_player.update_activity_db(entry_time=datetime.datetime.min)
+            for destiny_player in to_update
+        ])
 
         await message.reply("Done with the DB update")
 

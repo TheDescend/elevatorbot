@@ -1,6 +1,4 @@
 from discord.ext import commands
-from discord_slash import cog_ext, SlashContext
-from static.config import GUILD_IDS
 
 
 class DevCommands(commands.Cog):

@@ -1,5 +1,5 @@
-from events.base_event import BaseEvent
 from database.database import get_persistent_message
+from events.base_event import BaseEvent
 
 
 class GetMemberCount(BaseEvent):

@@ -2,7 +2,6 @@ import datetime
 from typing import Optional
 
 import discord
-
 from discord_slash import SlashContext
 
 from database.database import lookupDestinyID, lookupSystem
@@ -36,31 +35,6 @@ async def get_user_obj_admin(ctx: SlashContext, kwargs: dict = None, allowed_use
     ))
     return
 
-
-async def get_destinyID_and_system(ctx: SlashContext, discord_user) -> tuple[Optional[discord.Member], Optional[int], Optional[int]]:
-    """" takes either a discord user_id or the user obj and return user obj, destinyID and system or None """
-
-    var_type = type(discord_user)
-
-    if var_type == int:
-        user = ctx.bot.get_user(discord_user)
-    elif var_type == discord.user.User or var_type == discord.member.Member:
-        user = discord_user
-    else:
-        return None, None, None
-
-    destinyID = await lookupDestinyID(user.id)
-    system = await lookupSystem(destinyID)
-
-    # check if user is registered and has a valid token
-    if not (destinyID and system) or not (await handle_and_return_token(user.id)).token:
-        await ctx.send(hidden=True, embed=embed_message(
-            f"Error",
-            f"I either possess no information about {user.display_name} or their authentication is outdated. \nPlease `/registerdesc` to fix this issue'"
-        ))
-        return None, None, None
-
-    return user, destinyID, system
 
 async def verify_time_input(ctx, input):
     """ Verifies that the user input is a valid time and returns the datetime obj. Else returns False """

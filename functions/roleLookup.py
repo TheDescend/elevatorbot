@@ -1,15 +1,14 @@
+import asyncio
+import time
 from datetime import datetime
 from typing import Optional, Union
 
 import discord
-import asyncio
-import time
 
 from database.database import getFlawlessHashes, getClearCount, getDestinyDefinition
 from functions.dataTransformation import hasLowman
 from functions.dataTransformation import has_collectible, hasTriumph
 from static.dict import requirementHashes, requirement_hashes_without_years
-
 # check if user has permission to use this command
 from static.globals import role_ban_id, divider_legacy_role_id
 

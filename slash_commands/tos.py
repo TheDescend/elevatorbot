@@ -3,8 +3,6 @@ from discord.http import Route
 from discord_slash import cog_ext, SlashContext
 from discord_slash.utils.manage_commands import create_option, create_choice
 
-from static.config import GUILD_IDS
-
 
 class ToSCommands(commands.Cog):
     def __init__(self, client):

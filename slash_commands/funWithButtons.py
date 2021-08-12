@@ -1,11 +1,8 @@
 from discord.ext import commands
-from discord_slash import cog_ext, SlashContext, ButtonStyle
-from discord_slash.utils import manage_components
+from discord_slash import cog_ext, SlashContext
 from discord_slash.utils.manage_commands import create_option
 
-from functions.formating import embed_message
 from functions.funWithButtons import TicTacToeGame, Calculator
-from static.config import GUILD_IDS
 
 
 class Games(commands.Cog):

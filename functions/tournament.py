@@ -3,8 +3,8 @@ import json
 import random
 import time
 
-from functions.dataLoading import getCharacterList
 from database.database import lookupDestinyID
+from functions.dataLoading import getCharacterList
 from functions.formating import embed_message
 from functions.miscFunctions import has_elevated_permissions
 from networking.network import get_json_from_url

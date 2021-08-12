@@ -1,5 +1,3 @@
-import asyncio
-
 from database.database import getGrandmasterHashes
 
 

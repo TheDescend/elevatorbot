@@ -3,8 +3,8 @@ from discord_slash import cog_ext, SlashContext, ButtonStyle
 from discord_slash.utils import manage_components
 from discord_slash.utils.manage_commands import create_option, create_choice
 
-from functions.formating import embed_message
-from functions.slashCommandFunctions import get_user_obj, get_destinyID_and_system
+from functions.destinyPlayer import DestinyPlayer
+from functions.slashCommandFunctions import get_user_obj
 from static.slashCommandOptions import options_user
 
 
@@ -83,8 +83,8 @@ class ExternalWebsitesCommands(commands.Cog):
     )
     async def _website(self, ctx: SlashContext, website, **kwargs):
         user = await get_user_obj(ctx, kwargs)
-        _, destinyID, system = await get_destinyID_and_system(ctx, user)
-        if not destinyID:
+        destiny_player = await DestinyPlayer.from_discord_id(user.id, ctx=ctx)
+        if not destiny_player:
             return
 
         # get the text

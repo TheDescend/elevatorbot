@@ -1,13 +1,8 @@
 import asyncio
 import functools
-import itertools
-import math
-import random
 
 import discord
 import youtube_dl
-from async_timeout import timeout
-from discord.ext import commands
 
 youtube_dl.utils.bug_reports_message = lambda: ''
 

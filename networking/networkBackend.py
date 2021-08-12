@@ -1,14 +1,13 @@
+import asyncio
 import logging
 import random
-import asyncio
+from typing import Optional, Union
+
 import aiohttp
 import aiohttp_client_cache
 
-from typing import Optional, Union
-
 from networking.bungieRatelimiting import BungieRateLimiter
 from networking.models import WebResponse
-
 
 # get logger
 logger = logging.getLogger('network')

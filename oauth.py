@@ -1,22 +1,21 @@
 #!/usr/bin/python3
 
 import asyncio
+import json
 import os
 import time
 
-import json
 import requests
 from flask import Flask, request, redirect, Response, render_template, jsonify
 from flask import send_from_directory
+from nacl.encoding import HexEncoder
+from nacl.hash import sha256
+from nacl.signing import VerifyKey
 
 from database.database import insertToken, getRefreshToken, getToken, lookupDiscordID, \
     create_connection_pool
-from static.config import BUNGIE_TOKEN, B64_SECRET, NEWTONS_WEBHOOK
-
-from nacl.signing import VerifyKey
-from nacl.encoding import HexEncoder
-from nacl.hash import sha256
 from static.config import BOT_ACCOUNT_PUBLIC_KEY
+from static.config import BUNGIE_TOKEN, B64_SECRET, NEWTONS_WEBHOOK
 
 verify_key = VerifyKey(bytes.fromhex(BOT_ACCOUNT_PUBLIC_KEY))
 

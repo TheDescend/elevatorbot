@@ -1,15 +1,14 @@
 import asyncio
 import json
-from typing import Union, List
+from datetime import datetime, date
+from typing import Union
 
+import asyncpg
 import discord
 import pandas
-import asyncpg
-from datetime import datetime, date
 from sshtunnel import SSHTunnelForwarder
 
 import database.psql_credentials as psql_credentials
-
 
 """ ALL DATABASE ACCESS FUNCTIONS """
 ssh_server = None

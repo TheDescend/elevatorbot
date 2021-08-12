@@ -1,16 +1,19 @@
-import pathlib
-from datetime import datetime, timedelta
+from datetime import timedelta
 import time
 from typing import Union, Optional
 
 import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
+import time
+from datetime import timedelta
+from typing import Union, Optional
 
-from functions.dataLoading import getStats, get_triumphs_json, get_pgcr, getPlayersPastActivities, \
-    getNameToHashMapByClanid, getProfile
+import matplotlib
+
+matplotlib.use('Agg')
+
+from functions.dataLoading import getStats, get_triumphs_json, get_pgcr, getNameToHashMapByClanid, getProfile
 from static.dict import clanids, seasonalChallengesCategoryHash
-from database.database import get_info_on_low_man_activity, getDestinyDefinition, getSeals, getEverything, getEverythingRow, \
+from database.database import get_info_on_low_man_activity, getSeals, getEverything, getEverythingRow, \
     insertEmblem, hasEmblem
 
 

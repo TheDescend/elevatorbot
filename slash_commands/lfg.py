@@ -1,5 +1,6 @@
 import asyncio
 import datetime
+
 import dateutil
 import pytz
 from discord.ext import commands
@@ -10,8 +11,6 @@ from discord_slash.utils.manage_commands import create_option, create_choice
 from database.database import add_lfg_blacklisted_member, remove_lfg_blacklisted_member
 from functions.formating import embed_message
 from functions.lfg import create_lfg_message, get_lfg_message
-from static.config import GUILD_IDS
-from static.globals import join_emoji_id, leave_emoji_id, backup_emoji_id
 from static.slashCommandOptions import options_user
 
 timezones_dict = {

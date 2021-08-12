@@ -3,11 +3,10 @@ from discord.ext import commands
 from discord_slash import cog_ext, SlashContext
 from discord_slash.utils.manage_commands import create_option
 
-from functions.dataLoading import updateDB
+from functions.destinyPlayer import DestinyPlayer
 from functions.formating import embed_message
-from functions.roleLookup import get_player_roles, assignRolesToUser, removeRolesFromUser, has_role
-from functions.slashCommandFunctions import get_user_obj, get_user_obj_admin, get_destinyID_and_system
-from static.config import GUILD_IDS
+from functions.roleLookup import get_player_roles, has_role
+from functions.slashCommandFunctions import get_user_obj, get_user_obj_admin
 from static.dict import requirementHashes
 from static.globals import dev_role_id
 from static.slashCommandOptions import options_user
@@ -74,15 +73,15 @@ class RoleCommands(commands.Cog):
             return
 
         # get destiny user info
-        _, destinyID, system = await get_destinyID_and_system(ctx, user)
-        if not destinyID:
+        destiny_player = await DestinyPlayer.from_discord_id(user.id, ctx=ctx)
+        if not destiny_player:
             return
 
         # might take a sec
         await ctx.defer()
 
         # update user DB
-        await updateDB(destinyID)
+        await destiny_player.update_activity_db()
 
         # get new roles
         roles_at_start = [role.name for role in user.roles]
@@ -178,10 +177,12 @@ class RoleCommands(commands.Cog):
         await ctx.defer()
 
         # Get user details
-        _, destinyID, system = await get_destinyID_and_system(ctx, user)
+        destiny_player = await DestinyPlayer.from_discord_id(user.id, ctx=ctx)
+        if not destiny_player:
+            return
 
         # update user DB
-        await updateDB(destinyID)
+        await destiny_player.update_activity_db()
         reqs = await has_role(destinyID, role, return_as_bool=False)
 
         if not reqs:

@@ -1,7 +1,6 @@
 import asyncio
 import io
 import random
-import copy
 
 import aiohttp
 import discord
@@ -11,10 +10,9 @@ from discord_slash.utils.manage_commands import create_option
 
 from functions.formating import embed_message
 from functions.miscFunctions import has_elevated_permissions
-from functions.poll import Poll, get_poll_object, create_poll_object
+from functions.poll import get_poll_object, create_poll_object
 from functions.roleLookup import assignRolesToUser, removeRolesFromUser
 from functions.slashCommandFunctions import get_user_obj
-from static.config import GUILD_IDS
 from static.globals import muted_role_id
 from static.slashCommandConfig import permissions_socialist
 from static.slashCommandOptions import options_user

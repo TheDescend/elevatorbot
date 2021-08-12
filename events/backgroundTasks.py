@@ -1,12 +1,12 @@
-import datetime
 import asyncio
+import datetime
 
 import discord
 
 from events.base_event import BaseEvent
-from functions.dataLoading import updateDB, updateMissingPcgr, updateManifest
+from functions.dataLoading import updateMissingPcgr, updateManifest
+from functions.destinyPlayer import DestinyPlayer
 from functions.persistentMessages import bot_status
-from database.database import getAllDestinyIDs, lookupDiscordID, getLastUpdated, lookupSystem
 from networking.bungieAuth import handle_and_return_token
 
 
@@ -16,7 +16,8 @@ class UpdateManifest(BaseEvent):
         dow_day_of_week = "*"
         dow_hour = 3
         dow_minute = 0
-        super().__init__(scheduler_type="cron", dow_day_of_week=dow_day_of_week, dow_hour=dow_hour, dow_minute=dow_minute)
+        super().__init__(scheduler_type="cron", dow_day_of_week=dow_day_of_week, dow_hour=dow_hour,
+                         dow_minute=dow_minute)
 
     async def run(self, client):
         await updateManifest()
@@ -25,7 +26,7 @@ class UpdateManifest(BaseEvent):
         await bot_status(client, "Manifest Update", datetime.datetime.now(tz=datetime.timezone.utc))
 
 
-class updateActivityDB(BaseEvent):
+class UpdateActivityDB(BaseEvent):
     def __init__(self):
         # Set the interval for this event
         interval_minutes = 60
@@ -39,40 +40,21 @@ class updateActivityDB(BaseEvent):
         print("Start updating DB...")
 
         # get all users the bot shares a guild with
-        shared_guild = set()
-        for guild in client.guilds:
-            for members in guild.members:
-                shared_guild.add(members.id)
-
-        # loop though all ids
         to_update = []
-        destiny_ids = await getAllDestinyIDs()
-        for destiny_id in destiny_ids:
-            discord_id = await lookupDiscordID(destiny_id)
+        for guild in client.guilds:
+            for member in guild.members:
+                destiny_player = await DestinyPlayer.from_discord_id(member.id)
 
-            # check is user is in a guild with bot
-            if discord_id in shared_guild:
-                # get system
-                system = await lookupSystem(destiny_id)
-                if not system:
-                    continue
+                # check if exists / already in list
+                if destiny_player and destiny_player not in to_update:
+                    to_update.append(destiny_player)
 
-                # get last updated for the users
-                entry_time = await getLastUpdated(destiny_id)
-                to_update.append({
-                    "destiny_id": destiny_id,
-                    "system": system,
-                    "entry_time": entry_time
-                })
-
-        # update all users
-        await asyncio.gather(*[updateDB(
-            destiny_id=user["destiny_id"], 
-            system=user["system"], 
-            entry_time=user["entry_time"]) 
-            for user in to_update
+        # update all users in a gather for zooms
+        await asyncio.gather(*[
+            destiny_player.update_activity_db()
+            for destiny_player in to_update
         ])
-        
+
         print("Done updating DB")
 
         # try to get the missing pgcrs
@@ -90,7 +72,8 @@ class TokenUpdater(BaseEvent):
         dow_day_of_week = "fri"
         dow_hour = 5
         dow_minute = 0
-        super().__init__(scheduler_type="cron", dow_day_of_week=dow_day_of_week, dow_hour=dow_hour, dow_minute=dow_minute)
+        super().__init__(scheduler_type="cron", dow_day_of_week=dow_day_of_week, dow_hour=dow_hour,
+                         dow_minute=dow_minute)
 
     async def run(self, client):
         print("Starting to refresh Tokens...")
@@ -102,5 +85,3 @@ class TokenUpdater(BaseEvent):
         await bot_status(client, "Token Refresh", datetime.datetime.now(tz=datetime.timezone.utc))
 
         print("Done refreshing Tokens")
-
-

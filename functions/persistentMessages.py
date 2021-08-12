@@ -1,7 +1,7 @@
+import datetime
 from typing import Union, Optional
 
 import discord
-import datetime
 
 from database.database import get_persistent_message, insertPersistentMessage, \
     getallSteamJoinIDs, updatePersistentMessage, getAllPersistentMessages, deletePersistentMessage

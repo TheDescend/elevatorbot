@@ -2,49 +2,38 @@
 # if this is skipped, some imports will fail since they rely on database lookups
 # for example GM nightfalls, since they change each season. This allows us to create the hash list dynamically, instead of having to add to it every season
 import asyncio
-import threading
-
-import pytz
-from aiohttp import web
 import datetime
-import sys
-
 import logging
-import traceback
 import os
 import random
-
-import requests
-import json
-
+import sys
+import threading
+import traceback
 import urllib
-
 from io import BytesIO
 
 import discord
-from discord.ext.commands import Bot
-from discord_slash import SlashCommand, SlashContext, ComponentContext, ButtonStyle
-
+import pytz
+import requests
+from aiohttp import web
 from apscheduler.events import EVENT_JOB_EXECUTED, EVENT_JOB_ERROR, EVENT_JOB_ADDED, EVENT_JOB_REMOVED
 from apscheduler.events import EVENT_JOB_MISSED, EVENT_JOB_SUBMITTED
+from discord.ext.commands import Bot
+from discord_slash import SlashCommand, SlashContext, ComponentContext, ButtonStyle
 from discord_slash.utils import manage_components
 
-from functions.lfg import notify_about_lfg_event_start, get_lfg_message
-from functions.poll import get_poll_object
-from init_logging import init_logging
-
+from database.database import get_connection_pool, \
+    select_lfg_datetimes_and_users
+from events.base_event import BaseEvent
 from functions.clanJoinRequests import removeFromClanAfterLeftDiscord, on_clan_join_request, elevatorRegistration
-from functions.dataLoading import updateDB
+from functions.destinyPlayer import DestinyPlayer
 from functions.formating import embed_message
+from functions.lfg import notify_about_lfg_event_start, get_lfg_message
 from functions.miscFunctions import update_status, get_scheduler, left_channel, joined_channel
 from functions.persistentMessages import check_reaction_for_persistent_message, get_persistent_message_or_channel
+from functions.poll import get_poll_object
 from functions.roleLookup import assignRolesToUser, removeRolesFromUser
-
-from events.base_event import BaseEvent
-
-from database.database import insertIntoMessageDB, lookupDestinyID, get_connection_pool, \
-    select_lfg_datetimes_and_users
-
+from init_logging import init_logging
 from static.config import COMMAND_PREFIX, BOT_TOKEN, ELEVATOR_ADMIN_CLIENT_SECRET
 from static.globals import registered_role_id, not_registered_role_id, admin_discussions_channel_id, \
     divider_raider_role_id, divider_achievement_role_id, divider_misc_role_id, muted_role_id, dev_role_id, \
@@ -472,8 +461,8 @@ def main():
                 await member.send('Registration successful!\nCome say hi in <#670400011519000616>')
 
                 # update user DB
-                destinyID = await lookupDestinyID(member.id)
-                await updateDB(destinyID)
+                destiny_player = await DestinyPlayer.from_discord_id(member.id)
+                await destiny_player.update_activity_db()
 
     @client.event
     async def on_message(message):

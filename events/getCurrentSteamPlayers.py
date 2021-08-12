@@ -1,9 +1,9 @@
 import datetime
 
-from events.base_event import BaseEvent
 from database.database import update_d2_steam_players
-from networking.network import get_json_from_url
+from events.base_event import BaseEvent
 from functions.persistentMessages import bot_status
+from networking.network import get_json_from_url
 from static.config import STEAM_TOKEN
 
 

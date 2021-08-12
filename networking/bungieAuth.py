@@ -1,13 +1,12 @@
 import time
-import aiohttp
-
 from typing import Optional
+
+import aiohttp
 
 from database.database import getRefreshToken, lookupDestinyID, updateToken, getToken, getTokenExpiry
 from networking.models import BungieToken
 from networking.networkBackend import post_request
 from static.config import B64_SECRET
-
 
 
 async def handle_and_return_token(discord_id: int) -> BungieToken:

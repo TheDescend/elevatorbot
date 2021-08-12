@@ -4,16 +4,18 @@ import asyncio
 import dataclasses
 import datetime
 import logging
-from typing import AsyncGenerator, Optional, TypeVar, Union
+from typing import AsyncGenerator, Optional, Union
+from urllib.parse import urljoin
 
 import discord
-from urllib.parse import urljoin
+from discord_slash import SlashContext
+from discord_slash.context import InteractionContext
 
 from database.database import lookupDiscordID, lookupSystem, lookupDestinyID, insertFailToGetPgcrInstanceId, \
     getLastUpdated, getPgcrActivity, updateLastUpdated, get_info_on_low_man_activity, getSeals, getWeaponInfo
 from functions.dataLoading import get_pgcr, insertPgcrToDB
+from functions.formating import embed_message
 from networking.network import get_json_from_bungie_with_token, get_json_from_url
-
 
 race_map = {
     2803282938: 'Awoken',
@@ -29,6 +31,11 @@ class_map = {
     2271682572: 'Warlock',
     3655393761: 'Titan'
 }
+
+dont_know_user_error_message = embed_message(
+    f"Error",
+    f"I either possess no information about that user or their authentication is outdated. \nPlease `/registerdesc` to fix this issue'"
+)
 
 
 @dataclasses.dataclass(eq=False)
@@ -67,11 +74,14 @@ class DestinyPlayer:
 
 
     @classmethod
-    async def from_destiny_id(cls, destiny_id: int) -> DestinyPlayer:
+    async def from_destiny_id(cls, destiny_id: int, ctx: Union[SlashContext, InteractionContext] = None) -> DestinyPlayer:
         """ Populate with destinyID """
 
         system = await lookupSystem(destiny_id)
         discord_id = await lookupDiscordID(destiny_id)
+
+        if ctx:
+            await ctx.send(hidden=True, embed=dont_know_user_error_message)
 
         return cls(
             destiny_id=discord_id,
@@ -81,12 +91,15 @@ class DestinyPlayer:
 
 
     @classmethod
-    async def from_discord_id(cls, discord_id: int) -> Optional[DestinyPlayer]:
+    async def from_discord_id(cls, discord_id: int, ctx: Union[SlashContext, InteractionContext] = None) -> Optional[DestinyPlayer]:
         """ Populate with discordID. Might not work """
 
         destiny_id = await lookupDestinyID(discord_id)
         if not destiny_id:
-            return None
+            if ctx:
+                await ctx.send(hidden=True, embed=dont_know_user_error_message)
+            else:
+                return None
 
         system = await lookupSystem(destiny_id)
 
