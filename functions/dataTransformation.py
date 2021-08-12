@@ -19,25 +19,6 @@ from database.database import get_info_on_low_man_activity, getSeals, getEveryth
 
 
 # todo ported
-async def getCharStats(destinyID, characterID, statname):
-    stats = await getStats(destinyID)
-    for char in stats['characters']:
-        if char['characterId'] == str(characterID):
-            return char['merged']['allTime'][statname]['basic']['value']
-
-# todo ported
-async def getPlayerSeals(destinyID):
-    """ returns all the seals and the seals a player has. returns total_seals: list, [[referenceId, titleName], ...]. removes wip seals like WF LW """
-
-    seals = await getSeals()
-    completed_seals = []
-    for seal in seals:
-        if await hasTriumph(destinyID, seal[0]):
-            completed_seals.append(seal)
-
-    return seals, completed_seals
-
-# todo ported
 async def get_lowman_count(destiny_id: int, activity_hashes: list[int]) -> list[int, int, Optional[timedelta]]:
     """ Returns [solo_count, solo_is_flawless_count, Optional[solo_fastest]] """
     solo_count, solo_is_flawless_count, solo_fastest = 0, 0, None

@@ -544,8 +544,8 @@ class DestinyCommands(commands.Cog):
         embed.add_field(name="Triumphs", value=f"{triumphs_completed} / {len(triumphs_data) - triumphs_no_data}", inline=True)
 
         # get seal completion rate
-        seals, completed_seals = await getPlayerSeals(destiny_player.destiny_id)
-        embed.add_field(name="Seals", value=f"{len(completed_seals)} / {len(seals)}", inline=True)
+        total_seals, completed_seals = await destiny_player.get_player_seals()
+        embed.add_field(name="Seals", value=f"{len(completed_seals)} / {len(total_seals)}", inline=True)
 
         await ctx.send(embed=embed)
 
