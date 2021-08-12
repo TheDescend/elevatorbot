@@ -15,57 +15,6 @@ from static.dict import weaponTypeKinetic, weaponTypeEnergy, weaponTypePower
 
 
 
-
-
-# todo get from DB
-racemap = {
-    2803282938: 'Awoken',
-    898834093: 'Exo',
-    3887404748: 'Human'
-} 
-gendermap = {
-    2204441813: 'Female',
-    3111576190: 'Male',
-}
-classmap = {
-    671679327: 'Hunter',
-    2271682572: 'Warlock',
-    3655393761: 'Titan'
-}
-
-# todo ported
-async def get_existing_and_deleted_characters(destiny_id: int, system: int = None) -> Union[tuple[int, list[dict]], tuple[None, None]]:
-    """
-    return = (system: int, [
-        {
-            char_id: int,
-            deleted: bool
-        },
-        ...
-    ])
-    """
-
-    if not system:
-        system = await lookupSystem(destiny_id)
-    if not system:
-        return None, None
-
-    # have to use the stats endpoint, since thats the only place where deleted characters show up
-    url = f"https://stats.bungie.net/Platform/Destiny2/{system}/Account/{destiny_id}/Stats/"
-    stats = await get_json_from_url(url)
-
-    if stats.success:
-        characters = []
-        for char in stats.content["Response"]["characters"]:
-            characters.append({
-                "char_id": int(char["characterId"]),
-                "deleted": char["deleted"],
-            })
-
-        return system, characters
-    print(f'No characters found for destinyID {destiny_id}')
-    return None, None
-
 # todo ported
 async def getCharacterInfoList(destinyID):
     """

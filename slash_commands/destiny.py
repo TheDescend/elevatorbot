@@ -495,9 +495,12 @@ class DestinyCommands(commands.Cog):
             return
 
         heatmap_url = f"https://chrisfried.github.io/secret-scrublandeux/guardian/{destiny_player.system}/{destiny_player.destiny_id}"
-        characterIDs, character_data = await getCharacterInfoList(destiny_player.destiny_id)
+
+        # get character infos
+        characters = await destiny_player.get_character_info()
+
         character_playtime = {}     # in seconds
-        for characterID in characterIDs:
+        for characterID in characters:
             character_playtime[characterID] = await getCharStats(destiny_player.destiny_id, characterID, "secondsPlayed")
 
         embed = embed_message(
@@ -508,9 +511,9 @@ class DestinyCommands(commands.Cog):
 
         """ char info field """
         embed.add_field(name="⁣", value=f"__**Characters:**__", inline=False)
-        for characterID in characterIDs:
+        for characterID in characters:
             text = f"""Playtime: {str(datetime.timedelta(seconds=character_playtime[characterID]))} \n⁣\nPower: {int(await getCharStats(destinyID, characterID, "highestLightLevel")):,} \nActivities: {int(await getCharStats(destinyID, characterID, "activitiesCleared")):,} \nKills: {int(await getCharStats(destinyID, characterID, "kills")):,} \nDeaths: {int(await getCharStats(destinyID, characterID, "deaths")):,} \nEfficiency: {round(await getCharStats(destinyID, characterID, "efficiency"), 2)}"""
-            embed.add_field(name=f"""{character_data[characterID]["class"]} ({character_data[characterID]["race"]} / {character_data[characterID]["gender"]})""", value=text, inline=True)
+            embed.add_field(name=f"""{characters[characterID]["class"]} ({characters[characterID]["race"]} / {characters[characterID]["gender"]})""", value=text, inline=True)
 
         """ triumph info field """
         embed.add_field(name="⁣", value=f"__**Triumphs:**__", inline=False)
