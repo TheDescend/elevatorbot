@@ -302,6 +302,23 @@ class DestinyPlayer:
         return self._characters
 
 
+    async def get_character_id_by_class(self, character_class: str) -> Optional[int]:
+        """ Return the matching character id if exists """
+
+        # make sure the class exists
+        class_names = list(class_map.values())
+        if character_class not in class_names:
+            return None
+
+        # loop through the chars and return the matching one
+        characters = await self.get_character_info()
+        if characters:
+            for character_id, character_data in characters.items():
+                if character_data["class"] == character_class:
+                    return character_id
+        return None
+
+
     async def get_character_activity_stats(self, character_id: int) -> Optional[dict]:
         """ Get destiny stats for the specified character """
 

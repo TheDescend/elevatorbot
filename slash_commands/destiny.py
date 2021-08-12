@@ -4,6 +4,7 @@ import datetime
 import json
 import os
 from collections import Counter
+from typing import Optional
 
 import discord
 import matplotlib.pyplot as plt
@@ -1652,7 +1653,7 @@ class WeaponCommands(commands.Cog):
         await destiny_player.update_activity_db()
 
         # get the char class if that is asked for
-        charID = await getCharacterID(destinyID, character_class) if character_class else None
+        charID = await destiny_player.get_character_id_by_class(character_class) if character_class else None
 
         # get all weapon infos
         kwargs = {
@@ -1928,7 +1929,7 @@ class WeaponCommands(commands.Cog):
         await destiny_player.update_activity_db()
 
         # get the char class if that is asked for
-        charID = await getCharacterID(destinyID, character_class) if character_class else None
+        charID = await destiny_player.get_character_id_by_class(character_class) if character_class else None
 
         # get all weaponID infos
         kwargs = {
@@ -2176,7 +2177,7 @@ class WeaponCommands(commands.Cog):
 
         # loop through all users and get their stats
         clan_members = await getClanMembers(self.client)
-        result = await asyncio.gather(*[self._handle_user(destinyID, mode, activity_hash, starttime, endtime, character_class) for destinyID in clan_members])
+        result = await asyncio.gather(*[self._handle_user(await DestinyPlayer.from_destiny_id(destinyID), mode, activity_hash, starttime, endtime, character_class) for destinyID in clan_members])
 
         for clan_member in result:
             if clan_member is not None:
@@ -2221,9 +2222,9 @@ class WeaponCommands(commands.Cog):
         await ctx.send(embed=embed)
 
 
-    async def _handle_user(self, destinyID, mode, activity_hash, starttime, endtime, character_class):
+    async def _handle_user(self, destiny_player: Optional[DestinyPlayer], mode, activity_hash, starttime, endtime, character_class):
         # get character id if asked for
-        charID = await getCharacterID(destinyID, character_class) if character_class else None
+        charID = await destiny_player.get_character_id_by_class(character_class) if character_class else None
 
         # get all weapon kills
         kwargs = {

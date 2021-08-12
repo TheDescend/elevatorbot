@@ -45,57 +45,6 @@ async def getProfile(destinyID, *components, with_token=False, membershipType=No
 
 
 
-# todo ported
-async def getWeaponStats(destinyID, weaponIDs: list, characterID=None, mode=0):
-    """ returns kills, prec_kills for that weapon in the specified mode"""
-
-    # get the info from the DB
-    result = []
-    for weaponID in weaponIDs:
-        if characterID:
-            result.extend(await getWeaponInfo(destinyID, weaponID, characterID=characterID, mode=mode))
-        else:
-            result.extend(await getWeaponInfo(destinyID, weaponID, mode=mode))
-
-    # add stats
-    kills = 0
-    prec_kills = 0
-    for _, k, p_k in result:
-        kills += k
-        prec_kills += p_k
-
-    return kills, prec_kills
-
-# todo ported
-async def getCharactertypeList(destinyID):
-    ''' returns a [charID, type] tuple '''
-    charURL = "https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/?components=100,200"
-    membershipType = await lookupSystem(destinyID)
-    characterinfo = await get_json_from_url(charURL.format(membershipType, destinyID))
-    if characterinfo:
-        return [(int(char["characterId"]), f"{racemap[char['raceHash']]} {gendermap[char['genderHash']]} {classmap[char['classHash']]}") for char in characterinfo.content['Response']['characters']['data'].values()]
-    print(f'no account found for destinyID {destinyID}')
-    return (None,[])
-
-# todo ported
-async def getCharacterID(destinyID, classID):
-    ''' returns a charID for the specified class '''
-    charIDs = (await getCharactertypeList(destinyID))
-    membershipType = await lookupSystem(destinyID)
-
-    charURL = "https://stats.bungie.net/Platform/Destiny2/{}/Profile/{}/Character/{}/?components=100,200"
-    for charID, _ in charIDs:
-        characterinfo = await get_json_from_url(charURL.format(membershipType, destinyID, charID))
-        if characterinfo:
-            if classID == characterinfo.content['Response']['character']['data']['classHash']:
-                return charID
-
-    return None
-
-
-
-
-
 
 
 
