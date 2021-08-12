@@ -75,7 +75,7 @@ async def has_role(destiny_player: DestinyPlayer, role: discord.Role, return_as_
 
         elif req == "records":
             for recordHash in role_data["records"]:
-                has_tri = await hasTriumph(destiny_id, recordHash)
+                has_tri = await destiny_player.has_triumph(recordHash)
                 worthy &= has_tri
 
                 if (not worthy) and return_as_bool:

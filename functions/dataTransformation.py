@@ -18,29 +18,6 @@ from database.database import get_info_on_low_man_activity, getSeals, getEveryth
 
 
 
-#https://data.destinysets.com/
-
-
-
-# todo ported
-async def hasTriumph(playerid, recordHash):
-    """ returns True if the player <playerid> has the triumph <recordHash> """
-    status = True
-    triumphs = await get_triumphs_json(playerid)
-    if triumphs is None:
-        return False
-    if str(recordHash) not in triumphs:
-        return False
-    #print(triumphs[str(recordHash)])
-    if not 'objectives' in triumphs[str(recordHash)]:
-        assert triumphs[str(recordHash)]['state'] & 2 #make sure it's RewardUnavailable aka legacy 
-        #https://bungie-net.github.io/multi/schema_Destiny-DestinyRecordState.html#schema_Destiny-DestinyRecordState
-        status &= (triumphs[str(recordHash)]['state'] & 1)
-        return status
-    for part in triumphs[str(recordHash)]['objectives']:
-        status &= part['complete']
-    return status
-
 # todo ported
 async def getMetricValue(destinyID: int, metric_hash: Union[int, str]):
     """ Returns the value of the given metric hash """
