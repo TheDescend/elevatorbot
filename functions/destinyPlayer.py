@@ -74,6 +74,10 @@ class DestinyPlayer:
         return self.destiny_id == other.destiny_id
 
 
+    def __bool__(self) -> bool:
+        return bool(self.destiny_id and self.system and self.discord_id)
+
+
     @classmethod
     async def from_destiny_id(cls, destiny_id: int, ctx: Union[SlashContext, InteractionContext] = None) -> DestinyPlayer:
         """ Populate with destinyID """

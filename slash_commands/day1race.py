@@ -229,7 +229,7 @@ class Day1Race(commands.Cog):
                         await channel.send(f"**{name}** finished `{self.activity_triumph_encounters[4240665]}` <:PeepoDPS:754785311489523754>")
 
                 # check for the emblem, if exist do the msg for every other encounter done
-                has_emblem = await has_collectible(destiny_player.destiny_id, self.emblem_collectible_hash)
+                has_emblem = await destiny_player.has_collectible(str(self.emblem_collectible_hash))
                 if has_emblem:
                     for encounter_hash, description in self.activity_triumph_encounters.items():
                         if self.finished_encounters[destiny_player.destiny_id][encounter_hash] == 0:
@@ -360,9 +360,9 @@ class Day1Race(commands.Cog):
 
         async def check_member(member):
             if member_role in member.roles:
-                destinyID = await lookupDestinyID(member.id)
-                if destinyID:
-                    if await has_collectible(destinyID, raid_to_emblem_hash[raid]):
+                destiny_player = await DestinyPlayer.from_discord_id(member.id)
+                if destiny_player:
+                    if await destiny_player.has_collectible(str(raid_to_emblem_hash[raid])):
                         if clan_role in member.roles:
                             self.clan_list.append(member.display_name)
                         else:

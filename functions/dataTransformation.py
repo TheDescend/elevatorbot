@@ -20,37 +20,6 @@ from database.database import get_info_on_low_man_activity, getSeals, getEveryth
 
 #https://data.destinysets.com/
 
-# todo ported
-async def has_collectible(destiny_id: int, collectible_hash: int) -> bool:
-    """ Returns boolean whether the player <playerid> has the collecible <cHash> """
-
-    #check if collectible in collectibleDB
-    
-    if await hasEmblem(destiny_id, collectible_hash):
-        return True
-
-    user_collectibles = await getProfile(destiny_id, 800)
-    if not user_collectibles or 'data' not in user_collectibles['profileCollectibles']:
-        return False
-    collectibles = user_collectibles['profileCollectibles']['data']['collectibles']
-    if str(collectible_hash) in collectibles:
-        
-        #   Check whether it's not (not aquired), which means that the firstbit can't be 1   
-        #   https://bungie-net.github.io/multi/schema_Destiny-DestinyCollectibleState.html
-        has_emblem = collectibles[str(collectible_hash)]['state'] & 1 == 0
-        if has_emblem:
-            await insertEmblem(destiny_id, collectible_hash)
-        return has_emblem
-
-    # test if its a character specific one
-    for character in user_collectibles['characterCollectibles']['data'].values():
-        if str(collectible_hash) in character['collectibles']:
-            has_emblem = character['collectibles'][str(collectible_hash)]['state'] & 1 == 0
-            if has_emblem:
-                await insertEmblem(destiny_id, collectible_hash)
-            return has_emblem
-
-    return False
 
 
 # todo ported

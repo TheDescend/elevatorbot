@@ -8,31 +8,31 @@ import discord
 from database.database import getFlawlessHashes, getClearCount, getDestinyDefinition
 from functions.dataTransformation import hasLowman
 from functions.dataTransformation import has_collectible, hasTriumph
+from functions.destinyPlayer import DestinyPlayer
 from static.dict import requirementHashes, requirement_hashes_without_years
 # check if user has permission to use this command
 from static.globals import role_ban_id, divider_legacy_role_id
 
 
-async def has_role(
-    destiny_id: int, role: discord.Role, return_as_bool: bool = True
-) -> Optional[list[Union[bool, dict]]]:
+async def has_role(destiny_player: DestinyPlayer, role: discord.Role, return_as_bool: bool = True) -> Optional[list[Union[bool, dict]]]:
     """return_as_bool may be set to True if only True/False is expected, set to False to get complete data on why or why not the user earned the role"""
+
     data = {}
 
     try:
-        roledata = requirement_hashes_without_years[role.name]
+        role_data = requirement_hashes_without_years[role.name]
     except KeyError:
         # This role cannot be earned through destiny
         return None
 
     worthy = True
     start_reqs = time.monotonic()
-    for req in roledata["requirements"]:
+    for req in role_data["requirements"]:
         if req == "clears":
-            creq = roledata["clears"]
+            creq = role_data["clears"]
             i = 1
             for raid in creq:
-                actualclears = await getClearCount(destiny_id, raid["actHashes"])
+                actualclears = await getClearCount(destiny_player.destiny_id, raid["actHashes"])
                 if not actualclears >= raid["count"]:
                     worthy = False
 
@@ -42,15 +42,15 @@ async def has_role(
                 i += 1
 
         elif req == "flawless":
-            has_fla = bool(await getFlawlessHashes(destiny_id, roledata["flawless"]))
+            has_fla = bool(await getFlawlessHashes(destiny_player.destiny_id, role_data["flawless"]))
             worthy &= has_fla
 
             data["Flawless"] = bool(has_fla)
 
         elif req == "collectibles":
-            for collectibleHash in roledata["collectibles"]:
+            for collectibleHash in role_data["collectibles"]:
                 has_coll_start = time.monotonic()
-                has_col = await has_collectible(destiny_id, collectibleHash)
+                has_col = await destiny_player.has_collectible(collectibleHash)
                 has_coll_end = time.monotonic()
                 if (diff := has_coll_end - has_coll_start) > 1:
                     print(f"hasCollectible took {diff} seconds")
@@ -74,7 +74,7 @@ async def has_role(
                     data[name] = bool(has_col)
 
         elif req == "records":
-            for recordHash in roledata["records"]:
+            for recordHash in role_data["records"]:
                 has_tri = await hasTriumph(destiny_id, recordHash)
                 worthy &= has_tri
 
@@ -90,9 +90,9 @@ async def has_role(
 
         elif req == "lowman":
             start_lowman_reqs = time.monotonic()
-            denies = sum([1 if "denyTime" in key else 0 for key in roledata.keys()])
+            denies = sum([1 if "denyTime" in key else 0 for key in role_data.keys()])
             timeParse = lambda i, spec: datetime.strptime(
-                roledata[f"denyTime{i}"][spec], "%d/%m/%Y %H:%M"
+                role_data[f"denyTime{i}"][spec], "%d/%m/%Y %H:%M"
             )
             disallowed = [
                 (timeParse(i, "startTime"), timeParse(i, "endTime"))
@@ -104,23 +104,23 @@ async def has_role(
             start_lowman_read = time.monotonic()
             has_low = await hasLowman(
                 destiny_id,
-                roledata["playercount"],
-                roledata["activityHashes"],
-                flawless=roledata.get("flawless", False),
-                score_threshold=roledata.get("score", False),
-                noCheckpoints=roledata.get("noCheckpoints", False),
+                role_data["playercount"],
+                role_data["activityHashes"],
+                flawless=role_data.get("flawless", False),
+                score_threshold=role_data.get("score", False),
+                noCheckpoints=role_data.get("noCheckpoints", False),
                 disallowed=disallowed,
             )
             worthy &= has_low
 
-            data["Lowman (" + str(roledata["playercount"]) + " Players)"] = bool(
+            data["Lowman (" + str(role_data["playercount"]) + " Players)"] = bool(
                 has_low
             )
             end_lowman_read = time.monotonic()
             if (diff := end_lowman_read - start_lowman_read) > 1:
                 print(f"Lowman Read took {diff} seconds for hasLowman")
         elif req == "roles":
-            for required_role in roledata["roles"]:
+            for required_role in role_data["roles"]:
                 required_role_discord = discord.utils.get(
                     role.guild.roles, name=required_role
                 )
