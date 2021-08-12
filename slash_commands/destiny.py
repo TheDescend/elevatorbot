@@ -1389,21 +1389,21 @@ class RankCommands(commands.Cog):
             leaderboard_text = f"Top Clanmembers by {extra_name} Kills"
             stat_text = "Kills"
 
-            result_sort, _ = await getWeaponStats(destiny_player.destiny_id, extra_hash)
+            result_sort, _ = await destiny_player.get_weapon_stats(extra_hash)
             result = f"{result_sort:,}"
 
         elif stat == "weaponprecision":
             leaderboard_text = f"Top Clanmembers by {extra_name} Precision Kills"
             stat_text = "Kills"
 
-            _, result_sort = await getWeaponStats(destiny_player.destiny_id, extra_hash)
+            _, result_sort = await destiny_player.get_weapon_stats(extra_hash)
             result = f"{result_sort:,}"
 
         elif stat == "weaponprecisionpercent":
             leaderboard_text = f"Top Clanmembers by {extra_name} % Precision Kills"
             stat_text = "Kills"
 
-            kills, prec_kills = await getWeaponStats(destiny_player.destiny_id, extra_hash)
+            kills, prec_kills = await destiny_player.get_weapon_stats(extra_hash)
             result_sort = prec_kills / kills if kills != 0 else 0
             result = f"{round(result_sort * 100, 2)}%"
 
