@@ -18,34 +18,6 @@ from database.database import get_info_on_low_man_activity, getSeals, getEveryth
 
 
 
-
-# todo ported
-async def hasLowman(playerid, playercount, raidHashes, flawless=False, noCheckpoints=False, disallowed=[], score_threshold=False):
-    """ Default is flawless=False, disallowed is a list of (starttime, endtime) with datetime objects """
-    starttime = time.monotonic()
-    low_activity_info = await get_info_on_low_man_activity(
-        raidHashes,
-        playercount,
-        playerid,
-        noCheckpoints,
-        score_threshold
-    )
-    print(f"getInfoOnLowManActivity took {(time.monotonic()-starttime)} seconds")
-
-    for (iid, deaths, kills, timePlayedSeconds, period) in low_activity_info:
-        # check for flawless if asked for
-        if not flawless or deaths == 0:
-            verdict = True
-
-            for starttime, endtime in disallowed:
-                if starttime < period < endtime:
-                    verdict = False
-            if 910380154 in raidHashes and kills * 60 / timePlayedSeconds < 1:
-                verdict = False
-            if verdict:
-                return True
-    return False
-
 # todo ported
 async def getIntStat(destinyID, statname, category=None):
     stats = await getStats(destinyID)

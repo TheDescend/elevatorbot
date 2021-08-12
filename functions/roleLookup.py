@@ -102,14 +102,13 @@ async def has_role(destiny_player: DestinyPlayer, role: discord.Role, return_as_
             if (diff := end_lowman_reqs - start_lowman_reqs) > 1:
                 print(f"Lowman Requirements took {diff} seconds for disallowed times")
             start_lowman_read = time.monotonic()
-            has_low = await hasLowman(
-                destiny_id,
-                role_data["playercount"],
-                role_data["activityHashes"],
-                flawless=role_data.get("flawless", False),
-                score_threshold=role_data.get("score", False),
-                noCheckpoints=role_data.get("noCheckpoints", False),
+            has_low = await destiny_player.has_lowman(
+                max_player_count=role_data["playercount"],
+                activity_hashes=role_data["activityHashes"],
+                require_flawless=role_data.get("flawless", False),
+                no_checkpoints=role_data.get("noCheckpoints", False),
                 disallowed=disallowed,
+                score_threshold=role_data.get("score", False),
             )
             worthy &= has_low
 
