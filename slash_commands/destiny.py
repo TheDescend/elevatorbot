@@ -341,8 +341,7 @@ class DestinyCommands(commands.Cog):
             # sometimes people dont have a class for some reason. Skipping that
             if player['characterClass'] == '':
                 continue
-
-            embed.add_field(name=f"{await get_emoji(self.client, self.classes[player['characterClass']])} {await getDestinyName(player['membershipID'], membershipType=player['membershipType'])} {await get_emoji(self.client, light_level_icon_emoji_id)} {player['lightLevel']}", value="\n".join(player_data), inline=True)
+            embed.add_field(name=f"{await get_emoji(self.client, self.classes[player['characterClass']])} {(await destiny_player.get_destiny_name_and_last_played())[0]} {await get_emoji(self.client, light_level_icon_emoji_id)} {player['lightLevel']}", value="\n".join(player_data), inline=True)
 
         await ctx.send(embed=embed)
 
