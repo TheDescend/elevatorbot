@@ -52,7 +52,7 @@ async def update_status(
         "Presenting: Extra context! Right click a message or a user to be amazed",
         "I am fluent in over six million forms of communication",
         "dis-snek > d.py",
-        "Yehaw?"
+        "Yehaw?",
     ]
 
     status_messages.append(f"I have {len(status_messages)} status messages :)")

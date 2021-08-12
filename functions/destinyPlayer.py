@@ -713,7 +713,7 @@ class DestinyPlayer:
         """ Get character ids including deleted characters """
 
         if not self._full_character_list:
-            result = self._get_stats()
+            result = await self._get_stats()
 
             if result:
                 for char in result["characters"]:
