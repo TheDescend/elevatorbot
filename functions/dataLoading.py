@@ -41,21 +41,6 @@ async def getProfile(destinyID, *components, with_token=False, membershipType=No
     return None
 
 
-# todo ported
-async def getCharacterGearAndPower(destinyID):
-    items = []
-    chars = await getCharacterList(destinyID)
-
-    # not equiped on chars
-    playerProfile = (await getProfile(destinyID, 201, 205, 300, with_token=True))
-    itempower = {weaponid:int(weapondata.get("primaryStat", {"value":0})['value']) for weaponid, weapondata in playerProfile["itemComponents"]["instances"]["data"].items()}
-    itempower['none'] = 0
-    for char in chars[1]:
-        charitems = playerProfile["characterInventories"]["data"][char]["items"] + playerProfile['characterEquipment']["data"][char]["items"]
-        charpoweritems = map(lambda charitem:dict(charitem, **{'lightlevel':itempower[charitem.get('itemInstanceId', 'none')]}), charitems)
-        items.extend(charpoweritems)
-
-    return items
 
 
 

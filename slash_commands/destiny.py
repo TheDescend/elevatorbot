@@ -1292,24 +1292,28 @@ class RankCommands(commands.Cog):
             result = f"{result_sort:,}"
 
         elif stat == "maxpower":
-            # TODO efficiency
-            leaderboard_text = "Top Clanmembers by D2 Maximum Reported Power"
-            stat_text = "Power"
+            # # TODO efficiency
+            # leaderboard_text = "Top Clanmembers by D2 Maximum Reported Power"
+            # stat_text = "Power"
+            #
+            # artifact_power = (await destiny_player.get_artifact())["powerBonus"]
+            #
+            # items = await getCharacterGearAndPower(destiny_player.destiny_id)
+            # items = self._sort_gear_by_slot(items)
+            #
+            # results = await asyncio.gather(*[self._get_highest_item_light_level(slot) for slot in items])
+            #
+            # total_power = 0
+            # for ret in results:
+            #     total_power += ret
+            # total_power /= 8
+            #
+            # result_sort = int(total_power + artifact_power)
+            # result = f"{int(total_power):,} + {artifact_power:,}"
 
-            artifact_power = (await destiny_player.get_artifact())["powerBonus"]
-
-            items = await getCharacterGearAndPower(destiny_player.destiny_id)
-            items = self._sort_gear_by_slot(items)
-
-            results = await asyncio.gather(*[self._get_highest_item_light_level(slot) for slot in items])
-
-            total_power = 0
-            for ret in results:
-                total_power += ret
-            total_power /= 8
-
-            result_sort = int(total_power + artifact_power)
-            result = f"{int(total_power):,} + {artifact_power:,}"
+            # temporay result
+            result_sort = 0
+            result = "0"
 
         elif stat == "vaultspace":
             sort_by_ascending = True
