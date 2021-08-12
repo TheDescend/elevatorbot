@@ -587,7 +587,7 @@ class DestinyPlayer:
                 )
 
                 # break if empty, fe. when pages are over
-                if not rep.content:
+                if not rep.content['Response']:
                     break
 
                 # loop through all activities
