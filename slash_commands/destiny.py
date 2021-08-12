@@ -1239,64 +1239,56 @@ class RankCommands(commands.Cog):
             stat_text = "Total"
 
             # in hours
-            stat_json = await getStats(destiny_player.destiny_id)
-            result_sort = self._add_stats(stat_json, "secondsPlayed")
+            result_sort = await destiny_player.get_stat_value("secondsPlayed")
             result = str(datetime.timedelta(seconds=result_sort))
 
         elif stat == "orbs":
             leaderboard_text = "Top Clanmembers by PvE Orbs Generated"
             stat_text = "Orbs"
 
-            stat_json = await getStats(destiny_player.destiny_id)
-            result_sort = self._add_stats(stat_json, "orbsDropped", scope="pve")
+            result_sort = await destiny_player.get_stat_value("orbsDropped", stat_category="pve")
             result = f"{result_sort:,}"
 
         elif stat == "meleekills":
             leaderboard_text = "Top Clanmembers by D2 PvE Meleekills"
             stat_text = "Kills"
 
-            stat_json = await getStats(destiny_player.destiny_id)
-            result_sort = self._add_stats(stat_json, "weaponKillsMelee", scope="pve")
+            result_sort = await destiny_player.get_stat_value("weaponKillsMelee", stat_category="pve")
             result = f"{result_sort:,}"
 
         elif stat == "superkills":
             leaderboard_text = "Top Clanmembers by D2 PvE Superkills"
             stat_text = "Kills"
 
-            stat_json = await getStats(destiny_player.destiny_id)
-            result_sort = self._add_stats(stat_json, "weaponKillsSuper", scope="pve")
+            result_sort = await destiny_player.get_stat_value("weaponKillsSuper", stat_category="pve")
             result = f"{result_sort:,}"
 
         elif stat == "grenadekills":
             leaderboard_text = "Top Clanmembers by D2 PvE Grenadekills"
             stat_text = "Kills"
 
-            stat_json = await getStats(destiny_player.destiny_id)
-            result_sort = self._add_stats(stat_json, "weaponKillsGrenade", scope="pve")
+            result_sort = await destiny_player.get_stat_value("weaponKillsGrenade", stat_category="pve")
             result = f"{result_sort:,}"
 
         elif stat == "deaths":
             leaderboard_text = "Top Clanmembers by D2 PvE Deaths"
             stat_text = "Deaths"
 
-            stat_json = await getStats(destiny_player.destiny_id)
-            result_sort = self._add_stats(stat_json, "deaths", scope="pve")
+            result_sort = await destiny_player.get_stat_value("deaths", stat_category="pve")
             result = f"{result_sort:,}"
 
         elif stat == "suicides":
             leaderboard_text = "Top Clanmembers by D2 PvE Suicides"
             stat_text = "Suicides"
 
-            stat_json = await getStats(destiny_player.destiny_id)
-            result_sort = self._add_stats(stat_json, "suicides", scope="pve")
+            result_sort = await destiny_player.get_stat_value("suicides", stat_category="pve")
             result = f"{result_sort:,}"
 
         elif stat == "kills":
             leaderboard_text = "Top Clanmembers by D2 PvE Kills"
             stat_text = "Kills"
 
-            stat_json = await getStats(destiny_player.destiny_id)
-            result_sort = self._add_stats(stat_json, "kills", scope="pve")
+            result_sort = await destiny_player.get_stat_value("suicides", stat_category="pve")
             result = f"{result_sort:,}"
 
         elif stat == "maxpower":
@@ -1340,7 +1332,7 @@ class RankCommands(commands.Cog):
             stat_text = "Hours"
 
             # in hours
-            result_sort = int((await self._add_activity_stats(destiny_player.destiny_id, raidHashes, "activitySecondsPlayed")) / 60 / 60)
+            result_sort = int((await self._add_activity_stats(destiny_player, raidHashes, "activitySecondsPlayed")) / 60 / 60)
             result = f"{result_sort:,}"
 
         elif stat == "forges":
@@ -1521,6 +1513,7 @@ class RankCommands(commands.Cog):
         return [helmet, gauntlet, chest, leg, class_item, kinetic, energy, power]
 
 
+    # todo delete
     def _add_stats(self, stat_json, stat, scope="all"):
         result_sort = 0
         if scope == "all":

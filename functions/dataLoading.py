@@ -41,16 +41,6 @@ async def getProfile(destinyID, *components, with_token=False, membershipType=No
     return None
 
 # todo ported
-async def getDestinyName(destinyID, membershipType=None):
-    """ Returns a destinyIDs current user name"""
-
-    data = await getProfile(destinyID, 100, membershipType=membershipType)
-    if data:
-        return data["profile"]["data"]["userInfo"]["displayName"]
-    else:
-        return "Unkown Name"
-
-# todo ported
 async def getStats(destinyID):
     url = 'https://stats.bungie.net/Platform/Destiny2/{}/Account/{}/Stats/'
     membershipType = await lookupSystem(destinyID)
