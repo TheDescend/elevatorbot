@@ -41,29 +41,6 @@ async def getProfile(destinyID, *components, with_token=False, membershipType=No
     return None
 
 
-# todo ported
-async def getAggregateStatsForChar(destinyID, system, characterID):
-    url = 'https://stats.bungie.net/Platform/Destiny2/{}/Account/{}/Character/{}/Stats/AggregateActivityStats/'
-    statsResponse = await get_json_from_url(url.format(system, destinyID, characterID))
-    if statsResponse:
-        return statsResponse.content['Response']
-    return None
-
-
-
-# todo ported
-# returns all items in bucket. Deafult is vault hash, for others search "bucket" at https://data.destinysets.com/
-async def getInventoryBucket(destinyID, bucket=138197802):
-    res = (await getProfile(destinyID, 102, with_token=True))
-    if not res:
-        return None
-    items = res["profileInventory"]["data"]["items"]
-    ret = []
-    for item in items:
-        if item["bucketHash"] == bucket:    # vault hash
-            ret.append(item)
-
-    return ret
 
 # todo ported
 # gets the current artifact, which includes the level

@@ -675,7 +675,7 @@ class DestinyPlayer:
         return self._stats
 
 
-    async def _get_inventory_bucket(self, bucket: int = 138197802) -> Optional[list]:
+    async def get_inventory_bucket(self, bucket: int = 138197802) -> Optional[list]:
         """ Returns all items in bucket. Default is vault hash, for others search "bucket" at https://data.destinysets.com/"""
 
         result = await self._get_profile([102], with_token=True)

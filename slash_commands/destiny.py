@@ -1317,7 +1317,7 @@ class RankCommands(commands.Cog):
             leaderboard_text = "Top Clanmembers by D2 Vaultspace Used"
             stat_text = "Used Space"
 
-            result_sort = len(await getInventoryBucket(destiny_player.destiny_id))
+            result_sort = len(await destiny_player.get_inventory_bucket())
             result = f"{result_sort:,}"
 
         elif stat == "raids":
@@ -1370,12 +1370,12 @@ class RankCommands(commands.Cog):
             result_sort = 0
 
             # check vault
-            items = await getInventoryBucket(destiny_player.destiny_id)
+            items = await destiny_player.get_inventory_bucket()
             for item in items:
                 if item["itemHash"] == 3853748946:
                     result_sort += item["quantity"]
 
-            items = await getInventoryBucket(destiny_player.destiny_id, bucket=1469714392)
+            items = await destiny_player.get_inventory_bucket(bucket=1469714392)
             for item in items:
                 if item["itemHash"] == 3853748946:
                     result_sort += item["quantity"]
