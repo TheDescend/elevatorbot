@@ -1,0 +1,29 @@
+version: "3.9"
+
+services:
+  elevator:
+    build: ./ElevatorBot
+    volumes:
+      - ./ElevatorBot:/ElevatorBot/ElevatorBot
+      - ./logs:/ElevatorBot/logs
+    networks:
+      - elevator-network
+    depends_on:
+      - website
+
+  website:
+    build: ./Website
+    ports:
+      - "80:80"
+    volumes:
+      - ./Website:/Website/Website
+      - ./logs:/Website/logs
+    networks:
+      - elevator-network
+      - website-network
+
+networks:
+  elevator-network:
+  website-network:
+
+# https://www.docker.com/blog/containerized-python-development-part-2/

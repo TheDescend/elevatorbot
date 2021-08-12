@@ -1,0 +1,143 @@
+<!doctype html>
+<html>
+
+<head>
+    <!-- <link rel="stylesheet" href="style.css"> -->
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+
+        .container {
+            height: 100%;
+        }
+
+        .btn1, .btn2 {
+            min-height: 80%;
+            min-width: 40%;
+            font-size: 10em;
+        }
+
+        .fullscreen {
+
+            overflow: auto;
+
+        }
+    </style>
+</head>
+
+<body>
+<title>Hello from Flask</title>
+{% if highscore %}
+    <h1>{{ highscore }}!</h1>
+{% endif %}
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script type=text/javascript>
+    var best = 100000;
+
+    function startgame() {
+        $.getJSON('/gethighscore',
+            function (data) {
+                console.log(data);
+
+            }
+        );
+
+        setTimeout(function () {
+            if (Math.random() > 0.5) {
+                $('button#btn1').text("A");
+            } else {
+                $('button#btn1').text("1");
+            }
+
+            if (Math.random() > 0.5) {
+                $('button#btn2').text("A");
+            } else {
+                $('button#btn2').text("1");
+            }
+
+            $('button').css("background-color", '#4CAF50');
+        }, 500 + Math.floor(Math.random() * 500)
+        );//milliseconds
+
+        var dstart = new Date();
+        var starttimer = dstart.getTime();
+        console.log("STARTED TIMER");
+        $('button').unbind();
+
+        function checkSame() {
+            if ($('button#btn1').text() === $('button#btn2').text()) {
+                setTimeout(function () {
+                    $('button').css("background-color", '#000000');
+                    if (Math.random() > 0.5) {
+                        $('button#btn1').text("A");
+                    } else {
+                        $('button#btn1').text("1");
+                    }
+
+                    if (Math.random() > 0.5) {
+                        $('button#btn2').text("A");
+                    } else {
+                        $('button#btn2').text("1");
+                    }
+
+                    $('button').css("background-color", '#4CAF50');
+                    dstart = new Date();
+                    starttimer = dstart.getTime();
+                    checkSame();
+
+                }, 500 + Math.floor(Math.random() * 500)
+                );
+            }
+        }
+
+        checkSame();
+
+        $('button').bind('click', function (e) {
+            var dend = new Date();
+            var endtimer = dend.getTime();
+            var time = endtimer - starttimer;
+
+            if ($('button#btn1').text() === $('button#btn2').text() || $(e.target).text() === '1') {
+                alert('wrong');
+                return;
+            }
+            $('button').css({'background-color': '',});
+
+
+            alert(time);
+            if (time < best) {
+                best = time;
+                $('h3').text(best);
+            }
+
+
+            console.log("DONE WITH STARTGAME");
+            $('button').css({'background-color': '',});
+            $('button').unbind();
+            $('button').bind('click', startgame);
+            $('button').text("Start");
+
+        });
+
+
+        console.log("DONE WITH SETUP");
+
+        return false;
+    }
+
+    $(function () {
+        $('button').bind('click', startgame);
+    });
+</script>
+
+<div class='container'>
+    Highscore:<h3>Unbekannt</h3>
+    <button id='btn1' class='btn1'>Start</button>
+    <button id='btn2' class='btn2'>Start</button>
+</div>
+
+</body>
+
+</html>
