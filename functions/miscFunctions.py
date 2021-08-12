@@ -50,9 +50,12 @@ async def update_status(
         "Chillin' in my Hot Tub right now 🍑💦",
         "I can win the hard mode TicTacToe, can you?",
         "Presenting: Extra context! Right click a message or a user to be amazed",
-        "I am fluent in over six million forms of communication"
-        "dis-snek > d.py"
+        "I am fluent in over six million forms of communication",
+        "dis-snek > d.py",
+        "Yehaw?"
     ]
+
+    status_messages.append(f"I have {len(status_messages)} status messages :)")
 
     for element in itertools.cycle(status_messages):
         await client.change_presence(activity=discord.Game(name=element))
