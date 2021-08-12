@@ -501,7 +501,7 @@ class DestinyCommands(commands.Cog):
 
         character_playtime = {}     # in seconds
         for characterID in characters:
-            character_playtime[characterID] = await getCharStats(destiny_player.destiny_id, characterID, "secondsPlayed")
+            character_playtime[characterID] = await destiny_player.get_stat_value("secondsPlayed", character_id=characterID)
 
         embed = embed_message(
             f"{user.display_name}'s Destiny Stats",
@@ -512,7 +512,7 @@ class DestinyCommands(commands.Cog):
         """ char info field """
         embed.add_field(name="⁣", value=f"__**Characters:**__", inline=False)
         for characterID in characters:
-            text = f"""Playtime: {str(datetime.timedelta(seconds=character_playtime[characterID]))} \n⁣\nPower: {int(await getCharStats(destinyID, characterID, "highestLightLevel")):,} \nActivities: {int(await getCharStats(destinyID, characterID, "activitiesCleared")):,} \nKills: {int(await getCharStats(destinyID, characterID, "kills")):,} \nDeaths: {int(await getCharStats(destinyID, characterID, "deaths")):,} \nEfficiency: {round(await getCharStats(destinyID, characterID, "efficiency"), 2)}"""
+            text = f"""Playtime: {str(datetime.timedelta(seconds=character_playtime[characterID]))} \n⁣\nPower: {await destiny_player.get_stat_value("highestLightLevel", character_id=characterID):,} \nActivities: {await destiny_player.get_stat_value("activitiesCleared", character_id=characterID):,} \nKills: {await destiny_player.get_stat_value("kills", character_id=characterID):,} \nDeaths: {await destiny_player.get_stat_value("deaths", character_id=characterID):,} \nEfficiency: {round(await destiny_player.get_stat_value("efficiency", character_id=characterID), 2)}"""
             embed.add_field(name=f"""{characters[characterID]["class"]} ({characters[characterID]["race"]} / {characters[characterID]["gender"]})""", value=text, inline=True)
 
         """ triumph info field """
