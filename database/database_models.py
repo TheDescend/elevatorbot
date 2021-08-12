@@ -203,7 +203,7 @@ database_tables = [
 		referenceId BIGINT PRIMARY KEY,
 		description TEXT,
 		name TEXT,
-		classType SMALLINT,                         # 0 = titan, 1 = hunter, 2 = warlock
+		classType SMALLINT,                         -- 0 = titan, 1 = hunter, 2 = warlock
 		bucketTypeHash BIGINT,
 		tierTypeHash BIGINT,
 		tierTypeName TEXT,
@@ -216,8 +216,8 @@ database_tables = [
 		referenceId BIGINT PRIMARY KEY,
 		description TEXT,
 		name TEXT,
-		hasTitle BOOLEAN,                           # if it is a seal
-		titleName TEXT,                             # this is None for non-seals
+		hasTitle BOOLEAN,                           -- if it is a seal
+		titleName TEXT,                             -- this is None for non-seals
 		objectiveHashes BIGINT [],
 		ScoreValue INTEGER,
 		parentNodeHashes BIGINT []
