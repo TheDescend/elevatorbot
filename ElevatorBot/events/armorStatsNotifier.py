@@ -1,11 +1,11 @@
 import datetime
 
-from ElevatorBot.database.database import getDestinyDefinition
-from ElevatorBot.events.baseEvent import BaseEvent
-from ElevatorBot.functions.authfunctions import getVendorData
-from ElevatorBot.functions.destinyPlayer import DestinyPlayer
-from ElevatorBot.functions.formating import embed_message
-from ElevatorBot.functions.persistentMessages import bot_status
+from database.database import getDestinyDefinition
+from events.baseEvent import BaseEvent
+from functions.authfunctions import getVendorData
+from functions.destinyPlayer import DestinyPlayer
+from functions.formating import embed_message
+from functions.persistentMessages import bot_status
 
 
 class ArmorStatsNotifier(BaseEvent):

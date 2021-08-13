@@ -4,17 +4,17 @@ from typing import Optional
 
 import discord
 
-from ElevatorBot.database.database import lookupDiscordID
-from ElevatorBot.events.backgroundTasks import UpdateActivityDB
-from ElevatorBot.events.baseEvent import BaseEvent
-from ElevatorBot.functions.destinyPlayer import DestinyPlayer
-from ElevatorBot.functions.formating import split_into_chucks_of_max_2000_characters
-from ElevatorBot.functions.persistentMessages import bot_status
-from ElevatorBot.functions.roleLookup import assignRolesToUser, removeRolesFromUser, get_player_roles
-from ElevatorBot.networking.bungieAuth import handle_and_return_token
-from ElevatorBot.networking.network import get_json_from_url
-from ElevatorBot.static.config import CLANID, BOTDEVCHANNELID
-from ElevatorBot.static.globals import *
+from database.database import lookupDiscordID
+from events.backgroundTasks import UpdateActivityDB
+from events.baseEvent import BaseEvent
+from functions.destinyPlayer import DestinyPlayer
+from functions.formating import split_into_chucks_of_max_2000_characters
+from functions.persistentMessages import bot_status
+from functions.roleLookup import assignRolesToUser, removeRolesFromUser, get_player_roles
+from networking.bungieAuth import handle_and_return_token
+from networking.network import get_json_from_url
+from static.config import CLANID, BOTDEVCHANNELID
+from static.globals import *
 
 
 class AutomaticRoleAssignment(BaseEvent):
