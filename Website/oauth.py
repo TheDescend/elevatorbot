@@ -12,10 +12,10 @@ from nacl.encoding import HexEncoder
 from nacl.hash import sha256
 from nacl.signing import VerifyKey
 
-from Website.database.database import insertToken, getRefreshToken, getToken, lookupDiscordID, \
+from ElevatorBot.database.database import insertToken, getRefreshToken, getToken, lookupDiscordID, \
     create_connection_pool
-from Website.static.config import BOT_ACCOUNT_PUBLIC_KEY
-from Website.static.config import BUNGIE_TOKEN, B64_SECRET, NEWTONS_WEBHOOK
+from ElevatorBot.static.config import BOT_ACCOUNT_PUBLIC_KEY
+from ElevatorBot.static.config import BUNGIE_TOKEN, B64_SECRET, NEWTONS_WEBHOOK
 
 
 verify_key = VerifyKey(bytes.fromhex(BOT_ACCOUNT_PUBLIC_KEY))

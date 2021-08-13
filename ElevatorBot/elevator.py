@@ -41,7 +41,7 @@ from static.globals import registered_role_id, not_registered_role_id, admin_dis
     member_role_id, discord_server_id, join_log_channel_id
 
 # vital, do not delete. Otherwise no events get loaded
-
+from events import *
 
 # to enable the on_member_join and on_member_remove
 intents = discord.Intents.default()
@@ -360,6 +360,7 @@ async def launch_event_loops(
     sched.add_listener(event_error, EVENT_JOB_ERROR)
 
     print("Loading events...")
+    print(BaseEvent.__subclasses__())
     for ev in BaseEvent.__subclasses__():
         event = ev()
 
@@ -853,10 +854,4 @@ def main():
 
 
 if __name__ == "__main__":
-    # p = Process(target=start_server)
-    # p.start()
-    # print('server started')
-
     main()
-
-    # p.join()

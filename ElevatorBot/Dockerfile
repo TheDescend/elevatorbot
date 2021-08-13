@@ -1,13 +1,19 @@
 FROM python:3.9
 
 ENV PYTHONUNBUFFERED=1
+ENV PYTHONPATH "${PYTHONPATH}:/app"
 
-COPY requirements.txt /ElevatorBot/requirements.txt
+# Install nodemon
+RUN apt-get update && apt-get upgrade -y && apt-get install -y nodejs npm
+RUN npm install -g nodemon
 
-RUN pip3.9 install -r /ElevatorBot/requirements.txt
+# Prep Elevator Code
+WORKDIR /app/ElevatorBot
 
-COPY ./ /ElevatorBot
+COPY requirements.txt .
 
-WORKDIR /ElevatorBot
+RUN pip3.9 install -r requirements.txt
 
-CMD python elevator.py
+COPY . .
+
+CMD nodemon elevator.py

@@ -11,7 +11,7 @@ def init_logging():
     ):
         logger = logging.getLogger(log_name)
         logger.setLevel(logging.INFO)
-        file_handler = logging.FileHandler(f'logs/ElevatorBot/{log_name}.log')
+        file_handler = logging.FileHandler(f'logs/{log_name}.log')
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
 

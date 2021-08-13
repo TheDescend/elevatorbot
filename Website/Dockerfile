@@ -1,12 +1,15 @@
 FROM python:3.9
 
-COPY requirements.txt /Website/requirements.txt
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONPATH "${PYTHONPATH}:/app"
 
-RUN pip3.9 install -r /Website/requirements.txt
+WORKDIR /app/Website
 
-COPY ./ /Website
+COPY requirements.txt .
 
-WORKDIR /Website
+RUN pip3.9 install -r requirements.txt
+
+COPY . .
 
 EXPOSE 80
 

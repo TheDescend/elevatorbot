@@ -4,10 +4,12 @@ services:
   elevator:
     build: ./ElevatorBot
     volumes:
-      - ./ElevatorBot:/ElevatorBot/ElevatorBot
-      - ./logs:/ElevatorBot/logs
+      - ./ElevatorBot:/app/ElevatorBot
+      - ./logs/ElevatorBot:/app/ElevatorBot/logs
     networks:
       - elevator-network
+    restart:
+      unless-stopped
     depends_on:
       - website
 
@@ -16,11 +18,17 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./Website:/Website/Website
-      - ./logs:/Website/logs
+      - ./Website:/app/Website
+      - ./logs/Website:/app/Website/logs
+
+      # todo temporary. Remove once database / works is its own service
+      - ./ElevatorBot/static:/app/ElevatorBot/static
+      - ./ElevatorBot/database:/app/ElevatorBot/database
     networks:
       - elevator-network
       - website-network
+    restart:
+      unless-stopped
 
 networks:
   elevator-network:
