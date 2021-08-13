@@ -12,10 +12,10 @@ from nacl.encoding import HexEncoder
 from nacl.hash import sha256
 from nacl.signing import VerifyKey
 
-from ElevatorBot.database.database import insertToken, getRefreshToken, getToken, lookupDiscordID, \
+from database import insertToken, getRefreshToken, getToken, lookupDiscordID, \
     create_connection_pool
-from ElevatorBot.static.config import BOT_ACCOUNT_PUBLIC_KEY
-from ElevatorBot.static.config import BUNGIE_TOKEN, B64_SECRET, NEWTONS_WEBHOOK
+from config import BOT_ACCOUNT_PUBLIC_KEY
+from config import BUNGIE_TOKEN, B64_SECRET, NEWTONS_WEBHOOK
 
 
 verify_key = VerifyKey(bytes.fromhex(BOT_ACCOUNT_PUBLIC_KEY))
@@ -25,8 +25,6 @@ app = Flask(__name__)
 
 loop = asyncio.get_event_loop()
 loop.run_until_complete(create_connection_pool())
-
-
 
 def shutdown_server():
     func = request.environ.get('werkzeug.server.shutdown')
