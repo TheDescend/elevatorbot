@@ -49,7 +49,6 @@ __Participants:__
 
 class Tournament:
 
-
     def __init__(
         self,
         players,

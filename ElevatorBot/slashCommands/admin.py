@@ -23,7 +23,6 @@ from ElevatorBot.static.slashCommandConfig import permissions_admin, permissions
 
 class AdminCommands(commands.Cog):
 
-
     def __init__(
         self,
         client
@@ -463,7 +462,6 @@ class AdminCommands(commands.Cog):
 
 
 class PersistentMessagesCommands(commands.Cog):
-
 
     def __init__(
         self,

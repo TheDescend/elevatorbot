@@ -6,7 +6,7 @@ import discord
 
 from ElevatorBot.database.database import lookupDiscordID
 from ElevatorBot.events.backgroundTasks import UpdateActivityDB
-from ElevatorBot.events.base_event import BaseEvent
+from ElevatorBot.events.baseEvent import BaseEvent
 from ElevatorBot.functions.destinyPlayer import DestinyPlayer
 from ElevatorBot.functions.formating import split_into_chucks_of_max_2000_characters
 from ElevatorBot.functions.persistentMessages import bot_status

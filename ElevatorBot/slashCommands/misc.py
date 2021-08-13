@@ -20,7 +20,6 @@ from ElevatorBot.static.slashCommandOptions import options_user
 
 class MiscCommands(commands.Cog):
 
-
     def __init__(
         self,
         client

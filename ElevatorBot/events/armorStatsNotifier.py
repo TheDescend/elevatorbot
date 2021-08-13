@@ -1,7 +1,7 @@
 import datetime
 
 from ElevatorBot.database.database import getDestinyDefinition
-from ElevatorBot.events.base_event import BaseEvent
+from ElevatorBot.events.baseEvent import BaseEvent
 from ElevatorBot.functions.authfunctions import getVendorData
 from ElevatorBot.functions.destinyPlayer import DestinyPlayer
 from ElevatorBot.functions.formating import embed_message

@@ -3,7 +3,6 @@ from discord.ext import commands
 
 class DevCommands(commands.Cog):
 
-
     def __init__(
         self,
         client

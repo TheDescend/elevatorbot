@@ -1,14 +1,13 @@
 import datetime
 
 from ElevatorBot.database.database import update_d2_steam_players
-from ElevatorBot.events.base_event import BaseEvent
+from ElevatorBot.events.baseEvent import BaseEvent
 from ElevatorBot.functions.persistentMessages import bot_status
 from ElevatorBot.networking.network import get_json_from_url
 from ElevatorBot.static.config import STEAM_TOKEN
 
 
 class getCurrentSteamPlayers(BaseEvent):
-
 
     def __init__(
         self

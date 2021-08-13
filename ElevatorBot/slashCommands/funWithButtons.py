@@ -7,7 +7,6 @@ from ElevatorBot.functions.funWithButtons import TicTacToeGame, Calculator
 
 class Games(commands.Cog):
 
-
     def __init__(
         self,
         client

@@ -21,7 +21,6 @@ from ElevatorBot.static.slashCommandConfig import permissions_kigstn
 
 class Day1Race(commands.Cog):
 
-
     def __init__(
         self,
         client

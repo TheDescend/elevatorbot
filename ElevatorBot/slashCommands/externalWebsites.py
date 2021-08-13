@@ -10,7 +10,6 @@ from ElevatorBot.static.slashCommandOptions import options_user
 
 class ExternalWebsitesCommands(commands.Cog):
 
-
     def __init__(
         self,
         client

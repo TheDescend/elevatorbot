@@ -24,7 +24,7 @@ from discord_slash.utils import manage_components
 
 from database.database import get_connection_pool, \
     select_lfg_datetimes_and_users
-from events.base_event import BaseEvent
+from events.baseEvent import BaseEvent
 from functions.clanJoinRequests import removeFromClanAfterLeftDiscord, on_clan_join_request, elevatorRegistration
 from functions.destinyPlayer import DestinyPlayer
 from functions.formating import embed_message
@@ -43,6 +43,7 @@ from static.globals import registered_role_id, not_registered_role_id, admin_dis
 # vital, do not delete. Otherwise no events get loaded
 from events import *
 
+
 # to enable the on_member_join and on_member_remove
 intents = discord.Intents.default()
 intents.members = True
@@ -52,8 +53,8 @@ intents.members = True
 this = sys.modules[__name__]
 this.running = False
 
-###############################################################################
 
+###############################################################################
 
 
 def aiohttp_server(
@@ -415,12 +416,21 @@ def main():
     # load slash command cogs
     # to do that, loop through the files and import all classes and commands
     print("Loading commands...")
-    slash_dir = "slash_commands"
+    slash_dir = "slashCommands"
     for file in os.listdir(slash_dir):
         if file.endswith(".py"):
             file = file.removesuffix(".py")
             extension = f"{slash_dir}.{file}"
             client.load_extension(extension)
+
+    # load context menus
+    context_dir = "contextMenus"
+    for root, dirs, files in os.walk(context_dir):
+        for file in files:
+            if file.endswith(".py"):
+                file = file.removesuffix(".py")
+                path = os.path.join(root, file)
+                client.load_extension(path.replace("/", ".").replace("\\", "."))
 
     # pylint: disable=no-member
     print(f"{len(client.slash.commands)} commands loaded")
@@ -658,7 +668,7 @@ def main():
         print(f"{ctx.author.display_name} used '/{ctx.name}' with kwargs '{ctx.kwargs}'")
 
         # log the command
-        logger = logging.getLogger('slash_commands')
+        logger = logging.getLogger('slashCommands')
         logger.info(
             f"InteractionID '{ctx.interaction_id}' - User '{ctx.author.name}' with discordID '{ctx.author.id}' executed '/{ctx.name}' with kwargs '{ctx.kwargs}' in guildID '{ctx.guild.id}', channelID '{ctx.channel.id}'"
         )
@@ -680,7 +690,7 @@ def main():
         )
 
         # log the error
-        logger = logging.getLogger('slash_commands')
+        logger = logging.getLogger('slashCommands')
         logger.exception(
             f"InteractionID '{ctx.interaction_id}' - Error {error} - Traceback: \n{''.join(traceback.format_tb(error.__traceback__))}"
         )

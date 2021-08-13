@@ -2,7 +2,6 @@
 # Do not modify!
 class BaseEvent:
 
-
     def __init__(
         self,
         **kwargs

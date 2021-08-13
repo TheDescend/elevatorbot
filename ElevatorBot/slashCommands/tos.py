@@ -6,7 +6,6 @@ from discord_slash.utils.manage_commands import create_option, create_choice
 
 class ToSCommands(commands.Cog):
 
-
     def __init__(
         self,
         client

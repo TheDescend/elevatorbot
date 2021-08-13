@@ -3,7 +3,7 @@ import datetime
 
 import discord
 
-from ElevatorBot.events.base_event import BaseEvent
+from ElevatorBot.events.baseEvent import BaseEvent
 from ElevatorBot.functions.dataLoading import updateMissingPcgr, updateManifest
 from ElevatorBot.functions.destinyPlayer import DestinyPlayer
 from ElevatorBot.functions.persistentMessages import bot_status
@@ -11,7 +11,6 @@ from ElevatorBot.networking.bungieAuth import handle_and_return_token
 
 
 class UpdateManifest(BaseEvent):
-
 
     def __init__(
         self
@@ -37,7 +36,6 @@ class UpdateManifest(BaseEvent):
 
 
 class UpdateActivityDB(BaseEvent):
-
 
     def __init__(
         self

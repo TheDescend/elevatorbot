@@ -14,7 +14,6 @@ from ElevatorBot.static.slashCommandOptions import options_user
 
 class RoleCommands(commands.Cog):
 
-
     def __init__(
         self,
         client

@@ -44,7 +44,6 @@ from ElevatorBot.static.slashCommandOptions import choices_mode, options_stat, o
 
 class DestinyCommands(commands.Cog):
 
-
     def __init__(
         self,
         client
@@ -741,7 +740,6 @@ class DestinyCommands(commands.Cog):
 
 class ClanActivitiesCommands(commands.Cog):
 
-
     def __init__(
         self,
         client
@@ -960,7 +958,6 @@ class ClanActivitiesCommands(commands.Cog):
 
 class MysticCommands(commands.Cog):
 
-
     def __init__(
         self,
         client
@@ -1105,7 +1102,6 @@ class MysticCommands(commands.Cog):
 
 
 class RankCommands(commands.Cog):
-
 
     def __init__(
         self,
@@ -1762,7 +1758,6 @@ class RankCommands(commands.Cog):
 
 
 class WeaponCommands(commands.Cog):
-
 
     def __init__(
         self,
@@ -2537,7 +2532,6 @@ class WeaponCommands(commands.Cog):
 
 
 class TournamentCommands(commands.Cog):
-
 
     def __init__(
         self,

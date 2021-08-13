@@ -9,7 +9,7 @@ import pandas
 from sshtunnel import SSHTunnelForwarder
 
 from ElevatorBot.database.psql_credentials import password, ssh_port, dbname, host, ssh_host, ssh_password, user, ssh_user
-from ElevatorBot.database.database_models import database_tables
+from ElevatorBot.database.databaseModels import database_tables
 
 
 """ ALL DATABASE ACCESS FUNCTIONS """
