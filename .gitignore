@@ -44,3 +44,4 @@ ElevatorBot/database/databasemutation.py
 .pylintrc
 /ElevatorBot/networking/bungie_networking_cache.sqlite
 /Website/database/psql_credentials.py
+/Website/oauth.sock

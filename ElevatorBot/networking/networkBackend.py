@@ -207,64 +207,64 @@ async def handle_bungie_errors(
 
     # generic bad request, such as wrong format
     if response.status == 400:
-        logger.error("'%s - %s': Generic bad request for '%s' - '%s'", response.status, response.error, url, response.error_message)
+        logger.error("'%s - %s': Generic bad request for '%s' - '%s'", response.status, response.error, url, response)
         return True
 
     # not found
     elif response.status == 404:
-        logger.error("'%s - %s': No stats found for '%s' - '%s'", response.status, response.error, url, response.error_message)
+        logger.error("'%s - %s': No stats found for '%s' - '%s'", response.status, response.error, url, response)
         return True
 
     # bungie is ded
     elif response.status == 503:
-        logger.error("'%s - %s': Server is overloaded for '%s' - '%s'", response.status, response.error, url, response.error_message)
+        logger.error("'%s - %s': Server is overloaded for '%s' - '%s'", response.status, response.error, url, response)
         await asyncio.sleep(10)
 
     # rate limited
     elif response.status == 429:
-        logger.warning("'%s - %s': Getting rate limited for '%s' - '%s'", response.status, response.error, url, response.error_message)
+        logger.warning("'%s - %s': Getting rate limited for '%s' - '%s'", response.status, response.error, url, response)
         await asyncio.sleep(2)
 
     # we we are getting throttled
     elif response.error == "PerEndpointRequestThrottleExceeded" or response.error == "DestinyDirectBabelClientTimeout":
+        logger.warning(
+            "'%s - %s': Getting throttled for '%s' - '%s'", response.status, response.error, url, response
+        )
+
         throttle_seconds = response.content['ErrorStatus']["ThrottleSeconds"]
 
-        logger.warning(
-            "'%s - %s': Getting throttled, waiting '%s' for '%s' - '%s'", response.status, response.error, throttle_seconds or 'for Babel', url,
-            response.error_message
-        )
         await asyncio.sleep(throttle_seconds + random.randrange(1, 3))
 
     # if user doesn't have that item
     elif response.error == "DestinyItemNotFound":
-        logger.error("'%s - %s': User doesn't have that item for '%s' - '%s'", response.status, response.error, url, response.error_message)
+        logger.error("'%s - %s': User doesn't have that item for '%s' - '%s'", response.status, response.error, url, response)
         return True
 
     # private profile
     elif response.error == "DestinyPrivacyRestriction":
-        logger.error("'%s - %s': User has private Profile for '%s' - '%s'", response.status, response.error, url, response.error_message)
+        logger.error("'%s - %s': User has private Profile for '%s' - '%s'", response.status, response.error, url, response)
         return True
 
     # timeout
     elif response.error == "DestinyDirectBabelClientTimeout":
-        logger.warning("'%s - %s': Getting timeouts for '%s' - '%s'", response.status, response.error, url, response.error_message)
+        logger.warning("'%s - %s': Getting timeouts for '%s' - '%s'", response.status, response.error, url, response)
         await asyncio.sleep(60)
 
     # user has disallowed clan invites
     elif response.error == "ClanTargetDisallowsInvites":
-        logger.error("'%s - %s': User disallows clan invites '%s' - '%s'", response.status, response.error, url, response.error_message)
+        logger.error("'%s - %s': User disallows clan invites '%s' - '%s'", response.status, response.error, url, response)
         return True
 
     # user has disallowed clan invites
     elif response.error == "AuthorizationRecordRevoked":
         logger.error(
-            "'%s - %s': User refresh token is outdated and they need to re-register for '%s' - '%s'", response.status, response.error, url,
+            "'%s - %s': User refresh token is outdated and they need to re-register for '%s' - '%s'", response.status, response, url,
             response.error_message
         )
         return True
 
     else:
-        logger.error("'%s - %s': Request failed for '%s' - '%s'", response.status, response.error, url, response.error_message)
+        logger.error("'%s - %s': Request failed for '%s' - '%s'", response.status, response.error, url, response)
         await asyncio.sleep(2)
 
     return False
