@@ -8,14 +8,14 @@ from discord.ext import commands
 from discord_slash import cog_ext, SlashContext
 from discord_slash.utils.manage_commands import create_option
 
-from ElevatorBot.functions.formating import embed_message
-from ElevatorBot.functions.miscFunctions import has_elevated_permissions
-from ElevatorBot.functions.poll import get_poll_object, create_poll_object
-from ElevatorBot.functions.roleLookup import assignRolesToUser, removeRolesFromUser
-from ElevatorBot.functions.slashCommandFunctions import get_user_obj
-from ElevatorBot.static.globals import muted_role_id
-from ElevatorBot.static.slashCommandConfig import permissions_socialist
-from ElevatorBot.static.slashCommandOptions import options_user
+from functions.formating import embed_message
+from functions.miscFunctions import has_elevated_permissions
+from functions.poll import get_poll_object, create_poll_object
+from functions.roleLookup import assignRolesToUser, removeRolesFromUser
+from functions.slashCommandFunctions import get_user_obj
+from static.globals import muted_role_id
+from static.slashCommandConfig import permissions_socialist
+from static.slashCommandOptions import options_user
 
 
 class MiscCommands(commands.Cog):

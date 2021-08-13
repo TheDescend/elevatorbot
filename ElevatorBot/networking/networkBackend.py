@@ -6,8 +6,8 @@ from typing import Optional, Union
 import aiohttp
 import aiohttp_client_cache
 
-from ElevatorBot.networking.bungieRatelimiting import BungieRateLimiter
-from ElevatorBot.networking.models import WebResponse
+from networking.bungieRatelimiting import BungieRateLimiter
+from networking.models import WebResponse
 
 
 # get logger

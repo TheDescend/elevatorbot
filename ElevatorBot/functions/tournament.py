@@ -3,10 +3,10 @@ import json
 import random
 import time
 
-from ElevatorBot.functions.destinyPlayer import DestinyPlayer
-from ElevatorBot.functions.formating import embed_message
-from ElevatorBot.functions.miscFunctions import has_elevated_permissions
-from ElevatorBot.networking.network import get_json_from_url
+from functions.destinyPlayer import DestinyPlayer
+from functions.formating import embed_message
+from functions.miscFunctions import has_elevated_permissions
+from networking.network import get_json_from_url
 
 
 async def startTournamentEvents(

@@ -8,10 +8,10 @@ from discord_slash import cog_ext, SlashContext, ButtonStyle, ComponentContext
 from discord_slash.utils import manage_components
 from discord_slash.utils.manage_commands import create_option, create_choice
 
-from ElevatorBot.database.database import add_lfg_blacklisted_member, remove_lfg_blacklisted_member
-from ElevatorBot.functions.formating import embed_message
-from ElevatorBot.functions.lfg import create_lfg_message, get_lfg_message
-from ElevatorBot.static.slashCommandOptions import options_user
+from database.database import add_lfg_blacklisted_member, remove_lfg_blacklisted_member
+from functions.formating import embed_message
+from functions.lfg import create_lfg_message, get_lfg_message
+from static.slashCommandOptions import options_user
 
 
 timezones_dict = {

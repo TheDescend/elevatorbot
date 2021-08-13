@@ -7,12 +7,12 @@ import discord
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from discord_slash import SlashContext
 
-from ElevatorBot.database.database import select_guild_lfg_events
-from ElevatorBot.functions.formating import embed_message
-from ElevatorBot.networking.bungieAuth import handle_and_return_token
-from ElevatorBot.static.config import COMMAND_PREFIX
-from ElevatorBot.static.dict import expansion_dates, season_dates
-from ElevatorBot.static.globals import admin_role_id, dev_role_id, mod_role_id
+from database.database import select_guild_lfg_events
+from functions.formating import embed_message
+from networking.bungieAuth import handle_and_return_token
+from static.config import COMMAND_PREFIX
+from static.dict import expansion_dates, season_dates
+from static.globals import admin_role_id, dev_role_id, mod_role_id
 
 
 scheduler = None

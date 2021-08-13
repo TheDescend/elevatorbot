@@ -3,13 +3,13 @@ from discord.ext import commands
 from discord_slash import cog_ext, SlashContext
 from discord_slash.utils.manage_commands import create_option
 
-from ElevatorBot.functions.destinyPlayer import DestinyPlayer
-from ElevatorBot.functions.formating import embed_message
-from ElevatorBot.functions.roleLookup import get_player_roles, has_role
-from ElevatorBot.functions.slashCommandFunctions import get_user_obj, get_user_obj_admin
-from ElevatorBot.static.dict import requirementHashes
-from ElevatorBot.static.globals import dev_role_id
-from ElevatorBot.static.slashCommandOptions import options_user
+from functions.destinyPlayer import DestinyPlayer
+from functions.formating import embed_message
+from functions.roleLookup import get_player_roles, has_role
+from functions.slashCommandFunctions import get_user_obj, get_user_obj_admin
+from static.dict import requirementHashes
+from static.globals import dev_role_id
+from static.slashCommandOptions import options_user
 
 
 class RoleCommands(commands.Cog):

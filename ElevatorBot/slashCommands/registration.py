@@ -2,12 +2,12 @@ from discord.ext import commands
 from discord_slash import cog_ext, SlashContext
 from discord_slash.utils.manage_commands import create_option
 
-from ElevatorBot.database.database import removeUser, setSteamJoinID, getSteamJoinID
-from ElevatorBot.functions.clanJoinRequests import elevatorRegistration
-from ElevatorBot.functions.formating import embed_message
-from ElevatorBot.functions.persistentMessages import steamJoinCodeMessage
-from ElevatorBot.functions.slashCommandFunctions import get_user_obj_admin, get_user_obj
-from ElevatorBot.static.slashCommandOptions import options_user
+from database.database import removeUser, setSteamJoinID, getSteamJoinID
+from functions.clanJoinRequests import elevatorRegistration
+from functions.formating import embed_message
+from functions.persistentMessages import steamJoinCodeMessage
+from functions.slashCommandFunctions import get_user_obj_admin, get_user_obj
+from static.slashCommandOptions import options_user
 
 
 class RegistrationCommands(commands.Cog):

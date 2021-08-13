@@ -3,9 +3,9 @@ import matplotlib
 
 matplotlib.use('Agg')
 
-from ElevatorBot.functions.dataLoading import get_pgcr, getNameToHashMapByClanid
-from ElevatorBot.static.dict import clanids, seasonalChallengesCategoryHash
-from ElevatorBot.database.database import getEverything, getEverythingRow
+from functions.dataLoading import get_pgcr, getNameToHashMapByClanid
+from static.dict import clanids, seasonalChallengesCategoryHash
+from database.database import getEverything, getEverythingRow
 
 
 async def getSeasonalChallengeInfo():

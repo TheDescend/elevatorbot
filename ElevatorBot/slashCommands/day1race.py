@@ -11,12 +11,12 @@ from discord.ext import commands
 from discord_slash import cog_ext, SlashContext
 from discord_slash.utils.manage_commands import create_option, create_choice
 
-from ElevatorBot.functions.destinyPlayer import DestinyPlayer
-from ElevatorBot.functions.formating import embed_message
-from ElevatorBot.networking.network import get_json_from_url
-from ElevatorBot.static.config import CLANID
-from ElevatorBot.static.globals import member_role_id, clan_role_id
-from ElevatorBot.static.slashCommandConfig import permissions_kigstn
+from functions.destinyPlayer import DestinyPlayer
+from functions.formating import embed_message
+from networking.network import get_json_from_url
+from static.config import CLANID
+from static.globals import member_role_id, clan_role_id
+from static.slashCommandConfig import permissions_kigstn
 
 
 class Day1Race(commands.Cog):

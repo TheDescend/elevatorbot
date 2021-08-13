@@ -1,15 +1,15 @@
 import asyncio
 from datetime import datetime
 
-from ElevatorBot.database.database import get_connection_pool, lookupDiscordID, insertPgcrActivities, getPgcrActivity, \
+from database.database import get_connection_pool, lookupDiscordID, insertPgcrActivities, getPgcrActivity, \
     insertPgcrActivitiesUsersStats, \
     insertPgcrActivitiesUsersStatsWeapons, getFailToGetPgcrInstanceId, deleteFailToGetPgcrInstanceId, \
     updateDestinyDefinition, getVersion, updateVersion, deleteEntries
-from ElevatorBot.functions.formating import embed_message
-from ElevatorBot.networking.models import WebResponse
-from ElevatorBot.networking.network import get_json_from_url
-from ElevatorBot.static.config import CLANID
-from ElevatorBot.static.dict import weaponTypeKinetic, weaponTypeEnergy, weaponTypePower
+from functions.formating import embed_message
+from networking.models import WebResponse
+from networking.network import get_json_from_url
+from static.config import CLANID
+from static.dict import weaponTypeKinetic, weaponTypeEnergy, weaponTypePower
 
 
 # gets the weapon (name, [hash1, hash2, ...]) for the search term for all weapons found

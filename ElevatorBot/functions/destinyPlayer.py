@@ -11,12 +11,12 @@ import discord
 from discord_slash import SlashContext
 from discord_slash.context import InteractionContext
 
-from ElevatorBot.database.database import lookupDiscordID, lookupSystem, lookupDestinyID, insertFailToGetPgcrInstanceId, \
+from database.database import lookupDiscordID, lookupSystem, lookupDestinyID, insertFailToGetPgcrInstanceId, \
     getLastUpdated, getPgcrActivity, updateLastUpdated, get_info_on_low_man_activity, getSeals, getWeaponInfo
-from ElevatorBot.functions.dataLoading import get_pgcr, insertPgcrToDB
-from ElevatorBot.functions.formating import embed_message
-from ElevatorBot.networking.bungieAuth import handle_and_return_token
-from ElevatorBot.networking.network import get_json_from_bungie_with_token, get_json_from_url
+from functions.dataLoading import get_pgcr, insertPgcrToDB
+from functions.formating import embed_message
+from networking.bungieAuth import handle_and_return_token
+from networking.network import get_json_from_bungie_with_token, get_json_from_url
 
 
 race_map = {

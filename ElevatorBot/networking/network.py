@@ -3,10 +3,10 @@ from datetime import timedelta
 import aiohttp
 import aiohttp_client_cache
 
-from ElevatorBot.networking.bungieAuth import handle_and_return_token
-from ElevatorBot.networking.models import WebResponse
-from ElevatorBot.networking.networkBackend import get_request, post_request
-from ElevatorBot.static.config import BUNGIE_TOKEN
+from networking.bungieAuth import handle_and_return_token
+from networking.models import WebResponse
+from networking.networkBackend import get_request, post_request
+from static.config import BUNGIE_TOKEN
 
 
 # base bungie headers
