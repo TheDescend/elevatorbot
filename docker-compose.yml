@@ -30,6 +30,19 @@ services:
     restart:
       unless-stopped
 
+  backend:
+    build: ./Backend
+    ports: 
+      - "8000:80"
+    volumes:
+      - ./Backend:/app/Backend
+      - ./logs/Backend:/app/Backend/logs
+    networks:
+      - elevator-network
+    restart:
+      unless-stopped
+    
+
 networks:
   elevator-network:
   website-network:
