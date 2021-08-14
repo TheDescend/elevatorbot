@@ -14,7 +14,7 @@ services:
       - website
 
   website:
-    build: ./Website
+    build: ./elevatorpage
     ports:
       - "80:80"
     volumes:
