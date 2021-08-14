@@ -23,6 +23,7 @@ raiddata/friendpickle
 *.log
 images/
 venv/
+.pytest_cache/
 
 ElevatorBot/database/rasputinCheck.py
 ElevatorBot/database/steamPlayerData.pickle
