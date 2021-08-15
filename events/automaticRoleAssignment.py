@@ -41,7 +41,7 @@ class AutomaticRoleAssignment(BaseEvent):
             if discord_member.bot:
                 return None
 
-            destiny_player = await DestinyPlayer.from_discord_id(member.id)
+            destiny_player = await DestinyPlayer.from_discord_id(discord_member.id)
             if not destiny_player:
                 return
 
@@ -49,10 +49,10 @@ class AutomaticRoleAssignment(BaseEvent):
             roles_to_add, roles_to_remove, _, _ = await get_player_roles(discord_member, destiny_player)
 
             # assign roles
-            await discord_member.add_roles(*roles_to_add, reason="Achievement Role Update")
+            await discord_member.add_roles(*roles_to_add, reason="Achievement Role Earned")
 
             # remove roles
-            await discord_member.remove_roles(*roles_to_remove, reason="Achievement Role Update")
+            await discord_member.remove_roles(*roles_to_remove, reason="Achievement Role Not Deserved")
 
             # convert to str
             new_roles = [role.name for role in roles_to_add]
