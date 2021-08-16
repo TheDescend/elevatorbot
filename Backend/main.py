@@ -1,8 +1,8 @@
 from fastapi import Depends, FastAPI
 
-from .dependencies import get_query_token, get_token_header
-from .internal import admin
-from .routers import items
+from Backend.dependencies import get_query_token, get_token_header
+from Backend.internal import admin
+from Backend.routers import items
 
 
 app = FastAPI(dependencies=[Depends(get_query_token)])
