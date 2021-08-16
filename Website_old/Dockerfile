@@ -1,7 +1,9 @@
-FROM tiangolo/uvicorn-gunicorn-fastapi:python3.9
+FROM python:3.9
 
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH "${PYTHONPATH}:/app"
+
+WORKDIR /app/Website
 
 COPY requirements.txt .
 
@@ -9,4 +11,6 @@ RUN pip3.9 install -r requirements.txt
 
 COPY . .
 
-CMD uvicorn main:app --host 0.0.0.0 --port 80 --reload
+EXPOSE 80
+
+CMD uwsgi oauth.ini

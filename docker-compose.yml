@@ -1,49 +1,52 @@
 version: "3.9"
 
 services:
+  backend:
+    build: ./Backend
+    ports:
+      - "1337:1337"
+    volumes:
+      - ./Backend:/app/Backend
+      - ./logs/Backend:/app/Backend/logs
+    networks:
+      - backend-network
+      - elevator-network
+    restart:
+      unless-stopped
+
   elevator:
     build: ./ElevatorBot
     volumes:
       - ./ElevatorBot:/app/ElevatorBot
       - ./logs/ElevatorBot:/app/ElevatorBot/logs
     networks:
-      - elevator-network
-    restart:
-      unless-stopped
-    depends_on:
-      - website
-
-  website:
-    build: ./elevatorpage
-    ports:
-      - "80:80"
-    volumes:
-      - ./Website:/app/Website
-      - ./logs/Website:/app/Website/logs
-
-      # todo temporary. Remove once database / works is its own service
-      - ./ElevatorBot/static:/app/ElevatorBot/static
-      - ./ElevatorBot/database:/app/ElevatorBot/database
-    networks:
+      - backend-network
       - elevator-network
       - website-network
     restart:
       unless-stopped
+    depends_on:
+      - backend
+      - website
 
-  backend:
-    build: ./Backend
-    ports: 
-      - "8000:80"
+  website:
+    build: Website
+    ports:
+      - "80:80"
     volumes:
-      - ./Backend:/app/Backend
-      - ./logs/Backend:/app/Backend/logs
+      - ./Website:/app/Website
+      - ./logs/Website_old:/app/Website_old/logs
     networks:
-      - elevator-network
+      - backend-network
+      - website-network
     restart:
       unless-stopped
+    depends_on:
+      - backend
     
 
 networks:
+  backend-network:
   elevator-network:
   website-network:
 

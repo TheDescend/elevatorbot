@@ -44,5 +44,6 @@ HostingDetails
 ElevatorBot/database/databasemutation.py
 .pylintrc
 /ElevatorBot/networking/bungie_networking_cache.sqlite
-/Website/database/psql_credentials.py
-/Website/oauth.sock
+/Website_old/database/psql_credentials.py
+/Website_old/oauth.sock
+/Website_old/oauth.sock

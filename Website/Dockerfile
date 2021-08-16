@@ -1,16 +1,14 @@
-FROM python:3.9
-
-ENV PYTHONUNBUFFERED=1
-ENV PYTHONPATH "${PYTHONPATH}:/app"
-
+# Stage 0, "build-stage", based on Node.js, to build and compile the frontend
+FROM tiangolo/node-frontend:10 as build-stage
 WORKDIR /app/Website
-
-COPY requirements.txt .
-
-RUN pip3.9 install -r requirements.txt
-
+COPY package*.json /app/
+RUN npm install
 COPY . .
+RUN npm run build
 
-EXPOSE 80
+# Stage 1, based on Nginx, to have only the compiled app, ready for production with Nginx
+FROM nginx:1.15
+COPY --from=build-stage build/ /usr/share/nginx/html
 
-CMD uwsgi oauth.ini
+# Copy the default nginx.conf provided by tiangolo/node-frontend
+COPY --from=build-stage /nginx.conf /etc/nginx/conf.d/default.conf
