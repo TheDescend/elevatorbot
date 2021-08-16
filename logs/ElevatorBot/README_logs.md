@@ -1,1 +1,0 @@
-This folder contains all logs ElevatorBot produces
