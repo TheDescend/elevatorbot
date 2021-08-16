@@ -22,8 +22,8 @@ jobs:
 
     - name: Change Directory
       run: |
-      cd ElevatorBot
-      ls
+        cd ElevatorBot
+        ls
       
     - name: Set Up Python 3.9
       uses: actions/setup-python@v2
