@@ -1,0 +1,50 @@
+version: "3.9"
+
+services:
+  elevator:
+    build: ./ElevatorBot
+    volumes:
+      - ./ElevatorBot:/app/ElevatorBot
+      - ./logs/ElevatorBot:/app/ElevatorBot/logs
+    networks:
+      - elevator-network
+    restart:
+      unless-stopped
+    depends_on:
+      - website
+
+  website:
+    build: ./elevatorpage
+    ports:
+      - "80:80"
+    volumes:
+      - ./Website:/app/Website
+      - ./logs/Website:/app/Website/logs
+
+      # todo temporary. Remove once database / works is its own service
+      - ./ElevatorBot/static:/app/ElevatorBot/static
+      - ./ElevatorBot/database:/app/ElevatorBot/database
+    networks:
+      - elevator-network
+      - website-network
+    restart:
+      unless-stopped
+
+  backend:
+    build: ./Backend
+    ports: 
+      - "8000:80"
+    volumes:
+      - ./Backend:/app/Backend
+      - ./logs/Backend:/app/Backend/logs
+    networks:
+      - elevator-network
+    restart:
+      unless-stopped
+    
+
+networks:
+  elevator-network:
+  website-network:
+
+# https://www.docker.com/blog/containerized-python-development-part-2/

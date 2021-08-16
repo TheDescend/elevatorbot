@@ -23,15 +23,16 @@ raiddata/friendpickle
 *.log
 images/
 venv/
+.pytest_cache/
 
-database/rasputinCheck.py
-database/steamPlayerData.pickle
-database/steamPlayerData.pickle.bckp
-database/seals.pickle
-database/psql_credentials.py
+ElevatorBot/database/rasputinCheck.py
+ElevatorBot/database/steamPlayerData.pickle
+ElevatorBot/database/steamPlayerData.pickle.bckp
+ElevatorBot/database/seals.pickle
+ElevatorBot/database/psql_credentials.py
 database/*.ipynb
 
-static/slashCommandConfig.py
+ElevatorBot/static/slashCommandConfig.py
 
 oauth/
 bbenv/
@@ -40,6 +41,8 @@ commands/mysticlist.list
 nohup.out
 .uwsgi_plugins_builder
 HostingDetails
-database/databasemutation.py
+ElevatorBot/database/databasemutation.py
 .pylintrc
-/networking/bungie_networking_cache.sqlite
+/ElevatorBot/networking/bungie_networking_cache.sqlite
+/Website/database/psql_credentials.py
+/Website/oauth.sock
