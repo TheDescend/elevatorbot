@@ -1,4 +1,4 @@
-FROM tiangolo/uvicorn-gunicorn-fastapi:python3.9
+FROM winnerokay/uvicorn-gunicorn:python3.9
 
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH "${PYTHONPATH}:/app"
