@@ -9,12 +9,12 @@ from apscheduler.jobstores.base import JobLookupError
 from discord_slash import SlashContext, ComponentContext, ButtonStyle
 from discord_slash.utils import manage_components
 
-from database.database import get_next_free_lfg_message_id, get_persistent_message, get_lfg_blacklisted_members, \
+from ElevatorBot.database.database import get_next_free_lfg_message_id, get_persistent_message, get_lfg_blacklisted_members, \
     insert_lfg_message, select_lfg_message, delete_lfg_message, select_guild_lfg_events
-from functions.formating import embed_message
-from functions.miscFunctions import has_elevated_permissions, get_scheduler
-from functions.persistentMessages import get_persistent_message_or_channel
-from static.globals import join_emoji_id, leave_emoji_id, backup_emoji_id
+from ElevatorBot.functions.formating import embed_message
+from ElevatorBot.functions.miscFunctions import has_elevated_permissions, get_scheduler
+from ElevatorBot.functions.persistentMessages import get_persistent_message_or_channel
+from ElevatorBot.static.globals import join_emoji_id, leave_emoji_id, backup_emoji_id
 
 
 @dataclasses.dataclass()

@@ -3,10 +3,10 @@ from typing import Union, Optional
 
 import discord
 
-from database.database import get_persistent_message, insertPersistentMessage, \
+from ElevatorBot.database.database import get_persistent_message, insertPersistentMessage, \
     getallSteamJoinIDs, updatePersistentMessage, getAllPersistentMessages, deletePersistentMessage
-from functions.formating import embed_message
-from networking.bungieAuth import handle_and_return_token
+from ElevatorBot.functions.formating import embed_message
+from ElevatorBot.networking.bungieAuth import handle_and_return_token
 
 
 async def get_persistent_message_or_channel(

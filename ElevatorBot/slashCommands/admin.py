@@ -7,18 +7,18 @@ from discord_slash import cog_ext, SlashContext, ButtonStyle
 from discord_slash.utils import manage_components
 from discord_slash.utils.manage_commands import create_option, create_choice
 
-from database.database import lookupDiscordID
-from functions.dataLoading import getNameAndCrossaveNameToHashMapByClanid
-from functions.destinyPlayer import DestinyPlayer
-from functions.formating import embed_message
-from functions.persistentMessages import make_persistent_message, steamJoinCodeMessage
-from functions.roleLookup import assignRolesToUser, removeRolesFromUser
-from networking.bungieAuth import handle_and_return_token
-from networking.network import get_json_from_url
-from static.config import CLANID
-from static.globals import other_game_roles, muted_role_id, bot_spam_channel_id, enter_emoji_id, \
+from ElevatorBot.database.database import lookupDiscordID
+from ElevatorBot.functions.dataLoading import getNameAndCrossaveNameToHashMapByClanid
+from ElevatorBot.functions.destinyPlayer import DestinyPlayer
+from ElevatorBot.functions.formating import embed_message
+from ElevatorBot.functions.persistentMessages import make_persistent_message, steamJoinCodeMessage
+from ElevatorBot.functions.roleLookup import assignRolesToUser, removeRolesFromUser
+from ElevatorBot.networking.bungieAuth import handle_and_return_token
+from ElevatorBot.networking.network import get_json_from_url
+from ElevatorBot.static.config import CLANID
+from ElevatorBot.static.globals import other_game_roles, muted_role_id, bot_spam_channel_id, enter_emoji_id, \
     circle_emoji_id
-from static.slashCommandConfig import permissions_admin, permissions_kigstn_hali
+from ElevatorBot.static.slashCommandConfig import permissions_admin, permissions_kigstn_hali
 
 
 class AdminCommands(commands.Cog):

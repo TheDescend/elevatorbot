@@ -5,8 +5,8 @@ import discord
 from discord_slash import ComponentContext, SlashContext
 from discord_slash.utils import manage_components
 
-from database.database import insert_poll, get_poll
-from functions.formating import embed_message
+from ElevatorBot.database.database import insert_poll, get_poll
+from ElevatorBot.functions.formating import embed_message
 
 
 @dataclasses.dataclass()

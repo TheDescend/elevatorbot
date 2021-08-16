@@ -3,9 +3,9 @@ from discord_slash import cog_ext, SlashContext, ButtonStyle
 from discord_slash.utils import manage_components
 from discord_slash.utils.manage_commands import create_option, create_choice
 
-from functions.destinyPlayer import DestinyPlayer
-from functions.slashCommandFunctions import get_user_obj
-from static.slashCommandOptions import options_user
+from ElevatorBot.functions.destinyPlayer import DestinyPlayer
+from ElevatorBot.functions.slashCommandFunctions import get_user_obj
+from ElevatorBot.static.slashCommandOptions import options_user
 
 
 class ExternalWebsitesCommands(commands.Cog):

@@ -16,30 +16,30 @@ from discord_slash.utils import manage_components
 from discord_slash.utils.manage_commands import create_option, create_choice
 from pyvis.network import Network
 
-from database.database import getForges, getLastActivity, \
+from ElevatorBot.database.database import getForges, getLastActivity, \
     getDestinyDefinition, getWeaponInfo, getPgcrActivity, getTopWeapons, getActivityHistory, \
     getPgcrActivitiesUsersStats, getClearCount, get_d2_steam_player_info, getTimePlayed
-from functions.authfunctions import getSpiderMaterials
-from functions.dataLoading import searchForItem, getClanMembers, \
+from ElevatorBot.functions.authfunctions import getSpiderMaterials
+from ElevatorBot.functions.dataLoading import searchForItem, getClanMembers, \
     translateWeaponSlot
-from functions.dataTransformation import getSeasonalChallengeInfo
-from functions.destinyPlayer import DestinyPlayer
-from functions.formating import embed_message
-from functions.miscFunctions import get_emoji, write_line, has_elevated_permissions, check_if_mutually_exclusive, \
+from ElevatorBot.functions.dataTransformation import getSeasonalChallengeInfo
+from ElevatorBot.functions.destinyPlayer import DestinyPlayer
+from ElevatorBot.functions.formating import embed_message
+from ElevatorBot.functions.miscFunctions import get_emoji, write_line, has_elevated_permissions, check_if_mutually_exclusive, \
     convert_expansion_or_season_dates
-from functions.persistentMessages import get_persistent_message_or_channel, make_persistent_message, \
+from ElevatorBot.functions.persistentMessages import get_persistent_message_or_channel, make_persistent_message, \
     delete_persistent_message
-from functions.slashCommandFunctions import get_user_obj, get_user_obj_admin, \
+from ElevatorBot.functions.slashCommandFunctions import get_user_obj, get_user_obj_admin, \
     verify_time_input
-from functions.tournament import startTournamentEvents
-from networking.network import get_json_from_url
-from static.config import CLANID
-from static.dict import raidHashes, gmHashes, expansion_dates, season_dates, zeroHashes, \
+from ElevatorBot.functions.tournament import startTournamentEvents
+from ElevatorBot.networking.network import get_json_from_url
+from ElevatorBot.static.config import CLANID
+from ElevatorBot.static.dict import raidHashes, gmHashes, expansion_dates, season_dates, zeroHashes, \
     herzeroHashes, whisperHashes, herwhisperHashes, presageHashes, presageMasterHashes, prophHashes, pitHashes, \
     throneHashes, harbHashes, requirementHashes
-from static.globals import titan_emoji_id, hunter_emoji_id, warlock_emoji_id, light_level_icon_emoji_id, tournament, \
+from ElevatorBot.static.globals import titan_emoji_id, hunter_emoji_id, warlock_emoji_id, light_level_icon_emoji_id, tournament, \
     enter_emoji_id
-from static.slashCommandOptions import choices_mode, options_stat, options_user
+from ElevatorBot.static.slashCommandOptions import choices_mode, options_stat, options_user
 
 
 class DestinyCommands(commands.Cog):

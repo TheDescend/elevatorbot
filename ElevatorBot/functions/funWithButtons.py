@@ -8,7 +8,7 @@ from discord_slash import SlashContext, ComponentContext
 from discord_slash.model import SlashMessage, ButtonStyle
 from discord_slash.utils import manage_components
 
-from functions.formating import embed_message
+from ElevatorBot.functions.formating import embed_message
 
 
 @dataclasses.dataclass()

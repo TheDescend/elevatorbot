@@ -1,9 +1,9 @@
 from inspect import currentframe, getframeinfo
 
-from database.database import lookupDiscordID, getDestinyDefinition, lookupSystem
-from functions.formating import embed_message
-from networking.models import WebResponse
-from networking.network import get_json_from_bungie_with_token
+from ElevatorBot.database.database import lookupDiscordID, getDestinyDefinition, lookupSystem
+from ElevatorBot.functions.formating import embed_message
+from ElevatorBot.networking.models import WebResponse
+from ElevatorBot.networking.network import get_json_from_bungie_with_token
 
 
 async def getUserMaterials(

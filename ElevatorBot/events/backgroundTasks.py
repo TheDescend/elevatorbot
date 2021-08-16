@@ -3,11 +3,11 @@ import datetime
 
 import discord
 
-from events.baseEvent import BaseEvent
-from functions.dataLoading import updateMissingPcgr, updateManifest
-from functions.destinyPlayer import DestinyPlayer
-from functions.persistentMessages import bot_status
-from networking.bungieAuth import handle_and_return_token
+from ElevatorBot.events.baseEvent import BaseEvent
+from ElevatorBot.functions.dataLoading import updateMissingPcgr, updateManifest
+from ElevatorBot.functions.destinyPlayer import DestinyPlayer
+from ElevatorBot.functions.persistentMessages import bot_status
+from ElevatorBot.networking.bungieAuth import handle_and_return_token
 
 
 class UpdateManifest(BaseEvent):

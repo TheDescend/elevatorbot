@@ -1,5 +1,5 @@
-from database.database import get_persistent_message
-from events.baseEvent import BaseEvent
+from ElevatorBot.database.database import get_persistent_message
+from ElevatorBot.events.baseEvent import BaseEvent
 
 
 class GetMemberCount(BaseEvent):

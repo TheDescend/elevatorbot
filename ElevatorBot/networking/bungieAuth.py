@@ -3,10 +3,10 @@ from typing import Optional
 
 import aiohttp
 
-from database.database import getRefreshToken, lookupDestinyID, updateToken, getToken, getTokenExpiry
-from networking.models import BungieToken
-from networking.networkBackend import post_request
-from static.config import B64_SECRET
+from ElevatorBot.database.database import getRefreshToken, lookupDestinyID, updateToken, getToken, getTokenExpiry
+from ElevatorBot.networking.models import BungieToken
+from ElevatorBot.networking.networkBackend import post_request
+from ElevatorBot.static.config import B64_SECRET
 
 
 async def handle_and_return_token(

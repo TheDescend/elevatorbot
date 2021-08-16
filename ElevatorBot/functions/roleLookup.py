@@ -5,11 +5,11 @@ from typing import Optional, Union
 
 import discord
 
-from database.database import getFlawlessHashes, getClearCount, getDestinyDefinition
-from functions.destinyPlayer import DestinyPlayer
-from static.dict import requirementHashes, requirement_hashes_without_years
+from ElevatorBot.database.database import getFlawlessHashes, getClearCount, getDestinyDefinition
+from ElevatorBot.functions.destinyPlayer import DestinyPlayer
+from ElevatorBot.static.dict import requirementHashes, requirement_hashes_without_years
 # check if user has permission to use this command
-from static.globals import role_ban_id, divider_legacy_role_id
+from ElevatorBot.static.globals import role_ban_id, divider_legacy_role_id
 
 
 async def has_role(
