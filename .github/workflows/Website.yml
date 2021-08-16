@@ -20,9 +20,6 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v2
 
-    - name: Change Directory
-      run: cd Website
-
     - name: Set up Node.js 14
       uses: actions/setup-node@v1
       with:
@@ -30,10 +27,13 @@ jobs:
 
     - name: Install Dependencies
       run: npm install
+      working-directory: Website
 
     - name: Run Tests
       run: npm test
+      working-directory: Website
 
     - name: Build
       run: npm run build
+      working-directory: Website
 
