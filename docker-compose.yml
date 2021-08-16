@@ -1,24 +1,89 @@
 version: "3.9"
 
 services:
+  postgres:
+    image: postgres
+    ports:
+      - "${POSTGRES_PORT}:${POSTGRES_PORT}"
+    volumes:
+      - ./Database:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+    networks:
+      - database-network
+    restart:
+      always
+
+  postgresbackups:
+    image: prodrigestivill/postgres-backup-local
+    volumes:
+      - ./DatabaseBackups:/backups
+    environment:
+      - POSTGRES_DB
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_HOST
+      - POSTGRES_PORT
+      - SCHEDULE=@weekly
+      - BACKUP_KEEP_WEEKS=4
+      - BACKUP_KEEP_MONTHS=6
+    networks:
+      - database-network
+    restart:
+      always
+    depends_on:
+      - postgres
+
   backend:
     build: ./Backend
     ports:
-      - "1337:80"
+      - "${BACKEND_PORT}:80"
     volumes:
       - ./Backend:/app/Backend
       - ./logs/Backend:/app/Backend/logs
+    environment:
+      - POSTGRES_DB
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_HOST
+      - BACKEND_PORT
     networks:
+      - database-network
       - backend-network
-      - elevator-network
     restart:
       unless-stopped
+    depends_on:
+      - postgres
+      - postgresbackups
+
+  website:
+    build: Website
+    ports:
+      - "${WEBSITE_PORT}:3000"
+    volumes:
+      - ./Website:/app/Website
+      - ./logs/Website_old:/app/Website_old/logs
+    environment:
+      - BACKEND_PORT
+      - WEBSITE_PORT
+    networks:
+      - backend-network
+      - website-network
+    restart:
+      unless-stopped
+    depends_on:
+      - backend
 
   elevator:
     build: ./ElevatorBot
     volumes:
       - ./ElevatorBot:/app/ElevatorBot
       - ./logs/ElevatorBot:/app/ElevatorBot/logs
+    environment:
+      - BACKEND_PORT
+      - WEBSITE_PORT
     networks:
       - backend-network
       - elevator-network
@@ -29,25 +94,9 @@ services:
       - backend
       - website
 
-  website:
-    build: Website
-    ports:
-      - "80:3000"
-    volumes:
-      - ./Website:/app/Website
-      - ./logs/Website_old:/app/Website_old/logs
-    networks:
-      - backend-network
-      - website-network
-    restart:
-      unless-stopped
-    depends_on:
-      - backend
-    
 
 networks:
   backend-network:
   elevator-network:
   website-network:
-
-# https://www.docker.com/blog/containerized-python-development-part-2/
+  database-network:

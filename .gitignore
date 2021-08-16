@@ -47,3 +47,5 @@ ElevatorBot/database/databasemutation.py
 /Website_old/database/psql_credentials.py
 /Website_old/oauth.sock
 /Website/node_modules/
+/Database/
+/DatabaseBackups/
