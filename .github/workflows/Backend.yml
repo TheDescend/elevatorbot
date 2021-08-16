@@ -5,12 +5,12 @@ on:
     branches:
     - master
     paths:
-    - Backend/**
+    - Backend/**/*.py
   pull_request:
     branches:
     - master
     paths:
-    - Backend/**
+    - Backend/**/*.py
 
 jobs:
   python-tests:
