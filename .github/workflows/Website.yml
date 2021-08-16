@@ -5,12 +5,12 @@ on:
     branches:
     - master
     paths:
-    - Backend/**
+    - Website/**
   pull_request:
     branches:
     - master
     paths:
-    - Backend/**
+    - Website/**
 
 jobs:
   build:
