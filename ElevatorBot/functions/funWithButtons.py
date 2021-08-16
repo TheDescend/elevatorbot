@@ -165,9 +165,9 @@ class Calculator:
                     text = ""
                     already_deleted = False
                     for letter in reversed(embed.description):
-                        if letter is "`":
+                        if letter == "`":
                             text = f"{letter}{text}"
-                        elif letter is " ":
+                        elif letter == " ":
                             if already_deleted:
                                 text = f"{letter}{text}"
                         else:
@@ -483,7 +483,7 @@ class TicTacToeGame:
             valid = await self.make_move(
                 player_move[0], player_move[1], symbol, button_ctx
             )
-            assert (valid, "Move was not valid for some reason")
+            assert valid, "Move was not valid for some reason"
 
             # make the other human turn
             if self.versus:
