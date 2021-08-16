@@ -4,7 +4,7 @@ services:
   backend:
     build: ./Backend
     ports:
-      - "80:1337"
+      - "1337:80"
     volumes:
       - ./Backend:/app/Backend
       - ./logs/Backend:/app/Backend/logs
@@ -32,7 +32,7 @@ services:
   website:
     build: Website
     ports:
-      - "80:80"
+      - "80:3000"
     volumes:
       - ./Website:/app/Website
       - ./logs/Website_old:/app/Website_old/logs
