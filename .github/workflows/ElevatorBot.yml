@@ -1,0 +1,43 @@
+name: Push
+
+on:
+  push:
+    branches:
+    - master
+    paths:
+    - ElevatorBot/**
+  pull_request:
+    branches:
+    - master
+    paths:
+    - ElevatorBot/**
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      
+    - name: Set Up Python 3.9
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.9'
+      
+    - name: Install Python Requirements
+      run: |      
+        python -m pip install --upgrade pip
+        pip install -r EleavatorBot/requirements.txt
+      
+    - name: Lint with flake8
+      run: |
+        pip install flake8
+        # stop the build if there are Python syntax errors or undefined names
+        flake8 EleavatorBot/ --count --select=E9,F63,F7,F82 --show-source --statistics
+        # exit-zero treats all errors as warnings
+        flake8 EleavatorBot/ --count --exit-zero --max-complexity=10 --max-line-length=999 --statistics
+      
+    - name: Test with pytest
+      run: |
+        pip install ElevatorBot
+        pytest
