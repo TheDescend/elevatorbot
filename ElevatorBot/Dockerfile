@@ -1,4 +1,4 @@
-FROM python:3.9
+FROM gorialis/discord.py
 
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH "${PYTHONPATH}:/app"
