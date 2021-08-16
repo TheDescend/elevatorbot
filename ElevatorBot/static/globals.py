@@ -97,9 +97,5 @@ other_game_roles = {
     },
 }
 
-clan_join_request = [
-    destiny_emoji_id
-]
-tournament = [
-    destiny_emoji_id
-]
+clan_join_request = [destiny_emoji_id]
+tournament = [destiny_emoji_id]

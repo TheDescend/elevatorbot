@@ -18,10 +18,7 @@ class Calculator:
     message: SlashMessage = None
     buttons: list[list] = dataclasses.field(init=False)
 
-
-    def __post_init__(
-        self
-    ):
+    def __post_init__(self):
         self.buttons = [
             manage_components.create_actionrow(
                 manage_components.create_button(
@@ -135,29 +132,22 @@ class Calculator:
             ),
         ]
 
-
     # set all buttons to be disabled
-    def disable_buttons(
-        self
-    ):
+    def disable_buttons(self):
         for row in self.buttons:
             for button in row["components"]:
-                button_update = {
-                    "disabled": True
-                }
+                button_update = {"disabled": True}
                 button.update(button_update)
-
 
     async def send_message(
         self,
         text: str = "Please Input Your Equation",
         timeout: bool = False,
-        button_ctx: ComponentContext = None
+        button_ctx: ComponentContext = None,
     ):
         if not self.message:
             embed = embed_message(
-                f"{self.ctx.author.display_name}'s Calculator",
-                f"```{text}```"
+                f"{self.ctx.author.display_name}'s Calculator", f"```{text}```"
             )
             self.message = await self.ctx.send(components=self.buttons, embed=embed)
         else:
@@ -184,7 +174,9 @@ class Calculator:
                             if already_deleted:
                                 text = f"{letter}{text}"
                             already_deleted = True
-                    embed.description = text if text != "``````" else "```Please Input Your Equation```"
+                    embed.description = (
+                        text if text != "``````" else "```Please Input Your Equation```"
+                    )
 
             else:
                 if "Error" in embed.description or "Please" in embed.description:
@@ -195,7 +187,7 @@ class Calculator:
                 embed = embed_message(
                     f"{self.ctx.author.display_name}'s Calculator",
                     embed.description,
-                    "This calculator is now disabled"
+                    "This calculator is now disabled",
                 )
                 self.disable_buttons()
 
@@ -204,23 +196,21 @@ class Calculator:
             else:
                 await self.message.edit(components=self.buttons, embed=embed)
 
-
     # checks that the button press author is the same as the message command invoker and that the message matches
-    def check_author_and_message(
-        self,
-        ctx: ComponentContext
-    ):
-        return (ctx.author == self.ctx.author) and (self.ctx.message.id == ctx.origin_message.id)
-
+    def check_author_and_message(self, ctx: ComponentContext):
+        return (ctx.author == self.ctx.author) and (
+            self.ctx.message.id == ctx.origin_message.id
+        )
 
     # wait for button press look
-    async def wait_for_button_press(
-        self
-    ):
+    async def wait_for_button_press(self):
         # wait 60s for button press
         try:
             button_ctx: ComponentContext = await manage_components.wait_for_component(
-                self.ctx.bot, components=self.buttons, timeout=60, check=self.check_author_and_message
+                self.ctx.bot,
+                components=self.buttons,
+                timeout=60,
+                check=self.check_author_and_message,
             )
         except asyncio.TimeoutError:
             # give timeout message and disable all buttons
@@ -232,7 +222,19 @@ class Calculator:
             if text == "(-)":
                 text = "-"
 
-            if button_ctx.component_id not in ['1', '2', '3', '4', '5', '6', '7', '8', '9', "(-)", "."]:
+            if button_ctx.component_id not in [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5",
+                "6",
+                "7",
+                "8",
+                "9",
+                "(-)",
+                ".",
+            ]:
                 text = f" {text} "
 
             # send new message
@@ -241,11 +243,8 @@ class Calculator:
             # wait for new message
             await self.wait_for_button_press()
 
-
     # main function
-    async def start(
-        self
-    ):
+    async def start(self):
         await self.send_message()
         await self.wait_for_button_press()
 
@@ -270,13 +269,8 @@ class TicTacToeGame:
     player_symbol: str = "X"
     ai_symbol: str = "O"
 
-
-    def __post_init__(
-        self
-    ):
-        self.current_state = [['', '', ''],
-                              ['', '', ''],
-                              ['', '', '']]
+    def __post_init__(self):
+        self.current_state = [["", "", ""], ["", "", ""], ["", "", ""]]
 
         self.buttons = [
             manage_components.create_actionrow(
@@ -285,7 +279,9 @@ class TicTacToeGame:
                         custom_id=str(i),
                         style=ButtonStyle.grey,
                         label="⁣",
-                    ) for i in range(1, 4)]
+                    )
+                    for i in range(1, 4)
+                ]
             ),
             manage_components.create_actionrow(
                 *[
@@ -293,7 +289,9 @@ class TicTacToeGame:
                         custom_id=str(i),
                         style=ButtonStyle.grey,
                         label="⁣",
-                    ) for i in range(4, 7)]
+                    )
+                    for i in range(4, 7)
+                ]
             ),
             manage_components.create_actionrow(
                 *[
@@ -301,27 +299,21 @@ class TicTacToeGame:
                         custom_id=str(i),
                         style=ButtonStyle.grey,
                         label="⁣",
-                    ) for i in range(7, 10)]
+                    )
+                    for i in range(7, 10)
+                ]
             ),
         ]
 
-
     # Determines if the made move is a legal move
-    def is_valid(
-        self,
-        x: int,
-        y: int
-    ) -> bool:
+    def is_valid(self, x: int, y: int) -> bool:
         if [x, y] in self.get_empty():
             return True
         else:
             return False
 
-
     # Gets the empty cells
-    def get_empty(
-        self
-    ) -> list:
+    def get_empty(self) -> list:
         empty_cells = []
 
         for x, row in enumerate(self.current_state):
@@ -331,13 +323,8 @@ class TicTacToeGame:
 
         return empty_cells
 
-
     # looks for the best move and returns a list with [the best row, best col, best score]
-    def minimax(
-        self,
-        state: list[list],
-        is_maximizing: bool
-    ) -> list:
+    def minimax(self, state: list[list], is_maximizing: bool) -> list:
         # set best score really low or high, depending on who plays
         if is_maximizing:
             best = [-1, -1, -1000]
@@ -379,39 +366,34 @@ class TicTacToeGame:
 
         return best
 
-
     # checks that the button press author is the same as the message command invoker and that the message matches
-    def check_author_and_message(
-        self,
-        ctx: ComponentContext
-    ):
+    def check_author_and_message(self, ctx: ComponentContext):
         # versus mode
         if self.versus:
-            check = (self.ctx.message.id == ctx.origin_message.id)
+            check = self.ctx.message.id == ctx.origin_message.id
             if self.player_turn:
-                check = (check and (ctx.author == self.player_turn))
+                check = check and (ctx.author == self.player_turn)
             elif self.player1:
-                check = (check and (ctx.author != self.player1))
+                check = check and (ctx.author != self.player1)
 
         # ai mode
         else:
-            check = (ctx.author == self.ctx.author) and (self.ctx.message.id == ctx.origin_message.id)
+            check = (ctx.author == self.ctx.author) and (
+                self.ctx.message.id == ctx.origin_message.id
+            )
 
         return check
 
-
     # play the move and change the board
     async def make_move(
-        self,
-        x: int,
-        y: int,
-        symbol: str,
-        button_ctx: ComponentContext = None
+        self, x: int, y: int, symbol: str, button_ctx: ComponentContext = None
     ) -> bool:
         if self.is_valid(x, y):
             self.current_state[x][y] = symbol
             button_update = {
-                "style": ButtonStyle.blue if symbol == self.player_symbol else ButtonStyle.red,
+                "style": ButtonStyle.blue
+                if symbol == self.player_symbol
+                else ButtonStyle.red,
                 "label": symbol,
             }
             self.buttons[x]["components"][y].update(button_update)
@@ -426,11 +408,8 @@ class TicTacToeGame:
         else:
             return False
 
-
     # Makes the AI move with the minimax implementation
-    async def ai_turn(
-        self
-    ):
+    async def ai_turn(self):
         # check if over
         has_ended = self.is_end()
         if has_ended:
@@ -449,11 +428,8 @@ class TicTacToeGame:
         # wait for human input
         await self.human_turn()
 
-
     # Waits for a user input and makes the move
-    async def human_turn(
-        self
-    ):
+    async def human_turn(self):
         # check if over
         has_ended = self.is_end()
         if has_ended:
@@ -463,7 +439,10 @@ class TicTacToeGame:
         # wait 60s for button press
         try:
             button_ctx: ComponentContext = await manage_components.wait_for_component(
-                self.ctx.bot, components=self.buttons, timeout=60, check=self.check_author_and_message
+                self.ctx.bot,
+                components=self.buttons,
+                timeout=60,
+                check=self.check_author_and_message,
             )
         except asyncio.TimeoutError:
             # give timeout message and disable all buttons
@@ -494,16 +473,24 @@ class TicTacToeGame:
             player_move = moves[button_ctx.component_id]
 
             # set the symbol
-            symbol = self.ai_symbol if self.versus and self.player2 == button_ctx.author else self.player_symbol
+            symbol = (
+                self.ai_symbol
+                if self.versus and self.player2 == button_ctx.author
+                else self.player_symbol
+            )
 
             # make the move
-            valid = await self.make_move(player_move[0], player_move[1], symbol, button_ctx)
+            valid = await self.make_move(
+                player_move[0], player_move[1], symbol, button_ctx
+            )
             assert (valid, "Move was not valid for some reason")
 
             # make the other human turn
             if self.versus:
                 # set the next turn to belong to the other player
-                self.player_turn = self.player2 if button_ctx.author == self.player1 else self.player1
+                self.player_turn = (
+                    self.player2 if button_ctx.author == self.player1 else self.player1
+                )
 
                 # wait for other players move
                 await self.human_turn()
@@ -512,72 +499,72 @@ class TicTacToeGame:
             else:
                 await self.ai_turn()
 
-
     # Checks if the game has ended and returns the winner in each case
-    def is_end(
-        self
-    ) -> Union[bool, str]:
+    def is_end(self) -> Union[bool, str]:
         # Vertical win
         for i in range(0, 3):
-            if (self.current_state[0][i] != '' and
-                self.current_state[0][i] == self.current_state[1][i] and
-                self.current_state[1][i] == self.current_state[2][i]):
+            if (
+                self.current_state[0][i] != ""
+                and self.current_state[0][i] == self.current_state[1][i]
+                and self.current_state[1][i] == self.current_state[2][i]
+            ):
                 return self.current_state[0][i]
 
         # Horizontal win
         for i in range(0, 3):
-            if self.current_state[i] == [self.player_symbol, self.player_symbol, self.player_symbol]:
+            if self.current_state[i] == [
+                self.player_symbol,
+                self.player_symbol,
+                self.player_symbol,
+            ]:
                 return self.player_symbol
-            elif self.current_state[i] == [self.ai_symbol, self.ai_symbol, self.ai_symbol]:
+            elif self.current_state[i] == [
+                self.ai_symbol,
+                self.ai_symbol,
+                self.ai_symbol,
+            ]:
                 return self.ai_symbol
 
         # Main diagonal win
-        if (self.current_state[0][0] != '' and
-            self.current_state[0][0] == self.current_state[1][1] and
-            self.current_state[0][0] == self.current_state[2][2]):
+        if (
+            self.current_state[0][0] != ""
+            and self.current_state[0][0] == self.current_state[1][1]
+            and self.current_state[0][0] == self.current_state[2][2]
+        ):
             return self.current_state[0][0]
 
         # Second diagonal win
-        if (self.current_state[0][2] != '' and
-            self.current_state[0][2] == self.current_state[1][1] and
-            self.current_state[0][2] == self.current_state[2][0]):
+        if (
+            self.current_state[0][2] != ""
+            and self.current_state[0][2] == self.current_state[1][1]
+            and self.current_state[0][2] == self.current_state[2][0]
+        ):
             return self.current_state[0][2]
 
         # Is whole board full?
         for i in range(0, 3):
             for j in range(0, 3):
                 # There's an empty field, we continue the game
-                if self.current_state[i][j] == '':
+                if self.current_state[i][j] == "":
                     return False
 
         # It's a tie!
-        return 'T'
-
+        return "T"
 
     # set all buttons to be disabled
-    def disable_buttons(
-        self
-    ):
+    def disable_buttons(self):
         for row in self.buttons:
             for button in row["components"]:
-                button_update = {
-                    "disabled": True
-                }
+                button_update = {"disabled": True}
                 button.update(button_update)
 
-
     # set grey buttons to be enabled
-    def enable_buttons(
-        self
-    ):
+    def enable_buttons(self):
         for row in self.buttons:
             for button in row["components"]:
                 if button["style"] == ButtonStyle.grey:
-                    button_update = {
-                        "disabled": False
-                    }
+                    button_update = {"disabled": False}
                     button.update(button_update)
-
 
     # update the user message
     async def send_message(
@@ -586,7 +573,7 @@ class TicTacToeGame:
         disable_buttons: bool = False,
         enable_buttons: bool = False,
         timeout: bool = False,
-        button_ctx: ComponentContext = None
+        button_ctx: ComponentContext = None,
     ):
         if disable_buttons:
             self.disable_buttons()
@@ -597,7 +584,9 @@ class TicTacToeGame:
         if not self.message:
             embed = embed_message(
                 f"{self.ctx.author.display_name}'s TicTacToe Game",
-                footer=f"""You are blue{f" - Easy Mode: On" if self.easy_mode else ""}""" if not self.versus else "First user to press a button plays blue, second plays red"
+                footer=f"""You are blue{f" - Easy Mode: On" if self.easy_mode else ""}"""
+                if not self.versus
+                else "First user to press a button plays blue, second plays red",
             )
             self.message = await self.ctx.send(components=self.buttons, embed=embed)
         else:
@@ -606,12 +595,20 @@ class TicTacToeGame:
 
             # check if message reason is a timeout
             if timeout:
-                embed.description = "**You Lost:** You took to long to play" if not self.versus else f"""{"**Red Wins:** Blue took to long to play" if self.player_turn == self.player1 else "**Blue Wins:** Red took to long to play"}"""
+                embed.description = (
+                    "**You Lost:** You took to long to play"
+                    if not self.versus
+                    else f"""{"**Red Wins:** Blue took to long to play" if self.player_turn == self.player1 else "**Blue Wins:** Red took to long to play"}"""
+                )
 
             # check if there is a winner
             elif winner:
                 if winner == self.player_symbol:
-                    text = "**You Won:** Try the hard mode next time 🙃" if not self.versus else f"**Blue Wins**"
+                    text = (
+                        "**You Won:** Try the hard mode next time 🙃"
+                        if not self.versus
+                        else f"**Blue Wins**"
+                    )
                 elif winner == self.ai_symbol:
                     banter = [
                         "Imagine losing in Tic Tac Toe",
@@ -625,7 +622,11 @@ class TicTacToeGame:
                         "Hopefully that was not your A game",
                         "You know you can win nitro here right?",
                     ]
-                    text = f"**You Lost:** {random.choice(banter)}" if not self.versus else f"**Red Wins**"
+                    text = (
+                        f"**You Lost:** {random.choice(banter)}"
+                        if not self.versus
+                        else f"**Red Wins**"
+                    )
                 else:
                     text = "**Tie:** Better luck next time"
 
@@ -637,11 +638,8 @@ class TicTacToeGame:
             else:
                 await self.message.edit(components=self.buttons, embed=embed)
 
-
     # main function
-    async def play_game(
-        self
-    ):
+    async def play_game(self):
         # send the first message
         await self.send_message()
 

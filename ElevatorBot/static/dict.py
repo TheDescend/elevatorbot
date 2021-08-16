@@ -11,8 +11,20 @@ eaterPHashes = [809170886]
 eaterHashes = [3089205900]
 # there is a hash for each levi-rotation and one for each possible prestige modifier
 leviHashes = [2693136600, 2693136601, 2693136602, 2693136603, 2693136604, 2693136605]
-leviPHashes = [417231112, 508802457, 757116822, 771164842, 1685065161, 1800508819, 2449714930, 3446541099, 3857338478,
-               3879860661, 3912437239, 4206123728]
+leviPHashes = [
+    417231112,
+    508802457,
+    757116822,
+    771164842,
+    1685065161,
+    1800508819,
+    2449714930,
+    3446541099,
+    3857338478,
+    3879860661,
+    3912437239,
+    4206123728,
+]
 scourgeHashes = [548750096]
 lwHashes = [2122313384]
 cosHashes = [3333172150, 960175301]
@@ -25,9 +37,15 @@ vogMasterHashes = [1681562271]
 throneHashes = [1893059148, 2032534090]
 pitHashes = [1375089621, 2559374368, 2559374374, 2559374375]
 prophHashes = [1077850348, 4148187374]
-harbHashes = [1738383283, ]
-presageHashes = [2124066889, ]
-presageMasterHashes = [4212753278, ]
+harbHashes = [
+    1738383283,
+]
+presageHashes = [
+    2124066889,
+]
+presageMasterHashes = [
+    4212753278,
+]
 
 # menagerie
 premenHashes = [2509539864, 2509539865, 2509539867, 1831470693, 3107795800, 3115455134]
@@ -50,9 +68,32 @@ activityGambitHash = [636666746, 1418469392, 2490937569]  # will probly change w
 activityNFHash = [575572995]
 activityStrikeHash = [2884569138, 2884569138, 4110605575, 4110605575, 4164571395]
 activityPrivateMatchHash = [4260058063]
-activityPVPHash = [96396597, 158362448, 517828061, 964120289, 1434366740, 1472571612, 1522227381, 2112637710,
-                   2175955486, 2278747016, 2371050408, 2394267841, 2410913661, 2505748283, 3252144427, 3268478079,
-                   3517186939, 3610972626, 3954711135, 3956087078, 3956381302, 3990775146, 4141415314, 4288302346]
+activityPVPHash = [
+    96396597,
+    158362448,
+    517828061,
+    964120289,
+    1434366740,
+    1472571612,
+    1522227381,
+    2112637710,
+    2175955486,
+    2278747016,
+    2371050408,
+    2394267841,
+    2410913661,
+    2505748283,
+    3252144427,
+    3268478079,
+    3517186939,
+    3610972626,
+    3954711135,
+    3956087078,
+    3956381302,
+    3990775146,
+    4141415314,
+    4288302346,
+]
 activityLighthouseHash = [4276116472]
 
 # Metric hashes
@@ -78,7 +119,7 @@ metricWinStreakCrucibleWeekly = [4044111774]
 
 metricWinStreakWeeklyAllocation = {
     tuple(activityGambitHash): metricWinStreakGambitWeekly,
-    tuple(activityPVPHash): metricWinStreakCrucibleWeekly
+    tuple(activityPVPHash): metricWinStreakCrucibleWeekly,
 }
 
 # seasonal challenges hashes
@@ -87,14 +128,29 @@ seasonalChallengesCategoryHash = 3443694067
 """ Grouped Hashes """
 # only activities which are available should be included here
 availableRaidHashes = [lwHashes, gosHashes]
-raidHashes = availableRaidHashes + [leviHashes, leviPHashes, eaterHashes, eaterPHashes, spireHashes, spirePHashes,
-                                    scourgeHashes, cosHashes]
+raidHashes = availableRaidHashes + [
+    leviHashes,
+    leviPHashes,
+    eaterHashes,
+    eaterPHashes,
+    spireHashes,
+    spirePHashes,
+    scourgeHashes,
+    cosHashes,
+]
 availableDungeonHashes = [throneHashes, pitHashes, prophHashes]
 
 activityStrikeAndNFHash = activityNFHash + activityStrikeHash
 
 metricAvailableRaidCompletion = metricLWCompletions + metricGoSCompletions
-metricRaidCompletion = metricAvailableRaidCompletion + metricLeviCompletions + metricEoWCompletions + metricSosCompletions + metricScourgeCompletions + metricCoSCompletions
+metricRaidCompletion = (
+    metricAvailableRaidCompletion
+    + metricLeviCompletions
+    + metricEoWCompletions
+    + metricSosCompletions
+    + metricScourgeCompletions
+    + metricCoSCompletions
+)
 
 """" Speedrun Times: 2x WR for now https://www.speedrun.com/destiny2"""
 # has to be tuples bc lists are not hashable
@@ -137,174 +193,160 @@ weaponTypeKinetic = 1498876634
 weaponTypeEnergy = 2465295065
 weaponTypePower = 953998645
 
-possibleWeaponsKinetic = ["Hand Cannon", "Scout Rifle", "Auto Rifle", "Pulse Rifle", "Sidearm", "Submachine Gun",
-                          "Combat Bow", "Sniper Rifle", "Shotgun", "Grenade Launcher"]
-possibleWeaponsEnergy = ["Hand Cannon", "Scout Rifle", "Auto Rifle", "Pulse Rifle", "Sidearm", "Fusion Rifle",
-                         "Shotgun", "Sniper Rifle", "Trace Rifle", "Grenade Launcher", "Combat Bow"]
-possibleWeaponsPower = ["Grenade Launcher", "Rocket Launcher", "Linear Fusion Rifle", "Sword", "Shotgun", "Machine Gun",
-                        "Sniper Rifle"]
+possibleWeaponsKinetic = [
+    "Hand Cannon",
+    "Scout Rifle",
+    "Auto Rifle",
+    "Pulse Rifle",
+    "Sidearm",
+    "Submachine Gun",
+    "Combat Bow",
+    "Sniper Rifle",
+    "Shotgun",
+    "Grenade Launcher",
+]
+possibleWeaponsEnergy = [
+    "Hand Cannon",
+    "Scout Rifle",
+    "Auto Rifle",
+    "Pulse Rifle",
+    "Sidearm",
+    "Fusion Rifle",
+    "Shotgun",
+    "Sniper Rifle",
+    "Trace Rifle",
+    "Grenade Launcher",
+    "Combat Bow",
+]
+possibleWeaponsPower = [
+    "Grenade Launcher",
+    "Rocket Launcher",
+    "Linear Fusion Rifle",
+    "Sword",
+    "Shotgun",
+    "Machine Gun",
+    "Sniper Rifle",
+]
 
-clanids = {
-    4107840: 'The Descend'
-}
+clanids = {4107840: "The Descend"}
 
 discord_channels = {
-    'general': 670400011519000616,
-    'media': 670400027155365929,
-    'spoilerchat': 670402166103474190,
-    'offtopic': 670362162660900895
+    "general": 670400011519000616,
+    "media": 670400027155365929,
+    "spoilerchat": 670402166103474190,
+    "offtopic": 670362162660900895,
 }
 
 requirementHashes = {
-    'Y1': {
-        'Spire of Stars': {
+    "Y1": {
+        "Spire of Stars": {
             "deprecated": True,
-            'requirements': ['clears'],
-            'clears': [
-                {
-                    'count': 4,
-                    'actHashes': spireHashes + spirePHashes
-                },  # normal
+            "requirements": ["clears"],
+            "clears": [
+                {"count": 4, "actHashes": spireHashes + spirePHashes},  # normal
             ],
-            'replaced_by': ['Spire of Stars Master', 'Y1 Raid Master']
+            "replaced_by": ["Spire of Stars Master", "Y1 Raid Master"],
         },
-        'Spire of Stars Master': {
+        "Spire of Stars Master": {
             "deprecated": True,
-            'requirements': ['clears', 'flawless'],
-            'clears': [
-                {
-                    'count': 10,
-                    'actHashes': spirePHashes
-                }  # prestige
+            "requirements": ["clears", "flawless"],
+            "clears": [{"count": 10, "actHashes": spirePHashes}],  # prestige
+            "flawless": spireHashes + spirePHashes,
+            "replaced_by": ["Y1 Raid Master"],
+        },
+        "Eater of Worlds": {
+            "deprecated": True,
+            "requirements": ["clears"],
+            "clears": [
+                {"count": 4, "actHashes": eaterHashes + eaterPHashes},  # normal
             ],
-            'flawless': spireHashes + spirePHashes,
-            'replaced_by': ['Y1 Raid Master']
+            "replaced_by": ["Eater of Worlds Master", "Y1 Raid Master"],
         },
-        'Eater of Worlds': {
+        "Eater of Worlds Master": {
             "deprecated": True,
-            'requirements': ['clears'],
-            'clears': [
-                {
-                    'count': 4,
-                    'actHashes': eaterHashes + eaterPHashes
-                },  # normal
+            "requirements": ["clears", "flawless"],
+            "clears": [{"count": 10, "actHashes": eaterPHashes}],  # prestige
+            "flawless": eaterHashes + eaterPHashes,
+            "replaced_by": ["Y1 Raid Master"],
+        },
+        "Leviathan": {
+            "deprecated": True,
+            "requirements": ["clears"],
+            "clears": [
+                {"count": 4, "actHashes": leviHashes + leviPHashes},  # normal
             ],
-            'replaced_by': ['Eater of Worlds Master', 'Y1 Raid Master']
+            "replaced_by": ["Leviathan Master", "Y1 Raid Master"],
         },
-        'Eater of Worlds Master': {
+        "Leviathan Master": {
             "deprecated": True,
-            'requirements': ['clears', 'flawless'],
-            'clears': [
-                {
-                    'count': 10,
-                    'actHashes': eaterPHashes
-                }
-            ],  # prestige
-            'flawless': eaterHashes + eaterPHashes,
-            'replaced_by': ['Y1 Raid Master']
-        },
-        'Leviathan': {
-            "deprecated": True,
-            'requirements': ['clears'],
-            'clears': [
-                {
-                    'count': 4,
-                    'actHashes': leviHashes + leviPHashes
-                },  # normal
+            "requirements": ["clears", "flawless", "collectibles"],
+            "clears": [
+                {"count": 10, "actHashes": leviPHashes},  # prestige
             ],
-            'replaced_by': ['Leviathan Master', 'Y1 Raid Master']
-        },
-        'Leviathan Master': {
-            "deprecated": True,
-            'requirements': ['clears', 'flawless', 'collectibles'],
-            'clears': [
-                {
-                    'count': 10,
-                    'actHashes': leviPHashes
-                },  # prestige
-            ],
-            'flawless': leviHashes + leviPHashes,
-            'collectibles': [
+            "flawless": leviHashes + leviPHashes,
+            "collectibles": [
                 3125541834,  # 1766893932, #good dog
                 3125541835,  # 1766893933, #splish splash
                 3125541833,  # 1766893935, #two enter, one leaves
-                3125541832  # 1766893934  #take the throne
+                3125541832,  # 1766893934  #take the throne
             ],
-            'replaced_by': ['Y1 Raid Master']
+            "replaced_by": ["Y1 Raid Master"],
         },
-        'Y1 Raid Master': {
+        "Y1 Raid Master": {
             "deprecated": True,
-            'requirements': ['roles'],
-            'roles': [
-                'Spire of Stars Master',
-                'Eater of Worlds Master',
-                'Leviathan Master'
-            ]
-        }
+            "requirements": ["roles"],
+            "roles": [
+                "Spire of Stars Master",
+                "Eater of Worlds Master",
+                "Leviathan Master",
+            ],
+        },
     },
     # TODO anything above here has unchecked hashes
-    'Y2': {
-        'Crown of Sorrow': {
+    "Y2": {
+        "Crown of Sorrow": {
             "deprecated": True,
-            'requirements': ['clears', 'records'],
-            'clears': [
-                {
-                    'count': 15,
-                    'actHashes': cosHashes
-                }
+            "requirements": ["clears", "records"],
+            "clears": [
+                {"count": 15, "actHashes": cosHashes}
             ],  # • Minimum 15 full clears
-            'records': [
+            "records": [
                 3308790634,  # Limited Blessings
                 3308790637,  # Total Victory
                 3308790636,  # With Both Hands
             ],
-            'replaced_by': ['Y2 Raid Master', 'Crown of Sorrow Master']
+            "replaced_by": ["Y2 Raid Master", "Crown of Sorrow Master"],
         },
-        'Crown of Sorrow Master': {
+        "Crown of Sorrow Master": {
             "deprecated": True,
-            'requirements': ['clears', 'records'],
-            'clears': [
-                {
-                    'count': 30,
-                    'actHashes': cosHashes
-                }  # Minimum 15 full clears
-            ],
-            'records': [
+            "requirements": ["clears", "records"],
+            "clears": [{"count": 30, "actHashes": cosHashes}],  # Minimum 15 full clears
+            "records": [
                 3292013042,  # Crown of Ease [Flawless]
                 3292013043,  # Arc Borne :Arc:
                 3292013040,  # Void Borne :Void:
                 3292013041,  # Solar Borne :Solar:
-                3292013054  # Stay Classy [Same Class]
+                3292013054,  # Stay Classy [Same Class]
             ],
-            'replaced_by': ['Y2 Raid Master']
+            "replaced_by": ["Y2 Raid Master"],
         },
-        'Scourge of the Past': {
+        "Scourge of the Past": {
             "deprecated": True,
-            'requirements': ['clears', 'records'],
-            'clears': [
-                {
-                    'count': 15,
-                    'actHashes': scourgeHashes
-                }
-            ],
-            'records': [
+            "requirements": ["clears", "records"],
+            "clears": [{"count": 15, "actHashes": scourgeHashes}],
+            "records": [
                 223175561,  # All For One, One For All
                 1180238715,  # Hold the Line
                 132377266,  # To Each Their Own
                 974101911,  # Fast and unwieldy
             ],
-            'replaced_by': ['Y2 Raid Master', 'Scourge of the Past Master']
+            "replaced_by": ["Y2 Raid Master", "Scourge of the Past Master"],
         },
-        'Scourge of the Past Master': {
+        "Scourge of the Past Master": {
             "deprecated": True,
-            'requirements': ['clears', 'records'],
-            'clears': [
-                {
-                    'count': 30,
-                    'actHashes': scourgeHashes
-                }
-            ],
-            'records': [
+            "requirements": ["clears", "records"],
+            "clears": [{"count": 30, "actHashes": scourgeHashes}],
+            "records": [
                 2925485370,  # Like a Diamond
                 # Can't check since not in the api (probably)
                 # 772878705,     #Solarstruck
@@ -312,143 +354,105 @@ requirementHashes = {
                 # 105811740,     #Thunderstruck
                 # 3780682732,    #Stay Classy
             ],
-            'replaced_by': ['Y2 Raid Master']
+            "replaced_by": ["Y2 Raid Master"],
         },
-        'Last Wish': {
-            'requirements': ['clears', 'records'],
-            'clears': [
-                {
-                    'count': 15,
-                    'actHashes': lwHashes
-                },  # Minimum 15 full clears
+        "Last Wish": {
+            "requirements": ["clears", "records"],
+            "clears": [
+                {"count": 15, "actHashes": lwHashes},  # Minimum 15 full clears
             ],
-            'records': [
+            "records": [
                 1847670729,  # Summoning Ritual
                 3533973498,  # Coliseum Champion
                 989244596,  # Forever Fight
                 3234595894,  # Keep Out
-                1711136422  # Strength of Memory
+                1711136422,  # Strength of Memory
             ],
-            'replaced_by': ['Y2 Raid Master', 'Last Wish Master']
+            "replaced_by": ["Y2 Raid Master", "Last Wish Master"],
         },
-        'Last Wish Master': {
-            'requirements': ['clears', 'records', 'roles'],
-            'roles': [
-                'Last Wish'
-            ],
-            'clears': [
-                {
-                    'count': 30,
-                    'actHashes': lwHashes
-                }
-            ],  # Minimum 15 full clears
-            'records': [
+        "Last Wish Master": {
+            "requirements": ["clears", "records", "roles"],
+            "roles": ["Last Wish"],
+            "clears": [{"count": 30, "actHashes": lwHashes}],  # Minimum 15 full clears
+            "records": [
                 380332968,  # Petra's Run [Flawless]
                 3000516033,  # Thunderstruck :Arc:
                 342038729,  # The New Meta [Same Class]
                 2826160801,  # Night Owl :Void:
                 2588923804,  # Winter's Rest :Stasis:
-                623283604  # Sunburn :Solar:
+                623283604,  # Sunburn :Solar:
             ],
-            'replaced_by': ['Y2 Raid Master']
+            "replaced_by": ["Y2 Raid Master"],
         },
-        'Y2 Raid Master': {
-            'requirements': ['roles'],
-            'roles': [
-                'Last Wish Master',
-                'Scourge of the Past Master',
-                'Crown of Sorrow Master'
-            ]
-        }
-    },
-    'Y3': {
-        'Garden of Salvation': {
-            'requirements': ['clears', 'records'],
-            'clears': [
-                {
-                    'count': 15,
-                    'actHashes': gosHashes
-                }  # Minimum 15 full clears
+        "Y2 Raid Master": {
+            "requirements": ["roles"],
+            "roles": [
+                "Last Wish Master",
+                "Scourge of the Past Master",
+                "Crown of Sorrow Master",
             ],
-            'records': [
+        },
+    },
+    "Y3": {
+        "Garden of Salvation": {
+            "requirements": ["clears", "records"],
+            "clears": [{"count": 15, "actHashes": gosHashes}],  # Minimum 15 full clears
+            "records": [
                 3719309782,  # Leftovers
                 637935773,  # A Link to the Chain
                 2381358572,  # To the Top
                 2191554152,  # Zero to One Hundred
             ],
-            'replaced_by': ['Garden of Salvation Master', 'Y3 Raid Master']
+            "replaced_by": ["Garden of Salvation Master", "Y3 Raid Master"],
         },
-        'Garden of Salvation Master': {
-            'requirements': ['clears', 'records', 'roles'],
-            'roles': [
-                'Garden of Salvation'
-            ],
-            'clears': [
-                {
-                    'count': 30,
-                    'actHashes': gosHashes
-                }  # Minimum 30 full clears
-            ],
-            'records': [
+        "Garden of Salvation Master": {
+            "requirements": ["clears", "records", "roles"],
+            "roles": ["Garden of Salvation"],
+            "clears": [{"count": 30, "actHashes": gosHashes}],  # Minimum 30 full clears
+            "records": [
                 1522774125,  # Inherent Perfection [Flawless]
                 3427328428,  # Fluorescent Foliage :Arc:
                 277137394,  # Shade in the Garden :Void:
                 2571794337,  # Photosynthesis :Solar:
                 2629178011,  # Frost on the leaves :Stasis:
                 1830799772,  # Garden Party [Same Class]
-
                 4105510833,  # Voltaic Tether
                 44547560,  # Repulsion Theory
                 3860668859,  # Relay Rally
                 3949104239,  # Stop Hitting Yourself
             ],
-            'replaced_by': ['Y3 Raid Master']
+            "replaced_by": ["Y3 Raid Master"],
         },
-        'Y3 Raid Master': {
-            'requirements': ['roles'],
-            'roles': [
-                'Garden of Salvation Master'
-            ]
-
-        }
+        "Y3 Raid Master": {
+            "requirements": ["roles"],
+            "roles": ["Garden of Salvation Master"],
+        },
     },
     "Y4": {
-        'Deep Stone Crypt': {
-            'requirements': ['clears', 'records'],
-            'clears': [
-                {
-                    'count': 15,
-                    'actHashes': dscHashes
-                },  # Minimum 15 full clears
+        "Deep Stone Crypt": {
+            "requirements": ["clears", "records"],
+            "clears": [
+                {"count": 15, "actHashes": dscHashes},  # Minimum 15 full clears
             ],
-            'records': [
+            "records": [
                 22094034,  # Red Rover Challenge
                 64856166,  # Copies of Copies Challenge
                 337542929,  # Of All Trades Challenge
                 2530940166,  # The Core Four Challenge
             ],
-            'replaced_by': ['Deep Stone Crypt Master']
+            "replaced_by": ["Deep Stone Crypt Master"],
         },
-        'Deep Stone Crypt Master': {
-            'requirements': ['roles', 'clears', 'records'],
-            'roles': [
-                'Deep Stone Crypt'
-            ],
-            'clears': [
-                {
-                    'count': 30,
-                    'actHashes': dscHashes
-                }
-            ],  # Minimum 30 full clears
-            'records': [
+        "Deep Stone Crypt Master": {
+            "requirements": ["roles", "clears", "records"],
+            "roles": ["Deep Stone Crypt"],
+            "clears": [{"count": 30, "actHashes": dscHashes}],  # Minimum 30 full clears
+            "records": [
                 3560923614,  # Survival of the Fittest [Flawless]
-
                 134885948,  # Not a Scratch
                 4216504853,  # Resource Contention
                 3771160417,  # 5 Seconds to Paradise
                 1277450448,  # Short Circuit
                 1487317889,  # Ready, Set, Go!
-
                 564366615,  # Control Group [Same Class]
                 3834307795,  # Electric Sheep :arc:
                 3200831458,  # Meltdown :solar:
@@ -457,15 +461,15 @@ requirementHashes = {
             ],
             # 'replaced_by':[]
         },
-        'Vault of Glass': {
-            'requirements': ['clears', 'records'],
-            'clears': [
+        "Vault of Glass": {
+            "requirements": ["clears", "records"],
+            "clears": [
                 {
-                    'count': 15,
-                    'actHashes': vogHashes + vogMasterHashes
+                    "count": 15,
+                    "actHashes": vogHashes + vogMasterHashes,
                 },  # Minimum 15 full clears
             ],
-            'records': [
+            "records": [
                 # challenges
                 706596766,  # wait for it / conflux
                 1888851130,  # the only oracle for you / oracles
@@ -473,27 +477,20 @@ requirementHashes = {
                 2464700601,  # strangers in time / gatekeeper
                 1129667036,  # ensemble's refrain / atheon
             ],
-            'replaced_by': ['Vault of Glass Master', 'Vault of Glass Grandmaster']
+            "replaced_by": ["Vault of Glass Master", "Vault of Glass Grandmaster"],
         },
-        'Vault of Glass Master': {
-            'requirements': ['roles', 'clears', 'records'],
-            'roles': [
-                'Vault of Glass'
-            ],
-            'clears': [
-                {
-                    'count': 30,
-                    'actHashes': vogHashes + vogMasterHashes
-                }
+        "Vault of Glass Master": {
+            "requirements": ["roles", "clears", "records"],
+            "roles": ["Vault of Glass"],
+            "clears": [
+                {"count": 30, "actHashes": vogHashes + vogMasterHashes}
             ],  # Minimum 30 full clears
-            'records': [
+            "records": [
                 2750088202,  # Flawless Vault of Glass
-
                 1983700615,  # Charged Glass (Arc)
                 2592913942,  # Melted Glass (Solar)
                 1961032859,  # Empty Glass (Void)
                 3969659747,  # Vault of Class (same class)
-
                 874956966,  # Break No Plates (lose no sync plates)
                 4170123161,  # Dragon's Den (wyvern only with supers)
                 787552349,  # Take Cover (Oracle no goblin kills)
@@ -501,411 +498,394 @@ requirementHashes = {
                 3106039192,  # Rabid Relic (only relic super damage for praetorians)
                 1024875083,  # Eyes on Atheon (don't kill supplicants)
             ],
-            'replaced_by': ['Vault of Glass Grandmaster']
+            "replaced_by": ["Vault of Glass Grandmaster"],
         },
-        'Vault of Glass Grandmaster': {
-            'requirements': ['roles', 'clears', 'records'],
-            'roles': [
-                'Vault of Glass',
-                'Vault of Glass Master'
+        "Vault of Glass Grandmaster": {
+            "requirements": ["roles", "clears", "records"],
+            "roles": ["Vault of Glass", "Vault of Glass Master"],
+            "clears": [
+                {"count": 45, "actHashes": vogHashes + vogMasterHashes},
+                {"count": 15, "actHashes": vogMasterHashes},
             ],
-            'clears': [
-                {
-                    'count': 45,
-                    'actHashes': vogHashes + vogMasterHashes
-                },
-                {
-                    'count': 15,
-                    'actHashes': vogMasterHashes
-                }
-            ],
-            'records': [
+            "records": [
                 3790077074,  # Maestro Glasser
             ],
         },
     },
-    'Dungeons': {
-        'Solo Flawless Shattered Throne': {
-            'requirements': ['lowman'],
-            'playercount': 1,
-            'flawless': True,
-            'noCheckpoints': True,
-            'denyTime0': {  # start is earlier Time, format is important
-                'startTime': '11/08/2020 18:00',
-                'endTime': '08/09/2020 18:00'
+    "Dungeons": {
+        "Solo Flawless Shattered Throne": {
+            "requirements": ["lowman"],
+            "playercount": 1,
+            "flawless": True,
+            "noCheckpoints": True,
+            "denyTime0": {  # start is earlier Time, format is important
+                "startTime": "11/08/2020 18:00",
+                "endTime": "08/09/2020 18:00",
             },
-            'denyTime1': {  # Beyond light boss CP bug
-                'startTime': '10/11/2020 18:00',
-                'endTime': '17/12/2020 18:00'
+            "denyTime1": {  # Beyond light boss CP bug
+                "startTime": "10/11/2020 18:00",
+                "endTime": "17/12/2020 18:00",
             },
-            'activityHashes': throneHashes
+            "activityHashes": throneHashes,
         },
-        'Flawless Shattered Throne': {
-            'requirements': ['records'],
-            'records': [
+        "Flawless Shattered Throne": {
+            "requirements": ["records"],
+            "records": [
                 1178448425,  # Curse This
             ],
-            'replaced_by': ['Solo Flawless Shattered Throne']
+            "replaced_by": ["Solo Flawless Shattered Throne"],
         },
-        'Solo Shattered Throne': {
-            'requirements': ['records'],
-            'denyTime0': {  # start is earlier Time, format is important
-                'startTime': '11/08/2020 18:00',  # KEKW
-                'endTime': '08/09/2020 18:00'
+        "Solo Shattered Throne": {
+            "requirements": ["records"],
+            "denyTime0": {  # start is earlier Time, format is important
+                "startTime": "11/08/2020 18:00",  # KEKW
+                "endTime": "08/09/2020 18:00",
             },
-            'records': [
+            "records": [
                 3899996566,  # Solo-nely
             ],
-            'replaced_by': ['Solo Flawless Shattered Throne']
+            "replaced_by": ["Solo Flawless Shattered Throne"],
         },
-        'Solo Flawless Pit of Heresy': {
-            'requirements': ['lowman'],
-            'playercount': 1,
-            'flawless': True,
-            'noCheckpoints': True,
-            'denyTime0': {  # start is earlier Time, format is important
-                'startTime': '11/08/2020 18:00',
-                'endTime': '08/09/2020 18:00'
+        "Solo Flawless Pit of Heresy": {
+            "requirements": ["lowman"],
+            "playercount": 1,
+            "flawless": True,
+            "noCheckpoints": True,
+            "denyTime0": {  # start is earlier Time, format is important
+                "startTime": "11/08/2020 18:00",
+                "endTime": "08/09/2020 18:00",
             },
-            'denyTime1': {  # Beyond light boss CP bug
-                'startTime': '10/11/2020 18:00',
-                'endTime': '17/12/2020 18:00'
+            "denyTime1": {  # Beyond light boss CP bug
+                "startTime": "10/11/2020 18:00",
+                "endTime": "17/12/2020 18:00",
             },
-            'activityHashes': pitHashes
+            "activityHashes": pitHashes,
         },
-        'Solo Pit of Heresy': {
-            'requirements': ['records'],
-            'denyTime0': {  # start is earlier Time, format is important
-                'startTime': '11/08/2020 18:00',
-                'endTime': '08/09/2020 18:00'
+        "Solo Pit of Heresy": {
+            "requirements": ["records"],
+            "denyTime0": {  # start is earlier Time, format is important
+                "startTime": "11/08/2020 18:00",
+                "endTime": "08/09/2020 18:00",
             },
-            'records': {
+            "records": {
                 3841336511,  # Usurper
             },
-            'replaced_by': ['Solo Flawless Pit of Heresy']
+            "replaced_by": ["Solo Flawless Pit of Heresy"],
         },
-        'Flawless Pit of Heresy': {
-            'requirements': ['records'],
-            'records': {
+        "Flawless Pit of Heresy": {
+            "requirements": ["records"],
+            "records": {
                 245952203,  # Eternal Heretic
             },
-            'replaced_by': ['Solo Flawless Pit of Heresy']
+            "replaced_by": ["Solo Flawless Pit of Heresy"],
         },
-        'Solo Prophecy': {
-            'requirements': ['records'],
-            'records': [
-                3002642730
-            ],
-            'replaced_by': ['Solo Flawless Prophecy']
+        "Solo Prophecy": {
+            "requirements": ["records"],
+            "records": [3002642730],
+            "replaced_by": ["Solo Flawless Prophecy"],
         },
-        'Flawless Prophecy': {
-            'requirements': ['records'],
-            'records': [
-                2010041484
-            ],
-            'replaced_by': ['Solo Flawless Prophecy']
+        "Flawless Prophecy": {
+            "requirements": ["records"],
+            "records": [2010041484],
+            "replaced_by": ["Solo Flawless Prophecy"],
         },
-        'Solo Flawless Prophecy': {
-            'requirements': ['lowman', 'records'],
-            'records': [
-                3191784400  # Solo Flawless Prophecy
-            ],
-            'playercount': 1,
-            'flawless': True,
-            'noCheckpoints': True,
-            'denyTime0': {  # Beyond light boss CP bug
-                'startTime': '10/11/2020 18:00',
-                'endTime': '08/09/2020 18:00'
+        "Solo Flawless Prophecy": {
+            "requirements": ["lowman", "records"],
+            "records": [3191784400],  # Solo Flawless Prophecy
+            "playercount": 1,
+            "flawless": True,
+            "noCheckpoints": True,
+            "denyTime0": {  # Beyond light boss CP bug
+                "startTime": "10/11/2020 18:00",
+                "endTime": "08/09/2020 18:00",
             },
-            'denyTime1': {  # start is earlier Time, format is important
-                'startTime': '01/12/2020 18:00',
-                'endTime': '17/12/2020 18:00'
+            "denyTime1": {  # start is earlier Time, format is important
+                "startTime": "01/12/2020 18:00",
+                "endTime": "17/12/2020 18:00",
             },
-            'activityHashes': prophHashes
+            "activityHashes": prophHashes,
         },
-        'Solo Harbinger': {
-            'requirements': ['records'],
-            'records': [
-                3657275647  # Lone Harbinger
+        "Solo Harbinger": {
+            "requirements": ["records"],
+            "records": [3657275647],  # Lone Harbinger
+            "replaced_by": ["Solo Flawless Harbinger"],
+        },
+        "Flawless Harbinger": {
+            "requirements": ["records"],
+            "records": [2902814383],  # Immortal Harbinger
+            "replaced_by": ["Solo Flawless Harbinger"],
+        },
+        "Solo Flawless Harbinger": {
+            "requirements": ["records"],
+            "records": [3047181179],  # Alpha Hunter
+        },
+        "Solo Presage": {
+            "requirements": ["lowman"],
+            "playercount": 1,
+            "flawless": False,
+            "activityHashes": presageHashes,
+            "replaced_by": [
+                "Solo Flawless Presage",
+                "Solo Master Presage",
+                "Solo Flawless Master Presage",
             ],
-            'replaced_by': ['Solo Flawless Harbinger']
         },
-        'Flawless Harbinger': {
-            'requirements': ['records'],
-            'records': [
-                2902814383  # Immortal Harbinger
+        "Flawless Presage": {
+            "requirements": ["flawless"],
+            "flawless": presageHashes,
+            "replaced_by": [
+                "Solo Flawless Presage",
+                "Flawless Master Presage",
+                "Solo Flawless Master Presage",
             ],
-            'replaced_by': ['Solo Flawless Harbinger']
         },
-        'Solo Flawless Harbinger': {
-            'requirements': ['records'],
-            'records': [
-                3047181179  # Alpha Hunter
-            ]
+        "Solo Flawless Presage": {
+            "requirements": ["records"],
+            "records": [4206923617],  # Lone Gun in a Dark Place
+            "replaced_by": ["Solo Flawless Master Presage"],
         },
-        'Solo Presage': {
-            'requirements': ['lowman'],
-            'playercount': 1,
-            'flawless': False,
-            'activityHashes': presageHashes,
-            'replaced_by': ['Solo Flawless Presage', 'Solo Master Presage', 'Solo Flawless Master Presage']
+        "Solo Master Presage": {
+            "requirements": ["lowman"],
+            "playercount": 1,
+            "flawless": False,
+            "activityHashes": presageMasterHashes,
+            "replaced_by": ["Solo Flawless Master Presage"],
         },
-        'Flawless Presage': {
-            'requirements': ['flawless'],
-            'flawless': presageHashes,
-            'replaced_by': ['Solo Flawless Presage', 'Flawless Master Presage', 'Solo Flawless Master Presage']
+        "Flawless Master Presage": {
+            "requirements": ["records"],
+            "records": [2335417976],  # Tale Told
+            "replaced_by": ["Solo Flawless Master Presage"],
         },
-        'Solo Flawless Presage': {
-            'requirements': ['records'],
-            'records': [
-                4206923617  # Lone Gun in a Dark Place 
-            ],
-            'replaced_by': ['Solo Flawless Master Presage']
+        "Solo Flawless Master Presage": {
+            "requirements": ["lowman"],
+            "playercount": 1,
+            "flawless": True,
+            "activityHashes": presageMasterHashes,
         },
-        'Solo Master Presage': {
-            'requirements': ['lowman'],
-            'playercount': 1,
-            'flawless': False,
-            'activityHashes': presageMasterHashes,
-            'replaced_by': ['Solo Flawless Master Presage']
-        },
-        'Flawless Master Presage': {
-            'requirements': ['records'],
-            'records': [
-                2335417976  # Tale Told
-            ],
-            'replaced_by': ['Solo Flawless Master Presage']
-        },
-        'Solo Flawless Master Presage': {
-            'requirements': ['lowman'],
-            'playercount': 1,
-            'flawless': True,
-            'activityHashes': presageMasterHashes,
-        }
     },
     "Lowmans": {
-        'Trio Argos': {
+        "Trio Argos": {
             "deprecated": True,
-            'requirements': ['lowman'],
-            'playercount': 3,
-            'activityHashes': eaterHashes + eaterPHashes,
-            'replaced_by': ['Solo Argos', 'Duo Argos'],
+            "requirements": ["lowman"],
+            "playercount": 3,
+            "activityHashes": eaterHashes + eaterPHashes,
+            "replaced_by": ["Solo Argos", "Duo Argos"],
         },
-        'Duo Argos': {
+        "Duo Argos": {
             "deprecated": True,
-            'requirements': ['lowman'],
-            'playercount': 2,
-            'activityHashes': eaterHashes + eaterPHashes,
-            'replaced_by': ['Solo Argos'],
+            "requirements": ["lowman"],
+            "playercount": 2,
+            "activityHashes": eaterHashes + eaterPHashes,
+            "replaced_by": ["Solo Argos"],
         },
-        'Solo Argos': {
+        "Solo Argos": {
             "deprecated": True,
-            'requirements': ['lowman'],
-            'playercount': 1,
-            'activityHashes': eaterHashes + eaterPHashes,
+            "requirements": ["lowman"],
+            "playercount": 1,
+            "activityHashes": eaterHashes + eaterPHashes,
         },
-        'Trio Insurrection': {
+        "Trio Insurrection": {
             "deprecated": True,
-            'requirements': ['lowman'],
-            'playercount': 3,
-            'activityHashes': scourgeHashes,
-            'replaced_by': ['Duo Insurrection'],
+            "requirements": ["lowman"],
+            "playercount": 3,
+            "activityHashes": scourgeHashes,
+            "replaced_by": ["Duo Insurrection"],
         },
-        'Duo Insurrection': {
+        "Duo Insurrection": {
             "deprecated": True,
-            'requirements': ['lowman'],
-            'playercount': 2,
-            'activityHashes': scourgeHashes,
+            "requirements": ["lowman"],
+            "playercount": 2,
+            "activityHashes": scourgeHashes,
         },
-        'Solo Queenswalk': {
-            'requirements': ['lowman'],
-            'playercount': 1,
-            'activityHashes': lwHashes
+        "Solo Queenswalk": {
+            "requirements": ["lowman"],
+            "playercount": 1,
+            "activityHashes": lwHashes,
         },
-        'Duo Queenswalk': {
-            'requirements': ['lowman'],
-            'playercount': 2,
-            'activityHashes': lwHashes,
-            'replaced_by': ['Solo Queenswalk']
+        "Duo Queenswalk": {
+            "requirements": ["lowman"],
+            "playercount": 2,
+            "activityHashes": lwHashes,
+            "replaced_by": ["Solo Queenswalk"],
         },
-        'Trio Queenswalk': {
-            'requirements': ['lowman'],
-            'playercount': 3,
-            'activityHashes': lwHashes,
-            'replaced_by': ['Solo Queenswalk', 'Duo Queenswalk']
+        "Trio Queenswalk": {
+            "requirements": ["lowman"],
+            "playercount": 3,
+            "activityHashes": lwHashes,
+            "replaced_by": ["Solo Queenswalk", "Duo Queenswalk"],
         },
-        'Duo Calus': {
+        "Duo Calus": {
             "deprecated": True,
-            'requirements': ['lowman'],
-            'playercount': 2,
-            'activityHashes': leviHashes + leviPHashes,
+            "requirements": ["lowman"],
+            "playercount": 2,
+            "activityHashes": leviHashes + leviPHashes,
         },
-        'Trio Gahlran': {
+        "Trio Gahlran": {
             "deprecated": True,
-            'requirements': ['lowman'],
-            'playercount': 3,
-            'activityHashes': cosHashes,
-            'replaced_by': ['Duo Gahlran'],
+            "requirements": ["lowman"],
+            "playercount": 3,
+            "activityHashes": cosHashes,
+            "replaced_by": ["Duo Gahlran"],
         },
-        'Duo Gahlran': {
+        "Duo Gahlran": {
             "deprecated": True,
-            'requirements': ['lowman'],
-            'playercount': 2,
-            'activityHashes': cosHashes,
+            "requirements": ["lowman"],
+            "playercount": 2,
+            "activityHashes": cosHashes,
         },
-        'Duo Sanctified Mind': {
-            'requirements': ['lowman'],
-            'playercount': 2,
-            'activityHashes': gosHashes,
+        "Duo Sanctified Mind": {
+            "requirements": ["lowman"],
+            "playercount": 2,
+            "activityHashes": gosHashes,
         },
-        'Trio Sanctified Mind': {
-            'requirements': ['lowman'],
-            'playercount': 3,
-            'activityHashes': gosHashes,
-            'replaced_by': ['Duo Sanctified Mind'],
+        "Trio Sanctified Mind": {
+            "requirements": ["lowman"],
+            "playercount": 3,
+            "activityHashes": gosHashes,
+            "replaced_by": ["Duo Sanctified Mind"],
         },
-        'Trio Heroic Menagerie': {
+        "Trio Heroic Menagerie": {
             "deprecated": True,
-            'requirements': ['lowman'],
-            'playercount': 3,
-            'activityHashes': premenHashes,
-            'replaced_by': ['Duo Heroic Menagerie', 'Solo Heroic Menagerie']
+            "requirements": ["lowman"],
+            "playercount": 3,
+            "activityHashes": premenHashes,
+            "replaced_by": ["Duo Heroic Menagerie", "Solo Heroic Menagerie"],
         },
-        'Duo Heroic Menagerie': {
+        "Duo Heroic Menagerie": {
             "deprecated": True,
-            'requirements': ['lowman'],
-            'playercount': 2,
-            'activityHashes': premenHashes,
-            'replaced_by': ['Solo Heroic Menagerie']
+            "requirements": ["lowman"],
+            "playercount": 2,
+            "activityHashes": premenHashes,
+            "replaced_by": ["Solo Heroic Menagerie"],
         },
-        'Solo Heroic Menagerie': {
+        "Solo Heroic Menagerie": {
             "deprecated": True,
-            'requirements': ['lowman'],
-            'playercount': 1,
-            'activityHashes': premenHashes
+            "requirements": ["lowman"],
+            "playercount": 1,
+            "activityHashes": premenHashes,
         },
-        'Trio Taniks': {
-            'requirements': ['lowman'],
-            'playercount': 3,
-            'activityHashes': dscHashes,
-            'replaced_by': ['Duo Taniks']
+        "Trio Taniks": {
+            "requirements": ["lowman"],
+            "playercount": 3,
+            "activityHashes": dscHashes,
+            "replaced_by": ["Duo Taniks"],
         },
-        'Duo Taniks': {
-            'requirements': ['lowman'],
-            'playercount': 2,
-            'activityHashes': dscHashes
+        "Duo Taniks": {
+            "requirements": ["lowman"],
+            "playercount": 2,
+            "activityHashes": dscHashes,
         },
-        'Trio Atheon': {
-            'requirements': ['lowman'],
-            'playercount': 3,
-            'activityHashes': vogHashes + vogMasterHashes,
-            'replaced_by': ['Duo Atheon']
+        "Trio Atheon": {
+            "requirements": ["lowman"],
+            "playercount": 3,
+            "activityHashes": vogHashes + vogMasterHashes,
+            "replaced_by": ["Duo Atheon"],
         },
-        'Duo Atheon': {
-            'requirements': ['lowman'],
-            'playercount': 2,
-            'activityHashes': vogHashes + vogMasterHashes
+        "Duo Atheon": {
+            "requirements": ["lowman"],
+            "playercount": 2,
+            "activityHashes": vogHashes + vogMasterHashes,
         },
     },
-    'Addition': {
-        'Niobe\'s Torment': {
+    "Addition": {
+        "Niobe's Torment": {
             "deprecated": True,
-            'requirements': ['collectibles'],
-            'collectibles': [
+            "requirements": ["collectibles"],
+            "collectibles": [
                 3531075476,  # Armory Forged Shell
-            ]
+            ],
         },
-        'The Other Side': {
+        "The Other Side": {
             "deprecated": True,
-            'requirements': ['records'],
-            'denyTime0': {  # start is earlier Time, format is important
-                'startTime': '11/08/2020 18:00',
-                'endTime': '08/09/2020 18:00'
+            "requirements": ["records"],
+            "denyTime0": {  # start is earlier Time, format is important
+                "startTime": "11/08/2020 18:00",
+                "endTime": "08/09/2020 18:00",
             },
-            'records': [
+            "records": [
                 1662610173,  # Only the essentials
-            ]
+            ],
         },
-        'Solo Zero Hour': {
+        "Solo Zero Hour": {
             "deprecated": True,
-            'requirements': ['lowman'],
-            'denyTime0': {  # start is earlier Time, format is important
-                'startTime': '10/03/2020 18:00',
-                'endTime': '21/04/2020 18:00'
+            "requirements": ["lowman"],
+            "denyTime0": {  # start is earlier Time, format is important
+                "startTime": "10/03/2020 18:00",
+                "endTime": "21/04/2020 18:00",
             },
-            'denyTime1': {  # start is earlier Time, format is important
-                'startTime': '11/08/2020 18:00',
-                'endTime': '08/09/2020 18:00'
+            "denyTime1": {  # start is earlier Time, format is important
+                "startTime": "11/08/2020 18:00",
+                "endTime": "08/09/2020 18:00",
             },
-            'playercount': 1,
-            'activityHashes': zeroHashes,
-            'replaced_by': ['Solo Flawless Zero Hour']
+            "playercount": 1,
+            "activityHashes": zeroHashes,
+            "replaced_by": ["Solo Flawless Zero Hour"],
         },
-        'Solo Heroic Zero Hour': {
+        "Solo Heroic Zero Hour": {
             "deprecated": True,
-            'requirements': ['lowman'],
-            'denyTime0': {  # start is earlier Time, format is important
-                'startTime': '10/03/2020 18:00',
-                'endTime': '21/04/2020 18:00'
+            "requirements": ["lowman"],
+            "denyTime0": {  # start is earlier Time, format is important
+                "startTime": "10/03/2020 18:00",
+                "endTime": "21/04/2020 18:00",
             },
-            'denyTime1': {  # start is earlier Time, format is important
-                'startTime': '11/08/2020 18:00',
-                'endTime': '08/09/2020 18:00'
+            "denyTime1": {  # start is earlier Time, format is important
+                "startTime": "11/08/2020 18:00",
+                "endTime": "08/09/2020 18:00",
             },
-            'playercount': 1,
-            'activityHashes': herzeroHashes,
-            'replaced_by': ['Solo Flawless Heroic Zero Hour']
+            "playercount": 1,
+            "activityHashes": herzeroHashes,
+            "replaced_by": ["Solo Flawless Heroic Zero Hour"],
         },
-        'Solo Flawless Zero Hour': {
+        "Solo Flawless Zero Hour": {
             "deprecated": True,
-            'requirements': ['lowman'],
-            'playercount': 1,
-            'denyTime0': {  # start is earlier Time, format is important
-                'startTime': '10/03/2020 18:00',
-                'endTime': '21/04/2020 18:00'
+            "requirements": ["lowman"],
+            "playercount": 1,
+            "denyTime0": {  # start is earlier Time, format is important
+                "startTime": "10/03/2020 18:00",
+                "endTime": "21/04/2020 18:00",
             },
-            'denyTime1': {  # start is earlier Time, format is important
-                'startTime': '11/08/2020 18:00',
-                'endTime': '08/09/2020 18:00'
+            "denyTime1": {  # start is earlier Time, format is important
+                "startTime": "11/08/2020 18:00",
+                "endTime": "08/09/2020 18:00",
             },
-            'flawless': True,
-            'activityHashes': zeroHashes
+            "flawless": True,
+            "activityHashes": zeroHashes,
         },
-        'Solo Flawless Heroic Zero Hour': {
+        "Solo Flawless Heroic Zero Hour": {
             "deprecated": True,
-            'requirements': ['lowman'],
-            'denyTime0': {  # start is earlier Time, format is important
-                'startTime': '10/03/2020 18:00',
-                'endTime': '21/04/2020 18:00'
+            "requirements": ["lowman"],
+            "denyTime0": {  # start is earlier Time, format is important
+                "startTime": "10/03/2020 18:00",
+                "endTime": "21/04/2020 18:00",
             },
-            'denyTime1': {  # start is earlier Time, format is important
-                'startTime': '11/08/2020 18:00',
-                'endTime': '08/09/2020 18:00'
+            "denyTime1": {  # start is earlier Time, format is important
+                "startTime": "11/08/2020 18:00",
+                "endTime": "08/09/2020 18:00",
             },
-            'playercount': 1,
-            'flawless': True,
-            'activityHashes': herzeroHashes
+            "playercount": 1,
+            "flawless": True,
+            "activityHashes": herzeroHashes,
         },
-        'Flawless GM': {
-            'requirements': ['flawless'],
-            'flawless': gmHashes,
-            'replaced_by': ['Solo Flawless GM', "Solo Flawless 150k GM"]
+        "Flawless GM": {
+            "requirements": ["flawless"],
+            "flawless": gmHashes,
+            "replaced_by": ["Solo Flawless GM", "Solo Flawless 150k GM"],
         },
-        'Solo Flawless GM': {
-            'requirements': ['lowman'],
-            'playercount': 1,
-            'flawless': True,
-            'activityHashes': gmHashes,
-            'replaced_by': ['Solo Flawless 150k GM']
+        "Solo Flawless GM": {
+            "requirements": ["lowman"],
+            "playercount": 1,
+            "flawless": True,
+            "activityHashes": gmHashes,
+            "replaced_by": ["Solo Flawless 150k GM"],
         },
-        'Solo Flawless 150k GM': {
-            'requirements': ['lowman'],
-            'playercount': 1,
-            'flawless': True,
-            'score': 150_000,
-            'activityHashes': gmHashes,
+        "Solo Flawless 150k GM": {
+            "requirements": ["lowman"],
+            "playercount": 1,
+            "flawless": True,
+            "score": 150_000,
+            "activityHashes": gmHashes,
         },
-    }
+    },
 }
 requirement_hashes_without_years = {
     rolename: roledata
@@ -914,11 +894,11 @@ requirement_hashes_without_years = {
 }
 
 platform = {
-    1: 'Xbox',
-    2: 'Playstation',
-    3: 'Steam',
-    4: 'Blizzard',
-    5: 'Stadia',
-    10: 'Demon',
-    254: 'BungieNext'
+    1: "Xbox",
+    2: "Playstation",
+    3: "Steam",
+    4: "Blizzard",
+    5: "Stadia",
+    10: "Demon",
+    254: "BungieNext",
 }

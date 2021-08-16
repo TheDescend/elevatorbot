@@ -3,27 +3,22 @@
 database_tables = [
     ################################################################
     # Versioning
-
     """
     CREATE TABLE  IF NOT EXISTS versions (
         name TEXT PRIMARY KEY,
         version TEXT
     );
     """,
-
     ################################################################
     # D2 Steam Players
-
     """
     CREATE TABLE IF NOT EXISTS d2SteamPlayers (
         dateObj TIMESTAMP WITHOUT TIME ZONE PRIMARY KEY, 
         numberOfPlayers INT
     );
     """,
-
     ################################################################
     # Persistent Messages
-
     """
     CREATE TABLE IF NOT EXISTS persistentMessages (
         messageName TEXT, 
@@ -35,10 +30,8 @@ database_tables = [
         PRIMARY KEY(messageName, guildId)
     );
     """,
-
     ################################################################
     # Activities
-
     """
     CREATE TABLE IF NOT EXISTS PgcrActivities (
         instanceId BIGINT PRIMARY KEY, 
@@ -52,7 +45,6 @@ database_tables = [
         membershipType SMALLINT
     );
     """,
-
     """
     CREATE TABLE IF NOT EXISTS PgcrActivitiesUsersStats (
         instanceId BIGINT,
@@ -88,7 +80,6 @@ database_tables = [
         PRIMARY KEY (instanceId, membershipId, characterId)
     );
     """,
-
     """
     CREATE TABLE IF NOT EXISTS PgcrActivitiesUsersStatsWeapons (
         instanceId BIGINT,
@@ -102,17 +93,14 @@ database_tables = [
         PRIMARY KEY (instanceId, membershipId, characterId, weaponId)
     );
     """,
-
     """
     CREATE TABLE IF NOT EXISTS PgcrActivitiesFailToGet(
         instanceId BIGINT PRIMARY KEY,
         period TIMESTAMP WITHOUT TIME ZONE
     );
     """,
-
     ################################################################
     # Userdata
-
     """
     CREATE TABLE IF NOT EXISTS characters(
         destinyID BIGINT,
@@ -121,7 +109,6 @@ database_tables = [
         UNIQUE(destinyID, characterID)
     );
     """,
-
     """
     CREATE TABLE IF NOT EXISTS discordGuardiansToken(
         discordSnowflake BIGINT PRIMARY KEY,
@@ -137,17 +124,14 @@ database_tables = [
         activitiesLastUpdated TIMESTAMP
     );
     """,
-
     """
     CREATE TABLE IF NOT EXISTS owned_emblems (
         destiny_id BIGINT, 
         emblem_hash BIGINT
     );
     """,
-
     ################################################################
     # Destiny Manifest
-
     """
     CREATE TABLE IF NOT EXISTS DestinyActivityDefinition(
         referenceId BIGINT PRIMARY KEY,
@@ -165,7 +149,6 @@ database_tables = [
         activityModeTypes SMALLINT []
     );
     """,
-
     """
     CREATE TABLE IF NOT EXISTS DestinyActivityTypeDefinition(
         referenceId BIGINT PRIMARY KEY,
@@ -173,7 +156,6 @@ database_tables = [
         name TEXT
     );
     """,
-
     """
     CREATE TABLE IF NOT EXISTS DestinyActivityModeDefinition(
         referenceId SMALLINT PRIMARY KEY,               
@@ -185,7 +167,6 @@ database_tables = [
         friendlyName TEXT
     );
     """,
-
     """
     CREATE TABLE IF NOT EXISTS DestinyCollectibleDefinition(
         referenceId BIGINT PRIMARY KEY,
@@ -196,7 +177,6 @@ database_tables = [
         parentNodeHashes BIGINT []
     );
     """,
-
     """
     CREATE TABLE IF NOT EXISTS DestinyInventoryItemDefinition(
         referenceId BIGINT PRIMARY KEY,
@@ -209,7 +189,6 @@ database_tables = [
         equippable BOOLEAN
     );
     """,
-
     """
     CREATE TABLE IF NOT EXISTS DestinyRecordDefinition(
         referenceId BIGINT PRIMARY KEY,
@@ -222,7 +201,6 @@ database_tables = [
         parentNodeHashes BIGINT []
     );
     """,
-
     """
     CREATE TABLE IF NOT EXISTS DestinyInventoryBucketDefinition(
         referenceId BIGINT PRIMARY KEY,
@@ -233,7 +211,6 @@ database_tables = [
         location SMALLINT
     );
     """,
-
     """
     CREATE TABLE IF NOT EXISTS DestinyPresentationNodeDefinition(
         referenceId BIGINT PRIMARY KEY,
@@ -250,17 +227,14 @@ database_tables = [
         redacted BOOLEAN
     );
     """,
-
     ################################################################
     # LFG System
-
     """
     CREATE TABLE IF NOT EXISTS LfgUsers(
         user_id BIGINT PRIMARY KEY,
         blacklisted_members BIGINT []
     );
     """,
-
     """
     CREATE TABLE IF NOT EXISTS LfgMessages(
         id INT PRIMARY KEY,
@@ -278,19 +252,15 @@ database_tables = [
         alternate_members BIGINT []
     );
     """,
-
     ################################################################
     # RSS Feed Reader
-
     """
     CREATE TABLE IF NOT EXISTS RssFeedItems(
         id TEXT PRIMARY KEY
     );
     """,
-
     ################################################################
     # Polls
-
     """
     CREATE TABLE IF NOT EXISTS polls(
         id int PRIMARY KEY,

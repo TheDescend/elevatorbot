@@ -8,7 +8,10 @@ from discord_slash import cog_ext, SlashContext, ButtonStyle, ComponentContext
 from discord_slash.utils import manage_components
 from discord_slash.utils.manage_commands import create_option, create_choice
 
-from ElevatorBot.database.database import add_lfg_blacklisted_member, remove_lfg_blacklisted_member
+from ElevatorBot.database.database import (
+    add_lfg_blacklisted_member,
+    remove_lfg_blacklisted_member,
+)
 from ElevatorBot.functions.formating import embed_message
 from ElevatorBot.functions.lfg import create_lfg_message, get_lfg_message
 from ElevatorBot.static.slashCommandOptions import options_user
@@ -21,23 +24,18 @@ timezones_dict = {
     "Moscow / Turkey": "Europe/Moscow",
     "Central US": "US/Central",
     "Eastern US": "US/Eastern",
-    "Pacific US": "US/Pacific"
+    "Pacific US": "US/Pacific",
 }
 
 
 class LfgCommands(commands.Cog):
     timeout_embed = embed_message(
         "Error - Time Is Money",
-        "You took too long. If you weren't finished, please try again. \nI can give you my grandmas phone number, her doing the typing might make it a bit faster 🙃"
+        "You took too long. If you weren't finished, please try again. \nI can give you my grandmas phone number, her doing the typing might make it a bit faster 🙃",
     )
 
-
-    def __init__(
-        self,
-        client
-    ):
+    def __init__(self, client):
         self.client = client
-
 
     @cog_ext.cog_subcommand(
         base="lfg",
@@ -60,8 +58,9 @@ class LfgCommands(commands.Cog):
                     create_choice(
                         name=timezone_name,
                         value=timezone_value,
-                    ) for timezone_name, timezone_value in timezones_dict.items()
-                ]
+                    )
+                    for timezone_name, timezone_value in timezones_dict.items()
+                ],
             ),
             create_option(
                 name="overwrite_max_members",
@@ -72,21 +71,18 @@ class LfgCommands(commands.Cog):
         ],
     )
     async def _create(
-        self,
-        ctx: SlashContext,
-        start_time,
-        timezone,
-        overwrite_max_members=None
+        self, ctx: SlashContext, start_time, timezone, overwrite_max_members=None
     ):
         # get start time
         try:
             start_time = dateutil.parser.parse(start_time, dayfirst=True)
         except dateutil.parser.ParserError:
             await ctx.send(
-                hidden=True, embed=embed_message(
+                hidden=True,
+                embed=embed_message(
                     "Error",
-                    "There was an error with the formatting of the time parameters. Please try again"
-                )
+                    "There was an error with the formatting of the time parameters. Please try again",
+                ),
             )
             return
         tz = pytz.timezone(timezone)
@@ -95,10 +91,10 @@ class LfgCommands(commands.Cog):
         # make sure thats in the future
         if start_time < datetime.datetime.now(datetime.timezone.utc):
             await ctx.send(
-                hidden=True, embed=embed_message(
-                    "Error",
-                    "The event cannot start in the past. Please try again"
-                )
+                hidden=True,
+                embed=embed_message(
+                    "Error", "The event cannot start in the past. Please try again"
+                ),
             )
             return
 
@@ -111,26 +107,15 @@ class LfgCommands(commands.Cog):
         # ask for the activity
         components = [
             manage_components.create_actionrow(
+                manage_components.create_button(style=ButtonStyle.blue, label="Raids"),
                 manage_components.create_button(
-                    style=ButtonStyle.blue,
-                    label="Raids"
+                    style=ButtonStyle.blue, label="Dungeons"
                 ),
+                manage_components.create_button(style=ButtonStyle.blue, label="Trials"),
                 manage_components.create_button(
-                    style=ButtonStyle.blue,
-                    label="Dungeons"
+                    style=ButtonStyle.blue, label="Iron Banner"
                 ),
-                manage_components.create_button(
-                    style=ButtonStyle.blue,
-                    label="Trials"
-                ),
-                manage_components.create_button(
-                    style=ButtonStyle.blue,
-                    label="Iron Banner"
-                ),
-                manage_components.create_button(
-                    style=ButtonStyle.blue,
-                    label="Other"
-                ),
+                manage_components.create_button(style=ButtonStyle.blue, label="Other"),
             ),
         ]
         embed = embed_message(
@@ -141,7 +126,9 @@ class LfgCommands(commands.Cog):
 
         # wait 60s for button press
         try:
-            button_ctx: ComponentContext = await manage_components.wait_for_component(ctx.bot, components=components, timeout=60)
+            button_ctx: ComponentContext = await manage_components.wait_for_component(
+                ctx.bot, components=components, timeout=60
+            )
         except asyncio.TimeoutError:
             await message.edit(components=None, embed=self.timeout_embed)
             return
@@ -150,20 +137,16 @@ class LfgCommands(commands.Cog):
             if button_ctx.component["label"] == "Raids":
                 components = manage_components.spread_to_rows(
                     manage_components.create_button(
-                        style=ButtonStyle.blue,
-                        label="Last Wish"
+                        style=ButtonStyle.blue, label="Last Wish"
                     ),
                     manage_components.create_button(
-                        style=ButtonStyle.blue,
-                        label="Garden of Salvation"
+                        style=ButtonStyle.blue, label="Garden of Salvation"
                     ),
                     manage_components.create_button(
-                        style=ButtonStyle.blue,
-                        label="Deep Stone Crypt"
+                        style=ButtonStyle.blue, label="Deep Stone Crypt"
                     ),
                     manage_components.create_button(
-                        style=ButtonStyle.blue,
-                        label="Vault of Glass"
+                        style=ButtonStyle.blue, label="Vault of Glass"
                     ),
                 )
                 embed = embed_message(
@@ -174,7 +157,11 @@ class LfgCommands(commands.Cog):
 
                 # wait 60s for button press
                 try:
-                    button_ctx: ComponentContext = await manage_components.wait_for_component(ctx.bot, components=components, timeout=60)
+                    button_ctx: ComponentContext = (
+                        await manage_components.wait_for_component(
+                            ctx.bot, components=components, timeout=60
+                        )
+                    )
                 except asyncio.TimeoutError:
                     await message.edit(components=None, embed=self.timeout_embed)
                     return
@@ -188,16 +175,13 @@ class LfgCommands(commands.Cog):
                 components = [
                     manage_components.create_actionrow(
                         manage_components.create_button(
-                            style=ButtonStyle.blue,
-                            label="Shattered Throne"
+                            style=ButtonStyle.blue, label="Shattered Throne"
                         ),
                         manage_components.create_button(
-                            style=ButtonStyle.blue,
-                            label="Pit of Hersey"
+                            style=ButtonStyle.blue, label="Pit of Hersey"
                         ),
                         manage_components.create_button(
-                            style=ButtonStyle.blue,
-                            label="Prophecy"
+                            style=ButtonStyle.blue, label="Prophecy"
                         ),
                     ),
                 ]
@@ -209,7 +193,11 @@ class LfgCommands(commands.Cog):
 
                 # wait 60s for button press
                 try:
-                    button_ctx: ComponentContext = await manage_components.wait_for_component(ctx.bot, components=components, timeout=60)
+                    button_ctx: ComponentContext = (
+                        await manage_components.wait_for_component(
+                            ctx.bot, components=components, timeout=60
+                        )
+                    )
                 except asyncio.TimeoutError:
                     await message.edit(embed=self.timeout_embed)
                     return
@@ -233,22 +221,21 @@ class LfgCommands(commands.Cog):
             # Other
             elif button_ctx.component["label"] == "Other":
                 await button_ctx.edit_origin(
-                    components=None, embed=embed_message(
-                        "Activity Name",
-                        "Please enter a name"
-                    )
+                    components=None,
+                    embed=embed_message("Activity Name", "Please enter a name"),
                 )
 
-
                 # wait 60s for message
-                def check(
-                    answer_msg
-                ):
-                    return answer_msg.author == ctx.author and answer_msg.channel == message.channel
-
+                def check(answer_msg):
+                    return (
+                        answer_msg.author == ctx.author
+                        and answer_msg.channel == message.channel
+                    )
 
                 try:
-                    answer_msg = await self.client.wait_for('message', timeout=60.0, check=check)
+                    answer_msg = await self.client.wait_for(
+                        "message", timeout=60.0, check=check
+                    )
                 except asyncio.TimeoutError:
                     await message.edit(embed=self.timeout_embed)
                     return
@@ -264,22 +251,21 @@ class LfgCommands(commands.Cog):
 
         # get the description
         await message.edit(
-            components=None, embed=embed_message(
-                "Description",
-                "Please enter a description"
-            )
+            components=None,
+            embed=embed_message("Description", "Please enter a description"),
         )
 
-
         # wait 60s for message
-        def check(
-            answer_msg
-        ):
-            return answer_msg.author == ctx.author and answer_msg.channel == message.channel
-
+        def check(answer_msg):
+            return (
+                answer_msg.author == ctx.author
+                and answer_msg.channel == message.channel
+            )
 
         try:
-            answer_msg = await self.client.wait_for('message', timeout=60.0, check=check)
+            answer_msg = await self.client.wait_for(
+                "message", timeout=60.0, check=check
+            )
         except asyncio.TimeoutError:
             await message.edit(embed=self.timeout_embed)
             return
@@ -288,15 +274,17 @@ class LfgCommands(commands.Cog):
             await answer_msg.delete()
 
         # create and post the lfg message
-        await create_lfg_message(ctx.bot, ctx.guild, ctx.author, activity, description, start_time, max_joined_members)
-
-        await message.edit(
-            embed=embed_message(
-                f"Success",
-                f"I've created the post"
-            )
+        await create_lfg_message(
+            ctx.bot,
+            ctx.guild,
+            ctx.author,
+            activity,
+            description,
+            start_time,
+            max_joined_members,
         )
 
+        await message.edit(embed=embed_message(f"Success", f"I've created the post"))
 
     @cog_ext.cog_subcommand(
         base="lfg",
@@ -316,32 +304,15 @@ class LfgCommands(commands.Cog):
                 option_type=3,
                 required=True,
                 choices=[
-                    create_choice(
-                        name="Activity",
-                        value="Activity"
-                    ),
-                    create_choice(
-                        name="Description",
-                        value="Description"
-                    ),
-                    create_choice(
-                        name="Start Time",
-                        value="Start Time"
-                    ),
-                    create_choice(
-                        name="Maximum Members",
-                        value="Maximum Members"
-                    ),
+                    create_choice(name="Activity", value="Activity"),
+                    create_choice(name="Description", value="Description"),
+                    create_choice(name="Start Time", value="Start Time"),
+                    create_choice(name="Maximum Members", value="Maximum Members"),
                 ],
             ),
         ],
     )
-    async def _edit(
-        self,
-        ctx: SlashContext,
-        lfg_id,
-        section
-    ):
+    async def _edit(self, ctx: SlashContext, lfg_id, section):
         # get the message obj
         lfg_message = await get_lfg_message(ctx.bot, lfg_id, ctx)
         if not lfg_message:
@@ -350,24 +321,19 @@ class LfgCommands(commands.Cog):
         # might take a sec
         await ctx.defer()
 
-
-        def check(
-            answer_msg
-        ):
+        def check(answer_msg):
             return answer_msg.author == ctx.author and answer_msg.channel == ctx.channel
-
 
         if section == "Activity":
             message = await ctx.send(
-                embed=embed_message(
-                    "Activity Name",
-                    "Please enter a new name"
-                )
+                embed=embed_message("Activity Name", "Please enter a new name")
             )
 
             # wait 60s for message
             try:
-                answer_msg = await self.client.wait_for('message', timeout=60.0, check=check)
+                answer_msg = await self.client.wait_for(
+                    "message", timeout=60.0, check=check
+                )
             except asyncio.TimeoutError:
                 await message.edit(embed=self.timeout_embed)
                 return
@@ -380,15 +346,14 @@ class LfgCommands(commands.Cog):
 
         elif section == "Description":
             message = await ctx.send(
-                embed=embed_message(
-                    "Description",
-                    "Please enter a new description"
-                )
+                embed=embed_message("Description", "Please enter a new description")
             )
 
             # wait 60s for message
             try:
-                answer_msg = await self.client.wait_for('message', timeout=60.0, check=check)
+                answer_msg = await self.client.wait_for(
+                    "message", timeout=60.0, check=check
+                )
             except asyncio.TimeoutError:
                 await message.edit(embed=self.timeout_embed)
                 return
@@ -403,25 +368,29 @@ class LfgCommands(commands.Cog):
             message = await ctx.send(
                 embed=embed_message(
                     "Start Time",
-                    "Please enter a new start time like this \n`HH:MM DD/MM`"
+                    "Please enter a new start time like this \n`HH:MM DD/MM`",
                 )
             )
 
             # wait 60s for message
             try:
-                answer_msg = await self.client.wait_for('message', timeout=60.0, check=check)
+                answer_msg = await self.client.wait_for(
+                    "message", timeout=60.0, check=check
+                )
             except asyncio.TimeoutError:
                 await message.edit(embed=self.timeout_embed)
                 return
             else:
                 # get the datetime
                 try:
-                    start_time = dateutil.parser.parse(answer_msg.content, dayfirst=True)
+                    start_time = dateutil.parser.parse(
+                        answer_msg.content, dayfirst=True
+                    )
                 except dateutil.parser.ParserError:
                     await message.edit(
                         embed=embed_message(
                             "Error",
-                            "There was an error with the formatting of the time parameters, please try again"
+                            "There was an error with the formatting of the time parameters, please try again",
                         )
                     )
                     await answer_msg.delete()
@@ -440,7 +409,6 @@ class LfgCommands(commands.Cog):
                                 )
                                 # Options for timezones
                                 for timezone_name, timezone_value in timezones_dict.items()
-
                             ],
                             placeholder="Select timezone here",
                             min_values=1,
@@ -454,16 +422,16 @@ class LfgCommands(commands.Cog):
 
                 await message.edit(components=components, embed=embed)
 
-
                 # wait 60s for selection
-                def check(
-                    select_ctx: ComponentContext
-                ):
+                def check(select_ctx: ComponentContext):
                     return select_ctx.author == ctx.author
 
-
                 try:
-                    select_ctx: ComponentContext = await manage_components.wait_for_component(ctx.bot, components=components, timeout=60, check=check)
+                    select_ctx: ComponentContext = (
+                        await manage_components.wait_for_component(
+                            ctx.bot, components=components, timeout=60, check=check
+                        )
+                    )
                 except asyncio.TimeoutError:
                     await message.edit(embed=self.timeout_embed)
                     return
@@ -477,34 +445,34 @@ class LfgCommands(commands.Cog):
                     # make sure thats in the future
                     if start_time < datetime.datetime.now(datetime.timezone.utc):
                         await select_ctx.edit_origin(
-                            components=None, embed=embed_message(
+                            components=None,
+                            embed=embed_message(
                                 "Error",
-                                "The event cannot start in the past. Please try again"
-                            )
+                                "The event cannot start in the past. Please try again",
+                            ),
                         )
                         return
 
                     # edit the message
                     await lfg_message.edit_start_time_and_send(start_time)
                     await select_ctx.edit_origin(
-                        components=None, embed=embed_message(
-                            f"Success",
-                            f"I've edited the post"
-                        )
+                        components=None,
+                        embed=embed_message(f"Success", f"I've edited the post"),
                     )
                     return
 
         else:  # section == "Maximum Members":
             message = await ctx.send(
                 embed=embed_message(
-                    "Maximum Members",
-                    "Please enter the new maximum members"
+                    "Maximum Members", "Please enter the new maximum members"
                 )
             )
 
             # wait 60s for message
             try:
-                answer_msg = await self.client.wait_for('message', timeout=60.0, check=check)
+                answer_msg = await self.client.wait_for(
+                    "message", timeout=60.0, check=check
+                )
             except asyncio.TimeoutError:
                 await message.edit(embed=self.timeout_embed)
                 return
@@ -516,7 +484,7 @@ class LfgCommands(commands.Cog):
                     await message.edit(
                         embed=embed_message(
                             "Error",
-                            f"`{answer_msg.content}` is not a number. Please try again"
+                            f"`{answer_msg.content}` is not a number. Please try again",
                         )
                     )
                     await answer_msg.delete()
@@ -528,13 +496,7 @@ class LfgCommands(commands.Cog):
         # resend msg
         await lfg_message.send()
 
-        await message.edit(
-            embed=embed_message(
-                f"Success",
-                f"I've edited the post"
-            )
-        )
-
+        await message.edit(embed=embed_message(f"Success", f"I've edited the post"))
 
     @cog_ext.cog_subcommand(
         base="lfg",
@@ -550,11 +512,7 @@ class LfgCommands(commands.Cog):
             ),
         ],
     )
-    async def _remove(
-        self,
-        ctx: SlashContext,
-        lfg_id
-    ):
+    async def _remove(self, ctx: SlashContext, lfg_id):
         # get the message obj
         lfg_message = await get_lfg_message(ctx.bot, lfg_id, ctx)
         if not lfg_message:
@@ -562,12 +520,11 @@ class LfgCommands(commands.Cog):
 
         await lfg_message.delete()
         await ctx.send(
-            hidden=True, embed=embed_message(
-                "Success",
-                f"The LFG post with the id `{lfg_id}` has been deleted"
-            )
+            hidden=True,
+            embed=embed_message(
+                "Success", f"The LFG post with the id `{lfg_id}` has been deleted"
+            ),
         )
-
 
     @cog_ext.cog_subcommand(
         base="lfg",
@@ -581,15 +538,10 @@ class LfgCommands(commands.Cog):
                 option_type=4,
                 required=True,
             ),
-            options_user(flavor_text="The user you want to add", required=True)
+            options_user(flavor_text="The user you want to add", required=True),
         ],
     )
-    async def _add(
-        self,
-        ctx: SlashContext,
-        lfg_id,
-        user
-    ):
+    async def _add(self, ctx: SlashContext, lfg_id, user):
         # get the message obj
         lfg_message = await get_lfg_message(ctx.bot, lfg_id, ctx)
         if not lfg_message:
@@ -597,19 +549,20 @@ class LfgCommands(commands.Cog):
 
         if await lfg_message.add_member(user, force_into_joined=True):
             await ctx.send(
-                hidden=True, embed=embed_message(
+                hidden=True,
+                embed=embed_message(
                     "Success",
-                    f"{user.display_name} has been added to the LFG post with the id `{lfg_id}`"
-                )
+                    f"{user.display_name} has been added to the LFG post with the id `{lfg_id}`",
+                ),
             )
         else:
             await ctx.send(
-                hidden=True, embed=embed_message(
+                hidden=True,
+                embed=embed_message(
                     "Error",
-                    f"{user.display_name} could not be added to the LFG post with the id `{lfg_id}`, because they are already in it or they are blacklisted by the creator"
-                )
+                    f"{user.display_name} could not be added to the LFG post with the id `{lfg_id}`, because they are already in it or they are blacklisted by the creator",
+                ),
             )
-
 
     @cog_ext.cog_subcommand(
         base="lfg",
@@ -623,15 +576,10 @@ class LfgCommands(commands.Cog):
                 option_type=4,
                 required=True,
             ),
-            options_user(flavor_text="The user you want to add", required=True)
+            options_user(flavor_text="The user you want to add", required=True),
         ],
     )
-    async def _kick(
-        self,
-        ctx: SlashContext,
-        lfg_id,
-        user
-    ):
+    async def _kick(self, ctx: SlashContext, lfg_id, user):
         # get the message obj
         lfg_message = await get_lfg_message(ctx.bot, lfg_id, ctx)
         if not lfg_message:
@@ -639,19 +587,20 @@ class LfgCommands(commands.Cog):
 
         if await lfg_message.remove_member(user):
             await ctx.send(
-                hidden=True, embed=embed_message(
+                hidden=True,
+                embed=embed_message(
                     "Success",
-                    f"{user.display_name} has been removed from the LFG post with the id `{lfg_id}`"
-                )
+                    f"{user.display_name} has been removed from the LFG post with the id `{lfg_id}`",
+                ),
             )
         else:
             await ctx.send(
-                hidden=True, embed=embed_message(
+                hidden=True,
+                embed=embed_message(
                     "Error",
-                    f"{user.display_name} could not be remove from the LFG post with the id `{lfg_id}`, because they are not in it"
-                )
+                    f"{user.display_name} could not be remove from the LFG post with the id `{lfg_id}`, because they are not in it",
+                ),
             )
-
 
     @cog_ext.cog_subcommand(
         base="lfg",
@@ -665,54 +614,46 @@ class LfgCommands(commands.Cog):
                 option_type=3,
                 required=True,
                 choices=[
-                    create_choice(
-                        name="Blacklist",
-                        value="Blacklist"
-                    ),
-                    create_choice(
-                        name="Un-Blacklist",
-                        value="Un-Blacklist"
-                    ),
-                ]
+                    create_choice(name="Blacklist", value="Blacklist"),
+                    create_choice(name="Un-Blacklist", value="Un-Blacklist"),
+                ],
             ),
-            options_user(flavor_text="The user you want to add / remove", required=True)
+            options_user(
+                flavor_text="The user you want to add / remove", required=True
+            ),
         ],
     )
-    async def _blacklist(
-        self,
-        ctx: SlashContext,
-        action,
-        user
-    ):
+    async def _blacklist(self, ctx: SlashContext, action, user):
         if action == "Blacklist":
             if ctx.author == user:
                 await ctx.send(
-                    hidden=True, embed=embed_message(
+                    hidden=True,
+                    embed=embed_message(
                         "Error",
-                        f"Mate, you cannot blacklist yourself. That is just stupid"
-                    )
+                        f"Mate, you cannot blacklist yourself. That is just stupid",
+                    ),
                 )
                 return
 
             await add_lfg_blacklisted_member(ctx.author.id, user.id)
             await ctx.send(
-                hidden=True, embed=embed_message(
+                hidden=True,
+                embed=embed_message(
                     "Success",
-                    f"{user.display_name} has been added to your personal blacklist and will not be able to join your events"
-                )
+                    f"{user.display_name} has been added to your personal blacklist and will not be able to join your events",
+                ),
             )
 
         elif action == "Un-Blacklist":
             await remove_lfg_blacklisted_member(ctx.author.id, user.id)
             await ctx.send(
-                hidden=True, embed=embed_message(
+                hidden=True,
+                embed=embed_message(
                     "Success",
-                    f"{user.display_name} has been removed from your personal blacklist and will be able to join your events again"
-                )
+                    f"{user.display_name} has been removed from your personal blacklist and will be able to join your events again",
+                ),
             )
 
 
-def setup(
-    client
-):
+def setup(client):
     client.add_cog(LfgCommands(client))

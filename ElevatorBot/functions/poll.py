@@ -23,49 +23,51 @@ class Poll:
 
     select: list[list] = dataclasses.field(init=False)
 
-
-    def __post_init__(
-        self
-    ):
+    def __post_init__(self):
         if not self.data:
             self.data = {}
 
-        self.select = [
-            manage_components.create_actionrow(
-                manage_components.create_select(
-                    options=[
-                        manage_components.create_select_option(
-                            label=option_name,
-                            value=option_name,
-                        )
-                        for option_name in self.data
-                    ],
-                    placeholder="Please select your choice",
-                    min_values=1,
-                    max_values=1,
-                    custom_id="poll",
-                )
-            ),
-        ] if self.data else []
-
+        self.select = (
+            [
+                manage_components.create_actionrow(
+                    manage_components.create_select(
+                        options=[
+                            manage_components.create_select_option(
+                                label=option_name,
+                                value=option_name,
+                            )
+                            for option_name in self.data
+                        ],
+                        placeholder="Please select your choice",
+                        min_values=1,
+                        max_values=1,
+                        custom_id="poll",
+                    )
+                ),
+            ]
+            if self.data
+            else []
+        )
 
     # get embed
-    def _get_embed(
-        self
-    ) -> discord.Embed:
-        total_users_count = sum([len(option_users) for option_users in self.data.values()])
+    def _get_embed(self) -> discord.Embed:
+        total_users_count = sum(
+            [len(option_users) for option_users in self.data.values()]
+        )
 
         embed = embed_message(
             f"Poll: {self.name}",
             f"{self.description}\n**{total_users_count} votes**",
-            f"Asked by {self.author.display_name}  |  ID: {self.id}"
+            f"Asked by {self.author.display_name}  |  ID: {self.id}",
         )
 
         # sort the data by most answers
-        self.data = {k: v for k, v in sorted(
-            self.data.items(), key=lambda
-                item: len(item[1]), reverse=True
-        )}
+        self.data = {
+            k: v
+            for k, v in sorted(
+                self.data.items(), key=lambda item: len(item[1]), reverse=True
+            )
+        }
 
         # add options
         for option_name, option_users in self.data.items():
@@ -93,11 +95,8 @@ class Poll:
 
         return embed
 
-
     # save the stuff in DB
-    async def _dump_to_db(
-        self
-    ) -> int:
+    async def _dump_to_db(self) -> int:
         return await insert_poll(
             poll_id=self.id,
             poll_name=self.name,
@@ -109,31 +108,17 @@ class Poll:
             message_id=self.message.id if self.message else None,
         )
 
-
     # add an option
-    async def add_new_option(
-        self,
-        ctx: SlashContext,
-        option: str
-    ):
-        self.data.update(
-            {
-                option: []
-            }
-        )
+    async def add_new_option(self, ctx: SlashContext, option: str):
+        self.data.update({option: []})
 
         # run the post init again to add components
         self.__post_init__()
 
         await self._edit(edit_ctx=ctx)
 
-
     # remove an option
-    async def remove_option(
-        self,
-        ctx: SlashContext,
-        option: str
-    ):
+    async def remove_option(self, ctx: SlashContext, option: str):
         try:
             self.data.pop(option)
 
@@ -144,19 +129,12 @@ class Poll:
         except KeyError:
             await ctx.send(
                 hidden=True,
-                embed=embed_message(
-                    "Error",
-                    "That option doesn't exist"
-                ),
+                embed=embed_message("Error", "That option doesn't exist"),
             )
-
 
     # add a user to a poll option
     async def add_user(
-        self,
-        select_ctx: ComponentContext,
-        member: discord.Member,
-        option: str
+        self, select_ctx: ComponentContext, member: discord.Member, option: str
     ):
         # remove user from all other options
         for option_users in self.data.values():
@@ -167,18 +145,13 @@ class Poll:
 
         # add user to option
         self.data[option].append(member.id)
-        await self._edit(
-            select_ctx=select_ctx
-        )
-
+        await self._edit(select_ctx=select_ctx)
 
     # update poll
     async def _edit(
-        self,
-        select_ctx: ComponentContext = None,
-        edit_ctx: SlashContext = None
+        self, select_ctx: ComponentContext = None, edit_ctx: SlashContext = None
     ):
-        assert (select_ctx or edit_ctx), "Only one param can be chosen and one must be"
+        assert select_ctx or edit_ctx, "Only one param can be chosen and one must be"
 
         embed = self._get_embed()
         await self._dump_to_db()
@@ -190,10 +163,7 @@ class Poll:
             )
             await edit_ctx.send(
                 hidden=True,
-                embed=embed_message(
-                    "Success",
-                    "Your poll was edited"
-                ),
+                embed=embed_message("Success", "Your poll was edited"),
             )
 
         else:
@@ -202,12 +172,8 @@ class Poll:
                 components=self.select,
             )
 
-
     # create poll
-    async def create(
-        self,
-        create_ctx: SlashContext
-    ) -> None:
+    async def create(self, create_ctx: SlashContext) -> None:
         # dumping to db twice to get the ID
         self.id = await self._dump_to_db()
         embed = self._get_embed()
@@ -217,31 +183,22 @@ class Poll:
         )
         await self._dump_to_db()
 
-
     # disable poll
-    async def disable(
-        self,
-        edit_ctx: SlashContext
-    ):
+    async def disable(self, edit_ctx: SlashContext):
         await self.message.edit(
             components=[],
         )
         await edit_ctx.send(
             hidden=True,
-            embed=embed_message(
-                "Success",
-                "Your poll was edited"
-            ),
+            embed=embed_message("Success", "Your poll was edited"),
         )
 
 
 # get the poll object
 async def get_poll_object(
-    guild: discord.Guild,
-    poll_id: int = None,
-    poll_message_id: int = None
+    guild: discord.Guild, poll_id: int = None, poll_message_id: int = None
 ) -> Optional[Poll]:
-    assert (poll_id or poll_message_id), "Only one param can be chosen and one must be"
+    assert poll_id or poll_message_id, "Only one param can be chosen and one must be"
 
     # get the DB entry
     record = await get_poll(
@@ -273,7 +230,7 @@ async def create_poll_object(
     name: str,
     description: str,
     guild: discord.Guild,
-    channel: discord.TextChannel
+    channel: discord.TextChannel,
 ) -> None:
     poll = Poll(
         name=name,

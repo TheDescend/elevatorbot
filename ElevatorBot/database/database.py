@@ -8,7 +8,16 @@ import discord
 import pandas
 from sshtunnel import SSHTunnelForwarder
 
-from ElevatorBot.database.psql_credentials import password, ssh_port, dbname, host, ssh_host, ssh_password, user, ssh_user
+from ElevatorBot.database.psql_credentials import (
+    password,
+    ssh_port,
+    dbname,
+    host,
+    ssh_host,
+    ssh_password,
+    user,
+    ssh_user,
+)
 from ElevatorBot.database.databaseModels import database_tables
 
 
@@ -21,19 +30,9 @@ async def create_connection_pool():
     global pool
     global ssh_server
 
-    args = {
-        "database": dbname,
-        "user": user,
-        "host": host,
-        "password": password
-    }
+    args = {"database": dbname, "user": user, "host": host, "password": password}
     if ssh_server:
-        args.update(
-            {
-                "host": "localhost",
-                "port": ssh_server.local_bind_port
-            }
-        )
+        args.update({"host": "localhost", "port": ssh_server.local_bind_port})
 
     try:
         pool = await asyncpg.create_pool(max_size=50, **args)
@@ -47,7 +46,7 @@ async def create_connection_pool():
             (ssh_host, ssh_port),
             ssh_username=ssh_user,
             ssh_password=ssh_password,
-            remote_bind_address=("localhost", bind_port)
+            remote_bind_address=("localhost", bind_port),
         )
         ssh_server.start()
         print("Connected via SSH")
@@ -64,19 +63,17 @@ async def get_connection_pool():
             await create_connection_pool()
 
             # load the db models
-            async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
+            async with (await get_connection_pool()).acquire(
+                timeout=timeout
+            ) as connection:
                 for table in database_tables:
                     await connection.execute(table)
 
             return pool
 
 
-async def fetch_as_dataframe(
-    con: asyncpg.Connection,
-    query: str,
-    *args
-):
-    """ Gets the DB query as a pandas dataframe"""
+async def fetch_as_dataframe(con: asyncpg.Connection, query: str, *args):
+    """Gets the DB query as a pandas dataframe"""
 
     stmt = await con.prepare(query)
     columns = [a.name for a in stmt.get_attributes()]
@@ -87,10 +84,9 @@ async def fetch_as_dataframe(
 ################################################################
 # User Management
 
-async def removeUser(
-    discordID
-):
-    """ Removes a User from the DB (by discordID), returns True if successful"""
+
+async def removeUser(discordID):
+    """Removes a User from the DB (by discordID), returns True if successful"""
 
     delete_sql = """
         DELETE FROM 
@@ -101,12 +97,8 @@ async def removeUser(
         await connection.execute(delete_sql, discordID)
 
 
-async def updateUser(
-    IDdiscord,
-    IDdestiny,
-    systemID
-):
-    """ Updates a User - DestinyID, SystemID  """
+async def updateUser(IDdiscord, IDdestiny, systemID):
+    """Updates a User - DestinyID, SystemID"""
 
     update_sql = f"""
         UPDATE 
@@ -120,10 +112,8 @@ async def updateUser(
         await connection.execute(update_sql, IDdestiny, systemID, IDdiscord)
 
 
-async def lookupDestinyID(
-    discordID
-):
-    """ Takes discordID and returns destinyID """
+async def lookupDestinyID(discordID):
+    """Takes discordID and returns destinyID"""
 
     select_sql = """
         SELECT 
@@ -136,10 +126,8 @@ async def lookupDestinyID(
         return await connection.fetchval(select_sql, discordID)
 
 
-async def lookupDiscordID(
-    destinyID: int
-):
-    """ Takes destinyID and returns discordID """
+async def lookupDiscordID(destinyID: int):
+    """Takes destinyID and returns discordID"""
 
     select_sql = """
         SELECT 
@@ -152,10 +140,8 @@ async def lookupDiscordID(
         return await connection.fetchval(select_sql, destinyID)
 
 
-async def lookupSystem(
-    destinyID: int
-):
-    """ Takes destinyID and returns system """
+async def lookupSystem(destinyID: int):
+    """Takes destinyID and returns system"""
 
     select_sql = """
         SELECT 
@@ -169,7 +155,7 @@ async def lookupSystem(
 
 
 async def getAllDestinyIDs():
-    """ Returns a list with all discord members destiny ids """
+    """Returns a list with all discord members destiny ids"""
 
     select_sql = """
         SELECT 
@@ -181,10 +167,8 @@ async def getAllDestinyIDs():
     return [x[0] for x in result]
 
 
-async def getToken(
-    discordID
-):
-    """ Gets a Users Bungie-Token or None"""
+async def getToken(discordID):
+    """Gets a Users Bungie-Token or None"""
 
     select_sql = """
         SELECT 
@@ -197,10 +181,8 @@ async def getToken(
         return await connection.fetchval(select_sql, discordID)
 
 
-async def getRefreshToken(
-    discordID
-):
-    """ Gets a Users Bungie-Refreshtoken or None """
+async def getRefreshToken(discordID):
+    """Gets a Users Bungie-Refreshtoken or None"""
 
     select_sql = """
         SELECT 
@@ -213,19 +195,17 @@ async def getRefreshToken(
         return await connection.fetchval(select_sql, discordID)
 
 
-async def getTokenExpiry(
-    discordID
-):
-    """ Gets a Users Bungie-Token expiry date and als the refresh token ones or None.
+async def getTokenExpiry(discordID):
+    """Gets a Users Bungie-Token expiry date and als the refresh token ones or None.
     Retruns list(token_expiry, refresh_token_expiry) or None"""
 
-    select_sql = '''
+    select_sql = """
         SELECT 
             token_expiry, refresh_token_expiry
         FROM 
             "discordGuardiansToken"
         WHERE 
-            discordSnowflake = $1;'''
+            discordSnowflake = $1;"""
 
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
         results = await connection.fetchrow(select_sql, discordID)
@@ -241,23 +221,30 @@ async def insertToken(
     token,
     refresh_token,
     token_expiry,
-    refresh_token_expiry
+    refresh_token_expiry,
 ):
-    """ Inserts / Updates a User or Token into the database """
+    """Inserts / Updates a User or Token into the database"""
 
     # old users
     if destinyID in await getAllDestinyIDs():
-        print('User exists, updating token...')
+        print("User exists, updating token...")
         await updateUser(discordID, destinyID, systemID)
         try:
-            await updateToken(destinyID, discordID, token, refresh_token, token_expiry, refresh_token_expiry)
+            await updateToken(
+                destinyID,
+                discordID,
+                token,
+                refresh_token,
+                token_expiry,
+                refresh_token_expiry,
+            )
             return True
         except asyncpg.exceptions.UniqueViolationError:
             # Already matched to a different account
             return False
     # new users
     else:
-        print('User new, inserting token...')
+        print("User new, inserting token...")
         insert_sql = """
             INSERT INTO 
                 "discordGuardiansToken"
@@ -267,21 +254,24 @@ async def insertToken(
 
         async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
             await connection.execute(
-                insert_sql, discordID, destinyID, datetime.today().date(), discordServerID, token, refresh_token, systemID,
-                datetime.fromtimestamp(token_expiry), datetime.fromtimestamp(refresh_token_expiry)
+                insert_sql,
+                discordID,
+                destinyID,
+                datetime.today().date(),
+                discordServerID,
+                token,
+                refresh_token,
+                systemID,
+                datetime.fromtimestamp(token_expiry),
+                datetime.fromtimestamp(refresh_token_expiry),
             )
         return True
 
 
 async def updateToken(
-    destinyID,
-    discordID,
-    token,
-    refresh_token,
-    token_expiry,
-    refresh_token_expiry
+    destinyID, discordID, token, refresh_token, token_expiry, refresh_token_expiry
 ):
-    """ Updates a User - Token, token refresh, token_expiry, refresh_token_expiry  """
+    """Updates a User - Token, token refresh, token_expiry, refresh_token_expiry"""
 
     update_sql = f"""
         UPDATE 
@@ -296,15 +286,18 @@ async def updateToken(
             destinyID = $6;"""
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
         await connection.execute(
-            update_sql, token, refresh_token, datetime.fromtimestamp(token_expiry), datetime.fromtimestamp(refresh_token_expiry), discordID, destinyID
+            update_sql,
+            token,
+            refresh_token,
+            datetime.fromtimestamp(token_expiry),
+            datetime.fromtimestamp(refresh_token_expiry),
+            discordID,
+            destinyID,
         )
 
 
-async def setSteamJoinID(
-    IDdiscord,
-    IDSteamJoin
-):
-    """ Updates a User - steamJoinId  """
+async def setSteamJoinID(IDdiscord, IDSteamJoin):
+    """Updates a User - steamJoinId"""
 
     update_sql = f"""
         UPDATE 
@@ -317,10 +310,8 @@ async def setSteamJoinID(
         await connection.execute(update_sql, int(IDSteamJoin), IDdiscord)
 
 
-async def getSteamJoinID(
-    IDdiscord
-):
-    """ Gets a Users steamJoinId or None"""
+async def getSteamJoinID(IDdiscord):
+    """Gets a Users steamJoinId or None"""
 
     select_sql = """
         SELECT 
@@ -334,7 +325,7 @@ async def getSteamJoinID(
 
 
 async def getallSteamJoinIDs():
-    """ Gets all steamJoinId or []"""
+    """Gets all steamJoinId or []"""
 
     select_sql = """
         SELECT 
@@ -347,13 +338,8 @@ async def getallSteamJoinIDs():
         return await connection.fetch(select_sql)
 
 
-async def insertIntoMessageDB(
-    messagetext,
-    userid,
-    channelid,
-    msgid
-):
-    """ Used to collect messages for markov-chaining, returns True if successful """
+async def insertIntoMessageDB(messagetext, userid, channelid, msgid):
+    """Used to collect messages for markov-chaining, returns True if successful"""
 
     insert_sql = """
         INSERT INTO 
@@ -362,15 +348,13 @@ async def insertIntoMessageDB(
         VALUES 
             ($1, $2, $3, $4, $5);"""
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
-        await connection.execute(insert_sql, messagetext, userid, channelid, msgid, datetime.now())
+        await connection.execute(
+            insert_sql, messagetext, userid, channelid, msgid, datetime.now()
+        )
 
 
-async def getLastActivity(
-    destinyID,
-    mode=None,
-    before=datetime.now()
-):
-    """ Gets the last activity in the specified mode """
+async def getLastActivity(destinyID, mode=None, before=datetime.now()):
+    """Gets the last activity in the specified mode"""
 
     select_sql = f"""
         SELECT 
@@ -440,10 +424,8 @@ async def getLastActivity(
     return result
 
 
-async def getFlawlessList(
-    destinyID
-):
-    """ returns hashes of the flawlessly completed activities """
+async def getFlawlessList(destinyID):
+    """returns hashes of the flawlessly completed activities"""
 
     select_sql = """
         SELECT DISTINCT
@@ -478,9 +460,7 @@ async def getFlawlessList(
 
 
 async def getEverything(
-    database_table_name: str,
-    select_name: list = None,
-    **where_requirements
+    database_table_name: str, select_name: list = None, **where_requirements
 ):
     """
     Gets the complete rows or just the asked for value(s) from the given params. Params are not required
@@ -504,9 +484,7 @@ async def getEverything(
 
 
 async def getEverythingRow(
-    database_table_name: str,
-    select_name: list = None,
-    **where_requirements
+    database_table_name: str, select_name: list = None, **where_requirements
 ):
     """
     Gets the complete row or just the asked for value(s) from the given params. Params are not required
@@ -529,11 +507,8 @@ async def getEverythingRow(
 # Versioning
 
 
-async def updateVersion(
-    name: str,
-    version: str
-):
-    """ Updates or inserts the version info for the name, fe. the manifest """
+async def updateVersion(name: str, version: str):
+    """Updates or inserts the version info for the name, fe. the manifest"""
 
     if not await getVersion(name):
         # insert
@@ -559,10 +534,8 @@ async def updateVersion(
         await connection.execute(update_sql, version, name)
 
 
-async def getVersion(
-    name: str
-):
-    """ Gets the version info for the name, fe. the manifest """
+async def getVersion(name: str):
+    """Gets the version info for the name, fe. the manifest"""
 
     select_sql = f"""
         SELECT 
@@ -578,11 +551,9 @@ async def getVersion(
 ################################################################
 # D2 Steam Players
 
-async def update_d2_steam_players(
-    current_date: date,
-    number_of_players: int
-):
-    """ Inserts the amount of players into the DB for that day. Updates instead, if there already is a lower value for that day """
+
+async def update_d2_steam_players(current_date: date, number_of_players: int):
+    """Inserts the amount of players into the DB for that day. Updates instead, if there already is a lower value for that day"""
 
     # get current value
     select_sql = f"""
@@ -621,7 +592,7 @@ async def update_d2_steam_players(
 
 
 async def get_d2_steam_player_info():
-    """ Gets all the data as a pandas dataframe """
+    """Gets all the data as a pandas dataframe"""
 
     select_sql = """
         SELECT 
@@ -637,14 +608,11 @@ async def get_d2_steam_player_info():
 ################################################################
 # Persistent Messages
 
+
 async def insertPersistentMessage(
-    messageName,
-    guildId,
-    channelId,
-    messageId,
-    reactionsIdList
+    messageName, guildId, channelId, messageId, reactionsIdList
 ):
-    """ Inserts a message mapping into the database, returns True if successful False otherwise """
+    """Inserts a message mapping into the database, returns True if successful False otherwise"""
 
     insert_sql = """
         INSERT INTO 
@@ -653,17 +621,15 @@ async def insertPersistentMessage(
         VALUES 
             ($1, $2, $3, $4, $5);"""
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
-        await connection.execute(insert_sql, messageName, guildId, channelId, messageId, reactionsIdList)
+        await connection.execute(
+            insert_sql, messageName, guildId, channelId, messageId, reactionsIdList
+        )
 
 
 async def updatePersistentMessage(
-    messageName,
-    guildId,
-    channelId,
-    messageId,
-    reactionsIdList
+    messageName, guildId, channelId, messageId, reactionsIdList
 ):
-    """ Updates a message mapping  """
+    """Updates a message mapping"""
 
     update_sql = f"""
         UPDATE 
@@ -676,14 +642,13 @@ async def updatePersistentMessage(
             messageName = $4 
             AND guildId = $5;"""
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
-        await connection.execute(update_sql, channelId, messageId, reactionsIdList, messageName, guildId)
+        await connection.execute(
+            update_sql, channelId, messageId, reactionsIdList, messageName, guildId
+        )
 
 
-async def get_persistent_message(
-    message_name: str,
-    guild_id: int
-) -> asyncpg.Record:
-    """ Gets a message mapping given the messageName and guildId and channelId"""
+async def get_persistent_message(message_name: str, guild_id: int) -> asyncpg.Record:
+    """Gets a message mapping given the messageName and guildId and channelId"""
 
     select_sql = """
         SELECT 
@@ -699,11 +664,8 @@ async def get_persistent_message(
         return await connection.fetchrow(select_sql, message_name, guild_id)
 
 
-async def deletePersistentMessage(
-    messageName,
-    guildId
-):
-    """ Delete a message given the messageName and guildId"""
+async def deletePersistentMessage(messageName, guildId):
+    """Delete a message given the messageName and guildId"""
 
     delete_sql = """
         DELETE FROM 
@@ -716,7 +678,7 @@ async def deletePersistentMessage(
 
 
 async def getAllPersistentMessages():
-    """ Gets all messages"""
+    """Gets all messages"""
 
     select_sql = """
         SELECT 
@@ -731,11 +693,8 @@ async def getAllPersistentMessages():
 # Destiny Manifest - see database/readme.md for info on table structure
 
 
-async def deleteEntries(
-    connection,
-    definition_name: str
-):
-    """ Deletes all entries from this definition - clean slate """
+async def deleteEntries(connection, definition_name: str):
+    """Deletes all entries from this definition - clean slate"""
 
     delete_sql = f"""
         DELETE FROM 
@@ -744,12 +703,9 @@ async def deleteEntries(
 
 
 async def updateDestinyDefinition(
-    connection,
-    definition_name: str,
-    referenceId: int,
-    **kwargs
+    connection, definition_name: str, referenceId: int, **kwargs
 ):
-    """ Insert Rows. Input vars depend on which definition is called"""
+    """Insert Rows. Input vars depend on which definition is called"""
 
     insert_sql = f"""
         INSERT INTO 
@@ -761,11 +717,8 @@ async def updateDestinyDefinition(
     await connection.execute(insert_sql, referenceId, *list(kwargs.values()))
 
 
-async def getDestinyDefinition(
-    definition_name: str,
-    referenceId: int
-):
-    """ gets all the info for the given definition. Return depends on which was called """
+async def getDestinyDefinition(definition_name: str, referenceId: int):
+    """gets all the info for the given definition. Return depends on which was called"""
 
     select_sql = f"""
         SELECT 
@@ -779,7 +732,7 @@ async def getDestinyDefinition(
 
 
 async def getGrandmasterHashes():
-    """ Gets all GM nightfall hashes. Makes adding the new ones after a season obsolete """
+    """Gets all GM nightfall hashes. Makes adding the new ones after a season obsolete"""
 
     select_sql = f"""
         SELECT 
@@ -795,7 +748,7 @@ async def getGrandmasterHashes():
 
 
 async def getSeals():
-    """ Gets all seals. returns ([referenceId, titleName], ...)"""
+    """Gets all seals. returns ([referenceId, titleName], ...)"""
 
     not_available = [
         837071607,  # shaxx
@@ -817,11 +770,8 @@ async def getSeals():
 # Activities
 
 
-async def updateLastUpdated(
-    destinyID,
-    timestamp: datetime
-):
-    """ sets players activities last updated time to the last activity he has done"""
+async def updateLastUpdated(destinyID, timestamp: datetime):
+    """sets players activities last updated time to the last activity he has done"""
 
     update_sql = """
         UPDATE 
@@ -834,10 +784,8 @@ async def updateLastUpdated(
         await connection.execute(update_sql, timestamp, destinyID)
 
 
-async def getLastUpdated(
-    destinyID
-):
-    """ gets last time that players activities were updated as datetime object """
+async def getLastUpdated(destinyID):
+    """gets last time that players activities were updated as datetime object"""
 
     select_sql = """
         SELECT 
@@ -859,9 +807,9 @@ async def insertPgcrActivities(
     mode,
     modes,
     isPrivate,
-    membershipType
+    membershipType,
 ):
-    """ Inserts an activity to the DB"""
+    """Inserts an activity to the DB"""
 
     if not await getPgcrActivity(instanceId):
         insert_sql = """
@@ -883,14 +831,12 @@ async def insertPgcrActivities(
                 int(mode),
                 modes,
                 isPrivate,
-                int(membershipType)
+                int(membershipType),
             )
 
 
-async def getPgcrActivity(
-    instanceId
-):
-    """ Returns info if instance is already in DB """
+async def getPgcrActivity(instanceId):
+    """Returns info if instance is already in DB"""
 
     select_sql = """
         SELECT 
@@ -903,10 +849,8 @@ async def getPgcrActivity(
         return await connection.fetchrow(select_sql, int(instanceId))
 
 
-async def getPgcrActivitiesUsersStats(
-    instanceId
-):
-    """ Returns info on PgcrActivitiesUsersStats"""
+async def getPgcrActivitiesUsersStats(instanceId):
+    """Returns info on PgcrActivitiesUsersStats"""
 
     select_sql = """
         SELECT 
@@ -948,9 +892,9 @@ async def insertPgcrActivitiesUsersStats(
     weaponKillsGrenade,
     weaponKillsMelee,
     weaponKillsSuper,
-    weaponKillsAbility
+    weaponKillsAbility,
 ):
-    """ Inserts an activity to the DB"""
+    """Inserts an activity to the DB"""
 
     insert_sql = """
         INSERT INTO 
@@ -966,20 +910,41 @@ async def insertPgcrActivitiesUsersStats(
             DO NOTHING;"""
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
         await connection.execute(
-            insert_sql, int(instanceId), int(membershipId), int(characterId), characterClass, int(characterLevel),
-            int(membershipType), int(lightLevel), int(emblemHash), int(standing), int(assists), int(completed),
-            int(deaths), int(kills), int(opponentsDefeated), float(efficiency), float(killsDeathsRatio), float(killsDeathsAssists),
-            int(score), int(activityDurationSeconds), int(completionReason), int(startSeconds), int(timePlayedSeconds),
-            int(playerCount), int(teamScore), int(precisionKills), int(weaponKillsGrenade), int(weaponKillsMelee), int(weaponKillsSuper),
-            int(weaponKillsAbility)
+            insert_sql,
+            int(instanceId),
+            int(membershipId),
+            int(characterId),
+            characterClass,
+            int(characterLevel),
+            int(membershipType),
+            int(lightLevel),
+            int(emblemHash),
+            int(standing),
+            int(assists),
+            int(completed),
+            int(deaths),
+            int(kills),
+            int(opponentsDefeated),
+            float(efficiency),
+            float(killsDeathsRatio),
+            float(killsDeathsAssists),
+            int(score),
+            int(activityDurationSeconds),
+            int(completionReason),
+            int(startSeconds),
+            int(timePlayedSeconds),
+            int(playerCount),
+            int(teamScore),
+            int(precisionKills),
+            int(weaponKillsGrenade),
+            int(weaponKillsMelee),
+            int(weaponKillsSuper),
+            int(weaponKillsAbility),
         )
 
 
-async def insertFailToGetPgcrInstanceId(
-    instanceID,
-    period
-):
-    """ insert an instanceID that we failed to get data for """
+async def insertFailToGetPgcrInstanceId(instanceID, period):
+    """insert an instanceID that we failed to get data for"""
 
     insert_sql = """
         INSERT INTO 
@@ -992,7 +957,7 @@ async def insertFailToGetPgcrInstanceId(
 
 
 async def getFailToGetPgcrInstanceId():
-    """ get all instanceIDs that we failed to get data for """
+    """get all instanceIDs that we failed to get data for"""
 
     select_sql = """
         SELECT 
@@ -1003,10 +968,8 @@ async def getFailToGetPgcrInstanceId():
         return await connection.fetch(select_sql)
 
 
-async def deleteFailToGetPgcrInstanceId(
-    instanceId
-):
-    """ delete instanceID that we failed to get data for """
+async def deleteFailToGetPgcrInstanceId(instanceId):
+    """delete instanceID that we failed to get data for"""
 
     delete_sql = """
         DELETE FROM 
@@ -1017,13 +980,11 @@ async def deleteFailToGetPgcrInstanceId(
         await connection.execute(delete_sql, int(instanceId))
 
 
-async def getClearCount(
-    playerid,
-    activityHashes: list = None,
-    mode: int = None
-):
-    """ Gets the full-clearcount for player <playerid> of activity <activityHash> """
-    assert not (activityHashes and mode), "You can only specify either the mode or the hashes"
+async def getClearCount(playerid, activityHashes: list = None, mode: int = None):
+    """Gets the full-clearcount for player <playerid> of activity <activityHash>"""
+    assert not (
+        activityHashes and mode
+    ), "You can only specify either the mode or the hashes"
 
     select_sql = f"""
         SELECT 
@@ -1061,9 +1022,9 @@ async def get_info_on_low_man_activity(
     player_count: int,
     destiny_id: int,
     no_checkpoints: bool = False,
-    score_threshold: bool = None
+    score_threshold: bool = None,
 ) -> list[asyncpg.Record]:
-    """ Gets the lowman [(instanceId, deaths, kills, timePlayedSeconds, period), ...] for player <membershipid> of activity list(<activityHash>) with a == <playercount>"""
+    """Gets the lowman [(instanceId, deaths, kills, timePlayedSeconds, period), ...] for player <membershipid> of activity list(<activityHash>) with a == <playercount>"""
 
     select_sql = f"""
         SELECT 
@@ -1107,17 +1068,17 @@ async def get_info_on_low_man_activity(
         ON 
             (selectedActivites.instanceID = userLowmanCompletions.instanceID)"""
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
-        return await connection.fetch(select_sql, *activity_hashes, destiny_id, player_count)
+        return await connection.fetch(
+            select_sql, *activity_hashes, destiny_id, player_count
+        )
 
 
 ################################################################
 # Emblems
 
-async def insertEmblem(
-    destiny_id: int,
-    emblem_hash: int
-) -> None:
-    """ Inserts an owned emblem to the DB"""
+
+async def insertEmblem(destiny_id: int, emblem_hash: int) -> None:
+    """Inserts an owned emblem to the DB"""
     insert_sql = """
         INSERT INTO 
             owned_emblems
@@ -1127,19 +1088,12 @@ async def insertEmblem(
         ON CONFLICT 
             DO NOTHING;"""
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
-        await connection.execute(
-            insert_sql,
-            destiny_id,
-            emblem_hash
-        )
+        await connection.execute(insert_sql, destiny_id, emblem_hash)
     print(f"{destiny_id} owns emlem {emblem_hash}")
 
 
-async def hasEmblem(
-    destiny_id: int,
-    emblem_hash: int
-) -> bool:
-    """ Returns whether the emblem is owned """
+async def hasEmblem(destiny_id: int, emblem_hash: int) -> bool:
+    """Returns whether the emblem is owned"""
     select_sql = """
         SELECT 
             emblem_hash
@@ -1157,11 +1111,8 @@ async def hasEmblem(
 # MISC
 
 
-async def getFlawlessHashes(
-    membershipid,
-    activityHashes: list
-):
-    """ returns the list of all flawless hashes the player has done in the given activityHashes """
+async def getFlawlessHashes(membershipid, activityHashes: list):
+    """returns the list of all flawless hashes the player has done in the given activityHashes"""
 
     select_sql = f"""
         SELECT 
@@ -1204,10 +1155,8 @@ async def getFlawlessHashes(
         return await connection.fetch(select_sql, membershipid, *activityHashes)
 
 
-async def getForges(
-    destinyID
-):
-    """ Returns # of forges and # of afkforges for destinyID """
+async def getForges(destinyID):
+    """Returns # of forges and # of afkforges for destinyID"""
 
     select_sql = """
         SELECT 
@@ -1234,9 +1183,9 @@ async def getActivityHistory(
     mode: int = None,
     activityHashes: list = None,
     start_time: datetime = datetime.min,
-    end_time: datetime = datetime.now()
+    end_time: datetime = datetime.now(),
 ):
-    """ Returns the activity history for destinyID as a list of tuples """
+    """Returns the activity history for destinyID as a list of tuples"""
 
     select_sql = f"""
         SELECT 
@@ -1269,9 +1218,9 @@ async def getTimePlayed(
     character_class: str = None,
     mode: Union[int, str] = None,
     start_time: datetime = datetime.min,
-    end_time: datetime = datetime.now()
+    end_time: datetime = datetime.now(),
 ) -> int:
-    """ Returns the time played in seconds for the specified time period """
+    """Returns the time played in seconds for the specified time period"""
 
     select_sql = f"""
         SELECT 
@@ -1309,9 +1258,9 @@ async def insertPgcrActivitiesUsersStatsWeapons(
     membershipId,
     weaponId,
     uniqueWeaponKills,
-    uniqueWeaponPrecisionKills
+    uniqueWeaponPrecisionKills,
 ):
-    """ Inserts an activity to the DB"""
+    """Inserts an activity to the DB"""
 
     insert_sql = """
         INSERT INTO 
@@ -1323,7 +1272,13 @@ async def insertPgcrActivitiesUsersStatsWeapons(
             DO NOTHING;"""
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
         await connection.execute(
-            insert_sql, int(instanceId), int(characterId), int(membershipId), int(weaponId), int(uniqueWeaponKills), int(uniqueWeaponPrecisionKills)
+            insert_sql,
+            int(instanceId),
+            int(characterId),
+            int(membershipId),
+            int(weaponId),
+            int(uniqueWeaponKills),
+            int(uniqueWeaponPrecisionKills),
         )
 
 
@@ -1334,10 +1289,10 @@ async def getWeaponInfo(
     mode: int = 0,
     activityID: int = None,
     start: datetime = datetime.min,
-    end: datetime = datetime.now()
+    end: datetime = datetime.now(),
 ):
-    """ Gets all the weapon info, for the given parameters.
-    Returns (instanceId, uniqueweaponkills, uniqueweaponprecisionkills) """
+    """Gets all the weapon info, for the given parameters.
+    Returns (instanceId, uniqueweaponkills, uniqueweaponprecisionkills)"""
 
     select_sql = f"""
         SELECT
@@ -1375,10 +1330,10 @@ async def getTopWeapons(
     mode: int = 0,
     activityID: int = None,
     start: datetime = datetime.min,
-    end: datetime = datetime.now()
+    end: datetime = datetime.now(),
 ):
-    """ Gets Top gun for the given parameters.
-    Returns (weaponId, uniqueweaponkills, uniqueweaponprecisionkills, weapon_name, weapon_slot) """
+    """Gets Top gun for the given parameters.
+    Returns (weaponId, uniqueweaponkills, uniqueweaponprecisionkills, weapon_name, weapon_slot)"""
 
     select_sql = f"""
         SELECT
@@ -1422,14 +1377,14 @@ async def getTopWeapons(
 ################################################################
 # LFG System
 
-async def select_lfg_message(
-    lfg_id: int = 0,
-    lfg_message_id: int = 0
-) -> asyncpg.Record:
-    """ Gets the lfg message with the specified id.
-    Returns (id, guild_id, channel_id, message_id, author_id, activity, description, start_time, max_joined_members, joined_members, alternate_members, voice_channel_id) """
 
-    assert (lfg_id or lfg_message_id), "Either lfg id or message id need to be specified"
+async def select_lfg_message(
+    lfg_id: int = 0, lfg_message_id: int = 0
+) -> asyncpg.Record:
+    """Gets the lfg message with the specified id.
+    Returns (id, guild_id, channel_id, message_id, author_id, activity, description, start_time, max_joined_members, joined_members, alternate_members, voice_channel_id)"""
+
+    assert lfg_id or lfg_message_id, "Either lfg id or message id need to be specified"
     select_sql = f"""
         SELECT 
             id, guild_id, channel_id, message_id, author_id, activity, description, start_time, creation_time, max_joined_members, joined_members, alternate_members, voice_channel_id
@@ -1455,9 +1410,9 @@ async def insert_lfg_message(
     max_joined_members: int,
     joined_members: list[int],
     alternate_members: list[int],
-    voice_channel: discord.VoiceChannel = None
+    voice_channel: discord.VoiceChannel = None,
 ):
-    """ Inserts the lfg message with the specified id """
+    """Inserts the lfg message with the specified id"""
 
     update_sql = f"""
         UPDATE 
@@ -1479,15 +1434,24 @@ async def insert_lfg_message(
             id = $12;"""
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
         await connection.execute(
-            update_sql, guild_id, channel_id, message_id, author_id, activity, description, start_time, max_joined_members, joined_members, alternate_members,
-            creation_time, lfg_message_id
+            update_sql,
+            guild_id,
+            channel_id,
+            message_id,
+            author_id,
+            activity,
+            description,
+            start_time,
+            max_joined_members,
+            joined_members,
+            alternate_members,
+            creation_time,
+            lfg_message_id,
         )
 
 
-async def delete_lfg_message(
-    lfg_message_id: int
-):
-    """ Delete the lfg message with the specified id """
+async def delete_lfg_message(lfg_message_id: int):
+    """Delete the lfg message with the specified id"""
 
     delete_sql = f"""
         DELETE FROM 
@@ -1498,11 +1462,8 @@ async def delete_lfg_message(
         await connection.execute(delete_sql, lfg_message_id)
 
 
-async def get_free_id(
-    id_column_name: str,
-    table_name: str
-) -> int:
-    """ Gets the next free id using my fancy numbering system """
+async def get_free_id(id_column_name: str, table_name: str) -> int:
+    """Gets the next free id using my fancy numbering system"""
 
     select_sql = f"""
         SELECT 
@@ -1524,7 +1485,7 @@ async def get_free_id(
 
 
 async def get_next_free_lfg_message_id() -> int:
-    """ Gets the next lfg message id and reserves it in the DB """
+    """Gets the next lfg message id and reserves it in the DB"""
 
     async with asyncio.Lock():
         free_id = await get_free_id(id_column_name="id", table_name="lfgmessages")
@@ -1537,13 +1498,28 @@ async def get_next_free_lfg_message_id() -> int:
             VALUES 
                 ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13);"""
         async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
-            await connection.execute(insert_sql, free_id, None, None, None, None, None, None, None, None, None, None, None, None)
+            await connection.execute(
+                insert_sql,
+                free_id,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+            )
 
         return free_id
 
 
 async def select_lfg_datetimes_and_users() -> list[asyncpg.Record]:
-    """ Gets the lfg message datetimes and the users to ping for scheduler events """
+    """Gets the lfg message datetimes and the users to ping for scheduler events"""
 
     select_sql = f"""
         SELECT 
@@ -1558,10 +1534,8 @@ async def select_lfg_datetimes_and_users() -> list[asyncpg.Record]:
         return await connection.fetch(select_sql)
 
 
-async def select_guild_lfg_events(
-    guild_id: int
-) -> list[asyncpg.Record]:
-    """ Gets the lfg messages for a specific guild ordered by the youngest creation date"""
+async def select_guild_lfg_events(guild_id: int) -> list[asyncpg.Record]:
+    """Gets the lfg messages for a specific guild ordered by the youngest creation date"""
 
     select_sql = f"""
         SELECT 
@@ -1576,10 +1550,8 @@ async def select_guild_lfg_events(
         return await connection.fetch(select_sql, guild_id)
 
 
-async def get_lfg_blacklisted_members(
-    user_id: int
-) -> list[int]:
-    """ Returns the blacklisted member_ids """
+async def get_lfg_blacklisted_members(user_id: int) -> list[int]:
+    """Returns the blacklisted member_ids"""
 
     select_sql = f"""
         SELECT 
@@ -1593,11 +1565,8 @@ async def get_lfg_blacklisted_members(
         return res if res else []
 
 
-async def add_lfg_blacklisted_member(
-    user_id: int,
-    to_blacklist_user_id: int
-):
-    """ Adds a member to the users blacklist """
+async def add_lfg_blacklisted_member(user_id: int, to_blacklist_user_id: int):
+    """Adds a member to the users blacklist"""
 
     # get current blacklist
     to_blacklist_user_ids = await get_lfg_blacklisted_members(user_id)
@@ -1619,11 +1588,8 @@ async def add_lfg_blacklisted_member(
         await connection.execute(insert_sql, user_id, to_blacklist_user_ids)
 
 
-async def remove_lfg_blacklisted_member(
-    user_id: int,
-    to_blacklist_user_id: int
-):
-    """ Remove a member from the users blacklist """
+async def remove_lfg_blacklisted_member(user_id: int, to_blacklist_user_id: int):
+    """Remove a member from the users blacklist"""
 
     # get current blacklist
     to_blacklist_user_ids = await get_lfg_blacklisted_members(user_id)
@@ -1648,10 +1614,9 @@ async def remove_lfg_blacklisted_member(
 ################################################################
 # RSS Feed Reader
 
-async def rss_item_exist(
-    item_id: str
-) -> bool:
-    """ Check if an RSS item exists, meaning we already send its info to a channel """
+
+async def rss_item_exist(item_id: str) -> bool:
+    """Check if an RSS item exists, meaning we already send its info to a channel"""
 
     select_sql = f"""
         SELECT 
@@ -1665,10 +1630,8 @@ async def rss_item_exist(
         return bool(await connection.fetchval(select_sql, item_id))
 
 
-async def rss_item_add(
-    item_id: str
-) -> None:
-    """ Add an RSS item to the DB """
+async def rss_item_add(item_id: str) -> None:
+    """Add an RSS item to the DB"""
 
     insert_sql = f"""
         INSERT INTO 
@@ -1684,12 +1647,10 @@ async def rss_item_add(
 ################################################################
 # Polls
 
-async def get_poll(
-    poll_id: int = None,
-    poll_message_id: int = None
-) -> asyncpg.Record:
-    """ Get Poll Info """
-    assert (poll_id or poll_message_id), "Only one param can be chosen and one must be"
+
+async def get_poll(poll_id: int = None, poll_message_id: int = None) -> asyncpg.Record:
+    """Get Poll Info"""
+    assert poll_id or poll_message_id, "Only one param can be chosen and one must be"
 
     select_sql = f"""
         SELECT 
@@ -1701,10 +1662,7 @@ async def get_poll(
     """
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
         await connection.set_type_codec(
-            'json',
-            encoder=json.dumps,
-            decoder=json.loads,
-            schema='pg_catalog'
+            "json", encoder=json.dumps, decoder=json.loads, schema="pg_catalog"
         )
         return await connection.fetchrow(select_sql, poll_id or poll_message_id)
 
@@ -1717,9 +1675,9 @@ async def insert_poll(
     guild_id: int,
     channel_id: int,
     message_id: int,
-    poll_id: int = None
+    poll_id: int = None,
 ) -> int:
-    """ Insert / Update Poll. Gets a random ID if none gets specified. Returns the ID """
+    """Insert / Update Poll. Gets a random ID if none gets specified. Returns the ID"""
 
     async with asyncio.Lock():
         if not poll_id:
@@ -1743,10 +1701,17 @@ async def insert_poll(
         """
         async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
             await connection.set_type_codec(
-                'json',
-                encoder=json.dumps,
-                decoder=json.loads,
-                schema='pg_catalog'
+                "json", encoder=json.dumps, decoder=json.loads, schema="pg_catalog"
             )
-            await connection.execute(insert_sql, poll_id, poll_name, poll_description, poll_data, author_id, guild_id, channel_id, message_id)
+            await connection.execute(
+                insert_sql,
+                poll_id,
+                poll_name,
+                poll_description,
+                poll_data,
+                author_id,
+                guild_id,
+                channel_id,
+                message_id,
+            )
             return poll_id

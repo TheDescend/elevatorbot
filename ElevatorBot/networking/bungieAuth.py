@@ -3,20 +3,22 @@ from typing import Optional
 
 import aiohttp
 
-from ElevatorBot.database.database import getRefreshToken, lookupDestinyID, updateToken, getToken, getTokenExpiry
+from ElevatorBot.database.database import (
+    getRefreshToken,
+    lookupDestinyID,
+    updateToken,
+    getToken,
+    getTokenExpiry,
+)
 from ElevatorBot.networking.models import BungieToken
 from ElevatorBot.networking.networkBackend import post_request
 from ElevatorBot.static.config import B64_SECRET
 
 
-async def handle_and_return_token(
-    discord_id: int
-) -> BungieToken:
-    """ Returns token if exists with an error message """
+async def handle_and_return_token(discord_id: int) -> BungieToken:
+    """Returns token if exists with an error message"""
 
-    token = BungieToken(
-        token=await getToken(discord_id)
-    )
+    token = BungieToken(token=await getToken(discord_id))
     if not token.token:
         token.error = "User has not registered"
         return token
@@ -31,7 +33,9 @@ async def handle_and_return_token(
 
     # check refresh token first, since they need to re-register otherwise
     if current_time > expiry[1]:
-        token.error = "Registration is outdated, please re-register using `/registerdesc"
+        token.error = (
+            "Registration is outdated, please re-register using `/registerdesc"
+        )
         return token
 
     # refresh token if outdated
@@ -44,18 +48,16 @@ async def handle_and_return_token(
     return token
 
 
-async def refresh_token(
-    discord_id: int
-) -> Optional[str]:
+async def refresh_token(discord_id: int) -> Optional[str]:
     """
     takes the discord snowflakes, writes a new refresh token, access token to the DB and
     returns the access token or None if failed
     """
 
-    url = 'https://www.bungie.net/platform/app/oauth/token/'
+    url = "https://www.bungie.net/platform/app/oauth/token/"
     oauth_headers = {
-        'content-type': 'application/x-www-form-urlencoded',
-        'authorization': 'Basic ' + str(B64_SECRET)
+        "content-type": "application/x-www-form-urlencoded",
+        "authorization": "Basic " + str(B64_SECRET),
     }
     oauth_refresh_token = await getRefreshToken(discord_id)
     if not oauth_refresh_token:
@@ -79,13 +81,20 @@ async def refresh_token(
             bungie_request=True,
         )
         if response:
-            access_token = response.content['access_token']
-            new_refresh_token = response.content['refresh_token']
-            token_expiry = current_time + response.content['expires_in']
-            refresh_token_expiry = current_time + response.content['refresh_expires_in']
+            access_token = response.content["access_token"]
+            new_refresh_token = response.content["refresh_token"]
+            token_expiry = current_time + response.content["expires_in"]
+            refresh_token_expiry = current_time + response.content["refresh_expires_in"]
 
             # update db entry
-            await updateToken(destiny_id, discord_id, access_token, new_refresh_token, token_expiry, refresh_token_expiry)
+            await updateToken(
+                destiny_id,
+                discord_id,
+                access_token,
+                new_refresh_token,
+                token_expiry,
+                refresh_token_expiry,
+            )
 
             return access_token
 

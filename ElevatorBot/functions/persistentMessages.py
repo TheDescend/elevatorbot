@@ -3,16 +3,20 @@ from typing import Union, Optional
 
 import discord
 
-from ElevatorBot.database.database import get_persistent_message, insertPersistentMessage, \
-    getallSteamJoinIDs, updatePersistentMessage, getAllPersistentMessages, deletePersistentMessage
+from ElevatorBot.database.database import (
+    get_persistent_message,
+    insertPersistentMessage,
+    getallSteamJoinIDs,
+    updatePersistentMessage,
+    getAllPersistentMessages,
+    deletePersistentMessage,
+)
 from ElevatorBot.functions.formating import embed_message
 from ElevatorBot.networking.bungieAuth import handle_and_return_token
 
 
 async def get_persistent_message_or_channel(
-    client: discord.Client,
-    message_name: str,
-    guild_id: int
+    client: discord.Client, message_name: str, guild_id: int
 ) -> Optional[Union[discord.VoiceChannel, discord.TextChannel, discord.Message]]:
     """
     Gets the persistent message for the specified name and guild and channel. If it doesnt exist, it will return the channel and if that doesnt exit it will return False
@@ -26,7 +30,9 @@ async def get_persistent_message_or_channel(
         return None
 
     # otherwise return message. Return False should bot_status be asked for on other servers then descend
-    channel: Union[discord.VoiceChannel, discord.TextChannel] = client.get_channel(res[0])
+    channel: Union[discord.VoiceChannel, discord.TextChannel] = client.get_channel(
+        res[0]
+    )
     if not channel:
         return None
     try:
@@ -45,7 +51,7 @@ async def make_persistent_message(
     components: dict = None,
     message_text=None,
     message_embed=None,
-    no_message=False
+    no_message=False,
 ):
     """
     Creates a new persistent message entry in the DB or changes the old one
@@ -57,12 +63,16 @@ async def make_persistent_message(
 
     message = None
     if not no_message:
-        assert (message_text or message_embed), "Need to input either text or embed"
-        assert (not (message_text and message_embed)), "Need to input either text or embed, not both"
+        assert message_text or message_embed, "Need to input either text or embed"
+        assert not (
+            message_text and message_embed
+        ), "Need to input either text or embed, not both"
 
         # make new message
         channel = client.get_channel(channel_id)
-        message = await channel.send(content=message_text, embed=message_embed, components=components)
+        message = await channel.send(
+            content=message_text, embed=message_embed, components=components
+        )
 
         # react if wanted
         for emoji_id in reaction_id_list:
@@ -83,30 +93,35 @@ async def make_persistent_message(
         except discord.errors.NotFound:
             pass
 
-        await updatePersistentMessage(message_name, guild_id, channel_id, message.id if message else 0, reaction_id_list)
+        await updatePersistentMessage(
+            message_name,
+            guild_id,
+            channel_id,
+            message.id if message else 0,
+            reaction_id_list,
+        )
 
     # insert
     else:
-        await insertPersistentMessage(message_name, guild_id, channel_id, message.id if message else 0, reaction_id_list)
+        await insertPersistentMessage(
+            message_name,
+            guild_id,
+            channel_id,
+            message.id if message else 0,
+            reaction_id_list,
+        )
 
     return message
 
 
-async def delete_persistent_message(
-    message,
-    message_name,
-    guild_id
-):
-    """ Delete the persistent message for the specified name and guild """
+async def delete_persistent_message(message, message_name, guild_id):
+    """Delete the persistent message for the specified name and guild"""
 
     await message.delete()
     await deletePersistentMessage(message_name, guild_id)
 
 
-async def check_reaction_for_persistent_message(
-    client,
-    payload
-):
+async def check_reaction_for_persistent_message(client, payload):
     # get all persistent messages
     persistent_messages = await getAllPersistentMessages()
 
@@ -116,14 +131,12 @@ async def check_reaction_for_persistent_message(
 
         # if it was, handle it
         if payload.message_id == persistent_message_id:
-            await handle_persistent_message_reaction(client, payload, persistent_message)
+            await handle_persistent_message_reaction(
+                client, payload, persistent_message
+            )
 
 
-async def handle_persistent_message_reaction(
-    client,
-    payload,
-    persistent_message
-):
+async def handle_persistent_message_reaction(client, payload, persistent_message):
     message_name = persistent_message[0]
     guild_id = persistent_message[1]
     channel_id = persistent_message[2]
@@ -145,15 +158,12 @@ async def handle_persistent_message_reaction(
             await payload.member.send(
                 embed=embed_message(
                     "Error",
-                    "You need to register first before you can join a tournament. \nTo do that please use `/registerdesc` in <#670401854496309268>"
+                    "You need to register first before you can join a tournament. \nTo do that please use `/registerdesc` in <#670401854496309268>",
                 )
             )
 
 
-async def steamJoinCodeMessage(
-    client,
-    guild
-):
+async def steamJoinCodeMessage(client, guild):
     # get all IDs
     data = await getallSteamJoinIDs()
 
@@ -167,10 +177,10 @@ async def steamJoinCodeMessage(
             continue
 
     # sort and put in two lists
-    sorted_data = {k: str(v) for k, v in sorted(
-        clean_data.items(), key=lambda
-            item: item[0], reverse=False
-    )}
+    sorted_data = {
+        k: str(v)
+        for k, v in sorted(clean_data.items(), key=lambda item: item[0], reverse=False)
+    }
 
     # put in two lists for the embed
     name = list(sorted_data.keys())
@@ -179,7 +189,7 @@ async def steamJoinCodeMessage(
     # create new message
     embed = embed_message(
         "Steam Join Codes",
-        "Here you can find a updated list of Steam Join Codes. \nUse `/id set <id>` to set appear here and `/id get <user>` to find a code without looking here"
+        "Here you can find a updated list of Steam Join Codes. \nUse `/id set <id>` to set appear here and `/id get <user>` to find a code without looking here",
     )
 
     # add name field
@@ -189,16 +199,16 @@ async def steamJoinCodeMessage(
     embed.add_field(name="Code", value="\n".join(code), inline=True)
 
     # get msg object
-    message = await get_persistent_message_or_channel(client, "steamJoinCodes", guild.id)
+    message = await get_persistent_message_or_channel(
+        client, "steamJoinCodes", guild.id
+    )
 
     # edit msg
     await message.edit(embed=embed)
 
 
 async def bot_status(
-    client: discord.Client,
-    field_name: str,
-    time: datetime.datetime
+    client: discord.Client, field_name: str, time: datetime.datetime
 ) -> None:
     """
     takes the field (name) and the timestamp of last update
@@ -221,9 +231,7 @@ async def bot_status(
     if not message:
         return
 
-    embed = embed_message(
-        "Status: Last valid..."
-    )
+    embed = embed_message("Status: Last valid...")
 
     embeds = message.embeds[0]
     fields = embeds.fields
@@ -231,7 +239,11 @@ async def bot_status(
     found = False
     formated_time = f"""{time.strftime("%d/%m/%Y, %H:%M")} UTC"""
     for field in fields:
-        embed.add_field(name=field.name, value=formated_time if field.name == field_name else field.value, inline=True)
+        embed.add_field(
+            name=field.name,
+            value=formated_time if field.name == field_name else field.value,
+            inline=True,
+        )
         if field.name == field_name:
             found = True
 

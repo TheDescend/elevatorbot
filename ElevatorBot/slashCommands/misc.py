@@ -19,13 +19,8 @@ from ElevatorBot.static.slashCommandOptions import options_user
 
 
 class MiscCommands(commands.Cog):
-
-    def __init__(
-        self,
-        client
-    ):
+    def __init__(self, client):
         self.client = client
-
 
     @cog_ext.cog_subcommand(
         base="poll",
@@ -37,22 +32,17 @@ class MiscCommands(commands.Cog):
                 name="name",
                 description="The name the poll should have",
                 option_type=3,
-                required=True
+                required=True,
             ),
             create_option(
                 name="description",
                 description="The description the poll should have",
                 option_type=3,
-                required=True
+                required=True,
             ),
-        ]
+        ],
     )
-    async def _poll_create(
-        self,
-        ctx: SlashContext,
-        name: str,
-        description: str
-    ):
+    async def _poll_create(self, ctx: SlashContext, name: str, description: str):
         await create_poll_object(
             ctx=ctx,
             name=name,
@@ -60,7 +50,6 @@ class MiscCommands(commands.Cog):
             guild=ctx.guild,
             channel=ctx.channel,
         )
-
 
     @cog_ext.cog_subcommand(
         base="poll",
@@ -72,22 +61,17 @@ class MiscCommands(commands.Cog):
                 name="poll_id",
                 description="The id of the poll",
                 option_type=3,
-                required=True
+                required=True,
             ),
             create_option(
                 name="option",
                 description="The name the option should have",
                 option_type=3,
-                required=True
+                required=True,
             ),
-        ]
+        ],
     )
-    async def _poll_add(
-        self,
-        ctx: SlashContext,
-        poll_id: str,
-        option: str
-    ):
+    async def _poll_add(self, ctx: SlashContext, poll_id: str, option: str):
         poll = await get_poll_object(
             guild=ctx.guild,
             poll_id=poll_id,
@@ -97,17 +81,18 @@ class MiscCommands(commands.Cog):
                 hidden=True,
                 embed=embed_message(
                     "Error",
-                    f"Poll with `poll_id = {poll_id}` was not found in this guild"
-                )
+                    f"Poll with `poll_id = {poll_id}` was not found in this guild",
+                ),
             )
         else:
             # check if user is allowed
-            if ctx.author == poll.author or await has_elevated_permissions(user=ctx.author, guild=ctx.guild, ctx=ctx):
+            if ctx.author == poll.author or await has_elevated_permissions(
+                user=ctx.author, guild=ctx.guild, ctx=ctx
+            ):
                 await poll.add_new_option(
                     ctx=ctx,
                     option=option,
                 )
-
 
     @cog_ext.cog_subcommand(
         base="poll",
@@ -119,22 +104,17 @@ class MiscCommands(commands.Cog):
                 name="poll_id",
                 description="The id of the poll",
                 option_type=3,
-                required=True
+                required=True,
             ),
             create_option(
                 name="option",
                 description="The name of the option",
                 option_type=3,
-                required=True
+                required=True,
             ),
-        ]
+        ],
     )
-    async def _poll_remove(
-        self,
-        ctx: SlashContext,
-        poll_id: str,
-        option: str
-    ):
+    async def _poll_remove(self, ctx: SlashContext, poll_id: str, option: str):
         poll = await get_poll_object(
             guild=ctx.guild,
             poll_id=poll_id,
@@ -144,17 +124,18 @@ class MiscCommands(commands.Cog):
                 hidden=True,
                 embed=embed_message(
                     "Error",
-                    f"Poll with `poll_id = {poll_id}` was not found in this guild"
-                )
+                    f"Poll with `poll_id = {poll_id}` was not found in this guild",
+                ),
             )
         else:
             # check if user is allowed
-            if ctx.author == poll.author or await has_elevated_permissions(user=ctx.author, guild=ctx.guild, ctx=ctx):
+            if ctx.author == poll.author or await has_elevated_permissions(
+                user=ctx.author, guild=ctx.guild, ctx=ctx
+            ):
                 await poll.remove_option(
                     ctx=ctx,
                     option=option,
                 )
-
 
     @cog_ext.cog_subcommand(
         base="poll",
@@ -166,15 +147,11 @@ class MiscCommands(commands.Cog):
                 name="poll_id",
                 description="The id of the poll",
                 option_type=3,
-                required=True
+                required=True,
             ),
-        ]
+        ],
     )
-    async def _poll_disable(
-        self,
-        ctx: SlashContext,
-        poll_id: str
-    ):
+    async def _poll_disable(self, ctx: SlashContext, poll_id: str):
         poll = await get_poll_object(
             guild=ctx.guild,
             poll_id=poll_id,
@@ -184,16 +161,15 @@ class MiscCommands(commands.Cog):
                 hidden=True,
                 embed=embed_message(
                     "Error",
-                    f"Poll with `poll_id = {poll_id}` was not found in this guild"
-                )
+                    f"Poll with `poll_id = {poll_id}` was not found in this guild",
+                ),
             )
         else:
             # check if user is allowed
-            if ctx.author == poll.author or await has_elevated_permissions(user=ctx.author, guild=ctx.guild, ctx=ctx):
-                await poll.disable(
-                    edit_ctx=ctx
-                )
-
+            if ctx.author == poll.author or await has_elevated_permissions(
+                user=ctx.author, guild=ctx.guild, ctx=ctx
+            ):
+                await poll.disable(edit_ctx=ctx)
 
     @cog_ext.cog_slash(
         name="socialist",
@@ -201,42 +177,34 @@ class MiscCommands(commands.Cog):
         default_permission=False,
         permissions=permissions_socialist,
     )
-    async def _socialist(
-        self,
-        ctx: SlashContext
-    ):
+    async def _socialist(self, ctx: SlashContext):
         await ctx.send("No 🙃")
 
-
-    @cog_ext.cog_slash(
-        name="boosters",
-        description="Prints all premium subscribers"
-    )
-    async def _boosters(
-        self,
-        ctx: SlashContext
-    ):
+    @cog_ext.cog_slash(name="boosters", description="Prints all premium subscribers")
+    async def _boosters(self, ctx: SlashContext):
         sorted_premium_subscribers = sorted(
-            ctx.guild.premium_subscribers, key=lambda
-                m: m.premium_since, reverse=True
+            ctx.guild.premium_subscribers, key=lambda m: m.premium_since, reverse=True
         )
 
         embed = embed_message(
             f"{ctx.guild.name} Nitro Boosters",
-            ",\n".join(['**' + f"{m.display_name:<30}" + "** since: " + m.premium_since.strftime('%d/%m/%Y, %H:%M') for m in sorted_premium_subscribers])
+            ",\n".join(
+                [
+                    "**"
+                    + f"{m.display_name:<30}"
+                    + "** since: "
+                    + m.premium_since.strftime("%d/%m/%Y, %H:%M")
+                    for m in sorted_premium_subscribers
+                ]
+            ),
         )
 
         await ctx.send(embed=embed)
 
-
     @cog_ext.cog_slash(
-        name="funfact",
-        description="Very fun fun facts just for the funny fun of it"
+        name="funfact", description="Very fun fun facts just for the funny fun of it"
     )
-    async def _funfact(
-        self,
-        ctx: SlashContext
-    ):
+    async def _funfact(self, ctx: SlashContext):
         await ctx.defer()
 
         url = "https://uselessfacts.jsph.pl/random.json?language=en"
@@ -249,25 +217,15 @@ class MiscCommands(commands.Cog):
                     text = "Offline servers make it difficult to get fun facts :("
 
                 await ctx.send(
-                    embed=embed_message(
-                        'Did you know?',
-                        text.replace("`", "'")
-                    )
+                    embed=embed_message("Did you know?", text.replace("`", "'"))
                 )
-
 
     @cog_ext.cog_slash(
         name="muteme",
         description="I wonder what this does...",
-        options=[
-            options_user()
-        ]
+        options=[options_user()],
     )
-    async def _muteme(
-        self,
-        ctx: SlashContext,
-        **kwargs
-    ):
+    async def _muteme(self, ctx: SlashContext, **kwargs):
         await ctx.defer()
 
         user = await get_user_obj(ctx, kwargs)
@@ -282,7 +240,9 @@ class MiscCommands(commands.Cog):
 
         await author.send("Introducing a new feature: **gambling!**")
         await asyncio.sleep(1)
-        await author.send("Let me roll the dice for you, I can't wait to see if you win the jackpot")
+        await author.send(
+            "Let me roll the dice for you, I can't wait to see if you win the jackpot"
+        )
         await asyncio.sleep(2)
         await author.send("_Rolling dice..._")
         await asyncio.sleep(5)
@@ -295,13 +255,21 @@ class MiscCommands(commands.Cog):
                 ) as resp:
                     if resp.status == 200:
                         data = io.BytesIO(await resp.read())
-                        await author.send(file=discord.File(data, 'congratulations.png'))
+                        await author.send(
+                            file=discord.File(data, "congratulations.png")
+                        )
 
-            await author.send(f"You won the jackpot! That's a timeout of **{timeout} minutes** for you, enjoy!")
+            await author.send(
+                f"You won the jackpot! That's a timeout of **{timeout} minutes** for you, enjoy!"
+            )
         else:
-            await author.send(f"You won a timout of **{timeout} minutes**, congratulations!!!")
+            await author.send(
+                f"You won a timout of **{timeout} minutes**, congratulations!!!"
+            )
             await asyncio.sleep(2)
-            await author.send("Better luck next time if you were hunting for the jackpot")
+            await author.send(
+                "Better luck next time if you were hunting for the jackpot"
+            )
 
         # add muted role
         print(f"Muting {author.display_name} for {timeout} minutes")
@@ -314,42 +282,28 @@ class MiscCommands(commands.Cog):
         author = await guild.fetch_member(author.id)
 
         await removeRolesFromUser([muted_role_id], author, guild)
-        await author.send("Sadly your victory is no more. Hope to see you back again soon!")
+        await author.send(
+            "Sadly your victory is no more. Hope to see you back again soon!"
+        )
 
-
-    @cog_ext.cog_slash(
-        name="saymyname",
-        description="Say your name"
-    )
-    async def _saymyname(
-        self,
-        ctx: SlashContext
-    ):
+    @cog_ext.cog_slash(name="saymyname", description="Say your name")
+    async def _saymyname(self, ctx: SlashContext):
         await ctx.send(ctx.author.display_name, tts=True)
-
 
     @cog_ext.cog_slash(
         name="discordjoindate",
         description="Check your join date of this discord server",
-        options=[
-            options_user()
-        ]
+        options=[options_user()],
     )
-    async def _discordjoindate(
-        self,
-        ctx: SlashContext,
-        **kwargs
-    ):
+    async def _discordjoindate(self, ctx: SlashContext, **kwargs):
         user = await get_user_obj(ctx, kwargs)
         await ctx.send(
             embed=embed_message(
                 f"{user.display_name}'s Discord Join Date",
-                f'You joined on `{user.joined_at.strftime("%d/%m/%Y, %H:%M")}`'
+                f'You joined on `{user.joined_at.strftime("%d/%m/%Y, %H:%M")}`',
             )
         )
 
 
-def setup(
-    client
-):
+def setup(client):
     client.add_cog(MiscCommands(client))

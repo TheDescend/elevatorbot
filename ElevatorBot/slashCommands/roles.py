@@ -13,28 +13,17 @@ from ElevatorBot.static.slashCommandOptions import options_user
 
 
 class RoleCommands(commands.Cog):
-
-    def __init__(
-        self,
-        client
-    ):
+    def __init__(self, client):
         self.client = client
-
 
     @cog_ext.cog_subcommand(
         base="roles",
         base_description="Various commands concerning Destiny 2 achievement discord roles",
         name="overview",
         description="Shows you what roles you can still achieve in this clan",
-        options=[
-            options_user()
-        ]
+        options=[options_user()],
     )
-    async def _roles_overview(
-        self,
-        ctx: SlashContext,
-        **kwargs
-    ):
+    async def _roles_overview(self, ctx: SlashContext, **kwargs):
         user = await get_user_obj(ctx, kwargs)
 
         # might take a sec
@@ -44,41 +33,44 @@ class RoleCommands(commands.Cog):
         active_roles, deprecated_roles = self.missingRoles(user)
 
         # do the missing roles display
-        embed = embed_message(
-            f"{user.display_name}'s missing Roles"
-        )
+        embed = embed_message(f"{user.display_name}'s missing Roles")
         embed.add_field(name="⁣", value=f"__**Achievable Roles:**__", inline=False)
 
         # only do this if there are roles to get
         if active_roles:
             for topic in active_roles:
-                embed.add_field(name=topic, value=("\n".join(active_roles[topic]) or "None"), inline=True)
+                embed.add_field(
+                    name=topic,
+                    value=("\n".join(active_roles[topic]) or "None"),
+                    inline=True,
+                )
         else:
-            embed.add_field(name="Wow, you got every single role that is currently achievable. Congrats!", value="⁣", inline=False)
+            embed.add_field(
+                name="Wow, you got every single role that is currently achievable. Congrats!",
+                value="⁣",
+                inline=False,
+            )
 
         # Do the same for the deprecated roles
         if deprecated_roles:
             embed.add_field(name="⁣", value=f"__**Deprecated Roles:**__", inline=False)
             for topic in deprecated_roles:
-                embed.add_field(name=topic, value=("\n".join(deprecated_roles[topic]) or "None"), inline=True)
+                embed.add_field(
+                    name=topic,
+                    value=("\n".join(deprecated_roles[topic]) or "None"),
+                    inline=True,
+                )
 
         await ctx.send(embed=embed)
-
 
     @cog_ext.cog_subcommand(
         base="roles",
         base_description="Various commands concerning Destiny 2 achievement discord roles",
         name="get",
         description="Assigns you all the roles you've earned",
-        options=[
-            options_user(flavor_text="Requires elevated permissions")
-        ]
+        options=[options_user(flavor_text="Requires elevated permissions")],
     )
-    async def _roles_get(
-        self,
-        ctx: SlashContext,
-        **kwargs
-    ):
+    async def _roles_get(self, ctx: SlashContext, **kwargs):
         # check perm for mention, otherwise abort
         user = await get_user_obj_admin(ctx, kwargs)
         if not user:
@@ -97,14 +89,19 @@ class RoleCommands(commands.Cog):
 
         # get new roles
         roles_at_start = [role.name for role in user.roles]
-        roles_to_add, roles_to_remove, all_roles_earned, all_roles_not_earned = await get_player_roles(user, destiny_player, roles_at_start)
+        (
+            roles_to_add,
+            roles_to_remove,
+            all_roles_earned,
+            all_roles_not_earned,
+        ) = await get_player_roles(user, destiny_player, roles_at_start)
 
         # if user has no roles show
         if not all_roles_earned:
             await ctx.send(
                 embed=embed_message(
-                    'Info',
-                    f'You don\'t seem to have any roles.\nIf you believe this is an Error, refer to one of the <@&{dev_role_id}>\nOtherwise check <#686568386590802000> to see what you could acquire'
+                    "Info",
+                    f"You don't seem to have any roles.\nIf you believe this is an Error, refer to one of the <@&{dev_role_id}>\nOtherwise check <#686568386590802000> to see what you could acquire",
                 )
             )
             return
@@ -143,11 +140,12 @@ class RoleCommands(commands.Cog):
 
         # construct reply msg
         embed = embed_message(
-            f"{user.display_name}'s new Roles",
-            f'__Previous Roles:__'
+            f"{user.display_name}'s new Roles", f"__Previous Roles:__"
         )
         if not old_roles:
-            embed.add_field(name=f"You didn't have any roles before", value="⁣", inline=True)
+            embed.add_field(
+                name=f"You didn't have any roles before", value="⁣", inline=True
+            )
 
         for topic in old_roles:
             roles = []
@@ -157,7 +155,9 @@ class RoleCommands(commands.Cog):
 
         embed.add_field(name="⁣", value=f"__New Roles:__", inline=False)
         if not new_roles:
-            embed.add_field(name="No new roles have been achieved", value="⁣", inline=True)
+            embed.add_field(
+                name="No new roles have been achieved", value="⁣", inline=True
+            )
 
         for topic in new_roles:
             roles = []
@@ -166,7 +166,6 @@ class RoleCommands(commands.Cog):
             embed.add_field(name=topic, value="\n".join(new_roles[topic]), inline=True)
 
         await ctx.send(embed=embed)
-
 
     @cog_ext.cog_subcommand(
         base="roles",
@@ -178,16 +177,12 @@ class RoleCommands(commands.Cog):
                 name="role",
                 description="The name of the role you want to look up",
                 option_type=8,
-                required=True
+                required=True,
             ),
-            options_user()
-        ]
+            options_user(),
+        ],
     )
-    async def _roles_requirements(
-        self,
-        ctx: SlashContext,
-        **kwargs
-    ):
+    async def _roles_requirements(self, ctx: SlashContext, **kwargs):
         user = await get_user_obj(ctx, kwargs)
         role = kwargs["role"]
 
@@ -205,28 +200,23 @@ class RoleCommands(commands.Cog):
 
         if not reqs:
             await ctx.send(
-                hidden=True, embed=embed_message(
+                hidden=True,
+                embed=embed_message(
                     f"Error",
-                    f"This role can't be achieved through Destiny 2 \nPlease try again with a different role"
-                )
+                    f"This role can't be achieved through Destiny 2 \nPlease try again with a different role",
+                ),
             )
 
         else:
             # construct reply msg
-            embed = embed_message(
-                f"{user.display_name}'s '{role.name}' Eligibility"
-            )
+            embed = embed_message(f"{user.display_name}'s '{role.name}' Eligibility")
 
             for req in reqs[1]:
                 embed.add_field(name=req, value=reqs[1][req], inline=True)
 
             await ctx.send(embed=embed)
 
-
-    def missingRoles(
-        self,
-        user
-    ):
+    def missingRoles(self, user):
         roles = {}
         deprecated_roles = {}
 
@@ -264,8 +254,8 @@ class RoleCommands(commands.Cog):
         # remove those roles, where a superior role exists
         for category, x in requirementHashes.items():
             for role, roledata in x.items():
-                if 'replaced_by' in roledata.keys():
-                    for superior in roledata['replaced_by']:
+                if "replaced_by" in roledata.keys():
+                    for superior in roledata["replaced_by"]:
                         if superior in user_roles:
                             for category in roles:
                                 try:
@@ -291,7 +281,5 @@ class RoleCommands(commands.Cog):
         return roles, deprecated_roles
 
 
-def setup(
-    client
-):
+def setup(client):
     client.add_cog(RoleCommands(client))
