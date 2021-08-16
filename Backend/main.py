@@ -1,5 +1,7 @@
 from fastapi import Depends, FastAPI
 
+from Backend.database.base import Base, engine
+from Backend.database.models import create_tables
 from Backend.dependencies import get_query_token, get_token_header
 from Backend.internal import admin
 from Backend.routers import items
@@ -20,3 +22,14 @@ app.include_router(
 @app.get("/")
 async def root():
     return {"message": "Hello Bigger Applications!"}
+
+
+
+@app.on_event("startup")
+async def startup():
+    # create db tables
+    async with engine.begin() as connection:
+        await create_tables(connection)
+
+
+# https://towardsdatascience.com/build-an-async-python-service-with-fastapi-sqlalchemy-196d8792fa08
