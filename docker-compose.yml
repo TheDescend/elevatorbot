@@ -4,7 +4,7 @@ services:
   backend:
     build: ./Backend
     ports:
-      - "1337:1337"
+      - "80:1337"
     volumes:
       - ./Backend:/app/Backend
       - ./logs/Backend:/app/Backend/logs
