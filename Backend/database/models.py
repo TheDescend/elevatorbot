@@ -15,7 +15,22 @@ class Book(Base):
     release_year = Column(Integer, nullable=False)
 
 
-""" all table models are in here, allowing for easy generation """
+""" All table models are in here, allowing for easy generation """
+
+################################################################
+# Authentication
+
+
+class BackendUser(Base):
+    __tablename__ = 'backendUser'
+
+    user_name = Column(Text, primary_key=True)
+    hashed_password = Column(Text)          # this includes salt
+    allowed_scopes = Column(ARRAY(Text()))   # where access is allowed. Empty for full access maybe?
+    has_write_permission = Column(Boolean)
+    has_read_permission = Column(Boolean)
+    disabled = Column(Boolean, default=False)
+
 
 ################################################################
 # Activities

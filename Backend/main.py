@@ -2,23 +2,17 @@ import os
 
 from fastapi import Depends, FastAPI
 
-from Backend.database.base import Base, engine
-from Backend.database.models import create_tables
-from Backend.dependencies import get_query_token, get_token_header
-from Backend.internal import admin
-from Backend.routers import items
+from Backend.database.base import DATABASE_URL, engine
+from Backend.database.models import BackendUser, create_tables
+from Backend.dependencies.auth import auth_get_user_with_read_perm, auth_get_user_with_write_perm
+from Backend.routers import items, auth
+from Backend.schemas.auth import BackendUserModel
 
 
-app = FastAPI(dependencies=[Depends(get_query_token)])
+app = FastAPI()
 
 app.include_router(items.router)
-app.include_router(
-    admin.router,
-    prefix="/admin",
-    tags=["admin"],
-    dependencies=[Depends(get_token_header)],
-    responses={418: {"description": "I'm a teapot"}},
-)
+app.include_router(auth.router)
 
 
 @app.get("/")
@@ -26,12 +20,21 @@ async def root():
     return {"message": "Hello Bigger Applications!"}
 
 
+# only allow people with read permissions
+@app.get("/read_perm", response_model=BackendUserModel)
+async def read_perm(user: BackendUser = Depends(auth_get_user_with_read_perm)):
+    return BackendUserModel.from_orm(user)
+
+
+# only allow people with write permissions
+@app.get("/write_perm", response_model=BackendUserModel)
+async def write_perm(user: BackendUser = Depends(auth_get_user_with_write_perm)):
+    return BackendUserModel.from_orm(user)
+
 
 @app.on_event("startup")
 async def startup():
-    DATABASE_URL = f"""postgresql+asyncpg://{os.environ.get("POSTGRES_USER")}:{os.environ.get("POSTGRES_PASSWORD")}@{os.environ.get("POSTGRES_HOST")}/{os.environ.get("POSTGRES_DB")}"""
     print(DATABASE_URL)
-
     # create db tables
     async with engine.begin() as connection:
         await create_tables(connection)

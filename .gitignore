@@ -49,3 +49,4 @@ ElevatorBot/database/databasemutation.py
 /Website/node_modules/
 /Database/
 /DatabaseBackups/
+**/secrets.py

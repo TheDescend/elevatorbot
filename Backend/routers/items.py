@@ -1,12 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException
 
 from Backend.database.dataAccessLayers.book import BookDAL
-from Backend.dependencies import get_book, get_token_header
+from Backend.dependencies.databaseObjects import get_book
 
 router = APIRouter(
     prefix="/items",
     tags=["items"],
-    dependencies=[Depends(get_token_header)],
     responses={404: {"description": "Not found"}},
 )
 

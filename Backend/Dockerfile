@@ -1,6 +1,5 @@
 FROM winnerokay/uvicorn-gunicorn:python3.9
 
-ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH "${PYTHONPATH}:/app"
 
 COPY requirements.txt .
