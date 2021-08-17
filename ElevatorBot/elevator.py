@@ -47,6 +47,7 @@ from functions.persistentMessages import (
 from functions.poll import get_poll_object
 from functions.roleLookup import assignRolesToUser, removeRolesFromUser
 from init_logging import init_logging
+from settings import SYNC_COMMANDS
 from static.config import COMMAND_PREFIX, BOT_TOKEN
 from static.globals import (
     registered_role_id,
@@ -422,7 +423,7 @@ def main():
     #     webserver_thread.start()
 
     # enable slash commands and send them to the discord API
-    slash = SlashCommand(client, sync_commands=False)
+    slash = SlashCommand(client, sync_commands=SYNC_COMMANDS)
 
     # load slash command cogs
     # to do that, loop through the files and import all classes and commands

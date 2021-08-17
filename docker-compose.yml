@@ -83,6 +83,7 @@ services:
     volumes:
       - ./ElevatorBot:/app/ElevatorBot
       - ./logs/ElevatorBot:/app/ElevatorBot/logs
+      - ./settings.py:/app/settings.py
     environment:
       - BACKEND_PORT
       - WEBSITE_PORT

@@ -4,7 +4,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.orm import sessionmaker
-from settings import enable_debug_mode
+from settings import ENABLE_DEBUG_MODE
 
 
 DATABASE_URL = f"""postgresql+asyncpg://{os.environ.get("POSTGRES_USER")}:{os.environ.get("POSTGRES_PASSWORD")}@{os.environ.get("POSTGRES_HOST")}:{os.environ.get("POSTGRES_PORT")}/{os.environ.get("POSTGRES_DB")}"""
@@ -12,7 +12,7 @@ DATABASE_URL = f"""postgresql+asyncpg://{os.environ.get("POSTGRES_USER")}:{os.en
 
 engine = create_async_engine(
     DATABASE_URL,
-    echo=enable_debug_mode
+    echo=ENABLE_DEBUG_MODE
 )
 async_session = sessionmaker(
     engine,
