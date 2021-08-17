@@ -1,3 +1,5 @@
+import os
+
 from fastapi import Depends, FastAPI
 
 from Backend.database.base import Base, engine
@@ -27,6 +29,9 @@ async def root():
 
 @app.on_event("startup")
 async def startup():
+    DATABASE_URL = f"""postgresql+asyncpg://{os.environ.get("POSTGRES_USER")}:{os.environ.get("POSTGRES_PASSWORD")}@{os.environ.get("POSTGRES_HOST")}/{os.environ.get("POSTGRES_DB")}"""
+    print(DATABASE_URL)
+
     # create db tables
     async with engine.begin() as connection:
         await create_tables(connection)

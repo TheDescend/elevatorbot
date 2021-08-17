@@ -7,7 +7,7 @@ from sqlalchemy.orm import sessionmaker
 from settings import enable_debug_mode
 
 
-DATABASE_URL = f"""postgresql+asyncpg://{os.environ.get("POSTGRES_USER")}:{os.environ.get("POSTGRES_PW")}@{os.environ.get("POSTGRES_HOST")}/{os.environ.get("POSTGRES_DB")}"""
+DATABASE_URL = f"""postgresql+asyncpg://{os.environ.get("POSTGRES_USER")}:{os.environ.get("POSTGRES_PASSWORD")}@{os.environ.get("POSTGRES_HOST")}:{os.environ.get("POSTGRES_PORT")}/{os.environ.get("POSTGRES_DB")}"""
 
 
 engine = create_async_engine(
