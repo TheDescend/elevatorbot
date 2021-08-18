@@ -4,7 +4,6 @@ config.py
 cache/
 *.content
 __pycache__/
-*.json
 *.xlsx
 test.py
 .gitignore
