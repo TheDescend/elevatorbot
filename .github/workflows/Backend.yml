@@ -42,8 +42,17 @@ jobs:
 
     - name: Test with pytest
       run: |
+        # install pytest and useful wrappers
         pip install pytest
         pip install pytest-asyncio
         pip install pytest_mock
-        pytest
-      working-directory: Backend
+        pip install aiosqlite
+
+        # make sure the db runs
+        docker-compose run postgres
+
+        # add the env varible we need to connect to the db
+        export $(grep -v '^#' .env | xargs -d '\n')
+
+        # run tests
+        pytest Backend

@@ -51,3 +51,4 @@ ElevatorBot/database/databasemutation.py
 /DatabaseBackups/
 **/secrets.py
 settings.py
+test.db

@@ -1,10 +1,7 @@
 from sqlalchemy import ARRAY, BigInteger, Boolean, Column, Date, DateTime, Integer, JSON, Numeric, SmallInteger, Text, text
-from sqlalchemy.ext.asyncio import AsyncConnection
+from sqlalchemy.engine import Engine
 
-from Backend.database.base import Base
-
-
-metadata = Base.metadata
+from Backend.database.base import Base, is_test_mode
 
 
 """ All table models are in here, allowing for easy generation """
@@ -304,5 +301,9 @@ class PersistentMessage(Base):
 
 
 # create all tables
-async def create_tables(connection: AsyncConnection):
-    await connection.run_sync(Base.metadata.create_all)
+async def create_tables(engine: Engine):
+    async with engine.begin() as connection:
+        if is_test_mode():
+            await connection.run_sync(Base.metadata.drop_all)
+
+        await connection.run_sync(Base.metadata.create_all)

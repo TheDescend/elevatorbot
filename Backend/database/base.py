@@ -8,23 +8,23 @@ from sqlalchemy.orm import sessionmaker
 from settings import ENABLE_DEBUG_MODE
 
 
+DATABASE_URL = f"""postgresql+asyncpg://{os.environ.get("POSTGRES_USER")}:{os.environ.get("POSTGRES_PASSWORD")}@{os.environ.get("POSTGRES_HOST")}:{os.environ.get("POSTGRES_PORT")}/{os.environ.get("POSTGRES_DB")}"""
 _ENGINE = None
 _SESSION = None
+_TEST_MODE = False
 
 
 Base = declarative_base()
 
 
-def setup_engine() -> Engine:
+def setup_engine(database_url: str = DATABASE_URL) -> Engine:
     global _ENGINE
 
     if not _ENGINE:
-        DATABASE_URL = f"""postgresql+asyncpg://{os.environ.get("POSTGRES_USER")}:{os.environ.get("POSTGRES_PASSWORD")}@{os.environ.get("POSTGRES_HOST")}:{os.environ.get("POSTGRES_PORT")}/{os.environ.get("POSTGRES_DB")}"""
-
         _ENGINE = create_async_engine(
-            DATABASE_URL,
+            database_url,
             future=True,
-            echo=ENABLE_DEBUG_MODE,
+            echo=bool(ENABLE_DEBUG_MODE and not is_test_mode()),
         )
 
     return _ENGINE
@@ -40,3 +40,12 @@ def get_async_session() -> sessionmaker:
             expire_on_commit=False,
         )
     return _SESSION
+
+
+def is_test_mode(set_test_mode: bool = None) -> bool:
+    global _TEST_MODE
+
+    if set_test_mode is not None:
+        _TEST_MODE = set_test_mode
+
+    return _TEST_MODE

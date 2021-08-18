@@ -1,6 +1,6 @@
 from fastapi import Depends, FastAPI
 
-from Backend.database.base import setup_engine
+from Backend.database.base import DATABASE_URL, setup_engine
 from Backend.database.models import BackendUser, create_tables
 from Backend.dependencies import auth_get_user_with_read_perm, auth_get_user_with_write_perm
 from Backend.endpoints import auth, items
@@ -28,5 +28,4 @@ async def write_perm(user: BackendUser = Depends(auth_get_user_with_write_perm))
 @app.on_event("startup")
 async def startup():
     # create db tables
-    async with setup_engine().begin() as connection:
-        await create_tables(connection)
+    await create_tables(engine=setup_engine())
