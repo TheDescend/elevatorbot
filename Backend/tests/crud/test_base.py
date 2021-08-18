@@ -78,10 +78,9 @@ async def test_get_multi(
 
     assert isinstance(results, list)
     assert results
-    assert len(results) > 1
 
-    for result in results:
-        assert isinstance(result, BackendUser)
+    assert test_user in results
+    assert test_user2 in results
 
 
 @pytest.mark.asyncio
@@ -97,8 +96,8 @@ async def test_get_multi_with_column(
     assert results
     assert len(results) > 1
 
-    for result in results:
-        assert isinstance(result, BackendUser)
+    assert test_user in results
+    assert test_user2 in results
 
 
 @pytest.mark.asyncio
