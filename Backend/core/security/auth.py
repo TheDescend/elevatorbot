@@ -43,6 +43,7 @@ def get_secret_key():
     return _SECRET_KEY
 
 
+
 # define auth schemes
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
