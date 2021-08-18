@@ -3,20 +3,16 @@ from typing import Optional
 import os
 import secrets
 
-from fastapi import Depends, HTTPException, status
+from fastapi import HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 
 from passlib.context import CryptContext
-from jose import JWTError, jwt
+from jose import jwt
 
-from Backend.database.dataAccessLayers.backendUser import BackendUserDAL
 from Backend.database.models import BackendUser
 
+
 # defining algorithms
-from Backend.dependencies.databaseObjects import get_backend_user
-from Backend.schemas.auth import TokenData
-
-
 _SECRET_KEY = None
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
@@ -60,16 +56,6 @@ def get_password_hash(plain_password: str) -> str:
     return pwd_context.hash(plain_password)
 
 
-async def authenticate_user(user: Optional[BackendUser], password: str) -> bool:
-    if user is None:
-        return False
-
-    if not verify_password(password, user.hashed_password):
-        return False
-
-    return True
-
-
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     to_encode = data.copy()
     if expires_delta:
@@ -79,43 +65,3 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, get_secret_key(), algorithm=ALGORITHM)
     return encoded_jwt
-
-
-async def auth_get_user(token: str = Depends(oauth2_scheme), user_dal: BackendUserDAL = Depends(get_backend_user)):
-    # verify the token
-    try:
-        payload = jwt.decode(token, get_secret_key(), algorithms=[ALGORITHM])
-        username: str = payload.get("sub")
-        if username is None:
-            raise CREDENTIALS_EXCEPTION
-        token_data = TokenData(username=username)
-    except JWTError:
-        raise CREDENTIALS_EXCEPTION
-
-    # get the user
-    user = await user_dal.get_user(user_name=token_data.username)
-
-    # verify that the user is OK
-    if user is None:
-        raise CREDENTIALS_EXCEPTION
-    elif user.disabled:
-        raise HTTPException(
-            status_code=400,
-            detail="This user account has been disabled",
-        )
-
-    return user
-
-
-# call this to have a function which requires read permissions
-async def auth_get_user_with_read_perm(user: BackendUser = Depends(auth_get_user)):
-    if not user.has_read_permission:
-        raise HTTPException(status_code=400, detail="Read permissions are missing")
-    return user
-
-
-# call this to have a function which requires write permissions
-async def auth_get_user_with_write_perm(user: BackendUser = Depends(auth_get_user)):
-    if not user.has_write_permission:
-        raise HTTPException(status_code=400, detail="Write permissions are missing")
-    return user

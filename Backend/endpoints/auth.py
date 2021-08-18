@@ -2,11 +2,13 @@ from datetime import timedelta
 
 from fastapi import APIRouter, Depends, Form, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from Backend.database.dataAccessLayers.backendUser import BackendUserDAL
-from Backend.dependencies.auth import ACCESS_TOKEN_EXPIRE_MINUTES, authenticate_user, create_access_token, get_password_hash
-from Backend.schemas.auth import Token
-from Backend.dependencies.databaseObjects import get_backend_user
+from Backend.core.security.auth import ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token, get_password_hash
+from Backend.database.models import BackendUser
+from Backend.schemas.auth import BackendUserModel, Token
+from Backend.dependencies import get_db_session
+from Backend import crud
 
 
 router = APIRouter(
@@ -17,9 +19,15 @@ router = APIRouter(
 
 # generate and return a token
 @router.post("/token", response_model=Token)
-async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), user_dal: BackendUserDAL = Depends(get_backend_user)):
-    user = await user_dal.get_user(form_data.username)
-    if await authenticate_user(user, form_data.password):
+async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db_session)):
+    user = await crud.backendUser.authenticate(
+        db=db,
+        user_name=form_data.username,
+        password=form_data.password
+    )
+
+    # check if OK
+    if user:
         access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
         access_token = create_access_token(
             data={"sub": user.user_name},
@@ -36,9 +44,9 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 
 # register a new user
 @router.post("/register")
-async def register(user_name: str = Form(...), password: str = Form(...), user_dal: BackendUserDAL = Depends(get_backend_user)):
+async def register(user_name: str = Form(...), password: str = Form(...), db: AsyncSession = Depends(get_db_session)):
     # look if a user with that name exists
-    if await user_dal.get_user(user_name):
+    if await crud.backendUser.get_with_key(db, user_name):
         raise HTTPException(
             status_code=400,
             detail="An account with this user name already exists",
@@ -47,10 +55,14 @@ async def register(user_name: str = Form(...), password: str = Form(...), user_d
 
     # todo dont make everyone admin
     # insert to db
-    await user_dal.create_user(
+    new_user = BackendUser(
         user_name=user_name,
         hashed_password=hashed_password,
         allowed_scopes=[],
         has_write_permission=True,
         has_read_permission=True,
     )
+    await crud.backendUser.insert(db, new_user)
+
+    return BackendUserModel.from_orm(new_user)
+

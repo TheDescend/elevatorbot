@@ -6,14 +6,6 @@ from Backend.database.base import Base
 
 metadata = Base.metadata
 
-class Book(Base):
-    __tablename__ = 'books'
-
-    id = Column(Integer, primary_key=True)
-    name = Column(Text, nullable=False)
-    author = Column(Text, nullable=False)
-    release_year = Column(Integer, nullable=False)
-
 
 """ All table models are in here, allowing for easy generation """
 

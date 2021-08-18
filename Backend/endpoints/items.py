@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 
-from Backend.database.dataAccessLayers.book import BookDAL
-from Backend.dependencies.databaseObjects import get_book
+
 
 router = APIRouter(
     prefix="/items",
@@ -19,12 +18,9 @@ async def read_items():
 
 
 @router.get("/{item_id}")
-async def read_item(item_id: str, book_dal: BookDAL = Depends(get_book)):
+async def read_item(item_id: str):
     if item_id not in fake_items_db:
         raise HTTPException(status_code=404, detail="Item not found")
-
-    # do some db stuff
-    await book_dal.create_book("Very good book", "kigstn", 2022)
 
     return {"name": fake_items_db[item_id]["name"], "item_id": item_id}
 

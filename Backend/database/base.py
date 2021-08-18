@@ -1,5 +1,6 @@
 import os
 
+from sqlalchemy.engine import Engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.ext.asyncio import create_async_engine
@@ -14,7 +15,7 @@ _SESSION = None
 Base = declarative_base()
 
 
-def setup_engine():
+def setup_engine() -> Engine:
     global _ENGINE
 
     if not _ENGINE:
@@ -22,19 +23,20 @@ def setup_engine():
 
         _ENGINE = create_async_engine(
             DATABASE_URL,
-            echo=ENABLE_DEBUG_MODE
+            future=True,
+            echo=ENABLE_DEBUG_MODE,
         )
 
     return _ENGINE
 
 
-def get_async_session():
+def get_async_session() -> sessionmaker:
     global _SESSION
 
     if not _SESSION:
         _SESSION = sessionmaker(
             setup_engine(),
             class_=AsyncSession,
-            expire_on_commit=False
+            expire_on_commit=False,
         )
     return _SESSION
