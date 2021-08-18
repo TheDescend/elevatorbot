@@ -44,5 +44,6 @@ jobs:
       run: |
         pip install pytest
         pip install pytest-asyncio
+        pip install pytest_mock
         pytest
       working-directory: ElevatorBot
