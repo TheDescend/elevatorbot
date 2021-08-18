@@ -3,6 +3,7 @@ from typing import Any, List, Optional, Type, TypeVar
 from sqlalchemy import select
 from sqlalchemy.engine import Result
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql import Select
 
 from Backend.database.base import Base
 
@@ -39,25 +40,22 @@ class CRUDBase:
     ) -> List[ModelType]:
         """ Returns a list of all the objects """
 
-        results: Result = await db.execute(
-            select(self.model).limit(limit)
-        )
-        return results.all()
+        query = select(self.model).limit(limit)
+        result = await self._execute_query(db, query)
+        return result.scalars().fetchall()
 
 
-    async def get_multi_with_column(
+    async def get_multi_with_filter(
         self,
         db: AsyncSession,
-        column_name: str,
-        column_value: Any,
         limit: int = 100,
+        **filter_kwargs,
     ) -> List[ModelType]:
-        """ Returns a list of all the objects which fulfill the where clause """
+        """ Returns a list of all the objects which fulfill the filter clauses """
 
-        results: Result = await db.execute(
-            select(self.model).where(column_name == column_value).limit(limit)
-        )
-        return results.all()
+        query = select(self.model).filter_by(**filter_kwargs).limit(limit)
+        result = await self._execute_query(db, query)
+        return result.scalars().fetchall()
 
 
     @staticmethod
@@ -82,7 +80,6 @@ class CRUDBase:
         for key, value in update_kwargs.items():
             setattr(to_update, key, value)
 
-        db.add(to_update)
         await db.flush()
 
 
@@ -104,3 +101,18 @@ class CRUDBase:
         await db.flush()
 
         return obj
+
+
+    @staticmethod
+    async def _execute_query(
+        db: AsyncSession,
+        query: Select
+    ) -> Result:
+        """ Returns the result from the query """
+
+        result = await db.execute(
+            query
+        )
+        await db.flush()
+
+        return result
