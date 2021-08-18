@@ -109,7 +109,7 @@ class RoleCommands(commands.Cog):
         # assign roles
         await user.add_roles(*roles_to_add, reason="Achievement Role Update")
 
-        # remove roles
+        # delete roles
         await user.remove_roles(*roles_to_remove, reason="Achievement Role Update")
 
         # compare them with old roles for a better result msg
@@ -235,7 +235,7 @@ class RoleCommands(commands.Cog):
                     except KeyError:
                         deprecated_roles[category] = [role]
 
-        # remove the roles from dict(roles) that are already earned
+        # delete the roles from dict(roles) that are already earned
         user_roles = [role.name for role in user.roles]
         for role in user_roles:
             for category in roles:
@@ -251,7 +251,7 @@ class RoleCommands(commands.Cog):
                 except ValueError:
                     pass
 
-        # remove those roles, where a superior role exists
+        # delete those roles, where a superior role exists
         for category, x in requirementHashes.items():
             for role, roledata in x.items():
                 if "replaced_by" in roledata.keys():
@@ -270,7 +270,7 @@ class RoleCommands(commands.Cog):
                                 except ValueError:
                                     pass
 
-        # remove the empty categories
+        # delete the empty categories
         for role, roledata in roles.copy().items():
             if not roledata:
                 roles.pop(role)

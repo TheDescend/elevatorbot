@@ -4,7 +4,7 @@ user_name = "TestUser"
 password = "test"
 
 
-def test_register(client: TestClient) -> None:
+def test_register(client: TestClient):
     register_data = {
         "user_name": user_name,
         "password": password
@@ -22,7 +22,7 @@ def test_register(client: TestClient) -> None:
     assert r.status_code == 400
 
 
-def test_get_access_token(client: TestClient) -> None:
+def test_get_access_token(client: TestClient):
     login_data = {
         "username": user_name,
         "password": password,

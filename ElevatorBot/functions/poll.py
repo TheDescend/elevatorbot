@@ -117,12 +117,12 @@ class Poll:
 
         await self._edit(edit_ctx=ctx)
 
-    # remove an option
+    # delete an option
     async def remove_option(self, ctx: SlashContext, option: str):
         try:
             self.data.pop(option)
 
-            # run the post init again to remove components
+            # run the post init again to delete components
             self.__post_init__()
 
             await self._edit(edit_ctx=ctx)
@@ -136,10 +136,10 @@ class Poll:
     async def add_user(
         self, select_ctx: ComponentContext, member: discord.Member, option: str
     ):
-        # remove user from all other options
+        # delete user from all other options
         for option_users in self.data.values():
             try:
-                option_users.remove(member.id)
+                option_users.delete(member.id)
             except ValueError:
                 pass
 
@@ -172,7 +172,7 @@ class Poll:
                 components=self.select,
             )
 
-    # create poll
+    # insert poll
     async def create(self, create_ctx: SlashContext) -> None:
         # dumping to db twice to get the ID
         self.id = await self._dump_to_db()
@@ -224,7 +224,7 @@ async def get_poll_object(
     )
 
 
-# create the poll
+# insert the poll
 async def create_poll_object(
     ctx: SlashContext,
     name: str,

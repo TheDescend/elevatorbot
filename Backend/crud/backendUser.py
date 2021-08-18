@@ -28,4 +28,4 @@ class CRUDBackendUser(CRUDBase):
         return user
 
 
-backendUser = CRUDBackendUser(BackendUser)
+backend_user = CRUDBackendUser(BackendUser)

@@ -164,7 +164,7 @@ class Tournament:
                                 for reaction_id in which_user_is_which_emoji:
                                     if reaction.emoji.id == reaction_id:
                                         won = which_user_is_which_emoji[reaction_id]
-                            await reaction.remove(user)
+                            await reaction.delete(user)
 
                 # return winner if found
                 if won:

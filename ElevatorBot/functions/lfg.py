@@ -123,7 +123,7 @@ class LfgMessage:
             return True
         return False
 
-    # remove a member
+    # delete a member
     async def remove_member(
         self, member: discord.Member, ctx: ComponentContext = None
     ) -> bool:
@@ -227,7 +227,7 @@ class LfgMessage:
         # wait timedelta + 10 mins
         await asyncio.sleep(time_to_start.seconds + 60 * 10)
 
-        # remove the post
+        # delete the post
         await self.delete()
 
     # sort all the lfg messages in the guild by start_time
@@ -239,7 +239,7 @@ class LfgMessage:
         if len(results) <= 1:
             return
 
-        # create three lists. A list with the current message objs (sorted by asc creation date), a list with the creation_time, and a list with the LfgMessage objs
+        # insert three lists. A list with the current message objs (sorted by asc creation date), a list with the creation_time, and a list with the LfgMessage objs
         sorted_messages_by_creation_time = []
         sorted_creation_times_by_creation_time = []
         lfg_messages = []
@@ -498,7 +498,7 @@ async def get_lfg_message(
     ]
     blacklisted_members = await get_lfg_blacklisted_members(author.id)
 
-    # create LfgMessage object
+    # insert LfgMessage object
     lfg_message = LfgMessage(
         client=client,
         id=lfg_id,
@@ -541,7 +541,7 @@ async def create_lfg_message(
         return
     channel = guild.get_channel(result[0])
 
-    # create LfgMessage object
+    # insert LfgMessage object
     lfg_message = LfgMessage(
         client=client,
         id=lfg_id,

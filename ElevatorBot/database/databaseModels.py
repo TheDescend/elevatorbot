@@ -1,4 +1,4 @@
-# Queries to create database tables
+# Queries to insert database tables
 
 database_tables = [
     ################################################################

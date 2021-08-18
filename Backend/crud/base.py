@@ -74,15 +74,19 @@ class CRUDBase:
     @staticmethod
     async def update(
         db: AsyncSession,
-        updated_db_obj: ModelType,
+        to_update: ModelType,
+        **update_kwargs
     ) -> None:
-        """ Updates an entry with the **to_update kwargs """
+        """ Update a initiated ModelType in the database """
 
-        db.add(updated_db_obj)
+        for key, value in update_kwargs.items():
+            setattr(to_update, key, value)
+
+        db.add(to_update)
         await db.flush()
 
 
-    async def remove(
+    async def delete(
         self,
         db: AsyncSession,
         primary_key: Any

@@ -146,7 +146,7 @@ async def handle_persistent_message_reaction(client, payload, persistent_message
     channel = client.get_channel(channel_id)
     message = await channel.fetch_message(message_id)
 
-    # check if the reactions are ok, else remove them. Only do that when set reactions exist tho
+    # check if the reactions are ok, else delete them. Only do that when set reactions exist tho
     if reactions_id_list and payload.emoji.id not in reactions_id_list:
         await message.remove_reaction(payload.emoji, payload.member)
         return
@@ -186,7 +186,7 @@ async def steamJoinCodeMessage(client, guild):
     name = list(sorted_data.keys())
     code = list(sorted_data.values())
 
-    # create new message
+    # insert new message
     embed = embed_message(
         "Steam Join Codes",
         "Here you can find a updated list of Steam Join Codes. \nUse `/id set <id>` to set appear here and `/id get <user>` to find a code without looking here",

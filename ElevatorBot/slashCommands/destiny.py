@@ -1071,7 +1071,7 @@ class MysticCommands(commands.Cog):
     @cog_ext.cog_subcommand(
         base="mystic",
         base_description="Everything concerning Mystic's abandoned carry list. Tbf he said he tried ¯\_(ツ)_/¯",
-        name="remove",
+        name="delete",
         description="Remove a user from the list",
         options=[options_user(flavor_text="Requires elevated permissions")],
     )
@@ -1088,8 +1088,8 @@ class MysticCommands(commands.Cog):
             len(player := list(filter(lambda muser: muser["id"] == user.id, players)))
             == 1
         ):
-            # remove player
-            players.remove(player[0])
+            # delete player
+            players.delete(player[0])
             with open("commands/mysticlog.log", "a") as mlog:
                 mlog.write(f"\n{ctx.author.name} removed {user.name}")
 
@@ -2557,7 +2557,7 @@ class TournamentCommands(commands.Cog):
     @cog_ext.cog_subcommand(
         base="tournament",
         base_description="Everything you need for in-house PvP tournaments",
-        name="create",
+        name="insert",
         description="Opens up registration. Can only be used if no other tournament is currently running",
     )
     async def _create(self, ctx: SlashContext):
@@ -2611,7 +2611,7 @@ class TournamentCommands(commands.Cog):
         base="tournament",
         base_description="Everything you need for in-house PvP tournaments",
         name="start",
-        description="Starts the tournament. Can only be used by the user who used '/tournament create' or an Admin",
+        description="Starts the tournament. Can only be used by the user who used '/tournament insert' or an Admin",
     )
     async def _start(self, ctx: SlashContext):
         # check if tourn exists
@@ -2623,7 +2623,7 @@ class TournamentCommands(commands.Cog):
                 hidden=True,
                 embed=embed_message(
                     f"Error",
-                    f"You need to start the registration by using `/tournament create` first",
+                    f"You need to start the registration by using `/tournament insert` first",
                 ),
             )
             return
@@ -2679,7 +2679,7 @@ class TournamentCommands(commands.Cog):
         base="tournament",
         base_description="Everything you need for in-house PvP tournaments",
         name="delete",
-        description="Delete the tournament. Can only be used by the user who used '/tournament create' or an Admin",
+        description="Delete the tournament. Can only be used by the user who used '/tournament insert' or an Admin",
     )
     async def _delete(self, ctx: SlashContext):
         # check if tourn exists

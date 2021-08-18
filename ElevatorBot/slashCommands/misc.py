@@ -25,7 +25,7 @@ class MiscCommands(commands.Cog):
     @cog_ext.cog_subcommand(
         base="poll",
         base_description="Making polls easy",
-        name="create",
+        name="insert",
         description="Create a poll",
         options=[
             create_option(
@@ -97,7 +97,7 @@ class MiscCommands(commands.Cog):
     @cog_ext.cog_subcommand(
         base="poll",
         base_description="Making polls easy",
-        name="remove",
+        name="delete",
         description="Remove an option from a poll",
         options=[
             create_option(
@@ -275,7 +275,7 @@ class MiscCommands(commands.Cog):
         print(f"Muting {author.display_name} for {timeout} minutes")
         await assignRolesToUser([muted_role_id], author, guild)
 
-        # remove muted role after time is over
+        # delete muted role after time is over
         await asyncio.sleep(60 * timeout)
 
         # refresh user obj

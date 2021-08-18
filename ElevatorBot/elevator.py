@@ -1,6 +1,6 @@
 # to begin with, start the event loop
 # if this is skipped, some imports will fail since they rely on database lookups
-# for example GM nightfalls, since they change each season. This allows us to create the hash list dynamically, instead of having to add to it every season
+# for example GM nightfalls, since they change each season. This allows us to insert the hash list dynamically, instead of having to add to it every season
 import asyncio
 import datetime
 import logging
@@ -559,7 +559,7 @@ def main():
                         nick = message.author.nick
                         await message.author.edit(nick="!Pepe the Muted for an Hour")
 
-                        # remove muted role after an hour
+                        # delete muted role after an hour
                         await asyncio.sleep(60 * 60)
                         await removeRolesFromUser(
                             [muted_role_id], message.author, message.guild
@@ -753,7 +753,7 @@ def main():
                 await assignRolesToUser([role_id], ctx.author, ctx.guild)
                 added.append(role_name)
 
-            # remove role
+            # delete role
             else:
                 await removeRolesFromUser([role_id], ctx.author, ctx.guild)
                 removed.append(role_name)

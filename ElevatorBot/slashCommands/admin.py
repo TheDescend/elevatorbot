@@ -476,7 +476,7 @@ class PersistentMessagesCommands(commands.Cog):
     async def _channel(self, ctx: SlashContext, channel_type, channel):
         if channel_type == "othergameroles":
             embed = embed_message(
-                f"Other Game Roles", "Select options to add / remove the related roles"
+                f"Other Game Roles", "Select options to add / delete the related roles"
             )
 
             components = [
@@ -589,7 +589,7 @@ On your command, I can start a private PvP tournament for all the masochist in t
 ⁣
 ⁣
 <:desc_title_left_b:768906489309822987><:desc_title_right_b:768906489729122344> **Tutorial** <:desc_title_left_b:768906489309822987> <:desc_title_mid_b:768906489103384657><:desc_title_mid_b:768906489103384657><:desc_title_right_b:768906489729122344>
-:desc_circle_b: Create the tournament by using `/tournament create`. This will make a new message appear in this channel, to join the tournament, simply react to it.
+:desc_circle_b: Create the tournament by using `/tournament insert`. This will make a new message appear in this channel, to join the tournament, simply react to it.
 :desc_circle_b: Once everyone has signed up use `/tournament start` to start the tournament. I will generate a random bracket and assign player to games.
 :desc_circle_b: Now you need to start a custom game with only the two chosen players in it and **finish it**. I will automatically detect the winner. Last man standing wins it all!
 ⁣
@@ -630,7 +630,7 @@ Hello fellow humans, and welcome to this easy, 465 steps, guide:
 First, head to <#{bot_spam_channel_id}>, or really any other channel (although you ~~might~~ will get yelled at for that)
 ⁣
 {str(circle_emoji)} **Step 2:**
-Then, use `/lfg create` and follow the instructions to make an event. 
+Then, use `/lfg insert` and follow the instructions to make an event. 
 Due to timezones sucking and there being at least 16789 of them, you might not find your own timezone in the list. In that case please use UTC and an online converter
 ⁣
 {str(circle_emoji)} **Step 3-464:**
@@ -641,9 +641,9 @@ After you made the LFG post, or if you just want to join an existing post, use t
 ⁣
 ⁣
 If you want to feel like an [expert](https://www.youtube.com/watch?v=BKorP55Aqvg), there are a bunch of additional commands you can use to interact with LFG events:
-{str(enter_emoji)} `/lfg create` - Create a new LFG event
+{str(enter_emoji)} `/lfg insert` - Create a new LFG event
 {str(enter_emoji)} `/lfg edit` - Edit parts of an LFG event
-{str(enter_emoji)} `/lfg remove` - Remove the LFG event
+{str(enter_emoji)} `/lfg delete` - Remove the LFG event
 {str(enter_emoji)} `/lfg add` - Add a user to your own LFG event
 {str(enter_emoji)} `/lfg kick` - Kick a user from your own LFG event
 {str(enter_emoji)} `/lfg blacklist` - Blacklist a user from joining any of your own LFG events

@@ -40,7 +40,7 @@ class LfgCommands(commands.Cog):
     @cog_ext.cog_subcommand(
         base="lfg",
         base_description="Everything concerning my awesome Destiny 2 LFG system",
-        name="create",
+        name="insert",
         description="Creates an LFG post",
         options=[
             create_option(
@@ -273,7 +273,7 @@ class LfgCommands(commands.Cog):
             description = answer_msg.content
             await answer_msg.delete()
 
-        # create and post the lfg message
+        # insert and post the lfg message
         await create_lfg_message(
             ctx.bot,
             ctx.guild,
@@ -501,8 +501,8 @@ class LfgCommands(commands.Cog):
     @cog_ext.cog_subcommand(
         base="lfg",
         base_description="Everything concerning my awesome Destiny 2 LFG system",
-        name="remove",
-        description="When you fucked up and need to remove an event",
+        name="delete",
+        description="When you fucked up and need to delete an event",
         options=[
             create_option(
                 name="lfg_id",
@@ -598,7 +598,7 @@ class LfgCommands(commands.Cog):
                 hidden=True,
                 embed=embed_message(
                     "Error",
-                    f"{user.display_name} could not be remove from the LFG post with the id `{lfg_id}`, because they are not in it",
+                    f"{user.display_name} could not be delete from the LFG post with the id `{lfg_id}`, because they are not in it",
                 ),
             )
 
@@ -610,7 +610,7 @@ class LfgCommands(commands.Cog):
         options=[
             create_option(
                 name="action",
-                description="If you want to add to or remove from the Blacklist",
+                description="If you want to add to or delete from the Blacklist",
                 option_type=3,
                 required=True,
                 choices=[
@@ -619,7 +619,7 @@ class LfgCommands(commands.Cog):
                 ],
             ),
             options_user(
-                flavor_text="The user you want to add / remove", required=True
+                flavor_text="The user you want to add / delete", required=True
             ),
         ],
     )

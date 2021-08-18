@@ -55,7 +55,7 @@ class AutomaticRoleAssignment(BaseEvent):
                 *roles_to_add, reason="Achievement Role Earned"
             )
 
-            # remove roles
+            # delete roles
             await discord_member.remove_roles(
                 *roles_to_remove, reason="Achievement Role Not Deserved"
             )

@@ -38,7 +38,7 @@ async def create_connection_pool():
         pool = await asyncpg.create_pool(max_size=50, **args)
         print("Connected to DB with asyncpg")
 
-    # create an ssh tunnel to connect to the db from outside the local network and bind that to localhost
+    # insert an ssh tunnel to connect to the db from outside the local network and bind that to localhost
     except OSError:
         bind_port = 5432
 

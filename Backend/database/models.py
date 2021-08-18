@@ -300,10 +300,16 @@ class PersistentMessage(Base):
     reaction_ids = Column("reactionsidlist", ARRAY(BigInteger()))
 
 
-# create all tables
+# insert all tables
+_TABLES_CREATED = False
 async def create_tables(engine: Engine):
-    async with engine.begin() as connection:
-        if is_test_mode():
-            await connection.run_sync(Base.metadata.drop_all)
+    global _TABLES_CREATED
 
-        await connection.run_sync(Base.metadata.create_all)
+    if not _TABLES_CREATED:
+        _TABLES_CREATED = True
+
+        async with engine.begin() as connection:
+            if is_test_mode():
+                await connection.run_sync(Base.metadata.drop_all)
+
+            await connection.run_sync(Base.metadata.create_all)

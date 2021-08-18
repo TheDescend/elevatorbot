@@ -20,7 +20,7 @@ router = APIRouter(
 # generate and return a token
 @router.post("/token", response_model=Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db_session)):
-    user = await crud.backendUser.authenticate(
+    user = await crud.backend_user.authenticate(
         db=db,
         user_name=form_data.username,
         password=form_data.password
@@ -46,11 +46,13 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 @router.post("/register")
 async def register(user_name: str = Form(...), password: str = Form(...), db: AsyncSession = Depends(get_db_session)):
     # look if a user with that name exists
-    if await crud.backendUser.get_with_key(db, user_name):
+    user = await crud.backend_user.get_with_key(db, user_name)
+    if user:
         raise HTTPException(
             status_code=400,
             detail="An account with this user name already exists",
         )
+
     hashed_password = get_password_hash(password)
 
     # todo dont make everyone admin
@@ -62,7 +64,7 @@ async def register(user_name: str = Form(...), password: str = Form(...), db: As
         has_write_permission=True,
         has_read_permission=True,
     )
-    await crud.backendUser.insert(db, new_user)
+    await crud.backend_user.insert(db, new_user)
 
     return BackendUserModel.from_orm(new_user)
 

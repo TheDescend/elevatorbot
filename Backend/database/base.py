@@ -37,7 +37,7 @@ def get_async_session() -> sessionmaker:
         _SESSION = sessionmaker(
             setup_engine(),
             class_=AsyncSession,
-            expire_on_commit=False,
+            future=True,
         )
     return _SESSION
 
