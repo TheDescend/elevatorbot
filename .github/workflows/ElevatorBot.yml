@@ -42,8 +42,14 @@ jobs:
       
     - name: Test with pytest
       run: |
+        # install pytest and useful wrappers
         pip install pytest
         pip install pytest-asyncio
         pip install pytest_mock
+
+        # rename the settings file
+        mv ../rename_to_settings.py ../settings.py
+
+        # run tests
         pytest
       working-directory: ElevatorBot

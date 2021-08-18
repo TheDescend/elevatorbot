@@ -57,5 +57,8 @@ jobs:
         # add the backend dir to pythonpath
         export PYTHONPATH="${PYTHONPATH}:/home/runner/work/elevatorbot/elevatorbot/Backend"
 
+        # rename the settings file
+        mv rename_to_settings.py settings.py
+
         # run tests
         pytest Backend
