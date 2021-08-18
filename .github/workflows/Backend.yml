@@ -49,7 +49,7 @@ jobs:
         pip install aiosqlite
 
         # make sure the db runs
-        docker-compose up -d
+        docker-compose run -d --service-ports postgres
 
         # add the env varible we need to connect to the db
         export $(grep -v '^#' .env | xargs -d '\n')
@@ -58,7 +58,7 @@ jobs:
         export PYTHONPATH="${PYTHONPATH}:/home/runner/work/elevatorbot/elevatorbot/Backend"
 
         # rename the settings file
-        mv rename_to_settings.py settings.py
+        sudo mv rename_to_settings.py settings.py
 
         # run tests
         pytest Backend
