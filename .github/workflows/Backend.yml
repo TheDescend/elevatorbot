@@ -49,7 +49,7 @@ jobs:
         pip install aiosqlite
 
         # make sure the db runs
-        docker-compose run postgres
+        docker-compose run -d postgres
 
         # add the env varible we need to connect to the db
         export $(grep -v '^#' .env | xargs -d '\n')
