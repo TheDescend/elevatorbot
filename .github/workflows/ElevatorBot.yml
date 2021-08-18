@@ -48,7 +48,7 @@ jobs:
         pip install pytest_mock
 
         # rename the settings file
-        mv ../rename_to_settings.py ../settings.py
+        sudo mv ../rename_to_settings.py ../settings.py
 
         # run tests
         pytest
