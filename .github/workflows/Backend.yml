@@ -55,4 +55,5 @@ jobs:
         export $(grep -v '^#' .env | xargs -d '\n')
 
         # run tests
-        pytest Backend
+        cd Backend
+        pytest
