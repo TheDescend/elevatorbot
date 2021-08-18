@@ -8,7 +8,6 @@ from sqlalchemy.sql import Select
 from Backend.database.base import Base
 
 
-
 ModelType = TypeVar("ModelType", bound=Base)
 
 
