@@ -55,6 +55,7 @@ async def register(user_name: str = Form(...), password: str = Form(...), db: As
 
     hashed_password = get_password_hash(password)
 
+
     # todo dont make everyone admin
     # insert to db
     new_user = BackendUser(
