@@ -3,10 +3,10 @@ from discord_slash import cog_ext, SlashContext
 from discord_slash.utils.manage_commands import create_option
 
 from ElevatorBot.database.database import removeUser, setSteamJoinID, getSteamJoinID
-from ElevatorBot.functions.clanJoinRequests import elevatorRegistration
-from ElevatorBot.functions.formating import embed_message
-from ElevatorBot.functions.persistentMessages import steamJoinCodeMessage
-from ElevatorBot.functions.slashCommandFunctions import get_user_obj_admin, get_user_obj
+from ElevatorBot.core.clanJoinRequests import elevatorRegistration
+from ElevatorBot.core.formating import embed_message
+from ElevatorBot.core.persistentMessages import steamJoinCodeMessage
+from ElevatorBot.core.slashCommandFunctions import get_user_obj_admin, get_user_obj
 from ElevatorBot.static.slashCommandOptions import options_user
 
 

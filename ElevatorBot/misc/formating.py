@@ -1,17 +1,12 @@
+from typing import Any
+
 import discord
 
 
-# returns embeded message
-"""
-await message.channel.send(embed=embed_message(
-    'Title',
-    'Desc'
-))
-"""
-
-
 def embed_message(
-    title: str = "", description: str = "", footer: str = None
+    title: str = None,
+    description: str = None,
+    footer: str = None
 ) -> discord.Embed:
     """Takes title description and footer and returns an discord.Embed"""
 
@@ -30,7 +25,8 @@ def embed_message(
 
 
 def split_into_chucks_of_max_2000_characters(
-    text_str: str = None, text_list: list = None
+    text_str: str = None,
+    text_list: list[Any] = None
 ) -> list[str]:
     """Takes either a list of strings or a string and returns a list of strings with a max length of 4000"""
 
@@ -40,7 +36,7 @@ def split_into_chucks_of_max_2000_characters(
     n = 2000
 
     if text_str:
-        for return_text in [text_str[i : i + n] for i in range(0, len(text_str), n)]:
+        for return_text in [text_str[i: i + n] for i in range(0, len(text_str), n)]:
             return_list.append(return_text)
         return return_list
 

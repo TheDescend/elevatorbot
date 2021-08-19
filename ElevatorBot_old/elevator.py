@@ -68,214 +68,214 @@ from static.globals import (
 
 
 # to enable the on_member_join and on_member_remove
-intents = discord.Intents.default()
-intents.members = True
+# intents = discord.Intents.default()
+# intents.members = True
 
 # Set to remember if the bot is already running, since on_ready may be called
 # more than once on reconnects
-this = sys.modules[__name__]
-this.running = False
+# this = sys.modules[__name__]
+# this.running = False
 
 
 ###############################################################################
-#
-#
-# def aiohttp_server(
-#     discord_client
-# ):
-#     def say_hello(
-#         request
-#     ):
-#         logged_in = {}
-#
-#         if 'code' in request.query:
-#             api_url = "https://discord.com/api"
-#             client_id = 856477753418579978
-#             client_secret = ELEVATOR_ADMIN_CLIENT_SECRET
-#
-#             data = {
-#                 'client_id': client_id,
-#                 'client_secret': client_secret,
-#                 'grant_type': 'authorization_code',
-#                 'code': request.query['code'],
-#                 'redirect_uri': "http://elevatorbot.ch/elevatoradmin"
-#             }
-#             headers = {
-#                 'Content-Type': 'application/x-www-form-urlencoded'
-#             }
-#             print('requesting token...')
-#             token_request = requests.post('%s/oauth2/token' % api_url, data=data, headers=headers)
-#             token_request.raise_for_status()
-#             oauth_cred = token_request.json()
-#             access_token = oauth_cred['access_token']
-#
-#             data_url = "%s/users/@me" % api_url
-#             print('requesting data...')
-#             data_request = requests.get(
-#                 data_url, headers={
-#                     'Authorization': f'Bearer {access_token}'
-#                 }
-#             )
-#             user_data = data_request.json()
-#             user_id = user_data['id']
-#             user_name = user_data['username']
-#             user_discriminator = user_data['discriminator']
-#             logged_in = {
-#                 'user_id': user_id,
-#                 'user_name': user_name,
-#                 'user_discriminator': user_discriminator
-#             }
-#             print('logged in!')
-#         elif 'user_id' in request.query:
-#             # TODO save in cookie
-#             logged_in = {
-#                 'user_id': request.query['user_id'],
-#                 'user_name': request.query['user_name'],
-#                 'user_discriminator': request.query['user_discriminator']
-#             }
-#
-#         if "user_id" not in logged_in:
-#             login_ref_url = "https://discord.com/api/oauth2/authorize?client_id=856477753418579978&redirect_uri=http%3A%2F%2Felevatorbot.ch%2Felevatoradmin&response_type=code&scope=identify"
-#             return web.Response(text=f"login: <a href=\"{login_ref_url}\">auth</a><br/>", content_type='text/html')
-#
-#         connections = discord_client.voice_clients
-#         if 'guild' not in request.query:
-#             login_json = urllib.parse.urlencode(logged_in)
-#             return web.Response(
-#                 text=f"""
-#             Select guild:
-#             <script>
-#                 function setGuild() {{
-#                     location.replace("elevatoradmin?guild=669293365900214293&{login_json}");
-#                 }}
-#                 </script>
-#             <button type="button" onclick="setGuild()">Descend</button>
-#             """, content_type='text/html'
-#             )
-#
-#         guild = discord_client.get_guild(int(request.query['guild']))
-#         discord_member = guild.get_member(int(logged_in['user_id']))
-#
-#         if not discord_member:
-#             print(f'{logged_in["user_name"]} not in guild')
-#             return web.Response(
-#                 text="Member not in guild"
-#                      r"""<script>window.history.pushState({page: 1}, "Login Failed", "/elevatoradmin");</script>""", content_type='text/html'
-#             )
-#
-#         member_roles = [role.name for role in discord_member.roles]
-#         good_roles = ['Moderator', 'Developer', 'Admin']
-#         if not any([role in good_roles for role in member_roles]):
-#             return web.Response(text="You don't seem to have permission to play music")
-#
-#         if 'join' in request.query and 'req' in request.query:
-#             voice_chat = guild.get_channel(int(request.query['join']))
-#             print(f"{logged_in['user_name']}#{logged_in['user_discriminator']} joined bot to {request.query['join']}")
-#
-#             active = list(
-#                 filter(
-#                     lambda voice_client: voice_client.guild.id == guild.id and voice_client.is_connected(), connections
-#                 )
-#             )
-#             if len(active) == 1:
-#                 move_task = loop.create_task(active[0].move_to(voice_chat))
-#                 if active[0].is_playing():
-#                     active[0].stop()
-#                 loop.create_task(play(urllib.parse.unquote(request.query['req']), discord_client, move_task, voice_client=active[0]))
-#             else:
-#                 print(f'joining {voice_chat.name}')
-#                 connection_task = loop.create_task(voice_chat.connect(timeout=5, reconnect=True))
-#                 if request.query['req'] != '':
-#                     print(f"starting to play {request.query['req']}")
-#                     loop.create_task(play(urllib.parse.unquote(request.query['req']), discord_client, connection_task))
-#             return web.Response(text=f"Playing {request.query['req']}")
-#         elif 'disconnect' in request.query:
-#             active = list(
-#                 filter(
-#                     lambda voice_client: voice_client.guild.id == guild.id and voice_client.is_connected(), connections
-#                 )
-#             )
-#             if len(active) == 1:
-#                 loop.create_task(active[0].disconnect())
-#             return web.Response(text='Disconnected')
-#         elif 'stop' in request.query:
-#             active = list(
-#                 filter(
-#                     lambda voice_client: voice_client.guild.id == guild.id and voice_client.is_connected(), connections
-#                 )
-#             )
-#             if len(active) == 1:
-#                 active[0].stop()
-#             return web.Response(text='Stopped')
-#
-#         if guild := discord_client.get_guild(669293365900214293):
-#             return web.Response(
-#                 text=
-#                 f"Logged in as {logged_in['user_name']}#{logged_in['user_discriminator']}<br/>"
-#                 r"""<script>window.history.pushState({page: 1}, "MusicBot Admin", "/elevatoradmin");</script>"""
-#                 "Songname:<input id='songname' type='text'></input> <br/> Click Channel to join/start playing <br/> (might take up to 10s, depending on song size) <br/><br/>" + \
-#                 "<br/>".join(
-#                     f"""
-#                         <button type="button" onclick="join{vc.id}()">{vc.name}</button> {', '.join([m.name for m in vc.members])}
-#                         <script>
-#                         function join{vc.id}() {{
-#                             const xhttp = new XMLHttpRequest();
-#                             const song_req = encodeURI(document.getElementById("songname").value);
-#                             console.log(song_req);
-#                             xhttp.onreadystatechange = function() {{
-#                                 if (this.readyState == 4 && this.status == 200) {{
-#                                     document.getElementById("news").innerHTML = this.responseText;
-#                                 }}
-#                             }};
-#                             xhttp.open("GET", "/elevatoradmin?guild={vc.guild.id}&join={vc.id}&req=" + song_req + "&{urllib.parse.urlencode(logged_in)}");
-#                             xhttp.send();
-#                         }}
-#                         </script>
-#                 """ for vc in guild.voice_channels
-#                 ) + \
-#                 f"""
-#                 <br/><br/>
-#                 <button type="button" onclick="stop()">Stop playing</button>
-#                 <script>
-#                         function stop() {{
-#                             const xhttp = new XMLHttpRequest();
-#                             xhttp.onreadystatechange = function() {{
-#                                 if (this.readyState == 4 && this.status == 200) {{
-#                                     document.getElementById("news").innerHTML = this.responseText;
-#                                 }}
-#                             }};
-#                             const song_req = encodeURI(document.getElementById("songname").value);
-#                             xhttp.open("GET", "/elevatoradmin?stop=1&guild={guild.id}" + "&{urllib.parse.urlencode(logged_in)}");
-#                             xhttp.send();
-#                         }}
-#                 </script>
-#                 <button type="button" onclick="disconnect()">Disconnect</button>
-#                 <script>
-#                         function disconnect() {{
-#                             const xhttp = new XMLHttpRequest();
-#                             xhttp.onreadystatechange = function() {{
-#                                 if (this.readyState == 4 && this.status == 200) {{
-#                                     document.getElementById("news").innerHTML = this.responseText;
-#                                 }}
-#                             }};
-#                             const song_req = encodeURI(document.getElementById("songname").value);
-#                             xhttp.open("GET", "/elevatoradmin?disconnect=1&guild={guild.id}" + "&{urllib.parse.urlencode(logged_in)}");
-#                             xhttp.send();
-#                         }}
-#                 </script>
-#                 <br/><br/>
-#                 <div id="news"></div>
-#             """, content_type='text/html'
-#             )
-#         return web.Response(text='500')
-#
-#
-#     loop = asyncio.get_event_loop()
-#
-#     app = web.Application()
-#     app.add_routes([web.get('/', say_hello)])
-#     runner = web.AppRunner(app)
-#     return runner
+
+
+def aiohttp_server(
+    discord_client
+):
+    def say_hello(
+        request
+    ):
+        logged_in = {}
+
+        if 'code' in request.query:
+            api_url = "https://discord.com/api"
+            client_id = 856477753418579978
+            client_secret = ELEVATOR_ADMIN_CLIENT_SECRET
+
+            data = {
+                'client_id': client_id,
+                'client_secret': client_secret,
+                'grant_type': 'authorization_code',
+                'code': request.query['code'],
+                'redirect_uri': "http://elevatorbot.ch/elevatoradmin"
+            }
+            headers = {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+            print('requesting token...')
+            token_request = requests.post('%s/oauth2/token' % api_url, data=data, headers=headers)
+            token_request.raise_for_status()
+            oauth_cred = token_request.json()
+            access_token = oauth_cred['access_token']
+
+            data_url = "%s/users/@me" % api_url
+            print('requesting data...')
+            data_request = requests.get(
+                data_url, headers={
+                    'Authorization': f'Bearer {access_token}'
+                }
+            )
+            user_data = data_request.json()
+            user_id = user_data['id']
+            user_name = user_data['username']
+            user_discriminator = user_data['discriminator']
+            logged_in = {
+                'user_id': user_id,
+                'user_name': user_name,
+                'user_discriminator': user_discriminator
+            }
+            print('logged in!')
+        elif 'user_id' in request.query:
+            # TODO save in cookie
+            logged_in = {
+                'user_id': request.query['user_id'],
+                'user_name': request.query['user_name'],
+                'user_discriminator': request.query['user_discriminator']
+            }
+
+        if "user_id" not in logged_in:
+            login_ref_url = "https://discord.com/api/oauth2/authorize?client_id=856477753418579978&redirect_uri=http%3A%2F%2Felevatorbot.ch%2Felevatoradmin&response_type=code&scope=identify"
+            return web.Response(text=f"login: <a href=\"{login_ref_url}\">auth</a><br/>", content_type='text/html')
+
+        connections = discord_client.voice_clients
+        if 'guild' not in request.query:
+            login_json = urllib.parse.urlencode(logged_in)
+            return web.Response(
+                text=f"""
+            Select guild:
+            <script>
+                function setGuild() {{
+                    location.replace("elevatoradmin?guild=669293365900214293&{login_json}");
+                }}
+                </script>
+            <button type="button" onclick="setGuild()">Descend</button>
+            """, content_type='text/html'
+            )
+
+        guild = discord_client.get_guild(int(request.query['guild']))
+        discord_member = guild.get_member(int(logged_in['user_id']))
+
+        if not discord_member:
+            print(f'{logged_in["user_name"]} not in guild')
+            return web.Response(
+                text="Member not in guild"
+                     r"""<script>window.history.pushState({page: 1}, "Login Failed", "/elevatoradmin");</script>""", content_type='text/html'
+            )
+
+        member_roles = [role.name for role in discord_member.roles]
+        good_roles = ['Moderator', 'Developer', 'Admin']
+        if not any([role in good_roles for role in member_roles]):
+            return web.Response(text="You don't seem to have permission to play music")
+
+        if 'join' in request.query and 'req' in request.query:
+            voice_chat = guild.get_channel(int(request.query['join']))
+            print(f"{logged_in['user_name']}#{logged_in['user_discriminator']} joined bot to {request.query['join']}")
+
+            active = list(
+                filter(
+                    lambda voice_client: voice_client.guild.id == guild.id and voice_client.is_connected(), connections
+                )
+            )
+            if len(active) == 1:
+                move_task = loop.create_task(active[0].move_to(voice_chat))
+                if active[0].is_playing():
+                    active[0].stop()
+                loop.create_task(play(urllib.parse.unquote(request.query['req']), discord_client, move_task, voice_client=active[0]))
+            else:
+                print(f'joining {voice_chat.name}')
+                connection_task = loop.create_task(voice_chat.connect(timeout=5, reconnect=True))
+                if request.query['req'] != '':
+                    print(f"starting to play {request.query['req']}")
+                    loop.create_task(play(urllib.parse.unquote(request.query['req']), discord_client, connection_task))
+            return web.Response(text=f"Playing {request.query['req']}")
+        elif 'disconnect' in request.query:
+            active = list(
+                filter(
+                    lambda voice_client: voice_client.guild.id == guild.id and voice_client.is_connected(), connections
+                )
+            )
+            if len(active) == 1:
+                loop.create_task(active[0].disconnect())
+            return web.Response(text='Disconnected')
+        elif 'stop' in request.query:
+            active = list(
+                filter(
+                    lambda voice_client: voice_client.guild.id == guild.id and voice_client.is_connected(), connections
+                )
+            )
+            if len(active) == 1:
+                active[0].stop()
+            return web.Response(text='Stopped')
+
+        if guild := discord_client.get_guild(669293365900214293):
+            return web.Response(
+                text=
+                f"Logged in as {logged_in['user_name']}#{logged_in['user_discriminator']}<br/>"
+                r"""<script>window.history.pushState({page: 1}, "MusicBot Admin", "/elevatoradmin");</script>"""
+                "Songname:<input id='songname' type='text'></input> <br/> Click Channel to join/start playing <br/> (might take up to 10s, depending on song size) <br/><br/>" + \
+                "<br/>".join(
+                    f"""
+                        <button type="button" onclick="join{vc.id}()">{vc.name}</button> {', '.join([m.name for m in vc.members])}
+                        <script>
+                        function join{vc.id}() {{
+                            const xhttp = new XMLHttpRequest();
+                            const song_req = encodeURI(document.getElementById("songname").value);
+                            console.log(song_req);
+                            xhttp.onreadystatechange = function() {{
+                                if (this.readyState == 4 && this.status == 200) {{
+                                    document.getElementById("news").innerHTML = this.responseText;
+                                }}
+                            }};
+                            xhttp.open("GET", "/elevatoradmin?guild={vc.guild.id}&join={vc.id}&req=" + song_req + "&{urllib.parse.urlencode(logged_in)}");
+                            xhttp.send();
+                        }}
+                        </script>
+                """ for vc in guild.voice_channels
+                ) + \
+                f"""
+                <br/><br/>
+                <button type="button" onclick="stop()">Stop playing</button>
+                <script>
+                        function stop() {{
+                            const xhttp = new XMLHttpRequest();
+                            xhttp.onreadystatechange = function() {{
+                                if (this.readyState == 4 && this.status == 200) {{
+                                    document.getElementById("news").innerHTML = this.responseText;
+                                }}
+                            }};
+                            const song_req = encodeURI(document.getElementById("songname").value);
+                            xhttp.open("GET", "/elevatoradmin?stop=1&guild={guild.id}" + "&{urllib.parse.urlencode(logged_in)}");
+                            xhttp.send();
+                        }}
+                </script>
+                <button type="button" onclick="disconnect()">Disconnect</button>
+                <script>
+                        function disconnect() {{
+                            const xhttp = new XMLHttpRequest();
+                            xhttp.onreadystatechange = function() {{
+                                if (this.readyState == 4 && this.status == 200) {{
+                                    document.getElementById("news").innerHTML = this.responseText;
+                                }}
+                            }};
+                            const song_req = encodeURI(document.getElementById("songname").value);
+                            xhttp.open("GET", "/elevatoradmin?disconnect=1&guild={guild.id}" + "&{urllib.parse.urlencode(logged_in)}");
+                            xhttp.send();
+                        }}
+                </script>
+                <br/><br/>
+                <div id="news"></div>
+            """, content_type='text/html'
+            )
+        return web.Response(text='500')
+
+
+    loop = asyncio.get_event_loop()
+
+    app = web.Application()
+    app.add_routes([web.get('/', say_hello)])
+    runner = web.AppRunner(app)
+    return runner
 
 
 def run_server(runner):
@@ -410,12 +410,12 @@ async def launch_event_loops(client):
 def main():
     """the main method"""
 
-    # Initialize logging
-    init_logging()
+    # # Initialize logging
+    # init_logging()
 
-    # Initialize the client
-    print("Starting up...")
-    client = Bot("!", intents=intents)
+    # # Initialize the client
+    # print("Starting up...")
+    # client = Bot("!", intents=intents)
 
     # # start webserver
     # if ELEVATOR_ADMIN_CLIENT_SECRET:
@@ -423,7 +423,7 @@ def main():
     #     webserver_thread.start()
 
     # enable slash commands and send them to the discord API
-    slash = SlashCommand(client, sync_commands=SYNC_COMMANDS)
+    # slash = SlashCommand(client, sync_commands=SYNC_COMMANDS)
 
     # load slash command cogs
     # to do that, loop through the files and import all classes and commands
@@ -688,40 +688,40 @@ def main():
             await assignRolesToUser([divider_misc_role_id], member, member.guild)
 
     @client.event
-    async def on_slash_command(ctx: SlashContext):
-        """Gets triggered every slash command"""
-
-        # print the command
-        print(
-            f"{ctx.author.display_name} used '/{ctx.name}' with kwargs '{ctx.kwargs}'"
-        )
-
-        # log the command
-        logger = logging.getLogger("slashCommands")
-        logger.info(
-            f"InteractionID '{ctx.interaction_id}' - User '{ctx.author.name}' with discordID '{ctx.author.id}' executed '/{ctx.name}' with kwargs '{ctx.kwargs}' in guildID '{ctx.guild.id}', channelID '{ctx.channel.id}'"
-        )
+    # async def on_slash_command(ctx: SlashContext):
+    #     """Gets triggered every slash command"""
+    #
+    #     # print the command
+    #     print(
+    #         f"{ctx.author.display_name} used '/{ctx.name}' with kwargs '{ctx.kwargs}'"
+    #     )
+    #
+    #     # log the command
+    #     logger = logging.getLogger("slashCommands")
+    #     logger.info(
+    #         f"InteractionID '{ctx.interaction_id}' - User '{ctx.author.name}' with discordID '{ctx.author.id}' executed '/{ctx.name}' with kwargs '{ctx.kwargs}' in guildID '{ctx.guild.id}', channelID '{ctx.channel.id}'"
+    #     )
 
     @client.event
-    async def on_slash_command_error(ctx: SlashContext, error: Exception):
-        """Gets triggered on slash errors"""
-
-        await ctx.send(
-            embed=embed_message(
-                "Error",
-                f"Sorry, something went wrong \nPlease contact a {ctx.guild.get_role(dev_role_id)}",
-                error,
-            )
-        )
-
-        # log the error
-        logger = logging.getLogger("slashCommands")
-        logger.exception(
-            f"InteractionID '{ctx.interaction_id}' - Error {error} - Traceback: \n{''.join(traceback.format_tb(error.__traceback__))}"
-        )
-
-        # raising error again to making deving easier
-        raise error
+    # async def on_slash_command_error(ctx: SlashContext, error: Exception):
+    #     """Gets triggered on slash errors"""
+    #
+    #     await ctx.send(
+    #         embed=embed_message(
+    #             "Error",
+    #             f"Sorry, something went wrong \nPlease contact a {ctx.guild.get_role(dev_role_id)}",
+    #             error,
+    #         )
+    #     )
+    #
+    #     # log the error
+    #     logger = logging.getLogger("slashCommands")
+    #     logger.exception(
+    #         f"InteractionID '{ctx.interaction_id}' - Error {error} - Traceback: \n{''.join(traceback.format_tb(error.__traceback__))}"
+    #     )
+    #
+    #     # raising error again to making deving easier
+    #     raise error
 
     # handle registrations
     @slash.component_callback()
@@ -873,11 +873,11 @@ def main():
         )
 
     # Finally, set the bot running
-    client.run(BOT_TOKEN)
+    # client.run(BOT_TOKEN)
 
 
 ###############################################################################
 
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()

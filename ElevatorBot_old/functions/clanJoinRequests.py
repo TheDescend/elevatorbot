@@ -5,8 +5,8 @@ from discord_slash import ComponentContext, ButtonStyle
 from discord_slash.utils import manage_components
 
 from ElevatorBot.database.database import lookupDestinyID, lookupSystem
-from ElevatorBot.functions.formating import embed_message
-from ElevatorBot.functions.miscFunctions import checkIfUserIsRegistered
+from ElevatorBot.core.formating import embed_message
+from ElevatorBot.core.miscFunctions import checkIfUserIsRegistered
 from ElevatorBot.networking.network import get_json_from_url, post_json_to_url
 from ElevatorBot.static.config import CLANID, BOTDEVCHANNELID, BUNGIE_OAUTH
 from ElevatorBot.static.globals import thumps_up_emoji_id, thumps_down_emoji_id

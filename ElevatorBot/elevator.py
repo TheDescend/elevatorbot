@@ -1,0 +1,70 @@
+import discord
+from discord.ext.commands import Bot
+from discord_slash import SlashCommand
+
+from ElevatorBot.discordEvents.base import register_events
+from ElevatorBot.misc.initLogging import init_logging
+from ElevatorBot.misc.launchEvents import run_launch_events
+from settings import DISCORD_BOT_TOKEN, SYNC_COMMANDS
+
+
+first_start = True
+
+# config logging
+init_logging()
+
+# print ascii art
+print("----------------------------------------------------------------------------------------")
+print(
+    """
+      ______   _                          _                    ____            _   
+     |  ____| | |                        | |                  |  _ \          | |  
+     | |__    | |   ___  __   __   __ _  | |_    ___    _ __  | |_) |   ___   | |_ 
+     |  __|   | |  / _ \ \ \ / /  / _` | | __|  / _ \  | '__| |  _ <   / _ \  | __|
+     | |____  | | |  __/  \ V /  | (_| | | |_  | (_) | | |    | |_) | | (_) | | |_ 
+     |______| |_|  \___|   \_/    \__,_|  \__|  \___/  |_|    |____/   \___/   \__|                                                                          
+    """
+)
+print("----------------------------------------------------------------------------------------\n")
+print("Starting Up...")
+
+# enable intents to allow certain events
+intents = discord.Intents.default()
+intents.members = True
+intents.guilds = True
+
+
+# define on_ready event
+class ElevatorBot(Bot):
+    async def on_ready(
+        self
+    ):
+        # only run this on first startup
+        global first_start
+        if not first_start:
+            return
+        first_start = False
+
+        await run_launch_events()
+
+        print("Startup Finished!\n")
+        print("--------------------------\n")
+
+
+# actually get the bot obj
+client = ElevatorBot(
+    intents=intents,
+    help_command=None,
+    command_prefix="!",
+    owner_ids=[
+        238388130581839872,
+        219517105249189888,
+    ],
+)
+slash_client = SlashCommand(client, sync_commands=SYNC_COMMANDS)
+
+# add events and handlers
+register_events(client, slash_client)
+
+# run the bot
+client.run(DISCORD_BOT_TOKEN)

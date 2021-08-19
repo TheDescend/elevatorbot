@@ -23,8 +23,8 @@ from ElevatorBot.database.database import (
     getSeals,
     getWeaponInfo,
 )
-from ElevatorBot.functions.dataLoading import get_pgcr, insertPgcrToDB
-from ElevatorBot.functions.formating import embed_message
+from ElevatorBot.core.dataLoading import get_pgcr, insertPgcrToDB
+from ElevatorBot.core.formating import embed_message
 from ElevatorBot.networking.bungieAuth import handle_and_return_token
 from ElevatorBot.networking.network import (
     get_json_from_bungie_with_token,

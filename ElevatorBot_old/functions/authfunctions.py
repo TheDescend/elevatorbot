@@ -5,7 +5,7 @@ from ElevatorBot.database.database import (
     getDestinyDefinition,
     lookupSystem,
 )
-from ElevatorBot.functions.formating import embed_message
+from ElevatorBot.core.formating import embed_message
 from ElevatorBot.networking.models import WebResponse
 from ElevatorBot.networking.network import get_json_from_bungie_with_token
 

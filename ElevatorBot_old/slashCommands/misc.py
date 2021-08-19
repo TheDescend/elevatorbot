@@ -8,11 +8,11 @@ from discord.ext import commands
 from discord_slash import cog_ext, SlashContext
 from discord_slash.utils.manage_commands import create_option
 
-from ElevatorBot.functions.formating import embed_message
-from ElevatorBot.functions.miscFunctions import has_elevated_permissions
-from ElevatorBot.functions.poll import get_poll_object, create_poll_object
-from ElevatorBot.functions.roleLookup import assignRolesToUser, removeRolesFromUser
-from ElevatorBot.functions.slashCommandFunctions import get_user_obj
+from ElevatorBot.core.formating import embed_message
+from ElevatorBot.core.miscFunctions import has_elevated_permissions
+from ElevatorBot.core.poll import get_poll_object, create_poll_object
+from ElevatorBot.core.roleLookup import assignRolesToUser, removeRolesFromUser
+from ElevatorBot.core.slashCommandFunctions import get_user_obj
 from ElevatorBot.static.globals import muted_role_id
 from ElevatorBot.static.slashCommandConfig import permissions_socialist
 from ElevatorBot.static.slashCommandOptions import options_user

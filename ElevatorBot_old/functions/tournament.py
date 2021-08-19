@@ -3,9 +3,9 @@ import json
 import random
 import time
 
-from ElevatorBot.functions.destinyPlayer import DestinyPlayer
-from ElevatorBot.functions.formating import embed_message
-from ElevatorBot.functions.miscFunctions import has_elevated_permissions
+from ElevatorBot.core.destinyPlayer import DestinyPlayer
+from ElevatorBot.core.formating import embed_message
+from ElevatorBot.core.miscFunctions import has_elevated_permissions
 from ElevatorBot.networking.network import get_json_from_url
 
 

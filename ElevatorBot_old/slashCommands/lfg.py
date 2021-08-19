@@ -12,8 +12,8 @@ from ElevatorBot.database.database import (
     add_lfg_blacklisted_member,
     remove_lfg_blacklisted_member,
 )
-from ElevatorBot.functions.formating import embed_message
-from ElevatorBot.functions.lfg import create_lfg_message, get_lfg_message
+from ElevatorBot.core.formating import embed_message
+from ElevatorBot.core.lfg import create_lfg_message, get_lfg_message
 from ElevatorBot.static.slashCommandOptions import options_user
 
 

@@ -18,9 +18,9 @@ from ElevatorBot.database.database import (
     delete_lfg_message,
     select_guild_lfg_events,
 )
-from ElevatorBot.functions.formating import embed_message
-from ElevatorBot.functions.miscFunctions import has_elevated_permissions, get_scheduler
-from ElevatorBot.functions.persistentMessages import get_persistent_message_or_channel
+from ElevatorBot.core.formating import embed_message
+from ElevatorBot.core.miscFunctions import has_elevated_permissions, get_scheduler
+from ElevatorBot.core.persistentMessages import get_persistent_message_or_channel
 from ElevatorBot.static.globals import join_emoji_id, leave_emoji_id, backup_emoji_id
 
 

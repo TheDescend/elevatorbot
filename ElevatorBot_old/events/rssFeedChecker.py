@@ -5,7 +5,7 @@ import feedparser
 
 from ElevatorBot.database.database import rss_item_exist, rss_item_add
 from ElevatorBot.events.baseEvent import BaseEvent
-from ElevatorBot.functions.persistentMessages import (
+from ElevatorBot.core.persistentMessages import (
     get_persistent_message_or_channel,
     bot_status,
 )
