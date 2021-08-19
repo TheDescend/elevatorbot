@@ -564,7 +564,7 @@ class DestinyCommands(commands.Cog):
 
         return embed
 
-    # todo better perm system
+    # todo not really needed
     @cog_ext.cog_slash(
         name="spoder",
         description="The better /spider command to show Spiders current inventory",
@@ -1017,6 +1017,7 @@ class MysticCommands(commands.Cog):
             )
         )
 
+    # todo not needed
     @cog_ext.cog_subcommand(
         base="mystic",
         base_description="Everything concerning Mystic's abandoned carry list. Tbf he said he tried ¯\_(ツ)_/¯",
@@ -1034,7 +1035,7 @@ class MysticCommands(commands.Cog):
 
         await ctx.send(embed=embed)
 
-    # todo can we add a good permission sysstem here too?
+    # todo not needed
     @cog_ext.cog_subcommand(
         base="mystic",
         base_description="Everything concerning Mystic's abandoned carry list. Tbf he said he tried ¯\_(ツ)_/¯",
@@ -1067,7 +1068,7 @@ class MysticCommands(commands.Cog):
 
         await ctx.send(embed=embed)
 
-    # todo can we add a good permission sysstem here too?
+    # todo not needed
     @cog_ext.cog_subcommand(
         base="mystic",
         base_description="Everything concerning Mystic's abandoned carry list. Tbf he said he tried ¯\_(ツ)_/¯",

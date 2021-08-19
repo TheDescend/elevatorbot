@@ -7,6 +7,7 @@ from discord_slash import SlashCommand
 from ElevatorBot.discordEvents.base import register_discord_events
 from ElevatorBot.misc.initBackgroundEvents import register_background_events
 from ElevatorBot.misc.initLogging import init_logging
+from ElevatorBot.misc.veryMisc import yield_files_in_folder
 from settings import DISCORD_BOT_TOKEN, SYNC_COMMANDS
 
 
@@ -68,23 +69,14 @@ register_discord_events(client, slash_client)
 
 # load commands
 print("Loading Commands...")
-slash_dir = "commands"
-for file in os.listdir(slash_dir):
-    if file.endswith(".py") and not file.startswith("__init__"):
-        file = file.removesuffix(".py")
-        extension = f"{slash_dir}.{file}"
-        client.load_extension(extension)
+for path in yield_files_in_folder("commands", "py"):
+    client.load_extension(path)
 print(f"< {len(slash_client.commands)} > Commands Loaded")
 
 # load context menus
 print("Loading Context Menus...")
-context_dir = "contextMenus"
-for root, dirs, files in os.walk(context_dir):
-    for file in files:
-        if file.endswith(".py") and not file.startswith("__init__"):
-            file = file.removesuffix(".py")
-            path = os.path.join(root, file)
-            client.load_extension(path.replace("/", ".").replace("\\", "."))
+for path in yield_files_in_folder("contextMenus", "py"):
+    client.load_extension(path)
 
 # add background events
 print("Loading Background Events...")

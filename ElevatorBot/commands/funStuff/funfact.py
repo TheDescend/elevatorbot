@@ -1,8 +1,8 @@
-from discord.ext import commands
+from discord.ext.commands import Cog
 from discord_slash import SlashContext, cog_ext
 
 
-class ExampleCommand(commands.Cog):
+class FunFact(Cog):
     def __init__(
         self,
         client
@@ -11,17 +11,16 @@ class ExampleCommand(commands.Cog):
 
 
     @cog_ext.cog_slash(
-        name="example",
-        description="Example Command",
+        name="funfact", description="Very fun fun facts just for the funny fun of it"
     )
-    async def _example(
+    async def _funfact(
         self,
         ctx: SlashContext
     ):
-        await ctx.send("Example")
+        pass
 
 
 def setup(
     client
 ):
-    client.add_cog(ExampleCommand(client))
+    client.add_cog(FunFact(client))

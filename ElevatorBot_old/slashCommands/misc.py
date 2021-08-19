@@ -286,9 +286,7 @@ class MiscCommands(commands.Cog):
             "Sadly your victory is no more. Hope to see you back again soon!"
         )
 
-    @cog_ext.cog_slash(name="saymyname", description="Say your name")
-    async def _saymyname(self, ctx: SlashContext):
-        await ctx.send(ctx.author.display_name, tts=True)
+
 
     @cog_ext.cog_slash(
         name="discordjoindate",
