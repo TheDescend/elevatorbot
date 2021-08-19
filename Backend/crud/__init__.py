@@ -5,4 +5,4 @@ from Backend.crud.manifestData import manifest_version, destiny_activity_definit
 from Backend.crud.misc import rss_feed_items, owned_emblems, d2_steam_players
 from Backend.crud.persistentMessages import persistent_messages
 from Backend.crud.pgcrActivities import activities, activities_fail_to_get, activities_users_stats, activities_users_stats_weapons
-from polls import polls
+from Backend.crud.polls import polls
