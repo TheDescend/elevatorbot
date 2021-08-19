@@ -4,9 +4,9 @@ import discord
 from discord.ext.commands import Bot
 from discord_slash import SlashCommand
 
-from ElevatorBot.discordEvents.base import register_events
+from ElevatorBot.discordEvents.base import register_discord_events
+from ElevatorBot.misc.initBackgroundEvents import register_background_events
 from ElevatorBot.misc.initLogging import init_logging
-from ElevatorBot.misc.launchEvents import run_launch_events
 from settings import DISCORD_BOT_TOKEN, SYNC_COMMANDS
 
 
@@ -47,8 +47,6 @@ class ElevatorBot(Bot):
             return
         first_start = False
 
-        await run_launch_events()
-
         print("Startup Finished!\n")
         print("--------------------------\n")
 
@@ -65,8 +63,8 @@ client = ElevatorBot(
 )
 slash_client = SlashCommand(client, sync_commands=SYNC_COMMANDS)
 
-# add events and handlers
-register_events(client, slash_client)
+# add discord events and handlers
+register_discord_events(client, slash_client)
 
 # load commands
 print("Loading Commands...")
@@ -76,6 +74,7 @@ for file in os.listdir(slash_dir):
         file = file.removesuffix(".py")
         extension = f"{slash_dir}.{file}"
         client.load_extension(extension)
+print(f"< {len(slash_client.commands)} > Commands Loaded")
 
 # load context menus
 print("Loading Context Menus...")
@@ -86,6 +85,11 @@ for root, dirs, files in os.walk(context_dir):
             file = file.removesuffix(".py")
             path = os.path.join(root, file)
             client.load_extension(path.replace("/", ".").replace("\\", "."))
+
+# add background events
+print("Loading Background Events...")
+events_loaded = register_background_events(client)
+print(f"< {events_loaded} > Background Events Loaded")
 
 # run the bot
 client.run(DISCORD_BOT_TOKEN)

@@ -10,7 +10,7 @@ from ElevatorBot.discordEvents.messageEvents import on_message, on_message_delet
 from ElevatorBot.discordEvents.voiceEvents import on_voice_state_update
 
 
-def register_events(
+def register_discord_events(
     client: Bot,
     slash_client: SlashCommand
 ):

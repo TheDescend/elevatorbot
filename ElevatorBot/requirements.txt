@@ -1,3 +1,4 @@
 discord_py_slash_command==3.0.1
-APScheduler==3.7.0
+apscheduler==3.7.0
 discord.py==1.7.3
+pytz==2021.1

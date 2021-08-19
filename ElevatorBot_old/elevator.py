@@ -295,96 +295,96 @@ async def launch_event_loops(client):
     await get_connection_pool()
     print("Made sure we are connected to the DB")
 
-    # Scheduler that will be used to manage events
-    sched = get_scheduler()
+    # # Scheduler that will be used to manage events
+    # sched = get_scheduler()
 
-    # add listeners to catch and format errors also to log
-    def event_added(sched_event):
-        job_name = sched.get_job(sched_event.job_id)
+    # # add listeners to catch and format errors also to log
+    # def event_added(sched_event):
+    #     job_name = sched.get_job(sched_event.job_id)
+    #
+    #     # log the execution
+    #     logger = logging.getLogger("events")
+    #     logger.info(
+    #         "Event '%s' with ID '%s' has been added", job_name, sched_event.job_id
+    #     )
+    #
+    # sched.add_listener(event_added, EVENT_JOB_ADDED)
+    #
+    # def event_removed(sched_event):
+    #     # log the execution
+    #     logger = logging.getLogger("events")
+    #     logger.info("Event with ID '%s' has been removed", sched_event.job_id)
+    #
+    # sched.add_listener(event_removed, EVENT_JOB_REMOVED)
+    #
+    # def event_submitted(sched_event):
+    #     job_name = sched.get_job(sched_event.job_id)
+    #     print(f"Running '{job_name}'")
+    #
+    # sched.add_listener(event_submitted, EVENT_JOB_SUBMITTED)
+    #
+    # def event_executed(sched_event):
+    #     job_name = sched.get_job(sched_event.job_id)
+    #
+    #     # log the execution
+    #     logger = logging.getLogger("events")
+    #     logger.info("Event '%s' successfully run", job_name)
+    #
+    # sched.add_listener(event_executed, EVENT_JOB_EXECUTED)
+    #
+    # def event_missed(sched_event):
+    #     job_name = sched.get_job(sched_event.job_id)
+    #
+    #     # log the execution
+    #     logger = logging.getLogger("events")
+    #     logger.warning("Event '%s' missed", job_name)
+    #
+    # sched.add_listener(event_missed, EVENT_JOB_MISSED)
+    #
+    # def event_error(sched_event):
+    #     job_name = sched.get_job(sched_event.job_id)
+    #
+    #     # log the execution
+    #     logger = logging.getLogger("events")
+    #     logger.error(
+    #         "Event '%s' failed - Error '%s' - Traceback: \n%s",
+    #         job_name,
+    #         sched_event.exception,
+    #         sched_event.traceback,
+    #     )
+    #
+    # sched.add_listener(event_error, EVENT_JOB_ERROR)
 
-        # log the execution
-        logger = logging.getLogger("events")
-        logger.info(
-            "Event '%s' with ID '%s' has been added", job_name, sched_event.job_id
-        )
-
-    sched.add_listener(event_added, EVENT_JOB_ADDED)
-
-    def event_removed(sched_event):
-        # log the execution
-        logger = logging.getLogger("events")
-        logger.info("Event with ID '%s' has been removed", sched_event.job_id)
-
-    sched.add_listener(event_removed, EVENT_JOB_REMOVED)
-
-    def event_submitted(sched_event):
-        job_name = sched.get_job(sched_event.job_id)
-        print(f"Running '{job_name}'")
-
-    sched.add_listener(event_submitted, EVENT_JOB_SUBMITTED)
-
-    def event_executed(sched_event):
-        job_name = sched.get_job(sched_event.job_id)
-
-        # log the execution
-        logger = logging.getLogger("events")
-        logger.info("Event '%s' successfully run", job_name)
-
-    sched.add_listener(event_executed, EVENT_JOB_EXECUTED)
-
-    def event_missed(sched_event):
-        job_name = sched.get_job(sched_event.job_id)
-
-        # log the execution
-        logger = logging.getLogger("events")
-        logger.warning("Event '%s' missed", job_name)
-
-    sched.add_listener(event_missed, EVENT_JOB_MISSED)
-
-    def event_error(sched_event):
-        job_name = sched.get_job(sched_event.job_id)
-
-        # log the execution
-        logger = logging.getLogger("events")
-        logger.error(
-            "Event '%s' failed - Error '%s' - Traceback: \n%s",
-            job_name,
-            sched_event.exception,
-            sched_event.traceback,
-        )
-
-    sched.add_listener(event_error, EVENT_JOB_ERROR)
-
-    print("Loading events...")
-    print(BaseEvent.__subclasses__())
-    for ev in BaseEvent.__subclasses__():
-        event = ev()
-
-        # check the type of job and schedule acordingly
-        if event.scheduler_type == "interval":
-            sched.add_job(
-                event.run,
-                "interval",
-                (client,),
-                minutes=event.interval_minutes,
-                jitter=60,
-            )
-        elif event.scheduler_type == "cron":
-            sched.add_job(
-                event.run,
-                "cron",
-                (client,),
-                day_of_week=event.dow_day_of_week,
-                hour=event.dow_hour,
-                minute=event.dow_minute,
-                timezone=pytz.utc,
-            )
-        elif event.scheduler_type == "date":
-            sched.add_job(event.run, "date", (client,), run_date=event.run_date)
-        else:
-            print(f"Failed to load event {event}")
-    jobs = sched.get_jobs()
-    print(f"{len(jobs)} events loaded")
+    # print("Loading events...")
+    # print(BaseEvent.__subclasses__())
+    # for ev in BaseEvent.__subclasses__():
+    #     event = ev()
+    #
+    #     # check the type of job and schedule acordingly
+    #     if event.scheduler_type == "interval":
+    #         sched.add_job(
+    #             event.run,
+    #             "interval",
+    #             (client,),
+    #             minutes=event.interval_minutes,
+    #             jitter=60,
+    #         )
+    #     elif event.scheduler_type == "cron":
+    #         sched.add_job(
+    #             event.run,
+    #             "cron",
+    #             (client,),
+    #             day_of_week=event.dow_day_of_week,
+    #             hour=event.dow_hour,
+    #             minute=event.dow_minute,
+    #             timezone=pytz.utc,
+    #         )
+    #     elif event.scheduler_type == "date":
+    #         sched.add_job(event.run, "date", (client,), run_date=event.run_date)
+    #     else:
+    #         print(f"Failed to load event {event}")
+    # jobs = sched.get_jobs()
+    # print(f"{len(jobs)} events loaded")
 
     # load the lfg events
     lfg_events = await select_lfg_datetimes_and_users()
@@ -445,7 +445,7 @@ def main():
     #             client.load_extension(path.replace("/", ".").replace("\\", "."))
 
     # pylint: disable=no-member
-    print(f"{len(client.slash.commands)} commands loaded")
+    # print(f"{len(client.slash.commands)} commands loaded")
 
     # Define event handlers for the client
     # on_ready may be called multiple times in the event of a reconnect,

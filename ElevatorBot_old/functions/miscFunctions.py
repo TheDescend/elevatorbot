@@ -207,14 +207,14 @@ def convert_expansion_or_season_dates(kwargs):
     return starttime, endtime
 
 
-def get_scheduler():
-    """Returns the apscheduler object"""
-
-    global scheduler
-    if not scheduler:
-        scheduler = AsyncIOScheduler()
-        scheduler.start()
-    return scheduler
+# def get_scheduler():
+#     """Returns the apscheduler object"""
+#
+#     global scheduler
+#     if not scheduler:
+#         scheduler = AsyncIOScheduler()
+#         scheduler.start()
+#     return scheduler
 
 
 async def left_channel(
