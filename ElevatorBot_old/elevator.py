@@ -427,22 +427,22 @@ def main():
 
     # load slash command cogs
     # to do that, loop through the files and import all classes and commands
-    print("Loading commands...")
-    slash_dir = "slashCommands"
-    for file in os.listdir(slash_dir):
-        if file.endswith(".py"):
-            file = file.removesuffix(".py")
-            extension = f"{slash_dir}.{file}"
-            client.load_extension(extension)
-
-    # load context menus
-    context_dir = "contextMenus"
-    for root, dirs, files in os.walk(context_dir):
-        for file in files:
-            if file.endswith(".py"):
-                file = file.removesuffix(".py")
-                path = os.path.join(root, file)
-                client.load_extension(path.replace("/", ".").replace("\\", "."))
+    # print("Loading commands...")
+    # slash_dir = "slashCommands"
+    # for file in os.listdir(slash_dir):
+    #     if file.endswith(".py"):
+    #         file = file.removesuffix(".py")
+    #         extension = f"{slash_dir}.{file}"
+    #         client.load_extension(extension)
+    #
+    # # load context menus
+    # context_dir = "contextMenus"
+    # for root, dirs, files in os.walk(context_dir):
+    #     for file in files:
+    #         if file.endswith(".py"):
+    #             file = file.removesuffix(".py")
+    #             path = os.path.join(root, file)
+    #             client.load_extension(path.replace("/", ".").replace("\\", "."))
 
     # pylint: disable=no-member
     print(f"{len(client.slash.commands)} commands loaded")

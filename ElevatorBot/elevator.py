@@ -1,3 +1,5 @@
+import os
+
 import discord
 from discord.ext.commands import Bot
 from discord_slash import SlashCommand
@@ -65,6 +67,25 @@ slash_client = SlashCommand(client, sync_commands=SYNC_COMMANDS)
 
 # add events and handlers
 register_events(client, slash_client)
+
+# load commands
+print("Loading Commands...")
+slash_dir = "commands"
+for file in os.listdir(slash_dir):
+    if file.endswith(".py") and not file.startswith("__init__"):
+        file = file.removesuffix(".py")
+        extension = f"{slash_dir}.{file}"
+        client.load_extension(extension)
+
+# load context menus
+print("Loading Context Menus...")
+context_dir = "contextMenus"
+for root, dirs, files in os.walk(context_dir):
+    for file in files:
+        if file.endswith(".py") and not file.startswith("__init__"):
+            file = file.removesuffix(".py")
+            path = os.path.join(root, file)
+            client.load_extension(path.replace("/", ".").replace("\\", "."))
 
 # run the bot
 client.run(DISCORD_BOT_TOKEN)
