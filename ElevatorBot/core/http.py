@@ -1,8 +1,6 @@
 import dataclasses
 import logging
-import os
 from typing import Optional, Tuple
-from urllib.parse import urljoin
 
 import aiohttp
 import discord
@@ -48,9 +46,6 @@ class BaseBackendConnection:
             )
         )
 
-        # set base route
-        self.base_route = f"""http://{os.environ.get("BACKEND_HOST")}:{os.environ.get("BACKEND_PORT")}/"""
-
 
     async def backend_get(
         self,
@@ -61,10 +56,7 @@ class BaseBackendConnection:
 
         async with self.backend_session as session:
             async with session.get(
-                url=urljoin(
-                    self.base_route,
-                    route
-                ),
+                url=route,
                 params=params,
             ) as response:
                 return self.__parse_response(response)
@@ -80,10 +72,7 @@ class BaseBackendConnection:
 
         async with self.backend_session as session:
             async with session.post(
-                url=urljoin(
-                    self.base_route,
-                    route
-                ),
+                url=route,
                 params=params,
                 data=data,
             ) as response:
@@ -99,10 +88,7 @@ class BaseBackendConnection:
 
         async with self.backend_session as session:
             async with session.delete(
-                url=urljoin(
-                    self.base_route,
-                    route
-                ),
+                url=route,
                 params=params,
             ) as response:
                 return self.__parse_response(response)
@@ -150,7 +136,7 @@ class BaseBackendConnection:
         """ Handles potential errors. Returns None, None if the error should not be returned to the user and str, str if something should be returned to the user """
 
         if response.status == 409:
-            # this means the errors isnt really an error and we want to return info to the user
+            # this means the errors isn't really an error and we want to return info to the user
             self.logger.info("%s: '%s' - '%s'", response.status, response.method, response.url)
             error_json = await response.json()
             return error_json["error"], error_json["error_message"]
