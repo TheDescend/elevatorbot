@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, Form, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from Backend.core.errors import CustomException
 from Backend.core.security.auth import ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token, get_password_hash
 from Backend.database.models import BackendUser
 from Backend.schemas.auth import BackendUserModel, Token
@@ -55,7 +56,6 @@ async def register(user_name: str = Form(...), password: str = Form(...), db: As
 
     hashed_password = get_password_hash(password)
 
-
     # todo dont make everyone admin
     # insert to db
     new_user = BackendUser(
@@ -66,6 +66,10 @@ async def register(user_name: str = Form(...), password: str = Form(...), db: As
         has_read_permission=True,
     )
     await crud.backend_user.insert(db, new_user)
+
+    # todo remove. just demonstration
+    if new_user.user_name == "a":
+        raise CustomException("wrong pw", "pw can only be b")
 
     return BackendUserModel.from_orm(new_user)
 
