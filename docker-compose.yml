@@ -50,6 +50,7 @@ services:
       - POSTGRES_PASSWORD
       - POSTGRES_HOST
       - POSTGRES_PORT
+      - BACKEND_HOST
       - BACKEND_PORT
     networks:
       - database-network
@@ -68,7 +69,9 @@ services:
       - ./Website:/app/Website
       - ./logs/Website_old:/app/Website_old/logs
     environment:
+      - BACKEND_HOST
       - BACKEND_PORT
+      - WEBSITE_HOST
       - WEBSITE_PORT
     networks:
       - backend-network
@@ -85,7 +88,9 @@ services:
       - ./logs/ElevatorBot:/app/ElevatorBot/logs
       - ./settings.py:/app/settings.py
     environment:
+      - BACKEND_HOST
       - BACKEND_PORT
+      - WEBSITE_HOST
       - WEBSITE_PORT
     networks:
       - backend-network

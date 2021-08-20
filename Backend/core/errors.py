@@ -20,6 +20,6 @@ async def handle_custom_exception(request: Request, exception: CustomException):
         status_code=409,
         content={
             "error": exception.error,
-            "message": exception.error_message
+            "error_message": exception.error_message
         },
     )

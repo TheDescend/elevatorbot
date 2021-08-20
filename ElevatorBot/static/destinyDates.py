@@ -16,4 +16,5 @@ season_dates = [
     ["2020-06-09", "Season of Arrivals"],
     ["2021-02-09", "Season of the Chosen"],
     ["2021-05-11", "Season of the Splicer"],
+    ["2021-08-24", "Season of the Lost"],
 ]
