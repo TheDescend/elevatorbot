@@ -186,7 +186,7 @@ async def getRefreshToken(discordID):
 
     select_sql = """
         SELECT 
-            refresh_token 
+            __refresh_token 
         FROM 
             "discordGuardiansToken"
         WHERE 
@@ -248,7 +248,7 @@ async def insertToken(
         insert_sql = """
             INSERT INTO 
                 "discordGuardiansToken"
-                (discordSnowflake, destinyID, signupDate, serverID, token, refresh_token, systemID, token_expiry, refresh_token_expiry) 
+                (discordSnowflake, destinyID, signupDate, serverID, token, __refresh_token, systemID, token_expiry, refresh_token_expiry) 
             VALUES 
                 ($1, $2, $3, $4, $5, $6, $7, $8, $9);"""
 
@@ -278,7 +278,7 @@ async def updateToken(
             "discordGuardiansToken"
         SET 
             token = $1,
-            refresh_token = $2,
+            __refresh_token = $2,
             token_expiry = $3,
             refresh_token_expiry = $4,
             discordSnowflake = $5

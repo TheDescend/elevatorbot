@@ -1,95 +1,85 @@
+import dataclasses
 import time
-from typing import Optional
 
 import aiohttp
 
+from Backend.core.errors import CustomException
 from Backend.networking.models import BungieToken
-from Backend.networking.networkBackend import post_request
+from Backend.networking.base import NetworkBase
 from settings import B64_SECRET
 
 
-async def handle_and_return_token(discord_id: int) -> BungieToken:
-    """Returns token if exists with an error message"""
+@dataclasses.dataclass
+class BungieAuth(NetworkBase):
+    discord_id: int
 
-    token = BungieToken(token=await getToken(discord_id))
-    if not token.token:
-        token.error = "User has not registered"
-        return token
-
-    # refresh token if expired
-    expiry = await getTokenExpiry(discord_id)
-    if not expiry:
-        token.error = "User tokens have no expiry date"
-        return token
-
-    current_time = int(time.time())
-
-    # check refresh token first, since they need to re-register otherwise
-    if current_time > expiry[1]:
-        token.error = (
-            "Registration is outdated, please re-register using `/registerdesc"
-        )
-        return token
-
-    # refresh token if outdated
-    if current_time > expiry[0]:
-        token.token = await refresh_token(discord_id)
-        if not token.token:
-            token.error = "Token refresh failed"
-            return token
-
-    return token
-
-
-async def refresh_token(discord_id: int) -> Optional[str]:
-    """
-    takes the discord snowflakes, writes a new refresh token, access token to the DB and
-    returns the access token or None if failed
-    """
-
-    url = "https://www.bungie.net/platform/app/oauth/token/"
-    oauth_headers = {
+    route = "https://www.bungie.net/platform/app/oauth/token/"
+    headers = {
         "content-type": "application/x-www-form-urlencoded",
         "authorization": "Basic " + str(B64_SECRET),
     }
-    oauth_refresh_token = await getRefreshToken(discord_id)
-    if not oauth_refresh_token:
-        return None
 
-    destiny_id = await lookupDestinyID(discord_id)
+    bungie_request = True
 
-    data = {
-        "grant_type": "refresh_token",
-        "refresh_token": str(oauth_refresh_token),
-    }
 
-    # get a new token
-    async with aiohttp.ClientSession() as session:
+    async def get_working_token(
+        self,
+    ) -> BungieToken:
+        """ Returns token or raises an error """
+
+        token = BungieToken(token=await getToken(discord_id))
+        if not token.token:
+            raise CustomException("DiscordIdNotFound")
+
+        # check expiry
+        expiry = await getTokenExpiry(discord_id)
         current_time = int(time.time())
-        response = await post_request(
-            session=session,
-            url=url,
-            data=data,
-            headers=oauth_headers,
-            bungie_request=True,
-        )
-        if response:
-            access_token = response.content["access_token"]
-            new_refresh_token = response.content["refresh_token"]
-            token_expiry = current_time + response.content["expires_in"]
-            refresh_token_expiry = current_time + response.content["refresh_expires_in"]
 
-            # update db entry
-            await updateToken(
-                destiny_id,
-                discord_id,
-                access_token,
-                new_refresh_token,
-                token_expiry,
-                refresh_token_expiry,
+        # check refresh token first, since they need to re-register otherwise
+        if current_time > expiry[1]:
+            raise CustomException("NoToken")
+
+        # refresh token if outdated
+        if current_time > expiry[0]:
+            token.token = await self.__refresh_token()
+            if not token.token:
+                raise CustomException("NoToken")
+
+        return token
+
+
+    async def __refresh_token(
+        self,
+    ) -> str:
+        """ Updates the token and saves it to the DB. Raises an error if failed """
+
+        oauth_refresh_token = await getRefreshToken(discord_id)
+        if not oauth_refresh_token:
+            raise CustomException("NoToken")
+
+        data = {
+            "grant_type": "__refresh_token",
+            "refresh_token": str(oauth_refresh_token),
+        }
+
+        # get a new token
+        async with aiohttp.ClientSession() as session:
+            current_time = int(time.time())
+            response = await self._post_request(
+                session=session,
+                route=self.route,
+                data=data,
+                headers=self.headers,
             )
+            if response:
+                access_token = response.content["access_token"]
+                new_refresh_token = response.content["refresh_token"]
+                token_expiry = current_time + response.content["expires_in"]
+                refresh_token_expiry = current_time + response.content["refresh_expires_in"]
 
-            return access_token
+                # update db entry
+                await updateToken(
 
-        else:
-            return
+                )
+
+                return access_token

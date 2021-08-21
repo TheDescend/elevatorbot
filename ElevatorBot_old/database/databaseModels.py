@@ -116,7 +116,7 @@ database_tables = [
         signupDate DATE,
         serverID BIGINT,
         token TEXT,
-        refresh_token TEXT,
+        __refresh_token TEXT,
         systemid INTEGER,
         token_expiry TIMESTAMP,
         refresh_token_expiry TIMESTAMP,

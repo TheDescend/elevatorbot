@@ -102,7 +102,7 @@ class DiscordGuardiansToken(Base):
     destiny_id = Column("destinyid", BigInteger, unique=True)
     system = Column("systemid", Integer)
     token = Column("token", Text)
-    refresh_token = Column("refresh_token", Text)
+    refresh_token = Column("__refresh_token", Text)
     token_expiry = Column("token_expiry", DateTime)
     refresh_token_expiry = Column("refresh_token_expiry", DateTime)
     signup_date = Column("signupdate", Date)

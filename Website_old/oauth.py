@@ -66,7 +66,7 @@ def root():
         print(f"invalid authresponse: {authresponse}")
         return "Something went wrong. Maybe an invalid token/code in your URL?"
     access_token = authresponse['access_token']
-    refresh_token = authresponse['refresh_token']
+    refresh_token = authresponse['__refresh_token']
     token_expiry = t + authresponse['expires_in']
     refresh_token_expiry = t + authresponse['refresh_expires_in']
 
