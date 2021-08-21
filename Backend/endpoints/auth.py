@@ -47,7 +47,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 @router.post("/register")
 async def register(user_name: str = Form(...), password: str = Form(...), db: AsyncSession = Depends(get_db_session)):
     # look if a user with that name exists
-    user = await crud.backend_user.get_with_key(db, user_name)
+    user = await crud.backend_user._get_with_key(db, user_name)
     if user:
         raise HTTPException(
             status_code=400,
@@ -57,7 +57,7 @@ async def register(user_name: str = Form(...), password: str = Form(...), db: As
     hashed_password = get_password_hash(password)
 
     # todo dont make everyone admin
-    # insert to db
+    # _insert to db
     new_user = BackendUser(
         user_name=user_name,
         hashed_password=hashed_password,
@@ -65,7 +65,7 @@ async def register(user_name: str = Form(...), password: str = Form(...), db: As
         has_write_permission=True,
         has_read_permission=True,
     )
-    await crud.backend_user.insert(db, new_user)
+    await crud.backend_user._insert(db, new_user)
 
     # todo remove. just demonstration
     if new_user.user_name == "a":

@@ -22,7 +22,7 @@ from ElevatorBot.static.globals import *
 
 
 class AutomaticRoleAssignment(BaseEvent):
-    """Will automatically update the roles"""
+    """Will automatically _update the roles"""
 
     def __init__(self):
         # Set the interval for this event
@@ -55,7 +55,7 @@ class AutomaticRoleAssignment(BaseEvent):
                 *roles_to_add, reason="Achievement Role Earned"
             )
 
-            # delete roles
+            # _delete roles
             await discord_member.remove_roles(
                 *roles_to_remove, reason="Achievement Role Not Deserved"
             )
@@ -95,7 +95,7 @@ class AutomaticRoleAssignment(BaseEvent):
             for chunk in split_into_chucks_of_max_2000_characters(text_list=news):
                 await newtonslab.send(chunk)
 
-        # update the status
+        # _update the status
         await bot_status(
             client,
             "Achievement Role Update",
@@ -104,7 +104,7 @@ class AutomaticRoleAssignment(BaseEvent):
 
 
 class AutoRegisteredRole(BaseEvent):
-    """Will automatically update the registration and clan roles"""
+    """Will automatically _update the registration and clan roles"""
 
     def __init__(self):
         interval_minutes = 30  # Set the interval for this event
@@ -181,7 +181,7 @@ class AutoRegisteredRole(BaseEvent):
                                 f"Removed Descend role from {member.mention}"
                             )
 
-        # update the status
+        # _update the status
         await bot_status(
             client,
             "Member Role Update",

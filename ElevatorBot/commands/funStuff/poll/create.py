@@ -14,7 +14,7 @@ class PollCreate(Cog):
     @cog_ext.cog_subcommand(
         base="poll",
         base_description="Making polls easy",
-        name="insert",
+        name="_insert",
         description="Create a poll",
         options=[
             create_option(

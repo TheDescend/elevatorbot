@@ -134,8 +134,8 @@ class Tournament:
 
             mention1 = await tourn_channel.send(user1.mention)
             mention2 = await tourn_channel.send(user2.mention)
-            await mention1.delete()
-            await mention2.delete()
+            await mention1._delete()
+            await mention2._delete()
 
             while True:
                 # timeout
@@ -151,7 +151,7 @@ class Tournament:
                     destiny_player2.destiny_id,
                 )
 
-                # check if there are new reactions, delete them and check if an admin reacted and make that reaction the winner
+                # check if there are new reactions, _delete them and check if an admin reacted and make that reaction the winner
                 # msg object has to be reloaded
                 msg = await tourn_channel.fetch_message(msg.id)
                 for reaction in msg.reactions:
@@ -164,7 +164,7 @@ class Tournament:
                                 for reaction_id in which_user_is_which_emoji:
                                     if reaction.emoji.id == reaction_id:
                                         won = which_user_is_which_emoji[reaction_id]
-                            await reaction.delete(user)
+                            await reaction._delete(user)
 
                 # return winner if found
                 if won:
@@ -175,7 +175,7 @@ class Tournament:
                         won = player2
                         self.eliminated.append(user1)
 
-                    await msg.delete()
+                    await msg._delete()
 
                     # edit participants msg
                     await edit_tourn_message(

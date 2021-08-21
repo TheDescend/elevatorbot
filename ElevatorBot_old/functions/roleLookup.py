@@ -241,7 +241,7 @@ async def get_player_roles(
     earned_roles = [discord_role.name for discord_role in roles_to_add]
     current_discord_roles = [role.name for role in member.roles]
 
-    # delete roles that are replaced by others. Also put roles that have already been earned into a different dict
+    # _delete roles that are replaced by others. Also put roles that have already been earned into a different dict
     roles_to_remove_name = []
     all_roles_not_earned_name = []
     divider_role = member.guild.get_role(divider_legacy_role_id)

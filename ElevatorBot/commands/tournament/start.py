@@ -14,7 +14,7 @@ class TournamentStart(Cog):
         base="tournament",
         base_description="Everything you need for in-house PvP tournaments",
         name="start",
-        description="Starts the tournament. Can only be used by the user who used '/tournament insert' or an Admin",
+        description="Starts the tournament. Can only be used by the user who used '/tournament _insert' or an Admin",
     )
     async def _start(
         self,

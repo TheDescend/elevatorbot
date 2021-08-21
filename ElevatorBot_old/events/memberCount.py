@@ -12,7 +12,7 @@ class GetMemberCount(BaseEvent):
     # Override the run() method
     # It will be called once every {interval_minutes} minutes
     async def run(self, client):
-        # loop through all guilds, get the channel id if exists and update that
+        # loop through all guilds, get the channel id if exists and _update that
         for guild in client.guilds:
             result = await get_persistent_message("memberCount", guild.id)
             if not result:
@@ -21,7 +21,7 @@ class GetMemberCount(BaseEvent):
             if not channel:
                 continue
 
-            # update the name - font is "math sans" from "https://qaz.wtf/u/convert.cgi"
+            # _update the name - font is "math sans" from "https://qaz.wtf/u/convert.cgi"
             await channel.edit(
                 name=f"𝖬𝖾𝗆𝖻𝖾𝗋𝗌｜{guild.member_count}", reason="Member Count Update"
             )
@@ -37,7 +37,7 @@ class GetBoosterCount(BaseEvent):
     # Override the run() method
     # It will be called once every {interval_minutes} minutes
     async def run(self, client):
-        # loop through all guilds, get the channel id if exists and update that
+        # loop through all guilds, get the channel id if exists and _update that
         for guild in client.guilds:
             result = await get_persistent_message("boosterCount", guild.id)
             if not result:
@@ -46,7 +46,7 @@ class GetBoosterCount(BaseEvent):
             if not channel:
                 continue
 
-            # update the name
+            # _update the name
             await channel.edit(
                 name=f"𝖡𝗈𝗈𝗌𝗍𝖾𝗋𝗌｜{guild.premium_subscription_count}",
                 reason="Booster Count Update",

@@ -26,7 +26,7 @@ async def auth_get_user(token: str = Depends(oauth2_scheme), db: AsyncSession = 
         raise CREDENTIALS_EXCEPTION
 
     # get the user
-    user = await crud.backend_user.get_with_key(db, user_name)
+    user = await crud.backend_user._get_with_key(db, user_name)
 
     # verify that the user is OK
     if user is None:

@@ -98,17 +98,17 @@ class PgcrActivitiesUsersStatsWeapon(Base):
 class DiscordGuardiansToken(Base):
     __tablename__ = 'discordGuardiansToken'
 
-    discord_id = Column("discordsnowflake", BigInteger, primary_key=True)
-    destiny_id = Column("destinyid", BigInteger, unique=True)
-    system = Column("systemid", Integer)
-    token = Column("token", Text)
-    refresh_token = Column("__refresh_token", Text)
-    token_expiry = Column("token_expiry", DateTime)
-    refresh_token_expiry = Column("refresh_token_expiry", DateTime)
-    signup_date = Column("signupdate", Date)
-    signup_server_id = Column("serverid", BigInteger)
-    steam_join_id = Column("steamjoinid", BigInteger)
-    activities_last_updated = Column("activitieslastupdated", DateTime, server_default=text("'2000-01-01 00:00:00'::timestamp without time zone"))
+    discord_id = Column("discordsnowflake", BigInteger, nullable=False, primary_key=True)
+    destiny_id = Column("destinyid", BigInteger, nullable=False, unique=True)
+    system = Column("systemid", Integer, nullable=False)
+    token = Column("token", Text, nullable=False)
+    refresh_token = Column("__refresh_token", Text, nullable=False)
+    token_expiry = Column("token_expiry", DateTime, nullable=False)
+    refresh_token_expiry = Column("refresh_token_expiry", DateTime, nullable=False)
+    signup_date = Column("signupdate", Date, nullable=False)
+    signup_server_id = Column("serverid", BigInteger, nullable=False)
+    steam_join_id = Column("steamjoinid", BigInteger, nullable=True)
+    activities_last_updated = Column("activitieslastupdated", DateTime, nullable=False, server_default=text("'2000-01-01 00:00:00'::timestamp without time zone"))
 
 
 class OwnedEmblem(Base):
@@ -300,7 +300,7 @@ class PersistentMessage(Base):
     reaction_ids = Column("reactionsidlist", ARRAY(BigInteger()))
 
 
-# insert all tables
+# _insert all tables
 _TABLES_CREATED = False
 async def create_tables(engine: Engine):
     global _TABLES_CREATED

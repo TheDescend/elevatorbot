@@ -234,7 +234,7 @@ async def left_channel(
         if (not before_channel.members) and (
             before_channel.id not in guild_lfg_voice_channels
         ):
-            await before_channel.delete(reason="LFG event over")
+            await before_channel._delete(reason="LFG event over")
 
     # or do whatever hali think this does. no idea honestly
     else:
@@ -266,7 +266,7 @@ async def left_channel(
                 )
                 if higher and not higher.members:
                     if below and not below.members:
-                        await higher.delete()
+                        await higher._delete()
 
             for i in range(defaultchannels + 1, number + 1, 1):
                 higher = discord.utils.get(

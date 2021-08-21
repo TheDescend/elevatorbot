@@ -2,9 +2,10 @@ from datetime import timedelta
 
 import aiohttp
 import aiohttp_client_cache
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.networking.bungieAuth import BungieAuth
-from Backend.networking.models import InternalWebResponse
+from Backend.networking.schemas import WebResponse
 from Backend.networking.base import NetworkBase
 from settings import BUNGIE_TOKEN
 
@@ -20,7 +21,7 @@ class BungieApi(NetworkBase):
     }
     auth_headers = normal_headers.copy()
 
-    # the cache object. Low expire time since players dont want to wait an eternity for their stuff to update
+    # the cache object. Low expire time since players dont want to wait an eternity for their stuff to _update
     cache = aiohttp_client_cache.SQLiteBackend(
         cache_name="networking/bungie_networking_cache",
         expire_after=timedelta(minutes=5),
@@ -46,7 +47,7 @@ class BungieApi(NetworkBase):
         route: str,
         params: dict = None,
         use_cache: bool = True
-    ) -> InternalWebResponse:
+    ) -> WebResponse:
         """ Grabs JSON from the specified URL (no oauth) """
 
         async with aiohttp_client_cache.CachedSession(cache=self.cache) as session:
@@ -72,14 +73,15 @@ class BungieApi(NetworkBase):
 
     async def get_json_from_bungie_with_token(
         self,
+        db: AsyncSession,
         route: str,
         params: dict = None,
         use_cache: bool = True,
-    ) -> InternalWebResponse:
+    ) -> WebResponse:
         """ Grabs JSON from the specified URL (oauth) """
 
         # set the auth headers to a working token
-        await self.__set_auth_headers()
+        await self.__set_auth_headers(db)
 
         # ignore cookies
         no_jar = aiohttp.DummyCookieJar()
@@ -110,14 +112,15 @@ class BungieApi(NetworkBase):
 
     async def post_json_to_url(
         self,
+        db: AsyncSession,
         route: str,
         data: dict,
         params: dict = None
-    ) -> InternalWebResponse:
+    ) -> WebResponse:
         """ Post data to bungie. self.discord_id must have the authentication for the action """
 
         # set the auth headers to a working token
-        await self.__set_auth_headers()
+        await self.__set_auth_headers(db)
 
         async with aiohttp_client_cache.CachedSession(cache=self.cache) as session:
             # do not use cache here
@@ -130,17 +133,20 @@ class BungieApi(NetworkBase):
                     params=params,
                 )
 
-    async def __set_auth_headers(self):
+    async def __set_auth_headers(self, db: AsyncSession):
         """ Update the auth headers to include a working token. Raise an error if that doesnt exist """
 
         # get a working token or abort
-        auth = BungieAuth(self.discord_id)
+        auth = BungieAuth(
+            discord_id=self.discord_id,
+            db=db
+        )
         token = await auth.get_working_token()
 
         # use special token headers if its a bungie request
         if self.bungie_request:
             self.auth_headers = self.auth_headers.update(
                 {
-                    "Authorization": f"Bearer {token.token}",
+                    "Authorization": f"Bearer {token}",
                 }
             )

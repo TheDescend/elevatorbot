@@ -84,7 +84,7 @@ class RoleCommands(commands.Cog):
         # might take a sec
         await ctx.defer()
 
-        # update user DB
+        # _update user DB
         await destiny_player.update_activity_db()
 
         # get new roles
@@ -109,7 +109,7 @@ class RoleCommands(commands.Cog):
         # assign roles
         await user.add_roles(*roles_to_add, reason="Achievement Role Update")
 
-        # delete roles
+        # _delete roles
         await user.remove_roles(*roles_to_remove, reason="Achievement Role Update")
 
         # compare them with old roles for a better result msg
@@ -194,7 +194,7 @@ class RoleCommands(commands.Cog):
         if not destiny_player:
             return
 
-        # update user DB
+        # _update user DB
         await destiny_player.update_activity_db()
         reqs = await has_role(destiny_player, role, return_as_bool=False)
 
@@ -235,7 +235,7 @@ class RoleCommands(commands.Cog):
                     except KeyError:
                         deprecated_roles[category] = [role]
 
-        # delete the roles from dict(roles) that are already earned
+        # _delete the roles from dict(roles) that are already earned
         user_roles = [role.name for role in user.roles]
         for role in user_roles:
             for category in roles:
@@ -251,7 +251,7 @@ class RoleCommands(commands.Cog):
                 except ValueError:
                     pass
 
-        # delete those roles, where a superior role exists
+        # _delete those roles, where a superior role exists
         for category, x in requirementHashes.items():
             for role, roledata in x.items():
                 if "replaced_by" in roledata.keys():
@@ -270,7 +270,7 @@ class RoleCommands(commands.Cog):
                                 except ValueError:
                                     pass
 
-        # delete the empty categories
+        # _delete the empty categories
         for role, roledata in roles.copy().items():
             if not roledata:
                 roles.pop(role)

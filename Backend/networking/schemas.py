@@ -1,6 +1,9 @@
 import dataclasses
+import datetime
 import time
 from typing import Optional
+
+from pydantic import BaseModel
 
 
 @dataclasses.dataclass
@@ -28,11 +31,3 @@ class WebResponse:
     status: int
     content: dict
     from_cache: bool
-
-
-@dataclasses.dataclass
-class BungieToken:
-    """ class containing token info """
-
-    token: Optional[str]
-    error: Optional[str]

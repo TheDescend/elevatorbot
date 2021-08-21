@@ -349,7 +349,7 @@ class DestinyCommands(commands.Cog):
         embed.set_image(url=f"attachment://{title}")
         await ctx.send(file=image, embed=embed)
 
-        # delete file
+        # _delete file
         await asyncio.sleep(10)
         os.remove(title)
 
@@ -920,7 +920,7 @@ class ClanActivitiesCommands(commands.Cog):
         # sending them the file
         await ctx.channel.send(file=discord.File(title))
 
-        # delete file
+        # _delete file
         os.remove(title)
 
     async def _handle_members(self, destinyID, mode, start_time, end_time, name):
@@ -1072,7 +1072,7 @@ class MysticCommands(commands.Cog):
     @cog_ext.cog_subcommand(
         base="mystic",
         base_description="Everything concerning Mystic's abandoned carry list. Tbf he said he tried ¯\_(ツ)_/¯",
-        name="delete",
+        name="_delete",
         description="Remove a user from the list",
         options=[options_user(flavor_text="Requires elevated permissions")],
     )
@@ -1089,8 +1089,8 @@ class MysticCommands(commands.Cog):
             len(player := list(filter(lambda muser: muser["id"] == user.id, players)))
             == 1
         ):
-            # delete player
-            players.delete(player[0])
+            # _delete player
+            players._delete(player[0])
             with open("commands/mysticlog.log", "a") as mlog:
                 mlog.write(f"\n{ctx.author.name} removed {user.name}")
 
@@ -1702,7 +1702,7 @@ class RankCommands(commands.Cog):
 
         return [helmet, gauntlet, chest, leg, class_item, kinetic, energy, power]
 
-    # todo delete
+    # todo _delete
     def _add_stats(self, stat_json, stat, scope="all"):
         result_sort = 0
         if scope == "all":
@@ -1846,7 +1846,7 @@ class WeaponCommands(commands.Cog):
         if not weapon_name:
             return
 
-        # update user db
+        # _update user db
         await destiny_player.update_activity_db()
 
         # get the char class if that is asked for
@@ -2027,7 +2027,7 @@ class WeaponCommands(commands.Cog):
             # sending them the file
             await ctx.send(file=discord.File(title))
 
-            # delete file
+            # _delete file
             os.remove(title)
 
     @cog_ext.cog_slash(
@@ -2145,7 +2145,7 @@ class WeaponCommands(commands.Cog):
         if not ctx.deferred:
             await ctx.defer()
 
-        # update user db
+        # _update user db
         await destiny_player.update_activity_db()
 
         # get the char class if that is asked for
@@ -2558,7 +2558,7 @@ class TournamentCommands(commands.Cog):
     @cog_ext.cog_subcommand(
         base="tournament",
         base_description="Everything you need for in-house PvP tournaments",
-        name="insert",
+        name="_insert",
         description="Opens up registration. Can only be used if no other tournament is currently running",
     )
     async def _create(self, ctx: SlashContext):
@@ -2571,7 +2571,7 @@ class TournamentCommands(commands.Cog):
                 hidden=True,
                 embed=embed_message(
                     f"Error",
-                    f"A tournament already exists. \nPlease wait until it is completed and then try again or ask a member of staff to delete it",
+                    f"A tournament already exists. \nPlease wait until it is completed and then try again or ask a member of staff to _delete it",
                 ),
             )
             return
@@ -2612,7 +2612,7 @@ class TournamentCommands(commands.Cog):
         base="tournament",
         base_description="Everything you need for in-house PvP tournaments",
         name="start",
-        description="Starts the tournament. Can only be used by the user who used '/tournament insert' or an Admin",
+        description="Starts the tournament. Can only be used by the user who used '/tournament _insert' or an Admin",
     )
     async def _start(self, ctx: SlashContext):
         # check if tourn exists
@@ -2624,7 +2624,7 @@ class TournamentCommands(commands.Cog):
                 hidden=True,
                 embed=embed_message(
                     f"Error",
-                    f"You need to start the registration by using `/tournament insert` first",
+                    f"You need to start the registration by using `/tournament _insert` first",
                 ),
             )
             return
@@ -2664,7 +2664,7 @@ class TournamentCommands(commands.Cog):
             self.client, message, message.channel, participants
         )
 
-        # delete registration message
+        # _delete registration message
         channel = message.channel
         await delete_persistent_message(message, "tournament", ctx.guild.id)
 
@@ -2672,15 +2672,15 @@ class TournamentCommands(commands.Cog):
         embed = embed_message("We have a winner", f"Congratulation {winner.mention}!")
         msg = await channel.send(embed=embed)
 
-        # wait 10 mins and then delete
+        # wait 10 mins and then _delete
         await asyncio.sleep(60 * 10)
-        await msg.delete()
+        await msg._delete()
 
     @cog_ext.cog_subcommand(
         base="tournament",
         base_description="Everything you need for in-house PvP tournaments",
-        name="delete",
-        description="Delete the tournament. Can only be used by the user who used '/tournament insert' or an Admin",
+        name="_delete",
+        description="Delete the tournament. Can only be used by the user who used '/tournament _insert' or an Admin",
     )
     async def _delete(self, ctx: SlashContext):
         # check if tourn exists
@@ -2690,7 +2690,7 @@ class TournamentCommands(commands.Cog):
         if not message:
             await ctx.send(
                 hidden=True,
-                embed=embed_message(f"Error", f"There is no tournament to delete"),
+                embed=embed_message(f"Error", f"There is no tournament to _delete"),
             )
             return
 
@@ -2702,12 +2702,12 @@ class TournamentCommands(commands.Cog):
                 hidden=True,
                 embed=embed_message(
                     f"Error",
-                    f"Only admins and the tournament creator can delete the tournament",
+                    f"Only admins and the tournament creator can _delete the tournament",
                 ),
             )
             return
 
-        # delete msg
+        # _delete msg
         await delete_persistent_message(message, "tournament", ctx.guild.id)
 
         await ctx.send(

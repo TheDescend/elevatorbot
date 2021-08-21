@@ -107,7 +107,7 @@ class DestinyProfile(BaseBackendConnection):
     ):
         """ Delete the profile """
 
-        # todo delete info. fe on /unregister calls
+        # todo _delete info. fe on /unregister calls
         pass
 
 

@@ -83,13 +83,13 @@ async def make_persistent_message(
     # check if msg exists
     res = await get_persistent_message(message_name, guild_id)
 
-    # update
+    # _update
     if res:
-        # delete old msg
+        # _delete old msg
         channel = client.get_channel(res[0])
         try:
             old_message = await channel.fetch_message(res[1])
-            await old_message.delete()
+            await old_message._delete()
         except discord.errors.NotFound:
             pass
 
@@ -101,7 +101,7 @@ async def make_persistent_message(
             reaction_id_list,
         )
 
-    # insert
+    # _insert
     else:
         await insertPersistentMessage(
             message_name,
@@ -117,7 +117,7 @@ async def make_persistent_message(
 async def delete_persistent_message(message, message_name, guild_id):
     """Delete the persistent message for the specified name and guild"""
 
-    await message.delete()
+    await message._delete()
     await deletePersistentMessage(message_name, guild_id)
 
 
@@ -146,7 +146,7 @@ async def handle_persistent_message_reaction(client, payload, persistent_message
     channel = client.get_channel(channel_id)
     message = await channel.fetch_message(message_id)
 
-    # check if the reactions are ok, else delete them. Only do that when set reactions exist tho
+    # check if the reactions are ok, else _delete them. Only do that when set reactions exist tho
     if reactions_id_list and payload.emoji.id not in reactions_id_list:
         await message.remove_reaction(payload.emoji, payload.member)
         return
@@ -186,7 +186,7 @@ async def steamJoinCodeMessage(client, guild):
     name = list(sorted_data.keys())
     code = list(sorted_data.values())
 
-    # insert new message
+    # _insert new message
     embed = embed_message(
         "Steam Join Codes",
         "Here you can find a updated list of Steam Join Codes. \nUse `/id set <id>` to set appear here and `/id get <user>` to find a code without looking here",
@@ -211,7 +211,7 @@ async def bot_status(
     client: discord.Client, field_name: str, time: datetime.datetime
 ) -> None:
     """
-    takes the field (name) and the timestamp of last update
+    takes the field (name) and the timestamp of last _update
 
     Current fields in use:
         "Database Update"

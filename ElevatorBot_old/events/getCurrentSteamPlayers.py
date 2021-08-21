@@ -28,7 +28,7 @@ class getCurrentSteamPlayers(BaseEvent):
 
         await update_d2_steam_players(now, number_of_players)
 
-        # update the status
+        # _update the status
         await bot_status(
             client,
             "Steam Player Update",

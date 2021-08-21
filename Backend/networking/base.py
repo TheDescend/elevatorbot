@@ -8,7 +8,7 @@ import aiohttp_client_cache
 
 from Backend.core.errors import CustomException
 from Backend.networking.bungieRatelimiting import BungieRateLimiter
-from Backend.networking.models import InternalWebResponse, WebResponse
+from Backend.networking.schemas import InternalWebResponse, WebResponse
 
 
 # the limiter object which to not get rate-limited by bungie. One obj for ever instance!

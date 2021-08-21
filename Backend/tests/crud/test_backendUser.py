@@ -25,7 +25,7 @@ async def test_authenticate(
         has_read_permission=has_read_permission,
     )
 
-    await crud.backend_user.insert(db, test_user)
+    await crud.backend_user._insert(db, test_user)
 
     result = await crud.backend_user.authenticate(db, user_name, "correct_password")
 

@@ -104,7 +104,7 @@ class RegistrationCommands(commands.Cog):
         # save id
         await setSteamJoinID(user.id, kwargs["steamid"])
 
-        # update the status msg
+        # _update the status msg
         await steamJoinCodeMessage(self.client, ctx.guild)
 
         # react to show that it is done

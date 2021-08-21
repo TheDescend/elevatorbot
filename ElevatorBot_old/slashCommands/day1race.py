@@ -128,7 +128,7 @@ class Day1Race(commands.Cog):
                     if all_done:
                         self.finished_raid[res] = now
 
-            # update leaderboard message
+            # _update leaderboard message
             await self.update_leaderboard()
 
             # save data as pickle

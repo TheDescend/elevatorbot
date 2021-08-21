@@ -17,7 +17,7 @@ class CRUDBackendUser(CRUDBase):
         """ Checks if the user_name has a matching pw """
 
         # get obj from db
-        user = await self.get_with_key(db, user_name)
+        user = await self._get_with_key(db, user_name)
         if not user:
             return None
 

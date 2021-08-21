@@ -12,7 +12,7 @@ from ElevatorBot.core.results import BackendResult
 @dataclasses.dataclass
 class BaseBackendConnection:
     """
-    Define default backend functions such as get get, post and delete.
+    Define default backend functions such as get get, post and _delete.
     These can be called by subclasses, and automatically handle networking and error handling
     """
 
@@ -82,7 +82,7 @@ class BaseBackendConnection:
         route: str,
         params: dict = None
     ) -> BackendResult:
-        """ Make a delete request to the specified backend route and return the results """
+        """ Make a _delete request to the specified backend route and return the results """
 
         async with self.backend_session as session:
             async with session.delete(

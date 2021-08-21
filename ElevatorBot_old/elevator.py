@@ -1,6 +1,6 @@
 # to begin with, start the event loop
 # if this is skipped, some imports will fail since they rely on database lookups
-# for example GM nightfalls, since they change each season. This allows us to insert the hash list dynamically, instead of having to add to it every season
+# for example GM nightfalls, since they change each season. This allows us to _insert the hash list dynamically, instead of having to add to it every season
 import asyncio
 import datetime
 import logging
@@ -64,7 +64,7 @@ from static.globals import (
 )
 
 
-# vital, do not delete. Otherwise no events get loaded
+# vital, do not _delete. Otherwise no events get loaded
 
 
 # to enable the on_member_join and on_member_remove
@@ -559,7 +559,7 @@ def main():
                         nick = message.author.nick
                         await message.author.edit(nick="!Pepe the Muted for an Hour")
 
-                        # delete muted role after an hour
+                        # _delete muted role after an hour
                         await asyncio.sleep(60 * 60)
                         await removeRolesFromUser(
                             [muted_role_id], message.author, message.guild
@@ -584,7 +584,7 @@ def main():
                     "Registration successful!\nCome say hi in <#670400011519000616>"
                 )
 
-                # update user DB
+                # _update user DB
                 destiny_player = await DestinyPlayer.from_discord_id(member.id)
                 await destiny_player.update_activity_db()
 
@@ -753,7 +753,7 @@ def main():
                 await assignRolesToUser([role_id], ctx.author, ctx.guild)
                 added.append(role_name)
 
-            # delete role
+            # _delete role
             else:
                 await removeRolesFromUser([role_id], ctx.author, ctx.guild)
                 removed.append(role_name)

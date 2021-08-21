@@ -2,7 +2,7 @@ from discord.ext.commands import Cog
 from discord_slash import SlashContext, cog_ext
 
 
-# todo make sure when sb registers to delete any entires with the same destiny id
+# todo make sure when sb registers to _delete any entires with the same destiny id
 class Register(Cog):
     def __init__(
         self,

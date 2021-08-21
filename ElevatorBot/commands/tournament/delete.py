@@ -13,8 +13,8 @@ class TournamentDelete(Cog):
     @cog_ext.cog_subcommand(
         base="tournament",
         base_description="Everything you need for in-house PvP tournaments",
-        name="delete",
-        description="Delete the tournament. Can only be used by the user who used '/tournament insert' or an Admin",
+        name="_delete",
+        description="Delete the tournament. Can only be used by the user who used '/tournament _insert' or an Admin",
     )
     async def _delete(
         self,

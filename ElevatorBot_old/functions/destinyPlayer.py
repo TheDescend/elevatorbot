@@ -636,7 +636,7 @@ class DestinyPlayer:
                     t = result[1]
                     pgcr = result[2]
 
-                    # insert information to DB
+                    # _insert information to DB
                     await insertPgcrToDB(i, t, pgcr)
 
         logger = logging.getLogger("update_activity_db")
@@ -646,7 +646,7 @@ class DestinyPlayer:
         else:
             entry_time = datetime.datetime.min
 
-        logger.info("Starting activity DB update for destinyID <%s>", self.destiny_id)
+        logger.info("Starting activity DB _update for destinyID <%s>", self.destiny_id)
 
         instance_ids = []
         activity_times = []
@@ -665,7 +665,7 @@ class DestinyPlayer:
                 activity["period"], "%Y-%m-%dT%H:%M:%SZ"
             )
 
-            # update with newest entry timestamp
+            # _update with newest entry timestamp
             if activity_time > entry_time:
                 entry_time = activity_time
 
@@ -693,11 +693,11 @@ class DestinyPlayer:
             # get and input the data
             await input_data(instance_ids, activity_times)
 
-        # update with newest entry timestamp
+        # _update with newest entry timestamp
         if success:
             await updateLastUpdated(self.destiny_id, entry_time)
 
-        logger.info("Done with activity DB update for destinyID <%s>", self.destiny_id)
+        logger.info("Done with activity DB _update for destinyID <%s>", self.destiny_id)
 
     async def _get_full_character_list(self) -> list[dict]:
         """Get character ids including deleted characters"""

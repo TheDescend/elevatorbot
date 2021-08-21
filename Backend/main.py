@@ -60,5 +60,5 @@ async def write_perm(user: BackendUser = Depends(auth_get_user_with_write_perm))
 
 @app.on_event("startup")
 async def startup():
-    # insert db tables
+    # _insert db tables
     await create_tables(engine=setup_engine())

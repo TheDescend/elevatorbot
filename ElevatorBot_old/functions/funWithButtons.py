@@ -137,7 +137,7 @@ class Calculator:
         for row in self.buttons:
             for button in row["components"]:
                 button_update = {"disabled": True}
-                button.update(button_update)
+                button._update(button_update)
 
     async def send_message(
         self,
@@ -396,7 +396,7 @@ class TicTacToeGame:
                 else ButtonStyle.red,
                 "label": symbol,
             }
-            self.buttons[x]["components"][y].update(button_update)
+            self.buttons[x]["components"][y]._update(button_update)
 
             # either enable or disable the buttons, depending on who plays next
             kwargs = {
@@ -556,7 +556,7 @@ class TicTacToeGame:
         for row in self.buttons:
             for button in row["components"]:
                 button_update = {"disabled": True}
-                button.update(button_update)
+                button._update(button_update)
 
     # set grey buttons to be enabled
     def enable_buttons(self):
@@ -564,9 +564,9 @@ class TicTacToeGame:
             for button in row["components"]:
                 if button["style"] == ButtonStyle.grey:
                     button_update = {"disabled": False}
-                    button.update(button_update)
+                    button._update(button_update)
 
-    # update the user message
+    # _update the user message
     async def send_message(
         self,
         winner: str = None,

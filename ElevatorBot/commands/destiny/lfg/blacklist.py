@@ -21,7 +21,7 @@ class LfgBlacklist(Cog):
         options=[
             create_option(
                 name="action",
-                description="If you want to add to or delete from the Blacklist",
+                description="If you want to add to or _delete from the Blacklist",
                 option_type=3,
                 required=True,
                 choices=[
@@ -30,7 +30,7 @@ class LfgBlacklist(Cog):
                 ],
             ),
             get_user_option(
-                description="The user you want to add / delete", required=True
+                description="The user you want to add / _delete", required=True
             ),
         ],
     )

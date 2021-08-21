@@ -38,7 +38,7 @@ async def create_connection_pool():
         pool = await asyncpg.create_pool(max_size=50, **args)
         print("Connected to DB with asyncpg")
 
-    # insert an ssh tunnel to connect to the db from outside the local network and bind that to localhost
+    # _insert an ssh tunnel to connect to the db from outside the local network and bind that to localhost
     except OSError:
         bind_port = 5432
 
@@ -511,7 +511,7 @@ async def updateVersion(name: str, version: str):
     """Updates or inserts the version info for the name, fe. the manifest"""
 
     if not await getVersion(name):
-        # insert
+        # _insert
         insert_sql = f"""
             INSERT INTO 
                 versions
@@ -522,7 +522,7 @@ async def updateVersion(name: str, version: str):
             await connection.execute(insert_sql, name, version)
         return
 
-    # update
+    # _update
     update_sql = f"""
         UPDATE 
             versions
@@ -566,7 +566,7 @@ async def update_d2_steam_players(current_date: date, number_of_players: int):
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
         old_number_of_players = await connection.fetchval(select_sql, current_date)
 
-    # insert value
+    # _insert value
     if not old_number_of_players:
         insert_sql = f"""
             INSERT INTO 
@@ -578,7 +578,7 @@ async def update_d2_steam_players(current_date: date, number_of_players: int):
             await connection.execute(insert_sql, current_date, number_of_players)
             return
 
-    # check if update is needed
+    # check if _update is needed
     if number_of_players > old_number_of_players:
         update_sql = f"""
             UPDATE 
@@ -944,7 +944,7 @@ async def insertPgcrActivitiesUsersStats(
 
 
 async def insertFailToGetPgcrInstanceId(instanceID, period):
-    """insert an instanceID that we failed to get data for"""
+    """_insert an instanceID that we failed to get data for"""
 
     insert_sql = """
         INSERT INTO 
@@ -969,7 +969,7 @@ async def getFailToGetPgcrInstanceId():
 
 
 async def deleteFailToGetPgcrInstanceId(instanceId):
-    """delete instanceID that we failed to get data for"""
+    """_delete instanceID that we failed to get data for"""
 
     delete_sql = """
         DELETE FROM 
@@ -1490,7 +1490,7 @@ async def get_next_free_lfg_message_id() -> int:
     async with asyncio.Lock():
         free_id = await get_free_id(id_column_name="id", table_name="lfgmessages")
 
-        # insert that in the DB to reserve it
+        # _insert that in the DB to reserve it
         insert_sql = f"""
             INSERT INTO  
                 lfgmessages
@@ -1684,7 +1684,7 @@ async def insert_poll(
             # get free id
             poll_id = await get_free_id(id_column_name="id", table_name="polls")
 
-        # insert / update
+        # _insert / _update
         insert_sql = f"""
             INSERT INTO 
                 polls 

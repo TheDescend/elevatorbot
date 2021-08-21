@@ -378,7 +378,7 @@ class ArmorStatsNotifier(BaseEvent):
                             total_stats,
                         )
 
-        # update the status
+        # _update the status
         await bot_status(
             client,
             "Vendor Armor Roll Lookup",

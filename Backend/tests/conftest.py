@@ -16,7 +16,7 @@ from Backend.main import app
 is_test_mode(set_test_mode=True)
 
 
-# insert a local testing db
+# _insert a local testing db
 TESTING_DATABASE_URL = f"""postgresql+asyncpg://{os.environ.get("POSTGRES_USER")}:{os.environ.get("POSTGRES_PASSWORD")}@localhost:{os.environ.get("POSTGRES_PORT")}/postgres"""
 setup_engine(database_url=TESTING_DATABASE_URL)
 

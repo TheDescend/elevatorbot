@@ -40,7 +40,7 @@ class LfgCommands(commands.Cog):
     @cog_ext.cog_subcommand(
         base="lfg",
         base_description="Everything concerning my awesome Destiny 2 LFG system",
-        name="insert",
+        name="_insert",
         description="Creates an LFG post",
         options=[
             create_option(
@@ -243,7 +243,7 @@ class LfgCommands(commands.Cog):
                     activity = answer_msg.content
                     max_joined_members = 12
 
-                    await answer_msg.delete()
+                    await answer_msg._delete()
 
         # do the max_joined_members overwrite if asked for
         if overwrite_max_members:
@@ -271,9 +271,9 @@ class LfgCommands(commands.Cog):
             return
         else:
             description = answer_msg.content
-            await answer_msg.delete()
+            await answer_msg._delete()
 
-        # insert and post the lfg message
+        # _insert and post the lfg message
         await create_lfg_message(
             ctx.bot,
             ctx.guild,
@@ -341,8 +341,8 @@ class LfgCommands(commands.Cog):
                 # edit the message
                 lfg_message.activity = answer_msg.content
 
-                # delete old msgs
-                await answer_msg.delete()
+                # _delete old msgs
+                await answer_msg._delete()
 
         elif section == "Description":
             message = await ctx.send(
@@ -361,8 +361,8 @@ class LfgCommands(commands.Cog):
                 # edit the message and resend
                 lfg_message.description = answer_msg.content
 
-                # delete old msgs
-                await answer_msg.delete()
+                # _delete old msgs
+                await answer_msg._delete()
 
         elif section == "Start Time":
             message = await ctx.send(
@@ -393,9 +393,9 @@ class LfgCommands(commands.Cog):
                             "There was an error with the formatting of the time parameters, please try again",
                         )
                     )
-                    await answer_msg.delete()
+                    await answer_msg._delete()
                     return
-                await answer_msg.delete()
+                await answer_msg._delete()
 
                 # ask for the timezone
                 components = [
@@ -487,11 +487,11 @@ class LfgCommands(commands.Cog):
                             f"`{answer_msg.content}` is not a number. Please try again",
                         )
                     )
-                    await answer_msg.delete()
+                    await answer_msg._delete()
                     return
 
-                # delete old msgs
-                await answer_msg.delete()
+                # _delete old msgs
+                await answer_msg._delete()
 
         # resend msg
         await lfg_message.send()
@@ -501,8 +501,8 @@ class LfgCommands(commands.Cog):
     @cog_ext.cog_subcommand(
         base="lfg",
         base_description="Everything concerning my awesome Destiny 2 LFG system",
-        name="delete",
-        description="When you fucked up and need to delete an event",
+        name="_delete",
+        description="When you fucked up and need to _delete an event",
         options=[
             create_option(
                 name="lfg_id",
@@ -518,7 +518,7 @@ class LfgCommands(commands.Cog):
         if not lfg_message:
             return
 
-        await lfg_message.delete()
+        await lfg_message._delete()
         await ctx.send(
             hidden=True,
             embed=embed_message(
@@ -598,7 +598,7 @@ class LfgCommands(commands.Cog):
                 hidden=True,
                 embed=embed_message(
                     "Error",
-                    f"{user.display_name} could not be delete from the LFG post with the id `{lfg_id}`, because they are not in it",
+                    f"{user.display_name} could not be _delete from the LFG post with the id `{lfg_id}`, because they are not in it",
                 ),
             )
 
@@ -610,7 +610,7 @@ class LfgCommands(commands.Cog):
         options=[
             create_option(
                 name="action",
-                description="If you want to add to or delete from the Blacklist",
+                description="If you want to add to or _delete from the Blacklist",
                 option_type=3,
                 required=True,
                 choices=[
@@ -619,7 +619,7 @@ class LfgCommands(commands.Cog):
                 ],
             ),
             options_user(
-                flavor_text="The user you want to add / delete", required=True
+                flavor_text="The user you want to add / _delete", required=True
             ),
         ],
     )

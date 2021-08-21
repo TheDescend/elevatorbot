@@ -22,7 +22,7 @@ class CRUDBase:
         self.model = model
 
 
-    async def get_with_key(
+    async def _get_with_key(
         self,
         db: AsyncSession,
         primary_key: Any
@@ -32,7 +32,7 @@ class CRUDBase:
         return await db.get(self.model, primary_key)
 
 
-    async def get_multi(
+    async def _get_multi(
         self,
         db: AsyncSession,
         limit: int = 100,
@@ -44,7 +44,7 @@ class CRUDBase:
         return result.scalars().fetchall()
 
 
-    async def get_multi_with_filter(
+    async def _get_multi_with_filter(
         self,
         db: AsyncSession,
         limit: int = 100,
@@ -58,7 +58,7 @@ class CRUDBase:
 
 
     @staticmethod
-    async def insert(
+    async def _insert(
         db: AsyncSession,
         to_create: ModelType
     ) -> None:
@@ -69,7 +69,7 @@ class CRUDBase:
 
 
     @staticmethod
-    async def update(
+    async def _update(
         db: AsyncSession,
         to_update: ModelType,
         **update_kwargs
@@ -82,20 +82,20 @@ class CRUDBase:
         await db.flush()
 
 
-    async def delete(
+    async def _delete(
         self,
         db: AsyncSession,
         primary_key: Any
     ) -> Optional[ModelType]:
         """ Delete an entry from the database by primary key """
 
-        obj = await self.get_with_key(db, primary_key)
+        obj = await self._get_with_key(db, primary_key)
 
         # test if that actually exists
         if not obj:
             return None
 
-        # delete and return
+        # _delete and return
         await db.delete(obj)
         await db.flush()
 

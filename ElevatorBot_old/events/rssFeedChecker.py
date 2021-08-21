@@ -36,7 +36,7 @@ class RssFeedChecker(BaseEvent):
                 # save item in DB
                 await rss_item_add(item["id"])
 
-        # update the status
+        # _update the status
         await bot_status(
             client, "RSS Feed Check", datetime.datetime.now(tz=datetime.timezone.utc)
         )

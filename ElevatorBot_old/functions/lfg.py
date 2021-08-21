@@ -123,7 +123,7 @@ class LfgMessage:
             return True
         return False
 
-    # delete a member
+    # _delete a member
     async def remove_member(
         self, member: discord.Member, ctx: ComponentContext = None
     ) -> bool:
@@ -227,7 +227,7 @@ class LfgMessage:
         # wait timedelta + 10 mins
         await asyncio.sleep(time_to_start.seconds + 60 * 10)
 
-        # delete the post
+        # _delete the post
         await self.delete()
 
     # sort all the lfg messages in the guild by start_time
@@ -239,7 +239,7 @@ class LfgMessage:
         if len(results) <= 1:
             return
 
-        # insert three lists. A list with the current message objs (sorted by asc creation date), a list with the creation_time, and a list with the LfgMessage objs
+        # _insert three lists. A list with the current message objs (sorted by asc creation date), a list with the creation_time, and a list with the LfgMessage objs
         sorted_messages_by_creation_time = []
         sorted_creation_times_by_creation_time = []
         lfg_messages = []
@@ -255,7 +255,7 @@ class LfgMessage:
         # sort the LfgMessages by their start_time
         sorted_lfg_messages = sorted(lfg_messages, reverse=True)
 
-        # update the messages with their new message obj
+        # _update the messages with their new message obj
         for message, creation_time, lfg_message in zip(
             sorted_messages_by_creation_time,
             sorted_creation_times_by_creation_time,
@@ -356,7 +356,7 @@ class LfgMessage:
 
     # (re-) scheduled the event with apscheduler using the lfg_id as event_id
     async def schedule_event(self):
-        # try to delete old job
+        # try to _delete old job
         try:
             self.scheduler.remove_job(str(self.id))
         except JobLookupError:
@@ -393,7 +393,7 @@ class LfgMessage:
                 await self.message.edit(embed=embed, components=buttons)
             first_send = False
 
-        # update the database entry
+        # _update the database entry
         await self.dump_to_db()
 
         # schedule the event
@@ -405,22 +405,22 @@ class LfgMessage:
 
     # removes the message and also the database entries
     async def delete(self):
-        # delete message
+        # _delete message
         if self.message:
             await self.message.delete()
 
-        # try to delete voice channel, if that is currently empty
+        # try to _delete voice channel, if that is currently empty
         if self.voice_channel and not self.voice_channel.members:
             try:
                 await self.voice_channel.delete()
             except discord.NotFound:
                 pass
 
-        # delete DB entry
+        # _delete DB entry
         await delete_lfg_message(self.id)
 
-        # delete scheduler event
-        # try to delete old job
+        # _delete scheduler event
+        # try to _delete old job
         try:
             self.scheduler.remove_job(str(self.id))
         except JobLookupError:
@@ -498,7 +498,7 @@ async def get_lfg_message(
     ]
     blacklisted_members = await get_lfg_blacklisted_members(author.id)
 
-    # insert LfgMessage object
+    # _insert LfgMessage object
     lfg_message = LfgMessage(
         client=client,
         id=lfg_id,
@@ -541,7 +541,7 @@ async def create_lfg_message(
         return
     channel = guild.get_channel(result[0])
 
-    # insert LfgMessage object
+    # _insert LfgMessage object
     lfg_message = LfgMessage(
         client=client,
         id=lfg_id,

@@ -482,7 +482,7 @@ class PersistentMessagesCommands(commands.Cog):
     async def _channel(self, ctx: SlashContext, channel_type, channel):
         if channel_type == "othergameroles":
             embed = embed_message(
-                f"Other Game Roles", "Select options to add / delete the related roles"
+                f"Other Game Roles", "Select options to add / _delete the related roles"
             )
 
             components = [
@@ -595,7 +595,7 @@ On your command, I can start a private PvP tournament for all the masochist in t
 ⁣
 ⁣
 <:desc_title_left_b:768906489309822987><:desc_title_right_b:768906489729122344> **Tutorial** <:desc_title_left_b:768906489309822987> <:desc_title_mid_b:768906489103384657><:desc_title_mid_b:768906489103384657><:desc_title_right_b:768906489729122344>
-:desc_circle_b: Create the tournament by using `/tournament insert`. This will make a new message appear in this channel, to join the tournament, simply react to it.
+:desc_circle_b: Create the tournament by using `/tournament _insert`. This will make a new message appear in this channel, to join the tournament, simply react to it.
 :desc_circle_b: Once everyone has signed up use `/tournament start` to start the tournament. I will generate a random bracket and assign player to funStuff.
 :desc_circle_b: Now you need to start a custom game with only the two chosen players in it and **finish it**. I will automatically detect the winner. Last man standing wins it all!
 ⁣
@@ -636,7 +636,7 @@ Hello fellow humans, and welcome to this easy, 465 steps, guide:
 First, head to <#{bot_spam_channel_id}>, or really any other channel (although you ~~might~~ will get yelled at for that)
 ⁣
 {str(circle_emoji)} **Step 2:**
-Then, use `/lfg insert` and follow the instructions to make an event. 
+Then, use `/lfg _insert` and follow the instructions to make an event. 
 Due to timezones sucking and there being at least 16789 of them, you might not find your own timezone in the list. In that case please use UTC and an online converter
 ⁣
 {str(circle_emoji)} **Step 3-464:**
@@ -647,9 +647,9 @@ After you made the LFG post, or if you just want to join an existing post, use t
 ⁣
 ⁣
 If you want to feel like an [expert](https://www.youtube.com/watch?v=BKorP55Aqvg), there are a bunch of additional commands you can use to interact with LFG events:
-{str(enter_emoji)} `/lfg insert` - Create a new LFG event
+{str(enter_emoji)} `/lfg _insert` - Create a new LFG event
 {str(enter_emoji)} `/lfg edit` - Edit parts of an LFG event
-{str(enter_emoji)} `/lfg delete` - Remove the LFG event
+{str(enter_emoji)} `/lfg _delete` - Remove the LFG event
 {str(enter_emoji)} `/lfg add` - Add a user to your own LFG event
 {str(enter_emoji)} `/lfg kick` - Kick a user from your own LFG event
 {str(enter_emoji)} `/lfg blacklist` - Blacklist a user from joining any of your own LFG events
@@ -689,14 +689,14 @@ Basically just type `/lfg` and look around. There are many other cool commands t
     # todo not needed
     @cog_ext.cog_slash(
         name="updatedb",
-        description="Forces a DB update with looks through ALL activities. Takes a long time",
+        description="Forces a DB _update with looks through ALL activities. Takes a long time",
         default_permission=False,
         permissions=permissions_kigstn_hali,
     )
     async def _update_db(self, ctx: SlashContext):
         print("Start updating DB...")
         message = await ctx.send(
-            "Forcing DB update, this is gonna take a while. Will let you know once done"
+            "Forcing DB _update, this is gonna take a while. Will let you know once done"
         )
 
         # get all users the bot shares a guild with
@@ -709,7 +709,7 @@ Basically just type `/lfg` and look around. There are many other cool commands t
                 if destiny_player and destiny_player not in to_update:
                     to_update.append(destiny_player)
 
-        # update all users in a gather for zooms
+        # _update all users in a gather for zooms
         await asyncio.gather(
             *[
                 destiny_player.update_activity_db(entry_time=datetime.datetime.min)
@@ -717,7 +717,7 @@ Basically just type `/lfg` and look around. There are many other cool commands t
             ]
         )
 
-        await message.reply("Done with the DB update")
+        await message.reply("Done with the DB _update")
 
     # @cog_ext.cog_slash(
     #     name="test",
