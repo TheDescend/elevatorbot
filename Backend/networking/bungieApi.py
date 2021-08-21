@@ -4,7 +4,7 @@ import aiohttp
 import aiohttp_client_cache
 
 from Backend.networking.bungieAuth import BungieAuth
-from Backend.networking.models import WebResponse
+from Backend.networking.models import InternalWebResponse
 from Backend.networking.base import NetworkBase
 from settings import BUNGIE_TOKEN
 
@@ -46,7 +46,7 @@ class BungieApi(NetworkBase):
         route: str,
         params: dict = None,
         use_cache: bool = True
-    ) -> WebResponse:
+    ) -> InternalWebResponse:
         """ Grabs JSON from the specified URL (no oauth) """
 
         async with aiohttp_client_cache.CachedSession(cache=self.cache) as session:
@@ -75,7 +75,7 @@ class BungieApi(NetworkBase):
         route: str,
         params: dict = None,
         use_cache: bool = True,
-    ) -> WebResponse:
+    ) -> InternalWebResponse:
         """ Grabs JSON from the specified URL (oauth) """
 
         # set the auth headers to a working token
@@ -113,7 +113,7 @@ class BungieApi(NetworkBase):
         route: str,
         data: dict,
         params: dict = None
-    ) -> WebResponse:
+    ) -> InternalWebResponse:
         """ Post data to bungie. self.discord_id must have the authentication for the action """
 
         # set the auth headers to a working token

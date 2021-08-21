@@ -8,7 +8,7 @@ import aiohttp_client_cache
 
 from Backend.core.errors import CustomException
 from Backend.networking.bungieRatelimiting import BungieRateLimiter
-from Backend.networking.models import WebResponse
+from Backend.networking.models import InternalWebResponse, WebResponse
 
 
 # the limiter object which to not get rate-limited by bungie. One obj for ever instance!
@@ -63,7 +63,7 @@ class NetworkBase:
 
                     # return response
                     else:
-                        return response
+                        return WebResponse(**response.__dict__)
 
             except (asyncio.exceptions.TimeoutError, ConnectionResetError):
                 self.logger.error("Timeout error for '%s'", route)
@@ -116,7 +116,7 @@ class NetworkBase:
 
                     # return response
                     else:
-                        return response
+                        return WebResponse(**response.__dict__)
 
             except (asyncio.exceptions.TimeoutError, ConnectionResetError):
                 self.logger.error("Timeout error for '%s'", route)
@@ -134,7 +134,7 @@ class NetworkBase:
         self,
         request: Union[aiohttp.ClientResponse, aiohttp_client_cache.CachedResponse],
         route: str,
-    ) -> Optional[WebResponse]:
+    ) -> Optional[InternalWebResponse]:
         """ Handle the request results """
 
         # make sure the return is a json, sometimes we get a http file for some reason
@@ -153,7 +153,7 @@ class NetworkBase:
 
         # get the response as a json
         try:
-            response = WebResponse(
+            response = InternalWebResponse(
                 content=await request.json(),
                 status=request.status,
             )
@@ -199,7 +199,7 @@ class NetworkBase:
     async def __handle_bungie_errors(
         self,
         route: str,
-        response: WebResponse
+        response: InternalWebResponse
     ):
         """ Looks for typical bungie errors and handles / logs them """
 
