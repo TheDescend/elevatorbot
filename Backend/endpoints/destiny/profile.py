@@ -3,11 +3,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.dependencies import get_db_session
 from Backend import crud
-from Backend.schemas.destinyProfile import DestinyProfileModel
+from Backend.schemas.destiny.profile import DestinyProfileModel
 
 
 router = APIRouter(
-    prefix="/profile",
+    prefix="profile",
     tags=["destiny", "profile"],
 )
 

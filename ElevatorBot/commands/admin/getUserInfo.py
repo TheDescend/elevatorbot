@@ -4,7 +4,7 @@ from discord_slash import SlashContext, cog_ext
 from discord_slash.utils.manage_commands import create_option
 
 from ElevatorBot.commandHelpers.permissionTemplates import permissions_admin
-from Backend.core.destiny.profile import DestinyNoOauthNeeded
+from ElevatorBot.core.destiny.account import DestinyAccount
 from ElevatorBot.core.destiny.profile import DestinyProfile
 from ElevatorBot.misc.formating import embed_message
 
@@ -146,15 +146,21 @@ async def _user_info(
     for profile in profiles:
         i += 1
 
-        destiny_name = await DestinyNoOauthNeeded(
+        account = DestinyAccount(
             client=ctx.bot,
-            destiny_id=profile.destiny_id,
-            system=profile.system
-        ).get_destiny_name()
+            discord_member=profile.discord_member,
+            discord_guild=ctx.guild
+        )
+        destiny_name = await account.get_destiny_name()
+
+        # error out if need be
+        if not destiny_name:
+            await destiny_name.send_error_message(ctx)
+            return
 
         embed.add_field(
             name=f"Option {i}",
-            value=f"Discord - {profile.discord_member.mention} \nDestinyID: `{profile.destiny_id}` \nSystem - `{profile.system}` \nDestiny Name - `{destiny_name}`",
+            value=f"Discord - {profile.discord_member.mention} \nDestinyID: `{profile.destiny_id}` \nSystem - `{profile.system}` \nDestiny Name - `{destiny_name.result['name']}`",
             inline=False,
         )
 

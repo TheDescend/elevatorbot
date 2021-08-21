@@ -10,6 +10,7 @@ from ElevatorBot.core.results import BackendResult
 from ElevatorBot.core.routes import destiny_profile_from_destiny_id_route, destiny_profile_from_discord_id_route
 
 
+# todo way to complex?
 @dataclasses.dataclass(init=False)
 class DestinyProfile(BaseBackendConnection):
     """ Get basic destiny information (discord_member, destiny_id, system) """
