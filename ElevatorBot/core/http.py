@@ -1,53 +1,51 @@
 import dataclasses
 import logging
-from typing import Optional, Tuple
+from typing import Optional
 
 import aiohttp
 import discord
-from aiohttp import ClientTimeout
+from aiohttp import ClientSession, ClientTimeout
+
+from ElevatorBot.core.results import BackendResult
 
 
 @dataclasses.dataclass
-class BackendResult:
-    """ Holds the return info """
-
-    success: bool
-    result: Optional[dict]
-    error: Optional[str]
-    error_message: Optional[str]
-
-
 class BaseBackendConnection:
     """
     Define default backend functions such as get get, post and delete.
     These can be called by subclasses, and automatically handle networking and error handling
     """
 
+    # save discord information
+    client: discord.Client
 
-    def __init__(
-        self,
-        discord_member: discord.Member,
-        discord_guild: discord.Guild,
-        discord_channel: discord.GroupChannel
-    ):
-        # save discord information
-        self.discord_member = discord_member
-        self.discord_guild = discord_guild
-        self.discord_channel = discord_channel
+    # get logger
+    logger: logging.Logger = dataclasses.field(
+        default=logging.getLogger("backendNetworking"),
+        init=False,
+        compare=False,
+        repr=False
+    )
 
-        # get logger
-        self.logger = logging.getLogger("backendNetworking")
-
-        # get aiohttp session
-        self.backend_session = aiohttp.ClientSession(
+    # get aiohttp session
+    backend_session: ClientSession = dataclasses.field(
+        default=aiohttp.ClientSession(
             timeout=ClientTimeout(
                 # give request a max timeout of half an hour
                 total=30 * 60
             )
-        )
+        ),
+        init=False,
+        compare=False,
+        repr=False
+    )
 
+    def __bool__(self):
+        """ Bool function to test if this exist. Useful for testing if this class got returned and not BackendResult, can be returned on errors """
 
-    async def backend_get(
+        return True
+
+    async def _backend_get(
         self,
         route: str,
         params: dict = None
@@ -59,10 +57,10 @@ class BaseBackendConnection:
                 url=route,
                 params=params,
             ) as response:
-                return self.__parse_response(response)
+                return self.__backend_parse_response(response)
 
 
-    async def backend_post(
+    async def _backend_post(
         self,
         route: str,
         data: dict,
@@ -76,10 +74,10 @@ class BaseBackendConnection:
                 params=params,
                 data=data,
             ) as response:
-                return self.__parse_response(response)
+                return self.__backend_parse_response(response)
 
 
-    async def backend_delete(
+    async def _backend_delete(
         self,
         route: str,
         params: dict = None
@@ -91,10 +89,10 @@ class BaseBackendConnection:
                 url=route,
                 params=params,
             ) as response:
-                return self.__parse_response(response)
+                return self.__backend_parse_response(response)
 
 
-    def __parse_response(
+    def __backend_parse_response(
         self,
         response: aiohttp.ClientResponse
     ) -> BackendResult:
@@ -112,11 +110,9 @@ class BaseBackendConnection:
 
         else:
             success = False
-            error, error_message = self.__backend_handle_errors(response)
             result.update(
                 {
-                    "error": error,
-                    "error_message": error_message,
+                    "error": self.__backend_handle_errors(response),
                 }
             )
 
@@ -132,16 +128,16 @@ class BaseBackendConnection:
     def __backend_handle_errors(
         self,
         response: aiohttp.ClientResponse
-    ) -> Tuple[Optional[str], Optional[str]]:
+    ) -> Optional[str]:
         """ Handles potential errors. Returns None, None if the error should not be returned to the user and str, str if something should be returned to the user """
 
         if response.status == 409:
             # this means the errors isn't really an error and we want to return info to the user
             self.logger.info("%s: '%s' - '%s'", response.status, response.method, response.url)
             error_json = await response.json()
-            return error_json["error"], error_json["error_message"]
+            return error_json["error"]
 
         else:
             # if we dont know anything, just log it with the error
             self.logger.error("%s: '%s' - '%s' - '%s'", response.status, response.method, response.url, await response.json())
-            return None, None
+            return None

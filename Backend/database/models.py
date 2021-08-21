@@ -99,7 +99,7 @@ class DiscordGuardiansToken(Base):
     __tablename__ = 'discordGuardiansToken'
 
     discord_id = Column("discordsnowflake", BigInteger, primary_key=True)
-    destiny_id = Column("destinyid", BigInteger)
+    destiny_id = Column("destinyid", BigInteger, unique=True)
     system = Column("systemid", Integer)
     token = Column("token", Text)
     refresh_token = Column("refresh_token", Text)

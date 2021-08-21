@@ -2,6 +2,7 @@ import discord
 from discord_slash import SlashContext
 
 from ElevatorBot.misc.formating import embed_message
+from ElevatorBot.static.errorCodesAndResponses import error_codes_and_responses
 
 
 async def respond_discord_member_unknown(ctx: SlashContext, discord_member: discord.Member, hidden: bool = True) -> bool:
@@ -12,7 +13,7 @@ async def respond_discord_member_unknown(ctx: SlashContext, discord_member: disc
             hidden=hidden,
             embed=embed_message(
                 "Error",
-                f"I don't possess information for {discord_member.mention} \nPlease `/register` to use my commands",
+                error_codes_and_responses["DiscordIdNotFound"].format(discord_member=discord_member)
             )
         )
         return True
@@ -31,7 +32,7 @@ async def respond_destiny_id_unknown(
             hidden=hidden,
             embed=embed_message(
                 "Error",
-                f"I don't possess information for the user with the DestinyID `{destiny_id}` \nPlease `/register` to use my commands",
+                error_codes_and_responses["DestinyIdNotFound"].format(destiny_id=destiny_id)
             )
         )
         return True

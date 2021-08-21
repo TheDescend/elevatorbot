@@ -69,7 +69,7 @@ async def register(user_name: str = Form(...), password: str = Form(...), db: As
 
     # todo remove. just demonstration
     if new_user.user_name == "a":
-        raise CustomException("wrong pw", "pw can only be b")
+        raise CustomException("wrongPw")
 
     return BackendUserModel.from_orm(new_user)
 

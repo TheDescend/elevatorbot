@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
 
-class DiscordProfileModel(BaseModel):
+class DestinyProfileModel(BaseModel):
     discord_id: int
     destiny_id: int
     system: int

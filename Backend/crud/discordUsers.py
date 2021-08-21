@@ -16,8 +16,7 @@ class CRUDDiscordUsers(CRUDBase):
         # make sure the user exists
         if not profile:
             raise CustomException(
-                error="NotFound",
-                error_message=f"DiscordID `{discord_id}` is not registered"
+                error="DiscordIdNotFound",
             )
 
         return profile
@@ -30,17 +29,11 @@ class CRUDDiscordUsers(CRUDBase):
         # make sure the user exists
         if not profiles:
             raise CustomException(
-                error="NotFound",
-                error_message=f"DestinyID `{destiny_id}` is not registered"
+                error="DestinyIdNotFound",
             )
 
-        # make sure there aren't multiple matches
-        if len(profiles) > 1:
-            raise CustomException(
-                error="MultipleResults",
-                error_message="There are multiple results for DestinyID `{destiny_id}`"
-            )
 
         return profiles[0]
+
 
 discord_users = CRUDDiscordUsers(DiscordGuardiansToken)

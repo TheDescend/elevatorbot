@@ -4,15 +4,16 @@ from starlette.responses import JSONResponse
 
 
 class CustomException(Exception):
-    """ Define a exception which we raise on errors where ElevatorBot should return that info to the user """
+    """
+    Define a exception which we raise on errors where ElevatorBot should return that info to the user
+    The response to the error gets defined in ElevatorBot/static/errorCodesAndResponses.py
+    """
 
     def __init__(
         self,
         error: str,
-        error_message: str
     ):
         self.error = error
-        self.error_message = error_message
 
 
 async def handle_custom_exception(request: Request, exception: CustomException):
@@ -20,6 +21,5 @@ async def handle_custom_exception(request: Request, exception: CustomException):
         status_code=409,
         content={
             "error": exception.error,
-            "error_message": exception.error_message
         },
     )
