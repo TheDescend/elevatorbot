@@ -8,7 +8,7 @@ from Backend.crud.base import CRUDBase
 from Backend.database.models import DiscordGuardiansToken
 
 
-class CRUDDiscordUsers(CRUDBase):
+class CRUDDiscordUser(CRUDBase):
     async def get_profile_from_discord_id(
         self,
         db: AsyncSession,
@@ -89,4 +89,4 @@ class CRUDDiscordUsers(CRUDBase):
         )
 
 
-discord_users = CRUDDiscordUsers(DiscordGuardiansToken)
+discord_users = CRUDDiscordUser(DiscordGuardiansToken)

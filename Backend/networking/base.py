@@ -187,6 +187,11 @@ class NetworkBase:
         # if response is ok return it
         if response.status == 200:
             response.success = True
+
+            # remove the leading "Reponse" from the request (if exists)
+            if "Response" in response.content:
+                response.content = response.content["Response"]
+
             return response
 
         # handling any errors if not ok

@@ -1,1 +1,6 @@
 base_route = "https://www.bungie.net/Platform/"
+destiny_route = base_route + "Destiny2/"
+profile_route = destiny_route + "{system}/Profile/{destiny_id}/"
+stat_route = destiny_route + "{system}/Account/{destiny_id}/Stats/"
+stat_route_characters = stat_route + "Character/{character_id}/Stats/AggregateActivityStats/"
+activities_route = destiny_route + "{system}/Account/{destiny_id}/Character/{character_id}/Stats/Activities/"
