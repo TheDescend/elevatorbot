@@ -67,6 +67,11 @@ async def _user_info(
         )
         return
     await ctx.defer()
+    destiny_profile = DestinyProfile(
+        client=ctx.bot,
+        discord_member=discord_user,
+        discord_guild=ctx.guild
+    )
 
     profiles = []
 
@@ -83,9 +88,7 @@ async def _user_info(
             )
             return
 
-        profile = await DestinyProfile.from_destiny_id(
-            client=ctx.bot,
-            discord_guild=ctx.guild,
+        profile = await destiny_profile.from_destiny_id(
             destiny_id=destiny_id
         )
         if not profile:
@@ -96,11 +99,7 @@ async def _user_info(
 
     # if discord info is given
     elif discord_user:
-        profile = await DestinyProfile.from_discord_member(
-            client=ctx.bot,
-            discord_guild=ctx.guild,
-            discord_member=discord_user
-        )
+        profile = await destiny_profile.from_discord_member()
         if not profile:
             await profile.send_error_message(ctx)
             return

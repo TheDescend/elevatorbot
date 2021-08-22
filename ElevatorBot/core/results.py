@@ -61,7 +61,8 @@ class BackendResult:
     async def send_error_message(
         self,
         ctx: SlashContext,
-        **format_kwargs
+        hidden: bool = False,
+        **format_kwargs,
     ):
         """ Sends the error message. format_kwargs are used to format the message before sending it """
 
@@ -70,5 +71,6 @@ class BackendResult:
             self.error_message = format_kwargs
 
         await ctx.send(
+            hidden=hidden,
             embed=self.embed
         )

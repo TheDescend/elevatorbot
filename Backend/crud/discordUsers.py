@@ -79,8 +79,12 @@ class CRUDDiscordUser(CRUDBase):
             destiny_id = int(profile["membershipId"])
             system = profile["membershipType"]
 
-            # pc data is preferred
-            if profile["membershipType"] == 3:
+            # if there is no cross save data, prefer pc
+            if "crossSaveOverride" not in profile and profile["membershipType"] == 3:
+                break
+
+            # cross save data is preferred
+            if "crossSaveOverride" in profile and (profile["crossSaveOverride"] == profile["membershipType"]):
                 break
 
         # if they have no destiny profile

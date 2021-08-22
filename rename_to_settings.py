@@ -12,6 +12,7 @@ SYNC_COMMANDS: bool = True
 # The discord bot token to launch the bot
 DISCORD_BOT_TOKEN: str = ""
 
-# Your own bungie token, and you bungie secret. Needed to access bungies api
+# Your own bungie token, and you bungie secret data. Needed to access bungies api
 BUNGIE_TOKEN: str = ""
 B64_SECRET: str = ""
+BUNGIE_OAUTH: str = ""

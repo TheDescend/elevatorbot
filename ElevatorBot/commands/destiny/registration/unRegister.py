@@ -2,6 +2,8 @@ from discord.ext.commands import Cog
 from discord_slash import SlashContext, cog_ext
 
 from ElevatorBot.commandHelpers.optionTemplates import get_user_option
+from ElevatorBot.core.destiny.profile import DestinyProfile
+from ElevatorBot.misc.formating import embed_message
 
 
 class UnRegister(Cog):
@@ -13,16 +15,32 @@ class UnRegister(Cog):
 
 
     @cog_ext.cog_slash(
-        name="unregisterdesc",
+        name="unregister",
         description="Unlink your Destiny 2 account from ElevatorBot",
-        options=[get_user_option(description="Requires elevated permissions")],
     )
-    async def _unregisterdesc(
+    async def _unregister(
         self,
         ctx: SlashContext,
-        **kwargs
     ):
-        pass
+        """ Unlink your Destiny 2 account from ElevatorBot """
+
+        destiny_profile = DestinyProfile(
+            client=ctx.bot,
+            discord_member=ctx.author,
+            discord_guild=ctx.guild
+        )
+        result = await destiny_profile.delete()
+
+        if not result:
+            await result.send_error_message(ctx, hidden=True)
+        else:
+            await ctx.send(
+                hidden=True,
+                embed=embed_message(
+                    "See Ya",
+                    "There was a flash and suddenly I do not remember anything about you anymore"
+                )
+            )
 
 
 def setup(

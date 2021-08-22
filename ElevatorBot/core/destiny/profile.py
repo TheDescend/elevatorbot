@@ -7,37 +7,27 @@ import discord
 
 from ElevatorBot.core.http import BaseBackendConnection
 from ElevatorBot.core.results import BackendResult
-from ElevatorBot.core.routes import destiny_profile_from_destiny_id_route, destiny_profile_from_discord_id_route
+from ElevatorBot.core.routes import destiny_profile_delete_route, destiny_profile_from_destiny_id_route, destiny_profile_from_discord_id_route
+from ElevatorBot.static.schemas import DestinyData
 
 
-# todo way to complex?
-@dataclasses.dataclass(init=False)
+
+@dataclasses.dataclass
 class DestinyProfile(BaseBackendConnection):
     """ Get basic destiny information (discord_member, destiny_id, system) """
 
-    # save user information
-    # these fields get populated via @classmethod calls
     discord_member: discord.Member
     discord_guild: discord.Guild
-    destiny_id: int
-    system: int
 
 
-    @classmethod
     async def from_destiny_id(
-        cls,
-        client: discord.Client,
-        discord_guild: discord.Guild,
+        self,
         destiny_id: int
-    ) -> Union[DestinyProfile, BackendResult]:
+    ) -> Union[DestinyData, BackendResult]:
         """ Get the destiny profile with a destiny_id """
 
-        class_instance = cls(
-            client=client
-        )
-
         # query the backend
-        result = await class_instance._backend_get(
+        result = await self._backend_get(
             destiny_profile_from_destiny_id_route.format(
                 destiny_id=destiny_id
             )
@@ -50,65 +40,64 @@ class DestinyProfile(BaseBackendConnection):
             }
             return result
 
-        # set new attributes
-        class_instance.destiny_id = destiny_id
-        class_instance.system = result.result["system"]
-        class_instance.discord_guild = discord_guild
-        class_instance.discord_member = discord_guild.get_member(result.result["discord_id"])
-
         # check if the discord member is actually found
-        if not class_instance.discord_member:
+        discord_member = self.discord_guild.get_member(result.result["discord_id"])
+        if not discord_member:
             result.error = "DestinyIdNotFound"
             result.error_message = {
                 "destiny_id": destiny_id
             }
             return result
 
-        return class_instance
-
-
-    @classmethod
-    async def from_discord_member(
-        cls,
-        client: discord.Client,
-        discord_guild: discord.Guild,
-        discord_member: discord.Member
-    ) -> Union[DestinyProfile, BackendResult]:
-        """ Get the destiny profile with a discord member object """
-
-        class_instance = cls(
-            client=client,
+        # set attributes
+        return DestinyData(
+            discord_member=discord_member,
+            destiny_id=destiny_id,
+            system=result.result["system"],
         )
 
+
+    async def from_discord_member(
+        self,
+    ) -> Union[DestinyData, BackendResult]:
+        """ Get the destiny profile with a discord member object """
+
         # query the backend
-        result = await class_instance._backend_get(
+        result = await self._backend_get(
             destiny_profile_from_discord_id_route.format(
-                discord_id=discord_member.id
+                discord_id=self.discord_member.id
             )
         )
 
         # check if that id exists
         if not result:
             result.error_message = {
-                "discord_member": discord_member
+                "discord_member": self.discord_member
             }
             return result
 
-        # set new attributes
-        class_instance.destiny_id = result.result["destiny_id"]
-        class_instance.system = result.result["system"]
-        class_instance.discord_guild = discord_guild
-        class_instance.discord_member = discord_member
-
-        return class_instance
+        # set attributes
+        return DestinyData(
+            discord_member=self.discord_member,
+            destiny_id=result.result["destiny_id"],
+            system=result.result["system"],
+        )
 
 
     async def delete(
-        self
-    ):
+        self,
+    ) -> BackendResult:
         """ Delete the profile """
 
-        # todo _delete info. fe on /unregister calls
-        pass
+        result = await self._backend_delete(
+            route=destiny_profile_delete_route.format(
+                discord_id=self.discord_member.id
+            )
+        )
 
-
+        # check if OK
+        if not result:
+            result.error_message = {
+                "discord_member": self.discord_member
+            }
+        return result
