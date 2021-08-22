@@ -32,7 +32,15 @@ class BungieAuth(NetworkBase):
     ) -> str:
         """ Returns token or raises an error """
 
-        self.user = discord_users.get_token_data(self.db, self.discord_id)
+        self.user = discord_users.get_profile_from_discord_id(
+            db=self.db,
+            discord_id=self.discord_id
+        )
+        if not self.user.token:
+            raise CustomException(
+                error="NoToken",
+            )
+
         token = self.user.token
 
         # check refresh token expiry
@@ -69,7 +77,7 @@ class BungieAuth(NetworkBase):
             if response:
                 access_token = response.content["access_token"]
 
-                await discord_users.update_token_data(
+                await discord_users.refresh_tokens(
                     db=self.db,
                     user=self.user,
                     token=access_token,

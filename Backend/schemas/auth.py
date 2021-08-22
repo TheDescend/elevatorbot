@@ -10,6 +10,7 @@ class BackendUserModel(BaseModel):
     has_read_permission: bool
     disabled: bool
 
+
     class Config:
         orm_mode = True
 
@@ -27,3 +28,8 @@ class BungieTokenInput(BaseModel):
     refresh_expires_in: int
     membership_id: str
     state: str
+
+
+class BungieTokenOutput(BaseModel):
+    success: bool
+    error_message: Optional[str]

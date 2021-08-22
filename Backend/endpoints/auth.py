@@ -6,8 +6,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.errors import CustomException
 from Backend.core.security.auth import ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token, get_password_hash
+from Backend.crud import discord_users
 from Backend.database.models import BackendUser
-from Backend.schemas.auth import BackendUserModel, BungieTokenInput, Token
+from Backend.schemas.auth import BackendUserModel, BungieTokenInput, BungieTokenOutput, Token
 from Backend.dependencies import get_db_session
 from Backend import crud
 
@@ -18,22 +19,14 @@ router = APIRouter(
 )
 
 
-# generate and return a token
-@router.post("/bungie", response_model=None)
+@router.post("/bungie", response_model=BungieTokenOutput)
 async def save_bungie_token(bungie_token: BungieTokenInput, db: AsyncSession = Depends(get_db_session)):
-    """ Saves a saved bungie token """
+    """ Saves a bungie token """
 
-    # split the state
-    (discord_id, guild_id) = bungie_token.state.split(':')
-
-    # check if
-
-    return {
-        "success": True,
-        "error_message": "None if True else str"
-    }
-
-
+    return await discord_users.insert_profile(
+        db=db,
+        bungie_token=bungie_token,
+    )
 
 
 
