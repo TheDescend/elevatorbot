@@ -8,7 +8,7 @@ from Backend.schemas.destiny.account import DestinyNameModel
 
 
 router = APIRouter(
-    prefix="destiny/{guild_id}/{discord_id}/account",
+    prefix="/destiny/{guild_id}/{discord_id}/account",
     tags=["destiny", "account"],
 )
 

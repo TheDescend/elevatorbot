@@ -7,7 +7,7 @@ from Backend.schemas.destiny.profile import DestinyProfileModel
 
 
 router = APIRouter(
-    prefix="profile",
+    prefix="/profile",
     tags=["destiny", "profile"],
 )
 

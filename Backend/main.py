@@ -44,8 +44,6 @@ app.include_router(account.router)
 # add exception handlers
 app.add_exception_handler(CustomException, handle_custom_exception)
 
-app.add_middleware()
-
 
 # only allow people with read permissions
 @app.get("/read_perm", response_model=BackendUserModel)
