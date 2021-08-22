@@ -17,3 +17,13 @@ class BackendUserModel(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
+
+
+class BungieTokenInput(BaseModel):
+    access_token: str
+    token_type: str
+    expires_in: int
+    refresh_token: str
+    refresh_expires_in: int
+    membership_id: str
+    state: str
