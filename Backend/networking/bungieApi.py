@@ -114,7 +114,7 @@ class BungieApi(NetworkBase):
         self,
         db: AsyncSession,
         route: str,
-        data: dict,
+        json: dict,
         params: dict = None
     ) -> WebResponse:
         """ Post data to bungie. self.discord_id must have the authentication for the action """
@@ -128,7 +128,7 @@ class BungieApi(NetworkBase):
                 return await self._post_request(
                     session=session,
                     route=route,
-                    data=data,
+                    json=json,
                     headers=self.auth_headers,
                     params=params,
                 )
@@ -145,7 +145,7 @@ class BungieApi(NetworkBase):
 
         # use special token headers if its a bungie request
         if self.bungie_request:
-            self.auth_headers = self.auth_headers.update(
+            self.auth_headers.update(
                 {
                     "Authorization": f"Bearer {token}",
                 }

@@ -71,7 +71,7 @@ class BungieAuth(NetworkBase):
             response = await self._post_request(
                 session=session,
                 route=self.route,
-                data=data,
+                form_data=data,
                 headers=self.headers,
             )
             if response:

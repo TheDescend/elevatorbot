@@ -81,7 +81,8 @@ class NetworkBase:
         self,
         session: Union[aiohttp_client_cache.CachedSession, aiohttp.ClientSession],
         route: str,
-        data: dict,
+        json: dict = None,
+        form_data: dict = None,
         headers: dict = None,
         params: dict = None,
     ) -> WebResponse:
@@ -100,7 +101,8 @@ class NetworkBase:
             try:
                 async with session.post(
                     url=route,
-                    data=data,
+                    json=json,
+                    data=form_data,
                     headers=headers,
                     params=params,
                     allow_redirects=False,
