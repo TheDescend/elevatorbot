@@ -310,60 +310,60 @@ async def get_player_roles(
     return roles_to_add, roles_to_remove, all_roles_earned, all_roles_not_earned
 
 
-async def assignRolesToUser(roleList, discordUser, guild, reason=None):
-    # takes rolelist as string array, userSnowflake, guild object
-    if not discordUser:
-        return False
-
-    role_banned = discord.utils.get(
-        guild.roles, name="Role Banned"
-    ) or discord.utils.get(guild.roles, id=role_ban_id)
-    if role_banned in discordUser.roles:
-        return False
-
-    for role in roleList:
-        # print(guild.roles)
-        roleObj = discord.utils.get(guild.roles, name=role) or discord.utils.get(
-            guild.roles, id=role
-        )
-        if not roleObj:
-            if guild.id in [
-                669293365900214293
-            ]:  # We only care about the descend discord
-                print(
-                    f"assignable role doesn't exist in {guild.name} with id {guild.id}: {role}"
-                )
-            continue
-        if roleObj not in discordUser.roles:
-            try:
-                await discordUser.add_roles(roleObj, reason=reason)
-                print(
-                    f"added role {roleObj.name} to user {discordUser.name} in server {guild.name}"
-                )
-            except discord.errors.Forbidden:
-                print(
-                    f"failed to add {roleObj.name} to user {discordUser.name} in server {guild.name}"
-                )
-                return False
-    return True
-
-
-async def removeRolesFromUser(roleStringList, discordUser, guild, reason=None):
-    for role in roleStringList:
-        role_obj = discord.utils.get(guild.roles, name=role) or discord.utils.get(
-            guild.roles, id=role
-        )
-        if role_obj is None and guild.id not in [
-            556418279015448596,
-            724676552175910934,
-        ]:
-            print(f"removeable role doesn't exist: {role}")
-            continue
-
-        if role_obj in discordUser.roles:
-            print(f"removed role {role_obj.name} from user {discordUser.name}")
-            try:
-                await discordUser.remove_roles(role_obj, reason=reason)
-            except discord.errors.Forbidden:
-                return False
-    return True
+# async def assignRolesToUser(roleList, discordUser, guild, reason=None):
+#     # takes rolelist as string array, userSnowflake, guild object
+#     if not discordUser:
+#         return False
+#
+#     role_banned = discord.utils.get(
+#         guild.roles, name="Role Banned"
+#     ) or discord.utils.get(guild.roles, id=role_ban_id)
+#     if role_banned in discordUser.roles:
+#         return False
+#
+#     for role in roleList:
+#         # print(guild.roles)
+#         roleObj = discord.utils.get(guild.roles, name=role) or discord.utils.get(
+#             guild.roles, id=role
+#         )
+#         if not roleObj:
+#             if guild.id in [
+#                 669293365900214293
+#             ]:  # We only care about the descend discord
+#                 print(
+#                     f"assignable role doesn't exist in {guild.name} with id {guild.id}: {role}"
+#                 )
+#             continue
+#         if roleObj not in discordUser.roles:
+#             try:
+#                 await discordUser.add_roles(roleObj, reason=reason)
+#                 print(
+#                     f"added role {roleObj.name} to user {discordUser.name} in server {guild.name}"
+#                 )
+#             except discord.errors.Forbidden:
+#                 print(
+#                     f"failed to add {roleObj.name} to user {discordUser.name} in server {guild.name}"
+#                 )
+#                 return False
+#     return True
+#
+#
+# async def removeRolesFromUser(roleStringList, discordUser, guild, reason=None):
+#     for role in roleStringList:
+#         role_obj = discord.utils.get(guild.roles, name=role) or discord.utils.get(
+#             guild.roles, id=role
+#         )
+#         if role_obj is None and guild.id not in [
+#             556418279015448596,
+#             724676552175910934,
+#         ]:
+#             print(f"removeable role doesn't exist: {role}")
+#             continue
+#
+#         if role_obj in discordUser.roles:
+#             print(f"removed role {role_obj.name} from user {discordUser.name}")
+#             try:
+#                 await discordUser.remove_roles(role_obj, reason=reason)
+#             except discord.errors.Forbidden:
+#                 return False
+#     return True

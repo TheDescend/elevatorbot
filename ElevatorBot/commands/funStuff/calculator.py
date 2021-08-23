@@ -1,8 +1,10 @@
 from discord.ext.commands import Cog
 from discord_slash import SlashContext, cog_ext
 
+from ElevatorBot.core.funStuff.calculator import Calculator
 
-class Calculator(Cog):
+
+class CalculatorCommand(Cog):
     def __init__(
         self,
         client
@@ -18,10 +20,13 @@ class Calculator(Cog):
         self,
         ctx: SlashContext
     ):
-        pass
+        """ A handy calculator! """
+
+        calc = Calculator(ctx)
+        await calc.start()
 
 
 def setup(
     client
 ):
-    client.add_cog(Calculator(client))
+    client.add_cog(CalculatorCommand(client))

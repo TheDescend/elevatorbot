@@ -22,7 +22,9 @@ class Socialist(Cog):
         self,
         ctx: SlashContext
     ):
-        pass
+        """ Spams #socialist """
+
+        await ctx.send("No 🙃")
 
 
 def setup(

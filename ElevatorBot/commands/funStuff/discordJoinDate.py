@@ -1,7 +1,9 @@
+import discord
 from discord.ext.commands import Cog
 from discord_slash import SlashContext, cog_ext
 
 from ElevatorBot.commandHelpers.optionTemplates import get_user_option
+from ElevatorBot.misc.formating import embed_message
 
 
 class DiscordJoinDate(Cog):
@@ -14,15 +16,24 @@ class DiscordJoinDate(Cog):
 
     @cog_ext.cog_slash(
         name="discordjoindate",
-        description="Check your join date of this discord server",
-        options=[get_user_option()],
+        description="Check when you joined this discord server",
+        options=[
+            get_user_option()
+        ],
     )
-    async def _discordjoindate(
+    async def _discord_join_date(
         self,
         ctx: SlashContext,
-        **kwargs
+        user: discord.Member
     ):
-        pass
+        """ Check your join date of this discord server """
+
+        await ctx.send(
+            embed=embed_message(
+                f"{user.display_name}'s Discord Join Date",
+                f"You joined on <t:{int(user.joined_at.timestamp())}>",
+            )
+        )
 
 
 def setup(
