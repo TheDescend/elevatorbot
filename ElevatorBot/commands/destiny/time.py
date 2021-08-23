@@ -6,12 +6,8 @@ from ElevatorBot.commandHelpers.optionTemplates import get_user_option
 
 
 class Time(Cog):
-    def __init__(
-        self,
-        client
-    ):
+    def __init__(self, client):
         self.client = client
-
 
     @cog_ext.cog_slash(
         name="time",
@@ -32,15 +28,9 @@ class Time(Cog):
             get_user_option(),
         ],
     )
-    async def _time(
-        self,
-        ctx: SlashContext,
-        **kwargs
-    ):
+    async def _time(self, ctx: SlashContext, **kwargs):
         pass
 
 
-def setup(
-    client
-):
+def setup(client):
     client.add_cog(Time(client))

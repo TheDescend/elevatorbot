@@ -9,12 +9,9 @@ from Backend.database.models import BackendUser
 
 class CRUDBackendUser(CRUDBase):
     async def authenticate(
-        self,
-        db: AsyncSession,
-        user_name: str,
-        password: str
+        self, db: AsyncSession, user_name: str, password: str
     ) -> Optional[BackendUser]:
-        """ Checks if the user_name has a matching pw """
+        """Checks if the user_name has a matching pw"""
 
         # get obj from db
         user = await self._get_with_key(db, user_name)

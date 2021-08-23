@@ -10,15 +10,11 @@ from Backend.networking.base import NetworkBase
 from settings import BUNGIE_TOKEN
 
 
-
 class BungieApi(NetworkBase):
-    """ Handles all networking to any API. To call an api that is not bungies, change the headers """
+    """Handles all networking to any API. To call an api that is not bungies, change the headers"""
 
     # base bungie headers
-    normal_headers = {
-        "X-API-Key": BUNGIE_TOKEN,
-        "Accept": "application/json"
-    }
+    normal_headers = {"X-API-Key": BUNGIE_TOKEN, "Accept": "application/json"}
     auth_headers = normal_headers.copy()
 
     # the cache object. Low expire time since players dont want to wait an eternity for their stuff to _update
@@ -27,12 +23,7 @@ class BungieApi(NetworkBase):
         expire_after=timedelta(minutes=5),
     )
 
-
-    def __init__(
-        self,
-        discord_id: int,
-        headers: dict = None
-    ):
+    def __init__(self, discord_id: int, headers: dict = None):
         self.discord_id = discord_id
 
         # allows different urls than bungies to be called (fe. steam players)
@@ -41,14 +32,10 @@ class BungieApi(NetworkBase):
             self.auth_headers = headers
             self.bungie_request = False
 
-
     async def get_json_from_url(
-        self,
-        route: str,
-        params: dict = None,
-        use_cache: bool = True
+        self, route: str, params: dict = None, use_cache: bool = True
     ) -> WebResponse:
-        """ Grabs JSON from the specified URL (no oauth) """
+        """Grabs JSON from the specified URL (no oauth)"""
 
         async with aiohttp_client_cache.CachedSession(cache=self.cache) as session:
             # use cache for the responses
@@ -70,7 +57,6 @@ class BungieApi(NetworkBase):
                         params=params,
                     )
 
-
     async def get_json_from_bungie_with_token(
         self,
         db: AsyncSession,
@@ -78,7 +64,7 @@ class BungieApi(NetworkBase):
         params: dict = None,
         use_cache: bool = True,
     ) -> WebResponse:
-        """ Grabs JSON from the specified URL (oauth) """
+        """Grabs JSON from the specified URL (oauth)"""
 
         # set the auth headers to a working token
         await self.__set_auth_headers(db)
@@ -87,8 +73,7 @@ class BungieApi(NetworkBase):
         no_jar = aiohttp.DummyCookieJar()
 
         async with aiohttp_client_cache.CachedSession(
-            cache=self.cache,
-            cookie_jar=no_jar
+            cache=self.cache, cookie_jar=no_jar
         ) as session:
             # use cache for the responses
             if use_cache:
@@ -109,15 +94,10 @@ class BungieApi(NetworkBase):
                         params=params,
                     )
 
-
     async def post_json_to_url(
-        self,
-        db: AsyncSession,
-        route: str,
-        json: dict,
-        params: dict = None
+        self, db: AsyncSession, route: str, json: dict, params: dict = None
     ) -> WebResponse:
-        """ Post data to bungie. self.discord_id must have the authentication for the action """
+        """Post data to bungie. self.discord_id must have the authentication for the action"""
 
         # set the auth headers to a working token
         await self.__set_auth_headers(db)
@@ -134,13 +114,10 @@ class BungieApi(NetworkBase):
                 )
 
     async def __set_auth_headers(self, db: AsyncSession):
-        """ Update the auth headers to include a working token. Raise an error if that doesnt exist """
+        """Update the auth headers to include a working token. Raise an error if that doesnt exist"""
 
         # get a working token or abort
-        auth = BungieAuth(
-            discord_id=self.discord_id,
-            db=db
-        )
+        auth = BungieAuth(discord_id=self.discord_id, db=db)
         token = await auth.get_working_token()
 
         # use special token headers if its a bungie request

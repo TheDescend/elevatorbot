@@ -5,12 +5,8 @@ from ElevatorBot_old.static.slashCommandOptions import options_user
 
 
 class RoleOverview(Cog):
-    def __init__(
-        self,
-        client
-    ):
+    def __init__(self, client):
         self.client = client
-
 
     @cog_ext.cog_subcommand(
         base="roles",
@@ -19,15 +15,9 @@ class RoleOverview(Cog):
         description="Shows you what roles you can still achieve in this clan",
         options=[options_user()],
     )
-    async def _roles_overview(
-        self,
-        ctx: SlashContext,
-        **kwargs
-    ):
+    async def _roles_overview(self, ctx: SlashContext, **kwargs):
         pass
 
 
-def setup(
-    client
-):
+def setup(client):
     client.add_cog(RoleOverview(client))

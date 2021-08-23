@@ -6,12 +6,8 @@ from ElevatorBot.commandHelpers.optionTemplates import get_user_option
 
 
 class Rank(Cog):
-    def __init__(
-        self,
-        client
-    ):
+    def __init__(self, client):
         self.client = client
-
 
     @cog_ext.cog_slash(
         name="rank",
@@ -71,16 +67,9 @@ class Rank(Cog):
             get_user_option(),
         ],
     )
-    async def _rank(
-        self,
-        ctx: SlashContext,
-        *args,
-        **kwargs
-    ):
+    async def _rank(self, ctx: SlashContext, *args, **kwargs):
         pass
 
 
-def setup(
-    client
-):
+def setup(client):
     client.add_cog(Rank(client))

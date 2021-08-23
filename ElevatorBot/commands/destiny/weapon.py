@@ -6,12 +6,8 @@ from ElevatorBot.commandHelpers.optionTemplates import get_mode_choices, get_use
 
 
 class Weapon(Cog):
-    def __init__(
-        self,
-        client
-    ):
+    def __init__(self, client):
         self.client = client
-
 
     @cog_ext.cog_slash(
         name="weapon",
@@ -81,15 +77,9 @@ class Weapon(Cog):
             get_user_option(),
         ],
     )
-    async def _weapon(
-        self,
-        ctx: SlashContext,
-        **kwargs
-    ):
+    async def _weapon(self, ctx: SlashContext, **kwargs):
         pass
 
 
-def setup(
-    client
-):
+def setup(client):
     client.add_cog(Weapon(client))

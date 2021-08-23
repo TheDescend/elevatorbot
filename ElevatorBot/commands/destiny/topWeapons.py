@@ -7,12 +7,8 @@ from ElevatorBot.static.destinyDates import expansion_dates, season_dates
 
 
 class TopWeapons(Cog):
-    def __init__(
-        self,
-        client
-    ):
+    def __init__(self, client):
         self.client = client
-
 
     @cog_ext.cog_slash(
         name="topweapons",
@@ -98,15 +94,9 @@ class TopWeapons(Cog):
             get_user_option(),
         ],
     )
-    async def _topweapons(
-        self,
-        ctx: SlashContext,
-        **kwargs
-    ):
+    async def _topweapons(self, ctx: SlashContext, **kwargs):
         pass
 
 
-def setup(
-    client
-):
+def setup(client):
     client.add_cog(TopWeapons(client))

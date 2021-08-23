@@ -1,12 +1,8 @@
 import discord
 
 
-async def assign_roles_to_member(
-    member: discord.Member,
-    *role_ids,
-    reason: str = None
-):
-    """ Assigns the role_ids to the member if they exist, else fails silently """
+async def assign_roles_to_member(member: discord.Member, *role_ids, reason: str = None):
+    """Assigns the role_ids to the member if they exist, else fails silently"""
 
     guild = member.guild
 
@@ -25,11 +21,9 @@ async def assign_roles_to_member(
 
 
 async def remove_roles_from_member(
-    member: discord.Member,
-    *role_ids,
-    reason: str = None
+    member: discord.Member, *role_ids, reason: str = None
 ):
-    """ Removes the role_ids from the member if they exist, else fails silently """
+    """Removes the role_ids from the member if they exist, else fails silently"""
 
     guild = member.guild
 

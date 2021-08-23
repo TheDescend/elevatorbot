@@ -3,7 +3,7 @@ from typing import Generator
 
 
 def yield_files_in_folder(folder: str, extension: str) -> Generator:
-    """ Yields all paths of all files with the correct extension in the specified folder """
+    """Yields all paths of all files with the correct extension in the specified folder"""
 
     for root, dirs, files in os.walk(folder):
         for file in files:

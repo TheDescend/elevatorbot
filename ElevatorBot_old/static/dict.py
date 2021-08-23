@@ -164,7 +164,6 @@ speedrunActivitiesRaids = {
 speedrunActivities = speedrunActivitiesRaids
 
 
-
 """ Weapon Hashes """
 damageTypeKinetic = 3373582085
 damageTypeSolar = 1847026933

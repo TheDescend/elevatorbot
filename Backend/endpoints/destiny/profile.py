@@ -15,7 +15,7 @@ router = APIRouter(
 
 @router.get("/discord/{discord_id}", response_model=DestinyProfileModel)
 async def discord_get(discord_id: int, db: AsyncSession = Depends(get_db_session)):
-    """ Return a users profile """
+    """Return a users profile"""
 
     profile = await crud.discord_users.get_profile_from_discord_id(db, discord_id)
     return DestinyProfileModel.from_orm(profile)
@@ -23,7 +23,7 @@ async def discord_get(discord_id: int, db: AsyncSession = Depends(get_db_session
 
 @router.get("/destiny/{destiny_id}", response_model=DestinyProfileModel)
 async def destiny_get(destiny_id: int, db: AsyncSession = Depends(get_db_session)):
-    """ Return a users profile """
+    """Return a users profile"""
 
     profile = await crud.discord_users.get_profile_from_destiny_id(db, destiny_id)
     return DestinyProfileModel.from_orm(profile)
@@ -31,7 +31,7 @@ async def destiny_get(destiny_id: int, db: AsyncSession = Depends(get_db_session
 
 @router.get("/delete/{discord_id}", response_model=EmptyResponseModel)
 async def discord_delete(discord_id: int, db: AsyncSession = Depends(get_db_session)):
-    """ Delete a users profile """
+    """Delete a users profile"""
 
     await crud.discord_users.delete_profile(db, discord_id)
     return EmptyResponseModel()

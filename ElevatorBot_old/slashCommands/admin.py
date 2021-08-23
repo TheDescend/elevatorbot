@@ -111,7 +111,6 @@ class AdminCommands(commands.Cog):
                 )
                 textstr = textstr[1900:]
 
-
     # todo not really needed
     @cog_ext.cog_slash(
         name="getapikey",
@@ -126,7 +125,6 @@ class AdminCommands(commands.Cog):
                 "Your API Key", (await handle_and_return_token(ctx.author.id)).token
             ),
         )
-
 
     # todo not really needed
     @cog_ext.cog_slash(
@@ -185,7 +183,6 @@ class AdminCommands(commands.Cog):
             await ctx.channel.send(unsuccessfulMessage)
         else:
             await ctx.channel.send("No unsuccessful matches <:PogU:670369128237760522>")
-
 
     @cog_ext.cog_slash(
         name="mute",
@@ -684,7 +681,6 @@ Basically just type `/lfg` and look around. There are many other cool commands t
         await ctx.send(
             hidden=True, embed=embed_message(f"Success", f"I've done as you asked")
         )
-
 
     # todo not needed
     @cog_ext.cog_slash(

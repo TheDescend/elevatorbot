@@ -6,12 +6,8 @@ from ElevatorBot.commandHelpers.optionTemplates import get_user_option
 
 
 class IdSet(Cog):
-    def __init__(
-        self,
-        client
-    ):
+    def __init__(self, client):
         self.client = client
-
 
     @cog_ext.cog_subcommand(
         base="id",
@@ -28,15 +24,9 @@ class IdSet(Cog):
             get_user_option(description="Requires elevated permissions"),
         ],
     )
-    async def _set(
-        self,
-        ctx: SlashContext,
-        **kwargs
-    ):
+    async def _set(self, ctx: SlashContext, **kwargs):
         pass
 
 
-def setup(
-    client
-):
+def setup(client):
     client.add_cog(IdSet(client))

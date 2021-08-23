@@ -19,9 +19,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 CREDENTIALS_EXCEPTION = HTTPException(
     status_code=status.HTTP_401_UNAUTHORIZED,
     detail="Could not validate credentials",
-    headers={
-        "WWW-Authenticate": "Bearer"
-    },
+    headers={"WWW-Authenticate": "Bearer"},
 )
 
 
@@ -30,7 +28,9 @@ def get_secret_key():
     global _SECRET_KEY
 
     if not _SECRET_KEY:
-        secrets_file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "secrets.py")
+        secrets_file_path = os.path.join(
+            os.path.dirname(os.path.realpath(__file__)), "secrets.py"
+        )
         if os.path.exists(secrets_file_path):
             with open(secrets_file_path, "r") as file:
                 secret_key = file.read()
@@ -41,7 +41,6 @@ def get_secret_key():
         _SECRET_KEY = secret_key
 
     return _SECRET_KEY
-
 
 
 # define auth schemes

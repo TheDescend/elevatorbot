@@ -286,8 +286,6 @@ class MiscCommands(commands.Cog):
             "Sadly your victory is no more. Hope to see you back again soon!"
         )
 
-
-
     @cog_ext.cog_slash(
         name="discordjoindate",
         description="Check your join date of this discord server",

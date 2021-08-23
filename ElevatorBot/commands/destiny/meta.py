@@ -7,12 +7,8 @@ from ElevatorBot.static.destinyDates import expansion_dates, season_dates
 
 
 class Meta(Cog):
-    def __init__(
-        self,
-        client
-    ):
+    def __init__(self, client):
         self.client = client
-
 
     @cog_ext.cog_slash(
         name="meta",
@@ -78,15 +74,9 @@ class Meta(Cog):
             ),
         ],
     )
-    async def _meta(
-        self,
-        ctx: SlashContext,
-        **kwargs
-    ):
+    async def _meta(self, ctx: SlashContext, **kwargs):
         pass
 
 
-def setup(
-    client
-):
+def setup(client):
     client.add_cog(Meta(client))

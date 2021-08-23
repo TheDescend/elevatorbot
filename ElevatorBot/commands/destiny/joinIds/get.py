@@ -5,12 +5,8 @@ from ElevatorBot.commandHelpers.optionTemplates import get_user_option
 
 
 class IdGet(Cog):
-    def __init__(
-        self,
-        client
-    ):
+    def __init__(self, client):
         self.client = client
-
 
     @cog_ext.cog_subcommand(
         base="id",
@@ -19,15 +15,9 @@ class IdGet(Cog):
         description="Get a Steam ID",
         options=[get_user_option()],
     )
-    async def _get(
-        self,
-        ctx: SlashContext,
-        **kwargs
-    ):
+    async def _get(self, ctx: SlashContext, **kwargs):
         pass
 
 
-def setup(
-    client
-):
+def setup(client):
     client.add_cog(IdGet(client))

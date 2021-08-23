@@ -1,7 +1,9 @@
 import os
 
 
-base_route = f"""http://{os.environ.get("BACKEND_HOST")}:{os.environ.get("BACKEND_PORT")}/"""
+base_route = (
+    f"""http://{os.environ.get("BACKEND_HOST")}:{os.environ.get("BACKEND_PORT")}/"""
+)
 destiny_base_route = base_route + "destiny/{guild_id}/{discord_id}/"
 
 destiny_profile_from_discord_id_route = base_route + "profile/discord/{discord_id}/"
@@ -15,4 +17,6 @@ destiny_name_route = destiny_account_route + "name/"
 destiny_clan_route = destiny_base_route + "clan/"
 destiny_clan_get_route = destiny_clan_route + "get/"
 destiny_clan_get_members_route = destiny_clan_route + "get/members/"
-destiny_clan_search_members_route = destiny_clan_route + "get/members/search/{search_phrase}/"
+destiny_clan_search_members_route = (
+    destiny_clan_route + "get/members/search/{search_phrase}/"
+)

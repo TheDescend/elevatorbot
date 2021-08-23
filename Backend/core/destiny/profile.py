@@ -11,67 +11,42 @@ from Backend.networking.routes import profile_route, stat_route
 
 @dataclasses.dataclass
 class DestinyProfile:
-    """ User specific API calls """
+    """User specific API calls"""
 
     db: AsyncSession
     user: DiscordGuardiansToken
 
-    race_map = {
-        2803282938: "Awoken",
-        898834093: "Exo",
-        3887404748: "Human"
-    }
+    race_map = {2803282938: "Awoken", 898834093: "Exo", 3887404748: "Human"}
     gender_map = {
         2204441813: "Female",
         3111576190: "Male",
     }
-    class_map = {
-        671679327: "Hunter",
-        2271682572: "Warlock",
-        3655393761: "Titan"
-    }
+    class_map = {671679327: "Hunter", 2271682572: "Warlock", 3655393761: "Titan"}
 
-
-    def __post_init__(
-        self
-    ):
+    def __post_init__(self):
         # some shortcuts
         self.discord_id = self.user.discord_id
         self.destiny_id = self.user.destiny_id
         self.system = self.user.system
 
         # the network class
-        self.api = BungieApi(
-            discord_id=self.discord_id
-        )
+        self.api = BungieApi(discord_id=self.discord_id)
 
-
-    async def get_destiny_name(
-        self
-    ) -> str:
-        """ Returns the current user name """
+    async def get_destiny_name(self) -> str:
+        """Returns the current user name"""
 
         result = await self.__get_profile(100)
         return result["profile"]["data"]["userInfo"]["displayName"]
 
-
-    async def get_last_online(
-        self
-    ) -> datetime.datetime:
-        """ Returns the last online time """
+    async def get_last_online(self) -> datetime.datetime:
+        """Returns the last online time"""
 
         result = await self.__get_profile(100)
         last_played = result["profile"]["data"]["dateLastPlayed"]
-        return datetime.datetime.strptime(
-            last_played, "%Y-%m-%dT%H:%M:%SZ"
-        )
+        return datetime.datetime.strptime(last_played, "%Y-%m-%dT%H:%M:%SZ")
 
-
-    async def has_triumph(
-        self,
-        triumph_hash: Union[str, int]
-    ) -> bool:
-        """ Returns if the triumph is gotten """
+    async def has_triumph(self, triumph_hash: Union[str, int]) -> bool:
+        """Returns if the triumph is gotten"""
 
         # todo get from db
 
@@ -95,12 +70,8 @@ class DestinyProfile:
 
         return status
 
-
-    async def has_collectible(
-        self,
-        collectible_hash: Union[str, int]
-    ) -> bool:
-        """ Returns if the collectible is gotten """
+    async def has_collectible(self, collectible_hash: Union[str, int]) -> bool:
+        """Returns if the collectible is gotten"""
 
         # todo get from db
 
@@ -111,18 +82,13 @@ class DestinyProfile:
         # see https://bungie-net.github.io/multi/schema_Destiny-DestinyCollectibleState.html#schema_Destiny-DestinyCollectibleState
         return collectibles[collectible_hash]["state"] & 1 == 0
 
-
-    async def get_metric_value(
-        self,
-        metric_hash: Union[str, int]
-    ) -> int:
-        """ Returns the value of the given metric hash """
+    async def get_metric_value(self, metric_hash: Union[str, int]) -> int:
+        """Returns the value of the given metric hash"""
 
         metric_hash = str(metric_hash)
         metrics = await self.get_metrics()
 
         return metrics[metric_hash]["objectiveProgress"]["progress"]
-
 
     async def get_stat_value(
         self,
@@ -130,20 +96,24 @@ class DestinyProfile:
         stat_category: str = "allTime",
         character_id: Union[int, str] = None,
     ) -> int:
-        """ Returns the value of the given stat """
+        """Returns the value of the given stat"""
 
         possible_stat_categories = [
             "allTime",
             "allPvE",
             "allPvP",
         ]
-        assert stat_category in possible_stat_categories, f"Stat must be one of {possible_stat_categories}"
+        assert (
+            stat_category in possible_stat_categories
+        ), f"Stat must be one of {possible_stat_categories}"
 
         stats = await self.get_stats()
 
         # total stats
         if not character_id:
-            stat = stats["mergedAllCharacters"]["merged"][stat_category][stat_name]["basic"]["value"]
+            stat = stats["mergedAllCharacters"]["merged"][stat_category][stat_name][
+                "basic"
+            ]["value"]
             return int(stat)
 
         # character stats
@@ -153,20 +123,14 @@ class DestinyProfile:
                     stat = stats["merged"][stat_category][stat_name]["basic"]["value"]
                     return int(stat)
 
-
-    async def get_artifact(
-        self
-    ) -> dict:
-        """ Returns the seasonal artifact data """
+    async def get_artifact(self) -> dict:
+        """Returns the seasonal artifact data"""
 
         result = await self.__get_profile(104, with_token=True)
         return result["profileProgression"]["data"]["seasonalArtifact"]
 
-
-    async def get_player_seals(
-        self
-    ) -> tuple[list[int], list[int]]:
-        """ Returns all seals and the seals a player has. Returns two lists: [triumph_hash, ...] and removes wip seals like WF LW """
+    async def get_player_seals(self) -> tuple[list[int], list[int]]:
+        """Returns all seals and the seals a player has. Returns two lists: [triumph_hash, ...] and removes wip seals like WF LW"""
 
         all_seals = []
         completed_seals = []
@@ -180,12 +144,8 @@ class DestinyProfile:
 
         return all_seals, completed_seals
 
-
-    async def get_character_id_by_class(
-        self,
-        character_class: str
-    ) -> Optional[int]:
-        """ Return the matching character id if exists """
+    async def get_character_id_by_class(self, character_class: str) -> Optional[int]:
+        """Return the matching character id if exists"""
 
         # make sure the class exists
         class_names = list(self.class_map.values())
@@ -200,10 +160,7 @@ class DestinyProfile:
                     return character_id
         return None
 
-
-    async def get_character_info(
-        self
-    ) -> dict:
+    async def get_character_info(self) -> dict:
         """
         Get character info
 
@@ -234,11 +191,8 @@ class DestinyProfile:
 
         return characters
 
-
-    async def get_triumphs(
-        self
-    ) -> dict:
-        """ Populate the triumphs and then return them """
+    async def get_triumphs(self) -> dict:
+        """Populate the triumphs and then return them"""
 
         result = await self.__get_profile(900)
 
@@ -248,7 +202,9 @@ class DestinyProfile:
         # get character triumphs
         character_triumphs = [
             character_triumphs["records"]
-            for character_id, character_triumphs in result["characterRecords"]["data"].items()
+            for character_id, character_triumphs in result["characterRecords"][
+                "data"
+            ].items()
         ]
 
         # combine them
@@ -259,11 +215,8 @@ class DestinyProfile:
 
         return triumphs
 
-
-    async def get_collectibles(
-        self
-    ) -> dict:
-        """ Populate the collectibles and then return them """
+    async def get_collectibles(self) -> dict:
+        """Populate the collectibles and then return them"""
 
         result = await self.__get_profile(800)
 
@@ -282,43 +235,26 @@ class DestinyProfile:
             # see https://bungie-net.github.io/multi/schema_Destiny-DestinyCollectibleState.html#schema_Destiny-DestinyCollectibleState
             for collectible_hash, collectible_state in character:
                 if collectible_state["state"] & 1 == 0:
-                    collectibles.update(
-                        {
-                            collectible_hash: collectible_state
-                        }
-                    )
+                    collectibles.update({collectible_hash: collectible_state})
 
         # todo save in db
 
         return collectibles
 
-
-    async def get_metrics(
-        self
-    ) -> dict:
+    async def get_metrics(self) -> dict:
         """Populate the metrics and then return them"""
 
         metrics = await self.__get_profile(1100)
         return metrics["metrics"]["data"]["metrics"]
 
-
-    async def get_stats(
-        self
-    ) -> dict:
+    async def get_stats(self) -> dict:
         """Get destiny stats"""
 
-        route = stat_route.format(
-            system=self.system,
-            destiny_id=self.destiny_id
-        )
+        route = stat_route.format(system=self.system, destiny_id=self.destiny_id)
         result = await self.api.get_json_from_url(route=route)
         return result.content
 
-
-    async def get_items_in_inventory_bucket(
-        self,
-        bucket: int
-    ) -> list:
+    async def get_items_in_inventory_bucket(self, bucket: int) -> list:
         """
         Returns all items in bucket. Default is vault hash, for others search "bucket" at https://data.destinysets.com/
 
@@ -335,9 +271,8 @@ class DestinyProfile:
 
         return items
 
-
     async def get_player_gear(self) -> list[dict]:
-        """ Returns a list of items - equipped and unequipped """
+        """Returns a list of items - equipped and unequipped"""
 
         characters = await self.get_character_info()
 
@@ -346,16 +281,23 @@ class DestinyProfile:
         used_items = await self.__get_profile(201, 205, 300, with_token=True)
         item_power = {
             weapon_id: int(weapon_data.get("primaryStat", {"value": 0})["value"])
-            for weapon_id, weapon_data in used_items["itemComponents"]["instances"]["data"].items()
+            for weapon_id, weapon_data in used_items["itemComponents"]["instances"][
+                "data"
+            ].items()
         }
         item_power["none"] = 0
         for character_id in characters.keys():
-            character_items = used_items["characterInventories"]["data"][character_id]["items"] + used_items["characterEquipment"]["data"][character_id]["items"]
+            character_items = (
+                used_items["characterInventories"]["data"][character_id]["items"]
+                + used_items["characterEquipment"]["data"][character_id]["items"]
+            )
             character_power_items = map(
                 lambda character_item: dict(
                     character_item,
                     **{
-                        "lightlevel": item_power[character_item.get("itemInstanceId", "none")]
+                        "lightlevel": item_power[
+                            character_item.get("itemInstanceId", "none")
+                        ]
                     },
                 ),
                 character_items,
@@ -364,35 +306,22 @@ class DestinyProfile:
 
         return gear
 
-
     async def __get_profile(
-        self,
-        *components: Union[int, str],
-        with_token: bool = False
+        self, *components: Union[int, str], with_token: bool = False
     ) -> dict:
         """
         Return info from the profile call
         https://bungie-net.github.io/multi/schema_Destiny-DestinyComponentType.html#schema_Destiny-DestinyComponentType
         """
 
-        route = profile_route.format(
-            system=self.system,
-            destiny_id=self.destiny_id
-        )
-        params = {
-            "components": ",".join(map(str, components))
-        }
+        route = profile_route.format(system=self.system, destiny_id=self.destiny_id)
+        params = {"components": ",".join(map(str, components))}
 
         if with_token:
             response = await self.api.get_json_from_bungie_with_token(
-                db=self.db,
-                route=route,
-                params=params
+                db=self.db, route=route, params=params
             )
         else:
-            response = await self.api.get_json_from_url(
-                route=route,
-                params=params
-            )
+            response = await self.api.get_json_from_url(route=route, params=params)
 
         return response.content

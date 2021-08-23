@@ -3,12 +3,8 @@ from discord_slash import SlashContext, cog_ext
 
 
 class TicTacToeHuman(Cog):
-    def __init__(
-        self,
-        client
-    ):
+    def __init__(self, client):
         self.client = client
-
 
     @cog_ext.cog_subcommand(
         base="tictactoe",
@@ -16,14 +12,9 @@ class TicTacToeHuman(Cog):
         name="versus",
         description="Play against other humans",
     )
-    async def _tictactoe_versus(
-        self,
-        ctx: SlashContext
-    ):
+    async def _tictactoe_versus(self, ctx: SlashContext):
         pass
 
 
-def setup(
-    client
-):
+def setup(client):
     client.add_cog(TicTacToeHuman(client))

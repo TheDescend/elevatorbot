@@ -80,66 +80,63 @@ from static.globals import (
 ###############################################################################
 
 
-def aiohttp_server(
-    discord_client
-):
-    def say_hello(
-        request
-    ):
+def aiohttp_server(discord_client):
+    def say_hello(request):
         logged_in = {}
 
-        if 'code' in request.query:
+        if "code" in request.query:
             api_url = "https://discord.com/api"
             client_id = 856477753418579978
             client_secret = ELEVATOR_ADMIN_CLIENT_SECRET
 
             data = {
-                'client_id': client_id,
-                'client_secret': client_secret,
-                'grant_type': 'authorization_code',
-                'code': request.query['code'],
-                'redirect_uri': "http://elevatorbot.ch/elevatoradmin"
+                "client_id": client_id,
+                "client_secret": client_secret,
+                "grant_type": "authorization_code",
+                "code": request.query["code"],
+                "redirect_uri": "http://elevatorbot.ch/elevatoradmin",
             }
-            headers = {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            }
-            print('requesting token...')
-            token_request = requests.post('%s/oauth2/token' % api_url, data=data, headers=headers)
+            headers = {"Content-Type": "application/x-www-form-urlencoded"}
+            print("requesting token...")
+            token_request = requests.post(
+                "%s/oauth2/token" % api_url, data=data, headers=headers
+            )
             token_request.raise_for_status()
             oauth_cred = token_request.json()
-            access_token = oauth_cred['access_token']
+            access_token = oauth_cred["access_token"]
 
             data_url = "%s/users/@me" % api_url
-            print('requesting data...')
+            print("requesting data...")
             data_request = requests.get(
-                data_url, headers={
-                    'Authorization': f'Bearer {access_token}'
-                }
+                data_url, headers={"Authorization": f"Bearer {access_token}"}
             )
             user_data = data_request.json()
-            user_id = user_data['id']
-            user_name = user_data['username']
-            user_discriminator = user_data['discriminator']
+            user_id = user_data["id"]
+            user_name = user_data["username"]
+            user_discriminator = user_data["discriminator"]
             logged_in = {
-                'user_id': user_id,
-                'user_name': user_name,
-                'user_discriminator': user_discriminator
+                "user_id": user_id,
+                "user_name": user_name,
+                "user_discriminator": user_discriminator,
             }
-            print('logged in!')
-        elif 'user_id' in request.query:
+            print("logged in!")
+        elif "user_id" in request.query:
             # TODO save in cookie
             logged_in = {
-                'user_id': request.query['user_id'],
-                'user_name': request.query['user_name'],
-                'user_discriminator': request.query['user_discriminator']
+                "user_id": request.query["user_id"],
+                "user_name": request.query["user_name"],
+                "user_discriminator": request.query["user_discriminator"],
             }
 
         if "user_id" not in logged_in:
             login_ref_url = "https://discord.com/api/oauth2/authorize?client_id=856477753418579978&redirect_uri=http%3A%2F%2Felevatorbot.ch%2Felevatoradmin&response_type=code&scope=identify"
-            return web.Response(text=f"login: <a href=\"{login_ref_url}\">auth</a><br/>", content_type='text/html')
+            return web.Response(
+                text=f'login: <a href="{login_ref_url}">auth</a><br/>',
+                content_type="text/html",
+            )
 
         connections = discord_client.voice_clients
-        if 'guild' not in request.query:
+        if "guild" not in request.query:
             login_json = urllib.parse.urlencode(logged_in)
             return web.Response(
                 text=f"""
@@ -150,71 +147,95 @@ def aiohttp_server(
                 }}
                 </script>
             <button type="button" onclick="setGuild()">Descend</button>
-            """, content_type='text/html'
+            """,
+                content_type="text/html",
             )
 
-        guild = discord_client.get_guild(int(request.query['guild']))
-        discord_member = guild.get_member(int(logged_in['user_id']))
+        guild = discord_client.get_guild(int(request.query["guild"]))
+        discord_member = guild.get_member(int(logged_in["user_id"]))
 
         if not discord_member:
             print(f'{logged_in["user_name"]} not in guild')
             return web.Response(
                 text="Member not in guild"
-                     r"""<script>window.history.pushState({page: 1}, "Login Failed", "/elevatoradmin");</script>""", content_type='text/html'
+                r"""<script>window.history.pushState({page: 1}, "Login Failed", "/elevatoradmin");</script>""",
+                content_type="text/html",
             )
 
         member_roles = [role.name for role in discord_member.roles]
-        good_roles = ['Moderator', 'Developer', 'Admin']
+        good_roles = ["Moderator", "Developer", "Admin"]
         if not any([role in good_roles for role in member_roles]):
             return web.Response(text="You don't seem to have permission to play music")
 
-        if 'join' in request.query and 'req' in request.query:
-            voice_chat = guild.get_channel(int(request.query['join']))
-            print(f"{logged_in['user_name']}#{logged_in['user_discriminator']} joined bot to {request.query['join']}")
+        if "join" in request.query and "req" in request.query:
+            voice_chat = guild.get_channel(int(request.query["join"]))
+            print(
+                f"{logged_in['user_name']}#{logged_in['user_discriminator']} joined bot to {request.query['join']}"
+            )
 
             active = list(
                 filter(
-                    lambda voice_client: voice_client.guild.id == guild.id and voice_client.is_connected(), connections
+                    lambda voice_client: voice_client.guild.id == guild.id
+                    and voice_client.is_connected(),
+                    connections,
                 )
             )
             if len(active) == 1:
                 move_task = loop.create_task(active[0].move_to(voice_chat))
                 if active[0].is_playing():
                     active[0].stop()
-                loop.create_task(play(urllib.parse.unquote(request.query['req']), discord_client, move_task, voice_client=active[0]))
+                loop.create_task(
+                    play(
+                        urllib.parse.unquote(request.query["req"]),
+                        discord_client,
+                        move_task,
+                        voice_client=active[0],
+                    )
+                )
             else:
-                print(f'joining {voice_chat.name}')
-                connection_task = loop.create_task(voice_chat.connect(timeout=5, reconnect=True))
-                if request.query['req'] != '':
+                print(f"joining {voice_chat.name}")
+                connection_task = loop.create_task(
+                    voice_chat.connect(timeout=5, reconnect=True)
+                )
+                if request.query["req"] != "":
                     print(f"starting to play {request.query['req']}")
-                    loop.create_task(play(urllib.parse.unquote(request.query['req']), discord_client, connection_task))
+                    loop.create_task(
+                        play(
+                            urllib.parse.unquote(request.query["req"]),
+                            discord_client,
+                            connection_task,
+                        )
+                    )
             return web.Response(text=f"Playing {request.query['req']}")
-        elif 'disconnect' in request.query:
+        elif "disconnect" in request.query:
             active = list(
                 filter(
-                    lambda voice_client: voice_client.guild.id == guild.id and voice_client.is_connected(), connections
+                    lambda voice_client: voice_client.guild.id == guild.id
+                    and voice_client.is_connected(),
+                    connections,
                 )
             )
             if len(active) == 1:
                 loop.create_task(active[0].disconnect())
-            return web.Response(text='Disconnected')
-        elif 'stop' in request.query:
+            return web.Response(text="Disconnected")
+        elif "stop" in request.query:
             active = list(
                 filter(
-                    lambda voice_client: voice_client.guild.id == guild.id and voice_client.is_connected(), connections
+                    lambda voice_client: voice_client.guild.id == guild.id
+                    and voice_client.is_connected(),
+                    connections,
                 )
             )
             if len(active) == 1:
                 active[0].stop()
-            return web.Response(text='Stopped')
+            return web.Response(text="Stopped")
 
         if guild := discord_client.get_guild(669293365900214293):
             return web.Response(
-                text=
-                f"Logged in as {logged_in['user_name']}#{logged_in['user_discriminator']}<br/>"
+                text=f"Logged in as {logged_in['user_name']}#{logged_in['user_discriminator']}<br/>"
                 r"""<script>window.history.pushState({page: 1}, "MusicBot Admin", "/elevatoradmin");</script>"""
-                "Songname:<input id='songname' type='text'></input> <br/> Click Channel to join/start playing <br/> (might take up to 10s, depending on song size) <br/><br/>" + \
-                "<br/>".join(
+                "Songname:<input id='songname' type='text'></input> <br/> Click Channel to join/start playing <br/> (might take up to 10s, depending on song size) <br/><br/>"
+                + "<br/>".join(
                     f"""
                         <button type="button" onclick="join{vc.id}()">{vc.name}</button> {', '.join([m.name for m in vc.members])}
                         <script>
@@ -231,9 +252,10 @@ def aiohttp_server(
                             xhttp.send();
                         }}
                         </script>
-                """ for vc in guild.voice_channels
-                ) + \
-                f"""
+                """
+                    for vc in guild.voice_channels
+                )
+                + f"""
                 <br/><br/>
                 <button type="button" onclick="stop()">Stop playing</button>
                 <script>
@@ -265,15 +287,15 @@ def aiohttp_server(
                 </script>
                 <br/><br/>
                 <div id="news"></div>
-            """, content_type='text/html'
+            """,
+                content_type="text/html",
             )
-        return web.Response(text='500')
-
+        return web.Response(text="500")
 
     loop = asyncio.get_event_loop()
 
     app = web.Application()
-    app.add_routes([web.get('/', say_hello)])
+    app.add_routes([web.get("/", say_hello)])
     runner = web.AppRunner(app)
     return runner
 

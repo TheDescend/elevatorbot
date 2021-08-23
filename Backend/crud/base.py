@@ -21,28 +21,23 @@ class CRUDBase:
         """
         self.model = model
 
-
     async def _get_with_key(
-        self,
-        db: AsyncSession,
-        primary_key: Any
+        self, db: AsyncSession, primary_key: Any
     ) -> Optional[ModelType]:
-        """ Returns the object by primary key or None """
+        """Returns the object by primary key or None"""
 
         return await db.get(self.model, primary_key)
-
 
     async def _get_multi(
         self,
         db: AsyncSession,
         limit: int = 100,
     ) -> List[ModelType]:
-        """ Returns a list of all the objects """
+        """Returns a list of all the objects"""
 
         query = select(self.model).limit(limit)
         result = await self._execute_query(db, query)
         return result.scalars().fetchall()
-
 
     async def _get_multi_with_filter(
         self,
@@ -50,44 +45,30 @@ class CRUDBase:
         limit: int = 100,
         **filter_kwargs,
     ) -> List[ModelType]:
-        """ Returns a list of all the objects which fulfill the filter clauses """
+        """Returns a list of all the objects which fulfill the filter clauses"""
 
         query = select(self.model).filter_by(**filter_kwargs).limit(limit)
         result = await self._execute_query(db, query)
         return result.scalars().fetchall()
 
-
     @staticmethod
-    async def _insert(
-        db: AsyncSession,
-        to_create: ModelType
-    ) -> None:
-        """ Insert a initiated ModelType into the database """
+    async def _insert(db: AsyncSession, to_create: ModelType) -> None:
+        """Insert a initiated ModelType into the database"""
 
         db.add(to_create)
         await db.flush()
 
-
     @staticmethod
-    async def _update(
-        db: AsyncSession,
-        to_update: ModelType,
-        **update_kwargs
-    ) -> None:
-        """ Update a initiated ModelType in the database """
+    async def _update(db: AsyncSession, to_update: ModelType, **update_kwargs) -> None:
+        """Update a initiated ModelType in the database"""
 
         for key, value in update_kwargs.items():
             setattr(to_update, key, value)
 
         await db.flush()
 
-
-    async def _delete(
-        self,
-        db: AsyncSession,
-        primary_key: Any
-    ) -> Optional[ModelType]:
-        """ Delete an entry from the database by primary key """
+    async def _delete(self, db: AsyncSession, primary_key: Any) -> Optional[ModelType]:
+        """Delete an entry from the database by primary key"""
 
         obj = await self._get_with_key(db, primary_key)
 
@@ -101,17 +82,11 @@ class CRUDBase:
 
         return obj
 
-
     @staticmethod
-    async def _execute_query(
-        db: AsyncSession,
-        query: Select
-    ) -> Result:
-        """ Returns the result from the query """
+    async def _execute_query(db: AsyncSession, query: Select) -> Result:
+        """Returns the result from the query"""
 
-        result = await db.execute(
-            query
-        )
+        result = await db.execute(query)
         await db.flush()
 
         return result

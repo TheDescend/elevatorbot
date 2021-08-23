@@ -4,12 +4,8 @@ from discord_slash.utils.manage_commands import create_option
 
 
 class TicTacToeAI(Cog):
-    def __init__(
-        self,
-        client
-    ):
+    def __init__(self, client):
         self.client = client
-
 
     @cog_ext.cog_subcommand(
         base="tictactoe",
@@ -25,15 +21,9 @@ class TicTacToeAI(Cog):
             ),
         ],
     )
-    async def _tictactoe_ai(
-        self,
-        ctx: SlashContext,
-        easy_mode: bool = False
-    ):
+    async def _tictactoe_ai(self, ctx: SlashContext, easy_mode: bool = False):
         pass
 
 
-def setup(
-    client
-):
+def setup(client):
     client.add_cog(TicTacToeAI(client))

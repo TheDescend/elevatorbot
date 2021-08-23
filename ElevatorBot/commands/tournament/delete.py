@@ -3,12 +3,8 @@ from discord_slash import SlashContext, cog_ext
 
 
 class TournamentDelete(Cog):
-    def __init__(
-        self,
-        client
-    ):
+    def __init__(self, client):
         self.client = client
-
 
     @cog_ext.cog_subcommand(
         base="tournament",
@@ -16,14 +12,9 @@ class TournamentDelete(Cog):
         name="_delete",
         description="Delete the tournament. Can only be used by the user who used '/tournament _insert' or an Admin",
     )
-    async def _delete(
-        self,
-        ctx: SlashContext
-    ):
+    async def _delete(self, ctx: SlashContext):
         pass
 
 
-def setup(
-    client
-):
+def setup(client):
     client.add_cog(TournamentDelete(client))

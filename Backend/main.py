@@ -6,7 +6,10 @@ from fastapi import Depends, FastAPI, Request
 from Backend.core.errors import CustomException, handle_custom_exception
 from Backend.database.base import setup_engine
 from Backend.database.models import BackendUser, create_tables
-from Backend.dependencies import auth_get_user_with_read_perm, auth_get_user_with_write_perm
+from Backend.dependencies import (
+    auth_get_user_with_read_perm,
+    auth_get_user_with_write_perm,
+)
 from Backend.endpoints import auth, items
 from Backend.endpoints.destiny import account, clan, profile
 from Backend.misc.initLogging import init_logging
@@ -29,7 +32,12 @@ async def log_requests(request: Request, call_next):
     process_time = round(time.time() - start_time, 2)
 
     # log that
-    logger.info("'%s' completed in '%s' seconds for '%s'", request.method, process_time, request.url)
+    logger.info(
+        "'%s' completed in '%s' seconds for '%s'",
+        request.method,
+        process_time,
+        request.url,
+    )
 
     return response
 

@@ -6,12 +6,8 @@ from ElevatorBot.commandHelpers.permissionTemplates import permissions_admin
 
 
 class Channel(Cog):
-    def __init__(
-        self,
-        client
-    ):
+    def __init__(self, client):
         self.client = client
-
 
     @cog_ext.cog_slash(
         name="channel",
@@ -49,16 +45,9 @@ class Channel(Cog):
         default_permission=False,
         permissions=permissions_admin,
     )
-    async def _channel(
-        self,
-        ctx: SlashContext,
-        channel_type,
-        channel
-    ):
+    async def _channel(self, ctx: SlashContext, channel_type, channel):
         pass
 
 
-def setup(
-    client
-):
+def setup(client):
     client.add_cog(Channel(client))

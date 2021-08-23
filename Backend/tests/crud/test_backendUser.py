@@ -14,9 +14,7 @@ has_read_permission = False
 
 
 @pytest.mark.asyncio
-async def test_authenticate(
-    db: AsyncSession
-):
+async def test_authenticate(db: AsyncSession):
     test_user = BackendUser(
         user_name=user_name,
         hashed_password=hashed_password,
@@ -33,9 +31,7 @@ async def test_authenticate(
 
 
 @pytest.mark.asyncio
-async def test_not_authenticate(
-    db: AsyncSession
-):
+async def test_not_authenticate(db: AsyncSession):
     result = await crud.backend_user.authenticate(db, user_name, "false_password")
 
     assert result is None

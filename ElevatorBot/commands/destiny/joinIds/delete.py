@@ -3,12 +3,8 @@ from discord_slash import SlashContext, cog_ext
 
 
 class IdDelete(Cog):
-    def __init__(
-        self,
-        client
-    ):
+    def __init__(self, client):
         self.client = client
-
 
     @cog_ext.cog_subcommand(
         base="id",
@@ -16,15 +12,9 @@ class IdDelete(Cog):
         name="_delete",
         description="Delete your linked Steam ID",
     )
-    async def _get(
-        self,
-        ctx: SlashContext,
-        **kwargs
-    ):
+    async def _get(self, ctx: SlashContext, **kwargs):
         pass
 
 
-def setup(
-    client
-):
+def setup(client):
     client.add_cog(IdDelete(client))

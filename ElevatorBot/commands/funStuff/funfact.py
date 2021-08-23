@@ -6,22 +6,14 @@ from ElevatorBot.misc.formating import embed_message
 
 
 class FunFact(Cog):
-    def __init__(
-        self,
-        client
-    ):
+    def __init__(self, client):
         self.client = client
 
-
     @cog_ext.cog_slash(
-        name="funfact",
-        description="Very fun fun facts just for the funny fun of it"
+        name="funfact", description="Very fun fun facts just for the funny fun of it"
     )
-    async def _fun_fact(
-        self,
-        ctx: SlashContext
-    ):
-        """ Very fun fun facts just for the funny fun of it """
+    async def _fun_fact(self, ctx: SlashContext):
+        """Very fun fun facts just for the funny fun of it"""
 
         url = "https://uselessfacts.jsph.pl/random.json?language=en"
 
@@ -33,13 +25,9 @@ class FunFact(Cog):
                     text = "Offline servers make it difficult to get fun facts :("
 
                 await ctx.send(
-                    embed=embed_message(
-                        "Did you know?",
-                        text.replace("`", "'"))
+                    embed=embed_message("Did you know?", text.replace("`", "'"))
                 )
 
 
-def setup(
-    client
-):
+def setup(client):
     client.add_cog(FunFact(client))

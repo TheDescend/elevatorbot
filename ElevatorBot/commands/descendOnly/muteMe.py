@@ -8,31 +8,24 @@ from discord.ext.commands import Cog
 from discord_slash import SlashContext, cog_ext
 
 from ElevatorBot.commandHelpers.optionTemplates import get_user_option
-from ElevatorBot.misc.discordShortcutFunctions import assign_roles_to_member, remove_roles_from_member
+from ElevatorBot.misc.discordShortcutFunctions import (
+    assign_roles_to_member,
+    remove_roles_from_member,
+)
 from ElevatorBot.static.descendOnlyIds import descend_muted_role_id
 
 
 class MuteMe(Cog):
-    def __init__(
-        self,
-        client
-    ):
+    def __init__(self, client):
         self.client = client
-
 
     @cog_ext.cog_slash(
         name="muteme",
         description="I wonder what this does...",
-        options=[
-            get_user_option()
-        ],
+        options=[get_user_option()],
     )
-    async def _mute_me(
-        self,
-        ctx: SlashContext,
-        user: discord.Member = None
-    ):
-        """ I wonder what this does... """
+    async def _mute_me(self, ctx: SlashContext, user: discord.Member = None):
+        """I wonder what this does..."""
 
         # no mentioning others here smileyface
         if user:
@@ -75,18 +68,20 @@ class MuteMe(Cog):
             )
 
         # add muted role
-        await assign_roles_to_member(ctx.author, descend_muted_role_id, reason=f"/muteme by {ctx.author}")
+        await assign_roles_to_member(
+            ctx.author, descend_muted_role_id, reason=f"/muteme by {ctx.author}"
+        )
 
         # delete muted role after time is over
         await asyncio.sleep(60 * timeout)
 
-        await remove_roles_from_member(user, descend_muted_role_id, reason=f"/muteme by {ctx.author}")
+        await remove_roles_from_member(
+            user, descend_muted_role_id, reason=f"/muteme by {ctx.author}"
+        )
         await ctx.author.send(
             "Sadly your victory is no more and you are no longer muted. Hope to see you back again soon!"
         )
 
 
-def setup(
-    client
-):
+def setup(client):
     client.add_cog(MuteMe(client))

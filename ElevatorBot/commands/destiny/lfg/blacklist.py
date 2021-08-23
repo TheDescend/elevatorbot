@@ -6,12 +6,8 @@ from ElevatorBot.commandHelpers.optionTemplates import get_user_option
 
 
 class LfgBlacklist(Cog):
-    def __init__(
-        self,
-        client
-    ):
+    def __init__(self, client):
         self.client = client
-
 
     @cog_ext.cog_subcommand(
         base="lfg",
@@ -34,16 +30,9 @@ class LfgBlacklist(Cog):
             ),
         ],
     )
-    async def _blacklist(
-        self,
-        ctx: SlashContext,
-        action,
-        user
-    ):
+    async def _blacklist(self, ctx: SlashContext, action, user):
         pass
 
 
-def setup(
-    client
-):
+def setup(client):
     client.add_cog(LfgBlacklist(client))

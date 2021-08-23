@@ -5,10 +5,7 @@ password = "test"
 
 
 def test_register(client: TestClient):
-    register_data = {
-        "user_name": user_name,
-        "password": password
-    }
+    register_data = {"user_name": user_name, "password": password}
 
     # does creating a user work
     r = client.post("/auth/register", data=register_data)

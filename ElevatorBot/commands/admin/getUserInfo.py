@@ -11,12 +11,8 @@ from ElevatorBot.misc.formating import embed_message
 
 
 class UserInfo(Cog):
-    def __init__(
-        self,
-        client
-    ):
+    def __init__(self, client):
         self.client = client
-
 
     @cog_ext.cog_slash(
         name="userinfo",
@@ -62,16 +58,13 @@ class UserInfo(Cog):
             await ctx.send(
                 hidden=True,
                 embed=embed_message(
-                    "Error",
-                    "Exactly one of the arguments must be used"
+                    "Error", "Exactly one of the arguments must be used"
                 ),
             )
             return
         await ctx.defer()
         destiny_profile = DestinyProfile(
-            client=ctx.bot,
-            discord_member=discord_user,
-            discord_guild=ctx.guild
+            client=ctx.bot, discord_member=discord_user, discord_guild=ctx.guild
         )
 
         title = f"Available Info"
@@ -85,14 +78,12 @@ class UserInfo(Cog):
                 await ctx.send(
                     hidden=True,
                     embed=embed_message(
-                        "Error",
-                        "The argument `destiny_id` must be a number")
+                        "Error", "The argument `destiny_id` must be a number"
+                    ),
                 )
                 return
 
-            profile = await destiny_profile.from_destiny_id(
-                destiny_id=destiny_id
-            )
+            profile = await destiny_profile.from_destiny_id(destiny_id=destiny_id)
             if not profile:
                 await profile.send_error_message(ctx)
                 return
@@ -112,13 +103,9 @@ class UserInfo(Cog):
         else:
             # todo get clan id from discord guild
             clan = DestinyClan(
-                client=ctx.bot,
-                discord_member=discord_user,
-                discord_guild=ctx.guild
+                client=ctx.bot, discord_member=discord_user, discord_guild=ctx.guild
             )
-            clan_members = await clan.search_for_clan_members(
-                search_phrase=fuzzy_name
-            )
+            clan_members = await clan.search_for_clan_members(search_phrase=fuzzy_name)
 
             # handle errors
             if not clan_members:
@@ -128,10 +115,7 @@ class UserInfo(Cog):
             # did we find sb?
             if not clan_members.result["members"]:
                 await ctx.send(
-                    embed=embed_message(
-                        "Error",
-                        "No matches found for `{fuzzy_name}`"
-                    )
+                    embed=embed_message("Error", "No matches found for `{fuzzy_name}`")
                 )
                 return
 
@@ -151,7 +135,9 @@ class UserInfo(Cog):
         # make return embed
         embed = embed_message(
             title,
-            "Could not find a clear result, here are the matches" if len(profiles) > 1 else None
+            "Could not find a clear result, here are the matches"
+            if len(profiles) > 1
+            else None,
         )
 
         # fill that
@@ -162,7 +148,7 @@ class UserInfo(Cog):
             account = DestinyAccount(
                 client=ctx.bot,
                 discord_member=profile.discord_member,
-                discord_guild=ctx.guild
+                discord_guild=ctx.guild,
             )
             destiny_name = await account.get_destiny_name()
 
@@ -180,7 +166,5 @@ class UserInfo(Cog):
         await ctx.send(embed=embed)
 
 
-def setup(
-    client
-):
+def setup(client):
     client.add_cog(UserInfo(client))

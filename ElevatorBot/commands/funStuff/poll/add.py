@@ -4,12 +4,8 @@ from discord_slash.utils.manage_commands import create_option
 
 
 class PollAdd(Cog):
-    def __init__(
-        self,
-        client
-    ):
+    def __init__(self, client):
         self.client = client
-
 
     @cog_ext.cog_subcommand(
         base="poll",
@@ -31,16 +27,9 @@ class PollAdd(Cog):
             ),
         ],
     )
-    async def _poll_add(
-        self,
-        ctx: SlashContext,
-        poll_id: str,
-        option: str
-    ):
+    async def _poll_add(self, ctx: SlashContext, poll_id: str, option: str):
         pass
 
 
-def setup(
-    client
-):
+def setup(client):
     client.add_cog(PollAdd(client))

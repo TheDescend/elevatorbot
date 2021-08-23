@@ -5,12 +5,8 @@ from ElevatorBot.commandHelpers.permissionTemplates import permissions_socialist
 
 
 class Socialist(Cog):
-    def __init__(
-        self,
-        client
-    ):
+    def __init__(self, client):
         self.client = client
-
 
     @cog_ext.cog_slash(
         name="socialist",
@@ -18,16 +14,11 @@ class Socialist(Cog):
         default_permission=False,
         permissions=permissions_socialist,
     )
-    async def _socialist(
-        self,
-        ctx: SlashContext
-    ):
-        """ Spams #socialist """
+    async def _socialist(self, ctx: SlashContext):
+        """Spams #socialist"""
 
         await ctx.send("No 🙃")
 
 
-def setup(
-    client
-):
+def setup(client):
     client.add_cog(Socialist(client))

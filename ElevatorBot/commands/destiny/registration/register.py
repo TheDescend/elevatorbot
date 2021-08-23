@@ -7,29 +7,19 @@ from settings import BUNGIE_OAUTH
 
 
 class Register(Cog):
-    def __init__(
-        self,
-        client
-    ):
+    def __init__(self, client):
         self.client = client
-
 
     @cog_ext.cog_slash(
         name="register",
         description="Link your Destiny 2 account with ElevatorBot",
     )
-    async def _register(
-        self,
-        ctx: SlashContext
-    ):
-        """ Link your Destiny 2 account with ElevatorBot """
+    async def _register(self, ctx: SlashContext):
+        """Link your Destiny 2 account with ElevatorBot"""
 
         # not in dms
         if not ctx.guild:
-            await ctx.send(
-                "Error"
-                "Please use this command in your clans bot-channel"
-            )
+            await ctx.send("Error" "Please use this command in your clans bot-channel")
             return
 
         # send the link to click on in a hidden embed
@@ -38,7 +28,7 @@ class Register(Cog):
                 manage_components.create_button(
                     style=ButtonStyle.URL,
                     label=f"Registration Link",
-                    url=f"""https://www.bungie.net/en/oauth/authorize?client_id={BUNGIE_OAUTH}&response_type=code&state={f"{ctx.author.id}:{ctx.guild.id}:{ctx.channel.id}"}"""
+                    url=f"""https://www.bungie.net/en/oauth/authorize?client_id={BUNGIE_OAUTH}&response_type=code&state={f"{ctx.author.id}:{ctx.guild.id}:{ctx.channel.id}"}""",
                 ),
             ),
         ]
@@ -54,7 +44,5 @@ class Register(Cog):
         )
 
 
-def setup(
-    client
-):
+def setup(client):
     client.add_cog(Register(client))

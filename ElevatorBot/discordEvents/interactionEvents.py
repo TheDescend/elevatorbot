@@ -3,10 +3,8 @@ import logging
 from discord_slash import ComponentContext, SlashContext
 
 
-async def on_slash_command(
-    ctx: SlashContext
-):
-    """ Gets triggered every slash command"""
+async def on_slash_command(ctx: SlashContext):
+    """Gets triggered every slash command"""
 
     # print the command
     print(f"{ctx.author.display_name} used '/{ctx.name}' with kwargs '{ctx.kwargs}'")
@@ -18,10 +16,8 @@ async def on_slash_command(
     )
 
 
-async def on_component(
-    ctx: ComponentContext
-):
-    """ Gets triggered on every component usage """
+async def on_component(ctx: ComponentContext):
+    """Gets triggered on every component usage"""
 
     # log the command
     logger = logging.getLogger("interactions")

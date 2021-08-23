@@ -1,4 +1,17 @@
-from sqlalchemy import ARRAY, BigInteger, Boolean, Column, Date, DateTime, Integer, JSON, Numeric, SmallInteger, Text, text
+from sqlalchemy import (
+    ARRAY,
+    BigInteger,
+    Boolean,
+    Column,
+    Date,
+    DateTime,
+    Integer,
+    JSON,
+    Numeric,
+    SmallInteger,
+    Text,
+    text,
+)
 from sqlalchemy.engine import Engine
 
 from Backend.database.base import Base, is_test_mode
@@ -11,11 +24,13 @@ from Backend.database.base import Base, is_test_mode
 
 
 class BackendUser(Base):
-    __tablename__ = 'backendUser'
+    __tablename__ = "backendUser"
 
     user_name = Column(Text, primary_key=True)
-    hashed_password = Column(Text)          # this includes salt
-    allowed_scopes = Column(ARRAY(Text()))   # where access is allowed. Empty for full access maybe?
+    hashed_password = Column(Text)  # this includes salt
+    allowed_scopes = Column(
+        ARRAY(Text())
+    )  # where access is allowed. Empty for full access maybe?
     has_write_permission = Column(Boolean)
     has_read_permission = Column(Boolean)
     disabled = Column(Boolean, default=False)
@@ -26,14 +41,14 @@ class BackendUser(Base):
 
 
 class PgcrActivitiesFailToGet(Base):
-    __tablename__ = 'pgcrActivitiesFailToGet'
+    __tablename__ = "pgcrActivitiesFailToGet"
 
     id = Column("instanceid", BigInteger, primary_key=True)
     date = Column("period", DateTime)
 
 
 class PgcrActivity(Base):
-    __tablename__ = 'pgcrActivities'
+    __tablename__ = "pgcrActivities"
 
     id = Column("instanceid", BigInteger, primary_key=True)
     reference_id = Column("referenceid", BigInteger)
@@ -47,7 +62,7 @@ class PgcrActivity(Base):
 
 
 class PgcrActivitiesUsersStat(Base):
-    __tablename__ = 'pgcrActivitiesUsersStats'
+    __tablename__ = "pgcrActivitiesUsersStats"
 
     id = Column("instanceid", BigInteger, primary_key=True, nullable=False)
     system = Column("membershipid", BigInteger, primary_key=True, nullable=False)
@@ -81,7 +96,7 @@ class PgcrActivitiesUsersStat(Base):
 
 
 class PgcrActivitiesUsersStatsWeapon(Base):
-    __tablename__ = 'pgcrActivitiesUsersStatsWeapons'
+    __tablename__ = "pgcrActivitiesUsersStatsWeapons"
 
     id = Column("instanceid", BigInteger, primary_key=True, nullable=False)
     character_id = Column("characterid", BigInteger, primary_key=True, nullable=False)
@@ -96,9 +111,11 @@ class PgcrActivitiesUsersStatsWeapon(Base):
 
 
 class DiscordGuardiansToken(Base):
-    __tablename__ = 'discordGuardiansToken'
+    __tablename__ = "discordGuardiansToken"
 
-    discord_id = Column("discordsnowflake", BigInteger, nullable=False, primary_key=True)
+    discord_id = Column(
+        "discordsnowflake", BigInteger, nullable=False, primary_key=True
+    )
     destiny_id = Column("destinyid", BigInteger, nullable=False, unique=True)
     system = Column("systemid", Integer, nullable=False)
     token = Column("token", Text, nullable=False)
@@ -108,11 +125,16 @@ class DiscordGuardiansToken(Base):
     signup_date = Column("signupdate", Date, nullable=False)
     signup_server_id = Column("serverid", BigInteger, nullable=False)
     steam_join_id = Column("steamjoinid", BigInteger, nullable=True)
-    activities_last_updated = Column("activitieslastupdated", DateTime, nullable=False, server_default=text("'2000-01-01 00:00:00'::timestamp without time zone"))
+    activities_last_updated = Column(
+        "activitieslastupdated",
+        DateTime,
+        nullable=False,
+        server_default=text("'2000-01-01 00:00:00'::timestamp without time zone"),
+    )
 
 
 class OwnedEmblem(Base):
-    __tablename__ = 'ownedEmblems'
+    __tablename__ = "ownedEmblems"
 
     destiny_id = Column(BigInteger, primary_key=True)
     emblem_hash = Column(BigInteger)
@@ -123,14 +145,14 @@ class OwnedEmblem(Base):
 
 
 class ManifestVersion(Base):
-    __tablename__ = 'versions'
+    __tablename__ = "versions"
 
     name = Column(Text, primary_key=True)
     version = Column(Text)
 
 
 class DestinyActivityDefinition(Base):
-    __tablename__ = 'destinyActivityDefinition'
+    __tablename__ = "destinyActivityDefinition"
 
     id = Column("referenceid", BigInteger, primary_key=True)
     description = Column("description", Text)
@@ -148,7 +170,7 @@ class DestinyActivityDefinition(Base):
 
 
 class DestinyActivityModeDefinition(Base):
-    __tablename__ = 'destinyActivityModeDefinition'
+    __tablename__ = "destinyActivityModeDefinition"
 
     id = Column("referenceid", SmallInteger, primary_key=True)
     description = Column("description", Text)
@@ -160,7 +182,7 @@ class DestinyActivityModeDefinition(Base):
 
 
 class DestinyActivityTypeDefinition(Base):
-    __tablename__ = 'destinyActivityTypeDefinition'
+    __tablename__ = "destinyActivityTypeDefinition"
 
     id = Column("referenceid", BigInteger, primary_key=True)
     description = Column("description", Text)
@@ -168,7 +190,7 @@ class DestinyActivityTypeDefinition(Base):
 
 
 class DestinyCollectibleDefinition(Base):
-    __tablename__ = 'destinyCollectibleDefinition'
+    __tablename__ = "destinyCollectibleDefinition"
 
     id = Column("referenceid", BigInteger, primary_key=True)
     description = Column("description", Text)
@@ -179,7 +201,7 @@ class DestinyCollectibleDefinition(Base):
 
 
 class DestinyInventoryBucketDefinition(Base):
-    __tablename__ = 'destinyInventoryBucketDefinition'
+    __tablename__ = "destinyInventoryBucketDefinition"
 
     id = Column("referenceid", BigInteger, primary_key=True)
     description = Column("description", Text)
@@ -190,7 +212,7 @@ class DestinyInventoryBucketDefinition(Base):
 
 
 class DestinyInventoryItemDefinition(Base):
-    __tablename__ = 'destinyInventoryItemDefinition'
+    __tablename__ = "destinyInventoryItemDefinition"
 
     id = Column("referenceid", BigInteger, primary_key=True)
     description = Column("description", Text)
@@ -203,14 +225,16 @@ class DestinyInventoryItemDefinition(Base):
 
 
 class DestinyPresentationNodeDefinition(Base):
-    __tablename__ = 'destinyPresentationNodeDefinition'
+    __tablename__ = "destinyPresentationNodeDefinition"
 
     id = Column("referenceid", BigInteger, primary_key=True)
     description = Column("description", Text)
     name = Column("name", Text)
     objective_hash = Column("objectivehash", BigInteger)
     presentation_node_type = Column("presentationnodetype", SmallInteger)
-    children_presentation_node_hash = Column("childrenpresentationnodehash", ARRAY(BigInteger()))
+    children_presentation_node_hash = Column(
+        "childrenpresentationnodehash", ARRAY(BigInteger())
+    )
     children_collectible_hash = Column("childrencollectiblehash", ARRAY(BigInteger()))
     children_record_hash = Column("childrenrecordhash", ARRAY(BigInteger()))
     children_metric_hash = Column("childrenmetrichash", ARRAY(BigInteger()))
@@ -220,7 +244,7 @@ class DestinyPresentationNodeDefinition(Base):
 
 
 class DestinyRecordDefinition(Base):
-    __tablename__ = 'destinyRecordDefinition'
+    __tablename__ = "destinyRecordDefinition"
 
     id = Column("referenceid", BigInteger, primary_key=True)
     description = Column("description", Text)
@@ -237,7 +261,7 @@ class DestinyRecordDefinition(Base):
 
 
 class LfgMessage(Base):
-    __tablename__ = 'lfgMessages'
+    __tablename__ = "lfgMessages"
 
     id = Column(Integer, primary_key=True)
     guild_id = Column(BigInteger)
@@ -255,7 +279,7 @@ class LfgMessage(Base):
 
 
 class LfgUser(Base):
-    __tablename__ = 'lfgUsers'
+    __tablename__ = "lfgUsers"
 
     user_id = Column(BigInteger, primary_key=True)
     blacklisted_members = Column(ARRAY(BigInteger()))
@@ -264,15 +288,16 @@ class LfgUser(Base):
 ################################################################
 # Misc
 
+
 class D2SteamPlayer(Base):
-    __tablename__ = 'd2SteamPlayers'
+    __tablename__ = "d2SteamPlayers"
 
     date = Column("dateobj", DateTime, primary_key=True)
     number_of_players = Column("numberofplayers", Integer)
 
 
 class Poll(Base):
-    __tablename__ = 'polls'
+    __tablename__ = "polls"
 
     id = Column(Integer, primary_key=True)
     name = Column(Text)
@@ -285,13 +310,13 @@ class Poll(Base):
 
 
 class RssFeedItem(Base):
-    __tablename__ = 'rssFeedItems'
+    __tablename__ = "rssFeedItems"
 
     id = Column(Text, primary_key=True)
 
 
 class PersistentMessage(Base):
-    __tablename__ = 'persistentMessages'
+    __tablename__ = "persistentMessages"
 
     message_name = Column("messagename", Text, primary_key=True, nullable=False)
     guild_id = Column("guildid", BigInteger, primary_key=True, nullable=False)
@@ -302,6 +327,8 @@ class PersistentMessage(Base):
 
 # _insert all tables
 _TABLES_CREATED = False
+
+
 async def create_tables(engine: Engine):
     global _TABLES_CREATED
 

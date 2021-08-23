@@ -10,17 +10,14 @@ from ElevatorBot.static.errorCodesAndResponses import error_codes_and_responses
 
 @dataclasses.dataclass
 class BackendResult:
-    """ Holds the return info """
+    """Holds the return info"""
 
     success: bool
     result: Optional[dict]
     error: Optional[str]
 
     __error_message: str = dataclasses.field(
-        default=None,
-        init=False,
-        repr=False,
-        compare=False
+        default=None, init=False, repr=False, compare=False
     )
 
     def __bool__(self):
@@ -28,16 +25,13 @@ class BackendResult:
 
     @property
     def embed(self) -> discord.Embed:
-        """" Returns a nicely formatted embed, which can be returned to the user """
+        """ " Returns a nicely formatted embed, which can be returned to the user"""
 
-        return embed_message(
-            title="Error",
-            description=self.error_message
-        )
+        return embed_message(title="Error", description=self.error_message)
 
     @property
     def error_message(self) -> str:
-        """ Returns the corresponding error message for the error """
+        """Returns the corresponding error message for the error"""
 
         if not self.__error_message:
             if not self.error:
@@ -50,13 +44,11 @@ class BackendResult:
 
         return self.__error_message
 
-
     @error_message.setter
-    def error_message(self,  kwargs: dict):
-        """ Formats the error message. See error_codes_and_responses """
+    def error_message(self, kwargs: dict):
+        """Formats the error message. See error_codes_and_responses"""
 
         self.__error_message = self.error_message.format(**kwargs)
-
 
     async def send_error_message(
         self,
@@ -64,13 +56,10 @@ class BackendResult:
         hidden: bool = False,
         **format_kwargs,
     ):
-        """ Sends the error message. format_kwargs are used to format the message before sending it """
+        """Sends the error message. format_kwargs are used to format the message before sending it"""
 
         # format it
         if format_kwargs:
             self.error_message = format_kwargs
 
-        await ctx.send(
-            hidden=hidden,
-            embed=self.embed
-        )
+        await ctx.send(hidden=hidden, embed=self.embed)

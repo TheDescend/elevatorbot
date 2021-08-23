@@ -35,9 +35,7 @@ test_user2 = BackendUser(
 # if they dont get overloaded at least
 # using BackendUser for that
 @pytest.mark.asyncio
-async def test_insert_and_get(
-    db: AsyncSession
-):
+async def test_insert_and_get(db: AsyncSession):
     await crud.backend_user._insert(db, test_user)
     result = await crud.backend_user._get_with_key(db, user_name)
 
@@ -53,9 +51,7 @@ async def test_insert_and_get(
 
 
 @pytest.mark.asyncio
-async def test_update(
-    db: AsyncSession
-):
+async def test_update(db: AsyncSession):
     await crud.backend_user._insert(db, test_user)
 
     assert test_user.has_write_permission
@@ -68,9 +64,7 @@ async def test_update(
 
 
 @pytest.mark.asyncio
-async def test_get_multi(
-    db: AsyncSession
-):
+async def test_get_multi(db: AsyncSession):
     await crud.backend_user._insert(db, test_user)
     await crud.backend_user._insert(db, test_user2)
 
@@ -84,13 +78,13 @@ async def test_get_multi(
 
 
 @pytest.mark.asyncio
-async def test_get_multi_with_column(
-    db: AsyncSession
-):
+async def test_get_multi_with_column(db: AsyncSession):
     await crud.backend_user._insert(db, test_user)
     await crud.backend_user._insert(db, test_user2)
 
-    results = await crud.backend_user._get_multi_with_filter(db, has_read_permission=has_read_permission)
+    results = await crud.backend_user._get_multi_with_filter(
+        db, has_read_permission=has_read_permission
+    )
 
     assert isinstance(results, list)
     assert results
@@ -101,9 +95,7 @@ async def test_get_multi_with_column(
 
 
 @pytest.mark.asyncio
-async def test_remove(
-    db: AsyncSession
-):
+async def test_remove(db: AsyncSession):
     result = await crud.backend_user._delete(db, user_name)
 
     assert isinstance(result, BackendUser)

@@ -144,8 +144,7 @@ class Calculator:
     ):
         if not self.message:
             embed = embed_message(
-                f"{self.ctx.author.display_name}'s Calculator",
-                f"```{text}```"
+                f"{self.ctx.author.display_name}'s Calculator", f"```{text}```"
             )
             self.message = await self.ctx.send(components=self.buttons, embed=embed)
         else:

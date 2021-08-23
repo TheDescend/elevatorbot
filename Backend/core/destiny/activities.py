@@ -12,41 +12,33 @@ from Backend.networking.routes import activities_route, stat_route_characters
 
 @dataclasses.dataclass
 class DestinyActivities:
-    """ API calls focusing on activities """
+    """API calls focusing on activities"""
+
     db: AsyncSession
     user: DiscordGuardiansToken
 
     _full_character_list: list[dict] = dataclasses.field(
-        init=False,
-        default_factory=list
+        init=False, default_factory=list
     )
 
-    def __post_init__(
-        self
-    ):
+    def __post_init__(self):
         # some shortcuts
         self.discord_id = self.user.discord_id
         self.destiny_id = self.user.destiny_id
         self.system = self.user.system
 
         # the network class
-        self.api = BungieApi(
-            discord_id=self.discord_id
-        )
-
+        self.api = BungieApi(discord_id=self.discord_id)
 
     async def get_character_activity_stats(self, character_id: int) -> dict:
-        """ Get destiny stats for the specified character """
+        """Get destiny stats for the specified character"""
 
         route = stat_route_characters.format(
-            system=self.system,
-            destiny_id=self.destiny_id,
-            character_id=character_id
+            system=self.system, destiny_id=self.destiny_id, character_id=character_id
         )
 
         result = await self.api.get_json_from_url(route=route)
         return result.content
-
 
     async def has_lowman(
         self,
@@ -57,7 +49,7 @@ class DestinyActivities:
         disallowed: list[tuple[datetime.datetime, datetime.datetime]] = None,
         score_threshold: bool = False,
     ) -> bool:
-        """ Returns if player has a lowman in the given hashes. Disallowed is a list of (start_time, end_time) with datetime objects """
+        """Returns if player has a lowman in the given hashes. Disallowed is a list of (start_time, end_time) with datetime objects"""
 
         if disallowed is None:
             disallowed = []
@@ -71,7 +63,13 @@ class DestinyActivities:
             score_threshold=score_threshold,
         )
 
-        for instance_id, deaths, kills, time_played_seconds, period in low_activity_info:
+        for (
+            instance_id,
+            deaths,
+            kills,
+            time_played_seconds,
+            period,
+        ) in low_activity_info:
             # check for flawless if asked for
             if not require_flawless or deaths == 0:
                 verdict = True
@@ -88,11 +86,10 @@ class DestinyActivities:
                     return True
         return False
 
-
     async def get_lowman_count(
         self, activity_hashes: list[int]
     ) -> tuple[int, int, Optional[datetime.timedelta]]:
-        """ Returns tuple[solo_count, solo_is_flawless_count, Optional[solo_fastest]] """
+        """Returns tuple[solo_count, solo_is_flawless_count, Optional[solo_fastest]]"""
 
         solo_count, solo_is_flawless_count, solo_fastest = 0, 0, None
 
@@ -113,8 +110,11 @@ class DestinyActivities:
             if not solo_fastest or (solo["timeplayedseconds"] < solo_fastest):
                 solo_fastest = solo["timeplayedseconds"]
 
-        return solo_count, solo_is_flawless_count, datetime.timedelta(seconds=solo_fastest) if solo_fastest else solo_fastest,
-
+        return (
+            solo_count,
+            solo_is_flawless_count,
+            datetime.timedelta(seconds=solo_fastest) if solo_fastest else solo_fastest,
+        )
 
     async def get_activity_history(
         self,
@@ -145,7 +145,7 @@ class DestinyActivities:
             route = activities_route.format(
                 system=self.system,
                 destiny_id=self.destiny_id,
-                character_id=character_id
+                character_id=character_id,
             )
 
             br = False
@@ -164,10 +164,7 @@ class DestinyActivities:
                     break
 
                 # get activities
-                rep = await self.api.get_json_from_url(
-                    route=route,
-                    params=params
-                )
+                rep = await self.api.get_json_from_url(route=route, params=params)
 
                 # break if empty, fe. when pages are over
                 if not rep.content:
@@ -198,16 +195,12 @@ class DestinyActivities:
 
                     yield activity
 
-
     async def __get_full_character_list(self) -> list[dict]:
-        """ Get all character ids (including deleted characters) """
+        """Get all character ids (including deleted characters)"""
 
         # saving this one is the class to prevent the extra api call should it get called again
         if not self._full_character_list:
-            user = DestinyProfile(
-                db=self.db,
-                user=self.user
-            )
+            user = DestinyProfile(db=self.db, user=self.user)
 
             result = await user.get_stats()
 

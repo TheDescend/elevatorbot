@@ -6,12 +6,8 @@ from ElevatorBot.commandHelpers.optionTemplates import get_user_option
 
 
 class RoleRequirements(Cog):
-    def __init__(
-        self,
-        client
-    ):
+    def __init__(self, client):
         self.client = client
-
 
     @cog_ext.cog_subcommand(
         base="roles",
@@ -28,15 +24,9 @@ class RoleRequirements(Cog):
             get_user_option(),
         ],
     )
-    async def _roles_requirements(
-        self,
-        ctx: SlashContext,
-        **kwargs
-    ):
+    async def _roles_requirements(self, ctx: SlashContext, **kwargs):
         pass
 
 
-def setup(
-    client
-):
+def setup(client):
     client.add_cog(RoleRequirements(client))

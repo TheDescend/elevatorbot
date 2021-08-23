@@ -6,12 +6,8 @@ from ElevatorBot.static.timezones import timezones_dict
 
 
 class LfgCreate(Cog):
-    def __init__(
-        self,
-        client
-    ):
+    def __init__(self, client):
         self.client = client
-
 
     @cog_ext.cog_subcommand(
         base="lfg",
@@ -48,11 +44,10 @@ class LfgCreate(Cog):
     )
     async def _create(
         self,
-        ctx: SlashContext, ):
+        ctx: SlashContext,
+    ):
         pass
 
 
-def setup(
-    client
-):
+def setup(client):
     client.add_cog(LfgCreate(client))

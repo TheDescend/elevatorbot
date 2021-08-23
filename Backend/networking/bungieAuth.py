@@ -26,15 +26,13 @@ class BungieAuth(NetworkBase):
     bungie_request = True
     user: DiscordGuardiansToken = dataclasses.field(init=False)
 
-
     async def get_working_token(
         self,
     ) -> str:
-        """ Returns token or raises an error """
+        """Returns token or raises an error"""
 
         self.user = discord_users.get_profile_from_discord_id(
-            db=self.db,
-            discord_id=self.discord_id
+            db=self.db, discord_id=self.discord_id
         )
         if not self.user.token:
             raise CustomException(
@@ -54,11 +52,10 @@ class BungieAuth(NetworkBase):
 
         return token
 
-
     async def __refresh_token(
         self,
     ) -> str:
-        """ Updates the token and saves it to the DB. Raises an error if failed """
+        """Updates the token and saves it to the DB. Raises an error if failed"""
 
         data = {
             "grant_type": "refresh_token",
@@ -82,8 +79,12 @@ class BungieAuth(NetworkBase):
                     user=self.user,
                     token=access_token,
                     refresh_token=response.content["refresh_token"],
-                    token_expiry=datetime.datetime.fromtimestamp(current_time + response.content["expires_in"]),
-                    refresh_token_expiry=datetime.datetime.fromtimestamp(current_time + response.content["refresh_expires_in"]),
+                    token_expiry=datetime.datetime.fromtimestamp(
+                        current_time + response.content["expires_in"]
+                    ),
+                    refresh_token_expiry=datetime.datetime.fromtimestamp(
+                        current_time + response.content["refresh_expires_in"]
+                    ),
                 )
 
                 return access_token

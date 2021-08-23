@@ -7,12 +7,8 @@ from ElevatorBot.commandHelpers.permissionTemplates import permissions_admin
 
 
 class Reply(Cog):
-    def __init__(
-        self,
-        client
-    ):
+    def __init__(self, client):
         self.client = client
-
 
     @cog_ext.cog_slash(
         name="reply",
@@ -24,21 +20,14 @@ class Reply(Cog):
                 option_type=3,
                 required=True,
             ),
-            get_user_option("Which user to reply to")
+            get_user_option("Which user to reply to"),
         ],
         default_permission=False,
         permissions=permissions_admin,
     )
-    async def _reply(
-        self,
-        ctx: SlashContext,
-        message: str,
-        user=None
-    ):
+    async def _reply(self, ctx: SlashContext, message: str, user=None):
         pass
 
 
-def setup(
-    client
-):
+def setup(client):
     client.add_cog(Reply(client))

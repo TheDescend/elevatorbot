@@ -6,12 +6,8 @@ from ElevatorBot.commandHelpers.optionTemplates import get_mode_choices, get_use
 
 
 class Last(Cog):
-    def __init__(
-        self,
-        client
-    ):
+    def __init__(self, client):
         self.client = client
-
 
     @cog_ext.cog_slash(
         name="last",
@@ -27,15 +23,9 @@ class Last(Cog):
             get_user_option(),
         ],
     )
-    async def _last(
-        self,
-        ctx: SlashContext,
-        **kwargs
-    ):
+    async def _last(self, ctx: SlashContext, **kwargs):
         pass
 
 
-def setup(
-    client
-):
+def setup(client):
     client.add_cog(Last(client))

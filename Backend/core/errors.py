@@ -2,7 +2,6 @@ from fastapi import Request
 from starlette.responses import JSONResponse
 
 
-
 class CustomException(Exception):
     """
     Define a exception which we raise on errors where ElevatorBot should return that info to the user

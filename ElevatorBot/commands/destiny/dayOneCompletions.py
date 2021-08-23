@@ -4,12 +4,8 @@ from discord_slash.utils.manage_commands import create_choice, create_option
 
 
 class DayOneCompletions(Cog):
-    def __init__(
-        self,
-        client
-    ):
+    def __init__(self, client):
         self.client = client
-
 
     @cog_ext.cog_slash(
         name="day1completions",
@@ -35,15 +31,9 @@ class DayOneCompletions(Cog):
             ),
         ],
     )
-    async def _day1completions(
-        self,
-        ctx: SlashContext,
-        raid: str
-    ):
+    async def _day1completions(self, ctx: SlashContext, raid: str):
         pass
 
 
-def setup(
-    client
-):
+def setup(client):
     client.add_cog(DayOneCompletions(client))

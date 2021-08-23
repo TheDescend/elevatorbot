@@ -6,12 +6,8 @@ from ElevatorBot.commandHelpers.optionTemplates import get_user_option
 
 
 class Website(Cog):
-    def __init__(
-        self,
-        client
-    ):
+    def __init__(self, client):
         self.client = client
-
 
     @cog_ext.cog_slash(
         name="website",
@@ -42,16 +38,9 @@ class Website(Cog):
             get_user_option(),
         ],
     )
-    async def _website(
-        self,
-        ctx: SlashContext,
-        website,
-        **kwargs
-    ):
+    async def _website(self, ctx: SlashContext, website, **kwargs):
         pass
 
 
-def setup(
-    client
-):
+def setup(client):
     client.add_cog(Website(client))

@@ -5,12 +5,8 @@ from ElevatorBot.commandHelpers.permissionTemplates import permissions_kigstn
 
 
 class DayOneRace(Cog):
-    def __init__(
-        self,
-        client
-    ):
+    def __init__(self, client):
         self.client = client
-
 
     @cog_ext.cog_slash(
         name="day1race",
@@ -18,14 +14,9 @@ class DayOneRace(Cog):
         default_permission=False,
         permissions=permissions_kigstn,
     )
-    async def _day1race(
-        self,
-        ctx: SlashContext
-    ):
+    async def _day1race(self, ctx: SlashContext):
         pass
 
 
-def setup(
-    client
-):
+def setup(client):
     client.add_cog(DayOneRace(client))

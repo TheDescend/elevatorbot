@@ -72,10 +72,11 @@ class NetworkBase:
 
         # return that it failed
         self.logger.error(
-            "Request failed '%s' times, aborting for '%s'", self.max_web_request_tries, route
+            "Request failed '%s' times, aborting for '%s'",
+            self.max_web_request_tries,
+            route,
         )
         raise CustomException("UnknownError")
-
 
     async def _post_request(
         self,
@@ -127,17 +128,18 @@ class NetworkBase:
 
         # return that it failed
         self.logger.error(
-            "Request failed '%s' times, aborting for '%s'", self.max_web_request_tries, route
+            "Request failed '%s' times, aborting for '%s'",
+            self.max_web_request_tries,
+            route,
         )
         raise CustomException("UnknownError")
-
 
     async def __handle_request_data(
         self,
         request: Union[aiohttp.ClientResponse, aiohttp_client_cache.CachedResponse],
         route: str,
     ) -> Optional[InternalWebResponse]:
-        """ Handle the request results """
+        """Handle the request results"""
 
         # make sure the return is a json, sometimes we get a http file for some reason
         if "application/json" not in request.headers["Content-Type"]:
@@ -149,7 +151,9 @@ class NetworkBase:
                 route,
             )
             if request.status == 200:
-                self.logger.error("Wrong content type returned text: '%s'", await request.text())
+                self.logger.error(
+                    "Wrong content type returned text: '%s'", await request.text()
+                )
             await asyncio.sleep(3)
             return
 
@@ -167,7 +171,9 @@ class NetworkBase:
             elif "error_description" in response.content:
                 response.error = response.content["error_description"]
             response.error_code = (
-                response.content["ErrorCode"] if "ErrorCode" in response.content else None
+                response.content["ErrorCode"]
+                if "ErrorCode" in response.content
+                else None
             )
             response.error_message = (
                 response.content["Message"] if "Message" in response.content else None
@@ -180,10 +186,14 @@ class NetworkBase:
                 response.from_cache = False
 
         except aiohttp.ClientPayloadError:
-            self.logger.error("'%s': Payload error, retrying for '%s'", request.status, route)
+            self.logger.error(
+                "'%s': Payload error, retrying for '%s'", request.status, route
+            )
             return
         except aiohttp.ContentTypeError:
-            self.logger.error("'%s': Content type error, retrying for '%s'", request.status, route)
+            self.logger.error(
+                "'%s': Content type error, retrying for '%s'", request.status, route
+            )
             return
 
         # if response is ok return it
@@ -202,13 +212,8 @@ class NetworkBase:
             response=response,
         )
 
-
-    async def __handle_bungie_errors(
-        self,
-        route: str,
-        response: InternalWebResponse
-    ):
-        """ Looks for typical bungie errors and handles / logs them """
+    async def __handle_bungie_errors(self, route: str, response: InternalWebResponse):
+        """Looks for typical bungie errors and handles / logs them"""
 
         # generic bad request, such as wrong format
         if response.status == 400:

@@ -4,12 +4,8 @@ from discord_slash.utils.manage_commands import create_option
 
 
 class PollDisable(Cog):
-    def __init__(
-        self,
-        client
-    ):
+    def __init__(self, client):
         self.client = client
-
 
     @cog_ext.cog_subcommand(
         base="poll",
@@ -25,15 +21,9 @@ class PollDisable(Cog):
             ),
         ],
     )
-    async def _poll_disable(
-        self,
-        ctx: SlashContext,
-        poll_id: str
-    ):
+    async def _poll_disable(self, ctx: SlashContext, poll_id: str):
         pass
 
 
-def setup(
-    client
-):
+def setup(client):
     client.add_cog(PollDisable(client))

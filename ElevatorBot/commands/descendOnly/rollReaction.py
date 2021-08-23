@@ -6,12 +6,8 @@ from ElevatorBot.commandHelpers.permissionTemplates import permissions_admin
 
 
 class RollReaction(Cog):
-    def __init__(
-        self,
-        client
-    ):
+    def __init__(self, client):
         self.client = client
-
 
     @cog_ext.cog_slash(
         name="rollreaction",
@@ -27,15 +23,9 @@ class RollReaction(Cog):
         default_permission=False,
         permissions=permissions_admin,
     )
-    async def _rollreaction(
-        self,
-        ctx: SlashContext,
-        draws: int
-    ):
+    async def _rollreaction(self, ctx: SlashContext, draws: int):
         pass
 
 
-def setup(
-    client
-):
+def setup(client):
     client.add_cog(RollReaction(client))

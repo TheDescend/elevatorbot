@@ -3,7 +3,7 @@ from discord_slash.utils.manage_commands import create_choice, create_option
 
 def get_user_option(
     description: str = "The name of the user you want to look up",
-    required: bool = False
+    required: bool = False,
 ) -> dict:
     return create_option(
         name="user",
@@ -49,14 +49,21 @@ def get_stat_option() -> dict:
             create_choice(name="Average Lifespan", value="averageLifespan"),
             create_choice(name="Resurrections Given", value="resurrectionsPerformed"),
             create_choice(name="Resurrections Received", value="resurrectionsReceived"),
-            create_choice(name="Number of Players Played With", value="allParticipantsCount"),
+            create_choice(
+                name="Number of Players Played With", value="allParticipantsCount"
+            ),
             create_choice(name="Longest Single Life (in s)", value="longestSingleLife"),
             create_choice(name="Orbs of Power Dropped", value="orbsDropped"),
             create_choice(name="Orbs of Power Gathered", value="orbsGathered"),
             create_choice(name="Time Played (in s)", value="secondsPlayed"),
             create_choice(name="Activities Cleared", value="activitiesCleared"),
-            create_choice(name="Public Events Completed", value="publicEventsCompleted"),
-            create_choice(name="Heroic Public Events Completed", value="heroicPublicEventsCompleted"),
+            create_choice(
+                name="Public Events Completed", value="publicEventsCompleted"
+            ),
+            create_choice(
+                name="Heroic Public Events Completed",
+                value="heroicPublicEventsCompleted",
+            ),
             create_choice(name="Kills with: Super", value="weaponKillsSuper"),
             create_choice(name="Kills with: Melee", value="weaponKillsMelee"),
             create_choice(name="Kills with: Grenade", value="weaponKillsGrenade"),

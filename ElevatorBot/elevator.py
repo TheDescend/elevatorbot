@@ -17,7 +17,9 @@ first_start = True
 init_logging()
 
 # print ascii art
-print("----------------------------------------------------------------------------------------")
+print(
+    "----------------------------------------------------------------------------------------"
+)
 print(
     """
       ______   _                          _                    ____            _   
@@ -28,7 +30,9 @@ print(
      |______| |_|  \___|   \_/    \__,_|  \__|  \___/  |_|    |____/   \___/   \__|                                                                          
     """
 )
-print("----------------------------------------------------------------------------------------\n")
+print(
+    "----------------------------------------------------------------------------------------\n"
+)
 print("Starting Up...")
 
 # enable intents to allow certain events
@@ -39,9 +43,7 @@ intents.guilds = True
 
 # define on_ready event
 class ElevatorBot(Bot):
-    async def on_ready(
-        self
-    ):
+    async def on_ready(self):
         # only run this on first startup
         global first_start
         if not first_start:

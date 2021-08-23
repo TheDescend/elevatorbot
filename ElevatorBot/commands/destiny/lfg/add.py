@@ -6,12 +6,8 @@ from ElevatorBot.commandHelpers.optionTemplates import get_user_option
 
 
 class LfgAdd(Cog):
-    def __init__(
-        self,
-        client
-    ):
+    def __init__(self, client):
         self.client = client
-
 
     @cog_ext.cog_subcommand(
         base="lfg",
@@ -28,16 +24,9 @@ class LfgAdd(Cog):
             get_user_option(description="The user you want to add", required=True),
         ],
     )
-    async def _add(
-        self,
-        ctx: SlashContext,
-        lfg_id,
-        user
-    ):
+    async def _add(self, ctx: SlashContext, lfg_id, user):
         pass
 
 
-def setup(
-    client
-):
+def setup(client):
     client.add_cog(LfgAdd(client))

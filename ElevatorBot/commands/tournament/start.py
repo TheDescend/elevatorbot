@@ -3,12 +3,8 @@ from discord_slash import SlashContext, cog_ext
 
 
 class TournamentStart(Cog):
-    def __init__(
-        self,
-        client
-    ):
+    def __init__(self, client):
         self.client = client
-
 
     @cog_ext.cog_subcommand(
         base="tournament",
@@ -16,14 +12,9 @@ class TournamentStart(Cog):
         name="start",
         description="Starts the tournament. Can only be used by the user who used '/tournament _insert' or an Admin",
     )
-    async def _start(
-        self,
-        ctx: SlashContext
-    ):
+    async def _start(self, ctx: SlashContext):
         pass
 
 
-def setup(
-    client
-):
+def setup(client):
     client.add_cog(TournamentStart(client))

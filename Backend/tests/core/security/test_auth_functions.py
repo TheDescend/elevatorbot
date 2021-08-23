@@ -1,4 +1,9 @@
-from Backend.core.security.auth import create_access_token, get_password_hash, get_secret_key, verify_password
+from Backend.core.security.auth import (
+    create_access_token,
+    get_password_hash,
+    get_secret_key,
+    verify_password,
+)
 
 
 def test_get_secret_key():
@@ -21,14 +26,10 @@ def test_verify_password_hash():
 
 
 def test_create_access_token():
-    data1 = {
-        "sub": "Tester"
-    }
+    data1 = {"sub": "Tester"}
     token1 = create_access_token(data1)
 
-    data2 = {
-        "sub": "Tester2"
-    }
+    data2 = {"sub": "Tester2"}
     token2 = create_access_token(data2)
 
     assert not (token1 == token2)

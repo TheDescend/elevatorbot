@@ -7,12 +7,8 @@ from ElevatorBot_old.static.slashCommandOptions import choices_mode
 
 
 class ClanActivity(Cog):
-    def __init__(
-        self,
-        client
-    ):
+    def __init__(self, client):
         self.client = client
-
 
     @cog_ext.cog_slash(
         name="clanactivity",
@@ -40,15 +36,9 @@ class ClanActivity(Cog):
             get_user_option(description="The name of the user you want to highlight"),
         ],
     )
-    async def _clanactivity(
-        self,
-        ctx: SlashContext,
-        **kwargs
-    ):
+    async def _clanactivity(self, ctx: SlashContext, **kwargs):
         pass
 
 
-def setup(
-    client
-):
+def setup(client):
     client.add_cog(ClanActivity(client))

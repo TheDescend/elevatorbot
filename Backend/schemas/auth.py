@@ -10,7 +10,6 @@ class BackendUserModel(BaseModel):
     has_read_permission: bool
     disabled: bool
 
-
     class Config:
         orm_mode = True
 

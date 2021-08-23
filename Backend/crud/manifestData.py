@@ -1,5 +1,15 @@
 from Backend.crud.base import CRUDBase
-from Backend.database.models import DestinyActivityDefinition, DestinyActivityModeDefinition, DestinyActivityTypeDefinition, DestinyCollectibleDefinition, DestinyInventoryBucketDefinition, DestinyInventoryItemDefinition, DestinyPresentationNodeDefinition, DestinyRecordDefinition, ManifestVersion
+from Backend.database.models import (
+    DestinyActivityDefinition,
+    DestinyActivityModeDefinition,
+    DestinyActivityTypeDefinition,
+    DestinyCollectibleDefinition,
+    DestinyInventoryBucketDefinition,
+    DestinyInventoryItemDefinition,
+    DestinyPresentationNodeDefinition,
+    DestinyRecordDefinition,
+    ManifestVersion,
+)
 
 
 class CRUDManifestVersions(CRUDBase):

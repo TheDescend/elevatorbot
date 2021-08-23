@@ -8,7 +8,7 @@ from pydantic import BaseModel
 
 @dataclasses.dataclass
 class InternalWebResponse:
-    """ Internally used class containing the info that the web request produced """
+    """Internally used class containing the info that the web request produced"""
 
     content: Optional[dict]
     status: Optional[int]
@@ -25,7 +25,7 @@ class InternalWebResponse:
 
 @dataclasses.dataclass
 class WebResponse:
-    """ This gets returned from an api request """
+    """This gets returned from an api request"""
 
     time: int
     status: int

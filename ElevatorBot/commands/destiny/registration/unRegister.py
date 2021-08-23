@@ -7,12 +7,8 @@ from ElevatorBot.misc.formating import embed_message
 
 
 class UnRegister(Cog):
-    def __init__(
-        self,
-        client
-    ):
+    def __init__(self, client):
         self.client = client
-
 
     @cog_ext.cog_slash(
         name="unregister",
@@ -22,12 +18,10 @@ class UnRegister(Cog):
         self,
         ctx: SlashContext,
     ):
-        """ Unlink your Destiny 2 account from ElevatorBot """
+        """Unlink your Destiny 2 account from ElevatorBot"""
 
         destiny_profile = DestinyProfile(
-            client=ctx.bot,
-            discord_member=ctx.author,
-            discord_guild=ctx.guild
+            client=ctx.bot, discord_member=ctx.author, discord_guild=ctx.guild
         )
         result = await destiny_profile.delete()
 
@@ -38,12 +32,10 @@ class UnRegister(Cog):
                 hidden=True,
                 embed=embed_message(
                     "See Ya",
-                    "There was a flash and suddenly I do not remember anything about you anymore"
-                )
+                    "There was a flash and suddenly I do not remember anything about you anymore",
+                ),
             )
 
 
-def setup(
-    client
-):
+def setup(client):
     client.add_cog(UnRegister(client))
