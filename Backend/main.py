@@ -8,7 +8,7 @@ from Backend.database.base import setup_engine
 from Backend.database.models import BackendUser, create_tables
 from Backend.dependencies import auth_get_user_with_read_perm, auth_get_user_with_write_perm
 from Backend.endpoints import auth, items
-from Backend.endpoints.destiny import account, profile
+from Backend.endpoints.destiny import account, clan, profile
 from Backend.misc.initLogging import init_logging
 from Backend.schemas.auth import BackendUserModel
 
@@ -39,6 +39,7 @@ app.include_router(items.router)
 app.include_router(auth.router)
 app.include_router(profile.router)
 app.include_router(account.router)
+app.include_router(clan.router)
 
 
 # add exception handlers

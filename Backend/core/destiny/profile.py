@@ -12,6 +12,7 @@ from Backend.networking.routes import profile_route, stat_route
 @dataclasses.dataclass
 class DestinyProfile:
     """ User specific API calls """
+
     db: AsyncSession
     user: DiscordGuardiansToken
 
