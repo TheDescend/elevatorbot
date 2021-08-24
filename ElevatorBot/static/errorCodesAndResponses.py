@@ -11,5 +11,5 @@ error_codes_and_responses = {
     "UserNotInClan": "{discord_member.mention} is not in any clan",
     "ClanInviteFailed": "Was not able to invite {discord_member.mention} to the clan with {discord_member2.mention} credentials",
     "ClanNoPermissions": "{discord_member.mention} does not have admin permissions in their Destiny 2 clan",
-    "NoJoinId": "I do not know the Join Code for {discord_member.mention}, please use `/id set` first \nDue to the way Steam works, I do not have access to this information"
+    "NoJoinId": "I do not know the Join Code for {discord_member.mention}, please use `/id set` first \nDue to the way Steam works, I do not have access to this information",
 }

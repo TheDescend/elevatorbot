@@ -1,8 +1,8 @@
 import dataclasses
-from typing import Optional
+from typing import Optional, Union
 
 import discord
-from discord_slash import SlashContext
+from discord_slash import MenuContext, SlashContext
 
 from ElevatorBot.misc.formating import embed_message
 from ElevatorBot.static.errorCodesAndResponses import error_codes_and_responses
@@ -50,7 +50,7 @@ class BackendResult:
 
     async def send_error_message(
         self,
-        ctx: SlashContext,
+        ctx: Union[SlashContext, MenuContext],
         hidden: bool = False,
         **format_kwargs,
     ):

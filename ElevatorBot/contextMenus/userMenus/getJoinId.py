@@ -1,31 +1,20 @@
-import discord
-from discord.ext.commands import Cog
-from discord_slash import ButtonStyle, SlashContext, cog_ext
+from discord.ext import commands
+from discord_slash import cog_ext
+from discord_slash.context import MenuContext
+from discord_slash.model import ButtonStyle, ContextMenuType
 from discord_slash.utils import manage_components
 
-from ElevatorBot.commandHelpers.optionTemplates import get_user_option
 from ElevatorBot.core.destiny.profile import DestinyProfile
 from ElevatorBot.misc.formating import embed_message
 
 
-class IdGet(Cog):
+class UserMenuCommands(commands.Cog):
     def __init__(self, client):
         self.client = client
 
-    @cog_ext.cog_subcommand(
-        base="id",
-        base_description="Steam IDs which can be used to join people in Destiny 2 without adding them as a friend",
-        name="get",
-        description="Get a Steam ID",
-        options=[get_user_option()],
-    )
-    async def _get(self, ctx: SlashContext, user: discord.Member = None):
-        """Get a Steam ID"""
-
-        # assign user to be the mentioned user if applicable
-        user = user if user else ctx.author
-
-        destiny_profile = DestinyProfile(client=ctx.bot, discord_member=user, discord_guild=ctx.guild)
+    @cog_ext.cog_context_menu(target=ContextMenuType.USER, name="Get Join Code", guild_ids=[280456587464933376])
+    async def get_join_id(self, ctx: MenuContext):
+        destiny_profile = DestinyProfile(client=ctx.bot, discord_member=ctx.target_author, discord_guild=ctx.guild)
         result = await destiny_profile.get_join_id()
 
         if not result:
@@ -41,8 +30,9 @@ class IdGet(Cog):
                 ),
             ]
             await ctx.send(
+                hidden=True,
                 embed=embed_message(
-                    f"{user.display_name}'s Join Code",
+                    f"{ctx.target_author.display_name}'s Join Code",
                     f"`/join {result.result['join_id']}`",
                 ),
                 components=components,
@@ -50,4 +40,4 @@ class IdGet(Cog):
 
 
 def setup(client):
-    client.add_cog(IdGet(client))
+    client.add_cog(UserMenuCommands(client))
