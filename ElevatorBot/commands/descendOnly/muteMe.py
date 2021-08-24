@@ -36,9 +36,7 @@ class MuteMe(Cog):
         # send a novel and calculate how long to mute
         await ctx.author.send("Introducing a new feature: **gambling!**")
         await asyncio.sleep(1)
-        await ctx.author.send(
-            "Let me roll the dice for you, I can't wait to see if you win the jackpot"
-        )
+        await ctx.author.send("Let me roll the dice for you, I can't wait to see if you win the jackpot")
         await asyncio.sleep(2)
         await ctx.author.send("_Rolling dice..._")
         await asyncio.sleep(5)
@@ -51,33 +49,21 @@ class MuteMe(Cog):
                 ) as resp:
                     if resp.status == 200:
                         data = io.BytesIO(await resp.read())
-                        await ctx.author.send(
-                            file=discord.File(data, "congratulations.png")
-                        )
+                        await ctx.author.send(file=discord.File(data, "congratulations.png"))
 
-            await ctx.author.send(
-                f"You won the jackpot! That's a timeout of **{timeout} minutes** for you, enjoy!"
-            )
+            await ctx.author.send(f"You won the jackpot! That's a timeout of **{timeout} minutes** for you, enjoy!")
         else:
-            await ctx.author.send(
-                f"You won a timout of **{timeout} minutes**, congratulations!!!"
-            )
+            await ctx.author.send(f"You won a timout of **{timeout} minutes**, congratulations!!!")
             await asyncio.sleep(2)
-            await ctx.author.send(
-                "Better luck next time if you were hunting for the jackpot"
-            )
+            await ctx.author.send("Better luck next time if you were hunting for the jackpot")
 
         # add muted role
-        await assign_roles_to_member(
-            ctx.author, descend_muted_role_id, reason=f"/muteme by {ctx.author}"
-        )
+        await assign_roles_to_member(ctx.author, descend_muted_role_id, reason=f"/muteme by {ctx.author}")
 
         # delete muted role after time is over
         await asyncio.sleep(60 * timeout)
 
-        await remove_roles_from_member(
-            user, descend_muted_role_id, reason=f"/muteme by {ctx.author}"
-        )
+        await remove_roles_from_member(user, descend_muted_role_id, reason=f"/muteme by {ctx.author}")
         await ctx.author.send(
             "Sadly your victory is no more and you are no longer muted. Hope to see you back again soon!"
         )

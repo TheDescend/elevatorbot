@@ -56,12 +56,7 @@ async def link_clan(
     if not await clan.is_clan_admin(clan_id):
         raise CustomException("ClanNoPermissions")
 
-    await crud.destiny_clan_links.link(
-        db=db,
-        discord_id=discord_id,
-        discord_guild_id=guild_id,
-        destiny_clan_id=clan_id
-    )
+    await crud.destiny_clan_links.link(db=db, discord_id=discord_id, discord_guild_id=guild_id, destiny_clan_id=clan_id)
 
     return DestinyClanLink(success=True, clan_name=clan_name)
 

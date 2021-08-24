@@ -7,7 +7,10 @@ from ElevatorBot.core.results import BackendResult
 from ElevatorBot.core.routes import (
     destiny_clan_get_members_route,
     destiny_clan_get_route,
-    destiny_clan_invite_route, destiny_clan_link_route, destiny_clan_search_members_route, destiny_clan_unlink_route,
+    destiny_clan_invite_route,
+    destiny_clan_link_route,
+    destiny_clan_search_members_route,
+    destiny_clan_unlink_route,
 )
 
 
@@ -22,9 +25,7 @@ class DestinyClan(BaseBackendConnection):
         pass
 
         result = await self._backend_get(
-            route=destiny_clan_get_route.format(
-                guild_id=self.discord_guild.id, discord_id=self.discord_member.id
-            )
+            route=destiny_clan_get_route.format(guild_id=self.discord_guild.id, discord_id=self.discord_member.id)
         )
 
         # if no errors occurred, format the message
@@ -65,11 +66,7 @@ class DestinyClan(BaseBackendConnection):
 
         return result
 
-
-    async def invite_to_clan(
-        self,
-        to_invite: discord.Member
-    ) -> BackendResult:
+    async def invite_to_clan(self, to_invite: discord.Member) -> BackendResult:
         """Return the destiny clan members which match the search term"""
 
         result = await self._backend_get(
@@ -82,10 +79,7 @@ class DestinyClan(BaseBackendConnection):
 
         # if errors occurred, format the message
         if not result:
-            result.error_message = {
-                "discord_member": self.discord_member,
-                "discord_member2": to_invite
-            }
+            result.error_message = {"discord_member": self.discord_member, "discord_member2": to_invite}
 
         return result
 
@@ -108,7 +102,6 @@ class DestinyClan(BaseBackendConnection):
             }
 
         return result
-
 
     async def unlink(
         self,

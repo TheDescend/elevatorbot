@@ -70,9 +70,7 @@ class LfgCommands(commands.Cog):
             ),
         ],
     )
-    async def _create(
-        self, ctx: SlashContext, start_time, timezone, overwrite_max_members=None
-    ):
+    async def _create(self, ctx: SlashContext, start_time, timezone, overwrite_max_members=None):
         # get start time
         try:
             start_time = dateutil.parser.parse(start_time, dayfirst=True)
@@ -92,9 +90,7 @@ class LfgCommands(commands.Cog):
         if start_time < datetime.datetime.now(datetime.timezone.utc):
             await ctx.send(
                 hidden=True,
-                embed=embed_message(
-                    "Error", "The event cannot start in the past. Please try again"
-                ),
+                embed=embed_message("Error", "The event cannot start in the past. Please try again"),
             )
             return
 
@@ -108,13 +104,9 @@ class LfgCommands(commands.Cog):
         components = [
             manage_components.create_actionrow(
                 manage_components.create_button(style=ButtonStyle.blue, label="Raids"),
-                manage_components.create_button(
-                    style=ButtonStyle.blue, label="Dungeons"
-                ),
+                manage_components.create_button(style=ButtonStyle.blue, label="Dungeons"),
                 manage_components.create_button(style=ButtonStyle.blue, label="Trials"),
-                manage_components.create_button(
-                    style=ButtonStyle.blue, label="Iron Banner"
-                ),
+                manage_components.create_button(style=ButtonStyle.blue, label="Iron Banner"),
                 manage_components.create_button(style=ButtonStyle.blue, label="Other"),
             ),
         ]
@@ -136,18 +128,10 @@ class LfgCommands(commands.Cog):
             # Raids
             if button_ctx.component["label"] == "Raids":
                 components = manage_components.spread_to_rows(
-                    manage_components.create_button(
-                        style=ButtonStyle.blue, label="Last Wish"
-                    ),
-                    manage_components.create_button(
-                        style=ButtonStyle.blue, label="Garden of Salvation"
-                    ),
-                    manage_components.create_button(
-                        style=ButtonStyle.blue, label="Deep Stone Crypt"
-                    ),
-                    manage_components.create_button(
-                        style=ButtonStyle.blue, label="Vault of Glass"
-                    ),
+                    manage_components.create_button(style=ButtonStyle.blue, label="Last Wish"),
+                    manage_components.create_button(style=ButtonStyle.blue, label="Garden of Salvation"),
+                    manage_components.create_button(style=ButtonStyle.blue, label="Deep Stone Crypt"),
+                    manage_components.create_button(style=ButtonStyle.blue, label="Vault of Glass"),
                 )
                 embed = embed_message(
                     "Please Select the Raid",
@@ -157,10 +141,8 @@ class LfgCommands(commands.Cog):
 
                 # wait 60s for button press
                 try:
-                    button_ctx: ComponentContext = (
-                        await manage_components.wait_for_component(
-                            ctx.bot, components=components, timeout=60
-                        )
+                    button_ctx: ComponentContext = await manage_components.wait_for_component(
+                        ctx.bot, components=components, timeout=60
                     )
                 except asyncio.TimeoutError:
                     await message.edit(components=None, embed=self.timeout_embed)
@@ -174,15 +156,9 @@ class LfgCommands(commands.Cog):
             elif button_ctx.component["label"] == "Dungeons":
                 components = [
                     manage_components.create_actionrow(
-                        manage_components.create_button(
-                            style=ButtonStyle.blue, label="Shattered Throne"
-                        ),
-                        manage_components.create_button(
-                            style=ButtonStyle.blue, label="Pit of Hersey"
-                        ),
-                        manage_components.create_button(
-                            style=ButtonStyle.blue, label="Prophecy"
-                        ),
+                        manage_components.create_button(style=ButtonStyle.blue, label="Shattered Throne"),
+                        manage_components.create_button(style=ButtonStyle.blue, label="Pit of Hersey"),
+                        manage_components.create_button(style=ButtonStyle.blue, label="Prophecy"),
                     ),
                 ]
                 embed = embed_message(
@@ -193,10 +169,8 @@ class LfgCommands(commands.Cog):
 
                 # wait 60s for button press
                 try:
-                    button_ctx: ComponentContext = (
-                        await manage_components.wait_for_component(
-                            ctx.bot, components=components, timeout=60
-                        )
+                    button_ctx: ComponentContext = await manage_components.wait_for_component(
+                        ctx.bot, components=components, timeout=60
                     )
                 except asyncio.TimeoutError:
                     await message.edit(embed=self.timeout_embed)
@@ -227,15 +201,10 @@ class LfgCommands(commands.Cog):
 
                 # wait 60s for message
                 def check(answer_msg):
-                    return (
-                        answer_msg.author == ctx.author
-                        and answer_msg.channel == message.channel
-                    )
+                    return answer_msg.author == ctx.author and answer_msg.channel == message.channel
 
                 try:
-                    answer_msg = await self.client.wait_for(
-                        "message", timeout=60.0, check=check
-                    )
+                    answer_msg = await self.client.wait_for("message", timeout=60.0, check=check)
                 except asyncio.TimeoutError:
                     await message.edit(embed=self.timeout_embed)
                     return
@@ -257,15 +226,10 @@ class LfgCommands(commands.Cog):
 
         # wait 60s for message
         def check(answer_msg):
-            return (
-                answer_msg.author == ctx.author
-                and answer_msg.channel == message.channel
-            )
+            return answer_msg.author == ctx.author and answer_msg.channel == message.channel
 
         try:
-            answer_msg = await self.client.wait_for(
-                "message", timeout=60.0, check=check
-            )
+            answer_msg = await self.client.wait_for("message", timeout=60.0, check=check)
         except asyncio.TimeoutError:
             await message.edit(embed=self.timeout_embed)
             return
@@ -325,15 +289,11 @@ class LfgCommands(commands.Cog):
             return answer_msg.author == ctx.author and answer_msg.channel == ctx.channel
 
         if section == "Activity":
-            message = await ctx.send(
-                embed=embed_message("Activity Name", "Please enter a new name")
-            )
+            message = await ctx.send(embed=embed_message("Activity Name", "Please enter a new name"))
 
             # wait 60s for message
             try:
-                answer_msg = await self.client.wait_for(
-                    "message", timeout=60.0, check=check
-                )
+                answer_msg = await self.client.wait_for("message", timeout=60.0, check=check)
             except asyncio.TimeoutError:
                 await message.edit(embed=self.timeout_embed)
                 return
@@ -345,15 +305,11 @@ class LfgCommands(commands.Cog):
                 await answer_msg._delete()
 
         elif section == "Description":
-            message = await ctx.send(
-                embed=embed_message("Description", "Please enter a new description")
-            )
+            message = await ctx.send(embed=embed_message("Description", "Please enter a new description"))
 
             # wait 60s for message
             try:
-                answer_msg = await self.client.wait_for(
-                    "message", timeout=60.0, check=check
-                )
+                answer_msg = await self.client.wait_for("message", timeout=60.0, check=check)
             except asyncio.TimeoutError:
                 await message.edit(embed=self.timeout_embed)
                 return
@@ -374,18 +330,14 @@ class LfgCommands(commands.Cog):
 
             # wait 60s for message
             try:
-                answer_msg = await self.client.wait_for(
-                    "message", timeout=60.0, check=check
-                )
+                answer_msg = await self.client.wait_for("message", timeout=60.0, check=check)
             except asyncio.TimeoutError:
                 await message.edit(embed=self.timeout_embed)
                 return
             else:
                 # get the datetime
                 try:
-                    start_time = dateutil.parser.parse(
-                        answer_msg.content, dayfirst=True
-                    )
+                    start_time = dateutil.parser.parse(answer_msg.content, dayfirst=True)
                 except dateutil.parser.ParserError:
                     await message.edit(
                         embed=embed_message(
@@ -427,10 +379,8 @@ class LfgCommands(commands.Cog):
                     return select_ctx.author == ctx.author
 
                 try:
-                    select_ctx: ComponentContext = (
-                        await manage_components.wait_for_component(
-                            ctx.bot, components=components, timeout=60, check=check
-                        )
+                    select_ctx: ComponentContext = await manage_components.wait_for_component(
+                        ctx.bot, components=components, timeout=60, check=check
                     )
                 except asyncio.TimeoutError:
                     await message.edit(embed=self.timeout_embed)
@@ -462,17 +412,11 @@ class LfgCommands(commands.Cog):
                     return
 
         else:  # section == "Maximum Members":
-            message = await ctx.send(
-                embed=embed_message(
-                    "Maximum Members", "Please enter the new maximum members"
-                )
-            )
+            message = await ctx.send(embed=embed_message("Maximum Members", "Please enter the new maximum members"))
 
             # wait 60s for message
             try:
-                answer_msg = await self.client.wait_for(
-                    "message", timeout=60.0, check=check
-                )
+                answer_msg = await self.client.wait_for("message", timeout=60.0, check=check)
             except asyncio.TimeoutError:
                 await message.edit(embed=self.timeout_embed)
                 return
@@ -521,9 +465,7 @@ class LfgCommands(commands.Cog):
         await lfg_message._delete()
         await ctx.send(
             hidden=True,
-            embed=embed_message(
-                "Success", f"The LFG post with the id `{lfg_id}` has been deleted"
-            ),
+            embed=embed_message("Success", f"The LFG post with the id `{lfg_id}` has been deleted"),
         )
 
     @cog_ext.cog_subcommand(
@@ -618,9 +560,7 @@ class LfgCommands(commands.Cog):
                     create_choice(name="Un-Blacklist", value="Un-Blacklist"),
                 ],
             ),
-            options_user(
-                flavor_text="The user you want to add / _delete", required=True
-            ),
+            options_user(flavor_text="The user you want to add / _delete", required=True),
         ],
     )
     async def _blacklist(self, ctx: SlashContext, action, user):

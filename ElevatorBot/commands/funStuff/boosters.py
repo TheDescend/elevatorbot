@@ -12,18 +12,13 @@ class Boosters(Cog):
     async def _boosters(self, ctx: SlashContext):
         """Prints all premium subscribers"""
 
-        sorted_premium_subscribers = sorted(
-            ctx.guild.premium_subscribers, key=lambda m: m.premium_since, reverse=True
-        )
+        sorted_premium_subscribers = sorted(ctx.guild.premium_subscribers, key=lambda m: m.premium_since, reverse=True)
 
         embed = embed_message(
             f"{ctx.guild.name} Nitro Boosters",
             ",\n".join(
                 [
-                    "**"
-                    + f"{m.display_name:<30}"
-                    + "** since: "
-                    + m.premium_since.strftime("%d/%m/%Y, %H:%M")
+                    "**" + f"{m.display_name:<30}" + "** since: " + m.premium_since.strftime("%d/%m/%Y, %H:%M")
                     for m in sorted_premium_subscribers
                 ]
             ),

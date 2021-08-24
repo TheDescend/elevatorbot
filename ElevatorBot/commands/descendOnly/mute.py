@@ -40,9 +40,7 @@ class Mute(Cog):
     async def _mute(self, ctx: SlashContext, user: discord.Member, hours: int):
         """Mutes specified user for specified time"""
 
-        await assign_roles_to_member(
-            user, descend_muted_role_id, reason=f"/mute by {ctx.author}"
-        )
+        await assign_roles_to_member(user, descend_muted_role_id, reason=f"/mute by {ctx.author}")
 
         status = await ctx.send(
             embed=embed_message(
@@ -52,13 +50,9 @@ class Mute(Cog):
         )
 
         await asyncio.sleep(hours * 60 * 60)
-        await remove_roles_from_member(
-            user, descend_muted_role_id, reason=f"/mute by {ctx.author}"
-        )
+        await remove_roles_from_member(user, descend_muted_role_id, reason=f"/mute by {ctx.author}")
 
-        await status.edit(
-            embed=embed_message("Success", f"{user.mention} is no longer muted")
-        )
+        await status.edit(embed=embed_message("Success", f"{user.mention} is no longer muted"))
 
 
 def setup(client):

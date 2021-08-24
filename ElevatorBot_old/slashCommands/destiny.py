@@ -98,9 +98,7 @@ class DestinyCommands(commands.Cog):
             "Hunter": hunter_emoji_id,
             "Titan": titan_emoji_id,
         }
-        self.season_and_expansion_dates = sorted(
-            expansion_dates + season_dates, key=lambda x: x[0]
-        )
+        self.season_and_expansion_dates = sorted(expansion_dates + season_dates, key=lambda x: x[0])
         self.other_dates = [
             ["2019-10-04", "GoS"],
             ["2019-10-29", "PoH"],
@@ -171,14 +169,14 @@ class DestinyCommands(commands.Cog):
         await ctx.send(embed=embed)
 
     @staticmethod
-    async def get_formatted_solos_data(
-        destiny_player: DestinyPlayer, solo_activity_ids: list[int]
-    ) -> str:
+    async def get_formatted_solos_data(destiny_player: DestinyPlayer, solo_activity_ids: list[int]) -> str:
         """returns the formatted string to be used in self.solos()"""
 
         results = await destiny_player.get_lowman_count(solo_activity_ids)
 
-        return f"Solo Completions: **{results[0]}**\nSolo Flawless Count: **{results[1]}**\nFastest Solo: **{results[2]}**"
+        return (
+            f"Solo Completions: **{results[0]}**\nSolo Flawless Count: **{results[1]}**\nFastest Solo: **{results[2]}**"
+        )
 
     @cog_ext.cog_slash(
         name="time",
@@ -210,9 +208,7 @@ class DestinyCommands(commands.Cog):
         # init the db request function with all the args
         args = {
             "destinyID": destiny_player.destiny_id,
-            "character_class": kwargs["class"]
-            if ("class" in kwargs and kwargs["class"] != "Everything")
-            else None,
+            "character_class": kwargs["class"] if ("class" in kwargs and kwargs["class"] != "Everything") else None,
         }
 
         # prepare embed for later use
@@ -237,12 +233,10 @@ class DestinyCommands(commands.Cog):
 
             # get the next seasons start time as the cutoff or now if its the current season
             try:
-                next_season_date = self.season_and_expansion_dates[
-                    (self.season_and_expansion_dates.index(season) + 1)
-                ][0]
-                next_season_date = datetime.datetime.strptime(
-                    next_season_date, "%Y-%m-%d"
-                )
+                next_season_date = self.season_and_expansion_dates[(self.season_and_expansion_dates.index(season) + 1)][
+                    0
+                ]
+                next_season_date = datetime.datetime.strptime(next_season_date, "%Y-%m-%d")
             except IndexError:
                 next_season_date = datetime.datetime.now()
 
@@ -299,8 +293,7 @@ class DestinyCommands(commands.Cog):
             ax.axvline(date, color="darkgreen", zorder=1)
             ax.text(
                 date + datetime.timedelta(days=2),
-                (max(data["numberofplayers"]) - min(data["numberofplayers"])) * 1.02
-                + min(data["numberofplayers"]),
+                (max(data["numberofplayers"]) - min(data["numberofplayers"])) * 1.02 + min(data["numberofplayers"]),
                 dates[1],
                 color="darkgreen",
                 fontweight="bold",
@@ -311,8 +304,7 @@ class DestinyCommands(commands.Cog):
             ax.axvline(date, color="mediumaquamarine", zorder=1)
             ax.text(
                 date + datetime.timedelta(days=2),
-                (max(data["numberofplayers"]) - min(data["numberofplayers"])) * 0.95
-                + min(data["numberofplayers"]),
+                (max(data["numberofplayers"]) - min(data["numberofplayers"])) * 0.95 + min(data["numberofplayers"]),
                 dates[1],
                 color="mediumaquamarine",
                 bbox=dict(
@@ -327,8 +319,7 @@ class DestinyCommands(commands.Cog):
             ax.axvline(date, color="mediumaquamarine", zorder=1)
             ax.text(
                 date + datetime.timedelta(days=2),
-                (max(data["numberofplayers"]) - min(data["numberofplayers"])) * 0.90
-                + min(data["numberofplayers"]),
+                (max(data["numberofplayers"]) - min(data["numberofplayers"])) * 0.90 + min(data["numberofplayers"]),
                 dates[1],
                 color="mediumaquamarine",
                 bbox=dict(
@@ -380,9 +371,7 @@ class DestinyCommands(commands.Cog):
         await destiny_player.update_activity_db()
         data = await getLastActivity(
             destiny_player.destiny_id,
-            mode=int(kwargs["activity"])
-            if "activity" in kwargs and kwargs["activity"] != "0"
-            else None,
+            mode=int(kwargs["activity"]) if "activity" in kwargs and kwargs["activity"] != "0" else None,
         )
         if not data:
             await ctx.send(
@@ -394,11 +383,7 @@ class DestinyCommands(commands.Cog):
             return
 
         # make data pretty and send msg
-        activity_name = (
-            await getDestinyDefinition(
-                "DestinyActivityDefinition", data["directorActivityHash"]
-            )
-        )[2]
+        activity_name = (await getDestinyDefinition("DestinyActivityDefinition", data["directorActivityHash"]))[2]
         embed = embed_message(
             f"{user.display_name}'s Last Activity",
             f"**{activity_name}{(' - ' + str(data['score']) + ' Points') if data['score'] > 0 else ''} - {str(datetime.timedelta(seconds=data['activityDurationSeconds']))}**",
@@ -487,9 +472,7 @@ class DestinyCommands(commands.Cog):
         # this is a recursive commmand.
 
         # make data pretty
-        embed = await self._get_challenge_info(
-            user, week, seasonal_challenges, user_triumphs
-        )
+        embed = await self._get_challenge_info(user, week, seasonal_challenges, user_triumphs)
 
         # send message
         if not select_ctx:
@@ -539,11 +522,7 @@ class DestinyCommands(commands.Cog):
             # calculate completion rate
             rate = []
             for objective in user_triumph["objectives"]:
-                rate.append(
-                    objective["progress"] / objective["completionValue"]
-                    if not objective["complete"]
-                    else 1
-                )
+                rate.append(objective["progress"] / objective["completionValue"] if not objective["complete"] else 1)
             rate = sum(rate) / len(rate)
 
             # make emoji art for completion rate
@@ -581,9 +560,7 @@ class DestinyCommands(commands.Cog):
         anyCharID = list(await destiny_player.get_character_info())[0]
 
         # get and send spider inv
-        materialtext = await getSpiderMaterials(
-            destiny_player.discord_id, destiny_player.destiny_id, anyCharID
-        )
+        materialtext = await getSpiderMaterials(destiny_player.discord_id, destiny_player.destiny_id, anyCharID)
         if "embed" in materialtext:
             await ctx.send(embed=materialtext["embed"])
         elif materialtext["result"]:
@@ -730,9 +707,7 @@ class DestinyCommands(commands.Cog):
         await ctx.defer()
 
         # get stat
-        stat = await destiny_player.get_stat_value(
-            kwargs["name"], stat_category="allPvE"
-        )
+        stat = await destiny_player.get_stat_value(kwargs["name"], stat_category="allPvE")
         await ctx.send(
             embed=embed_message(
                 f"{user.display_name}'s PvE Stat Info",
@@ -758,9 +733,7 @@ class DestinyCommands(commands.Cog):
         await ctx.defer()
 
         # get stat
-        stat = await destiny_player.get_stat_value(
-            kwargs["name"], stat_category="allPvP"
-        )
+        stat = await destiny_player.get_stat_value(kwargs["name"], stat_category="allPvP")
         await ctx.send(
             embed=embed_message(
                 f"{user.display_name}'s PvP Stat Info",
@@ -818,11 +791,7 @@ class ClanActivitiesCommands(commands.Cog):
         )
         if not start_time:
             return
-        end_time = (
-            await verify_time_input(ctx, kwargs["endtime"])
-            if "endtime" in kwargs
-            else datetime.datetime.now()
-        )
+        end_time = await verify_time_input(ctx, kwargs["endtime"]) if "endtime" in kwargs else datetime.datetime.now()
         if not end_time:
             return
 
@@ -836,9 +805,7 @@ class ClanActivitiesCommands(commands.Cog):
 
         result = await asyncio.gather(
             *[
-                self._handle_members(
-                    destinyID, mode, start_time, end_time, user.display_name
-                )
+                self._handle_members(destinyID, mode, start_time, end_time, user.display_name)
                 for destinyID in self.clan_members
             ]
         )
@@ -941,9 +908,7 @@ class ClanActivitiesCommands(commands.Cog):
         destinyID = int(destinyID)
 
         # get all activities
-        activities = await getActivityHistory(
-            destinyID, mode=mode, start_time=start_time, end_time=end_time
-        )
+        activities = await getActivityHistory(destinyID, mode=mode, start_time=start_time, end_time=end_time)
 
         list_of_activities = []
         for instanceID in activities:
@@ -972,24 +937,13 @@ class ClanActivitiesCommands(commands.Cog):
     async def _prep_data(self, destiny_player: DestinyPlayer, orginal_user_destiny_id):
         display_name, _ = await destiny_player.get_destiny_name_and_last_played()
 
-        size = (
-            self.activities_from_user_who_got_looked_at[destiny_player.destiny_id] * 50
-        )
-        size_desc = (
-            str(self.activities_from_user_who_got_looked_at[destiny_player.destiny_id])
-            + " Activities"
-        )
+        size = self.activities_from_user_who_got_looked_at[destiny_player.destiny_id] * 50
+        size_desc = str(self.activities_from_user_who_got_looked_at[destiny_player.destiny_id]) + " Activities"
 
-        colors = (
-            "#850404"
-            if orginal_user_destiny_id == destiny_player.destiny_id
-            else "#006aff"
-        )
+        colors = "#850404" if orginal_user_destiny_id == destiny_player.destiny_id else "#006aff"
 
         # edge_list = [person, size, size_desc, display_names, colors]
-        self.edge_list.append(
-            [destiny_player.destiny_id, size, size_desc, display_name, colors]
-        )
+        self.edge_list.append([destiny_player.destiny_id, size, size_desc, display_name, colors])
 
     def _add_edge(self, network, edge):
         src = int(edge[0])
@@ -1010,9 +964,7 @@ class MysticCommands(commands.Cog):
     def names(self, userdict):
         return "\n".join(
             map(
-                lambda p: c.name
-                if (c := self.client.get_user(p["id"]))
-                else "InvalidUser",
+                lambda p: c.name if (c := self.client.get_user(p["id"])) else "InvalidUser",
                 userdict,
             )
         )
@@ -1028,9 +980,7 @@ class MysticCommands(commands.Cog):
         with open("database/mysticlist.json", "r+") as mlist:
             players = json.load(mlist)
 
-        embed = embed_message(
-            "Mystic List", f"The following users are currently in the list:"
-        )
+        embed = embed_message("Mystic List", f"The following users are currently in the list:")
         embed.add_field(name="Users", value=self.names(players), inline=True)
 
         await ctx.send(embed=embed)
@@ -1061,9 +1011,7 @@ class MysticCommands(commands.Cog):
         with open("database/mysticlist.json", "w") as mlist:
             json.dump(players, mlist)
 
-        embed = embed_message(
-            "Mystic List", f"Added {user.name} to the mystic list, it now has:"
-        )
+        embed = embed_message("Mystic List", f"Added {user.name} to the mystic list, it now has:")
         embed.add_field(name="Users", value=self.names(players), inline=True)
 
         await ctx.send(embed=embed)
@@ -1085,10 +1033,7 @@ class MysticCommands(commands.Cog):
         with open("database/mysticlist.json", "r") as mlist:
             players = json.load(mlist)
 
-        if (
-            len(player := list(filter(lambda muser: muser["id"] == user.id, players)))
-            == 1
-        ):
+        if len(player := list(filter(lambda muser: muser["id"] == user.id, players))) == 1:
             # _delete player
             players._delete(player[0])
             with open("commands/mysticlog.log", "a") as mlog:
@@ -1097,19 +1042,13 @@ class MysticCommands(commands.Cog):
             with open("database/mysticlist.json", "w+") as mlist:
                 json.dump(players, mlist)
 
-            embed = embed_message(
-                "Mystic List", f"Removed {user.name} from the mystic list, it now has:"
-            )
+            embed = embed_message("Mystic List", f"Removed {user.name} from the mystic list, it now has:")
             embed.add_field(name="Users", value=self.names(players), inline=True)
 
             await ctx.send(embed=embed)
             return
 
-        await ctx.send(
-            embed=embed_message(
-                "Mystic List", f"User {user.name} was not found in the player list"
-            )
-        )
+        await ctx.send(embed=embed_message("Mystic List", f"User {user.name} was not found in the player list"))
 
 
 class RankCommands(commands.Cog):
@@ -1134,12 +1073,8 @@ class RankCommands(commands.Cog):
                 option_type=3,
                 required=True,
                 choices=[
-                    create_choice(
-                        name="Join-Date of this Discord Server", value="discordjoindate"
-                    ),
-                    create_choice(
-                        name="Roles Earned on this Discord Server", value="roles"
-                    ),
+                    create_choice(name="Join-Date of this Discord Server", value="discordjoindate"),
+                    create_choice(name="Roles Earned on this Discord Server", value="roles"),
                     create_choice(name="Total Playtime", value="totaltime"),
                     create_choice(name="Max. Power Level", value="maxpower"),
                     create_choice(name="Vault Space Used", value="vaultspace"),
@@ -1154,12 +1089,8 @@ class RankCommands(commands.Cog):
                     create_choice(name="Raid Time", value="raidtime"),
                     create_choice(name="Grandmaster Nightfalls Done", value="gm"),
                     create_choice(name="Weapon Kills", value="weapon"),
-                    create_choice(
-                        name="Weapon Precision Kills", value="weaponprecision"
-                    ),
-                    create_choice(
-                        name="% Weapon Precision Kills", value="weaponprecisionpercent"
-                    ),
+                    create_choice(name="Weapon Precision Kills", value="weaponprecision"),
+                    create_choice(name="% Weapon Precision Kills", value="weaponprecisionpercent"),
                     create_choice(name="Enhancement Cores", value="enhancementcores"),
                     create_choice(name="Forges Done", value="forges"),
                     # create_choice(
@@ -1235,23 +1166,16 @@ class RankCommands(commands.Cog):
         else:
             await ctx.send(embed_message("Error", "Failed handling users"))
 
-    async def _handle_users(
-        self, stat, display_name, guild, extra_hash, extra_name, reverse=False
-    ):
+    async def _handle_users(self, stat, display_name, guild, extra_hash, extra_name, reverse=False):
         # init DF. "stat_sort" is only here, since I want to save numbers fancy (1,000,000) and that is a string and not an int so sorting wont work
         data = pd.DataFrame(columns=["member", "stat", "stat_sort"])
 
         # loop through the clan members
-        clan_members = (
-            await get_json_from_url(
-                f"https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/"
-            )
-        ).content["Response"]["results"]
+        clan_members = (await get_json_from_url(f"https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/")).content[
+            "Response"
+        ]["results"]
         results = await asyncio.gather(
-            *[
-                self._handle_user(stat, member, guild, extra_hash, extra_name)
-                for member in clan_members
-            ]
+            *[self._handle_user(stat, member, guild, extra_hash, extra_name) for member in clan_members]
         )
         if len(results) < 1:
             return embed_message("Error", "No users found")
@@ -1300,22 +1224,14 @@ class RankCommands(commands.Cog):
                         )
                     )
                 else:
-                    ranking.append(
-                        write_line(
-                            index + 1, row["member"], stat_text, row["stat"], emoji
-                        )
-                    )
+                    ranking.append(write_line(index + 1, row["member"], stat_text, row["stat"], emoji))
 
             # looping through rest until original user is found
             elif (len(ranking) >= 12) and (not found):
                 # adding only this user
                 if row["member"] == display_name:
                     ranking.append("...")
-                    ranking.append(
-                        write_line(
-                            index + 1, row["member"], stat_text, row["stat"], emoji
-                        )
-                    )
+                    ranking.append(write_line(index + 1, row["member"], stat_text, row["stat"], emoji))
                     break
 
             else:
@@ -1325,9 +1241,7 @@ class RankCommands(commands.Cog):
         return embed_message(leaderboard_text, "\n".join(ranking))
 
     async def _handle_user(self, stat, member, guild, extra_hash, extra_name):
-        destiny_player = await DestinyPlayer.from_destiny_id(
-            int(member["destinyUserInfo"]["membershipId"])
-        )
+        destiny_player = await DestinyPlayer.from_destiny_id(int(member["destinyUserInfo"]["membershipId"]))
 
         if not (destiny_player and await destiny_player.has_token()):
             return None
@@ -1365,9 +1279,7 @@ class RankCommands(commands.Cog):
                     if role not in earned_roles:
                         replaced_by_role_earned = False
                         if "replaced_by" in requirementHashes[topic][role]:
-                            for replaced_role in requirementHashes[topic][role][
-                                "replaced_by"
-                            ]:
+                            for replaced_role in requirementHashes[topic][role]["replaced_by"]:
                                 if replaced_role in earned_roles:
                                     replaced_by_role_earned = True
 
@@ -1378,9 +1290,7 @@ class RankCommands(commands.Cog):
                                 missing_roles_legacy.append(role)
 
             result_sort = len(set(missing_roles))
-            result = (
-                f"{result_sort:,} ({len(set(missing_roles_legacy)):,} Legacy Roles)"
-            )
+            result = f"{result_sort:,} ({len(set(missing_roles_legacy)):,} Legacy Roles)"
 
         elif stat == "totaltime":
             leaderboard_text = "Top Clanmembers by D2 Total Time Logged In"
@@ -1394,63 +1304,49 @@ class RankCommands(commands.Cog):
             leaderboard_text = "Top Clanmembers by PvE Orbs Generated"
             stat_text = "Orbs"
 
-            result_sort = await destiny_player.get_stat_value(
-                "orbsDropped", stat_category="pve"
-            )
+            result_sort = await destiny_player.get_stat_value("orbsDropped", stat_category="pve")
             result = f"{result_sort:,}"
 
         elif stat == "meleekills":
             leaderboard_text = "Top Clanmembers by D2 PvE Meleekills"
             stat_text = "Kills"
 
-            result_sort = await destiny_player.get_stat_value(
-                "weaponKillsMelee", stat_category="pve"
-            )
+            result_sort = await destiny_player.get_stat_value("weaponKillsMelee", stat_category="pve")
             result = f"{result_sort:,}"
 
         elif stat == "superkills":
             leaderboard_text = "Top Clanmembers by D2 PvE Superkills"
             stat_text = "Kills"
 
-            result_sort = await destiny_player.get_stat_value(
-                "weaponKillsSuper", stat_category="pve"
-            )
+            result_sort = await destiny_player.get_stat_value("weaponKillsSuper", stat_category="pve")
             result = f"{result_sort:,}"
 
         elif stat == "grenadekills":
             leaderboard_text = "Top Clanmembers by D2 PvE Grenadekills"
             stat_text = "Kills"
 
-            result_sort = await destiny_player.get_stat_value(
-                "weaponKillsGrenade", stat_category="pve"
-            )
+            result_sort = await destiny_player.get_stat_value("weaponKillsGrenade", stat_category="pve")
             result = f"{result_sort:,}"
 
         elif stat == "deaths":
             leaderboard_text = "Top Clanmembers by D2 PvE Deaths"
             stat_text = "Deaths"
 
-            result_sort = await destiny_player.get_stat_value(
-                "deaths", stat_category="pve"
-            )
+            result_sort = await destiny_player.get_stat_value("deaths", stat_category="pve")
             result = f"{result_sort:,}"
 
         elif stat == "suicides":
             leaderboard_text = "Top Clanmembers by D2 PvE Suicides"
             stat_text = "Suicides"
 
-            result_sort = await destiny_player.get_stat_value(
-                "suicides", stat_category="pve"
-            )
+            result_sort = await destiny_player.get_stat_value("suicides", stat_category="pve")
             result = f"{result_sort:,}"
 
         elif stat == "kills":
             leaderboard_text = "Top Clanmembers by D2 PvE Kills"
             stat_text = "Kills"
 
-            result_sort = await destiny_player.get_stat_value(
-                "suicides", stat_category="pve"
-            )
+            result_sort = await destiny_player.get_stat_value("suicides", stat_category="pve")
             result = f"{result_sort:,}"
 
         elif stat == "maxpower":
@@ -1499,13 +1395,7 @@ class RankCommands(commands.Cog):
 
             # in hours
             result_sort = int(
-                (
-                    await self._add_activity_stats(
-                        destiny_player, raidHashes, "activitySecondsPlayed"
-                    )
-                )
-                / 60
-                / 60
+                (await self._add_activity_stats(destiny_player, raidHashes, "activitySecondsPlayed")) / 60 / 60
             )
             result = f"{result_sort:,}"
 
@@ -1581,38 +1471,28 @@ class RankCommands(commands.Cog):
             leaderboard_text = f"Top Clanmembers by D2 Active Triumph Score"
             stat_text = "Score"
 
-            result_sort = (await destiny_player.get_triumphs())["profileRecords"][
-                "data"
-            ]["activeScore"]
+            result_sort = (await destiny_player.get_triumphs())["profileRecords"]["data"]["activeScore"]
             result = f"{result_sort:,}"
 
         elif stat == "legacytriumphs":
             leaderboard_text = f"Top Clanmembers by D2 Legacy Triumph Score"
             stat_text = "Score"
 
-            result_sort = (await destiny_player.get_triumphs())["profileRecords"][
-                "data"
-            ]["legacyScore"]
+            result_sort = (await destiny_player.get_triumphs())["profileRecords"]["data"]["legacyScore"]
             result = f"{result_sort:,}"
 
         elif stat == "triumphs":
             leaderboard_text = f"Top Clanmembers by D2 Lifetime Triumph Score"
             stat_text = "Score"
 
-            result_sort = (await destiny_player.get_triumphs())["profileRecords"][
-                "data"
-            ]["lifetimeScore"]
+            result_sort = (await destiny_player.get_triumphs())["profileRecords"]["data"]["lifetimeScore"]
             result = f"{result_sort:,}"
 
         elif stat == "gm":
-            leaderboard_text = (
-                f"Top Clanmembers by D2 Grandmaster Nightfall Completions"
-            )
+            leaderboard_text = f"Top Clanmembers by D2 Grandmaster Nightfall Completions"
             stat_text = "Total"
 
-            result_sort = await getClearCount(
-                destiny_player.destiny_id, activityHashes=gmHashes
-            )
+            result_sort = await getClearCount(destiny_player.destiny_id, activityHashes=gmHashes)
             result = f"{result_sort:,}"
 
         elif stat == "laurels":
@@ -1640,9 +1520,7 @@ class RankCommands(commands.Cog):
         result_sort = 0
         chars = await destiny_player.get_character_info()
         for characterID in chars:
-            aggregateStats = await destiny_player.get_character_activity_stats(
-                characterID
-            )
+            aggregateStats = await destiny_player.get_character_activity_stats(characterID)
 
             try:
                 for activities in aggregateStats["activities"]:
@@ -1652,9 +1530,7 @@ class RankCommands(commands.Cog):
                             break
                         for hashID in hash:
                             if hashID == activities["activityHash"]:
-                                result_sort += int(
-                                    activities["values"][stat]["basic"]["value"]
-                                )
+                                result_sort += int(activities["values"][stat]["basic"]["value"])
                                 found = True
                                 break
             except Exception:
@@ -1706,44 +1582,24 @@ class RankCommands(commands.Cog):
     def _add_stats(self, stat_json, stat, scope="all"):
         result_sort = 0
         if scope == "all":
-            result_sort = int(
-                stat_json["mergedAllCharacters"]["merged"]["allTime"][stat]["basic"][
-                    "value"
-                ]
-            )
+            result_sort = int(stat_json["mergedAllCharacters"]["merged"]["allTime"][stat]["basic"]["value"])
             try:
-                result_sort += int(
-                    stat_json["mergedDeletedCharacters"]["merged"]["allTime"][stat][
-                        "basic"
-                    ]["value"]
-                )
+                result_sort += int(stat_json["mergedDeletedCharacters"]["merged"]["allTime"][stat]["basic"]["value"])
             except:
                 pass
         elif scope == "pve":
-            result_sort = int(
-                stat_json["mergedAllCharacters"]["results"]["allPvE"]["allTime"][stat][
-                    "basic"
-                ]["value"]
-            )
+            result_sort = int(stat_json["mergedAllCharacters"]["results"]["allPvE"]["allTime"][stat]["basic"]["value"])
             try:
                 result_sort += int(
-                    stat_json["mergedDeletedCharacters"]["results"]["allPvE"][
-                        "allTime"
-                    ][stat]["basic"]["value"]
+                    stat_json["mergedDeletedCharacters"]["results"]["allPvE"]["allTime"][stat]["basic"]["value"]
                 )
             except:
                 pass
         elif scope == "pvp":
-            result_sort = int(
-                stat_json["mergedAllCharacters"]["results"]["allPvP"]["allTime"][stat][
-                    "basic"
-                ]["value"]
-            )
+            result_sort = int(stat_json["mergedAllCharacters"]["results"]["allPvP"]["allTime"][stat]["basic"]["value"])
             try:
                 result_sort += int(
-                    stat_json["mergedDeletedCharacters"]["results"]["allPvP"][
-                        "allTime"
-                    ][stat]["basic"]["value"]
+                    stat_json["mergedDeletedCharacters"]["results"]["allPvP"]["allTime"][stat]["basic"]["value"]
                 )
             except:
                 pass
@@ -1772,9 +1628,7 @@ class WeaponCommands(commands.Cog):
                 choices=[
                     create_choice(name="Kills (default)", value="kills"),
                     create_choice(name="Precision Kills", value="precisionkills"),
-                    create_choice(
-                        name="% Precision Kills", value="precisionkillspercent"
-                    ),
+                    create_choice(name="% Precision Kills", value="precisionkillspercent"),
                 ],
             ),
             create_option(
@@ -1850,11 +1704,7 @@ class WeaponCommands(commands.Cog):
         await destiny_player.update_activity_db()
 
         # get the char class if that is asked for
-        charID = (
-            await destiny_player.get_character_id_by_class(character_class)
-            if character_class
-            else None
-        )
+        charID = await destiny_player.get_character_id_by_class(character_class) if character_class else None
 
         # get all weapon infos
         kwargs = {
@@ -1878,9 +1728,7 @@ class WeaponCommands(commands.Cog):
 
         # throw error if no weapon
         if not result:
-            await ctx.send(
-                embed=embed_message("Error", f"No weapon stats found for {weapon_name}")
-            )
+            await ctx.send(embed=embed_message("Error", f"No weapon stats found for {weapon_name}"))
             return
 
         # either text
@@ -1900,12 +1748,8 @@ class WeaponCommands(commands.Cog):
             avg_kills = kills / len(result)
             res = await getPgcrActivity(max_kills_id)
             max_kills_date = res[3]
-            max_kills_mode = (
-                await getDestinyDefinition("DestinyActivityModeDefinition", res[5])
-            )[2]
-            max_kills_name = (
-                await getDestinyDefinition("DestinyActivityDefinition", res[2])
-            )[2]
+            max_kills_mode = (await getDestinyDefinition("DestinyActivityModeDefinition", res[5]))[2]
+            max_kills_name = (await getDestinyDefinition("DestinyActivityDefinition", res[2]))[2]
 
             # make and post embed
             embed = embed_message(f"{weapon_name} stats for {user.display_name}")
@@ -1938,9 +1782,7 @@ class WeaponCommands(commands.Cog):
             weapon_hashes = []
             for instanceID, uniqueweaponkills, uniqueweaponprecisionkills in result:
                 instance_time = (await getPgcrActivity(instanceID))[3]
-                weapon_hashes.append(
-                    (instance_time, uniqueweaponkills, uniqueweaponprecisionkills)
-                )
+                weapon_hashes.append((instance_time, uniqueweaponkills, uniqueweaponprecisionkills))
             weapon_hashes = sorted(weapon_hashes, key=lambda x: x[0])
 
             # get clean, relevant data in a DF. easier for the graph later
@@ -1970,9 +1812,7 @@ class WeaponCommands(commands.Cog):
                     # append to DF
                     entry = {
                         "datetime": time.date(),
-                        "statistic": statistic2 / statistic1
-                        if stat == "precisionkillspercent"
-                        else statistic1,
+                        "statistic": statistic2 / statistic1 if stat == "precisionkillspercent" else statistic1,
                     }
                     df = df.append(entry, ignore_index=True)
 
@@ -1992,9 +1832,7 @@ class WeaponCommands(commands.Cog):
             # append to DF
             entry = {
                 "datetime": time,
-                "statistic": statistic2 / statistic1
-                if stat == "precisionkillspercent"
-                else statistic1,
+                "statistic": statistic2 / statistic1 if stat == "precisionkillspercent" else statistic1,
             }
             df = df.append(entry, ignore_index=True)
 
@@ -2048,9 +1886,7 @@ class WeaponCommands(commands.Cog):
                 choices=[
                     create_choice(name="Kills (default)", value="kills"),
                     create_choice(name="Precision Kills", value="precisionkills"),
-                    create_choice(
-                        name="% Precision Kills", value="precisionkillspercent"
-                    ),
+                    create_choice(name="% Precision Kills", value="precisionkillspercent"),
                 ],
             ),
             create_option(
@@ -2070,9 +1906,7 @@ class WeaponCommands(commands.Cog):
                 option_type=3,
                 required=False,
                 choices=[
-                    create_choice(
-                        name=expansion[1], value=f"{expansion[0]},{expansion[1]}"
-                    )
+                    create_choice(name=expansion[1], value=f"{expansion[0]},{expansion[1]}")
                     for expansion in expansion_dates
                 ],
             ),
@@ -2081,10 +1915,7 @@ class WeaponCommands(commands.Cog):
                 description="You can restrict the season to look at",
                 option_type=3,
                 required=False,
-                choices=[
-                    create_choice(name=season[1], value=f"{season[0]},{season[1]}")
-                    for season in season_dates
-                ],
+                choices=[create_choice(name=season[1], value=f"{season[0]},{season[1]}") for season in season_dates],
             ),
             create_option(
                 name="starttime",
@@ -2149,11 +1980,7 @@ class WeaponCommands(commands.Cog):
         await destiny_player.update_activity_db()
 
         # get the char class if that is asked for
-        charID = (
-            await destiny_player.get_character_id_by_class(character_class)
-            if character_class
-            else None
-        )
+        charID = await destiny_player.get_character_id_by_class(character_class) if character_class else None
 
         # get all weaponID infos
         kwargs = {
@@ -2205,9 +2032,7 @@ class WeaponCommands(commands.Cog):
         found = False if weapon_name else True
         for slot, weapons in weapons_by_slot.items():
             # sort the slots
-            sorted_weapons = sorted(
-                weapons, key=lambda x: x["weapon_stat"], reverse=True
-            )
+            sorted_weapons = sorted(weapons, key=lambda x: x["weapon_stat"], reverse=True)
 
             # loop through the weapons
             i = 0
@@ -2264,9 +2089,7 @@ class WeaponCommands(commands.Cog):
 
         # write a message in the embed, since it is not in there
         if not found:
-            embed.description = (
-                f"No stats found for `{weapon_name}`, here are your top weapons anyways"
-            )
+            embed.description = f"No stats found for `{weapon_name}`, here are your top weapons anyways"
 
         # post embed
         await ctx.send(embed=embed)
@@ -2278,43 +2101,29 @@ class WeaponCommands(commands.Cog):
         character_class = int(kwargs["class"]) if "class" in kwargs else None
         mode = int(kwargs["mode"]) if "mode" in kwargs else 0
         try:
-            activity_hash = (
-                int(kwargs["activityhash"]) if "activityhash" in kwargs else None
-            )
+            activity_hash = int(kwargs["activityhash"]) if "activityhash" in kwargs else None
         except ValueError:
             await ctx.send(
                 hidden=True,
-                embed=embed_message(
-                    f"Error", f"The argument `activityhash` must be a number"
-                ),
+                embed=embed_message(f"Error", f"The argument `activityhash` must be a number"),
             )
             return None, None, None, None, None, None, None
 
         # parse the three different time arguments, since they are mutually exclusive
-        if not check_if_mutually_exclusive(
-            ["expansion", "season", ["starttime", "endtime"]], kwargs
-        ):
+        if not check_if_mutually_exclusive(["expansion", "season", ["starttime", "endtime"]], kwargs):
             await ctx.send(
                 hidden=True,
-                embed=embed_message(
-                    f"Error", f"You can only specify one time parameter"
-                ),
+                embed=embed_message(f"Error", f"You can only specify one time parameter"),
             )
             return None, None, None, None, None, None, None
 
         # make sure the times are valid
         starttime = (
-            await verify_time_input(ctx, kwargs["starttime"])
-            if "starttime" in kwargs
-            else datetime.datetime.min
+            await verify_time_input(ctx, kwargs["starttime"]) if "starttime" in kwargs else datetime.datetime.min
         )
         if not starttime:
             return None, None, None, None, None, None, None
-        endtime = (
-            await verify_time_input(ctx, kwargs["endtime"])
-            if "endtime" in kwargs
-            else datetime.datetime.now()
-        )
+        endtime = await verify_time_input(ctx, kwargs["endtime"]) if "endtime" in kwargs else datetime.datetime.now()
         if not endtime:
             return None, None, None, None, None, None, None
 
@@ -2347,9 +2156,7 @@ class WeaponCommands(commands.Cog):
                 option_type=3,
                 required=False,
                 choices=[
-                    create_choice(
-                        name=expansion[1], value=f"{expansion[0]},{expansion[1]}"
-                    )
+                    create_choice(name=expansion[1], value=f"{expansion[0]},{expansion[1]}")
                     for expansion in expansion_dates
                 ],
             ),
@@ -2358,10 +2165,7 @@ class WeaponCommands(commands.Cog):
                 description="You can restrict the season to look at",
                 option_type=3,
                 required=False,
-                choices=[
-                    create_choice(name=season[1], value=f"{season[0]},{season[1]}")
-                    for season in season_dates
-                ],
+                choices=[create_choice(name=season[1], value=f"{season[0]},{season[1]}") for season in season_dates],
             ),
             create_option(
                 name="starttime",
@@ -2402,27 +2206,19 @@ class WeaponCommands(commands.Cog):
         character_class = int(kwargs["class"]) if "class" in kwargs else None
         mode = int(kwargs["mode"]) if "mode" in kwargs else 0
         try:
-            activity_hash = (
-                int(kwargs["activityhash"]) if "activityhash" in kwargs else None
-            )
+            activity_hash = int(kwargs["activityhash"]) if "activityhash" in kwargs else None
         except ValueError:
             await ctx.send(
                 hidden=True,
-                embed=embed_message(
-                    f"Error", f"The argument `activityhash` must be a number"
-                ),
+                embed=embed_message(f"Error", f"The argument `activityhash` must be a number"),
             )
             return
 
         # parse the three different time arguments, since they are mutually exclusive
-        if not check_if_mutually_exclusive(
-            ["expansion", "season", ["starttime", "endtime"]], kwargs
-        ):
+        if not check_if_mutually_exclusive(["expansion", "season", ["starttime", "endtime"]], kwargs):
             await ctx.send(
                 hidden=True,
-                embed=embed_message(
-                    f"Error", f"You can only specify one time parameter"
-                ),
+                embed=embed_message(f"Error", f"You can only specify one time parameter"),
             )
             return
 
@@ -2434,11 +2230,7 @@ class WeaponCommands(commands.Cog):
         )
         if not starttime:
             return
-        endtime = (
-            await verify_time_input(ctx, kwargs["endtime"])
-            if "endtime" in kwargs
-            else datetime.datetime.now()
-        )
+        endtime = await verify_time_input(ctx, kwargs["endtime"]) if "endtime" in kwargs else datetime.datetime.now()
         if not endtime:
             return
 
@@ -2473,17 +2265,10 @@ class WeaponCommands(commands.Cog):
                     translated_weapon_slot = translateWeaponSlot(weapon[4])
                     try:
                         weapons_by_slot[translated_weapon_slot].update(
-                            {
-                                weapon[0]: weapons_by_slot[translated_weapon_slot][
-                                    weapon[0]
-                                ]
-                                + weapon[1]
-                            }
+                            {weapon[0]: weapons_by_slot[translated_weapon_slot][weapon[0]] + weapon[1]}
                         )
                     except KeyError:
-                        weapons_by_slot[translated_weapon_slot].update(
-                            {weapon[0]: weapon[1]}
-                        )
+                        weapons_by_slot[translated_weapon_slot].update({weapon[0]: weapon[1]})
                         weapons_by_id.update({weapon[0]: weapon[3]})
 
         # prepare embed
@@ -2496,9 +2281,7 @@ class WeaponCommands(commands.Cog):
         emoji = self.client.get_emoji(enter_emoji_id)
         for slot, weapons in weapons_by_slot.items():
             # sort it and only get the first 8 slots
-            sorted_weapons = dict(
-                sorted(weapons.items(), key=lambda x: x[1], reverse=True)[:8]
-            )
+            sorted_weapons = dict(sorted(weapons.items(), key=lambda x: x[1], reverse=True)[:8])
 
             # loop through the top
             slot_text = []
@@ -2530,11 +2313,7 @@ class WeaponCommands(commands.Cog):
         character_class,
     ):
         # get character id if asked for
-        charID = (
-            await destiny_player.get_character_id_by_class(character_class)
-            if character_class
-            else None
-        )
+        charID = await destiny_player.get_character_id_by_class(character_class) if character_class else None
 
         # get all weapon kills
         kwargs = {
@@ -2563,9 +2342,7 @@ class TournamentCommands(commands.Cog):
     )
     async def _create(self, ctx: SlashContext):
         # check if tourn already exists
-        message = await get_persistent_message_or_channel(
-            self.client, "tournament", ctx.guild.id
-        )
+        message = await get_persistent_message_or_channel(self.client, "tournament", ctx.guild.id)
         if message:
             await ctx.send(
                 hidden=True,
@@ -2577,11 +2354,7 @@ class TournamentCommands(commands.Cog):
             return
 
         # get the tourn channel id
-        channel = (
-            await get_persistent_message_or_channel(
-                self.client, "tournamentChannel", ctx.guild.id
-            )
-        ).channel
+        channel = (await get_persistent_message_or_channel(self.client, "tournamentChannel", ctx.guild.id)).channel
 
         # make registration message
         embed = embed_message(
@@ -2616,9 +2389,7 @@ class TournamentCommands(commands.Cog):
     )
     async def _start(self, ctx: SlashContext):
         # check if tourn exists
-        message = await get_persistent_message_or_channel(
-            self.client, "tournament", ctx.guild.id
-        )
+        message = await get_persistent_message_or_channel(self.client, "tournament", ctx.guild.id)
         if not message:
             await ctx.send(
                 hidden=True,
@@ -2630,9 +2401,7 @@ class TournamentCommands(commands.Cog):
             return
 
         # check if author has permissions to start
-        if not (message.author == ctx.author) and not (
-            await has_elevated_permissions(ctx.author, ctx.guild)
-        ):
+        if not (message.author == ctx.author) and not (await has_elevated_permissions(ctx.author, ctx.guild)):
             await ctx.send(
                 hidden=True,
                 embed=embed_message(
@@ -2648,9 +2417,7 @@ class TournamentCommands(commands.Cog):
                 if reaction.count < 3:
                     await ctx.send(
                         hidden=True,
-                        embed=embed_message(
-                            f"Error", f"At least two people need to sign up"
-                        ),
+                        embed=embed_message(f"Error", f"At least two people need to sign up"),
                     )
                     return
                 participants = []
@@ -2660,9 +2427,7 @@ class TournamentCommands(commands.Cog):
 
         # start the tourn and wait for it to play out
         await ctx.send(embed=embed_message("Success", "The tournament is now starting"))
-        winner = await startTournamentEvents(
-            self.client, message, message.channel, participants
-        )
+        winner = await startTournamentEvents(self.client, message, message.channel, participants)
 
         # _delete registration message
         channel = message.channel
@@ -2684,9 +2449,7 @@ class TournamentCommands(commands.Cog):
     )
     async def _delete(self, ctx: SlashContext):
         # check if tourn exists
-        message = await get_persistent_message_or_channel(
-            self.client, "tournament", ctx.guild.id
-        )
+        message = await get_persistent_message_or_channel(self.client, "tournament", ctx.guild.id)
         if not message:
             await ctx.send(
                 hidden=True,
@@ -2695,9 +2458,7 @@ class TournamentCommands(commands.Cog):
             return
 
         # check if author has permissions to start
-        if not (message.author == ctx.author) and not (
-            await has_elevated_permissions(ctx.author, ctx.guild)
-        ):
+        if not (message.author == ctx.author) and not (await has_elevated_permissions(ctx.author, ctx.guild)):
             await ctx.send(
                 hidden=True,
                 embed=embed_message(
@@ -2710,9 +2471,7 @@ class TournamentCommands(commands.Cog):
         # _delete msg
         await delete_persistent_message(message, "tournament", ctx.guild.id)
 
-        await ctx.send(
-            embed=embed_message("Success", "The tournament has been deleted")
-        )
+        await ctx.send(embed=embed_message("Success", "The tournament has been deleted"))
 
 
 def setup(client):

@@ -51,9 +51,7 @@ class Poll:
 
     # get embed
     def _get_embed(self) -> discord.Embed:
-        total_users_count = sum(
-            [len(option_users) for option_users in self.data.values()]
-        )
+        total_users_count = sum([len(option_users) for option_users in self.data.values()])
 
         embed = embed_message(
             f"Poll: {self.name}",
@@ -62,12 +60,7 @@ class Poll:
         )
 
         # sort the data by most answers
-        self.data = {
-            k: v
-            for k, v in sorted(
-                self.data.items(), key=lambda item: len(item[1]), reverse=True
-            )
-        }
+        self.data = {k: v for k, v in sorted(self.data.items(), key=lambda item: len(item[1]), reverse=True)}
 
         # add options
         for option_name, option_users in self.data.items():
@@ -133,9 +126,7 @@ class Poll:
             )
 
     # add a user to a poll option
-    async def add_user(
-        self, select_ctx: ComponentContext, member: discord.Member, option: str
-    ):
+    async def add_user(self, select_ctx: ComponentContext, member: discord.Member, option: str):
         # _delete user from all other options
         for option_users in self.data.values():
             try:
@@ -148,9 +139,7 @@ class Poll:
         await self._edit(select_ctx=select_ctx)
 
     # _update poll
-    async def _edit(
-        self, select_ctx: ComponentContext = None, edit_ctx: SlashContext = None
-    ):
+    async def _edit(self, select_ctx: ComponentContext = None, edit_ctx: SlashContext = None):
         assert select_ctx or edit_ctx, "Only one param can be chosen and one must be"
 
         embed = self._get_embed()
@@ -195,9 +184,7 @@ class Poll:
 
 
 # get the poll object
-async def get_poll_object(
-    guild: discord.Guild, poll_id: int = None, poll_message_id: int = None
-) -> Optional[Poll]:
+async def get_poll_object(guild: discord.Guild, poll_id: int = None, poll_message_id: int = None) -> Optional[Poll]:
     assert poll_id or poll_message_id, "Only one param can be chosen and one must be"
 
     # get the DB entry

@@ -3,14 +3,10 @@ from typing import Any
 import discord
 
 
-def embed_message(
-    title: str = None, description: str = None, footer: str = None
-) -> discord.Embed:
+def embed_message(title: str = None, description: str = None, footer: str = None) -> discord.Embed:
     """Takes title description and footer and returns an discord.Embed"""
 
-    assert (
-        title or description or footer
-    ), "Need to input either title or description or footer"
+    assert title or description or footer, "Need to input either title or description or footer"
 
     embed = discord.Embed(
         title=title,
@@ -22,9 +18,7 @@ def embed_message(
     return embed
 
 
-def split_into_chucks_of_max_2000_characters(
-    text_str: str = None, text_list: list[Any] = None
-) -> list[str]:
+def split_into_chucks_of_max_2000_characters(text_str: str = None, text_list: list[Any] = None) -> list[str]:
     """Takes either a list of strings or a string and returns a list of strings with a max length of 4000"""
 
     assert text_str or text_list, "Only one param can be chosen and one must be"

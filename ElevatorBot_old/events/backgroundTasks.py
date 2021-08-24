@@ -27,9 +27,7 @@ class UpdateManifest(BaseEvent):
         await updateManifest()
 
         # _update the status
-        await bot_status(
-            client, "Manifest Update", datetime.datetime.now(tz=datetime.timezone.utc)
-        )
+        await bot_status(client, "Manifest Update", datetime.datetime.now(tz=datetime.timezone.utc))
 
 
 class UpdateActivityDB(BaseEvent):
@@ -56,9 +54,7 @@ class UpdateActivityDB(BaseEvent):
                     to_update.append(destiny_player)
 
         # _update all users in a gather for zooms
-        await asyncio.gather(
-            *[destiny_player.update_activity_db() for destiny_player in to_update]
-        )
+        await asyncio.gather(*[destiny_player.update_activity_db() for destiny_player in to_update])
 
         print("Done updating DB")
 
@@ -66,9 +62,7 @@ class UpdateActivityDB(BaseEvent):
         await updateMissingPcgr()
 
         # _update the status
-        await bot_status(
-            client, "Database Update", datetime.datetime.now(tz=datetime.timezone.utc)
-        )
+        await bot_status(client, "Database Update", datetime.datetime.now(tz=datetime.timezone.utc))
 
 
 class TokenUpdater(BaseEvent):
@@ -93,8 +87,6 @@ class TokenUpdater(BaseEvent):
             await handle_and_return_token(user.id)
 
         # _update the status
-        await bot_status(
-            client, "Token Refresh", datetime.datetime.now(tz=datetime.timezone.utc)
-        )
+        await bot_status(client, "Token Refresh", datetime.datetime.now(tz=datetime.timezone.utc))
 
         print("Done refreshing Tokens")

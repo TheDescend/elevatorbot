@@ -27,9 +27,7 @@ class Weapon(Cog):
                 choices=[
                     create_choice(name="Kills (default)", value="kills"),
                     create_choice(name="Precision Kills", value="precisionkills"),
-                    create_choice(
-                        name="% Precision Kills", value="precisionkillspercent"
-                    ),
+                    create_choice(name="% Precision Kills", value="precisionkillspercent"),
                 ],
             ),
             create_option(

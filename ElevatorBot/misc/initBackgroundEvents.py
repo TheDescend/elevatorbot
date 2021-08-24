@@ -26,9 +26,7 @@ def register_background_events(client: discord.Client) -> int:
 
         # log the execution
         logger = logging.getLogger("backgroundEvents")
-        logger.info(
-            "Event '%s' with ID '%s' has been added", job_name, scheduler_event.job_id
-        )
+        logger.info("Event '%s' with ID '%s' has been added", job_name, scheduler_event.job_id)
 
     backgroundEvents.scheduler.add_listener(event_added, EVENT_JOB_ADDED)
 

@@ -31,9 +31,7 @@ class Meta(Cog):
                 option_type=3,
                 required=False,
                 choices=[
-                    create_choice(
-                        name=expansion[1], value=f"{expansion[0]},{expansion[1]}"
-                    )
+                    create_choice(name=expansion[1], value=f"{expansion[0]},{expansion[1]}")
                     for expansion in expansion_dates
                 ],
             ),
@@ -42,10 +40,7 @@ class Meta(Cog):
                 description="You can restrict the season to look at",
                 option_type=3,
                 required=False,
-                choices=[
-                    create_choice(name=season[1], value=f"{season[0]},{season[1]}")
-                    for season in season_dates
-                ],
+                choices=[create_choice(name=season[1], value=f"{season[0]},{season[1]}") for season in season_dates],
             ),
             create_option(
                 name="starttime",

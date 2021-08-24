@@ -15,9 +15,7 @@ async def get_user_obj(ctx: SlashContext, kwargs: dict = None) -> discord.Member
     return ctx.author
 
 
-async def get_user_obj_admin(
-    ctx: SlashContext, kwargs: dict = None, allowed_users: list = None
-):
+async def get_user_obj_admin(ctx: SlashContext, kwargs: dict = None, allowed_users: list = None):
     """Shadows get_user_obj(), but only returns if user has elevated permssions (admin / mod) or arg wasn't used or author is in the allowed_users list of int ids"""
 
     if allowed_users is None:
@@ -25,11 +23,7 @@ async def get_user_obj_admin(
 
     user = await get_user_obj(ctx, kwargs)
 
-    if (
-        await has_elevated_permissions(ctx.author, ctx.guild)
-        or user == ctx.author
-        or ctx.author.id in allowed_users
-    ):
+    if await has_elevated_permissions(ctx.author, ctx.guild) or user == ctx.author or ctx.author.id in allowed_users:
         return user
 
     await ctx.send(
@@ -48,8 +42,6 @@ async def verify_time_input(ctx, input):
     except ValueError:
         await ctx.send(
             hidden=True,
-            embed=embed_message(
-                f"Error", f"The time parameters must be in this format - `DD/MM/YY`"
-            ),
+            embed=embed_message(f"Error", f"The time parameters must be in this format - `DD/MM/YY`"),
         )
         return False

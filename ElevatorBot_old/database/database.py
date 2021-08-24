@@ -63,9 +63,7 @@ async def get_connection_pool():
             await create_connection_pool()
 
             # load the db models
-            async with (await get_connection_pool()).acquire(
-                timeout=timeout
-            ) as connection:
+            async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
                 for table in database_tables:
                     await connection.execute(table)
 
@@ -268,9 +266,7 @@ async def insertToken(
         return True
 
 
-async def updateToken(
-    destinyID, discordID, token, refresh_token, token_expiry, refresh_token_expiry
-):
+async def updateToken(destinyID, discordID, token, refresh_token, token_expiry, refresh_token_expiry):
     """Updates a User - Token, token refresh, token_expiry, refresh_token_expiry"""
 
     update_sql = f"""
@@ -348,9 +344,7 @@ async def insertIntoMessageDB(messagetext, userid, channelid, msgid):
         VALUES 
             ($1, $2, $3, $4, $5);"""
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
-        await connection.execute(
-            insert_sql, messagetext, userid, channelid, msgid, datetime.now()
-        )
+        await connection.execute(insert_sql, messagetext, userid, channelid, msgid, datetime.now())
 
 
 async def getLastActivity(destinyID, mode=None, before=datetime.now()):
@@ -459,9 +453,7 @@ async def getFlawlessList(destinyID):
 # todo swap most requests to use this. Stops this module from getting really full
 
 
-async def getEverything(
-    database_table_name: str, select_name: list = None, **where_requirements
-):
+async def getEverything(database_table_name: str, select_name: list = None, **where_requirements):
     """
     Gets the complete rows or just the asked for value(s) from the given params. Params are not required
     This is a generator!
@@ -483,9 +475,7 @@ async def getEverything(
                 yield record
 
 
-async def getEverythingRow(
-    database_table_name: str, select_name: list = None, **where_requirements
-):
+async def getEverythingRow(database_table_name: str, select_name: list = None, **where_requirements):
     """
     Gets the complete row or just the asked for value(s) from the given params. Params are not required
     Returns only one row
@@ -609,9 +599,7 @@ async def get_d2_steam_player_info():
 # Persistent Messages
 
 
-async def insertPersistentMessage(
-    messageName, guildId, channelId, messageId, reactionsIdList
-):
+async def insertPersistentMessage(messageName, guildId, channelId, messageId, reactionsIdList):
     """Inserts a message mapping into the database, returns True if successful False otherwise"""
 
     insert_sql = """
@@ -621,14 +609,10 @@ async def insertPersistentMessage(
         VALUES 
             ($1, $2, $3, $4, $5);"""
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
-        await connection.execute(
-            insert_sql, messageName, guildId, channelId, messageId, reactionsIdList
-        )
+        await connection.execute(insert_sql, messageName, guildId, channelId, messageId, reactionsIdList)
 
 
-async def updatePersistentMessage(
-    messageName, guildId, channelId, messageId, reactionsIdList
-):
+async def updatePersistentMessage(messageName, guildId, channelId, messageId, reactionsIdList):
     """Updates a message mapping"""
 
     update_sql = f"""
@@ -642,9 +626,7 @@ async def updatePersistentMessage(
             messageName = $4 
             AND guildId = $5;"""
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
-        await connection.execute(
-            update_sql, channelId, messageId, reactionsIdList, messageName, guildId
-        )
+        await connection.execute(update_sql, channelId, messageId, reactionsIdList, messageName, guildId)
 
 
 async def get_persistent_message(message_name: str, guild_id: int) -> asyncpg.Record:
@@ -702,9 +684,7 @@ async def deleteEntries(connection, definition_name: str):
     await connection.execute(delete_sql)
 
 
-async def updateDestinyDefinition(
-    connection, definition_name: str, referenceId: int, **kwargs
-):
+async def updateDestinyDefinition(connection, definition_name: str, referenceId: int, **kwargs):
     """Insert Rows. Input vars depend on which definition is called"""
 
     insert_sql = f"""
@@ -982,9 +962,7 @@ async def deleteFailToGetPgcrInstanceId(instanceId):
 
 async def getClearCount(playerid, activityHashes: list = None, mode: int = None):
     """Gets the full-clearcount for player <playerid> of activity <activityHash>"""
-    assert not (
-        activityHashes and mode
-    ), "You can only specify either the mode or the hashes"
+    assert not (activityHashes and mode), "You can only specify either the mode or the hashes"
 
     select_sql = f"""
         SELECT 
@@ -1068,9 +1046,7 @@ async def get_info_on_low_man_activity(
         ON 
             (selectedActivites.instanceID = userLowmanCompletions.instanceID)"""
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
-        return await connection.fetch(
-            select_sql, *activity_hashes, destiny_id, player_count
-        )
+        return await connection.fetch(select_sql, *activity_hashes, destiny_id, player_count)
 
 
 ################################################################
@@ -1378,9 +1354,7 @@ async def getTopWeapons(
 # LFG System
 
 
-async def select_lfg_message(
-    lfg_id: int = 0, lfg_message_id: int = 0
-) -> asyncpg.Record:
+async def select_lfg_message(lfg_id: int = 0, lfg_message_id: int = 0) -> asyncpg.Record:
     """Gets the lfg message with the specified id.
     Returns (id, guild_id, channel_id, message_id, author_id, activity, description, start_time, max_joined_members, joined_members, alternate_members, voice_channel_id)"""
 
@@ -1661,9 +1635,7 @@ async def get_poll(poll_id: int = None, poll_message_id: int = None) -> asyncpg.
             {"id" if poll_id else "message_id"} = $1;
     """
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
-        await connection.set_type_codec(
-            "json", encoder=json.dumps, decoder=json.loads, schema="pg_catalog"
-        )
+        await connection.set_type_codec("json", encoder=json.dumps, decoder=json.loads, schema="pg_catalog")
         return await connection.fetchrow(select_sql, poll_id or poll_message_id)
 
 
@@ -1700,9 +1672,7 @@ async def insert_poll(
                     message_id = $8;
         """
         async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
-            await connection.set_type_codec(
-                "json", encoder=json.dumps, decoder=json.loads, schema="pg_catalog"
-            )
+            await connection.set_type_codec("json", encoder=json.dumps, decoder=json.loads, schema="pg_catalog")
             await connection.execute(
                 insert_sql,
                 poll_id,

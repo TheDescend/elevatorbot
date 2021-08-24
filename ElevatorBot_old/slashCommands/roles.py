@@ -139,13 +139,9 @@ class RoleCommands(commands.Cog):
                                 old_roles[topic] = [discord_role.mention]
 
         # construct reply msg
-        embed = embed_message(
-            f"{user.display_name}'s new Roles", f"__Previous Roles:__"
-        )
+        embed = embed_message(f"{user.display_name}'s new Roles", f"__Previous Roles:__")
         if not old_roles:
-            embed.add_field(
-                name=f"You didn't have any roles before", value="⁣", inline=True
-            )
+            embed.add_field(name=f"You didn't have any roles before", value="⁣", inline=True)
 
         for topic in old_roles:
             roles = []
@@ -155,9 +151,7 @@ class RoleCommands(commands.Cog):
 
         embed.add_field(name="⁣", value=f"__New Roles:__", inline=False)
         if not new_roles:
-            embed.add_field(
-                name="No new roles have been achieved", value="⁣", inline=True
-            )
+            embed.add_field(name="No new roles have been achieved", value="⁣", inline=True)
 
         for topic in new_roles:
             roles = []

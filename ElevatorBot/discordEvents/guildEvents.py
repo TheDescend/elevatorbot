@@ -13,9 +13,7 @@ async def on_guild_channel_create(channel: discord.abc.GuildChannel):
     pass
 
 
-async def on_guild_channel_update(
-    before: discord.abc.GuildChannel, after: discord.abc.GuildChannel
-):
+async def on_guild_channel_update(before: discord.abc.GuildChannel, after: discord.abc.GuildChannel):
     """ """
     # todo
     pass

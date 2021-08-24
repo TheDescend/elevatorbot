@@ -24,9 +24,7 @@ class ArmorStatsNotifier(BaseEvent):
 
     async def run(self, client):
         # check for the rolls mystic likes since everyone seems to want that
-        def these_are_the_rolls_mystic_likes(
-            class_types, item_definition, item_stats, stat_names
-        ):
+        def these_are_the_rolls_mystic_likes(class_types, item_definition, item_stats, stat_names):
             if (class_types[item_definition[3]] == "Hunter") and (
                 (
                     item_stats[stat_names["Mobility"]]["value"]
@@ -57,9 +55,7 @@ class ArmorStatsNotifier(BaseEvent):
             return False
 
         # send msg to user
-        async def message_user(
-            client, discordID, vendor_name, item_definition, stats, total_stats
-        ):
+        async def message_user(client, discordID, vendor_name, item_definition, stats, total_stats):
             embed = embed_message(
                 f"{vendor_name} is selling {item_definition[2]}",
                 f"**Class:** {class_types[item_definition[3]]}\n**Slot:** {(await getDestinyDefinition('DestinyInventoryBucketDefinition', item_definition[4]))[2]}\n**Total Stats:** {total_stats}",
@@ -211,9 +207,7 @@ class ArmorStatsNotifier(BaseEvent):
                             item_stats,
                             total_stats,
                         )
-                    elif these_are_the_rolls_mystic_likes(
-                        class_types, item_definition, item_stats, stat_names
-                    ):
+                    elif these_are_the_rolls_mystic_likes(class_types, item_definition, item_stats, stat_names):
                         await message_user(
                             client,
                             171371726444167168,
@@ -225,10 +219,7 @@ class ArmorStatsNotifier(BaseEvent):
 
                     # red
                     if (class_types[item_definition[3]] == "Titan") and (
-                        (
-                            item_stats[stat_names["Recovery"]]["value"]
-                            + item_stats[stat_names["Resilience"]]["value"]
-                        )
+                        (item_stats[stat_names["Recovery"]]["value"] + item_stats[stat_names["Resilience"]]["value"])
                         > 29
                     ):
                         await message_user(
@@ -353,9 +344,7 @@ class ArmorStatsNotifier(BaseEvent):
                             item_stats,
                             total_stats,
                         )
-                    elif these_are_the_rolls_mystic_likes(
-                        class_types, item_definition, item_stats, stat_names
-                    ):
+                    elif these_are_the_rolls_mystic_likes(class_types, item_definition, item_stats, stat_names):
                         await message_user(
                             client,
                             286616836844290049,
@@ -366,9 +355,7 @@ class ArmorStatsNotifier(BaseEvent):
                         )
 
                     # exiled
-                    if these_are_the_rolls_mystic_likes(
-                        class_types, item_definition, item_stats, stat_names
-                    ):
+                    if these_are_the_rolls_mystic_likes(class_types, item_definition, item_stats, stat_names):
                         await message_user(
                             client,
                             206878830017773568,
@@ -424,14 +411,10 @@ class GunsmithBountiesNotifier(BaseEvent):
 
                 # jayce
                 if sales["itemHash"] == 179977568:
-                    await gunsmith_msg(
-                        client, 672853590465052692, "Grasp of the Warmind"
-                    )
+                    await gunsmith_msg(client, 672853590465052692, "Grasp of the Warmind")
 
                 # ini
                 if sales["itemHash"] == 2216063960:
-                    await gunsmith_msg(
-                        client, 171371726444167168, "Rage of the Warmind"
-                    )
+                    await gunsmith_msg(client, 171371726444167168, "Rage of the Warmind")
 
         print("Done with gunsmith bounty checks")

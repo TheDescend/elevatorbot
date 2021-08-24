@@ -16,18 +16,16 @@ async def getUserMaterials(destinyID):
     res = await get_json_from_bungie_with_token(url, await lookupDiscordID(destinyID))
     if not res.success:
         return res.error
-    materialdict = list(
-        res.content["Response"]["characterCurrencyLookups"]["data"].values()
-    )[0]["itemQuantities"]
+    materialdict = list(res.content["Response"]["characterCurrencyLookups"]["data"].values())[0]["itemQuantities"]
     return materialdict
 
 
 async def getRasputinQuestProgress():
     haliUrl = "https://stats.bungie.net/Platform/Destiny2/3/Profile/4611686018468695677/?components=301"
     res = await get_json_from_bungie_with_token(haliUrl, 171650677607497730)
-    rasputinobjectives = res.content["Response"]["characterUninstancedItemComponents"][
-        "2305843009410156755"
-    ]["objectives"]["data"]["1797229574"]["objectives"]
+    rasputinobjectives = res.content["Response"]["characterUninstancedItemComponents"]["2305843009410156755"][
+        "objectives"
+    ]["data"]["1797229574"]["objectives"]
     obHashes = {1851115127: "EDZ", 1851115126: "Moon", 1851115125: "Io"}
     return [
         (
@@ -58,9 +56,7 @@ async def getSpiderMaterials(discordID, destinyID, characterID):
     usermaterialreadabledict = {}
 
     for key, value in usermaterialdict.items():
-        if keylookup := await getDestinyDefinition(
-            "DestinyInventoryItemDefinition", key
-        ):
+        if keylookup := await getDestinyDefinition("DestinyInventoryItemDefinition", key):
             (_, _, materialname, *_) = keylookup
         else:
             materialname = "Unknown"
@@ -85,12 +81,8 @@ async def getSpiderMaterials(discordID, destinyID, characterID):
         ownedamount = 0
 
         # requests to identify the items TODO save manuscript locally and look them up there?
-        (_, _, soldname, *_) = await getDestinyDefinition(
-            "DestinyInventoryItemDefinition", soldhash
-        )
-        (_, _, pricename, *_) = await getDestinyDefinition(
-            "DestinyInventoryItemDefinition", int(pricehash)
-        )
+        (_, _, soldname, *_) = await getDestinyDefinition("DestinyInventoryItemDefinition", soldhash)
+        (_, _, pricename, *_) = await getDestinyDefinition("DestinyInventoryItemDefinition", int(pricehash))
         if soldname not in usermaterialreadabledict.keys():
             if "Purchase " in soldname:
                 isPlural = (
@@ -101,15 +93,11 @@ async def getSpiderMaterials(discordID, destinyID, characterID):
                 soldname = soldname[len("Purchase ") : len(soldname) - isPlural]
                 # e.g. Purchase Enhancement Prisms
             else:
-                print(
-                    f"getSpiderMaterials:{getframeinfo(currentframe()).lineno} Could not find {soldname}"
-                )
+                print(f"getSpiderMaterials:{getframeinfo(currentframe()).lineno} Could not find {soldname}")
                 continue
         if soldname == "Datalattice":
             soldname = "Microphasic Datalattice"
-        ownedamount = usermaterialreadabledict.get(
-            soldname, -1
-        )  # find value, otherwise use name
+        ownedamount = usermaterialreadabledict.get(soldname, -1)  # find value, otherwise use name
 
         def replaceWithEmote(name):
             replacedict = {

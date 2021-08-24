@@ -22,9 +22,7 @@ class GetMemberCount(BaseEvent):
                 continue
 
             # _update the name - font is "math sans" from "https://qaz.wtf/u/convert.cgi"
-            await channel.edit(
-                name=f"𝖬𝖾𝗆𝖻𝖾𝗋𝗌｜{guild.member_count}", reason="Member Count Update"
-            )
+            await channel.edit(name=f"𝖬𝖾𝗆𝖻𝖾𝗋𝗌｜{guild.member_count}", reason="Member Count Update")
 
 
 class GetBoosterCount(BaseEvent):

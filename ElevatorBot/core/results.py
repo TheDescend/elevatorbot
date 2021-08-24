@@ -16,9 +16,7 @@ class BackendResult:
     result: Optional[dict]
     error: Optional[str]
 
-    __error_message: str = dataclasses.field(
-        default=None, init=False, repr=False, compare=False
-    )
+    __error_message: str = dataclasses.field(default=None, init=False, repr=False, compare=False)
 
     def __bool__(self):
         return self.success

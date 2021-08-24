@@ -25,9 +25,7 @@ class LfgBlacklist(Cog):
                     create_choice(name="Un-Blacklist", value="Un-Blacklist"),
                 ],
             ),
-            get_user_option(
-                description="The user you want to add / _delete", required=True
-            ),
+            get_user_option(description="The user you want to add / _delete", required=True),
         ],
     )
     async def _blacklist(self, ctx: SlashContext, action, user):

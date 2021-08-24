@@ -412,9 +412,7 @@ class DestinyPlayer:
     #
     #     return self._gear
 
-    async def get_weapon_stats(
-        self, weapon_ids: list[int], character_id: int = None, mode: int = 0
-    ) -> tuple[int, int]:
+    async def get_weapon_stats(self, weapon_ids: list[int], character_id: int = None, mode: int = 0) -> tuple[int, int]:
         """Returns kills, precision_kills for that weapon in the specified mode"""
 
         # get the info from the DB
@@ -430,11 +428,7 @@ class DestinyPlayer:
                     )
                 )
             else:
-                results.extend(
-                    await getWeaponInfo(
-                        membershipID=self.destiny_id, weaponID=weapon_id, mode=mode
-                    )
-                )
+                results.extend(await getWeaponInfo(membershipID=self.destiny_id, weaponID=weapon_id, mode=mode))
 
         # add stats
         kills = 0
@@ -623,12 +617,7 @@ class DestinyPlayer:
             gather_instance_ids: list[int],
             gather_activity_times: list[datetime.datetime],
         ) -> None:
-            results = await asyncio.gather(
-                *[
-                    handle(i, t)
-                    for i, t in zip(gather_instance_ids, gather_activity_times)
-                ]
-            )
+            results = await asyncio.gather(*[handle(i, t) for i, t in zip(gather_instance_ids, gather_activity_times)])
 
             for result in results:
                 if result:
@@ -661,9 +650,7 @@ class DestinyPlayer:
                 break
 
             instance_id = activity["activityDetails"]["instanceId"]
-            activity_time = datetime.datetime.strptime(
-                activity["period"], "%Y-%m-%dT%H:%M:%SZ"
-            )
+            activity_time = datetime.datetime.strptime(activity["period"], "%Y-%m-%dT%H:%M:%SZ")
 
             # _update with newest entry timestamp
             if activity_time > entry_time:

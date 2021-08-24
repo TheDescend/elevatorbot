@@ -22,15 +22,9 @@ class ToSCommands(commands.Cog):
                         name="Youtube Together",
                         value="Youtube Together|755600276941176913",
                     ),
-                    create_choice(
-                        name="Betrayal.io", value="Betrayal.io|773336526917861400"
-                    ),
-                    create_choice(
-                        name="Fishingtron.io", value="Fishingtron.io|814288819477020702"
-                    ),
-                    create_choice(
-                        name="Poker Night", value="Poker Night|755827207812677713"
-                    ),
+                    create_choice(name="Betrayal.io", value="Betrayal.io|773336526917861400"),
+                    create_choice(name="Fishingtron.io", value="Fishingtron.io|814288819477020702"),
+                    create_choice(name="Poker Night", value="Poker Night|755827207812677713"),
                     create_choice(
                         name="Chess in the Park",
                         value="Chess in the Park|832012815819604009",

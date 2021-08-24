@@ -27,9 +27,7 @@ class RssFeedChecker(BaseEvent):
             if not await rss_item_exist(item["id"]):
                 # send message
                 for guild in client.guilds:
-                    rss_channel = await get_persistent_message_or_channel(
-                        client, "rss", guild.id
-                    )
+                    rss_channel = await get_persistent_message_or_channel(client, "rss", guild.id)
                     if rss_channel:
                         await rss_channel.send(item["link"])
 
@@ -37,6 +35,4 @@ class RssFeedChecker(BaseEvent):
                 await rss_item_add(item["id"])
 
         # _update the status
-        await bot_status(
-            client, "RSS Feed Check", datetime.datetime.now(tz=datetime.timezone.utc)
-        )
+        await bot_status(client, "RSS Feed Check", datetime.datetime.now(tz=datetime.timezone.utc))

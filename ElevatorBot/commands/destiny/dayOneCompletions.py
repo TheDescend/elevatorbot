@@ -18,13 +18,9 @@ class DayOneCompletions(Cog):
                 required=True,
                 choices=[
                     create_choice(name="Last Wish", value="Last Wish"),
-                    create_choice(
-                        name="Scourge of the Past", value="Scourge of the Past"
-                    ),
+                    create_choice(name="Scourge of the Past", value="Scourge of the Past"),
                     create_choice(name="Crown of Sorrows", value="Crown of Sorrows"),
-                    create_choice(
-                        name="Garden of Salvation", value="Garden of Salvation"
-                    ),
+                    create_choice(name="Garden of Salvation", value="Garden of Salvation"),
                     create_choice(name="Deep Stone Crypt", value="Deep Stone Crypt"),
                     create_choice(name="Vault of Glass", value="Vault of Glass"),
                 ],

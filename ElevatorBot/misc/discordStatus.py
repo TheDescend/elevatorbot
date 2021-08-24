@@ -5,7 +5,7 @@ import discord
 
 
 async def update_status(client: discord.Client):
-    """ Update the Bot's status in an endless loop """
+    """Update the Bot's status in an endless loop"""
 
     status_messages = [
         "Type '/' to see available commands",

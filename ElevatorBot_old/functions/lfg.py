@@ -88,12 +88,8 @@ class LfgMessage:
         ctx: ComponentContext = None,
         force_into_joined: bool = False,
     ) -> bool:
-        if (member not in self.joined_members) and (
-            member.id not in self.blacklisted_members
-        ):
-            if (
-                len(self.joined_members) < self.max_joined_members
-            ) or force_into_joined:
+        if (member not in self.joined_members) and (member.id not in self.blacklisted_members):
+            if (len(self.joined_members) < self.max_joined_members) or force_into_joined:
                 self.joined_members.append(member)
                 if member in self.alternate_members:
                     self.alternate_members.remove(member)
@@ -108,12 +104,8 @@ class LfgMessage:
         return False
 
     # add a backup or move member to backup
-    async def add_backup(
-        self, member: discord.Member, ctx: ComponentContext = None
-    ) -> bool:
-        if (member not in self.alternate_members) and (
-            member.id not in self.blacklisted_members
-        ):
+    async def add_backup(self, member: discord.Member, ctx: ComponentContext = None) -> bool:
+        if (member not in self.alternate_members) and (member.id not in self.blacklisted_members):
             self.alternate_members.append(member)
 
             if member in self.joined_members:
@@ -124,9 +116,7 @@ class LfgMessage:
         return False
 
     # _delete a member
-    async def remove_member(
-        self, member: discord.Member, ctx: ComponentContext = None
-    ) -> bool:
+    async def remove_member(self, member: discord.Member, ctx: ComponentContext = None) -> bool:
         if member in self.joined_members:
             self.joined_members.remove(member)
 
@@ -145,9 +135,7 @@ class LfgMessage:
         voice_text = "Please start gathering in a voice channel"
 
         # get the voice channel category and make a voice channel
-        voice_category_channel = await get_persistent_message_or_channel(
-            self.client, "lfgVoiceCategory", self.guild.id
-        )
+        voice_category_channel = await get_persistent_message_or_channel(self.client, "lfgVoiceCategory", self.guild.id)
         if voice_category_channel:
             voice_channel_name = f"[ID: {self.id}] {self.activity}"
 
@@ -182,9 +170,7 @@ class LfgMessage:
             )
 
             # make fancy text
-            voice_text = (
-                f"Click here to join the voice channel -> {self.voice_channel.mention}"
-            )
+            voice_text = f"Click here to join the voice channel -> {self.voice_channel.mention}"
 
         # prepare embed
         embed = embed_message(
@@ -244,13 +230,9 @@ class LfgMessage:
         sorted_creation_times_by_creation_time = []
         lfg_messages = []
         for r in results:
-            sorted_messages_by_creation_time.append(
-                await self.channel.fetch_message(r["message_id"])
-            )
+            sorted_messages_by_creation_time.append(await self.channel.fetch_message(r["message_id"]))
             sorted_creation_times_by_creation_time.append(r["creation_time"])
-            lfg_messages.append(
-                await get_lfg_message(self.client, lfg_id=r["id"], guild=self.guild)
-            )
+            lfg_messages.append(await get_lfg_message(self.client, lfg_id=r["id"], guild=self.guild))
 
         # sort the LfgMessages by their start_time
         sorted_lfg_messages = sorted(lfg_messages, reverse=True)
@@ -302,9 +284,7 @@ class LfgMessage:
         )
         embed.add_field(
             name=f"Guardians Joined ({len(self.joined_members)}/{self.max_joined_members})",
-            value=", ".join(self.get_joined_members_display_names())
-            if self.joined_members
-            else "_Empty Space :(_",
+            value=", ".join(self.get_joined_members_display_names()) if self.joined_members else "_Empty Space :(_",
             inline=True,
         )
         if self.alternate_members:
@@ -324,15 +304,9 @@ class LfgMessage:
     def return_buttons() -> list:
         return [
             manage_components.create_actionrow(
-                manage_components.create_button(
-                    custom_id="lfg_join", style=ButtonStyle.green, label="Join"
-                ),
-                manage_components.create_button(
-                    custom_id="lfg_leave", style=ButtonStyle.red, label="Leave"
-                ),
-                manage_components.create_button(
-                    custom_id="lfg_backup", style=ButtonStyle.blue, label="Backup"
-                ),
+                manage_components.create_button(custom_id="lfg_join", style=ButtonStyle.green, label="Join"),
+                manage_components.create_button(custom_id="lfg_leave", style=ButtonStyle.red, label="Leave"),
+                manage_components.create_button(custom_id="lfg_backup", style=ButtonStyle.blue, label="Backup"),
             ),
         ]
 
@@ -443,9 +417,7 @@ async def get_lfg_message(
         if ctx:
             await ctx.send(
                 hidden=True,
-                embed=embed_message(
-                    "Error", f"ID `{lfg_id}` does not exist. Please try again"
-                ),
+                embed=embed_message("Error", f"ID `{lfg_id}` does not exist. Please try again"),
             )
         return None
 
@@ -466,9 +438,7 @@ async def get_lfg_message(
             return None
 
         # check that the author matches or user has elevated permissions
-        if (ctx.author != author) and (
-            not await has_elevated_permissions(ctx.author, ctx.guild)
-        ):
+        if (ctx.author != author) and (not await has_elevated_permissions(ctx.author, ctx.guild)):
             await ctx.send(
                 hidden=True,
                 embed=embed_message(
@@ -484,18 +454,14 @@ async def get_lfg_message(
         message = await channel.fetch_message(res["message_id"]) if channel else None
     except discord.NotFound:
         message = None
-    voice_channel = (
-        guild.get_channel(res["voice_channel_id"]) if res["voice_channel_id"] else None
-    )
+    voice_channel = guild.get_channel(res["voice_channel_id"]) if res["voice_channel_id"] else None
     activity = res["activity"]
     description = res["description"]
     start_time = res["start_time"]
     creation_time = res["creation_time"]
     max_joined_members = res["max_joined_members"]
     joined_members = [guild.get_member(member) for member in res["joined_members"]]
-    alternate_members = [
-        guild.get_member(member) for member in res["alternate_members"]
-    ]
+    alternate_members = [guild.get_member(member) for member in res["alternate_members"]]
     blacklisted_members = await get_lfg_blacklisted_members(author.id)
 
     # _insert LfgMessage object

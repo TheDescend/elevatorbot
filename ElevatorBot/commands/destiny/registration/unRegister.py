@@ -20,9 +20,7 @@ class UnRegister(Cog):
     ):
         """Unlink your Destiny 2 account from ElevatorBot"""
 
-        destiny_profile = DestinyProfile(
-            client=ctx.bot, discord_member=ctx.author, discord_guild=ctx.guild
-        )
+        destiny_profile = DestinyProfile(client=ctx.bot, discord_member=ctx.author, discord_guild=ctx.guild)
         result = await destiny_profile.delete()
 
         if not result:

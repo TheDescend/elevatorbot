@@ -22,15 +22,11 @@ class DestinyProfile(BaseBackendConnection):
     discord_member: discord.Member
     discord_guild: discord.Guild
 
-    async def from_destiny_id(
-        self, destiny_id: int
-    ) -> Union[DestinyData, BackendResult]:
+    async def from_destiny_id(self, destiny_id: int) -> Union[DestinyData, BackendResult]:
         """Get the destiny profile with a destiny_id"""
 
         # query the backend
-        result = await self._backend_get(
-            destiny_profile_from_destiny_id_route.format(destiny_id=destiny_id)
-        )
+        result = await self._backend_get(destiny_profile_from_destiny_id_route.format(destiny_id=destiny_id))
 
         # check if that id exists
         if not result:
@@ -58,9 +54,7 @@ class DestinyProfile(BaseBackendConnection):
 
         # query the backend
         result = await self._backend_get(
-            destiny_profile_from_discord_id_route.format(
-                discord_id=self.discord_member.id
-            )
+            destiny_profile_from_discord_id_route.format(discord_id=self.discord_member.id)
         )
 
         # check if that id exists

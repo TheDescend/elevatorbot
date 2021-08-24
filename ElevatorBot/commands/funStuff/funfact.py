@@ -9,9 +9,7 @@ class FunFact(Cog):
     def __init__(self, client):
         self.client = client
 
-    @cog_ext.cog_slash(
-        name="funfact", description="Very fun fun facts just for the funny fun of it"
-    )
+    @cog_ext.cog_slash(name="funfact", description="Very fun fun facts just for the funny fun of it")
     async def _fun_fact(self, ctx: SlashContext):
         """Very fun fun facts just for the funny fun of it"""
 
@@ -24,9 +22,7 @@ class FunFact(Cog):
                 else:
                     text = "Offline servers make it difficult to get fun facts :("
 
-                await ctx.send(
-                    embed=embed_message("Did you know?", text.replace("`", "'"))
-                )
+                await ctx.send(embed=embed_message("Did you know?", text.replace("`", "'")))
 
 
 def setup(client):

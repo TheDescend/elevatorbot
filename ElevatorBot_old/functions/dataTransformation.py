@@ -33,20 +33,14 @@ async def getSeasonalChallengeInfo():
 
     # get categories
     seasonal_challenges = {}
-    r1 = await getEverythingRow(
-        "DestinyPresentationNodeDefinition", referenceId=seasonalChallengesCategoryHash
-    )
+    r1 = await getEverythingRow("DestinyPresentationNodeDefinition", referenceId=seasonalChallengesCategoryHash)
     # loop through those categories and use the "Weekly" one
     for category_hash1 in r1["childrenpresentationnodehash"]:
-        async for r2 in getEverything(
-            "DestinyPresentationNodeDefinition", referenceId=category_hash1
-        ):
+        async for r2 in getEverything("DestinyPresentationNodeDefinition", referenceId=category_hash1):
             if r2["name"] == "Weekly":
                 # get the info for those hashes = {name: [hash]}
                 for category_hash2 in r2["childrenpresentationnodehash"]:
-                    r3 = await getEverythingRow(
-                        "DestinyPresentationNodeDefinition", referenceId=category_hash2
-                    )
+                    r3 = await getEverythingRow("DestinyPresentationNodeDefinition", referenceId=category_hash2)
                     referenceIDs = r3["childrenrecordhash"]
                     seasonal_challenges[r3["name"]] = []
 

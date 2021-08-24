@@ -25,9 +25,7 @@ class RegistrationCommands(commands.Cog):
 
         await ctx.send(
             hidden=True,
-            embed=embed_message(
-                f"Thanks for Registering", f"I sent you a DM with the next steps!"
-            ),
+            embed=embed_message(f"Thanks for Registering", f"I sent you a DM with the next steps!"),
         )
 
         await elevatorRegistration(ctx.author)
@@ -43,9 +41,7 @@ class RegistrationCommands(commands.Cog):
             return
 
         await removeUser(user.id)
-        await ctx.send(
-            hidden=True, embed=embed_message(f"Sucess", f"Removed {user.display_name}")
-        )
+        await ctx.send(hidden=True, embed=embed_message(f"Sucess", f"Removed {user.display_name}"))
 
     # todo can we add a good permission sysstem here too?
     @cog_ext.cog_subcommand(
@@ -108,9 +104,7 @@ class RegistrationCommands(commands.Cog):
         await steamJoinCodeMessage(self.client, ctx.guild)
 
         # react to show that it is done
-        await ctx.send(
-            hidden=True, embed=embed_message(f"Success", f"I've done as you asked")
-        )
+        await ctx.send(hidden=True, embed=embed_message(f"Success", f"I've done as you asked"))
 
 
 def setup(client):

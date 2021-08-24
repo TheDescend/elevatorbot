@@ -15,18 +15,14 @@ async def respond_discord_member_unknown(
             hidden=hidden,
             embed=embed_message(
                 "Error",
-                error_codes_and_responses["DiscordIdNotFound"].format(
-                    discord_member=discord_member
-                ),
+                error_codes_and_responses["DiscordIdNotFound"].format(discord_member=discord_member),
             ),
         )
         return True
     return False
 
 
-async def respond_destiny_id_unknown(
-    ctx: SlashContext, destiny_id: int, hidden: bool = True
-) -> bool:
+async def respond_destiny_id_unknown(ctx: SlashContext, destiny_id: int, hidden: bool = True) -> bool:
     """Respond to the given context"""
 
     if not ctx.responded:
@@ -34,9 +30,7 @@ async def respond_destiny_id_unknown(
             hidden=hidden,
             embed=embed_message(
                 "Error",
-                error_codes_and_responses["DestinyIdNotFound"].format(
-                    destiny_id=destiny_id
-                ),
+                error_codes_and_responses["DestinyIdNotFound"].format(destiny_id=destiny_id),
             ),
         )
         return True

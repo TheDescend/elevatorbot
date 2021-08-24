@@ -105,9 +105,7 @@ def root():
         primarymembership = membership
 
     if not primarymembership:
-        print(
-            f"no primary membership found for {display_name} aka {discordID} in server {serverID}"
-        )
+        print(f"no primary membership found for {display_name} aka {discordID} in server {serverID}")
 
     destinyID = int(primarymembership["membershipId"])
     systemID = int(primarymembership["membershipType"])

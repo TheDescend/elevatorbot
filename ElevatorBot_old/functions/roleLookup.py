@@ -37,23 +37,15 @@ async def has_role(
             creq = role_data["clears"]
             i = 1
             for raid in creq:
-                actualclears = await getClearCount(
-                    destiny_player.destiny_id, raid["actHashes"]
-                )
+                actualclears = await getClearCount(destiny_player.destiny_id, raid["actHashes"])
                 if not actualclears >= raid["count"]:
                     worthy = False
 
-                data["Clears #" + str(i)] = (
-                    str(actualclears) + " / " + str(raid["count"])
-                )
+                data["Clears #" + str(i)] = str(actualclears) + " / " + str(raid["count"])
                 i += 1
 
         elif req == "flawless":
-            has_fla = bool(
-                await getFlawlessHashes(
-                    destiny_player.destiny_id, role_data["flawless"]
-                )
-            )
+            has_fla = bool(await getFlawlessHashes(destiny_player.destiny_id, role_data["flawless"]))
             worthy &= has_fla
 
             data["Flawless"] = bool(has_fla)
@@ -74,14 +66,10 @@ async def has_role(
                     # get name of collectible
                     # str conversion required because dictionary is indexed on strings, not postiions
                     coll_def_start = time.monotonic()
-                    (_, _, name, *_) = await getDestinyDefinition(
-                        "DestinyCollectibleDefinition", collectibleHash
-                    )
+                    (_, _, name, *_) = await getDestinyDefinition("DestinyCollectibleDefinition", collectibleHash)
                     coll_def_end = time.monotonic()
                     if (diff := coll_def_end - coll_def_start) > 1:
-                        print(
-                            f"getDestinyDefinition in collectibles took {diff} seconds"
-                        )
+                        print(f"getDestinyDefinition in collectibles took {diff} seconds")
                     data[name] = bool(has_col)
 
         elif req == "records":
@@ -94,21 +82,14 @@ async def has_role(
 
                 if not return_as_bool:
                     # get name of triumph
-                    (_, _, name, *_) = await getDestinyDefinition(
-                        "DestinyRecordDefinition", recordHash
-                    )
+                    (_, _, name, *_) = await getDestinyDefinition("DestinyRecordDefinition", recordHash)
                     data[name] = bool(has_tri)
 
         elif req == "lowman":
             start_lowman_reqs = time.monotonic()
             denies = sum([1 if "denyTime" in key else 0 for key in role_data.keys()])
-            timeParse = lambda i, spec: datetime.strptime(
-                role_data[f"denyTime{i}"][spec], "%d/%m/%Y %H:%M"
-            )
-            disallowed = [
-                (timeParse(i, "startTime"), timeParse(i, "endTime"))
-                for i in range(denies)
-            ]
+            timeParse = lambda i, spec: datetime.strptime(role_data[f"denyTime{i}"][spec], "%d/%m/%Y %H:%M")
+            disallowed = [(timeParse(i, "startTime"), timeParse(i, "endTime")) for i in range(denies)]
             end_lowman_reqs = time.monotonic()
             if (diff := end_lowman_reqs - start_lowman_reqs) > 1:
                 print(f"Lowman Requirements took {diff} seconds for disallowed times")
@@ -123,24 +104,18 @@ async def has_role(
             )
             worthy &= has_low
 
-            data["Lowman (" + str(role_data["playercount"]) + " Players)"] = bool(
-                has_low
-            )
+            data["Lowman (" + str(role_data["playercount"]) + " Players)"] = bool(has_low)
             end_lowman_read = time.monotonic()
             if (diff := end_lowman_read - start_lowman_read) > 1:
                 print(f"Lowman Read took {diff} seconds for hasLowman")
         elif req == "roles":
             for required_role in role_data["roles"]:
-                required_role_discord = discord.utils.get(
-                    role.guild.roles, name=required_role
-                )
+                required_role_discord = discord.utils.get(role.guild.roles, name=required_role)
                 if not required_role_discord:
                     req_worthy = False
                     req_data = {}
                 else:
-                    req_worthy, req_data = await has_role(
-                        destiny_player, required_role_discord, return_as_bool=False
-                    )
+                    req_worthy, req_data = await has_role(destiny_player, required_role_discord, return_as_bool=False)
 
                 # only worthy if worthy for all required roles
                 worthy &= req_worthy
@@ -153,13 +128,8 @@ async def has_role(
                         old_i = i
                         while True:
                             i += 1
-                            if (
-                                f"Clears #{i}" not in req_data
-                                and f"Clears #{i}" not in data
-                            ):
-                                req_data[f"Clears #{i}"] = req_data.pop(
-                                    f"Clears #{old_i}"
-                                )
+                            if f"Clears #{i}" not in req_data and f"Clears #{i}" not in data:
+                                req_data[f"Clears #{i}"] = req_data.pop(f"Clears #{old_i}")
                                 break
                     else:
                         break
@@ -180,9 +150,7 @@ async def get_player_roles(
     member: discord.Member,
     destiny_player: DestinyPlayer,
     role_names_to_ignore: list[str] = None,
-) -> tuple[
-    list[discord.Role], list[discord.Role], list[discord.Role], list[discord.Role]
-]:
+) -> tuple[list[discord.Role], list[discord.Role], list[discord.Role], list[discord.Role]]:
     """Returns destiny achievement roles for the player
 
     Returns:
@@ -203,9 +171,7 @@ async def get_player_roles(
             for role, role_data in year_data.items():
                 if role in role_names_to_ignore or (
                     "replaced_by" in role_data.keys()
-                    and any(
-                        [x in role_names_to_ignore for x in role_data["replaced_by"]]
-                    )
+                    and any([x in role_names_to_ignore for x in role_data["replaced_by"]])
                 ):
                     roles_to_check.remove(role)
     else:
@@ -220,21 +186,13 @@ async def get_player_roles(
 
     # check worthiness in parallel
     starttime = time.time()
-    result = await asyncio.gather(
-        *[has_role(destiny_player, role) for role in discord_roles_to_check]
-    )
+    result = await asyncio.gather(*[has_role(destiny_player, role) for role in discord_roles_to_check])
 
     endtime = time.time() - starttime
-    print(
-        f"Took {endtime} seconds to gather has_roles() for destinyID {destiny_player.destiny_id}"
-    )
+    print(f"Took {endtime} seconds to gather has_roles() for destinyID {destiny_player.destiny_id}")
 
     all_roles_earned = [
-        discord_role
-        for (discord_role, (isworthy, worthydetails)) in zip(
-            discord_roles_to_check, result
-        )
-        if isworthy
+        discord_role for (discord_role, (isworthy, worthydetails)) in zip(discord_roles_to_check, result) if isworthy
     ]
 
     roles_to_add = all_roles_earned.copy()
@@ -247,9 +205,7 @@ async def get_player_roles(
     divider_role = member.guild.get_role(divider_legacy_role_id)
     for year_data in requirementHashes.values():
         for role_name, role_data in year_data.items():
-            if (role_name not in earned_roles) and (
-                role_name not in role_names_to_ignore
-            ):
+            if (role_name not in earned_roles) and (role_name not in role_names_to_ignore):
                 all_roles_not_earned_name.append(role_name)
 
                 # check if member has the role currently
@@ -288,9 +244,7 @@ async def get_player_roles(
     for role_name in role_names_to_ignore:
         if role_name in requirement_hashes_without_years:
             if role_name in current_discord_roles:
-                all_roles_earned.append(
-                    discord.utils.get(member.guild.roles, name=role_name)
-                )
+                all_roles_earned.append(discord.utils.get(member.guild.roles, name=role_name))
             else:
                 all_roles_not_earned_name.append(role_name)
 

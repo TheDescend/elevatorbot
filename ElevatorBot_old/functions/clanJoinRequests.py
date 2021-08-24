@@ -19,11 +19,9 @@ async def on_clan_join_request(ctx: ComponentContext):
     destinyID = await lookupDestinyID(ctx.author.id)
 
     # abort if user already is in clan
-    for member in (
-        await get_json_from_url(
-            f"https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/"
-        )
-    ).content["Response"]["results"]:
+    for member in (await get_json_from_url(f"https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/")).content[
+        "Response"
+    ]["results"]:
         memberID = int(member["destinyUserInfo"]["membershipId"])
         if memberID == destinyID:
             print(f"{ctx.author.display_name} tried to join the clan while being in it")
@@ -37,9 +35,7 @@ async def on_clan_join_request(ctx: ComponentContext):
     if not await checkIfUserIsRegistered(ctx.author):
         await ctx.send(
             hidden=True,
-            embed=embed_message(
-                "Clan Application", "Please `/registerdesc` and then try again"
-            ),
+            embed=embed_message("Clan Application", "Please `/registerdesc` and then try again"),
         )
         return
 
@@ -47,18 +43,14 @@ async def on_clan_join_request(ctx: ComponentContext):
     if ctx.author.pending:
         await ctx.send(
             hidden=True,
-            embed=embed_message(
-                "Clan Application", "Please accept the rules and then try again"
-            ),
+            embed=embed_message("Clan Application", "Please accept the rules and then try again"),
         )
         return
 
     # abort if user doesn't fulfill requirements
     req = await checkRequirements(ctx.author.id)
     if req:
-        embed = embed_message(
-            "Clan Application", "Sorry, you don't fulfill the needed requirements"
-        )
+        embed = embed_message("Clan Application", "Sorry, you don't fulfill the needed requirements")
         for name, value in req.items():
             embed.add_field(name=name, value=value, inline=True)
 
@@ -97,11 +89,9 @@ async def removeFromClanAfterLeftDiscord(client, member):
     # check if user was in clan
     destinyID = await lookupDestinyID(member.id)
     found = False
-    for clan_member in (
-        await get_json_from_url(
-            f"https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/"
-        )
-    ).content["Response"]["results"]:
+    for clan_member in (await get_json_from_url(f"https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/")).content[
+        "Response"
+    ]["results"]:
         clan_memberID = int(clan_member["destinyUserInfo"]["membershipId"])
         if clan_memberID == destinyID:
             found = True
@@ -162,9 +152,7 @@ async def elevatorRegistration(user: discord.Member):
 
     components = [
         manage_components.create_actionrow(
-            manage_components.create_button(
-                style=ButtonStyle.URL, label=f"Registration Link", url=URL
-            ),
+            manage_components.create_button(style=ButtonStyle.URL, label=f"Registration Link", url=URL),
         ),
     ]
 

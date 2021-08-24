@@ -50,9 +50,7 @@ class Day1Race(commands.Cog):
         self.activity_hashes = [1485585878, 3711931140, 3881495763]
         self.emblem_collectible_hash = 2172413746
         start = datetime.datetime(2021, 5, 22, 17, 0, tzinfo=datetime.timezone.utc)
-        cutoff_time = datetime.datetime(
-            2021, 5, 23, 17, 0, tzinfo=datetime.timezone.utc
-        )
+        cutoff_time = datetime.datetime(2021, 5, 23, 17, 0, tzinfo=datetime.timezone.utc)
         image_url = "https://static.wikia.nocookie.net/destinypedia/images/6/62/Vault.jpg/revision/latest/scale-to-width-down/1000?cb=20150330170833"
         raid_name = "Vault of Glass"
         location_name = "Ishtar Sink, Venus"
@@ -76,9 +74,7 @@ class Day1Race(commands.Cog):
             self.finished_encounters_blueprint[encounter] = 0
 
         self.clan_members = (
-            await get_json_from_url(
-                f"https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/"
-            )
+            await get_json_from_url(f"https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/")
         ).content["Response"]["results"]
 
         try:
@@ -91,9 +87,7 @@ class Day1Race(commands.Cog):
             self.finished_encounters = {}
             for member in self.clan_members:
                 destinyID = int(member["destinyUserInfo"]["membershipId"])
-                self.finished_encounters[destinyID] = copy.deepcopy(
-                    self.finished_encounters_blueprint
-                )
+                self.finished_encounters[destinyID] = copy.deepcopy(self.finished_encounters_blueprint)
 
         # loop until raid race is done
         now = datetime.datetime.now(datetime.timezone.utc)
@@ -101,9 +95,7 @@ class Day1Race(commands.Cog):
             # gets all online users. Returns list with tuples (name, destinyID)
             online = []
             for member in (
-                await get_json_from_url(
-                    f"https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/"
-                )
+                await get_json_from_url(f"https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/")
             ).content["Response"]["results"]:
                 if member["isOnline"]:
                     online.append(
@@ -114,9 +106,7 @@ class Day1Race(commands.Cog):
                     )
 
             # loops through all online users
-            result = await asyncio.gather(
-                *[self.look_for_completion(member, channel) for member in online]
-            )
+            result = await asyncio.gather(*[self.look_for_completion(member, channel) for member in online])
             for res in result:
                 if res is not None:
                     # check if all encounters are complete and if so save that
@@ -158,9 +148,7 @@ class Day1Race(commands.Cog):
                 deaths = 0
                 try:
                     async for activity in destiny_player.get_activity_history(mode=4):
-                        period = datetime.datetime.strptime(
-                            activity["period"], "%Y-%m-%dT%H:%M:%SZ"
-                        )
+                        period = datetime.datetime.strptime(activity["period"], "%Y-%m-%dT%H:%M:%SZ")
                         tz_period = pytz.utc.localize(period)
 
                         if tz_period < start:
@@ -168,13 +156,8 @@ class Day1Race(commands.Cog):
                         if tz_period > cutoff_time:
                             continue
 
-                        if (
-                            activity["activityDetails"]["directorActivityHash"]
-                            in self.activity_hashes
-                        ):
-                            time_spend += activity["values"]["timePlayedSeconds"][
-                                "basic"
-                            ]["value"]
+                        if activity["activityDetails"]["directorActivityHash"] in self.activity_hashes:
+                            time_spend += activity["values"]["timePlayedSeconds"]["basic"]["value"]
                             kills += activity["values"]["kills"]["basic"]["value"]
                             deaths += activity["values"]["deaths"]["basic"]["value"]
 
@@ -225,22 +208,12 @@ class Day1Race(commands.Cog):
                                 break
 
                             # abort if user has already completed that encounter
-                            if (
-                                self.finished_encounters[destiny_player.destiny_id][
-                                    encounter_hash
-                                ]
-                                == 0
-                            ):
+                            if self.finished_encounters[destiny_player.destiny_id][encounter_hash] == 0:
                                 for record_objective_hash in record["objectives"]:
-                                    if (
-                                        encounter_hash
-                                        == record_objective_hash["objectiveHash"]
-                                    ):
+                                    if encounter_hash == record_objective_hash["objectiveHash"]:
                                         # check if is complete
                                         if record_objective_hash["complete"]:
-                                            self.finished_encounters[
-                                                destiny_player.destiny_id
-                                            ][encounter_hash] = 1
+                                            self.finished_encounters[destiny_player.destiny_id][encounter_hash] = 1
                                             await channel.send(
                                                 f"**{name}** finished `{description}` <:PeepoDPS:754785311489523754>"
                                             )
@@ -249,35 +222,23 @@ class Day1Race(commands.Cog):
 
                 """ vog only stuff from here on. Change that back if a raid comes out which you dont need to finish twice """
                 # check if a completion was counted via the triumph. if not, look at the other triumph to at least set first completion as done
-                if (
-                    self.finished_encounters_blueprint
-                    == self.finished_encounters[destiny_player.destiny_id]
-                ):
+                if self.finished_encounters_blueprint == self.finished_encounters[destiny_player.destiny_id]:
                     try:
-                        record2 = records["profileRecords"]["data"]["records"][
-                            str(self.alternative_activity_triumph)
-                        ]
+                        record2 = records["profileRecords"]["data"]["records"][str(self.alternative_activity_triumph)]
                     except KeyError:
                         record2 = None
                     if record2:
                         for record_objective_hash in record2["objectives"]:
                             if record_objective_hash["complete"]:
-                                self.finished_encounters[destiny_player.destiny_id][
-                                    4240665
-                                ] = 1
+                                self.finished_encounters[destiny_player.destiny_id][4240665] = 1
                                 await channel.send(
                                     f"**{name}** finished `{self.activity_triumph_encounters[4240665]}` <:PeepoDPS:754785311489523754>"
                                 )
                                 break
 
                 # check if a completion was counted via the triumph. if not, look at the metric to at least set first completion as done
-                if (
-                    self.finished_encounters_blueprint
-                    == self.finished_encounters[destiny_player.destiny_id]
-                ):
-                    metric_completions = await destiny_player.get_metric_value(
-                        self.activity_metric
-                    )
+                if self.finished_encounters_blueprint == self.finished_encounters[destiny_player.destiny_id]:
+                    metric_completions = await destiny_player.get_metric_value(self.activity_metric)
                     if metric_completions > 0:
                         self.finished_encounters[destiny_player.destiny_id][4240665] = 1
                         await channel.send(
@@ -285,26 +246,15 @@ class Day1Race(commands.Cog):
                         )
 
                 # check for the emblem, if exist do the msg for every other encounter done
-                has_emblem = await destiny_player.has_collectible(
-                    self.emblem_collectible_hash
-                )
+                has_emblem = await destiny_player.has_collectible(self.emblem_collectible_hash)
                 if has_emblem:
                     for (
                         encounter_hash,
                         description,
                     ) in self.activity_triumph_encounters.items():
-                        if (
-                            self.finished_encounters[destiny_player.destiny_id][
-                                encounter_hash
-                            ]
-                            == 0
-                        ):
-                            self.finished_encounters[destiny_player.destiny_id][
-                                encounter_hash
-                            ] = 1
-                            await channel.send(
-                                f"**{name}** finished `{description}` <:PeepoDPS:754785311489523754>"
-                            )
+                        if self.finished_encounters[destiny_player.destiny_id][encounter_hash] == 0:
+                            self.finished_encounters[destiny_player.destiny_id][encounter_hash] = 1
+                            await channel.send(f"**{name}** finished `{description}` <:PeepoDPS:754785311489523754>")
 
                 """ vog only stuff over """
         except Exception as e:
@@ -325,13 +275,9 @@ class Day1Race(commands.Cog):
                 for encounter, complete in self.finished_encounters[destinyID].items():
                     if complete == 1:
                         try:
-                            running_raid[(name, destinyID)].append(
-                                self.activity_triumph_encounters[encounter]
-                            )
+                            running_raid[(name, destinyID)].append(self.activity_triumph_encounters[encounter])
                         except KeyError:
-                            running_raid[(name, destinyID)] = [
-                                self.activity_triumph_encounters[encounter]
-                            ]
+                            running_raid[(name, destinyID)] = [self.activity_triumph_encounters[encounter]]
 
         embed = embed_message(
             "Race for Worlds First / Day One",
@@ -342,19 +288,12 @@ class Day1Race(commands.Cog):
         if self.finished_raid:
             embed.add_field(name="⁣", value=f"__Finished:__", inline=False)
 
-            sort = {
-                k: v
-                for k, v in sorted(
-                    self.finished_raid.items(), key=lambda item: item[1], reverse=False
-                )
-            }
+            sort = {k: v for k, v in sorted(self.finished_raid.items(), key=lambda item: item[1], reverse=False)}
             times = []
             names = []
             for key, value in sort.items():
                 names.append(key[0])
-                times.append(
-                    f"{value.day}/{value.month} - {value.hour}:{value.minute:02d} UTC"
-                )
+                times.append(f"{value.day}/{value.month} - {value.hour}:{value.minute:02d} UTC")
 
             embed.add_field(name="Name", value="\n".join(names), inline=True)
             embed.add_field(name="Time", value="\n".join(times), inline=True)
@@ -362,12 +301,7 @@ class Day1Race(commands.Cog):
         if running_raid:
             embed.add_field(name="⁣", value=f"__Running:__", inline=False)
 
-            sort = {
-                k: v
-                for k, v in sorted(
-                    running_raid.items(), key=lambda item: len(item[1]), reverse=True
-                )
-            }
+            sort = {k: v for k, v in sorted(running_raid.items(), key=lambda item: len(item[1]), reverse=True)}
             done = []
             names = []
             for key, value in sort.items():
@@ -380,9 +314,7 @@ class Day1Race(commands.Cog):
         if self.finished_raid or running_raid:
             if not self.leaderboard_msg:
                 try:
-                    self.leaderboard_msg = await self.leaderboard_channel.send(
-                        embed=embed
-                    )
+                    self.leaderboard_msg = await self.leaderboard_channel.send(embed=embed)
                 except:
                     pass
             else:
@@ -399,13 +331,9 @@ class Day1Race(commands.Cog):
                 required=True,
                 choices=[
                     create_choice(name="Last Wish", value="Last Wish"),
-                    create_choice(
-                        name="Scourge of the Past", value="Scourge of the Past"
-                    ),
+                    create_choice(name="Scourge of the Past", value="Scourge of the Past"),
                     create_choice(name="Crown of Sorrows", value="Crown of Sorrows"),
-                    create_choice(
-                        name="Garden of Salvation", value="Garden of Salvation"
-                    ),
+                    create_choice(name="Garden of Salvation", value="Garden of Salvation"),
                     create_choice(name="Deep Stone Crypt", value="Deep Stone Crypt"),
                     create_choice(name="Vault of Glass", value="Vault of Glass"),
                 ],
@@ -434,9 +362,7 @@ class Day1Race(commands.Cog):
             if member_role in member.roles:
                 destiny_player = await DestinyPlayer.from_discord_id(member.id)
                 if destiny_player:
-                    if await destiny_player.has_collectible(
-                        str(raid_to_emblem_hash[raid])
-                    ):
+                    if await destiny_player.has_collectible(str(raid_to_emblem_hash[raid])):
                         if clan_role in member.roles:
                             self.clan_list.append(member.display_name)
                         else:
@@ -450,14 +376,10 @@ class Day1Race(commands.Cog):
             embed.description = "Sadly nobody here cleared this raid :("
 
         if self.clan_list:
-            embed.add_field(
-                name="Clan Members", value="\n".join(self.clan_list), inline=True
-            )
+            embed.add_field(name="Clan Members", value="\n".join(self.clan_list), inline=True)
 
         if self.user_list:
-            embed.add_field(
-                name="Other People", value="\n".join(self.user_list), inline=True
-            )
+            embed.add_field(name="Other People", value="\n".join(self.user_list), inline=True)
 
         await ctx.send(embed=embed)
 

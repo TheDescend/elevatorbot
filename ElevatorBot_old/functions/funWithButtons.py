@@ -378,22 +378,16 @@ class TicTacToeGame:
 
         # ai mode
         else:
-            check = (ctx.author == self.ctx.author) and (
-                self.ctx.message.id == ctx.origin_message.id
-            )
+            check = (ctx.author == self.ctx.author) and (self.ctx.message.id == ctx.origin_message.id)
 
         return check
 
     # play the move and change the board
-    async def make_move(
-        self, x: int, y: int, symbol: str, button_ctx: ComponentContext = None
-    ) -> bool:
+    async def make_move(self, x: int, y: int, symbol: str, button_ctx: ComponentContext = None) -> bool:
         if self.is_valid(x, y):
             self.current_state[x][y] = symbol
             button_update = {
-                "style": ButtonStyle.blue
-                if symbol == self.player_symbol
-                else ButtonStyle.red,
+                "style": ButtonStyle.blue if symbol == self.player_symbol else ButtonStyle.red,
                 "label": symbol,
             }
             self.buttons[x]["components"][y]._update(button_update)
@@ -473,24 +467,16 @@ class TicTacToeGame:
             player_move = moves[button_ctx.component_id]
 
             # set the symbol
-            symbol = (
-                self.ai_symbol
-                if self.versus and self.player2 == button_ctx.author
-                else self.player_symbol
-            )
+            symbol = self.ai_symbol if self.versus and self.player2 == button_ctx.author else self.player_symbol
 
             # make the move
-            valid = await self.make_move(
-                player_move[0], player_move[1], symbol, button_ctx
-            )
+            valid = await self.make_move(player_move[0], player_move[1], symbol, button_ctx)
             assert valid, "Move was not valid for some reason"
 
             # make the other human turn
             if self.versus:
                 # set the next turn to belong to the other player
-                self.player_turn = (
-                    self.player2 if button_ctx.author == self.player1 else self.player1
-                )
+                self.player_turn = self.player2 if button_ctx.author == self.player1 else self.player1
 
                 # wait for other players move
                 await self.human_turn()
@@ -604,11 +590,7 @@ class TicTacToeGame:
             # check if there is a winner
             elif winner:
                 if winner == self.player_symbol:
-                    text = (
-                        "**You Won:** Try the hard mode next time 🙃"
-                        if not self.versus
-                        else f"**Blue Wins**"
-                    )
+                    text = "**You Won:** Try the hard mode next time 🙃" if not self.versus else f"**Blue Wins**"
                 elif winner == self.ai_symbol:
                     banter = [
                         "Imagine losing in Tic Tac Toe",
@@ -622,11 +604,7 @@ class TicTacToeGame:
                         "Hopefully that was not your A game",
                         "You know you can win nitro here right?",
                     ]
-                    text = (
-                        f"**You Lost:** {random.choice(banter)}"
-                        if not self.versus
-                        else f"**Red Wins**"
-                    )
+                    text = f"**You Lost:** {random.choice(banter)}" if not self.versus else f"**Red Wins**"
                 else:
                     text = "**Tie:** Better luck next time"
 

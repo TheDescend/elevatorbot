@@ -46,18 +46,14 @@ class AdminCommands(commands.Cog):
     async def _getnaughtyclanmembers(self, ctx: SlashContext):
         await ctx.send(
             hidden=True,
-            embed=embed_message(
-                "Please wait...", "The results will be here in a second"
-            ),
+            embed=embed_message("Please wait...", "The results will be here in a second"),
         )
 
         # get all clan members discordID
         memberlist = []
-        for member in (
-            await get_json_from_url(
-                f"https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/"
-            )
-        ).content["Response"]["results"]:
+        for member in (await get_json_from_url(f"https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/")).content[
+            "Response"
+        ]["results"]:
             destinyID = int(member["destinyUserInfo"]["membershipId"])
             memberlist.append(destinyID)
 
@@ -89,26 +85,20 @@ class AdminCommands(commands.Cog):
             textstr = ", ".join(not_in_discord_or_registered)
             while tempstr := textstr[:1900]:
                 await ctx.channel.send(
-                    "**These destinyIDs are not in discord, or have not registered with the bot**\n"
-                    + tempstr
+                    "**These destinyIDs are not in discord, or have not registered with the bot**\n" + tempstr
                 )
                 textstr = textstr[1900:]
 
         if no_token:
             textstr = ", ".join(no_token)
             while tempstr := textstr[:1900]:
-                await ctx.channel.send(
-                    "**These users have no token and need to register with the bot** \n"
-                    + tempstr
-                )
+                await ctx.channel.send("**These users have no token and need to register with the bot** \n" + tempstr)
                 textstr = textstr[1900:]
 
         if not_accepted_rules:
             textstr = ", ".join(not_accepted_rules)
             while tempstr := textstr[:1900]:
-                await ctx.channel.send(
-                    "**These users have not yet accepted the rules**\n" + tempstr
-                )
+                await ctx.channel.send("**These users have not yet accepted the rules**\n" + tempstr)
                 textstr = textstr[1900:]
 
     # todo not really needed
@@ -121,9 +111,7 @@ class AdminCommands(commands.Cog):
     async def _getapikey(self, ctx: SlashContext):
         await ctx.send(
             hidden=True,
-            embed=embed_message(
-                "Your API Key", (await handle_and_return_token(ctx.author.id)).token
-            ),
+            embed=embed_message("Your API Key", (await handle_and_return_token(ctx.author.id)).token),
         )
 
     # todo not really needed
@@ -136,9 +124,7 @@ class AdminCommands(commands.Cog):
     async def _getUserMatching(self, ctx: SlashContext):
         await ctx.send(
             hidden=True,
-            embed=embed_message(
-                "Please wait...", "The results will be here in a second"
-            ),
+            embed=embed_message("Please wait...", "The results will be here in a second"),
         )
 
         clanmap = await getNameAndCrossaveNameToHashMapByClanid(CLANID)
@@ -160,9 +146,7 @@ class AdminCommands(commands.Cog):
                 unsuccessfulMatches.append((steamname, crosssavename, userid))
 
         await ctx.channel.send("SUCCESSFUL MATCHES:")
-        sortedSuccessfulMatches = sorted(
-            successfulMatches, key=lambda pair: pair[2].lower()
-        )
+        sortedSuccessfulMatches = sorted(successfulMatches, key=lambda pair: pair[2].lower())
         successfulMessage = ""
         for (steamname, crosssavename, username) in sortedSuccessfulMatches:
             successfulMessage += f"{username:<30} - {steamname} / {crosssavename}\n"
@@ -217,9 +201,7 @@ class AdminCommands(commands.Cog):
         await asyncio.sleep(hours * 60 * 60)
         await removeRolesFromUser([muted_role_id], user, ctx.guild)
 
-        await status.edit(
-            embed=embed_message("Success", f"{user.mention} is no longer muted")
-        )
+        await status.edit(embed=embed_message("Success", f"{user.mention} is no longer muted"))
 
     @cog_ext.cog_slash(
         name="reply",
@@ -246,18 +228,11 @@ class AdminCommands(commands.Cog):
         last_ten_messages = await ctx.channel.history(limit=10).flatten()
 
         if not user:
-            is_bot_dm = (
-                lambda previousMessage: previousMessage.author == self.client.user
-                and previousMessage.mentions
-            )
+            is_bot_dm = lambda previousMessage: previousMessage.author == self.client.user and previousMessage.mentions
             bot_messages = filter(is_bot_dm, last_ten_messages)
 
             if not bot_messages:
-                await ctx.send(
-                    embed=embed_message(
-                        "Error", f"There is not recent DM. Please specify a user"
-                    )
-                )
+                await ctx.send(embed=embed_message("Error", f"There is not recent DM. Please specify a user"))
                 return
 
             most_recent = bot_messages[0]
@@ -265,11 +240,7 @@ class AdminCommands(commands.Cog):
             user = mentioned_user
 
         await user.send(message)
-        await ctx.send(
-            embed=embed_message(
-                "Success", f"{ctx.author.name} replied\n`{message}`\nto {user.mention}"
-            )
-        )
+        await ctx.send(embed=embed_message("Success", f"{ctx.author.name} replied\n`{message}`\nto {user.mention}"))
 
     @cog_ext.cog_slash(
         name="rollreaction",
@@ -288,9 +259,7 @@ class AdminCommands(commands.Cog):
     async def _rollreaction(self, ctx: SlashContext, draws: int):
         tmessage = (await ctx.channel.history(limit=1).flatten())[0]
         if not tmessage:
-            await ctx.send(
-                hidden=True, embed=embed_message("Error", "Getting message failed")
-            )
+            await ctx.send(hidden=True, embed=embed_message("Error", "Getting message failed"))
             return
 
         reactionlist = tmessage.reactions
@@ -303,14 +272,10 @@ class AdminCommands(commands.Cog):
                 uniqueusers.append(u)
 
         if len(uniqueusers) < draws:
-            await ctx.send(
-                hidden=True, embed=embed_message("Error", "Not enough reactions found")
-            )
+            await ctx.send(hidden=True, embed=embed_message("Error", "Not enough reactions found"))
             return
         winners = [winner.mention for winner in random.sample(uniqueusers, draws)]
-        await ctx.send(
-            embed=embed_message("Draw Result", f"Selected users {', '.join(winners)}")
-        )
+        await ctx.send(embed=embed_message("Draw Result", f"Selected users {', '.join(winners)}"))
 
     @cog_ext.cog_slash(
         name="getuserinfo",
@@ -354,9 +319,7 @@ class AdminCommands(commands.Cog):
         ):
             await ctx.send(
                 hidden=True,
-                embed=embed_message(
-                    "Error", "Exactly one of the arguments must be used"
-                ),
+                embed=embed_message("Error", "Exactly one of the arguments must be used"),
             )
             return
         await ctx.defer()
@@ -366,9 +329,7 @@ class AdminCommands(commands.Cog):
             try:
                 destinyid = int(destinyid)
             except ValueError:
-                await ctx.send(
-                    embed=embed_message("Error", f"DestinyID must be a number")
-                )
+                await ctx.send(embed=embed_message("Error", f"DestinyID must be a number"))
                 return
 
             destiny_player = await DestinyPlayer.from_destiny_id(destinyid)
@@ -398,9 +359,7 @@ class AdminCommands(commands.Cog):
         title = f"Database Infos for {mentioned_user.display_name}"
         text = f"""DiscordID - `{destiny_player.discord_id}` \nDestinyID: `{destiny_player.destiny_id}` \nSystem - `{destiny_player.system}` \nSteamName - `{(await destiny_player.get_destiny_name_and_last_played())[0]}` \nHasToken - `{await destiny_player.has_token()}`"""
 
-        embed = embed_message(
-            title, text if text else f"Possible matches for {fuzzyname}"
-        )
+        embed = embed_message(title, text if text else f"Possible matches for {fuzzyname}")
 
         # if fuzzy name is given
         if fuzzyname:
@@ -413,11 +372,7 @@ class AdminCommands(commands.Cog):
             for result in clansearch:
                 resp = result.content["Response"]
                 if not resp["results"]:
-                    await ctx.send(
-                        embed=embed_message(
-                            f"Error", f"No matches found for `{fuzzyname}`"
-                        )
-                    )
+                    await ctx.send(embed=embed_message(f"Error", f"No matches found for `{fuzzyname}`"))
                     return
 
                 i = 0
@@ -458,9 +413,7 @@ class PersistentMessagesCommands(commands.Cog):
                     create_choice(name="Member Count", value="membercount"),
                     create_choice(name="Booster Count", value="boostercount"),
                     create_choice(name="Looking For Group", value="lfg"),
-                    create_choice(
-                        name="LFG Voice Channel Category", value="lfgvoicecategory"
-                    ),
+                    create_choice(name="LFG Voice Channel Category", value="lfgvoicecategory"),
                     create_choice(name="Bot Status", value="botstatus"),
                     create_choice(name="Increment Button", value="increment_button"),
                     create_choice(name="Bungie RSS Feed", value="rss"),
@@ -478,9 +431,7 @@ class PersistentMessagesCommands(commands.Cog):
     )
     async def _channel(self, ctx: SlashContext, channel_type, channel):
         if channel_type == "othergameroles":
-            embed = embed_message(
-                f"Other Game Roles", "Select options to add / _delete the related roles"
-            )
+            embed = embed_message(f"Other Game Roles", "Select options to add / _delete the related roles")
 
             components = [
                 manage_components.create_actionrow(
@@ -554,14 +505,10 @@ class PersistentMessagesCommands(commands.Cog):
         elif channel_type == "increment_button":
             components = [
                 manage_components.create_actionrow(
-                    manage_components.create_button(
-                        custom_id="increment_button", style=ButtonStyle.blue, label="0"
-                    ),
+                    manage_components.create_button(custom_id="increment_button", style=ButtonStyle.blue, label="0"),
                 ),
             ]
-            embed = embed_message(
-                "Use the button to increase the count! Road to ram overflow!"
-            )
+            embed = embed_message("Use the button to increase the count! Road to ram overflow!")
 
             await make_persistent_message(
                 self.client,
@@ -607,19 +554,13 @@ On your command, I can start a private PvP tournament for all the masochist in t
             )
 
         elif channel_type == "membercount":
-            await make_persistent_message(
-                self.client, "memberCount", ctx.guild.id, channel.id, no_message=True
-            )
+            await make_persistent_message(self.client, "memberCount", ctx.guild.id, channel.id, no_message=True)
 
         elif channel_type == "boostercount":
-            await make_persistent_message(
-                self.client, "boosterCount", ctx.guild.id, channel.id, no_message=True
-            )
+            await make_persistent_message(self.client, "boosterCount", ctx.guild.id, channel.id, no_message=True)
 
         elif channel_type == "lfg":
-            await make_persistent_message(
-                self.client, "lfg", ctx.guild.id, channel.id, no_message=True
-            )
+            await make_persistent_message(self.client, "lfg", ctx.guild.id, channel.id, no_message=True)
 
             enter_emoji = ctx.bot.get_emoji(enter_emoji_id)
             circle_emoji = ctx.bot.get_emoji(circle_emoji_id)
@@ -660,9 +601,7 @@ Basically just type `/lfg` and look around. There are many other cool commands t
         elif channel_type == "botstatus":
             embed = embed_message("Status: Last valid...")
 
-            await make_persistent_message(
-                self.client, "botStatus", 1, channel.id, message_embed=embed
-            )
+            await make_persistent_message(self.client, "botStatus", 1, channel.id, message_embed=embed)
 
         elif channel_type == "lfgvoicecategory":
             await make_persistent_message(
@@ -674,13 +613,9 @@ Basically just type `/lfg` and look around. There are many other cool commands t
             )
 
         elif channel_type == "rss":
-            await make_persistent_message(
-                self.client, "rss", ctx.guild.id, channel.id, no_message=True
-            )
+            await make_persistent_message(self.client, "rss", ctx.guild.id, channel.id, no_message=True)
 
-        await ctx.send(
-            hidden=True, embed=embed_message(f"Success", f"I've done as you asked")
-        )
+        await ctx.send(hidden=True, embed=embed_message(f"Success", f"I've done as you asked"))
 
     # todo not needed
     @cog_ext.cog_slash(
@@ -691,9 +626,7 @@ Basically just type `/lfg` and look around. There are many other cool commands t
     )
     async def _update_db(self, ctx: SlashContext):
         print("Start updating DB...")
-        message = await ctx.send(
-            "Forcing DB _update, this is gonna take a while. Will let you know once done"
-        )
+        message = await ctx.send("Forcing DB _update, this is gonna take a while. Will let you know once done")
 
         # get all users the bot shares a guild with
         to_update = []
@@ -707,10 +640,7 @@ Basically just type `/lfg` and look around. There are many other cool commands t
 
         # _update all users in a gather for zooms
         await asyncio.gather(
-            *[
-                destiny_player.update_activity_db(entry_time=datetime.datetime.min)
-                for destiny_player in to_update
-            ]
+            *[destiny_player.update_activity_db(entry_time=datetime.datetime.min) for destiny_player in to_update]
         )
 
         await message.reply("Done with the DB _update")

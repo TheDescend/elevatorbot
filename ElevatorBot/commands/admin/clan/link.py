@@ -32,7 +32,7 @@ class ClanLink(Cog):
             await ctx.send(
                 embed=embed_message(
                     "Success",
-                    f"This discord server has been successfully linked to the clan `{result.result['clan_name']}`"
+                    f"This discord server has been successfully linked to the clan `{result.result['clan_name']}`",
                 )
             )
 

@@ -23,9 +23,7 @@ class Website(Cog):
                     create_choice(name="D2 Checklist", value="D2 Checklist"),
                     create_choice(name="Destiny Tracker", value="Destiny Tracker"),
                     create_choice(name="Dungeon Report", value="Dungeon Report"),
-                    create_choice(
-                        name="Grandmaster Report", value="Grandmaster Report"
-                    ),
+                    create_choice(name="Grandmaster Report", value="Grandmaster Report"),
                     create_choice(name="Nightfall Report", value="Nightfall Report"),
                     create_choice(name="Raid Report", value="Raid Report"),
                     create_choice(name="Solo Report", value="Solo Report"),

@@ -56,9 +56,7 @@ class BaseBackendConnection:
             ) as response:
                 return self.__backend_parse_response(response)
 
-    async def _backend_post(
-        self, route: str, data: dict, params: dict = None
-    ) -> BackendResult:
+    async def _backend_post(self, route: str, data: dict, params: dict = None) -> BackendResult:
         """Make a post request to the specified backend route and return the results"""
 
         async with self.backend_session as session:
@@ -79,17 +77,13 @@ class BaseBackendConnection:
             ) as response:
                 return self.__backend_parse_response(response)
 
-    def __backend_parse_response(
-        self, response: aiohttp.ClientResponse
-    ) -> BackendResult:
+    def __backend_parse_response(self, response: aiohttp.ClientResponse) -> BackendResult:
         """Handle any errors and then return the content of the response"""
 
         result = {}
         if response.status == 200:
             success = True
-            self.logger.info(
-                "%s: '%s' - '%s'", response.status, response.method, response.url
-            )
+            self.logger.info("%s: '%s' - '%s'", response.status, response.method, response.url)
             result.update(
                 {
                     "result": await response.json(),
@@ -112,16 +106,12 @@ class BaseBackendConnection:
 
         return BackendResult(**result)
 
-    def __backend_handle_errors(
-        self, response: aiohttp.ClientResponse
-    ) -> Optional[str]:
+    def __backend_handle_errors(self, response: aiohttp.ClientResponse) -> Optional[str]:
         """Handles potential errors. Returns None, None if the error should not be returned to the user and str, str if something should be returned to the user"""
 
         if response.status == 409:
             # this means the errors isn't really an error and we want to return info to the user
-            self.logger.info(
-                "%s: '%s' - '%s'", response.status, response.method, response.url
-            )
+            self.logger.info("%s: '%s' - '%s'", response.status, response.method, response.url)
             error_json = await response.json()
             return error_json["error"]
 

@@ -86,9 +86,7 @@ class MiscCommands(commands.Cog):
             )
         else:
             # check if user is allowed
-            if ctx.author == poll.author or await has_elevated_permissions(
-                user=ctx.author, guild=ctx.guild, ctx=ctx
-            ):
+            if ctx.author == poll.author or await has_elevated_permissions(user=ctx.author, guild=ctx.guild, ctx=ctx):
                 await poll.add_new_option(
                     ctx=ctx,
                     option=option,
@@ -129,9 +127,7 @@ class MiscCommands(commands.Cog):
             )
         else:
             # check if user is allowed
-            if ctx.author == poll.author or await has_elevated_permissions(
-                user=ctx.author, guild=ctx.guild, ctx=ctx
-            ):
+            if ctx.author == poll.author or await has_elevated_permissions(user=ctx.author, guild=ctx.guild, ctx=ctx):
                 await poll.remove_option(
                     ctx=ctx,
                     option=option,
@@ -166,9 +162,7 @@ class MiscCommands(commands.Cog):
             )
         else:
             # check if user is allowed
-            if ctx.author == poll.author or await has_elevated_permissions(
-                user=ctx.author, guild=ctx.guild, ctx=ctx
-            ):
+            if ctx.author == poll.author or await has_elevated_permissions(user=ctx.author, guild=ctx.guild, ctx=ctx):
                 await poll.disable(edit_ctx=ctx)
 
     @cog_ext.cog_slash(
@@ -182,18 +176,13 @@ class MiscCommands(commands.Cog):
 
     @cog_ext.cog_slash(name="boosters", description="Prints all premium subscribers")
     async def _boosters(self, ctx: SlashContext):
-        sorted_premium_subscribers = sorted(
-            ctx.guild.premium_subscribers, key=lambda m: m.premium_since, reverse=True
-        )
+        sorted_premium_subscribers = sorted(ctx.guild.premium_subscribers, key=lambda m: m.premium_since, reverse=True)
 
         embed = embed_message(
             f"{ctx.guild.name} Nitro Boosters",
             ",\n".join(
                 [
-                    "**"
-                    + f"{m.display_name:<30}"
-                    + "** since: "
-                    + m.premium_since.strftime("%d/%m/%Y, %H:%M")
+                    "**" + f"{m.display_name:<30}" + "** since: " + m.premium_since.strftime("%d/%m/%Y, %H:%M")
                     for m in sorted_premium_subscribers
                 ]
             ),
@@ -201,9 +190,7 @@ class MiscCommands(commands.Cog):
 
         await ctx.send(embed=embed)
 
-    @cog_ext.cog_slash(
-        name="funfact", description="Very fun fun facts just for the funny fun of it"
-    )
+    @cog_ext.cog_slash(name="funfact", description="Very fun fun facts just for the funny fun of it")
     async def _funfact(self, ctx: SlashContext):
         await ctx.defer()
 
@@ -216,9 +203,7 @@ class MiscCommands(commands.Cog):
                 else:
                     text = "Offline servers make it difficult to get fun facts :("
 
-                await ctx.send(
-                    embed=embed_message("Did you know?", text.replace("`", "'"))
-                )
+                await ctx.send(embed=embed_message("Did you know?", text.replace("`", "'")))
 
     @cog_ext.cog_slash(
         name="muteme",
@@ -240,9 +225,7 @@ class MiscCommands(commands.Cog):
 
         await author.send("Introducing a new feature: **gambling!**")
         await asyncio.sleep(1)
-        await author.send(
-            "Let me roll the dice for you, I can't wait to see if you win the jackpot"
-        )
+        await author.send("Let me roll the dice for you, I can't wait to see if you win the jackpot")
         await asyncio.sleep(2)
         await author.send("_Rolling dice..._")
         await asyncio.sleep(5)
@@ -255,21 +238,13 @@ class MiscCommands(commands.Cog):
                 ) as resp:
                     if resp.status == 200:
                         data = io.BytesIO(await resp.read())
-                        await author.send(
-                            file=discord.File(data, "congratulations.png")
-                        )
+                        await author.send(file=discord.File(data, "congratulations.png"))
 
-            await author.send(
-                f"You won the jackpot! That's a timeout of **{timeout} minutes** for you, enjoy!"
-            )
+            await author.send(f"You won the jackpot! That's a timeout of **{timeout} minutes** for you, enjoy!")
         else:
-            await author.send(
-                f"You won a timout of **{timeout} minutes**, congratulations!!!"
-            )
+            await author.send(f"You won a timout of **{timeout} minutes**, congratulations!!!")
             await asyncio.sleep(2)
-            await author.send(
-                "Better luck next time if you were hunting for the jackpot"
-            )
+            await author.send("Better luck next time if you were hunting for the jackpot")
 
         # add muted role
         print(f"Muting {author.display_name} for {timeout} minutes")
@@ -282,9 +257,7 @@ class MiscCommands(commands.Cog):
         author = await guild.fetch_member(author.id)
 
         await removeRolesFromUser([muted_role_id], author, guild)
-        await author.send(
-            "Sadly your victory is no more. Hope to see you back again soon!"
-        )
+        await author.send("Sadly your victory is no more. Hope to see you back again soon!")
 
     @cog_ext.cog_slash(
         name="discordjoindate",

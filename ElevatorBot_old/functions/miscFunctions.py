@@ -23,9 +23,7 @@ async def checkIfUserIsRegistered(user):
         return True
     else:
         print(f"{user.display_name} is not registered")
-        embed = embed_message(
-            "Error", "Please register with `/registerdesc` first (not via DMs)"
-        )
+        embed = embed_message("Error", "Please register with `/registerdesc` first (not via DMs)")
         await user.send(embed=embed)
         return False
 
@@ -85,15 +83,9 @@ async def hasAdminOrDevPermissions(message, send_message=True):
     if message.author.id == 238388130581839872:
         return True
 
-    if (
-        admin not in message.author.roles
-        and dev not in message.author.roles
-        and mod not in message.author.roles
-    ):
+    if admin not in message.author.roles and dev not in message.author.roles and mod not in message.author.roles:
         if send_message:
-            await message.channel.send(
-                embed=embed_message("Error", "You are not allowed to do that")
-            )
+            await message.channel.send(embed=embed_message("Error", "You are not allowed to do that"))
         return False
     return True
 
@@ -180,26 +172,18 @@ def convert_expansion_or_season_dates(kwargs):
 
     # convert expansion dates to datetimes
     if "expansion" in kwargs:
-        starttime = datetime.datetime.strptime(
-            kwargs["expansion"].split(",")[0], "%Y-%m-%d"
-        )
+        starttime = datetime.datetime.strptime(kwargs["expansion"].split(",")[0], "%Y-%m-%d")
         try:
-            endtime = expansion_dates[
-                (expansion_dates.index(kwargs["expansion"].split(",")) + 1)
-            ][0]
+            endtime = expansion_dates[(expansion_dates.index(kwargs["expansion"].split(",")) + 1)][0]
             endtime = datetime.datetime.strptime(endtime, "%Y-%m-%d")
         except IndexError:
             endtime = datetime.datetime.now()
 
     # or convert season dates to datetimes
     elif "season" in kwargs:
-        starttime = datetime.datetime.strptime(
-            kwargs["season"].split(",")[0], "%Y-%m-%d"
-        )
+        starttime = datetime.datetime.strptime(kwargs["season"].split(",")[0], "%Y-%m-%d")
         try:
-            endtime = expansion_dates[
-                (season_dates.index(kwargs["season"].split(",")) + 1)
-            ][0]
+            endtime = expansion_dates[(season_dates.index(kwargs["season"].split(",")) + 1)][0]
             endtime = datetime.datetime.strptime(endtime, "%Y-%m-%d")
         except IndexError:
             endtime = datetime.datetime.now()
@@ -217,9 +201,7 @@ def convert_expansion_or_season_dates(kwargs):
 #     return scheduler
 
 
-async def left_channel(
-    client, member, before_channel, after_channel, lfg_voice_category_channel=None
-):
+async def left_channel(client, member, before_channel, after_channel, lfg_voice_category_channel=None):
     # check if the channel was an lfg channel (correct category)
     if before_channel.category_id == lfg_voice_category_channel.id:
         # get current guild lfg channels
@@ -231,9 +213,7 @@ async def left_channel(
                 guild_lfg_voice_channels.append(event["voice_channel_id"])
 
         # check if channel is now empty, and is not in the DB anymore (more than 10 min since start have passed)
-        if (not before_channel.members) and (
-            before_channel.id not in guild_lfg_voice_channels
-        ):
+        if (not before_channel.members) and (before_channel.id not in guild_lfg_voice_channels):
             await before_channel._delete(reason="LFG event over")
 
     # or do whatever hali think this does. no idea honestly
@@ -257,9 +237,7 @@ async def left_channel(
             number = number - 1
 
             for i in range(defaultchannels + 1, number + 1, 1):
-                higher = discord.utils.get(
-                    member.guild.voice_channels, name=channelnamebase + str(i).zfill(2)
-                )
+                higher = discord.utils.get(member.guild.voice_channels, name=channelnamebase + str(i).zfill(2))
                 below = discord.utils.get(
                     member.guild.voice_channels,
                     name=channelnamebase + str(i - 1).zfill(2),
@@ -269,9 +247,7 @@ async def left_channel(
                         await higher._delete()
 
             for i in range(defaultchannels + 1, number + 1, 1):
-                higher = discord.utils.get(
-                    member.guild.voice_channels, name=channelnamebase + str(i).zfill(2)
-                )
+                higher = discord.utils.get(member.guild.voice_channels, name=channelnamebase + str(i).zfill(2))
                 below = discord.utils.get(
                     member.guild.voice_channels,
                     name=channelnamebase + str(i - 1).zfill(2),
@@ -292,13 +268,9 @@ async def joined_channel(client, member, channel):
 
         channelnamebase = channel.name.replace(nummatch[-1], "")
 
-        if not discord.utils.get(
-            member.guild.voice_channels, name=channelnamebase + nextnumberstring
-        ):
+        if not discord.utils.get(member.guild.voice_channels, name=channelnamebase + nextnumberstring):
             await channel.clone(name=channelnamebase + nextnumberstring)
-            newchannel = discord.utils.get(
-                member.guild.voice_channels, name=channelnamebase + nextnumberstring
-            )
+            newchannel = discord.utils.get(member.guild.voice_channels, name=channelnamebase + nextnumberstring)
             await newchannel.edit(position=channel.position + 1)
             if "PVP" in channel.name:
                 await newchannel.edit(position=channel.position + 1, user_limit=6)

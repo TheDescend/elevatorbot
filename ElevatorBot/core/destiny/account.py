@@ -16,9 +16,7 @@ class DestinyAccount(BaseBackendConnection):
         """Return the destiny name"""
 
         result = await self._backend_get(
-            route=destiny_name_route.format(
-                guild_id=self.discord_guild.id, discord_id=self.discord_member.id
-            )
+            route=destiny_name_route.format(guild_id=self.discord_guild.id, discord_id=self.discord_member.id)
         )
 
         # if no errors occurred, format the message

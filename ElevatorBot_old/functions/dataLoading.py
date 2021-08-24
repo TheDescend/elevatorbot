@@ -69,11 +69,7 @@ async def searchForItem(ctx, search_term):
         for name in data.keys():
             text += f"\n**{i}** - {name}"
             i += 1
-        msg = await ctx.channel.send(
-            embed=embed_message(
-                f"{ctx.author.display_name}, I need one more thing", text
-            )
-        )
+        msg = await ctx.channel.send(embed=embed_message(f"{ctx.author.display_name}, I need one more thing", text))
 
         # to check whether or not the one that send the msg is the original author for the function after this
         def check(answer_msg):
@@ -121,25 +117,19 @@ async def searchForItem(ctx, search_term):
 
 
 async def getNameToHashMapByClanid(clanid):
-    requestURL = "https://www.bungie.net/Platform/GroupV2/{}/members/".format(
-        clanid
-    )  # memberlist
+    requestURL = "https://www.bungie.net/Platform/GroupV2/{}/members/".format(clanid)  # memberlist
     memberJSON = await get_json_from_url(requestURL)
     if not memberJSON:
         return {}
     memberlist = memberJSON.content["Response"]["results"]
     memberids = dict()
     for member in memberlist:
-        memberids[member["destinyUserInfo"]["LastSeenDisplayName"]] = member[
-            "destinyUserInfo"
-        ]["membershipId"]
+        memberids[member["destinyUserInfo"]["LastSeenDisplayName"]] = member["destinyUserInfo"]["membershipId"]
     return memberids
 
 
 async def getNameAndCrossaveNameToHashMapByClanid(clanid):
-    requestURL = "https://www.bungie.net/Platform/GroupV2/{}/members/".format(
-        clanid
-    )  # memberlist
+    requestURL = "https://www.bungie.net/Platform/GroupV2/{}/members/".format(clanid)  # memberlist
     memberJSON = await get_json_from_url(requestURL)
     if not memberJSON:
         return {}
@@ -187,9 +177,7 @@ async def updateManifest():
     async with pool.acquire() as connection:
         async with connection.transaction():
             # Now Drop all the table entries and then loop through the relevant manifest locations and save them in the DB
-            for definition, url in manifest.content["Response"][
-                "jsonWorldComponentContentPaths"
-            ]["en"].items():
+            for definition, url in manifest.content["Response"]["jsonWorldComponentContentPaths"]["en"].items():
                 if definition == "DestinyActivityDefinition":
                     print("Starting DestinyActivityDefinition _update...")
                     await deleteEntries(connection, "DestinyActivityDefinition")
@@ -203,12 +191,8 @@ async def updateManifest():
                             description=values["displayProperties"]["description"]
                             if values["displayProperties"]["description"]
                             else None,
-                            name=values["displayProperties"]["name"]
-                            if values["displayProperties"]["name"]
-                            else None,
-                            activityLevel=values["activityLevel"]
-                            if "activityLevel" in values
-                            else 0,
+                            name=values["displayProperties"]["name"] if values["displayProperties"]["name"] else None,
+                            activityLevel=values["activityLevel"] if "activityLevel" in values else 0,
                             activityLightLevel=values["activityLightLevel"],
                             destinationHash=values["destinationHash"],
                             placeHash=values["placeHash"],
@@ -220,12 +204,8 @@ async def updateManifest():
                             directActivityModeType=values["directActivityModeType"]
                             if "directActivityModeType" in values
                             else None,
-                            activityModeHashes=values["activityModeHashes"]
-                            if "activityModeHashes" in values
-                            else None,
-                            activityModeTypes=values["activityModeTypes"]
-                            if "activityModeTypes" in values
-                            else None,
+                            activityModeHashes=values["activityModeHashes"] if "activityModeHashes" in values else None,
+                            activityModeTypes=values["activityModeTypes"] if "activityModeTypes" in values else None,
                         )
 
                 elif definition == "DestinyActivityTypeDefinition":
@@ -263,9 +243,7 @@ async def updateManifest():
                             description=values["displayProperties"]["description"]
                             if values["displayProperties"]["description"]
                             else None,
-                            name=values["displayProperties"]["name"]
-                            if values["displayProperties"]["name"]
-                            else None,
+                            name=values["displayProperties"]["name"] if values["displayProperties"]["name"] else None,
                             hash=int(referenceId),
                             activityModeCategory=values["activityModeCategory"],
                             isTeamBased=values["isTeamBased"],
@@ -285,18 +263,10 @@ async def updateManifest():
                             description=values["displayProperties"]["description"]
                             if values["displayProperties"]["description"]
                             else None,
-                            name=values["displayProperties"]["name"]
-                            if values["displayProperties"]["name"]
-                            else None,
-                            sourceHash=values["sourceHash"]
-                            if "sourceHash" in values
-                            else None,
-                            itemHash=values["itemHash"]
-                            if "itemHash" in values
-                            else None,
-                            parentNodeHashes=values["parentNodeHashes"]
-                            if "parentNodeHashes" in values
-                            else None,
+                            name=values["displayProperties"]["name"] if values["displayProperties"]["name"] else None,
+                            sourceHash=values["sourceHash"] if "sourceHash" in values else None,
+                            itemHash=values["itemHash"] if "itemHash" in values else None,
+                            parentNodeHashes=values["parentNodeHashes"] if "parentNodeHashes" in values else None,
                         )
 
                 elif definition == "DestinyInventoryItemDefinition":
@@ -312,12 +282,8 @@ async def updateManifest():
                             description=values["displayProperties"]["description"]
                             if values["displayProperties"]["description"]
                             else None,
-                            name=values["displayProperties"]["name"]
-                            if values["displayProperties"]["name"]
-                            else None,
-                            classType=values["classType"]
-                            if "classType" in values
-                            else None,
+                            name=values["displayProperties"]["name"] if values["displayProperties"]["name"] else None,
+                            classType=values["classType"] if "classType" in values else None,
                             bucketTypeHash=values["inventory"]["bucketTypeHash"],
                             tierTypeHash=values["inventory"]["tierTypeHash"],
                             tierTypeName=values["inventory"]["tierTypeName"]
@@ -339,22 +305,14 @@ async def updateManifest():
                             description=values["displayProperties"]["description"]
                             if values["displayProperties"]["description"]
                             else None,
-                            name=values["displayProperties"]["name"]
-                            if values["displayProperties"]["name"]
-                            else None,
+                            name=values["displayProperties"]["name"] if values["displayProperties"]["name"] else None,
                             hasTitle=values["titleInfo"]["hasTitle"],
                             titleName=values["titleInfo"]["titlesByGender"]["Male"]
                             if "titlesByGender" in values["titleInfo"]
                             else None,
-                            objectiveHashes=values["objectiveHashes"]
-                            if "objectiveHashes" in values
-                            else None,
-                            ScoreValue=values["completionInfo"]["ScoreValue"]
-                            if "completionInfo" in values
-                            else None,
-                            parentNodeHashes=values["parentNodeHashes"]
-                            if "parentNodeHashes" in values
-                            else None,
+                            objectiveHashes=values["objectiveHashes"] if "objectiveHashes" in values else None,
+                            ScoreValue=values["completionInfo"]["ScoreValue"] if "completionInfo" in values else None,
+                            parentNodeHashes=values["parentNodeHashes"] if "parentNodeHashes" in values else None,
                         )
 
                 elif definition == "DestinyInventoryBucketDefinition":
@@ -370,9 +328,7 @@ async def updateManifest():
                             description=values["displayProperties"]["description"]
                             if "description" in values["displayProperties"]
                             else None,
-                            name=values["displayProperties"]["name"]
-                            if "name" in values["displayProperties"]
-                            else None,
+                            name=values["displayProperties"]["name"] if "name" in values["displayProperties"] else None,
                             category=values["category"],
                             itemCount=values["itemCount"],
                             location=values["location"],
@@ -391,42 +347,24 @@ async def updateManifest():
                             description=values["displayProperties"]["description"]
                             if "description" in values["displayProperties"]
                             else None,
-                            name=values["displayProperties"]["name"]
-                            if "name" in values["displayProperties"]
-                            else None,
-                            objectiveHash=values["objectiveHash"]
-                            if "objectiveHash" in values
-                            else None,
+                            name=values["displayProperties"]["name"] if "name" in values["displayProperties"] else None,
+                            objectiveHash=values["objectiveHash"] if "objectiveHash" in values else None,
                             presentationNodeType=values["presentationNodeType"],
                             childrenPresentationNodeHash=[
-                                list(x.values())[0]
-                                for x in values["children"]["presentationNodes"]
+                                list(x.values())[0] for x in values["children"]["presentationNodes"]
                             ]
-                            if "children" in values
-                            and values["children"]["presentationNodes"]
+                            if "children" in values and values["children"]["presentationNodes"]
                             else None,
-                            childrenCollectibleHash=[
-                                list(x.values())[0]
-                                for x in values["children"]["collectibles"]
-                            ]
-                            if "children" in values
-                            and values["children"]["collectibles"]
+                            childrenCollectibleHash=[list(x.values())[0] for x in values["children"]["collectibles"]]
+                            if "children" in values and values["children"]["collectibles"]
                             else None,
-                            childrenRecordHash=[
-                                list(x.values())[0]
-                                for x in values["children"]["records"]
-                            ]
+                            childrenRecordHash=[list(x.values())[0] for x in values["children"]["records"]]
                             if "children" in values and values["children"]["records"]
                             else None,
-                            childrenMetricHash=[
-                                list(x.values())[0]
-                                for x in values["children"]["metrics"]
-                            ]
+                            childrenMetricHash=[list(x.values())[0] for x in values["children"]["metrics"]]
                             if "children" in values and values["children"]["metrics"]
                             else None,
-                            parentNodeHashes=values["parentNodeHashes"]
-                            if "parentNodeHashes" in values
-                            else None,
+                            parentNodeHashes=values["parentNodeHashes"] if "parentNodeHashes" in values else None,
                             index=values["index"],
                             redacted=values["redacted"],
                         )
@@ -460,9 +398,7 @@ async def insertPgcrToDB(instanceID: int, activity_time: datetime, pcgr: dict):
             instanceID,
             membershipID,
             characterID,
-            user_pcgr["player"]["characterClass"]
-            if "characterClass" in user_pcgr["player"]
-            else "",
+            user_pcgr["player"]["characterClass"] if "characterClass" in user_pcgr["player"] else "",
             user_pcgr["player"]["characterLevel"],
             user_pcgr["player"]["destinyUserInfo"]["membershipType"],
             user_pcgr["player"]["lightLevel"],
@@ -484,14 +420,10 @@ async def insertPgcrToDB(instanceID: int, activity_time: datetime, pcgr: dict):
             int(user_pcgr["values"]["playerCount"]["basic"]["value"]),
             int(user_pcgr["values"]["teamScore"]["basic"]["value"]),
             int(user_pcgr["extended"]["values"]["precisionKills"]["basic"]["value"]),
-            int(
-                user_pcgr["extended"]["values"]["weaponKillsGrenade"]["basic"]["value"]
-            ),
+            int(user_pcgr["extended"]["values"]["weaponKillsGrenade"]["basic"]["value"]),
             int(user_pcgr["extended"]["values"]["weaponKillsMelee"]["basic"]["value"]),
             int(user_pcgr["extended"]["values"]["weaponKillsSuper"]["basic"]["value"]),
-            int(
-                user_pcgr["extended"]["values"]["weaponKillsAbility"]["basic"]["value"]
-            ),
+            int(user_pcgr["extended"]["values"]["weaponKillsAbility"]["basic"]["value"]),
         )
 
         # loop though each weapon and save that info in the DB
@@ -502,16 +434,8 @@ async def insertPgcrToDB(instanceID: int, activity_time: datetime, pcgr: dict):
                     characterID,
                     membershipID,
                     weapon_user_pcgr["referenceId"],
-                    int(
-                        weapon_user_pcgr["values"]["uniqueWeaponKills"]["basic"][
-                            "value"
-                        ]
-                    ),
-                    int(
-                        weapon_user_pcgr["values"]["uniqueWeaponPrecisionKills"][
-                            "basic"
-                        ]["value"]
-                    ),
+                    int(weapon_user_pcgr["values"]["uniqueWeaponKills"]["basic"]["value"]),
+                    int(weapon_user_pcgr["values"]["uniqueWeaponPrecisionKills"]["basic"]["value"]),
                 )
 
 
@@ -546,11 +470,9 @@ async def updateMissingPcgr():
 async def getClanMembers(client):
     # get all clan members {destinyID: discordID}
     memberlist = {}
-    for member in (
-        await get_json_from_url(
-            f"https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/"
-        )
-    ).content["Response"]["results"]:
+    for member in (await get_json_from_url(f"https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/")).content[
+        "Response"
+    ]["results"]:
         destinyID = int(member["destinyUserInfo"]["membershipId"])
         discordID = await lookupDiscordID(destinyID)
         if discordID is not None:

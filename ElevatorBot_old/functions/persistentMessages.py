@@ -30,9 +30,7 @@ async def get_persistent_message_or_channel(
         return None
 
     # otherwise return message. Return False should bot_status be asked for on other servers then descend
-    channel: Union[discord.VoiceChannel, discord.TextChannel] = client.get_channel(
-        res[0]
-    )
+    channel: Union[discord.VoiceChannel, discord.TextChannel] = client.get_channel(res[0])
     if not channel:
         return None
     try:
@@ -64,15 +62,11 @@ async def make_persistent_message(
     message = None
     if not no_message:
         assert message_text or message_embed, "Need to input either text or embed"
-        assert not (
-            message_text and message_embed
-        ), "Need to input either text or embed, not both"
+        assert not (message_text and message_embed), "Need to input either text or embed, not both"
 
         # make new message
         channel = client.get_channel(channel_id)
-        message = await channel.send(
-            content=message_text, embed=message_embed, components=components
-        )
+        message = await channel.send(content=message_text, embed=message_embed, components=components)
 
         # react if wanted
         for emoji_id in reaction_id_list:
@@ -131,9 +125,7 @@ async def check_reaction_for_persistent_message(client, payload):
 
         # if it was, handle it
         if payload.message_id == persistent_message_id:
-            await handle_persistent_message_reaction(
-                client, payload, persistent_message
-            )
+            await handle_persistent_message_reaction(client, payload, persistent_message)
 
 
 async def handle_persistent_message_reaction(client, payload, persistent_message):
@@ -177,10 +169,7 @@ async def steamJoinCodeMessage(client, guild):
             continue
 
     # sort and put in two lists
-    sorted_data = {
-        k: str(v)
-        for k, v in sorted(clean_data.items(), key=lambda item: item[0], reverse=False)
-    }
+    sorted_data = {k: str(v) for k, v in sorted(clean_data.items(), key=lambda item: item[0], reverse=False)}
 
     # put in two lists for the embed
     name = list(sorted_data.keys())
@@ -199,17 +188,13 @@ async def steamJoinCodeMessage(client, guild):
     embed.add_field(name="Code", value="\n".join(code), inline=True)
 
     # get msg object
-    message = await get_persistent_message_or_channel(
-        client, "steamJoinCodes", guild.id
-    )
+    message = await get_persistent_message_or_channel(client, "steamJoinCodes", guild.id)
 
     # edit msg
     await message.edit(embed=embed)
 
 
-async def bot_status(
-    client: discord.Client, field_name: str, time: datetime.datetime
-) -> None:
+async def bot_status(client: discord.Client, field_name: str, time: datetime.datetime) -> None:
     """
     takes the field (name) and the timestamp of last _update
 

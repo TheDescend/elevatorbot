@@ -98,18 +98,14 @@ def aiohttp_server(discord_client):
             }
             headers = {"Content-Type": "application/x-www-form-urlencoded"}
             print("requesting token...")
-            token_request = requests.post(
-                "%s/oauth2/token" % api_url, data=data, headers=headers
-            )
+            token_request = requests.post("%s/oauth2/token" % api_url, data=data, headers=headers)
             token_request.raise_for_status()
             oauth_cred = token_request.json()
             access_token = oauth_cred["access_token"]
 
             data_url = "%s/users/@me" % api_url
             print("requesting data...")
-            data_request = requests.get(
-                data_url, headers={"Authorization": f"Bearer {access_token}"}
-            )
+            data_request = requests.get(data_url, headers={"Authorization": f"Bearer {access_token}"})
             user_data = data_request.json()
             user_id = user_data["id"]
             user_name = user_data["username"]
@@ -169,14 +165,11 @@ def aiohttp_server(discord_client):
 
         if "join" in request.query and "req" in request.query:
             voice_chat = guild.get_channel(int(request.query["join"]))
-            print(
-                f"{logged_in['user_name']}#{logged_in['user_discriminator']} joined bot to {request.query['join']}"
-            )
+            print(f"{logged_in['user_name']}#{logged_in['user_discriminator']} joined bot to {request.query['join']}")
 
             active = list(
                 filter(
-                    lambda voice_client: voice_client.guild.id == guild.id
-                    and voice_client.is_connected(),
+                    lambda voice_client: voice_client.guild.id == guild.id and voice_client.is_connected(),
                     connections,
                 )
             )
@@ -194,9 +187,7 @@ def aiohttp_server(discord_client):
                 )
             else:
                 print(f"joining {voice_chat.name}")
-                connection_task = loop.create_task(
-                    voice_chat.connect(timeout=5, reconnect=True)
-                )
+                connection_task = loop.create_task(voice_chat.connect(timeout=5, reconnect=True))
                 if request.query["req"] != "":
                     print(f"starting to play {request.query['req']}")
                     loop.create_task(
@@ -210,8 +201,7 @@ def aiohttp_server(discord_client):
         elif "disconnect" in request.query:
             active = list(
                 filter(
-                    lambda voice_client: voice_client.guild.id == guild.id
-                    and voice_client.is_connected(),
+                    lambda voice_client: voice_client.guild.id == guild.id and voice_client.is_connected(),
                     connections,
                 )
             )
@@ -221,8 +211,7 @@ def aiohttp_server(discord_client):
         elif "stop" in request.query:
             active = list(
                 filter(
-                    lambda voice_client: voice_client.guild.id == guild.id
-                    and voice_client.is_connected(),
+                    lambda voice_client: voice_client.guild.id == guild.id and voice_client.is_connected(),
                     connections,
                 )
             )
@@ -490,9 +479,7 @@ def main():
         if isinstance(message.channel, discord.channel.DMChannel):
             if not message.author.bot:
                 if not text.startswith(COMMAND_PREFIX):
-                    admin_discussions_channel = client.get_channel(
-                        admin_discussions_channel_id
-                    )
+                    admin_discussions_channel = client.get_channel(admin_discussions_channel_id)
                     if message.attachments:
                         attached_files = [
                             discord.File(
@@ -506,12 +493,8 @@ def main():
                             files=attached_files,
                         )
                     else:
-                        await admin_discussions_channel.send(
-                            f"From {message.author.mention}: \n{text}"
-                        )
-                    await message.author.send(
-                        "Forwarded your message to staff, you will be contacted shortly 🙃"
-                    )
+                        await admin_discussions_channel.send(f"From {message.author.mention}: \n{text}")
+                    await message.author.send("Forwarded your message to staff, you will be contacted shortly 🙃")
 
         if "äbidöpfel" in text:
             texts = [
@@ -554,14 +537,10 @@ def main():
                         "Croeso",
                         "Yeeeeeeeeeeeeeeeeeeeeeeeeeeeeehaw",
                     ]
-                    await message.channel.send(
-                        f"{random.choice(welcome_choice)} <@{neria_id}>!"
-                    )
+                    await message.channel.send(f"{random.choice(welcome_choice)} <@{neria_id}>!")
 
         if client.user in message.mentions:  # If bot has been tagged
-            notification = client.get_emoji(
-                751771924866269214
-            )  # notification/angerping
+            notification = client.get_emoji(751771924866269214)  # notification/angerping
             # sentimentPositive = client.get_emoji(670369126983794700) #POGGERS
             # sentimentNegative = client.get_emoji(670672093263822877) #SadChamp
             await message.add_reaction(notification)
@@ -572,20 +551,14 @@ def main():
                 for insult in ["suck", "bad", "fuck", "shit", "trash"]:
                     if insult in text.lower():
                         # mute pepe and msg him about it
-                        await assignRolesToUser(
-                            [muted_role_id], message.author, message.guild
-                        )
-                        await message.author.send(
-                            "Stop trashing on destiny, muted for an hour :)"
-                        )
+                        await assignRolesToUser([muted_role_id], message.author, message.guild)
+                        await message.author.send("Stop trashing on destiny, muted for an hour :)")
                         nick = message.author.nick
                         await message.author.edit(nick="!Pepe the Muted for an Hour")
 
                         # _delete muted role after an hour
                         await asyncio.sleep(60 * 60)
-                        await removeRolesFromUser(
-                            [muted_role_id], message.author, message.guild
-                        )
+                        await removeRolesFromUser([muted_role_id], message.author, message.guild)
                         await message.author.edit(nick=nick)
                         await message.author.send("Unmuted again :(")
                         return
@@ -593,18 +566,10 @@ def main():
         if message.author.name == "EscalatorBot":
             for user in message.mentions:
                 member = await message.guild.fetch_member(user.id)
-                await member.add_roles(
-                    message.guild.get_role(registered_role_id)
-                )  # registered role
-                await member.remove_roles(
-                    message.guild.get_role(not_registered_role_id)
-                )  # unregistered role
-                await message.channel.send(
-                    f"{member.mention} has been marked as Registered"
-                )
-                await member.send(
-                    "Registration successful!\nCome say hi in <#670400011519000616>"
-                )
+                await member.add_roles(message.guild.get_role(registered_role_id))  # registered role
+                await member.remove_roles(message.guild.get_role(not_registered_role_id))  # unregistered role
+                await message.channel.send(f"{member.mention} has been marked as Registered")
+                await member.send("Registration successful!\nCome say hi in <#670400011519000616>")
 
                 # _update user DB
                 destiny_player = await DestinyPlayer.from_discord_id(member.id)
@@ -631,9 +596,7 @@ def main():
     async def on_member_remove(member: discord.Member):
         # send a message in the join log channel if the server is descend
         if member.guild.id == discord_server_id:
-            embed = embed_message(
-                "Member Left the Server", f"{member.mention} has left the server"
-            )
+            embed = embed_message("Member Left the Server", f"{member.mention} has left the server")
             embed.add_field(name="Display Name", value=member.display_name)
             embed.add_field(name="Name", value=member.name)
             embed.add_field(name="Discord ID", value=member.id)
@@ -657,9 +620,7 @@ def main():
     @client.event
     async def on_voice_state_update(member, before, after):
         guild = member.guild
-        lfg_voice_category_channel = await get_persistent_message_or_channel(
-            client, "lfgVoiceCategory", guild.id
-        )
+        lfg_voice_category_channel = await get_persistent_message_or_channel(client, "lfgVoiceCategory", guild.id)
 
         if before.channel is None:
             # print(f'{member.name} joined VC {after.channel.name}')
@@ -752,9 +713,7 @@ def main():
 
         await ctx.send(
             hidden=True,
-            embed=embed_message(
-                f"Thanks for Registering", f"I sent you a DM with the next steps!"
-            ),
+            embed=embed_message(f"Thanks for Registering", f"I sent you a DM with the next steps!"),
         )
 
     # handle other game roles
@@ -804,14 +763,10 @@ def main():
             ),
         ]
         embed = ctx.origin_message.embeds[0]
-        embed.description = (
-            f"Last used by {ctx.author.mention} <:PeepoZoom:670369608498151456>"
-        )
+        embed.description = f"Last used by {ctx.author.mention} <:PeepoZoom:670369608498151456>"
 
         if int(ctx.component["label"]) == 69420:
-            await ctx.send(
-                hidden=True, content=f"Sorry, the game has been won and is over!"
-            )
+            await ctx.send(hidden=True, content=f"Sorry, the game has been won and is over!")
         else:
             await ctx.edit_origin(components=components, embed=embed)
 
@@ -819,15 +774,11 @@ def main():
     @slash.component_callback()
     async def lfg_join(ctx: ComponentContext):
         # get the lfg message
-        lfg_message = await get_lfg_message(
-            client=ctx.bot, lfg_message_id=ctx.origin_message.id, guild=ctx.guild
-        )
+        lfg_message = await get_lfg_message(client=ctx.bot, lfg_message_id=ctx.origin_message.id, guild=ctx.guild)
         if not lfg_message:
             return
 
-        res = await lfg_message.add_member(
-            member=ctx.guild.get_member(ctx.author.id), ctx=ctx
-        )
+        res = await lfg_message.add_member(member=ctx.guild.get_member(ctx.author.id), ctx=ctx)
         if not res:
             await ctx.send(
                 hidden=True,
@@ -840,15 +791,11 @@ def main():
     @slash.component_callback()
     async def lfg_leave(ctx: ComponentContext):
         # get the lfg message
-        lfg_message = await get_lfg_message(
-            client=ctx.bot, lfg_message_id=ctx.origin_message.id, guild=ctx.guild
-        )
+        lfg_message = await get_lfg_message(client=ctx.bot, lfg_message_id=ctx.origin_message.id, guild=ctx.guild)
         if not lfg_message:
             return
 
-        res = await lfg_message.remove_member(
-            member=ctx.guild.get_member(ctx.author.id), ctx=ctx
-        )
+        res = await lfg_message.remove_member(member=ctx.guild.get_member(ctx.author.id), ctx=ctx)
         if not res:
             await ctx.send(
                 hidden=True,
@@ -861,15 +808,11 @@ def main():
     @slash.component_callback()
     async def lfg_backup(ctx: ComponentContext):
         # get the lfg message
-        lfg_message = await get_lfg_message(
-            client=ctx.bot, lfg_message_id=ctx.origin_message.id, guild=ctx.guild
-        )
+        lfg_message = await get_lfg_message(client=ctx.bot, lfg_message_id=ctx.origin_message.id, guild=ctx.guild)
         if not lfg_message:
             return
 
-        res = await lfg_message.add_backup(
-            member=ctx.guild.get_member(ctx.author.id), ctx=ctx
-        )
+        res = await lfg_message.add_backup(member=ctx.guild.get_member(ctx.author.id), ctx=ctx)
         if not res:
             await ctx.send(
                 hidden=True,
@@ -887,12 +830,8 @@ def main():
     # handle poll selects
     @slash.component_callback()
     async def poll(ctx: ComponentContext):
-        poll = await get_poll_object(
-            guild=ctx.guild, poll_message_id=ctx.origin_message.id
-        )
-        await poll.add_user(
-            select_ctx=ctx, member=ctx.author, option=ctx.selected_options[0]
-        )
+        poll = await get_poll_object(guild=ctx.guild, poll_message_id=ctx.origin_message.id)
+        await poll.add_user(select_ctx=ctx, member=ctx.author, option=ctx.selected_options[0])
 
     # Finally, set the bot running
     # client.run(BOT_TOKEN)

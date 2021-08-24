@@ -157,9 +157,7 @@ class Tournament:
                 for reaction in msg.reactions:
                     async for user in reaction.users():
                         if not user.bot:
-                            if await has_elevated_permissions(
-                                user, tourn_channel.guild
-                            ):
+                            if await has_elevated_permissions(user, tourn_channel.guild):
                                 print("Detected manual game winner overwrite")
                                 for reaction_id in which_user_is_which_emoji:
                                     if reaction.emoji.id == reaction_id:
@@ -178,9 +176,7 @@ class Tournament:
                     await msg._delete()
 
                     # edit participants msg
-                    await edit_tourn_message(
-                        self.tourn_message, self.players, eliminated=self.eliminated
-                    )
+                    await edit_tourn_message(self.tourn_message, self.players, eliminated=self.eliminated)
 
                     return won
 
@@ -206,25 +202,14 @@ async def returnCustomGameWinner(destinyID1, charIDs1, membershipType1, destinyI
         if rep:
             rep.content = json.loads(json.dumps(rep.content))
             # if it's not a private game
-            if not rep.content["Response"]["activities"][0]["activityDetails"][
-                "isPrivate"
-            ]:
+            if not rep.content["Response"]["activities"][0]["activityDetails"]["isPrivate"]:
                 return None
 
             # if it's not completed
-            if (
-                not int(
-                    rep.content["Response"]["activities"][0]["values"]["completed"][
-                        "basic"
-                    ]["value"]
-                )
-                == 1
-            ):
+            if not int(rep.content["Response"]["activities"][0]["values"]["completed"]["basic"]["value"]) == 1:
                 return None
 
-            ID = rep.content["Response"]["activities"][0]["activityDetails"][
-                "instanceId"
-            ]
+            ID = rep.content["Response"]["activities"][0]["activityDetails"]["instanceId"]
             staturl = f"https://stats.bungie.net/Platform/Destiny2/Stats/PostGameCarnageReport/{ID}/"
             rep2 = await get_json_from_url(staturl)
             if rep2:
@@ -236,21 +221,15 @@ async def returnCustomGameWinner(destinyID1, charIDs1, membershipType1, destinyI
 
                 found1, found2 = False, False
                 for player in rep2.content["Response"]["entries"]:
-                    if int(player["player"]["destinyUserInfo"]["membershipId"]) == int(
-                        destinyID1
-                    ):
+                    if int(player["player"]["destinyUserInfo"]["membershipId"]) == int(destinyID1):
                         found1 = True
-                    elif int(
-                        player["player"]["destinyUserInfo"]["membershipId"]
-                    ) == int(destinyID2):
+                    elif int(player["player"]["destinyUserInfo"]["membershipId"]) == int(destinyID2):
                         found2 = True
 
                 # players need to be the once specified
                 if found1 and found2:
                     if (
-                        rep.content["Response"]["activities"][0]["values"]["standing"][
-                            "basic"
-                        ]["displayValue"]
+                        rep.content["Response"]["activities"][0]["values"]["standing"]["basic"]["displayValue"]
                         == "Victory"
                     ):
                         return destinyID1

@@ -288,9 +288,7 @@ requirementHashes = {
         "Crown of Sorrow": {
             "deprecated": True,
             "requirements": ["clears", "records"],
-            "clears": [
-                {"count": 15, "actHashes": cosHashes}
-            ],  # • Minimum 15 full clears
+            "clears": [{"count": 15, "actHashes": cosHashes}],  # • Minimum 15 full clears
             "records": [
                 3308790634,  # Limited Blessings
                 3308790637,  # Total Victory
@@ -463,9 +461,7 @@ requirementHashes = {
         "Vault of Glass Master": {
             "requirements": ["roles", "clears", "records"],
             "roles": ["Vault of Glass"],
-            "clears": [
-                {"count": 30, "actHashes": vogHashes + vogMasterHashes}
-            ],  # Minimum 30 full clears
+            "clears": [{"count": 30, "actHashes": vogHashes + vogMasterHashes}],  # Minimum 30 full clears
             "records": [
                 2750088202,  # Flawless Vault of Glass
                 1983700615,  # Charged Glass (Arc)
@@ -869,9 +865,7 @@ requirementHashes = {
     },
 }
 requirement_hashes_without_years = {
-    rolename: roledata
-    for year, yeardata in requirementHashes.items()
-    for rolename, roledata in yeardata.items()
+    rolename: roledata for year, yeardata in requirementHashes.items() for rolename, roledata in yeardata.items()
 }
 
 platform = {

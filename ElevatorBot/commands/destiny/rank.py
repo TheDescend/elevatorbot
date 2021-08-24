@@ -19,12 +19,8 @@ class Rank(Cog):
                 option_type=3,
                 required=True,
                 choices=[
-                    create_choice(
-                        name="Join-Date of this Discord Server", value="discordjoindate"
-                    ),
-                    create_choice(
-                        name="Roles Earned on this Discord Server", value="roles"
-                    ),
+                    create_choice(name="Join-Date of this Discord Server", value="discordjoindate"),
+                    create_choice(name="Roles Earned on this Discord Server", value="roles"),
                     create_choice(name="Total Playtime", value="totaltime"),
                     create_choice(name="Max. Power Level", value="maxpower"),
                     create_choice(name="Vault Space Used", value="vaultspace"),
@@ -39,12 +35,8 @@ class Rank(Cog):
                     create_choice(name="Raid Time", value="raidtime"),
                     create_choice(name="Grandmaster Nightfalls Done", value="gm"),
                     create_choice(name="Weapon Kills", value="weapon"),
-                    create_choice(
-                        name="Weapon Precision Kills", value="weaponprecision"
-                    ),
-                    create_choice(
-                        name="% Weapon Precision Kills", value="weaponprecisionpercent"
-                    ),
+                    create_choice(name="Weapon Precision Kills", value="weaponprecision"),
+                    create_choice(name="% Weapon Precision Kills", value="weaponprecisionpercent"),
                     create_choice(name="Enhancement Cores", value="enhancementcores"),
                     create_choice(name="Forges Done", value="forges"),
                     create_choice(name="Active Triumph Score", value="activetriumphs"),

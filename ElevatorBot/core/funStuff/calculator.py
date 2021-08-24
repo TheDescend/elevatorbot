@@ -143,9 +143,7 @@ class Calculator:
         button_ctx: ComponentContext = None,
     ):
         if not self.message:
-            embed = embed_message(
-                f"{self.ctx.author.display_name}'s Calculator", f"```{text}```"
-            )
+            embed = embed_message(f"{self.ctx.author.display_name}'s Calculator", f"```{text}```")
             self.message = await self.ctx.send(components=self.buttons, embed=embed)
         else:
             embed = self.message.embeds[0]
@@ -171,9 +169,7 @@ class Calculator:
                             if already_deleted:
                                 text = f"{letter}{text}"
                             already_deleted = True
-                    embed.description = (
-                        text if text != "``````" else "```Please Input Your Equation```"
-                    )
+                    embed.description = text if text != "``````" else "```Please Input Your Equation```"
 
             else:
                 if "Error" in embed.description or "Please" in embed.description:
@@ -195,9 +191,7 @@ class Calculator:
 
     # checks that the button press author is the same as the message command invoker and that the message matches
     def check_author_and_message(self, ctx: ComponentContext):
-        return (ctx.author == self.ctx.author) and (
-            self.ctx.message.id == ctx.origin_message.id
-        )
+        return (ctx.author == self.ctx.author) and (self.ctx.message.id == ctx.origin_message.id)
 
     # wait for button press look
     async def wait_for_button_press(self):
