@@ -8,9 +8,7 @@ from Backend.database.models import BackendUser
 
 
 class CRUDBackendUser(CRUDBase):
-    async def authenticate(
-        self, db: AsyncSession, user_name: str, password: str
-    ) -> Optional[BackendUser]:
+    async def authenticate(self, db: AsyncSession, user_name: str, password: str) -> Optional[BackendUser]:
         """Checks if the user_name has a matching pw"""
 
         # get obj from db

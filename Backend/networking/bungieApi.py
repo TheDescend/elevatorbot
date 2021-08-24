@@ -32,9 +32,7 @@ class BungieApi(NetworkBase):
             self.auth_headers = headers
             self.bungie_request = False
 
-    async def get_json_from_url(
-        self, route: str, params: dict = None, use_cache: bool = True
-    ) -> WebResponse:
+    async def get_json_from_url(self, route: str, params: dict = None, use_cache: bool = True) -> WebResponse:
         """Grabs JSON from the specified URL (no oauth)"""
 
         async with aiohttp_client_cache.CachedSession(cache=self.cache) as session:
@@ -72,9 +70,7 @@ class BungieApi(NetworkBase):
         # ignore cookies
         no_jar = aiohttp.DummyCookieJar()
 
-        async with aiohttp_client_cache.CachedSession(
-            cache=self.cache, cookie_jar=no_jar
-        ) as session:
+        async with aiohttp_client_cache.CachedSession(cache=self.cache, cookie_jar=no_jar) as session:
             # use cache for the responses
             if use_cache:
                 return await self._get_request(
@@ -94,9 +90,7 @@ class BungieApi(NetworkBase):
                         params=params,
                     )
 
-    async def post_json_to_url(
-        self, db: AsyncSession, route: str, json: dict, params: dict = None
-    ) -> WebResponse:
+    async def post_json_to_url(self, db: AsyncSession, route: str, json: dict, params: dict = None) -> WebResponse:
         """Post data to bungie. self.discord_id must have the authentication for the action"""
 
         # set the auth headers to a working token

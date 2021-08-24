@@ -103,17 +103,13 @@ class DestinyProfile:
             "allPvE",
             "allPvP",
         ]
-        assert (
-            stat_category in possible_stat_categories
-        ), f"Stat must be one of {possible_stat_categories}"
+        assert stat_category in possible_stat_categories, f"Stat must be one of {possible_stat_categories}"
 
         stats = await self.get_stats()
 
         # total stats
         if not character_id:
-            stat = stats["mergedAllCharacters"]["merged"][stat_category][stat_name][
-                "basic"
-            ]["value"]
+            stat = stats["mergedAllCharacters"]["merged"][stat_category][stat_name]["basic"]["value"]
             return int(stat)
 
         # character stats
@@ -202,9 +198,7 @@ class DestinyProfile:
         # get character triumphs
         character_triumphs = [
             character_triumphs["records"]
-            for character_id, character_triumphs in result["characterRecords"][
-                "data"
-            ].items()
+            for character_id, character_triumphs in result["characterRecords"]["data"].items()
         ]
 
         # combine them
@@ -281,9 +275,7 @@ class DestinyProfile:
         used_items = await self.__get_profile(201, 205, 300, with_token=True)
         item_power = {
             weapon_id: int(weapon_data.get("primaryStat", {"value": 0})["value"])
-            for weapon_id, weapon_data in used_items["itemComponents"]["instances"][
-                "data"
-            ].items()
+            for weapon_id, weapon_data in used_items["itemComponents"]["instances"]["data"].items()
         }
         item_power["none"] = 0
         for character_id in characters.keys():
@@ -294,11 +286,7 @@ class DestinyProfile:
             character_power_items = map(
                 lambda character_item: dict(
                     character_item,
-                    **{
-                        "lightlevel": item_power[
-                            character_item.get("itemInstanceId", "none")
-                        ]
-                    },
+                    **{"lightlevel": item_power[character_item.get("itemInstanceId", "none")]},
                 ),
                 character_items,
             )
@@ -306,9 +294,7 @@ class DestinyProfile:
 
         return gear
 
-    async def __get_profile(
-        self, *components: Union[int, str], with_token: bool = False
-    ) -> dict:
+    async def __get_profile(self, *components: Union[int, str], with_token: bool = False) -> dict:
         """
         Return info from the profile call
         https://bungie-net.github.io/multi/schema_Destiny-DestinyComponentType.html#schema_Destiny-DestinyComponentType
@@ -318,9 +304,7 @@ class DestinyProfile:
         params = {"components": ",".join(map(str, components))}
 
         if with_token:
-            response = await self.api.get_json_from_bungie_with_token(
-                db=self.db, route=route, params=params
-            )
+            response = await self.api.get_json_from_bungie_with_token(db=self.db, route=route, params=params)
         else:
             response = await self.api.get_json_from_url(route=route, params=params)
 

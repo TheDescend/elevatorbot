@@ -28,9 +28,7 @@ class BackendUser(Base):
 
     user_name = Column(Text, primary_key=True)
     hashed_password = Column(Text)  # this includes salt
-    allowed_scopes = Column(
-        ARRAY(Text())
-    )  # where access is allowed. Empty for full access maybe?
+    allowed_scopes = Column(ARRAY(Text()))  # where access is allowed. Empty for full access maybe?
     has_write_permission = Column(Boolean)
     has_read_permission = Column(Boolean)
     disabled = Column(Boolean, default=False)
@@ -113,9 +111,7 @@ class PgcrActivitiesUsersStatsWeapon(Base):
 class DiscordGuardiansToken(Base):
     __tablename__ = "discordGuardiansToken"
 
-    discord_id = Column(
-        "discordsnowflake", BigInteger, nullable=False, primary_key=True
-    )
+    discord_id = Column("discordsnowflake", BigInteger, nullable=False, primary_key=True)
     destiny_id = Column("destinyid", BigInteger, nullable=False, unique=True)
     system = Column("systemid", Integer, nullable=False)
     token = Column("token", Text, nullable=False)
@@ -232,9 +228,7 @@ class DestinyPresentationNodeDefinition(Base):
     name = Column("name", Text)
     objective_hash = Column("objectivehash", BigInteger)
     presentation_node_type = Column("presentationnodetype", SmallInteger)
-    children_presentation_node_hash = Column(
-        "childrenpresentationnodehash", ARRAY(BigInteger())
-    )
+    children_presentation_node_hash = Column("childrenpresentationnodehash", ARRAY(BigInteger()))
     children_collectible_hash = Column("childrencollectiblehash", ARRAY(BigInteger()))
     children_record_hash = Column("childrenrecordhash", ARRAY(BigInteger()))
     children_metric_hash = Column("childrenmetrichash", ARRAY(BigInteger()))

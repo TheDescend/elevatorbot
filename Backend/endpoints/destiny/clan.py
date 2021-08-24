@@ -14,9 +14,7 @@ router = APIRouter(
 
 
 @router.get("/get", response_model=DestinyClanModel)
-async def get_clan(
-    guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)
-):
+async def get_clan(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Return the clan id and name"""
 
     profile = await crud.discord_users.get_profile_from_discord_id(db, discord_id)
@@ -29,9 +27,7 @@ async def get_clan(
 
 
 @router.get("/get/members", response_model=DestinyClanMembersModel)
-async def get_clan_members(
-    guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)
-):
+async def get_clan_members(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Return the clan members"""
 
     profile = await crud.discord_users.get_profile_from_discord_id(db, discord_id)
@@ -42,9 +38,7 @@ async def get_clan_members(
     return DestinyClanMembersModel(members)
 
 
-@router.get(
-    "/get/members/search/{search_phrase}", response_model=DestinyClanMembersModel
-)
+@router.get("/get/members/search/{search_phrase}", response_model=DestinyClanMembersModel)
 async def get_clan_members_search(
     guild_id: int,
     discord_id: int,

@@ -27,9 +27,7 @@ class Channel(Cog):
                     create_choice(name="Member Count", value="membercount"),
                     create_choice(name="Booster Count", value="boostercount"),
                     create_choice(name="Looking For Group", value="lfg"),
-                    create_choice(
-                        name="LFG Voice Channel Category", value="lfgvoicecategory"
-                    ),
+                    create_choice(name="LFG Voice Channel Category", value="lfgvoicecategory"),
                     create_choice(name="Bot Status", value="botstatus"),
                     create_choice(name="Increment Button", value="increment_button"),
                     create_choice(name="Bungie RSS Feed", value="rss"),

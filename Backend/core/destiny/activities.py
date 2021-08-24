@@ -17,9 +17,7 @@ class DestinyActivities:
     db: AsyncSession
     user: DiscordGuardiansToken
 
-    _full_character_list: list[dict] = dataclasses.field(
-        init=False, default_factory=list
-    )
+    _full_character_list: list[dict] = dataclasses.field(init=False, default_factory=list)
 
     def __post_init__(self):
         # some shortcuts
@@ -33,9 +31,7 @@ class DestinyActivities:
     async def get_character_activity_stats(self, character_id: int) -> dict:
         """Get destiny stats for the specified character"""
 
-        route = stat_route_characters.format(
-            system=self.system, destiny_id=self.destiny_id, character_id=character_id
-        )
+        route = stat_route_characters.format(system=self.system, destiny_id=self.destiny_id, character_id=character_id)
 
         result = await self.api.get_json_from_url(route=route)
         return result.content
@@ -77,18 +73,13 @@ class DestinyActivities:
                 for start_time, end_time in disallowed:
                     if start_time < period < end_time:
                         verdict = False
-                if (
-                    910380154 in activity_hashes
-                    and kills * 60 / time_played_seconds < 1
-                ):
+                if 910380154 in activity_hashes and kills * 60 / time_played_seconds < 1:
                     verdict = False
                 if verdict:
                     return True
         return False
 
-    async def get_lowman_count(
-        self, activity_hashes: list[int]
-    ) -> tuple[int, int, Optional[datetime.timedelta]]:
+    async def get_lowman_count(self, activity_hashes: list[int]) -> tuple[int, int, Optional[datetime.timedelta]]:
         """Returns tuple[solo_count, solo_is_flawless_count, Optional[solo_fastest]]"""
 
         solo_count, solo_is_flawless_count, solo_fastest = 0, 0, None
@@ -174,9 +165,7 @@ class DestinyActivities:
                 for activity in rep.content["activities"]:
                     # check times if wanted
                     if earliest_allowed_datetime or latest_allowed_datetime:
-                        activity_time = datetime.datetime.strptime(
-                            activity["period"], "%Y-%m-%dT%H:%M:%SZ"
-                        )
+                        activity_time = datetime.datetime.strptime(activity["period"], "%Y-%m-%dT%H:%M:%SZ")
 
                         # check if the activity started later than the earliest allowed, else break and continue with next char
                         # This works bc Bungie sorts the api with the newest entry on top

@@ -20,9 +20,7 @@ async def get_db_session() -> AsyncSession:
 
 
 # call this to have a function which requires an authenticated user
-async def auth_get_user(
-    token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db_session)
-) -> BackendUser:
+async def auth_get_user(token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db_session)) -> BackendUser:
     # verify the token
     try:
         payload = jwt.decode(token, get_secret_key(), algorithms=[ALGORITHM])

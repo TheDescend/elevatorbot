@@ -29,9 +29,7 @@ router = APIRouter(
 
 
 @router.post("/bungie", response_model=BungieTokenOutput)
-async def save_bungie_token(
-    bungie_token: BungieTokenInput, db: AsyncSession = Depends(get_db_session)
-):
+async def save_bungie_token(bungie_token: BungieTokenInput, db: AsyncSession = Depends(get_db_session)):
     """Saves a bungie token"""
 
     return await discord_users.insert_profile(
@@ -47,16 +45,12 @@ async def login_for_access_token(
 ):
     """Generate and return a token"""
 
-    user = await crud.backend_user.authenticate(
-        db=db, user_name=form_data.username, password=form_data.password
-    )
+    user = await crud.backend_user.authenticate(db=db, user_name=form_data.username, password=form_data.password)
 
     # check if OK
     if user:
         access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-        access_token = create_access_token(
-            data={"sub": user.user_name}, expires_delta=access_token_expires
-        )
+        access_token = create_access_token(data={"sub": user.user_name}, expires_delta=access_token_expires)
         return {"access_token": access_token, "token_type": "bearer"}
 
     raise HTTPException(

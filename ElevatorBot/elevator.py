@@ -5,6 +5,7 @@ from discord.ext.commands import Bot
 from discord_slash import SlashCommand
 
 from ElevatorBot.discordEvents.base import register_discord_events
+from ElevatorBot.misc.discordStatus import update_status
 from ElevatorBot.misc.initBackgroundEvents import register_background_events
 from ElevatorBot.misc.initLogging import init_logging
 from ElevatorBot.misc.veryMisc import yield_files_in_folder
@@ -17,9 +18,7 @@ first_start = True
 init_logging()
 
 # print ascii art
-print(
-    "----------------------------------------------------------------------------------------"
-)
+print("----------------------------------------------------------------------------------------")
 print(
     """
       ______   _                          _                    ____            _   
@@ -30,9 +29,7 @@ print(
      |______| |_|  \___|   \_/    \__,_|  \__|  \___/  |_|    |____/   \___/   \__|                                                                          
     """
 )
-print(
-    "----------------------------------------------------------------------------------------\n"
-)
+print("----------------------------------------------------------------------------------------\n")
 print("Starting Up...")
 
 # enable intents to allow certain events
@@ -49,6 +46,9 @@ class ElevatorBot(Bot):
         if not first_start:
             return
         first_start = False
+
+        # launch status changer
+        await update_status(client)
 
         print("Startup Finished!\n")
         print("--------------------------\n")

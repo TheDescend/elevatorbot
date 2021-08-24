@@ -55,9 +55,7 @@ class DestinyClan:
         route = clan_members_route.format(clan_id=clan_id)
         params = {"nameSearch": member_name}
 
-        results = (
-            await self.api.get_json_from_url(route=route, params=params)
-        ).content["results"]
+        results = (await self.api.get_json_from_url(route=route, params=params)).content["results"]
 
         members = []
         for result in results:
@@ -70,17 +68,13 @@ class DestinyClan:
                     last_online_status_change=datetime.datetime.strptime(
                         result["lastOnlineStatusChange"], "%Y-%m-%dT%H:%M:%SZ"
                     ),
-                    join_date=datetime.datetime.strptime(
-                        result["joinDate"], "%Y-%m-%dT%H:%M:%SZ"
-                    ),
+                    join_date=datetime.datetime.strptime(result["joinDate"], "%Y-%m-%dT%H:%M:%SZ"),
                 )
             )
 
         return members
 
-    async def get_clan_members(
-        self, clan_id: int = None
-    ) -> list[DestinyClanMemberModel]:
+    async def get_clan_members(self, clan_id: int = None) -> list[DestinyClanMemberModel]:
         """ " Get all clan members from a clan"""
 
         # searching for an empty string results in the same. Just less duplicated code this way
@@ -95,9 +89,7 @@ class DestinyClan:
 
         clan_id, clan_name = await self.get_clan_id_and_name()
 
-        route = clan_invite_route.format(
-            clan_id=clan_id, system=to_invite_system, destiny_id=to_invite_discord_id
-        )
+        route = clan_invite_route.format(clan_id=clan_id, system=to_invite_system, destiny_id=to_invite_discord_id)
 
         welcome_message = {"message": f"Welcome to {clan_name}"}
 

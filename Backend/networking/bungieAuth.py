@@ -31,9 +31,7 @@ class BungieAuth(NetworkBase):
     ) -> str:
         """Returns token or raises an error"""
 
-        self.user = discord_users.get_profile_from_discord_id(
-            db=self.db, discord_id=self.discord_id
-        )
+        self.user = discord_users.get_profile_from_discord_id(db=self.db, discord_id=self.discord_id)
         if not self.user.token:
             raise CustomException(
                 error="NoToken",
@@ -79,9 +77,7 @@ class BungieAuth(NetworkBase):
                     user=self.user,
                     token=access_token,
                     refresh_token=response.content["refresh_token"],
-                    token_expiry=datetime.datetime.fromtimestamp(
-                        current_time + response.content["expires_in"]
-                    ),
+                    token_expiry=datetime.datetime.fromtimestamp(current_time + response.content["expires_in"]),
                     refresh_token_expiry=datetime.datetime.fromtimestamp(
                         current_time + response.content["refresh_expires_in"]
                     ),

@@ -151,9 +151,7 @@ class NetworkBase:
                 route,
             )
             if request.status == 200:
-                self.logger.error(
-                    "Wrong content type returned text: '%s'", await request.text()
-                )
+                self.logger.error("Wrong content type returned text: '%s'", await request.text())
             await asyncio.sleep(3)
             return
 
@@ -170,14 +168,8 @@ class NetworkBase:
                 response.error = response.content["ErrorStatus"]
             elif "error_description" in response.content:
                 response.error = response.content["error_description"]
-            response.error_code = (
-                response.content["ErrorCode"]
-                if "ErrorCode" in response.content
-                else None
-            )
-            response.error_message = (
-                response.content["Message"] if "Message" in response.content else None
-            )
+            response.error_code = response.content["ErrorCode"] if "ErrorCode" in response.content else None
+            response.error_message = response.content["Message"] if "Message" in response.content else None
 
             # set if the response was cached
             try:
@@ -186,14 +178,10 @@ class NetworkBase:
                 response.from_cache = False
 
         except aiohttp.ClientPayloadError:
-            self.logger.error(
-                "'%s': Payload error, retrying for '%s'", request.status, route
-            )
+            self.logger.error("'%s': Payload error, retrying for '%s'", request.status, route)
             return
         except aiohttp.ContentTypeError:
-            self.logger.error(
-                "'%s': Content type error, retrying for '%s'", request.status, route
-            )
+            self.logger.error("'%s': Content type error, retrying for '%s'", request.status, route)
             return
 
         # if response is ok return it

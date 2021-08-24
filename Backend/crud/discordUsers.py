@@ -12,14 +12,10 @@ from Backend.schemas.auth import BungieTokenInput, BungieTokenOutput
 
 
 class CRUDDiscordUser(CRUDBase):
-    async def get_profile_from_discord_id(
-        self, db: AsyncSession, discord_id: int
-    ) -> DiscordGuardiansToken:
+    async def get_profile_from_discord_id(self, db: AsyncSession, discord_id: int) -> DiscordGuardiansToken:
         """Return the profile information"""
 
-        profile: Optional[DiscordGuardiansToken] = await self._get_with_key(
-            db, discord_id
-        )
+        profile: Optional[DiscordGuardiansToken] = await self._get_with_key(db, discord_id)
 
         # make sure the user exists
         if not profile:
@@ -29,14 +25,10 @@ class CRUDDiscordUser(CRUDBase):
 
         return profile
 
-    async def get_profile_from_destiny_id(
-        self, db: AsyncSession, destiny_id: int
-    ) -> DiscordGuardiansToken:
+    async def get_profile_from_destiny_id(self, db: AsyncSession, destiny_id: int) -> DiscordGuardiansToken:
         """Return the profile information"""
 
-        profiles: list[DiscordGuardiansToken] = await self._get_multi_with_filter(
-            db, destiny_id=destiny_id
-        )
+        profiles: list[DiscordGuardiansToken] = await self._get_multi_with_filter(db, destiny_id=destiny_id)
 
         # make sure the user exists
         if not profiles:
@@ -46,9 +38,7 @@ class CRUDDiscordUser(CRUDBase):
 
         return profiles[0]
 
-    async def insert_profile(
-        self, db: AsyncSession, bungie_token: BungieTokenInput
-    ) -> BungieTokenOutput:
+    async def insert_profile(self, db: AsyncSession, bungie_token: BungieTokenInput) -> BungieTokenOutput:
         """Inserts a users token data"""
 
         # get current time
@@ -82,9 +72,7 @@ class CRUDDiscordUser(CRUDBase):
                 break
 
             # cross save data is preferred
-            if "crossSaveOverride" in profile and (
-                profile["crossSaveOverride"] == profile["membershipType"]
-            ):
+            if "crossSaveOverride" in profile and (profile["crossSaveOverride"] == profile["membershipType"]):
                 break
 
         # if they have no destiny profile
@@ -122,12 +110,8 @@ class CRUDDiscordUser(CRUDBase):
                 system=system,
                 token=bungie_token.access_token,
                 refresh_token=bungie_token.refresh_token,
-                token_expiry=datetime.datetime.fromtimestamp(
-                    current_time + bungie_token.expires_in
-                ),
-                refresh_token_expiry=datetime.datetime.fromtimestamp(
-                    current_time + bungie_token.refresh_expires_in
-                ),
+                token_expiry=datetime.datetime.fromtimestamp(current_time + bungie_token.expires_in),
+                refresh_token_expiry=datetime.datetime.fromtimestamp(current_time + bungie_token.refresh_expires_in),
                 signup_date=datetime.date.today(),
                 signup_server_id=guild_id,
             )
@@ -144,12 +128,8 @@ class CRUDDiscordUser(CRUDBase):
                 system=system,
                 token=bungie_token.access_token,
                 refresh_token=bungie_token.refresh_token,
-                token_expiry=datetime.datetime.fromtimestamp(
-                    current_time + bungie_token.expires_in
-                ),
-                refresh_token_expiry=datetime.datetime.fromtimestamp(
-                    current_time + bungie_token.refresh_expires_in
-                ),
+                token_expiry=datetime.datetime.fromtimestamp(current_time + bungie_token.expires_in),
+                refresh_token_expiry=datetime.datetime.fromtimestamp(current_time + bungie_token.refresh_expires_in),
             )
 
         # todo connect to the websocket on elevator for them to write a message
