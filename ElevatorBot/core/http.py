@@ -56,7 +56,7 @@ class BaseBackendConnection:
             ) as response:
                 return self.__backend_parse_response(response)
 
-    async def _backend_post(self, route: str, data: dict, params: dict = None) -> BackendResult:
+    async def _backend_post(self, route: str, data: dict = None, params: dict = None) -> BackendResult:
         """Make a post request to the specified backend route and return the results"""
 
         async with self.backend_session as session:

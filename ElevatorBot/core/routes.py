@@ -8,8 +8,11 @@ destiny_profile_from_discord_id_route = base_route + "profile/discord/{discord_i
 destiny_profile_from_destiny_id_route = base_route + "profile/destiny/{destiny_id}/"
 destiny_profile_delete_route = base_route + "profile/delete/{discord_id}/"
 
-destiny_account_route = destiny_base_route + "account/"
+destiny_join_id_get_route = base_route + "profile/joinId/{discord_id}/get/"
+destiny_join_id_delete_route = base_route + "profile/joinId/{discord_id}/delete/"
+destiny_join_id_update_route = base_route + "profile/joinId/{discord_id}/update/"
 
+destiny_account_route = destiny_base_route + "account/"
 destiny_name_route = destiny_account_route + "name/"
 
 destiny_clan_route = destiny_base_route + "clan/"

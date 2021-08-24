@@ -6,16 +6,16 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.errors import CustomException
 from Backend.crud.base import CRUDBase
-from Backend.database.models import DiscordGuardiansToken
+from Backend.database.models import DiscordUsers
 from Backend.networking.bungieApi import BungieApi
 from Backend.schemas.auth import BungieTokenInput, BungieTokenOutput
 
 
 class CRUDDiscordUser(CRUDBase):
-    async def get_profile_from_discord_id(self, db: AsyncSession, discord_id: int) -> DiscordGuardiansToken:
+    async def get_profile_from_discord_id(self, db: AsyncSession, discord_id: int) -> DiscordUsers:
         """Return the profile information"""
 
-        profile: Optional[DiscordGuardiansToken] = await self._get_with_key(db, discord_id)
+        profile: Optional[DiscordUsers] = await self._get_with_key(db, discord_id)
 
         # make sure the user exists
         if not profile:
@@ -25,10 +25,10 @@ class CRUDDiscordUser(CRUDBase):
 
         return profile
 
-    async def get_profile_from_destiny_id(self, db: AsyncSession, destiny_id: int) -> DiscordGuardiansToken:
+    async def get_profile_from_destiny_id(self, db: AsyncSession, destiny_id: int) -> DiscordUsers:
         """Return the profile information"""
 
-        profiles: list[DiscordGuardiansToken] = await self._get_multi_with_filter(db, destiny_id=destiny_id)
+        profiles: list[DiscordUsers] = await self._get_multi_with_filter(db, destiny_id=destiny_id)
 
         # make sure the user exists
         if not profiles:
@@ -104,7 +104,7 @@ class CRUDDiscordUser(CRUDBase):
 
         if method_insert:
             # new user! so lets construct their info
-            user = DiscordGuardiansToken(
+            user = DiscordUsers(
                 discord_id=discord_id,
                 destiny_id=destiny_id,
                 system=system,
@@ -139,7 +139,7 @@ class CRUDDiscordUser(CRUDBase):
     async def refresh_tokens(
         self,
         db: AsyncSession,
-        user: DiscordGuardiansToken,
+        user: DiscordUsers,
         token=str,
         refresh_token=str,
         token_expiry=datetime,
@@ -166,5 +166,38 @@ class CRUDDiscordUser(CRUDBase):
                 error="DiscordIdNotFound",
             )
 
+    async def get_join_id(self, db: AsyncSession, discord_id: int) -> int:
+        """Gets a join id from the DB"""
 
-discord_users = CRUDDiscordUser(DiscordGuardiansToken)
+        profile = await self.get_profile_from_discord_id(db=db, discord_id=discord_id)
+        join_id = profile.steam_join_id
+
+        if not join_id:
+            raise CustomException("NoJoinId")
+
+        return join_id
+
+    async def update_join_id(self, db: AsyncSession, discord_id: int, new_join_id: int) -> int:
+        """Updates a join id from the DB"""
+
+        profile = await self.get_profile_from_discord_id(db=db, discord_id=discord_id)
+
+        # update it
+        await self._update(db=db, to_update=profile, steam_join_id=new_join_id)
+
+        return profile.steam_join_id
+
+    async def delete_join_id(self, db: AsyncSession, discord_id: int):
+        """Deletes a join id from the DB"""
+
+        profile = await self.get_profile_from_discord_id(db=db, discord_id=discord_id)
+
+        # is an id even set?
+        if not profile.steam_join_id:
+            return
+
+        # update it
+        await self._update(db=db, to_update=profile, steam_join_id=None)
+
+
+discord_users = CRUDDiscordUser(DiscordUsers)

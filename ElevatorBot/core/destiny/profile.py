@@ -8,7 +8,7 @@ import discord
 from ElevatorBot.core.http import BaseBackendConnection
 from ElevatorBot.core.results import BackendResult
 from ElevatorBot.core.routes import (
-    destiny_profile_delete_route,
+    destiny_join_id_delete_route, destiny_join_id_get_route, destiny_join_id_update_route, destiny_profile_delete_route,
     destiny_profile_from_destiny_id_route,
     destiny_profile_from_discord_id_route,
 )
@@ -76,6 +76,47 @@ class DestinyProfile(BaseBackendConnection):
 
         result = await self._backend_delete(
             route=destiny_profile_delete_route.format(discord_id=self.discord_member.id)
+        )
+
+        # check if OK
+        if not result:
+            result.error_message = {"discord_member": self.discord_member}
+        return result
+
+    async def get_join_id(self) -> BackendResult:
+        """Gets a join id from the DB"""
+
+        result = await self._backend_get(
+            route=destiny_join_id_get_route.format(discord_id=self.discord_member.id)
+        )
+
+        # check if OK
+        if not result:
+            result.error_message = {"discord_member": self.discord_member}
+        return result
+
+
+    async def update_join_id(self, join_id) -> BackendResult:
+        """Updates a join id from the DB"""
+
+        data = {
+            "join_id": join_id
+        }
+        result = await self._backend_post(
+            route=destiny_join_id_update_route.format(discord_id=self.discord_member.id, json=data)
+        )
+
+        # check if OK
+        if not result:
+            result.error_message = {"discord_member": self.discord_member}
+        return result
+
+
+    async def delete_join_id(self) -> BackendResult:
+        """Deletes a join id from the DB"""
+
+        result = await self._backend_delete(
+            route=destiny_join_id_delete_route.format(discord_id=self.discord_member.id)
         )
 
         # check if OK

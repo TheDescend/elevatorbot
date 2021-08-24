@@ -5,7 +5,7 @@ from typing import AsyncGenerator, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.destiny.profile import DestinyProfile
-from Backend.database.models import DiscordGuardiansToken
+from Backend.database.models import DiscordUsers
 from Backend.networking.bungieApi import BungieApi
 from Backend.core.destiny.routes import activities_route, stat_route_characters
 
@@ -15,7 +15,7 @@ class DestinyActivities:
     """API calls focusing on activities"""
 
     db: AsyncSession
-    user: DiscordGuardiansToken
+    user: DiscordUsers
 
     _full_character_list: list[dict] = dataclasses.field(init=False, default_factory=list)
 

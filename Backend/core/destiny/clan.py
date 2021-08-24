@@ -4,7 +4,7 @@ import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.errors import CustomException
-from Backend.database.models import DiscordGuardiansToken
+from Backend.database.models import DiscordUsers
 from Backend.networking.bungieApi import BungieApi
 from Backend.core.destiny.routes import (
     clan_admins_route,
@@ -20,7 +20,7 @@ class DestinyClan:
     """Clan specific API calls"""
 
     db: AsyncSession
-    user: DiscordGuardiansToken
+    user: DiscordUsers
 
     def __post_init__(self):
         # some shortcuts

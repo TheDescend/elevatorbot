@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.errors import CustomException
 from Backend.crud import discord_users
-from Backend.database.models import DiscordGuardiansToken
+from Backend.database.models import DiscordUsers
 from Backend.networking.base import NetworkBase
 from settings import B64_SECRET
 
@@ -24,7 +24,7 @@ class BungieAuth(NetworkBase):
     }
 
     bungie_request = True
-    user: DiscordGuardiansToken = dataclasses.field(init=False)
+    user: DiscordUsers = dataclasses.field(init=False)
 
     async def get_working_token(
         self,

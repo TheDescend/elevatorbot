@@ -4,7 +4,7 @@ from typing import Optional, Union
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from Backend.database.models import DiscordGuardiansToken
+from Backend.database.models import DiscordUsers
 from Backend.networking.bungieApi import BungieApi
 from Backend.core.destiny.routes import profile_route, stat_route
 
@@ -14,7 +14,7 @@ class DestinyProfile:
     """User specific API calls"""
 
     db: AsyncSession
-    user: DiscordGuardiansToken
+    user: DiscordUsers
 
     race_map = {2803282938: "Awoken", 898834093: "Exo", 3887404748: "Human"}
     gender_map = {

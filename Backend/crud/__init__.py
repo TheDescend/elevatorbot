@@ -1,8 +1,8 @@
 from Backend.crud.backendUsers import backend_user
-from Backend.crud.destinyClanLinks import destiny_clan_links
-from Backend.crud.discordUsers import discord_users
-from Backend.crud.lfgSystem import lfg_user, lfg_message
-from Backend.crud.manifestData import (
+from Backend.crud.destiny.destinyClanLinks import destiny_clan_links
+from Backend.crud.destiny.discordUsers import discord_users
+from Backend.crud.destiny.lfgSystem import lfg_user, lfg_message
+from Backend.crud.destiny.manifestData import (
     manifest_version,
     destiny_activity_definition,
     destiny_activity_mode_definition,
@@ -15,7 +15,7 @@ from Backend.crud.manifestData import (
 )
 from Backend.crud.misc import rss_feed_items, owned_emblems, d2_steam_players
 from Backend.crud.persistentMessages import persistent_messages
-from Backend.crud.pgcrActivities import (
+from Backend.crud.destiny.pgcrActivities import (
     activities,
     activities_fail_to_get,
     activities_users_stats,

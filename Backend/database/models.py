@@ -108,7 +108,7 @@ class PgcrActivitiesUsersStatsWeapon(Base):
 # Userdata
 
 
-class DiscordGuardiansToken(Base):
+class DiscordUsers(Base):
     __tablename__ = "discordGuardiansToken"
 
     discord_id = Column("discordsnowflake", BigInteger, nullable=False, primary_key=True)
