@@ -65,10 +65,13 @@ class CRUDBase:
 
         await db.flush()
 
-    async def _delete(self, db: AsyncSession, primary_key: Any) -> Optional[ModelType]:
+    async def _delete(self, db: AsyncSession, primary_key: Any = None, obj: ModelType = None) -> Optional[ModelType]:
         """Delete an entry from the database by primary key"""
 
-        obj = await self._get_with_key(db, primary_key)
+        assert primary_key or obj
+
+        if not obj:
+            obj = await self._get_with_key(db, primary_key)
 
         # test if that actually exists
         if not obj:

@@ -1,4 +1,5 @@
 from Backend.crud.backendUsers import backend_user
+from Backend.crud.destinyClanLinks import destiny_clan_links
 from Backend.crud.discordUsers import discord_users
 from Backend.crud.lfgSystem import lfg_user, lfg_message
 from Backend.crud.manifestData import (

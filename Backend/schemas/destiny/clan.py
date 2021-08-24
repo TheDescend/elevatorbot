@@ -19,3 +19,8 @@ class DestinyClanMemberModel(BaseModel):
 
 class DestinyClanMembersModel(BaseModel):
     members: list[DestinyClanMemberModel]
+
+
+class DestinyClanLink(BaseModel):
+    success: bool
+    clan_name: str

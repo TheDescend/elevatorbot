@@ -7,7 +7,7 @@ from ElevatorBot.core.results import BackendResult
 from ElevatorBot.core.routes import (
     destiny_clan_get_members_route,
     destiny_clan_get_route,
-    destiny_clan_search_members_route,
+    destiny_clan_invite_route, destiny_clan_link_route, destiny_clan_search_members_route, destiny_clan_unlink_route,
 )
 
 
@@ -62,5 +62,70 @@ class DestinyClan(BaseBackendConnection):
         # if no errors occurred, format the message
         if not result:
             result.error_message = {"discord_member": self.discord_member}
+
+        return result
+
+
+    async def invite_to_clan(
+        self,
+        to_invite: discord.Member
+    ) -> BackendResult:
+        """Return the destiny clan members which match the search term"""
+
+        result = await self._backend_get(
+            route=destiny_clan_invite_route.format(
+                guild_id=self.discord_guild.id,
+                discord_id=self.discord_member.id,
+                to_invite_discord_id=to_invite.id,
+            )
+        )
+
+        # if errors occurred, format the message
+        if not result:
+            result.error_message = {
+                "discord_member": self.discord_member,
+                "discord_member2": to_invite
+            }
+
+        return result
+
+    async def link(
+        self,
+    ) -> BackendResult:
+        """Link the discord guild to the destiny guild"""
+
+        result = await self._backend_get(
+            route=destiny_clan_link_route.format(
+                guild_id=self.discord_guild.id,
+                discord_id=self.discord_member.id,
+            )
+        )
+
+        # if errors occurred, format the message
+        if not result:
+            result.error_message = {
+                "discord_member": self.discord_member,
+            }
+
+        return result
+
+
+    async def unlink(
+        self,
+    ) -> BackendResult:
+        """Unlink the discord guild to the destiny guild"""
+
+        result = await self._backend_get(
+            route=destiny_clan_unlink_route.format(
+                guild_id=self.discord_guild.id,
+                discord_id=self.discord_member.id,
+            )
+        )
+
+        # if errors occurred, format the message
+        if not result:
+            result.error_message = {
+                "discord_member": self.discord_member,
+            }
 
         return result

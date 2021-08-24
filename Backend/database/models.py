@@ -129,6 +129,15 @@ class DiscordGuardiansToken(Base):
     )
 
 
+class DestinyClanLinks(Base):
+    __tablename__ = "destinyClanLinks"
+
+    discord_guild_id = Column(BigInteger, primary_key=True, nullable=False)
+    destiny_clan_id = Column(BigInteger, unique=True, nullable=False)
+    link_date = Column(DateTime, nullable=False)
+    linked_by_discord_id = Column(BigInteger, nullable=False)
+
+
 class OwnedEmblem(Base):
     __tablename__ = "ownedEmblems"
 

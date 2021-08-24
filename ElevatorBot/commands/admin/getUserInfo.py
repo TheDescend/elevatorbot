@@ -47,6 +47,8 @@ class UserInfo(Cog):
         destiny_id: str = None,
         fuzzy_name: str = None,
     ):
+        """Gets collected info for the specified user"""
+
         # make sure exactly one arg was chosen
         if (
             (not (discord_user or destiny_id or fuzzy_name))
@@ -57,15 +59,11 @@ class UserInfo(Cog):
         ):
             await ctx.send(
                 hidden=True,
-                embed=embed_message(
-                    "Error", "Exactly one of the arguments must be used"
-                ),
+                embed=embed_message("Error", "Exactly one of the arguments must be used"),
             )
             return
         await ctx.defer()
-        destiny_profile = DestinyProfile(
-            client=ctx.bot, discord_member=discord_user, discord_guild=ctx.guild
-        )
+        destiny_profile = DestinyProfile(client=ctx.bot, discord_member=discord_user, discord_guild=ctx.guild)
 
         title = f"Available Info"
         profiles = []
@@ -77,9 +75,7 @@ class UserInfo(Cog):
             except ValueError:
                 await ctx.send(
                     hidden=True,
-                    embed=embed_message(
-                        "Error", "The argument `destiny_id` must be a number"
-                    ),
+                    embed=embed_message("Error", "The argument `destiny_id` must be a number"),
                 )
                 return
 
@@ -102,9 +98,7 @@ class UserInfo(Cog):
         # if fuzzy name is given
         else:
             # todo get clan id from discord guild
-            clan = DestinyClan(
-                client=ctx.bot, discord_member=discord_user, discord_guild=ctx.guild
-            )
+            clan = DestinyClan(client=ctx.bot, discord_member=discord_user, discord_guild=ctx.guild)
             clan_members = await clan.search_for_clan_members(search_phrase=fuzzy_name)
 
             # handle errors
@@ -114,16 +108,12 @@ class UserInfo(Cog):
 
             # did we find sb?
             if not clan_members.result["members"]:
-                await ctx.send(
-                    embed=embed_message("Error", "No matches found for `{fuzzy_name}`")
-                )
+                await ctx.send(embed=embed_message("Error", "No matches found for `{fuzzy_name}`"))
                 return
 
             # loop through the results
             for potential_match in clan_members.result["members"]:
-                profile = await destiny_profile.from_destiny_id(
-                    destiny_id=potential_match.destiny_id
-                )
+                profile = await destiny_profile.from_destiny_id(destiny_id=potential_match.destiny_id)
 
                 # handle errors
                 if not profile:
@@ -135,9 +125,7 @@ class UserInfo(Cog):
         # make return embed
         embed = embed_message(
             title,
-            "Could not find a clear result, here are the matches"
-            if len(profiles) > 1
-            else None,
+            "Could not find a clear result, here are the matches" if len(profiles) > 1 else None,
         )
 
         # fill that

@@ -8,4 +8,7 @@ error_codes_and_responses = {
     "BungieDestinyPrivacyRestriction": "{discord_member.mention} has a private profile \nPlease change your [privacy settings](https://www.bungie.net/en/Profile/Settings/)",
     "BungieClanTargetDisallowsInvites": "{discord_member.mention} is not allowing clan invites \nPlease change your [privacy settings](https://www.bungie.net/en/Profile/Settings/)",
     "UnknownError": "I got an unknown error while handling your request \nPlease contact a developer",
+    "UserNotInClan": "{discord_member.mention} is not in any clan",
+    "ClanInviteFailed": "Was not able to invite {discord_member.mention} to the clan with {discord_member2.mention} credentials",
+    "ClanNoPermissions": "{discord_member.mention} does not have admin permissions in their Destiny 2 clan"
 }

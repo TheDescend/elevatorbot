@@ -3,15 +3,16 @@ import datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from Backend.core.errors import CustomException
 from Backend.database.models import DiscordGuardiansToken
 from Backend.networking.bungieApi import BungieApi
-from Backend.networking.routes import (
+from Backend.core.destiny.routes import (
+    clan_admins_route,
     clan_get_route,
     clan_invite_route,
     clan_members_route,
-    clan_route,
 )
-from Backend.schemas.destiny.clan import DestinyClanMemberModel
+from Backend.schemas.destiny.clan import DestinyClanLink, DestinyClanMemberModel
 
 
 @dataclasses.dataclass
@@ -31,12 +32,16 @@ class DestinyClan:
         self.api = BungieApi(discord_id=self.discord_id)
 
     async def get_clan_id_and_name(self) -> tuple[int, str]:
-        """ " Gets clan information"""
+        """Gets clan information"""
 
         route = clan_get_route.format(system=self.system, destiny_id=self.destiny_id)
         result = await self.api.get_json_from_url(
             route=route,
         )
+
+        # check if clan exists
+        if not result.content["results"]:
+            raise CustomException("UserNotInClan")
 
         # we only care about the first one
         clan = result.content["results"][0]
@@ -47,7 +52,7 @@ class DestinyClan:
         member_name: str,
         clan_id: int = None,
     ) -> list[DestinyClanMemberModel]:
-        """ " Search the clan for members with that name"""
+        """Search the clan for members with that name"""
 
         if not clan_id:
             clan_id, _ = await self.get_clan_id_and_name()
@@ -62,7 +67,7 @@ class DestinyClan:
             members.append(
                 DestinyClanMemberModel(
                     system=result["destinyUserInfo"]["membershipType"],
-                    destiny_id=result["destinyUserInfo"]["membershipId"],
+                    destiny_id=int(result["destinyUserInfo"]["membershipId"]),
                     name=result["destinyUserInfo"]["displayName"],
                     is_online=result["isOnline"],
                     last_online_status_change=datetime.datetime.strptime(
@@ -75,10 +80,27 @@ class DestinyClan:
         return members
 
     async def get_clan_members(self, clan_id: int = None) -> list[DestinyClanMemberModel]:
-        """ " Get all clan members from a clan"""
+        """Get all clan members from a clan"""
 
         # searching for an empty string results in the same. Just less duplicated code this way
         return await self.search_clan_for_member(member_name="", clan_id=clan_id)
+
+    async def is_clan_admin(self, clan_id: int = None) -> bool:
+        """Returns whether the user is an admin in the clan"""
+
+        if not clan_id:
+            clan_id, _ = await self.get_clan_id_and_name()
+
+        route = clan_admins_route.format(clan_id=clan_id)
+
+        results = (await self.api.get_json_from_url(route=route)).content["results"]
+
+        # look if destiny_id is in there
+        for result in results:
+            if int(result["destinyUserInfo"]["membershipId"]) == self.destiny_id:
+                return True
+
+        return False
 
     async def invite_to_clan(
         self,
@@ -93,4 +115,8 @@ class DestinyClan:
 
         welcome_message = {"message": f"Welcome to {clan_name}"}
 
-        await self.api.post_json_to_url(db=self.db, route=route, json=welcome_message)
+        # catch the exception if it fails and send a new one
+        try:
+            await self.api.post_json_to_url(db=self.db, route=route, json=welcome_message)
+        except CustomException:
+            raise CustomException("ClanInviteFailed")

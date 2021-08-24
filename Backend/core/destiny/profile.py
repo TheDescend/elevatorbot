@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.database.models import DiscordGuardiansToken
 from Backend.networking.bungieApi import BungieApi
-from Backend.networking.routes import profile_route, stat_route
+from Backend.core.destiny.routes import profile_route, stat_route
 
 
 @dataclasses.dataclass
