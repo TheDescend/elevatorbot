@@ -68,7 +68,7 @@ class DestinyClan:
                 DestinyClanMemberModel(
                     system=result["destinyUserInfo"]["membershipType"],
                     destiny_id=int(result["destinyUserInfo"]["membershipId"]),
-                    name=result["destinyUserInfo"]["displayName"],
+                    name=f"""{result["destinyUserInfo"]["bungieGlobalDisplayName"]}#{result["destinyUserInfo"]["bungieGlobalDisplayNameCode"]}""",
                     is_online=result["isOnline"],
                     last_online_status_change=datetime.datetime.strptime(
                         result["lastOnlineStatusChange"], "%Y-%m-%dT%H:%M:%SZ"

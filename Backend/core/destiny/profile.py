@@ -33,10 +33,11 @@ class DestinyProfile:
         self.api = BungieApi(discord_id=self.discord_id)
 
     async def get_destiny_name(self) -> str:
-        """Returns the current user name"""
+        """Returns the current user name#1234"""
 
         result = await self.__get_profile(100)
-        return result["profile"]["data"]["userInfo"]["displayName"]
+        user_info = result["profile"]["data"]["userInfo"]
+        return f"""{["bungieGlobalDisplayName"]}#{["bungieGlobalDisplayNameCode"]}"""
 
     async def get_last_online(self) -> datetime.datetime:
         """Returns the last online time"""

@@ -59,21 +59,22 @@ class CRUDDiscordUser(CRUDBase):
             route="https://www.bungie.net/platform/User/GetMembershipsForCurrentUser/",
         )
 
-        # todo change to new destiny name system since thats universal and should hopefully only have one id / system
         # get the users destiny info
-        destiny_id = None
+        destiny_id = int(destiny_info.content["primaryMembershipId"])
+
+        # get the system
         system = None
         for profile in destiny_info.content["destinyMemberships"]:
-            destiny_id = int(profile["membershipId"])
-            system = profile["membershipType"]
-
-            # if there is no cross save data, prefer pc
-            if "crossSaveOverride" not in profile and profile["membershipType"] == 3:
+            if int(profile["membershipId"]) == destiny_id:
+                system = profile["membershipType"]
                 break
 
-            # cross save data is preferred
-            if "crossSaveOverride" in profile and (profile["crossSaveOverride"] == profile["membershipType"]):
-                break
+        # that should find a system 100% of the time, extra check here to be sure
+        if not system:
+            return BungieTokenOutput(
+                success=False,
+                errror_message="Could not find what platform you are on",
+            )
 
         # if they have no destiny profile
         if not destiny_id:
