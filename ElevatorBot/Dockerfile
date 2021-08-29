@@ -4,7 +4,7 @@ ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH "${PYTHONPATH}:/app"
 
 # Install nodemon
-RUN apt-get _update && apt-get upgrade -y && apt-get install -y nodejs npm
+RUN apt-get update && apt-get upgrade -y && apt-get install -y nodejs npm
 RUN npm install -g nodemon
 
 # Prep Elevator Code
