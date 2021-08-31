@@ -5,7 +5,6 @@ from discord_slash.model import ButtonStyle, ContextMenuType
 from discord_slash.utils import manage_components
 
 from ElevatorBot.core.destiny.account import DestinyAccount
-from ElevatorBot.core.destiny.profile import DestinyProfile
 from ElevatorBot.misc.formating import embed_message
 
 

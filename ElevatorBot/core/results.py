@@ -13,8 +13,8 @@ class BackendResult:
     """Holds the return info"""
 
     success: bool
-    result: Optional[dict]
-    error: Optional[str]
+    result: dict = None
+    error: str = None
 
     __error_message: str = dataclasses.field(default=None, init=False, repr=False, compare=False)
 

@@ -62,9 +62,7 @@ class Activities(Base):
     is_private = Column(Boolean, nullable=False)
     system = Column(SmallInteger, nullable=False)
 
-    users = relationship(
-        "ActivitiesUsersStats", back_populates="activities", cascade="all, delete", passive_deletes=True
-    )
+    users = relationship("ActivitiesUsersStats", back_populates="activity", cascade="all, delete", passive_deletes=True)
 
 
 class ActivitiesUsersStats(Base):
@@ -102,11 +100,11 @@ class ActivitiesUsersStats(Base):
     weapon_kills_ability = Column(Integer, nullable=False)
 
     activity_instance_id = Column(BigInteger, ForeignKey(Activities.instance_id))
-    activity = relationship("Activities", back_populates="activitiesUsersStats")
+    activity = relationship("Activities", back_populates="users")
 
     weapons = relationship(
         "ActivitiesUsersStatsWeapons",
-        back_populates="activitiesUsersStats",
+        back_populates="user",
         cascade="all, delete",
         passive_deletes=True,
     )
@@ -122,7 +120,7 @@ class ActivitiesUsersStatsWeapons(Base):
     unique_weapon_precision_kills = Column(Integer, nullable=False)
 
     user_id = Column(BigInteger, ForeignKey(ActivitiesUsersStats.id))
-    user = relationship("ActivitiesUsersStats", back_populates="activitiesUsersStatsWeapons")
+    user = relationship("ActivitiesUsersStats", back_populates="weapons")
 
 
 ################################################################

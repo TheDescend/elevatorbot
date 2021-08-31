@@ -3,7 +3,6 @@ import logging
 from typing import Optional
 
 import aiohttp
-import discord
 from aiohttp import ClientSession, ClientTimeout
 
 from ElevatorBot.core.results import BackendResult
@@ -24,15 +23,12 @@ class BaseBackendConnection:
         repr=False,
     )
 
+    # give request a max timeout of half an hour
+
+
     # get aiohttp session
-    backend_session: ClientSession = dataclasses.field(
-        default=aiohttp.ClientSession(
-            timeout=ClientTimeout(
-                # give request a max timeout of half an hour
-                total=30
-                * 60
-            )
-        ),
+    timeout: ClientTimeout = dataclasses.field(
+        default=ClientTimeout(total=30 * 60),
         init=False,
         compare=False,
         repr=False,
@@ -46,7 +42,7 @@ class BaseBackendConnection:
     async def _backend_get(self, route: str, params: dict = None) -> BackendResult:
         """Make a get request to the specified backend route and return the results"""
 
-        async with self.backend_session as session:
+        async with ClientSession(timeout=self.timeout) as session:
             async with session.get(
                 url=route,
                 params=params,
@@ -56,7 +52,7 @@ class BaseBackendConnection:
     async def _backend_post(self, route: str, data: dict = None, params: dict = None) -> BackendResult:
         """Make a post request to the specified backend route and return the results"""
 
-        async with self.backend_session as session:
+        async with ClientSession(timeout=self.timeout) as session:
             async with session.post(
                 url=route,
                 params=params,
@@ -67,7 +63,7 @@ class BaseBackendConnection:
     async def _backend_delete(self, route: str, params: dict = None) -> BackendResult:
         """Make a _delete request to the specified backend route and return the results"""
 
-        async with self.backend_session as session:
+        async with ClientSession(timeout=self.timeout) as session:
             async with session.delete(
                 url=route,
                 params=params,
