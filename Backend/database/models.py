@@ -18,6 +18,7 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.orm import relationship
 
 from Backend.database.base import Base, is_test_mode
+from Backend.misc.helperFunctions import get_now_with_tz
 
 
 """ All table models are in here, allowing for easy generation """
@@ -160,7 +161,8 @@ class DestinyClanLinks(Base):
 class ElevatorServers(Base):
     __tablename__ = "elevatorServers"
 
-    discord_guild_id = Column(BigInteger, nullable=False, primary_key=True)
+    guild_id = Column(BigInteger, nullable=False, primary_key=True)
+    join_date = Column(DateTime(timezone=True), nullable=False, default=get_now_with_tz())
 
 
 ################################################################

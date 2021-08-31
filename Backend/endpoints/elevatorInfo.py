@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.crud import elevator_servers
 from Backend.dependencies import get_db_session
-from Backend.schemas.elevatorInfo import ElevatorGuildModel
+from Backend.schemas.elevatorInfo import ElevatorGuildModel, ElevatorGuildsModel
 from Backend.schemas.empty import EmptyResponseModel
 
 
@@ -13,12 +13,12 @@ router = APIRouter(
 )
 
 
-@router.get("/discordServers/get", response_model=ElevatorGuildModel)
+@router.get("/discordServers/get", response_model=ElevatorGuildsModel)
 async def get_discord_servers(db: AsyncSession = Depends(get_db_session)):
     """Saves a bungie token"""
 
     results = await elevator_servers.get(db)
-    return ElevatorGuildModel(guild_ids=[result.discord_guild_id for result in results])
+    return ElevatorGuildsModel(guilds=[ElevatorGuildModel.from_orm(result) for result in results])
 
 
 @router.post("/discordServers/add/{guild_id}", response_model=EmptyResponseModel)
