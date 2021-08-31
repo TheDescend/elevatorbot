@@ -7,6 +7,7 @@ from discord_slash import SlashCommand
 from ElevatorBot.discordEvents.base import register_discord_events
 from ElevatorBot.misc.discordStatus import update_status
 from ElevatorBot.misc.initBackgroundEvents import register_background_events
+from ElevatorBot.misc.initDocs import create_command_docs
 from ElevatorBot.misc.initLogging import init_logging
 from ElevatorBot.misc.veryMisc import yield_files_in_folder
 from settings import DISCORD_BOT_TOKEN, SYNC_COMMANDS
@@ -47,11 +48,15 @@ class ElevatorBot(Bot):
             return
         first_start = False
 
-        # launch status changer
-        await update_status(client)
+        print("Creating docs for commands...")
+        create_command_docs(slash_client)
+        print("Docs Created")
 
         print("Startup Finished!\n")
         print("--------------------------\n")
+
+        # launch status changer
+        await update_status(client)
 
 
 # actually get the bot obj

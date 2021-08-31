@@ -13,7 +13,7 @@ class MessageMenuCommands(commands.Cog):
         name="Copy Message",
         guild_ids=[280456587464933376],
     )
-    async def example_message_menu(self, ctx: MenuContext):
+    async def command(self, ctx: MenuContext):
         # just repeat the original message
         await ctx.send(ctx.target_message.content)
 

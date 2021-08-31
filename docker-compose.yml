@@ -67,7 +67,8 @@ services:
       - "${WEBSITE_PORT}:3000"
     volumes:
       - ./Website:/app/Website
-      - ./logs/Website_old:/app/Website_old/logs
+      - ./ElevatorBot/docs:/app/ElevatorBot/docs
+      - ./logs/Website_old:/app/Website/logs
     environment:
       - BACKEND_HOST
       - BACKEND_PORT

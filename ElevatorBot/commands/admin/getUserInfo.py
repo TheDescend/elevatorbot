@@ -11,6 +11,12 @@ from ElevatorBot.misc.formating import embed_message
 
 
 class UserInfo(Cog):
+    """
+    Gets collected info for the specified user
+
+    :option:discord_user: Here I describe special option behaviour so I can go very in-depth. It just needs to be in one line no matter how loooooooooooooooooooooooooooooooooooooooooooong the text is
+    """
+
     def __init__(self, client):
         self.client = client
 
@@ -47,8 +53,6 @@ class UserInfo(Cog):
         destiny_id: str = None,
         fuzzy_name: str = None,
     ):
-        """Gets collected info for the specified user"""
-
         # make sure exactly one arg was chosen
         if (
             (not (discord_user or destiny_id or fuzzy_name))

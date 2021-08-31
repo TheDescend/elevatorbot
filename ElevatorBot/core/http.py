@@ -51,7 +51,7 @@ class BaseBackendConnection:
                 url=route,
                 params=params,
             ) as response:
-                return self.__backend_parse_response(response)
+                return await self.__backend_parse_response(response)
 
     async def _backend_post(self, route: str, data: dict = None, params: dict = None) -> BackendResult:
         """Make a post request to the specified backend route and return the results"""
@@ -62,7 +62,7 @@ class BaseBackendConnection:
                 params=params,
                 data=data,
             ) as response:
-                return self.__backend_parse_response(response)
+                return await self.__backend_parse_response(response)
 
     async def _backend_delete(self, route: str, params: dict = None) -> BackendResult:
         """Make a _delete request to the specified backend route and return the results"""
@@ -72,9 +72,9 @@ class BaseBackendConnection:
                 url=route,
                 params=params,
             ) as response:
-                return self.__backend_parse_response(response)
+                return await self.__backend_parse_response(response)
 
-    def __backend_parse_response(self, response: aiohttp.ClientResponse) -> BackendResult:
+    async def __backend_parse_response(self, response: aiohttp.ClientResponse) -> BackendResult:
         """Handle any errors and then return the content of the response"""
 
         result = {}
@@ -91,7 +91,7 @@ class BaseBackendConnection:
             success = False
             result.update(
                 {
-                    "error": self.__backend_handle_errors(response),
+                    "error": await self.__backend_handle_errors(response),
                 }
             )
 
@@ -103,7 +103,7 @@ class BaseBackendConnection:
 
         return BackendResult(**result)
 
-    def __backend_handle_errors(self, response: aiohttp.ClientResponse) -> Optional[str]:
+    async def __backend_handle_errors(self, response: aiohttp.ClientResponse) -> Optional[str]:
         """Handles potential errors. Returns None, None if the error should not be returned to the user and str, str if something should be returned to the user"""
 
         if response.status == 409:

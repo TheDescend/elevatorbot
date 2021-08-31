@@ -10,11 +10,15 @@ from ElevatorBot.misc.formating import embed_message
 
 
 class UserMenuCommands(commands.Cog):
+    """
+    Gets collected info for the specified user
+    """
+
     def __init__(self, client):
         self.client = client
 
     @cog_ext.cog_context_menu(target=ContextMenuType.USER, name="Get Join Code")
-    async def get_join_code(self, ctx: MenuContext):
+    async def command(self, ctx: MenuContext):
         destiny_profile = DestinyAccount(client=ctx.bot, discord_member=ctx.target_author, discord_guild=ctx.guild)
         result = await destiny_profile.get_destiny_name()
 

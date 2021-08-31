@@ -1,0 +1,1236 @@
+{
+    "userinfo": {
+        "docstring": "Gets collected info for the specified user",
+        "options": [
+            {
+                "name": "discord_user",
+                "description": "Here I describe special option behaviour so I can go very in-depth. It just needs to be in one line no matter how loooooooooooooooooooooooooooooooooooooooooooong the text is",
+                "type": 6,
+                "required": false,
+                "choices": []
+            },
+            {
+                "name": "destiny_id",
+                "description": "Look up a destinyID",
+                "type": 3,
+                "required": false,
+                "choices": []
+            },
+            {
+                "name": "fuzzy_name",
+                "description": "If you know how the user is called",
+                "type": 3,
+                "required": false,
+                "choices": []
+            }
+        ],
+        "permissions": {},
+        "enabled_in_dms": true
+    },
+    "channel": {
+        "docstring": "None",
+        "options": [
+            {
+                "name": "channel_type",
+                "description": "The type of the channel",
+                "type": 3,
+                "required": true,
+                "choices": [
+                    {
+                        "value": "clanjoinrequest",
+                        "name": "Clan Join Request"
+                    },
+                    {
+                        "value": "registration",
+                        "name": "Registration"
+                    },
+                    {
+                        "value": "othergameroles",
+                        "name": "Other Game Roles"
+                    },
+                    {
+                        "value": "steamjoincodes",
+                        "name": "Steam Join Codes"
+                    },
+                    {
+                        "value": "tournament",
+                        "name": "Tournament"
+                    },
+                    {
+                        "value": "membercount",
+                        "name": "Member Count"
+                    },
+                    {
+                        "value": "boostercount",
+                        "name": "Booster Count"
+                    },
+                    {
+                        "value": "lfg",
+                        "name": "Looking For Group"
+                    },
+                    {
+                        "value": "lfgvoicecategory",
+                        "name": "LFG Voice Channel Category"
+                    },
+                    {
+                        "value": "botstatus",
+                        "name": "Bot Status"
+                    },
+                    {
+                        "value": "increment_button",
+                        "name": "Increment Button"
+                    },
+                    {
+                        "value": "rss",
+                        "name": "Bungie RSS Feed"
+                    }
+                ]
+            },
+            {
+                "name": "channel",
+                "description": "Which channel to the message should be in",
+                "type": 7,
+                "required": true,
+                "choices": []
+            }
+        ],
+        "permissions": {},
+        "enabled_in_dms": true
+    },
+    "day1race": {
+        "docstring": "None",
+        "options": [],
+        "permissions": {},
+        "enabled_in_dms": true
+    },
+    "mute": {
+        "docstring": "None",
+        "options": [
+            {
+                "name": "user",
+                "description": "Which user to mute",
+                "type": 6,
+                "required": true,
+                "choices": []
+            },
+            {
+                "name": "hours",
+                "description": "How many hours to mute the user for",
+                "type": 4,
+                "required": true,
+                "choices": []
+            }
+        ],
+        "permissions": {},
+        "enabled_in_dms": true
+    },
+    "muteme": {
+        "docstring": "None",
+        "options": [
+            {
+                "name": "user",
+                "description": "The name of the user you want to look up",
+                "type": 6,
+                "required": false,
+                "choices": []
+            }
+        ],
+        "permissions": {},
+        "enabled_in_dms": false
+    },
+    "reply": {
+        "docstring": "None",
+        "options": [
+            {
+                "name": "message",
+                "description": "What message to reply with",
+                "type": 3,
+                "required": true,
+                "choices": []
+            },
+            {
+                "name": "user",
+                "description": "Which user to reply to",
+                "type": 6,
+                "required": false,
+                "choices": []
+            }
+        ],
+        "permissions": {},
+        "enabled_in_dms": true
+    },
+    "rollreaction": {
+        "docstring": "None",
+        "options": [
+            {
+                "name": "draws",
+                "description": "How many people to draw",
+                "type": 4,
+                "required": true,
+                "choices": []
+            }
+        ],
+        "permissions": {},
+        "enabled_in_dms": true
+    },
+    "socialist": {
+        "docstring": "None",
+        "options": [],
+        "permissions": {},
+        "enabled_in_dms": true
+    },
+    "clanactivity": {
+        "docstring": "None",
+        "options": [
+            {
+                "name": "mode",
+                "description": "You can restrict the game mode",
+                "type": 3,
+                "required": false,
+                "choices": [
+                    {
+                        "value": "0",
+                        "name": "Everything (Default)"
+                    },
+                    {
+                        "value": "4",
+                        "name": "Raids"
+                    },
+                    {
+                        "value": "82",
+                        "name": "Dungeon"
+                    },
+                    {
+                        "value": "2",
+                        "name": "Story (including stuff like Presage)"
+                    },
+                    {
+                        "value": "3",
+                        "name": "Strike"
+                    },
+                    {
+                        "value": "46",
+                        "name": "Nightfall"
+                    },
+                    {
+                        "value": "7",
+                        "name": "Everything PvE"
+                    },
+                    {
+                        "value": "84",
+                        "name": "Trials"
+                    },
+                    {
+                        "value": "19",
+                        "name": "Iron Banner"
+                    },
+                    {
+                        "value": "5",
+                        "name": "Everything PvP"
+                    },
+                    {
+                        "value": "63",
+                        "name": "Gambit"
+                    }
+                ]
+            },
+            {
+                "name": "starttime",
+                "description": "Format: 'DD/MM/YY' - You can restrict the start (lower cutoff). Note: Can break for long timespan",
+                "type": 3,
+                "required": false,
+                "choices": []
+            },
+            {
+                "name": "endtime",
+                "description": "Format: 'DD/MM/YY' - You can restrict the end  (higher cutoff)",
+                "type": 3,
+                "required": false,
+                "choices": []
+            },
+            {
+                "name": "user",
+                "description": "The name of the user you want to highlight",
+                "type": 6,
+                "required": false,
+                "choices": []
+            }
+        ],
+        "permissions": {},
+        "enabled_in_dms": false
+    },
+    "day1completions": {
+        "docstring": "None",
+        "options": [
+            {
+                "name": "raid",
+                "description": "The name of the raid",
+                "type": 3,
+                "required": true,
+                "choices": [
+                    {
+                        "value": "Last Wish",
+                        "name": "Last Wish"
+                    },
+                    {
+                        "value": "Scourge of the Past",
+                        "name": "Scourge of the Past"
+                    },
+                    {
+                        "value": "Crown of Sorrows",
+                        "name": "Crown of Sorrows"
+                    },
+                    {
+                        "value": "Garden of Salvation",
+                        "name": "Garden of Salvation"
+                    },
+                    {
+                        "value": "Deep Stone Crypt",
+                        "name": "Deep Stone Crypt"
+                    },
+                    {
+                        "value": "Vault of Glass",
+                        "name": "Vault of Glass"
+                    }
+                ]
+            }
+        ],
+        "permissions": {},
+        "enabled_in_dms": false
+    },
+    "destiny": {
+        "docstring": "None",
+        "options": [
+            {
+                "name": "user",
+                "description": "The name of the user you want to look up",
+                "type": 6,
+                "required": false,
+                "choices": []
+            }
+        ],
+        "permissions": {},
+        "enabled_in_dms": false
+    },
+    "id": {
+        "docstring": "None",
+        "options": [
+            {
+                "name": "user",
+                "description": "The name of the user you want to look up",
+                "type": 6,
+                "required": false,
+                "choices": []
+            }
+        ],
+        "permissions": {},
+        "enabled_in_dms": false
+    },
+    "last": {
+        "docstring": "None",
+        "options": [
+            {
+                "name": "activity",
+                "description": "The type of the activity",
+                "type": 3,
+                "required": true,
+                "choices": [
+                    {
+                        "value": "0",
+                        "name": "Everything (Default)"
+                    },
+                    {
+                        "value": "4",
+                        "name": "Raids"
+                    },
+                    {
+                        "value": "82",
+                        "name": "Dungeon"
+                    },
+                    {
+                        "value": "2",
+                        "name": "Story (including stuff like Presage)"
+                    },
+                    {
+                        "value": "3",
+                        "name": "Strike"
+                    },
+                    {
+                        "value": "46",
+                        "name": "Nightfall"
+                    },
+                    {
+                        "value": "7",
+                        "name": "Everything PvE"
+                    },
+                    {
+                        "value": "84",
+                        "name": "Trials"
+                    },
+                    {
+                        "value": "19",
+                        "name": "Iron Banner"
+                    },
+                    {
+                        "value": "5",
+                        "name": "Everything PvP"
+                    },
+                    {
+                        "value": "63",
+                        "name": "Gambit"
+                    }
+                ]
+            },
+            {
+                "name": "user",
+                "description": "The name of the user you want to look up",
+                "type": 6,
+                "required": false,
+                "choices": []
+            }
+        ],
+        "permissions": {},
+        "enabled_in_dms": false
+    },
+    "meta": {
+        "docstring": "None",
+        "options": [
+            {
+                "name": "class",
+                "description": "You can restrict the class where the weapon stats count",
+                "type": 3,
+                "required": false,
+                "choices": [
+                    {
+                        "value": "2271682572",
+                        "name": "Warlock"
+                    },
+                    {
+                        "value": "671679327",
+                        "name": "Hunter"
+                    },
+                    {
+                        "value": "3655393761",
+                        "name": "Titan"
+                    }
+                ]
+            },
+            {
+                "name": "expansion",
+                "description": "You can restrict the expansion (usually a year) to look at",
+                "type": 3,
+                "required": false,
+                "choices": [
+                    {
+                        "value": "2017-09-06,D2 Vanilla",
+                        "name": "D2 Vanilla"
+                    },
+                    {
+                        "value": "2018-09-04,Forsaken",
+                        "name": "Forsaken"
+                    },
+                    {
+                        "value": "2019-10-01,Shadowkeep",
+                        "name": "Shadowkeep"
+                    },
+                    {
+                        "value": "2020-11-10,Beyond Light",
+                        "name": "Beyond Light"
+                    }
+                ]
+            },
+            {
+                "name": "season",
+                "description": "You can restrict the season to look at",
+                "type": 3,
+                "required": false,
+                "choices": [
+                    {
+                        "value": "2017-12-05,Curse of Osiris",
+                        "name": "Curse of Osiris"
+                    },
+                    {
+                        "value": "2018-05-08,Warmind",
+                        "name": "Warmind"
+                    },
+                    {
+                        "value": "2018-12-04,Season of the Forge",
+                        "name": "Season of the Forge"
+                    },
+                    {
+                        "value": "2019-03-05,Season of the Drifter",
+                        "name": "Season of the Drifter"
+                    },
+                    {
+                        "value": "2019-06-04,Season of Opulence",
+                        "name": "Season of Opulence"
+                    },
+                    {
+                        "value": "2019-12-10,Season of Dawn",
+                        "name": "Season of Dawn"
+                    },
+                    {
+                        "value": "2020-03-10,Season of the Worthy",
+                        "name": "Season of the Worthy"
+                    },
+                    {
+                        "value": "2020-06-09,Season of Arrivals",
+                        "name": "Season of Arrivals"
+                    },
+                    {
+                        "value": "2021-02-09,Season of the Chosen",
+                        "name": "Season of the Chosen"
+                    },
+                    {
+                        "value": "2021-05-11,Season of the Splicer",
+                        "name": "Season of the Splicer"
+                    },
+                    {
+                        "value": "2021-08-24,Season of the Lost",
+                        "name": "Season of the Lost"
+                    }
+                ]
+            },
+            {
+                "name": "starttime",
+                "description": "Format: 'DD/MM/YY' - You can restrict the time from when the weapon stats start counting",
+                "type": 3,
+                "required": false,
+                "choices": []
+            },
+            {
+                "name": "endtime",
+                "description": "Format: 'DD/MM/YY' - You can restrict the time up until which the weapon stats count",
+                "type": 3,
+                "required": false,
+                "choices": []
+            },
+            {
+                "name": "mode",
+                "description": "You can restrict the game mode (Default: Everything)",
+                "type": 3,
+                "required": false,
+                "choices": [
+                    {
+                        "value": "0",
+                        "name": "Everything (Default)"
+                    },
+                    {
+                        "value": "4",
+                        "name": "Raids"
+                    },
+                    {
+                        "value": "82",
+                        "name": "Dungeon"
+                    },
+                    {
+                        "value": "2",
+                        "name": "Story (including stuff like Presage)"
+                    },
+                    {
+                        "value": "3",
+                        "name": "Strike"
+                    },
+                    {
+                        "value": "46",
+                        "name": "Nightfall"
+                    },
+                    {
+                        "value": "7",
+                        "name": "Everything PvE"
+                    },
+                    {
+                        "value": "84",
+                        "name": "Trials"
+                    },
+                    {
+                        "value": "19",
+                        "name": "Iron Banner"
+                    },
+                    {
+                        "value": "5",
+                        "name": "Everything PvP"
+                    },
+                    {
+                        "value": "63",
+                        "name": "Gambit"
+                    }
+                ]
+            },
+            {
+                "name": "activityhash",
+                "description": "You can restrict the activity (advanced)",
+                "type": 4,
+                "required": false,
+                "choices": []
+            }
+        ],
+        "permissions": {},
+        "enabled_in_dms": false
+    },
+    "poptimeline": {
+        "docstring": "None",
+        "options": [],
+        "permissions": {},
+        "enabled_in_dms": false
+    },
+    "rank": {
+        "docstring": "None",
+        "options": [
+            {
+                "name": "leaderboard",
+                "description": "The name of the leaderboard you want to see",
+                "type": 3,
+                "required": true,
+                "choices": [
+                    {
+                        "value": "discordjoindate",
+                        "name": "Join-Date of this Discord Server"
+                    },
+                    {
+                        "value": "roles",
+                        "name": "Roles Earned on this Discord Server"
+                    },
+                    {
+                        "value": "totaltime",
+                        "name": "Total Playtime"
+                    },
+                    {
+                        "value": "maxpower",
+                        "name": "Max. Power Level"
+                    },
+                    {
+                        "value": "vaultspace",
+                        "name": "Vault Space Used"
+                    },
+                    {
+                        "value": "orbs",
+                        "name": "Orbs of Power Generated"
+                    },
+                    {
+                        "value": "meleekills",
+                        "name": "Melee Kills"
+                    },
+                    {
+                        "value": "superkills",
+                        "name": "Super Kills"
+                    },
+                    {
+                        "value": "grenadekills",
+                        "name": "Grenade Kills"
+                    },
+                    {
+                        "value": "deaths",
+                        "name": "Deaths"
+                    },
+                    {
+                        "value": "suicides",
+                        "name": "Suicides"
+                    },
+                    {
+                        "value": "kills",
+                        "name": "Kills"
+                    },
+                    {
+                        "value": "raids",
+                        "name": "Raids Done"
+                    },
+                    {
+                        "value": "raidtime",
+                        "name": "Raid Time"
+                    },
+                    {
+                        "value": "gm",
+                        "name": "Grandmaster Nightfalls Done"
+                    },
+                    {
+                        "value": "weapon",
+                        "name": "Weapon Kills"
+                    },
+                    {
+                        "value": "weaponprecision",
+                        "name": "Weapon Precision Kills"
+                    },
+                    {
+                        "value": "weaponprecisionpercent",
+                        "name": "% Weapon Precision Kills"
+                    },
+                    {
+                        "value": "enhancementcores",
+                        "name": "Enhancement Cores"
+                    },
+                    {
+                        "value": "forges",
+                        "name": "Forges Done"
+                    },
+                    {
+                        "value": "activetriumphs",
+                        "name": "Active Triumph Score"
+                    },
+                    {
+                        "value": "legacytriumphs",
+                        "name": "Legacy Triumph Score"
+                    },
+                    {
+                        "value": "triumphs",
+                        "name": "Triumph Score"
+                    }
+                ]
+            },
+            {
+                "name": "arg",
+                "description": "Depending on which leaderboard you want to see, you might need to add an additional argument",
+                "type": 3,
+                "required": false,
+                "choices": []
+            },
+            {
+                "name": "reverse",
+                "description": "Default: 'False' - If you want to flip the sorting",
+                "type": 5,
+                "required": false,
+                "choices": []
+            },
+            {
+                "name": "user",
+                "description": "The name of the user you want to look up",
+                "type": 6,
+                "required": false,
+                "choices": []
+            }
+        ],
+        "permissions": {},
+        "enabled_in_dms": false
+    },
+    "challenges": {
+        "docstring": "None",
+        "options": [
+            {
+                "name": "user",
+                "description": "The name of the user you want to look up",
+                "type": 6,
+                "required": false,
+                "choices": []
+            }
+        ],
+        "permissions": {},
+        "enabled_in_dms": false
+    },
+    "solos": {
+        "docstring": "None",
+        "options": [
+            {
+                "name": "user",
+                "description": "The name of the user you want to look up",
+                "type": 6,
+                "required": false,
+                "choices": []
+            }
+        ],
+        "permissions": {},
+        "enabled_in_dms": false
+    },
+    "time": {
+        "docstring": "None",
+        "options": [
+            {
+                "name": "class",
+                "description": "Default: 'Everything' - Which class you want to limit your playtime to",
+                "type": 3,
+                "required": false,
+                "choices": [
+                    {
+                        "value": "Everything",
+                        "name": "Everything"
+                    },
+                    {
+                        "value": "Warlock",
+                        "name": "Warlock"
+                    },
+                    {
+                        "value": "Hunter",
+                        "name": "Hunter"
+                    },
+                    {
+                        "value": "Titan",
+                        "name": "Titan"
+                    }
+                ]
+            },
+            {
+                "name": "user",
+                "description": "The name of the user you want to look up",
+                "type": 6,
+                "required": false,
+                "choices": []
+            }
+        ],
+        "permissions": {},
+        "enabled_in_dms": false
+    },
+    "topweapons": {
+        "docstring": "None",
+        "options": [
+            {
+                "name": "weapon",
+                "description": "If you want a specific weapon to be included on the ranking",
+                "type": 3,
+                "required": false,
+                "choices": []
+            },
+            {
+                "name": "stat",
+                "description": "Which stat you want to see for the weapon ranking",
+                "type": 3,
+                "required": false,
+                "choices": [
+                    {
+                        "value": "kills",
+                        "name": "Kills (default)"
+                    },
+                    {
+                        "value": "precisionkills",
+                        "name": "Precision Kills"
+                    },
+                    {
+                        "value": "precisionkillspercent",
+                        "name": "% Precision Kills"
+                    }
+                ]
+            },
+            {
+                "name": "class",
+                "description": "You can restrict the class where the weapon stats count",
+                "type": 3,
+                "required": false,
+                "choices": [
+                    {
+                        "value": "2271682572",
+                        "name": "Warlock"
+                    },
+                    {
+                        "value": "671679327",
+                        "name": "Hunter"
+                    },
+                    {
+                        "value": "3655393761",
+                        "name": "Titan"
+                    }
+                ]
+            },
+            {
+                "name": "expansion",
+                "description": "You can restrict the expansion (usually a year) to look at",
+                "type": 3,
+                "required": false,
+                "choices": [
+                    {
+                        "value": "2017-09-06,D2 Vanilla",
+                        "name": "D2 Vanilla"
+                    },
+                    {
+                        "value": "2018-09-04,Forsaken",
+                        "name": "Forsaken"
+                    },
+                    {
+                        "value": "2019-10-01,Shadowkeep",
+                        "name": "Shadowkeep"
+                    },
+                    {
+                        "value": "2020-11-10,Beyond Light",
+                        "name": "Beyond Light"
+                    }
+                ]
+            },
+            {
+                "name": "season",
+                "description": "You can restrict the season to look at",
+                "type": 3,
+                "required": false,
+                "choices": [
+                    {
+                        "value": "2017-12-05,Curse of Osiris",
+                        "name": "Curse of Osiris"
+                    },
+                    {
+                        "value": "2018-05-08,Warmind",
+                        "name": "Warmind"
+                    },
+                    {
+                        "value": "2018-12-04,Season of the Forge",
+                        "name": "Season of the Forge"
+                    },
+                    {
+                        "value": "2019-03-05,Season of the Drifter",
+                        "name": "Season of the Drifter"
+                    },
+                    {
+                        "value": "2019-06-04,Season of Opulence",
+                        "name": "Season of Opulence"
+                    },
+                    {
+                        "value": "2019-12-10,Season of Dawn",
+                        "name": "Season of Dawn"
+                    },
+                    {
+                        "value": "2020-03-10,Season of the Worthy",
+                        "name": "Season of the Worthy"
+                    },
+                    {
+                        "value": "2020-06-09,Season of Arrivals",
+                        "name": "Season of Arrivals"
+                    },
+                    {
+                        "value": "2021-02-09,Season of the Chosen",
+                        "name": "Season of the Chosen"
+                    },
+                    {
+                        "value": "2021-05-11,Season of the Splicer",
+                        "name": "Season of the Splicer"
+                    },
+                    {
+                        "value": "2021-08-24,Season of the Lost",
+                        "name": "Season of the Lost"
+                    }
+                ]
+            },
+            {
+                "name": "starttime",
+                "description": "Format: 'DD/MM/YY' - You can restrict the time from when the weapon stats start counting",
+                "type": 3,
+                "required": false,
+                "choices": []
+            },
+            {
+                "name": "endtime",
+                "description": "Format: 'DD/MM/YY' - You can restrict the time up until which the weapon stats count",
+                "type": 3,
+                "required": false,
+                "choices": []
+            },
+            {
+                "name": "mode",
+                "description": "You can restrict the game mode where the weapon stats count",
+                "type": 3,
+                "required": false,
+                "choices": [
+                    {
+                        "value": "0",
+                        "name": "Everything (Default)"
+                    },
+                    {
+                        "value": "4",
+                        "name": "Raids"
+                    },
+                    {
+                        "value": "82",
+                        "name": "Dungeon"
+                    },
+                    {
+                        "value": "2",
+                        "name": "Story (including stuff like Presage)"
+                    },
+                    {
+                        "value": "3",
+                        "name": "Strike"
+                    },
+                    {
+                        "value": "46",
+                        "name": "Nightfall"
+                    },
+                    {
+                        "value": "7",
+                        "name": "Everything PvE"
+                    },
+                    {
+                        "value": "84",
+                        "name": "Trials"
+                    },
+                    {
+                        "value": "19",
+                        "name": "Iron Banner"
+                    },
+                    {
+                        "value": "5",
+                        "name": "Everything PvP"
+                    },
+                    {
+                        "value": "63",
+                        "name": "Gambit"
+                    }
+                ]
+            },
+            {
+                "name": "activityhash",
+                "description": "You can restrict the activity where the weapon stats count (advanced)",
+                "type": 4,
+                "required": false,
+                "choices": []
+            },
+            {
+                "name": "user",
+                "description": "The name of the user you want to look up",
+                "type": 6,
+                "required": false,
+                "choices": []
+            }
+        ],
+        "permissions": {},
+        "enabled_in_dms": false
+    },
+    "weapon": {
+        "docstring": "None",
+        "options": [
+            {
+                "name": "weapon",
+                "description": "The name of the weapon you want to see stats for",
+                "type": 3,
+                "required": true,
+                "choices": []
+            },
+            {
+                "name": "stat",
+                "description": "Which stat you want to see for the weapon",
+                "type": 3,
+                "required": false,
+                "choices": [
+                    {
+                        "value": "kills",
+                        "name": "Kills (default)"
+                    },
+                    {
+                        "value": "precisionkills",
+                        "name": "Precision Kills"
+                    },
+                    {
+                        "value": "precisionkillspercent",
+                        "name": "% Precision Kills"
+                    }
+                ]
+            },
+            {
+                "name": "graph",
+                "description": "Default: 'False' - See a timeline of your weapon usage instead of an overview of key stats",
+                "type": 5,
+                "required": false,
+                "choices": []
+            },
+            {
+                "name": "class",
+                "description": "You can restrict the class where the weapon stats count",
+                "type": 3,
+                "required": false,
+                "choices": [
+                    {
+                        "value": "2271682572",
+                        "name": "Warlock"
+                    },
+                    {
+                        "value": "671679327",
+                        "name": "Hunter"
+                    },
+                    {
+                        "value": "3655393761",
+                        "name": "Titan"
+                    }
+                ]
+            },
+            {
+                "name": "starttime",
+                "description": "Format: 'DD/MM/YY' - You can restrict the time from when the weapon stats start counting",
+                "type": 3,
+                "required": false,
+                "choices": []
+            },
+            {
+                "name": "endtime",
+                "description": "Format: 'DD/MM/YY' - You can restrict the time up until which the weapon stats count",
+                "type": 3,
+                "required": false,
+                "choices": []
+            },
+            {
+                "name": "mode",
+                "description": "You can restrict the game mode where the weapon stats count",
+                "type": 3,
+                "required": false,
+                "choices": [
+                    {
+                        "value": "0",
+                        "name": "Everything (Default)"
+                    },
+                    {
+                        "value": "4",
+                        "name": "Raids"
+                    },
+                    {
+                        "value": "82",
+                        "name": "Dungeon"
+                    },
+                    {
+                        "value": "2",
+                        "name": "Story (including stuff like Presage)"
+                    },
+                    {
+                        "value": "3",
+                        "name": "Strike"
+                    },
+                    {
+                        "value": "46",
+                        "name": "Nightfall"
+                    },
+                    {
+                        "value": "7",
+                        "name": "Everything PvE"
+                    },
+                    {
+                        "value": "84",
+                        "name": "Trials"
+                    },
+                    {
+                        "value": "19",
+                        "name": "Iron Banner"
+                    },
+                    {
+                        "value": "5",
+                        "name": "Everything PvP"
+                    },
+                    {
+                        "value": "63",
+                        "name": "Gambit"
+                    }
+                ]
+            },
+            {
+                "name": "activityhash",
+                "description": "You can restrict the activity where the weapon stats count (advanced)",
+                "type": 4,
+                "required": false,
+                "choices": []
+            },
+            {
+                "name": "user",
+                "description": "The name of the user you want to look up",
+                "type": 6,
+                "required": false,
+                "choices": []
+            }
+        ],
+        "permissions": {},
+        "enabled_in_dms": false
+    },
+    "website": {
+        "docstring": "None",
+        "options": [
+            {
+                "name": "website",
+                "description": "The name of the website you want a personalised link for",
+                "type": 3,
+                "required": true,
+                "choices": [
+                    {
+                        "value": "Braytech.org",
+                        "name": "Braytech.org"
+                    },
+                    {
+                        "value": "D2 Checklist",
+                        "name": "D2 Checklist"
+                    },
+                    {
+                        "value": "Destiny Tracker",
+                        "name": "Destiny Tracker"
+                    },
+                    {
+                        "value": "Dungeon Report",
+                        "name": "Dungeon Report"
+                    },
+                    {
+                        "value": "Grandmaster Report",
+                        "name": "Grandmaster Report"
+                    },
+                    {
+                        "value": "Nightfall Report",
+                        "name": "Nightfall Report"
+                    },
+                    {
+                        "value": "Raid Report",
+                        "name": "Raid Report"
+                    },
+                    {
+                        "value": "Solo Report",
+                        "name": "Solo Report"
+                    },
+                    {
+                        "value": "Expunge Report",
+                        "name": "Expunge Report"
+                    },
+                    {
+                        "value": "Trials Report",
+                        "name": "Trials Report"
+                    },
+                    {
+                        "value": "Triumph Report",
+                        "name": "Triumph Report"
+                    },
+                    {
+                        "value": "Wasted on Destiny",
+                        "name": "Wasted on Destiny"
+                    }
+                ]
+            },
+            {
+                "name": "user",
+                "description": "The name of the user you want to look up",
+                "type": 6,
+                "required": false,
+                "choices": []
+            }
+        ],
+        "permissions": {},
+        "enabled_in_dms": false
+    },
+    "register": {
+        "docstring": "None",
+        "options": [],
+        "permissions": {},
+        "enabled_in_dms": false
+    },
+    "unregister": {
+        "docstring": "None",
+        "options": [],
+        "permissions": {},
+        "enabled_in_dms": false
+    },
+    "boosters": {
+        "docstring": "None",
+        "options": [],
+        "permissions": {},
+        "enabled_in_dms": false
+    },
+    "calculator": {
+        "docstring": "None",
+        "options": [],
+        "permissions": {},
+        "enabled_in_dms": false
+    },
+    "discordjoindate": {
+        "docstring": "None",
+        "options": [
+            {
+                "name": "user",
+                "description": "The name of the user you want to look up",
+                "type": 6,
+                "required": false,
+                "choices": []
+            }
+        ],
+        "permissions": {},
+        "enabled_in_dms": false
+    },
+    "funfact": {
+        "docstring": "None",
+        "options": [],
+        "permissions": {},
+        "enabled_in_dms": false
+    }
+}

@@ -1,6 +1,7 @@
 from discord.ext.commands import Cog
 from discord_slash import SlashContext, cog_ext
 
+from ElevatorBot.commandHelpers.permissionTemplates import permissions_admin
 from ElevatorBot.core.destiny.clan import DestinyClan
 from ElevatorBot.misc.formating import embed_message
 
