@@ -16,6 +16,7 @@ from ElevatorBot.core.routes import (
 
 @dataclasses.dataclass
 class DestinyClan(BaseBackendConnection):
+    client: discord.Client
     discord_member: discord.Member
     discord_guild: discord.Guild
 

@@ -9,6 +9,7 @@ from ElevatorBot.core.routes import destiny_name_route
 
 @dataclasses.dataclass
 class DestinyAccount(BaseBackendConnection):
+    client: discord.Client
     discord_member: discord.Member
     discord_guild: discord.Guild
 

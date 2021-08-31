@@ -8,9 +8,6 @@ import discord
 from ElevatorBot.core.http import BaseBackendConnection
 from ElevatorBot.core.results import BackendResult
 from ElevatorBot.core.routes import (
-    destiny_join_id_delete_route,
-    destiny_join_id_get_route,
-    destiny_join_id_update_route,
     destiny_profile_delete_route,
     destiny_profile_from_destiny_id_route,
     destiny_profile_from_discord_id_route,
@@ -22,6 +19,7 @@ from ElevatorBot.static.schemas import DestinyData
 class DestinyProfile(BaseBackendConnection):
     """Get basic destiny information (discord_member, destiny_id, system)"""
 
+    client: discord.Client
     discord_member: discord.Member
     discord_guild: discord.Guild
 

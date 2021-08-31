@@ -16,9 +16,6 @@ class BaseBackendConnection:
     These can be called by subclasses, and automatically handle networking and error handling
     """
 
-    # save discord information
-    client: discord.Client
-
     # get logger
     logger: logging.Logger = dataclasses.field(
         default=logging.getLogger("backendNetworking"),

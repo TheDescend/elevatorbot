@@ -1,5 +1,7 @@
 import discord.abc
 
+from ElevatorBot.core.misc.elevatorInfo import ElevatorGuilds
+
 
 async def on_guild_channel_delete(channel: discord.abc.GuildChannel):
     """ """
@@ -20,15 +22,20 @@ async def on_guild_channel_update(before: discord.abc.GuildChannel, after: disco
 
 
 async def on_guild_join(guild: discord.Guild):
-    """ """
-    # todo
-    pass
+    """Triggers when ElevatorBot gets added to a guild"""
+
+    # todo make sure all current guilds are in the db too
+    # add guild to the list of all guilds, needed for website info
+    elevator_guilds = ElevatorGuilds(discord_guild=guild)
+    await elevator_guilds.add()
 
 
 async def on_guild_remove(guild: discord.Guild):
-    """ """
-    # todo
-    pass
+    """Triggers when ElevatorBot gets removed from a guild"""
+
+    # remove guild from the list of all guilds, needed for website info
+    elevator_guilds = ElevatorGuilds(discord_guild=guild)
+    await elevator_guilds.delete()
 
 
 async def on_guild_role_delete(role: discord.Role):

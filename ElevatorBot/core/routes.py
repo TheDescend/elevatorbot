@@ -4,6 +4,10 @@ import os
 base_route = f"""http://{os.environ.get("BACKEND_HOST")}:{os.environ.get("BACKEND_PORT")}/"""
 destiny_base_route = base_route + "destiny/{guild_id}/{discord_id}/"
 
+elevator_servers_get = base_route + "elevator/discordServers/get/"
+elevator_servers_add = base_route + "elevator/discordServers/add/{guild_id}/"
+elevator_servers_delete = base_route + "elevator/discordServers/delete/{guild_id}/"
+
 destiny_profile_from_discord_id_route = base_route + "profile/discord/{discord_id}/"
 destiny_profile_from_destiny_id_route = base_route + "profile/destiny/{destiny_id}/"
 destiny_profile_delete_route = base_route + "profile/delete/{discord_id}/"
