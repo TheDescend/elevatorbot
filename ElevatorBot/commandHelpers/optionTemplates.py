@@ -1,6 +1,7 @@
 from discord_slash.utils.manage_commands import create_choice, create_option
 
 
+# todo refactor into decorators with snek
 def get_user_option(
     description: str = "The name of the user you want to look up",
     required: bool = False,

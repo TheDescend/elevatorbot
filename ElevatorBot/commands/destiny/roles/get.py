@@ -1,6 +1,7 @@
 from discord.ext.commands import Cog
 from discord_slash import SlashContext, cog_ext
 
+from ElevatorBot.commandHelpers.decorators import has_user_option_permission
 from ElevatorBot.commandHelpers.optionTemplates import get_user_option
 
 
@@ -15,6 +16,7 @@ class RoleGet(Cog):
         description="Assigns you all the roles you've earned",
         options=[get_user_option(description="Requires elevated permissions")],
     )
+    @has_user_option_permission
     async def _roles_get(self, ctx: SlashContext, **kwargs):
         pass
 
