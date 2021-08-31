@@ -180,39 +180,5 @@ class CRUDDiscordUser(CRUDBase):
                 error="DiscordIdNotFound",
             )
 
-    # todo delete
-    async def get_join_id(self, db: AsyncSession, discord_id: int) -> int:
-        """Gets a join id from the DB"""
-
-        profile = await self.get_profile_from_discord_id(db=db, discord_id=discord_id)
-        join_id = profile.steam_join_id
-
-        if not join_id:
-            raise CustomException("NoJoinId")
-
-        return join_id
-
-    async def update_join_id(self, db: AsyncSession, discord_id: int, new_join_id: int) -> int:
-        """Updates a join id from the DB"""
-
-        profile = await self.get_profile_from_discord_id(db=db, discord_id=discord_id)
-
-        # update it
-        await self._update(db=db, to_update=profile, steam_join_id=new_join_id)
-
-        return profile.steam_join_id
-
-    async def delete_join_id(self, db: AsyncSession, discord_id: int):
-        """Deletes a join id from the DB"""
-
-        profile = await self.get_profile_from_discord_id(db=db, discord_id=discord_id)
-
-        # is an id even set?
-        if not profile.steam_join_id:
-            return
-
-        # update it
-        await self._update(db=db, to_update=profile, steam_join_id=None)
-
 
 discord_users = CRUDDiscordUser(DiscordUsers)

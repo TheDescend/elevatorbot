@@ -8,7 +8,3 @@ class DestinyProfileModel(BaseModel):
 
     class Config:
         orm_mode = True
-
-
-class DestinyJoinIdModel(BaseModel):
-    join_id: int

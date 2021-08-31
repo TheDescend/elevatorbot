@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.dependencies import get_db_session
 from Backend import crud
-from Backend.schemas.destiny.profile import DestinyJoinIdModel, DestinyProfileModel
+from Backend.schemas.destiny.profile import DestinyProfileModel
 from Backend.schemas.empty import EmptyResponseModel
 
 
@@ -34,28 +34,4 @@ async def discord_delete(discord_id: int, db: AsyncSession = Depends(get_db_sess
     """Delete a users profile"""
 
     await crud.discord_users.delete_profile(db, discord_id)
-    return EmptyResponseModel()
-
-
-@router.get("/joinId/{discord_id}/get", response_model=DestinyProfileModel)
-async def join_id_get(discord_id: int, db: AsyncSession = Depends(get_db_session)):
-    """Return a users join id"""
-
-    join_id = await crud.discord_users.get_join_id(db=db, discord_id=discord_id)
-    return DestinyJoinIdModel(join_id=join_id)
-
-
-@router.post("/joinId/{discord_id}/update", response_model=DestinyProfileModel)
-async def join_id_update(discord_id: int, data: DestinyJoinIdModel, db: AsyncSession = Depends(get_db_session)):
-    """Update a users join id"""
-
-    join_id = await crud.discord_users.update_join_id(db=db, discord_id=discord_id, new_join_id=data.join_id)
-    return DestinyJoinIdModel(join_id=join_id)
-
-
-@router.delete("/joinId/{discord_id}/delete", response_model=DestinyProfileModel)
-async def join_id_get(discord_id: int, db: AsyncSession = Depends(get_db_session)):
-    """Delete a users join id"""
-
-    await crud.discord_users.delete_join_id(db=db, discord_id=discord_id)
     return EmptyResponseModel()
