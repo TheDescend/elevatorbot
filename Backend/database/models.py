@@ -39,7 +39,7 @@ class BackendUser(Base):
 
 
 ################################################################
-# Activities
+# Destiny Data
 
 
 class ActivitiesFailToGet(Base):
@@ -121,6 +121,22 @@ class ActivitiesUsersStatsWeapons(Base):
 
     user_id = Column(BigInteger, ForeignKey(ActivitiesUsersStats.id))
     user = relationship("ActivitiesUsersStats", back_populates="weapons")
+
+
+class Records(Base):
+    __tablename__ = "records"
+
+    destiny_id = Column(BigInteger, nullable=False, primary_key=True)
+    record_id = Column(BigInteger, nullable=False, primary_key=True)
+    completed = Column(Boolean, nullable=False)
+
+
+class Collectibles(Base):
+    __tablename__ = "collectibles"
+
+    destiny_id = Column(BigInteger, nullable=False, primary_key=True)
+    collectible_id = Column(BigInteger, nullable=False, primary_key=True)
+    owned = Column(Boolean, nullable=False)
 
 
 ################################################################

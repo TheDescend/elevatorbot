@@ -61,6 +61,13 @@ class CRUDBase:
         await db.flush()
 
     @staticmethod
+    async def _mass_insert(db: AsyncSession, to_create: list[ModelType]) -> None:
+        """Insert a initiated ModelType into the database"""
+
+        db.add_all(to_create)
+        await db.flush()
+
+    @staticmethod
     async def _update(db: AsyncSession, to_update: ModelType, **update_kwargs) -> None:
         """Update a initiated ModelType in the database"""
 

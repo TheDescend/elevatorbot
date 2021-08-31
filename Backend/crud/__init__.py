@@ -1,4 +1,5 @@
 from Backend.crud.backendUsers import backend_user
+from Backend.crud.destiny.collectibles import collectibles
 from Backend.crud.destiny.destinyClanLinks import destiny_clan_links
 from Backend.crud.destiny.discordUsers import discord_users
 from Backend.crud.destiny.lfgSystem import lfg_user, lfg_message
@@ -13,6 +14,7 @@ from Backend.crud.destiny.manifestData import (
     destiny_presentation_node_definition,
     destiny_record_definition,
 )
+from Backend.crud.destiny.records import records
 from Backend.crud.misc import rss_feed_items, d2_steam_players, elevator_servers
 from Backend.crud.persistentMessages import persistent_messages
 from Backend.crud.destiny.activities import (
