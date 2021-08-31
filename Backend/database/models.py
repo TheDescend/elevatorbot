@@ -157,6 +157,12 @@ class DestinyClanLinks(Base):
     linked_by_discord_id = Column(BigInteger, nullable=False)
 
 
+class ElevatorServers(Base):
+    __tablename__ = "elevatorServers"
+
+    discord_guild_id = Column(BigInteger, nullable=False, primary_key=True)
+
+
 ################################################################
 # Destiny Manifest
 

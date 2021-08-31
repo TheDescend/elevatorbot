@@ -45,7 +45,11 @@ class CRUDBase:
     ) -> List[ModelType]:
         """Returns a list of all the objects which fulfill the filter clauses"""
 
-        query = select(self.model).filter_by(**filter_kwargs).limit(limit)
+        if filter_kwargs:
+            query = select(self.model).filter_by(**filter_kwargs).limit(limit)
+        else:
+            query = select(self.model).limit(limit)
+
         result = await self._execute_query(db, query)
         return result.scalars().fetchall()
 
