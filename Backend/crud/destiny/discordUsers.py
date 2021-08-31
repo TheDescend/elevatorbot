@@ -2,13 +2,15 @@ import datetime
 import time
 from typing import Optional
 
+import aiohttp
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.errors import CustomException
 from Backend.crud.base import CRUDBase
 from Backend.database.models import DiscordUsers
-from Backend.networking.bungieApi import BungieApi
+from Backend.networking.base import NetworkBase
 from Backend.schemas.auth import BungieTokenInput, BungieTokenOutput
+from settings import BUNGIE_TOKEN
 
 
 class CRUDDiscordUser(CRUDBase):
@@ -51,13 +53,19 @@ class CRUDDiscordUser(CRUDBase):
             int(guild_id),
             int(channel_id),
         )
-        api = BungieApi(discord_id=discord_id)
+        api = NetworkBase()
 
-        # get the corresponding destiny data
-        destiny_info = await api.get_json_from_bungie_with_token(
-            db=db,
-            route="https://www.bungie.net/platform/User/GetMembershipsForCurrentUser/",
-        )
+        # get the corresponding destiny data with manual headers, since the data is not in the db yet
+        async with aiohttp.ClientSession(cookie_jar=aiohttp.DummyCookieJar()) as session:
+            destiny_info = await api._get_request(
+                session=session,
+                route="https://www.bungie.net/platform/User/GetMembershipsForCurrentUser/",
+                headers={
+                    "X-API-Key": BUNGIE_TOKEN,
+                    "Accept": "application/json",
+                    "Authorization": f"Bearer {bungie_token.access_token}",
+                },
+            )
 
         # get the users destiny info
         destiny_id = int(destiny_info.content["primaryMembershipId"])

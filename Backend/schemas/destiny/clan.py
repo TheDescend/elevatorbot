@@ -13,8 +13,8 @@ class DestinyClanMemberModel(BaseModel):
     destiny_id: int
     name: str
     is_online: bool
-    last_online_status_change: datetime
-    join_date: datetime
+    last_online_status_change: datetime.datetime
+    join_date: datetime.datetime
 
 
 class DestinyClanMembersModel(BaseModel):

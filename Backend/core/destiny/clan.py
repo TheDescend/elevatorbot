@@ -12,7 +12,7 @@ from Backend.core.destiny.routes import (
     clan_invite_route,
     clan_members_route,
 )
-from Backend.schemas.destiny.clan import DestinyClanLink, DestinyClanMemberModel
+from Backend.schemas.destiny.clan import DestinyClanMemberModel
 
 
 @dataclasses.dataclass

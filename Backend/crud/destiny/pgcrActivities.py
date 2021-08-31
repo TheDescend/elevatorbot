@@ -1,9 +1,9 @@
 from Backend.crud.base import CRUDBase
 from Backend.database.models import (
-    PgcrActivitiesFailToGet,
-    PgcrActivitiesUsersStat,
-    PgcrActivitiesUsersStatsWeapon,
-    PgcrActivity,
+    ActivitiesFailToGet,
+    Activities,
+    ActivitiesUsersStats,
+    ActivitiesUsersStatsWeapons,
 )
 
 
@@ -23,7 +23,7 @@ class CRUDActivitiesUsersStatsWeapons(CRUDBase):
     pass
 
 
-activities_fail_to_get = CRUDActivitiesFailToGet(PgcrActivitiesFailToGet)
-activities = CRUDActivities(PgcrActivity)
-activities_users_stats = CRUDActivitiesUsersStats(PgcrActivitiesUsersStat)
-activities_users_stats_weapons = CRUDActivitiesUsersStatsWeapons(PgcrActivitiesUsersStatsWeapon)
+activities_fail_to_get = CRUDActivitiesFailToGet(ActivitiesFailToGet)
+activities = CRUDActivities(Activities)
+activities_users_stats = CRUDActivitiesUsersStats(ActivitiesUsersStats)
+activities_users_stats_weapons = CRUDActivitiesUsersStatsWeapons(ActivitiesUsersStatsWeapons)
