@@ -11,7 +11,7 @@ from settings import ENABLE_DEBUG_MODE
 DATABASE_URL = f"""postgresql+asyncpg://{os.environ.get("POSTGRES_USER")}:{os.environ.get("POSTGRES_PASSWORD")}@{os.environ.get("POSTGRES_HOST")}:{os.environ.get("POSTGRES_PORT")}/{os.environ.get("POSTGRES_DB")}"""
 _ENGINE = None
 _SESSION = None
-_TEST_MODE = False
+_TEST_MODE = True
 
 
 Base = declarative_base()

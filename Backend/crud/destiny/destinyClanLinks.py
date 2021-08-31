@@ -46,7 +46,7 @@ class CRUDDestinyClanLinks(CRUDBase):
                     discord_guild_id=discord_guild_id,
                     to_update=link,
                     destiny_clan_id=destiny_clan_id,
-                    link_date=datetime.datetime.now(),
+                    link_date=datetime.datetime.now(tz=datetime.timezone.utc),
                     linked_by_discord_id=discord_id,
                 ),
             )

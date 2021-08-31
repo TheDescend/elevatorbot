@@ -13,7 +13,7 @@ from Backend.crud.destiny.manifestData import (
     destiny_presentation_node_definition,
     destiny_record_definition,
 )
-from Backend.crud.misc import rss_feed_items, owned_emblems, d2_steam_players
+from Backend.crud.misc import rss_feed_items, d2_steam_players
 from Backend.crud.persistentMessages import persistent_messages
 from Backend.crud.destiny.pgcrActivities import (
     activities,

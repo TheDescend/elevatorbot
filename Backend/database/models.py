@@ -1,3 +1,5 @@
+import datetime
+
 from sqlalchemy import (
     ARRAY,
     BigInteger,
@@ -5,14 +7,15 @@ from sqlalchemy import (
     Column,
     Date,
     DateTime,
+    ForeignKey,
     Integer,
     JSON,
     Numeric,
     SmallInteger,
     Text,
-    text,
 )
 from sqlalchemy.engine import Engine
+from sqlalchemy.orm import relationship
 
 from Backend.database.base import Base, is_test_mode
 
@@ -26,82 +29,94 @@ from Backend.database.base import Base, is_test_mode
 class BackendUser(Base):
     __tablename__ = "backendUser"
 
-    user_name = Column(Text, primary_key=True)
-    hashed_password = Column(Text)  # this includes salt
+    user_name = Column(Text, nullable=False, primary_key=True)
+    hashed_password = Column(Text, nullable=False)  # this includes salt
     allowed_scopes = Column(ARRAY(Text()))  # where access is allowed. Empty for full access maybe?
-    has_write_permission = Column(Boolean)
-    has_read_permission = Column(Boolean)
-    disabled = Column(Boolean, default=False)
+    has_write_permission = Column(Boolean, nullable=False)
+    has_read_permission = Column(Boolean, nullable=False)
+    disabled = Column(Boolean, nullable=False, default=False)
 
 
 ################################################################
 # Activities
 
 
-class PgcrActivitiesFailToGet(Base):
-    __tablename__ = "pgcrActivitiesFailToGet"
+class ActivitiesFailToGet(Base):
+    __tablename__ = "activitiesFailToGet"
 
-    id = Column("instanceid", BigInteger, primary_key=True)
-    date = Column("period", DateTime)
-
-
-class PgcrActivity(Base):
-    __tablename__ = "pgcrActivities"
-
-    id = Column("instanceid", BigInteger, primary_key=True)
-    reference_id = Column("referenceid", BigInteger)
-    director_activity_hash = Column("directoractivityhash", BigInteger)
-    date = Column("period", DateTime)
-    starting_phase_index = Column("startingphaseindex", SmallInteger)
-    mode = Column("mode", SmallInteger)
-    modes = Column("modes", ARRAY(SmallInteger()))
-    is_private = Column("isprivate", Boolean)
-    membership_type = Column("membershiptype", SmallInteger)
+    instance_id = Column(BigInteger, nullable=False, primary_key=True)
+    period = Column(DateTime(timezone=True), nullable=False)
 
 
-class PgcrActivitiesUsersStat(Base):
-    __tablename__ = "pgcrActivitiesUsersStats"
+class Activities(Base):
+    __tablename__ = "activities"
 
-    id = Column("instanceid", BigInteger, primary_key=True, nullable=False)
-    system = Column("membershipid", BigInteger, primary_key=True, nullable=False)
-    character_id = Column("characterid", BigInteger, primary_key=True, nullable=False)
-    character_class = Column("characterclass", Text)
-    character_level = Column("characterlevel", SmallInteger)
-    membership_type = Column("membershiptype", SmallInteger)
-    light_level = Column("lightlevel", Integer)
-    emblem_hash = Column("emblemhash", BigInteger)
-    standing = Column("standing", SmallInteger)
-    assists = Column("assists", Integer)
-    completed = Column("completed", SmallInteger)
-    deaths = Column("deaths", Integer)
-    kills = Column("kills", Integer)
-    opponents_defeated = Column("opponentsdefeated", Integer)
-    efficiency = Column("efficiency", Numeric)
-    kills_deaths_ratio = Column("killsdeathsratio", Numeric)
-    kills_deaths_assists = Column("killsdeathsassists", Numeric)
-    score = Column("score", Integer)
-    activity_duration_seconds = Column("activitydurationseconds", Integer)
-    completion_reason = Column("completionreason", SmallInteger)
-    start_seconds = Column("startseconds", Integer)
-    time_played_seconds = Column("timeplayedseconds", Integer)
-    player_count = Column("playercount", SmallInteger)
-    team_score = Column("teamscore", Integer)
-    precision_kills = Column("precisionkills", Integer)
-    weapon_kills_grenade = Column("weaponkillsgrenade", Integer)
-    weapon_kills_melee = Column("weaponkillsmelee", Integer)
-    weapon_kills_super = Column("weaponkillssuper", Integer)
-    weapon_kills_ability = Column("weaponkillsability", Integer)
+    instance_id = Column(BigInteger, nullable=False, primary_key=True)
+    period = Column(DateTime(timezone=True), nullable=False)
+    reference_id = Column(BigInteger, nullable=False)
+    director_activity_hash = Column(BigInteger, nullable=False)
+    starting_phase_index = Column(SmallInteger, nullable=False)
+    mode = Column(SmallInteger, nullable=False)
+    modes = Column(ARRAY(SmallInteger()), nullable=False)
+    is_private = Column(Boolean, nullable=False)
+    system = Column(SmallInteger, nullable=False)
+
+    users = relationship("ActivitiesUsersStats", back_populates="activities", cascade="all, delete", passive_deletes=True)
 
 
-class PgcrActivitiesUsersStatsWeapon(Base):
-    __tablename__ = "pgcrActivitiesUsersStatsWeapons"
+class ActivitiesUsersStats(Base):
+    __tablename__ = "activitiesUsersStats"
 
-    id = Column("instanceid", BigInteger, primary_key=True, nullable=False)
-    character_id = Column("characterid", BigInteger, primary_key=True, nullable=False)
-    system = Column("membershipid", BigInteger, primary_key=True, nullable=False)
-    weapon_id = Column("weaponid", BigInteger, primary_key=True, nullable=False)
-    unique_weapon_kills = Column("uniqueweaponkills", Integer)
-    unique_weapon_precision_kills = Column("uniqueweaponprecisionkills", Integer)
+    id = Column(BigInteger, nullable=False, primary_key=True)
+
+    destiny_id = Column(BigInteger, nullable=False)
+    character_id = Column(BigInteger, nullable=False)
+    character_class = Column(Text, nullable=False)
+    character_level = Column(SmallInteger, nullable=False)
+    system = Column(SmallInteger, nullable=False)
+    light_level = Column(Integer, nullable=False)
+    emblem_hash = Column(BigInteger, nullable=False)
+    standing = Column(SmallInteger, nullable=False)
+    assists = Column(Integer, nullable=False)
+    completed = Column(SmallInteger, nullable=False)
+    deaths = Column(Integer, nullable=False)
+    kills = Column(Integer, nullable=False)
+    opponents_defeated = Column(Integer, nullable=False)
+    efficiency = Column(Numeric, nullable=False)
+    kills_deaths_ratio = Column(Numeric, nullable=False)
+    kills_deaths_assists = Column(Numeric, nullable=False)
+    score = Column(Integer, nullable=False)
+    activity_duration_seconds = Column(Integer, nullable=False)
+    completion_reason = Column(SmallInteger, nullable=False)
+    start_seconds = Column(Integer, nullable=False)
+    time_played_seconds = Column(Integer, nullable=False)
+    player_count = Column(SmallInteger, nullable=False)
+    team_score = Column(Integer, nullable=False)
+    precision_kills = Column(Integer, nullable=False)
+    weapon_kills_grenade = Column(Integer, nullable=False)
+    weapon_kills_melee = Column(Integer, nullable=False)
+    weapon_kills_super = Column(Integer, nullable=False)
+    weapon_kills_ability = Column(Integer, nullable=False)
+
+    activity_instance_id = Column(BigInteger, ForeignKey(Activities.instance_id))
+    activity = relationship("Activities", back_populates="activitiesUsersStats")
+
+    weapons = relationship("ActivitiesUsersStatsWeapons", back_populates="activitiesUsersStats", cascade="all, delete", passive_deletes=True)
+
+
+class ActivitiesUsersStatsWeapons(Base):
+    __tablename__ = "activitiesUsersStatsWeapons"
+
+    id = Column(BigInteger, nullable=False, primary_key=True)
+
+    weapon_id = Column(BigInteger, nullable=False)
+    unique_weapon_kills = Column(Integer, nullable=False)
+    unique_weapon_precision_kills = Column(Integer, nullable=False)
+
+    user_id = Column(BigInteger, ForeignKey(ActivitiesUsersStats.id))
+    user = relationship(
+        "ActivitiesUsersStats", back_populates="activitiesUsersStatsWeapons"
+    )
 
 
 ################################################################
@@ -109,23 +124,24 @@ class PgcrActivitiesUsersStatsWeapon(Base):
 
 
 class DiscordUsers(Base):
-    __tablename__ = "discordGuardiansToken"
+    __tablename__ = "discordUsers"
 
-    discord_id = Column("discordsnowflake", BigInteger, nullable=False, primary_key=True)
-    destiny_id = Column("destinyid", BigInteger, nullable=False, unique=True)
-    system = Column("systemid", Integer, nullable=False)
-    token = Column("token", Text, nullable=False)
-    refresh_token = Column("__refresh_token", Text, nullable=False)
-    token_expiry = Column("token_expiry", DateTime, nullable=False)
-    refresh_token_expiry = Column("refresh_token_expiry", DateTime, nullable=False)
-    signup_date = Column("signupdate", Date, nullable=False)
-    signup_server_id = Column("serverid", BigInteger, nullable=False)
-    steam_join_id = Column("steamjoinid", BigInteger, nullable=True)
+    discord_id = Column(BigInteger, nullable=False, primary_key=True)
+
+    destiny_id = Column(BigInteger, nullable=False, unique=True)
+    system = Column(Integer, nullable=False)
+    token = Column(Text, nullable=False)
+    refresh_token = Column(Text, nullable=False)
+    token_expiry = Column(DateTime, nullable=False)
+    refresh_token_expiry = Column(DateTime, nullable=False)
+
+    signup_date = Column(Date, nullable=False)
+    signup_server_id = Column(BigInteger, nullable=False)
+
     activities_last_updated = Column(
-        "activitieslastupdated",
-        DateTime,
+        DateTime(timezone=True),
         nullable=False,
-        server_default=text("'2000-01-01 00:00:00'::timestamp without time zone"),
+        default=datetime.datetime(2000, 1, 1, tzinfo=datetime.timezone.utc)
     )
 
 
@@ -134,15 +150,8 @@ class DestinyClanLinks(Base):
 
     discord_guild_id = Column(BigInteger, primary_key=True, nullable=False)
     destiny_clan_id = Column(BigInteger, unique=True, nullable=False)
-    link_date = Column(DateTime, nullable=False)
+    link_date = Column(DateTime(timezone=True), nullable=False)
     linked_by_discord_id = Column(BigInteger, nullable=False)
-
-
-class OwnedEmblem(Base):
-    __tablename__ = "ownedEmblems"
-
-    destiny_id = Column(BigInteger, primary_key=True)
-    emblem_hash = Column(BigInteger)
 
 
 ################################################################
@@ -152,111 +161,111 @@ class OwnedEmblem(Base):
 class ManifestVersion(Base):
     __tablename__ = "versions"
 
-    name = Column(Text, primary_key=True)
-    version = Column(Text)
+    name = Column(Text, nullable=False, primary_key=True)
+    version = Column(Text, nullable=False)
 
 
 class DestinyActivityDefinition(Base):
     __tablename__ = "destinyActivityDefinition"
 
-    id = Column("referenceid", BigInteger, primary_key=True)
-    description = Column("description", Text)
-    name = Column("name", Text)
-    activity_level = Column("activitylevel", SmallInteger)
-    activity_light_level = Column("activitylightlevel", Integer)
-    destination_hash = Column("destinationhash", BigInteger)
-    place_hash = Column("placehash", BigInteger)
-    activity_type_hash = Column("activitytypehash", BigInteger)
-    is_pvp = Column("ispvp", Boolean)
-    direct_activity_mode_hash = Column("directactivitymodehash", BigInteger)
-    direct_activity_mode_type = Column("directactivitymodetype", SmallInteger)
-    activity_mode_hashes = Column("activitymodehashes", ARRAY(BigInteger()))
-    activity_mode_types = Column("activitymodetypes", ARRAY(SmallInteger()))
+    reference_id = Column(BigInteger, nullable=False, primary_key=True)
+    description = Column(Text, nullable=False)
+    name = Column(Text, nullable=False)
+    activity_level = Column(SmallInteger, nullable=False)
+    activity_light_level = Column(Integer, nullable=False)
+    destination_hash = Column(BigInteger, nullable=False)
+    place_hash = Column(BigInteger, nullable=False)
+    activity_type_hash = Column(BigInteger, nullable=False)
+    is_pvp = Column(Boolean, nullable=False)
+    direct_activity_mode_hash = Column(BigInteger, nullable=False)
+    direct_activity_mode_type = Column(SmallInteger, nullable=False)
+    activity_mode_hashes = Column(ARRAY(BigInteger()), nullable=False)
+    activity_mode_types = Column(ARRAY(SmallInteger()), nullable=False)
 
 
 class DestinyActivityModeDefinition(Base):
     __tablename__ = "destinyActivityModeDefinition"
 
-    id = Column("referenceid", SmallInteger, primary_key=True)
-    description = Column("description", Text)
-    name = Column("name", Text)
-    hash = Column("hash", BigInteger)
-    activity_mode_category = Column("activitymodecategory", SmallInteger)
-    is_team_based = Column("isteambased", Boolean)
-    friendly_name = Column("friendlyname", Text)
+    reference_id = Column(SmallInteger, nullable=False, primary_key=True)
+    description = Column(Text, nullable=False)
+    name = Column(Text, nullable=False)
+    hash = Column(BigInteger, nullable=False)
+    activity_mode_category = Column(SmallInteger, nullable=False)
+    is_team_based = Column(Boolean, nullable=False)
+    friendly_name = Column(Text, nullable=False)
 
 
 class DestinyActivityTypeDefinition(Base):
     __tablename__ = "destinyActivityTypeDefinition"
 
-    id = Column("referenceid", BigInteger, primary_key=True)
-    description = Column("description", Text)
-    name = Column("name", Text)
+    reference_id = Column(BigInteger, nullable=False, primary_key=True)
+    description = Column(Text, nullable=False)
+    name = Column(Text, nullable=False)
 
 
 class DestinyCollectibleDefinition(Base):
     __tablename__ = "destinyCollectibleDefinition"
 
-    id = Column("referenceid", BigInteger, primary_key=True)
-    description = Column("description", Text)
-    name = Column("name", Text)
-    source_hash = Column("sourcehash", BigInteger)
-    item_hash = Column("itemhash", BigInteger)
-    parent_node_hashes = Column("parentnodehashes", ARRAY(BigInteger()))
+    reference_id = Column(BigInteger, nullable=False, primary_key=True)
+    description = Column(Text, nullable=False)
+    name = Column(Text, nullable=False)
+    source_hash = Column(BigInteger, nullable=False)
+    item_hash = Column(BigInteger, nullable=False)
+    parent_node_hashes = Column(ARRAY(BigInteger()), nullable=False)
 
 
 class DestinyInventoryBucketDefinition(Base):
     __tablename__ = "destinyInventoryBucketDefinition"
 
-    id = Column("referenceid", BigInteger, primary_key=True)
-    description = Column("description", Text)
-    name = Column("name", Text)
-    category = Column("category", SmallInteger)
-    item_count = Column("itemcount", SmallInteger)
-    location = Column("location", SmallInteger)
+    reference_id = Column(BigInteger, nullable=False, primary_key=True)
+    description = Column(Text, nullable=False)
+    name = Column(Text, nullable=False)
+    category = Column(SmallInteger, nullable=False)
+    item_count = Column(SmallInteger, nullable=False)
+    location = Column(SmallInteger, nullable=False)
 
 
 class DestinyInventoryItemDefinition(Base):
     __tablename__ = "destinyInventoryItemDefinition"
 
-    id = Column("referenceid", BigInteger, primary_key=True)
-    description = Column("description", Text)
-    name = Column("name", Text)
-    class_type = Column("classtype", SmallInteger)
-    bucket_type_hash = Column("buckettypehash", BigInteger)
-    tier_type_hash = Column("tiertypehash", BigInteger)
-    tier_type_name = Column("tiertypename", Text)
-    equippable = Column("equippable", Boolean)
+    reference_id = Column(BigInteger, nullable=False, primary_key=True)
+    description = Column(Text, nullable=False)
+    name = Column(Text, nullable=False)
+    class_type = Column(SmallInteger, nullable=False)
+    bucket_type_hash = Column(BigInteger, nullable=False)
+    tier_type_hash = Column(BigInteger, nullable=False)
+    tier_type_name = Column(Text, nullable=False)
+    equippable = Column(Boolean, nullable=False)
 
 
 class DestinyPresentationNodeDefinition(Base):
     __tablename__ = "destinyPresentationNodeDefinition"
 
-    id = Column("referenceid", BigInteger, primary_key=True)
-    description = Column("description", Text)
-    name = Column("name", Text)
-    objective_hash = Column("objectivehash", BigInteger)
-    presentation_node_type = Column("presentationnodetype", SmallInteger)
-    children_presentation_node_hash = Column("childrenpresentationnodehash", ARRAY(BigInteger()))
-    children_collectible_hash = Column("childrencollectiblehash", ARRAY(BigInteger()))
-    children_record_hash = Column("childrenrecordhash", ARRAY(BigInteger()))
-    children_metric_hash = Column("childrenmetrichash", ARRAY(BigInteger()))
-    parent_node_hashes = Column("parentnodehashes", ARRAY(BigInteger()))
-    index = Column("index", SmallInteger)
-    redacted = Column("redacted", Boolean)
+    reference_id = Column(BigInteger, nullable=False, primary_key=True)
+    description = Column(Text, nullable=False)
+    name = Column(Text, nullable=False)
+    objective_hash = Column(BigInteger, nullable=False)
+    presentation_node_type = Column(SmallInteger, nullable=False)
+    children_presentation_node_hash = Column(ARRAY(BigInteger()), nullable=False)
+    children_collectible_hash = Column(ARRAY(BigInteger()), nullable=False)
+    children_record_hash = Column(ARRAY(BigInteger()), nullable=False)
+    children_metric_hash = Column(ARRAY(BigInteger()), nullable=False)
+    parent_node_hashes = Column(ARRAY(BigInteger()), nullable=False)
+    index = Column(SmallInteger, nullable=False)
+    redacted = Column(Boolean, nullable=False)
 
 
 class DestinyRecordDefinition(Base):
     __tablename__ = "destinyRecordDefinition"
 
-    id = Column("referenceid", BigInteger, primary_key=True)
-    description = Column("description", Text)
-    name = Column("name", Text)
-    has_title = Column("hastitle", Boolean)
-    title_name = Column("titlename", Text)
-    objective_hashes = Column("objectivehashes", ARRAY(BigInteger()))
-    score_value = Column("scorevalue", Integer)
-    parent_node_hashes = Column("parentnodehashes", ARRAY(BigInteger()))
+    reference_id = Column(BigInteger, nullable=False, primary_key=True)
+    description = Column(Text, nullable=False)
+    name = Column(Text, nullable=False)
+    has_title = Column(Boolean, nullable=False)
+    title_name = Column(Text, nullable=False)
+    objective_hashes = Column(ARRAY(BigInteger()), nullable=False)
+    score_value = Column(Integer, nullable=False)
+    parent_node_hashes = Column(ARRAY(BigInteger()), nullable=False)
 
 
 ################################################################
@@ -266,26 +275,29 @@ class DestinyRecordDefinition(Base):
 class LfgMessage(Base):
     __tablename__ = "lfgMessages"
 
-    id = Column(Integer, primary_key=True)
-    guild_id = Column(BigInteger)
-    channel_id = Column(BigInteger)
-    message_id = Column(BigInteger)
-    author_id = Column(BigInteger)
-    activity = Column(Text)
-    description = Column(Text)
-    start_time = Column(DateTime(True))
-    max_joined_members = Column(Integer)
-    joined_members = Column(ARRAY(BigInteger()))
-    alternate_members = Column(ARRAY(BigInteger()))
-    creation_time = Column(DateTime(True))
-    voice_channel_id = Column(BigInteger)
+    id = Column(Integer, nullable=False, primary_key=True)
+
+    guild_id = Column(BigInteger, nullable=False)
+    channel_id = Column(BigInteger, nullable=False)
+    message_id = Column(BigInteger, nullable=False)
+    author_id = Column(BigInteger, nullable=False)
+
+    activity = Column(Text, nullable=False)
+    description = Column(Text, nullable=False)
+    start_time = Column(DateTime(True), nullable=False)
+    max_joined_members = Column(Integer, nullable=False)
+    joined_members = Column(ARRAY(BigInteger()), nullable=False)
+    alternate_members = Column(ARRAY(BigInteger()), nullable=False)
+
+    creation_time = Column(DateTime(True), nullable=False)
+    voice_channel_id = Column(BigInteger, nullable=True)
 
 
 class LfgUser(Base):
     __tablename__ = "lfgUsers"
 
-    user_id = Column(BigInteger, primary_key=True)
-    blacklisted_members = Column(ARRAY(BigInteger()))
+    user_id = Column(BigInteger, nullable=False, primary_key=True)
+    blacklisted_members = Column(ARRAY(BigInteger()), nullable=False)
 
 
 ################################################################
@@ -295,37 +307,38 @@ class LfgUser(Base):
 class D2SteamPlayer(Base):
     __tablename__ = "d2SteamPlayers"
 
-    date = Column("dateobj", DateTime, primary_key=True)
-    number_of_players = Column("numberofplayers", Integer)
+    date = Column(DateTime(timezone=True), nullable=False, primary_key=True)
+    number_of_players = Column(Integer, nullable=False)
 
 
 class Poll(Base):
     __tablename__ = "polls"
 
-    id = Column(Integer, primary_key=True)
-    name = Column(Text)
-    description = Column(Text)
-    data = Column(JSON)
-    author_id = Column(BigInteger)
-    guild_id = Column(BigInteger)
-    channel_id = Column(BigInteger)
-    message_id = Column(BigInteger)
+    id = Column(Integer, nullable=False, primary_key=True)
+    name = Column(Text, nullable=False)
+    description = Column(Text, nullable=False)
+    data = Column(JSON, nullable=False)
+
+    author_id = Column(BigInteger, nullable=False)
+    guild_id = Column(BigInteger, nullable=False)
+    channel_id = Column(BigInteger, nullable=False)
+    message_id = Column(BigInteger, nullable=False)
 
 
 class RssFeedItem(Base):
     __tablename__ = "rssFeedItems"
 
-    id = Column(Text, primary_key=True)
+    id = Column(Text, nullable=False, primary_key=True)
 
 
 class PersistentMessage(Base):
     __tablename__ = "persistentMessages"
 
-    message_name = Column("messagename", Text, primary_key=True, nullable=False)
-    guild_id = Column("guildid", BigInteger, primary_key=True, nullable=False)
-    channel_id = Column("channelid", BigInteger)
-    message_id = Column("messageid", BigInteger)
-    reaction_ids = Column("reactionsidlist", ARRAY(BigInteger()))
+    message_name = Column(Text, nullable=False, primary_key=True)
+
+    guild_id = Column(BigInteger, nullable=False, primary_key=True)
+    channel_id = Column(BigInteger, nullable=False)
+    message_id = Column(BigInteger, nullable=False)
 
 
 # _insert all tables
