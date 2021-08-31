@@ -21,6 +21,17 @@ class BungieApi(NetworkBase):
     cache = aiohttp_client_cache.SQLiteBackend(
         cache_name="networking/bungie_networking_cache",
         expire_after=timedelta(minutes=5),
+        urls_expire_after={
+            "platform/app/oauth/token": 0,  # do not save token stuff
+            "Destiny2/Stats/PostGameCarnageReport": 0,  # do not save pgcr. We save them anyway and don't look them up more than once
+            "Destiny2/*/Profile/**components=100": timedelta(hours=12),  # profile
+            "Destiny2/*/Profile/**components=200": timedelta(hours=6),  # characters
+            "Destiny2/*/Profile/**components=800": timedelta(minutes=5),  # collectibles
+            "Destiny2/*/Profile/**components=900": timedelta(minutes=5),  # records
+            "Destiny2/*/Profile/**components=1100": timedelta(minutes=60),  # metrics
+            "Destiny2/*/Account/*/Stats": timedelta(minutes=60),  # stats
+            "Destiny2/*/Account/*/Character/*/Stats/Activities": timedelta(minutes=5),  # activity history
+        },
     )
 
     def __init__(self, discord_id: int, headers: dict = None):
