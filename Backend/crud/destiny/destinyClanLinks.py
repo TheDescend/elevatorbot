@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.crud.base import CRUDBase
 from Backend.database.models import DestinyClanLinks
+from Backend.misc.helperFunctions import get_now_with_tz
 
 
 class CRUDDestinyClanLinks(CRUDBase):
@@ -34,7 +35,7 @@ class CRUDDestinyClanLinks(CRUDBase):
                 db=db,
                 to_update=link,
                 destiny_clan_id=destiny_clan_id,
-                link_date=datetime.datetime.now(),
+                link_date=get_now_with_tz(),
                 linked_by_discord_id=discord_id,
             )
 
@@ -46,7 +47,7 @@ class CRUDDestinyClanLinks(CRUDBase):
                     discord_guild_id=discord_guild_id,
                     to_update=link,
                     destiny_clan_id=destiny_clan_id,
-                    link_date=datetime.datetime.now(tz=datetime.timezone.utc),
+                    link_date=get_now_with_tz(),
                     linked_by_discord_id=discord_id,
                 ),
             )

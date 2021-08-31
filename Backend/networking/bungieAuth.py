@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from Backend.core.errors import CustomException
 from Backend.crud import discord_users
 from Backend.database.models import DiscordUsers
+from Backend.misc.helperFunctions import get_now_with_tz, localize_datetime
 from Backend.networking.base import NetworkBase
 from settings import B64_SECRET
 
@@ -40,7 +41,7 @@ class BungieAuth(NetworkBase):
         token = self.user.token
 
         # check refresh token expiry
-        current_time = datetime.datetime.now()
+        current_time = get_now_with_tz()
         if current_time > self.user.refresh_token_expiry:
             raise CustomException("NoToken")
 
@@ -77,9 +78,11 @@ class BungieAuth(NetworkBase):
                     user=self.user,
                     token=access_token,
                     refresh_token=response.content["refresh_token"],
-                    token_expiry=datetime.datetime.fromtimestamp(current_time + response.content["expires_in"]),
-                    refresh_token_expiry=datetime.datetime.fromtimestamp(
-                        current_time + response.content["refresh_expires_in"]
+                    token_expiry=localize_datetime(
+                        datetime.datetime.fromtimestamp(current_time + int(response.content["expires_in"]))
+                    ),
+                    refresh_token_expiry=localize_datetime(
+                        datetime.datetime.fromtimestamp(current_time + int(response.content["refresh_expires_in"]))
                     ),
                 )
 

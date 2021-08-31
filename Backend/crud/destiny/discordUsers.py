@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from Backend.core.errors import CustomException
 from Backend.crud.base import CRUDBase
 from Backend.database.models import DiscordUsers
+from Backend.misc.helperFunctions import get_now_with_tz, localize_datetime
 from Backend.networking.base import NetworkBase
 from Backend.schemas.auth import BungieTokenInput, BungieTokenOutput
 from settings import BUNGIE_TOKEN
@@ -119,9 +120,11 @@ class CRUDDiscordUser(CRUDBase):
                 system=system,
                 token=bungie_token.access_token,
                 refresh_token=bungie_token.refresh_token,
-                token_expiry=datetime.datetime.fromtimestamp(current_time + bungie_token.expires_in),
-                refresh_token_expiry=datetime.datetime.fromtimestamp(current_time + bungie_token.refresh_expires_in),
-                signup_date=datetime.date.today(),
+                token_expiry=localize_datetime(datetime.datetime.fromtimestamp(current_time + bungie_token.expires_in)),
+                refresh_token_expiry=localize_datetime(
+                    datetime.datetime.fromtimestamp(current_time + bungie_token.refresh_expires_in)
+                ),
+                signup_date=get_now_with_tz(),
                 signup_server_id=guild_id,
             )
 
@@ -137,8 +140,10 @@ class CRUDDiscordUser(CRUDBase):
                 system=system,
                 token=bungie_token.access_token,
                 refresh_token=bungie_token.refresh_token,
-                token_expiry=datetime.datetime.fromtimestamp(current_time + bungie_token.expires_in),
-                refresh_token_expiry=datetime.datetime.fromtimestamp(current_time + bungie_token.refresh_expires_in),
+                token_expiry=localize_datetime(datetime.datetime.fromtimestamp(current_time + bungie_token.expires_in)),
+                refresh_token_expiry=localize_datetime(
+                    datetime.datetime.fromtimestamp(current_time + bungie_token.refresh_expires_in)
+                ),
             )
 
         # todo connect to the websocket on elevator for them to write a message
@@ -175,6 +180,7 @@ class CRUDDiscordUser(CRUDBase):
                 error="DiscordIdNotFound",
             )
 
+    # todo delete
     async def get_join_id(self, db: AsyncSession, discord_id: int) -> int:
         """Gets a join id from the DB"""
 

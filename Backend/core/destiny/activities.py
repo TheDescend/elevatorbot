@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.destiny.profile import DestinyProfile
 from Backend.database.models import DiscordUsers
+from Backend.misc.helperFunctions import add_utc_tz, get_datetime_form_bungie_entry
 from Backend.networking.bungieApi import BungieApi
 from Backend.core.destiny.routes import activities_route, stat_route_characters
 
@@ -165,7 +166,7 @@ class DestinyActivities:
                 for activity in rep.content["activities"]:
                     # check times if wanted
                     if earliest_allowed_datetime or latest_allowed_datetime:
-                        activity_time = datetime.datetime.strptime(activity["period"], "%Y-%m-%dT%H:%M:%SZ")
+                        activity_time = get_datetime_form_bungie_entry(activity["period"])
 
                         # check if the activity started later than the earliest allowed, else break and continue with next char
                         # This works bc Bungie sorts the api with the newest entry on top

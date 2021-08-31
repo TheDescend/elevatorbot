@@ -5,6 +5,7 @@ from typing import Optional, Union
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.database.models import DiscordUsers
+from Backend.misc.helperFunctions import get_datetime_form_bungie_entry
 from Backend.networking.bungieApi import BungieApi
 from Backend.core.destiny.routes import profile_route, stat_route
 
@@ -37,14 +38,13 @@ class DestinyProfile:
 
         result = await self.__get_profile(100)
         user_info = result["profile"]["data"]["userInfo"]
-        return f"""{["bungieGlobalDisplayName"]}#{["bungieGlobalDisplayNameCode"]}"""
+        return f"""{user_info["bungieGlobalDisplayName"]}#{user_info["bungieGlobalDisplayNameCode"]}"""
 
     async def get_last_online(self) -> datetime.datetime:
         """Returns the last online time"""
 
         result = await self.__get_profile(100)
-        last_played = result["profile"]["data"]["dateLastPlayed"]
-        return datetime.datetime.strptime(last_played, "%Y-%m-%dT%H:%M:%SZ")
+        return get_datetime_form_bungie_entry(result["profile"]["data"]["dateLastPlayed"])
 
     async def has_triumph(self, triumph_hash: Union[str, int]) -> bool:
         """Returns if the triumph is gotten"""

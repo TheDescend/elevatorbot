@@ -61,7 +61,9 @@ class Activities(Base):
     is_private = Column(Boolean, nullable=False)
     system = Column(SmallInteger, nullable=False)
 
-    users = relationship("ActivitiesUsersStats", back_populates="activities", cascade="all, delete", passive_deletes=True)
+    users = relationship(
+        "ActivitiesUsersStats", back_populates="activities", cascade="all, delete", passive_deletes=True
+    )
 
 
 class ActivitiesUsersStats(Base):
@@ -101,7 +103,12 @@ class ActivitiesUsersStats(Base):
     activity_instance_id = Column(BigInteger, ForeignKey(Activities.instance_id))
     activity = relationship("Activities", back_populates="activitiesUsersStats")
 
-    weapons = relationship("ActivitiesUsersStatsWeapons", back_populates="activitiesUsersStats", cascade="all, delete", passive_deletes=True)
+    weapons = relationship(
+        "ActivitiesUsersStatsWeapons",
+        back_populates="activitiesUsersStats",
+        cascade="all, delete",
+        passive_deletes=True,
+    )
 
 
 class ActivitiesUsersStatsWeapons(Base):
@@ -114,9 +121,7 @@ class ActivitiesUsersStatsWeapons(Base):
     unique_weapon_precision_kills = Column(Integer, nullable=False)
 
     user_id = Column(BigInteger, ForeignKey(ActivitiesUsersStats.id))
-    user = relationship(
-        "ActivitiesUsersStats", back_populates="activitiesUsersStatsWeapons"
-    )
+    user = relationship("ActivitiesUsersStats", back_populates="activitiesUsersStatsWeapons")
 
 
 ################################################################
@@ -132,16 +137,14 @@ class DiscordUsers(Base):
     system = Column(Integer, nullable=False)
     token = Column(Text, nullable=False)
     refresh_token = Column(Text, nullable=False)
-    token_expiry = Column(DateTime, nullable=False)
-    refresh_token_expiry = Column(DateTime, nullable=False)
+    token_expiry = Column(DateTime(timezone=True), nullable=False)
+    refresh_token_expiry = Column(DateTime(timezone=True), nullable=False)
 
-    signup_date = Column(Date, nullable=False)
+    signup_date = Column(DateTime(timezone=True), nullable=False)
     signup_server_id = Column(BigInteger, nullable=False)
 
     activities_last_updated = Column(
-        DateTime(timezone=True),
-        nullable=False,
-        default=datetime.datetime(2000, 1, 1, tzinfo=datetime.timezone.utc)
+        DateTime(timezone=True), nullable=False, default=datetime.datetime(2000, 1, 1, tzinfo=datetime.timezone.utc)
     )
 
 

@@ -1,0 +1,27 @@
+import datetime
+
+import pytz
+
+
+def get_now_with_tz() -> datetime.datetime:
+    """Returns the current datetime (timezone aware)"""
+
+    return datetime.datetime.now(tz=datetime.timezone.utc)
+
+
+def localize_datetime(obj: datetime.datetime) -> datetime.datetime:
+    """Returns a timezone aware object, localized to the system timezone"""
+
+    return obj.astimezone()
+
+
+def get_datetime_form_bungie_entry(string: str) -> datetime.datetime:
+    """Converts the bungie string to a utc datetime obj"""
+
+    return add_utc_tz(datetime.datetime.strptime(string, "%Y-%m-%dT%H:%M:%SZ"))
+
+
+def add_utc_tz(obj: datetime.datetime) -> datetime.datetime:
+    """Returns a timezone aware object, localized to utc"""
+
+    return pytz.utc.localize(obj)
