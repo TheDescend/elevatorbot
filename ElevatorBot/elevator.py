@@ -1,3 +1,4 @@
+import asyncio
 import os
 
 import discord
@@ -10,6 +11,7 @@ from ElevatorBot.misc.initBackgroundEvents import register_background_events
 from ElevatorBot.misc.initDocs import create_command_docs
 from ElevatorBot.misc.initLogging import init_logging
 from ElevatorBot.misc.veryMisc import yield_files_in_folder
+from ElevatorBot.webserver.server import run_webserver
 from settings import DISCORD_BOT_TOKEN, SYNC_COMMANDS
 
 
@@ -55,8 +57,16 @@ class ElevatorBot(Bot):
         print("Startup Finished!\n")
         print("--------------------------\n")
 
-        # launch status changer
-        await update_status(client)
+        tasks = [
+            # launch status changer
+            update_status(client),
+
+            # run webserver
+            run_webserver(client=client)
+        ]
+
+        # gather the task to not block
+        await asyncio.gather(*tasks)
 
 
 # actually get the bot obj

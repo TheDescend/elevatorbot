@@ -52,6 +52,8 @@ services:
       - POSTGRES_PORT
       - BACKEND_HOST
       - BACKEND_PORT
+      - ELEVATOR_HOST
+      - ELEVATOR_PORT
     networks:
       - database-network
       - backend-network
@@ -74,6 +76,8 @@ services:
       - BACKEND_PORT
       - WEBSITE_HOST
       - WEBSITE_PORT
+      - ELEVATOR_HOST
+      - ELEVATOR_PORT
     networks:
       - backend-network
       - website-network
@@ -84,6 +88,8 @@ services:
 
   elevator:
     build: ./ElevatorBot
+    ports:
+      - "${ELEVATOR_PORT}:8080"
     volumes:
       - ./ElevatorBot:/app/ElevatorBot
       - ./logs/ElevatorBot:/app/ElevatorBot/logs
@@ -93,6 +99,8 @@ services:
       - BACKEND_PORT
       - WEBSITE_HOST
       - WEBSITE_PORT
+      - ELEVATOR_HOST
+      - ELEVATOR_PORT
     networks:
       - backend-network
       - elevator-network
