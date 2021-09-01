@@ -23,7 +23,7 @@ class DestinyProfile(BaseBackendConnection):
     discord_member: discord.Member
     discord_guild: discord.Guild
 
-    async def from_destiny_id(self, destiny_id: int) -> Union[DestinyData, BackendResult]:
+    async def from_destiny_id(self, destiny_id: int) -> DestinyData | BackendResult:
         """Get the destiny profile with a destiny_id"""
 
         # query the backend
@@ -50,7 +50,7 @@ class DestinyProfile(BaseBackendConnection):
 
     async def from_discord_member(
         self,
-    ) -> Union[DestinyData, BackendResult]:
+    ) -> DestinyData | BackendResult:
         """Get the destiny profile with a discord member object"""
 
         # query the backend

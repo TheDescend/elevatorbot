@@ -1,7 +1,6 @@
 import asyncio
 import json
 from datetime import datetime, date
-from typing import Union
 
 import asyncpg
 import discord
@@ -1192,7 +1191,7 @@ async def getActivityHistory(
 async def getTimePlayed(
     destinyID: int,
     character_class: str = None,
-    mode: Union[int, str] = None,
+    mode: int | str = None,
     start_time: datetime = datetime.min,
     end_time: datetime = datetime.now(),
 ) -> int:

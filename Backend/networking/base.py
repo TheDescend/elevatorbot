@@ -29,7 +29,7 @@ class NetworkBase:
 
     async def _get_request(
         self,
-        session: Union[aiohttp_client_cache.CachedSession, aiohttp.ClientSession],
+        session: aiohttp_client_cache.CachedSession | aiohttp.ClientSession,
         route: str,
         headers: dict = None,
         params: dict = None,
@@ -80,7 +80,7 @@ class NetworkBase:
 
     async def _post_request(
         self,
-        session: Union[aiohttp_client_cache.CachedSession, aiohttp.ClientSession],
+        session: aiohttp_client_cache.CachedSession | aiohttp.ClientSession,
         route: str,
         json: dict = None,
         form_data: dict = None,
@@ -136,7 +136,7 @@ class NetworkBase:
 
     async def __handle_request_data(
         self,
-        request: Union[aiohttp.ClientResponse, aiohttp_client_cache.CachedResponse],
+        request: aiohttp.ClientResponse | aiohttp_client_cache.CachedResponse,
         route: str,
     ) -> Optional[InternalWebResponse]:
         """Handle the request results"""

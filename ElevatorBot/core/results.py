@@ -50,7 +50,7 @@ class BackendResult:
 
     async def send_error_message(
         self,
-        ctx: Union[SlashContext, MenuContext],
+        ctx: SlashContext | MenuContext,
         hidden: bool = False,
         **format_kwargs,
     ):

@@ -20,7 +20,7 @@ async def on_component_callback_error(ctx: ComponentContext, error: Exception) -
 
 
 async def log_error(
-    ctx: Union[SlashContext, ComponentContext],
+    ctx: SlashContext | ComponentContext,
     error: Exception,
     situation: str,
 ) -> None:

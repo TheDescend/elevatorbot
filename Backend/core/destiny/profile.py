@@ -48,7 +48,7 @@ class DestinyProfile:
         result = await self.__get_profile(100)
         return get_datetime_form_bungie_entry(result["profile"]["data"]["dateLastPlayed"])
 
-    async def has_triumph(self, triumph_hash: Union[str, int]) -> bool:
+    async def has_triumph(self, triumph_hash: str | int) -> bool:
         """Returns if the triumph is gotten"""
 
         triumph_hash = int(triumph_hash)
@@ -104,7 +104,7 @@ class DestinyProfile:
         # now check again if it completed
         return await records.has_record(db=self.db, destiny_id=self.destiny_id, triumph_hash=triumph_hash)
 
-    async def has_collectible(self, collectible_hash: Union[str, int]) -> bool:
+    async def has_collectible(self, collectible_hash: str | int) -> bool:
         """Returns if the collectible is gotten"""
 
         collectible_hash = int(collectible_hash)
@@ -158,7 +158,7 @@ class DestinyProfile:
             db=self.db, destiny_id=self.destiny_id, collectible_hash=collectible_hash
         )
 
-    async def get_metric_value(self, metric_hash: Union[str, int]) -> int:
+    async def get_metric_value(self, metric_hash: str | int) -> int:
         """Returns the value of the given metric hash"""
 
         metric_hash = str(metric_hash)
@@ -170,7 +170,7 @@ class DestinyProfile:
         self,
         stat_name: str,
         stat_category: str = "allTime",
-        character_id: Union[int, str] = None,
+        character_id: int | str = None,
     ) -> int:
         """Returns the value of the given stat"""
 
@@ -366,7 +366,7 @@ class DestinyProfile:
 
         return gear
 
-    async def __get_profile(self, *components: Union[int, str], with_token: bool = False) -> dict:
+    async def __get_profile(self, *components: int | str, with_token: bool = False) -> dict:
         """
         Return info from the profile call
         https://bungie-net.github.io/multi/schema_Destiny-DestinyComponentType.html#schema_Destiny-DestinyComponentType
