@@ -203,130 +203,130 @@ class NetworkBase:
     async def __handle_bungie_errors(self, route: str, response: InternalWebResponse):
         """Looks for typical bungie errors and handles / logs them"""
 
-        # generic bad request, such as wrong format
-        if response.status == 400:
-            self.logger.error(
-                "'%s - %s': Generic bad request for '%s' - '%s'",
-                response.status,
-                response.error,
-                route,
-                response,
-            )
-            raise CustomException("BungieDed")
+        match (response.status, response.error):
+            case (400, error):
+                # generic bad request, such as wrong format
+                self.logger.error(
+                    "'%s - %s': Generic bad request for '%s' - '%s'",
+                    response.status,
+                    error,
+                    route,
+                    response,
+                )
+                raise CustomException("BungieDed")
 
-        # not found
-        elif response.status == 404:
-            self.logger.error(
-                "'%s - %s': No stats found for '%s' - '%s'",
-                response.status,
-                response.error,
-                route,
-                response,
-            )
-            raise CustomException("BungieBadRequest")
+            case (404, error):
+                # not found
+                self.logger.error(
+                    "'%s - %s': No stats found for '%s' - '%s'",
+                    response.status,
+                    error,
+                    route,
+                    response,
+                )
+                raise CustomException("BungieBadRequest")
 
-        # bungie is ded
-        elif response.status == 503:
-            self.logger.error(
-                "'%s - %s': Server is overloaded for '%s' - '%s'",
-                response.status,
-                response.error,
-                route,
-                response,
-            )
-            await asyncio.sleep(10)
+            case (503, error):
+                # bungie is ded
+                self.logger.error(
+                    "'%s - %s': Server is overloaded for '%s' - '%s'",
+                    response.status,
+                    error,
+                    route,
+                    response,
+                )
+                await asyncio.sleep(10)
 
-        # rate limited
-        elif response.status == 429:
-            self.logger.warning(
-                "'%s - %s': Getting rate limited for '%s' - '%s'",
-                response.status,
-                response.error,
-                route,
-                response,
-            )
-            await asyncio.sleep(2)
+            case (429, error):
+                # rate limited
+                self.logger.warning(
+                    "'%s - %s': Getting rate limited for '%s' - '%s'",
+                    response.status,
+                    error,
+                    route,
+                    response,
+                )
+                await asyncio.sleep(2)
 
-        # we we are getting throttled
-        elif (
-            response.error == "PerEndpointRequestThrottleExceeded"
-            or response.error == "DestinyDirectBabelClientTimeout"
-        ):
-            self.logger.warning(
-                "'%s - %s': Getting throttled for '%s' - '%s'",
-                response.status,
-                response.error,
-                route,
-                response,
-            )
+            case (status, "PerEndpointRequestThrottleExceeded" | "DestinyDirectBabelClientTimeout"):
+                # we we are getting throttled
+                self.logger.warning(
+                    "'%s - %s': Getting throttled for '%s' - '%s'",
+                    status,
+                    response.error,
+                    route,
+                    response,
+                )
 
-            throttle_seconds = response.content["ErrorStatus"]["ThrottleSeconds"]
+                throttle_seconds = response.content["ErrorStatus"]["ThrottleSeconds"]
 
-            await asyncio.sleep(throttle_seconds + random.randrange(1, 3))
+                await asyncio.sleep(throttle_seconds + random.randrange(1, 3))
 
-        # if user doesn't have that item
-        elif response.error == "DestinyItemNotFound":
-            self.logger.error(
-                "'%s - %s': User doesn't have that item for '%s' - '%s'",
-                response.status,
-                response.error,
-                route,
-                response,
-            )
-            raise CustomException("BungieDestinyItemNotFound")
+            case (status, "DestinyItemNotFound"):
+                # if user doesn't have that item
+                self.logger.error(
+                    "'%s - %s': User doesn't have that item for '%s' - '%s'",
+                    status,
+                    response.error,
+                    route,
+                    response,
+                )
+                raise CustomException("BungieDestinyItemNotFound")
 
-        # private profile
-        elif response.error == "DestinyPrivacyRestriction":
-            self.logger.error(
-                "'%s - %s': User has private Profile for '%s' - '%s'",
-                response.status,
-                response.error,
-                route,
-                response,
-            )
-            raise CustomException("BungieDestinyPrivacyRestriction")
+            case (status, "DestinyPrivacyRestriction"):
+                # private profile
+                self.logger.error(
+                    "'%s - %s': User has private Profile for '%s' - '%s'",
+                    status,
+                    response.error,
+                    route,
+                    response,
+                )
+                raise CustomException("BungieDestinyPrivacyRestriction")
 
-        # timeout
-        elif response.error == "DestinyDirectBabelClientTimeout":
-            self.logger.warning(
-                "'%s - %s': Getting timeouts for '%s' - '%s'",
-                response.status,
-                response.error,
-                route,
-                response,
-            )
-            await asyncio.sleep(60)
+            case (status, "DestinyDirectBabelClientTimeout"):
+                # timeout
+                self.logger.warning(
+                    "'%s - %s': Getting timeouts for '%s' - '%s'",
+                    status,
+                    response.error,
+                    route,
+                    response,
+                )
+                await asyncio.sleep(60)
 
-        # user has disallowed clan invites
-        elif response.error == "ClanTargetDisallowsInvites":
-            self.logger.error(
-                "'%s - %s': User disallows clan invites '%s' - '%s'",
-                response.status,
-                response.error,
-                route,
-                response,
-            )
-            raise CustomException("BungieClanTargetDisallowsInvites")
+            case (status, "ClanTargetDisallowsInvites"):
+                # user has disallowed clan invites
+                self.logger.error(
+                    "'%s - %s': User disallows clan invites '%s' - '%s'",
+                    status,
+                    response.error,
+                    route,
+                    response,
+                )
+                raise CustomException("BungieClanTargetDisallowsInvites")
 
-        # user has disallowed clan invites
-        elif response.error == "AuthorizationRecordRevoked":
-            self.logger.error(
-                "'%s - %s': User refresh token is outdated and they need to re-register for '%s' - '%s'",
-                response.status,
-                response,
-                route,
-                response.error_message,
-            )
-            raise CustomException("NoToken")
+            case (status, "AuthorizationRecordRevoked"):
+                # users tokens are no longer valid
+                # todo invalidate tokens in the db, so avoid calling this endpoint 10000 times for one user
+                self.logger.error(
+                    "'%s - %s': User refresh token is outdated and they need to re-register for '%s' - '%s'",
+                    status,
+                    response,
+                    route,
+                    response.error_message,
+                )
+                raise CustomException("NoToken")
 
-        else:
-            self.logger.error(
-                "'%s - %s': Request failed for '%s' - '%s'",
-                response.status,
-                response.error,
-                route,
-                response,
-            )
-            await asyncio.sleep(2)
+            case (status, error):
+                # catch the rest
+                self.logger.error(
+                    "'%s - %s': Request failed for '%s' - '%s'",
+                    status,
+                    error,
+                    route,
+                    response,
+                )
+                await asyncio.sleep(2)
 
         return False
