@@ -150,7 +150,9 @@ class DiscordUsers(Base):
 
     destiny_id = Column(BigInteger, nullable=False, unique=True)
     system = Column(Integer, nullable=False)
-    token = Column(Text, nullable=False)
+    private_profile = Column(Boolean, nullable=False, default=False)
+
+    token = Column(Text, nullable=True)  # if this is none, user (no longer) has no valid token
     refresh_token = Column(Text, nullable=False)
     token_expiry = Column(DateTime(timezone=True), nullable=False)
     refresh_token_expiry = Column(DateTime(timezone=True), nullable=False)

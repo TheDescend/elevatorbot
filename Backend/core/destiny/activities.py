@@ -27,7 +27,7 @@ class DestinyActivities:
         self.system = self.user.system
 
         # the network class
-        self.api = BungieApi(discord_id=self.discord_id)
+        self.api = BungieApi(db=self.db, discord_id=self.discord_id)
 
     async def get_character_activity_stats(self, character_id: int) -> dict:
         """Get destiny stats for the specified character"""

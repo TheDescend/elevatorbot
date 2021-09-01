@@ -143,7 +143,7 @@ class CRUDDiscordUser(CRUDBase):
                 token_expiry=localize_datetime(datetime.datetime.fromtimestamp(current_time + bungie_token.expires_in)),
                 refresh_token_expiry=localize_datetime(
                     datetime.datetime.fromtimestamp(current_time + bungie_token.refresh_expires_in)
-                ),
+                )
             )
 
         # todo connect to the websocket on elevator for them to write a message
@@ -157,7 +157,7 @@ class CRUDDiscordUser(CRUDBase):
         token=str,
         refresh_token=str,
         token_expiry=datetime,
-        refresh_token_expiry=datetime,
+        refresh_token_expiry=datetime
     ):
         """Updates a profile (token refreshes)"""
 
@@ -168,6 +168,33 @@ class CRUDDiscordUser(CRUDBase):
             refresh_token=refresh_token,
             token_expiry=token_expiry,
             refresh_token_expiry=refresh_token_expiry,
+        )
+
+    async def invalidate_token(
+        self,
+        db: AsyncSession,
+        user: DiscordUsers
+    ):
+        """Invalidates a token by setting it to None"""
+
+        await self._update(
+            db=db,
+            to_update=user,
+            token=None,
+        )
+
+    async def change_privacy_setting(
+        self,
+        db: AsyncSession,
+        user: DiscordUsers,
+        has_private_profile: bool
+    ):
+        """Updates a users privacy setting"""
+
+        await self._update(
+            db=db,
+            to_update=user,
+            private_profile=has_private_profile
         )
 
     async def delete_profile(self, db: AsyncSession, discord_id: int):

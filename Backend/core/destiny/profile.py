@@ -33,7 +33,7 @@ class DestinyProfile:
         self.system = self.user.system
 
         # the network class
-        self.api = BungieApi(discord_id=self.discord_id)
+        self.api = BungieApi(db=self.db, discord_id=self.discord_id)
 
     async def get_destiny_name(self) -> str:
         """Returns the current user name#1234"""
@@ -376,7 +376,7 @@ class DestinyProfile:
         params = {"components": ",".join(map(str, components))}
 
         if with_token:
-            response = await self.api.get_json_from_bungie_with_token(db=self.db, route=route, params=params)
+            response = await self.api.get_json_from_bungie_with_token(route=route, params=params)
         else:
             response = await self.api.get_json_from_url(route=route, params=params)
 

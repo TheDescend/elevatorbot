@@ -15,8 +15,8 @@ from settings import B64_SECRET
 
 @dataclasses.dataclass
 class BungieAuth(NetworkBase):
-    discord_id: int
     db: AsyncSession
+    user: DiscordUsers
 
     route = "https://www.bungie.net/platform/app/oauth/token/"
     headers = {
@@ -24,25 +24,22 @@ class BungieAuth(NetworkBase):
         "authorization": "Basic " + str(B64_SECRET),
     }
 
-    bungie_request = True
-    user: DiscordUsers = dataclasses.field(init=False)
+    bungie_request: bool = True
 
-    async def get_working_token(
-        self,
-    ) -> str:
+    async def get_working_token(self) -> str:
         """Returns token or raises an error"""
 
-        self.user = discord_users.get_profile_from_discord_id(db=self.db, discord_id=self.discord_id)
-        if not self.user.token:
-            raise CustomException(
-                error="NoToken",
-            )
+        if self.user.token is None:
+            raise CustomException("NoToken")
 
         token = self.user.token
 
         # check refresh token expiry
         current_time = get_now_with_tz()
         if current_time > self.user.refresh_token_expiry:
+            # set token to None
+            await discord_users.invalidate_token(db=self.db, user=self.user)
+
             raise CustomException("NoToken")
 
         # refresh token if outdated
@@ -51,9 +48,7 @@ class BungieAuth(NetworkBase):
 
         return token
 
-    async def __refresh_token(
-        self,
-    ) -> str:
+    async def __refresh_token(self) -> str:
         """Updates the token and saves it to the DB. Raises an error if failed"""
 
         data = {
@@ -64,26 +59,35 @@ class BungieAuth(NetworkBase):
         # get a new token
         async with aiohttp.ClientSession() as session:
             current_time = int(time.time())
-            response = await self._post_request(
-                session=session,
-                route=self.route,
-                form_data=data,
-                headers=self.headers,
-            )
-            if response:
-                access_token = response.content["access_token"]
 
-                await discord_users.refresh_tokens(
-                    db=self.db,
-                    user=self.user,
-                    token=access_token,
-                    refresh_token=response.content["refresh_token"],
-                    token_expiry=localize_datetime(
-                        datetime.datetime.fromtimestamp(current_time + int(response.content["expires_in"]))
-                    ),
-                    refresh_token_expiry=localize_datetime(
-                        datetime.datetime.fromtimestamp(current_time + int(response.content["refresh_expires_in"]))
-                    ),
+            try:
+                response = await self._post_request(
+                    session=session,
+                    route=self.route,
+                    form_data=data,
+                    headers=self.headers,
                 )
+                if response:
+                    access_token = response.content["access_token"]
 
-                return access_token
+                    await discord_users.refresh_tokens(
+                        db=self.db,
+                        user=self.user,
+                        token=access_token,
+                        refresh_token=response.content["refresh_token"],
+                        token_expiry=localize_datetime(
+                            datetime.datetime.fromtimestamp(current_time + int(response.content["expires_in"]))
+                        ),
+                        refresh_token_expiry=localize_datetime(
+                            datetime.datetime.fromtimestamp(current_time + int(response.content["refresh_expires_in"]))
+                        ),
+                    )
+
+                    return access_token
+
+            except CustomException as exc:
+                if exc.error == "NoToken":
+                    # catch the NoToken error to invalidate the db
+                    await discord_users.invalidate_token(db=self.db, user=self.user)
+
+                raise exc

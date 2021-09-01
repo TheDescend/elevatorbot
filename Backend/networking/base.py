@@ -308,7 +308,6 @@ class NetworkBase:
 
             case (status, "AuthorizationRecordRevoked"):
                 # users tokens are no longer valid
-                # todo invalidate tokens in the db, so avoid calling this endpoint 10000 times for one user
                 self.logger.error(
                     "'%s - %s': User refresh token is outdated and they need to re-register for '%s' - '%s'",
                     status,

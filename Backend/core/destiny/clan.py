@@ -30,7 +30,7 @@ class DestinyClan:
         self.system = self.user.system
 
         # the network class
-        self.api = BungieApi(discord_id=self.discord_id)
+        self.api = BungieApi(db=self.db, discord_id=self.discord_id)
 
     async def get_clan_id_and_name(self) -> tuple[int, str]:
         """Gets clan information"""
@@ -116,6 +116,6 @@ class DestinyClan:
 
         # catch the exception if it fails and send a new one
         try:
-            await self.api.post_json_to_url(db=self.db, route=route, json=welcome_message)
+            await self.api.post_json_to_url(route=route, json=welcome_message)
         except CustomException:
             raise CustomException("ClanInviteFailed")
