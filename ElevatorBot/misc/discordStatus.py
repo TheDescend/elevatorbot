@@ -9,7 +9,7 @@ async def update_status(client: discord.Client):
 
     status_messages = [
         "Type '/' to see available commands",
-        "Type '/registerdesc' to register your Destiny 2 account",
+        "Type '/registerdesc' to registration your Destiny 2 account",
         "DM me to contact staff",
         "↓ Psst! Did you know this person stinks",
         "I head @Tom wants to be sherpa'd through GoS to finally get Divinity, but is too afraid to ask",

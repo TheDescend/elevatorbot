@@ -66,7 +66,7 @@ class UpdateActivityDB(BaseEvent):
 
 
 class TokenUpdater(BaseEvent):
-    """Every week, this updates user tokens, so they dont have to re-register so much"""
+    """Every week, this updates user tokens, so they dont have to re-registration so much"""
 
     def __init__(self):
         # bot is running on est, that should give it enough time (reset is at 12pm there)

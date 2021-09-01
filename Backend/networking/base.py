@@ -309,7 +309,7 @@ class NetworkBase:
             case (status, "AuthorizationRecordRevoked"):
                 # users tokens are no longer valid
                 self.logger.error(
-                    "'%s - %s': User refresh token is outdated and they need to re-register for '%s' - '%s'",
+                    "'%s - %s': User refresh token is outdated and they need to re-registration for '%s' - '%s'",
                     status,
                     response,
                     route,

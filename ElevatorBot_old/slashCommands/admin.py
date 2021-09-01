@@ -92,7 +92,7 @@ class AdminCommands(commands.Cog):
         if no_token:
             textstr = ", ".join(no_token)
             while tempstr := textstr[:1900]:
-                await ctx.channel.send("**These users have no token and need to register with the bot** \n" + tempstr)
+                await ctx.channel.send("**These users have no token and need to registration with the bot** \n" + tempstr)
                 textstr = textstr[1900:]
 
         if not_accepted_rules:

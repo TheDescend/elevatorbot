@@ -12,6 +12,7 @@ from Backend.core.security.auth import (
 )
 from Backend.crud import discord_users
 from Backend.database.models import BackendUser
+from Backend.networking.elevatorApi import ElevatorApi
 from Backend.schemas.auth import (
     BackendUserModel,
     BungieTokenInput,
@@ -32,10 +33,47 @@ router = APIRouter(
 async def save_bungie_token(bungie_token: BungieTokenInput, db: AsyncSession = Depends(get_db_session)):
     """Saves a bungie token"""
 
-    return await discord_users.insert_profile(
+    # save in db
+    result, discord_id, guild_id = await discord_users.insert_profile(
         db=db,
         bungie_token=bungie_token,
     )
+
+    if result.success:
+        # send a msg to Elevator and get the mutual guild ids
+        elevator_api = ElevatorApi()
+        response = await elevator_api.post(
+            route_addition="registration/",
+            json={
+                "discord_id": discord_id,
+            },
+        )
+
+        # loop through guilds
+        data = []
+        for guild_id in response.content["guild_ids"]:
+            # todo get the role ids
+            registered_role_id, unregistered_role_id = None, None
+
+            if registered_role_id or unregistered_role_id:
+                data.append(
+                    {
+                        "discord_id": discord_id,
+                        "guild_id": guild_id,
+                        "to_assign_role_id": [registered_role_id],
+                        "to_remove_role_id": [unregistered_role_id],
+                    }
+                )
+
+        # send elevator that data to apply the roles
+        await elevator_api.post(
+            route_addition="roles/",
+            json={
+                "data": data,
+            },
+        )
+
+    return result
 
 
 @router.post("/token", response_model=Token)
@@ -60,7 +98,7 @@ async def login_for_access_token(
     )
 
 
-@router.post("/register")
+@router.post("/registration")
 async def register(
     user_name: str = Form(...),
     password: str = Form(...),

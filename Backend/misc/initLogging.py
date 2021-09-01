@@ -20,3 +20,4 @@ def init_logging() -> None:
 
     # Initialize logging for external api requests
     make_logger("bungieApi")
+    make_logger("elevatorApi")

@@ -150,7 +150,7 @@ async def handle_persistent_message_reaction(client, payload, persistent_message
             await payload.member.send(
                 embed=embed_message(
                     "Error",
-                    "You need to register first before you can join a tournament. \nTo do that please use `/registerdesc` in <#670401854496309268>",
+                    "You need to registration first before you can join a tournament. \nTo do that please use `/registerdesc` in <#670401854496309268>",
                 )
             )
 

@@ -584,7 +584,7 @@ def main():
 
     @client.event
     async def on_member_join(member):
-        # inform the user that they should register with the bot
+        # inform the user that they should registration with the bot
         await member.send(
             embed=embed_message(
                 f"Welcome to Descend {member.name}!",

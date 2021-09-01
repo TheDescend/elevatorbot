@@ -41,7 +41,9 @@ class CRUDDiscordUser(CRUDBase):
 
         return profiles[0]
 
-    async def insert_profile(self, db: AsyncSession, bungie_token: BungieTokenInput) -> BungieTokenOutput:
+    async def insert_profile(
+        self, db: AsyncSession, bungie_token: BungieTokenInput
+    ) -> tuple[BungieTokenOutput, int, int]:
         """Inserts a users token data"""
 
         # get current time
@@ -80,16 +82,18 @@ class CRUDDiscordUser(CRUDBase):
 
         # that should find a system 100% of the time, extra check here to be sure
         if not system:
-            return BungieTokenOutput(
-                success=False,
-                errror_message="Could not find what platform you are on",
+            return (
+                BungieTokenOutput(success=False, errror_message="Could not find what platform you are on"),
+                discord_id,
+                guild_id,
             )
 
         # if they have no destiny profile
         if not destiny_id:
-            return BungieTokenOutput(
-                success=False,
-                errror_message="You do not seem to have a destiny account",
+            return (
+                BungieTokenOutput(success=False, errror_message="You do not seem to have a destiny account"),
+                discord_id,
+                guild_id,
             )
 
         # look if that destiny_id is already in the db
@@ -143,12 +147,12 @@ class CRUDDiscordUser(CRUDBase):
                 token_expiry=localize_datetime(datetime.datetime.fromtimestamp(current_time + bungie_token.expires_in)),
                 refresh_token_expiry=localize_datetime(
                     datetime.datetime.fromtimestamp(current_time + bungie_token.refresh_expires_in)
-                )
+                ),
             )
 
         # todo connect to the websocket on elevator for them to write a message
 
-        return BungieTokenOutput(success=True, errror_message=None)
+        return BungieTokenOutput(success=True, errror_message=None), discord_id, guild_id
 
     async def refresh_tokens(
         self,
@@ -157,7 +161,7 @@ class CRUDDiscordUser(CRUDBase):
         token=str,
         refresh_token=str,
         token_expiry=datetime,
-        refresh_token_expiry=datetime
+        refresh_token_expiry=datetime,
     ):
         """Updates a profile (token refreshes)"""
 
@@ -170,11 +174,7 @@ class CRUDDiscordUser(CRUDBase):
             refresh_token_expiry=refresh_token_expiry,
         )
 
-    async def invalidate_token(
-        self,
-        db: AsyncSession,
-        user: DiscordUsers
-    ):
+    async def invalidate_token(self, db: AsyncSession, user: DiscordUsers):
         """Invalidates a token by setting it to None"""
 
         await self._update(
@@ -183,19 +183,10 @@ class CRUDDiscordUser(CRUDBase):
             token=None,
         )
 
-    async def change_privacy_setting(
-        self,
-        db: AsyncSession,
-        user: DiscordUsers,
-        has_private_profile: bool
-    ):
+    async def change_privacy_setting(self, db: AsyncSession, user: DiscordUsers, has_private_profile: bool):
         """Updates a users privacy setting"""
 
-        await self._update(
-            db=db,
-            to_update=user,
-            private_profile=has_private_profile
-        )
+        await self._update(db=db, to_update=user, private_profile=has_private_profile)
 
     async def delete_profile(self, db: AsyncSession, discord_id: int):
         """Deletes the profile from the DB"""

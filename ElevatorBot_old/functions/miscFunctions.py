@@ -23,7 +23,7 @@ async def checkIfUserIsRegistered(user):
         return True
     else:
         print(f"{user.display_name} is not registered")
-        embed = embed_message("Error", "Please register with `/registerdesc` first (not via DMs)")
+        embed = embed_message("Error", "Please registration with `/registerdesc` first (not via DMs)")
         await user.send(embed=embed)
         return False
 
@@ -31,7 +31,7 @@ async def checkIfUserIsRegistered(user):
 # async def update_status(client):
 #     status_messages = [
 #         "Type '/' to see available commands",
-#         "Type '/registerdesc' to register your Destiny 2 account",
+#         "Type '/registerdesc' to registration your Destiny 2 account",
 #         "DM me to contact staff",
 #         "↓ Psst! Did you know this person stinks",
 #         "I head @Tom wants to be sherpa'd through GoS to finally get Divinity, but is too afraid to ask",

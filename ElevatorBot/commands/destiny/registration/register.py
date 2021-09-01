@@ -11,7 +11,7 @@ class Register(Cog):
         self.client = client
 
     @cog_ext.cog_slash(
-        name="register",
+        name="registration",
         description="Link your Destiny 2 account with ElevatorBot",
     )
     async def _register(self, ctx: SlashContext):
@@ -38,8 +38,8 @@ class Register(Cog):
             components=components,
             embed=embed_message(
                 f"Registration",
-                f"Use the button below to register with me",
-                "Please be aware that I will need a while to process your data after you register for the first time, so I might react very slowly to your first commands.",
+                f"Use the button below to registration with me",
+                "Please be aware that I will need a while to process your data after you registration for the first time, so I might react very slowly to your first commands.",
             ),
         )
 

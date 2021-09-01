@@ -40,6 +40,11 @@ class BungieAuth(NetworkBase):
             # set token to None
             await discord_users.invalidate_token(db=self.db, user=self.user)
 
+            # todo remove registered role from all guilds
+            # todo call the same endpoint for that, just reversed (registered_role_id becomes the id for the unregistered role)
+            # await elevator_api.post(
+            #     route_addition="roles/",
+
             raise CustomException("NoToken")
 
         # refresh token if outdated
@@ -89,5 +94,7 @@ class BungieAuth(NetworkBase):
                 if exc.error == "NoToken":
                     # catch the NoToken error to invalidate the db
                     await discord_users.invalidate_token(db=self.db, user=self.user)
+
+                    # todo remove registered role from all guilds
 
                 raise exc

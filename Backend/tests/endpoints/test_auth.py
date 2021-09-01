@@ -8,14 +8,14 @@ def test_register(client: TestClient):
     register_data = {"user_name": user_name, "password": password}
 
     # does creating a user work
-    r = client.post("/auth/register", data=register_data)
+    r = client.post("/auth/registration", data=register_data)
     r_json = r.json()
     assert r.status_code == 200
     assert "user_name" in r_json
     assert r_json["user_name"] == user_name
 
     # does creating a user work with the same args
-    r = client.post("/auth/register", data=register_data)
+    r = client.post("/auth/registration", data=register_data)
     assert r.status_code == 400
 
 
