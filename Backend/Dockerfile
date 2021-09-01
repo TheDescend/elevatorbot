@@ -1,10 +1,10 @@
-FROM winnerokay/uvicorn-gunicorn:python3.9
+FROM kigstn/uvicorn-gunicorn-fastapi:python3.10-rc
 
 ENV PYTHONPATH "${PYTHONPATH}:/app"
 
 COPY requirements.txt .
 
-RUN pip3.9 install -r requirements.txt
+RUN pip3.10 install -r requirements.txt
 
 COPY . .
 

@@ -1,4 +1,4 @@
-FROM gorialis/discord.py
+FROM python:3.10-rc
 
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH "${PYTHONPATH}:/app"
@@ -12,7 +12,7 @@ WORKDIR /app/ElevatorBot
 
 COPY requirements.txt .
 
-RUN pip3.9 install -r requirements.txt
+RUN pip3.10 install -r requirements.txt
 
 COPY . .
 
