@@ -4,21 +4,14 @@ from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.crud.base import CRUDBase
-from Backend.database.models import ElevatorServers, Roles
+from Backend.database.models import Roles
 
 
 class CRUDRoles(CRUDBase):
     async def upsert(self, db: AsyncSession, guild_id: int, role_name: str, role_id: int):
         """Upsert the role. role_name "Registered" and "Unregistered" have special behaviour and should not be used by user"""
 
-        # look if the item exists before inserting
-        result = await self._get_with_key(db, (guild_id, role_name))
-        if not result:
-            await self._insert(db, ElevatorServers(guild_id=guild_id, role_name=role_name, role_id=role_id))
-
-        else:
-            # update
-            await self._update(db, result, role_id=role_id)
+        await self._upsert(db=db, model_data={"guild_id": guild_id, "role_name": role_name, "role_id": role_id})
 
     async def delete(self, db: AsyncSession, guild_id: int, role_id: int):
         """Delete the item(s)"""

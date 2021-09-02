@@ -183,16 +183,16 @@ class ElevatorServers(Base):
 class Roles(Base):
     __tablename__ = "roles"
 
-    guild_id = Column(BigInteger, nullable=False, primary_key=True)
-    role_name = Column(Text, nullable=False, primary_key=True)
-    role_id = Column(BigInteger, nullable=False)
+    guild_id = Column(BigInteger, nullable=False, primary_key=True, autoincrement=False)
+    role_name = Column(Text, nullable=False, primary_key=True, autoincrement=False)
+    role_id = Column(BigInteger, nullable=False, autoincrement=False)
 
 
 ################################################################
 # Destiny Manifest
 
 
-class ManifestVersion(Base):
+class Versions(Base):
     __tablename__ = "versions"
 
     name = Column(Text, nullable=False, primary_key=True)
@@ -203,103 +203,106 @@ class DestinyActivityDefinition(Base):
     __tablename__ = "destinyActivityDefinition"
 
     reference_id = Column(BigInteger, nullable=False, primary_key=True)
-    description = Column(Text, nullable=False)
-    name = Column(Text, nullable=False)
-    activity_level = Column(SmallInteger, nullable=False)
-    activity_light_level = Column(Integer, nullable=False)
-    destination_hash = Column(BigInteger, nullable=False)
-    place_hash = Column(BigInteger, nullable=False)
-    activity_type_hash = Column(BigInteger, nullable=False)
-    is_pvp = Column(Boolean, nullable=False)
-    direct_activity_mode_hash = Column(BigInteger, nullable=False)
-    direct_activity_mode_type = Column(SmallInteger, nullable=False)
-    activity_mode_hashes = Column(ARRAY(BigInteger()), nullable=False)
-    activity_mode_types = Column(ARRAY(SmallInteger()), nullable=False)
+    description = Column(Text)
+    name = Column(Text)
+    activity_level = Column(SmallInteger)
+    activity_light_level = Column(Integer)
+    destination_hash = Column(BigInteger)
+    place_hash = Column(BigInteger)
+    activity_type_hash = Column(BigInteger)
+    is_pvp = Column(Boolean)
+    direct_activity_mode_hash = Column(BigInteger)
+    direct_activity_mode_type = Column(SmallInteger)
+    activity_mode_hashes = Column(ARRAY(BigInteger()))
+    activity_mode_types = Column(ARRAY(SmallInteger()))
 
 
 class DestinyActivityModeDefinition(Base):
     __tablename__ = "destinyActivityModeDefinition"
 
     reference_id = Column(SmallInteger, nullable=False, primary_key=True)
-    description = Column(Text, nullable=False)
-    name = Column(Text, nullable=False)
-    hash = Column(BigInteger, nullable=False)
-    activity_mode_category = Column(SmallInteger, nullable=False)
-    is_team_based = Column(Boolean, nullable=False)
-    friendly_name = Column(Text, nullable=False)
+    parent_hashes = Column(ARRAY(BigInteger()))
+    mode_type = Column(SmallInteger)
+    description = Column(Text)
+    name = Column(Text)
+    activity_mode_category = Column(SmallInteger)
+    is_team_based = Column(Boolean)
+    friendly_name = Column(Text)
+    display = Column(Boolean)
+    redacted = Column(Boolean)
 
 
 class DestinyActivityTypeDefinition(Base):
     __tablename__ = "destinyActivityTypeDefinition"
 
     reference_id = Column(BigInteger, nullable=False, primary_key=True)
-    description = Column(Text, nullable=False)
-    name = Column(Text, nullable=False)
+    description = Column(Text)
+    name = Column(Text)
 
 
 class DestinyCollectibleDefinition(Base):
     __tablename__ = "destinyCollectibleDefinition"
 
     reference_id = Column(BigInteger, nullable=False, primary_key=True)
-    description = Column(Text, nullable=False)
-    name = Column(Text, nullable=False)
-    source_hash = Column(BigInteger, nullable=False)
-    item_hash = Column(BigInteger, nullable=False)
-    parent_node_hashes = Column(ARRAY(BigInteger()), nullable=False)
+    description = Column(Text)
+    name = Column(Text)
+    source_hash = Column(BigInteger)
+    item_hash = Column(BigInteger)
+    parent_node_hashes = Column(ARRAY(BigInteger()))
 
 
 class DestinyInventoryBucketDefinition(Base):
     __tablename__ = "destinyInventoryBucketDefinition"
 
     reference_id = Column(BigInteger, nullable=False, primary_key=True)
-    description = Column(Text, nullable=False)
-    name = Column(Text, nullable=False)
-    category = Column(SmallInteger, nullable=False)
-    item_count = Column(SmallInteger, nullable=False)
-    location = Column(SmallInteger, nullable=False)
+    description = Column(Text)
+    name = Column(Text)
+    category = Column(SmallInteger)
+    item_count = Column(SmallInteger)
+    location = Column(SmallInteger)
 
 
 class DestinyInventoryItemDefinition(Base):
     __tablename__ = "destinyInventoryItemDefinition"
 
     reference_id = Column(BigInteger, nullable=False, primary_key=True)
-    description = Column(Text, nullable=False)
-    name = Column(Text, nullable=False)
-    class_type = Column(SmallInteger, nullable=False)
-    bucket_type_hash = Column(BigInteger, nullable=False)
-    tier_type_hash = Column(BigInteger, nullable=False)
-    tier_type_name = Column(Text, nullable=False)
-    equippable = Column(Boolean, nullable=False)
+    description = Column(Text)
+    name = Column(Text)
+    class_type = Column(SmallInteger)
+    bucket_type_hash = Column(BigInteger)
+    tier_type_hash = Column(BigInteger)
+    tier_type_name = Column(Text)
+    equippable = Column(Boolean)
 
 
 class DestinyPresentationNodeDefinition(Base):
     __tablename__ = "destinyPresentationNodeDefinition"
 
     reference_id = Column(BigInteger, nullable=False, primary_key=True)
-    description = Column(Text, nullable=False)
-    name = Column(Text, nullable=False)
-    objective_hash = Column(BigInteger, nullable=False)
-    presentation_node_type = Column(SmallInteger, nullable=False)
-    children_presentation_node_hash = Column(ARRAY(BigInteger()), nullable=False)
-    children_collectible_hash = Column(ARRAY(BigInteger()), nullable=False)
-    children_record_hash = Column(ARRAY(BigInteger()), nullable=False)
-    children_metric_hash = Column(ARRAY(BigInteger()), nullable=False)
-    parent_node_hashes = Column(ARRAY(BigInteger()), nullable=False)
-    index = Column(SmallInteger, nullable=False)
-    redacted = Column(Boolean, nullable=False)
+    description = Column(Text)
+    name = Column(Text)
+    objective_hash = Column(BigInteger)
+    presentation_node_type = Column(SmallInteger)
+    children_presentation_node_hash = Column(ARRAY(BigInteger()))
+    children_collectible_hash = Column(ARRAY(BigInteger()))
+    children_record_hash = Column(ARRAY(BigInteger()))
+    children_metric_hash = Column(ARRAY(BigInteger()))
+    parent_node_hashes = Column(ARRAY(BigInteger()))
+    index = Column(SmallInteger)
+    redacted = Column(Boolean)
 
 
 class DestinyRecordDefinition(Base):
     __tablename__ = "destinyRecordDefinition"
 
     reference_id = Column(BigInteger, nullable=False, primary_key=True)
-    description = Column(Text, nullable=False)
-    name = Column(Text, nullable=False)
-    has_title = Column(Boolean, nullable=False)
-    title_name = Column(Text, nullable=False)
-    objective_hashes = Column(ARRAY(BigInteger()), nullable=False)
-    score_value = Column(Integer, nullable=False)
-    parent_node_hashes = Column(ARRAY(BigInteger()), nullable=False)
+    description = Column(Text)
+    name = Column(Text)
+    has_title = Column(Boolean)
+    title_name = Column(Text)
+    objective_hashes = Column(ARRAY(BigInteger()))
+    score_value = Column(Integer)
+    parent_node_hashes = Column(ARRAY(BigInteger()))
 
 
 ################################################################
@@ -368,9 +371,9 @@ class RssFeedItem(Base):
 class PersistentMessage(Base):
     __tablename__ = "persistentMessages"
 
-    message_name = Column(Text, nullable=False, primary_key=True)
+    message_name = Column(Text, nullable=False, primary_key=True, autoincrement=False)
 
-    guild_id = Column(BigInteger, nullable=False, primary_key=True)
+    guild_id = Column(BigInteger, nullable=False, primary_key=True, autoincrement=False)
     channel_id = Column(BigInteger, nullable=False)
     message_id = Column(BigInteger, nullable=False)
 

@@ -1,6 +1,6 @@
 import dataclasses
 import datetime
-from typing import Optional, Union
+from typing import Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -9,7 +9,7 @@ from Backend.crud.destiny.collectibles import collectibles
 from Backend.database.models import Collectibles, DiscordUsers, Records
 from Backend.misc.helperFunctions import get_datetime_form_bungie_entry
 from Backend.networking.bungieApi import BungieApi
-from Backend.core.destiny.routes import profile_route, stat_route
+from Backend.networking.BungieRoutes import profile_route, stat_route
 
 
 @dataclasses.dataclass
@@ -33,7 +33,7 @@ class DestinyProfile:
         self.system = self.user.system
 
         # the network class
-        self.api = BungieApi(db=self.db, discord_id=self.discord_id)
+        self.api = BungieApi(db=self.db, user=self.user)
 
     async def get_destiny_name(self) -> str:
         """Returns the current user name#1234"""
@@ -317,7 +317,7 @@ class DestinyProfile:
         """Get destiny stats"""
 
         route = stat_route.format(system=self.system, destiny_id=self.destiny_id)
-        result = await self.api.get_json_from_url(route=route)
+        result = await self.api.get(route=route)
         return result.content
 
     async def get_items_in_inventory_bucket(self, bucket: int) -> list:
@@ -376,8 +376,8 @@ class DestinyProfile:
         params = {"components": ",".join(map(str, components))}
 
         if with_token:
-            response = await self.api.get_json_from_bungie_with_token(route=route, params=params)
+            response = await self.api.get_with_token(route=route, params=params)
         else:
-            response = await self.api.get_json_from_url(route=route, params=params)
+            response = await self.api.get(route=route, params=params)
 
         return response.content

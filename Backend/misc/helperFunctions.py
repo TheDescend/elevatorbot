@@ -1,4 +1,5 @@
 import datetime
+from collections import defaultdict
 
 import pytz
 
@@ -25,3 +26,14 @@ def add_utc_tz(obj: datetime.datetime) -> datetime.datetime:
     """Returns a timezone aware object, localized to utc"""
 
     return pytz.utc.localize(obj)
+
+
+def defaultdictify(d: dict):
+    """Converts a dictionary to a defaultdict. Returns a defaultdict"""
+
+    if isinstance(d, dict):
+        return defaultdict(lambda: None, {k: defaultdictify(v) for k, v in d.items()})
+    elif isinstance(d, list):
+        return [defaultdictify(e) for e in d]
+    else:
+        return d

@@ -1,13 +1,12 @@
 import dataclasses
-import datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.errors import CustomException
 from Backend.database.models import DiscordUsers
-from Backend.misc.helperFunctions import add_utc_tz, get_datetime_form_bungie_entry, localize_datetime
+from Backend.misc.helperFunctions import get_datetime_form_bungie_entry
 from Backend.networking.bungieApi import BungieApi
-from Backend.core.destiny.routes import (
+from Backend.networking.BungieRoutes import (
     clan_admins_route,
     clan_get_route,
     clan_invite_route,
@@ -30,13 +29,13 @@ class DestinyClan:
         self.system = self.user.system
 
         # the network class
-        self.api = BungieApi(db=self.db, discord_id=self.discord_id)
+        self.api = BungieApi(db=self.db, user=self.user)
 
     async def get_clan_id_and_name(self) -> tuple[int, str]:
         """Gets clan information"""
 
         route = clan_get_route.format(system=self.system, destiny_id=self.destiny_id)
-        result = await self.api.get_json_from_url(
+        result = await self.api.get(
             route=route,
         )
 
@@ -61,7 +60,7 @@ class DestinyClan:
         route = clan_members_route.format(clan_id=clan_id)
         params = {"nameSearch": member_name}
 
-        results = (await self.api.get_json_from_url(route=route, params=params)).content["results"]
+        results = (await self.api.get(route=route, params=params)).content["results"]
 
         members = []
         for result in results:
@@ -92,7 +91,7 @@ class DestinyClan:
 
         route = clan_admins_route.format(clan_id=clan_id)
 
-        results = (await self.api.get_json_from_url(route=route)).content["results"]
+        results = (await self.api.get(route=route)).content["results"]
 
         # look if destiny_id is in there
         for result in results:
@@ -116,6 +115,6 @@ class DestinyClan:
 
         # catch the exception if it fails and send a new one
         try:
-            await self.api.post_json_to_url(route=route, json=welcome_message)
+            await self.api.post(route=route, json=welcome_message)
         except CustomException:
             raise CustomException("ClanInviteFailed")

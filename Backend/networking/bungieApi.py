@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.errors import CustomException
 from Backend.crud import discord_users
+from Backend.database.models import DiscordUsers
 from Backend.networking.bungieAuth import BungieAuth
 from Backend.networking.schemas import WebResponse
 from Backend.networking.base import NetworkBase
@@ -36,8 +37,11 @@ class BungieApi(NetworkBase):
         },
     )
 
-    def __init__(self, db: AsyncSession, discord_id: int, headers: dict = None):
-        self.discord_id = discord_id
+    def __init__(self, db: AsyncSession, user: DiscordUsers = None, headers: dict = None, i_understand_what_im_doing_and_that_setting_this_to_true_might_break_stuff: bool = False):
+
+        assert user or headers or i_understand_what_im_doing_and_that_setting_this_to_true_might_break_stuff, "One argument needs to be defined"
+        self.user = user
+        self.discord_id = user.discord_id if user else None
         self.db = db
 
         # allows different urls than bungies to be called (fe. steam players)
@@ -46,18 +50,14 @@ class BungieApi(NetworkBase):
             self.auth_headers = headers
             self.bungie_request = False
 
-        # check if the user has a private profile, if so we use oauth
-        else:
-            self.user = await discord_users.get_profile_from_discord_id(db=self.db, discord_id=self.discord_id)
-
-    async def get_json_from_url(self, route: str, params: dict = None, use_cache: bool = True) -> WebResponse:
+    async def get(self, route: str, params: dict = None, use_cache: bool = True) -> WebResponse:
         """Grabs JSON from the specified URL (no oauth)"""
 
-        # check if the user has a private profile
+        # check if the user has a private profile, if so we use oauth
         if self.user:
             if self.user.private_profile:
-                # then we use get_json_from_bungie_with_token()
-                return await self.get_json_from_bungie_with_token(route=route, params=params, use_cache=use_cache)
+                # then we use get_with_token()
+                return await self.get_with_token(route=route, params=params, use_cache=use_cache)
 
         try:
             async with aiohttp_client_cache.CachedSession(cache=self.cache) as session:
@@ -86,13 +86,13 @@ class BungieApi(NetworkBase):
                 await discord_users.change_privacy_setting(db=self.db, user=self.user, has_private_profile=True)
 
                 # then call the same endpoint again, this time with a token
-                return await self.get_json_from_bungie_with_token(route=route, params=params, use_cache=use_cache)
+                return await self.get_with_token(route=route, params=params, use_cache=use_cache)
 
             else:
                 # otherwise raise error again
                 raise exc
 
-    async def get_json_from_bungie_with_token(
+    async def get_with_token(
         self, route: str, params: dict = None, use_cache: bool = True
     ) -> WebResponse:
         """Grabs JSON from the specified URL (oauth)"""
@@ -123,7 +123,7 @@ class BungieApi(NetworkBase):
                         params=params,
                     )
 
-    async def post_json_to_url(self, route: str, json: dict, params: dict = None) -> WebResponse:
+    async def post(self, route: str, json: dict, params: dict = None) -> WebResponse:
         """Post data to bungie. self.discord_id must have the authentication for the action"""
 
         # set the auth headers to a working token

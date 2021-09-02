@@ -523,18 +523,18 @@ async def updateVersion(name: str, version: str):
         await connection.execute(update_sql, version, name)
 
 
-async def getVersion(name: str):
-    """Gets the version info for the name, fe. the manifest"""
-
-    select_sql = f"""
-        SELECT 
-            version
-        FROM 
-            versions
-        WHERE 
-            name = $1;"""
-    async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
-        return await connection.fetchval(select_sql, name)
+# async def getVersion(name: str):
+#     """Gets the version info for the name, fe. the manifest"""
+#
+#     select_sql = f"""
+#         SELECT
+#             version
+#         FROM
+#             versions
+#         WHERE
+#             name = $1;"""
+#     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
+#         return await connection.fetchval(select_sql, name)
 
 
 ################################################################

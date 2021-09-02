@@ -6,9 +6,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.destiny.profile import DestinyProfile
 from Backend.database.models import DiscordUsers
-from Backend.misc.helperFunctions import add_utc_tz, get_datetime_form_bungie_entry
+from Backend.misc.helperFunctions import get_datetime_form_bungie_entry
 from Backend.networking.bungieApi import BungieApi
-from Backend.core.destiny.routes import activities_route, stat_route_characters
+from Backend.networking.BungieRoutes import activities_route, stat_route_characters
 
 
 @dataclasses.dataclass
@@ -27,14 +27,14 @@ class DestinyActivities:
         self.system = self.user.system
 
         # the network class
-        self.api = BungieApi(db=self.db, discord_id=self.discord_id)
+        self.api = BungieApi(db=self.db, user=self.user)
 
     async def get_character_activity_stats(self, character_id: int) -> dict:
         """Get destiny stats for the specified character"""
 
         route = stat_route_characters.format(system=self.system, destiny_id=self.destiny_id, character_id=character_id)
 
-        result = await self.api.get_json_from_url(route=route)
+        result = await self.api.get(route=route)
         return result.content
 
     async def has_lowman(
@@ -156,7 +156,7 @@ class DestinyActivities:
                     break
 
                 # get activities
-                rep = await self.api.get_json_from_url(route=route, params=params)
+                rep = await self.api.get(route=route, params=params)
 
                 # break if empty, fe. when pages are over
                 if not rep.content:

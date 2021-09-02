@@ -158,7 +158,7 @@ async def get_pgcr(instance_id: int) -> WebResponse:
 async def updateManifest():
     # get the manifest
     manifest_url = "http://www.bungie.net/Platform/Destiny2/Manifest/"
-    manifest = await get_json_from_url(manifest_url)
+    manifest = await get(manifest_url)
     if not manifest:
         print("Couldnt get manifest, aborting")
         return
@@ -181,7 +181,7 @@ async def updateManifest():
                 if definition == "DestinyActivityDefinition":
                     print("Starting DestinyActivityDefinition _update...")
                     await deleteEntries(connection, "DestinyActivityDefinition")
-                    result = await get_json_from_url(f"http://www.bungie.net{url}")
+                    result = await get(f"http://www.bungie.net{url}")
                     # _update table
                     for referenceId, values in result.content.items():
                         await updateDestinyDefinition(
@@ -211,7 +211,7 @@ async def updateManifest():
                 elif definition == "DestinyActivityTypeDefinition":
                     print("Starting DestinyActivityTypeDefinition _update...")
                     await deleteEntries(connection, "DestinyActivityTypeDefinition")
-                    result = await get_json_from_url(f"http://www.bungie.net{url}")
+                    result = await get(f"http://www.bungie.net{url}")
                     # _update table
                     for referenceId, values in result.content.items():
                         await updateDestinyDefinition(
@@ -233,7 +233,7 @@ async def updateManifest():
                 elif definition == "DestinyActivityModeDefinition":
                     print("Starting DestinyActivityModeDefinition _update...")
                     await deleteEntries(connection, "DestinyActivityModeDefinition")
-                    result = await get_json_from_url(f"http://www.bungie.net{url}")
+                    result = await get(f"http://www.bungie.net{url}")
                     # _update table
                     for referenceId, values in result.content.items():
                         await updateDestinyDefinition(
@@ -253,7 +253,7 @@ async def updateManifest():
                 elif definition == "DestinyCollectibleDefinition":
                     print("Starting DestinyCollectibleDefinition _update...")
                     await deleteEntries(connection, "DestinyCollectibleDefinition")
-                    result = await get_json_from_url(f"http://www.bungie.net{url}")
+                    result = await get(f"http://www.bungie.net{url}")
                     # _update table
                     for referenceId, values in result.content.items():
                         await updateDestinyDefinition(
@@ -272,7 +272,7 @@ async def updateManifest():
                 elif definition == "DestinyInventoryItemDefinition":
                     print("Starting DestinyInventoryItemDefinition _update...")
                     await deleteEntries(connection, "DestinyInventoryItemDefinition")
-                    result = await get_json_from_url(f"http://www.bungie.net{url}")
+                    result = await get(f"http://www.bungie.net{url}")
                     # _update table
                     for referenceId, values in result.content.items():
                         await updateDestinyDefinition(
@@ -295,7 +295,7 @@ async def updateManifest():
                 elif definition == "DestinyRecordDefinition":
                     print("Starting DestinyRecordDefinition _update...")
                     await deleteEntries(connection, "DestinyRecordDefinition")
-                    result = await get_json_from_url(f"http://www.bungie.net{url}")
+                    result = await get(f"http://www.bungie.net{url}")
                     # _update table
                     for referenceId, values in result.content.items():
                         await updateDestinyDefinition(
@@ -318,7 +318,7 @@ async def updateManifest():
                 elif definition == "DestinyInventoryBucketDefinition":
                     print("Starting DestinyInventoryBucketDefinition _update...")
                     await deleteEntries(connection, "DestinyInventoryBucketDefinition")
-                    result = await get_json_from_url(f"http://www.bungie.net{url}")
+                    result = await get(f"http://www.bungie.net{url}")
                     # _update table
                     for referenceId, values in result.content.items():
                         await updateDestinyDefinition(
@@ -337,7 +337,7 @@ async def updateManifest():
                 elif definition == "DestinyPresentationNodeDefinition":
                     print("Starting DestinyPresentationNodeDefinition _update...")
                     await deleteEntries(connection, "DestinyPresentationNodeDefinition")
-                    result = await get_json_from_url(f"http://www.bungie.net{url}")
+                    result = await get(f"http://www.bungie.net{url}")
                     # _update table
                     for referenceId, values in result.content.items():
                         await updateDestinyDefinition(

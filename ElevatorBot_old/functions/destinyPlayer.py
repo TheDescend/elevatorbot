@@ -125,7 +125,7 @@ class DestinyPlayer:
     #     url = urljoin(
     #         self._base_bungie_url, f"GroupV2/User/{self.system}/{self.destiny_id}/0/1/"
     #     )
-    #     response = await get_json_from_url(url=url)
+    #     response = await get(url=url)
     #     if response:
     #         self._clan_id = int(
     #             response.content["Response"]["results"][0]["member"]["groupId"]
@@ -358,7 +358,7 @@ class DestinyPlayer:
     #             self._base_bungie_url,
     #             f"Destiny2/{self.system}/Account/{self.destiny_id}/Character/{character_id}/Stats/AggregateActivityStats/",
     #         )
-    #         response = await get_json_from_url(url=url)
+    #         response = await get(url=url)
     #         if response:
     #             self._character_activity_stats[character_id] = response.content[
     #                 "Response"
@@ -559,7 +559,7 @@ class DestinyPlayer:
     #                 break
     #
     #             # get activities
-    #             rep = await get_json_from_url(url=url, params=params)
+    #             rep = await get(url=url, params=params)
     #
     #             # break process if no web response is gotten and log that
     #             if not rep:
@@ -719,11 +719,11 @@ class DestinyPlayer:
     #     params = {"components": ",".join(map(str, components))}
     #
     #     if with_token:
-    #         response = await get_json_from_bungie_with_token(
+    #         response = await get_with_token(
     #             url=url, params=params, discord_id=self.discord_id
     #         )
     #     else:
-    #         response = await get_json_from_url(
+    #         response = await get(
     #             url=url,
     #             params=params,
     #         )
@@ -783,7 +783,7 @@ class DestinyPlayer:
     #             self._base_bungie_url,
     #             f"Destiny2/{self.system}/Account/{self.destiny_id}/Stats/",
     #         )
-    #         response = await get_json_from_url(url=url)
+    #         response = await get(url=url)
     #         if response:
     #             self._stats = response.content["Response"]
     #

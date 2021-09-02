@@ -31,3 +31,6 @@ class WebResponse:
     status: int
     content: dict
     from_cache: bool
+
+    def __bool__(self):
+        return self.status == 200
