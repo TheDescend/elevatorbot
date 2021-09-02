@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.errors import CustomException
 from Backend.database.models import DiscordUsers
-from Backend.misc.helperFunctions import get_datetime_form_bungie_entry
+from Backend.misc.helperFunctions import get_datetime_from_bungie_entry
 from Backend.networking.bungieApi import BungieApi
 from Backend.networking.BungieRoutes import (
     clan_admins_route,
@@ -70,8 +70,8 @@ class DestinyClan:
                     destiny_id=int(result["destinyUserInfo"]["membershipId"]),
                     name=f"""{result["destinyUserInfo"]["bungieGlobalDisplayName"]}#{result["destinyUserInfo"]["bungieGlobalDisplayNameCode"]}""",
                     is_online=result["isOnline"],
-                    last_online_status_change=get_datetime_form_bungie_entry(result["lastOnlineStatusChange"]),
-                    join_date=get_datetime_form_bungie_entry(result["joinDate"]),
+                    last_online_status_change=get_datetime_from_bungie_entry(result["lastOnlineStatusChange"]),
+                    join_date=get_datetime_from_bungie_entry(result["joinDate"]),
                 )
             )
 

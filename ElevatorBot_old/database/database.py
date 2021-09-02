@@ -994,58 +994,58 @@ async def getClearCount(playerid, activityHashes: list = None, mode: int = None)
         return await connection.fetchval(select_sql, *args)
 
 
-async def get_info_on_low_man_activity(
-    activity_hashes: list,
-    player_count: int,
-    destiny_id: int,
-    no_checkpoints: bool = False,
-    score_threshold: bool = None,
-) -> list[asyncpg.Record]:
-    """Gets the lowman [(instanceId, deaths, kills, timePlayedSeconds, period), ...] for player <membershipid> of activity list(<activityHash>) with a == <playercount>"""
-
-    select_sql = f"""
-        SELECT 
-            selectedActivites.instanceId, userLowmanCompletions.deaths, userLowmanCompletions.kills, userLowmanCompletions.timePlayedSeconds, selectedActivites.period
-        FROM (
-            SELECT 
-                instanceId, period 
-            FROM 
-                pgcrActivities
-            WHERE 
-                directorActivityHash IN ({','.join(['$' + str(i + 1) for i in range(len(activity_hashes))])})
-                {"AND startingPhaseIndex = 0" if no_checkpoints else ""}
-        ) AS selectedActivites 
-        JOIN (
-            SELECT memberCompletedActivities.instanceId, lowManCompletions.playercount, memberCompletedActivities.deaths, memberCompletedActivities.kills, memberCompletedActivities.timePlayedSeconds
-                FROM (
-                    SELECT
-                        instanceId, deaths, kills, timePlayedSeconds
-                    FROM 
-                        pgcrActivitiesUsersStats
-                    WHERE 
-                        membershipid = ${len(activity_hashes) + 1} 
-                        AND kills > 0
-                        AND completed = 1
-                        AND completionReason = 0
-                        {f"AND score > {score_threshold}" if score_threshold else ""}
-                ) AS memberCompletedActivities
-            JOIN (
-                SELECT
-                    instanceId, COUNT(DISTINCT membershipId) as playercount
-                FROM 
-                    pgcrActivitiesUsersStats
-                GROUP BY 
-                    instanceId
-                HAVING
-                    COUNT(DISTINCT membershipId) = ${len(activity_hashes) + 2}
-            ) AS lowManCompletions
-            ON 
-                memberCompletedActivities.instanceId = lowManCompletions.instanceId
-        ) AS userLowmanCompletions
-        ON 
-            (selectedActivites.instanceID = userLowmanCompletions.instanceID)"""
-    async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
-        return await connection.fetch(select_sql, *activity_hashes, destiny_id, player_count)
+# async def get_info_on_low_man_activity(
+#     activity_hashes: list,
+#     player_count: int,
+#     destiny_id: int,
+#     no_checkpoints: bool = False,
+#     score_threshold: bool = None,
+# ) -> list[asyncpg.Record]:
+#     """Gets the lowman [(instanceId, deaths, kills, timePlayedSeconds, period), ...] for player <membershipid> of activity list(<activityHash>) with a == <playercount>"""
+#
+#     select_sql = f"""
+#         SELECT
+#             selectedActivites.instanceId, userLowmanCompletions.deaths, userLowmanCompletions.kills, userLowmanCompletions.timePlayedSeconds, selectedActivites.period
+#         FROM (
+#             SELECT
+#                 instanceId, period
+#             FROM
+#                 pgcrActivities
+#             WHERE
+#                 directorActivityHash IN ({','.join(['$' + str(i + 1) for i in range(len(activity_hashes))])})
+#                 {"AND startingPhaseIndex = 0" if no_checkpoints else ""}
+#         ) AS selectedActivites
+#         JOIN (
+#             SELECT memberCompletedActivities.instanceId, lowManCompletions.playercount, memberCompletedActivities.deaths, memberCompletedActivities.kills, memberCompletedActivities.timePlayedSeconds
+#                 FROM (
+#                     SELECT
+#                         instanceId, deaths, kills, timePlayedSeconds
+#                     FROM
+#                         pgcrActivitiesUsersStats
+#                     WHERE
+#                         membershipid = ${len(activity_hashes) + 1}
+#                         AND kills > 0
+#                         AND completed = 1
+#                         AND completionReason = 0
+#                         {f"AND score > {score_threshold}" if score_threshold else ""}
+#                 ) AS memberCompletedActivities
+#             JOIN (
+#                 SELECT
+#                     instanceId, COUNT(DISTINCT membershipId) as playercount
+#                 FROM
+#                     pgcrActivitiesUsersStats
+#                 GROUP BY
+#                     instanceId
+#                 HAVING
+#                     COUNT(DISTINCT membershipId) = ${len(activity_hashes) + 2}
+#             ) AS lowManCompletions
+#             ON
+#                 memberCompletedActivities.instanceId = lowManCompletions.instanceId
+#         ) AS userLowmanCompletions
+#         ON
+#             (selectedActivites.instanceID = userLowmanCompletions.instanceID)"""
+#     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
+#         return await connection.fetch(select_sql, *activity_hashes, destiny_id, player_count)
 
 
 ################################################################

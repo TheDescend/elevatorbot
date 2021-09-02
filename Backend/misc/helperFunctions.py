@@ -16,7 +16,7 @@ def localize_datetime(obj: datetime.datetime) -> datetime.datetime:
     return obj.astimezone()
 
 
-def get_datetime_form_bungie_entry(string: str) -> datetime.datetime:
+def get_datetime_from_bungie_entry(string: str) -> datetime.datetime:
     """Converts the bungie string to a utc datetime obj"""
 
     return add_utc_tz(datetime.datetime.strptime(string, "%Y-%m-%dT%H:%M:%SZ"))

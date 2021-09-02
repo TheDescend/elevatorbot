@@ -83,7 +83,7 @@ class BungieApi(NetworkBase):
         except CustomException as exc:
             if exc.error == "BungieDestinyPrivacyRestriction":
                 # catch the BungieDestinyPrivacyRestriction error to change privacy settings in our db
-                await discord_users.change_privacy_setting(db=self.db, user=self.user, has_private_profile=True)
+                await discord_users.update(db=self.db, to_update=self.user, has_private_profile=True)
 
                 # then call the same endpoint again, this time with a token
                 return await self.get_with_token(route=route, params=params, use_cache=use_cache)

@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from Backend.crud.destiny.records import records
 from Backend.crud.destiny.collectibles import collectibles
 from Backend.database.models import Collectibles, DiscordUsers, Records
-from Backend.misc.helperFunctions import get_datetime_form_bungie_entry
+from Backend.misc.helperFunctions import get_datetime_from_bungie_entry
 from Backend.networking.bungieApi import BungieApi
 from Backend.networking.BungieRoutes import profile_route, stat_route
 
@@ -46,7 +46,7 @@ class DestinyProfile:
         """Returns the last online time"""
 
         result = await self.__get_profile(100)
-        return get_datetime_form_bungie_entry(result["profile"]["data"]["dateLastPlayed"])
+        return get_datetime_from_bungie_entry(result["profile"]["data"]["dateLastPlayed"])
 
     async def has_triumph(self, triumph_hash: str | int) -> bool:
         """Returns if the triumph is gotten"""

@@ -6,7 +6,7 @@ import aiohttp
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.errors import CustomException
-from Backend.crud import roles
+from Backend.crud.discord import roles
 from Backend.crud.base import CRUDBase
 from Backend.database.models import DiscordUsers
 from Backend.misc.helperFunctions import get_now_with_tz, localize_datetime
@@ -139,7 +139,7 @@ class CRUDDiscordUser(CRUDBase):
 
         else:
             # now we call the update function instead of the insert function
-            await self._update(
+            await self.update(
                 db=db,
                 to_update=user,
                 destiny_id=destiny_id,
@@ -154,30 +154,24 @@ class CRUDDiscordUser(CRUDBase):
 
         return BungieTokenOutput(success=True, errror_message=None), discord_id, guild_id
 
-    async def refresh_tokens(
+    async def update(
         self,
         db: AsyncSession,
-        user: DiscordUsers,
-        token=str,
-        refresh_token=str,
-        token_expiry=datetime,
-        refresh_token_expiry=datetime,
+        to_update: DiscordUsers,
+        **update_kwargs
     ):
-        """Updates a profile (token refreshes)"""
+        """Updates a profile"""
 
         await self._update(
             db=db,
-            to_update=user,
-            token=token,
-            refresh_token=refresh_token,
-            token_expiry=token_expiry,
-            refresh_token_expiry=refresh_token_expiry,
+            to_update=to_update,
+            **update_kwargs
         )
 
     async def invalidate_token(self, db: AsyncSession, user: DiscordUsers):
         """Invalidates a token by setting it to None"""
 
-        await self._update(
+        await self.update(
             db=db,
             to_update=user,
             token=None,
@@ -185,11 +179,6 @@ class CRUDDiscordUser(CRUDBase):
 
         # remove registration roles
         await self._remove_registration_roles(db=db, discord_id=user.discord_id)
-
-    async def change_privacy_setting(self, db: AsyncSession, user: DiscordUsers, has_private_profile: bool):
-        """Updates a users privacy setting"""
-
-        await self._update(db=db, to_update=user, private_profile=has_private_profile)
 
     async def delete_profile(self, db: AsyncSession, discord_id: int):
         """Deletes the profile from the DB"""

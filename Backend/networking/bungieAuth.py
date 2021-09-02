@@ -70,9 +70,9 @@ class BungieAuth(NetworkBase):
                 if response:
                     access_token = response.content["access_token"]
 
-                    await discord_users.refresh_tokens(
+                    await discord_users.update(
                         db=self.db,
-                        user=self.user,
+                        to_update=self.user,
                         token=access_token,
                         refresh_token=response.content["refresh_token"],
                         token_expiry=localize_datetime(

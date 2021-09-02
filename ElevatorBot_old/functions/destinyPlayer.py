@@ -601,90 +601,90 @@ class DestinyPlayer:
     #
     #                 yield activity
 
-    async def update_activity_db(self, entry_time: datetime = None) -> None:
-        """Gets this users not-saved history and saves it"""
-
-        async def handle(i: int, t) -> Optional[list[int, datetime.datetime, dict]]:
-            # get PGCR
-            pgcr = await get_pgcr(i)
-            if not pgcr:
-                await insertFailToGetPgcrInstanceId(i, t)
-                logger.warning("Failed getting pgcr <%s>", i)
-                return
-            return [i, t, pgcr.content["Response"]]
-
-        async def input_data(
-            gather_instance_ids: list[int],
-            gather_activity_times: list[datetime.datetime],
-        ) -> None:
-            results = await asyncio.gather(*[handle(i, t) for i, t in zip(gather_instance_ids, gather_activity_times)])
-
-            for result in results:
-                if result:
-                    i = result[0]
-                    t = result[1]
-                    pgcr = result[2]
-
-                    # _insert information to DB
-                    await insertPgcrToDB(i, t, pgcr)
-
-        logger = logging.getLogger("update_activity_db")
-
-        if not entry_time:
-            entry_time = await getLastUpdated(self.destiny_id)
-        else:
-            entry_time = datetime.datetime.min
-
-        logger.info("Starting activity DB _update for destinyID <%s>", self.destiny_id)
-
-        instance_ids = []
-        activity_times = []
-        success = True
-        async for activity in self.get_activity_history(
-            mode=0,
-            earliest_allowed_datetime=entry_time,
-        ):
-            # break if we dont get a result
-            if not activity:
-                success = False
-                break
-
-            instance_id = activity["activityDetails"]["instanceId"]
-            activity_time = datetime.datetime.strptime(activity["period"], "%Y-%m-%dT%H:%M:%SZ")
-
-            # _update with newest entry timestamp
-            if activity_time > entry_time:
-                entry_time = activity_time
-
-            # check if info is already in DB, skip if so
-            if await getPgcrActivity(instance_id):
-                continue
-
-            # add to gather list
-            instance_ids.append(instance_id)
-            activity_times.append(activity_time)
-
-            # gather once list is big enough
-            if len(instance_ids) < 50:
-                continue
-            else:
-                # get and input the data
-                await input_data(instance_ids, activity_times)
-
-                # reset gather list and restart
-                instance_ids = []
-                activity_times = []
-
-        # one last time to clean out the extras after the code is done
-        if instance_ids:
-            # get and input the data
-            await input_data(instance_ids, activity_times)
-
-        # _update with newest entry timestamp
-        if success:
-            await updateLastUpdated(self.destiny_id, entry_time)
-
-        logger.info("Done with activity DB _update for destinyID <%s>", self.destiny_id)
+    # async def update_activity_db(self, entry_time: datetime = None) -> None:
+    #     """Gets this users not-saved history and saves it"""
+    #
+    #     async def handle(i: int, t) -> Optional[list[int, datetime.datetime, dict]]:
+    #         # get PGCR
+    #         pgcr = await get_pgcr(i)
+    #         if not pgcr:
+    #             await insertFailToGetPgcrInstanceId(i, t)
+    #             logger.warning("Failed getting pgcr <%s>", i)
+    #             return
+    #         return [i, t, pgcr.content["Response"]]
+    #
+    #     async def input_data(
+    #         gather_instance_ids: list[int],
+    #         gather_activity_times: list[datetime.datetime],
+    #     ) -> None:
+    #         results = await asyncio.gather(*[handle(i, t) for i, t in zip(gather_instance_ids, gather_activity_times)])
+    #
+    #         for result in results:
+    #             if result:
+    #                 i = result[0]
+    #                 t = result[1]
+    #                 pgcr = result[2]
+    #
+    #                 # _insert information to DB
+    #                 await insertPgcrToDB(i, t, pgcr)
+    #
+    #     logger = logging.getLogger("update_activity_db")
+    #
+    #     if not entry_time:
+    #         entry_time = await getLastUpdated(self.destiny_id)
+    #     else:
+    #         entry_time = datetime.datetime.min
+    #
+    #     logger.info("Starting activity DB _update for destinyID <%s>", self.destiny_id)
+    #
+    #     instance_ids = []
+    #     activity_times = []
+    #     success = True
+    #     async for activity in self.get_activity_history(
+    #         mode=0,
+    #         earliest_allowed_datetime=entry_time,
+    #     ):
+    #         # break if we dont get a result
+    #         if not activity:
+    #             success = False
+    #             break
+    #
+    #         instance_id = activity["activityDetails"]["instanceId"]
+    #         activity_time = datetime.datetime.strptime(activity["period"], "%Y-%m-%dT%H:%M:%SZ")
+    #
+    #         # _update with newest entry timestamp
+    #         if activity_time > entry_time:
+    #             entry_time = activity_time
+    #
+    #         # check if info is already in DB, skip if so
+    #         if await getPgcrActivity(instance_id):
+    #             continue
+    #
+    #         # add to gather list
+    #         instance_ids.append(instance_id)
+    #         activity_times.append(activity_time)
+    #
+    #         # gather once list is big enough
+    #         if len(instance_ids) < 50:
+    #             continue
+    #         else:
+    #             # get and input the data
+    #             await input_data(instance_ids, activity_times)
+    #
+    #             # reset gather list and restart
+    #             instance_ids = []
+    #             activity_times = []
+    #
+    #     # one last time to clean out the extras after the code is done
+    #     if instance_ids:
+    #         # get and input the data
+    #         await input_data(instance_ids, activity_times)
+    #
+    #     # _update with newest entry timestamp
+    #     if success:
+    #         await updateLastUpdated(self.destiny_id, entry_time)
+    #
+    #     logger.info("Done with activity DB _update for destinyID <%s>", self.destiny_id)
 
     # async def __get_full_character_list(self) -> list[dict]:
     #     """Get character ids including deleted characters"""

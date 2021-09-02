@@ -61,17 +61,17 @@ class Activities(Base):
     is_private = Column(Boolean, nullable=False)
     system = Column(SmallInteger, nullable=False)
 
-    users = relationship("ActivitiesUsersStats", back_populates="activity", cascade="all, delete", passive_deletes=True)
+    users = relationship("ActivitiesUsers", back_populates="activity", cascade="all, delete", passive_deletes=True)
 
 
-class ActivitiesUsersStats(Base):
-    __tablename__ = "activitiesUsersStats"
+class ActivitiesUsers(Base):
+    __tablename__ = "activitiesUsers"
 
     id = Column(BigInteger, nullable=False, primary_key=True)
 
     destiny_id = Column(BigInteger, nullable=False)
     character_id = Column(BigInteger, nullable=False)
-    character_class = Column(Text, nullable=False)
+    character_class = Column(Text, nullable=True)
     character_level = Column(SmallInteger, nullable=False)
     system = Column(SmallInteger, nullable=False)
     light_level = Column(Integer, nullable=False)
@@ -102,15 +102,15 @@ class ActivitiesUsersStats(Base):
     activity = relationship("Activities", back_populates="users")
 
     weapons = relationship(
-        "ActivitiesUsersStatsWeapons",
+        "ActivitiesUsersWeapons",
         back_populates="user",
         cascade="all, delete",
         passive_deletes=True,
     )
 
 
-class ActivitiesUsersStatsWeapons(Base):
-    __tablename__ = "activitiesUsersStatsWeapons"
+class ActivitiesUsersWeapons(Base):
+    __tablename__ = "activitiesUsersWeapons"
 
     id = Column(BigInteger, nullable=False, primary_key=True)
 
@@ -118,8 +118,8 @@ class ActivitiesUsersStatsWeapons(Base):
     unique_weapon_kills = Column(Integer, nullable=False)
     unique_weapon_precision_kills = Column(Integer, nullable=False)
 
-    user_id = Column(BigInteger, ForeignKey(ActivitiesUsersStats.id))
-    user = relationship("ActivitiesUsersStats", back_populates="weapons")
+    user_id = Column(BigInteger, ForeignKey(ActivitiesUsers.id))
+    user = relationship("ActivitiesUsers", back_populates="weapons")
 
 
 class Records(Base):

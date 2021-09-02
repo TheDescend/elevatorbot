@@ -253,3 +253,6 @@ class DestinyManifest:
 
                     # insert data in table
                     await db_manifest.insert_definition(db=self.db, db_model=DestinyPresentationNodeDefinition, to_insert=to_insert)
+
+        # update version entry
+        await db_manifest.upsert_version(db=self.db, version=version)
