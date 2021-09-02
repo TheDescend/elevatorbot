@@ -13,8 +13,8 @@ async def roles(request: web.Request):
         data: [
             "discord_id": int,
             "guild_id": int,
-            "to_assign_role_id": Optional[list[int]],
-            "to_remove_role_id": Optional[list[int]],
+            "to_assign_role_ids": Optional[list[int]],
+            "to_remove_role_ids": Optional[list[int]],
         ],
         ...
     }
@@ -23,15 +23,19 @@ async def roles(request: web.Request):
     client: discord.Client = request.app["client"]
     parameters = await request.json()
 
+    # get mutual guilds
+    mutual_guild_ids = [guild.id for guild in client.get_user(parameters["data"][0]["discord_id"])]
+
     # loop through the guilds where roles need to be assigned
     for data in parameters["data"]:
-        guild = client.get_guild(data["guild_id"])
-        member = guild.get_member(data["discord_id"])
+        if data["guild_id"] in mutual_guild_ids:
+            guild = client.get_guild(data["guild_id"])
+            member = guild.get_member(data["discord_id"])
 
-        if data["to_assign_role_id"]:
-            await assign_roles_to_member(member, *data["to_assign_role_id"])
-        if data["to_remove_role_id"]:
-            await remove_roles_from_member(member, *data["to_remove_role_id"])
+            if data["to_assign_role_ids"]:
+                await assign_roles_to_member(member, *data["to_assign_role_ids"])
+            if data["to_remove_role_ids"]:
+                await remove_roles_from_member(member, *data["to_remove_role_ids"])
 
 
     return web.json_response({"success": True})

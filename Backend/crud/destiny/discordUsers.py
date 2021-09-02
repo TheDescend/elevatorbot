@@ -6,10 +6,12 @@ import aiohttp
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.errors import CustomException
+from Backend.crud import roles
 from Backend.crud.base import CRUDBase
 from Backend.database.models import DiscordUsers
 from Backend.misc.helperFunctions import get_now_with_tz, localize_datetime
 from Backend.networking.base import NetworkBase
+from Backend.networking.elevatorApi import ElevatorApi
 from Backend.schemas.auth import BungieTokenInput, BungieTokenOutput
 from settings import BUNGIE_TOKEN
 
@@ -31,7 +33,7 @@ class CRUDDiscordUser(CRUDBase):
     async def get_profile_from_destiny_id(self, db: AsyncSession, destiny_id: int) -> DiscordUsers:
         """Return the profile information"""
 
-        profiles: list[DiscordUsers] = await self._get_multi_with_filter(db, destiny_id=destiny_id)
+        profiles: list[DiscordUsers] = await self._get_multi(db, destiny_id=destiny_id)
 
         # make sure the user exists
         if not profiles:
@@ -150,8 +152,6 @@ class CRUDDiscordUser(CRUDBase):
                 ),
             )
 
-        # todo connect to the websocket on elevator for them to write a message
-
         return BungieTokenOutput(success=True, errror_message=None), discord_id, guild_id
 
     async def refresh_tokens(
@@ -183,6 +183,9 @@ class CRUDDiscordUser(CRUDBase):
             token=None,
         )
 
+        # remove registration roles
+        await self._remove_registration_roles(db=db, discord_id=user.discord_id)
+
     async def change_privacy_setting(self, db: AsyncSession, user: DiscordUsers, has_private_profile: bool):
         """Updates a users privacy setting"""
 
@@ -196,6 +199,47 @@ class CRUDDiscordUser(CRUDBase):
         if not result:
             raise CustomException(
                 error="DiscordIdNotFound",
+            )
+
+        # remove registration roles
+        await self._remove_registration_roles(db=db, discord_id=discord_id)
+
+    @staticmethod
+    async def _remove_registration_roles(db: AsyncSession, discord_id: int):
+        """Removes registration roles from user in all guild"""
+
+        # loop through guilds to remove registration info from the user
+        data = []
+        role_data = await roles.get_registration_roles(db=db)
+        for guild_id, guild_data in role_data.items():
+            registered_role_id, unregistered_role_id = None, None
+
+            # get both role ids
+            for role in role_data:
+                if role.role_name == "Registered":
+                    registered_role_id = role.role_id
+                elif role.role_name == "Unregistered":
+                    unregistered_role_id = role.role_id
+
+            # append that to the data we're gonna send elevator
+            if registered_role_id or unregistered_role_id:
+                data.append(
+                    {
+                        "discord_id": discord_id,
+                        "guild_id": guild_id,
+                        "to_assign_role_ids": [unregistered_role_id] if unregistered_role_id else None,
+                        "to_remove_role_ids": [registered_role_id] if registered_role_id else None,
+                    }
+                )
+
+        # send elevator that data to apply the roles
+        if data:
+            elevator_api = ElevatorApi()
+            await elevator_api.post(
+                route_addition="roles/",
+                json={
+                    "data": data,
+                },
             )
 
 

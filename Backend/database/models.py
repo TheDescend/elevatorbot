@@ -5,7 +5,6 @@ from sqlalchemy import (
     BigInteger,
     Boolean,
     Column,
-    Date,
     DateTime,
     ForeignKey,
     Integer,
@@ -179,6 +178,14 @@ class ElevatorServers(Base):
 
     guild_id = Column(BigInteger, nullable=False, primary_key=True)
     join_date = Column(DateTime(timezone=True), nullable=False, default=get_now_with_tz())
+
+
+class Roles(Base):
+    __tablename__ = "roles"
+
+    guild_id = Column(BigInteger, nullable=False, primary_key=True)
+    role_name = Column(Text, nullable=False, primary_key=True)
+    role_id = Column(BigInteger, nullable=False)
 
 
 ################################################################

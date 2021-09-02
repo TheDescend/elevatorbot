@@ -40,7 +40,7 @@ async def on_guild_remove(guild: discord.Guild):
 
 async def on_guild_role_delete(role: discord.Role):
     """ """
-    # todo
+    # todo make sure to delete db entries for roles
     pass
 
 

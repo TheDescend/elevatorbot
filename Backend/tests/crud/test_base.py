@@ -68,7 +68,7 @@ async def test_get_multi(db: AsyncSession):
     await crud.backend_user._insert(db, test_user)
     await crud.backend_user._insert(db, test_user2)
 
-    results = await crud.backend_user._get_multi(db)
+    results = await crud.backend_user._get_all(db)
 
     assert isinstance(results, list)
     assert results
@@ -82,7 +82,7 @@ async def test_get_multi_with_column(db: AsyncSession):
     await crud.backend_user._insert(db, test_user)
     await crud.backend_user._insert(db, test_user2)
 
-    results = await crud.backend_user._get_multi_with_filter(db, has_read_permission=has_read_permission)
+    results = await crud.backend_user._get_multi(db, has_read_permission=has_read_permission)
 
     assert isinstance(results, list)
     assert results
@@ -102,5 +102,5 @@ async def test_remove(db: AsyncSession):
 
     assert result is None
 
-    results = await crud.backend_user._get_multi(db)
+    results = await crud.backend_user._get_all(db)
     assert test_user not in results

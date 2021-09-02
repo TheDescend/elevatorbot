@@ -10,7 +10,6 @@ from Backend.core.security.auth import (
     create_access_token,
     get_password_hash,
 )
-from Backend.crud import discord_users
 from Backend.database.models import BackendUser
 from Backend.networking.elevatorApi import ElevatorApi
 from Backend.schemas.auth import (
@@ -34,7 +33,7 @@ async def save_bungie_token(bungie_token: BungieTokenInput, db: AsyncSession = D
     """Saves a bungie token"""
 
     # save in db
-    result, discord_id, guild_id = await discord_users.insert_profile(
+    result, discord_id, guild_id = await crud.discord_users.insert_profile(
         db=db,
         bungie_token=bungie_token,
     )
@@ -51,27 +50,38 @@ async def save_bungie_token(bungie_token: BungieTokenInput, db: AsyncSession = D
 
         # loop through guilds
         data = []
-        for guild_id in response.content["guild_ids"]:
-            # todo get the role ids
-            registered_role_id, unregistered_role_id = None, None
+        role_data = await crud.roles.get_registration_roles(db=db)
+        for guild_id, guild_data in role_data.items():
+            # make sure we are in that guild
+            if guild_id in response.content["guild_ids"]:
+                registered_role_id, unregistered_role_id = None, None
 
-            if registered_role_id or unregistered_role_id:
-                data.append(
-                    {
-                        "discord_id": discord_id,
-                        "guild_id": guild_id,
-                        "to_assign_role_id": [registered_role_id],
-                        "to_remove_role_id": [unregistered_role_id],
-                    }
-                )
+                # get both role ids
+                for role in role_data:
+                    if role.role_name == "Registered":
+                        registered_role_id = role.role_id
+                    elif role.role_name == "Unregistered":
+                        unregistered_role_id = role.role_id
+
+                # append that to the data we're gonna send elevator
+                if registered_role_id or unregistered_role_id:
+                    data.append(
+                        {
+                            "discord_id": discord_id,
+                            "guild_id": guild_id,
+                            "to_assign_role_ids": [registered_role_id] if registered_role_id else None,
+                            "to_remove_role_ids": [unregistered_role_id] if unregistered_role_id else None,
+                        }
+                    )
 
         # send elevator that data to apply the roles
-        await elevator_api.post(
-            route_addition="roles/",
-            json={
-                "data": data,
-            },
-        )
+        if data:
+            await elevator_api.post(
+                route_addition="roles/",
+                json={
+                    "data": data,
+                },
+            )
 
     return result
 
