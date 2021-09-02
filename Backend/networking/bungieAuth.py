@@ -29,12 +29,12 @@ class BungieAuth(NetworkBase):
     async def get_working_token(self) -> str:
         """Returns token or raises an error"""
 
-        if self.user.token is None:
+        # check refresh token expiry and that it exists
+        if await discord_users.token_is_expired(db=self.db, user=self.user):
             raise CustomException("NoToken")
 
         token = self.user.token
 
-        # check refresh token expiry
         current_time = get_now_with_tz()
         if current_time > self.user.refresh_token_expiry:
             # set token to None

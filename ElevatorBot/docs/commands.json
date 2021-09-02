@@ -1189,7 +1189,7 @@
         "permissions": {},
         "enabled_in_dms": false
     },
-    "register": {
+    "registration": {
         "docstring": "None",
         "options": [],
         "permissions": {},

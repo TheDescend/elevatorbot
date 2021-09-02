@@ -27,18 +27,21 @@ class CRUDBase:
 
         return await db.get(self.model, primary_key)
 
-    async def _get_all(self, db: AsyncSession, limit: int = 100) -> List[ModelType]:
+    async def _get_all(self, db: AsyncSession) -> List[ModelType]:
         """Returns a list of all the objects"""
 
-        return await self._get_multi(db=db, limit=limit)
+        return await self._get_multi(db=db)
 
-    async def _get_multi(self, db: AsyncSession, limit: int = 100, **filter_kwargs) -> List[ModelType]:
+    async def _get_multi(self, db: AsyncSession, limit: int = None, **filter_kwargs) -> List[ModelType]:
         """Returns a list of all the objects which fulfill the filter clauses"""
 
+        query = select(self.model)
+
         if filter_kwargs:
-            query = select(self.model).filter_by(**filter_kwargs).limit(limit)
-        else:
-            query = select(self.model).limit(limit)
+            query = query.filter_by(**filter_kwargs)
+
+        if limit:
+            query = query.limit(limit)
 
         result = await self._execute_query(db, query)
         return result.scalars().fetchall()

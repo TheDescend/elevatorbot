@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from Backend.core.destiny.profile import DestinyProfile
 from Backend.core.errors import CustomException
 from Backend.crud import activities, activities_fail_to_get, discord_users
-from Backend.database.models import ActivitiesFailToGet, DiscordUsers
+from Backend.database.models import DiscordUsers
 from Backend.misc.helperFunctions import get_datetime_from_bungie_entry
 from Backend.networking.bungieApi import BungieApi
 from Backend.networking.BungieRoutes import activities_route, pgcr_route, stat_route_characters
@@ -50,7 +50,7 @@ class DestinyActivities:
         no_checkpoints: bool = False,
         disallowed_datetimes: list[tuple[datetime.datetime, datetime.datetime]] = None,
         score_threshold: int = None,
-        min_kills_per_minute: float = None
+        min_kills_per_minute: float = None,
     ) -> bool:
         """Returns if player has a lowman in the given hashes. Disallowed is a list of (start_time, end_time) with datetime objects"""
 
@@ -67,7 +67,6 @@ class DestinyActivities:
         )
         return bool(low_activity_info)
 
-
     async def get_lowman_count(
         self,
         activity_hashes: list[int],
@@ -76,7 +75,7 @@ class DestinyActivities:
         no_checkpoints: bool = False,
         disallowed_datetimes: list[tuple[datetime.datetime, datetime.datetime]] = None,
         score_threshold: int = None,
-        min_kills_per_minute: float = None
+        min_kills_per_minute: float = None,
     ) -> tuple[int, int, Optional[datetime.timedelta]]:
         """Returns tuple[solo_count, solo_is_flawless_count, Optional[solo_fastest]]"""
 
@@ -189,10 +188,7 @@ class DestinyActivities:
 
                     yield activity
 
-
-    async def update_missing_pgcr(
-        self
-    ):
+    async def update_missing_pgcr(self):
         """Insert the missing pgcr"""
 
         for activity in await activities_fail_to_get.get_all():
@@ -211,7 +207,9 @@ class DestinyActivities:
                 continue
 
             # add info to DB
-            await activities.insert(db=self.db, instance_id=activity.instance_id, activity_time=activity.period, pgcr=pgcr.content)
+            await activities.insert(
+                db=self.db, instance_id=activity.instance_id, activity_time=activity.period, pgcr=pgcr.content
+            )
 
             # delete from to-do DB
             await activities_fail_to_get.delete(db=self.db, obj=activity)
@@ -253,7 +251,7 @@ class DestinyActivities:
                     await activities.insert(db=self.db, instance_id=i, activity_time=t, pgcr=pgcr)
 
         # get the logger
-        logger = logging.getLogger("update_activity_db")
+        logger = logging.getLogger("updateActivityDb")
 
         # get the entry time
         if not entry_time:

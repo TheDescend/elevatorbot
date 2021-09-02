@@ -1,9 +1,11 @@
+import asyncio
 from datetime import timedelta
 
 from fastapi import APIRouter, Depends, Form, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from Backend.core.destiny.activities import DestinyActivities
 from Backend.core.errors import CustomException
 from Backend.core.security.auth import (
     ACCESS_TOKEN_EXPIRE_MINUTES,
@@ -33,12 +35,16 @@ async def save_bungie_token(bungie_token: BungieTokenInput, db: AsyncSession = D
     """Saves a bungie token"""
 
     # save in db
-    result, discord_id, guild_id = await crud.discord_users.insert_profile(
+    result, user, discord_id, guild_id = await crud.discord_users.insert_profile(
         db=db,
         bungie_token=bungie_token,
     )
 
     if result.success:
+        # get users activities in background
+        activities = DestinyActivities(db=db, user=user)
+        asyncio.create_task(activities.update_activity_db())
+
         # send a msg to Elevator and get the mutual guild ids
         elevator_api = ElevatorApi()
         response = await elevator_api.post(

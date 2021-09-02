@@ -52,21 +52,15 @@ class ElevatorBot(Bot):
 
         print("Creating docs for commands...")
         create_command_docs(slash_client)
-        print("Docs Created")
+
+        print("Launching the Status Changer...")
+        asyncio.create_task(update_status(client))
+
+        print("Start Webserver...")
+        asyncio.create_task(run_webserver(client=client))
 
         print("Startup Finished!\n")
         print("--------------------------\n")
-
-        tasks = [
-            # launch status changer
-            update_status(client),
-
-            # run webserver
-            run_webserver(client=client)
-        ]
-
-        # gather the task to not block
-        await asyncio.gather(*tasks)
 
 
 # actually get the bot obj

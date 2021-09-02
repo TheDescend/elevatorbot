@@ -4,6 +4,7 @@ from typing import Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from Backend.crud import discord_users
 from Backend.crud.destiny.records import records
 from Backend.crud.destiny.collectibles import collectibles
 from Backend.database.models import Collectibles, DiscordUsers, Records
@@ -40,7 +41,12 @@ class DestinyProfile:
 
         result = await self.__get_profile(100)
         user_info = result["profile"]["data"]["userInfo"]
-        return f"""{user_info["bungieGlobalDisplayName"]}#{user_info["bungieGlobalDisplayNameCode"]}"""
+        bungie_name = f"""{user_info["bungieGlobalDisplayName"]}#{user_info["bungieGlobalDisplayNameCode"]}"""
+
+        if bungie_name != self.user.bungie_name:
+            await discord_users.update(db=self.db, to_update=self.user, bungie_name=bungie_name)
+
+        return bungie_name
 
     async def get_last_online(self) -> datetime.datetime:
         """Returns the last online time"""
@@ -372,6 +378,14 @@ class DestinyProfile:
         https://bungie-net.github.io/multi/schema_Destiny-DestinyComponentType.html#schema_Destiny-DestinyComponentType
         """
 
+        # todo maybe always call this with all components? Then the cache solves most issues and we can have an override if you want to call a special one
+
+        # add 100 to the profile call. Remove that data in the result and only use it to update Bungie Name
+        added = False
+        if (100 not in components) and ("100" not in components):
+            added = True
+            components += (100,)
+
         route = profile_route.format(system=self.system, destiny_id=self.destiny_id)
         params = {"components": ",".join(map(str, components))}
 
@@ -379,5 +393,17 @@ class DestinyProfile:
             response = await self.api.get_with_token(route=route, params=params)
         else:
             response = await self.api.get(route=route, params=params)
+
+        # remove the profile data and update name
+        if added:
+            # get bungie name
+            bungie_name = f"""{response.content["profile"]["data"]["userInfo"]["bungieGlobalDisplayName"]}#{response.content["profile"]["data"]["userInfo"]["bungieGlobalDisplayNameCode"]}"""
+
+            # update name if different
+            if bungie_name != self.user.bungie_name:
+                await discord_users.update(db=self.db, to_update=self.user, bungie_name=bungie_name)
+
+            # remove 100 data from call
+            response.content.pop("profile")
 
         return response.content

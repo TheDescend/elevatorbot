@@ -21,3 +21,7 @@ def init_logging() -> None:
     # Initialize logging for external api requests
     make_logger("bungieApi")
     make_logger("elevatorApi")
+
+    # Initialize logging for Background Events
+    make_logger("backgroundEvents")
+    make_logger("updateActivityDb")

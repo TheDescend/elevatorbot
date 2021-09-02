@@ -43,9 +43,15 @@ class CRUDDiscordUser(CRUDBase):
 
         return profiles[0]
 
+    async def get_all(self, db: AsyncSession) -> list[DiscordUsers]:
+        """Return all profiles"""
+
+        return await self._get_all(db=db)
+
+
     async def insert_profile(
         self, db: AsyncSession, bungie_token: BungieTokenInput
-    ) -> tuple[BungieTokenOutput, int, int]:
+    ) -> tuple[BungieTokenOutput, Optional[DiscordUsers], int, int]:
         """Inserts a users token data"""
 
         # get current time
@@ -77,15 +83,18 @@ class CRUDDiscordUser(CRUDBase):
 
         # get the system
         system = None
+        bungie_name = None
         for profile in destiny_info.content["destinyMemberships"]:
             if int(profile["membershipId"]) == destiny_id:
                 system = profile["membershipType"]
+                bungie_name = f"""{profile["bungieGlobalDisplayName"]}#{profile["bungieGlobalDisplayNameCode"]}"""
                 break
 
         # that should find a system 100% of the time, extra check here to be sure
         if not system:
             return (
                 BungieTokenOutput(success=False, errror_message="Could not find what platform you are on"),
+                None,
                 discord_id,
                 guild_id,
             )
@@ -94,6 +103,7 @@ class CRUDDiscordUser(CRUDBase):
         if not destiny_id:
             return (
                 BungieTokenOutput(success=False, errror_message="You do not seem to have a destiny account"),
+                None,
                 discord_id,
                 guild_id,
             )
@@ -124,6 +134,7 @@ class CRUDDiscordUser(CRUDBase):
                 discord_id=discord_id,
                 destiny_id=destiny_id,
                 system=system,
+                bungie_name=bungie_name,
                 token=bungie_token.access_token,
                 refresh_token=bungie_token.refresh_token,
                 token_expiry=localize_datetime(datetime.datetime.fromtimestamp(current_time + bungie_token.expires_in)),
@@ -144,6 +155,7 @@ class CRUDDiscordUser(CRUDBase):
                 to_update=user,
                 destiny_id=destiny_id,
                 system=system,
+                bungie_name=bungie_name,
                 token=bungie_token.access_token,
                 refresh_token=bungie_token.refresh_token,
                 token_expiry=localize_datetime(datetime.datetime.fromtimestamp(current_time + bungie_token.expires_in)),
@@ -152,21 +164,12 @@ class CRUDDiscordUser(CRUDBase):
                 ),
             )
 
-        return BungieTokenOutput(success=True, errror_message=None), discord_id, guild_id
+        return BungieTokenOutput(success=True, errror_message=None), user, discord_id, guild_id
 
-    async def update(
-        self,
-        db: AsyncSession,
-        to_update: DiscordUsers,
-        **update_kwargs
-    ):
+    async def update(self, db: AsyncSession, to_update: DiscordUsers, **update_kwargs):
         """Updates a profile"""
 
-        await self._update(
-            db=db,
-            to_update=to_update,
-            **update_kwargs
-        )
+        await self._update(db=db, to_update=to_update, **update_kwargs)
 
     async def invalidate_token(self, db: AsyncSession, user: DiscordUsers):
         """Invalidates a token by setting it to None"""
@@ -179,6 +182,21 @@ class CRUDDiscordUser(CRUDBase):
 
         # remove registration roles
         await self._remove_registration_roles(db=db, discord_id=user.discord_id)
+
+    async def token_is_expired(self, db: AsyncSession, user: DiscordUsers):
+        """Checks if a token exists and the refresh token is not expired"""
+
+        if not user.token:
+            return True
+
+        current_time = get_now_with_tz()
+        if current_time > user.refresh_token_expiry:
+            # set token to None
+            await self.invalidate_token(db=db, user=user)
+
+            return True
+
+        return False
 
     async def delete_profile(self, db: AsyncSession, discord_id: int):
         """Deletes the profile from the DB"""

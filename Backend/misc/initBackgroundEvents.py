@@ -1,7 +1,6 @@
 import datetime
 import logging
 
-import discord
 from apscheduler.events import (
     EVENT_JOB_ADDED,
     EVENT_JOB_ERROR,
@@ -11,10 +10,10 @@ from apscheduler.events import (
     EVENT_JOB_SUBMITTED,
 )
 
-from ElevatorBot import backgroundEvents
+from Backend import backgroundEvents
 
 
-def register_background_events(client: discord.Client) -> int:
+def register_background_events() -> int:
     """Adds all the events to apscheduler"""
 
     # gotta start the scheduler in the first place
@@ -84,7 +83,6 @@ def register_background_events(client: discord.Client) -> int:
             backgroundEvents.scheduler.add_job(
                 func=event.run,
                 trigger="interval",
-                args=(client,),
                 minutes=event.interval_minutes,
                 jitter=15 * 60,
             )
@@ -92,7 +90,6 @@ def register_background_events(client: discord.Client) -> int:
             backgroundEvents.scheduler.add_job(
                 func=event.run,
                 trigger="cron",
-                args=(client,),
                 day_of_week=event.dow_day_of_week,
                 hour=event.dow_hour,
                 minute=event.dow_minute,
@@ -102,7 +99,6 @@ def register_background_events(client: discord.Client) -> int:
             backgroundEvents.scheduler.add_job(
                 func=event.run,
                 trigger="date",
-                args=(client,),
                 run_date=event.run_date,
                 timezone=datetime.timezone.utc,
             )

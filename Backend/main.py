@@ -12,6 +12,7 @@ from Backend.dependencies import (
 )
 from Backend.endpoints import auth, elevatorInfo
 from Backend.endpoints.destiny import account, clan, profile
+from Backend.misc.initBackgroundEvents import register_background_events
 from Backend.misc.initLogging import init_logging
 from Backend.schemas.auth import BackendUserModel
 
@@ -68,5 +69,11 @@ async def write_perm(user: BackendUser = Depends(auth_get_user_with_write_perm))
 
 @app.on_event("startup")
 async def startup():
-    # _insert db tables
+    # insert db tables
+    print("Creating Database Tables...")
     await create_tables(engine=setup_engine())
+
+    # insert db tables
+    print("Loading Background Events...")
+    events_loaded = register_background_events(client)
+    print(f"< {events_loaded} > Background Events Loaded")
