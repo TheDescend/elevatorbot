@@ -36,22 +36,10 @@ class DestinyProfile:
         # the network class
         self.api = BungieApi(db=self.db, user=self.user)
 
-    async def get_destiny_name(self) -> str:
-        """Returns the current user name#1234"""
-
-        result = await self.__get_profile(100)
-        user_info = result["profile"]["data"]["userInfo"]
-        bungie_name = f"""{user_info["bungieGlobalDisplayName"]}#{user_info["bungieGlobalDisplayNameCode"]}"""
-
-        if bungie_name != self.user.bungie_name:
-            await discord_users.update(db=self.db, to_update=self.user, bungie_name=bungie_name)
-
-        return bungie_name
-
     async def get_last_online(self) -> datetime.datetime:
         """Returns the last online time"""
 
-        result = await self.__get_profile(100)
+        result = await self.__get_profile()
         return get_datetime_from_bungie_entry(result["profile"]["data"]["dateLastPlayed"])
 
     async def has_triumph(self, triumph_hash: str | int) -> bool:
@@ -254,7 +242,7 @@ class DestinyProfile:
         """
 
         characters = {}
-        result = await self.__get_profile(200)
+        result = await self.__get_profile()
 
         # loop through each character
         for characterID, character_data in result["characters"]["data"].items():
@@ -272,7 +260,7 @@ class DestinyProfile:
     async def get_triumphs(self) -> dict:
         """Populate the triumphs and then return them"""
 
-        result = await self.__get_profile(900)
+        result = await self.__get_profile()
 
         # get profile triumphs
         triumphs = result["profileRecords"]["data"]["records"]
@@ -292,7 +280,7 @@ class DestinyProfile:
     async def get_collectibles(self) -> dict:
         """Populate the collectibles and then return them"""
 
-        result = await self.__get_profile(800)
+        result = await self.__get_profile()
 
         # get profile triumphs
         collectibles = result["profileCollectibles"]["data"]["collectibles"]
@@ -316,7 +304,7 @@ class DestinyProfile:
     async def get_metrics(self) -> dict:
         """Populate the metrics and then return them"""
 
-        metrics = await self.__get_profile(1100)
+        metrics = await self.__get_profile()
         return metrics["metrics"]["data"]["metrics"]
 
     async def get_stats(self) -> dict:
@@ -372,38 +360,42 @@ class DestinyProfile:
 
         return gear
 
-    async def __get_profile(self, *components: int | str, with_token: bool = False) -> dict:
+    async def __get_profile(self, *components_override: int, with_token: bool = False) -> dict:
         """
         Return info from the profile call
         https://bungie-net.github.io/multi/schema_Destiny-DestinyComponentType.html#schema_Destiny-DestinyComponentType
+
+        Call the override if you want specific components, otherwise its always the default
+        Default: components_override = (100, 200, 800, 900, 1100)
         """
 
-        # todo maybe always call this with all components? Then the cache solves most issues and we can have an override if you want to call a special one
+        if not components_override:
+            components_override = (100, 200, 800, 900, 1100)
+
 
         # add 100 to the profile call. Remove that data in the result and only use it to update Bungie Name
         added = False
-        if (100 not in components) and ("100" not in components):
+        if 100 not in components_override:
             added = True
-            components += (100,)
+            components_override += (100,)
 
         route = profile_route.format(system=self.system, destiny_id=self.destiny_id)
-        params = {"components": ",".join(map(str, components))}
+        params = {"components": ",".join(map(str, components_override))}
 
         if with_token:
             response = await self.api.get_with_token(route=route, params=params)
         else:
             response = await self.api.get(route=route, params=params)
 
-        # remove the profile data and update name
+        # get bungie name
+        bungie_name = f"""{response.content["profile"]["data"]["userInfo"]["bungieGlobalDisplayName"]}#{response.content["profile"]["data"]["userInfo"]["bungieGlobalDisplayNameCode"]}"""
+
+        # update name if different
+        if bungie_name != self.user.bungie_name:
+            await discord_users.update(db=self.db, to_update=self.user, bungie_name=bungie_name)
+
+        # remove 100 data from response
         if added:
-            # get bungie name
-            bungie_name = f"""{response.content["profile"]["data"]["userInfo"]["bungieGlobalDisplayName"]}#{response.content["profile"]["data"]["userInfo"]["bungieGlobalDisplayNameCode"]}"""
-
-            # update name if different
-            if bungie_name != self.user.bungie_name:
-                await discord_users.update(db=self.db, to_update=self.user, bungie_name=bungie_name)
-
-            # remove 100 data from call
             response.content.pop("profile")
 
         return response.content

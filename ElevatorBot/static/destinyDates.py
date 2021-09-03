@@ -3,6 +3,7 @@ expansion_dates = [
     ["2018-09-04", "Forsaken"],
     ["2019-10-01", "Shadowkeep"],
     ["2020-11-10", "Beyond Light"],
+    ["2022-22-02", "Witch Queen"],
 ]
 
 season_dates = [
