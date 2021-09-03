@@ -4,7 +4,7 @@ from typing import Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from Backend.crud import discord_users
+from Backend.crud import destiny_manifest, discord_users
 from Backend.crud.destiny.records import records
 from Backend.crud.destiny.collectibles import collectibles
 from Backend.database.models import Collectibles, DiscordUsers, Records
@@ -201,8 +201,7 @@ class DestinyProfile:
         all_seals = []
         completed_seals = []
 
-        # todo
-        seals = await getSeals()
+        seals = await destiny_manifest.get_seals(db=self.db)
         for seal in seals:
             all_seals.append(seal[0])
             if await self.has_triumph(seal[0]):

@@ -726,23 +726,23 @@ async def getGrandmasterHashes():
     return [x[0] for x in result]
 
 
-async def getSeals():
-    """Gets all seals. returns ([referenceId, titleName], ...)"""
-
-    not_available = [
-        837071607,  # shaxx
-        1754815776,  # wishbringer
-    ]
-    select_sql = f"""
-        SELECT 
-            referenceId, titleName
-        FROM 
-            DestinyRecordDefinition
-        WHERE 
-            hasTitle
-            AND referenceId NOT IN ({','.join(['$' + str(i + 1) for i in range(len(not_available))])});"""
-    async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
-        return await connection.fetch(select_sql, *not_available)
+# async def getSeals():
+#     """Gets all seals. returns ([referenceId, titleName], ...)"""
+#
+#     not_available = [
+#         837071607,  # shaxx
+#         1754815776,  # wishbringer
+#     ]
+#     select_sql = f"""
+#         SELECT
+#             referenceId, titleName
+#         FROM
+#             DestinyRecordDefinition
+#         WHERE
+#             hasTitle
+#             AND referenceId NOT IN ({','.join(['$' + str(i + 1) for i in range(len(not_available))])});"""
+#     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
+#         return await connection.fetch(select_sql, *not_available)
 
 
 ################################################################
