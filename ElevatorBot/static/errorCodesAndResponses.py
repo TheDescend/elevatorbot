@@ -9,7 +9,5 @@ error_codes_and_responses = {
     "BungieClanTargetDisallowsInvites": "{discord_member.mention} is not allowing clan invites \nPlease change your [privacy settings](https://www.bungie.net/en/Profile/Settings/)",
     "UnknownError": "I got an unknown error while handling your request \nPlease contact a developer",
     "UserNotInClan": "{discord_member.mention} is not in any clan",
-    "ClanInviteFailed": "Was not able to invite {discord_member.mention} to the clan with {discord_member2.mention} credentials",
-    "ClanNoPermissions": "{discord_member.mention} does not have admin permissions in their Destiny 2 clan",
-    "NoJoinId": "I do not know the Join Code for {discord_member.mention}, please use `/id set` first \nDue to the way Steam works, I do not have access to this information",
+    "ClanNoPermissions": "Could not invite {discord_member.mention} to the linked clan, since the user who linked the clan to this discord guild is no longer a Destiny 2 clan admin\nPlease have an Admin re-link the clan to fix this",
 }

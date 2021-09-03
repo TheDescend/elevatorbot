@@ -14,6 +14,7 @@ from Backend.misc.helperFunctions import get_datetime_from_bungie_entry
 from Backend.networking.bungieApi import BungieApi
 from Backend.networking.BungieRoutes import activities_route, pgcr_route, stat_route_characters
 from Backend.networking.schemas import WebResponse
+from Backend.schemas.destiny.activities import DestinyLowManModel
 
 
 @dataclasses.dataclass
@@ -69,22 +70,22 @@ class DestinyActivities:
 
     async def get_lowman_count(
         self,
-        activity_hashes: list[int],
+        activity_ids: list[int],
         max_player_count: int,
         require_flawless: bool = False,
-        no_checkpoints: bool = False,
+        no_checkpoints: bool = True,
         disallowed_datetimes: list[tuple[datetime.datetime, datetime.datetime]] = None,
         score_threshold: int = None,
         min_kills_per_minute: float = None,
-    ) -> tuple[int, int, Optional[datetime.timedelta]]:
-        """Returns tuple[solo_count, solo_is_flawless_count, Optional[solo_fastest]]"""
+    ) -> DestinyLowManModel:
+        """Returns low man data"""
 
-        solo_count, solo_is_flawless_count, solo_fastest = 0, 0, None
+        count, flawless_count, not_flawless_count, fastest = 0, 0, 0, None
 
         # get player data
         low_activity_info = await activities.get_low_man_activities(
             db=self.db,
-            activity_hashes=activity_hashes,
+            activity_hashes=activity_ids,
             player_count=max_player_count,
             destiny_id=self.destiny_id,
             no_checkpoints=no_checkpoints,
@@ -97,16 +98,20 @@ class DestinyActivities:
         # prepare player data
         # todo get and process data. No idea how it actually looks tbh. Need changing!
         for solo in low_activity_info:
-            solo_count += 1
+            count += 1
             if solo["deaths"] == 0:
-                solo_is_flawless_count += 1
-            if not solo_fastest or (solo["timeplayedseconds"] < solo_fastest):
-                solo_fastest = solo["timeplayedseconds"]
+                flawless_count += 1
+            else:
+                not_flawless_count += 1
+            if not fastest or (solo["timeplayedseconds"] < fastest):
+                fastest = datetime.timedelta(seconds=solo["timeplayedseconds"])
 
-        return (
-            solo_count,
-            solo_is_flawless_count,
-            datetime.timedelta(seconds=solo_fastest) if solo_fastest else solo_fastest,
+        return DestinyLowManModel(
+            activity_ids=activity_ids,
+            count=count,
+            flawless_count=flawless_count,
+            not_flawless_count=not_flawless_count,
+            fastest=fastest,
         )
 
     async def get_activity_history(

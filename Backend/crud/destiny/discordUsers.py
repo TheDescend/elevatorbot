@@ -6,7 +6,7 @@ import aiohttp
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.errors import CustomException
-from Backend.crud.discord import roles
+from Backend.crud.discord.roles import roles
 from Backend.crud.base import CRUDBase
 from Backend.database.models import DiscordUsers
 from Backend.misc.helperFunctions import get_now_with_tz, localize_datetime

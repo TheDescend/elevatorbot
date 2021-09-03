@@ -73,8 +73,7 @@ class DestinyClan(BaseBackendConnection):
         result = await self._backend_get(
             route=destiny_clan_invite_route.format(
                 guild_id=self.discord_guild.id,
-                discord_id=self.discord_member.id,
-                to_invite_discord_id=to_invite.id,
+                discord_id=to_invite.id
             )
         )
 

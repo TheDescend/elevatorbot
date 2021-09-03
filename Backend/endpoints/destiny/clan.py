@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from Backend import crud
 from Backend.core.destiny.clan import DestinyClan
 from Backend.core.errors import CustomException
+from Backend.crud import destiny_clan_links, discord_users
 from Backend.dependencies import get_db_session
 from Backend.schemas.destiny.clan import DestinyClanLink, DestinyClanMembersModel, DestinyClanModel
 
@@ -82,14 +83,21 @@ async def unlink_clan(
     return DestinyClanLink(success=True, clan_name=clan_name)
 
 
-@router.get("/invite/{to_invite_discord_id}", response_model=None)
+@router.get("/invite/", response_model=None)
 async def destiny_name(
     guild_id: int,
     discord_id: int,
-    to_invite_discord_id: int,
     db: AsyncSession = Depends(get_db_session),
 ):
-    """Invite to_invite_discord_id to the clan"""
+    """Invite discord_id to the clan linked to the guild_id"""
 
-    # todo get the account which has admin perms for the ingame clan
-    pass
+    # get the clan link
+    link = await destiny_clan_links.get_link(db=db, discord_guild_id=guild_id)
+
+    # get the data for the users
+    clan_admin_user = await discord_users.get_profile_from_discord_id(db=db, discord_id=link.linked_by_discord_id)
+    to_invite_user = await discord_users.get_profile_from_discord_id(db=db, discord_id=discord_id)
+
+    # invite to the clan
+    clan = DestinyClan(db=db, user=clan_admin_user)
+    await clan.invite_to_clan(to_invite_destiny_id=to_invite_user.destiny_id, to_invite_system=to_invite_user.system)

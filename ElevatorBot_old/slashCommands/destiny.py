@@ -115,68 +115,68 @@ class DestinyCommands(commands.Cog):
             ["2021-05-22", "VoG"],
         ]
 
-    @cog_ext.cog_slash(
-        name="solos",
-        description="Shows you an overview of your Destiny 2 solo activity completions",
-        options=[options_user()],
-    )
-    async def _solos(self, ctx: SlashContext, **kwargs):
-        user = await get_user_obj(ctx, kwargs)
-        destiny_player = await DestinyPlayer.from_discord_id(user.id, ctx=ctx)
-        if not destiny_player:
-            return
+    # @cog_ext.cog_slash(
+    #     name="solos",
+    #     description="Shows you an overview of your Destiny 2 solo activity completions",
+    #     options=[options_user()],
+    # )
+    # async def _solos(self, ctx: SlashContext, **kwargs):
+    #     user = await get_user_obj(ctx, kwargs)
+    #     destiny_player = await DestinyPlayer.from_discord_id(user.id, ctx=ctx)
+    #     if not destiny_player:
+    #         return
+    #
+    #     await ctx.defer()
+    #
+    #     interesting_solos = {
+    #         "Shattered Throne": throneHashes,
+    #         "Pit of Heresy": pitHashes,
+    #         "Prophecy": prophHashes,
+    #         "Harbinger": harbHashes,
+    #         "Presage": presageHashes,
+    #         "Master Presage": presageMasterHashes,
+    #         "The Whisper": whisperHashes + herwhisperHashes,
+    #         "Zero Hour": zeroHashes + herzeroHashes,
+    #         "Grandmaster Nightfalls": gmHashes,
+    #     }
+    #
+    #     # get the return text in a gather
+    #     interesting_solos_texts = await asyncio.gather(
+    #         *[
+    #             self.get_formatted_solos_data(
+    #                 destiny_player=destiny_player,
+    #                 solo_activity_ids=solo_activity_ids,
+    #             )
+    #             for solo_activity_ids in interesting_solos.values()
+    #         ]
+    #     )
+    #
+    #     # start building the return embed
+    #     embed = embed_message(f"{user.display_name}'s Destiny Solos")
+    #
+    #     # add the fields
+    #     for solo_name, solo_activity_ids, solo_text in zip(
+    #         interesting_solos.keys(),
+    #         interesting_solos.values(),
+    #         interesting_solos_texts,
+    #     ):
+    #         embed.add_field(
+    #             name=solo_name,
+    #             value=solo_text,
+    #             inline=True,
+    #         )
+    #
+    #     await ctx.send(embed=embed)
 
-        await ctx.defer()
-
-        interesting_solos = {
-            "Shattered Throne": throneHashes,
-            "Pit of Heresy": pitHashes,
-            "Prophecy": prophHashes,
-            "Harbinger": harbHashes,
-            "Presage": presageHashes,
-            "Master Presage": presageMasterHashes,
-            "The Whisper": whisperHashes + herwhisperHashes,
-            "Zero Hour": zeroHashes + herzeroHashes,
-            "Grandmaster Nightfalls": gmHashes,
-        }
-
-        # get the return text in a gather
-        interesting_solos_texts = await asyncio.gather(
-            *[
-                self.get_formatted_solos_data(
-                    destiny_player=destiny_player,
-                    solo_activity_ids=solo_activity_ids,
-                )
-                for solo_activity_ids in interesting_solos.values()
-            ]
-        )
-
-        # start building the return embed
-        embed = embed_message(f"{user.display_name}'s Destiny Solos")
-
-        # add the fields
-        for solo_name, solo_activity_ids, solo_text in zip(
-            interesting_solos.keys(),
-            interesting_solos.values(),
-            interesting_solos_texts,
-        ):
-            embed.add_field(
-                name=solo_name,
-                value=solo_text,
-                inline=True,
-            )
-
-        await ctx.send(embed=embed)
-
-    @staticmethod
-    async def get_formatted_solos_data(destiny_player: DestinyPlayer, solo_activity_ids: list[int]) -> str:
-        """returns the formatted string to be used in self.solos()"""
-
-        results = await destiny_player.get_lowman_count(solo_activity_ids)
-
-        return (
-            f"Solo Completions: **{results[0]}**\nSolo Flawless Count: **{results[1]}**\nFastest Solo: **{results[2]}**"
-        )
+    # @staticmethod
+    # async def get_formatted_solos_data(destiny_player: DestinyPlayer, solo_activity_ids: list[int]) -> str:
+    #     """returns the formatted string to be used in self.solos()"""
+    #
+    #     results = await destiny_player.get_lowman_count(solo_activity_ids)
+    #
+    #     return (
+    #         f"Solo Completions: **{results[0]}**\nSolo Flawless Count: **{results[1]}**\nFastest Solo: **{results[2]}**"
+    #     )
 
     @cog_ext.cog_slash(
         name="time",

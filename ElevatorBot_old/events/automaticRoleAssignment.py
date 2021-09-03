@@ -21,6 +21,7 @@ from ElevatorBot.static.config import CLANID, BOTDEVCHANNELID
 from ElevatorBot.static.globals import *
 
 
+# todo call this one elevator, and the sleep. Backend calls elevator webhook when done
 class AutomaticRoleAssignment(BaseEvent):
     """Will automatically _update the roles"""
 

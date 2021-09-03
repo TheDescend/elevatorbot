@@ -102,19 +102,19 @@ class DestinyClan:
 
     async def invite_to_clan(
         self,
-        to_invite_discord_id: int,
+        to_invite_destiny_id: int,
         to_invite_system: int,
     ):
         """Invite the User to the clan"""
 
         clan_id, clan_name = await self.get_clan_id_and_name()
 
-        route = clan_invite_route.format(clan_id=clan_id, system=to_invite_system, destiny_id=to_invite_discord_id)
+        # check if inviter actually is admin
+        if not await self.is_clan_admin(clan_id=clan_id):
+            raise CustomException("ClanNoPermissions")
+
+        route = clan_invite_route.format(clan_id=clan_id, system=to_invite_system, destiny_id=to_invite_destiny_id)
 
         welcome_message = {"message": f"Welcome to {clan_name}"}
 
-        # catch the exception if it fails and send a new one
-        try:
-            await self.api.post(route=route, json=welcome_message)
-        except CustomException:
-            raise CustomException("ClanInviteFailed")
+        await self.api.post(route=route, json=welcome_message)
