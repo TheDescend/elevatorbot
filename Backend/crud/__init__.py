@@ -8,7 +8,7 @@ from Backend.crud.destiny.activities import (
 from Backend.crud.destiny.collectibles import collectibles
 from Backend.crud.destiny.destinyClanLinks import destiny_clan_links
 from Backend.crud.destiny.discordUsers import discord_users
-from Backend.crud.destiny.lfgSystem import lfg_message, lfg_user
+from Backend.crud.destiny.lfgSystem import lfg
 from Backend.crud.destiny.manifest import destiny_manifest
 from Backend.crud.destiny.records import records
 from Backend.crud.discord.elevatorServers import elevator_servers
