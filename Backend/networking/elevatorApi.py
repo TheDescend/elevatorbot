@@ -20,8 +20,9 @@ class ElevatorApi(NetworkBase):
         """Post Request"""
 
         async with aiohttp.ClientSession() as session:
-            return await self._post_request(
+            return await self._request(
                 session=session,
+                method="POST",
                 route=self.route + route_addition,
                 json=json,
                 params=params,
@@ -31,8 +32,9 @@ class ElevatorApi(NetworkBase):
         """Get Request"""
 
         async with aiohttp.ClientSession() as session:
-            return await self._get_request(
+            return await self._request(
                 session=session,
+                method="GET",
                 route=self.route + route_addition,
                 params=params,
             )

@@ -27,70 +27,21 @@ class NetworkBase:
     # how many times to retry a request
     max_web_request_tries = 10
 
-    async def _get_request(
+    async def _request(
         self,
         session: aiohttp_client_cache.CachedSession | aiohttp.ClientSession,
+        method: str,
         route: str,
         headers: dict = None,
         params: dict = None,
-    ) -> WebResponse:
-        """
-        Makes a get request to the specified url
-        Returns instance of WebResponse()
-        """
-
-        # wait for a token from the rate limiter
-        if self.bungie_request:
-            async with asyncio.Lock():
-                await bungie_limiter.wait_for_token()
-
-        # abort after max_web_request_tries tries
-        for _ in range(self.max_web_request_tries):
-            try:
-                async with session.get(
-                    url=route,
-                    headers=headers,
-                    params=params,
-                ) as request:
-                    response = await self.__handle_request_data(
-                        request=request,
-                        route=route,
-                    )
-
-                    # try again
-                    if response is None:
-                        continue
-
-                    # return response
-                    else:
-                        return WebResponse(**response.__dict__)
-
-            except (asyncio.exceptions.TimeoutError, ConnectionResetError):
-                self.logger.error("Timeout error for '%s'", route)
-                await asyncio.sleep(random.randrange(2, 6))
-                continue
-
-        # return that it failed
-        self.logger.error(
-            "Request failed '%s' times, aborting for '%s'",
-            self.max_web_request_tries,
-            route,
-        )
-        raise CustomException("UnknownError")
-
-    async def _post_request(
-        self,
-        session: aiohttp_client_cache.CachedSession | aiohttp.ClientSession,
-        route: str,
         json: dict = None,
         form_data: dict = None,
-        headers: dict = None,
-        params: dict = None,
     ) -> WebResponse:
-        """
-        Makes a post request to the specified url
-        Returns instance of WebResponse()
-        """
+        """Make a request to the url with the method and handles the result"""
+
+        assert not(form_data and json), "Only json or form_data can be used"
+
+        allow_redirects = False if self.bungie_request and method == "POST" else True
 
         # wait for a token from the rate limiter
         if self.bungie_request:
@@ -100,13 +51,14 @@ class NetworkBase:
         # abort after max_web_request_tries tries
         for _ in range(self.max_web_request_tries):
             try:
-                async with session.post(
+                async with session.request(
+                    method=method,
                     url=route,
-                    json=json,
-                    data=form_data,
                     headers=headers,
                     params=params,
-                    allow_redirects=False,
+                    json=json,
+                    data=form_data,
+                    allow_redirects=allow_redirects,
                 ) as request:
                     response = await self.__handle_request_data(
                         request=request,

@@ -61,8 +61,9 @@ class BungieAuth(NetworkBase):
             current_time = int(time.time())
 
             try:
-                response = await self._post_request(
+                response = await self._request(
                     session=session,
+                    method="POST",
                     route=self.route,
                     form_data=data,
                     headers=self.headers,

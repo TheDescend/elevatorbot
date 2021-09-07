@@ -68,8 +68,9 @@ class CRUDDiscordUser(CRUDBase):
 
         # get the corresponding destiny data with manual headers, since the data is not in the db yet
         async with aiohttp.ClientSession(cookie_jar=aiohttp.DummyCookieJar()) as session:
-            destiny_info = await api._get_request(
+            destiny_info = await api._request(
                 session=session,
+                method="GET",
                 route="https://www.bungie.net/platform/User/GetMembershipsForCurrentUser/",
                 headers={
                     "X-API-Key": BUNGIE_TOKEN,

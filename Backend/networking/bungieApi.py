@@ -59,8 +59,9 @@ class BungieApi(NetworkBase):
             async with aiohttp_client_cache.CachedSession(cache=self.cache) as session:
                 # use cache for the responses
                 if use_cache:
-                    return await self._get_request(
+                    return await self._request(
                         session=session,
+                        method="GET",
                         route=route,
                         headers=self.normal_headers,
                         params=params,
@@ -69,8 +70,9 @@ class BungieApi(NetworkBase):
                 # do not use cache
                 else:
                     async with session.disabled():
-                        return await self._get_request(
+                        return await self._request(
                             session=session,
+                            method="GET",
                             route=route,
                             headers=self.normal_headers,
                             params=params,
@@ -102,8 +104,9 @@ class BungieApi(NetworkBase):
         async with aiohttp_client_cache.CachedSession(cache=self.cache, cookie_jar=no_jar) as session:
             # use cache for the responses
             if use_cache:
-                return await self._get_request(
+                return await self._request(
                     session=session,
+                    method="GET",
                     route=route,
                     headers=self.auth_headers,
                     params=params,
@@ -112,8 +115,9 @@ class BungieApi(NetworkBase):
             # do not use cache
             else:
                 async with session.disabled():
-                    return await self._get_request(
+                    return await self._request(
                         session=session,
+                        method="GET",
                         route=route,
                         headers=self.auth_headers,
                         params=params,
@@ -128,8 +132,9 @@ class BungieApi(NetworkBase):
         async with aiohttp_client_cache.CachedSession(cache=self.cache) as session:
             # do not use cache here
             async with session.disabled():
-                return await self._post_request(
+                return await self._request(
                     session=session,
+                    method="POST",
                     route=route,
                     json=json,
                     headers=self.auth_headers,
