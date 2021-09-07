@@ -4,7 +4,7 @@ from discord_slash.context import MenuContext
 from discord_slash.model import ButtonStyle, ContextMenuType
 from discord_slash.utils import manage_components
 
-from ElevatorBot.core.destiny.account import DestinyAccount
+from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
 from ElevatorBot.misc.formating import embed_message
 
 

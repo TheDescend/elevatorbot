@@ -8,14 +8,14 @@ from discord_slash.utils import manage_components
 from discord_slash.utils.manage_commands import create_option, create_choice
 
 from ElevatorBot.database.database import lookupDiscordID
-from ElevatorBot.core.dataLoading import getNameAndCrossaveNameToHashMapByClanid
-from ElevatorBot.core.destinyPlayer import DestinyPlayer
-from ElevatorBot.core.formating import embed_message
-from ElevatorBot.core.persistentMessages import (
+from ElevatorBot.backendNetworking.dataLoading import getNameAndCrossaveNameToHashMapByClanid
+from ElevatorBot.backendNetworking.destinyPlayer import DestinyPlayer
+from ElevatorBot.backendNetworking.formating import embed_message
+from ElevatorBot.backendNetworking.persistentMessages import (
     make_persistent_message,
     steamJoinCodeMessage,
 )
-from ElevatorBot.core.roleLookup import assignRolesToUser, removeRolesFromUser
+from ElevatorBot.backendNetworking.roleLookup import assignRolesToUser, removeRolesFromUser
 from ElevatorBot.networking.bungieAuth import handle_and_return_token
 from ElevatorBot.networking.network import get_json_from_url
 from ElevatorBot.static.config import CLANID

@@ -4,9 +4,9 @@ from discord_slash import SlashContext, cog_ext
 from discord_slash.utils.manage_commands import create_option
 
 from ElevatorBot.commandHelpers.permissionTemplates import permissions_admin
-from ElevatorBot.core.destiny.account import DestinyAccount
-from ElevatorBot.core.destiny.clan import DestinyClan
-from ElevatorBot.core.destiny.profile import DestinyProfile
+from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
+from ElevatorBot.backendNetworking.destiny.clan import DestinyClan
+from ElevatorBot.backendNetworking.destiny.profile import DestinyProfile
 from ElevatorBot.misc.formating import embed_message
 
 

@@ -3,10 +3,10 @@ from discord.ext import commands
 from discord_slash import cog_ext, SlashContext
 from discord_slash.utils.manage_commands import create_option
 
-from ElevatorBot.core.destinyPlayer import DestinyPlayer
-from ElevatorBot.core.formating import embed_message
-from ElevatorBot.core.roleLookup import get_player_roles, has_role
-from ElevatorBot.core.slashCommandFunctions import get_user_obj, get_user_obj_admin
+from ElevatorBot.backendNetworking.destinyPlayer import DestinyPlayer
+from ElevatorBot.backendNetworking.formating import embed_message
+from ElevatorBot.backendNetworking.roleLookup import get_player_roles, has_role
+from ElevatorBot.backendNetworking.slashCommandFunctions import get_user_obj, get_user_obj_admin
 from ElevatorBot.static.dict import requirementHashes
 from ElevatorBot.static.globals import dev_role_id
 from ElevatorBot.static.slashCommandOptions import options_user

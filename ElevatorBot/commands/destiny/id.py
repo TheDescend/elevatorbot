@@ -4,8 +4,8 @@ from discord_slash import ButtonStyle, SlashContext, cog_ext
 from discord_slash.utils import manage_components
 
 from ElevatorBot.commandHelpers.optionTemplates import get_user_option
-from ElevatorBot.core.destiny.account import DestinyAccount
-from ElevatorBot.core.destiny.profile import DestinyProfile
+from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
+from ElevatorBot.backendNetworking.destiny.profile import DestinyProfile
 from ElevatorBot.misc.formating import embed_message
 
 

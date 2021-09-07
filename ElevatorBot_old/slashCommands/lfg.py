@@ -12,8 +12,8 @@ from ElevatorBot.database.database import (
     add_lfg_blacklisted_member,
     remove_lfg_blacklisted_member,
 )
-from ElevatorBot.core.formating import embed_message
-from ElevatorBot.core.lfg import create_lfg_message, get_lfg_message
+from ElevatorBot.backendNetworking.formating import embed_message
+from ElevatorBot.backendNetworking.lfg import create_lfg_message, get_lfg_message
 from ElevatorBot.static.slashCommandOptions import options_user
 
 
@@ -404,7 +404,7 @@ class LfgCommands(commands.Cog):
                         return
 
                     # edit the message
-                    await lfg_message.edit_start_time_and_send(start_time)
+                    await lfg_message.__edit_start_time_and_send(start_time)
                     await select_ctx.edit_origin(
                         components=None,
                         embed=embed_message(f"Success", f"I've edited the post"),
@@ -489,7 +489,7 @@ class LfgCommands(commands.Cog):
         if not lfg_message:
             return
 
-        if await lfg_message.add_member(user, force_into_joined=True):
+        if await lfg_message.add_joined(user, force_into_joined=True):
             await ctx.send(
                 hidden=True,
                 embed=embed_message(

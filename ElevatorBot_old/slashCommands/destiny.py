@@ -29,33 +29,33 @@ from ElevatorBot.database.database import (
     get_d2_steam_player_info,
     getTimePlayed,
 )
-from ElevatorBot.core.authfunctions import getSpiderMaterials
-from ElevatorBot.core.dataLoading import (
+from ElevatorBot.backendNetworking.authfunctions import getSpiderMaterials
+from ElevatorBot.backendNetworking.dataLoading import (
     searchForItem,
     getClanMembers,
     translateWeaponSlot,
 )
-from ElevatorBot.core.dataTransformation import getSeasonalChallengeInfo
-from ElevatorBot.core.destinyPlayer import DestinyPlayer
-from ElevatorBot.core.formating import embed_message
-from ElevatorBot.core.miscFunctions import (
+from ElevatorBot.backendNetworking.dataTransformation import getSeasonalChallengeInfo
+from ElevatorBot.backendNetworking.destinyPlayer import DestinyPlayer
+from ElevatorBot.backendNetworking.formating import embed_message
+from ElevatorBot.backendNetworking.miscFunctions import (
     get_emoji,
     write_line,
     has_elevated_permissions,
     check_if_mutually_exclusive,
     convert_expansion_or_season_dates,
 )
-from ElevatorBot.core.persistentMessages import (
+from ElevatorBot.backendNetworking.persistentMessages import (
     get_persistent_message_or_channel,
     make_persistent_message,
     delete_persistent_message,
 )
-from ElevatorBot.core.slashCommandFunctions import (
+from ElevatorBot.backendNetworking.slashCommandFunctions import (
     get_user_obj,
     get_user_obj_admin,
     verify_time_input,
 )
-from ElevatorBot.core.tournament import startTournamentEvents
+from ElevatorBot.backendNetworking.tournament import startTournamentEvents
 from ElevatorBot.networking.network import get_json_from_url
 from ElevatorBot.static.config import CLANID
 from ElevatorBot.static.dict import (

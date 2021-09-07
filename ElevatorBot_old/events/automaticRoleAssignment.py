@@ -7,10 +7,10 @@ import discord
 from ElevatorBot.database.database import lookupDiscordID
 from ElevatorBot.events.backgroundTasks import UpdateActivityDB
 from ElevatorBot.events.baseEvent import BaseEvent
-from ElevatorBot.core.destinyPlayer import DestinyPlayer
-from ElevatorBot.core.formating import split_into_chucks_of_max_2000_characters
-from ElevatorBot.core.persistentMessages import bot_status
-from ElevatorBot.core.roleLookup import (
+from ElevatorBot.backendNetworking.destinyPlayer import DestinyPlayer
+from ElevatorBot.backendNetworking.formating import split_into_chucks_of_max_2000_characters
+from ElevatorBot.backendNetworking.persistentMessages import bot_status
+from ElevatorBot.backendNetworking.roleLookup import (
     assignRolesToUser,
     removeRolesFromUser,
     get_player_roles,

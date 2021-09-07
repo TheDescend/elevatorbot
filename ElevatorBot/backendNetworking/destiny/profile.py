@@ -5,9 +5,9 @@ from typing import Union
 
 import discord
 
-from ElevatorBot.core.http import BaseBackendConnection
-from ElevatorBot.core.results import BackendResult
-from ElevatorBot.core.routes import (
+from ElevatorBot.backendNetworking.http import BaseBackendConnection
+from ElevatorBot.backendNetworking.results import BackendResult
+from ElevatorBot.backendNetworking.routes import (
     destiny_profile_delete_route,
     destiny_profile_from_destiny_id_route,
     destiny_profile_from_discord_id_route,

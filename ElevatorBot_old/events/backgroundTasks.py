@@ -4,9 +4,9 @@ import datetime
 import discord
 
 from ElevatorBot.events.baseEvent import BaseEvent
-from ElevatorBot.core.dataLoading import updateMissingPcgr, updateManifest
-from ElevatorBot.core.destinyPlayer import DestinyPlayer
-from ElevatorBot.core.persistentMessages import bot_status
+from ElevatorBot.backendNetworking.dataLoading import updateMissingPcgr, updateManifest
+from ElevatorBot.backendNetworking.destinyPlayer import DestinyPlayer
+from ElevatorBot.backendNetworking.persistentMessages import bot_status
 from ElevatorBot.networking.bungieAuth import handle_and_return_token
 
 

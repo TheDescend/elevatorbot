@@ -10,7 +10,7 @@ from ElevatorBot.database.database import (
     getClearCount,
     getDestinyDefinition,
 )
-from ElevatorBot.core.destinyPlayer import DestinyPlayer
+from ElevatorBot.backendNetworking.destinyPlayer import DestinyPlayer
 from ElevatorBot.static.dict import requirementHashes, requirement_hashes_without_years
 
 # check if user has permission to use this command

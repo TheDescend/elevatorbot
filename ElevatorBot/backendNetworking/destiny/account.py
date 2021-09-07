@@ -2,9 +2,9 @@ import dataclasses
 
 import discord
 
-from ElevatorBot.core.http import BaseBackendConnection
-from ElevatorBot.core.results import BackendResult
-from ElevatorBot.core.routes import destiny_account_name_route, destiny_account_solos_route
+from ElevatorBot.backendNetworking.http import BaseBackendConnection
+from ElevatorBot.backendNetworking.results import BackendResult
+from ElevatorBot.backendNetworking.routes import destiny_account_name_route, destiny_account_solos_route
 
 
 @dataclasses.dataclass

@@ -3,8 +3,8 @@ from discord_slash import cog_ext, SlashContext, ButtonStyle
 from discord_slash.utils import manage_components
 from discord_slash.utils.manage_commands import create_option, create_choice
 
-from ElevatorBot.core.destinyPlayer import DestinyPlayer
-from ElevatorBot.core.slashCommandFunctions import get_user_obj
+from ElevatorBot.backendNetworking.destinyPlayer import DestinyPlayer
+from ElevatorBot.backendNetworking.slashCommandFunctions import get_user_obj
 from ElevatorBot.static.slashCommandOptions import options_user
 
 

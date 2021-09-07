@@ -31,7 +31,7 @@ test_user2 = BackendUser(
 )
 
 
-# first, lets test the crud base core, so they do not have to be retested for every item
+# first, lets test the crud base backendNetworking, so they do not have to be retested for every item
 # if they dont get overloaded at least
 # using BackendUser for that
 @pytest.mark.asyncio

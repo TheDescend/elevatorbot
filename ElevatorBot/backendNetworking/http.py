@@ -5,7 +5,7 @@ from typing import Optional
 import aiohttp
 from aiohttp import ClientSession, ClientTimeout
 
-from ElevatorBot.core.results import BackendResult
+from ElevatorBot.backendNetworking.results import BackendResult
 
 
 @dataclasses.dataclass
@@ -24,9 +24,6 @@ class BaseBackendConnection:
     )
 
     # give request a max timeout of half an hour
-
-
-    # get aiohttp session
     timeout: ClientTimeout = dataclasses.field(
         default=ClientTimeout(total=30 * 60),
         init=False,

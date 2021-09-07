@@ -2,7 +2,7 @@ from ElevatorBot.database.database import getGrandmasterHashes
 
 # from https://data.destinysets.com/
 # raids
-from ElevatorBot.core.event_loop import get_asyncio_loop
+from ElevatorBot.backendNetworking.event_loop import get_asyncio_loop
 
 
 spirePHashes = [3213556450]

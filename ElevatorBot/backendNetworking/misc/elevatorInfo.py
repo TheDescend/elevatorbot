@@ -2,8 +2,8 @@ import dataclasses
 
 import discord
 
-from ElevatorBot.core.http import BaseBackendConnection
-from ElevatorBot.core.routes import elevator_servers_add, elevator_servers_delete
+from ElevatorBot.backendNetworking.http import BaseBackendConnection
+from ElevatorBot.backendNetworking.routes import elevator_servers_add, elevator_servers_delete
 
 
 @dataclasses.dataclass

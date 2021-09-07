@@ -317,8 +317,8 @@ class LfgMessage(Base):
 
     guild_id = Column(BigInteger, nullable=False)
     channel_id = Column(BigInteger, nullable=False)
-    message_id = Column(BigInteger, nullable=False)
     author_id = Column(BigInteger, nullable=False)
+    message_id = Column(BigInteger, nullable=True)
 
     activity = Column(Text, nullable=False)
     description = Column(Text, nullable=False)

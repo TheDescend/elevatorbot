@@ -15,13 +15,13 @@ from Backend.schemas.empty import EmptyResponseModel
 
 
 router = APIRouter(
-    prefix="/destiny/{guild_id}/{discord_id}/lfg",
+    prefix="/destiny/{guild_id}/lfg",
     tags=["destiny", "lfg"],
 )
 
 
 @router.get("/get/all", response_model=AllLfgOutputModel)
-async def get_all(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
+async def get_all(guild_id: int, db: AsyncSession = Depends(get_db_session)):
     """Gets all the lfg events and info belonging to the guild"""
 
     objs = await lfg.get_all(db=db, guild_id=guild_id)
@@ -34,7 +34,7 @@ async def get_all(guild_id: int, discord_id: int, db: AsyncSession = Depends(get
 
 
 @router.get("/get/{lfg_id}", response_model=LfgOutputModel)
-async def get(guild_id: int, discord_id: int, lfg_id: int, db: AsyncSession = Depends(get_db_session)):
+async def get(guild_id: int, lfg_id: int, db: AsyncSession = Depends(get_db_session)):
     """Gets the lfg info belonging to the lfg id and guild"""
 
     obj = await lfg.get(db=db, lfg_id=lfg_id, guild_id=guild_id)
@@ -42,7 +42,7 @@ async def get(guild_id: int, discord_id: int, lfg_id: int, db: AsyncSession = De
     return LfgOutputModel.from_orm(obj)
 
 
-@router.post("/update/{lfg_id}", response_model=LfgOutputModel)
+@router.post("/{discord_id}/update/{lfg_id}", response_model=LfgOutputModel)
 async def update(
     guild_id: int,
     discord_id: int,
@@ -59,7 +59,7 @@ async def update(
     return LfgOutputModel.from_orm(obj)
 
 
-@router.post("/create", response_model=LfgOutputModel)
+@router.post("/{discord_id}/create", response_model=LfgOutputModel)
 async def create(
     guild_id: int, discord_id: int, lfg_data: LfgCreateInputModel, db: AsyncSession = Depends(get_db_session)
 ):
@@ -68,11 +68,14 @@ async def create(
     Guild_id describes the guild where the lfg message got created and discord_id the author
     """
 
+    # todo get channel_id from db
+    channel_id = None
+
     # get the creation time
     creation_time = get_now_with_tz()
 
     # create the sql alchemy model
-    to_create = LfgMessage(guild_id=guild_id, author_id=discord_id, creation_time=creation_time, **lfg_data.dict())
+    to_create = LfgMessage(guild_id=guild_id, channel_id=channel_id, author_id=discord_id, creation_time=creation_time, **lfg_data.dict())
 
     # insert that
     await lfg.insert(db=db, to_create=to_create)
@@ -80,7 +83,7 @@ async def create(
     return LfgOutputModel.from_orm(to_create)
 
 
-@router.delete("/delete/{lfg_id}", response_model=EmptyResponseModel)
+@router.delete("/{discord_id}/delete/{lfg_id}", response_model=EmptyResponseModel)
 async def delete(guild_id: int, discord_id: int, lfg_id: int, db: AsyncSession = Depends(get_db_session)):
     """
     Delete the lfg info belonging to the lfg id and guild

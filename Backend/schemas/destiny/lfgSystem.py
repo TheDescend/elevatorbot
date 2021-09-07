@@ -19,6 +19,9 @@ class LfgOutputModel(BaseModel):
     creation_time: datetime.datetime
     voice_channel_id: Optional[int]
 
+    # todo also return voice_category_channel_id
+    voice_category_channel_id: Optional[int] = None
+
     class Config:
         orm_mode = True
 
@@ -28,9 +31,6 @@ class AllLfgOutputModel(BaseModel):
 
 
 class LfgCreateInputModel(BaseModel):
-    channel_id: int
-    message_id: int
-
     activity: str
     description: str
     start_time: datetime.datetime

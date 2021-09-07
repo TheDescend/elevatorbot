@@ -11,7 +11,7 @@ from ElevatorBot.database.database import (
     getAllPersistentMessages,
     deletePersistentMessage,
 )
-from ElevatorBot.core.formating import embed_message
+from ElevatorBot.backendNetworking.formating import embed_message
 from ElevatorBot.networking.bungieAuth import handle_and_return_token
 
 

@@ -1,6 +1,6 @@
 import discord.abc
 
-from ElevatorBot.core.misc.elevatorInfo import ElevatorGuilds
+from ElevatorBot.backendNetworking.misc.elevatorInfo import ElevatorGuilds
 
 
 async def on_guild_channel_delete(channel: discord.abc.GuildChannel):

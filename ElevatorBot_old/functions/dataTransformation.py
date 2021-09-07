@@ -3,7 +3,7 @@ import matplotlib
 
 matplotlib.use("Agg")
 
-from ElevatorBot.core.dataLoading import get_pgcr, getNameToHashMapByClanid
+from ElevatorBot.backendNetworking.dataLoading import get_pgcr, getNameToHashMapByClanid
 from ElevatorBot.static.dict import clanids, seasonalChallengesCategoryHash
 from ElevatorBot.database.database import getEverything, getEverythingRow
 

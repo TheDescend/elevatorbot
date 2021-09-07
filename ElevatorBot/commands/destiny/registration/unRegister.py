@@ -2,7 +2,7 @@ from discord.ext.commands import Cog
 from discord_slash import SlashContext, cog_ext
 
 from ElevatorBot.commandHelpers.optionTemplates import get_user_option
-from ElevatorBot.core.destiny.profile import DestinyProfile
+from ElevatorBot.backendNetworking.destiny.profile import DestinyProfile
 from ElevatorBot.misc.formating import embed_message
 
 

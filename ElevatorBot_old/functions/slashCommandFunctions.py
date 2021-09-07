@@ -3,8 +3,8 @@ import datetime
 import discord
 from discord_slash import SlashContext
 
-from ElevatorBot.core.formating import embed_message
-from ElevatorBot.core.miscFunctions import has_elevated_permissions
+from ElevatorBot.backendNetworking.formating import embed_message
+from ElevatorBot.backendNetworking.miscFunctions import has_elevated_permissions
 
 
 async def get_user_obj(ctx: SlashContext, kwargs: dict = None) -> discord.Member:
