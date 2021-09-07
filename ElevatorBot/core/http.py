@@ -39,34 +39,15 @@ class BaseBackendConnection:
 
         return True
 
-    async def _backend_get(self, route: str, params: dict = None) -> BackendResult:
+    async def _backend_request(self, method: str, route: str, params: dict = None, data: dict = None) -> BackendResult:
         """Make a get request to the specified backend route and return the results"""
 
         async with ClientSession(timeout=self.timeout) as session:
-            async with session.get(
-                url=route,
-                params=params,
-            ) as response:
-                return await self.__backend_parse_response(response)
-
-    async def _backend_post(self, route: str, data: dict = None, params: dict = None) -> BackendResult:
-        """Make a post request to the specified backend route and return the results"""
-
-        async with ClientSession(timeout=self.timeout) as session:
-            async with session.post(
+            async with session.request(
+                method=method,
                 url=route,
                 params=params,
                 data=data,
-            ) as response:
-                return await self.__backend_parse_response(response)
-
-    async def _backend_delete(self, route: str, params: dict = None) -> BackendResult:
-        """Make a _delete request to the specified backend route and return the results"""
-
-        async with ClientSession(timeout=self.timeout) as session:
-            async with session.delete(
-                url=route,
-                params=params,
             ) as response:
                 return await self.__backend_parse_response(response)
 

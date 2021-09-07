@@ -21,11 +21,11 @@ destiny_account_solos_route = destiny_account_route + "solos/"
 
 # lfg system
 destiny_lfg_route = destiny_base_route + "lfg/"
-destiny_lfg_get_route = destiny_lfg_route + "get/{lfg_id}/"
-destiny_lfg_get_all_route = destiny_lfg_route + "get/all/"
-destiny_lfg_update_route = destiny_lfg_route + "update/{lfg_id}/"
-destiny_lfg_delete_route = destiny_lfg_route + "delete/{lfg_id}/"
-destiny_lfg_create_route = destiny_lfg_route + "create/"
+destiny_lfg_get_route = destiny_lfg_route + "get/{lfg_id}/"  # GET
+destiny_lfg_get_all_route = destiny_lfg_route + "get/all/"  # GET
+destiny_lfg_update_route = destiny_lfg_route + "update/{lfg_id}/"  # POST
+destiny_lfg_delete_route = destiny_lfg_route + "delete/{lfg_id}/"  # DELETE
+destiny_lfg_create_route = destiny_lfg_route + "create/"  # POST
 
 # clan
 destiny_clan_route = destiny_base_route + "clan/"

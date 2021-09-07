@@ -16,7 +16,8 @@ class DestinyAccount(BaseBackendConnection):
     async def get_destiny_name(self) -> BackendResult:
         """Return the destiny name"""
 
-        result = await self._backend_get(
+        result = await self._backend_request(
+            method="GET",
             route=destiny_account_name_route.format(guild_id=self.discord_guild.id, discord_id=self.discord_member.id)
         )
 
@@ -29,7 +30,8 @@ class DestinyAccount(BaseBackendConnection):
     async def get_solos(self) -> BackendResult:
         """Return the solos the user has done"""
 
-        result = await self._backend_get(
+        result = await self._backend_request(
+            method="GET",
             route=destiny_account_solos_route.format(guild_id=self.discord_guild.id, discord_id=self.discord_member.id)
         )
 
