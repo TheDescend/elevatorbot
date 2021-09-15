@@ -360,14 +360,14 @@ class LfgMessage:
             self.creation_time = datetime.datetime.now(tz=datetime.timezone.utc)
             first_send = True
         else:
-            # acknodlege the button press
+            # acknowledge the button press
             if ctx:
                 await ctx.edit_origin(embed=embed, components=buttons)
             else:
                 await self.message.edit(embed=embed, components=buttons)
             first_send = False
 
-        # _update the database entry
+        # update the database entry
         await self.dump_to_db()
 
         # schedule the event
@@ -379,7 +379,7 @@ class LfgMessage:
 
     # removes the message and also the database entries
     async def delete(self):
-        # _delete message
+        # delete message
         if self.message:
             await self.message.delete()
 
