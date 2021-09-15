@@ -37,218 +37,218 @@ class LfgCommands(commands.Cog):
     def __init__(self, client):
         self.client = client
 
-    @cog_ext.cog_subcommand(
-        base="lfg",
-        base_description="Everything concerning my awesome Destiny 2 LFG system",
-        name="_insert",
-        description="Creates an LFG post",
-        options=[
-            create_option(
-                name="start_time",
-                description="Format: 'HH:MM DD/MM' - When the event is supposed to start",
-                option_type=3,
-                required=True,
-            ),
-            create_option(
-                name="timezone",
-                description="What timezone you are in",
-                option_type=3,
-                required=True,
-                choices=[
-                    create_choice(
-                        name=timezone_name,
-                        value=timezone_value,
-                    )
-                    for timezone_name, timezone_value in timezones_dict.items()
-                ],
-            ),
-            create_option(
-                name="overwrite_max_members",
-                description="You can overwrite the maximum number of people that can join your event",
-                option_type=3,
-                required=False,
-            ),
-        ],
-    )
-    async def _create(self, ctx: SlashContext, start_time, timezone, overwrite_max_members=None):
-        # get start time
-        try:
-            start_time = dateutil.parser.parse(start_time, dayfirst=True)
-        except dateutil.parser.ParserError:
-            await ctx.send(
-                hidden=True,
-                embed=embed_message(
-                    "Error",
-                    "There was an error with the formatting of the time parameters. Please try again",
-                ),
-            )
-            return
-        tz = pytz.timezone(timezone)
-        start_time = tz.localize(start_time)
-
-        # make sure thats in the future
-        if start_time < datetime.datetime.now(datetime.timezone.utc):
-            await ctx.send(
-                hidden=True,
-                embed=embed_message("Error", "The event cannot start in the past. Please try again"),
-            )
-            return
-
-        activity = "Easter Egg Search"
-        max_joined_members = 69
-
-        # might take a sec
-        await ctx.defer()
-
-        # ask for the activity
-        components = [
-            manage_components.create_actionrow(
-                manage_components.create_button(style=ButtonStyle.blue, label="Raids"),
-                manage_components.create_button(style=ButtonStyle.blue, label="Dungeons"),
-                manage_components.create_button(style=ButtonStyle.blue, label="Trials"),
-                manage_components.create_button(style=ButtonStyle.blue, label="Iron Banner"),
-                manage_components.create_button(style=ButtonStyle.blue, label="Other"),
-            ),
-        ]
-        embed = embed_message(
-            "Please Select the Activity",
-        )
-
-        message = await ctx.send(components=components, embed=embed)
-
-        # wait 60s for button press
-        try:
-            button_ctx: ComponentContext = await manage_components.wait_for_component(
-                ctx.bot, components=components, timeout=60
-            )
-        except asyncio.TimeoutError:
-            await message.edit(components=None, embed=self.timeout_embed)
-            return
-        else:
-            # Raids
-            if button_ctx.component["label"] == "Raids":
-                components = manage_components.spread_to_rows(
-                    manage_components.create_button(style=ButtonStyle.blue, label="Last Wish"),
-                    manage_components.create_button(style=ButtonStyle.blue, label="Garden of Salvation"),
-                    manage_components.create_button(style=ButtonStyle.blue, label="Deep Stone Crypt"),
-                    manage_components.create_button(style=ButtonStyle.blue, label="Vault of Glass"),
-                )
-                embed = embed_message(
-                    "Please Select the Raid",
-                )
-
-                await button_ctx.edit_origin(components=components, embed=embed)
-
-                # wait 60s for button press
-                try:
-                    button_ctx: ComponentContext = await manage_components.wait_for_component(
-                        ctx.bot, components=components, timeout=60
-                    )
-                except asyncio.TimeoutError:
-                    await message.edit(components=None, embed=self.timeout_embed)
-                    return
-                else:
-                    await button_ctx.edit_origin(embed=embed)
-                    activity = button_ctx.component["label"]
-                    max_joined_members = 6
-
-            # Dungeons
-            elif button_ctx.component["label"] == "Dungeons":
-                components = [
-                    manage_components.create_actionrow(
-                        manage_components.create_button(style=ButtonStyle.blue, label="Shattered Throne"),
-                        manage_components.create_button(style=ButtonStyle.blue, label="Pit of Hersey"),
-                        manage_components.create_button(style=ButtonStyle.blue, label="Prophecy"),
-                    ),
-                ]
-                embed = embed_message(
-                    "Please Select the Dungeon",
-                )
-
-                await button_ctx.edit_origin(components=components, embed=embed)
-
-                # wait 60s for button press
-                try:
-                    button_ctx: ComponentContext = await manage_components.wait_for_component(
-                        ctx.bot, components=components, timeout=60
-                    )
-                except asyncio.TimeoutError:
-                    await message.edit(embed=self.timeout_embed)
-                    return
-                else:
-                    await button_ctx.edit_origin(embed=embed)
-                    activity = button_ctx.component["label"]
-                    max_joined_members = 3
-
-            # Trials
-            elif button_ctx.component["label"] == "Trials":
-                await button_ctx.edit_origin(embed=embed)
-                activity = button_ctx.component["label"]
-                max_joined_members = 3
-
-            # Iron Banner
-            elif button_ctx.component["label"] == "Iron Banner":
-                await button_ctx.edit_origin(embed=embed)
-                activity = button_ctx.component["label"]
-                max_joined_members = 6
-
-            # Other
-            elif button_ctx.component["label"] == "Other":
-                await button_ctx.edit_origin(
-                    components=None,
-                    embed=embed_message("Activity Name", "Please enter a name"),
-                )
-
-                # wait 60s for message
-                def check(answer_msg):
-                    return answer_msg.author == ctx.author and answer_msg.channel == message.channel
-
-                try:
-                    answer_msg = await self.client.wait_for("message", timeout=60.0, check=check)
-                except asyncio.TimeoutError:
-                    await message.edit(embed=self.timeout_embed)
-                    return
-                else:
-                    activity = answer_msg.content
-                    max_joined_members = 12
-
-                    await answer_msg._delete()
-
-        # do the max_joined_members overwrite if asked for
-        if overwrite_max_members:
-            max_joined_members = int(overwrite_max_members)
-
-        # get the description
-        await message.edit(
-            components=None,
-            embed=embed_message("Description", "Please enter a description"),
-        )
-
-        # wait 60s for message
-        def check(answer_msg):
-            return answer_msg.author == ctx.author and answer_msg.channel == message.channel
-
-        try:
-            answer_msg = await self.client.wait_for("message", timeout=60.0, check=check)
-        except asyncio.TimeoutError:
-            await message.edit(embed=self.timeout_embed)
-            return
-        else:
-            description = answer_msg.content
-            await answer_msg._delete()
-
-        # _insert and post the lfg message
-        await create_lfg_message(
-            ctx.bot,
-            ctx.guild,
-            ctx.author,
-            activity,
-            description,
-            start_time,
-            max_joined_members,
-        )
-
-        await message.edit(embed=embed_message(f"Success", f"I've created the post"))
+    # @cog_ext.cog_subcommand(
+    #     base="lfg",
+    #     base_description="Everything concerning my awesome Destiny 2 LFG system",
+    #     name="_insert",
+    #     description="Creates an LFG post",
+    #     options=[
+    #         create_option(
+    #             name="start_time",
+    #             description="Format: 'HH:MM DD/MM' - When the event is supposed to start",
+    #             option_type=3,
+    #             required=True,
+    #         ),
+    #         create_option(
+    #             name="timezone",
+    #             description="What timezone you are in",
+    #             option_type=3,
+    #             required=True,
+    #             choices=[
+    #                 create_choice(
+    #                     name=timezone_name,
+    #                     value=timezone_value,
+    #                 )
+    #                 for timezone_name, timezone_value in timezones_dict.items()
+    #             ],
+    #         ),
+    #         create_option(
+    #             name="overwrite_max_members",
+    #             description="You can overwrite the maximum number of people that can join your event",
+    #             option_type=3,
+    #             required=False,
+    #         ),
+    #     ],
+    # )
+    # async def _create(self, ctx: SlashContext, start_time, timezone, overwrite_max_members=None):
+    #     # get start time
+    #     try:
+    #         start_time = dateutil.parser.parse(start_time, dayfirst=True)
+    #     except dateutil.parser.ParserError:
+    #         await ctx.send(
+    #             hidden=True,
+    #             embed=embed_message(
+    #                 "Error",
+    #                 "There was an error with the formatting of the time parameters. Please try again",
+    #             ),
+    #         )
+    #         return
+    #     tz = pytz.timezone(timezone)
+    #     start_time = tz.localize(start_time)
+    #
+    #     # make sure thats in the future
+    #     if start_time < datetime.datetime.now(datetime.timezone.utc):
+    #         await ctx.send(
+    #             hidden=True,
+    #             embed=embed_message("Error", "The event cannot start in the past. Please try again"),
+    #         )
+    #         return
+    #
+    #     activity = "Easter Egg Search"
+    #     max_joined_members = 69
+    #
+    #     # might take a sec
+    #     await ctx.defer()
+    #
+    #     # ask for the activity
+    #     components = [
+    #         manage_components.create_actionrow(
+    #             manage_components.create_button(style=ButtonStyle.blue, label="Raids"),
+    #             manage_components.create_button(style=ButtonStyle.blue, label="Dungeons"),
+    #             manage_components.create_button(style=ButtonStyle.blue, label="Trials"),
+    #             manage_components.create_button(style=ButtonStyle.blue, label="Iron Banner"),
+    #             manage_components.create_button(style=ButtonStyle.blue, label="Other"),
+    #         ),
+    #     ]
+    #     embed = embed_message(
+    #         "Please Select the Activity",
+    #     )
+    #
+    #     message = await ctx.send(components=components, embed=embed)
+    #
+    #     # wait 60s for button press
+    #     try:
+    #         button_ctx: ComponentContext = await manage_components.wait_for_component(
+    #             ctx.bot, components=components, timeout=60
+    #         )
+    #     except asyncio.TimeoutError:
+    #         await message.edit(components=None, embed=self.timeout_embed)
+    #         return
+    #     else:
+    #         # Raids
+    #         if button_ctx.component["label"] == "Raids":
+    #             components = manage_components.spread_to_rows(
+    #                 manage_components.create_button(style=ButtonStyle.blue, label="Last Wish"),
+    #                 manage_components.create_button(style=ButtonStyle.blue, label="Garden of Salvation"),
+    #                 manage_components.create_button(style=ButtonStyle.blue, label="Deep Stone Crypt"),
+    #                 manage_components.create_button(style=ButtonStyle.blue, label="Vault of Glass"),
+    #             )
+    #             embed = embed_message(
+    #                 "Please Select the Raid",
+    #             )
+    #
+    #             await button_ctx.edit_origin(components=components, embed=embed)
+    #
+    #             # wait 60s for button press
+    #             try:
+    #                 button_ctx: ComponentContext = await manage_components.wait_for_component(
+    #                     ctx.bot, components=components, timeout=60
+    #                 )
+    #             except asyncio.TimeoutError:
+    #                 await message.edit(components=None, embed=self.timeout_embed)
+    #                 return
+    #             else:
+    #                 await button_ctx.edit_origin(embed=embed)
+    #                 activity = button_ctx.component["label"]
+    #                 max_joined_members = 6
+    #
+    #         # Dungeons
+    #         elif button_ctx.component["label"] == "Dungeons":
+    #             components = [
+    #                 manage_components.create_actionrow(
+    #                     manage_components.create_button(style=ButtonStyle.blue, label="Shattered Throne"),
+    #                     manage_components.create_button(style=ButtonStyle.blue, label="Pit of Hersey"),
+    #                     manage_components.create_button(style=ButtonStyle.blue, label="Prophecy"),
+    #                 ),
+    #             ]
+    #             embed = embed_message(
+    #                 "Please Select the Dungeon",
+    #             )
+    #
+    #             await button_ctx.edit_origin(components=components, embed=embed)
+    #
+    #             # wait 60s for button press
+    #             try:
+    #                 button_ctx: ComponentContext = await manage_components.wait_for_component(
+    #                     ctx.bot, components=components, timeout=60
+    #                 )
+    #             except asyncio.TimeoutError:
+    #                 await message.edit(embed=self.timeout_embed)
+    #                 return
+    #             else:
+    #                 await button_ctx.edit_origin(embed=embed)
+    #                 activity = button_ctx.component["label"]
+    #                 max_joined_members = 3
+    #
+    #         # Trials
+    #         elif button_ctx.component["label"] == "Trials":
+    #             await button_ctx.edit_origin(embed=embed)
+    #             activity = button_ctx.component["label"]
+    #             max_joined_members = 3
+    #
+    #         # Iron Banner
+    #         elif button_ctx.component["label"] == "Iron Banner":
+    #             await button_ctx.edit_origin(embed=embed)
+    #             activity = button_ctx.component["label"]
+    #             max_joined_members = 6
+    #
+    #         # Other
+    #         elif button_ctx.component["label"] == "Other":
+    #             await button_ctx.edit_origin(
+    #                 components=None,
+    #                 embed=embed_message("Activity Name", "Please enter a name"),
+    #             )
+    #
+    #             # wait 60s for message
+    #             def check(answer_msg):
+    #                 return answer_msg.author == ctx.author and answer_msg.channel == message.channel
+    #
+    #             try:
+    #                 answer_msg = await self.client.wait_for("message", timeout=60.0, check=check)
+    #             except asyncio.TimeoutError:
+    #                 await message.edit(embed=self.timeout_embed)
+    #                 return
+    #             else:
+    #                 activity = answer_msg.content
+    #                 max_joined_members = 12
+    #
+    #                 await answer_msg._delete()
+    #
+    #     # do the max_joined_members overwrite if asked for
+    #     if overwrite_max_members:
+    #         max_joined_members = int(overwrite_max_members)
+    #
+    #     # get the description
+    #     await message.edit(
+    #         components=None,
+    #         embed=embed_message("Description", "Please enter a description"),
+    #     )
+    #
+    #     # wait 60s for message
+    #     def check(answer_msg):
+    #         return answer_msg.author == ctx.author and answer_msg.channel == message.channel
+    #
+    #     try:
+    #         answer_msg = await self.client.wait_for("message", timeout=60.0, check=check)
+    #     except asyncio.TimeoutError:
+    #         await message.edit(embed=self.timeout_embed)
+    #         return
+    #     else:
+    #         description = answer_msg.content
+    #         await answer_msg._delete()
+    #
+    #     # _insert and post the lfg message
+    #     await create_lfg_message(
+    #         ctx.bot,
+    #         ctx.guild,
+    #         ctx.author,
+    #         activity,
+    #         description,
+    #         start_time,
+    #         max_joined_members,
+    #     )
+    #
+    #     await message.edit(embed=embed_message(f"Success", f"I've created the post"))
 
     @cog_ext.cog_subcommand(
         base="lfg",
@@ -442,157 +442,157 @@ class LfgCommands(commands.Cog):
 
         await message.edit(embed=embed_message(f"Success", f"I've edited the post"))
 
-    @cog_ext.cog_subcommand(
-        base="lfg",
-        base_description="Everything concerning my awesome Destiny 2 LFG system",
-        name="_delete",
-        description="When you fucked up and need to _delete an event",
-        options=[
-            create_option(
-                name="lfg_id",
-                description="The lfg message id",
-                option_type=4,
-                required=True,
-            ),
-        ],
-    )
-    async def _remove(self, ctx: SlashContext, lfg_id):
-        # get the message obj
-        lfg_message = await get_lfg_message(ctx.bot, lfg_id, ctx)
-        if not lfg_message:
-            return
+    # @cog_ext.cog_subcommand(
+    #     base="lfg",
+    #     base_description="Everything concerning my awesome Destiny 2 LFG system",
+    #     name="_delete",
+    #     description="When you fucked up and need to _delete an event",
+    #     options=[
+    #         create_option(
+    #             name="lfg_id",
+    #             description="The lfg message id",
+    #             option_type=4,
+    #             required=True,
+    #         ),
+    #     ],
+    # )
+    # async def _remove(self, ctx: SlashContext, lfg_id):
+    #     # get the message obj
+    #     lfg_message = await get_lfg_message(ctx.bot, lfg_id, ctx)
+    #     if not lfg_message:
+    #         return
+    #
+    #     await lfg_message._delete()
+    #     await ctx.send(
+    #         hidden=True,
+    #         embed=embed_message("Success", f"The LFG post with the id `{lfg_id}` has been deleted"),
+    #     )
 
-        await lfg_message._delete()
-        await ctx.send(
-            hidden=True,
-            embed=embed_message("Success", f"The LFG post with the id `{lfg_id}` has been deleted"),
-        )
+    # @cog_ext.cog_subcommand(
+    #     base="lfg",
+    #     base_description="Everything concerning my awesome Destiny 2 LFG system",
+    #     name="add",
+    #     description="Add a user to an lfg event",
+    #     options=[
+    #         create_option(
+    #             name="lfg_id",
+    #             description="The lfg message id",
+    #             option_type=4,
+    #             required=True,
+    #         ),
+    #         options_user(flavor_text="The user you want to add", required=True),
+    #     ],
+    # )
+    # async def _add(self, ctx: SlashContext, lfg_id, user):
+    #     # get the message obj
+    #     lfg_message = await get_lfg_message(ctx.bot, lfg_id, ctx)
+    #     if not lfg_message:
+    #         return
+    #
+    #     if await lfg_message.add_joined(user, force_into_joined=True):
+    #         await ctx.send(
+    #             hidden=True,
+    #             embed=embed_message(
+    #                 "Success",
+    #                 f"{user.display_name} has been added to the LFG post with the id `{lfg_id}`",
+    #             ),
+    #         )
+    #     else:
+    #         await ctx.send(
+    #             hidden=True,
+    #             embed=embed_message(
+    #                 "Error",
+    #                 f"{user.display_name} could not be added to the LFG post with the id `{lfg_id}`, because they are already in it or they are blacklisted by the creator",
+    #             ),
+    #         )
 
-    @cog_ext.cog_subcommand(
-        base="lfg",
-        base_description="Everything concerning my awesome Destiny 2 LFG system",
-        name="add",
-        description="Add a user to an lfg event",
-        options=[
-            create_option(
-                name="lfg_id",
-                description="The lfg message id",
-                option_type=4,
-                required=True,
-            ),
-            options_user(flavor_text="The user you want to add", required=True),
-        ],
-    )
-    async def _add(self, ctx: SlashContext, lfg_id, user):
-        # get the message obj
-        lfg_message = await get_lfg_message(ctx.bot, lfg_id, ctx)
-        if not lfg_message:
-            return
+    # @cog_ext.cog_subcommand(
+    #     base="lfg",
+    #     base_description="Everything concerning my awesome Destiny 2 LFG system",
+    #     name="kick",
+    #     description="Kick a user from an lfg event",
+    #     options=[
+    #         create_option(
+    #             name="lfg_id",
+    #             description="The lfg message id",
+    #             option_type=4,
+    #             required=True,
+    #         ),
+    #         options_user(flavor_text="The user you want to add", required=True),
+    #     ],
+    # )
+    # async def _kick(self, ctx: SlashContext, lfg_id, user):
+    #     # get the message obj
+    #     lfg_message = await get_lfg_message(ctx.bot, lfg_id, ctx)
+    #     if not lfg_message:
+    #         return
+    #
+    #     if await lfg_message.remove_member(user):
+    #         await ctx.send(
+    #             hidden=True,
+    #             embed=embed_message(
+    #                 "Success",
+    #                 f"{user.display_name} has been removed from the LFG post with the id `{lfg_id}`",
+    #             ),
+    #         )
+    #     else:
+    #         await ctx.send(
+    #             hidden=True,
+    #             embed=embed_message(
+    #                 "Error",
+    #                 f"{user.display_name} could not be _delete from the LFG post with the id `{lfg_id}`, because they are not in it",
+    #             ),
+    #         )
 
-        if await lfg_message.add_joined(user, force_into_joined=True):
-            await ctx.send(
-                hidden=True,
-                embed=embed_message(
-                    "Success",
-                    f"{user.display_name} has been added to the LFG post with the id `{lfg_id}`",
-                ),
-            )
-        else:
-            await ctx.send(
-                hidden=True,
-                embed=embed_message(
-                    "Error",
-                    f"{user.display_name} could not be added to the LFG post with the id `{lfg_id}`, because they are already in it or they are blacklisted by the creator",
-                ),
-            )
-
-    @cog_ext.cog_subcommand(
-        base="lfg",
-        base_description="Everything concerning my awesome Destiny 2 LFG system",
-        name="kick",
-        description="Kick a user from an lfg event",
-        options=[
-            create_option(
-                name="lfg_id",
-                description="The lfg message id",
-                option_type=4,
-                required=True,
-            ),
-            options_user(flavor_text="The user you want to add", required=True),
-        ],
-    )
-    async def _kick(self, ctx: SlashContext, lfg_id, user):
-        # get the message obj
-        lfg_message = await get_lfg_message(ctx.bot, lfg_id, ctx)
-        if not lfg_message:
-            return
-
-        if await lfg_message.remove_member(user):
-            await ctx.send(
-                hidden=True,
-                embed=embed_message(
-                    "Success",
-                    f"{user.display_name} has been removed from the LFG post with the id `{lfg_id}`",
-                ),
-            )
-        else:
-            await ctx.send(
-                hidden=True,
-                embed=embed_message(
-                    "Error",
-                    f"{user.display_name} could not be _delete from the LFG post with the id `{lfg_id}`, because they are not in it",
-                ),
-            )
-
-    @cog_ext.cog_subcommand(
-        base="lfg",
-        base_description="Everything concerning my awesome Destiny 2 LFG system",
-        name="blacklist",
-        description="(Un-) Blacklist a user from your own lfg event",
-        options=[
-            create_option(
-                name="action",
-                description="If you want to add to or _delete from the Blacklist",
-                option_type=3,
-                required=True,
-                choices=[
-                    create_choice(name="Blacklist", value="Blacklist"),
-                    create_choice(name="Un-Blacklist", value="Un-Blacklist"),
-                ],
-            ),
-            options_user(flavor_text="The user you want to add / _delete", required=True),
-        ],
-    )
-    async def _blacklist(self, ctx: SlashContext, action, user):
-        if action == "Blacklist":
-            if ctx.author == user:
-                await ctx.send(
-                    hidden=True,
-                    embed=embed_message(
-                        "Error",
-                        f"Mate, you cannot blacklist yourself. That is just stupid",
-                    ),
-                )
-                return
-
-            await add_lfg_blacklisted_member(ctx.author.id, user.id)
-            await ctx.send(
-                hidden=True,
-                embed=embed_message(
-                    "Success",
-                    f"{user.display_name} has been added to your personal blacklist and will not be able to join your events",
-                ),
-            )
-
-        elif action == "Un-Blacklist":
-            await remove_lfg_blacklisted_member(ctx.author.id, user.id)
-            await ctx.send(
-                hidden=True,
-                embed=embed_message(
-                    "Success",
-                    f"{user.display_name} has been removed from your personal blacklist and will be able to join your events again",
-                ),
-            )
+    # @cog_ext.cog_subcommand(
+    #     base="lfg",
+    #     base_description="Everything concerning my awesome Destiny 2 LFG system",
+    #     name="blacklist",
+    #     description="(Un-) Blacklist a user from your own lfg event",
+    #     options=[
+    #         create_option(
+    #             name="action",
+    #             description="If you want to add to or _delete from the Blacklist",
+    #             option_type=3,
+    #             required=True,
+    #             choices=[
+    #                 create_choice(name="Blacklist", value="Blacklist"),
+    #                 create_choice(name="Un-Blacklist", value="Un-Blacklist"),
+    #             ],
+    #         ),
+    #         options_user(flavor_text="The user you want to add / _delete", required=True),
+    #     ],
+    # )
+    # async def _blacklist(self, ctx: SlashContext, action, user):
+    #     if action == "Blacklist":
+    #         if ctx.author == user:
+    #             await ctx.send(
+    #                 hidden=True,
+    #                 embed=embed_message(
+    #                     "Error",
+    #                     f"Mate, you cannot blacklist yourself. That is just stupid",
+    #                 ),
+    #             )
+    #             return
+    #
+    #         await add_lfg_blacklisted_member(ctx.author.id, user.id)
+    #         await ctx.send(
+    #             hidden=True,
+    #             embed=embed_message(
+    #                 "Success",
+    #                 f"{user.display_name} has been added to your personal blacklist and will not be able to join your events",
+    #             ),
+    #         )
+    #
+    #     elif action == "Un-Blacklist":
+    #         await remove_lfg_blacklisted_member(ctx.author.id, user.id)
+    #         await ctx.send(
+    #             hidden=True,
+    #             embed=embed_message(
+    #                 "Success",
+    #                 f"{user.display_name} has been removed from your personal blacklist and will be able to join your events again",
+    #             ),
+    #         )
 
 
 def setup(client):

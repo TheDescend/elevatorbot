@@ -29,7 +29,7 @@ class LfgMessage:
     id: int
 
     guild: discord.Guild
-    channel: discord.TextChannel
+    channel: Optional[discord.TextChannel]
 
     author: discord.Member
     activity: str
@@ -63,6 +63,10 @@ class LfgMessage:
                 manage_components.create_button(custom_id="lfg_backup", style=ButtonStyle.blue, label="Backup"),
             ),
         ]
+
+        # if the message / channel does not exist, delete info
+        if not (self.message or self.channel):
+            asyncio.run(self.delete())
 
     # less than operator to sort the classes by their start time
     def __lt__(self, other):
@@ -100,10 +104,18 @@ class LfgMessage:
             max_joined_members=result.result["max_joined_members"],
             message=await channel.fetch_message(result.result["message_id"]),
             creation_time=result.result["creation_time"],
-            joined=[guild.get_member(member_id) for member_id in result.result["joined_members"]],
-            backup=[guild.get_member(member_id) for member_id in result.result["alternate_members"]],
+            joined=[
+                guild.get_member(member_id)
+                for member_id in result.result["joined_members"]
+                if guild.get_member(member_id)
+            ],
+            backup=[
+                guild.get_member(member_id)
+                for member_id in result.result["alternate_members"]
+                if guild.get_member(member_id)
+            ],
             voice_channel=guild.get_channel(result.result["voice_channel_id"]),
-            voice_category_channel=guild.get_channel(result.result["voice_category_channel_id"])
+            voice_category_channel=guild.get_channel(result.result["voice_category_channel_id"]),
         )
 
         return lfg_message
@@ -146,7 +158,7 @@ class LfgMessage:
             description=description,
             start_time=start_time,
             max_joined_members=max_joined_members,
-            voice_category_channel=ctx.guild.get_channel(result.result["voice_category_channel_id"])
+            voice_category_channel=ctx.guild.get_channel(result.result["voice_category_channel_id"]),
         )
 
         # send message in the channel to populate missing entries
@@ -209,7 +221,90 @@ class LfgMessage:
             return True
         return False
 
-    async def notify_about_start(self, time_to_start: datetime.timedelta):
+    async def send(self, ctx: ComponentContext = None):
+        """send / edit the message in the channel"""
+
+        embed = self.__return_embed()
+
+        if not self.message:
+            self.message = await self.channel.send(embed=embed, components=self.__buttons)
+            self.creation_time = get_now_with_tz()
+            first_send = True
+        else:
+            # acknowledge the button press
+            if ctx:
+                await ctx.edit_origin(embed=embed, components=self.__buttons)
+            else:
+                # todo check if has admin role @elevator site
+
+                await self.message.edit(embed=embed, components=self.__buttons)
+            first_send = False
+
+        # update the database entry
+        await self.__dump_to_db()
+
+        # schedule the event
+        await self.schedule_event()
+
+        # if message was freshly send, sort messages
+        if first_send:
+            await self.__sort_lfg_messages()
+
+    async def delete(self, delete_command_user: discord.Member = None):
+        """removes the message and also the database entries"""
+
+        # todo check if delete_command_user has admin role @elevator site
+
+        if not delete_command_user:
+            delete_command_user = self.author
+
+        # delete message
+        if self.message:
+            await self.message.delete()
+
+        # try to delete voice channel, if that is currently empty
+        if self.voice_channel and not self.voice_channel.members:
+            try:
+                await self.voice_channel.delete()
+            except discord.NotFound:
+                pass
+
+        # delete DB entry
+        result = await self.backend.delete(discord_member=delete_command_user, lfg_id=self.id)
+
+        if result:
+            # delete scheduler event
+            # try to delete old job
+            try:
+                self.scheduler.remove_job(str(self.id))
+            except JobLookupError:
+                pass
+
+    async def schedule_event(self):
+        """(re-) scheduled the event with apscheduler using the lfg_id as event_id"""
+
+        if self.message or self.channel:
+            # try to delete old job
+            try:
+                self.scheduler.remove_job(str(self.id))
+            except JobLookupError:
+                pass
+
+            # using the id the job gets added
+            timedelta = datetime.timedelta(minutes=10)
+            run_date = self.start_time - timedelta
+            now = get_now_with_tz()
+            if run_date < now:
+                run_date = now
+            self.scheduler.add_job(
+                self.__notify_about_start,
+                "date",
+                (self.client, self.guild, self.id, timedelta),
+                run_date=run_date,
+                id=str(self.id),
+            )
+
+    async def __notify_about_start(self, time_to_start: datetime.timedelta):
         """notifies joined members that the event is about to start"""
 
         voice_text = "Please start gathering in a voice channel"
@@ -295,66 +390,6 @@ class LfgMessage:
         # delete the post
         await self.delete()
 
-    async def send(self, ctx: ComponentContext = None):
-        """send / edit the message in the channel"""
-
-        embed = self.__return_embed()
-
-        if not self.message:
-            self.message = await self.channel.send(embed=embed, components=self.__buttons)
-            self.creation_time = get_now_with_tz()
-            first_send = True
-        else:
-            # acknowledge the button press
-            if ctx:
-                await ctx.edit_origin(embed=embed, components=self.__buttons)
-            else:
-                # todo check if has admin role @elevator site
-
-                await self.message.edit(embed=embed, components=self.__buttons)
-            first_send = False
-
-        # update the database entry
-        await self.__dump_to_db()
-
-        # schedule the event
-        await self.__schedule_event()
-
-        # if message was freshly send, sort messages
-        if first_send:
-            await self.__sort_lfg_messages()
-
-    async def delete(self, delete_command_user: discord.Member = None):
-        """removes the message and also the database entries"""
-
-        # todo check if delete_command_user has admin role @elevator site
-
-
-        if not delete_command_user:
-            delete_command_user = self.author
-
-        # delete message
-        if self.message:
-            await self.message.delete()
-
-        # try to delete voice channel, if that is currently empty
-        if self.voice_channel and not self.voice_channel.members:
-            try:
-                await self.voice_channel.delete()
-            except discord.NotFound:
-                pass
-
-        # delete DB entry
-        result = await self.backend.delete(discord_member=delete_command_user, lfg_id=self.id)
-
-        if result:
-            # delete scheduler event
-            # try to delete old job
-            try:
-                self.scheduler.remove_job(str(self.id))
-            except JobLookupError:
-                pass
-
     async def __sort_lfg_messages(self):
         """sort all the lfg messages in the guild by start_time"""
 
@@ -377,24 +412,34 @@ class LfgMessage:
             for event in events:
                 sorted_messages_by_creation_time.append(await self.channel.fetch_message(event["message_id"]))
                 sorted_creation_times_by_creation_time.append(event["creation_time"])
-                lfg_messages.append(LfgMessage(
-                    backend=self.backend,
-                    client=self.client,
-                    id=event["id"],
-                    guild=self.guild,
-                    channel=self.channel,
-                    author=self.guild.get_member(event["author_id"]),
-                    activity=event["activity"],
-                    description=event["description"],
-                    start_time=event["start_time"],
-                    max_joined_members=event["max_joined_members"],
-                    message=await self.channel.fetch_message(event["message_id"]),
-                    creation_time=event["creation_time"],
-                    joined=[self.guild.get_member(member_id) for member_id in event["joined_members"]],
-                    backup=[self.guild.get_member(member_id) for member_id in event["alternate_members"]],
-                    voice_channel=self.guild.get_channel(event["voice_channel_id"]),
-                    voice_category_channel=self.guild.get_channel(event["voice_category_channel_id"])
-                ))
+                lfg_messages.append(
+                    LfgMessage(
+                        backend=self.backend,
+                        client=self.client,
+                        id=event["id"],
+                        guild=self.guild,
+                        channel=self.channel,
+                        author=self.guild.get_member(event["author_id"]),
+                        activity=event["activity"],
+                        description=event["description"],
+                        start_time=event["start_time"],
+                        max_joined_members=event["max_joined_members"],
+                        message=await self.channel.fetch_message(event["message_id"]),
+                        creation_time=event["creation_time"],
+                        joined=[
+                            self.guild.get_member(member_id)
+                            for member_id in event["joined_members"]
+                            if self.guild.get_member(member_id)
+                        ],
+                        backup=[
+                            self.guild.get_member(member_id)
+                            for member_id in event["alternate_members"]
+                            if self.guild.get_member(member_id)
+                        ],
+                        voice_channel=self.guild.get_channel(event["voice_channel_id"]),
+                        voice_category_channel=self.guild.get_channel(event["voice_category_channel_id"]),
+                    )
+                )
 
             # sort the LfgMessages by their start_time
             sorted_lfg_messages = sorted(lfg_messages, reverse=True)
@@ -418,7 +463,6 @@ class LfgMessage:
         """gets the display name of the alternate members"""
 
         return [member.mention for member in self.backup]
-
 
     def __return_embed(self) -> discord.Embed:
         """return the formatted embed"""
@@ -481,31 +525,7 @@ class LfgMessage:
                 max_joined_members=self.max_joined_members,
                 joined_members=[member.id for member in self.joined],
                 alternate_members=[member.id for member in self.backup],
-            )
-        )
-
-
-    async def __schedule_event(self):
-        """(re-) scheduled the event with apscheduler using the lfg_id as event_id"""
-
-        # try to delete old job
-        try:
-            self.scheduler.remove_job(str(self.id))
-        except JobLookupError:
-            pass
-
-        # using the id the job gets added
-        timedelta = datetime.timedelta(minutes=10)
-        run_date = self.start_time - timedelta
-        now = get_now_with_tz()
-        if run_date < now:
-            run_date = now
-        self.scheduler.add_job(
-            notify_about_lfg_event_start,
-            "date",
-            (self.client, self.guild, self.id, timedelta),
-            run_date=run_date,
-            id=str(self.id),
+            ),
         )
 
     async def __edit_start_time_and_send(self, start_time: datetime.datetime):
@@ -517,20 +537,3 @@ class LfgMessage:
 
         # sort again
         await self.__sort_lfg_messages()
-
-
-
-async def notify_about_lfg_event_start(
-    client: discord.Client,
-    guild: discord.Guild,
-    lfg_id: int,
-    time_to_start: datetime.timedelta,
-):
-    """DMs the given list of users that the event is about to start"""
-
-    lfg_message = await LfgMessage.from_lfg_id(
-        lfg_id=lfg_id,
-        client=client,
-        guild=guild
-    )
-    await lfg_message.notify_about_start(time_to_start)

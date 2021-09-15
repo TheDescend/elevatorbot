@@ -2,3 +2,5 @@ aiohttp[speedups]==3.7.4.post0
 discord-py-interactions==3.0.2
 apscheduler==3.7.0
 discord.py==1.7.3
+python-dateutil==2.8.2
+pytz==2021.1

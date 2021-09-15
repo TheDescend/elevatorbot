@@ -9,17 +9,15 @@ from ElevatorBot.core.destiny.lfgSystem import LfgMessage
 from ElevatorBot.misc.formating import embed_message
 
 
-class LfgAdd(Cog):
-    """This is so cool, it adds people into the main roster even if full"""
-
+class LfgKick(Cog):
     def __init__(self, client):
         self.client = client
 
     @cog_ext.cog_subcommand(
         base="lfg",
         base_description="Everything concerning my awesome Destiny 2 LFG system",
-        name="add",
-        description="Add a user to an lfg event",
+        name="kick",
+        description="Kick a user from an lfg event",
         options=[
             create_option(
                 name="lfg_id",
@@ -30,7 +28,7 @@ class LfgAdd(Cog):
             get_user_option(description="The user you want to add", required=True),
         ],
     )
-    async def _add(self, ctx: SlashContext, lfg_id: int, user: discord.Member):
+    async def _kick(self, ctx: SlashContext, lfg_id, user):
         # get the message obj
         lfg_message = await LfgMessage.from_lfg_id(lfg_id=lfg_id, client=ctx.bot, guild=ctx.guild)
 
@@ -39,22 +37,20 @@ class LfgAdd(Cog):
             await lfg_message.send_error_message(ctx=ctx, hidden=True)
             return
 
-        if await lfg_message.add_joined(user, force_into_joined=True):
+        if await lfg_message.remove_member(user):
             embed = embed_message(
                 "Success",
-                f"{user.display_name} has been added to the LFG post with the id `{lfg_id}`",
+                f"{user.display_name} has been removed from the LFG post with the id `{lfg_id}`",
             )
+
         else:
             embed = embed_message(
                 "Error",
-                f"{user.display_name} could not be added to the LFG post with the id `{lfg_id}`, because they are already in it or they are blacklisted by the creator",
+                f"{user.display_name} could not be _delete from the LFG post with the id `{lfg_id}`, because they are not in it",
             )
 
-        await ctx.send(
-            hidden=True,
-            embed=embed
-        )
+        await ctx.send(hidden=True, embed=embed)
 
 
 def setup(client):
-    client.add_cog(LfgAdd(client))
+    client.add_cog(LfgKick(client))

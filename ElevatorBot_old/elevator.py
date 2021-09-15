@@ -396,26 +396,26 @@ async def launch_event_loops(client):
     #         print(f"Failed to load event {event}")
     # jobs = sched.get_jobs()
     # print(f"{len(jobs)} events loaded")
-
-    # load the lfg events
-    lfg_events = await select_lfg_datetimes_and_users()
-    for lfg_event in lfg_events:
-        guild = client.get_guild(lfg_event["guild_id"])
-        if guild:
-            timedelta = datetime.timedelta(minutes=10)
-            sched.add_job(
-                notify_about_lfg_event_start,
-                "date",
-                (client, guild, lfg_event["id"], timedelta),
-                run_date=lfg_event["start_time"] - timedelta,
-                id=str(lfg_event["id"]),
-            )
-    print(f"{len(sched.get_jobs()) - len(jobs)} LFG events loaded")
-
-    print("Startup complete!")
-
-    # Set the playing status
-    await update_status(client)
+    #
+    # # load the lfg events
+    # lfg_events = await select_lfg_datetimes_and_users()
+    # for lfg_event in lfg_events:
+    #     guild = client.get_guild(lfg_event["guild_id"])
+    #     if guild:
+    #         timedelta = datetime.timedelta(minutes=10)
+    #         sched.add_job(
+    #             notify_about_lfg_event_start,
+    #             "date",
+    #             (client, guild, lfg_event["id"], timedelta),
+    #             run_date=lfg_event["start_time"] - timedelta,
+    #             id=str(lfg_event["id"]),
+    #         )
+    # print(f"{len(sched.get_jobs()) - len(jobs)} LFG events loaded")
+    #
+    # print("Startup complete!")
+    #
+    # # Set the playing status
+    # await update_status(client)
 
 
 def main():

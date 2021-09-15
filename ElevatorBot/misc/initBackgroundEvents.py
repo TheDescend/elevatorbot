@@ -12,9 +12,11 @@ from apscheduler.events import (
 )
 
 from ElevatorBot import backgroundEvents
+from ElevatorBot.backendNetworking.destiny.lfgSystem import DestinyLfgSystem
+from ElevatorBot.core.destiny.lfgSystem import LfgMessage
 
 
-def register_background_events(client: discord.Client) -> int:
+def register_background_events(client: discord.Client):
     """Adds all the events to apscheduler"""
 
     # gotta start the scheduler in the first place
@@ -108,5 +110,41 @@ def register_background_events(client: discord.Client) -> int:
             )
         else:
             print(f"Failed to load event {event}")
+    jobs = backgroundEvents.scheduler.get_jobs()
+    print(f"< {len(jobs)} > Background Events Loaded")
 
-    return len(backgroundEvents.scheduler.get_jobs())
+    # load the lfg events
+    for guild in client.guilds:
+        backend = DestinyLfgSystem(client=client, discord_guild=guild)
+
+        # get all lfg ids
+        results = await backend.get_all()
+        if results:
+            events = results.result["events"]
+
+            # create the objs from the returned data
+            for event in events:
+                channel: discord.TextChannel = guild.get_channel(event["channel_id"])
+                lfg_event = LfgMessage(
+                    backend=backend,
+                    client=client,
+                    id=event["id"],
+                    guild=guild,
+                    channel=channel,
+                    author=guild.get_member(event["author_id"]),
+                    activity=event["activity"],
+                    description=event["description"],
+                    start_time=event["start_time"],
+                    max_joined_members=event["max_joined_members"],
+                    message=await channel.fetch_message(event["message_id"]),
+                    creation_time=event["creation_time"],
+                    joined=[guild.get_member(member_id) for member_id in event["joined_members"] if guild.get_member(member_id)],
+                    backup=[guild.get_member(member_id) for member_id in event["alternate_members"] if guild.get_member(member_id)],
+                    voice_channel=guild.get_channel(event["voice_channel_id"]),
+                    voice_category_channel=guild.get_channel(event["voice_category_channel_id"])
+                )
+
+                # add the event
+                await lfg_event.schedule_event()
+
+    print(f"< {len(backgroundEvents.scheduler.get_jobs()) - len(jobs)} > LFG Events Loaded")
