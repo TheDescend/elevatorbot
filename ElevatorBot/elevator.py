@@ -1,5 +1,4 @@
 import asyncio
-import os
 
 import discord
 from discord.ext.commands import Bot
@@ -16,29 +15,6 @@ from settings import DISCORD_BOT_TOKEN, SYNC_COMMANDS
 
 
 first_start = True
-
-# config logging
-init_logging()
-
-# print ascii art
-print("----------------------------------------------------------------------------------------")
-print(
-    """
-      ______   _                          _                    ____            _   
-     |  ____| | |                        | |                  |  _ \          | |  
-     | |__    | |   ___  __   __   __ _  | |_    ___    _ __  | |_) |   ___   | |_ 
-     |  __|   | |  / _ \ \ \ / /  / _` | | __|  / _ \  | '__| |  _ <   / _ \  | __|
-     | |____  | | |  __/  \ V /  | (_| | | |_  | (_) | | |    | |_) | | (_) | | |_ 
-     |______| |_|  \___|   \_/    \__,_|  \__|  \___/  |_|    |____/   \___/   \__|                                                                          
-    """
-)
-print("----------------------------------------------------------------------------------------\n")
-print("Starting Up...")
-
-# enable intents to allow certain events
-intents = discord.Intents.default()
-intents.members = True
-intents.guilds = True
 
 
 # define on_ready event
@@ -63,36 +39,62 @@ class ElevatorBot(Bot):
         print("--------------------------\n")
 
 
-# actually get the bot obj
-client = ElevatorBot(
-    intents=intents,
-    help_command=None,
-    command_prefix="!",
-    owner_ids=[
-        238388130581839872,
-        219517105249189888,
-    ],
-)
-slash_client = SlashCommand(client, sync_commands=SYNC_COMMANDS)
+if __name__ == "__main__":
+    # config logging
+    init_logging()
 
-# add discord events and handlers
-register_discord_events(client, slash_client)
+    # print ascii art
+    print("----------------------------------------------------------------------------------------")
+    print(
+        """
+          ______   _                          _                    ____            _   
+         |  ____| | |                        | |                  |  _ \          | |  
+         | |__    | |   ___  __   __   __ _  | |_    ___    _ __  | |_) |   ___   | |_ 
+         |  __|   | |  / _ \ \ \ / /  / _` | | __|  / _ \  | '__| |  _ <   / _ \  | __|
+         | |____  | | |  __/  \ V /  | (_| | | |_  | (_) | | |    | |_) | | (_) | | |_ 
+         |______| |_|  \___|   \_/    \__,_|  \__|  \___/  |_|    |____/   \___/   \__|                                                                          
+        """
+    )
+    print("----------------------------------------------------------------------------------------\n")
+    print("Starting Up...")
 
-# load commands
-print("Loading Commands...")
-for path in yield_files_in_folder("commands", "py"):
-    client.load_extension(path)
-print(f"< {len(slash_client.commands)} > Commands Loaded")
+    # enable intents to allow certain events
+    intents = discord.Intents.none()
+    intents.members = True
+    intents.guilds = True
+    intents.messages = True
+    intents.voice_states = True
+    intents.emojis = True
 
-# load context menus
-print("Loading Context Menus...")
-for path in yield_files_in_folder("contextMenus", "py"):
-    client.load_extension(path)
+    # actually get the bot obj
+    client = ElevatorBot(
+        intents=intents,
+        help_command=None,
+        command_prefix="!",
+        owner_ids=[
+            238388130581839872,
+            219517105249189888,
+        ],
+    )
+    slash_client = SlashCommand(client, sync_commands=SYNC_COMMANDS)
 
-# add background events
-print("Loading Background Events...")
-events_loaded = register_background_events(client)
-print(f"< {events_loaded} > Background Events Loaded")
+    # add discord events and handlers
+    register_discord_events(client, slash_client)
 
-# run the bot
-client.run(DISCORD_BOT_TOKEN)
+    # load commands
+    print("Loading Commands...")
+    for path in yield_files_in_folder("commands", "py"):
+        client.load_extension(path)
+    print(f"< {len(slash_client.commands)} > Commands Loaded")
+
+    # load context menus
+    print("Loading Context Menus...")
+    for path in yield_files_in_folder("contextMenus", "py"):
+        client.load_extension(path)
+
+    # add background events
+    print("Loading Background Events...")
+    register_background_events(client)
+
+    # run the bot
+    client.run(DISCORD_BOT_TOKEN)
