@@ -3,6 +3,7 @@ import logging
 from typing import Optional
 
 import aiohttp
+import discord
 from aiohttp import ClientSession, ClientTimeout
 
 from ElevatorBot.backendNetworking.results import BackendResult
@@ -31,6 +32,10 @@ class BaseBackendConnection:
         repr=False,
     )
 
+    # discord member
+    # used for error message formatting
+    discord_member: Optional[discord.Member]
+
     def __bool__(self):
         """Bool function to test if this exist. Useful for testing if this class got returned and not BackendResult, can be returned on errors"""
 
@@ -46,7 +51,16 @@ class BaseBackendConnection:
                 params=params,
                 data=data,
             ) as response:
-                return await self.__backend_parse_response(response)
+                result = await self.__backend_parse_response(response)
+
+                # if an error occurred, already do the basic formatting
+                if not result:
+                    if self.discord_member:
+                        result.error_message = {
+                            "discord_member": self.discord_member
+                        }
+
+                return result
 
     async def __backend_parse_response(self, response: aiohttp.ClientResponse) -> BackendResult:
         """Handle any errors and then return the content of the response"""

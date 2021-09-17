@@ -18,6 +18,7 @@ from ElevatorBot.static.schemas import LfgInputData, LfgUpdateData
 class DestinyLfgSystem(BaseBackendConnection):
     client: discord.Client
     discord_guild: discord.Guild
+    discord_member = None
 
     async def get_all(self) -> BackendResult:
         """Gets all the lfg events and info belonging to the guild"""

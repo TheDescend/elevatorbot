@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import dataclasses
-from typing import Union
 
 import discord
 
@@ -60,7 +59,6 @@ class DestinyProfile(BaseBackendConnection):
 
         # check if that id exists
         if not result:
-            result.error_message = {"discord_member": self.discord_member}
             return result
 
         # set attributes
@@ -73,11 +71,7 @@ class DestinyProfile(BaseBackendConnection):
     async def delete(self) -> BackendResult:
         """Delete the profile"""
 
-        result = await self._backend_request(
+        return await self._backend_request(
             method="DELETE", route=destiny_profile_delete_route.format(discord_id=self.discord_member.id)
         )
 
-        # check if OK
-        if not result:
-            result.error_message = {"discord_member": self.discord_member}
-        return result
