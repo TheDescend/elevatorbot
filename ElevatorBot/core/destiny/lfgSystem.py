@@ -371,7 +371,10 @@ class LfgMessage:
             # dm the backup if they are needed
             if missing > 0:
                 for user in self.backup:
-                    await user.send(embed=embed)
+                    try:
+                        await user.send(embed=embed)
+                    except discord.Forbidden:
+                        pass
 
         # dm the users
         for user in self.joined:

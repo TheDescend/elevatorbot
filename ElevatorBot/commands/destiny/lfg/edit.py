@@ -176,14 +176,6 @@ class LfgEdit(Cog):
 
                         lfg_message.start_time = start_time
 
-                        # # edit the message
-                        # await lfg_message.__edit_start_time_and_send(start_time)
-                        # await select_ctx.edit_origin(
-                        #     components=None,
-                        #     embed=embed_message(f"Success", f"I've edited the post"),
-                        # )
-                        # return
-
             # Maximum Members
             case _:
                 message = await ctx.send(embed=embed_message("Maximum Members", "Please enter the new maximum members"))
