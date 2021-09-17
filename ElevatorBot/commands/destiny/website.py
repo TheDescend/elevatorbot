@@ -33,6 +33,7 @@ class Website(Cog):
                     create_choice(name="Dungeon Report", value="Dungeon Report"),
                     create_choice(name="Grandmaster Report", value="Grandmaster Report"),
                     create_choice(name="Nightfall Report", value="Nightfall Report"),
+                    create_choice(name="Strike Report", value="Strike Report"),
                     create_choice(name="Raid Report", value="Raid Report"),
                     create_choice(name="Solo Report", value="Solo Report"),
                     create_choice(name="Expunge Report", value="Expunge Report"),
@@ -71,6 +72,9 @@ class Website(Cog):
 
             case "Nightfall Report":
                 text = f"https://nightfall.report/guardian/{destiny_player.system}/{destiny_player.destiny_id}"
+
+            case "Strike Report":
+                text = f"https://strike.report/{self.system_to_name[destiny_player.system]}/{destiny_player.destiny_id}"
 
             case "Trials Report":
                 text = f"https://destinytrialsreport.com/report/{destiny_player.system}/{destiny_player.destiny_id}"
