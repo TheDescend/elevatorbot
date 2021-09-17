@@ -1,3 +1,4 @@
+import datetime
 from typing import Any
 
 import discord
@@ -42,3 +43,12 @@ def split_into_chucks_of_max_2000_characters(text_str: str = None, text_list: li
         if return_text:
             return_list.append(return_text)
         return return_list
+
+
+def format_timedelta(seconds: int) -> str:
+    """Returns a formatted message that is displayed whenever a command wants to display a duration"""
+
+    hours = int(seconds / (60 * 60))
+    minutes = int(seconds % (60 * 60) / 60)
+
+    return f"{hours}h {minutes}m"

@@ -45,7 +45,10 @@ class Website(Cog):
             get_user_option(),
         ],
     )
-    async def _website(self, ctx: SlashContext, website: str, user: discord.Member):
+    async def _website(self, ctx: SlashContext, website: str, user: discord.Member = None):
+        if not user:
+            user = ctx.author
+
         # get destiny info
         destiny_profile = DestinyProfile(client=ctx.bot, discord_member=user, discord_guild=ctx.guild)
         destiny_player = await destiny_profile.from_discord_member()

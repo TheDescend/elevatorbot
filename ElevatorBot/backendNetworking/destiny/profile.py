@@ -28,8 +28,8 @@ class DestinyProfile(BaseBackendConnection):
 
         # query the backend
         result = await self._backend_request(
-            method="GET",
-            route=destiny_profile_from_destiny_id_route.format(destiny_id=destiny_id))
+            method="GET", route=destiny_profile_from_destiny_id_route.format(destiny_id=destiny_id)
+        )
 
         # check if that id exists
         if not result:
@@ -50,15 +50,12 @@ class DestinyProfile(BaseBackendConnection):
             system=result.result["system"],
         )
 
-    async def from_discord_member(
-        self,
-    ) -> DestinyData | BackendResult:
+    async def from_discord_member(self) -> DestinyData | BackendResult:
         """Get the destiny profile with a discord member object"""
 
         # query the backend
         result = await self._backend_request(
-            method="GET",
-            route=destiny_profile_from_discord_id_route.format(discord_id=self.discord_member.id)
+            method="GET", route=destiny_profile_from_discord_id_route.format(discord_id=self.discord_member.id)
         )
 
         # check if that id exists
@@ -73,14 +70,11 @@ class DestinyProfile(BaseBackendConnection):
             system=result.result["system"],
         )
 
-    async def delete(
-        self,
-    ) -> BackendResult:
+    async def delete(self) -> BackendResult:
         """Delete the profile"""
 
         result = await self._backend_request(
-            method="DELETE",
-            route=destiny_profile_delete_route.format(discord_id=self.discord_member.id)
+            method="DELETE", route=destiny_profile_delete_route.format(discord_id=self.discord_member.id)
         )
 
         # check if OK

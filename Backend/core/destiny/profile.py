@@ -13,6 +13,7 @@ from Backend.database.models import Collectibles, DiscordUsers, Records
 from Backend.misc.helperFunctions import get_datetime_from_bungie_entry
 from Backend.networking.bungieApi import BungieApi
 from Backend.networking.BungieRoutes import profile_route, stat_route
+from Backend.schemas.destiny.account import DestinyCharacterModel, DestinyCharactersModel
 from Backend.schemas.destiny.profile import DestinyUpdatedLowManModel, DestinyLowMansModel
 
 
@@ -168,8 +169,8 @@ class DestinyProfile:
         stat_name: str,
         stat_category: str = "allTime",
         character_id: int | str = None,
-    ) -> int:
-        """Returns the value of the given stat"""
+    ) -> int | float:
+        """Returns the value of the given stat. Int if no decimals, else float"""
 
         possible_stat_categories = [
             "allTime",
@@ -182,15 +183,15 @@ class DestinyProfile:
 
         # total stats
         if not character_id:
-            stat = stats["mergedAllCharacters"]["merged"][stat_category][stat_name]["basic"]["value"]
-            return int(stat)
+            stat: float = stats["mergedAllCharacters"]["merged"][stat_category][stat_name]["basic"]["value"]
+            return int(stat) if stat.is_integer() else stat
 
         # character stats
         else:
             for char in stats["characters"]:
                 if char["characterId"] == str(character_id):
-                    stat = stats["merged"][stat_category][stat_name]["basic"]["value"]
-                    return int(stat)
+                    stat: float = stats["merged"][stat_category][stat_name]["basic"]["value"]
+                    return int(stat) if stat.is_integer() else stat
 
     async def get_artifact(self) -> dict:
         """Returns the seasonal artifact data"""
@@ -223,39 +224,41 @@ class DestinyProfile:
         # loop through the chars and return the matching one
         characters = await self.get_character_info()
         if characters:
-            for character_id, character_data in characters.items():
-                if character_data["class"] == character_class:
-                    return character_id
+            for character_data in characters.characters:
+                if character_data.character_class == character_class:
+                    return character_data.character_id
         return None
 
-    async def get_character_info(self) -> dict:
-        """
-        Get character info
+    async def get_character_ids(self) -> list[int]:
+        """Return the character ids only"""
 
-        Returns existing_chars=
-            {
-                charID: {
-                    "class": str,
-                    "race": str,
-                    "gender": str,
-                },
-                ...
-            }
-        """
+        characters = await self.get_character_info()
 
-        characters = {}
+        ids = []
+        if characters:
+            for character_data in characters.characters:
+                ids.append(character_data.character_id)
+        return ids
+
+    async def get_character_info(self) -> DestinyCharactersModel:
+        """Get character info"""
+
+        characters = DestinyCharactersModel()
         result = await self.__get_profile()
 
         # loop through each character
-        for characterID, character_data in result["characters"]["data"].items():
-            characterID = int(characterID)
+        for character_id, character_data in result["characters"]["data"].items():
+            character_id = int(character_id)
 
             # format the data correctly and convert the hashes to strings
-            characters[characterID] = {
-                "class": self.class_map[character_data["classHash"]],
-                "race": self.race_map[character_data["raceHash"]],
-                "gender": self.gender_map[character_data["genderHash"]],
-            }
+            characters.characters.append(
+                DestinyCharacterModel(
+                    character_id=character_id,
+                    character_class=self.class_map[character_data["classHash"]],
+                    character_race=self.race_map[character_data["raceHash"]],
+                    character_gender=self.gender_map[character_data["genderHash"]]
+                )
+            )
 
         return characters
 
@@ -368,7 +371,7 @@ class DestinyProfile:
     async def get_player_gear(self) -> list[dict]:
         """Returns a list of items - equipped and unequipped"""
 
-        characters = await self.get_character_info()
+        characters = await self.get_character_ids()
 
         # not equipped on characters
         gear = []
@@ -378,7 +381,7 @@ class DestinyProfile:
             for weapon_id, weapon_data in used_items["itemComponents"]["instances"]["data"].items()
         }
         item_power["none"] = 0
-        for character_id in characters.keys():
+        for character_id in characters:
             character_items = (
                 used_items["characterInventories"]["data"][character_id]["items"]
                 + used_items["characterEquipment"]["data"][character_id]["items"]

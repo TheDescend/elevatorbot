@@ -568,100 +568,100 @@ class DestinyCommands(commands.Cog):
         else:
             await ctx.send(materialtext["error"])
 
-    @cog_ext.cog_slash(
-        name="destiny",
-        description="Gives you various destiny stats",
-        options=[options_user()],
-    )
-    async def _destiny(self, ctx: SlashContext, **kwargs):
-        await ctx.defer()
-
-        # get basic user data
-        user = await get_user_obj(ctx, kwargs)
-        destiny_player = await DestinyPlayer.from_discord_id(user.id, ctx=ctx)
-        if not destiny_player:
-            return
-
-        heatmap_url = f"https://chrisfried.github.io/secret-scrublandeux/guardian/{destiny_player.system}/{destiny_player.destiny_id}"
-
-        # get character infos
-        characters = await destiny_player.get_character_info()
-
-        character_playtime = {}  # in seconds
-        for characterID in characters:
-            character_playtime[characterID] = await destiny_player.get_stat_value(
-                "secondsPlayed", character_id=characterID
-            )
-
-        embed = embed_message(
-            f"{user.display_name}'s Destiny Stats",
-            f"**Total Playtime:** {str(datetime.timedelta(seconds=sum(character_playtime.values())))} \n[Click to see your heatmap]({heatmap_url})",
-            "For info on achievable discord roles, type !roles",
-        )
-
-        """ char info field """
-        embed.add_field(name="⁣", value=f"__**Characters:**__", inline=False)
-        for characterID in characters:
-            text = f"""Playtime: {str(datetime.timedelta(seconds=character_playtime[characterID]))} \n⁣\nPower: {await destiny_player.get_stat_value("highestLightLevel", character_id=characterID):,} \nActivities: {await destiny_player.get_stat_value("activitiesCleared", character_id=characterID):,} \nKills: {await destiny_player.get_stat_value("kills", character_id=characterID):,} \nDeaths: {await destiny_player.get_stat_value("deaths", character_id=characterID):,} \nEfficiency: {round(await destiny_player.get_stat_value("efficiency", character_id=characterID), 2)}"""
-            embed.add_field(
-                name=f"""{characters[characterID]["class"]} ({characters[characterID]["race"]} / {characters[characterID]["gender"]})""",
-                value=text,
-                inline=True,
-            )
-
-        """ triumph info field """
-        embed.add_field(name="⁣", value=f"__**Triumphs:**__", inline=False)
-
-        # get triumph data
-        triumphs = await destiny_player.get_triumphs()
-        embed.add_field(
-            name="Lifetime Triumph Score",
-            value=f"""{triumphs["profileRecords"]["data"]["lifetimeScore"]:,}""",
-            inline=True,
-        )
-        embed.add_field(
-            name="Active Triumph Score",
-            value=f"""{triumphs["profileRecords"]["data"]["activeScore"]:,}""",
-            inline=True,
-        )
-        embed.add_field(
-            name="Legacy Triumph Score",
-            value=f"""{triumphs["profileRecords"]["data"]["legacyScore"]:,}""",
-            inline=True,
-        )
-
-        # get triumph completion rate
-        triumphs_data = triumphs["profileRecords"]["data"]["records"]
-        triumphs_completed = 0
-        triumphs_no_data = 0
-        for triumph in triumphs_data.values():
-            status = True
-            if "objectives" in triumph:
-                for part in triumph["objectives"]:
-                    status &= part["complete"]
-            elif "intervalObjectives" in triumph:
-                for part in triumph["intervalObjectives"]:
-                    status &= part["complete"]
-            else:
-                triumphs_no_data += 1
-                continue
-            if status:
-                triumphs_completed += 1
-        embed.add_field(
-            name="Triumphs",
-            value=f"{triumphs_completed} / {len(triumphs_data) - triumphs_no_data}",
-            inline=True,
-        )
-
-        # get seal completion rate
-        total_seals, completed_seals = await destiny_player.get_player_seals()
-        embed.add_field(
-            name="Seals",
-            value=f"{len(completed_seals)} / {len(total_seals)}",
-            inline=True,
-        )
-
-        await ctx.send(embed=embed)
+    # @cog_ext.cog_slash(
+    #     name="destiny",
+    #     description="Gives you various destiny stats",
+    #     options=[options_user()],
+    # )
+    # async def _destiny(self, ctx: SlashContext, **kwargs):
+    #     await ctx.defer()
+    #
+    #     # get basic user data
+    #     user = await get_user_obj(ctx, kwargs)
+    #     destiny_player = await DestinyPlayer.from_discord_id(user.id, ctx=ctx)
+    #     if not destiny_player:
+    #         return
+    #
+    #     heatmap_url = f"https://chrisfried.github.io/secret-scrublandeux/guardian/{destiny_player.system}/{destiny_player.destiny_id}"
+    #
+    #     # get character infos
+    #     characters = await destiny_player.get_character_info()
+    #
+    #     character_playtime = {}  # in seconds
+    #     for characterID in characters:
+    #         character_playtime[characterID] = await destiny_player.get_stat_value(
+    #             "secondsPlayed", character_id=characterID
+    #         )
+    #
+    #     embed = embed_message(
+    #         f"{user.display_name}'s Destiny Stats",
+    #         f"**Total Playtime:** {str(datetime.timedelta(seconds=sum(character_playtime.values())))} \n[Click to see your heatmap]({heatmap_url})",
+    #         "For info on achievable discord roles, type !roles",
+    #     )
+    #
+    #     """ char info field """
+    #     embed.add_field(name="⁣", value=f"__**Characters:**__", inline=False)
+    #     for characterID in characters:
+    #         text = f"""Playtime: {str(datetime.timedelta(seconds=character_playtime[characterID]))} \n⁣\nPower: {await destiny_player.get_stat_value("highestLightLevel", character_id=characterID):,} \nActivities: {await destiny_player.get_stat_value("activitiesCleared", character_id=characterID):,} \nKills: {await destiny_player.get_stat_value("kills", character_id=characterID):,} \nDeaths: {await destiny_player.get_stat_value("deaths", character_id=characterID):,} \nEfficiency: {round(await destiny_player.get_stat_value("efficiency", character_id=characterID), 2)}"""
+    #         embed.add_field(
+    #             name=f"""{characters[characterID]["class"]} ({characters[characterID]["race"]} / {characters[characterID]["gender"]})""",
+    #             value=text,
+    #             inline=True,
+    #         )
+    #
+    #     """ triumph info field """
+    #     embed.add_field(name="⁣", value=f"__**Triumphs:**__", inline=False)
+    #
+    #     # get triumph data
+    #     triumphs = await destiny_player.get_triumphs()
+    #     embed.add_field(
+    #         name="Lifetime Triumph Score",
+    #         value=f"""{triumphs["profileRecords"]["data"]["lifetimeScore"]:,}""",
+    #         inline=True,
+    #     )
+    #     embed.add_field(
+    #         name="Active Triumph Score",
+    #         value=f"""{triumphs["profileRecords"]["data"]["activeScore"]:,}""",
+    #         inline=True,
+    #     )
+    #     embed.add_field(
+    #         name="Legacy Triumph Score",
+    #         value=f"""{triumphs["profileRecords"]["data"]["legacyScore"]:,}""",
+    #         inline=True,
+    #     )
+    #
+    #     # get triumph completion rate
+    #     triumphs_data = triumphs["profileRecords"]["data"]["records"]
+    #     triumphs_completed = 0
+    #     triumphs_no_data = 0
+    #     for triumph in triumphs_data.values():
+    #         status = True
+    #         if "objectives" in triumph:
+    #             for part in triumph["objectives"]:
+    #                 status &= part["complete"]
+    #         elif "intervalObjectives" in triumph:
+    #             for part in triumph["intervalObjectives"]:
+    #                 status &= part["complete"]
+    #         else:
+    #             triumphs_no_data += 1
+    #             continue
+    #         if status:
+    #             triumphs_completed += 1
+    #     embed.add_field(
+    #         name="Triumphs",
+    #         value=f"{triumphs_completed} / {len(triumphs_data) - triumphs_no_data}",
+    #         inline=True,
+    #     )
+    #
+    #     # get seal completion rate
+    #     total_seals, completed_seals = await destiny_player.get_player_seals()
+    #     embed.add_field(
+    #         name="Seals",
+    #         value=f"{len(completed_seals)} / {len(total_seals)}",
+    #         inline=True,
+    #     )
+    #
+    #     await ctx.send(embed=embed)
 
     @cog_ext.cog_subcommand(
         base="stat",
