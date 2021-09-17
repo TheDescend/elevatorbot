@@ -5,7 +5,7 @@ from sqlalchemy import (
     BigInteger,
     Boolean,
     Column,
-    DateTime,
+    Date, DateTime,
     ForeignKey,
     Integer,
     JSON,
@@ -345,7 +345,7 @@ class LfgUser(Base):
 class D2SteamPlayer(Base):
     __tablename__ = "d2SteamPlayers"
 
-    date = Column(DateTime(timezone=True), nullable=False, primary_key=True)
+    date = Column(Date, nullable=False, primary_key=True)
     number_of_players = Column(Integer, nullable=False)
 
 
@@ -379,7 +379,7 @@ class PersistentMessage(Base):
     message_id = Column(BigInteger, nullable=False)
 
 
-# _insert all tables
+# insert all tables
 _TABLES_CREATED = False
 
 

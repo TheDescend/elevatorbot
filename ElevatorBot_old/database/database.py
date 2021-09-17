@@ -291,46 +291,46 @@ async def updateToken(destinyID, discordID, token, refresh_token, token_expiry, 
         )
 
 
-async def setSteamJoinID(IDdiscord, IDSteamJoin):
-    """Updates a User - steamJoinId"""
-
-    update_sql = f"""
-        UPDATE 
-            "discordGuardiansToken"
-        SET 
-            steamJoinId = $1
-        WHERE 
-            discordSnowflake = $2;"""
-    async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
-        await connection.execute(update_sql, int(IDSteamJoin), IDdiscord)
-
-
-async def getSteamJoinID(IDdiscord):
-    """Gets a Users steamJoinId or None"""
-
-    select_sql = """
-        SELECT 
-            steamJoinId 
-        FROM 
-            "discordGuardiansToken"
-        WHERE 
-            discordSnowflake = $1;"""
-    async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
-        return await connection.fetchval(select_sql, IDdiscord)
-
-
-async def getallSteamJoinIDs():
-    """Gets all steamJoinId or []"""
-
-    select_sql = """
-        SELECT 
-            discordsnowflake, steamJoinId
-        FROM 
-            "discordGuardiansToken"
-        WHERE 
-            steamJoinId IS NOT NULL;"""
-    async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
-        return await connection.fetch(select_sql)
+# async def setSteamJoinID(IDdiscord, IDSteamJoin):
+#     """Updates a User - steamJoinId"""
+#
+#     update_sql = f"""
+#         UPDATE
+#             "discordGuardiansToken"
+#         SET
+#             steamJoinId = $1
+#         WHERE
+#             discordSnowflake = $2;"""
+#     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
+#         await connection.execute(update_sql, int(IDSteamJoin), IDdiscord)
+#
+#
+# async def getSteamJoinID(IDdiscord):
+#     """Gets a Users steamJoinId or None"""
+#
+#     select_sql = """
+#         SELECT
+#             steamJoinId
+#         FROM
+#             "discordGuardiansToken"
+#         WHERE
+#             discordSnowflake = $1;"""
+#     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
+#         return await connection.fetchval(select_sql, IDdiscord)
+#
+#
+# async def getallSteamJoinIDs():
+#     """Gets all steamJoinId or []"""
+#
+#     select_sql = """
+#         SELECT
+#             discordsnowflake, steamJoinId
+#         FROM
+#             "discordGuardiansToken"
+#         WHERE
+#             steamJoinId IS NOT NULL;"""
+#     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
+#         return await connection.fetch(select_sql)
 
 
 async def insertIntoMessageDB(messagetext, userid, channelid, msgid):
@@ -541,57 +541,57 @@ async def updateVersion(name: str, version: str):
 # D2 Steam Players
 
 
-async def update_d2_steam_players(current_date: date, number_of_players: int):
-    """Inserts the amount of players into the DB for that day. Updates instead, if there already is a lower value for that day"""
+# async def update_d2_steam_players(current_date: date, number_of_players: int):
+#     """Inserts the amount of players into the DB for that day. Updates instead, if there already is a lower value for that day"""
+#
+#     # get current value
+#     select_sql = f"""
+#         SELECT
+#             numberOfPlayers
+#         FROM
+#             d2SteamPlayers
+#         WHERE
+#             dateObj = $1;"""
+#     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
+#         old_number_of_players = await connection.fetchval(select_sql, current_date)
+#
+#     # _insert value
+#     if not old_number_of_players:
+#         insert_sql = f"""
+#             INSERT INTO
+#                 d2SteamPlayers
+#                 (dateObj, numberOfPlayers)
+#             VALUES
+#                 ($1, $2);"""
+#         async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
+#             await connection.execute(insert_sql, current_date, number_of_players)
+#             return
+#
+#     # check if _update is needed
+#     if number_of_players > old_number_of_players:
+#         update_sql = f"""
+#             UPDATE
+#                 d2SteamPlayers
+#             SET
+#                 numberOfPlayers = $1
+#             WHERE
+#                 dateObj = $2;"""
+#         async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
+#             await connection.execute(update_sql, number_of_players, current_date)
 
-    # get current value
-    select_sql = f"""
-        SELECT 
-            numberOfPlayers
-        FROM 
-            d2SteamPlayers
-        WHERE 
-            dateObj = $1;"""
-    async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
-        old_number_of_players = await connection.fetchval(select_sql, current_date)
 
-    # _insert value
-    if not old_number_of_players:
-        insert_sql = f"""
-            INSERT INTO 
-                d2SteamPlayers
-                (dateObj, numberOfPlayers)
-            VALUES 
-                ($1, $2);"""
-        async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
-            await connection.execute(insert_sql, current_date, number_of_players)
-            return
-
-    # check if _update is needed
-    if number_of_players > old_number_of_players:
-        update_sql = f"""
-            UPDATE 
-                d2SteamPlayers
-            SET 
-                numberOfPlayers = $1
-            WHERE 
-                dateObj = $2;"""
-        async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
-            await connection.execute(update_sql, number_of_players, current_date)
-
-
-async def get_d2_steam_player_info():
-    """Gets all the data as a pandas dataframe"""
-
-    select_sql = """
-        SELECT 
-            *
-        FROM 
-            d2SteamPlayers
-        ORDER BY 
-            dateObj DESC;"""
-    async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
-        return await fetch_as_dataframe(connection, select_sql)
+# async def get_d2_steam_player_info():
+#     """Gets all the data as a pandas dataframe"""
+#
+#     select_sql = """
+#         SELECT
+#             *
+#         FROM
+#             d2SteamPlayers
+#         ORDER BY
+#             dateObj DESC;"""
+#     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
+#         return await fetch_as_dataframe(connection, select_sql)
 
 
 ################################################################

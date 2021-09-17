@@ -16,3 +16,6 @@ DISCORD_BOT_TOKEN: str = ""
 BUNGIE_TOKEN: str = ""
 B64_SECRET: str = ""
 BUNGIE_OAUTH: str = ""
+
+# Your steam token. This is needed to access the steam api and query the current amount of D2 players
+STEAM_TOKEN: str = ""
