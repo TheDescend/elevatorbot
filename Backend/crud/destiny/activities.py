@@ -1,16 +1,17 @@
 import asyncio
 import datetime
 
-from sqlalchemy import distinct, func, not_, select
+from sqlalchemy import distinct
+from sqlalchemy import func
+from sqlalchemy import not_
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.crud.base import CRUDBase
-from Backend.database.models import (
-    ActivitiesFailToGet,
-    Activities,
-    ActivitiesUsers,
-    ActivitiesUsersWeapons,
-)
+from Backend.database.models import Activities
+from Backend.database.models import ActivitiesFailToGet
+from Backend.database.models import ActivitiesUsers
+from Backend.database.models import ActivitiesUsersWeapons
 
 
 class CRUDActivitiesFailToGet(CRUDBase):
@@ -126,17 +127,22 @@ class CRUDActivities(CRUDBase):
         # mass insert all the stuff to the db
         await self._insert_multi(db=db, to_create=to_create)
 
-    async def get_low_man_activities(
+    async def get_activities(
         self,
         db: AsyncSession,
         activity_hashes: list[int],
-        player_count: int,
+        maximum_allowed_players: int,
         destiny_id: int,
         no_checkpoints: bool = True,
-        require_flawless: bool = False,
-        score_threshold: int = None,
-        min_kills_per_minute: float = None,
-        disallowed_datetimes: list[tuple[datetime.datetime, datetime.datetime]] = None,
+        require_team_flawless: bool = False,
+        require_individual_flawless: bool = False,
+        require_score: int = None,
+        require_kills: int = None,
+        require_kills_per_minute: float = None,
+        require_kda: float = None,
+        require_kd: float = None,
+        allow_time_periods: list[dict] = None,  # see TimePeriodModel
+        disallow_time_periods: list[dict] = None,  # see TimePeriodModel
     ) -> list[Activities]:
         """Gets a list of all Activities that fulfill the requirements"""
 
@@ -149,29 +155,55 @@ class CRUDActivities(CRUDBase):
         # limit max users to player_count
         query = query.join(Activities.users)
         query = query.group_by(ActivitiesUsers.id)
-        query = query.having(func.count(distinct(ActivitiesUsers.destiny_id)) <= player_count)
+        query = query.having(func.count(distinct(ActivitiesUsers.destiny_id)) <= maximum_allowed_players)
 
-        # check kills and completion status
+        # team flawless required?
+        if require_team_flawless:
+            query = query.having(func.count(distinct(ActivitiesUsers.deaths)) == 0)
+
+        # check completion status
         query = query.filter(ActivitiesUsers.destiny_id == destiny_id)
-        query = query.filter(ActivitiesUsers.kills > 0)
         query = query.filter(ActivitiesUsers.completed == 1)
         query = query.filter(ActivitiesUsers.completion_reason == 0)
 
-        # do we want to check score?
-        if score_threshold:
-            query = query.filter(ActivitiesUsers.score > score_threshold)
-
-        # flawless required?
-        if require_flawless:
+        # individual flawless required?
+        if require_individual_flawless:
             query = query.filter(ActivitiesUsers.deaths == 0)
 
-        # minimum kills per minute needed?
-        if min_kills_per_minute:
-            query = query.filter((ActivitiesUsers.kills * 60 / ActivitiesUsers.time_played_seconds) >= min_kills_per_minute)
+        # minimum score?
+        if require_score:
+            query = query.filter(ActivitiesUsers.score > require_score)
+
+        # minimum kills?
+        if require_kills:
+            query = query.filter(ActivitiesUsers.kills >= require_kills)
+
+        # minimum kills per minute?
+        if require_kills_per_minute:
+            query = query.filter(
+                (ActivitiesUsers.kills * 60 / ActivitiesUsers.time_played_seconds) >= require_kills_per_minute
+            )
+
+        # minimum kda?
+        if require_kda:
+            query = query.filter(ActivitiesUsers.kills_deaths_assists >= require_kda)
+
+        # minimum kd?
+        if require_kd:
+            query = query.filter(ActivitiesUsers.kills_deaths_ratio >= require_kd)
+
+        # do we have allowed datetimes
+        if allow_time_periods:
+            for time in allow_time_periods:
+                start = time["start_time"]
+                end = time["end_time"]
+                query = query.filter(Activities.period.between(start, end))
 
         # do we have disallowed datetimes
-        if disallowed_datetimes:
-            for start, end in disallowed_datetimes:
+        if disallow_time_periods:
+            for time in disallow_time_periods:
+                start = time["start_time"]
+                end = time["end_time"]
                 query = query.filter(not_(Activities.period.between(start, end)))
 
         result = await self._execute_query(db=db, query=query)

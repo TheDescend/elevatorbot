@@ -12,5 +12,5 @@ error_codes_and_responses = {
     "ClanNoPermissions": "Could not invite {discord_member.mention} to the linked clan, since the user who linked the clan to this discord guild is no longer a Destiny 2 clan admin\nPlease have an Admin re-link the clan to fix this",
     "NoLfgEventWithIdForGuild": "No LFG event was found for that ID \nPlease try again",
     "NoLfgEventPermissions": "{discord_member.mention} does not have permissions to edit this LFG event \nOnly the creator and discord admins can do that",
-
+    "RoleLookupTimedOut": "The role lookup for {discord_member.mention} timed out. This shouldn't happen, my bad. Consider me punished",
 }

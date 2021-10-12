@@ -2,17 +2,22 @@ import asyncio
 import dataclasses
 import datetime
 import logging
-from typing import AsyncGenerator, Optional
+from collections.abc import AsyncGenerator
+from typing import Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.destiny.profile import DestinyProfile
 from Backend.core.errors import CustomException
-from Backend.crud import activities, activities_fail_to_get, discord_users
+from Backend.crud import activities
+from Backend.crud import activities_fail_to_get
+from Backend.crud import discord_users
 from Backend.database.models import DiscordUsers
 from Backend.misc.helperFunctions import get_datetime_from_bungie_entry
 from Backend.networking.bungieApi import BungieApi
-from Backend.networking.BungieRoutes import activities_route, pgcr_route, stat_route_characters
+from Backend.networking.BungieRoutes import activities_route
+from Backend.networking.BungieRoutes import pgcr_route
+from Backend.networking.BungieRoutes import stat_route_characters
 from Backend.networking.schemas import WebResponse
 from Backend.schemas.destiny.activities import DestinyLowManModel
 
@@ -43,31 +48,6 @@ class DestinyActivities:
         result = await self.api.get(route=route)
         return result.content
 
-    async def has_lowman(
-        self,
-        max_player_count: int,
-        activity_hashes: list[int],
-        require_flawless: bool = False,
-        no_checkpoints: bool = False,
-        disallowed_datetimes: list[tuple[datetime.datetime, datetime.datetime]] = None,
-        score_threshold: int = None,
-        min_kills_per_minute: float = None,
-    ) -> bool:
-        """Returns if player has a lowman in the given hashes. Disallowed is a list of (start_time, end_time) with datetime objects"""
-
-        low_activity_info = await activities.get_low_man_activities(
-            db=self.db,
-            activity_hashes=activity_hashes,
-            player_count=max_player_count,
-            destiny_id=self.destiny_id,
-            no_checkpoints=no_checkpoints,
-            score_threshold=score_threshold,
-            require_flawless=require_flawless,
-            min_kills_per_minute=min_kills_per_minute,
-            disallowed_datetimes=disallowed_datetimes,
-        )
-        return bool(low_activity_info)
-
     async def get_lowman_count(
         self,
         activity_ids: list[int],
@@ -83,16 +63,16 @@ class DestinyActivities:
         count, flawless_count, not_flawless_count, fastest = 0, 0, 0, None
 
         # get player data
-        low_activity_info = await activities.get_low_man_activities(
+        low_activity_info = await activities.get_activities(
             db=self.db,
             activity_hashes=activity_ids,
-            player_count=max_player_count,
+            maximum_allowed_players=max_player_count,
             destiny_id=self.destiny_id,
             no_checkpoints=no_checkpoints,
-            score_threshold=score_threshold,
-            require_flawless=require_flawless,
-            min_kills_per_minute=min_kills_per_minute,
-            disallowed_datetimes=disallowed_datetimes,
+            require_score=score_threshold,
+            require_team_flawless=require_flawless,
+            require_kills_per_minute=min_kills_per_minute,
+            disallow_time_periods=disallowed_datetimes,
         )
 
         # prepare player data

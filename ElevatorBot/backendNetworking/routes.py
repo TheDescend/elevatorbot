@@ -38,3 +38,13 @@ destiny_clan_search_members_route = destiny_clan_route + "get/members/search/{se
 destiny_clan_invite_route = destiny_clan_route + "invite/"
 destiny_clan_link_route = destiny_clan_route + "link/"
 destiny_clan_unlink_route = destiny_clan_route + "unlink/"
+
+# roles
+destiny_role_route = base_route + "destiny/{guild_id}/roles/"
+destiny_role_get_all_route = destiny_role_route + "get/all/"  # GET
+destiny_role_get_all_user_route = destiny_role_route + "get/all/{discord_id}/"  # GET
+destiny_role_get_user_route = destiny_role_route + "get/{role_id}/{discord_id}/"  # GET
+destiny_role_create_route = destiny_role_route + "create/"  # POST
+destiny_role_update_route = destiny_role_route + "update/{role_id}/"  # POST
+destiny_role_delete_all_route = destiny_role_route + "delete/all/"  # POST
+destiny_role_delete_route = destiny_role_route + "delete/{role_id}/"  # POST

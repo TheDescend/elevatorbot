@@ -1,22 +1,22 @@
 import datetime
 
-from sqlalchemy import (
-    ARRAY,
-    BigInteger,
-    Boolean,
-    Column,
-    Date, DateTime,
-    ForeignKey,
-    Integer,
-    JSON,
-    Numeric,
-    SmallInteger,
-    Text,
-)
+from sqlalchemy import ARRAY
+from sqlalchemy import BigInteger
+from sqlalchemy import Boolean
+from sqlalchemy import Column
+from sqlalchemy import Date
+from sqlalchemy import DateTime
+from sqlalchemy import ForeignKey
+from sqlalchemy import Integer
+from sqlalchemy import JSON
+from sqlalchemy import Numeric
+from sqlalchemy import SmallInteger
+from sqlalchemy import Text
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import relationship
 
-from Backend.database.base import Base, is_test_mode
+from Backend.database.base import Base
+from Backend.database.base import is_test_mode
 from Backend.misc.helperFunctions import get_now_with_tz
 
 
@@ -184,9 +184,10 @@ class ElevatorServers(Base):
 class Roles(Base):
     __tablename__ = "roles"
 
-    guild_id = Column(BigInteger, nullable=False, primary_key=True, autoincrement=False)
-    role_name = Column(Text, nullable=False, primary_key=True, autoincrement=False)
-    role_id = Column(BigInteger, nullable=False, autoincrement=False)
+    role_id = Column(BigInteger, primary_key=True, nullable=False, autoincrement=False)
+    guild_id = Column(BigInteger, nullable=False, autoincrement=False)
+    role_name = Column(Text, nullable=False, primary_key=False, autoincrement=False)
+    role_data = Column(JSON, nullable=False, primary_key=False, autoincrement=False)
 
 
 ################################################################
