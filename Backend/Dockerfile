@@ -1,4 +1,4 @@
-FROM kigstn/uvicorn-gunicorn-fastapi:python3.10-rc
+FROM kigstn/uvicorn-gunicorn-fastapi:python3.10.0
 
 ENV PYTHONPATH "${PYTHONPATH}:/app"
 
