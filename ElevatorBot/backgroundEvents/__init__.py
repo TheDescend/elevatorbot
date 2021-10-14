@@ -1,2 +1,3 @@
-from ElevatorBot.backgroundEvents.base import BaseEvent, scheduler
-from ElevatorBot.backgroundEvents.exampleEvent import ExampleEvent
+from ElevatorBot.backgroundEvents.base import BaseEvent
+from ElevatorBot.backgroundEvents.base import scheduler
+from ElevatorBot.backgroundEvents.roleAssigment import AutomaticRoleAssignment
