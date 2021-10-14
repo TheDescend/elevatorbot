@@ -1,10 +1,7 @@
 import asyncio
 
 from dis_snek.client import Snake
-from dis_snek.models.discord_objects.guild import Guild
-from dis_snek.models.discord_objects.user import Member
 
-from ElevatorBot.backendNetworking.destiny.roles import DestinyRoles
 from ElevatorBot.backgroundEvents import BaseEvent
 from ElevatorBot.core.destiny.roles import Roles
 
