@@ -21,81 +21,81 @@ from ElevatorBot.static.config import CLANID, BOTDEVCHANNELID
 from ElevatorBot.static.globals import *
 
 
-# todo call this one elevator, and the sleep. Backend calls elevator webhook when done
-class AutomaticRoleAssignment(BaseEvent):
-    """Will automatically _update the roles"""
-
-    def __init__(self):
-        # Set the interval for this event
-        dow_day_of_week = "*"
-        dow_hour = 1
-        dow_minute = 0
-        super().__init__(
-            scheduler_type="cron",
-            dow_day_of_week=dow_day_of_week,
-            dow_hour=dow_hour,
-            dow_minute=dow_minute,
-        )
-
-    async def run(self, client):
-        async def update_user(discord_member: discord.Member) -> Optional[str]:
-            if discord_member.bot:
-                return None
-
-            destiny_player = await DestinyPlayer.from_discord_id(discord_member.id)
-            if not destiny_player:
-                return
-
-            # gets the roles of the specific player and assigns/removes them
-            roles_to_add, roles_to_remove, _, _ = await get_player_roles(discord_member, destiny_player)
-
-            # assign roles
-            await discord_member.add_roles(*roles_to_add, reason="Achievement Role Earned")
-
-            # _delete roles
-            await discord_member.remove_roles(*roles_to_remove, reason="Achievement Role Not Deserved")
-
-            # convert to str
-            new_roles = [role.name for role in roles_to_add]
-            remove_roles = [role.name for role in roles_to_remove]
-
-            if new_roles or remove_roles:
-                return f'Updated player {discord_member.mention} by adding `{", ".join(new_roles or ["nothing"])}` and removing `{", ".join(remove_roles or ["nothing"])}`\n'
-            else:
-                return None
-
-        print("Running the automatic role assignment...")
-
-        # acquires the newtonslab channel from the descend server and notifies about starting
-        newtonslab = client.get_channel(BOTDEVCHANNELID)
-        guild = newtonslab.guild
-
-        async with newtonslab.typing():
-            update = UpdateActivityDB()
-            await update.run(client)
-
-        joblist = []
-        for member in guild.members:
-            # only allow people who accepted the rules
-            if not member.pending:
-                joblist.append(update_user(member))
-
-        results = await asyncio.gather(*joblist)
-        news = []
-        for result in results:
-            if result:
-                news.append(result)
-
-        if news:
-            for chunk in split_into_chucks_of_max_2000_characters(text_list=news):
-                await newtonslab.send(chunk)
-
-        # _update the status
-        await bot_status(
-            client,
-            "Achievement Role Update",
-            datetime.datetime.now(tz=datetime.timezone.utc),
-        )
+# # todo call this one elevator, and the sleep. Backend calls elevator webhook when done
+# class AutomaticRoleAssignment(BaseEvent):
+#     """Will automatically _update the roles"""
+#
+#     def __init__(self):
+#         # Set the interval for this event
+#         dow_day_of_week = "*"
+#         dow_hour = 1
+#         dow_minute = 0
+#         super().__init__(
+#             scheduler_type="cron",
+#             dow_day_of_week=dow_day_of_week,
+#             dow_hour=dow_hour,
+#             dow_minute=dow_minute,
+#         )
+#
+#     async def run(self, client):
+#         async def update_user(discord_member: discord.Member) -> Optional[str]:
+#             if discord_member.bot:
+#                 return None
+#
+#             destiny_player = await DestinyPlayer.from_discord_id(discord_member.id)
+#             if not destiny_player:
+#                 return
+#
+#             # gets the roles of the specific player and assigns/removes them
+#             roles_to_add, roles_to_remove, _, _ = await get_player_roles(discord_member, destiny_player)
+#
+#             # assign roles
+#             await discord_member.add_roles(*roles_to_add, reason="Achievement Role Earned")
+#
+#             # _delete roles
+#             await discord_member.remove_roles(*roles_to_remove, reason="Achievement Role Not Deserved")
+#
+#             # convert to str
+#             new_roles = [role.name for role in roles_to_add]
+#             remove_roles = [role.name for role in roles_to_remove]
+#
+#             if new_roles or remove_roles:
+#                 return f'Updated player {discord_member.mention} by adding `{", ".join(new_roles or ["nothing"])}` and removing `{", ".join(remove_roles or ["nothing"])}`\n'
+#             else:
+#                 return None
+#
+#         print("Running the automatic role assignment...")
+#
+#         # acquires the newtonslab channel from the descend server and notifies about starting
+#         newtonslab = client.get_channel(BOTDEVCHANNELID)
+#         guild = newtonslab.guild
+#
+#         async with newtonslab.typing():
+#             update = UpdateActivityDB()
+#             await update.run(client)
+#
+#         joblist = []
+#         for member in guild.members:
+#             # only allow people who accepted the rules
+#             if not member.pending:
+#                 joblist.append(update_user(member))
+#
+#         results = await asyncio.gather(*joblist)
+#         news = []
+#         for result in results:
+#             if result:
+#                 news.append(result)
+#
+#         if news:
+#             for chunk in split_into_chucks_of_max_2000_characters(text_list=news):
+#                 await newtonslab.send(chunk)
+#
+#         # _update the status
+#         await bot_status(
+#             client,
+#             "Achievement Role Update",
+#             datetime.datetime.now(tz=datetime.timezone.utc),
+#         )
 
 
 class AutoRegisteredRole(BaseEvent):
