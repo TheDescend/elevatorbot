@@ -1,55 +1,34 @@
-import discord
-from discord.ext.commands import Cog
-from discord_slash import SlashContext, cog_ext
-from discord_slash.utils.manage_commands import create_option
+from dis_snek.models import InteractionContext
+from dis_snek.models import Member
+from dis_snek.models import OptionTypes
+from dis_snek.models import slash_command
+from dis_snek.models import slash_option
 
-from ElevatorBot.commandHelpers.permissionTemplates import permissions_admin
 from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
 from ElevatorBot.backendNetworking.destiny.clan import DestinyClan
 from ElevatorBot.backendNetworking.destiny.profile import DestinyProfile
+from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formating import embed_message
 
 
-class UserInfo(Cog):
+class UserInfo(BaseScale):
     """
     Gets collected info for the specified user
 
     :option:discord_user: Here I describe special option behaviour so I can go very in-depth. It just needs to be in one line no matter how loooooooooooooooooooooooooooooooooooooooooooong the text is
     """
 
-    def __init__(self, client):
-        self.client = client
-
-    @cog_ext.cog_slash(
-        name="userinfo",
-        description="Gets collected info for the specified user",
-        options=[
-            create_option(
-                name="discord_user",
-                description="Look up a discord user",
-                option_type=6,
-                required=False,
-            ),
-            create_option(
-                name="destiny_id",
-                description="Look up a destinyID",
-                option_type=3,
-                required=False,
-            ),
-            create_option(
-                name="fuzzy_name",
-                description="If you know how the user is called",
-                option_type=3,
-                required=False,
-            ),
-        ],
-        default_permission=False,
-        permissions=permissions_admin,
+    # todo perms
+    @slash_command(name="userinfo", description="Gets collected info for the specified user")
+    @slash_option(name="discord_user", description="Look up a discord user", required=False, opt_type=OptionTypes.USER)
+    @slash_option(name="destiny_id", description="Look up a destinyID", required=False, opt_type=OptionTypes.INTEGER)
+    @slash_option(
+        name="fuzzy_name", description="If you know how the user is called", required=False, opt_type=OptionTypes.STRING
     )
     async def _user_info(
         self,
-        ctx: SlashContext,
-        discord_user: discord.Member = None,
+        ctx: InteractionContext,
+        discord_user: Member = None,
         destiny_id: str = None,
         fuzzy_name: str = None,
     ):
@@ -62,8 +41,8 @@ class UserInfo(Cog):
             or (destiny_id and discord_user and fuzzy_name)
         ):
             await ctx.send(
-                hidden=True,
-                embed=embed_message("Error", "Exactly one of the arguments must be used"),
+                ephemeral=True,
+                embeds=embed_message("Error", "Exactly one of the arguments must be used"),
             )
             return
         await ctx.defer()
@@ -78,8 +57,8 @@ class UserInfo(Cog):
                 destiny_id = int(destiny_id)
             except ValueError:
                 await ctx.send(
-                    hidden=True,
-                    embed=embed_message("Error", "The argument `destiny_id` must be a number"),
+                    ephemeral=True,
+                    embeds=embed_message("Error", "The argument `destiny_id` must be a number"),
                 )
                 return
 
@@ -112,7 +91,7 @@ class UserInfo(Cog):
 
             # did we find sb?
             if not clan_members.result["members"]:
-                await ctx.send(embed=embed_message("Error", "No matches found for `{fuzzy_name}`"))
+                await ctx.send(embeds=embed_message("Error", "No matches found for `{fuzzy_name}`"))
                 return
 
             # loop through the results
@@ -155,8 +134,8 @@ class UserInfo(Cog):
                 inline=False,
             )
 
-        await ctx.send(embed=embed)
+        await ctx.send(embeds=embed)
 
 
 def setup(client):
-    client.add_cog(UserInfo(client))
+    UserInfo(client)

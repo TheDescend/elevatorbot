@@ -1,7 +1,5 @@
 from dis_snek.client import Snake
 from dis_snek.models import Listener
-from dis_snek.models.events import Button
-from dis_snek.models.events import ChannelUpdate
 
 from ElevatorBot.discordEvents.errorEvents import on_component_callback_error
 from ElevatorBot.discordEvents.errorEvents import on_slash_command_error
@@ -24,8 +22,6 @@ from ElevatorBot.discordEvents.memberEvents import on_member_update
 from ElevatorBot.discordEvents.messageEvents import on_message
 from ElevatorBot.discordEvents.messageEvents import on_message_delete
 from ElevatorBot.discordEvents.messageEvents import on_message_edit
-from ElevatorBot.discordEvents.messageEvents import on_reaction_add
-from ElevatorBot.discordEvents.messageEvents import on_reaction_remove
 from ElevatorBot.discordEvents.voiceEvents import on_voice_state_update
 
 
@@ -33,6 +29,7 @@ def register_discord_events(client: Snake):
     """Import all events and add then to the bot"""
 
     # error handling
+    client.add_listener(Listener(on_slash_command_error, "slash_command_error"))  # todo currently missing
     client.add_listener(Listener(on_component_callback_error, "component_callback_error"))  # todo currently missing
 
     # interactions logging

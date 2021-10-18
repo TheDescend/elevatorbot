@@ -1,18 +1,18 @@
-import datetime
 from typing import Any
 
-import discord
+from dis_snek.models import Colour
+from dis_snek.models import Embed
 
 
-def embed_message(title: str = None, description: str = None, footer: str = None) -> discord.Embed:
+def embed_message(title: str = None, description: str = None, footer: str = None) -> Embed:
     """Takes title description and footer and returns an discord.Embed"""
 
     assert title or description or footer, "Need to input either title or description or footer"
 
-    embed = discord.Embed(
+    embed = Embed(
         title=title,
         description=description,
-        color=discord.Colour.from_rgb(r=115, g=215, b=248),  # Descend Turquoise Blue
+        color=Colour.from_rgb(r=115, g=215, b=248),  # Descend Turquoise Blue
     )
     if footer:
         embed.set_footer(text=footer)
