@@ -1,5 +1,7 @@
 from discord.ext.commands import Cog
-from discord_slash import ButtonStyle, SlashContext, cog_ext
+from discord_slash import ButtonStyle
+from discord_slash import cog_ext
+from discord_slash import SlashContext
 from discord_slash.utils import manage_components
 
 from ElevatorBot.misc.formating import embed_message
@@ -11,7 +13,7 @@ class Register(Cog):
         self.client = client
 
     @cog_ext.cog_slash(
-        name="registration",
+        name="register",
         description="Link your Destiny 2 account with ElevatorBot",
     )
     async def _register(self, ctx: SlashContext):

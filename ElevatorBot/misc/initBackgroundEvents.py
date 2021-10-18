@@ -1,22 +1,21 @@
 import datetime
 import logging
 
-import discord
-from apscheduler.events import (
-    EVENT_JOB_ADDED,
-    EVENT_JOB_ERROR,
-    EVENT_JOB_EXECUTED,
-    EVENT_JOB_MISSED,
-    EVENT_JOB_REMOVED,
-    EVENT_JOB_SUBMITTED,
-)
+from apscheduler.events import EVENT_JOB_ADDED
+from apscheduler.events import EVENT_JOB_ERROR
+from apscheduler.events import EVENT_JOB_EXECUTED
+from apscheduler.events import EVENT_JOB_MISSED
+from apscheduler.events import EVENT_JOB_REMOVED
+from apscheduler.events import EVENT_JOB_SUBMITTED
+from dis_snek.client import Snake
+from dis_snek.models import GuildChannel
 
 from ElevatorBot import backgroundEvents
 from ElevatorBot.backendNetworking.destiny.lfgSystem import DestinyLfgSystem
 from ElevatorBot.core.destiny.lfgSystem import LfgMessage
 
 
-def register_background_events(client: discord.Client):
+def register_background_events(client: Snake):
     """Adds all the events to apscheduler"""
 
     # gotta start the scheduler in the first place
@@ -124,7 +123,8 @@ def register_background_events(client: discord.Client):
 
             # create the objs from the returned data
             for event in events:
-                channel: discord.TextChannel = guild.get_channel(event["channel_id"])
+                channel: GuildChannel = await guild.get_channel(event["channel_id"])
+
                 lfg_event = LfgMessage(
                     backend=backend,
                     client=client,
@@ -138,10 +138,18 @@ def register_background_events(client: discord.Client):
                     max_joined_members=event["max_joined_members"],
                     message=await channel.fetch_message(event["message_id"]),
                     creation_time=event["creation_time"],
-                    joined=[guild.get_member(member_id) for member_id in event["joined_members"] if guild.get_member(member_id)],
-                    backup=[guild.get_member(member_id) for member_id in event["alternate_members"] if guild.get_member(member_id)],
+                    joined=[
+                        guild.get_member(member_id)
+                        for member_id in event["joined_members"]
+                        if guild.get_member(member_id)
+                    ],
+                    backup=[
+                        guild.get_member(member_id)
+                        for member_id in event["alternate_members"]
+                        if guild.get_member(member_id)
+                    ],
                     voice_channel=guild.get_channel(event["voice_channel_id"]),
-                    voice_category_channel=guild.get_channel(event["voice_category_channel_id"])
+                    voice_category_channel=guild.get_channel(event["voice_category_channel_id"]),
                 )
 
                 # add the event

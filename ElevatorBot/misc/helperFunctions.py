@@ -2,6 +2,9 @@ import datetime
 import logging
 import traceback
 
+from dis_snek.models import ComponentContext
+from dis_snek.models import InteractionContext
+
 from ElevatorBot.misc.formating import embed_message
 
 
@@ -18,7 +21,7 @@ def localize_datetime(obj: datetime.datetime) -> datetime.datetime:
 
 
 async def log_error(
-    ctx: SlashContext | ComponentContext,
+    ctx: InteractionContext | ComponentContext,
     error: Exception,
     situation: str,
 ) -> None:
@@ -26,7 +29,7 @@ async def log_error(
 
     if not ctx.responded:
         await ctx.send(
-            embed=embed_message(
+            embeds=embed_message(
                 "Error",
                 f"Sorry, something went wrong\nThe Error has been logged and will be worked on",
                 str(error),

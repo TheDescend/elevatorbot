@@ -1,24 +1,25 @@
 import dataclasses
 
-import discord
+from dis_snek.client import Snake
+from dis_snek.models import Guild
+from dis_snek.models import Member
 
 from ElevatorBot.backendNetworking.http import BaseBackendConnection
 from ElevatorBot.backendNetworking.results import BackendResult
-from ElevatorBot.backendNetworking.routes import (
-    destiny_lfg_create_route,
-    destiny_lfg_delete_route,
-    destiny_lfg_get_all_route,
-    destiny_lfg_get_route,
-    destiny_lfg_update_route,
-)
-from ElevatorBot.static.schemas import LfgInputData, LfgUpdateData
+from ElevatorBot.backendNetworking.routes import destiny_lfg_create_route
+from ElevatorBot.backendNetworking.routes import destiny_lfg_delete_route
+from ElevatorBot.backendNetworking.routes import destiny_lfg_get_all_route
+from ElevatorBot.backendNetworking.routes import destiny_lfg_get_route
+from ElevatorBot.backendNetworking.routes import destiny_lfg_update_route
+from ElevatorBot.static.schemas import LfgInputData
+from ElevatorBot.static.schemas import LfgUpdateData
 
 
 @dataclasses.dataclass
 class DestinyLfgSystem(BaseBackendConnection):
-    client: discord.Client
-    discord_guild: discord.Guild
-    discord_member = None
+    client: Snake
+    discord_guild: Guild
+    discord_member: Member = dataclasses.field(init=False, default=None)
 
     async def get_all(self) -> BackendResult:
         """Gets all the lfg events and info belonging to the guild"""
@@ -43,7 +44,7 @@ class DestinyLfgSystem(BaseBackendConnection):
     async def update(
         self,
         lfg_id: int,
-        discord_member: discord.Member,
+        discord_member: Member,
         lfg_data: LfgUpdateData,
     ):
         """Updates the lfg info belonging to the lfg id and guild"""
@@ -62,7 +63,7 @@ class DestinyLfgSystem(BaseBackendConnection):
 
         return result
 
-    async def create(self, discord_member: discord.Member, lfg_data: LfgInputData):
+    async def create(self, discord_member: Member, lfg_data: LfgInputData):
         """Inserts the lfg info and gives it a new id"""
 
         await self._backend_request(
@@ -71,7 +72,7 @@ class DestinyLfgSystem(BaseBackendConnection):
             data=lfg_data.__dict__,
         )
 
-    async def delete(self, discord_member: discord.Member, lfg_id: int) -> BackendResult:
+    async def delete(self, discord_member: Member, lfg_id: int) -> BackendResult:
         """Delete the lfg info belonging to the lfg id and guild"""
 
         result = await self._backend_request(

@@ -4,6 +4,7 @@ from copy import copy
 from dis_snek.client import Snake
 
 
+# todo
 def create_command_docs(client: Snake):
     """Create user documentation for commands and context menus in ./ElevatorBot/docs"""
 
