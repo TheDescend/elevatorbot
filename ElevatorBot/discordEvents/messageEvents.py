@@ -1,33 +1,19 @@
-from typing import Union
-
-import discord
+from dis_snek.models import Message
 
 
-async def on_message(message: discord.Message):
+async def on_message(message: Message):
     """ """
     # todo
     pass
 
 
-async def on_message_delete(message: discord.Message):
+async def on_message_delete(message: Message):
     """ """
     # todo
     pass
 
 
-async def on_message_edit(before: discord.Message, after: discord.Message):
-    """ """
-    # todo
-    pass
-
-
-async def on_reaction_add(reaction: discord.Reaction, user: discord.Member):
-    """ """
-    # todo
-    pass
-
-
-async def on_reaction_remove(reaction: discord.Reaction, user: discord.Member):
+async def on_message_edit(before: Message, after: Message):
     """ """
     # todo
     pass

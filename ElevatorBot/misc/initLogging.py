@@ -15,7 +15,7 @@ def init_logging() -> None:
     # Initialize formatter
     formatter = logging.Formatter("%(asctime)s - %(levelname)s : %(message)s")
 
-    # Initialize logging for discord events (on_member_join, etc.)
+    # Initialize logging for discord events (on_member_add, etc.)
     make_logger("discordEvents")
 
     # Initialize logging for command usage

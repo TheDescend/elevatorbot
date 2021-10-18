@@ -1,27 +1,30 @@
-import discord.abc
+from dis_snek.models import Guild
+from dis_snek.models import GuildChannel
+from dis_snek.models import Role
+from dis_snek.models import ThreadChannel
 
 from ElevatorBot.backendNetworking.misc.elevatorInfo import ElevatorGuilds
 
 
-async def on_guild_channel_delete(channel: discord.abc.GuildChannel):
+async def on_channel_delete(channel: GuildChannel):
     """ """
     # todo
     pass
 
 
-async def on_guild_channel_create(channel: discord.abc.GuildChannel):
+async def on_channel_create(channel: GuildChannel):
     """ """
     # todo
     pass
 
 
-async def on_guild_channel_update(before: discord.abc.GuildChannel, after: discord.abc.GuildChannel):
+async def on_channel_update(before: GuildChannel, after: GuildChannel):
     """ """
     # todo
     pass
 
 
-async def on_guild_join(guild: discord.Guild):
+async def on_guild_join(guild: Guild):
     """Triggers when ElevatorBot gets added to a guild"""
 
     # todo make sure all current guilds are in the db too
@@ -30,7 +33,7 @@ async def on_guild_join(guild: discord.Guild):
     await elevator_guilds.add()
 
 
-async def on_guild_remove(guild: discord.Guild):
+async def on_guild_remove(guild: Guild):
     """Triggers when ElevatorBot gets removed from a guild"""
 
     # remove guild from the list of all guilds, needed for website info
@@ -38,13 +41,31 @@ async def on_guild_remove(guild: discord.Guild):
     await elevator_guilds.delete()
 
 
-async def on_guild_role_delete(role: discord.Role):
+async def on_guild_role_delete(role: Role):
     """ """
     # todo make sure to delete db entries for roles
     pass
 
 
-async def on_guild_role_update(before: discord.Role, after: discord.Role):
+async def on_guild_role_update(before: Role, after: Role):
+    """ """
+    # todo
+    pass
+
+
+async def on_thread_create(thread: ThreadChannel):
+    """ """
+    # todo
+    pass
+
+
+async def on_thread_update(before: ThreadChannel, after: ThreadChannel):
+    """ """
+    # todo
+    pass
+
+
+async def on_thread_delete(thread: ThreadChannel):
     """ """
     # todo
     pass

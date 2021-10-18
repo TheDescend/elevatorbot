@@ -1,5 +1,5 @@
 import os
-from typing import Generator
+from collections.abc import Generator
 
 
 def yield_files_in_folder(folder: str, extension: str) -> Generator:
@@ -7,7 +7,7 @@ def yield_files_in_folder(folder: str, extension: str) -> Generator:
 
     for root, dirs, files in os.walk(folder):
         for file in files:
-            if file.endswith(f".{extension}") and not file.startswith("__init__"):
+            if file.endswith(f".{extension}") and not file.startswith("__init__") and not file.startswith("base"):
                 file = file.removesuffix(f".{extension}")
                 path = os.path.join(root, file)
                 yield path.replace("/", ".").replace("\\", ".")

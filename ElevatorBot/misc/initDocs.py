@@ -1,10 +1,10 @@
 import json
 from copy import copy
 
-from discord_slash import SlashCommand
+from dis_snek.client import Snake
 
 
-def create_command_docs(slash_client: SlashCommand):
+def create_command_docs(client: Snake):
     """Create user documentation for commands and context menus in ./ElevatorBot/docs"""
 
     commands = {}
@@ -12,7 +12,7 @@ def create_command_docs(slash_client: SlashCommand):
     context_menus = {}
 
     # loop through all commands and save the docstrings
-    for command in slash_client.commands.values():
+    for command in client.interactions.values():
         # ignore the empty dict that there for some reason
         if command:
             name = command.name

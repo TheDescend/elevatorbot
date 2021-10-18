@@ -1,8 +1,8 @@
 import asyncio
 
-import discord
-from discord.ext.commands import Bot
-from discord_slash import SlashCommand
+from dis_snek.client import Snake
+from dis_snek.models import listen
+from dis_snek.models.enums import Intents
 
 from ElevatorBot.discordEvents.base import register_discord_events
 from ElevatorBot.misc.discordStatus import update_status
@@ -11,32 +11,33 @@ from ElevatorBot.misc.initDocs import create_command_docs
 from ElevatorBot.misc.initLogging import init_logging
 from ElevatorBot.misc.veryMisc import yield_files_in_folder
 from ElevatorBot.webserver.server import run_webserver
-from settings import DISCORD_BOT_TOKEN, SYNC_COMMANDS
+from settings import DISCORD_BOT_TOKEN
+from settings import SYNC_COMMANDS
 
 
 first_start = True
 
 
 # define on_ready event
-class ElevatorBot(Bot):
-    async def on_ready(self):
-        # only run this on first startup
-        global first_start
-        if not first_start:
-            return
-        first_start = False
+@listen
+async def on_ready(self):
+    # only run this on first startup
+    global first_start
+    if not first_start:
+        return
+    first_start = False
 
-        print("Creating docs for commands...")
-        create_command_docs(slash_client)
+    print("Creating docs for commands...")
+    create_command_docs(client)
 
-        print("Launching the Status Changer...")
-        asyncio.create_task(update_status(client))
+    print("Launching the Status Changer...")
+    asyncio.create_task(update_status(client))
 
-        print("Start Webserver...")
-        asyncio.create_task(run_webserver(client=client))
+    print("Start Webserver...")
+    asyncio.create_task(run_webserver(client=client))
 
-        print("Startup Finished!\n")
-        print("--------------------------\n")
+    print("Startup Finished!\n")
+    print("--------------------------\n")
 
 
 if __name__ == "__main__":
@@ -47,45 +48,41 @@ if __name__ == "__main__":
     print("----------------------------------------------------------------------------------------")
     print(
         """
-          ______   _                          _                    ____            _   
-         |  ____| | |                        | |                  |  _ \          | |  
-         | |__    | |   ___  __   __   __ _  | |_    ___    _ __  | |_) |   ___   | |_ 
+          ______   _                          _                    ____            _
+         |  ____| | |                        | |                  |  _ \          | |
+         | |__    | |   ___  __   __   __ _  | |_    ___    _ __  | |_) |   ___   | |_
          |  __|   | |  / _ \ \ \ / /  / _` | | __|  / _ \  | '__| |  _ <   / _ \  | __|
-         | |____  | | |  __/  \ V /  | (_| | | |_  | (_) | | |    | |_) | | (_) | | |_ 
-         |______| |_|  \___|   \_/    \__,_|  \__|  \___/  |_|    |____/   \___/   \__|                                                                          
+         | |____  | | |  __/  \ V /  | (_| | | |_  | (_) | | |    | |_) | | (_) | | |_
+         |______| |_|  \___|   \_/    \__,_|  \__|  \___/  |_|    |____/   \___/   \__|
         """
     )
     print("----------------------------------------------------------------------------------------\n")
     print("Starting Up...")
 
     # enable intents to allow certain events
-    intents = discord.Intents.none()
-    intents.members = True
-    intents.guilds = True
-    intents.messages = True
-    intents.voice_states = True
-    intents.emojis = True
+    # see https://discord.com/developers/docs/topics/gateway#gateway-intents
+    intents = Intents.new(
+        guilds=True,
+        guild_members=True,
+        guild_messages=True,
+        guild_voice_states=True,
+    )
 
     # actually get the bot obj
-    client = ElevatorBot(
+    client = Snake(
         intents=intents,
-        help_command=None,
-        command_prefix="!",
-        owner_ids=[
-            238388130581839872,
-            219517105249189888,
-        ],
+        sync_interactions=SYNC_COMMANDS,
+        delete_unused_application_cmds=True,
     )
-    slash_client = SlashCommand(client, sync_commands=SYNC_COMMANDS)
 
     # add discord events and handlers
-    register_discord_events(client, slash_client)
+    register_discord_events(client)
 
     # load commands
     print("Loading Commands...")
     for path in yield_files_in_folder("commands", "py"):
         client.load_extension(path)
-    print(f"< {len(slash_client.commands)} > Commands Loaded")
+    print(f"< {len(client.interactions)} > Commands Loaded")
 
     # load context menus
     print("Loading Context Menus...")
@@ -97,4 +94,4 @@ if __name__ == "__main__":
     register_background_events(client)
 
     # run the bot
-    client.run(DISCORD_BOT_TOKEN)
+    client.start(DISCORD_BOT_TOKEN)

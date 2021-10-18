@@ -1,9 +1,10 @@
 import logging
 
-from discord_slash import ComponentContext, SlashContext
+from dis_snek.models import ComponentContext
+from dis_snek.models import InteractionContext
 
 
-async def on_slash_command(ctx: SlashContext):
+async def on_slash_command(ctx: InteractionContext):
     """Gets triggered every slash command"""
 
     # print the command

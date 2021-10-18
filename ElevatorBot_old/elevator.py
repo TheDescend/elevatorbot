@@ -13,61 +13,59 @@ from io import BytesIO
 import discord
 import pytz
 from aiohttp import web
-from apscheduler.events import (
-    EVENT_JOB_EXECUTED,
-    EVENT_JOB_ERROR,
-    EVENT_JOB_ADDED,
-    EVENT_JOB_REMOVED,
-)
-from apscheduler.events import EVENT_JOB_MISSED, EVENT_JOB_SUBMITTED
+from apscheduler.events import EVENT_JOB_ADDED
+from apscheduler.events import EVENT_JOB_ERROR
+from apscheduler.events import EVENT_JOB_EXECUTED
+from apscheduler.events import EVENT_JOB_MISSED
+from apscheduler.events import EVENT_JOB_REMOVED
+from apscheduler.events import EVENT_JOB_SUBMITTED
 from discord.ext.commands import Bot
-from discord_slash import SlashCommand, SlashContext, ComponentContext, ButtonStyle
+from discord_slash import ButtonStyle
+from discord_slash import ComponentContext
+from discord_slash import SlashCommand
+from discord_slash import SlashContext
 from discord_slash.utils import manage_components
-
-from database.database import get_connection_pool, select_lfg_datetimes_and_users
 from events.baseEvent import BaseEvent
-from functions.clanJoinRequests import (
-    removeFromClanAfterLeftDiscord,
-    on_clan_join_request,
-    elevatorRegistration,
-)
+from functions.clanJoinRequests import elevatorRegistration
+from functions.clanJoinRequests import on_clan_join_request
+from functions.clanJoinRequests import removeFromClanAfterLeftDiscord
 from functions.destinyPlayer import DestinyPlayer
 from functions.formating import embed_message
-from functions.lfg import notify_about_lfg_event_start, get_lfg_message
-from functions.miscFunctions import (
-    update_status,
-    get_scheduler,
-    left_channel,
-    joined_channel,
-)
-from functions.persistentMessages import (
-    check_reaction_for_persistent_message,
-    get_persistent_message_or_channel,
-)
+from functions.lfg import get_lfg_message
+from functions.lfg import notify_about_lfg_event_start
+from functions.miscFunctions import get_scheduler
+from functions.miscFunctions import joined_channel
+from functions.miscFunctions import left_channel
+from functions.miscFunctions import update_status
+from functions.persistentMessages import check_reaction_for_persistent_message
+from functions.persistentMessages import get_persistent_message_or_channel
 from functions.poll import get_poll_object
-from functions.roleLookup import assignRolesToUser, removeRolesFromUser
+from functions.roleLookup import assignRolesToUser
+from functions.roleLookup import removeRolesFromUser
 from init_logging import init_logging
+from static.config import BOT_TOKEN
+from static.config import COMMAND_PREFIX
+from static.globals import admin_discussions_channel_id
+from static.globals import dev_role_id
+from static.globals import discord_server_id
+from static.globals import divider_achievement_role_id
+from static.globals import divider_misc_role_id
+from static.globals import divider_raider_role_id
+from static.globals import join_log_channel_id
+from static.globals import member_role_id
+from static.globals import muted_role_id
+from static.globals import not_registered_role_id
+from static.globals import registered_role_id
+
+from database.database import get_connection_pool
+from database.database import select_lfg_datetimes_and_users
 from settings import SYNC_COMMANDS
-from static.config import COMMAND_PREFIX, BOT_TOKEN
-from static.globals import (
-    registered_role_id,
-    not_registered_role_id,
-    admin_discussions_channel_id,
-    divider_raider_role_id,
-    divider_achievement_role_id,
-    divider_misc_role_id,
-    muted_role_id,
-    dev_role_id,
-    member_role_id,
-    discord_server_id,
-    join_log_channel_id,
-)
 
 
 # vital, do not _delete. Otherwise no events get loaded
 
 
-# to enable the on_member_join and on_member_remove
+# to enable the on_member_add and on_member_remove
 # intents = discord.Intents.default()
 # intents.members = True
 
