@@ -1,28 +1,28 @@
-from discord.ext.commands import Cog
-from discord_slash import SlashContext, cog_ext
+from dis_snek.models import InteractionContext
+from dis_snek.models import sub_command
 
-from ElevatorBot.commandHelpers.permissionTemplates import permissions_admin
 from ElevatorBot.backendNetworking.destiny.clan import DestinyClan
+from ElevatorBot.commandHelpers.optionTemplates import admin_group
+from ElevatorBot.commandHelpers.permissionTemplates import permissions_admin
+from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formating import embed_message
 
 
-class ClanUnlink(Cog):
-    def __init__(self, client):
-        self.client = client
+class ClanUnlink(BaseScale):
+    """Unlink the current Destiny 2 clan the discord server this was executed in"""
 
-    @cog_ext.cog_subcommand(
-        base="clan",
+    # todo perms
+    @sub_command(
+        base_name="clan",
         base_description="Everything concerning the link from this discord guild to your Destiny 2 clan",
-        name="unlink",
-        description="Unlink the current Destiny 2 clan with this discord. Requires Admin in both Discord",
-        base_default_permission=False,
-        base_permissions=permissions_admin,
+        sub_name="unlink",
+        sub_description="Unlink the current Destiny 2 clan with this discord. Requires Admin in both Discord",
+        **admin_group,
     )
     async def _unlink(
         self,
-        ctx: SlashContext,
+        ctx: InteractionContext,
     ):
-        """Unlink the current Destiny 2 clan with this discord. Requires Admin in both Discord"""
 
         clan = DestinyClan(client=ctx.bot, discord_member=ctx.author, discord_guild=ctx.guild)
         result = await clan.unlink()
@@ -31,7 +31,7 @@ class ClanUnlink(Cog):
             await result.send_error_message(ctx)
         else:
             await ctx.send(
-                embed=embed_message(
+                embeds=embed_message(
                     "Success",
                     f"This discord server has been successfully unlinked from the clan `{result.result['clan_name']}`",
                 )
@@ -39,4 +39,4 @@ class ClanUnlink(Cog):
 
 
 def setup(client):
-    client.add_cog(ClanUnlink(client))
+    ClanUnlink(client)

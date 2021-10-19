@@ -7,6 +7,7 @@ from dis_snek.models import slash_option
 from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
 from ElevatorBot.backendNetworking.destiny.clan import DestinyClan
 from ElevatorBot.backendNetworking.destiny.profile import DestinyProfile
+from ElevatorBot.commandHelpers.optionTemplates import admin_group
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formating import embed_message
 
@@ -19,7 +20,7 @@ class UserInfo(BaseScale):
     """
 
     # todo perms
-    @slash_command(name="userinfo", description="Gets collected info for the specified user")
+    @slash_command(name="userinfo", description="Gets collected info for the specified user", **admin_group)
     @slash_option(name="discord_user", description="Look up a discord user", required=False, opt_type=OptionTypes.USER)
     @slash_option(name="destiny_id", description="Look up a destinyID", required=False, opt_type=OptionTypes.INTEGER)
     @slash_option(

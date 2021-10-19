@@ -1,35 +1,28 @@
-import discord
-from discord.ext.commands import Cog
-from discord_slash import cog_ext
-from discord_slash import SlashContext
-from discord_slash.utils.manage_commands import create_option
+from dis_snek.models import InteractionContext
+from dis_snek.models import Member
+from dis_snek.models import OptionTypes
+from dis_snek.models import slash_option
+from dis_snek.models import sub_command
 
 from ElevatorBot.backendNetworking.results import BackendResult
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
+from ElevatorBot.commandHelpers.optionTemplates import destiny_group
+from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.core.destiny.lfgSystem import LfgMessage
 from ElevatorBot.misc.formating import embed_message
 
 
-class LfgKick(Cog):
-    def __init__(self, client):
-        self.client = client
-
-    @cog_ext.cog_subcommand(
-        base="lfg",
+class LfgKick(BaseScale):
+    @sub_command(
+        base_name="lfg",
         base_description="Everything concerning my awesome Destiny 2 LFG system",
-        name="kick",
-        description="Kick a user from an lfg event",
-        options=[
-            create_option(
-                name="lfg_id",
-                description="The lfg message id",
-                option_type=4,
-                required=True,
-            ),
-            default_user_option(description="The user you want to add", required=True),
-        ],
+        sub_name="kick",
+        sub_description="Kick a user from an lfg event",
+        **destiny_group,
     )
-    async def _kick(self, ctx: SlashContext, lfg_id, user):
+    @slash_option(name="lfg_id", description="The lfg message id", required=True, opt_type=OptionTypes.INTEGER)
+    @default_user_option(description="The user you want to kick", required=True)
+    async def _kick(self, ctx: InteractionContext, lfg_id: int, user: Member):
         # get the message obj
         lfg_message = await LfgMessage.from_lfg_id(lfg_id=lfg_id, client=ctx.bot, guild=ctx.guild)
 
@@ -50,8 +43,8 @@ class LfgKick(Cog):
                 f"{user.display_name} could not be _delete from the LFG post with the id `{lfg_id}`, because they are not in it",
             )
 
-        await ctx.send(hidden=True, embed=embed)
+        await ctx.send(ephemeral=True, embeds=embed)
 
 
 def setup(client):
-    client.add_cog(LfgKick(client))
+    LfgKick(client)

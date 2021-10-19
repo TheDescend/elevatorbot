@@ -1,23 +1,23 @@
-from discord.ext.commands import Cog
-from discord_slash import cog_ext
-from discord_slash import SlashContext
+from dis_snek.client import Snake
+from dis_snek.models import InteractionContext
+from dis_snek.models import Scale
+from dis_snek.models import slash_command
 
 from ElevatorBot.backendNetworking.destiny.profile import DestinyProfile
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
+from ElevatorBot.commandHelpers.optionTemplates import destiny_group
+from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formating import embed_message
 
 
-class UnRegister(Cog):
+class UnRegister(Scale):
     def __init__(self, client):
-        self.client = client
+        self.client: Snake = client
 
-    @cog_ext.cog_slash(
-        name="unregister",
-        description="Unlink your Destiny 2 account from ElevatorBot",
-    )
+    @slash_command(name="unregister", description="Unlink your Destiny 2 account from ElevatorBot", **destiny_group)
     async def _unregister(
         self,
-        ctx: SlashContext,
+        ctx: InteractionContext,
     ):
         """Unlink your Destiny 2 account from ElevatorBot"""
 
@@ -28,8 +28,8 @@ class UnRegister(Cog):
             await result.send_error_message(ctx, hidden=True)
         else:
             await ctx.send(
-                hidden=True,
-                embed=embed_message(
+                ephemeral=True,
+                embeds=embed_message(
                     "See Ya",
                     "There was a flash and suddenly I do not remember anything about you anymore",
                 ),
@@ -37,4 +37,4 @@ class UnRegister(Cog):
 
 
 def setup(client):
-    client.add_cog(UnRegister(client))
+    UnRegister(client)

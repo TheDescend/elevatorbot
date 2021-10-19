@@ -1,52 +1,38 @@
 import asyncio
 
-import discord
+
 import pytz
 from dateutil.parser import ParserError, parse
-from discord.ext.commands import Cog
-from discord_slash import ComponentContext, SlashContext, cog_ext
-from discord_slash.utils import manage_components
-from discord_slash.utils.manage_commands import create_choice, create_option
+from dis_snek.models import ActionRow, ComponentContext, InteractionContext, Message, OptionTypes, Select, SelectOption, SlashCommandChoice, slash_option, sub_command
 
 from ElevatorBot.backendNetworking.results import BackendResult
+from ElevatorBot.commandHelpers.optionTemplates import destiny_group
 from ElevatorBot.commandHelpers.responseTemplates import respond_timeout
+from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.core.destiny.lfgSystem import LfgMessage
 from ElevatorBot.misc.formating import embed_message
 from ElevatorBot.misc.helperFunctions import get_now_with_tz
 from ElevatorBot.static.timezones import timezones_dict
 
 
-class LfgEdit(Cog):
-    def __init__(self, client):
-        self.client = client
+class LfgEdit(BaseScale):
 
-    @cog_ext.cog_subcommand(
-        base="lfg",
+
+    @sub_command(
+        base_name="lfg",
         base_description="Everything concerning my awesome Destiny 2 LFG system",
-        name="edit",
-        description="When you fucked up and need to edit an event",
-        options=[
-            create_option(
-                name="lfg_id",
-                description="The lfg message id",
-                option_type=4,
-                required=True,
-            ),
-            create_option(
-                name="section",
-                description="What section to edit",
-                option_type=3,
-                required=True,
-                choices=[
-                    create_choice(name="Activity", value="Activity"),
-                    create_choice(name="Description", value="Description"),
-                    create_choice(name="Start Time", value="Start Time"),
-                    create_choice(name="Maximum Members", value="Maximum Members"),
-                ],
-            ),
-        ],
+        sub_name="edit",
+        sub_description="When you fucked up and need to edit an event",
+        **destiny_group,
     )
-    async def _edit(self, ctx: SlashContext, lfg_id: int, section: str):
+    @slash_option(name="lfg_id", description="The lfg message id", required=True, opt_type=OptionTypes.INTEGER)
+    @slash_option(name="section", description="What section to edit", required=True, opt_type=OptionTypes.STRING, choices=[
+                    SlashCommandChoice(name="Activity", value="Activity"),
+                    SlashCommandChoice(name="Description", value="Description"),
+                    SlashCommandChoice(name="Start Time", value="Start Time"),
+                    SlashCommandChoice(name="Maximum Members", value="Maximum Members"),
+                ])
+    async def _edit(self, ctx: InteractionContext, lfg_id: int, section: str):
         # get the message obj
         lfg_message = await LfgMessage.from_lfg_id(lfg_id=lfg_id, client=ctx.bot, guild=ctx.guild)
 
@@ -59,7 +45,7 @@ class LfgEdit(Cog):
         await ctx.defer()
 
         # make sure the author replies to all further inputs
-        def message_check(check_msg: discord.Message):
+        def message_check(check_msg: Message):
             return check_msg.author == ctx.author and check_msg.channel == message.channel
 
         def component_check(check_ctx: ComponentContext):
@@ -68,9 +54,10 @@ class LfgEdit(Cog):
         answer_msg = None
         match section:
             case "Activity":
-                message = await ctx.send(embed=embed_message("Activity Name", "Please enter a new name"))
+                message = await ctx.send(embeds=embed_message("Activity Name", "Please enter a new name"))
 
                 # wait 60s for message
+                # todo
                 try:
                     answer_msg = await self.client.wait_for("message", timeout=60.0, check=message_check)
                 except asyncio.TimeoutError:
@@ -81,7 +68,7 @@ class LfgEdit(Cog):
                     lfg_message.activity = answer_msg.content
 
             case "Description":
-                message = await ctx.send(embed=embed_message("Description", "Please enter a new description"))
+                message = await ctx.send(embeds=embed_message("Description", "Please enter a new description"))
 
                 # wait 60s for message
                 try:
@@ -95,7 +82,7 @@ class LfgEdit(Cog):
 
             case "Start Time":
                 message = await ctx.send(
-                    embed=embed_message(
+                    embeds=embed_message(
                         "Start Time",
                         "Please enter a new start time like this \n`HH:MM DD/MM`"
                     )
@@ -113,7 +100,7 @@ class LfgEdit(Cog):
                         start_time = parse(answer_msg.content, dayfirst=True)
                     except ParserError:
                         await message.edit(
-                            embed=embed_message(
+                            embeds=embed_message(
                                 "Error",
                                 "There was an error with the formatting of the time parameters, please try again",
                             )
@@ -125,10 +112,10 @@ class LfgEdit(Cog):
 
                     # ask for the timezone
                     components = [
-                        manage_components.create_actionrow(
-                            manage_components.create_select(
+                        ActionRow(
+                            Select(
                                 options=[
-                                    manage_components.create_select_option(
+                                    SelectOption(
                                         emoji="🕑",
                                         label=timezone_name,
                                         value=timezone_value,
@@ -146,7 +133,7 @@ class LfgEdit(Cog):
                         "Please Select the Timezone",
                     )
 
-                    await message.edit(components=components, embed=embed)
+                    await message.edit(components=components, embeds=embed)
 
                     # wait 60s for selection
                     try:
@@ -167,7 +154,7 @@ class LfgEdit(Cog):
                         if start_time < get_now_with_tz():
                             await select_ctx.edit_origin(
                                 components=None,
-                                embed=embed_message(
+                                embeds=embed_message(
                                     "Error",
                                     "The event cannot start in the past. Please try again",
                                 ),
@@ -178,7 +165,7 @@ class LfgEdit(Cog):
 
             # Maximum Members
             case _:
-                message = await ctx.send(embed=embed_message("Maximum Members", "Please enter the new maximum members"))
+                message = await ctx.send(embeds=embed_message("Maximum Members", "Please enter the new maximum members"))
 
                 # wait 60s for message
                 try:
@@ -192,7 +179,7 @@ class LfgEdit(Cog):
                         lfg_message.max_joined_members = int(answer_msg.content)
                     except ValueError:
                         await message.edit(
-                            embed=embed_message(
+                            embeds=embed_message(
                                 "Error",
                                 f"`{answer_msg.content}` is not a number. Please try again",
                             )
@@ -208,10 +195,10 @@ class LfgEdit(Cog):
         await lfg_message.send()
 
         await message.edit(
-            embed=embed_message(f"Success", f"I've edited the post"),
+            embeds=embed_message(f"Success", f"I've edited the post"),
             components=[]
         )
 
 
 def setup(client):
-    client.add_cog(LfgEdit(client))
+    LfgEdit(client)

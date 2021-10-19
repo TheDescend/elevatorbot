@@ -1,24 +1,20 @@
-from discord.ext.commands import Cog
-from discord_slash import SlashContext, cog_ext
+from dis_snek.models import InteractionContext
+from dis_snek.models import slash_command
 
+from ElevatorBot.commandHelpers.optionTemplates import misc_group
 from ElevatorBot.commandHelpers.permissionTemplates import permissions_socialist
+from ElevatorBot.commands.base import BaseScale
 
 
-class Socialist(Cog):
-    def __init__(self, client):
-        self.client = client
+class Socialist(BaseScale):
 
-    @cog_ext.cog_slash(
-        name="socialist",
-        description="Spams #socialist",
-        default_permission=False,
-        permissions=permissions_socialist,
-    )
-    async def _socialist(self, ctx: SlashContext):
+    # todo perms
+    @slash_command(name="socialist", description="Spams #socialist", **misc_group)
+    async def _socialist(self, ctx: InteractionContext):
         """Spams #socialist"""
 
         await ctx.send("No 🙃")
 
 
 def setup(client):
-    client.add_cog(Socialist(client))
+    Socialist(client)

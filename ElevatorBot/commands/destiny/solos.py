@@ -1,25 +1,20 @@
-import discord
-from discord.ext.commands import Cog
-from discord_slash import cog_ext
-from discord_slash import SlashContext
+from dis_snek.models import InteractionContext
+from dis_snek.models import Member
+from dis_snek.models import slash_command
 
 from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
+from ElevatorBot.commandHelpers.optionTemplates import destiny_group
+from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formating import embed_message
 
 
-class Solos(Cog):
-    """Shows you an overview of your Destiny 2 solo activity completions"""
-
-    def __init__(self, client):
-        self.client = client
-
-    @cog_ext.cog_slash(
-        name="solos",
-        description="Shows you an overview of your Destiny 2 solo activity completions",
-        options=[default_user_option()],
+class Solos(BaseScale):
+    @slash_command(
+        name="solos", description="Shows you an overview of your Destiny 2 solo activity completions", **destiny_group
     )
-    async def _solos(self, ctx: SlashContext, user: discord.Member):
+    @default_user_option()
+    async def _solos(self, ctx: InteractionContext, user: Member):
 
         await ctx.defer()
         account = DestinyAccount(client=ctx.bot, discord_member=user, discord_guild=ctx.guild)
@@ -45,8 +40,8 @@ class Solos(Cog):
         if not solos.result["solos"]:
             embed.description = "You do not seem to have any notable solo completions"
 
-        await ctx.send(embed=embed)
+        await ctx.send(embeds=embed)
 
 
 def setup(client):
-    client.add_cog(Solos(client))
+    Solos(client)

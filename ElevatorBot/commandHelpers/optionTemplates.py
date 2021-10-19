@@ -4,6 +4,8 @@ from dis_snek.models import OptionTypes
 from dis_snek.models import slash_option
 from dis_snek.models import SlashCommandChoice
 
+from ElevatorBot.static.timezones import timezones_dict
+
 
 def get_mode_choices() -> list[SlashCommandChoice]:
     return [
@@ -18,6 +20,16 @@ def get_mode_choices() -> list[SlashCommandChoice]:
         SlashCommandChoice(name="Iron Banner", value="19"),
         SlashCommandChoice(name="Everything PvP", value="5"),
         SlashCommandChoice(name="Gambit", value="63"),
+    ]
+
+
+def get_timezone_choices() -> list[SlashCommandChoice]:
+    return [
+        SlashCommandChoice(
+            name=timezone_name,
+            value=timezone_value,
+        )
+        for timezone_name, timezone_value in timezones_dict.items()
     ]
 
 
@@ -81,3 +93,10 @@ def default_stat_option() -> Any:
         )(func)
 
     return wrapper
+
+
+admin_group: dict = {"group_name": "Administration", "group_description": "Elevator's Admin Commands"}
+
+destiny_group: dict = {"group_name": "Destiny", "group_description": "Elevator's Destiny Commands"}
+
+misc_group: dict = {"group_name": "Miscellaneous", "group_description": "Elevator's Miscellaneous Commands"}

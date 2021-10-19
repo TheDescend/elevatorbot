@@ -3,28 +3,22 @@ import io
 import random
 
 import aiohttp
-import discord
-from discord.ext.commands import Cog
-from discord_slash import cog_ext
-from discord_slash import SlashContext
+from dis_snek.models import InteractionContext
+from dis_snek.models import Member
+from dis_snek.models import slash_command
 
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
+from ElevatorBot.commandHelpers.optionTemplates import misc_group
+from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.discordShortcutFunctions import assign_roles_to_member
 from ElevatorBot.misc.discordShortcutFunctions import remove_roles_from_member
 from ElevatorBot.static.descendOnlyIds import descend_muted_role_id
 
 
-class MuteMe(Cog):
-    def __init__(self, client):
-        self.client = client
-
-    @cog_ext.cog_slash(
-        name="muteme",
-        description="I wonder what this does...",
-        options=[default_user_option()],
-    )
-    async def _mute_me(self, ctx: SlashContext, user: discord.Member = None):
-        """I wonder what this does..."""
+class MuteMe(BaseScale):
+    @slash_command(name="muteme", description="I wonder what this does...", **misc_group)
+    @default_user_option()
+    async def _mute_me(self, ctx: InteractionContext, user: Member = None):
 
         # no mentioning others here smileyface
         if user:
@@ -48,7 +42,7 @@ class MuteMe(Cog):
                 ) as resp:
                     if resp.status == 200:
                         data = io.BytesIO(await resp.read())
-                        await ctx.author.send(file=discord.File(data, "congratulations.png"))
+                        await ctx.author.send(file=data)
 
             await ctx.author.send(f"You won the jackpot! That's a timeout of **{timeout} minutes** for you, enjoy!")
         else:
@@ -69,4 +63,4 @@ class MuteMe(Cog):
 
 
 def setup(client):
-    client.add_cog(MuteMe(client))
+    MuteMe(client)

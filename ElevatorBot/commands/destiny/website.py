@@ -1,51 +1,37 @@
-import discord
-from discord.ext.commands import Cog
-from discord_slash import ButtonStyle, SlashContext, cog_ext
-from discord_slash.utils import manage_components
-from discord_slash.utils.manage_commands import create_choice, create_option
+from dis_snek.models import ActionRow, Button, ButtonStyles, InteractionContext, Member, OptionTypes, SlashCommandChoice, SlashCommandOption, slash_command, slash_option
 
 from ElevatorBot.backendNetworking.destiny.profile import DestinyProfile
-from ElevatorBot.commandHelpers.optionTemplates import default_user_option
+from ElevatorBot.commandHelpers.optionTemplates import default_user_option, destiny_group
+from ElevatorBot.commands.base import BaseScale
 
 
-class Website(Cog):
-    def __init__(self, client):
-        self.client = client
-        self.system_to_name = {
-            1: "xb",
-            2: "ps",
-            3: "pc"
-        }
+class Website(BaseScale):
 
-    @cog_ext.cog_slash(
-        name="website",
-        description="Gets your personalised link to a bunch of Destiny 2 related websites",
-        options=[
-            create_option(
-                name="website",
-                description="The name of the website you want a personalised link for",
-                option_type=3,
-                required=True,
-                choices=[
-                    create_choice(name="Braytech.org", value="Braytech.org"),
-                    create_choice(name="D2 Checklist", value="D2 Checklist"),
-                    create_choice(name="Destiny Tracker", value="Destiny Tracker"),
-                    create_choice(name="Dungeon Report", value="Dungeon Report"),
-                    create_choice(name="Grandmaster Report", value="Grandmaster Report"),
-                    create_choice(name="Nightfall Report", value="Nightfall Report"),
-                    create_choice(name="Strike Report", value="Strike Report"),
-                    create_choice(name="Raid Report", value="Raid Report"),
-                    create_choice(name="Solo Report", value="Solo Report"),
-                    create_choice(name="Expunge Report", value="Expunge Report"),
-                    create_choice(name="Trials Report", value="Trials Report"),
-                    create_choice(name="Triumph Report", value="Triumph Report"),
-                    create_choice(name="Wasted on Destiny", value="Wasted on Destiny"),
-                ],
-            ),
-            default_user_option(),
-        ],
-    )
-    async def _website(self, ctx: SlashContext, website: str, user: discord.Member = None):
+    system_to_name = {
+        1: "xb",
+        2: "ps",
+        3: "pc"
+    }
+
+
+    @slash_command(name="website", description="Gets your personalised link to a bunch of Destiny 2 related websites", **destiny_group)
+    @slash_option(name="website", description="The name of the website you want a personalised link for", required=True, opt_type=OptionTypes.STRING, choices=[
+        SlashCommandChoice(name="Braytech", value="Braytech"),
+        SlashCommandChoice(name="D2 Checklist", value="D2 Checklist"),
+        SlashCommandChoice(name="Destiny Tracker", value="Destiny Tracker"),
+        SlashCommandChoice(name="Dungeon Report", value="Dungeon Report"),
+        SlashCommandChoice(name="Grandmaster Report", value="Grandmaster Report"),
+        SlashCommandChoice(name="Nightfall Report", value="Nightfall Report"),
+        SlashCommandChoice(name="Strike Report", value="Strike Report"),
+        SlashCommandChoice(name="Raid Report", value="Raid Report"),
+        SlashCommandChoice(name="Solo Report", value="Solo Report"),
+        SlashCommandChoice(name="Expunge Report", value="Expunge Report"),
+        SlashCommandChoice(name="Trials Report", value="Trials Report"),
+        SlashCommandChoice(name="Triumph Report", value="Triumph Report"),
+        SlashCommandChoice(name="Wasted on Destiny", value="Wasted on Destiny"),
+    ])
+    @default_user_option()
+    async def _website(self, ctx: InteractionContext, website: str, user: Member = None):
         if not user:
             user = ctx.author
 
@@ -99,9 +85,9 @@ class Website(Cog):
                 text = f"https://wastedondestiny.com/{destiny_player.system}_{destiny_player.destiny_id}"
 
         components = [
-            manage_components.create_actionrow(
-                manage_components.create_button(
-                    style=ButtonStyle.URL,
+            ActionRow(
+                Button(
+                    style=ButtonStyles.URL,
                     label=f"{user.display_name} - {website}",
                     url=text,
                 ),
@@ -111,4 +97,4 @@ class Website(Cog):
 
 
 def setup(client):
-    client.add_cog(Website(client))
+    Website(client)

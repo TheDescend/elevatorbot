@@ -1,27 +1,23 @@
-import discord
-from discord.ext.commands import Cog
-from discord_slash import ButtonStyle
-from discord_slash import cog_ext
-from discord_slash import SlashContext
-from discord_slash.utils import manage_components
+from dis_snek.models import InteractionContext
+from dis_snek.models import Member
+from dis_snek.models import slash_command
 
 from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
 from ElevatorBot.backendNetworking.destiny.profile import DestinyProfile
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
+from ElevatorBot.commandHelpers.optionTemplates import destiny_group
+from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formating import embed_message
 
 
-class IdGet(Cog):
-    def __init__(self, client):
-        self.client = client
-
-    @cog_ext.cog_slash(
+class IdGet(BaseScale):
+    @slash_command(
         name="id",
         description="Get the users Bungie Name, which can be used to join people in Destiny 2 without adding them as a friend",
-        options=[default_user_option()],
+        **destiny_group,
     )
-    async def _id(self, ctx: SlashContext, user: discord.Member = None):
-        """Get the users Bungie Name, which can be used to join people in Destiny 2 without adding them as a friend"""
+    @default_user_option()
+    async def _id(self, ctx: InteractionContext, user: Member = None):
 
         # assign user to be the mentioned user if applicable
         user = user if user else ctx.author
@@ -33,7 +29,7 @@ class IdGet(Cog):
             await result.send_error_message(ctx, hidden=True)
         else:
             await ctx.send(
-                embed=embed_message(
+                embeds=embed_message(
                     f"{user.display_name}'s Join Code",
                     f"`/join {result.result['name']}`",
                 ),
@@ -41,4 +37,4 @@ class IdGet(Cog):
 
 
 def setup(client):
-    client.add_cog(IdGet(client))
+    IdGet(client)

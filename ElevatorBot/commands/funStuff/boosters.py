@@ -1,16 +1,14 @@
-from discord.ext.commands import Cog
-from discord_slash import SlashContext, cog_ext
+from dis_snek.models import InteractionContext
+from dis_snek.models import slash_command
 
+from ElevatorBot.commandHelpers.optionTemplates import misc_group
+from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formating import embed_message
 
 
-class Boosters(Cog):
-    def __init__(self, client):
-        self.client = client
-
-    @cog_ext.cog_slash(name="boosters", description="Prints all premium subscribers")
-    async def _boosters(self, ctx: SlashContext):
-        """Prints all premium subscribers"""
+class Boosters(BaseScale):
+    @slash_command(name="boosters", description="Prints all premium subscribers", **misc_group)
+    async def _boosters(self, ctx: InteractionContext):
 
         sorted_premium_subscribers = sorted(ctx.guild.premium_subscribers, key=lambda m: m.premium_since, reverse=True)
 
@@ -24,8 +22,8 @@ class Boosters(Cog):
             ),
         )
 
-        await ctx.send(embed=embed)
+        await ctx.send(embeds=embed)
 
 
 def setup(client):
-    client.add_cog(Boosters(client))
+    Boosters(client)

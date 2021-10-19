@@ -1,25 +1,20 @@
-import discord
-from discord.ext.commands import Cog
-from discord_slash import cog_ext
-from discord_slash import SlashContext
+from dis_snek.models import InteractionContext
+from dis_snek.models import Member
+from dis_snek.models import slash_command
 
 from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
 from ElevatorBot.backendNetworking.destiny.profile import DestinyProfile
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
+from ElevatorBot.commandHelpers.optionTemplates import destiny_group
+from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formating import embed_message
 from ElevatorBot.misc.formating import format_timedelta
 
 
-class Destiny(Cog):
-    def __init__(self, client):
-        self.client = client
-
-    @cog_ext.cog_slash(
-        name="destiny",
-        description="Gives you various destiny stats",
-        options=[default_user_option()],
-    )
-    async def _destiny(self, ctx: SlashContext, user: discord.Member = None):
+class Destiny(BaseScale):
+    @slash_command(name="destiny", description="Gives you various destiny stats", **destiny_group)
+    @default_user_option()
+    async def _destiny(self, ctx: InteractionContext, user: Member = None):
         await ctx.defer()
 
         if not user:
@@ -32,7 +27,9 @@ class Destiny(Cog):
             await destiny_info.send_error_message(ctx)
             return
 
-        heatmap_url = f"https://chrisfried.github.io/secret-scrublandeux/guardian/{destiny_player.system}/{destiny_player.destiny_id}"
+        heatmap_url = (
+            f"https://chrisfried.github.io/secret-scrublandeux/guardian/{destiny_info.system}/{destiny_info.destiny_id}"
+        )
         destiny_account = DestinyAccount(client=ctx.bot, discord_member=user, discord_guild=ctx.guild)
 
         # get character infos
@@ -140,8 +137,8 @@ class Destiny(Cog):
             inline=True,
         )
 
-        await ctx.send(embed=embed)
+        await ctx.send(embeds=embed)
 
 
 def setup(client):
-    client.add_cog(Destiny(client))
+    Destiny(client)

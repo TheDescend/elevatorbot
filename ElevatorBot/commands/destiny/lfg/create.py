@@ -1,18 +1,17 @@
 import asyncio
 
-import discord
+
 import pytz
 from dateutil.parser import parse, ParserError
-from discord.ext.commands import Cog
-from discord_slash import ButtonStyle, ComponentContext, SlashContext, cog_ext
-from discord_slash.utils import manage_components
-from discord_slash.utils.manage_commands import create_choice, create_option
+from dis_snek.models import ActionRow, Button, ButtonStyles, ComponentContext, InteractionContext, Message, OptionTypes, slash_option, sub_command
 
+from ElevatorBot.commandHelpers.optionTemplates import destiny_group, get_timezone_choices
 from ElevatorBot.commandHelpers.responseTemplates import (
     respond_invalid_time_input,
     respond_time_input_in_past,
     respond_timeout,
 )
+from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.core.destiny.lfgSystem import LfgMessage
 from ElevatorBot.misc.formating import embed_message
 from ElevatorBot.misc.helperFunctions import get_now_with_tz
@@ -20,44 +19,20 @@ from ElevatorBot.static.destinyActivities import dungeons, raids
 from ElevatorBot.static.timezones import timezones_dict
 
 
-class LfgCreate(Cog):
-    def __init__(self, client):
-        self.client = client
+class LfgCreate(BaseScale):
 
-    @cog_ext.cog_subcommand(
-        base="lfg",
+
+    @sub_command(
+        base_name="lfg",
         base_description="Everything concerning my awesome Destiny 2 LFG system",
-        name="create",
-        description="Creates an LFG post",
-        options=[
-            create_option(
-                name="start_time",
-                description="Format: 'HH:MM DD/MM' - When the event is supposed to start",
-                option_type=3,
-                required=True,
-            ),
-            create_option(
-                name="timezone",
-                description="What timezone you are in",
-                option_type=3,
-                required=True,
-                choices=[
-                    create_choice(
-                        name=timezone_name,
-                        value=timezone_value,
-                    )
-                    for timezone_name, timezone_value in timezones_dict.items()
-                ],
-            ),
-            create_option(
-                name="overwrite_max_members",
-                description="You can overwrite the maximum number of people that can join your event",
-                option_type=4,
-                required=False,
-            ),
-        ],
+        sub_name="create",
+        sub_description="Creates an LFG post",
+        **destiny_group,
     )
-    async def _create(self, ctx: SlashContext, start_time: str, timezone: str, overwrite_max_members: int = None):
+    @slash_option(name="start_time", description="Format: 'HH:MM DD/MM' - When the event is supposed to start", required=True, opt_type=OptionTypes.STRING)
+    @slash_option(name="timezone", description="What timezone you are in", required=True, opt_type=OptionTypes.STRING, choices=get_timezone_choices())
+    @slash_option(name="overwrite_max_members", description="You can overwrite the maximum number of people that can join your event", required=False, opt_type=OptionTypes.INTEGER)
+    async def _create(self, ctx: InteractionContext, start_time: str, timezone: str, overwrite_max_members: int = None):
         # get start time
         try:
             start_time = parse(start_time, dayfirst=True)
@@ -79,21 +54,22 @@ class LfgCreate(Cog):
 
         # ask for the activity
         components = [
-            manage_components.create_actionrow(
-                manage_components.create_button(style=ButtonStyle.blue, label="Raids"),
-                manage_components.create_button(style=ButtonStyle.blue, label="Dungeons"),
-                manage_components.create_button(style=ButtonStyle.blue, label="Trials"),
-                manage_components.create_button(style=ButtonStyle.blue, label="Iron Banner"),
-                manage_components.create_button(style=ButtonStyle.blue, label="Other"),
+            ActionRow(
+                Button(style=ButtonStyles.BLUE, label="Raids"),
+                Button(style=ButtonStyles.BLUE, label="Dungeons"),
+                Button(style=ButtonStyles.BLUE, label="Trials"),
+                Button(style=ButtonStyles.BLUE, label="Iron Banner"),
+                Button(style=ButtonStyles.BLUE, label="Other"),
             ),
         ]
         embed = embed_message(
             "Please Select the Activity",
         )
 
-        message = await ctx.send(components=components, embed=embed)
+        message = await ctx.send(components=components, embeds=embed)
 
         # wait 60s for button press
+        # todo
         try:
             button_ctx: ComponentContext = await manage_components.wait_for_component(
                 ctx.bot, components=components, timeout=60
@@ -103,7 +79,7 @@ class LfgCreate(Cog):
             return
         else:
             # make sure the author replies to all further inputs
-            def message_check(check_msg: discord.Message):
+            def message_check(check_msg: Message):
                 return check_msg.author == ctx.author and check_msg.channel == message.channel
 
             def component_check(check_ctx: ComponentContext):
@@ -123,7 +99,7 @@ class LfgCreate(Cog):
                         "Please Select the Raid",
                     )
 
-                    await button_ctx.edit_origin(components=components, embed=embed)
+                    await button_ctx.edit_origin(components=components, embeds=embed)
 
                     # wait 60s for button press
                     try:
@@ -134,7 +110,7 @@ class LfgCreate(Cog):
                         await respond_timeout(message=message)
                         return
                     else:
-                        await button_ctx.edit_origin(embed=embed)
+                        await button_ctx.edit_origin(embeds=embed)
                         activity = button_ctx.component["label"]
                         max_joined_members = 6
 
@@ -150,7 +126,7 @@ class LfgCreate(Cog):
                         "Please Select the Dungeon",
                     )
 
-                    await button_ctx.edit_origin(components=components, embed=embed)
+                    await button_ctx.edit_origin(components=components, embeds=embed)
 
                     # wait 60s for button press
                     try:
@@ -161,7 +137,7 @@ class LfgCreate(Cog):
                         await respond_timeout(message=message)
                         return
                     else:
-                        await button_ctx.edit_origin(embed=embed)
+                        await button_ctx.edit_origin(embeds=embed)
                         activity = button_ctx.component["label"]
                         max_joined_members = 3
 
@@ -179,7 +155,7 @@ class LfgCreate(Cog):
                 case _:
                     await button_ctx.edit_origin(
                         components=None,
-                        embed=embed_message("Activity Name", "Please enter a name"),
+                        embeds=embed_message("Activity Name", "Please enter a name"),
                     )
 
                     # wait 60s for message
@@ -201,7 +177,7 @@ class LfgCreate(Cog):
             # get the description
             await message.edit(
                 components=None,
-                embed=embed_message("Description", "Please enter a description"),
+                embeds=embed_message("Description", "Please enter a description"),
             )
 
             try:
@@ -222,8 +198,8 @@ class LfgCreate(Cog):
                 max_joined_members=max_joined_members,
             )
 
-            await message.edit(embed=embed_message(f"Success", f"I've created the post"))
+            await message.edit(embeds=embed_message(f"Success", f"I've created the post"))
 
 
 def setup(client):
-    client.add_cog(LfgCreate(client))
+    LfgCreate(client)
