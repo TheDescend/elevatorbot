@@ -5,7 +5,7 @@ from dis_snek.client import Snake
 from dis_snek.models import Activity
 from dis_snek.models import ActivityType
 
-from ElevatorBot.static.emojis import elevator_logo_emoji_id
+from ElevatorBot.static.emojis import custom_emojis
 
 
 async def update_status(client: Snake):
@@ -27,8 +27,6 @@ async def update_status(client: Snake):
 
     for element in itertools.cycle(status_messages):
         await client.change_presence(
-            activity=Activity.create(
-                name=f"<:elevatorLogo:{elevator_logo_emoji_id}> {element}", type=ActivityType.CUSTOM
-            )
+            activity=Activity.create(name=f"{custom_emojis.elevator_logo} {element}", type=ActivityType.CUSTOM)
         )
         await asyncio.sleep(30)

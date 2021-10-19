@@ -40,8 +40,6 @@ def register_discord_events(client: Snake):
     client.add_listener(Listener(on_message, "message"))
     client.add_listener(Listener(on_message_delete, "message_delete"))
     client.add_listener(Listener(on_message_edit, "message_edit"))
-    client.add_listener(Listener(on_reaction_add, "reaction_add"))
-    client.add_listener(Listener(on_reaction_remove, "reaction_remove"))
 
     # member events
     client.add_listener(Listener(on_member_add, "member_add"))
@@ -64,4 +62,4 @@ def register_discord_events(client: Snake):
     client.add_listener(Listener(on_voice_state_update, "voice_state_update"))  # todo currently missing
 
     # add the component callbacks
-    slash_client.add_component_callback(poll)
+    # slash_client.add_component_callback(poll)   # todo currently missing

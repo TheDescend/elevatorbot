@@ -15,21 +15,27 @@ class Website(BaseScale):
 
 
     @slash_command(name="website", description="Gets your personalised link to a bunch of Destiny 2 related websites", **destiny_group)
-    @slash_option(name="website", description="The name of the website you want a personalised link for", required=True, opt_type=OptionTypes.STRING, choices=[
-        SlashCommandChoice(name="Braytech", value="Braytech"),
-        SlashCommandChoice(name="D2 Checklist", value="D2 Checklist"),
-        SlashCommandChoice(name="Destiny Tracker", value="Destiny Tracker"),
-        SlashCommandChoice(name="Dungeon Report", value="Dungeon Report"),
-        SlashCommandChoice(name="Grandmaster Report", value="Grandmaster Report"),
-        SlashCommandChoice(name="Nightfall Report", value="Nightfall Report"),
-        SlashCommandChoice(name="Strike Report", value="Strike Report"),
-        SlashCommandChoice(name="Raid Report", value="Raid Report"),
-        SlashCommandChoice(name="Solo Report", value="Solo Report"),
-        SlashCommandChoice(name="Expunge Report", value="Expunge Report"),
-        SlashCommandChoice(name="Trials Report", value="Trials Report"),
-        SlashCommandChoice(name="Triumph Report", value="Triumph Report"),
-        SlashCommandChoice(name="Wasted on Destiny", value="Wasted on Destiny"),
-    ])
+    @slash_option(
+        name="website",
+        description="The name of the website you want a personalised link for",
+        required=True,
+        opt_type=OptionTypes.STRING,
+        choices=[
+            SlashCommandChoice(name="Braytech", value="Braytech"),
+            SlashCommandChoice(name="D2 Checklist", value="D2 Checklist"),
+            SlashCommandChoice(name="Destiny Tracker", value="Destiny Tracker"),
+            SlashCommandChoice(name="Dungeon Report", value="Dungeon Report"),
+            SlashCommandChoice(name="Grandmaster Report", value="Grandmaster Report"),
+            SlashCommandChoice(name="Nightfall Report", value="Nightfall Report"),
+            SlashCommandChoice(name="Strike Report", value="Strike Report"),
+            SlashCommandChoice(name="Raid Report", value="Raid Report"),
+            SlashCommandChoice(name="Solo Report", value="Solo Report"),
+            SlashCommandChoice(name="Expunge Report", value="Expunge Report"),
+            SlashCommandChoice(name="Trials Report", value="Trials Report"),
+            SlashCommandChoice(name="Triumph Report", value="Triumph Report"),
+            SlashCommandChoice(name="Wasted on Destiny", value="Wasted on Destiny"),
+        ]
+    )
     @default_user_option()
     async def _website(self, ctx: InteractionContext, website: str, user: Member = None):
         if not user:

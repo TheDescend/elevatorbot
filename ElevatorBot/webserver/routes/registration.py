@@ -3,8 +3,7 @@ from dis_snek.client import Snake
 from dis_snek.models import User
 
 from ElevatorBot.misc.formating import embed_message
-from ElevatorBot.static.emojis import elevator_logo_emoji_id
-from ElevatorBot.static.emojis import enter_emoji_id
+from ElevatorBot.static.emojis import custom_emojis
 
 
 async def registration(request: web.Request):
@@ -23,8 +22,8 @@ async def registration(request: web.Request):
     user: User = await client.get_user(parameters["discord_id"])
 
     # get emoji
-    enter_emoji = client.get_emoji(enter_emoji_id)
-    elevator_emoji = client.get_emoji(elevator_logo_emoji_id)
+    enter_emoji = custom_emojis.enter
+    elevator_emoji = custom_emojis.elevator_logo
 
     await user.send(
         embeds=embed_message(

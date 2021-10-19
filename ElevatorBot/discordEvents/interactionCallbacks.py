@@ -1,4 +1,4 @@
-from discord_slash import ComponentContext
+from dis_snek.models import ComponentContext
 
 
 async def poll(ctx: ComponentContext):

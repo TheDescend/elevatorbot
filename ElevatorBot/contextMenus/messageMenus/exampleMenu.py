@@ -19,4 +19,4 @@ class MessageMenuCommands(BaseScale):
 
 
 def setup(client):
-    client.add_cog(MessageMenuCommands(client))
+    MessageMenuCommands(client)

@@ -19,31 +19,6 @@ from settings import SYNC_COMMANDS
 first_start = True
 
 
-# define on_ready event
-@listen
-async def on_ready(self):
-    # only run this on first startup
-    global first_start
-    if not first_start:
-        return
-    first_start = False
-
-    print("Creating docs for commands...")
-    create_command_docs(client)
-
-    print("Launching the Status Changer...")
-    asyncio.create_task(update_status(client))
-
-    print("Start Webserver...")
-    asyncio.create_task(run_webserver(client=client))
-
-    print("Load Custom Emoji...")
-    await custom_emojis.init_emojis(client)
-
-    print("Startup Finished!\n")
-    print("--------------------------\n")
-
-
 if __name__ == "__main__":
     # config logging
     init_logging()
@@ -82,20 +57,67 @@ if __name__ == "__main__":
     # add discord events and handlers
     register_discord_events(client)
 
+    @listen()
+    async def on_ready():
+        """Get's triggered on startup and re-connects"""
+
+        # only run this on first startup
+        global first_start
+        if not first_start:
+            return
+        first_start = False
+
+        print("Loading Background Events...")
+        await register_background_events(client)
+
+        print("Creating docs for commands...")
+        create_command_docs(client)
+
+        print("Launching the Status Changer...")
+        asyncio.create_task(update_status(client))
+
+        print("Start Webserver...")
+        asyncio.create_task(run_webserver(client=client))
+
+        print("Load Custom Emoji...")
+        await custom_emojis.init_emojis(client)
+
+        print("Startup Finished!\n")
+        print("--------------------------\n")
+
+    i = 0
+
     # load commands
     print("Loading Commands...")
     for path in yield_files_in_folder("commands", "py"):
-        client.load_extension(path)
-    print(f"< {len(client.interactions)} > Commands Loaded")
+        # todo remove once all commands are ported
+        try:
+            client.load_extension(path)
+        except:
+            print(f"Couldn't load {path}")
+
+    global_commands = len(client.interactions[0])
+    print(f"< {global_commands} > Global Commands Loaded")
+
+    local_commands = 0
+    for key, value in client.interactions.items():
+        if key != 0:
+            local_commands += len(value)
+    print(f"< {local_commands} > Local Commands Loaded")
 
     # load context menus
     print("Loading Context Menus...")
     for path in yield_files_in_folder("contextMenus", "py"):
         client.load_extension(path)
 
-    # add background events
-    print("Loading Background Events...")
-    register_background_events(client)
+    global_context_menus = len(client.interactions[0])
+    print(f"< {global_context_menus - global_commands} > Global Context Menus Loaded")
+
+    local_context_menus = 0
+    for key, value in client.interactions.items():
+        if key != 0:
+            local_context_menus += len(value)
+    print(f"< {local_context_menus - local_commands} > Local Context Menus Loaded")
 
     # run the bot
     client.start(DISCORD_BOT_TOKEN)
