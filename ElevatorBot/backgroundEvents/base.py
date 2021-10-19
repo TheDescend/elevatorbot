@@ -1,4 +1,5 @@
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from dis_snek.client import Snake
 
 
 scheduler = AsyncIOScheduler()
@@ -30,6 +31,6 @@ class BaseEvent:
             self.run_date = kwargs["run_date"]  # datetime(2000, 2, 20, 19, 30, 50)
 
     # Every event must override this method
-    async def run(self, client):
+    async def run(self, client: Snake):
         # To be defined by every event
         raise NotImplementedError

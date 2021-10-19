@@ -1,8 +1,7 @@
 import dataclasses
-from typing import Optional, Union
 
-import discord
-from discord_slash import MenuContext, SlashContext
+from dis_snek.models import Embed
+from dis_snek.models import InteractionContext
 
 from ElevatorBot.misc.formating import embed_message
 from ElevatorBot.static.errorCodesAndResponses import error_codes_and_responses
@@ -22,7 +21,7 @@ class BackendResult:
         return self.success
 
     @property
-    def embed(self) -> discord.Embed:
+    def embed(self) -> Embed:
         """ " Returns a nicely formatted embed, which can be returned to the user"""
 
         return embed_message(title="Error", description=self.error_message)
@@ -50,7 +49,7 @@ class BackendResult:
 
     async def send_error_message(
         self,
-        ctx: SlashContext | MenuContext,
+        ctx: InteractionContext,
         hidden: bool = False,
         **format_kwargs,
     ):
@@ -60,4 +59,4 @@ class BackendResult:
         if format_kwargs:
             self.error_message = format_kwargs
 
-        await ctx.send(hidden=hidden, embed=self.embed)
+        await ctx.send(ephemeral=hidden, embeds=self.embed)

@@ -1,23 +1,23 @@
 import dataclasses
 
-import discord
+from dis_snek.client import Snake
+from dis_snek.models import Guild
+from dis_snek.models import Member
 
 from ElevatorBot.backendNetworking.http import BaseBackendConnection
 from ElevatorBot.backendNetworking.results import BackendResult
-from ElevatorBot.backendNetworking.routes import (
-    destiny_clan_get_members_route,
-    destiny_clan_get_route,
-    destiny_clan_invite_route,
-    destiny_clan_link_route,
-    destiny_clan_search_members_route,
-    destiny_clan_unlink_route,
-)
+from ElevatorBot.backendNetworking.routes import destiny_clan_get_members_route
+from ElevatorBot.backendNetworking.routes import destiny_clan_get_route
+from ElevatorBot.backendNetworking.routes import destiny_clan_invite_route
+from ElevatorBot.backendNetworking.routes import destiny_clan_link_route
+from ElevatorBot.backendNetworking.routes import destiny_clan_search_members_route
+from ElevatorBot.backendNetworking.routes import destiny_clan_unlink_route
 
 
 @dataclasses.dataclass
 class DestinyClan(BaseBackendConnection):
-    client: discord.Client
-    discord_guild: discord.Guild
+    client: Snake
+    discord_guild: Guild
 
     async def get_clan(self) -> BackendResult:
         """Return the destiny clan"""
@@ -49,7 +49,7 @@ class DestinyClan(BaseBackendConnection):
             ),
         )
 
-    async def invite_to_clan(self, to_invite: discord.Member) -> BackendResult:
+    async def invite_to_clan(self, to_invite: Member) -> BackendResult:
         """Return the destiny clan members which match the search term"""
 
         result = await self._backend_request(

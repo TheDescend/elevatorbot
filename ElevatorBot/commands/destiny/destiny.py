@@ -1,11 +1,13 @@
 import discord
 from discord.ext.commands import Cog
-from discord_slash import SlashContext, cog_ext
+from discord_slash import cog_ext
+from discord_slash import SlashContext
 
 from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
 from ElevatorBot.backendNetworking.destiny.profile import DestinyProfile
-from ElevatorBot.commandHelpers.optionTemplates import get_user_option
-from ElevatorBot.misc.formating import embed_message, format_timedelta
+from ElevatorBot.commandHelpers.optionTemplates import default_user_option
+from ElevatorBot.misc.formating import embed_message
+from ElevatorBot.misc.formating import format_timedelta
 
 
 class Destiny(Cog):
@@ -15,7 +17,7 @@ class Destiny(Cog):
     @cog_ext.cog_slash(
         name="destiny",
         description="Gives you various destiny stats",
-        options=[get_user_option()],
+        options=[default_user_option()],
     )
     async def _destiny(self, ctx: SlashContext, user: discord.Member = None):
         await ctx.defer()

@@ -5,7 +5,7 @@ from discord_slash.utils import manage_components
 from discord_slash.utils.manage_commands import create_choice, create_option
 
 from ElevatorBot.backendNetworking.destiny.profile import DestinyProfile
-from ElevatorBot.commandHelpers.optionTemplates import get_user_option
+from ElevatorBot.commandHelpers.optionTemplates import default_user_option
 
 
 class Website(Cog):
@@ -42,7 +42,7 @@ class Website(Cog):
                     create_choice(name="Wasted on Destiny", value="Wasted on Destiny"),
                 ],
             ),
-            get_user_option(),
+            default_user_option(),
         ],
     )
     async def _website(self, ctx: SlashContext, website: str, user: discord.Member = None):

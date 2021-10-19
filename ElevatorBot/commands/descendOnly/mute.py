@@ -2,20 +2,18 @@ import asyncio
 
 import discord
 from discord.ext.commands import Cog
-from discord_slash import SlashContext, cog_ext
+from discord_slash import cog_ext
+from discord_slash import SlashContext
 from discord_slash.utils.manage_commands import create_option
 
-from ElevatorBot.commandHelpers.optionTemplates import get_user_option
+from ElevatorBot.commandHelpers.optionTemplates import default_user_option
 from ElevatorBot.commandHelpers.permissionTemplates import permissions_admin
-from ElevatorBot.misc.discordShortcutFunctions import (
-    assign_roles_to_member,
-    remove_roles_from_member,
-)
+from ElevatorBot.misc.discordShortcutFunctions import assign_roles_to_member
+from ElevatorBot.misc.discordShortcutFunctions import remove_roles_from_member
 from ElevatorBot.misc.formating import embed_message
-
+from ElevatorBot.static.descendOnlyIds import descend_muted_role_id
 
 # todo descend only permissions
-from ElevatorBot.static.descendOnlyIds import descend_muted_role_id
 
 
 class Mute(Cog):
@@ -26,7 +24,7 @@ class Mute(Cog):
         name="mute",
         description="Mutes specified user for specified time",
         options=[
-            get_user_option(description="Which user to mute", required=True),
+            default_user_option(description="Which user to mute", required=True),
             create_option(
                 name="hours",
                 description="How many hours to mute the user for",

@@ -1,10 +1,10 @@
-from discord_slash import SlashContext
+from dis_snek.models import InteractionContext
 
 from ElevatorBot.misc.formating import embed_message
 
 
 def has_user_option_permission(func):
-    async def wrapper(ctx: SlashContext, **kwargs):
+    async def wrapper(ctx: InteractionContext, **kwargs):
         if "user" in kwargs:
             # check if author has elevated permissions in guild
             # todo do that by getting the setup role from the db

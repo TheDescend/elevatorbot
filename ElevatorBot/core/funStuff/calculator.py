@@ -1,129 +1,132 @@
 import asyncio
 import dataclasses
 
-from discord_slash import SlashContext, ComponentContext
-from discord_slash.model import SlashMessage, ButtonStyle
-from discord_slash.utils import manage_components
+from dis_snek.models import ActionRow
+from dis_snek.models import Button
+from dis_snek.models import ButtonStyles
+from dis_snek.models import ComponentContext
+from dis_snek.models import InteractionContext
+from dis_snek.models import Message
 
 from ElevatorBot.misc.formating import embed_message
 
 
 @dataclasses.dataclass()
 class Calculator:
-    ctx: SlashContext
+    ctx: InteractionContext
 
-    message: SlashMessage = None
-    buttons: list[dict] = dataclasses.field(init=False)
+    message: Message = None
+    buttons: list[ActionRow] = dataclasses.field(init=False)
 
     def __post_init__(self):
         self.buttons = [
-            manage_components.create_actionrow(
-                manage_components.create_button(
+            ActionRow(
+                Button(
                     custom_id="c",
-                    style=ButtonStyle.red,
+                    style=ButtonStyles.RED,
                     label="C",
                 ),
-                manage_components.create_button(
+                Button(
                     custom_id="(",
-                    style=ButtonStyle.green,
+                    style=ButtonStyles.GREEN,
                     label="(",
                 ),
-                manage_components.create_button(
+                Button(
                     custom_id=")",
-                    style=ButtonStyle.green,
+                    style=ButtonStyles.GREEN,
                     label=")",
                 ),
-                manage_components.create_button(
+                Button(
                     custom_id="/",
-                    style=ButtonStyle.green,
+                    style=ButtonStyles.GREEN,
                     label="/",
                 ),
             ),
-            manage_components.create_actionrow(
-                manage_components.create_button(
+            ActionRow(
+                Button(
                     custom_id="7",
-                    style=ButtonStyle.blue,
+                    style=ButtonStyles.BLUE,
                     label="7",
                 ),
-                manage_components.create_button(
+                Button(
                     custom_id="8",
-                    style=ButtonStyle.blue,
+                    style=ButtonStyles.BLUE,
                     label="8",
                 ),
-                manage_components.create_button(
+                Button(
                     custom_id="9",
-                    style=ButtonStyle.blue,
+                    style=ButtonStyles.BLUE,
                     label="9",
                 ),
-                manage_components.create_button(
+                Button(
                     custom_id="*",
-                    style=ButtonStyle.green,
+                    style=ButtonStyles.GREEN,
                     label="*",
                 ),
             ),
-            manage_components.create_actionrow(
-                manage_components.create_button(
+            ActionRow(
+                Button(
                     custom_id="4",
-                    style=ButtonStyle.blue,
+                    style=ButtonStyles.BLUE,
                     label="4",
                 ),
-                manage_components.create_button(
+                Button(
                     custom_id="5",
-                    style=ButtonStyle.blue,
+                    style=ButtonStyles.BLUE,
                     label="5",
                 ),
-                manage_components.create_button(
+                Button(
                     custom_id="6",
-                    style=ButtonStyle.blue,
+                    style=ButtonStyles.BLUE,
                     label="6",
                 ),
-                manage_components.create_button(
+                Button(
                     custom_id="-",
-                    style=ButtonStyle.green,
+                    style=ButtonStyles.GREEN,
                     label="-",
                 ),
             ),
-            manage_components.create_actionrow(
-                manage_components.create_button(
+            ActionRow(
+                Button(
                     custom_id="1",
-                    style=ButtonStyle.blue,
+                    style=ButtonStyles.BLUE,
                     label="1",
                 ),
-                manage_components.create_button(
+                Button(
                     custom_id="2",
-                    style=ButtonStyle.blue,
+                    style=ButtonStyles.BLUE,
                     label="2",
                 ),
-                manage_components.create_button(
+                Button(
                     custom_id="3",
-                    style=ButtonStyle.blue,
+                    style=ButtonStyles.BLUE,
                     label="3",
                 ),
-                manage_components.create_button(
+                Button(
                     custom_id="+",
-                    style=ButtonStyle.green,
+                    style=ButtonStyles.GREEN,
                     label="+",
                 ),
             ),
-            manage_components.create_actionrow(
-                manage_components.create_button(
+            ActionRow(
+                Button(
                     custom_id="(-)",
-                    style=ButtonStyle.blue,
+                    style=ButtonStyles.BLUE,
                     label="(-)",
                 ),
-                manage_components.create_button(
+                Button(
                     custom_id="0",
-                    style=ButtonStyle.blue,
+                    style=ButtonStyles.BLUE,
                     label="0",
                 ),
-                manage_components.create_button(
+                Button(
                     custom_id=".",
-                    style=ButtonStyle.blue,
+                    style=ButtonStyles.BLUE,
                     label=".",
                 ),
-                manage_components.create_button(
+                Button(
                     custom_id="=",
-                    style=ButtonStyle.green,
+                    style=ButtonStyles.GREEN,
                     label="=",
                 ),
             ),
@@ -144,7 +147,7 @@ class Calculator:
     ):
         if not self.message:
             embed = embed_message(f"{self.ctx.author.display_name}'s Calculator", f"```{text}```")
-            self.message = await self.ctx.send(components=self.buttons, embed=embed)
+            self.message = await self.ctx.send(components=self.buttons, embeds=embed)
         else:
             embed = self.message.embeds[0]
 
@@ -185,9 +188,9 @@ class Calculator:
                 self.disable_buttons()
 
             if button_ctx:
-                await button_ctx.edit_origin(components=self.buttons, embed=embed)
+                await button_ctx.edit_origin(components=self.buttons, embeds=embed)
             else:
-                await self.message.edit(components=self.buttons, embed=embed)
+                await self.message.edit(components=self.buttons, embeds=embed)
 
     # checks that the button press author is the same as the message command invoker and that the message matches
     def check_author_and_message(self, ctx: ComponentContext):
@@ -197,7 +200,8 @@ class Calculator:
     async def wait_for_button_press(self):
         # wait 60s for button press
         try:
-            button_ctx: ComponentContext = await manage_components.wait_for_component(
+            # todo
+            button_ctx: ComponentContext = await wait_for_component(
                 self.ctx.bot,
                 components=self.buttons,
                 timeout=60,

@@ -1,9 +1,13 @@
 from discord.ext.commands import Cog
-from discord_slash import SlashContext, cog_ext
-from discord_slash.utils.manage_commands import create_choice, create_option
+from discord_slash import cog_ext
+from discord_slash import SlashContext
+from discord_slash.utils.manage_commands import create_choice
+from discord_slash.utils.manage_commands import create_option
 
-from ElevatorBot.commandHelpers.optionTemplates import get_mode_choices, get_user_option
-from ElevatorBot.static.destinyDates import expansion_dates, season_dates
+from ElevatorBot.commandHelpers.optionTemplates import default_user_option
+from ElevatorBot.commandHelpers.optionTemplates import get_mode_choices
+from ElevatorBot.static.destinyDates import expansion_dates
+from ElevatorBot.static.destinyDates import season_dates
 
 
 class TopWeapons(Cog):
@@ -84,7 +88,7 @@ class TopWeapons(Cog):
                 option_type=4,
                 required=False,
             ),
-            get_user_option(),
+            default_user_option(),
         ],
     )
     async def _topweapons(self, ctx: SlashContext, **kwargs):

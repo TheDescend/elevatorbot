@@ -5,13 +5,12 @@ import random
 import aiohttp
 import discord
 from discord.ext.commands import Cog
-from discord_slash import SlashContext, cog_ext
+from discord_slash import cog_ext
+from discord_slash import SlashContext
 
-from ElevatorBot.commandHelpers.optionTemplates import get_user_option
-from ElevatorBot.misc.discordShortcutFunctions import (
-    assign_roles_to_member,
-    remove_roles_from_member,
-)
+from ElevatorBot.commandHelpers.optionTemplates import default_user_option
+from ElevatorBot.misc.discordShortcutFunctions import assign_roles_to_member
+from ElevatorBot.misc.discordShortcutFunctions import remove_roles_from_member
 from ElevatorBot.static.descendOnlyIds import descend_muted_role_id
 
 
@@ -22,7 +21,7 @@ class MuteMe(Cog):
     @cog_ext.cog_slash(
         name="muteme",
         description="I wonder what this does...",
-        options=[get_user_option()],
+        options=[default_user_option()],
     )
     async def _mute_me(self, ctx: SlashContext, user: discord.Member = None):
         """I wonder what this does..."""

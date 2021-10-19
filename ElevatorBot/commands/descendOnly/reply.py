@@ -1,8 +1,9 @@
 from discord.ext.commands import Cog
-from discord_slash import SlashContext, cog_ext
+from discord_slash import cog_ext
+from discord_slash import SlashContext
 from discord_slash.utils.manage_commands import create_option
 
-from ElevatorBot.commandHelpers.optionTemplates import get_user_option
+from ElevatorBot.commandHelpers.optionTemplates import default_user_option
 from ElevatorBot.commandHelpers.permissionTemplates import permissions_admin
 
 
@@ -20,7 +21,7 @@ class Reply(Cog):
                 option_type=3,
                 required=True,
             ),
-            get_user_option("Which user to reply to"),
+            default_user_option("Which user to reply to"),
         ],
         default_permission=False,
         permissions=permissions_admin,

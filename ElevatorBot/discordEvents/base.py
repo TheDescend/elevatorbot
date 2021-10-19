@@ -1,8 +1,8 @@
 from dis_snek.client import Snake
 from dis_snek.models import Listener
 
+from ElevatorBot.discordEvents.errorEvents import on_command_error
 from ElevatorBot.discordEvents.errorEvents import on_component_callback_error
-from ElevatorBot.discordEvents.errorEvents import on_slash_command_error
 from ElevatorBot.discordEvents.guildEvents import on_channel_create
 from ElevatorBot.discordEvents.guildEvents import on_channel_delete
 from ElevatorBot.discordEvents.guildEvents import on_channel_update
@@ -29,7 +29,7 @@ def register_discord_events(client: Snake):
     """Import all events and add then to the bot"""
 
     # error handling
-    client.add_listener(Listener(on_slash_command_error, "slash_command_error"))  # todo currently missing
+    client.add_listener(Listener(on_command_error, "command_error"))
     client.add_listener(Listener(on_component_callback_error, "component_callback_error"))  # todo currently missing
 
     # interactions logging

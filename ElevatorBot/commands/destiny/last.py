@@ -1,8 +1,10 @@
 from discord.ext.commands import Cog
-from discord_slash import SlashContext, cog_ext
+from discord_slash import cog_ext
+from discord_slash import SlashContext
 from discord_slash.utils.manage_commands import create_option
 
-from ElevatorBot.commandHelpers.optionTemplates import get_mode_choices, get_user_option
+from ElevatorBot.commandHelpers.optionTemplates import default_user_option
+from ElevatorBot.commandHelpers.optionTemplates import get_mode_choices
 
 
 class Last(Cog):
@@ -20,7 +22,7 @@ class Last(Cog):
                 required=True,
                 choices=get_mode_choices(),
             ),
-            get_user_option(),
+            default_user_option(),
         ],
     )
     async def _last(self, ctx: SlashContext, **kwargs):

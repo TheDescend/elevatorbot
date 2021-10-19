@@ -1,8 +1,9 @@
 from discord.ext.commands import Cog
-from discord_slash import SlashContext, cog_ext
+from discord_slash import cog_ext
+from discord_slash import SlashContext
 from discord_slash.utils.manage_commands import create_option
 
-from ElevatorBot.commandHelpers.optionTemplates import get_user_option
+from ElevatorBot.commandHelpers.optionTemplates import default_user_option
 from ElevatorBot_old.static.slashCommandOptions import choices_mode
 
 
@@ -33,7 +34,7 @@ class ClanActivity(Cog):
                 option_type=3,
                 required=False,
             ),
-            get_user_option(description="The name of the user you want to highlight"),
+            default_user_option(description="The name of the user you want to highlight"),
         ],
     )
     async def _clanactivity(self, ctx: SlashContext, **kwargs):

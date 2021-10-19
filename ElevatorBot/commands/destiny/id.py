@@ -1,11 +1,13 @@
 import discord
 from discord.ext.commands import Cog
-from discord_slash import ButtonStyle, SlashContext, cog_ext
+from discord_slash import ButtonStyle
+from discord_slash import cog_ext
+from discord_slash import SlashContext
 from discord_slash.utils import manage_components
 
-from ElevatorBot.commandHelpers.optionTemplates import get_user_option
 from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
 from ElevatorBot.backendNetworking.destiny.profile import DestinyProfile
+from ElevatorBot.commandHelpers.optionTemplates import default_user_option
 from ElevatorBot.misc.formating import embed_message
 
 
@@ -16,7 +18,7 @@ class IdGet(Cog):
     @cog_ext.cog_slash(
         name="id",
         description="Get the users Bungie Name, which can be used to join people in Destiny 2 without adding them as a friend",
-        options=[get_user_option()],
+        options=[default_user_option()],
     )
     async def _id(self, ctx: SlashContext, user: discord.Member = None):
         """Get the users Bungie Name, which can be used to join people in Destiny 2 without adding them as a friend"""

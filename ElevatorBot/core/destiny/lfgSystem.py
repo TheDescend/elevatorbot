@@ -5,18 +5,35 @@ import dataclasses
 import datetime
 from typing import Optional
 
-import discord
 from apscheduler.jobstores.base import JobLookupError
-from discord_slash import SlashContext, ComponentContext, ButtonStyle
-from discord_slash.utils import manage_components
+from dis_snek.client import Snake
+from dis_snek.errors import Forbidden
+from dis_snek.errors import NotFound
+from dis_snek.models import ActionRow
+from dis_snek.models import Button
+from dis_snek.models import ButtonStyles
+from dis_snek.models import ComponentContext
+from dis_snek.models import Embed
+from dis_snek.models import Guild
+from dis_snek.models import GuildCategory
+from dis_snek.models import GuildChannel
+from dis_snek.models import GuildText
+from dis_snek.models import GuildVoice
+from dis_snek.models import InteractionContext
+from dis_snek.models import Member
+from dis_snek.models import Message
+from dis_snek.models import OverwriteTypes
+from dis_snek.models import PermissionOverwrite
+from dis_snek.models import Permissions
 
 from ElevatorBot.backendNetworking.destiny.lfgSystem import DestinyLfgSystem
 from ElevatorBot.backendNetworking.results import BackendResult
 from ElevatorBot.backgroundEvents import scheduler
 from ElevatorBot.misc.formating import embed_message
 from ElevatorBot.misc.helperFunctions import get_now_with_tz
-from ElevatorBot.static.emojis import backup_emoji_id, join_emoji_id, leave_emoji_id
-from ElevatorBot.static.schemas import LfgInputData, LfgUpdateData
+from ElevatorBot.static.emojis import custom_emojis
+from ElevatorBot.static.schemas import LfgInputData
+from ElevatorBot.static.schemas import LfgUpdateData
 
 
 @dataclasses.dataclass()
@@ -25,25 +42,25 @@ class LfgMessage:
 
     backend: DestinyLfgSystem
 
-    client: discord.Client
+    client: Snake
     id: int
 
-    guild: discord.Guild
-    channel: Optional[discord.TextChannel]
+    guild: Guild
+    channel: Optional[GuildText]
 
-    author: discord.Member
+    author: Member
     activity: str
     description: str
     start_time: datetime.datetime
     max_joined_members: int
 
-    message: discord.Message = None
+    message: Message = None
     creation_time: datetime.datetime = None
-    joined: list[discord.Member] = None
-    backup: list[discord.Member] = dataclasses.field(default_factory=list)
+    joined: list[Member] = None
+    backup: list[Member] = dataclasses.field(default_factory=list)
 
-    voice_category_channel: discord.CategoryChannel = None
-    voice_channel: discord.VoiceChannel = None
+    voice_category_channel: GuildCategory = None
+    voice_channel: GuildVoice = None
 
     # post init to do list
     def __post_init__(self):
@@ -51,16 +68,16 @@ class LfgMessage:
         self.scheduler = scheduler
 
         # get the button emojis
-        self.__join_emoji = self.client.get_emoji(join_emoji_id)
-        self.__leave_emoji = self.client.get_emoji(leave_emoji_id)
-        self.__backup_emoji = self.client.get_emoji(backup_emoji_id)
+        self.__join_emoji = custom_emojis.join
+        self.__leave_emoji = custom_emojis.leave
+        self.__backup_emoji = custom_emojis.backup
 
         # buttons
         self.__buttons = [
-            manage_components.create_actionrow(
-                manage_components.create_button(custom_id="lfg_join", style=ButtonStyle.green, label="Join"),
-                manage_components.create_button(custom_id="lfg_leave", style=ButtonStyle.red, label="Leave"),
-                manage_components.create_button(custom_id="lfg_backup", style=ButtonStyle.blue, label="Backup"),
+            ActionRow(
+                Button(custom_id="lfg_join", style=ButtonStyles.GREEN, label="Join", emoji=self.__join_emoji),
+                Button(custom_id="lfg_leave", style=ButtonStyles.RED, label="Leave", emoji=self.__leave_emoji),
+                Button(custom_id="lfg_backup", style=ButtonStyles.BLUE, label="Backup", emoji=self.__backup_emoji),
             ),
         ]
 
@@ -76,7 +93,7 @@ class LfgMessage:
         return True
 
     @classmethod
-    async def from_lfg_id(cls, lfg_id: int, client: discord.Client, guild: discord.Guild) -> LfgMessage | BackendResult:
+    async def from_lfg_id(cls, lfg_id: int, client: Snake, guild: Guild) -> LfgMessage | BackendResult:
         """
         Classmethod to get with a known lfg_id
         Returns LfgMessage() if successful, BackendResult() if not
@@ -90,7 +107,7 @@ class LfgMessage:
             return result
 
         # fill class info
-        channel: discord.TextChannel = guild.get_channel(result.result["channel_id"])
+        channel: GuildText = await guild.get_channel(result.result["channel_id"])
         lfg_message = cls(
             backend=backend,
             client=client,
@@ -114,15 +131,20 @@ class LfgMessage:
                 for member_id in result.result["alternate_members"]
                 if guild.get_member(member_id)
             ],
-            voice_channel=guild.get_channel(result.result["voice_channel_id"]),
-            voice_category_channel=guild.get_channel(result.result["voice_category_channel_id"]),
+            voice_channel=await guild.get_channel(result.result["voice_channel_id"]),
+            voice_category_channel=await guild.get_channel(result.result["voice_category_channel_id"]),
         )
 
         return lfg_message
 
     @classmethod
     async def create(
-        cls, ctx: SlashContext, activity: str, description: str, start_time: datetime.datetime, max_joined_members: int
+        cls,
+        ctx: InteractionContext,
+        activity: str,
+        description: str,
+        start_time: datetime.datetime,
+        max_joined_members: int,
     ) -> Optional[LfgMessage]:
         """Classmethod to create a new lfg message"""
 
@@ -165,13 +187,13 @@ class LfgMessage:
         await lfg_message.send()
 
         # respond to the context
-        await ctx.send(embed=embed_message("Success", f"I've created the event \nIt has the ID `{lfg_message.id}`"))
+        await ctx.send(embeds=embed_message("Success", f"I've created the event \nIt has the ID `{lfg_message.id}`"))
 
         return lfg_message
 
     async def add_joined(
         self,
-        member: discord.Member,
+        member: Member,
         ctx: ComponentContext = None,
         force_into_joined: bool = False,
     ) -> bool:
@@ -192,8 +214,8 @@ class LfgMessage:
             return True
         return False
 
-    async def add_backup(self, member: discord.Member, ctx: ComponentContext = None) -> bool:
-        """add a backup or move member to backup"""
+    async def add_backup(self, member: Member, ctx: ComponentContext = None) -> bool:
+        """Add a backup or move member to backup"""
 
         if member not in self.backup:
             self.backup.append(member)
@@ -205,8 +227,8 @@ class LfgMessage:
             return True
         return False
 
-    async def remove_member(self, member: discord.Member, ctx: ComponentContext = None) -> bool:
-        """delete a member"""
+    async def remove_member(self, member: Member, ctx: ComponentContext = None) -> bool:
+        """Delete a member"""
 
         if member in self.joined:
             self.joined.remove(member)
@@ -233,11 +255,11 @@ class LfgMessage:
         else:
             # acknowledge the button press
             if ctx:
-                await ctx.edit_origin(embed=embed, components=self.__buttons)
+                await ctx.edit_origin(embeds=embed, components=self.__buttons)
             else:
                 # todo check if has admin role @elevator site
 
-                await self.message.edit(embed=embed, components=self.__buttons)
+                await self.message.edit(embeds=embed, components=self.__buttons)
             first_send = False
 
         # update the database entry
@@ -250,7 +272,7 @@ class LfgMessage:
         if first_send:
             await self.__sort_lfg_messages()
 
-    async def delete(self, delete_command_user: discord.Member = None):
+    async def delete(self, delete_command_user: Member = None):
         """removes the message and also the database entries"""
 
         # todo check if delete_command_user has admin role @elevator site
@@ -266,7 +288,7 @@ class LfgMessage:
         if self.voice_channel and not self.voice_channel.members:
             try:
                 await self.voice_channel.delete()
-            except discord.NotFound:
+            except NotFound:
                 pass
 
         # delete DB entry
@@ -314,32 +336,33 @@ class LfgMessage:
             voice_channel_name = f"[ID: {self.id}] {self.activity}"
 
             # allow each participant to move members
-            permission_overrides = {}
+            permission_overrides = []
             for member in self.joined:
                 # allow the author to also mute
                 if member == self.author:
-                    permission_overrides.update(
-                        {
-                            member: discord.PermissionOverwrite(
-                                move_members=True,
-                                mute_members=True,
-                            )
-                        }
-                    )
-                else:
-                    permission_overrides.update(
-                        {
-                            member: discord.PermissionOverwrite(
-                                move_members=True,
-                            )
-                        }
+                    permission_overrides.append(
+                        PermissionOverwrite(
+                            id=member.id,
+                            type=OverwriteTypes.MEMBER,
+                            allow=Permissions.MOVE_MEMBERS | Permissions.MUTE_MEMBERS,
+                        )
                     )
 
-            self.voice_channel = await self.voice_category_channel.create_voice_channel(
+                else:
+                    permission_overrides.append(
+                        PermissionOverwrite(
+                            id=member.id,
+                            type=OverwriteTypes.MEMBER,
+                            allow=Permissions.MOVE_MEMBERS,
+                        )
+                    )
+
+            self.voice_channel = await self.guild.create_voice_channel(
                 name=voice_channel_name,
                 bitrate=self.guild.bitrate_limit,
                 user_limit=self.max_joined_members,
-                overwrites=permission_overrides,
+                category=self.voice_category_channel,
+                permission_overwrites=permission_overrides,
                 reason="LFG event starting",
             )
 
@@ -373,18 +396,18 @@ class LfgMessage:
                 for user in self.backup:
                     try:
                         await user.send(embed=embed)
-                    except discord.Forbidden:
+                    except Forbidden:
                         pass
 
         # dm the users
         for user in self.joined:
             try:
                 await user.send(embed=embed)
-            except discord.Forbidden:
+            except Forbidden:
                 pass
 
         # edit the channel message
-        await self.message.edit(embed=embed, components=[])
+        await self.message.edit(embeds=embed, components=[])
         await self.__dump_to_db()
 
         # wait timedelta + 10 min
@@ -439,8 +462,8 @@ class LfgMessage:
                             for member_id in event["alternate_members"]
                             if self.guild.get_member(member_id)
                         ],
-                        voice_channel=self.guild.get_channel(event["voice_channel_id"]),
-                        voice_category_channel=self.guild.get_channel(event["voice_category_channel_id"]),
+                        voice_channel=await self.guild.get_channel(event["voice_channel_id"]),
+                        voice_category_channel=await self.guild.get_channel(event["voice_category_channel_id"]),
                     )
                 )
 
@@ -467,7 +490,7 @@ class LfgMessage:
 
         return [member.mention for member in self.backup]
 
-    def __return_embed(self) -> discord.Embed:
+    def __return_embed(self) -> Embed:
         """return the formatted embed"""
 
         embed = embed_message(

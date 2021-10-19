@@ -1,19 +1,18 @@
-import discord
-from discord_slash import SlashContext
+from dis_snek.models import InteractionContext
+from dis_snek.models import Member
+from dis_snek.models import Message
 
 from ElevatorBot.misc.formating import embed_message
 from ElevatorBot.static.errorCodesAndResponses import error_codes_and_responses
 
 
-async def respond_discord_member_unknown(
-    ctx: SlashContext, discord_member: discord.Member, hidden: bool = True
-) -> bool:
+async def respond_discord_member_unknown(ctx: InteractionContext, discord_member: Member, hidden: bool = True) -> bool:
     """Respond to the given context"""
 
     if not ctx.responded:
         await ctx.send(
-            hidden=hidden,
-            embed=embed_message(
+            ephemeral=hidden,
+            embeds=embed_message(
                 "Error",
                 error_codes_and_responses["DiscordIdNotFound"].format(discord_member=discord_member),
             ),
@@ -22,13 +21,13 @@ async def respond_discord_member_unknown(
     return False
 
 
-async def respond_destiny_id_unknown(ctx: SlashContext, destiny_id: int, hidden: bool = True) -> bool:
+async def respond_destiny_id_unknown(ctx: InteractionContext, destiny_id: int, hidden: bool = True) -> bool:
     """Respond to the given context"""
 
     if not ctx.responded:
         await ctx.send(
-            hidden=hidden,
-            embed=embed_message(
+            ephemeral=hidden,
+            embeds=embed_message(
                 "Error",
                 error_codes_and_responses["DestinyIdNotFound"].format(destiny_id=destiny_id),
             ),
@@ -37,13 +36,13 @@ async def respond_destiny_id_unknown(ctx: SlashContext, destiny_id: int, hidden:
     return False
 
 
-async def respond_invalid_time_input(ctx: SlashContext, hidden: bool = True) -> bool:
+async def respond_invalid_time_input(ctx: InteractionContext, hidden: bool = True) -> bool:
     """Respond to the given context"""
 
     if not ctx.responded:
         await ctx.send(
-            hidden=hidden,
-            embed=embed_message(
+            ephemeral=hidden,
+            embeds=embed_message(
                 "Error", "There was an error with the formatting of the time parameters. Please try again"
             ),
         )
@@ -51,24 +50,23 @@ async def respond_invalid_time_input(ctx: SlashContext, hidden: bool = True) -> 
     return False
 
 
-async def respond_time_input_in_past(ctx: SlashContext, hidden: bool = True) -> bool:
+async def respond_time_input_in_past(ctx: InteractionContext, hidden: bool = True) -> bool:
     """Respond to the given context"""
 
     if not ctx.responded:
         await ctx.send(
-            hidden=hidden,
-            embed=embed_message("Error", "The event cannot start in the past. Please try again"),
+            ephemeral=hidden,
+            embeds=embed_message("Error", "The event cannot start in the past. Please try again"),
         )
         return True
     return False
 
 
-async def respond_timeout(message: discord.Message = None, hidden: bool = True):
+async def respond_timeout(message: Message = None):
     """Respond to the given context"""
 
     await message.edit(
-        hidden=hidden,
-        embed=embed_message(
+        embeds=embed_message(
             "Error",
             "You took too long. If you weren't finished, please try again. \nI can give you my grandmas phone number, her doing the typing might make it a bit faster 🙃",
         ),

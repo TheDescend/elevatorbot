@@ -1,8 +1,9 @@
 from discord.ext.commands import Cog
-from discord_slash import SlashContext, cog_ext
+from discord_slash import cog_ext
+from discord_slash import SlashContext
 from discord_slash.utils.manage_commands import create_option
 
-from ElevatorBot.commandHelpers.optionTemplates import get_user_option
+from ElevatorBot.commandHelpers.optionTemplates import default_user_option
 
 
 class RoleRequirements(Cog):
@@ -21,7 +22,7 @@ class RoleRequirements(Cog):
                 option_type=8,
                 required=True,
             ),
-            get_user_option(),
+            default_user_option(),
         ],
     )
     async def _roles_requirements(self, ctx: SlashContext, **kwargs):

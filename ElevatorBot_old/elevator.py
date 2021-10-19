@@ -684,7 +684,7 @@ def main():
     #     )
 
     @client.event
-    # async def on_slash_command_error(ctx: SlashContext, error: Exception):
+    # async def on_command_error(ctx: SlashContext, error: Exception):
     #     """Gets triggered on slash errors"""
     #
     #     await ctx.send(

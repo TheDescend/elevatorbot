@@ -1,9 +1,10 @@
 import discord
 from discord.ext.commands import Cog
-from discord_slash import SlashContext, cog_ext
+from discord_slash import cog_ext
+from discord_slash import SlashContext
 
-from ElevatorBot.commandHelpers.optionTemplates import get_user_option
 from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
+from ElevatorBot.commandHelpers.optionTemplates import default_user_option
 from ElevatorBot.misc.formating import embed_message
 
 
@@ -16,7 +17,7 @@ class Solos(Cog):
     @cog_ext.cog_slash(
         name="solos",
         description="Shows you an overview of your Destiny 2 solo activity completions",
-        options=[get_user_option()],
+        options=[default_user_option()],
     )
     async def _solos(self, ctx: SlashContext, user: discord.Member):
 

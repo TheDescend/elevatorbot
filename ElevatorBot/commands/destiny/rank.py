@@ -1,8 +1,10 @@
 from discord.ext.commands import Cog
-from discord_slash import SlashContext, cog_ext
-from discord_slash.utils.manage_commands import create_choice, create_option
+from discord_slash import cog_ext
+from discord_slash import SlashContext
+from discord_slash.utils.manage_commands import create_choice
+from discord_slash.utils.manage_commands import create_option
 
-from ElevatorBot.commandHelpers.optionTemplates import get_user_option
+from ElevatorBot.commandHelpers.optionTemplates import default_user_option
 
 
 class Rank(Cog):
@@ -56,7 +58,7 @@ class Rank(Cog):
                 option_type=5,
                 required=False,
             ),
-            get_user_option(),
+            default_user_option(),
         ],
     )
     async def _rank(self, ctx: SlashContext, *args, **kwargs):

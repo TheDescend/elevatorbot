@@ -1,10 +1,10 @@
-from discord_slash import ComponentContext
-from discord_slash import SlashContext
+from dis_snek.models import ComponentContext
+from dis_snek.models import InteractionContext
 
 from ElevatorBot.misc.helperFunctions import log_error
 
 
-async def on_slash_command_error(ctx: SlashContext, error: Exception) -> None:
+async def on_command_error(ctx: InteractionContext, error: Exception) -> None:
     """Gets triggered on slash errors"""
 
     await log_error(ctx=ctx, error=error, situation="commands")

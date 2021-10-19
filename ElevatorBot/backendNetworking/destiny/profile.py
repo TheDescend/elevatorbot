@@ -2,15 +2,15 @@ from __future__ import annotations
 
 import dataclasses
 
-import discord
+from dis_snek.client import Snake
+from dis_snek.models import Guild
+from dis_snek.models import Member
 
 from ElevatorBot.backendNetworking.http import BaseBackendConnection
 from ElevatorBot.backendNetworking.results import BackendResult
-from ElevatorBot.backendNetworking.routes import (
-    destiny_profile_delete_route,
-    destiny_profile_from_destiny_id_route,
-    destiny_profile_from_discord_id_route,
-)
+from ElevatorBot.backendNetworking.routes import destiny_profile_delete_route
+from ElevatorBot.backendNetworking.routes import destiny_profile_from_destiny_id_route
+from ElevatorBot.backendNetworking.routes import destiny_profile_from_discord_id_route
 from ElevatorBot.static.schemas import DestinyData
 
 
@@ -18,9 +18,9 @@ from ElevatorBot.static.schemas import DestinyData
 class DestinyProfile(BaseBackendConnection):
     """Get basic destiny information (discord_member, destiny_id, system)"""
 
-    client: discord.Client
-    discord_member: discord.Member
-    discord_guild: discord.Guild
+    client: Snake
+    discord_member: Member
+    discord_guild: Guild
 
     async def from_destiny_id(self, destiny_id: int) -> DestinyData | BackendResult:
         """Get the destiny profile with a destiny_id"""
@@ -74,4 +74,3 @@ class DestinyProfile(BaseBackendConnection):
         return await self._backend_request(
             method="DELETE", route=destiny_profile_delete_route.format(discord_id=self.discord_member.id)
         )
-

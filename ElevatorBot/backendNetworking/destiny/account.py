@@ -1,22 +1,21 @@
 import dataclasses
 
-import discord
+from dis_snek.client import Snake
+from dis_snek.models import Guild
 
 from ElevatorBot.backendNetworking.http import BaseBackendConnection
 from ElevatorBot.backendNetworking.results import BackendResult
-from ElevatorBot.backendNetworking.routes import (
-    destiny_account_characters_route,
-    destiny_account_name_route,
-    destiny_account_solos_route,
-    destiny_account_stat_characters_route,
-    destiny_account_stat_route,
-)
+from ElevatorBot.backendNetworking.routes import destiny_account_characters_route
+from ElevatorBot.backendNetworking.routes import destiny_account_name_route
+from ElevatorBot.backendNetworking.routes import destiny_account_solos_route
+from ElevatorBot.backendNetworking.routes import destiny_account_stat_characters_route
+from ElevatorBot.backendNetworking.routes import destiny_account_stat_route
 
 
 @dataclasses.dataclass
 class DestinyAccount(BaseBackendConnection):
-    client: discord.Client
-    discord_guild: discord.Guild
+    client: Snake
+    discord_guild: Guild
     discord_member = None
 
     async def get_destiny_name(self) -> BackendResult:

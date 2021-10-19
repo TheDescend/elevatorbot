@@ -1,8 +1,11 @@
 from discord.ext.commands import Cog
-from discord_slash import SlashContext, cog_ext
-from discord_slash.utils.manage_commands import create_choice, create_option
+from discord_slash import cog_ext
+from discord_slash import SlashContext
+from discord_slash.utils.manage_commands import create_choice
+from discord_slash.utils.manage_commands import create_option
 
-from ElevatorBot.commandHelpers.optionTemplates import get_mode_choices, get_user_option
+from ElevatorBot.commandHelpers.optionTemplates import default_user_option
+from ElevatorBot.commandHelpers.optionTemplates import get_mode_choices
 
 
 class Weapon(Cog):
@@ -72,7 +75,7 @@ class Weapon(Cog):
                 option_type=4,
                 required=False,
             ),
-            get_user_option(),
+            default_user_option(),
         ],
     )
     async def _weapon(self, ctx: SlashContext, **kwargs):
