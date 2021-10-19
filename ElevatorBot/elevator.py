@@ -10,6 +10,7 @@ from ElevatorBot.misc.initBackgroundEvents import register_background_events
 from ElevatorBot.misc.initDocs import create_command_docs
 from ElevatorBot.misc.initLogging import init_logging
 from ElevatorBot.misc.veryMisc import yield_files_in_folder
+from ElevatorBot.static.emojis import custom_emojis
 from ElevatorBot.webserver.server import run_webserver
 from settings import DISCORD_BOT_TOKEN
 from settings import SYNC_COMMANDS
@@ -35,6 +36,9 @@ async def on_ready(self):
 
     print("Start Webserver...")
     asyncio.create_task(run_webserver(client=client))
+
+    print("Load Custom Emoji...")
+    await custom_emojis.init_emojis(client)
 
     print("Startup Finished!\n")
     print("--------------------------\n")

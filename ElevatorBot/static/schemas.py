@@ -1,13 +1,12 @@
 import dataclasses
 import datetime
-from typing import Optional
 
-import discord
+from dis_snek.models import Member
 
 
 @dataclasses.dataclass
 class DestinyData:
-    discord_member: discord.Member
+    discord_member: Member
     destiny_id: int
     system: int
 
