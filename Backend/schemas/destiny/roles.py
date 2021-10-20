@@ -4,9 +4,17 @@ from pydantic import BaseModel
 
 
 class EarnedRolesModel(BaseModel):
-    earned: list[int] = []
-    earned_but_replaced_by_higher_role: list[int] = []
-    not_earned: list[int] = []
+    """
+    Format:
+
+    {
+        "category_name": list[role_ids]
+    }
+    """
+
+    earned: dict[str, list[int]] = {}
+    earned_but_replaced_by_higher_role: dict[str, list[int]] = {}
+    not_earned: dict[str, list[int]] = {}
 
 
 class EarnedRoleModel(BaseModel):
@@ -49,6 +57,9 @@ class ActivityModel(BaseModel):
 
 
 class RoleDataModel(BaseModel):
+    # the category of the role. Used to better format roles
+    category: str = None
+
     # mark the role as acquirable, but reliant on removed content
     deprecated: bool = False
 

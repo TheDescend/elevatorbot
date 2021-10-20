@@ -3,6 +3,7 @@ from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend import crud
+from Backend.core.destiny.activities import DestinyActivities
 from Backend.core.destiny.profile import DestinyProfile
 from Backend.core.destiny.roles import UserRoles
 from Backend.database.models import Roles
@@ -80,6 +81,10 @@ async def get_user(guild_id: int, role_id: int, discord_id: int, db: AsyncSessio
     roles = UserRoles(db=db, user=profile)
 
     sought_role = await crud.roles.get_role(db=db, role_id=role_id)
+
+    # update the users db entries
+    activities = DestinyActivities(db=db, user=user)
+    await activities.update_activity_db()
 
     return await roles.has_role(role=sought_role)
 

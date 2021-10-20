@@ -53,15 +53,32 @@ class UserRoles:
             replaced_by_role_id = role.role_data["replaced_by_role_id"]
 
             if self._cache_worthy[role.role_id] == RoleEnum.EARNED:
-                user_roles.earned.append(role.role_id)
+                category = str(role.role_data["category"])
+                if category not in user_roles.earned:
+                    user_roles.earned.update({category: []})
+
+                user_roles.earned[category].append(role.role_id)
 
             elif self._cache_worthy[role.role_id] == RoleEnum.NOT_EARNED:
-                user_roles.not_earned.append(role.role_id)
+                category = str(role.role_data["category"])
+                if category not in user_roles.not_earned:
+                    user_roles.not_earned.update({category: []})
+
+                user_roles.not_earned[category].append(role.role_id)
 
             if replaced_by_role_id:
                 if self._cache_worthy[role.role_id] == RoleEnum.EARNED and self._cache_worthy[replaced_by_role_id] == RoleEnum.EARNED:
-                    user_roles.earned.pop(role.role_id)
-                    user_roles.earned_but_replaced_by_higher_role.append(role.role_id)
+                    category = str(role.role_data["category"])
+                    if category not in user_roles.earned_but_replaced_by_higher_role:
+                        user_roles.earned_but_replaced_by_higher_role.update({category: []})
+
+                    user_roles.earned_but_replaced_by_higher_role[category].append(role.role_id)
+
+                    # remove the old entry if exist
+                    try:
+                        user_roles.earned[category].pop(role.role_id)
+                    except KeyError:
+                        pass
 
         return user_roles
 

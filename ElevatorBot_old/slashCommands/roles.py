@@ -1,12 +1,15 @@
 import discord
 from discord.ext import commands
-from discord_slash import cog_ext, SlashContext
+from discord_slash import cog_ext
+from discord_slash import SlashContext
 from discord_slash.utils.manage_commands import create_option
 
 from ElevatorBot.backendNetworking.destinyPlayer import DestinyPlayer
 from ElevatorBot.backendNetworking.formating import embed_message
-from ElevatorBot.backendNetworking.roleLookup import get_player_roles, has_role
-from ElevatorBot.backendNetworking.slashCommandFunctions import get_user_obj, get_user_obj_admin
+from ElevatorBot.backendNetworking.roleLookup import get_player_roles
+from ElevatorBot.backendNetworking.roleLookup import has_role
+from ElevatorBot.backendNetworking.slashCommandFunctions import get_user_obj
+from ElevatorBot.backendNetworking.slashCommandFunctions import get_user_obj_admin
 from ElevatorBot.static.dict import requirementHashes
 from ElevatorBot.static.globals import dev_role_id
 from ElevatorBot.static.slashCommandOptions import options_user
@@ -63,103 +66,103 @@ class RoleCommands(commands.Cog):
 
         await ctx.send(embed=embed)
 
-    @cog_ext.cog_subcommand(
-        base="roles",
-        base_description="Various commands concerning Destiny 2 achievement discord roles",
-        name="get",
-        description="Assigns you all the roles you've earned",
-        options=[options_user(flavor_text="Requires elevated permissions")],
-    )
-    async def _roles_get(self, ctx: SlashContext, **kwargs):
-        # check perm for mention, otherwise abort
-        user = await get_user_obj_admin(ctx, kwargs)
-        if not user:
-            return
-
-        # get destiny user info
-        destiny_player = await DestinyPlayer.from_discord_id(user.id, ctx=ctx)
-        if not destiny_player:
-            return
-
-        # might take a sec
-        await ctx.defer()
-
-        # _update user DB
-        await destiny_player.update_activity_db()
-
-        # get new roles
-        roles_at_start = [role.name for role in user.roles]
-        (
-            roles_to_add,
-            roles_to_remove,
-            all_roles_earned,
-            all_roles_not_earned,
-        ) = await get_player_roles(user, destiny_player, roles_at_start)
-
-        # if user has no roles show
-        if not all_roles_earned:
-            await ctx.send(
-                embed=embed_message(
-                    "Info",
-                    f"You don't seem to have any roles.\nIf you believe this is an Error, refer to one of the <@&{dev_role_id}>\nOtherwise check <#686568386590802000> to see what you could acquire",
-                )
-            )
-            return
-
-        # assign roles
-        await user.add_roles(*roles_to_add, reason="Achievement Role Update")
-
-        # _delete roles
-        await user.remove_roles(*roles_to_remove, reason="Achievement Role Update")
-
-        # compare them with old roles for a better result msg
-        old_roles = {}
-        new_roles = {}
-        for topic, topicroles in requirementHashes.items():
-            topic = topic.replace("Y1", "Year One")
-            topic = topic.replace("Y2", "Year Two")
-            topic = topic.replace("Y3", "Year Three")
-            topic = topic.replace("Y4", "Year Four")
-
-            topic = topic.replace("Addition", "Miscellaneous")
-
-            for role_name in topicroles.keys():
-                discord_role = discord.utils.get(ctx.guild.roles, name=role_name)
-                if discord_role:
-                    if discord_role in roles_to_add:
-                        try:
-                            new_roles[topic].append(discord_role.mention)
-                        except KeyError:
-                            new_roles[topic] = [discord_role.mention]
-                    else:
-                        if discord_role in all_roles_earned:
-                            try:
-                                old_roles[topic].append(discord_role.mention)
-                            except KeyError:
-                                old_roles[topic] = [discord_role.mention]
-
-        # construct reply msg
-        embed = embed_message(f"{user.display_name}'s new Roles", f"__Previous Roles:__")
-        if not old_roles:
-            embed.add_field(name=f"You didn't have any roles before", value="⁣", inline=True)
-
-        for topic in old_roles:
-            roles = []
-            for role_name in topic:
-                roles.append(role_name)
-            embed.add_field(name=topic, value="\n".join(old_roles[topic]), inline=True)
-
-        embed.add_field(name="⁣", value=f"__New Roles:__", inline=False)
-        if not new_roles:
-            embed.add_field(name="No new roles have been achieved", value="⁣", inline=True)
-
-        for topic in new_roles:
-            roles = []
-            for role_name in topic:
-                roles.append(role_name)
-            embed.add_field(name=topic, value="\n".join(new_roles[topic]), inline=True)
-
-        await ctx.send(embed=embed)
+    # @cog_ext.cog_subcommand(
+    #     base="roles",
+    #     base_description="Various commands concerning Destiny 2 achievement discord roles",
+    #     name="get",
+    #     description="Assigns you all the roles you've earned",
+    #     options=[options_user(flavor_text="Requires elevated permissions")],
+    # )
+    # async def _roles_get(self, ctx: SlashContext, **kwargs):
+    # # check perm for mention, otherwise abort
+    # user = await get_user_obj_admin(ctx, kwargs)
+    # if not user:
+    #     return
+    #
+    # # get destiny user info
+    # destiny_player = await DestinyPlayer.from_discord_id(user.id, ctx=ctx)
+    # if not destiny_player:
+    #     return
+    #
+    # # might take a sec
+    # await ctx.defer()
+    #
+    # # _update user DB
+    # await destiny_player.update_activity_db()
+    #
+    # # get new roles
+    # roles_at_start = [role.name for role in user.roles]
+    # (
+    #     roles_to_add,
+    #     roles_to_remove,
+    #     all_roles_earned,
+    #     all_roles_not_earned,
+    # ) = await get_player_roles(user, destiny_player, roles_at_start)
+    #
+    # # if user has no roles show
+    # if not all_roles_earned:
+    #     await ctx.send(
+    #         embed=embed_message(
+    #             "Info",
+    #             f"You don't seem to have any roles.\nIf you believe this is an Error, refer to one of the <@&{dev_role_id}>\nOtherwise check <#686568386590802000> to see what you could acquire",
+    #         )
+    #     )
+    #     return
+    #
+    # # assign roles
+    # await user.add_roles(*roles_to_add, reason="Achievement Role Update")
+    #
+    # # _delete roles
+    # await user.remove_roles(*roles_to_remove, reason="Achievement Role Update")
+    #
+    # # compare them with old roles for a better result msg
+    # old_roles = {}
+    # new_roles = {}
+    # for topic, topicroles in requirementHashes.items():
+    #     topic = topic.replace("Y1", "Year One")
+    #     topic = topic.replace("Y2", "Year Two")
+    #     topic = topic.replace("Y3", "Year Three")
+    #     topic = topic.replace("Y4", "Year Four")
+    #
+    #     topic = topic.replace("Addition", "Miscellaneous")
+    #
+    #     for role_name in topicroles.keys():
+    #         discord_role = discord.utils.get(ctx.guild.roles, name=role_name)
+    #         if discord_role:
+    #             if discord_role in roles_to_add:
+    #                 try:
+    #                     new_roles[topic].append(discord_role.mention)
+    #                 except KeyError:
+    #                     new_roles[topic] = [discord_role.mention]
+    #             else:
+    #                 if discord_role in all_roles_earned:
+    #                     try:
+    #                         old_roles[topic].append(discord_role.mention)
+    #                     except KeyError:
+    #                         old_roles[topic] = [discord_role.mention]
+    #
+    # # construct reply msg
+    # embed = embed_message(f"{user.display_name}'s new Roles", f"__Previous Roles:__")
+    # if not old_roles:
+    #     embed.add_field(name=f"You didn't have any roles before", value="⁣", inline=True)
+    #
+    # for topic in old_roles:
+    #     roles = []
+    #     for role_name in topic:
+    #         roles.append(role_name)
+    #     embed.add_field(name=topic, value="\n".join(old_roles[topic]), inline=True)
+    #
+    # embed.add_field(name="⁣", value=f"__New Roles:__", inline=False)
+    # if not new_roles:
+    #     embed.add_field(name="No new roles have been achieved", value="⁣", inline=True)
+    #
+    # for topic in new_roles:
+    #     roles = []
+    #     for role_name in topic:
+    #         roles.append(role_name)
+    #     embed.add_field(name=topic, value="\n".join(new_roles[topic]), inline=True)
+    #
+    # await ctx.send(embed=embed)
 
     @cog_ext.cog_subcommand(
         base="roles",
