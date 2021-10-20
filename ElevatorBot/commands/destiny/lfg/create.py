@@ -5,7 +5,7 @@ import pytz
 from dateutil.parser import parse, ParserError
 from dis_snek.models import ActionRow, Button, ButtonStyles, ComponentContext, InteractionContext, Message, OptionTypes, slash_option, sub_command
 
-from ElevatorBot.commandHelpers.optionTemplates import destiny_group, get_timezone_choices
+from ElevatorBot.commandHelpers.optionTemplates import get_timezone_choices
 from ElevatorBot.commandHelpers.responseTemplates import (
     respond_invalid_time_input,
     respond_time_input_in_past,
@@ -16,7 +16,7 @@ from ElevatorBot.core.destiny.lfgSystem import LfgMessage
 from ElevatorBot.misc.formating import embed_message
 from ElevatorBot.misc.helperFunctions import get_now_with_tz
 from ElevatorBot.static.destinyActivities import dungeons, raids
-from ElevatorBot.static.timezones import timezones_dict
+
 
 
 class LfgCreate(BaseScale):
@@ -27,7 +27,7 @@ class LfgCreate(BaseScale):
         base_description="Everything concerning my awesome Destiny 2 LFG system",
         sub_name="create",
         sub_description="Creates an LFG post",
-        **destiny_group,
+
     )
     @slash_option(name="start_time", description="Format: 'HH:MM DD/MM' - When the event is supposed to start", required=True, opt_type=OptionTypes.STRING)
     @slash_option(name="timezone", description="What timezone you are in", required=True, opt_type=OptionTypes.STRING, choices=get_timezone_choices())

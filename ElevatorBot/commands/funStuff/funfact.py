@@ -2,13 +2,12 @@ import aiohttp
 from dis_snek.models import InteractionContext
 from dis_snek.models import slash_command
 
-from ElevatorBot.commandHelpers.optionTemplates import misc_group
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formating import embed_message
 
 
 class FunFact(BaseScale):
-    @slash_command(name="funfact", description="Very fun fun facts just for the funny fun of it", **misc_group)
+    @slash_command(name="funfact", description="Very fun fun facts just for the funny fun of it")
     async def _fun_fact(self, ctx: InteractionContext):
 
         url = "https://uselessfacts.jsph.pl/random.json?language=en"

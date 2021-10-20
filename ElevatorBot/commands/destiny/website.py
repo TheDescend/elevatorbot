@@ -1,7 +1,7 @@
 from dis_snek.models import ActionRow, Button, ButtonStyles, InteractionContext, Member, OptionTypes, SlashCommandChoice, SlashCommandOption, slash_command, slash_option
 
 from ElevatorBot.backendNetworking.destiny.profile import DestinyProfile
-from ElevatorBot.commandHelpers.optionTemplates import default_user_option, destiny_group
+from ElevatorBot.commandHelpers.optionTemplates import default_user_option
 from ElevatorBot.commands.base import BaseScale
 
 
@@ -13,8 +13,7 @@ class Website(BaseScale):
         3: "pc"
     }
 
-
-    @slash_command(name="website", description="Gets your personalised link to a bunch of Destiny 2 related websites", **destiny_group)
+    @slash_command(name="website", description="Gets your personalised link to a bunch of Destiny 2 related websites")
     @slash_option(
         name="website",
         description="The name of the website you want a personalised link for",

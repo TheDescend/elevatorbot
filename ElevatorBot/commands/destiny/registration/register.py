@@ -1,8 +1,11 @@
 from dis_snek.client import Snake
-from dis_snek.models import ActionRow, Button, ButtonStyles, InteractionContext, Scale, slash_command
+from dis_snek.models import ActionRow
+from dis_snek.models import Button
+from dis_snek.models import ButtonStyles
+from dis_snek.models import InteractionContext
+from dis_snek.models import Scale
+from dis_snek.models import slash_command
 
-from ElevatorBot.commandHelpers.optionTemplates import destiny_group
-from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formating import embed_message
 from settings import BUNGIE_OAUTH
 
@@ -11,7 +14,7 @@ class Register(Scale):
     def __init__(self, client):
         self.client: Snake = client
 
-    @slash_command(name="register", description="Link your Destiny 2 account with ElevatorBot", **destiny_group)
+    @slash_command(name="register", description="Link your Destiny 2 account with ElevatorBot")
     async def _register(self, ctx: InteractionContext):
 
         # not in dms

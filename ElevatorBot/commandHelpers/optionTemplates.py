@@ -93,10 +93,3 @@ def default_stat_option() -> Any:
         )(func)
 
     return wrapper
-
-
-admin_group: dict = {"group_name": "Administration", "group_description": "Elevator's Admin Commands"}
-
-destiny_group: dict = {"group_name": "Destiny", "group_description": "Elevator's Destiny Commands"}
-
-misc_group: dict = {"group_name": "Miscellaneous", "group_description": "Elevator's Miscellaneous Commands"}

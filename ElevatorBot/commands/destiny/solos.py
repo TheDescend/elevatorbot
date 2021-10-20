@@ -4,15 +4,12 @@ from dis_snek.models import slash_command
 
 from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
-from ElevatorBot.commandHelpers.optionTemplates import destiny_group
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formating import embed_message
 
 
 class Solos(BaseScale):
-    @slash_command(
-        name="solos", description="Shows you an overview of your Destiny 2 solo activity completions", **destiny_group
-    )
+    @slash_command(name="solos", description="Shows you an overview of your Destiny 2 solo activity completions")
     @default_user_option()
     async def _solos(self, ctx: InteractionContext, user: Member):
 

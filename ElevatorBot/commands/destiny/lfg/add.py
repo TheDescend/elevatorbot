@@ -1,13 +1,11 @@
 from dis_snek.models import InteractionContext
 from dis_snek.models import Member
 from dis_snek.models import OptionTypes
-from dis_snek.models import slash_command
 from dis_snek.models import slash_option
 from dis_snek.models import sub_command
 
 from ElevatorBot.backendNetworking.results import BackendResult
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
-from ElevatorBot.commandHelpers.optionTemplates import destiny_group
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.core.destiny.lfgSystem import LfgMessage
 from ElevatorBot.misc.formating import embed_message
@@ -21,7 +19,6 @@ class LfgAdd(BaseScale):
         base_description="Everything concerning my awesome Destiny 2 LFG system",
         sub_name="add",
         sub_description="Add a user to an lfg event",
-        **destiny_group,
     )
     @slash_option(name="lfg_id", description="The lfg message id", required=True, opt_type=OptionTypes.INTEGER)
     @default_user_option(description="The user you want to add", required=True)

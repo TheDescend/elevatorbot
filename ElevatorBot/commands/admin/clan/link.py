@@ -2,8 +2,6 @@ from dis_snek.models import InteractionContext
 from dis_snek.models import sub_command
 
 from ElevatorBot.backendNetworking.destiny.clan import DestinyClan
-from ElevatorBot.commandHelpers.optionTemplates import admin_group
-from ElevatorBot.commandHelpers.permissionTemplates import permissions_admin
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formating import embed_message
 
@@ -17,7 +15,6 @@ class ClanLink(BaseScale):
         base_description="Everything concerning the link from this discord guild to your Destiny 2 clan",
         sub_name="link",
         sub_description="Links your own Destiny 2 clan with this discord. Requires Admin in both Discord and Destiny",
-        **admin_group,
     )
     async def _link(
         self,

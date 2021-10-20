@@ -4,7 +4,6 @@ from dis_snek.models import slash_option
 from dis_snek.models import sub_command
 
 from ElevatorBot.backendNetworking.results import BackendResult
-from ElevatorBot.commandHelpers.optionTemplates import destiny_group
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.core.destiny.lfgSystem import LfgMessage
 from ElevatorBot.misc.formating import embed_message
@@ -16,7 +15,6 @@ class LfgDelete(BaseScale):
         base_description="Everything concerning my awesome Destiny 2 LFG system",
         sub_name="delete",
         sub_description="When you fucked up and need to delete an event",
-        **destiny_group,
     )
     @slash_option(name="lfg_id", description="The lfg message id", required=True, opt_type=OptionTypes.INTEGER)
     async def _delete(self, ctx: InteractionContext, lfg_id: int):

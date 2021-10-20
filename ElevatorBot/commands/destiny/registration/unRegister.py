@@ -4,9 +4,6 @@ from dis_snek.models import Scale
 from dis_snek.models import slash_command
 
 from ElevatorBot.backendNetworking.destiny.profile import DestinyProfile
-from ElevatorBot.commandHelpers.optionTemplates import default_user_option
-from ElevatorBot.commandHelpers.optionTemplates import destiny_group
-from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formating import embed_message
 
 
@@ -14,7 +11,7 @@ class UnRegister(Scale):
     def __init__(self, client):
         self.client: Snake = client
 
-    @slash_command(name="unregister", description="Unlink your Destiny 2 account from ElevatorBot", **destiny_group)
+    @slash_command(name="unregister", description="Unlink your Destiny 2 account from ElevatorBot")
     async def _unregister(
         self,
         ctx: InteractionContext,

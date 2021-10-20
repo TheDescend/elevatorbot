@@ -6,7 +6,6 @@ from dateutil.parser import ParserError, parse
 from dis_snek.models import ActionRow, ComponentContext, InteractionContext, Message, OptionTypes, Select, SelectOption, SlashCommandChoice, slash_option, sub_command
 
 from ElevatorBot.backendNetworking.results import BackendResult
-from ElevatorBot.commandHelpers.optionTemplates import destiny_group
 from ElevatorBot.commandHelpers.responseTemplates import respond_timeout
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.core.destiny.lfgSystem import LfgMessage
@@ -23,15 +22,20 @@ class LfgEdit(BaseScale):
         base_description="Everything concerning my awesome Destiny 2 LFG system",
         sub_name="edit",
         sub_description="When you fucked up and need to edit an event",
-        **destiny_group,
     )
     @slash_option(name="lfg_id", description="The lfg message id", required=True, opt_type=OptionTypes.INTEGER)
-    @slash_option(name="section", description="What section to edit", required=True, opt_type=OptionTypes.STRING, choices=[
-                    SlashCommandChoice(name="Activity", value="Activity"),
-                    SlashCommandChoice(name="Description", value="Description"),
-                    SlashCommandChoice(name="Start Time", value="Start Time"),
-                    SlashCommandChoice(name="Maximum Members", value="Maximum Members"),
-                ])
+    @slash_option(
+        name="section",
+        description="What section to edit",
+        required=True,
+        opt_type=OptionTypes.STRING,
+        choices=[
+            SlashCommandChoice(name="Activity", value="Activity"),
+            SlashCommandChoice(name="Description", value="Description"),
+            SlashCommandChoice(name="Start Time", value="Start Time"),
+            SlashCommandChoice(name="Maximum Members", value="Maximum Members"),
+        ]
+    )
     async def _edit(self, ctx: InteractionContext, lfg_id: int, section: str):
         # get the message obj
         lfg_message = await LfgMessage.from_lfg_id(lfg_id=lfg_id, client=ctx.bot, guild=ctx.guild)

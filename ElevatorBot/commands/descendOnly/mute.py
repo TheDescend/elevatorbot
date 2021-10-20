@@ -6,7 +6,6 @@ from dis_snek.models import OptionTypes
 from dis_snek.models import slash_command
 from dis_snek.models import slash_option
 
-from ElevatorBot.commandHelpers.optionTemplates import admin_group
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.discordShortcutFunctions import assign_roles_to_member
@@ -18,7 +17,7 @@ from ElevatorBot.static.descendOnlyIds import descend_muted_role_id
 class Mute(BaseScale):
 
     # todo perm
-    @slash_command(name="mute", description="Mutes the specified user for specified amount of time", **admin_group)
+    @slash_command(name="mute", description="Mutes the specified user for specified amount of time")
     @default_user_option(description="Which user to mute", required=True)
     @slash_option(
         name="hours", description="How many hours to mute the user for", required=True, opt_type=OptionTypes.INTEGER

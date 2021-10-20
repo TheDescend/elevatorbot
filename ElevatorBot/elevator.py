@@ -48,13 +48,9 @@ if __name__ == "__main__":
     )
 
     # actually get the bot obj
-    client = Snake(
-        intents=intents,
-        sync_interactions=SYNC_COMMANDS,
-        delete_unused_application_cmds=True,
-    )
+    client = Snake(intents=intents, sync_interactions=SYNC_COMMANDS, delete_unused_application_cmds=True)
 
-    # add discord events and handlers
+    # # add discord events and handlers
     register_discord_events(client)
 
     @listen()
@@ -84,8 +80,6 @@ if __name__ == "__main__":
 
         print("Startup Finished!\n")
         print("--------------------------\n")
-
-    i = 0
 
     # load commands
     print("Loading Commands...")
