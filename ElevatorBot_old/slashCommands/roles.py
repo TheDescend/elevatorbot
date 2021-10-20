@@ -164,54 +164,54 @@ class RoleCommands(commands.Cog):
     #
     # await ctx.send(embed=embed)
 
-    @cog_ext.cog_subcommand(
-        base="roles",
-        base_description="Various commands concerning Destiny 2 achievement discord roles",
-        name="requirements",
-        description="Shows you what you need to do to get the specified role",
-        options=[
-            create_option(
-                name="role",
-                description="The name of the role you want to look up",
-                option_type=8,
-                required=True,
-            ),
-            options_user(),
-        ],
-    )
-    async def _roles_requirements(self, ctx: SlashContext, **kwargs):
-        user = await get_user_obj(ctx, kwargs)
-        role = kwargs["role"]
-
-        # might take a sec
-        await ctx.defer()
-
-        # Get user details
-        destiny_player = await DestinyPlayer.from_discord_id(user.id, ctx=ctx)
-        if not destiny_player:
-            return
-
-        # _update user DB
-        await destiny_player.update_activity_db()
-        reqs = await has_role(destiny_player, role, return_as_bool=False)
-
-        if not reqs:
-            await ctx.send(
-                hidden=True,
-                embed=embed_message(
-                    f"Error",
-                    f"This role can't be achieved through Destiny 2 \nPlease try again with a different role",
-                ),
-            )
-
-        else:
-            # construct reply msg
-            embed = embed_message(f"{user.display_name}'s '{role.name}' Eligibility")
-
-            for req in reqs[1]:
-                embed.add_field(name=req, value=reqs[1][req], inline=True)
-
-            await ctx.send(embed=embed)
+    # @cog_ext.cog_subcommand(
+    #     base="roles",
+    #     base_description="Various commands concerning Destiny 2 achievement discord roles",
+    #     name="requirements",
+    #     description="Shows you what you need to do to get the specified role",
+    #     options=[
+    #         create_option(
+    #             name="role",
+    #             description="The name of the role you want to look up",
+    #             option_type=8,
+    #             required=True,
+    #         ),
+    #         options_user(),
+    #     ],
+    # )
+    # async def _roles_requirements(self, ctx: SlashContext, **kwargs):
+    # user = await get_user_obj(ctx, kwargs)
+    # role = kwargs["role"]
+    #
+    # # might take a sec
+    # await ctx.defer()
+    #
+    # # Get user details
+    # destiny_player = await DestinyPlayer.from_discord_id(user.id, ctx=ctx)
+    # if not destiny_player:
+    #     return
+    #
+    # # _update user DB
+    # await destiny_player.update_activity_db()
+    # reqs = await has_role(destiny_player, role, return_as_bool=False)
+    #
+    # if not reqs:
+    #     await ctx.send(
+    #         hidden=True,
+    #         embed=embed_message(
+    #             f"Error",
+    #             f"This role can't be achieved through Destiny 2 \nPlease try again with a different role",
+    #         ),
+    #     )
+    #
+    # else:
+    #     # construct reply msg
+    #     embed = embed_message(f"{user.display_name}'s '{role.name}' Eligibility")
+    #
+    #     for req in reqs[1]:
+    #         embed.add_field(name=req, value=reqs[1][req], inline=True)
+    #
+    #     await ctx.send(embed=embed)
 
     def missingRoles(self, user):
         roles = {}

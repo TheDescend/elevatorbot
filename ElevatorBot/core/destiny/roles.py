@@ -22,6 +22,65 @@ class Roles:
     def __post_init__(self):
         self.roles = DestinyRoles(client=self.client, discord_guild=self.guild, discord_member=self.member)
 
+    async def requirements(self, role: Role, ctx: Optional[InteractionContext]):
+        """Get a roles requirements and what user has done"""
+
+        # todo light.gg links
+
+        # get info what requirements the user fulfills and which not and info on the role
+        result = await self.roles.get_detail(role)
+
+        if not result:
+            if ctx:
+                await result.send_error_message(ctx=ctx)
+            return
+
+        role_data = result.result["role_data"]
+        user_data = result.result["user_data"]
+
+        # construct reply msg
+        embed = embed_message(
+            f"{self.member.display_name}'s '{role.name}' Eligibility",
+            f"""**Earned: {result.result["earned"]}**"""
+        )
+
+        # loop through requirements
+        for role_info, user_info in zip(role_data, user_data):
+            match role_info:
+                case "require_activity_completions":
+                    i = 0
+                    for role_activity, user_activity in zip(role_data[role_info].values(), user_data[role_info].values()):
+                        i += 1
+
+                        # todo better naming system?
+                        embed.add_field(name=f"Activity #{i}", value=user_activity, inline=True)
+
+                case "require_collectibles":
+                    for role_collectible, user_collectible in zip(
+                        role_data[role_info].values(),
+                        user_data[role_info].values()
+                    ):
+                        # todo get collectible name from db and cache it
+                        embed.add_field(name=f"[todo](https://www.light.gg/db/items/{role_collectible})", value=user_collectible, inline=True)
+
+                case "require_records":
+                    for role_record, user_record in zip(
+                        role_data[role_info].values(),
+                        user_data[role_info].values()
+                    ):
+                        # todo get record name from db and cache it
+                        embed.add_field(name=f"[todo](https://www.light.gg/db/legend/triumphs/{role_record})", value=user_record, inline=True)
+
+                case "require_role_ids":
+                    for role_role_id, user_role_id in zip(
+                        role_data[role_info].values(),
+                        user_data[role_info].values()
+                    ):
+                        # todo get record name from db and cache it
+                        embed.add_field(name=(await self.guild.get_role(role_role_id)).mention, value=user_role_id, inline=True)
+
+        await ctx.send(embeds=embed)
+
     async def overview(self, ctx: Optional[InteractionContext]):
         """Get a members missing roles"""
 

@@ -19,7 +19,8 @@ class EarnedRolesModel(BaseModel):
 
 class EarnedRoleModel(BaseModel):
     earned: bool
-    data: dict
+    role_data: dict
+    user_data: dict
 
 
 class TimePeriodModel(BaseModel):

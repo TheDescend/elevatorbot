@@ -69,11 +69,15 @@ async def get_user(guild_id: int, discord_id: int, db: AsyncSession = Depends(ge
     profile = DestinyProfile(db=db, user=user)
     roles = UserRoles(db=db, user=profile)
 
+    # update the users db entries
+    activities = DestinyActivities(db=db, user=user)
+    await activities.update_activity_db()
+
     return await roles.has_guild_roles(guild_id=guild_id)
 
 
 @router.get("/get/{role_id}/{discord_id}", response_model=EarnedRoleModel)
-async def get_user(guild_id: int, role_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
+async def get_user_role(guild_id: int, role_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Get completion info for a role for a user"""
 
     user = await crud.discord_users.get_profile_from_discord_id(db, discord_id)

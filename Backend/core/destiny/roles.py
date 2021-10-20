@@ -93,7 +93,7 @@ class UserRoles:
         """
 
         worthy, data = await self._has_role(role=role, called_with_asyncio_gather=False, i_only_need_the_bool=i_only_need_the_bool)
-        return EarnedRoleModel(earned=worthy, data=data)
+        return EarnedRoleModel(earned=worthy, user_data=data, role_data=role.role_data)
 
 
     async def _has_role(self, role: Roles, called_with_asyncio_gather: bool, i_only_need_the_bool: bool) -> tuple[RoleEnum, Optional[dict]]:
