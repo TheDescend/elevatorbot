@@ -19,52 +19,52 @@ class RoleCommands(commands.Cog):
     def __init__(self, client):
         self.client = client
 
-    @cog_ext.cog_subcommand(
-        base="roles",
-        base_description="Various commands concerning Destiny 2 achievement discord roles",
-        name="overview",
-        description="Shows you what roles you can still achieve in this clan",
-        options=[options_user()],
-    )
-    async def _roles_overview(self, ctx: SlashContext, **kwargs):
-        user = await get_user_obj(ctx, kwargs)
-
-        # might take a sec
-        await ctx.defer()
-
-        # get the users roles
-        active_roles, deprecated_roles = self.missingRoles(user)
-
-        # do the missing roles display
-        embed = embed_message(f"{user.display_name}'s missing Roles")
-        embed.add_field(name="⁣", value=f"__**Achievable Roles:**__", inline=False)
-
-        # only do this if there are roles to get
-        if active_roles:
-            for topic in active_roles:
-                embed.add_field(
-                    name=topic,
-                    value=("\n".join(active_roles[topic]) or "None"),
-                    inline=True,
-                )
-        else:
-            embed.add_field(
-                name="Wow, you got every single role that is currently achievable. Congrats!",
-                value="⁣",
-                inline=False,
-            )
-
-        # Do the same for the deprecated roles
-        if deprecated_roles:
-            embed.add_field(name="⁣", value=f"__**Deprecated Roles:**__", inline=False)
-            for topic in deprecated_roles:
-                embed.add_field(
-                    name=topic,
-                    value=("\n".join(deprecated_roles[topic]) or "None"),
-                    inline=True,
-                )
-
-        await ctx.send(embed=embed)
+    # @cog_ext.cog_subcommand(
+    #     base="roles",
+    #     base_description="Various commands concerning Destiny 2 achievement discord roles",
+    #     name="overview",
+    #     description="Shows you what roles you can still achieve in this clan",
+    #     options=[options_user()],
+    # )
+    # async def _roles_overview(self, ctx: SlashContext, **kwargs):
+    # user = await get_user_obj(ctx, kwargs)
+    #
+    # # might take a sec
+    # await ctx.defer()
+    #
+    # # get the users roles
+    # active_roles, deprecated_roles = self.missingRoles(user)
+    #
+    # # do the missing roles display
+    # embed = embed_message(f"{user.display_name}'s missing Roles")
+    # embed.add_field(name="⁣", value=f"__**Achievable Roles:**__", inline=False)
+    #
+    # # only do this if there are roles to get
+    # if active_roles:
+    #     for topic in active_roles:
+    #         embed.add_field(
+    #             name=topic,
+    #             value=("\n".join(active_roles[topic]) or "None"),
+    #             inline=True,
+    #         )
+    # else:
+    #     embed.add_field(
+    #         name="Wow, you got every single role that is currently achievable. Congrats!",
+    #         value="⁣",
+    #         inline=False,
+    #     )
+    #
+    # # Do the same for the deprecated roles
+    # if deprecated_roles:
+    #     embed.add_field(name="⁣", value=f"__**Deprecated Roles:**__", inline=False)
+    #     for topic in deprecated_roles:
+    #         embed.add_field(
+    #             name=topic,
+    #             value=("\n".join(deprecated_roles[topic]) or "None"),
+    #             inline=True,
+    #         )
+    #
+    # await ctx.send(embed=embed)
 
     # @cog_ext.cog_subcommand(
     #     base="roles",

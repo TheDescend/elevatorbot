@@ -1,4 +1,5 @@
 import dataclasses
+from typing import Optional
 
 from dis_snek.client import Snake
 from dis_snek.models import Role
@@ -12,7 +13,7 @@ from ElevatorBot.misc.formating import embed_message
 
 @dataclasses.dataclass()
 class Roles:
-    """Class to update achievement Roles"""
+    """Class to handle achievement Roles"""
 
     client: Snake
     guild: Guild
@@ -21,7 +22,59 @@ class Roles:
     def __post_init__(self):
         self.roles = DestinyRoles(client=self.client, discord_guild=self.guild, discord_member=self.member)
 
-    async def update(self, ctx: InteractionContext = None):
+    async def overview(self, ctx: Optional[InteractionContext]):
+        """Get a members missing roles"""
+
+        result = await self.roles.get()
+
+        if not result:
+            if ctx:
+                await result.send_error_message(ctx=ctx)
+            return
+
+        all_earned_roles = self._get_all_earned_roles(
+            result.result["earned"], result.result["earned_but_replaced_by_higher_role"]
+        )
+        not_earned_roles: dict[str, list[int]] = result.result["not_earned"]
+
+        # do the missing roles display
+        embed = embed_message(f"{self.member.display_name}'s Roles")
+        embed.add_field(name="⁣", value=f"__**Acquired Roles:**__", inline=False)
+
+        # only do this if there are roles to get
+        if all_earned_roles:
+            for category, role_ids in all_earned_roles.items():
+                embed.add_field(
+                    name=category,
+                    value=("\n".join([(await self.guild.get_role(role_id)).mention for role_id in role_ids]) or "None"),
+                    inline=True,
+                )
+        else:
+            embed.add_field(
+                name="You have not earned any role.",
+                value="⁣",
+                inline=False,
+            )
+
+        # Do the same for the deprecated roles
+        embed.add_field(name="⁣", value=f"__**Not Acquired Roles:**__", inline=False)
+        if not_earned_roles:
+            for category, role_ids in not_earned_roles.items():
+                embed.add_field(
+                    name=category,
+                    value=("\n".join([(await self.guild.get_role(role_id)).mention for role_id in role_ids]) or "None"),
+                    inline=True,
+                )
+        else:
+            embed.add_field(
+                name="Wow, you got every single role. Congrats!",
+                value="⁣",
+                inline=False,
+            )
+
+        await ctx.send(embeds=embed)
+
+    async def update(self, ctx: Optional[InteractionContext]):
         """Get and update a members roles"""
 
         result = await self.roles.get()
@@ -29,88 +82,95 @@ class Roles:
         if not result:
             if ctx:
                 await result.send_error_message(ctx=ctx)
+            return
 
-        else:
-            roles_at_start = [role.id for role in ctx.author.roles]
+        roles_at_start = [role.id for role in ctx.author.roles]
 
-            earned_roles: dict[str, list[int]] = result.result["earned"]
-            earned_but_replaced_by_higher_role_roles: dict[str, list[int]] = result.result[
-                "earned_but_replaced_by_higher_role"
-            ]
-            not_earned_roles: dict[str, list[int]] = result.result["not_earned"]
+        earned_roles: dict[str, list[int]] = result.result["earned"]
+        earned_but_replaced_by_higher_role_roles: dict[str, list[int]] = result.result[
+            "earned_but_replaced_by_higher_role"
+        ]
+        not_earned_roles: dict[str, list[int]] = result.result["not_earned"]
 
-            # assign new roles
-            for category in earned_roles.values():
-                for role_id in category:
-                    await self.member.add_role(role=role_id)
+        # assign new roles
+        for category in earned_roles.values():
+            for role_id in category:
+                await self.member.add_role(role=role_id)
 
-            # remove old roles
-            for category in earned_but_replaced_by_higher_role_roles.values():
-                for role_id in category:
-                    await self.member.remove_role(role=role_id)
-            for category in not_earned_roles.values():
-                for role_id in category:
-                    await self.member.remove_role(role=role_id)
+        # remove old roles
+        for category in earned_but_replaced_by_higher_role_roles.values():
+            for role_id in category:
+                await self.member.remove_role(role=role_id)
+        for category in not_earned_roles.values():
+            for role_id in category:
+                await self.member.remove_role(role=role_id)
 
-            # send a message
-            if ctx:
-                # if user has no roles show this
-                if not earned_roles:
-                    await ctx.send(
-                        # todo link to where you can see all the roles
-                        embeds=embed_message(
-                            "Info",
-                            f"You don't have any roles. \nUse `/roles overview` to see all available roles and then `/roles requirements <role>` to view its requirements.",
-                        )
+        # send a message
+        if ctx:
+            # if user has no roles show this
+            if not earned_roles:
+                await ctx.send(
+                    # todo link to where you can see all the roles
+                    embeds=embed_message(
+                        "Info",
+                        f"You don't have any roles. \nUse `/roles overview` to see all available roles and then `/roles requirements <role>` to view its requirements.",
                     )
-                    return
+                )
+                return
 
-                # combine earned_roles and earned_but_replaced_by_higher_role_roles
-                all_earned_roles = earned_roles.copy()
-                for category, role_ids in earned_but_replaced_by_higher_role_roles.items():
-                    for role_id in role_ids:
-                        if category not in all_earned_roles:
-                            all_earned_roles.update({category: []})
-                        all_earned_roles[category].append(role_id)
+            all_earned_roles = self._get_all_earned_roles(earned_roles, earned_but_replaced_by_higher_role_roles)
 
-                # now separate into newly earned roles and the old ones
-                old_roles = {}
-                new_roles = {}
-                for category, role_ids in all_earned_roles.items():
-                    for role_id in role_ids:
-                        discord_role = await self.guild.get_role(role_id)
+            # now separate into newly earned roles and the old ones
+            old_roles = {}
+            new_roles = {}
+            for category, role_ids in all_earned_roles.items():
+                for role_id in role_ids:
+                    discord_role = await self.guild.get_role(role_id)
 
-                        if discord_role:
-                            # check if they had the role
-                            if discord_role.id in roles_at_start:
-                                if category not in old_roles:
-                                    old_roles.update({category: []})
-                                old_roles[category].append(discord_role.mention)
+                    if discord_role:
+                        # check if they had the role
+                        if discord_role.id in roles_at_start:
+                            if category not in old_roles:
+                                old_roles.update({category: []})
+                            old_roles[category].append(discord_role.mention)
 
-                            else:
-                                if category not in new_roles:
-                                    new_roles.update({category: []})
-                                new_roles[category].append(discord_role.mention)
+                        else:
+                            if category not in new_roles:
+                                new_roles.update({category: []})
+                            new_roles[category].append(discord_role.mention)
 
-                # construct reply msg
-                embed = embed_message(f"{ctx.author.display_name}'s new Roles", f"__Previous Roles:__")
-                if not old_roles:
-                    embed.add_field(name=f"You didn't have any roles before", value="⁣", inline=True)
+            # construct reply msg
+            embed = embed_message(f"{self.member.display_name}'s new Roles", f"__Previous Roles:__")
+            if not old_roles:
+                embed.add_field(name=f"You didn't have any roles before", value="⁣", inline=True)
 
-                for topic in old_roles:
-                    roles = []
-                    for role_name in topic:
-                        roles.append(role_name)
-                    embed.add_field(name=topic, value="\n".join(old_roles[topic]), inline=True)
+            for topic in old_roles:
+                roles = []
+                for role_name in topic:
+                    roles.append(role_name)
+                embed.add_field(name=topic, value="\n".join(old_roles[topic]), inline=True)
 
-                embed.add_field(name="⁣", value=f"__New Roles:__", inline=False)
-                if not new_roles:
-                    embed.add_field(name="No new roles have been achieved", value="⁣", inline=True)
+            embed.add_field(name="⁣", value=f"__New Roles:__", inline=False)
+            if not new_roles:
+                embed.add_field(name="No new roles have been achieved", value="⁣", inline=True)
 
-                for topic in new_roles:
-                    roles = []
-                    for role_name in topic:
-                        roles.append(role_name)
-                    embed.add_field(name=topic, value="\n".join(new_roles[topic]), inline=True)
+            for topic in new_roles:
+                roles = []
+                for role_name in topic:
+                    roles.append(role_name)
+                embed.add_field(name=topic, value="\n".join(new_roles[topic]), inline=True)
 
-                await ctx.send(embeds=embed)
+            await ctx.send(embeds=embed)
+
+    @staticmethod
+    def _get_all_earned_roles(earned_roles: dict, earned_but_replaced_by_higher_role_roles: dict) -> dict:
+        """Combine earned_roles and earned_but_replaced_by_higher_role_roles"""
+
+        all_earned_roles = earned_roles.copy()
+        for category, role_ids in earned_but_replaced_by_higher_role_roles.items():
+            for role_id in role_ids:
+                if category not in all_earned_roles:
+                    all_earned_roles.update({category: []})
+                all_earned_roles[category].append(role_id)
+
+        return all_earned_roles

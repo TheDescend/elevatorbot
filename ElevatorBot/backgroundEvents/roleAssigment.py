@@ -25,5 +25,5 @@ class AutomaticRoleAssignment(BaseEvent):
         for guild in client.guilds:
             # gather the members
             await asyncio.gather(
-                *[Roles(client=client, guild=guild, member=member).update() for member in guild.members]
+                *[Roles(client=client, guild=guild, member=member).update(ctx=None) for member in guild.members]
             )
