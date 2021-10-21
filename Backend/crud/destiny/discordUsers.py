@@ -6,8 +6,9 @@ import aiohttp
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.errors import CustomException
-from Backend.crud.discord.roles import roles
 from Backend.crud.base import CRUDBase
+from Backend.crud.cache import cache
+from Backend.crud.discord.roles import roles
 from Backend.database.models import DiscordUsers
 from Backend.misc.helperFunctions import get_now_with_tz, localize_datetime
 from Backend.networking.base import NetworkBase
@@ -17,8 +18,14 @@ from settings import BUNGIE_TOKEN
 
 
 class CRUDDiscordUser(CRUDBase):
+    cache = cache
+
     async def get_profile_from_discord_id(self, db: AsyncSession, discord_id: int) -> DiscordUsers:
         """Return the profile information"""
+
+        # check if exists in cache
+        if discord_id in self.cache.discord_users:
+            return self.cache.discord_users[discord_id]
 
         profile: Optional[DiscordUsers] = await self._get_with_key(db, discord_id)
 
@@ -27,6 +34,9 @@ class CRUDDiscordUser(CRUDBase):
             raise CustomException(
                 error="DiscordIdNotFound",
             )
+
+        # populate cache
+        self.cache.discord_users.update({discord_id: profile})
 
         return profile
 
@@ -47,7 +57,6 @@ class CRUDDiscordUser(CRUDBase):
         """Return all profiles"""
 
         return await self._get_all(db=db)
-
 
     async def insert_profile(
         self, db: AsyncSession, bungie_token: BungieTokenInput
@@ -149,6 +158,9 @@ class CRUDDiscordUser(CRUDBase):
             # and in the db they go
             await self._insert(db=db, to_create=user)
 
+            # populate the cache
+            self.cache.discord_users.update({discord_id: user})
+
         else:
             # now we call the update function instead of the insert function
             await self.update(
@@ -171,6 +183,9 @@ class CRUDDiscordUser(CRUDBase):
         """Updates a profile"""
 
         await self._update(db=db, to_update=to_update, **update_kwargs)
+
+        # update the cache
+        self.cache.discord_users.update({to_update.discord_id: to_update})
 
     async def invalidate_token(self, db: AsyncSession, user: DiscordUsers):
         """Invalidates a token by setting it to None"""
@@ -208,6 +223,12 @@ class CRUDDiscordUser(CRUDBase):
             raise CustomException(
                 error="DiscordIdNotFound",
             )
+
+        # delete from cache
+        try:
+            self.cache.discord_users.pop(discord_id)
+        except KeyError:
+            pass
 
         # remove registration roles
         await self._remove_registration_roles(db=db, discord_id=discord_id)
