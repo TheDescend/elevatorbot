@@ -22,12 +22,12 @@ class Roles:
     def __post_init__(self):
         self.roles = DestinyRoles(client=self.client, discord_guild=self.guild, discord_member=self.member)
 
-    async def requirements(self, role: Role, ctx: Optional[InteractionContext]):
-        """Get a roles requirements and what user has done"""
+    async def get_requirements(self, role: Role, ctx: Optional[InteractionContext]):
+        """Get a roles get_requirements and what user has done"""
 
         # todo light.gg links
 
-        # get info what requirements the user fulfills and which not and info on the role
+        # get info what get_requirements the user fulfills and which not and info on the role
         result = await self.roles.get_detail(role)
 
         if not result:
@@ -44,7 +44,7 @@ class Roles:
             f"""**Earned: {result.result["earned"]}**"""
         )
 
-        # loop through requirements
+        # loop through get_requirements
         for role_info, user_info in zip(role_data, user_data):
             match role_info:
                 case "require_activity_completions":
@@ -81,44 +81,26 @@ class Roles:
 
         await ctx.send(embeds=embed)
 
-    async def overview(self, ctx: Optional[InteractionContext]):
+    async def get_missing(self, ctx: Optional[InteractionContext]):
         """Get a members missing roles"""
 
-        result = await self.roles.get()
+        result = await self.roles.get_missing()
 
         if not result:
             if ctx:
                 await result.send_error_message(ctx=ctx)
             return
 
-        all_earned_roles = self._get_all_earned_roles(
-            result.result["earned"], result.result["earned_but_replaced_by_higher_role"]
-        )
-        not_earned_roles: dict[str, list[int]] = result.result["not_earned"]
+        acquirable_roles: dict[str, list[int]] = result.result["acquirable"]
+        deprecated_roles: dict[str, list[int]] = result.result["deprecated"]
 
         # do the missing roles display
         embed = embed_message(f"{self.member.display_name}'s Roles")
-        embed.add_field(name="⁣", value=f"__**Acquired Roles:**__", inline=False)
+        embed.add_field(name="⁣", value=f"__**Acquirable Roles:**__", inline=False)
 
         # only do this if there are roles to get
-        if all_earned_roles:
-            for category, role_ids in all_earned_roles.items():
-                embed.add_field(
-                    name=category,
-                    value=("\n".join([(await self.guild.get_role(role_id)).mention for role_id in role_ids]) or "None"),
-                    inline=True,
-                )
-        else:
-            embed.add_field(
-                name="You have not earned any role.",
-                value="⁣",
-                inline=False,
-            )
-
-        # Do the same for the deprecated roles
-        embed.add_field(name="⁣", value=f"__**Not Acquired Roles:**__", inline=False)
-        if not_earned_roles:
-            for category, role_ids in not_earned_roles.items():
+        if acquirable_roles:
+            for category, role_ids in acquirable_roles.items():
                 embed.add_field(
                     name=category,
                     value=("\n".join([(await self.guild.get_role(role_id)).mention for role_id in role_ids]) or "None"),
@@ -130,6 +112,16 @@ class Roles:
                 value="⁣",
                 inline=False,
             )
+
+        # Do the same for the deprecated roles
+        embed.add_field(name="⁣", value=f"__**Deprecated Roles:**__", inline=False)
+        if deprecated_roles:
+            for category, role_ids in deprecated_roles.items():
+                embed.add_field(
+                    name=category,
+                    value="\n".join([(await self.guild.get_role(role_id)).mention for role_id in role_ids]),
+                    inline=True,
+                )
 
         await ctx.send(embeds=embed)
 
@@ -172,7 +164,7 @@ class Roles:
                     # todo link to where you can see all the roles
                     embeds=embed_message(
                         "Info",
-                        f"You don't have any roles. \nUse `/roles overview` to see all available roles and then `/roles requirements <role>` to view its requirements.",
+                        f"You don't have any roles. \nUse `/roles overview` to see all available roles and then `/roles get_requirements <role>` to view its get_requirements.",
                     )
                 )
                 return

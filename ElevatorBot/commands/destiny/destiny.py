@@ -1,13 +1,10 @@
-from dis_snek.models import InteractionContext
-from dis_snek.models import Member
-from dis_snek.models import slash_command
+from dis_snek.models import InteractionContext, Member, slash_command
 
 from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
 from ElevatorBot.backendNetworking.destiny.profile import DestinyProfile
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
 from ElevatorBot.commands.base import BaseScale
-from ElevatorBot.misc.formating import embed_message
-from ElevatorBot.misc.formating import format_timedelta
+from ElevatorBot.misc.formating import embed_message, format_timedelta
 
 
 class Destiny(BaseScale):
@@ -66,7 +63,7 @@ class Destiny(BaseScale):
         embed = embed_message(
             f"{user.display_name}'s Destiny Stats",
             f"**Total Playtime:** {format_timedelta(seconds=sum(seconds_played.result.values()))} \n[Click to see your heatmap]({heatmap_url})",
-            "For info on achievable discord roles, type: /roles overview",
+            "For info on achievable discord roles, type: /roles missing",
         )
 
         """ char info field """

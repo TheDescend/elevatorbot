@@ -1,8 +1,8 @@
 import asyncio
 import dataclasses
 from enum import Enum
-
 from typing import Any, Optional
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.destiny.profile import DestinyProfile
@@ -10,7 +10,11 @@ from Backend.core.errors import CustomException
 from Backend.crud import activities
 from Backend.crud.destiny.roles import CRUDRoles, roles
 from Backend.database.models import Roles
-from Backend.schemas.destiny.roles import EarnedRoleModel, EarnedRolesModel
+from Backend.schemas.destiny.roles import (
+    EarnedRoleModel,
+    EarnedRolesModel,
+    MissingRolesModel,
+)
 
 
 class RoleEnum(Enum):
@@ -33,7 +37,36 @@ class UserRoles:
     _cache_worthy_info: dict = dataclasses.field(default_factory=dict, init=False)
 
 
-    async def has_guild_roles(self, guild_id: int) -> EarnedRolesModel:
+    async def get_missing_roles(self, guild_id: int) -> MissingRolesModel:
+        """Return all the missing guild roles"""
+
+        # get the users completion status
+        user_roles = await self.get_guild_roles(guild_id=guild_id)
+        missing_roles = user_roles.not_earned
+
+        result = MissingRolesModel()
+
+        # loop through the roles and sort them based on if they are acquirable or not
+        for category, role_ids in missing_roles.items():
+            # loop through the roles
+            for role_id in role_ids:
+                role = await self.roles.get_role(db=self.db, role_id=role_id)
+
+                # check if deprecated
+                if role.role_data["deprecated"]:
+                    if category not in result.deprecated:
+                        result.deprecated.update({category: []})
+                    result.deprecated["category"].append(role_id)
+
+                else:
+                    if category not in result.acquirable:
+                        result.acquirable.update({category: []})
+                    result.acquirable["category"].append(role_id)
+
+        return result
+
+
+    async def get_guild_roles(self, guild_id: int) -> EarnedRolesModel:
         """Return all the gotten / not gotten guild roles"""
 
         # get all guild roles
@@ -107,7 +140,7 @@ class UserRoles:
         if role.role_id in self._cache_worthy:
             return self._cache_worthy[role.role_id], self._cache_worthy_info[role.role_id]
 
-        # gather all requirements
+        # gather all get_requirements
         results = await asyncio.gather(
             *[
                 self._check_requirements(
@@ -141,7 +174,7 @@ class UserRoles:
     async def _check_requirements(
         self, role: Roles, requirement_name: str, requirement_value: Any, i_only_need_the_bool: bool, called_with_asyncio_gather: bool
     ) -> RoleEnum:
-        """Check the requirements. Can be asyncio.gather()'d"""
+        """Check the get_requirements. Can be asyncio.gather()'d"""
 
         worthy = RoleEnum.EARNED
 

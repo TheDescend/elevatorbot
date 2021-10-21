@@ -1,6 +1,5 @@
 import os
 
-
 base_route = f"""http://{os.environ.get("BACKEND_HOST")}:{os.environ.get("BACKEND_PORT")}/"""
 destiny_base_route = base_route + "destiny/{guild_id}/{discord_id}/"
 
@@ -43,6 +42,7 @@ destiny_clan_unlink_route = destiny_clan_route + "unlink/"
 destiny_role_route = base_route + "destiny/{guild_id}/roles/"
 destiny_role_get_all_route = destiny_role_route + "get/all/"  # GET
 destiny_role_get_all_user_route = destiny_role_route + "get/all/{discord_id}/"  # GET
+destiny_role_get_missing_user_route = destiny_role_route + "get/missing/{discord_id}/"  # GET
 destiny_role_get_user_route = destiny_role_route + "get/{role_id}/{discord_id}/"  # GET
 destiny_role_create_route = destiny_role_route + "create/"  # POST
 destiny_role_update_route = destiny_role_route + "update/{role_id}/"  # POST

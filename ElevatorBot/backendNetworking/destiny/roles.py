@@ -6,8 +6,11 @@ from dis_snek.models.discord_objects.role import Role
 
 from ElevatorBot.backendNetworking.http import BaseBackendConnection
 from ElevatorBot.backendNetworking.results import BackendResult
-from ElevatorBot.backendNetworking.routes import destiny_role_get_all_user_route
-from ElevatorBot.backendNetworking.routes import destiny_role_get_user_route
+from ElevatorBot.backendNetworking.routes import (
+    destiny_role_get_all_user_route,
+    destiny_role_get_missing_user_route,
+    destiny_role_get_user_route,
+)
 
 
 @dataclasses.dataclass
@@ -21,6 +24,16 @@ class DestinyRoles(BaseBackendConnection):
         return await self._backend_request(
             method="GET",
             route=destiny_role_get_all_user_route.format(
+                guild_id=self.discord_guild.id, discord_id=self.discord_member.id
+            ),
+        )
+
+    async def get_missing(self) -> BackendResult:
+        """Get the users missing roles in the guild"""
+
+        return await self._backend_request(
+            method="GET",
+            route=destiny_role_get_missing_user_route.format(
                 guild_id=self.discord_guild.id, discord_id=self.discord_member.id
             ),
         )

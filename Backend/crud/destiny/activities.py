@@ -1,17 +1,16 @@
 import asyncio
 import datetime
 
-from sqlalchemy import distinct
-from sqlalchemy import func
-from sqlalchemy import not_
-from sqlalchemy import select
+from sqlalchemy import distinct, func, not_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.crud.base import CRUDBase
-from Backend.database.models import Activities
-from Backend.database.models import ActivitiesFailToGet
-from Backend.database.models import ActivitiesUsers
-from Backend.database.models import ActivitiesUsersWeapons
+from Backend.database.models import (
+    Activities,
+    ActivitiesFailToGet,
+    ActivitiesUsers,
+    ActivitiesUsersWeapons,
+)
 
 
 class CRUDActivitiesFailToGet(CRUDBase):
@@ -144,7 +143,7 @@ class CRUDActivities(CRUDBase):
         allow_time_periods: list[dict] = None,  # see TimePeriodModel
         disallow_time_periods: list[dict] = None,  # see TimePeriodModel
     ) -> list[Activities]:
-        """Gets a list of all Activities that fulfill the requirements"""
+        """Gets a list of all Activities that fulfill the get_requirements"""
 
         query = select(Activities).filter(Activities.director_activity_hash.in_(activity_hashes))
 

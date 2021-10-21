@@ -3,28 +3,33 @@ import datetime
 import random
 
 from discord.ext import commands
-from discord_slash import cog_ext, SlashContext, ButtonStyle
+from discord_slash import ButtonStyle, SlashContext, cog_ext
 from discord_slash.utils import manage_components
-from discord_slash.utils.manage_commands import create_option, create_choice
+from discord_slash.utils.manage_commands import create_choice, create_option
 
-from ElevatorBot.database.database import lookupDiscordID
-from ElevatorBot.backendNetworking.dataLoading import getNameAndCrossaveNameToHashMapByClanid
+from ElevatorBot.backendNetworking.dataLoading import (
+    getNameAndCrossaveNameToHashMapByClanid,
+)
 from ElevatorBot.backendNetworking.destinyPlayer import DestinyPlayer
 from ElevatorBot.backendNetworking.formating import embed_message
 from ElevatorBot.backendNetworking.persistentMessages import (
     make_persistent_message,
     steamJoinCodeMessage,
 )
-from ElevatorBot.backendNetworking.roleLookup import assignRolesToUser, removeRolesFromUser
+from ElevatorBot.backendNetworking.roleLookup import (
+    assignRolesToUser,
+    removeRolesFromUser,
+)
+from ElevatorBot.database.database import lookupDiscordID
 from ElevatorBot.networking.bungieAuth import handle_and_return_token
 from ElevatorBot.networking.network import get_json_from_url
 from ElevatorBot.static.config import CLANID
 from ElevatorBot.static.globals import (
-    other_game_roles,
-    muted_role_id,
     bot_spam_channel_id,
-    enter_emoji_id,
     circle_emoji_id,
+    enter_emoji_id,
+    muted_role_id,
+    other_game_roles,
 )
 from ElevatorBot.static.slashCommandConfig import (
     permissions_admin,
@@ -39,7 +44,7 @@ class AdminCommands(commands.Cog):
     # todo not really needed
     @cog_ext.cog_slash(
         name="getnaughtyclanmembers",
-        description="Blames people who are in the D2 clan, but do not fulfill our requirements",
+        description="Blames people who are in the D2 clan, but do not fulfill our get_requirements",
         default_permission=False,
         permissions=permissions_admin,
     )
@@ -61,7 +66,7 @@ class AdminCommands(commands.Cog):
         no_token = []  # list of guild.member.mention
         not_accepted_rules = []  # list of guild.member.mention
 
-        # loop through all members and check requirements
+        # loop through all members and check get_requirements
         for destinyID in memberlist:
             # check if in discord or still having the old force registration
             discordID = await lookupDiscordID(destinyID)
@@ -92,7 +97,9 @@ class AdminCommands(commands.Cog):
         if no_token:
             textstr = ", ".join(no_token)
             while tempstr := textstr[:1900]:
-                await ctx.channel.send("**These users have no token and need to registration with the bot** \n" + tempstr)
+                await ctx.channel.send(
+                    "**These users have no token and need to registration with the bot** \n" + tempstr
+                )
                 textstr = textstr[1900:]
 
         if not_accepted_rules:
@@ -574,7 +581,7 @@ Hello fellow humans, and welcome to this easy, 465 steps, guide:
 First, head to <#{bot_spam_channel_id}>, or really any other channel (although you ~~might~~ will get yelled at for that)
 ⁣
 {str(circle_emoji)} **Step 2:**
-Then, use `/lfg _insert` and follow the instructions to make an event. 
+Then, use `/lfg _insert` and follow the instructions to make an event.
 Due to timezones sucking and there being at least 16789 of them, you might not find your own timezone in the list. In that case please use UTC and an online converter
 ⁣
 {str(circle_emoji)} **Step 3-464:**

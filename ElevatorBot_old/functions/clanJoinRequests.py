@@ -1,15 +1,15 @@
 import asyncio
 
 import discord
-from discord_slash import ComponentContext, ButtonStyle
+from discord_slash import ButtonStyle, ComponentContext
 from discord_slash.utils import manage_components
 
-from ElevatorBot.database.database import lookupDestinyID, lookupSystem
 from ElevatorBot.backendNetworking.formating import embed_message
 from ElevatorBot.backendNetworking.miscFunctions import checkIfUserIsRegistered
+from ElevatorBot.database.database import lookupDestinyID, lookupSystem
 from ElevatorBot.networking.network import get_json_from_url, post_json_to_url
-from ElevatorBot.static.config import CLANID, BOTDEVCHANNELID, BUNGIE_OAUTH
-from ElevatorBot.static.globals import thumps_up_emoji_id, thumps_down_emoji_id
+from ElevatorBot.static.config import BOTDEVCHANNELID, BUNGIE_OAUTH, CLANID
+from ElevatorBot.static.globals import thumps_down_emoji_id, thumps_up_emoji_id
 
 
 async def on_clan_join_request(ctx: ComponentContext):
@@ -47,10 +47,10 @@ async def on_clan_join_request(ctx: ComponentContext):
         )
         return
 
-    # abort if user doesn't fulfill requirements
+    # abort if user doesn't fulfill get_requirements
     req = await checkRequirements(ctx.author.id)
     if req:
-        embed = embed_message("Clan Application", "Sorry, you don't fulfill the needed requirements")
+        embed = embed_message("Clan Application", "Sorry, you don't fulfill the needed get_requirements")
         for name, value in req.items():
             embed.add_field(name=name, value=value, inline=True)
 
@@ -142,7 +142,7 @@ async def removeFromClanAfterLeftDiscord(client, member):
     await newtonslab.send(text)
 
 
-# returns a dict with the requirements which are not fulfilled, otherwise return None
+# returns a dict with the get_requirements which are not fulfilled, otherwise return None
 async def checkRequirements(discordID) -> dict:
     return {}
 

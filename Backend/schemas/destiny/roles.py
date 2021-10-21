@@ -23,6 +23,12 @@ class EarnedRoleModel(BaseModel):
     user_data: dict
 
 
+class MissingRolesModel(BaseModel):
+    # same format as EarnedRolesModel
+    acquirable: dict[str, list[int]] = {}
+    deprecated: dict[str, list[int]] = {}
+
+
 class TimePeriodModel(BaseModel):
     start_time: datetime.datetime
     end_time: datetime.datetime
@@ -42,7 +48,7 @@ class ActivityModel(BaseModel):
     require_team_flawless: bool = False
     require_individual_flawless: bool = False
 
-    # do some other requirements need to be fulfilled
+    # do some other get_requirements need to be fulfilled
     require_score: int = None
     require_kills: int = None
     require_kills_per_minute: float = None
@@ -59,7 +65,7 @@ class ActivityModel(BaseModel):
 
 class RoleDataModel(BaseModel):
     # the category of the role. Used to better format roles
-    category: str = None
+    category: str = "Destiny Roles"
 
     # mark the role as acquirable, but reliant on removed content
     deprecated: bool = False

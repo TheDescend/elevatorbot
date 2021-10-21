@@ -1,9 +1,11 @@
-from dis_snek.models import InteractionContext
-from dis_snek.models import Member
-from dis_snek.models import OptionTypes
-from dis_snek.models import Role
-from dis_snek.models import slash_option
-from dis_snek.models import sub_command
+from dis_snek.models import (
+    InteractionContext,
+    Member,
+    OptionTypes,
+    Role,
+    slash_option,
+    sub_command,
+)
 
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
 from ElevatorBot.commands.base import BaseScale
@@ -14,7 +16,7 @@ class RoleRequirements(BaseScale):
     @sub_command(
         base_name="roles",
         base_description="Various commands concerning Destiny 2 achievement discord roles",
-        sub_name="requirements",
+        sub_name="get_requirements",
         sub_description="Shows you what you need to do to get the specified role",
     )
     @slash_option(
@@ -25,9 +27,9 @@ class RoleRequirements(BaseScale):
         # might take a sec
         await ctx.defer()
 
-        # get role requirements
+        # get role get_requirements
         roles = Roles(client=self.client, guild=ctx.guild, member=user or ctx.author)
-        await roles.requirements(role=role, ctx=ctx)
+        await roles.get_requirements(role=role, ctx=ctx)
 
 
 def setup(client):

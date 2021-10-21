@@ -7,7 +7,7 @@ WORKDIR /app/Website
 
 COPY requirements.txt .
 
-RUN pip3.9 install -r requirements.txt
+RUN pip3.9 install -r get_requirements.txt
 
 COPY . .
 

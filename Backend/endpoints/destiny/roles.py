@@ -1,5 +1,4 @@
-from fastapi import APIRouter
-from fastapi import Depends
+from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend import crud
@@ -8,15 +7,17 @@ from Backend.core.destiny.profile import DestinyProfile
 from Backend.core.destiny.roles import UserRoles
 from Backend.database.models import Roles
 from Backend.dependencies import get_db_session
-from Backend.schemas.destiny.roles import ActivityModel
-from Backend.schemas.destiny.roles import EarnedRoleModel
-from Backend.schemas.destiny.roles import EarnedRolesModel
-from Backend.schemas.destiny.roles import RoleDataModel
-from Backend.schemas.destiny.roles import RoleModel
-from Backend.schemas.destiny.roles import RolesModel
-from Backend.schemas.destiny.roles import TimePeriodModel
+from Backend.schemas.destiny.roles import (
+    ActivityModel,
+    EarnedRoleModel,
+    EarnedRolesModel,
+    MissingRolesModel,
+    RoleDataModel,
+    RoleModel,
+    RolesModel,
+    TimePeriodModel,
+)
 from Backend.schemas.empty import EmptyResponseModel
-
 
 router = APIRouter(
     prefix="/destiny/{guild_id}/roles",
@@ -62,7 +63,7 @@ async def get_all(guild_id: int, db: AsyncSession = Depends(get_db_session)):
 
 
 @router.get("/get/all/{discord_id}", response_model=EarnedRolesModel)
-async def get_user(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
+async def get_user_all(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Get all roles for a user in their guild"""
 
     user = await crud.discord_users.get_profile_from_discord_id(db, discord_id)
@@ -73,7 +74,22 @@ async def get_user(guild_id: int, discord_id: int, db: AsyncSession = Depends(ge
     activities = DestinyActivities(db=db, user=user)
     await activities.update_activity_db()
 
-    return await roles.has_guild_roles(guild_id=guild_id)
+    return await roles.get_guild_roles(guild_id=guild_id)
+
+
+@router.get("/get/missing/{discord_id}", response_model=MissingRolesModel)
+async def get_user_missing(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
+    """Get the missing roles for a user in a guild"""
+
+    user = await crud.discord_users.get_profile_from_discord_id(db, discord_id)
+    profile = DestinyProfile(db=db, user=user)
+    roles = UserRoles(db=db, user=profile)
+
+    # update the users db entries
+    activities = DestinyActivities(db=db, user=user)
+    await activities.update_activity_db()
+
+    return await roles.get_missing_roles(guild_id=guild_id)
 
 
 @router.get("/get/{role_id}/{discord_id}", response_model=EarnedRoleModel)

@@ -1,15 +1,15 @@
 import discord
 from discord.ext import commands
-from discord_slash import cog_ext
-from discord_slash import SlashContext
+from discord_slash import SlashContext, cog_ext
 from discord_slash.utils.manage_commands import create_option
 
 from ElevatorBot.backendNetworking.destinyPlayer import DestinyPlayer
 from ElevatorBot.backendNetworking.formating import embed_message
-from ElevatorBot.backendNetworking.roleLookup import get_player_roles
-from ElevatorBot.backendNetworking.roleLookup import has_role
-from ElevatorBot.backendNetworking.slashCommandFunctions import get_user_obj
-from ElevatorBot.backendNetworking.slashCommandFunctions import get_user_obj_admin
+from ElevatorBot.backendNetworking.roleLookup import get_player_roles, has_role
+from ElevatorBot.backendNetworking.slashCommandFunctions import (
+    get_user_obj,
+    get_user_obj_admin,
+)
 from ElevatorBot.static.dict import requirementHashes
 from ElevatorBot.static.globals import dev_role_id
 from ElevatorBot.static.slashCommandOptions import options_user
@@ -26,7 +26,7 @@ class RoleCommands(commands.Cog):
     #     description="Shows you what roles you can still achieve in this clan",
     #     options=[options_user()],
     # )
-    # async def _roles_overview(self, ctx: SlashContext, **kwargs):
+    # async def _roles_missing(self, ctx: SlashContext, **kwargs):
     # user = await get_user_obj(ctx, kwargs)
     #
     # # might take a sec
@@ -167,7 +167,7 @@ class RoleCommands(commands.Cog):
     # @cog_ext.cog_subcommand(
     #     base="roles",
     #     base_description="Various commands concerning Destiny 2 achievement discord roles",
-    #     name="requirements",
+    #     name="get_requirements",
     #     description="Shows you what you need to do to get the specified role",
     #     options=[
     #         create_option(

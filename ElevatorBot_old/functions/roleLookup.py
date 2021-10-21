@@ -1,19 +1,18 @@
 import asyncio
 import time
 from datetime import datetime
-from typing import Optional
-from typing import Union
+from typing import Optional, Union
 
 import discord
 
 from ElevatorBot.backendNetworking.destinyPlayer import DestinyPlayer
-from ElevatorBot.database.database import getClearCount
-from ElevatorBot.database.database import getDestinyDefinition
-from ElevatorBot.database.database import getFlawlessHashes
-from ElevatorBot.static.dict import requirement_hashes_without_years
-from ElevatorBot.static.dict import requirementHashes
-from ElevatorBot.static.globals import divider_legacy_role_id
-from ElevatorBot.static.globals import role_ban_id
+from ElevatorBot.database.database import (
+    getClearCount,
+    getDestinyDefinition,
+    getFlawlessHashes,
+)
+from ElevatorBot.static.dict import requirement_hashes_without_years, requirementHashes
+from ElevatorBot.static.globals import divider_legacy_role_id, role_ban_id
 
 # check if user has permission to use this command
 
@@ -33,7 +32,7 @@ from ElevatorBot.static.globals import role_ban_id
 #
 #     worthy = True
 #     start_reqs = time.monotonic()
-#     for req in role_data["requirements"]:
+#     for req in role_data["get_requirements"]:
 #         if req == "clears":
 #             creq = role_data["clears"]
 #             i = 1
@@ -143,7 +142,7 @@ from ElevatorBot.static.globals import role_ban_id
 #             break
 #     end_reqs = time.monotonic() - start_reqs
 #     if end_reqs > 1:
-#         print(f"took {end_reqs} seconds to check requirements for {role}")
+#         print(f"took {end_reqs} seconds to check get_requirements for {role}")
 #     return [worthy, data]
 #
 #
