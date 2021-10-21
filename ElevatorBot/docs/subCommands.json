@@ -1,126 +1,94 @@
 {
-    "clan": {
-        "description": "Everything concerning the link from this discord guild to your Destiny 2 clan",
-        "sub_commands": [
-            {
-                "link": {
-                    "docstring": "None",
-                    "options": [],
-                    "permissions": {},
-                    "enabled_in_dms": true
-                }
-            },
-            {
-                "unlink": {
-                    "docstring": "None",
-                    "options": [],
-                    "permissions": {},
-                    "enabled_in_dms": true
-                }
-            }
-        ]
-    },
-    "lfg": {
-        "description": "Everything concerning my awesome Destiny 2 LFG system",
-        "sub_commands": [
-            {
-                "add": {
-                    "docstring": "None",
-                    "options": [
+    "0": [
+        {
+            "name": "setup",
+            "description": "Use these commands to setup ElevatorBot on this server",
+            "groups": [
+                {
+                    "name": "lfg",
+                    "description": "Everything needed to use my LFG system",
+                    "sub_commands": [
                         {
-                            "name": "lfg_id",
-                            "description": "The lfg message id",
-                            "type": 4,
-                            "required": true,
-                            "choices": []
-                        },
-                        {
-                            "name": "user",
-                            "description": "The user you want to add",
-                            "type": 6,
-                            "required": true,
-                            "choices": []
-                        }
-                    ],
-                    "permissions": {},
-                    "enabled_in_dms": false
-                }
-            },
-            {
-                "blacklist": {
-                    "docstring": "None",
-                    "options": [
-                        {
-                            "name": "action",
-                            "description": "If you want to add to or _delete from the Blacklist",
-                            "type": 3,
-                            "required": true,
-                            "choices": [
+                            "name": "channel",
+                            "description": "The channel in which the LFG messages get posted",
+                            "options": [
                                 {
-                                    "value": "Blacklist",
-                                    "name": "Blacklist"
-                                },
-                                {
-                                    "value": "Un-Blacklist",
-                                    "name": "Un-Blacklist"
+                                    "name": "channel",
+                                    "description": "The text channel where the message should be displayed",
+                                    "required": true
                                 }
                             ]
                         },
                         {
-                            "name": "user",
-                            "description": "The user you want to add / _delete",
-                            "type": 6,
-                            "required": true,
-                            "choices": []
+                            "name": "voice_category",
+                            "description": "The category channel in which the LFG voice channel are created",
+                            "options": [
+                                {
+                                    "name": "channel",
+                                    "description": "The category channel where the voice channels should be anchored",
+                                    "required": true
+                                }
+                            ]
                         }
-                    ],
-                    "permissions": {},
-                    "enabled_in_dms": false
+                    ]
                 }
-            },
-            {
-                "create": {
-                    "docstring": "None",
+            ],
+            "sub_commands": []
+        },
+        {
+            "name": "lfg",
+            "description": "Everything concerning my awesome Destiny 2 LFG system",
+            "groups": [],
+            "sub_commands": [
+                {
+                    "name": "add",
+                    "description": "Add a user to an lfg event",
+                    "options": [
+                        {
+                            "name": "lfg_id",
+                            "description": "The lfg message id",
+                            "required": true
+                        },
+                        {
+                            "name": "user",
+                            "description": "The user you want to add",
+                            "required": true
+                        }
+                    ]
+                },
+                {
+                    "name": "create",
+                    "description": "Creates an LFG post",
                     "options": [
                         {
                             "name": "start_time",
                             "description": "Format: 'HH:MM DD/MM' - When the event is supposed to start",
-                            "type": 3,
-                            "required": true,
-                            "choices": []
+                            "required": true
                         },
                         {
                             "name": "timezone",
                             "description": "What timezone you are in",
-                            "type": 3,
                             "required": true,
                             "choices": [
                                 {
-                                    "value": "UTC",
                                     "name": "GMT / UTC"
                                 },
                                 {
-                                    "value": "Europe/Berlin",
                                     "name": "Central Europe"
                                 },
                                 {
-                                    "value": "Europe/Tallinn",
                                     "name": "Eastern Europe"
                                 },
                                 {
-                                    "value": "Europe/Moscow",
                                     "name": "Moscow / Turkey"
                                 },
                                 {
-                                    "value": "US/Central",
                                     "name": "Central US"
                                 },
                                 {
-                                    "value": "US/Eastern",
                                     "name": "Eastern US"
                                 },
                                 {
-                                    "value": "US/Pacific",
                                     "name": "Pacific US"
                                 }
                             ]
@@ -128,663 +96,102 @@
                         {
                             "name": "overwrite_max_members",
                             "description": "You can overwrite the maximum number of people that can join your event",
-                            "type": 3,
-                            "required": false,
-                            "choices": []
+                            "required": false
                         }
-                    ],
-                    "permissions": {},
-                    "enabled_in_dms": false
-                }
-            },
-            {
-                "edit": {
-                    "docstring": "None",
+                    ]
+                },
+                {
+                    "name": "delete",
+                    "description": "When you fucked up and need to delete an event",
                     "options": [
                         {
                             "name": "lfg_id",
                             "description": "The lfg message id",
-                            "type": 4,
-                            "required": true,
-                            "choices": []
+                            "required": true
+                        }
+                    ]
+                },
+                {
+                    "name": "edit",
+                    "description": "When you fucked up and need to edit an event",
+                    "options": [
+                        {
+                            "name": "lfg_id",
+                            "description": "The lfg message id",
+                            "required": true
                         },
                         {
                             "name": "section",
                             "description": "What section to edit",
-                            "type": 3,
                             "required": true,
                             "choices": [
                                 {
-                                    "value": "Activity",
                                     "name": "Activity"
                                 },
                                 {
-                                    "value": "Description",
                                     "name": "Description"
                                 },
                                 {
-                                    "value": "Start Time",
                                     "name": "Start Time"
                                 },
                                 {
-                                    "value": "Maximum Members",
                                     "name": "Maximum Members"
                                 }
                             ]
                         }
-                    ],
-                    "permissions": {},
-                    "enabled_in_dms": false
-                }
-            },
-            {
-                "remove": {
-                    "docstring": "None",
+                    ]
+                },
+                {
+                    "name": "kick",
+                    "description": "Kick a user from an lfg event",
                     "options": [
                         {
                             "name": "lfg_id",
                             "description": "The lfg message id",
-                            "type": 4,
-                            "required": true,
-                            "choices": []
+                            "required": true
                         },
                         {
                             "name": "user",
-                            "description": "The user you want to add",
-                            "type": 6,
-                            "required": true,
-                            "choices": []
+                            "description": "The user you want to kick",
+                            "required": true
                         }
-                    ],
-                    "permissions": {},
-                    "enabled_in_dms": false
+                    ]
                 }
-            }
-        ]
-    },
-    "roles": {
-        "description": "Various commands concerning Destiny 2 achievement discord roles",
-        "sub_commands": [
-            {
-                "get": {
-                    "docstring": "None",
-                    "options": [
-                        {
-                            "name": "user",
-                            "description": "Requires elevated permissions",
-                            "type": 6,
-                            "required": false,
-                            "choices": []
-                        }
-                    ],
-                    "permissions": {},
-                    "enabled_in_dms": false
-                }
-            },
-            {
-                "overview": {
-                    "docstring": "None",
+            ]
+        },
+        {
+            "name": "roles",
+            "description": "Various commands concerning Destiny 2 achievement discord roles",
+            "groups": [],
+            "sub_commands": [
+                {
+                    "name": "missing",
+                    "description": "Shows you what roles you can still achieve in this server",
                     "options": [
                         {
                             "name": "user",
                             "description": "The name of the user you want to look up",
-                            "type": 6,
-                            "required": false,
-                            "choices": []
+                            "required": false
                         }
-                    ],
-                    "permissions": {},
-                    "enabled_in_dms": false
-                }
-            },
-            {
-                "requirements": {
-                    "docstring": "None",
+                    ]
+                },
+                {
+                    "name": "get_requirements",
+                    "description": "Shows you what you need to do to get the specified role",
                     "options": [
                         {
                             "name": "role",
                             "description": "The name of the role you want to look up",
-                            "type": 8,
-                            "required": true,
-                            "choices": []
+                            "required": true
                         },
                         {
                             "name": "user",
                             "description": "The name of the user you want to look up",
-                            "type": 6,
-                            "required": false,
-                            "choices": []
+                            "required": false
                         }
-                    ],
-                    "permissions": {},
-                    "enabled_in_dms": false
+                    ]
                 }
-            }
-        ]
-    },
-    "stat": {
-        "description": "Shows you various Destiny 2 stats",
-        "sub_commands": [
-            {
-                "everything": {
-                    "docstring": "None",
-                    "options": [
-                        {
-                            "name": "name",
-                            "description": "The name of the leaderboard you want to see",
-                            "type": 3,
-                            "required": true,
-                            "choices": [
-                                {
-                                    "value": "kills",
-                                    "name": "Kills"
-                                },
-                                {
-                                    "value": "precisionKills",
-                                    "name": "Precision Kills"
-                                },
-                                {
-                                    "value": "assists",
-                                    "name": "Assists"
-                                },
-                                {
-                                    "value": "deaths",
-                                    "name": "Deaths"
-                                },
-                                {
-                                    "value": "suicides",
-                                    "name": "Suicides"
-                                },
-                                {
-                                    "value": "efficiency",
-                                    "name": "KDA"
-                                },
-                                {
-                                    "value": "longestKillDistance",
-                                    "name": "Longest Kill Distance"
-                                },
-                                {
-                                    "value": "averageKillDistance",
-                                    "name": "Average Kill Distance"
-                                },
-                                {
-                                    "value": "totalKillDistance",
-                                    "name": "Total Kill Distance"
-                                },
-                                {
-                                    "value": "longestKillSpree",
-                                    "name": "Longest Kill Spree"
-                                },
-                                {
-                                    "value": "averageLifespan",
-                                    "name": "Average Lifespan"
-                                },
-                                {
-                                    "value": "resurrectionsPerformed",
-                                    "name": "Resurrections Given"
-                                },
-                                {
-                                    "value": "resurrectionsReceived",
-                                    "name": "Resurrections Received"
-                                },
-                                {
-                                    "value": "allParticipantsCount",
-                                    "name": "Number of Players Played With"
-                                },
-                                {
-                                    "value": "longestSingleLife",
-                                    "name": "Longest Single Life (in s)"
-                                },
-                                {
-                                    "value": "orbsDropped",
-                                    "name": "Orbs of Power Dropped"
-                                },
-                                {
-                                    "value": "orbsGathered",
-                                    "name": "Orbs of Power Gathered"
-                                },
-                                {
-                                    "value": "secondsPlayed",
-                                    "name": "Time Played (in s)"
-                                },
-                                {
-                                    "value": "activitiesCleared",
-                                    "name": "Activities Cleared"
-                                },
-                                {
-                                    "value": "publicEventsCompleted",
-                                    "name": "Public Events Completed"
-                                },
-                                {
-                                    "value": "heroicPublicEventsCompleted",
-                                    "name": "Heroic Public Events Completed"
-                                },
-                                {
-                                    "value": "weaponKillsSuper",
-                                    "name": "Kills with: Super"
-                                },
-                                {
-                                    "value": "weaponKillsMelee",
-                                    "name": "Kills with: Melee"
-                                },
-                                {
-                                    "value": "weaponKillsGrenade",
-                                    "name": "Kills with: Grenade"
-                                },
-                                {
-                                    "value": "weaponKillsAbility",
-                                    "name": "Kills with: Ability"
-                                }
-                            ]
-                        },
-                        {
-                            "name": "user",
-                            "description": "The name of the user you want to look up",
-                            "type": 6,
-                            "required": false,
-                            "choices": []
-                        }
-                    ],
-                    "permissions": {},
-                    "enabled_in_dms": false
-                }
-            },
-            {
-                "pve": {
-                    "docstring": "None",
-                    "options": [
-                        {
-                            "name": "name",
-                            "description": "The name of the leaderboard you want to see",
-                            "type": 3,
-                            "required": true,
-                            "choices": [
-                                {
-                                    "value": "kills",
-                                    "name": "Kills"
-                                },
-                                {
-                                    "value": "precisionKills",
-                                    "name": "Precision Kills"
-                                },
-                                {
-                                    "value": "assists",
-                                    "name": "Assists"
-                                },
-                                {
-                                    "value": "deaths",
-                                    "name": "Deaths"
-                                },
-                                {
-                                    "value": "suicides",
-                                    "name": "Suicides"
-                                },
-                                {
-                                    "value": "efficiency",
-                                    "name": "KDA"
-                                },
-                                {
-                                    "value": "longestKillDistance",
-                                    "name": "Longest Kill Distance"
-                                },
-                                {
-                                    "value": "averageKillDistance",
-                                    "name": "Average Kill Distance"
-                                },
-                                {
-                                    "value": "totalKillDistance",
-                                    "name": "Total Kill Distance"
-                                },
-                                {
-                                    "value": "longestKillSpree",
-                                    "name": "Longest Kill Spree"
-                                },
-                                {
-                                    "value": "averageLifespan",
-                                    "name": "Average Lifespan"
-                                },
-                                {
-                                    "value": "resurrectionsPerformed",
-                                    "name": "Resurrections Given"
-                                },
-                                {
-                                    "value": "resurrectionsReceived",
-                                    "name": "Resurrections Received"
-                                },
-                                {
-                                    "value": "allParticipantsCount",
-                                    "name": "Number of Players Played With"
-                                },
-                                {
-                                    "value": "longestSingleLife",
-                                    "name": "Longest Single Life (in s)"
-                                },
-                                {
-                                    "value": "orbsDropped",
-                                    "name": "Orbs of Power Dropped"
-                                },
-                                {
-                                    "value": "orbsGathered",
-                                    "name": "Orbs of Power Gathered"
-                                },
-                                {
-                                    "value": "secondsPlayed",
-                                    "name": "Time Played (in s)"
-                                },
-                                {
-                                    "value": "activitiesCleared",
-                                    "name": "Activities Cleared"
-                                },
-                                {
-                                    "value": "publicEventsCompleted",
-                                    "name": "Public Events Completed"
-                                },
-                                {
-                                    "value": "heroicPublicEventsCompleted",
-                                    "name": "Heroic Public Events Completed"
-                                },
-                                {
-                                    "value": "weaponKillsSuper",
-                                    "name": "Kills with: Super"
-                                },
-                                {
-                                    "value": "weaponKillsMelee",
-                                    "name": "Kills with: Melee"
-                                },
-                                {
-                                    "value": "weaponKillsGrenade",
-                                    "name": "Kills with: Grenade"
-                                },
-                                {
-                                    "value": "weaponKillsAbility",
-                                    "name": "Kills with: Ability"
-                                }
-                            ]
-                        },
-                        {
-                            "name": "user",
-                            "description": "The name of the user you want to look up",
-                            "type": 6,
-                            "required": false,
-                            "choices": []
-                        }
-                    ],
-                    "permissions": {},
-                    "enabled_in_dms": false
-                }
-            },
-            {
-                "pvp": {
-                    "docstring": "None",
-                    "options": [
-                        {
-                            "name": "name",
-                            "description": "The name of the leaderboard you want to see",
-                            "type": 3,
-                            "required": true,
-                            "choices": [
-                                {
-                                    "value": "kills",
-                                    "name": "Kills"
-                                },
-                                {
-                                    "value": "precisionKills",
-                                    "name": "Precision Kills"
-                                },
-                                {
-                                    "value": "assists",
-                                    "name": "Assists"
-                                },
-                                {
-                                    "value": "deaths",
-                                    "name": "Deaths"
-                                },
-                                {
-                                    "value": "suicides",
-                                    "name": "Suicides"
-                                },
-                                {
-                                    "value": "efficiency",
-                                    "name": "KDA"
-                                },
-                                {
-                                    "value": "longestKillDistance",
-                                    "name": "Longest Kill Distance"
-                                },
-                                {
-                                    "value": "averageKillDistance",
-                                    "name": "Average Kill Distance"
-                                },
-                                {
-                                    "value": "totalKillDistance",
-                                    "name": "Total Kill Distance"
-                                },
-                                {
-                                    "value": "longestKillSpree",
-                                    "name": "Longest Kill Spree"
-                                },
-                                {
-                                    "value": "averageLifespan",
-                                    "name": "Average Lifespan"
-                                },
-                                {
-                                    "value": "resurrectionsPerformed",
-                                    "name": "Resurrections Given"
-                                },
-                                {
-                                    "value": "resurrectionsReceived",
-                                    "name": "Resurrections Received"
-                                },
-                                {
-                                    "value": "allParticipantsCount",
-                                    "name": "Number of Players Played With"
-                                },
-                                {
-                                    "value": "longestSingleLife",
-                                    "name": "Longest Single Life (in s)"
-                                },
-                                {
-                                    "value": "orbsDropped",
-                                    "name": "Orbs of Power Dropped"
-                                },
-                                {
-                                    "value": "orbsGathered",
-                                    "name": "Orbs of Power Gathered"
-                                },
-                                {
-                                    "value": "secondsPlayed",
-                                    "name": "Time Played (in s)"
-                                },
-                                {
-                                    "value": "activitiesCleared",
-                                    "name": "Activities Cleared"
-                                },
-                                {
-                                    "value": "publicEventsCompleted",
-                                    "name": "Public Events Completed"
-                                },
-                                {
-                                    "value": "heroicPublicEventsCompleted",
-                                    "name": "Heroic Public Events Completed"
-                                },
-                                {
-                                    "value": "weaponKillsSuper",
-                                    "name": "Kills with: Super"
-                                },
-                                {
-                                    "value": "weaponKillsMelee",
-                                    "name": "Kills with: Melee"
-                                },
-                                {
-                                    "value": "weaponKillsGrenade",
-                                    "name": "Kills with: Grenade"
-                                },
-                                {
-                                    "value": "weaponKillsAbility",
-                                    "name": "Kills with: Ability"
-                                }
-                            ]
-                        },
-                        {
-                            "name": "user",
-                            "description": "The name of the user you want to look up",
-                            "type": 6,
-                            "required": false,
-                            "choices": []
-                        }
-                    ],
-                    "permissions": {},
-                    "enabled_in_dms": false
-                }
-            }
-        ]
-    },
-    "poll": {
-        "description": "Making polls easy",
-        "sub_commands": [
-            {
-                "add": {
-                    "docstring": "None",
-                    "options": [
-                        {
-                            "name": "poll_id",
-                            "description": "The id of the poll",
-                            "type": 3,
-                            "required": true,
-                            "choices": []
-                        },
-                        {
-                            "name": "option",
-                            "description": "The name the option should have",
-                            "type": 3,
-                            "required": true,
-                            "choices": []
-                        }
-                    ],
-                    "permissions": {},
-                    "enabled_in_dms": false
-                }
-            },
-            {
-                "_insert": {
-                    "docstring": "None",
-                    "options": [
-                        {
-                            "name": "name",
-                            "description": "The name the poll should have",
-                            "type": 3,
-                            "required": true,
-                            "choices": []
-                        },
-                        {
-                            "name": "description",
-                            "description": "The description the poll should have",
-                            "type": 3,
-                            "required": true,
-                            "choices": []
-                        }
-                    ],
-                    "permissions": {},
-                    "enabled_in_dms": false
-                }
-            },
-            {
-                "disable": {
-                    "docstring": "None",
-                    "options": [
-                        {
-                            "name": "poll_id",
-                            "description": "The id of the poll",
-                            "type": 3,
-                            "required": true,
-                            "choices": []
-                        }
-                    ],
-                    "permissions": {},
-                    "enabled_in_dms": false
-                }
-            },
-            {
-                "remove": {
-                    "docstring": "None",
-                    "options": [
-                        {
-                            "name": "poll_id",
-                            "description": "The id of the poll",
-                            "type": 3,
-                            "required": true,
-                            "choices": []
-                        },
-                        {
-                            "name": "option",
-                            "description": "The name of the option",
-                            "type": 3,
-                            "required": true,
-                            "choices": []
-                        }
-                    ],
-                    "permissions": {},
-                    "enabled_in_dms": false
-                }
-            }
-        ]
-    },
-    "tictactoe": {
-        "description": "You know and love it - TicTacToe",
-        "sub_commands": [
-            {
-                "computer": {
-                    "docstring": "None",
-                    "options": [
-                        {
-                            "name": "easy_mode",
-                            "description": "Set this to true if you are too weak for the normal mode",
-                            "type": 5,
-                            "required": false,
-                            "choices": []
-                        }
-                    ],
-                    "permissions": {},
-                    "enabled_in_dms": false
-                }
-            },
-            {
-                "versus": {
-                    "docstring": "None",
-                    "options": [],
-                    "permissions": {},
-                    "enabled_in_dms": false
-                }
-            }
-        ]
-    },
-    "tournament": {
-        "description": "Everything you need for in-house PvP tournaments",
-        "sub_commands": [
-            {
-                "create": {
-                    "docstring": "None",
-                    "options": [],
-                    "permissions": {},
-                    "enabled_in_dms": false
-                }
-            },
-            {
-                "_delete": {
-                    "docstring": "None",
-                    "options": [],
-                    "permissions": {},
-                    "enabled_in_dms": false
-                }
-            },
-            {
-                "start": {
-                    "docstring": "None",
-                    "options": [],
-                    "permissions": {},
-                    "enabled_in_dms": false
-                }
-            }
-        ]
-    }
+            ]
+        }
+    ]
 }

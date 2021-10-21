@@ -12,9 +12,7 @@ from ElevatorBot.misc.initLogging import init_logging
 from ElevatorBot.misc.veryMisc import yield_files_in_folder
 from ElevatorBot.static.emojis import custom_emojis
 from ElevatorBot.webserver.server import run_webserver
-from settings import DISCORD_BOT_TOKEN
-from settings import SYNC_COMMANDS
-
+from settings import DISCORD_BOT_TOKEN, SYNC_COMMANDS
 
 first_start = True
 
@@ -63,11 +61,11 @@ if __name__ == "__main__":
             return
         first_start = False
 
-        print("Loading Background Events...")
-        await register_background_events(client)
-
         print("Creating docs for commands...")
         create_command_docs(client)
+
+        print("Loading Background Events...")
+        await register_background_events(client)
 
         print("Launching the Status Changer...")
         asyncio.create_task(update_status(client))
