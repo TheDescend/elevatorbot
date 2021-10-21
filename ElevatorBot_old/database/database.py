@@ -1,24 +1,23 @@
 import asyncio
 import json
-from datetime import datetime, date
+from datetime import date, datetime
 
 import asyncpg
 import discord
 import pandas
 from sshtunnel import SSHTunnelForwarder
 
+from ElevatorBot.database.databaseModels import database_tables
 from ElevatorBot.database.psql_credentials import (
-    password,
-    ssh_port,
     dbname,
     host,
+    password,
     ssh_host,
     ssh_password,
-    user,
+    ssh_port,
     ssh_user,
+    user,
 )
-from ElevatorBot.database.databaseModels import database_tables
-
 
 """ ALL DATABASE ACCESS FUNCTIONS """
 ssh_server = None
@@ -86,9 +85,9 @@ async def removeUser(discordID):
     """Removes a User from the DB (by discordID), returns True if successful"""
 
     delete_sql = """
-        DELETE FROM 
+        DELETE FROM
             discordGuardiansToken
-        WHERE 
+        WHERE
             discordSnowflake = $1;"""
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
         await connection.execute(delete_sql, discordID)
@@ -98,12 +97,12 @@ async def updateUser(IDdiscord, IDdestiny, systemID):
     """Updates a User - DestinyID, SystemID"""
 
     update_sql = f"""
-        UPDATE 
+        UPDATE
             "discordGuardiansToken"
-        SET 
+        SET
             destinyID = $1,
             systemID = $2
-        WHERE 
+        WHERE
             discordSnowflake = $3;"""
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
         await connection.execute(update_sql, IDdestiny, systemID, IDdiscord)
@@ -113,11 +112,11 @@ async def lookupDestinyID(discordID):
     """Takes discordID and returns destinyID"""
 
     select_sql = """
-        SELECT 
-            destinyID 
-        FROM 
+        SELECT
+            destinyID
+        FROM
             "discordGuardiansToken"
-        WHERE 
+        WHERE
             discordSnowflake = $1;"""
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
         return await connection.fetchval(select_sql, discordID)
@@ -127,11 +126,11 @@ async def lookupDiscordID(destinyID: int):
     """Takes destinyID and returns discordID"""
 
     select_sql = """
-        SELECT 
-            discordSnowflake 
-        FROM 
+        SELECT
+            discordSnowflake
+        FROM
             "discordGuardiansToken"
-        WHERE 
+        WHERE
             destinyID = $1;"""
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
         return await connection.fetchval(select_sql, destinyID)
@@ -141,11 +140,11 @@ async def lookupSystem(destinyID: int):
     """Takes destinyID and returns system"""
 
     select_sql = """
-        SELECT 
-            systemID 
-        FROM 
+        SELECT
+            systemID
+        FROM
             "discordGuardiansToken"
-        WHERE 
+        WHERE
             destinyID = $1;"""
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
         return await connection.fetchval(select_sql, destinyID)
@@ -155,9 +154,9 @@ async def getAllDestinyIDs():
     """Returns a list with all discord members destiny ids"""
 
     select_sql = """
-        SELECT 
-            destinyID 
-        FROM 
+        SELECT
+            destinyID
+        FROM
             "discordGuardiansToken";"""
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
         result = await connection.fetch(select_sql)
@@ -168,11 +167,11 @@ async def getToken(discordID):
     """Gets a Users Bungie-Token or None"""
 
     select_sql = """
-        SELECT 
-            token 
-        FROM 
+        SELECT
+            token
+        FROM
             "discordGuardiansToken"
-        WHERE 
+        WHERE
             discordSnowflake = $1;"""
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
         return await connection.fetchval(select_sql, discordID)
@@ -182,11 +181,11 @@ async def getRefreshToken(discordID):
     """Gets a Users Bungie-Refreshtoken or None"""
 
     select_sql = """
-        SELECT 
-            __refresh_token 
-        FROM 
+        SELECT
+            __refresh_token
+        FROM
             "discordGuardiansToken"
-        WHERE 
+        WHERE
             discordSnowflake = $1;"""
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
         return await connection.fetchval(select_sql, discordID)
@@ -197,11 +196,11 @@ async def getTokenExpiry(discordID):
     Retruns list(token_expiry, refresh_token_expiry) or None"""
 
     select_sql = """
-        SELECT 
+        SELECT
             token_expiry, refresh_token_expiry
-        FROM 
+        FROM
             "discordGuardiansToken"
-        WHERE 
+        WHERE
             discordSnowflake = $1;"""
 
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
@@ -243,10 +242,10 @@ async def insertToken(
     else:
         print("User new, inserting token...")
         insert_sql = """
-            INSERT INTO 
+            INSERT INTO
                 "discordGuardiansToken"
-                (discordSnowflake, destinyID, signupDate, serverID, token, __refresh_token, systemID, token_expiry, refresh_token_expiry) 
-            VALUES 
+                (discordSnowflake, destinyID, signupDate, serverID, token, __refresh_token, systemID, token_expiry, refresh_token_expiry)
+            VALUES
                 ($1, $2, $3, $4, $5, $6, $7, $8, $9);"""
 
         async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
@@ -269,15 +268,15 @@ async def updateToken(destinyID, discordID, token, refresh_token, token_expiry, 
     """Updates a User - Token, token refresh, token_expiry, refresh_token_expiry"""
 
     update_sql = f"""
-        UPDATE 
+        UPDATE
             "discordGuardiansToken"
-        SET 
+        SET
             token = $1,
             __refresh_token = $2,
             token_expiry = $3,
             refresh_token_expiry = $4,
             discordSnowflake = $5
-        WHERE 
+        WHERE
             destinyID = $6;"""
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
         await connection.execute(
@@ -337,10 +336,10 @@ async def insertIntoMessageDB(messagetext, userid, channelid, msgid):
     """Used to collect messages for markov-chaining, returns True if successful"""
 
     insert_sql = """
-        INSERT INTO 
-            messagedb 
-            (msg, userid, channelid, msgid, msgdate) 
-        VALUES 
+        INSERT INTO
+            messagedb
+            (msg, userid, channelid, msgid, msgdate)
+        VALUES
             ($1, $2, $3, $4, $5);"""
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
         await connection.execute(insert_sql, messagetext, userid, channelid, msgid, datetime.now())
@@ -350,29 +349,29 @@ async def getLastActivity(destinyID, mode=None, before=datetime.now()):
     """Gets the last activity in the specified mode"""
 
     select_sql = f"""
-        SELECT 
+        SELECT
             t1.instanceID, t1.period, t1.directorActivityHash
-        FROM (  
-            SELECT 
+        FROM (
+            SELECT
                 instanceID, period, directorActivityHash
-            FROM 
+            FROM
                 PgcrActivities
-            WHERE 
+            WHERE
                 period < $1
                 {f"AND {mode} = ANY(modes)" if mode else ""}
         ) AS t1
-        JOIN (  
-            SELECT 
+        JOIN (
+            SELECT
                 instanceID
-            FROM 
+            FROM
                 PgcrActivitiesUsersStats
-            WHERE 
+            WHERE
                 membershipId = $2
-        ) AS ipp 
+        ) AS ipp
         ON (
             ipp.instanceID = t1.instanceID
         )
-        ORDER BY 
+        ORDER BY
             t1.period DESC;"""
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
         res = await connection.fetchrow(select_sql, before, destinyID)
@@ -388,11 +387,11 @@ async def getLastActivity(destinyID, mode=None, before=datetime.now()):
     }
 
     select_sql = """
-        SELECT 
+        SELECT
             lightlevel, membershipId, characterClass, deaths, opponentsDefeated, completed, score, timePlayedSeconds, activityDurationSeconds, assists, membershipType
-        FROM 
+        FROM
             PgcrActivitiesUsersStats
-        WHERE 
+        WHERE
         instanceID = $1; """
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
         instanceInfo = await connection.fetch(select_sql, res[0])
@@ -423,23 +422,23 @@ async def getFlawlessList(destinyID):
     select_sql = """
         SELECT DISTINCT
             (t1.activityHash)
-        FROM (  
-            SELECT 
+        FROM (
+            SELECT
                 instanceID, period, activityHash FROM activities
-            WHERE 
+            WHERE
                 deaths = 0
-            AND 
+            AND
                 startingPhaseIndex = 0
         ) AS t1
-        JOIN (  
-            SELECT 
+        JOIN (
+            SELECT
                 instanceID
-            FROM 
+            FROM
                 instancePlayerPerformance
-            WHERE 
+            WHERE
                 playerID = $1
         ) AS ipp
-        ON 
+        ON
             (ipp.instanceID = t1.instanceID);
         """
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
@@ -462,11 +461,11 @@ async def getEverything(database_table_name: str, select_name: list = None, **wh
         # prepare statement
         select_sql = await connection.prepare(
             f"""
-            SELECT 
+            SELECT
                 {", ".join(select_name) if select_name else "*"}
-            FROM 
+            FROM
                 {database_table_name}
-            {"WHERE" if where_requirements else ""} 
+            {"WHERE" if where_requirements else ""}
                 {", ".join([f"{name}=${i}" for name, i in zip(where_requirements.keys(), range(1, len(where_requirements) + 1))])};"""
         )
         async with connection.transaction():
@@ -481,11 +480,11 @@ async def getEverythingRow(database_table_name: str, select_name: list = None, *
     """
 
     select_sql = f"""
-        SELECT 
+        SELECT
             {", ".join(select_name) if select_name else "*"}
-        FROM 
+        FROM
             {database_table_name}
-        {"WHERE" if where_requirements else ""} 
+        {"WHERE" if where_requirements else ""}
             {", ".join([f"{name}=${i}" for name, i in zip(where_requirements.keys(), range(1, len(where_requirements) + 1))])};"""
 
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
@@ -502,10 +501,10 @@ async def updateVersion(name: str, version: str):
     if not await getVersion(name):
         # _insert
         insert_sql = f"""
-            INSERT INTO 
+            INSERT INTO
                 versions
                 (name, version)
-            VALUES 
+            VALUES
                 ($1, $2);"""
         async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
             await connection.execute(insert_sql, name, version)
@@ -513,11 +512,11 @@ async def updateVersion(name: str, version: str):
 
     # _update
     update_sql = f"""
-        UPDATE 
+        UPDATE
             versions
-        SET 
+        SET
             version = $1
-        WHERE 
+        WHERE
             name = $2;"""
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
         await connection.execute(update_sql, version, name)
@@ -544,7 +543,7 @@ async def updateVersion(name: str, version: str):
 # async def update_d2_steam_players(current_date: date, number_of_players: int):
 #     """Inserts the amount of players into the DB for that day. Updates instead, if there already is a lower value for that day"""
 #
-#     # get current value
+#     # _get current value
 #     select_sql = f"""
 #         SELECT
 #             numberOfPlayers
@@ -602,10 +601,10 @@ async def insertPersistentMessage(messageName, guildId, channelId, messageId, re
     """Inserts a message mapping into the database, returns True if successful False otherwise"""
 
     insert_sql = """
-        INSERT INTO 
+        INSERT INTO
             persistentMessages
-            (messageName, guildId, channelId, messageId, reactionsIdList) 
-        VALUES 
+            (messageName, guildId, channelId, messageId, reactionsIdList)
+        VALUES
             ($1, $2, $3, $4, $5);"""
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
         await connection.execute(insert_sql, messageName, guildId, channelId, messageId, reactionsIdList)
@@ -615,14 +614,14 @@ async def updatePersistentMessage(messageName, guildId, channelId, messageId, re
     """Updates a message mapping"""
 
     update_sql = f"""
-        UPDATE 
+        UPDATE
             persistentMessages
-        SET 
-            channelId = $1, 
+        SET
+            channelId = $1,
             messageId = $2,
             reactionsIdList = $3
-        WHERE 
-            messageName = $4 
+        WHERE
+            messageName = $4
             AND guildId = $5;"""
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
         await connection.execute(update_sql, channelId, messageId, reactionsIdList, messageName, guildId)
@@ -632,14 +631,14 @@ async def get_persistent_message(message_name: str, guild_id: int) -> asyncpg.Re
     """Gets a message mapping given the messageName and guildId and channelId"""
 
     select_sql = """
-        SELECT 
+        SELECT
             channelId,
             messageId,
             reactionsIdList
-        FROM 
+        FROM
             persistentMessages
-        WHERE 
-            messageName = $1 
+        WHERE
+            messageName = $1
             AND guildId = $2;"""
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
         return await connection.fetchrow(select_sql, message_name, guild_id)
@@ -649,9 +648,9 @@ async def deletePersistentMessage(messageName, guildId):
     """Delete a message given the messageName and guildId"""
 
     delete_sql = """
-        DELETE FROM 
+        DELETE FROM
             persistentMessages
-        WHERE 
+        WHERE
             messageName = $1
             AND guildId = $2;"""
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
@@ -662,9 +661,9 @@ async def getAllPersistentMessages():
     """Gets all messages"""
 
     select_sql = """
-        SELECT 
+        SELECT
             *
-        FROM 
+        FROM
             persistentMessages;"""
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
         return await connection.fetch(select_sql)
@@ -678,7 +677,7 @@ async def deleteEntries(connection, definition_name: str):
     """Deletes all entries from this definition - clean slate"""
 
     delete_sql = f"""
-        DELETE FROM 
+        DELETE FROM
             {definition_name};"""
     await connection.execute(delete_sql)
 
@@ -687,10 +686,10 @@ async def updateDestinyDefinition(connection, definition_name: str, referenceId:
     """Insert Rows. Input vars depend on which definition is called"""
 
     insert_sql = f"""
-        INSERT INTO 
+        INSERT INTO
             {definition_name}
-            (referenceId, {", ".join([str(x) for x in kwargs.keys()])}) 
-        VALUES 
+            (referenceId, {", ".join([str(x) for x in kwargs.keys()])})
+        VALUES
             ($1, {', '.join(['$' + str(i + 2) for i in range(len(kwargs))])});"""
 
     await connection.execute(insert_sql, referenceId, *list(kwargs.values()))
@@ -700,11 +699,11 @@ async def getDestinyDefinition(definition_name: str, referenceId: int):
     """gets all the info for the given definition. Return depends on which was called"""
 
     select_sql = f"""
-        SELECT 
-            * 
-        FROM 
+        SELECT
+            *
+        FROM
             {definition_name}
-        WHERE 
+        WHERE
             referenceId = $1;"""
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
         return await connection.fetchrow(select_sql, int(referenceId))
@@ -714,11 +713,11 @@ async def getGrandmasterHashes():
     """Gets all GM nightfall hashes. Makes adding the new ones after a season obsolete"""
 
     select_sql = f"""
-        SELECT 
+        SELECT
             referenceId
-        FROM 
+        FROM
             DestinyActivityDefinition
-        WHERE 
+        WHERE
             (name LIKE '%Grandmaster%' OR activityLightLevel = 1100)
             AND directActivityModeType = 46;"""
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
@@ -753,11 +752,11 @@ async def updateLastUpdated(destinyID, timestamp: datetime):
     """sets players activities last updated time to the last activity he has done"""
 
     update_sql = """
-        UPDATE 
+        UPDATE
             "discordGuardiansToken"
-        SET 
+        SET
             activitiesLastUpdated = $1
-        WHERE 
+        WHERE
             destinyID = $2;"""
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
         await connection.execute(update_sql, timestamp, destinyID)
@@ -767,11 +766,11 @@ async def getLastUpdated(destinyID):
     """gets last time that players activities were updated as datetime object"""
 
     select_sql = """
-        SELECT 
-            activitiesLastUpdated 
-        FROM 
+        SELECT
+            activitiesLastUpdated
+        FROM
             "discordGuardiansToken"
-        WHERE 
+        WHERE
             destinyID = $1;"""
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
         return await connection.fetchval(select_sql, destinyID)
@@ -792,12 +791,12 @@ async def insertPgcrActivities(
 
     if not await getPgcrActivity(instanceId):
         insert_sql = """
-            INSERT INTO 
+            INSERT INTO
                 pgcractivities
-                (instanceId, referenceId, directorActivityHash, period, startingPhaseIndex, mode, modes, isPrivate, membershipType) 
-            VALUES 
+                (instanceId, referenceId, directorActivityHash, period, startingPhaseIndex, mode, modes, isPrivate, membershipType)
+            VALUES
                 ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-            ON CONFLICT 
+            ON CONFLICT
                 DO NOTHING;"""
         async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
             await connection.execute(
@@ -818,11 +817,11 @@ async def getPgcrActivity(instanceId):
     """Returns info if instance is already in DB"""
 
     select_sql = """
-        SELECT 
+        SELECT
             *
-        FROM 
+        FROM
             pgcractivities
-        WHERE 
+        WHERE
             instanceId = $1;"""
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
         return await connection.fetchrow(select_sql, int(instanceId))
@@ -832,11 +831,11 @@ async def getPgcrActivitiesUsersStats(instanceId):
     """Returns info on PgcrActivitiesUsersStats"""
 
     select_sql = """
-        SELECT 
+        SELECT
             *
-        FROM 
+        FROM
             PgcrActivitiesUsersStats
-        WHERE 
+        WHERE
             instanceId = $1;"""
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
         return await connection.fetch(select_sql, int(instanceId))
@@ -876,16 +875,16 @@ async def insertPgcrActivitiesUsersStats(
     """Inserts an activity to the DB"""
 
     insert_sql = """
-        INSERT INTO 
+        INSERT INTO
             pgcractivitiesusersstats
-            (instanceId, membershipId, characterId, characterClass, characterLevel, 
-            membershipType, lightLevel, emblemHash, standing, assists, completed, 
-            deaths, kills, opponentsDefeated, efficiency, killsDeathsRatio, killsDeathsAssists, 
-            score, activityDurationSeconds, completionReason, startSeconds, timePlayedSeconds, 
-            playerCount, teamScore, precisionKills, weaponKillsGrenade, weaponKillsMelee, weaponKillsSuper, weaponKillsAbility) 
-        VALUES 
+            (instanceId, membershipId, characterId, characterClass, characterLevel,
+            membershipType, lightLevel, emblemHash, standing, assists, completed,
+            deaths, kills, opponentsDefeated, efficiency, killsDeathsRatio, killsDeathsAssists,
+            score, activityDurationSeconds, completionReason, startSeconds, timePlayedSeconds,
+            playerCount, teamScore, precisionKills, weaponKillsGrenade, weaponKillsMelee, weaponKillsSuper, weaponKillsAbility)
+        VALUES
             ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29)
-        ON CONFLICT 
+        ON CONFLICT
             DO NOTHING;"""
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
         await connection.execute(
@@ -923,37 +922,37 @@ async def insertPgcrActivitiesUsersStats(
 
 
 async def insertFailToGetPgcrInstanceId(instanceID, period):
-    """_insert an instanceID that we failed to get data for"""
+    """_insert an instanceID that we failed to _get data for"""
 
     insert_sql = """
-        INSERT INTO 
+        INSERT INTO
             pgcractivitiesfailtoget
-            (instanceId, period) 
-        VALUES 
+            (instanceId, period)
+        VALUES
             ($1, $2);"""
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
         await connection.execute(insert_sql, int(instanceID), period)
 
 
 async def getFailToGetPgcrInstanceId():
-    """get all instanceIDs that we failed to get data for"""
+    """_get all instanceIDs that we failed to _get data for"""
 
     select_sql = """
-        SELECT 
-            * 
-        FROM 
+        SELECT
+            *
+        FROM
             pgcractivitiesfailtoget;"""
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
         return await connection.fetch(select_sql)
 
 
 async def deleteFailToGetPgcrInstanceId(instanceId):
-    """_delete instanceID that we failed to get data for"""
+    """_delete instanceID that we failed to _get data for"""
 
     delete_sql = """
-        DELETE FROM 
-            pgcractivitiesfailtoget 
-        WHERE 
+        DELETE FROM
+            pgcractivitiesfailtoget
+        WHERE
             instanceId = $1;"""
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
         await connection.execute(delete_sql, int(instanceId))
@@ -964,28 +963,28 @@ async def getClearCount(playerid, activityHashes: list = None, mode: int = None)
     assert not (activityHashes and mode), "You can only specify either the mode or the hashes"
 
     select_sql = f"""
-        SELECT 
+        SELECT
             COUNT(t.instanceID)
         FROM (
-            SELECT 
+            SELECT
                 instanceID FROM pgcractivities
-            WHERE 
+            WHERE
                 {f"directorActivityHash IN ({','.join(['$' + str(i + 2) for i in range(len(activityHashes))])})" if activityHashes else ""}
                 {f"{mode} = ANY(modes)" if mode else ""}
-            AND 
+            AND
                 startingPhaseIndex <= 2
         ) t
-        JOIN (  
+        JOIN (
             SELECT
                 instanceID
-            FROM 
+            FROM
                 pgcractivitiesusersstats
-            WHERE 
-                membershipid = $1  
-                AND completed = 1 
+            WHERE
+                membershipid = $1
+                AND completed = 1
                 AND completionReason = 0
-        ) st 
-        ON 
+        ) st
+        ON
             (t.instanceID = st.instanceID);"""
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
         args = [playerid]
@@ -1055,12 +1054,12 @@ async def getClearCount(playerid, activityHashes: list = None, mode: int = None)
 async def insertEmblem(destiny_id: int, emblem_hash: int) -> None:
     """Inserts an owned emblem to the DB"""
     insert_sql = """
-        INSERT INTO 
+        INSERT INTO
             owned_emblems
-            (destiny_id, emblem_hash) 
-        VALUES 
+            (destiny_id, emblem_hash)
+        VALUES
             ($1, $2)
-        ON CONFLICT 
+        ON CONFLICT
             DO NOTHING;"""
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
         await connection.execute(insert_sql, destiny_id, emblem_hash)
@@ -1070,11 +1069,11 @@ async def insertEmblem(destiny_id: int, emblem_hash: int) -> None:
 async def hasEmblem(destiny_id: int, emblem_hash: int) -> bool:
     """Returns whether the emblem is owned"""
     select_sql = """
-        SELECT 
+        SELECT
             emblem_hash
-        FROM 
+        FROM
             owned_emblems
-        WHERE 
+        WHERE
             destiny_id = $1
             AND emblem_hash = $2;"""
 
@@ -1090,38 +1089,38 @@ async def getFlawlessHashes(membershipid, activityHashes: list):
     """returns the list of all flawless hashes the player has done in the given activityHashes"""
 
     select_sql = f"""
-        SELECT 
+        SELECT
             t.instanceID
         FROM (
-            SELECT 
+            SELECT
                 t1.instanceID, SUM(t2.deaths) AS deaths
-            FROM 
+            FROM
                 pgcrActivities AS t1
             JOIN (
                 SELECT
                     st1.instanceId, st1.membershipid, SUM(st1.deaths) AS deaths
-                FROM 
+                FROM
                     pgcrActivitiesUsersStats as st1
                 JOIN (
                     SELECT
                         instanceId
-                    FROM 
+                    FROM
                         pgcrActivitiesUsersStats
                     WHERE
                         completed = 1
                         AND membershipid = $1
                 ) AS st2
-                ON 
+                ON
                     st1.instanceID = st2.instanceID
-                GROUP BY 
+                GROUP BY
                     st1.instanceId, st1.membershipid
             ) AS t2
-            ON 
+            ON
                 t1.instanceID = t2.instanceID
-            WHERE 
+            WHERE
                 t1.directorActivityHash IN ({','.join(['$' + str(i + 2) for i in range(len(activityHashes))])})
                 AND t1.startingPhaseIndex <= 2
-            GROUP BY 
+            GROUP BY
                 t1.instanceId
         ) AS t
         WHERE
@@ -1134,19 +1133,19 @@ async def getForges(destinyID):
     """Returns # of forges and # of afkforges for destinyID"""
 
     select_sql = """
-        SELECT 
+        SELECT
             t1.instanceId, t2.kills
-        FROM 
+        FROM
             pgcractivities as t1
         JOIN (
             SELECT
                 instanceId, membershipid, kills
-            FROM 
+            FROM
                 pgcrActivitiesUsersStats
         ) as t2
-        ON 
+        ON
             t1.instanceId = t2.instanceId
-        WHERE 
+        WHERE
             t2.membershipId = $1
             AND t1.mode = 66;"""
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
@@ -1163,23 +1162,23 @@ async def getActivityHistory(
     """Returns the activity history for destinyID as a list of tuples"""
 
     select_sql = f"""
-        SELECT 
+        SELECT
             t1.instanceId
-        FROM 
+        FROM
             pgcractivities as t1
         JOIN (
             SELECT
                 instanceId, membershipid, completed, completionReason
-            FROM 
+            FROM
                 pgcrActivitiesUsersStats
         ) as t2
-        ON 
+        ON
             t1.instanceId = t2.instanceId
-        WHERE 
+        WHERE
             t2.completed = 1
             AND t2.completionReason = 0
             AND t2.membershipId = $1
-            AND period >= $2 
+            AND period >= $2
             AND period <= $3
             {"AND t1.directorActivityHash IN (" + ",".join([str(x) for x in activityHashes]) + ")" if activityHashes else ""}
             {f"AND {mode} = ANY(modes)" if mode else ""};"""
@@ -1198,21 +1197,21 @@ async def getTimePlayed(
     """Returns the time played in seconds for the specified time period"""
 
     select_sql = f"""
-        SELECT 
+        SELECT
             SUM(t2.activityDurationSeconds)
-        FROM 
+        FROM
             pgcractivities as t1
         JOIN (
             SELECT
                 instanceId, activityDurationSeconds, membershipId, characterClass
-            FROM 
+            FROM
                 pgcrActivitiesUsersStats
         ) as t2
-        ON 
+        ON
             t1.instanceId = t2.instanceId
-        WHERE 
+        WHERE
             t2.membershipId = $1
-            AND t1.period >= $2 
+            AND t1.period >= $2
             AND t1.period <= $3
             {f"AND t2.characterClass = '{character_class}'" if character_class else ""}
             {f"AND {mode} = ANY(t1.modes)" if mode else ""};"""
@@ -1238,10 +1237,10 @@ async def insertPgcrActivitiesUsersStatsWeapons(
     """Inserts an activity to the DB"""
 
     insert_sql = """
-        INSERT INTO 
+        INSERT INTO
             pgcractivitiesusersstatsweapons
-            (instanceId, characterId, membershipId, weaponId, uniqueWeaponKills, uniqueWeaponPrecisionKills) 
-        VALUES 
+            (instanceId, characterId, membershipId, weaponId, uniqueWeaponKills, uniqueWeaponPrecisionKills)
+        VALUES
             ($1, $2, $3, $4, $5, $6)
         ON CONFLICT
             DO NOTHING;"""
@@ -1273,27 +1272,27 @@ async def getWeaponInfo(
         SELECT
             t1.instanceId, t1.uniqueweaponkills, t1.uniqueweaponprecisionkills
         FROM (
-            SELECT 
+            SELECT
                 instanceId, uniqueweaponkills, uniqueweaponprecisionkills
-            FROM 
+            FROM
                 pgcractivitiesusersstatsweapons
-            WHERE 
+            WHERE
                 membershipid = $1
                 AND weaponid = $2
                 {"AND characterId = " + str(characterID) if characterID else ""}
         ) AS t1
         JOIN(
-            SELECT 
-                instanceId 
-            FROM 
-                pgcractivities 
-            WHERE 
+            SELECT
+                instanceId
+            FROM
+                pgcractivities
+            WHERE
                 period >= $3
                 AND period <= $4
                 {"AND " + str(mode) + " = ANY(modes)" if mode != 0 else ""}
                 {"AND directoractivityhash = " + str(activityID) if activityID else ""}
-        ) AS t2 
-        ON 
+        ) AS t2
+        ON
             t1.instanceID = t2.instanceID;"""
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
         return await connection.fetch(select_sql, membershipID, weaponID, start, end)
@@ -1314,34 +1313,34 @@ async def getTopWeapons(
         SELECT
             t1.weaponId, SUM(t1.uniqueweaponkills), SUM(t1.uniqueweaponprecisionkills), t1.name, t1.bucketTypeHash
         FROM (
-            SELECT 
+            SELECT
                 instanceId, weaponId, uniqueweaponkills, uniqueweaponprecisionkills, t3.name, t3.bucketTypeHash
-            FROM 
+            FROM
                 pgcractivitiesusersstatsweapons
             JOIN(
-                SELECT 
+                SELECT
                     referenceId, name, bucketTypeHash
-                FROM 
+                FROM
                     destinyInventoryItemDefinition
             ) as t3
-            ON 
+            ON
                 t3.referenceId = weaponId
-            WHERE 
+            WHERE
                 membershipid = $1
                 {"AND characterId = " + str(characterID) if characterID else ""}
         ) AS t1
         JOIN(
-            SELECT 
-                instanceId 
-            FROM 
-                pgcrActivities 
-            WHERE 
+            SELECT
+                instanceId
+            FROM
+                pgcrActivities
+            WHERE
                 period >= $2
                 AND period <= $3
                 {"AND " + str(mode) + " = ANY(modes)" if mode != 0 else ""}
                 {"AND directoractivityhash = " + str(activityID) if activityID else ""}
-        ) AS t2 
-        ON 
+        ) AS t2
+        ON
             t1.instanceID = t2.instanceID
         GROUP BY
             t1.weaponId, t1.name, t1.bucketTypeHash;"""
@@ -1359,12 +1358,12 @@ async def select_lfg_message(lfg_id: int = 0, lfg_message_id: int = 0) -> asyncp
 
     assert lfg_id or lfg_message_id, "Either lfg id or message id need to be specified"
     select_sql = f"""
-        SELECT 
+        SELECT
             id, guild_id, channel_id, message_id, author_id, activity, description, start_time, creation_time, max_joined_members, joined_members, alternate_members, voice_channel_id
-        FROM 
+        FROM
             lfgmessages
         WHERE
-            id = $1 OR 
+            id = $1 OR
             message_id = $2;"""
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
         return await connection.fetchrow(select_sql, lfg_id, lfg_message_id)
@@ -1388,9 +1387,9 @@ async def insert_lfg_message(
     """Inserts the lfg message with the specified id"""
 
     update_sql = f"""
-        UPDATE 
+        UPDATE
             lfgmessages
-        SET 
+        SET
             guild_id = $1,
             channel_id = $2,
             message_id = $3,
@@ -1403,7 +1402,7 @@ async def insert_lfg_message(
             alternate_members = $10,
             creation_time = $11
             {f", voice_channel_id = {voice_channel.id}" if voice_channel else ""}
-        WHERE 
+        WHERE
             id = $12;"""
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
         await connection.execute(
@@ -1427,9 +1426,9 @@ async def delete_lfg_message(lfg_message_id: int):
     """Delete the lfg message with the specified id"""
 
     delete_sql = f"""
-        DELETE FROM 
+        DELETE FROM
             lfgmessages
-        WHERE 
+        WHERE
             id = $1;"""
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
         await connection.execute(delete_sql, lfg_message_id)
@@ -1439,16 +1438,16 @@ async def get_free_id(id_column_name: str, table_name: str) -> int:
     """Gets the next free id using my fancy numbering system"""
 
     select_sql = f"""
-        SELECT 
+        SELECT
             {id_column_name}
-        FROM 
+        FROM
             {table_name}
         ORDER BY
             {id_column_name} ASC;"""
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
         lfg_ids = await connection.fetch(select_sql)
 
-    # get first free id
+    # _get first free id
     i = 1
     for lfg_id in lfg_ids:
         if lfg_id["id"] != i:
@@ -1465,10 +1464,10 @@ async def get_next_free_lfg_message_id() -> int:
 
         # _insert that in the DB to reserve it
         insert_sql = f"""
-            INSERT INTO  
+            INSERT INTO
                 lfgmessages
                 (id, guild_id, channel_id, message_id, author_id, activity, description, start_time, creation_time, max_joined_members, joined_members, alternate_members, voice_channel_id)
-            VALUES 
+            VALUES
                 ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13);"""
         async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
             await connection.execute(
@@ -1495,11 +1494,11 @@ async def select_lfg_datetimes_and_users() -> list[asyncpg.Record]:
     """Gets the lfg message datetimes and the users to ping for scheduler events"""
 
     select_sql = f"""
-        SELECT 
+        SELECT
             id, start_time, guild_id, joined_members
-        FROM 
+        FROM
             lfgmessages
-        WHERE 
+        WHERE
             start_time IS NOT NULL
         ORDER BY
             start_time ASC;"""
@@ -1511,11 +1510,11 @@ async def select_guild_lfg_events(guild_id: int) -> list[asyncpg.Record]:
     """Gets the lfg messages for a specific guild ordered by the youngest creation date"""
 
     select_sql = f"""
-        SELECT 
+        SELECT
             id, message_id, creation_time, voice_channel_id
-        FROM 
+        FROM
             lfgmessages
-        WHERE 
+        WHERE
             guild_id = $1
         ORDER BY
             creation_time ASC;"""
@@ -1527,9 +1526,9 @@ async def get_lfg_blacklisted_members(user_id: int) -> list[int]:
     """Returns the blacklisted member_ids"""
 
     select_sql = f"""
-        SELECT 
+        SELECT
             blacklisted_members
-        FROM 
+        FROM
             lfgusers
         WHERE
             user_id = $1;"""
@@ -1541,21 +1540,21 @@ async def get_lfg_blacklisted_members(user_id: int) -> list[int]:
 async def add_lfg_blacklisted_member(user_id: int, to_blacklist_user_id: int):
     """Adds a member to the users blacklist"""
 
-    # get current blacklist
+    # _get current blacklist
     to_blacklist_user_ids = await get_lfg_blacklisted_members(user_id)
     if to_blacklist_user_id not in to_blacklist_user_ids:
         to_blacklist_user_ids.append(to_blacklist_user_id)
 
     insert_sql = f"""
-        INSERT INTO 
-            lfgusers 
+        INSERT INTO
+            lfgusers
             (user_id, blacklisted_members)
         VALUES
-            ($1, $2) 
-        ON 
-            CONFLICT (user_id) 
-        DO 
-            UPDATE SET 
+            ($1, $2)
+        ON
+            CONFLICT (user_id)
+        DO
+            UPDATE SET
                 blacklisted_members = $2;"""
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
         await connection.execute(insert_sql, user_id, to_blacklist_user_ids)
@@ -1564,21 +1563,21 @@ async def add_lfg_blacklisted_member(user_id: int, to_blacklist_user_id: int):
 async def remove_lfg_blacklisted_member(user_id: int, to_blacklist_user_id: int):
     """Remove a member from the users blacklist"""
 
-    # get current blacklist
+    # _get current blacklist
     to_blacklist_user_ids = await get_lfg_blacklisted_members(user_id)
     if to_blacklist_user_id in to_blacklist_user_ids:
         to_blacklist_user_ids.remove(to_blacklist_user_id)
 
     insert_sql = f"""
-        INSERT INTO 
-            lfgusers 
+        INSERT INTO
+            lfgusers
             (user_id, blacklisted_members)
         VALUES
-            ($1, $2) 
-        ON 
-            CONFLICT (user_id) 
-        DO 
-            UPDATE SET 
+            ($1, $2)
+        ON
+            CONFLICT (user_id)
+        DO
+            UPDATE SET
                 blacklisted_members = $2;"""
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
         await connection.execute(insert_sql, user_id, to_blacklist_user_ids)
@@ -1592,11 +1591,11 @@ async def rss_item_exist(item_id: str) -> bool:
     """Check if an RSS item exists, meaning we already send its info to a channel"""
 
     select_sql = f"""
-        SELECT 
+        SELECT
             id
-        FROM 
+        FROM
             rssfeeditems
-        WHERE 
+        WHERE
             id = $1;
     """
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
@@ -1607,8 +1606,8 @@ async def rss_item_add(item_id: str) -> None:
     """Add an RSS item to the DB"""
 
     insert_sql = f"""
-        INSERT INTO 
-            rssfeeditems 
+        INSERT INTO
+            rssfeeditems
             (id)
         VALUES
             ($1);
@@ -1626,11 +1625,11 @@ async def get_poll(poll_id: int = None, poll_message_id: int = None) -> asyncpg.
     assert poll_id or poll_message_id, "Only one param can be chosen and one must be"
 
     select_sql = f"""
-        SELECT 
+        SELECT
             id, name, description, data::json, author_id, guild_id, channel_id, message_id
-        FROM 
+        FROM
             polls
-        WHERE 
+        WHERE
             {"id" if poll_id else "message_id"} = $1;
     """
     async with (await get_connection_pool()).acquire(timeout=timeout) as connection:
@@ -1652,20 +1651,20 @@ async def insert_poll(
 
     async with asyncio.Lock():
         if not poll_id:
-            # get free id
+            # _get free id
             poll_id = await get_free_id(id_column_name="id", table_name="polls")
 
         # _insert / _update
         insert_sql = f"""
-            INSERT INTO 
-                polls 
+            INSERT INTO
+                polls
                 (id, name, description, data, author_id, guild_id, channel_id, message_id)
             VALUES
                 ($1, $2, $3, $4, $5, $6, $7, $8)
-            ON 
-                CONFLICT 
+            ON
+                CONFLICT
                     (id)
-            DO UPDATE 
+            DO UPDATE
                 SET
                     data = $4,
                     message_id = $8;

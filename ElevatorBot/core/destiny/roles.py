@@ -25,8 +25,6 @@ class Roles:
     async def get_requirements(self, role: Role, ctx: Optional[InteractionContext]):
         """Get a roles get_requirements and what user has done"""
 
-        # todo light.gg links
-
         # get info what get_requirements the user fulfills and which not and info on the role
         result = await self.roles.get_detail(role)
 

@@ -1,6 +1,4 @@
-from dis_snek.models import InteractionContext
-from dis_snek.models import Member
-from dis_snek.models import Message
+from dis_snek.models import InteractionContext, Member, Message
 
 from ElevatorBot.misc.formating import embed_message
 from ElevatorBot.static.errorCodesAndResponses import error_codes_and_responses
@@ -71,3 +69,35 @@ async def respond_timeout(message: Message = None):
             "You took too long. If you weren't finished, please try again. \nI can give you my grandmas phone number, her doing the typing might make it a bit faster 🙃",
         ),
     )
+
+
+async def respond_wrong_channel_type(
+    ctx: InteractionContext, channel_must_be: str = "text", hidden: bool = True
+) -> bool:
+    """Respond to the given context"""
+
+    if not ctx.responded:
+        await ctx.send(
+            ephemeral=hidden,
+            embeds=embed_message(
+                "Error",
+                f"The channel must be a {channel_must_be} channel\nPlease try again",
+            ),
+        )
+        return True
+    return False
+
+
+async def respond_wrong_author(ctx: InteractionContext, author_must_be: Member, hidden: bool = True) -> bool:
+    """Respond to the given context"""
+
+    if not ctx.responded:
+        await ctx.send(
+            ephemeral=hidden,
+            embeds=embed_message(
+                "Error",
+                f"The author of the message must be {author_must_be.mention}\nPlease try again",
+            ),
+        )
+        return True
+    return False

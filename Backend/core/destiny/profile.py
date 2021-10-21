@@ -7,14 +7,20 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.destiny.activities import DestinyActivities
 from Backend.crud import destiny_manifest, discord_users
-from Backend.crud.destiny.records import records
 from Backend.crud.destiny.collectibles import collectibles
+from Backend.crud.destiny.records import records
 from Backend.database.models import Collectibles, DiscordUsers, Records
 from Backend.misc.helperFunctions import get_datetime_from_bungie_entry
 from Backend.networking.bungieApi import BungieApi
 from Backend.networking.BungieRoutes import profile_route, stat_route
-from Backend.schemas.destiny.account import DestinyCharacterModel, DestinyCharactersModel
-from Backend.schemas.destiny.profile import DestinyUpdatedLowManModel, DestinyLowMansModel
+from Backend.schemas.destiny.account import (
+    DestinyCharacterModel,
+    DestinyCharactersModel,
+)
+from Backend.schemas.destiny.profile import (
+    DestinyLowMansModel,
+    DestinyUpdatedLowManModel,
+)
 
 
 @dataclasses.dataclass
@@ -51,7 +57,7 @@ class DestinyProfile:
 
         triumph_hash = int(triumph_hash)
 
-        # get from db and return that if it says user got the triumph
+        # _get from db and return that if it says user got the triumph
         result = await records.has_record(db=self.db, destiny_id=self.destiny_id, triumph_hash=triumph_hash)
         if result:
             return result
@@ -107,7 +113,7 @@ class DestinyProfile:
 
         collectible_hash = int(collectible_hash)
 
-        # get from db and return that if it says user got the collectible
+        # _get from db and return that if it says user got the collectible
         result = await collectibles.has_collectible(
             db=self.db, destiny_id=self.destiny_id, collectible_hash=collectible_hash
         )
@@ -256,7 +262,7 @@ class DestinyProfile:
                     character_id=character_id,
                     character_class=self.class_map[character_data["classHash"]],
                     character_race=self.race_map[character_data["raceHash"]],
-                    character_gender=self.gender_map[character_data["genderHash"]]
+                    character_gender=self.gender_map[character_data["genderHash"]],
                 )
             )
 
@@ -267,10 +273,10 @@ class DestinyProfile:
 
         result = await self.__get_profile()
 
-        # get profile triumphs
+        # _get profile triumphs
         triumphs = result["profileRecords"]["data"]["records"]
 
-        # get character triumphs
+        # _get character triumphs
         character_triumphs = [
             character_triumphs["records"]
             for character_id, character_triumphs in result["characterRecords"]["data"].items()
@@ -287,10 +293,10 @@ class DestinyProfile:
 
         result = await self.__get_profile()
 
-        # get profile triumphs
+        # _get profile triumphs
         collectibles = result["profileCollectibles"]["data"]["collectibles"]
 
-        # get character triumphs
+        # _get character triumphs
         character_collectibles = [
             character_triumphs["collectibles"]
             for _, character_triumphs in result["characterCollectibles"]["data"].items()
@@ -322,7 +328,7 @@ class DestinyProfile:
     async def get_solos(self) -> DestinyLowMansModel:
         """Return the destiny solos"""
 
-        # todo get those from the db
+        # todo _get those from the db
         interesting_solos = {
             "Shattered Throne": throneHashes,
             "Pit of Heresy": pitHashes,
@@ -335,7 +341,7 @@ class DestinyProfile:
             "Grandmaster Nightfalls": gmHashes,
         }
 
-        # get the results for this in a gather (keeps order)
+        # _get the results for this in a gather (keeps order)
         activities = DestinyActivities(db=self.db, user=self.user)
         results = await asyncio.gather(
             *[
@@ -377,7 +383,7 @@ class DestinyProfile:
         gear = []
         used_items = await self.__get_profile(201, 205, 300, with_token=True)
         item_power = {
-            weapon_id: int(weapon_data.get("primaryStat", {"value": 0})["value"])
+            weapon_id: int(weapon_data._get("primaryStat", {"value": 0})["value"])
             for weapon_id, weapon_data in used_items["itemComponents"]["instances"]["data"].items()
         }
         item_power["none"] = 0
@@ -389,7 +395,7 @@ class DestinyProfile:
             character_power_items = map(
                 lambda character_item: dict(
                     character_item,
-                    **{"lightlevel": item_power[character_item.get("itemInstanceId", "none")]},
+                    **{"lightlevel": item_power[character_item._get("itemInstanceId", "none")]},
                 ),
                 character_items,
             )
@@ -423,7 +429,7 @@ class DestinyProfile:
         else:
             response = await self.api.get(route=route, params=params)
 
-        # get bungie name
+        # _get bungie name
         bungie_name = f"""{response.content["profile"]["data"]["userInfo"]["bungieGlobalDisplayName"]}#{response.content["profile"]["data"]["userInfo"]["bungieGlobalDisplayNameCode"]}"""
 
         # update name if different

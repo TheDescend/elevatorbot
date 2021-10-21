@@ -3,19 +3,20 @@ import io
 import random
 
 import aiohttp
-from dis_snek.models import InteractionContext
-from dis_snek.models import Member
-from dis_snek.models import slash_command
+from dis_snek.models import InteractionContext, Member, slash_command
 
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
 from ElevatorBot.commands.base import BaseScale
-from ElevatorBot.misc.discordShortcutFunctions import assign_roles_to_member
-from ElevatorBot.misc.discordShortcutFunctions import remove_roles_from_member
+from ElevatorBot.misc.discordShortcutFunctions import (
+    assign_roles_to_member,
+    remove_roles_from_member,
+)
 from ElevatorBot.static.descendOnlyIds import descend_muted_role_id
+from settings import COMMAND_GUILD_SCOPE
 
 
 class MuteMe(BaseScale):
-    @slash_command(name="muteme", description="I wonder what this does...")
+    @slash_command(name="muteme", description="I wonder what this does...", scope=COMMAND_GUILD_SCOPE)
     @default_user_option()
     async def _mute_me(self, ctx: InteractionContext, user: Member = None):
 

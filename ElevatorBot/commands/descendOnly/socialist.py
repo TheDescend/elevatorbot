@@ -1,14 +1,13 @@
-from dis_snek.models import InteractionContext
-from dis_snek.models import slash_command
-
+from dis_snek.models import InteractionContext, slash_command
 
 from ElevatorBot.commands.base import BaseScale
+from settings import COMMAND_GUILD_SCOPE
 
 
 class Socialist(BaseScale):
 
     # todo perms
-    @slash_command(name="socialist", description="Spams #socialist")
+    @slash_command(name="socialist", description="Spams #socialist", scope=COMMAND_GUILD_SCOPE)
     async def _socialist(self, ctx: InteractionContext):
         """Spams #socialist"""
 

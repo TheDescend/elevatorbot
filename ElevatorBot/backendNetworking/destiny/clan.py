@@ -1,17 +1,18 @@
 import dataclasses
 
 from dis_snek.client import Snake
-from dis_snek.models import Guild
-from dis_snek.models import Member
+from dis_snek.models import Guild, Member
 
 from ElevatorBot.backendNetworking.http import BaseBackendConnection
 from ElevatorBot.backendNetworking.results import BackendResult
-from ElevatorBot.backendNetworking.routes import destiny_clan_get_members_route
-from ElevatorBot.backendNetworking.routes import destiny_clan_get_route
-from ElevatorBot.backendNetworking.routes import destiny_clan_invite_route
-from ElevatorBot.backendNetworking.routes import destiny_clan_link_route
-from ElevatorBot.backendNetworking.routes import destiny_clan_search_members_route
-from ElevatorBot.backendNetworking.routes import destiny_clan_unlink_route
+from ElevatorBot.backendNetworking.routes import (
+    destiny_clan_get_members_route,
+    destiny_clan_get_route,
+    destiny_clan_invite_route,
+    destiny_clan_link_route,
+    destiny_clan_search_members_route,
+    destiny_clan_unlink_route,
+)
 
 
 @dataclasses.dataclass
@@ -63,9 +64,7 @@ class DestinyClan(BaseBackendConnection):
 
         return result
 
-    async def link(
-        self,
-    ) -> BackendResult:
+    async def link(self) -> BackendResult:
         """Link the discord guild to the destiny guild"""
 
         return await self._backend_request(
@@ -76,9 +75,7 @@ class DestinyClan(BaseBackendConnection):
             ),
         )
 
-    async def unlink(
-        self,
-    ) -> BackendResult:
+    async def unlink(self) -> BackendResult:
         """Unlink the discord guild to the destiny guild"""
 
         return await self._backend_request(

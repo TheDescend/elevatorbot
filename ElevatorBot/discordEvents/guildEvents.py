@@ -1,9 +1,7 @@
-from dis_snek.models import Guild
-from dis_snek.models import GuildChannel
-from dis_snek.models import Role
-from dis_snek.models import ThreadChannel
+from dis_snek.models import Guild, GuildChannel, Role, ThreadChannel
 
 from ElevatorBot.backendNetworking.misc.elevatorInfo import ElevatorGuilds
+from ElevatorBot.misc.helperFunctions import elevator_permission_bits
 
 
 async def on_channel_delete(channel: GuildChannel):
@@ -26,6 +24,8 @@ async def on_channel_update(before: GuildChannel, after: GuildChannel):
 
 async def on_guild_join(guild: Guild):
     """Triggers when ElevatorBot gets added to a guild"""
+
+    # todo make sure elevator has the correct permissions: elevator_permission_bits - otherwise break
 
     # todo make sure all current guilds are in the db too
     # add guild to the list of all guilds, needed for website info

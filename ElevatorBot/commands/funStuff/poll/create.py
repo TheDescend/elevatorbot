@@ -10,7 +10,7 @@
 #     @cog_ext.cog_subcommand(
 #         base="poll",
 #         base_description="Making polls easy",
-#         name="_insert",
+#         name="insert",
 #         description="Create a poll",
 #         options=[
 #             create_option(

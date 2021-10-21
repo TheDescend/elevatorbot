@@ -1,28 +1,20 @@
 import logging
 import time
 
-from fastapi import Depends
-from fastapi import FastAPI
-from fastapi import Request
+from fastapi import Depends, FastAPI, Request
 
-from Backend.core.errors import CustomException
-from Backend.core.errors import handle_custom_exception
+from Backend.core.errors import CustomException, handle_custom_exception
 from Backend.database.base import setup_engine
-from Backend.database.models import BackendUser
-from Backend.database.models import create_tables
-from Backend.dependencies import auth_get_user_with_read_perm
-from Backend.dependencies import auth_get_user_with_write_perm
-from Backend.endpoints import auth
-from Backend.endpoints import elevatorInfo
-from Backend.endpoints.destiny import account
-from Backend.endpoints.destiny import clan
-from Backend.endpoints.destiny import lfg
-from Backend.endpoints.destiny import profile
-from Backend.endpoints.destiny import roles
+from Backend.database.models import BackendUser, create_tables
+from Backend.dependencies import (
+    auth_get_user_with_read_perm,
+    auth_get_user_with_write_perm,
+)
+from Backend.endpoints import auth, elevatorInfo, persistentMessages
+from Backend.endpoints.destiny import account, clan, lfg, profile, roles
 from Backend.misc.initBackgroundEvents import register_background_events
 from Backend.misc.initLogging import init_logging
 from Backend.schemas.auth import BackendUserModel
-
 
 app = FastAPI()
 
@@ -53,6 +45,7 @@ async def log_requests(request: Request, call_next):
 # add routers
 app.include_router(elevatorInfo.router)
 app.include_router(auth.router)
+app.include_router(persistentMessages.router)
 app.include_router(profile.router)
 app.include_router(account.router)
 app.include_router(clan.router)

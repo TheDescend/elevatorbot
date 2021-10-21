@@ -1,15 +1,3 @@
-import asyncio
-import datetime
-
-import discord
-
-from ElevatorBot.events.baseEvent import BaseEvent
-from ElevatorBot.backendNetworking.dataLoading import updateMissingPcgr, updateManifest
-from ElevatorBot.backendNetworking.destinyPlayer import DestinyPlayer
-from ElevatorBot.backendNetworking.persistentMessages import bot_status
-from ElevatorBot.networking.bungieAuth import handle_and_return_token
-
-
 # class UpdateManifest(BaseEvent):
 #     def __init__(self):
 #         # Set the interval for this event
@@ -43,7 +31,7 @@ from ElevatorBot.networking.bungieAuth import handle_and_return_token
 #         """
 #         print("Start updating DB...")
 #
-#         # get all users the bot shares a guild with
+#         # _get all users the bot shares a guild with
 #         to_update = []
 #         for guild in client.guilds:
 #             for member in guild.members:
@@ -58,7 +46,7 @@ from ElevatorBot.networking.bungieAuth import handle_and_return_token
 #
 #         print("Done updating DB")
 #
-#         # try to get the missing pgcrs
+#         # try to _get the missing pgcrs
 #         await updateMissingPcgr()
 #
 #         # _update the status

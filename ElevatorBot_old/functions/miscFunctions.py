@@ -7,13 +7,12 @@ import discord
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from discord_slash import SlashContext
 
-from ElevatorBot.database.database import select_guild_lfg_events
 from ElevatorBot.backendNetworking.formating import embed_message
+from ElevatorBot.database.database import select_guild_lfg_events
 from ElevatorBot.networking.bungieAuth import handle_and_return_token
 from ElevatorBot.static.config import COMMAND_PREFIX
 from ElevatorBot.static.dict import expansion_dates, season_dates
 from ElevatorBot.static.globals import admin_role_id, dev_role_id, mod_role_id
-
 
 scheduler = None
 
@@ -34,12 +33,12 @@ async def checkIfUserIsRegistered(user):
 #         "Type '/registerdesc' to registration your Destiny 2 account",
 #         "DM me to contact staff",
 #         "↓ Psst! Did you know this person stinks",
-#         "I head @Tom wants to be sherpa'd through GoS to finally get Divinity, but is too afraid to ask",
+#         "I head @Tom wants to be sherpa'd through GoS to finally _get Divinity, but is too afraid to ask",
 #         "This message has been removed due to a request from @Feedy",
 #         "We all know who the best bot is",
 #         "Hint: Checkmarks are lame",
 #         "Hmm, maybe an actual versioning system would be about time",
-#         "Can I get vaccinated too? Technically I'm still a baby",
+#         "Can I _get vaccinated too? Technically I'm still a baby",
 #         "Chillin' in my Hot Tub right now 🍑💦",
 #         "I can win the hard mode TicTacToe, can you?",
 #         "Presenting: Extra context! Right click a message or a user to be amazed",
@@ -75,9 +74,9 @@ async def hasMentionPermission(message, user, additional_users=None):
 
 # checks for admin or  dev permissions
 async def hasAdminOrDevPermissions(message, send_message=True):
-    admin = discord.utils.get(message.guild.roles, id=admin_role_id)
-    dev = discord.utils.get(message.guild.roles, id=dev_role_id)
-    mod = discord.utils.get(message.guild.roles, id=mod_role_id)
+    admin = discord.utils._get(message.guild.roles, id=admin_role_id)
+    dev = discord.utils._get(message.guild.roles, id=dev_role_id)
+    mod = discord.utils._get(message.guild.roles, id=mod_role_id)
 
     # also checking for Kigstns id, to make that shit work on my local version of the bot
     if message.author.id == 238388130581839872:
@@ -93,9 +92,9 @@ async def hasAdminOrDevPermissions(message, send_message=True):
 # todo swap old hasAdminOrDevPermissions stuff with this
 async def has_elevated_permissions(user, guild, ctx: SlashContext = None):
     """checks for admin or dev permissions, otherwise returns False. If ctx is given, return error message"""
-    admin = discord.utils.get(guild.roles, id=admin_role_id)
-    dev = discord.utils.get(guild.roles, id=dev_role_id)
-    mod = discord.utils.get(guild.roles, id=mod_role_id)
+    admin = discord.utils._get(guild.roles, id=admin_role_id)
+    dev = discord.utils._get(guild.roles, id=dev_role_id)
+    mod = discord.utils._get(guild.roles, id=mod_role_id)
 
     # also checking for Kigstns id, to make that shit work on my local version of the bot
     if user.id == 238388130581839872:
@@ -204,7 +203,7 @@ def convert_expansion_or_season_dates(kwargs):
 async def left_channel(client, member, before_channel, after_channel, lfg_voice_category_channel=None):
     # check if the channel was an lfg channel (correct category)
     if before_channel.category_id == lfg_voice_category_channel.id:
-        # get current guild lfg channels
+        # _get current guild lfg channels
         guild = member.guild
         guild_lfg_events = await select_guild_lfg_events(guild.id)
         guild_lfg_voice_channels = []
@@ -230,15 +229,15 @@ async def left_channel(client, member, before_channel, after_channel, lfg_voice_
             achannel = before_channel
             while achannel is not None:
                 number = number + 1
-                achannel = discord.utils.get(
+                achannel = discord.utils._get(
                     member.guild.voice_channels,
                     name=channelnamebase + str(number).zfill(2),
                 )
             number = number - 1
 
             for i in range(defaultchannels + 1, number + 1, 1):
-                higher = discord.utils.get(member.guild.voice_channels, name=channelnamebase + str(i).zfill(2))
-                below = discord.utils.get(
+                higher = discord.utils._get(member.guild.voice_channels, name=channelnamebase + str(i).zfill(2))
+                below = discord.utils._get(
                     member.guild.voice_channels,
                     name=channelnamebase + str(i - 1).zfill(2),
                 )
@@ -247,8 +246,8 @@ async def left_channel(client, member, before_channel, after_channel, lfg_voice_
                         await higher._delete()
 
             for i in range(defaultchannels + 1, number + 1, 1):
-                higher = discord.utils.get(member.guild.voice_channels, name=channelnamebase + str(i).zfill(2))
-                below = discord.utils.get(
+                higher = discord.utils._get(member.guild.voice_channels, name=channelnamebase + str(i).zfill(2))
+                below = discord.utils._get(
                     member.guild.voice_channels,
                     name=channelnamebase + str(i - 1).zfill(2),
                 )
@@ -268,9 +267,9 @@ async def joined_channel(client, member, channel):
 
         channelnamebase = channel.name.replace(nummatch[-1], "")
 
-        if not discord.utils.get(member.guild.voice_channels, name=channelnamebase + nextnumberstring):
+        if not discord.utils._get(member.guild.voice_channels, name=channelnamebase + nextnumberstring):
             await channel.clone(name=channelnamebase + nextnumberstring)
-            newchannel = discord.utils.get(member.guild.voice_channels, name=channelnamebase + nextnumberstring)
+            newchannel = discord.utils._get(member.guild.voice_channels, name=channelnamebase + nextnumberstring)
             await newchannel.edit(position=channel.position + 1)
             if "PVP" in channel.name:
                 await newchannel.edit(position=channel.position + 1, user_limit=6)

@@ -1,7 +1,7 @@
 from discord.ext import commands
-from discord_slash import cog_ext, SlashContext, ButtonStyle
+from discord_slash import ButtonStyle, SlashContext, cog_ext
 from discord_slash.utils import manage_components
-from discord_slash.utils.manage_commands import create_option, create_choice
+from discord_slash.utils.manage_commands import create_choice, create_option
 
 from ElevatorBot.backendNetworking.destinyPlayer import DestinyPlayer
 from ElevatorBot.backendNetworking.slashCommandFunctions import get_user_obj
@@ -46,7 +46,7 @@ class ExternalWebsitesCommands(commands.Cog):
     #     if not destiny_player:
     #         return
     #
-    #     # get the text
+    #     # _get the text
     #     text = ""
     #     if website == "Solo Report":
     #         text = f"https://elevatorbot.ch/soloreport/{destiny_player.system}/{destiny_player.destiny_id}"

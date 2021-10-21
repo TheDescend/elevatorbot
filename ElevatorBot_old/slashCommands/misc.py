@@ -5,13 +5,16 @@ import random
 import aiohttp
 import discord
 from discord.ext import commands
-from discord_slash import cog_ext, SlashContext
+from discord_slash import SlashContext, cog_ext
 from discord_slash.utils.manage_commands import create_option
 
 from ElevatorBot.backendNetworking.formating import embed_message
 from ElevatorBot.backendNetworking.miscFunctions import has_elevated_permissions
-from ElevatorBot.backendNetworking.poll import get_poll_object, create_poll_object
-from ElevatorBot.backendNetworking.roleLookup import assignRolesToUser, removeRolesFromUser
+from ElevatorBot.backendNetworking.poll import create_poll_object, get_poll_object
+from ElevatorBot.backendNetworking.roleLookup import (
+    assignRolesToUser,
+    removeRolesFromUser,
+)
 from ElevatorBot.backendNetworking.slashCommandFunctions import get_user_obj
 from ElevatorBot.static.globals import muted_role_id
 from ElevatorBot.static.slashCommandConfig import permissions_socialist
@@ -201,7 +204,7 @@ class MiscCommands(commands.Cog):
                 if r.status == 200:
                     text = (await r.json())["text"]
                 else:
-                    text = "Offline servers make it difficult to get fun facts :("
+                    text = "Offline servers make it difficult to _get fun facts :("
 
                 await ctx.send(embed=embed_message("Did you know?", text.replace("`", "'")))
 

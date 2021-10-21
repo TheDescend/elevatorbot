@@ -12,7 +12,7 @@ class GetMemberCount(BaseEvent):
     # Override the run() method
     # It will be called once every {interval_minutes} minutes
     async def run(self, client):
-        # loop through all guilds, get the channel id if exists and _update that
+        # loop through all guilds, _get the channel id if exists and _update that
         for guild in client.guilds:
             result = await get_persistent_message("memberCount", guild.id)
             if not result:
@@ -35,7 +35,7 @@ class GetBoosterCount(BaseEvent):
     # Override the run() method
     # It will be called once every {interval_minutes} minutes
     async def run(self, client):
-        # loop through all guilds, get the channel id if exists and _update that
+        # loop through all guilds, _get the channel id if exists and _update that
         for guild in client.guilds:
             result = await get_persistent_message("boosterCount", guild.id)
             if not result:

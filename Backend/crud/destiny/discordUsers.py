@@ -63,7 +63,7 @@ class CRUDDiscordUser(CRUDBase):
     ) -> tuple[BungieTokenOutput, Optional[DiscordUsers], int, int]:
         """Inserts a users token data"""
 
-        # get current time
+        # _get current time
         current_time = int(time.time())
 
         # split the state
@@ -75,7 +75,7 @@ class CRUDDiscordUser(CRUDBase):
         )
         api = NetworkBase()
 
-        # get the corresponding destiny data with manual headers, since the data is not in the db yet
+        # _get the corresponding destiny data with manual headers, since the data is not in the db yet
         async with aiohttp.ClientSession(cookie_jar=aiohttp.DummyCookieJar()) as session:
             destiny_info = await api._request(
                 session=session,
@@ -88,10 +88,10 @@ class CRUDDiscordUser(CRUDBase):
                 },
             )
 
-        # get the users destiny info
+        # _get the users destiny info
         destiny_id = int(destiny_info.content["primaryMembershipId"])
 
-        # get the system
+        # _get the system
         system = None
         bungie_name = None
         for profile in destiny_info.content["destinyMemberships"]:
@@ -243,7 +243,7 @@ class CRUDDiscordUser(CRUDBase):
         for guild_id, guild_data in role_data.items():
             registered_role_id, unregistered_role_id = None, None
 
-            # get both role ids
+            # _get both role ids
             for role in role_data:
                 if role.role_name == "Registered":
                     registered_role_id = role.role_id

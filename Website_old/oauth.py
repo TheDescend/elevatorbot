@@ -6,22 +6,27 @@ import os
 import time
 
 import requests
-from flask import Flask, request, redirect, Response, render_template, jsonify
-from flask import send_from_directory
+from config import B64_SECRET, BOT_ACCOUNT_PUBLIC_KEY, BUNGIE_TOKEN, NEWTONS_WEBHOOK
+from flask import (
+    Flask,
+    Response,
+    jsonify,
+    redirect,
+    render_template,
+    request,
+    send_from_directory,
+)
 from nacl.encoding import HexEncoder
 from nacl.hash import sha256
 from nacl.signing import VerifyKey
 
 from database import (
-    insertToken,
+    create_connection_pool,
     getRefreshToken,
     getToken,
+    insertToken,
     lookupDiscordID,
-    create_connection_pool,
 )
-from config import BOT_ACCOUNT_PUBLIC_KEY
-from config import BUNGIE_TOKEN, B64_SECRET, NEWTONS_WEBHOOK
-
 
 verify_key = VerifyKey(bytes.fromhex(BOT_ACCOUNT_PUBLIC_KEY))
 
@@ -33,7 +38,7 @@ loop.run_until_complete(create_connection_pool())
 
 
 def shutdown_server():
-    func = request.environ.get("werkzeug.server.shutdown")
+    func = request.environ._get("werkzeug.server.shutdown")
     if func is None:
         raise RuntimeError("Not running with the Werkzeug Server")
     func()
@@ -49,7 +54,7 @@ def test():
 def root():
     print("hi")
     response = request.args
-    if not (code := response.get("code", None)):  # for user auth
+    if not (code := response._get("code", None)):  # for user auth
         return """
 <img src="https://vignette.wikia.nocookie.net/meme/images/a/a8/Portal-cake.jpg/revision/latest/top-crop/width/360/height/450?cb=20110913215856"/><br/>
 <a href="https://elevatorbot.ch/vendorbounties">Vendorbounties</a><br/>
@@ -154,7 +159,7 @@ def root():
 def neriapi(destinyid):
     if (
         not sha256(
-            bytes(request.headers.get("x-neriapi-key", "missing"), "utf-8"),
+            bytes(request.headers._get("x-neriapi-key", "missing"), "utf-8"),
             encoder=HexEncoder,
         )
         == b"e3143238a43d9f1c12f47314a8c858a5589f1b2f5c174d391a0e361f869b1427"

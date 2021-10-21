@@ -8,14 +8,14 @@ import aiohttp
 import discord
 import pytz
 from discord.ext import commands
-from discord_slash import cog_ext, SlashContext
-from discord_slash.utils.manage_commands import create_option, create_choice
+from discord_slash import SlashContext, cog_ext
+from discord_slash.utils.manage_commands import create_choice, create_option
 
 from ElevatorBot.backendNetworking.destinyPlayer import DestinyPlayer
 from ElevatorBot.backendNetworking.formating import embed_message
 from ElevatorBot.networking.network import get_json_from_url
 from ElevatorBot.static.config import CLANID
-from ElevatorBot.static.globals import member_role_id, clan_role_id
+from ElevatorBot.static.globals import clan_role_id, member_role_id
 from ElevatorBot.static.slashCommandConfig import permissions_kigstn
 
 
@@ -136,7 +136,7 @@ class Day1Race(commands.Cog):
 
         # write the completion message
         if self.finished_raid:
-            # get total time spend in raid
+            # _get total time spend in raid
             completions = []
             for member in self.finished_raid:
                 name = member[0]

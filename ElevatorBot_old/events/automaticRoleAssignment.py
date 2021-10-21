@@ -1,25 +1,18 @@
-import asyncio
 import datetime
-from typing import Optional
 
 import discord
 
-from ElevatorBot.database.database import lookupDiscordID
-from ElevatorBot.events.backgroundTasks import UpdateActivityDB
-from ElevatorBot.events.baseEvent import BaseEvent
-from ElevatorBot.backendNetworking.destinyPlayer import DestinyPlayer
-from ElevatorBot.backendNetworking.formating import split_into_chucks_of_max_2000_characters
-from ElevatorBot.backendNetworking.persistentMessages import bot_status
+from ElevatorBot.backendNetworking.misc.backendPersistentMessages import bot_status
 from ElevatorBot.backendNetworking.roleLookup import (
     assignRolesToUser,
     removeRolesFromUser,
-    get_player_roles,
 )
+from ElevatorBot.database.database import lookupDiscordID
+from ElevatorBot.events.baseEvent import BaseEvent
 from ElevatorBot.networking.bungieAuth import handle_and_return_token
 from ElevatorBot.networking.network import get_json_from_url
-from ElevatorBot.static.config import CLANID, BOTDEVCHANNELID
+from ElevatorBot.static.config import BOTDEVCHANNELID, CLANID
 from ElevatorBot.static.globals import *
-
 
 # # todo call this one elevator, and the sleep. Backend calls elevator webhook when done
 # class AutomaticRoleAssignment(BaseEvent):
@@ -106,7 +99,7 @@ class AutoRegisteredRole(BaseEvent):
         super().__init__(scheduler_type="interval", interval_minutes=interval_minutes)
 
     async def run(self, client):
-        # get all clan members discordID
+        # _get all clan members discordID
         memberlist = []
         for member in (await get_json_from_url(f"https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/")).content[
             "Response"
@@ -122,10 +115,10 @@ class AutoRegisteredRole(BaseEvent):
             return
 
         for guild in client.guilds:
-            newtonsLab = discord.utils.get(guild.channels, id=BOTDEVCHANNELID)
+            newtonsLab = discord.utils._get(guild.channels, id=BOTDEVCHANNELID)
 
-            clan_role = discord.utils.get(guild.roles, id=clan_role_id)
-            member_role = discord.utils.get(guild.roles, id=member_role_id)
+            clan_role = discord.utils._get(guild.roles, id=clan_role_id)
+            member_role = discord.utils._get(guild.roles, id=member_role_id)
 
             for member in guild.members:
                 # only allow people who accepted the rules
@@ -137,12 +130,12 @@ class AutoRegisteredRole(BaseEvent):
 
                 # add "Registered" if they have a token but not the role
                 if (await handle_and_return_token(member.id)).token:
-                    if discord.utils.get(guild.roles, id=not_registered_role_id) in member.roles:
+                    if discord.utils._get(guild.roles, id=not_registered_role_id) in member.roles:
                         await removeRolesFromUser([not_registered_role_id], member, guild)
                     await assignRolesToUser([registered_role_id], member, guild)
                 # add "Not Registered" if they have no token but the role (after unregister)
                 else:
-                    if discord.utils.get(guild.roles, id=registered_role_id) in member.roles:
+                    if discord.utils._get(guild.roles, id=registered_role_id) in member.roles:
                         await removeRolesFromUser([registered_role_id], member, guild)
                     await assignRolesToUser([not_registered_role_id], member, guild)
 

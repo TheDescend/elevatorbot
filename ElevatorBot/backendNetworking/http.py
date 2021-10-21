@@ -44,7 +44,7 @@ backend_limiter = BackendRateLimiter()
 @dataclasses.dataclass
 class BaseBackendConnection:
     """
-    Define default backend functions such as get get, post and _delete.
+    Define default backend functions such as get, post and delete.
     These can be called by subclasses, and automatically handle networking and error handling
     """
 
@@ -76,7 +76,7 @@ class BaseBackendConnection:
         return True
 
     async def _backend_request(self, method: str, route: str, params: dict = None, data: dict = None) -> BackendResult:
-        """Make a get request to the specified backend route and return the results"""
+        """Make a request to the specified backend route and return the results"""
 
         async with asyncio.Lock():
             await self.limiter.wait_for_token()

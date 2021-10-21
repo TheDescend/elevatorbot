@@ -2,6 +2,7 @@ from fastapi import Depends, HTTPException
 from jose import JWTError, jwt
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from Backend import crud
 from Backend.core.security.auth import (
     ALGORITHM,
     CREDENTIALS_EXCEPTION,
@@ -10,10 +11,9 @@ from Backend.core.security.auth import (
 )
 from Backend.database.base import get_async_session
 from Backend.database.models import BackendUser
-from Backend import crud
 
 
-# get the database session
+# _get the database session
 async def get_db_session() -> AsyncSession:
     async with get_async_session().begin() as session:
         yield session
@@ -30,7 +30,7 @@ async def auth_get_user(token: str = Depends(oauth2_scheme), db: AsyncSession = 
     except JWTError:
         raise CREDENTIALS_EXCEPTION
 
-    # get the user
+    # _get the user
     user = await crud.backend_user._get_with_key(db, user_name)
 
     # verify that the user is OK

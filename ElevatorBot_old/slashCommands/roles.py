@@ -32,14 +32,14 @@ class RoleCommands(commands.Cog):
     # # might take a sec
     # await ctx.defer()
     #
-    # # get the users roles
+    # # _get the users roles
     # active_roles, deprecated_roles = self.missingRoles(user)
     #
     # # do the missing roles display
     # embed = embed_message(f"{user.display_name}'s missing Roles")
     # embed.add_field(name="⁣", value=f"__**Achievable Roles:**__", inline=False)
     #
-    # # only do this if there are roles to get
+    # # only do this if there are roles to _get
     # if active_roles:
     #     for topic in active_roles:
     #         embed.add_field(
@@ -69,7 +69,7 @@ class RoleCommands(commands.Cog):
     # @cog_ext.cog_subcommand(
     #     base="roles",
     #     base_description="Various commands concerning Destiny 2 achievement discord roles",
-    #     name="get",
+    #     name="_get",
     #     description="Assigns you all the roles you've earned",
     #     options=[options_user(flavor_text="Requires elevated permissions")],
     # )
@@ -79,7 +79,7 @@ class RoleCommands(commands.Cog):
     # if not user:
     #     return
     #
-    # # get destiny user info
+    # # _get destiny user info
     # destiny_player = await DestinyPlayer.from_discord_id(user.id, ctx=ctx)
     # if not destiny_player:
     #     return
@@ -90,7 +90,7 @@ class RoleCommands(commands.Cog):
     # # _update user DB
     # await destiny_player.update_activity_db()
     #
-    # # get new roles
+    # # _get new roles
     # roles_at_start = [role.name for role in user.roles]
     # (
     #     roles_to_add,
@@ -127,7 +127,7 @@ class RoleCommands(commands.Cog):
     #     topic = topic.replace("Addition", "Miscellaneous")
     #
     #     for role_name in topicroles.keys():
-    #         discord_role = discord.utils.get(ctx.guild.roles, name=role_name)
+    #         discord_role = discord.utils._get(ctx.guild.roles, name=role_name)
     #         if discord_role:
     #             if discord_role in roles_to_add:
     #                 try:
@@ -168,7 +168,7 @@ class RoleCommands(commands.Cog):
     #     base="roles",
     #     base_description="Various commands concerning Destiny 2 achievement discord roles",
     #     name="get_requirements",
-    #     description="Shows you what you need to do to get the specified role",
+    #     description="Shows you what you need to do to _get the specified role",
     #     options=[
     #         create_option(
     #             name="role",
@@ -217,7 +217,7 @@ class RoleCommands(commands.Cog):
         roles = {}
         deprecated_roles = {}
 
-        # get list of roles available
+        # _get list of roles available
         for category, x in requirementHashes.items():
             for role, req in x.items():
                 # depending on if its deprecated or not, add to respective dict

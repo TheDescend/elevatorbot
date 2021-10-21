@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, Form, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from Backend import crud
 from Backend.core.destiny.activities import DestinyActivities
 from Backend.core.errors import CustomException
 from Backend.core.security.auth import (
@@ -13,6 +14,7 @@ from Backend.core.security.auth import (
     get_password_hash,
 )
 from Backend.database.models import BackendUser
+from Backend.dependencies import get_db_session
 from Backend.networking.elevatorApi import ElevatorApi
 from Backend.schemas.auth import (
     BackendUserModel,
@@ -20,9 +22,6 @@ from Backend.schemas.auth import (
     BungieTokenOutput,
     Token,
 )
-from Backend.dependencies import get_db_session
-from Backend import crud
-
 
 router = APIRouter(
     prefix="/auth",
@@ -41,11 +40,11 @@ async def save_bungie_token(bungie_token: BungieTokenInput, db: AsyncSession = D
     )
 
     if result.success:
-        # get users activities in background
+        # _get users activities in background
         activities = DestinyActivities(db=db, user=user)
         asyncio.create_task(activities.update_activity_db())
 
-        # send a msg to Elevator and get the mutual guild ids
+        # send a msg to Elevator and _get the mutual guild ids
         elevator_api = ElevatorApi()
         response = await elevator_api.post(
             route_addition="registration/",
@@ -62,7 +61,7 @@ async def save_bungie_token(bungie_token: BungieTokenInput, db: AsyncSession = D
             if guild_id in response.content["guild_ids"]:
                 registered_role_id, unregistered_role_id = None, None
 
-                # get both role ids
+                # _get both role ids
                 for role in role_data:
                     if role.role_name == "Registered":
                         registered_role_id = role.role_id

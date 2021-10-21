@@ -18,7 +18,7 @@ class UpdateSteamPlayers(BaseEvent):
             headers = {"X-API-Key": STEAM_TOKEN}
             steam_api = BungieApi(db=db, user=None, headers=headers)
 
-            # get current amount of players
+            # _get current amount of players
             route = "https://api.steampowered.com/ISteamUserStats/GetNumberOfCurrentPlayers/v1/"
             params = {"appid": "1085660"}
             current_players = await steam_api.get(route=route, params=params, use_cache=False)

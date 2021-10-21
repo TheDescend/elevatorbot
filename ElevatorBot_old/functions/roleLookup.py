@@ -20,7 +20,7 @@ from ElevatorBot.static.globals import divider_legacy_role_id, role_ban_id
 # async def has_role(
 #     destiny_player: DestinyPlayer, role: discord.Role, return_as_bool: bool = True
 # ) -> Optional[list[Union[bool, dict]]]:
-#     """return_as_bool may be set to True if only True/False is expected, set to False to get complete data on why or why not the user earned the role"""
+#     """return_as_bool may be set to True if only True/False is expected, set to False to _get complete data on why or why not the user earned the role"""
 #
 #     data = {}
 #
@@ -63,7 +63,7 @@ from ElevatorBot.static.globals import divider_legacy_role_id, role_ban_id
 #                     break
 #
 #                 if not return_as_bool:
-#                     # get name of collectible
+#                     # _get name of collectible
 #                     # str conversion required because dictionary is indexed on strings, not postiions
 #                     coll_def_start = time.monotonic()
 #                     (_, _, name, *_) = await getDestinyDefinition("DestinyCollectibleDefinition", collectibleHash)
@@ -81,7 +81,7 @@ from ElevatorBot.static.globals import divider_legacy_role_id, role_ban_id
 #                     break
 #
 #                 if not return_as_bool:
-#                     # get name of triumph
+#                     # _get name of triumph
 #                     (_, _, name, *_) = await getDestinyDefinition("DestinyRecordDefinition", recordHash)
 #                     data[name] = bool(has_tri)
 #
@@ -97,10 +97,10 @@ from ElevatorBot.static.globals import divider_legacy_role_id, role_ban_id
 #             has_low = await destiny_player.has_lowman(
 #                 max_player_count=role_data["playercount"],
 #                 activity_hashes=role_data["activityHashes"],
-#                 require_flawless=role_data.get("flawless", False),
-#                 no_checkpoints=role_data.get("noCheckpoints", False),
+#                 require_flawless=role_data._get("flawless", False),
+#                 no_checkpoints=role_data._get("noCheckpoints", False),
 #                 disallowed=disallowed,
-#                 score_threshold=role_data.get("score", False),
+#                 score_threshold=role_data._get("score", False),
 #             )
 #             worthy &= has_low
 #
@@ -110,7 +110,7 @@ from ElevatorBot.static.globals import divider_legacy_role_id, role_ban_id
 #                 print(f"Lowman Read took {diff} seconds for hasLowman")
 #         elif req == "roles":
 #             for required_role in role_data["roles"]:
-#                 required_role_discord = discord.utils.get(role.guild.roles, name=required_role)
+#                 required_role_discord = discord.utils._get(role.guild.roles, name=required_role)
 #                 if not required_role_discord:
 #                     req_worthy = False
 #                     req_data = {}
@@ -120,7 +120,7 @@ from ElevatorBot.static.globals import divider_legacy_role_id, role_ban_id
 #                 # only worthy if worthy for all required roles
 #                 worthy &= req_worthy
 #
-#                 # make sure the clears dont get overwridden
+#                 # make sure the clears dont _get overwridden
 #                 i = 0
 #                 while True:
 #                     i += 1
@@ -157,7 +157,7 @@ from ElevatorBot.static.globals import divider_legacy_role_id, role_ban_id
 #         (roles_to_add, roles_to_remove, all_roles_earned, all_roles_not_earned)
 #     """
 #
-#     # get all roles from the dict to check them later. asyncio.gather keeps order
+#     # _get all roles from the dict to check them later. asyncio.gather keeps order
 #     roles_to_check = [
 #         role
 #         for year, yeardata in requirementHashes.items()
@@ -180,7 +180,7 @@ from ElevatorBot.static.globals import divider_legacy_role_id, role_ban_id
 #     # ignore those, who don't exist in the specified discord guild and convert the strings to the actual discord roles.
 #     discord_roles_to_check = []
 #     for role in roles_to_check:
-#         discord_role = discord.utils.get(member.guild.roles, name=role)
+#         discord_role = discord.utils._get(member.guild.roles, name=role)
 #         if discord_role:
 #             discord_roles_to_check.append(discord_role)
 #
@@ -244,20 +244,20 @@ from ElevatorBot.static.globals import divider_legacy_role_id, role_ban_id
 #     for role_name in role_names_to_ignore:
 #         if role_name in requirement_hashes_without_years:
 #             if role_name in current_discord_roles:
-#                 all_roles_earned.append(discord.utils.get(member.guild.roles, name=role_name))
+#                 all_roles_earned.append(discord.utils._get(member.guild.roles, name=role_name))
 #             else:
 #                 all_roles_not_earned_name.append(role_name)
 #
 #     # ignore those, who don't exist in the specified discord guild and convert the strings to the actual discord roles.
 #     roles_to_remove = []
 #     for role in roles_to_remove_name:
-#         discord_role = discord.utils.get(member.guild.roles, name=role)
+#         discord_role = discord.utils._get(member.guild.roles, name=role)
 #         if discord_role:
 #             roles_to_remove.append(discord_role)
 #
 #     all_roles_not_earned = []
 #     for role in all_roles_not_earned_name:
-#         discord_role = discord.utils.get(member.guild.roles, name=role)
+#         discord_role = discord.utils._get(member.guild.roles, name=role)
 #         if discord_role:
 #             all_roles_not_earned.append(discord_role)
 #
@@ -269,15 +269,15 @@ from ElevatorBot.static.globals import divider_legacy_role_id, role_ban_id
 #     if not discordUser:
 #         return False
 #
-#     role_banned = discord.utils.get(
+#     role_banned = discord.utils._get(
 #         guild.roles, name="Role Banned"
-#     ) or discord.utils.get(guild.roles, id=role_ban_id)
+#     ) or discord.utils._get(guild.roles, id=role_ban_id)
 #     if role_banned in discordUser.roles:
 #         return False
 #
 #     for role in roleList:
 #         # print(guild.roles)
-#         roleObj = discord.utils.get(guild.roles, name=role) or discord.utils.get(
+#         roleObj = discord.utils._get(guild.roles, name=role) or discord.utils._get(
 #             guild.roles, id=role
 #         )
 #         if not roleObj:
@@ -304,7 +304,7 @@ from ElevatorBot.static.globals import divider_legacy_role_id, role_ban_id
 #
 # async def removeRolesFromUser(roleStringList, discordUser, guild, reason=None):
 #     for role in roleStringList:
-#         role_obj = discord.utils.get(guild.roles, name=role) or discord.utils.get(
+#         role_obj = discord.utils._get(guild.roles, name=role) or discord.utils._get(
 #             guild.roles, id=role
 #         )
 #         if role_obj is None and guild.id not in [

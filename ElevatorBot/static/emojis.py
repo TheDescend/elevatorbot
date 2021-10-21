@@ -23,6 +23,7 @@ class __ElevatorEmojis:
     lol: CustomEmoji | int = 756076309527920661
     eft: CustomEmoji | int = 800866459286503445
     minecraft: CustomEmoji | int = 860099796123123712
+    new_world: CustomEmoji | int = 900640805784522762
 
     warlock: CustomEmoji | int = 830747907488612402
     hunter: CustomEmoji | int = 830747907829006346

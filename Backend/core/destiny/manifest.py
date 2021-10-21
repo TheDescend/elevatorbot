@@ -3,10 +3,19 @@ import dataclasses
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.crud import destiny_manifest
-from Backend.database.models import DestinyActivityDefinition, DestinyActivityModeDefinition, DestinyActivityTypeDefinition, DestinyCollectibleDefinition, DestinyInventoryBucketDefinition, DestinyInventoryItemDefinition, DestinyPresentationNodeDefinition, DestinyRecordDefinition
+from Backend.database.models import (
+    DestinyActivityDefinition,
+    DestinyActivityModeDefinition,
+    DestinyActivityTypeDefinition,
+    DestinyCollectibleDefinition,
+    DestinyInventoryBucketDefinition,
+    DestinyInventoryItemDefinition,
+    DestinyPresentationNodeDefinition,
+    DestinyRecordDefinition,
+)
 from Backend.misc.helperFunctions import defaultdictify
-from Backend.networking.BungieRoutes import manifest_route
 from Backend.networking.bungieApi import BungieApi
+from Backend.networking.BungieRoutes import manifest_route
 
 
 @dataclasses.dataclass
@@ -24,7 +33,7 @@ class DestinyManifest:
     async def update(self):
         """Checks the local manifests versions and updates the local copy should it have changed"""
 
-        # get the manifest
+        # _get the manifest
         db_manifest = destiny_manifest
         manifest = await self.api.get(route=manifest_route)
 
@@ -40,7 +49,7 @@ class DestinyManifest:
                     # delete old data
                     await db_manifest.delete_definition(db=self.db, db_model=DestinyActivityDefinition)
 
-                    # get new data and save values as defaultdict
+                    # _get new data and save values as defaultdict
                     data = await self.api.get(f"https://www.bungie.net{url}")
                     content = defaultdictify(data.content)
 
@@ -72,7 +81,7 @@ class DestinyManifest:
                     # delete old data
                     await db_manifest.delete_definition(db=self.db, db_model=DestinyActivityTypeDefinition)
 
-                    # get new data and save values as defaultdict
+                    # _get new data and save values as defaultdict
                     data = await self.api.get(f"https://www.bungie.net{url}")
                     content = defaultdictify(data.content)
 
@@ -94,7 +103,7 @@ class DestinyManifest:
                     # delete old data
                     await db_manifest.delete_definition(db=self.db, db_model=DestinyActivityModeDefinition)
 
-                    # get new data and save values as defaultdict
+                    # _get new data and save values as defaultdict
                     data = await self.api.get(f"https://www.bungie.net{url}")
                     content = defaultdictify(data.content)
 
@@ -123,7 +132,7 @@ class DestinyManifest:
                     # delete old data
                     await db_manifest.delete_definition(db=self.db, db_model=DestinyCollectibleDefinition)
 
-                    # get new data and save values as defaultdict
+                    # _get new data and save values as defaultdict
                     data = await self.api.get(f"https://www.bungie.net{url}")
                     content = defaultdictify(data.content)
 
@@ -148,7 +157,7 @@ class DestinyManifest:
                     # delete old data
                     await db_manifest.delete_definition(db=self.db, db_model=DestinyInventoryItemDefinition)
 
-                    # get new data and save values as defaultdict
+                    # _get new data and save values as defaultdict
                     data = await self.api.get(f"https://www.bungie.net{url}")
                     content = defaultdictify(data.content)
 
@@ -175,7 +184,7 @@ class DestinyManifest:
                     # delete old data
                     await db_manifest.delete_definition(db=self.db, db_model=DestinyRecordDefinition)
 
-                    # get new data and save values as defaultdict
+                    # _get new data and save values as defaultdict
                     data = await self.api.get(f"https://www.bungie.net{url}")
                     content = defaultdictify(data.content)
 
@@ -202,7 +211,7 @@ class DestinyManifest:
                     # delete old data
                     await db_manifest.delete_definition(db=self.db, db_model=DestinyInventoryBucketDefinition)
 
-                    # get new data and save values as defaultdict
+                    # _get new data and save values as defaultdict
                     data = await self.api.get(f"https://www.bungie.net{url}")
                     content = defaultdictify(data.content)
 
@@ -227,7 +236,7 @@ class DestinyManifest:
                     # delete old data
                     await db_manifest.delete_definition(db=self.db, db_model=DestinyPresentationNodeDefinition)
 
-                    # get new data and save values as defaultdict
+                    # _get new data and save values as defaultdict
                     data = await self.api.get(f"https://www.bungie.net{url}")
                     content = defaultdictify(data.content)
 

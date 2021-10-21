@@ -12,7 +12,7 @@ from ElevatorBot.backendNetworking.dataLoading import (
 )
 from ElevatorBot.backendNetworking.destinyPlayer import DestinyPlayer
 from ElevatorBot.backendNetworking.formating import embed_message
-from ElevatorBot.backendNetworking.persistentMessages import (
+from ElevatorBot.backendNetworking.misc.backendPersistentMessages import (
     make_persistent_message,
     steamJoinCodeMessage,
 )
@@ -54,7 +54,7 @@ class AdminCommands(commands.Cog):
             embed=embed_message("Please wait...", "The results will be here in a second"),
         )
 
-        # get all clan members discordID
+        # _get all clan members discordID
         memberlist = []
         for member in (await get_json_from_url(f"https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/")).content[
             "Response"
@@ -402,227 +402,227 @@ class PersistentMessagesCommands(commands.Cog):
     def __init__(self, client):
         self.client = client
 
-    @cog_ext.cog_slash(
-        name="channel",
-        description="Make new / replace old persistent messages",
-        options=[
-            create_option(
-                name="channel_type",
-                description="The type of the channel",
-                option_type=3,
-                required=True,
-                choices=[
-                    create_choice(name="Clan Join Request", value="clanjoinrequest"),
-                    create_choice(name="Registration", value="registration"),
-                    create_choice(name="Other Game Roles", value="othergameroles"),
-                    create_choice(name="Steam Join Codes", value="steamjoincodes"),
-                    create_choice(name="Tournament", value="tournament"),
-                    create_choice(name="Member Count", value="membercount"),
-                    create_choice(name="Booster Count", value="boostercount"),
-                    create_choice(name="Looking For Group", value="lfg"),
-                    create_choice(name="LFG Voice Channel Category", value="lfgvoicecategory"),
-                    create_choice(name="Bot Status", value="botstatus"),
-                    create_choice(name="Increment Button", value="increment_button"),
-                    create_choice(name="Bungie RSS Feed", value="rss"),
-                ],
-            ),
-            create_option(
-                name="channel",
-                description="Which channel to the message should be in",
-                option_type=7,
-                required=True,
-            ),
-        ],
-        default_permission=False,
-        permissions=permissions_admin,
-    )
-    async def _channel(self, ctx: SlashContext, channel_type, channel):
-        if channel_type == "othergameroles":
-            embed = embed_message(f"Other Game Roles", "Select options to add / _delete the related roles")
-
-            components = [
-                manage_components.create_actionrow(
-                    manage_components.create_select(
-                        options=[
-                            manage_components.create_select_option(
-                                emoji=self.client.get_emoji(game_values["emoji_id"]),
-                                label=game_name,
-                                value=f"{game_name}|{game_values['role_id']}",
-                            )
-                            # Options for funStuff. Using the role id as value and emoji as emoji
-                            for game_name, game_values in other_game_roles.items()
-                        ],
-                        custom_id="other_game_roles",
-                        placeholder="Select options here",
-                        min_values=1,
-                        max_values=len(other_game_roles),
-                    )
-                ),
-            ]
-
-            await make_persistent_message(
-                self.client,
-                "otherGameRoles",
-                ctx.guild.id,
-                channel.id,
-                components=components,
-                message_embed=embed,
-            )
-
-        elif channel_type == "clanjoinrequest":
-            components = [
-                manage_components.create_actionrow(
-                    manage_components.create_button(
-                        custom_id="clan_join_request",
-                        style=ButtonStyle.blue,
-                        label="Click to Join the Clan",
-                    ),
-                ),
-            ]
-
-            await make_persistent_message(
-                self.client,
-                "clanJoinRequest",
-                ctx.guild.id,
-                channel.id,
-                components=components,
-                message_text="⁣",
-            )
-
-        elif channel_type == "registration":
-            components = [
-                manage_components.create_actionrow(
-                    manage_components.create_button(
-                        custom_id="registration",
-                        style=ButtonStyle.blue,
-                        label="Click to Connect your Destiny 2 Account",
-                    ),
-                ),
-            ]
-
-            await make_persistent_message(
-                self.client,
-                "registration",
-                ctx.guild.id,
-                channel.id,
-                components=components,
-                message_text="⁣",
-            )
-
-        elif channel_type == "increment_button":
-            components = [
-                manage_components.create_actionrow(
-                    manage_components.create_button(custom_id="increment_button", style=ButtonStyle.blue, label="0"),
-                ),
-            ]
-            embed = embed_message("Use the button to increase the count! Road to ram overflow!")
-
-            await make_persistent_message(
-                self.client,
-                "incrementButton",
-                ctx.guild.id,
-                channel.id,
-                components=components,
-                message_embed=embed,
-            )
-
-        elif channel_type == "steamjoincodes":
-            await make_persistent_message(
-                self.client,
-                "steamJoinCodes",
-                ctx.guild.id,
-                channel.id,
-                message_text="...",
-            )
-
-            # fill the empty message
-            await steamJoinCodeMessage(self.client, ctx.guild)
-
-        elif channel_type == "tournament":
-            text = """
-<:desc_title_left_b:768906489309822987><:desc_title_right_b:768906489729122344> **Welcome to the Tournament Channel!** <:desc_title_left_b:768906489309822987><:desc_title_mid_b:768906489103384657><:desc_title_mid_b:768906489103384657><:desc_title_right_b:768906489729122344>
-⁣
-On your command, I can start a private PvP tournament for all the masochist in the clan. You decide on details, such as rules, maps classes or anything else.
-⁣
-⁣
-<:desc_title_left_b:768906489309822987><:desc_title_right_b:768906489729122344> **Tutorial** <:desc_title_left_b:768906489309822987> <:desc_title_mid_b:768906489103384657><:desc_title_mid_b:768906489103384657><:desc_title_right_b:768906489729122344>
-:desc_circle_b: Create the tournament by using `/tournament _insert`. This will make a new message appear in this channel, to join the tournament, simply react to it.
-:desc_circle_b: Once everyone has signed up use `/tournament start` to start the tournament. I will generate a random bracket and assign player to funStuff.
-:desc_circle_b: Now you need to start a custom game with only the two chosen players in it and **finish it**. I will automatically detect the winner. Last man standing wins it all!
-⁣
-⁣"""
-
-            await make_persistent_message(
-                self.client,
-                "tournamentChannel",
-                ctx.guild.id,
-                channel.id,
-                message_text=text,
-            )
-
-        elif channel_type == "membercount":
-            await make_persistent_message(self.client, "memberCount", ctx.guild.id, channel.id, no_message=True)
-
-        elif channel_type == "boostercount":
-            await make_persistent_message(self.client, "boosterCount", ctx.guild.id, channel.id, no_message=True)
-
-        elif channel_type == "lfg":
-            await make_persistent_message(self.client, "lfg", ctx.guild.id, channel.id, no_message=True)
-
-            enter_emoji = ctx.bot.get_emoji(enter_emoji_id)
-            circle_emoji = ctx.bot.get_emoji(circle_emoji_id)
-            await channel.send(
-                embed=embed_message(
-                    "How to make an LFG post",
-                    f"""
-Hello fellow humans, and welcome to this easy, 465 steps, guide:
-⁣
-{str(circle_emoji)} **Step 1:**
-First, head to <#{bot_spam_channel_id}>, or really any other channel (although you ~~might~~ will get yelled at for that)
-⁣
-{str(circle_emoji)} **Step 2:**
-Then, use `/lfg _insert` and follow the instructions to make an event.
-Due to timezones sucking and there being at least 16789 of them, you might not find your own timezone in the list. In that case please use UTC and an online converter
-⁣
-{str(circle_emoji)} **Step 3-464:**
-Praise {ctx.bot.user.mention}!
-⁣
-{str(circle_emoji)} **Step 465:**
-After you made the LFG post, or if you just want to join an existing post, use the fancy buttons to interact with the event
-⁣
-⁣
-If you want to feel like an [expert](https://www.youtube.com/watch?v=BKorP55Aqvg), there are a bunch of additional commands you can use to interact with LFG events:
-{str(enter_emoji)} `/lfg _insert` - Create a new LFG event
-{str(enter_emoji)} `/lfg edit` - Edit parts of an LFG event
-{str(enter_emoji)} `/lfg _delete` - Remove the LFG event
-{str(enter_emoji)} `/lfg add` - Add a user to your own LFG event
-{str(enter_emoji)} `/lfg kick` - Kick a user from your own LFG event
-{str(enter_emoji)} `/lfg blacklist` - Blacklist a user from joining any of your own LFG events
-⁣
-⁣
-Basically just type `/lfg` and look around. There are many other cool commands too, so maybe just type `/`""",
-                    "If you find bugs or have feature requests, DM me",
-                )
-            )
-
-        elif channel_type == "botstatus":
-            embed = embed_message("Status: Last valid...")
-
-            await make_persistent_message(self.client, "botStatus", 1, channel.id, message_embed=embed)
-
-        elif channel_type == "lfgvoicecategory":
-            await make_persistent_message(
-                self.client,
-                "lfgVoiceCategory",
-                ctx.guild.id,
-                channel.id,
-                no_message=True,
-            )
-
-        elif channel_type == "rss":
-            await make_persistent_message(self.client, "rss", ctx.guild.id, channel.id, no_message=True)
-
-        await ctx.send(hidden=True, embed=embed_message(f"Success", f"I've done as you asked"))
+    #     @cog_ext.cog_slash(
+    #         name="channel",
+    #         description="Make new / replace old persistent messages",
+    #         options=[
+    #             create_option(
+    #                 name="channel_type",
+    #                 description="The type of the channel",
+    #                 option_type=3,
+    #                 required=True,
+    #                 choices=[
+    #                     create_choice(name="Clan Join Request", value="clanjoinrequest"),
+    #                     create_choice(name="Registration", value="registration"),
+    #                     create_choice(name="Other Game Roles", value="othergameroles"),
+    #                     create_choice(name="Steam Join Codes", value="steamjoincodes"),
+    #                     create_choice(name="Tournament", value="tournament"),
+    #                     create_choice(name="Member Count", value="membercount"),
+    #                     create_choice(name="Booster Count", value="boostercount"),
+    #                     create_choice(name="Looking For Group", value="lfg"),
+    #                     create_choice(name="LFG Voice Channel Category", value="lfgvoicecategory"),
+    #                     create_choice(name="Bot Status", value="botstatus"),
+    #                     create_choice(name="Increment Button", value="increment_button"),
+    #                     create_choice(name="Bungie RSS Feed", value="rss"),
+    #                 ],
+    #             ),
+    #             create_option(
+    #                 name="channel",
+    #                 description="Which channel to the message should be in",
+    #                 option_type=7,
+    #                 required=True,
+    #             ),
+    #         ],
+    #         default_permission=False,
+    #         permissions=permissions_admin,
+    #     )
+    #     async def _channel(self, ctx: SlashContext, channel_type, channel):
+    #         if channel_type == "othergameroles":
+    #             embed = embed_message(f"Other Game Roles", "Select options to add / _delete the related roles")
+    #
+    #             components = [
+    #                 manage_components.create_actionrow(
+    #                     manage_components.create_select(
+    #                         options=[
+    #                             manage_components.create_select_option(
+    #                                 emoji=self.client.get_emoji(game_values["emoji_id"]),
+    #                                 label=game_name,
+    #                                 value=f"{game_name}|{game_values['role_id']}",
+    #                             )
+    #                             # Options for funStuff. Using the role id as value and emoji as emoji
+    #                             for game_name, game_values in other_game_roles.items()
+    #                         ],
+    #                         custom_id="other_game_roles",
+    #                         placeholder="Select options here",
+    #                         min_values=1,
+    #                         max_values=len(other_game_roles),
+    #                     )
+    #                 ),
+    #             ]
+    #
+    #             await make_persistent_message(
+    #                 self.client,
+    #                 "otherGameRoles",
+    #                 ctx.guild.id,
+    #                 channel.id,
+    #                 components=components,
+    #                 message_embed=embed,
+    #             )
+    #
+    #         elif channel_type == "clanjoinrequest":
+    #             components = [
+    #                 manage_components.create_actionrow(
+    #                     manage_components.create_button(
+    #                         custom_id="clan_join_request",
+    #                         style=ButtonStyle.blue,
+    #                         label="Click to Join the Clan",
+    #                     ),
+    #                 ),
+    #             ]
+    #
+    #             await make_persistent_message(
+    #                 self.client,
+    #                 "clanJoinRequest",
+    #                 ctx.guild.id,
+    #                 channel.id,
+    #                 components=components,
+    #                 message_text="⁣",
+    #             )
+    #
+    #         elif channel_type == "registration":
+    #             components = [
+    #                 manage_components.create_actionrow(
+    #                     manage_components.create_button(
+    #                         custom_id="registration",
+    #                         style=ButtonStyle.blue,
+    #                         label="Click to Connect your Destiny 2 Account",
+    #                     ),
+    #                 ),
+    #             ]
+    #
+    #             await make_persistent_message(
+    #                 self.client,
+    #                 "registration",
+    #                 ctx.guild.id,
+    #                 channel.id,
+    #                 components=components,
+    #                 message_text="⁣",
+    #             )
+    #
+    #         elif channel_type == "increment_button":
+    #             components = [
+    #                 manage_components.create_actionrow(
+    #                     manage_components.create_button(custom_id="increment_button", style=ButtonStyle.blue, label="0"),
+    #                 ),
+    #             ]
+    #             embed = embed_message("Use the button to increase the count! Road to ram overflow!")
+    #
+    #             await make_persistent_message(
+    #                 self.client,
+    #                 "incrementButton",
+    #                 ctx.guild.id,
+    #                 channel.id,
+    #                 components=components,
+    #                 message_embed=embed,
+    #             )
+    #
+    #         elif channel_type == "steamjoincodes":
+    #             await make_persistent_message(
+    #                 self.client,
+    #                 "steamJoinCodes",
+    #                 ctx.guild.id,
+    #                 channel.id,
+    #                 message_text="...",
+    #             )
+    #
+    #             # fill the empty message
+    #             await steamJoinCodeMessage(self.client, ctx.guild)
+    #
+    #         elif channel_type == "tournament":
+    #             text = """
+    # <:desc_title_left_b:768906489309822987><:desc_title_right_b:768906489729122344> **Welcome to the Tournament Channel!** <:desc_title_left_b:768906489309822987><:desc_title_mid_b:768906489103384657><:desc_title_mid_b:768906489103384657><:desc_title_right_b:768906489729122344>
+    # ⁣
+    # On your command, I can start a private PvP tournament for all the masochist in the clan. You decide on details, such as rules, maps classes or anything else.
+    # ⁣
+    # ⁣
+    # <:desc_title_left_b:768906489309822987><:desc_title_right_b:768906489729122344> **Tutorial** <:desc_title_left_b:768906489309822987> <:desc_title_mid_b:768906489103384657><:desc_title_mid_b:768906489103384657><:desc_title_right_b:768906489729122344>
+    # :desc_circle_b: Create the tournament by using `/tournament _insert`. This will make a new message appear in this channel, to join the tournament, simply react to it.
+    # :desc_circle_b: Once everyone has signed up use `/tournament start` to start the tournament. I will generate a random bracket and assign player to funStuff.
+    # :desc_circle_b: Now you need to start a custom game with only the two chosen players in it and **finish it**. I will automatically detect the winner. Last man standing wins it all!
+    # ⁣
+    # ⁣"""
+    #
+    #             await make_persistent_message(
+    #                 self.client,
+    #                 "tournamentChannel",
+    #                 ctx.guild.id,
+    #                 channel.id,
+    #                 message_text=text,
+    #             )
+    #
+    #         elif channel_type == "membercount":
+    #             await make_persistent_message(self.client, "memberCount", ctx.guild.id, channel.id, no_message=True)
+    #
+    #         elif channel_type == "boostercount":
+    #             await make_persistent_message(self.client, "boosterCount", ctx.guild.id, channel.id, no_message=True)
+    #
+    #         elif channel_type == "lfg":
+    #             await make_persistent_message(self.client, "lfg", ctx.guild.id, channel.id, no_message=True)
+    #
+    #             enter_emoji = ctx.bot.get_emoji(enter_emoji_id)
+    #             circle_emoji = ctx.bot.get_emoji(circle_emoji_id)
+    #             await channel.send(
+    #                 embed=embed_message(
+    #                     "How to make an LFG post",
+    #                     f"""
+    # Hello fellow humans, and welcome to this easy, 465 steps, guide:
+    # ⁣
+    # {str(circle_emoji)} **Step 1:**
+    # First, head to <#{bot_spam_channel_id}>, or really any other channel (although you ~~might~~ will _get yelled at for that)
+    # ⁣
+    # {str(circle_emoji)} **Step 2:**
+    # Then, use `/lfg _insert` and follow the instructions to make an event.
+    # Due to timezones sucking and there being at least 16789 of them, you might not find your own timezone in the list. In that case please use UTC and an online converter
+    # ⁣
+    # {str(circle_emoji)} **Step 3-464:**
+    # Praise {ctx.bot.user.mention}!
+    # ⁣
+    # {str(circle_emoji)} **Step 465:**
+    # After you made the LFG post, or if you just want to join an existing post, use the fancy buttons to interact with the event
+    # ⁣
+    # ⁣
+    # If you want to feel like an [expert](https://www.youtube.com/watch?v=BKorP55Aqvg), there are a bunch of additional commands you can use to interact with LFG events:
+    # {str(enter_emoji)} `/lfg _insert` - Create a new LFG event
+    # {str(enter_emoji)} `/lfg edit` - Edit parts of an LFG event
+    # {str(enter_emoji)} `/lfg _delete` - Remove the LFG event
+    # {str(enter_emoji)} `/lfg add` - Add a user to your own LFG event
+    # {str(enter_emoji)} `/lfg kick` - Kick a user from your own LFG event
+    # {str(enter_emoji)} `/lfg blacklist` - Blacklist a user from joining any of your own LFG events
+    # ⁣
+    # ⁣
+    # Basically just type `/lfg` and look around. There are many other cool commands too, so maybe just type `/`""",
+    #                     "If you find bugs or have feature requests, DM me",
+    #                 )
+    #             )
+    #
+    #         elif channel_type == "botstatus":
+    #             embed = embed_message("Status: Last valid...")
+    #
+    #             await make_persistent_message(self.client, "botStatus", 1, channel.id, message_embed=embed)
+    #
+    #         elif channel_type == "lfgvoicecategory":
+    #             await make_persistent_message(
+    #                 self.client,
+    #                 "lfgVoiceCategory",
+    #                 ctx.guild.id,
+    #                 channel.id,
+    #                 no_message=True,
+    #             )
+    #
+    #         elif channel_type == "rss":
+    #             await make_persistent_message(self.client, "rss", ctx.guild.id, channel.id, no_message=True)
+    #
+    #         await ctx.send(hidden=True, embed=embed_message(f"Success", f"I've done as you asked"))
 
     # todo not needed
     @cog_ext.cog_slash(
@@ -635,7 +635,7 @@ Basically just type `/lfg` and look around. There are many other cool commands t
         print("Start updating DB...")
         message = await ctx.send("Forcing DB _update, this is gonna take a while. Will let you know once done")
 
-        # get all users the bot shares a guild with
+        # _get all users the bot shares a guild with
         to_update = []
         for guild in ctx.bot.guilds:
             for member in guild.members:

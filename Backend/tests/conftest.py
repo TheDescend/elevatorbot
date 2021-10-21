@@ -11,7 +11,6 @@ from Backend.database.base import get_async_session, is_test_mode, setup_engine
 from Backend.database.models import create_tables
 from Backend.main import app
 
-
 # enable test mode
 is_test_mode(set_test_mode=True)
 
@@ -40,7 +39,7 @@ async def init_db_tables():
     await create_tables(engine=setup_engine())
 
 
-# make it so that every function can get the client by just specifying it as a param
+# make it so that every function can _get the client by just specifying it as a param
 @pytest.fixture(scope="module")
 def client():
     with TestClient(app) as client:

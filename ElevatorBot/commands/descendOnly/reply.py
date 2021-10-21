@@ -24,7 +24,7 @@
 #             default_user_option("Which user to reply to"),
 #         ],
 #         default_permission=False,
-#         permissions=permissions_admin,
+#         permissions=permissions_admin, scope=COMMAND_GUILD_SCOPE
 #     )
 #     async def _reply(self, ctx: SlashContext, message: str, user=None):
 #         pass

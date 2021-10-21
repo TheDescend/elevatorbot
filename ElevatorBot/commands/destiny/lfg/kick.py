@@ -1,8 +1,10 @@
-from dis_snek.models import InteractionContext
-from dis_snek.models import Member
-from dis_snek.models import OptionTypes
-from dis_snek.models import slash_option
-from dis_snek.models import sub_command
+from dis_snek.models import (
+    InteractionContext,
+    Member,
+    OptionTypes,
+    slash_option,
+    sub_command,
+)
 
 from ElevatorBot.backendNetworking.results import BackendResult
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
@@ -38,7 +40,7 @@ class LfgKick(BaseScale):
         else:
             embed = embed_message(
                 "Error",
-                f"{user.display_name} could not be _delete from the LFG post with the id `{lfg_id}`, because they are not in it",
+                f"{user.display_name} could not be deleted from the LFG post with the id `{lfg_id}`, because they are not in it",
             )
 
         await ctx.send(ephemeral=True, embeds=embed)

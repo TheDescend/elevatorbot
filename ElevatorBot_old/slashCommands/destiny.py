@@ -11,44 +11,31 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from discord.ext import commands
-from discord_slash import cog_ext, SlashContext, ComponentContext
+from discord_slash import ComponentContext, SlashContext, cog_ext
 from discord_slash.utils import manage_components
-from discord_slash.utils.manage_commands import create_option, create_choice
+from discord_slash.utils.manage_commands import create_choice, create_option
 from pyvis.network import Network
 
-from ElevatorBot.database.database import (
-    getForges,
-    getLastActivity,
-    getDestinyDefinition,
-    getWeaponInfo,
-    getPgcrActivity,
-    getTopWeapons,
-    getActivityHistory,
-    getPgcrActivitiesUsersStats,
-    getClearCount,
-    get_d2_steam_player_info,
-    getTimePlayed,
-)
 from ElevatorBot.backendNetworking.authfunctions import getSpiderMaterials
 from ElevatorBot.backendNetworking.dataLoading import (
-    searchForItem,
     getClanMembers,
+    searchForItem,
     translateWeaponSlot,
 )
 from ElevatorBot.backendNetworking.dataTransformation import getSeasonalChallengeInfo
 from ElevatorBot.backendNetworking.destinyPlayer import DestinyPlayer
 from ElevatorBot.backendNetworking.formating import embed_message
-from ElevatorBot.backendNetworking.miscFunctions import (
-    get_emoji,
-    write_line,
-    has_elevated_permissions,
-    check_if_mutually_exclusive,
-    convert_expansion_or_season_dates,
-)
-from ElevatorBot.backendNetworking.persistentMessages import (
+from ElevatorBot.backendNetworking.misc.backendPersistentMessages import (
+    delete_persistent_message,
     get_persistent_message_or_channel,
     make_persistent_message,
-    delete_persistent_message,
+)
+from ElevatorBot.backendNetworking.miscFunctions import (
+    check_if_mutually_exclusive,
+    convert_expansion_or_season_dates,
+    get_emoji,
+    has_elevated_permissions,
+    write_line,
 )
 from ElevatorBot.backendNetworking.slashCommandFunctions import (
     get_user_obj,
@@ -56,32 +43,35 @@ from ElevatorBot.backendNetworking.slashCommandFunctions import (
     verify_time_input,
 )
 from ElevatorBot.backendNetworking.tournament import startTournamentEvents
+from ElevatorBot.database.database import (
+    get_d2_steam_player_info,
+    getActivityHistory,
+    getClearCount,
+    getDestinyDefinition,
+    getForges,
+    getLastActivity,
+    getPgcrActivitiesUsersStats,
+    getPgcrActivity,
+    getTimePlayed,
+    getTopWeapons,
+    getWeaponInfo,
+)
 from ElevatorBot.networking.network import get_json_from_url
 from ElevatorBot.static.config import CLANID
 from ElevatorBot.static.dict import (
-    raidHashes,
-    gmHashes,
     expansion_dates,
-    season_dates,
-    zeroHashes,
-    herzeroHashes,
-    whisperHashes,
-    herwhisperHashes,
-    presageHashes,
-    presageMasterHashes,
-    prophHashes,
-    pitHashes,
-    throneHashes,
-    harbHashes,
+    gmHashes,
+    raidHashes,
     requirementHashes,
+    season_dates,
 )
 from ElevatorBot.static.globals import (
-    titan_emoji_id,
-    hunter_emoji_id,
-    warlock_emoji_id,
-    light_level_icon_emoji_id,
-    tournament,
     enter_emoji_id,
+    hunter_emoji_id,
+    light_level_icon_emoji_id,
+    titan_emoji_id,
+    tournament,
+    warlock_emoji_id,
 )
 from ElevatorBot.static.slashCommandOptions import (
     choices_mode,
@@ -140,7 +130,7 @@ class DestinyCommands(commands.Cog):
     #         "Grandmaster Nightfalls": gmHashes,
     #     }
     #
-    #     # get the return text in a gather
+    #     # _get the return text in a gather
     #     interesting_solos_texts = await asyncio.gather(
     #         *[
     #             self.get_formatted_solos_data(
@@ -217,7 +207,7 @@ class DestinyCommands(commands.Cog):
             f"**Total:** {str(datetime.timedelta(seconds=await getTimePlayed(**args)))} \n**PvE:** {str(datetime.timedelta(seconds=await getTimePlayed(**args, mode=7)))} \n**PvP:** {str(datetime.timedelta(seconds=await getTimePlayed(**args, mode=5)))}",
         )
 
-        # init the dict where the results get saved
+        # init the dict where the results _get saved
         results = {}
 
         # loop through the seasons
@@ -231,7 +221,7 @@ class DestinyCommands(commands.Cog):
                 "PvP": 0,
             }
 
-            # get the next seasons start time as the cutoff or now if its the current season
+            # _get the next seasons start time as the cutoff or now if its the current season
             try:
                 next_season_date = self.season_and_expansion_dates[(self.season_and_expansion_dates.index(season) + 1)][
                     0
@@ -251,7 +241,7 @@ class DestinyCommands(commands.Cog):
             for mode_name, mode in {"Total": None, "PvE": 7, "PvP": 5}.items():
                 args.update({"mode": mode})
 
-                # actually get time played now, using the definied args
+                # actually _get time played now, using the definied args
                 time_played = await getTimePlayed(**args)
                 results[season_name].update({mode_name: time_played})
 
@@ -367,7 +357,7 @@ class DestinyCommands(commands.Cog):
         # might take a sec
         await ctx.defer()
 
-        # get data for the mode specified
+        # _get data for the mode specified
         await destiny_player.update_activity_db()
         data = await getLastActivity(
             destiny_player.destiny_id,
@@ -420,14 +410,14 @@ class DestinyCommands(commands.Cog):
         if not destiny_player:
             return
 
-        # get seasonal challenge info
+        # _get seasonal challenge info
         seasonal_challenges = await getSeasonalChallengeInfo()
         start = list(seasonal_challenges)[0]
 
-        # get player triumphs
+        # _get player triumphs
         user_triumphs = await destiny_player.get_triumphs()
 
-        # get select components
+        # _get select components
         components = [
             manage_components.create_actionrow(
                 manage_components.create_select(
@@ -559,7 +549,7 @@ class DestinyCommands(commands.Cog):
             return
         anyCharID = list(await destiny_player.get_character_info())[0]
 
-        # get and send spider inv
+        # _get and send spider inv
         materialtext = await getSpiderMaterials(destiny_player.discord_id, destiny_player.destiny_id, anyCharID)
         if "embed" in materialtext:
             await ctx.send(embed=materialtext["embed"])
@@ -576,7 +566,7 @@ class DestinyCommands(commands.Cog):
     # async def _destiny(self, ctx: SlashContext, **kwargs):
     #     await ctx.defer()
     #
-    #     # get basic user data
+    #     # _get basic user data
     #     user = await get_user_obj(ctx, kwargs)
     #     destiny_player = await DestinyPlayer.from_discord_id(user.id, ctx=ctx)
     #     if not destiny_player:
@@ -584,7 +574,7 @@ class DestinyCommands(commands.Cog):
     #
     #     heatmap_url = f"https://chrisfried.github.io/secret-scrublandeux/guardian/{destiny_player.system}/{destiny_player.destiny_id}"
     #
-    #     # get character infos
+    #     # _get character infos
     #     characters = await destiny_player.get_character_info()
     #
     #     character_playtime = {}  # in seconds
@@ -612,7 +602,7 @@ class DestinyCommands(commands.Cog):
     #     """ triumph info field """
     #     embed.add_field(name="⁣", value=f"__**Triumphs:**__", inline=False)
     #
-    #     # get triumph data
+    #     # _get triumph data
     #     triumphs = await destiny_player.get_triumphs()
     #     embed.add_field(
     #         name="Lifetime Triumph Score",
@@ -630,7 +620,7 @@ class DestinyCommands(commands.Cog):
     #         inline=True,
     #     )
     #
-    #     # get triumph completion rate
+    #     # _get triumph completion rate
     #     triumphs_data = triumphs["profileRecords"]["data"]["records"]
     #     triumphs_completed = 0
     #     triumphs_no_data = 0
@@ -653,7 +643,7 @@ class DestinyCommands(commands.Cog):
     #         inline=True,
     #     )
     #
-    #     # get seal completion rate
+    #     # _get seal completion rate
     #     total_seals, completed_seals = await destiny_player.get_player_seals()
     #     embed.add_field(
     #         name="Seals",
@@ -671,7 +661,7 @@ class DestinyCommands(commands.Cog):
         options=[options_stat, options_user()],
     )
     async def _stat_everything(self, ctx: SlashContext, **kwargs):
-        # get basic user data
+        # _get basic user data
         user = await get_user_obj(ctx, kwargs)
         destiny_player = await DestinyPlayer.from_discord_id(user.id, ctx=ctx)
         if not destiny_player:
@@ -680,7 +670,7 @@ class DestinyCommands(commands.Cog):
         # might take a sec
         await ctx.defer()
 
-        # get stat
+        # _get stat
         stat = await destiny_player.get_stat_value(kwargs["name"])
         await ctx.send(
             embed=embed_message(
@@ -697,7 +687,7 @@ class DestinyCommands(commands.Cog):
         options=[options_stat, options_user()],
     )
     async def _stat_pve(self, ctx: SlashContext, **kwargs):
-        # get basic user data
+        # _get basic user data
         user = await get_user_obj(ctx, kwargs)
         destiny_player = await DestinyPlayer.from_discord_id(user.id, ctx=ctx)
         if not destiny_player:
@@ -706,7 +696,7 @@ class DestinyCommands(commands.Cog):
         # might take a sec
         await ctx.defer()
 
-        # get stat
+        # _get stat
         stat = await destiny_player.get_stat_value(kwargs["name"], stat_category="allPvE")
         await ctx.send(
             embed=embed_message(
@@ -723,7 +713,7 @@ class DestinyCommands(commands.Cog):
         options=[options_stat, options_user()],
     )
     async def _stat_pvp(self, ctx: SlashContext, **kwargs):
-        # get basic user data
+        # _get basic user data
         user = await get_user_obj(ctx, kwargs)
         destiny_player = await DestinyPlayer.from_discord_id(user.id, ctx=ctx)
         if not destiny_player:
@@ -732,7 +722,7 @@ class DestinyCommands(commands.Cog):
         # might take a sec
         await ctx.defer()
 
-        # get stat
+        # _get stat
         stat = await destiny_player.get_stat_value(kwargs["name"], stat_category="allPvP")
         await ctx.send(
             embed=embed_message(
@@ -782,7 +772,7 @@ class ClanActivitiesCommands(commands.Cog):
         if not destiny_player:
             return
 
-        # get params
+        # _get params
         mode = int(kwargs["mode"]) if "mode" in kwargs else None
         start_time = (
             await verify_time_input(ctx, kwargs["starttime"])
@@ -798,7 +788,7 @@ class ClanActivitiesCommands(commands.Cog):
         # this might take a sec
         await ctx.defer()
 
-        # get clanmembers
+        # _get clanmembers
         self.clan_members = await getClanMembers(self.client)
         self.activities_from_user_who_got_looked_at = {}
         self.friends = {}
@@ -907,7 +897,7 @@ class ClanActivitiesCommands(commands.Cog):
     async def _return_activities(self, destinyID, mode, start_time, end_time):
         destinyID = int(destinyID)
 
-        # get all activities
+        # _get all activities
         activities = await getActivityHistory(destinyID, mode=mode, start_time=start_time, end_time=end_time)
 
         list_of_activities = []
@@ -920,7 +910,7 @@ class ClanActivitiesCommands(commands.Cog):
         # list in which the connections are saved
         friends = []
 
-        # get instance id info
+        # _get instance id info
         data = await getPgcrActivitiesUsersStats(instanceID)
         for player in data:
             friendID = player[1]
@@ -1254,7 +1244,7 @@ class RankCommands(commands.Cog):
             return None
         name = discord_member.display_name
 
-        # get the stat that we are looking for
+        # _get the stat that we are looking for
         if stat == "discordjoindate":
             sort_by_ascending = True
             leaderboard_text = "Top Clanmembers by Discord Join Date"
@@ -1682,7 +1672,7 @@ class WeaponCommands(commands.Cog):
         if not destiny_player:
             return
 
-        # get other params
+        # _get other params
         (
             stat,
             graph,
@@ -1695,7 +1685,7 @@ class WeaponCommands(commands.Cog):
         if not stat:
             return
 
-        # get weapon info
+        # _get weapon info
         weapon_name, weapon_hashes = await searchForItem(ctx, kwargs["weapon"])
         if not weapon_name:
             return
@@ -1703,10 +1693,10 @@ class WeaponCommands(commands.Cog):
         # _update user db
         await destiny_player.update_activity_db()
 
-        # get the char class if that is asked for
+        # _get the char class if that is asked for
         charID = await destiny_player.get_character_id_by_class(character_class) if character_class else None
 
-        # get all weapon infos
+        # _get all weapon infos
         kwargs = {
             "characterID": charID,
             "mode": mode,
@@ -1733,7 +1723,7 @@ class WeaponCommands(commands.Cog):
 
         # either text
         if not graph:
-            # get data
+            # _get data
             kills = 0
             precision_kills = 0
             max_kills = 0
@@ -1778,14 +1768,14 @@ class WeaponCommands(commands.Cog):
 
         # or do a graph
         else:
-            # get the time instead of the instance id and sort it so the earliest date is first
+            # _get the time instead of the instance id and sort it so the earliest date is first
             weapon_hashes = []
             for instanceID, uniqueweaponkills, uniqueweaponprecisionkills in result:
                 instance_time = (await getPgcrActivity(instanceID))[3]
                 weapon_hashes.append((instance_time, uniqueweaponkills, uniqueweaponprecisionkills))
             weapon_hashes = sorted(weapon_hashes, key=lambda x: x[0])
 
-            # get clean, relevant data in a DF. easier for the graph later
+            # _get clean, relevant data in a DF. easier for the graph later
             df = pd.DataFrame(columns=["datetime", "statistic"])
             name = ""
             statistic1 = 0
@@ -1951,7 +1941,7 @@ class WeaponCommands(commands.Cog):
         if not destiny_player:
             return
 
-        # get other params
+        # _get other params
         (
             stat,
             _,
@@ -1964,7 +1954,7 @@ class WeaponCommands(commands.Cog):
         if not stat:
             return
 
-        # get the real weapon name if that param is given
+        # _get the real weapon name if that param is given
         weapon_name = None
         if "weapon" in kwargs:
             weapon_name, weapon_id = await searchForItem(ctx, kwargs["weapon"])
@@ -1979,10 +1969,10 @@ class WeaponCommands(commands.Cog):
         # _update user db
         await destiny_player.update_activity_db()
 
-        # get the char class if that is asked for
+        # _get the char class if that is asked for
         charID = await destiny_player.get_character_id_by_class(character_class) if character_class else None
 
-        # get all weaponID infos
+        # _get all weaponID infos
         kwargs = {
             "characterID": charID,
             "mode": mode,
@@ -2243,7 +2233,7 @@ class WeaponCommands(commands.Cog):
         # might take a sec
         await ctx.defer()
 
-        # loop through all users and get their stats
+        # loop through all users and _get their stats
         clan_members = await getClanMembers(self.client)
         result = await asyncio.gather(
             *[
@@ -2280,7 +2270,7 @@ class WeaponCommands(commands.Cog):
         # loop through the slots and write the text
         emoji = self.client.get_emoji(enter_emoji_id)
         for slot, weapons in weapons_by_slot.items():
-            # sort it and only get the first 8 slots
+            # sort it and only _get the first 8 slots
             sorted_weapons = dict(sorted(weapons.items(), key=lambda x: x[1], reverse=True)[:8])
 
             # loop through the top
@@ -2312,10 +2302,10 @@ class WeaponCommands(commands.Cog):
         endtime,
         character_class,
     ):
-        # get character id if asked for
+        # _get character id if asked for
         charID = await destiny_player.get_character_id_by_class(character_class) if character_class else None
 
-        # get all weapon kills
+        # _get all weapon kills
         kwargs = {
             "characterID": charID,
             "mode": mode,
@@ -2353,7 +2343,7 @@ class TournamentCommands(commands.Cog):
             )
             return
 
-        # get the tourn channel id
+        # _get the tourn channel id
         channel = (await get_persistent_message_or_channel(self.client, "tournamentChannel", ctx.guild.id)).channel
 
         # make registration message
@@ -2411,7 +2401,7 @@ class TournamentCommands(commands.Cog):
             )
             return
 
-        # check that at least two people (3, since bot counts too) have reacted and get the users
+        # check that at least two people (3, since bot counts too) have reacted and _get the users
         for reaction in message.reactions:
             if reaction.emoji.id in tournament:
                 if reaction.count < 3:

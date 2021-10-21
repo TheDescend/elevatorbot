@@ -2,10 +2,11 @@ import datetime
 import logging
 import traceback
 
-from dis_snek.models import ComponentContext
-from dis_snek.models import InteractionContext
+from dis_snek.models import ComponentContext, InteractionContext
 
 from ElevatorBot.misc.formating import embed_message
+
+elevator_permission_bits = 536299961937
 
 
 def get_now_with_tz() -> datetime.datetime:

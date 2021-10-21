@@ -1,11 +1,10 @@
 import matplotlib
 
-
 matplotlib.use("Agg")
 
 from ElevatorBot.backendNetworking.dataLoading import get_pgcr, getNameToHashMapByClanid
-from ElevatorBot.static.dict import clanids, seasonalChallengesCategoryHash
 from ElevatorBot.database.database import getEverything, getEverythingRow
+from ElevatorBot.static.dict import clanids, seasonalChallengesCategoryHash
 
 
 async def getSeasonalChallengeInfo():
@@ -31,14 +30,14 @@ async def getSeasonalChallengeInfo():
     }
     """
 
-    # get categories
+    # _get categories
     seasonal_challenges = {}
     r1 = await getEverythingRow("DestinyPresentationNodeDefinition", referenceId=seasonalChallengesCategoryHash)
     # loop through those categories and use the "Weekly" one
     for category_hash1 in r1["childrenpresentationnodehash"]:
         async for r2 in getEverything("DestinyPresentationNodeDefinition", referenceId=category_hash1):
             if r2["name"] == "Weekly":
-                # get the info for those hashes = {name: [hash]}
+                # _get the info for those hashes = {name: [hash]}
                 for category_hash2 in r2["childrenpresentationnodehash"]:
                     r3 = await getEverythingRow("DestinyPresentationNodeDefinition", referenceId=category_hash2)
                     referenceIDs = r3["childrenrecordhash"]

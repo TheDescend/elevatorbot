@@ -4,12 +4,11 @@ import random
 from typing import Union
 
 import discord
-from discord_slash import SlashContext, ComponentContext
-from discord_slash.model import SlashMessage, ButtonStyle
+from discord_slash import ComponentContext, SlashContext
+from discord_slash.model import ButtonStyle, SlashMessage
 from discord_slash.utils import manage_components
 
 from ElevatorBot.backendNetworking.formating import embed_message
-
 
 # @dataclasses.dataclass()
 # class Calculator:
@@ -331,7 +330,7 @@ class TicTacToeGame:
         else:
             best = [-1, -1, 1000]
 
-        # get the winner
+        # _get the winner
         has_ended = self.is_end()
         if has_ended:
             # player won
@@ -463,7 +462,7 @@ class TicTacToeGame:
                 "9": [2, 2],
             }
 
-            # get the move from the button id
+            # _get the move from the button id
             player_move = moves[button_ctx.component_id]
 
             # set the symbol
@@ -576,7 +575,7 @@ class TicTacToeGame:
             )
             self.message = await self.ctx.send(components=self.buttons, embed=embed)
         else:
-            # get the embed
+            # _get the embed
             embed = self.message.embeds[0]
 
             # check if message reason is a timeout

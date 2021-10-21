@@ -6,18 +6,17 @@ from Backend.dependencies import get_db_session
 from Backend.schemas.elevatorInfo import ElevatorGuildModel, ElevatorGuildsModel
 from Backend.schemas.empty import EmptyResponseModel
 
-
 router = APIRouter(
     prefix="/elevator",
     tags=["elevator"],
 )
 
 
-@router.get("/discordServers/get", response_model=ElevatorGuildsModel)
+@router.get("/discordServers/_get", response_model=ElevatorGuildsModel)
 async def get_discord_servers(db: AsyncSession = Depends(get_db_session)):
     """Saves a bungie token"""
 
-    results = await elevator_servers.get(db)
+    results = await elevator_servers._get(db)
     return ElevatorGuildsModel(guilds=[ElevatorGuildModel.from_orm(result) for result in results])
 
 

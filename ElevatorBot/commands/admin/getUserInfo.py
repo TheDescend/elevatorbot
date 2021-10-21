@@ -1,8 +1,10 @@
-from dis_snek.models import InteractionContext
-from dis_snek.models import Member
-from dis_snek.models import OptionTypes
-from dis_snek.models import slash_command
-from dis_snek.models import slash_option
+from dis_snek.models import (
+    InteractionContext,
+    Member,
+    OptionTypes,
+    slash_command,
+    slash_option,
+)
 
 from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
 from ElevatorBot.backendNetworking.destiny.clan import DestinyClan
@@ -26,11 +28,7 @@ class UserInfo(BaseScale):
         name="fuzzy_name", description="If you know how the user is called", required=False, opt_type=OptionTypes.STRING
     )
     async def _user_info(
-        self,
-        ctx: InteractionContext,
-        discord_user: Member = None,
-        destiny_id: str = None,
-        fuzzy_name: str = None,
+        self, ctx: InteractionContext, discord_user: Member = None, destiny_id: str = None, fuzzy_name: str = None
     ):
         # make sure exactly one arg was chosen
         if (

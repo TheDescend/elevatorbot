@@ -1,12 +1,3 @@
-import datetime
-
-from ElevatorBot.database.database import update_d2_steam_players
-from ElevatorBot.events.baseEvent import BaseEvent
-from ElevatorBot.backendNetworking.persistentMessages import bot_status
-from ElevatorBot.networking.network import get_json_from_url
-from ElevatorBot.static.config import STEAM_TOKEN
-
-
 # class getCurrentSteamPlayers(BaseEvent):
 #     def __init__(self):
 #         interval_minutes = 60  # Set the interval for this event
@@ -17,7 +8,7 @@ from ElevatorBot.static.config import STEAM_TOKEN
 #     async def run(self, client):
 #         now = datetime.date.today()
 #
-#         # get current amount of players
+#         # _get current amount of players
 #         rep = await get_json_from_url(
 #             url="https://api.steampowered.com/ISteamUserStats/GetNumberOfCurrentPlayers/v1/",
 #             headers={"X-API-Key": STEAM_TOKEN},

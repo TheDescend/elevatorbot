@@ -9,7 +9,6 @@ from Backend.crud.base import CRUDBase
 from Backend.database.base import Base
 from Backend.database.models import DestinyRecordDefinition
 
-
 ModelType = TypeVar("ModelType", bound=Base)
 
 
@@ -24,7 +23,7 @@ class CRUDManifest(CRUDBase):
     async def get_version(db: AsyncSession):
         """Get the current version"""
 
-        return await versions.get(db=db, name="Manifest")
+        return await versions._get(db=db, name="Manifest")
 
     @staticmethod
     async def upsert_version(db: AsyncSession, version: str):
@@ -53,10 +52,14 @@ class CRUDManifest(CRUDBase):
     async def get_seals(self, db: AsyncSession) -> list[Seal]:
         """Get all current seals"""
 
-        # reference ids which should not get returned here
+        # reference ids which should not _get returned here
         not_available = []
 
-        query = select(DestinyRecordDefinition).filter(DestinyRecordDefinition.has_title).filter(not_(DestinyRecordDefinition.has_title.in_(not_available)))
+        query = (
+            select(DestinyRecordDefinition)
+            .filter(DestinyRecordDefinition.has_title)
+            .filter(not_(DestinyRecordDefinition.has_title.in_(not_available)))
+        )
 
         result = await self._execute_query(db=db, query=query)
         return [Seal(**row) for row in result.scalars().fetchall()]

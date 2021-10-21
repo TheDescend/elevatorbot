@@ -1,20 +1,17 @@
-from datetime import datetime, timedelta
-from typing import Optional
 import os
 import secrets
+from datetime import datetime, timedelta
+from typing import Optional
 
 from fastapi import HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-
-from passlib.context import CryptContext
 from jose import jwt
+from passlib.context import CryptContext
 
 from Backend.database.models import BackendUser
 
-
 # defining algorithms
 from Backend.misc.helperFunctions import get_now_with_tz
-
 
 _SECRET_KEY = None
 ALGORITHM = "HS256"
@@ -26,7 +23,7 @@ CREDENTIALS_EXCEPTION = HTTPException(
 )
 
 
-# get the secret key from a file if exists, otherwise generate one
+# _get the secret key from a file if exists, otherwise generate one
 def get_secret_key():
     global _SECRET_KEY
 

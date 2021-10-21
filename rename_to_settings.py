@@ -1,5 +1,9 @@
 # Fill out these settings, then rename the file to "settings.py" before running the app
 
+# This should be a list of guild_ids
+# Some commands are only visible in the guilds you define here
+COMMAND_GUILD_SCOPE: list[int] = []
+
 # This setting enables additional console log and print statements
 # Default: False
 ENABLE_DEBUG_MODE: bool = False

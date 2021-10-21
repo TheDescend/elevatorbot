@@ -25,7 +25,7 @@ def test_get_access_token(client: TestClient):
         "password": password,
     }
 
-    # do we get a token
+    # do we _get a token
     r = client.post("/auth/token", data=login_data)
     tokens = r.json()
     assert r.status_code == 200

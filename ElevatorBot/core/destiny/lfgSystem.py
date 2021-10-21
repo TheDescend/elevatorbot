@@ -7,24 +7,25 @@ from typing import Optional
 
 from apscheduler.jobstores.base import JobLookupError
 from dis_snek.client import Snake
-from dis_snek.errors import Forbidden
-from dis_snek.errors import NotFound
-from dis_snek.models import ActionRow
-from dis_snek.models import Button
-from dis_snek.models import ButtonStyles
-from dis_snek.models import ComponentContext
-from dis_snek.models import Embed
-from dis_snek.models import Guild
-from dis_snek.models import GuildCategory
-from dis_snek.models import GuildChannel
-from dis_snek.models import GuildText
-from dis_snek.models import GuildVoice
-from dis_snek.models import InteractionContext
-from dis_snek.models import Member
-from dis_snek.models import Message
-from dis_snek.models import OverwriteTypes
-from dis_snek.models import PermissionOverwrite
-from dis_snek.models import Permissions
+from dis_snek.errors import Forbidden, NotFound
+from dis_snek.models import (
+    ActionRow,
+    Button,
+    ButtonStyles,
+    ComponentContext,
+    Embed,
+    Guild,
+    GuildCategory,
+    GuildChannel,
+    GuildText,
+    GuildVoice,
+    InteractionContext,
+    Member,
+    Message,
+    OverwriteTypes,
+    PermissionOverwrite,
+    Permissions,
+)
 
 from ElevatorBot.backendNetworking.destiny.lfgSystem import DestinyLfgSystem
 from ElevatorBot.backendNetworking.results import BackendResult
@@ -32,8 +33,7 @@ from ElevatorBot.backgroundEvents import scheduler
 from ElevatorBot.misc.formating import embed_message
 from ElevatorBot.misc.helperFunctions import get_now_with_tz
 from ElevatorBot.static.emojis import custom_emojis
-from ElevatorBot.static.schemas import LfgInputData
-from ElevatorBot.static.schemas import LfgUpdateData
+from ElevatorBot.static.schemas import LfgInputData, LfgUpdateData
 
 
 @dataclasses.dataclass()
@@ -419,7 +419,7 @@ class LfgMessage:
     async def __sort_lfg_messages(self):
         """sort all the lfg messages in the guild by start_time"""
 
-        # get all lfg ids
+        # _get all lfg ids
         results = await self.backend.get_all()
         if results:
             events = results.result["events"]
@@ -428,7 +428,7 @@ class LfgMessage:
             if len(events) <= 1:
                 return
 
-            # get three lists:
+            # _get three lists:
             # a list with the current message objs (sorted by asc creation date)
             # a list with the creation_time
             # and a list with the LfgMessage objs

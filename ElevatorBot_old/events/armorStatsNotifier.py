@@ -1,13 +1,3 @@
-import datetime
-
-from ElevatorBot.database.database import getDestinyDefinition
-from ElevatorBot.events.baseEvent import BaseEvent
-from ElevatorBot.backendNetworking.authfunctions import getVendorData
-from ElevatorBot.backendNetworking.destinyPlayer import DestinyPlayer
-from ElevatorBot.backendNetworking.formating import embed_message
-from ElevatorBot.backendNetworking.persistentMessages import bot_status
-
-
 # class ArmorStatsNotifier(BaseEvent):
 #     """Every week, this checks the vendor rolls and dms people if they signed up for that"""
 #
@@ -99,7 +89,7 @@ from ElevatorBot.backendNetworking.persistentMessages import bot_status
 #             2: "Warlock",
 #         }
 #
-#         # get ids for lookups, using kigstn's data for this one
+#         # _get ids for lookups, using kigstn's data for this one
 #         destiny_player = await DestinyPlayer.from_discord_id(238388130581839872)
 #         characters = await destiny_player.get_character_info()
 #
@@ -394,7 +384,7 @@ from ElevatorBot.backendNetworking.persistentMessages import bot_status
 #             if user:
 #                 await user.send(f"Gunsmith is selling {mod_name}!")
 #
-#         # get ids for lookups, using kigstn's data for this one
+#         # _get ids for lookups, using kigstn's data for this one
 #         destiny_player = await DestinyPlayer.from_discord_id(238388130581839872)
 #         characters = await destiny_player.get_character_info()
 #

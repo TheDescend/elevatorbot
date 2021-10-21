@@ -13,6 +13,7 @@
 #         description="Starts the Day One raid completion announcer",
 #         default_permission=False,
 #         permissions=permissions_kigstn,
+#         scope=COMMAND_GUILD_SCOPE
 #     )
 #     async def _day1race(self, ctx: SlashContext):
 #         pass

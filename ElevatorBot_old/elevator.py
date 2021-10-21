@@ -64,7 +64,7 @@ from static.globals import (
 
 from settings import SYNC_COMMANDS
 
-# vital, do not _delete. Otherwise no events get loaded
+# vital, do not _delete. Otherwise no events _get loaded
 
 
 # to enable the on_member_add and on_member_remove
@@ -105,7 +105,7 @@ def aiohttp_server(discord_client):
 
             data_url = "%s/users/@me" % api_url
             print("requesting data...")
-            data_request = requests.get(data_url, headers={"Authorization": f"Bearer {access_token}"})
+            data_request = requests._get(data_url, headers={"Authorization": f"Bearer {access_token}"})
             user_data = data_request.json()
             user_id = user_data["id"]
             user_name = user_data["username"]
@@ -773,7 +773,7 @@ def main():
     # handle lfg messages
     @slash.component_callback()
     async def lfg_join(ctx: ComponentContext):
-        # get the lfg message
+        # _get the lfg message
         lfg_message = await get_lfg_message(client=ctx.bot, lfg_message_id=ctx.origin_message.id, guild=ctx.guild)
         if not lfg_message:
             return
@@ -790,7 +790,7 @@ def main():
 
     @slash.component_callback()
     async def lfg_leave(ctx: ComponentContext):
-        # get the lfg message
+        # _get the lfg message
         lfg_message = await get_lfg_message(client=ctx.bot, lfg_message_id=ctx.origin_message.id, guild=ctx.guild)
         if not lfg_message:
             return
@@ -807,7 +807,7 @@ def main():
 
     @slash.component_callback()
     async def lfg_backup(ctx: ComponentContext):
-        # get the lfg message
+        # _get the lfg message
         lfg_message = await get_lfg_message(client=ctx.bot, lfg_message_id=ctx.origin_message.id, guild=ctx.guild)
         if not lfg_message:
             return

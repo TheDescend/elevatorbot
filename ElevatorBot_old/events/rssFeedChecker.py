@@ -3,12 +3,12 @@ import datetime
 import discord
 import feedparser
 
-from ElevatorBot.database.database import rss_item_exist, rss_item_add
-from ElevatorBot.events.baseEvent import BaseEvent
-from ElevatorBot.backendNetworking.persistentMessages import (
-    get_persistent_message_or_channel,
+from ElevatorBot.backendNetworking.misc.backendPersistentMessages import (
     bot_status,
+    get_persistent_message_or_channel,
 )
+from ElevatorBot.database.database import rss_item_add, rss_item_exist
+from ElevatorBot.events.baseEvent import BaseEvent
 
 
 class RssFeedChecker(BaseEvent):

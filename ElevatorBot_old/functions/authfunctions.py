@@ -1,11 +1,11 @@
 from inspect import currentframe, getframeinfo
 
+from ElevatorBot.backendNetworking.formating import embed_message
 from ElevatorBot.database.database import (
-    lookupDiscordID,
     getDestinyDefinition,
+    lookupDiscordID,
     lookupSystem,
 )
-from ElevatorBot.backendNetworking.formating import embed_message
 from ElevatorBot.networking.models import WebResponse
 from ElevatorBot.networking.network import get_json_from_bungie_with_token
 
@@ -72,7 +72,7 @@ async def getSpiderMaterials(discordID, destinyID, characterID):
             # We don't care about bounties
             continue
         soldhash = sale["itemHash"]
-        # only ever costs one material, so we just get the first one
+        # only ever costs one material, so we just _get the first one
         if not sale["costs"]:
             # probably some quest item
             continue

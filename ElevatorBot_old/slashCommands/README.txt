@@ -20,7 +20,7 @@ class Example(commands.Cog):
         name="example",
         description="Example Desc",
 
-        # Without defining guild_ids here, the command will take up to an hour to get processed by discord, so use that for testing
+        # Without defining guild_ids here, the command will take up to an hour to _get processed by discord, so use that for testing
         # Can be imported with - from static.config import GUILD_IDS
         guild_ids=GUILD_IDS
 

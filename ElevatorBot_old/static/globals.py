@@ -66,36 +66,36 @@ leave_emoji_id = 850000522048045106
 backup_emoji_id = 850000522107027466
 
 """ Persistent Messages """
-other_game_roles = {
-    "Among Us": {
-        "emoji_id": among_us_emoji_id,
-        "role_id": among_us_role_id,
-    },
-    "Barotrauma": {
-        "emoji_id": barotrauma_emoji_id,
-        "role_id": barotrauma_role_id,
-    },
-    "Escape from Tarkov": {
-        "emoji_id": eft_emoji_id,
-        "role_id": eft_role_id,
-    },
-    "GTA V": {
-        "emoji_id": gta_emoji_id,
-        "role_id": gta_role_id,
-    },
-    "League of Legends": {
-        "emoji_id": lol_emoji_id,
-        "role_id": lol_role_id,
-    },
-    "Minecraft": {
-        "emoji_id": minecraft_emoji_id,
-        "role_id": minecraft_role_id,
-    },
-    "Varlorant": {
-        "emoji_id": valorant_emoji_id,
-        "role_id": valorant_role_id,
-    },
-}
+# other_game_roles = {
+#     "Among Us": {
+#         "emoji_id": among_us_emoji_id,
+#         "role_id": among_us_role_id,
+#     },
+#     "Barotrauma": {
+#         "emoji_id": barotrauma_emoji_id,
+#         "role_id": barotrauma_role_id,
+#     },
+#     "Escape from Tarkov": {
+#         "emoji_id": eft_emoji_id,
+#         "role_id": eft_role_id,
+#     },
+#     "GTA V": {
+#         "emoji_id": gta_emoji_id,
+#         "role_id": gta_role_id,
+#     },
+#     "League of Legends": {
+#         "emoji_id": lol_emoji_id,
+#         "role_id": lol_role_id,
+#     },
+#     "Minecraft": {
+#         "emoji_id": minecraft_emoji_id,
+#         "role_id": minecraft_role_id,
+#     },
+#     "Varlorant": {
+#         "emoji_id": valorant_emoji_id,
+#         "role_id": valorant_role_id,
+#     },
+# }
 
 clan_join_request = [destiny_emoji_id]
 tournament = [destiny_emoji_id]

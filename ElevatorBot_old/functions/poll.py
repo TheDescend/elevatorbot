@@ -5,8 +5,8 @@ import discord
 from discord_slash import ComponentContext, SlashContext
 from discord_slash.utils import manage_components
 
-from ElevatorBot.database.database import insert_poll, get_poll
 from ElevatorBot.backendNetworking.formating import embed_message
+from ElevatorBot.database.database import get_poll, insert_poll
 
 
 @dataclasses.dataclass()
@@ -49,7 +49,7 @@ class Poll:
             else []
         )
 
-    # get embed
+    # _get embed
     def _get_embed(self) -> discord.Embed:
         total_users_count = sum([len(option_users) for option_users in self.data.values()])
 
@@ -69,7 +69,7 @@ class Poll:
             # number of text elements
             n = 10
 
-            # get value text
+            # _get value text
             text = ""
             try:
                 progress = option_users_count / total_users_count
@@ -163,7 +163,7 @@ class Poll:
 
     # _insert poll
     async def create(self, create_ctx: SlashContext) -> None:
-        # dumping to db twice to get the ID
+        # dumping to db twice to _get the ID
         self.id = await self._dump_to_db()
         embed = self._get_embed()
         self.message = await create_ctx.send(
@@ -183,11 +183,11 @@ class Poll:
         )
 
 
-# get the poll object
+# _get the poll object
 async def get_poll_object(guild: discord.Guild, poll_id: int = None, poll_message_id: int = None) -> Optional[Poll]:
     assert poll_id or poll_message_id, "Only one param can be chosen and one must be"
 
-    # get the DB entry
+    # _get the DB entry
     record = await get_poll(
         poll_id=int(poll_id) if poll_id else None,
         poll_message_id=poll_message_id,

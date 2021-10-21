@@ -1,5 +1,4 @@
-from dis_snek.models import InteractionContext
-from dis_snek.models import sub_command
+from dis_snek.models import InteractionContext, sub_command
 
 from ElevatorBot.backendNetworking.destiny.clan import DestinyClan
 from ElevatorBot.commands.base import BaseScale
@@ -11,10 +10,12 @@ class ClanUnlink(BaseScale):
 
     # todo perms
     @sub_command(
-        base_name="clan",
-        base_description="Everything concerning the link from this discord guild to your Destiny 2 clan",
+        base_name="setup",
+        base_description="Use these commands to setup ElevatorBot on this server",
+        group_name="clan",
+        group_description="Everything concerning the link from this server to your Destiny 2 clan",
         sub_name="unlink",
-        sub_description="Unlink the current Destiny 2 clan with this discord. Requires Admin in both Discord",
+        sub_description="Unlink the current Destiny 2 clan with this server",
     )
     async def _unlink(
         self,

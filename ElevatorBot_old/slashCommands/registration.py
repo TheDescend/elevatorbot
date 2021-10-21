@@ -1,12 +1,17 @@
 from discord.ext import commands
-from discord_slash import cog_ext, SlashContext
+from discord_slash import SlashContext, cog_ext
 from discord_slash.utils.manage_commands import create_option
 
-from ElevatorBot.database.database import removeUser, setSteamJoinID, getSteamJoinID
 from ElevatorBot.backendNetworking.clanJoinRequests import elevatorRegistration
 from ElevatorBot.backendNetworking.formating import embed_message
-from ElevatorBot.backendNetworking.persistentMessages import steamJoinCodeMessage
-from ElevatorBot.backendNetworking.slashCommandFunctions import get_user_obj_admin, get_user_obj
+from ElevatorBot.backendNetworking.misc.backendPersistentMessages import (
+    steamJoinCodeMessage,
+)
+from ElevatorBot.backendNetworking.slashCommandFunctions import (
+    get_user_obj,
+    get_user_obj_admin,
+)
+from ElevatorBot.database.database import getSteamJoinID, removeUser, setSteamJoinID
 from ElevatorBot.static.slashCommandOptions import options_user
 
 
@@ -47,7 +52,7 @@ class RegistrationCommands(commands.Cog):
     @cog_ext.cog_subcommand(
         base="id",
         base_description="Steam IDs which can be used to join people in Destiny 2 without adding them as a friend",
-        name="get",
+        name="_get",
         description="Get a Steam ID",
         options=[options_user()],
     )

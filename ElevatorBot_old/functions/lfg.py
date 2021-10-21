@@ -6,22 +6,27 @@ from typing import Union
 import discord
 import pytz
 from apscheduler.jobstores.base import JobLookupError
-from discord_slash import SlashContext, ComponentContext, ButtonStyle
+from discord_slash import ButtonStyle, ComponentContext, SlashContext
 from discord_slash.utils import manage_components
 
+from ElevatorBot.backendNetworking.formating import embed_message
+from ElevatorBot.backendNetworking.misc.backendPersistentMessages import (
+    get_persistent_message_or_channel,
+)
+from ElevatorBot.backendNetworking.miscFunctions import (
+    get_scheduler,
+    has_elevated_permissions,
+)
 from ElevatorBot.database.database import (
+    delete_lfg_message,
+    get_lfg_blacklisted_members,
     get_next_free_lfg_message_id,
     get_persistent_message,
-    get_lfg_blacklisted_members,
     insert_lfg_message,
-    select_lfg_message,
-    delete_lfg_message,
     select_guild_lfg_events,
+    select_lfg_message,
 )
-from ElevatorBot.backendNetworking.formating import embed_message
-from ElevatorBot.backendNetworking.miscFunctions import has_elevated_permissions, get_scheduler
-from ElevatorBot.backendNetworking.persistentMessages import get_persistent_message_or_channel
-from ElevatorBot.static.globals import join_emoji_id, leave_emoji_id, backup_emoji_id
+from ElevatorBot.static.globals import backup_emoji_id, join_emoji_id, leave_emoji_id
 
 
 @dataclasses.dataclass()
@@ -58,10 +63,10 @@ class LfgMessage:
         # gets the starttime as a utc object
         self.utc_start_time = self.start_time.astimezone(pytz.utc)
 
-        # get the scheduler object
+        # _get the scheduler object
         self.scheduler = get_scheduler()
 
-        # get the button emojis
+        # _get the button emojis
         self._join_emoji = self.client.get_emoji(join_emoji_id)
         self._leave_emoji = self.client.get_emoji(leave_emoji_id)
         self._backup_emoji = self.client.get_emoji(backup_emoji_id)
@@ -134,7 +139,7 @@ class LfgMessage:
     async def notify_about_start(self, time_to_start: datetime.timedelta):
         voice_text = "Please start gathering in a voice channel"
 
-        # get the voice channel category and make a voice channel
+        # _get the voice channel category and make a voice channel
         voice_category_channel = await get_persistent_message_or_channel(self.client, "lfgVoiceCategory", self.guild.id)
         if voice_category_channel:
             voice_channel_name = f"[ID: {self.id}] {self.activity}"
@@ -218,7 +223,7 @@ class LfgMessage:
 
     # sort all the lfg messages in the guild by start_time
     async def sort_lfg_messages(self):
-        # get all lfg ids
+        # _get all lfg ids
         results = await select_guild_lfg_events(self.guild.id)
 
         # only continue if there is more than one event
@@ -411,7 +416,7 @@ async def get_lfg_message(
     assert ctx or guild, "Either ctx or client need to be specified"
     assert lfg_id or lfg_message_id, "Either lfg id or message id need to be specified"
 
-    # get the stuff from the DB
+    # _get the stuff from the DB
     res = await select_lfg_message(lfg_id=lfg_id, lfg_message_id=lfg_message_id)
     if not res:
         if ctx:
@@ -495,13 +500,13 @@ async def create_lfg_message(
     start_time: datetime,
     max_joined_members: int,
 ):
-    # get next free id
+    # _get next free id
     lfg_id = await get_next_free_lfg_message_id()
 
-    # get blacklisted members
+    # _get blacklisted members
     blacklisted_members = await get_lfg_blacklisted_members(author.id)
 
-    # get channel id
+    # _get channel id
     result = await get_persistent_message("lfg", guild.id)
     if not result:
         return

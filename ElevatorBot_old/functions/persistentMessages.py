@@ -1,17 +1,17 @@
 import datetime
-from typing import Union, Optional
+from typing import Optional, Union
 
 import discord
 
-from ElevatorBot.database.database import (
-    get_persistent_message,
-    insertPersistentMessage,
-    getallSteamJoinIDs,
-    updatePersistentMessage,
-    getAllPersistentMessages,
-    deletePersistentMessage,
-)
 from ElevatorBot.backendNetworking.formating import embed_message
+from ElevatorBot.database.database import (
+    deletePersistentMessage,
+    get_persistent_message,
+    getAllPersistentMessages,
+    getallSteamJoinIDs,
+    insertPersistentMessage,
+    updatePersistentMessage,
+)
 from ElevatorBot.networking.bungieAuth import handle_and_return_token
 
 
@@ -116,7 +116,7 @@ async def delete_persistent_message(message, message_name, guild_id):
 
 
 async def check_reaction_for_persistent_message(client, payload):
-    # get all persistent messages
+    # _get all persistent messages
     persistent_messages = await getAllPersistentMessages()
 
     # loop through the msgs and check if reaction was on in
@@ -156,13 +156,13 @@ async def handle_persistent_message_reaction(client, payload, persistent_message
 
 
 async def steamJoinCodeMessage(client, guild):
-    # get all IDs
+    # _get all IDs
     data = await getallSteamJoinIDs()
 
     # convert discordIDs to names
     clean_data = {}
     for entry in data:
-        # get display_name. If that doesnt work user isnt in guild, thus ignore him
+        # _get display_name. If that doesnt work user isnt in guild, thus ignore him
         try:
             clean_data[guild.get_member(entry[0]).display_name] = entry[1]
         except AttributeError:
@@ -178,7 +178,7 @@ async def steamJoinCodeMessage(client, guild):
     # _insert new message
     embed = embed_message(
         "Steam Join Codes",
-        "Here you can find a updated list of Steam Join Codes. \nUse `/id set <id>` to set appear here and `/id get <user>` to find a code without looking here",
+        "Here you can find a updated list of Steam Join Codes. \nUse `/id set <id>` to set appear here and `/id _get <user>` to find a code without looking here",
     )
 
     # add name field
@@ -187,7 +187,7 @@ async def steamJoinCodeMessage(client, guild):
     # add code field
     embed.add_field(name="Code", value="\n".join(code), inline=True)
 
-    # get msg object
+    # _get msg object
     message = await get_persistent_message_or_channel(client, "steamJoinCodes", guild.id)
 
     # edit msg
@@ -211,7 +211,7 @@ async def bot_status(client: discord.Client, field_name: str, time: datetime.dat
         "Vendor Armor Roll Lookup"
     """
 
-    # get msg. guild id is one, since there is only gonna be one msg
+    # _get msg. guild id is one, since there is only gonna be one msg
     message = await get_persistent_message_or_channel(client, "botStatus", 1)
     if not message:
         return

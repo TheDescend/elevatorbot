@@ -1,25 +1,25 @@
 import asyncio
 from datetime import datetime
 
+from ElevatorBot.backendNetworking.formating import embed_message
 from ElevatorBot.database.database import (
+    deleteEntries,
+    deleteFailToGetPgcrInstanceId,
     get_connection_pool,
-    lookupDiscordID,
-    insertPgcrActivities,
+    getFailToGetPgcrInstanceId,
     getPgcrActivity,
+    getVersion,
+    insertPgcrActivities,
     insertPgcrActivitiesUsersStats,
     insertPgcrActivitiesUsersStatsWeapons,
-    getFailToGetPgcrInstanceId,
-    deleteFailToGetPgcrInstanceId,
+    lookupDiscordID,
     updateDestinyDefinition,
-    getVersion,
     updateVersion,
-    deleteEntries,
 )
-from ElevatorBot.backendNetworking.formating import embed_message
 from ElevatorBot.networking.models import WebResponse
 from ElevatorBot.networking.network import get_json_from_url
 from ElevatorBot.static.config import CLANID
-from ElevatorBot.static.dict import weaponTypeKinetic, weaponTypeEnergy, weaponTypePower
+from ElevatorBot.static.dict import weaponTypeEnergy, weaponTypeKinetic, weaponTypePower
 
 
 # gets the weapon (name, [hash1, hash2, ...]) for the search term for all weapons found
@@ -156,11 +156,11 @@ async def getNameAndCrossaveNameToHashMapByClanid(clanid):
 
 
 # async def updateManifest():
-#     # get the manifest
+#     # _get the manifest
 #     manifest_url = "http://www.bungie.net/Platform/Destiny2/Manifest/"
-#     manifest = await get(manifest_url)
+#     manifest = await _get(manifest_url)
 #     if not manifest:
-#         print("Couldnt get manifest, aborting")
+#         print("Couldnt _get manifest, aborting")
 #         return
 #
 #     # check if the downloaded version is different to ours, if so drop entries and redownload info
@@ -181,7 +181,7 @@ async def getNameAndCrossaveNameToHashMapByClanid(clanid):
 #                 if definition == "DestinyActivityDefinition":
 #                     print("Starting DestinyActivityDefinition _update...")
 #                     await deleteEntries(connection, "DestinyActivityDefinition")
-#                     result = await get(f"http://www.bungie.net{url}")
+#                     result = await _get(f"http://www.bungie.net{url}")
 #                     # _update table
 #                     for referenceId, values in result.content.items():
 #                         await updateDestinyDefinition(
@@ -211,7 +211,7 @@ async def getNameAndCrossaveNameToHashMapByClanid(clanid):
 #                 elif definition == "DestinyActivityTypeDefinition":
 #                     print("Starting DestinyActivityTypeDefinition _update...")
 #                     await deleteEntries(connection, "DestinyActivityTypeDefinition")
-#                     result = await get(f"http://www.bungie.net{url}")
+#                     result = await _get(f"http://www.bungie.net{url}")
 #                     # _update table
 #                     for referenceId, values in result.content.items():
 #                         await updateDestinyDefinition(
@@ -233,7 +233,7 @@ async def getNameAndCrossaveNameToHashMapByClanid(clanid):
 #                 elif definition == "DestinyActivityModeDefinition":
 #                     print("Starting DestinyActivityModeDefinition _update...")
 #                     await deleteEntries(connection, "DestinyActivityModeDefinition")
-#                     result = await get(f"http://www.bungie.net{url}")
+#                     result = await _get(f"http://www.bungie.net{url}")
 #                     # _update table
 #                     for referenceId, values in result.content.items():
 #                         await updateDestinyDefinition(
@@ -253,7 +253,7 @@ async def getNameAndCrossaveNameToHashMapByClanid(clanid):
 #                 elif definition == "DestinyCollectibleDefinition":
 #                     print("Starting DestinyCollectibleDefinition _update...")
 #                     await deleteEntries(connection, "DestinyCollectibleDefinition")
-#                     result = await get(f"http://www.bungie.net{url}")
+#                     result = await _get(f"http://www.bungie.net{url}")
 #                     # _update table
 #                     for referenceId, values in result.content.items():
 #                         await updateDestinyDefinition(
@@ -272,7 +272,7 @@ async def getNameAndCrossaveNameToHashMapByClanid(clanid):
 #                 elif definition == "DestinyInventoryItemDefinition":
 #                     print("Starting DestinyInventoryItemDefinition _update...")
 #                     await deleteEntries(connection, "DestinyInventoryItemDefinition")
-#                     result = await get(f"http://www.bungie.net{url}")
+#                     result = await _get(f"http://www.bungie.net{url}")
 #                     # _update table
 #                     for referenceId, values in result.content.items():
 #                         await updateDestinyDefinition(
@@ -295,7 +295,7 @@ async def getNameAndCrossaveNameToHashMapByClanid(clanid):
 #                 elif definition == "DestinyRecordDefinition":
 #                     print("Starting DestinyRecordDefinition _update...")
 #                     await deleteEntries(connection, "DestinyRecordDefinition")
-#                     result = await get(f"http://www.bungie.net{url}")
+#                     result = await _get(f"http://www.bungie.net{url}")
 #                     # _update table
 #                     for referenceId, values in result.content.items():
 #                         await updateDestinyDefinition(
@@ -318,7 +318,7 @@ async def getNameAndCrossaveNameToHashMapByClanid(clanid):
 #                 elif definition == "DestinyInventoryBucketDefinition":
 #                     print("Starting DestinyInventoryBucketDefinition _update...")
 #                     await deleteEntries(connection, "DestinyInventoryBucketDefinition")
-#                     result = await get(f"http://www.bungie.net{url}")
+#                     result = await _get(f"http://www.bungie.net{url}")
 #                     # _update table
 #                     for referenceId, values in result.content.items():
 #                         await updateDestinyDefinition(
@@ -337,7 +337,7 @@ async def getNameAndCrossaveNameToHashMapByClanid(clanid):
 #                 elif definition == "DestinyPresentationNodeDefinition":
 #                     print("Starting DestinyPresentationNodeDefinition _update...")
 #                     await deleteEntries(connection, "DestinyPresentationNodeDefinition")
-#                     result = await get(f"http://www.bungie.net{url}")
+#                     result = await _get(f"http://www.bungie.net{url}")
 #                     # _update table
 #                     for referenceId, values in result.content.items():
 #                         await updateDestinyDefinition(
@@ -452,10 +452,10 @@ async def getNameAndCrossaveNameToHashMapByClanid(clanid):
 #             await deleteFailToGetPgcrInstanceId(instanceID)
 #             continue
 #
-#         # get PGCR
+#         # _get PGCR
 #         pcgr = await get_pgcr(instanceID)
 #
-#         # only continue if we get a response this time
+#         # only continue if we _get a response this time
 #         if not pcgr:
 #             continue
 #
@@ -468,7 +468,7 @@ async def getNameAndCrossaveNameToHashMapByClanid(clanid):
 
 
 # async def getClanMembers(client):
-#     # get all clan members {destinyID: discordID}
+#     # _get all clan members {destinyID: discordID}
 #     memberlist = {}
 #     for member in (await get_json_from_url(f"https://www.bungie.net/Platform/GroupV2/{CLANID}/Members/")).content[
 #         "Response"

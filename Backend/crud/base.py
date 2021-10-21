@@ -8,7 +8,6 @@ from sqlalchemy.sql import Select
 
 from Backend.database.base import Base
 
-
 ModelType = TypeVar("ModelType", bound=Base)
 
 
@@ -66,7 +65,7 @@ class CRUDBase:
         # prepare insert
         stmt = postgresql.insert(self.model).values(model_data)
 
-        # get primary key and info what should be updated if it fails
+        # _get primary key and info what should be updated if it fails
         primary_keys = [key.name for key in inspect(self.model).primary_key]
         update_dict = {c.name: c for c in stmt.excluded if not c.primary_key}
         if not update_dict:

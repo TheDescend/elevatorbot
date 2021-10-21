@@ -1,9 +1,9 @@
 import asyncio
 
+from Backend.backgroundEvents import BaseEvent
 from Backend.core.destiny.activities import DestinyActivities
 from Backend.crud import discord_users
 from Backend.database.base import get_async_session
-from Backend.backgroundEvents import BaseEvent
 
 
 class UpdateActivities(BaseEvent):
@@ -33,5 +33,5 @@ class UpdateActivities(BaseEvent):
             # gather that to be speedier
             await asyncio.gather(*to_gather)
 
-            # try to get the missing pgcr
+            # try to _get the missing pgcr
             await activities.update_missing_pgcr()

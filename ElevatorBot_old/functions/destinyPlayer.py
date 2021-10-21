@@ -11,26 +11,25 @@ import discord
 from discord_slash import SlashContext
 from discord_slash.context import InteractionContext
 
-from ElevatorBot.database.database import (
-    lookupDiscordID,
-    lookupSystem,
-    lookupDestinyID,
-    insertFailToGetPgcrInstanceId,
-    getLastUpdated,
-    getPgcrActivity,
-    updateLastUpdated,
-    get_info_on_low_man_activity,
-    getSeals,
-    getWeaponInfo,
-)
 from ElevatorBot.backendNetworking.dataLoading import get_pgcr, insertPgcrToDB
 from ElevatorBot.backendNetworking.formating import embed_message
+from ElevatorBot.database.database import (
+    get_info_on_low_man_activity,
+    getLastUpdated,
+    getPgcrActivity,
+    getSeals,
+    getWeaponInfo,
+    insertFailToGetPgcrInstanceId,
+    lookupDestinyID,
+    lookupDiscordID,
+    lookupSystem,
+    updateLastUpdated,
+)
 from ElevatorBot.networking.bungieAuth import handle_and_return_token
 from ElevatorBot.networking.network import (
     get_json_from_bungie_with_token,
     get_json_from_url,
 )
-
 
 race_map = {2803282938: "Awoken", 898834093: "Exo", 3887404748: "Human"}
 gender_map = {
@@ -125,7 +124,7 @@ class DestinyPlayer:
     #     url = urljoin(
     #         self._base_bungie_url, f"GroupV2/User/{self.system}/{self.destiny_id}/0/1/"
     #     )
-    #     response = await get(url=url)
+    #     response = await _get(url=url)
     #     if response:
     #         self._clan_id = int(
     #             response.content["Response"]["results"][0]["member"]["groupId"]
@@ -358,7 +357,7 @@ class DestinyPlayer:
     #             self._base_bungie_url,
     #             f"Destiny2/{self.system}/Account/{self.destiny_id}/Character/{character_id}/Stats/AggregateActivityStats/",
     #         )
-    #         response = await get(url=url)
+    #         response = await _get(url=url)
     #         if response:
     #             self._character_activity_stats[character_id] = response.content[
     #                 "Response"
@@ -381,7 +380,7 @@ class DestinyPlayer:
     #         if used_items:
     #             item_power = {
     #                 weapon_id: int(
-    #                     weapon_data.get("primaryStat", {"value": 0})["value"]
+    #                     weapon_data._get("primaryStat", {"value": 0})["value"]
     #                 )
     #                 for weapon_id, weapon_data in used_items["itemComponents"][
     #                     "instances"
@@ -402,7 +401,7 @@ class DestinyPlayer:
     #                         character_item,
     #                         **{
     #                             "lightlevel": item_power[
-    #                                 character_item.get("itemInstanceId", "none")
+    #                                 character_item._get("itemInstanceId", "none")
     #                             ]
     #                         },
     #                     ),
@@ -415,7 +414,7 @@ class DestinyPlayer:
     async def get_weapon_stats(self, weapon_ids: list[int], character_id: int = None, mode: int = 0) -> tuple[int, int]:
         """Returns kills, precision_kills for that weapon in the specified mode"""
 
-        # get the info from the DB
+        # _get the info from the DB
         results = []
         for weapon_id in weapon_ids:
             if character_id:
@@ -491,7 +490,7 @@ class DestinyPlayer:
     #
     #     solo_count, solo_is_flawless_count, solo_fastest = 0, 0, None
     #
-    #     # get player data
+    #     # _get player data
     #     records = await get_info_on_low_man_activity(
     #         activity_hashes=activity_hashes,
     #         player_count=1,
@@ -558,14 +557,14 @@ class DestinyPlayer:
     #             if br:
     #                 break
     #
-    #             # get activities
-    #             rep = await get(url=url, params=params)
+    #             # _get activities
+    #             rep = await _get(url=url, params=params)
     #
     #             # break process if no web response is gotten and log that
     #             if not rep:
     #                 logger = logging.getLogger("update_activity_db")
     #                 logger.error(
-    #                     "Failed to get web response for destinyID '%s': WebResponse = '%s'",
+    #                     "Failed to _get web response for destinyID '%s': WebResponse = '%s'",
     #                     self.destiny_id,
     #                     rep,
     #                 )
@@ -605,7 +604,7 @@ class DestinyPlayer:
     #     """Gets this users not-saved history and saves it"""
     #
     #     async def handle(i: int, t) -> Optional[list[int, datetime.datetime, dict]]:
-    #         # get PGCR
+    #         # _get PGCR
     #         pgcr = await get_pgcr(i)
     #         if not pgcr:
     #             await insertFailToGetPgcrInstanceId(i, t)
@@ -644,7 +643,7 @@ class DestinyPlayer:
     #         mode=0,
     #         earliest_allowed_datetime=entry_time,
     #     ):
-    #         # break if we dont get a result
+    #         # break if we dont _get a result
     #         if not activity:
     #             success = False
     #             break
@@ -668,7 +667,7 @@ class DestinyPlayer:
     #         if len(instance_ids) < 50:
     #             continue
     #         else:
-    #             # get and input the data
+    #             # _get and input the data
     #             await input_data(instance_ids, activity_times)
     #
     #             # reset gather list and restart
@@ -677,7 +676,7 @@ class DestinyPlayer:
     #
     #     # one last time to clean out the extras after the code is done
     #     if instance_ids:
-    #         # get and input the data
+    #         # _get and input the data
     #         await input_data(instance_ids, activity_times)
     #
     #     # _update with newest entry timestamp
@@ -723,7 +722,7 @@ class DestinyPlayer:
     #             url=url, params=params, discord_id=self.discord_id
     #         )
     #     else:
-    #         response = await get(
+    #         response = await _get(
     #             url=url,
     #             params=params,
     #         )
@@ -736,10 +735,10 @@ class DestinyPlayer:
     #     if not self._triumphs:
     #         triumphs = await self._get_profile([900])
     #         if triumphs:
-    #             # get profile triumphs
+    #             # _get profile triumphs
     #             self._triumphs = triumphs["profileRecords"]["data"]["records"]
     #
-    #             # get character triumphs
+    #             # _get character triumphs
     #             character_triumphs = [
     #                 character_triumphs["records"]
     #                 for character_id, character_triumphs in triumphs[
@@ -759,7 +758,7 @@ class DestinyPlayer:
     #     if not self._collectibles:
     #         collectibles = await self._get_profile([800])
     #         if collectibles:
-    #             # get profile collectibles
+    #             # _get profile collectibles
     #             self._collectibles = collectibles
     #
     #     return self._collectibles
@@ -770,7 +769,7 @@ class DestinyPlayer:
     #     if not self._metrics:
     #         metrics = await self._get_profile([1100])
     #         if metrics:
-    #             # get profile metrics
+    #             # _get profile metrics
     #             self._metrics = metrics["metrics"]["data"]["metrics"]
     #
     #     return self._metrics
@@ -783,7 +782,7 @@ class DestinyPlayer:
     #             self._base_bungie_url,
     #             f"Destiny2/{self.system}/Account/{self.destiny_id}/Stats/",
     #         )
-    #         response = await get(url=url)
+    #         response = await _get(url=url)
     #         if response:
     #             self._stats = response.content["Response"]
     #

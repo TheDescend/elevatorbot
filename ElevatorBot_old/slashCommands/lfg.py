@@ -4,18 +4,17 @@ import datetime
 import dateutil
 import pytz
 from discord.ext import commands
-from discord_slash import cog_ext, SlashContext, ButtonStyle, ComponentContext
+from discord_slash import ButtonStyle, ComponentContext, SlashContext, cog_ext
 from discord_slash.utils import manage_components
-from discord_slash.utils.manage_commands import create_option, create_choice
+from discord_slash.utils.manage_commands import create_choice, create_option
 
+from ElevatorBot.backendNetworking.formating import embed_message
+from ElevatorBot.backendNetworking.lfg import create_lfg_message, get_lfg_message
 from ElevatorBot.database.database import (
     add_lfg_blacklisted_member,
     remove_lfg_blacklisted_member,
 )
-from ElevatorBot.backendNetworking.formating import embed_message
-from ElevatorBot.backendNetworking.lfg import create_lfg_message, get_lfg_message
 from ElevatorBot.static.slashCommandOptions import options_user
-
 
 timezones_dict = {
     "GMT / UTC": "UTC",
@@ -71,7 +70,7 @@ class LfgCommands(commands.Cog):
     #     ],
     # )
     # async def _create(self, ctx: SlashContext, start_time, timezone, overwrite_max_members=None):
-    #     # get start time
+    #     # _get start time
     #     try:
     #         start_time = dateutil.parser.parse(start_time, dayfirst=True)
     #     except dateutil.parser.ParserError:
@@ -218,7 +217,7 @@ class LfgCommands(commands.Cog):
     #     if overwrite_max_members:
     #         max_joined_members = int(overwrite_max_members)
     #
-    #     # get the description
+    #     # _get the description
     #     await message.edit(
     #         components=None,
     #         embed=embed_message("Description", "Please enter a description"),
@@ -277,170 +276,170 @@ class LfgCommands(commands.Cog):
     #     ],
     # )
     # async def _edit(self, ctx: SlashContext, lfg_id, section):
-        # # get the message obj
-        # lfg_message = await get_lfg_message(ctx.bot, lfg_id, ctx)
-        # if not lfg_message:
-        #     return
-        #
-        # # might take a sec
-        # await ctx.defer()
-        #
-        # def check(answer_msg):
-        #     return answer_msg.author == ctx.author and answer_msg.channel == ctx.channel
-        #
-        # if section == "Activity":
-        #     message = await ctx.send(embed=embed_message("Activity Name", "Please enter a new name"))
-        #
-        #     # wait 60s for message
-        #     try:
-        #         answer_msg = await self.client.wait_for("message", timeout=60.0, check=check)
-        #     except asyncio.TimeoutError:
-        #         await message.edit(embed=self.timeout_embed)
-        #         return
-        #     else:
-        #         # edit the message
-        #         lfg_message.activity = answer_msg.content
-        #
-        #         # _delete old msgs
-        #         await answer_msg._delete()
-        #
-        # elif section == "Description":
-        #     message = await ctx.send(embed=embed_message("Description", "Please enter a new description"))
-        #
-        #     # wait 60s for message
-        #     try:
-        #         answer_msg = await self.client.wait_for("message", timeout=60.0, check=check)
-        #     except asyncio.TimeoutError:
-        #         await message.edit(embed=self.timeout_embed)
-        #         return
-        #     else:
-        #         # edit the message and resend
-        #         lfg_message.description = answer_msg.content
-        #
-        #         # _delete old msgs
-        #         await answer_msg._delete()
-        #
-        # elif section == "Start Time":
-        #     message = await ctx.send(
-        #         embed=embed_message(
-        #             "Start Time",
-        #             "Please enter a new start time like this \n`HH:MM DD/MM`",
-        #         )
-        #     )
-        #
-        #     # wait 60s for message
-        #     try:
-        #         answer_msg = await self.client.wait_for("message", timeout=60.0, check=check)
-        #     except asyncio.TimeoutError:
-        #         await message.edit(embed=self.timeout_embed)
-        #         return
-        #     else:
-        #         # get the datetime
-        #         try:
-        #             start_time = dateutil.parser.parse(answer_msg.content, dayfirst=True)
-        #         except dateutil.parser.ParserError:
-        #             await message.edit(
-        #                 embed=embed_message(
-        #                     "Error",
-        #                     "There was an error with the formatting of the time parameters, please try again",
-        #                 )
-        #             )
-        #             await answer_msg._delete()
-        #             return
-        #         await answer_msg._delete()
-        #
-        #         # ask for the timezone
-        #         components = [
-        #             manage_components.create_actionrow(
-        #                 manage_components.create_select(
-        #                     options=[
-        #                         manage_components.create_select_option(
-        #                             emoji="🕑",
-        #                             label=timezone_name,
-        #                             value=timezone_value,
-        #                         )
-        #                         # Options for timezones
-        #                         for timezone_name, timezone_value in timezones_dict.items()
-        #                     ],
-        #                     placeholder="Select timezone here",
-        #                     min_values=1,
-        #                     max_values=1,
-        #                 )
-        #             ),
-        #         ]
-        #         embed = embed_message(
-        #             "Please Select the Timezone",
-        #         )
-        #
-        #         await message.edit(components=components, embed=embed)
-        #
-        #         # wait 60s for selection
-        #         def check(select_ctx: ComponentContext):
-        #             return select_ctx.author == ctx.author
-        #
-        #         try:
-        #             select_ctx: ComponentContext = await manage_components.wait_for_component(
-        #                 ctx.bot, components=components, timeout=60, check=check
-        #             )
-        #         except asyncio.TimeoutError:
-        #             await message.edit(embed=self.timeout_embed)
-        #             return
-        #         else:
-        #             selected = select_ctx.selected_options[0]
-        #
-        #             # localize to that timezone
-        #             tz = pytz.timezone(selected)
-        #             start_time = tz.localize(start_time)
-        #
-        #             # make sure thats in the future
-        #             if start_time < datetime.datetime.now(datetime.timezone.utc):
-        #                 await select_ctx.edit_origin(
-        #                     components=None,
-        #                     embed=embed_message(
-        #                         "Error",
-        #                         "The event cannot start in the past. Please try again",
-        #                     ),
-        #                 )
-        #                 return
-        #
-        #             # edit the message
-        #             await lfg_message.__edit_start_time_and_send(start_time)
-        #             await select_ctx.edit_origin(
-        #                 components=None,
-        #                 embed=embed_message(f"Success", f"I've edited the post"),
-        #             )
-        #             return
-        #
-        # else:  # section == "Maximum Members":
-        #     message = await ctx.send(embed=embed_message("Maximum Members", "Please enter the new maximum members"))
-        #
-        #     # wait 60s for message
-        #     try:
-        #         answer_msg = await self.client.wait_for("message", timeout=60.0, check=check)
-        #     except asyncio.TimeoutError:
-        #         await message.edit(embed=self.timeout_embed)
-        #         return
-        #     else:
-        #         # edit the message
-        #         try:
-        #             lfg_message.max_joined_members = int(answer_msg.content)
-        #         except ValueError:
-        #             await message.edit(
-        #                 embed=embed_message(
-        #                     "Error",
-        #                     f"`{answer_msg.content}` is not a number. Please try again",
-        #                 )
-        #             )
-        #             await answer_msg._delete()
-        #             return
-        #
-        #         # _delete old msgs
-        #         await answer_msg._delete()
-        #
-        # # resend msg
-        # await lfg_message.send()
-        #
-        # await message.edit(embed=embed_message(f"Success", f"I've edited the post"))
+    # # _get the message obj
+    # lfg_message = await get_lfg_message(ctx.bot, lfg_id, ctx)
+    # if not lfg_message:
+    #     return
+    #
+    # # might take a sec
+    # await ctx.defer()
+    #
+    # def check(answer_msg):
+    #     return answer_msg.author == ctx.author and answer_msg.channel == ctx.channel
+    #
+    # if section == "Activity":
+    #     message = await ctx.send(embed=embed_message("Activity Name", "Please enter a new name"))
+    #
+    #     # wait 60s for message
+    #     try:
+    #         answer_msg = await self.client.wait_for("message", timeout=60.0, check=check)
+    #     except asyncio.TimeoutError:
+    #         await message.edit(embed=self.timeout_embed)
+    #         return
+    #     else:
+    #         # edit the message
+    #         lfg_message.activity = answer_msg.content
+    #
+    #         # _delete old msgs
+    #         await answer_msg._delete()
+    #
+    # elif section == "Description":
+    #     message = await ctx.send(embed=embed_message("Description", "Please enter a new description"))
+    #
+    #     # wait 60s for message
+    #     try:
+    #         answer_msg = await self.client.wait_for("message", timeout=60.0, check=check)
+    #     except asyncio.TimeoutError:
+    #         await message.edit(embed=self.timeout_embed)
+    #         return
+    #     else:
+    #         # edit the message and resend
+    #         lfg_message.description = answer_msg.content
+    #
+    #         # _delete old msgs
+    #         await answer_msg._delete()
+    #
+    # elif section == "Start Time":
+    #     message = await ctx.send(
+    #         embed=embed_message(
+    #             "Start Time",
+    #             "Please enter a new start time like this \n`HH:MM DD/MM`",
+    #         )
+    #     )
+    #
+    #     # wait 60s for message
+    #     try:
+    #         answer_msg = await self.client.wait_for("message", timeout=60.0, check=check)
+    #     except asyncio.TimeoutError:
+    #         await message.edit(embed=self.timeout_embed)
+    #         return
+    #     else:
+    #         # _get the datetime
+    #         try:
+    #             start_time = dateutil.parser.parse(answer_msg.content, dayfirst=True)
+    #         except dateutil.parser.ParserError:
+    #             await message.edit(
+    #                 embed=embed_message(
+    #                     "Error",
+    #                     "There was an error with the formatting of the time parameters, please try again",
+    #                 )
+    #             )
+    #             await answer_msg._delete()
+    #             return
+    #         await answer_msg._delete()
+    #
+    #         # ask for the timezone
+    #         components = [
+    #             manage_components.create_actionrow(
+    #                 manage_components.create_select(
+    #                     options=[
+    #                         manage_components.create_select_option(
+    #                             emoji="🕑",
+    #                             label=timezone_name,
+    #                             value=timezone_value,
+    #                         )
+    #                         # Options for timezones
+    #                         for timezone_name, timezone_value in timezones_dict.items()
+    #                     ],
+    #                     placeholder="Select timezone here",
+    #                     min_values=1,
+    #                     max_values=1,
+    #                 )
+    #             ),
+    #         ]
+    #         embed = embed_message(
+    #             "Please Select the Timezone",
+    #         )
+    #
+    #         await message.edit(components=components, embed=embed)
+    #
+    #         # wait 60s for selection
+    #         def check(select_ctx: ComponentContext):
+    #             return select_ctx.author == ctx.author
+    #
+    #         try:
+    #             select_ctx: ComponentContext = await manage_components.wait_for_component(
+    #                 ctx.bot, components=components, timeout=60, check=check
+    #             )
+    #         except asyncio.TimeoutError:
+    #             await message.edit(embed=self.timeout_embed)
+    #             return
+    #         else:
+    #             selected = select_ctx.selected_options[0]
+    #
+    #             # localize to that timezone
+    #             tz = pytz.timezone(selected)
+    #             start_time = tz.localize(start_time)
+    #
+    #             # make sure thats in the future
+    #             if start_time < datetime.datetime.now(datetime.timezone.utc):
+    #                 await select_ctx.edit_origin(
+    #                     components=None,
+    #                     embed=embed_message(
+    #                         "Error",
+    #                         "The event cannot start in the past. Please try again",
+    #                     ),
+    #                 )
+    #                 return
+    #
+    #             # edit the message
+    #             await lfg_message.__edit_start_time_and_send(start_time)
+    #             await select_ctx.edit_origin(
+    #                 components=None,
+    #                 embed=embed_message(f"Success", f"I've edited the post"),
+    #             )
+    #             return
+    #
+    # else:  # section == "Maximum Members":
+    #     message = await ctx.send(embed=embed_message("Maximum Members", "Please enter the new maximum members"))
+    #
+    #     # wait 60s for message
+    #     try:
+    #         answer_msg = await self.client.wait_for("message", timeout=60.0, check=check)
+    #     except asyncio.TimeoutError:
+    #         await message.edit(embed=self.timeout_embed)
+    #         return
+    #     else:
+    #         # edit the message
+    #         try:
+    #             lfg_message.max_joined_members = int(answer_msg.content)
+    #         except ValueError:
+    #             await message.edit(
+    #                 embed=embed_message(
+    #                     "Error",
+    #                     f"`{answer_msg.content}` is not a number. Please try again",
+    #                 )
+    #             )
+    #             await answer_msg._delete()
+    #             return
+    #
+    #         # _delete old msgs
+    #         await answer_msg._delete()
+    #
+    # # resend msg
+    # await lfg_message.send()
+    #
+    # await message.edit(embed=embed_message(f"Success", f"I've edited the post"))
 
     # @cog_ext.cog_subcommand(
     #     base="lfg",
@@ -457,7 +456,7 @@ class LfgCommands(commands.Cog):
     #     ],
     # )
     # async def _remove(self, ctx: SlashContext, lfg_id):
-    #     # get the message obj
+    #     # _get the message obj
     #     lfg_message = await get_lfg_message(ctx.bot, lfg_id, ctx)
     #     if not lfg_message:
     #         return
@@ -484,7 +483,7 @@ class LfgCommands(commands.Cog):
     #     ],
     # )
     # async def _add(self, ctx: SlashContext, lfg_id, user):
-    #     # get the message obj
+    #     # _get the message obj
     #     lfg_message = await get_lfg_message(ctx.bot, lfg_id, ctx)
     #     if not lfg_message:
     #         return
@@ -522,7 +521,7 @@ class LfgCommands(commands.Cog):
     #     ],
     # )
     # async def _kick(self, ctx: SlashContext, lfg_id, user):
-    #     # get the message obj
+    #     # _get the message obj
     #     lfg_message = await get_lfg_message(ctx.bot, lfg_id, ctx)
     #     if not lfg_message:
     #         return
