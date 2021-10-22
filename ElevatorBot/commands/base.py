@@ -2,6 +2,7 @@ from dis_snek.client import Snake
 from dis_snek.models import InteractionContext, Scale
 
 from ElevatorBot.backendNetworking.destiny.profile import DestinyProfile
+from ElevatorBot.misc.formating import embed_message
 
 
 class BaseScale(Scale):
@@ -19,4 +20,16 @@ class BaseScale(Scale):
         """
 
         # todo test
-        return await DestinyProfile(client=ctx.bot, discord_member=ctx.author, discord_guild=ctx.guild).has_token()
+        result = await DestinyProfile(client=ctx.bot, discord_member=ctx.author, discord_guild=ctx.guild).has_token()
+
+        if not result:
+            # send error message
+            await ctx.send(
+                embeds=embed_message(
+                    "Registration Required",
+                    "You are not worthy ... yet\nPlease `/register` with me, then you can use my commands",
+                    "Note: Registration is only valid for a year, so you might need to re-register now",
+                )
+            )
+
+        return result
