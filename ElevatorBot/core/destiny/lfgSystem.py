@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import dataclasses
 import datetime
+import io
 from typing import Optional
 
 from apscheduler.jobstores.base import JobLookupError
@@ -14,6 +15,7 @@ from dis_snek.models import (
     ButtonStyles,
     ComponentContext,
     Embed,
+    File,
     Guild,
     GuildCategory,
     GuildChannel,
@@ -28,11 +30,12 @@ from dis_snek.models import (
     Timestamp,
     TimestampStyles,
 )
+from ics import Calendar, Event
 
 from ElevatorBot.backendNetworking.destiny.lfgSystem import DestinyLfgSystem
 from ElevatorBot.backendNetworking.results import BackendResult
 from ElevatorBot.backgroundEvents import scheduler
-from ElevatorBot.misc.formating import embed_message, format_discord_link
+from ElevatorBot.misc.formating import embed_message
 from ElevatorBot.misc.helperFunctions import get_now_with_tz
 from ElevatorBot.static.emojis import custom_emojis
 from ElevatorBot.static.schemas import LfgInputData, LfgUpdateData
@@ -319,7 +322,7 @@ class LfgMessage:
 
         embed = embed_message(
             "Attention Please",
-            f"The start time for the lfg event [{self.id}]({format_discord_link(self.guild.id, self.channel.id, self.message.id)}) has changed \nIt changed from {Timestamp.fromdatetime(previous_start_time).format(style=TimestampStyles.ShortDateTime)} to {Timestamp.fromdatetime(self.start_time).format(style=TimestampStyles.ShortDateTime)}",
+            f"The start time for the lfg event [{self.id}]({self.message.jump_url}) has changed \nIt changed from {Timestamp.fromdatetime(previous_start_time).format(style=TimestampStyles.ShortDateTime)} to {Timestamp.fromdatetime(self.start_time).format(style=TimestampStyles.ShortDateTime)}",
         )
 
         for user in self.joined + self.backup:
@@ -401,7 +404,7 @@ class LfgMessage:
         # prepare embed
         embed = embed_message(
             f"LFG Event - {self.activity}",
-            f"The LFG event [{self.id}]({format_discord_link(self.guild.id, self.channel.id, self.message.id)}) is going to start in **{int(time_to_start.seconds / 60)} minutes**\n{voice_text}",
+            f"The LFG event [{self.id}]({self.message.jump_url}) is going to start in **{int(time_to_start.seconds / 60)} minutes**\n{voice_text}",
             "Start Time",
         )
         embed.add_field(
@@ -520,6 +523,27 @@ class LfgMessage:
 
         return [member.mention for member in self.backup]
 
+    def __get_ics_url(self) -> str:
+        """Create an ics file, upload it, and return the url"""
+
+        calendar = Calendar()
+        event = Event()
+        event.name = f"LFG event `{self.id}`"
+        event.description = f"{self.activity}: {self.description}"
+        event.location = f"Server: {self.guild.name}"
+        event.categories = ["Destiny 2", "LFG"]
+        event.begin = self.start_time
+        event.duration = datetime.timedelta(hours=1, minutes=30)
+        calendar.events.add(event)
+
+        data = io.StringIO(str(calendar))
+
+        # send this in the spam channel in one of the test servers
+        spam_server: GuildText = await self.client.get_channel(761278600103723018)
+        file_message = await spam_server.send(file=File(file=data, file_name=f"lfg_event_{self.id}.ics"))
+
+        return file_message.attachments[0].url
+
     def __return_embed(self) -> Embed:
         """return the formatted embed"""
 
@@ -536,7 +560,7 @@ class LfgMessage:
         if isinstance(self.start_time, datetime.datetime):
             embed.add_field(
                 name="Start Time",
-                value=f"<t:{int(self.start_time.timestamp())}:f>",
+                value=f"<t:{int(self.start_time.timestamp())}:f>\n[Add to calendar]({self.__get_ics_url()})",
                 inline=True,
             )
         else:

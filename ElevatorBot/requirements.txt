@@ -1,6 +1,7 @@
 aiohttp[speedups]==3.7.4.post0
 apscheduler==3.8.0
 dis-snek==0.6.1
+ics==0.7
 orjson==3.6.4
 python-dateutil==2.8.2
 pytz==2021.3
