@@ -43,6 +43,7 @@ if __name__ == "__main__":
         guild_members=True,
         guild_messages=True,
         guild_voice_states=True,
+        direct_messages=True,
     )
 
     # actually get the bot obj

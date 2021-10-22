@@ -210,44 +210,44 @@ class AdminCommands(commands.Cog):
 
         await status.edit(embed=embed_message("Success", f"{user.mention} is no longer muted"))
 
-    @cog_ext.cog_slash(
-        name="reply",
-        description="Send a message to whoever got tagged above",
-        options=[
-            create_option(
-                name="message",
-                description="What message to reply with",
-                option_type=3,
-                required=True,
-            ),
-            create_option(
-                name="user",
-                description="Which user to reply to",
-                option_type=6,
-                required=False,
-            ),
-        ],
-        default_permission=False,
-        permissions=permissions_admin,
-    )
-    async def _reply(self, ctx: SlashContext, message: str, user=None):
-        # gets the previous message
-        last_ten_messages = await ctx.channel.history(limit=10).flatten()
-
-        if not user:
-            is_bot_dm = lambda previousMessage: previousMessage.author == self.client.user and previousMessage.mentions
-            bot_messages = filter(is_bot_dm, last_ten_messages)
-
-            if not bot_messages:
-                await ctx.send(embed=embed_message("Error", f"There is not recent DM. Please specify a user"))
-                return
-
-            most_recent = bot_messages[0]
-            mentioned_user = most_recent.mentions[0]
-            user = mentioned_user
-
-        await user.send(message)
-        await ctx.send(embed=embed_message("Success", f"{ctx.author.name} replied\n`{message}`\nto {user.mention}"))
+    # @cog_ext.cog_slash(
+    #     name="reply",
+    #     description="Send a message to whoever got tagged above",
+    #     options=[
+    #         create_option(
+    #             name="message",
+    #             description="What message to reply with",
+    #             option_type=3,
+    #             required=True,
+    #         ),
+    #         create_option(
+    #             name="user",
+    #             description="Which user to reply to",
+    #             option_type=6,
+    #             required=False,
+    #         ),
+    #     ],
+    #     default_permission=False,
+    #     permissions=permissions_admin,
+    # )
+    # async def _reply(self, ctx: SlashContext, message: str, user=None):
+    #     # gets the previous message
+    #     last_ten_messages = await ctx.channel.history(limit=10).flatten()
+    #
+    #     if not user:
+    #         is_bot_dm = lambda previousMessage: previousMessage.author == self.client.user and previousMessage.mentions
+    #         bot_messages = filter(is_bot_dm, last_ten_messages)
+    #
+    #         if not bot_messages:
+    #             await ctx.send(embed=embed_message("Error", f"There is not recent DM. Please specify a user"))
+    #             return
+    #
+    #         most_recent = bot_messages[0]
+    #         mentioned_user = most_recent.mentions[0]
+    #         user = mentioned_user
+    #
+    #     await user.send(message)
+    #     await ctx.send(embed=embed_message("Success", f"{ctx.author.name} replied\n`{message}`\nto {user.mention}"))
 
     @cog_ext.cog_slash(
         name="rollreaction",
