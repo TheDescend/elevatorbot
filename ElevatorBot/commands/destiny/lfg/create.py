@@ -1,9 +1,18 @@
 import asyncio
 
-
 import pytz
-from dateutil.parser import parse, ParserError
-from dis_snek.models import ActionRow, Button, ButtonStyles, ComponentContext, InteractionContext, Message, OptionTypes, slash_option, sub_command
+from dateutil.parser import ParserError, parse
+from dis_snek.models import (
+    ActionRow,
+    Button,
+    ButtonStyles,
+    ComponentContext,
+    InteractionContext,
+    Message,
+    OptionTypes,
+    slash_option,
+    sub_command,
+)
 
 from ElevatorBot.commandHelpers.optionTemplates import get_timezone_choices
 from ElevatorBot.commandHelpers.responseTemplates import (
@@ -18,7 +27,6 @@ from ElevatorBot.misc.helperFunctions import get_now_with_tz
 from ElevatorBot.static.destinyActivities import dungeons, raids
 
 
-
 class LfgCreate(BaseScale):
 
 
@@ -29,25 +37,27 @@ class LfgCreate(BaseScale):
         sub_description="Creates an LFG post",
 
     )
-    @slash_option(name="start_time", description="Format: 'HH:MM DD/MM' - When the event is supposed to start", required=True, opt_type=OptionTypes.STRING)
+    @slash_option(name="start_time", description="Format: 'HH:MM DD/MM' - When the event is supposed to start. `asap` to start as soon as it fills up", required=True, opt_type=OptionTypes.STRING)
     @slash_option(name="timezone", description="What timezone you are in", required=True, opt_type=OptionTypes.STRING, choices=get_timezone_choices())
     @slash_option(name="overwrite_max_members", description="You can overwrite the maximum number of people that can join your event", required=False, opt_type=OptionTypes.INTEGER)
     async def _create(self, ctx: InteractionContext, start_time: str, timezone: str, overwrite_max_members: int = None):
-        # get start time
-        try:
-            start_time = parse(start_time, dayfirst=True)
-        except ParserError:
-            await respond_invalid_time_input(ctx=ctx)
-            return
 
-        # make that timezone aware
-        tz = pytz.timezone(timezone)
-        start_time = tz.localize(start_time)
+        if start_time.lower() is not "asap":
+            # get start time
+            try:
+                start_time = parse(start_time, dayfirst=True)
+            except ParserError:
+                await respond_invalid_time_input(ctx=ctx)
+                return
 
-        # make sure that is in the future
-        if start_time < get_now_with_tz():
-            await respond_time_input_in_past(ctx=ctx)
-            return
+            # make that timezone aware
+            tz = pytz.timezone(timezone)
+            start_time = tz.localize(start_time)
+
+            # make sure that is in the future
+            if start_time < get_now_with_tz():
+                await respond_time_input_in_past(ctx=ctx)
+                return
 
         # might take a sec
         await ctx.defer()

@@ -35,6 +35,8 @@ from ElevatorBot.misc.helperFunctions import get_now_with_tz
 from ElevatorBot.static.emojis import custom_emojis
 from ElevatorBot.static.schemas import LfgInputData, LfgUpdateData
 
+asap_start_time = datetime.datetime(year=1997, month=6, day=11, tzinfo=datetime.timezone.utc)
+
 
 @dataclasses.dataclass()
 class LfgMessage:
@@ -108,6 +110,8 @@ class LfgMessage:
 
         # fill class info
         channel: GuildText = await guild.get_channel(result.result["channel_id"])
+        start_time: datetime.datetime = result.result["start_time"]
+
         lfg_message = cls(
             backend=backend,
             client=client,
@@ -117,7 +121,7 @@ class LfgMessage:
             author=guild.get_member(result.result["author_id"]),
             activity=result.result["activity"],
             description=result.result["description"],
-            start_time=result.result["start_time"],
+            start_time=start_time if start_time != asap_start_time else "asap",
             max_joined_members=result.result["max_joined_members"],
             message=await channel.fetch_message(result.result["message_id"]),
             creation_time=result.result["creation_time"],
@@ -143,7 +147,7 @@ class LfgMessage:
         ctx: InteractionContext,
         activity: str,
         description: str,
-        start_time: datetime.datetime,
+        start_time: datetime.datetime | str,
         max_joined_members: int,
     ) -> Optional[LfgMessage]:
         """Classmethod to create a new lfg message"""
@@ -156,7 +160,7 @@ class LfgMessage:
             lfg_data=LfgInputData(
                 activity=activity,
                 description=description,
-                start_time=start_time,
+                start_time=start_time if isinstance(start_time, datetime.datetime) else asap_start_time,
                 max_joined_members=max_joined_members,
                 joined_members=[ctx.author.id],
                 alternate_members=[],
@@ -204,6 +208,12 @@ class LfgMessage:
                 self.joined.append(member)
                 if member in self.backup:
                     self.backup.remove(member)
+
+                # check if the post is full and the event is supposed to start asap
+                if self.start_time == "asap" and len(self.joined) >= self.max_joined_members:
+                    self.start_time = datetime.datetime.now(tz=datetime.timezone.utc)
+                    await self.__notify_about_start(datetime.timedelta(minutes=10))
+
             else:
                 if member not in self.backup:
                     self.backup.append(member)
@@ -306,25 +316,28 @@ class LfgMessage:
         """(re-) scheduled the event with apscheduler using the lfg_id as event_id"""
 
         if self.message or self.channel:
-            # try to delete old job
-            try:
-                self.scheduler.remove_job(str(self.id))
-            except JobLookupError:
-                pass
+            # only do this if is it has a start date
+            if self.start_time != "asap":
 
-            # using the id the job gets added
-            timedelta = datetime.timedelta(minutes=10)
-            run_date = self.start_time - timedelta
-            now = get_now_with_tz()
-            if run_date < now:
-                run_date = now
-            self.scheduler.add_job(
-                self.__notify_about_start,
-                "date",
-                (self.client, self.guild, self.id, timedelta),
-                run_date=run_date,
-                id=str(self.id),
-            )
+                # try to delete old job
+                try:
+                    self.scheduler.remove_job(str(self.id))
+                except JobLookupError:
+                    pass
+
+                # using the id the job gets added
+                timedelta = datetime.timedelta(minutes=10)
+                run_date = self.start_time - timedelta
+                now = get_now_with_tz()
+                if run_date < now:
+                    run_date = now
+                self.scheduler.add_job(
+                    self.__notify_about_start,
+                    "date",
+                    (self.client, self.guild, self.id, timedelta),
+                    run_date=run_date,
+                    id=str(self.id),
+                )
 
     async def __notify_about_start(self, time_to_start: datetime.timedelta):
         """notifies joined members that the event is about to start"""
@@ -419,66 +432,67 @@ class LfgMessage:
     async def __sort_lfg_messages(self):
         """sort all the lfg messages in the guild by start_time"""
 
-        # _get all lfg ids
-        results = await self.backend.get_all()
-        if results:
-            events = results.result["events"]
+        async with asyncio.Lock():
+            # get all lfg ids
+            results = await self.backend.get_all()
+            if results:
+                events = results.result["events"]
 
-            # only continue if there is more than one event
-            if len(events) <= 1:
-                return
+                # only continue if there is more than one event
+                if len(events) <= 1:
+                    return
 
-            # _get three lists:
-            # a list with the current message objs (sorted by asc creation date)
-            # a list with the creation_time
-            # and a list with the LfgMessage objs
-            sorted_messages_by_creation_time = []
-            sorted_creation_times_by_creation_time = []
-            lfg_messages = []
-            for event in events:
-                sorted_messages_by_creation_time.append(await self.channel.fetch_message(event["message_id"]))
-                sorted_creation_times_by_creation_time.append(event["creation_time"])
-                lfg_messages.append(
-                    LfgMessage(
-                        backend=self.backend,
-                        client=self.client,
-                        id=event["id"],
-                        guild=self.guild,
-                        channel=self.channel,
-                        author=self.guild.get_member(event["author_id"]),
-                        activity=event["activity"],
-                        description=event["description"],
-                        start_time=event["start_time"],
-                        max_joined_members=event["max_joined_members"],
-                        message=await self.channel.fetch_message(event["message_id"]),
-                        creation_time=event["creation_time"],
-                        joined=[
-                            self.guild.get_member(member_id)
-                            for member_id in event["joined_members"]
-                            if self.guild.get_member(member_id)
-                        ],
-                        backup=[
-                            self.guild.get_member(member_id)
-                            for member_id in event["alternate_members"]
-                            if self.guild.get_member(member_id)
-                        ],
-                        voice_channel=await self.guild.get_channel(event["voice_channel_id"]),
-                        voice_category_channel=await self.guild.get_channel(event["voice_category_channel_id"]),
+                # get three lists:
+                # a list with the current message objs (sorted by asc creation date)
+                # a list with the creation_time
+                # and a list with the LfgMessage objs
+                sorted_messages_by_creation_time = []
+                sorted_creation_times_by_creation_time = []
+                lfg_messages = []
+                for event in events:
+                    sorted_messages_by_creation_time.append(await self.channel.fetch_message(event["message_id"]))
+                    sorted_creation_times_by_creation_time.append(event["creation_time"])
+                    lfg_messages.append(
+                        LfgMessage(
+                            backend=self.backend,
+                            client=self.client,
+                            id=event["id"],
+                            guild=self.guild,
+                            channel=self.channel,
+                            author=self.guild.get_member(event["author_id"]),
+                            activity=event["activity"],
+                            description=event["description"],
+                            start_time=event["start_time"],
+                            max_joined_members=event["max_joined_members"],
+                            message=await self.channel.fetch_message(event["message_id"]),
+                            creation_time=event["creation_time"],
+                            joined=[
+                                self.guild.get_member(member_id)
+                                for member_id in event["joined_members"]
+                                if self.guild.get_member(member_id)
+                            ],
+                            backup=[
+                                self.guild.get_member(member_id)
+                                for member_id in event["alternate_members"]
+                                if self.guild.get_member(member_id)
+                            ],
+                            voice_channel=await self.guild.get_channel(event["voice_channel_id"]),
+                            voice_category_channel=await self.guild.get_channel(event["voice_category_channel_id"]),
+                        )
                     )
-                )
 
-            # sort the LfgMessages by their start_time
-            sorted_lfg_messages = sorted(lfg_messages, reverse=True)
+                # sort the LfgMessages by their start_time
+                sorted_lfg_messages = sorted(lfg_messages, reverse=True)
 
-            # update the messages with their new message obj
-            for message, creation_time, lfg_message in zip(
-                sorted_messages_by_creation_time,
-                sorted_creation_times_by_creation_time,
-                sorted_lfg_messages,
-            ):
-                lfg_message.message = message
-                lfg_message.creation_time = creation_time
-                await lfg_message.send()
+                # update the messages with their new message obj
+                for message, creation_time, lfg_message in zip(
+                    sorted_messages_by_creation_time,
+                    sorted_creation_times_by_creation_time,
+                    sorted_lfg_messages,
+                ):
+                    lfg_message.message = message
+                    lfg_message.creation_time = creation_time
+                    await lfg_message.send()
 
     def __get_joined_members_display_names(self) -> list[str]:
         """gets the display name of the joined members"""
@@ -503,11 +517,18 @@ class LfgMessage:
             value=self.activity,
             inline=True,
         )
-        embed.add_field(
-            name="Start Time",
-            value=f"<t:{int(self.start_time.timestamp())}:f>",
-            inline=True,
-        )
+        if isinstance(self.start_time, datetime.datetime):
+            embed.add_field(
+                name="Start Time",
+                value=f"<t:{int(self.start_time.timestamp())}:f>",
+                inline=True,
+            )
+        else:
+            embed.add_field(
+                name="Start Time",
+                value=f"__As Soon As Full__",
+                inline=True,
+            )
         embed.add_field(
             name="ID",
             value=str(self.id),
@@ -530,8 +551,9 @@ class LfgMessage:
                 inline=True,
             )
 
-        # add the start time to the footer
-        embed.timestamp = self.start_time
+        if isinstance(self.start_time, datetime.datetime):
+            # add the start time to the footer
+            embed.timestamp = self.start_time
 
         return embed
 
@@ -547,7 +569,7 @@ class LfgMessage:
                 voice_channel_id=self.voice_channel.id if self.voice_channel else None,
                 activity=self.activity,
                 description=self.description,
-                start_time=self.start_time,
+                start_time=self.start_time if isinstance(self.start_time, datetime.datetime) else asap_start_time,
                 max_joined_members=self.max_joined_members,
                 joined_members=[member.id for member in self.joined],
                 alternate_members=[member.id for member in self.backup],
