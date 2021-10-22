@@ -12,7 +12,7 @@ from Backend.crud.destiny.records import records
 from Backend.database.models import Collectibles, DiscordUsers, Records
 from Backend.misc.helperFunctions import get_datetime_from_bungie_entry
 from Backend.networking.bungieApi import BungieApi
-from Backend.networking.BungieRoutes import profile_route, stat_route
+from Backend.networking.bungieRoutes import profile_route, stat_route
 from Backend.schemas.destiny.account import (
     DestinyCharacterModel,
     DestinyCharactersModel,

@@ -13,7 +13,7 @@ from Backend.crud import activities, activities_fail_to_get, discord_users
 from Backend.database.models import DiscordUsers
 from Backend.misc.helperFunctions import get_datetime_from_bungie_entry
 from Backend.networking.bungieApi import BungieApi
-from Backend.networking.BungieRoutes import (
+from Backend.networking.bungieRoutes import (
     activities_route,
     pgcr_route,
     stat_route_characters,

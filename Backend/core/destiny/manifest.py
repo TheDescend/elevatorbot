@@ -15,7 +15,7 @@ from Backend.database.models import (
 )
 from Backend.misc.helperFunctions import defaultdictify
 from Backend.networking.bungieApi import BungieApi
-from Backend.networking.BungieRoutes import manifest_route
+from Backend.networking.bungieRoutes import manifest_route
 
 
 @dataclasses.dataclass

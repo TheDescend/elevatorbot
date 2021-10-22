@@ -9,9 +9,11 @@ elevator_servers_add = base_route + "elevator/discordServers/add/{guild_id}/"
 elevator_servers_delete = base_route + "elevator/discordServers/delete/{guild_id}/"
 
 # profile
-destiny_profile_from_discord_id_route = base_route + "profile/discord/{discord_id}/"
-destiny_profile_from_destiny_id_route = base_route + "profile/destiny/{destiny_id}/"
-destiny_profile_delete_route = base_route + "profile/delete/{discord_id}/"
+destiny_profile_route = destiny_base_route + "profile/"
+destiny_profile_from_discord_id_route = destiny_profile_route + "discord/{discord_id}/"  # GET
+destiny_profile_from_destiny_id_route = destiny_profile_route + "destiny/{destiny_id}/"  # GET
+destiny_profile_has_token_route = destiny_profile_route + "discord/{discord_id}/has_token/"  # GET
+destiny_profile_delete_route = destiny_profile_route + "delete/{discord_id}/"  # DELETE
 
 # account
 destiny_account_route = destiny_base_route + "account/"

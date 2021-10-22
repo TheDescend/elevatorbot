@@ -3,14 +3,16 @@ from __future__ import annotations
 import dataclasses
 
 from dis_snek.client import Snake
-from dis_snek.models import Guild
-from dis_snek.models import Member
+from dis_snek.models import Guild, Member
 
 from ElevatorBot.backendNetworking.http import BaseBackendConnection
 from ElevatorBot.backendNetworking.results import BackendResult
-from ElevatorBot.backendNetworking.routes import destiny_profile_delete_route
-from ElevatorBot.backendNetworking.routes import destiny_profile_from_destiny_id_route
-from ElevatorBot.backendNetworking.routes import destiny_profile_from_discord_id_route
+from ElevatorBot.backendNetworking.routes import (
+    destiny_profile_delete_route,
+    destiny_profile_from_destiny_id_route,
+    destiny_profile_from_discord_id_route,
+    destiny_profile_has_token_route,
+)
 from ElevatorBot.static.schemas import DestinyData
 
 
@@ -67,6 +69,17 @@ class DestinyProfile(BaseBackendConnection):
             destiny_id=result.result["destiny_id"],
             system=result.result["system"],
         )
+
+    async def has_token(self) -> bool:
+        """Does the user have a working token"""
+
+        result = await self._backend_request(
+            method="GET", route=destiny_profile_has_token_route.format(discord_id=self.discord_member.id)
+        )
+
+        if result:
+            return result.result["token"]
+        return False
 
     async def delete(self) -> BackendResult:
         """Delete the profile"""

@@ -12,6 +12,10 @@ class DestinyProfileModel(BaseModel):
         orm_mode = True
 
 
+class DestinyHasTokenModel(BaseModel):
+    token: bool
+
+
 class DestinyUpdatedLowManModel(DestinyLowManModel):
     activity_name: str
 

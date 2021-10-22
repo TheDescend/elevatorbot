@@ -1,20 +1,22 @@
 from dis_snek.client import Snake
-from dis_snek.models import InteractionContext
-from dis_snek.models import Scale
+from dis_snek.models import InteractionContext, Scale
+
+from ElevatorBot.backendNetworking.destiny.profile import DestinyProfile
 
 
 class BaseScale(Scale):
-    """Overwrites default events like on_error and pre_run"""
+    """Add checks to every scale"""
 
     def __init__(self, client):
         self.client: Snake = client
-        self.add_scale_prerun(self.default_pre_run)
+        self.add_scale_check(self.registered_check)
 
-    async def default_pre_run(self, ctx: InteractionContext):
+    @staticmethod
+    async def registered_check(ctx: InteractionContext) -> bool:
         """
         Default command that is run before the command is handled
-        Checks if the member is registered
+        Checks if the command invoker is registered
         """
 
-        # todo
-        ...
+        # todo test
+        return await DestinyProfile(client=ctx.bot, discord_member=ctx.author, discord_guild=ctx.guild).has_token()

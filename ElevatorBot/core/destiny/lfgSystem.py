@@ -560,7 +560,7 @@ class LfgMessage:
         if isinstance(self.start_time, datetime.datetime):
             embed.add_field(
                 name="Start Time",
-                value=f"<t:{int(self.start_time.timestamp())}:f>\n[Add to calendar]({self.__get_ics_url()})",
+                value=f"{Timestamp.fromdatetime(self.start_time).format(style=TimestampStyles.ShortDateTime)}\n[Add To Calendar]({self.__get_ics_url()})",
                 inline=True,
             )
         else:
