@@ -1,8 +1,7 @@
-from dis_snek.models import InteractionContext
-from dis_snek.models import slash_command
+from dis_snek.models import InteractionContext, slash_command
 
 from ElevatorBot.commands.base import BaseScale
-from ElevatorBot.core.funStuff.calculator import Calculator
+from ElevatorBot.core.misc.calculator import Calculator
 
 
 class CalculatorCommand(BaseScale):

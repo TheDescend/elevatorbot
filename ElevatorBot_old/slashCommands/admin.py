@@ -449,7 +449,7 @@ class PersistentMessagesCommands(commands.Cog):
     #                                 label=game_name,
     #                                 value=f"{game_name}|{game_values['role_id']}",
     #                             )
-    #                             # Options for funStuff. Using the role id as value and emoji as emoji
+    #                             # Options for misc. Using the role id as value and emoji as emoji
     #                             for game_name, game_values in other_game_roles.items()
     #                         ],
     #                         custom_id="other_game_roles",
@@ -547,7 +547,7 @@ class PersistentMessagesCommands(commands.Cog):
     # ⁣
     # <:desc_title_left_b:768906489309822987><:desc_title_right_b:768906489729122344> **Tutorial** <:desc_title_left_b:768906489309822987> <:desc_title_mid_b:768906489103384657><:desc_title_mid_b:768906489103384657><:desc_title_right_b:768906489729122344>
     # :desc_circle_b: Create the tournament by using `/tournament _insert`. This will make a new message appear in this channel, to join the tournament, simply react to it.
-    # :desc_circle_b: Once everyone has signed up use `/tournament start` to start the tournament. I will generate a random bracket and assign player to funStuff.
+    # :desc_circle_b: Once everyone has signed up use `/tournament start` to start the tournament. I will generate a random bracket and assign player to misc.
     # :desc_circle_b: Now you need to start a custom game with only the two chosen players in it and **finish it**. I will automatically detect the winner. Last man standing wins it all!
     # ⁣
     # ⁣"""

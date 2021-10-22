@@ -69,7 +69,7 @@ class Tournament:
 
             return bracket, player_id_translation
 
-        # loops through the bracket and plays the funStuff
+        # loops through the bracket and plays the misc
         async def playBracket(client, tourn_channel, bracket):
             print(f"Bracket: {bracket}")
 

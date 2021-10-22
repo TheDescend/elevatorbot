@@ -1,6 +1,5 @@
 from dis_snek.models import (
     GuildChannel,
-    GuildText,
     GuildVoice,
     InteractionContext,
     OptionTypes,
@@ -10,7 +9,7 @@ from dis_snek.models import (
 
 from ElevatorBot.commandHelpers.responseTemplates import respond_wrong_channel_type
 from ElevatorBot.commands.base import BaseScale
-from ElevatorBot.core.persistentMessages import handle_setup_command
+from ElevatorBot.core.misc.persistentMessages import handle_setup_command
 from settings import COMMAND_GUILD_SCOPE
 
 

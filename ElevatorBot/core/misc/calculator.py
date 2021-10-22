@@ -1,12 +1,14 @@
 import asyncio
 import dataclasses
 
-from dis_snek.models import ActionRow
-from dis_snek.models import Button
-from dis_snek.models import ButtonStyles
-from dis_snek.models import ComponentContext
-from dis_snek.models import InteractionContext
-from dis_snek.models import Message
+from dis_snek.models import (
+    ActionRow,
+    Button,
+    ButtonStyles,
+    ComponentContext,
+    InteractionContext,
+    Message,
+)
 
 from ElevatorBot.misc.formating import embed_message
 
@@ -135,9 +137,9 @@ class Calculator:
     # set all buttons to be disabled
     def disable_buttons(self):
         for row in self.buttons:
-            for button in row["components"]:
+            for button in row.components:
                 button_update = {"disabled": True}
-                button._update(button_update)
+                button.update(button_update)
 
     async def send_message(
         self,
@@ -218,6 +220,7 @@ class Calculator:
                 text = "-"
 
             if button_ctx.component_id not in [
+                "0",
                 "1",
                 "2",
                 "3",
