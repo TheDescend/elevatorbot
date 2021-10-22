@@ -1,9 +1,19 @@
 import asyncio
 
-
 import pytz
 from dateutil.parser import ParserError, parse
-from dis_snek.models import ActionRow, ComponentContext, InteractionContext, Message, OptionTypes, Select, SelectOption, SlashCommandChoice, slash_option, sub_command
+from dis_snek.models import (
+    ActionRow,
+    ComponentContext,
+    InteractionContext,
+    Message,
+    OptionTypes,
+    Select,
+    SelectOption,
+    SlashCommandChoice,
+    slash_option,
+    sub_command,
+)
 
 from ElevatorBot.backendNetworking.results import BackendResult
 from ElevatorBot.commandHelpers.responseTemplates import respond_timeout
@@ -165,6 +175,7 @@ class LfgEdit(BaseScale):
                             )
                             return
 
+                        old_start_time = lfg_message.start_time
                         lfg_message.start_time = start_time
 
             # Maximum Members
@@ -197,6 +208,8 @@ class LfgEdit(BaseScale):
 
         # resend msg
         await lfg_message.send()
+        if section == "Start Time":
+            await lfg_message.alert_start_time_changed(previous_start_time=old_start_time)
 
         await message.edit(
             embeds=embed_message(f"Success", f"I've edited the post"),

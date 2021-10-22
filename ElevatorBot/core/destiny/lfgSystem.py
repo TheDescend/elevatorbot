@@ -25,12 +25,14 @@ from dis_snek.models import (
     OverwriteTypes,
     PermissionOverwrite,
     Permissions,
+    Timestamp,
+    TimestampStyles,
 )
 
 from ElevatorBot.backendNetworking.destiny.lfgSystem import DestinyLfgSystem
 from ElevatorBot.backendNetworking.results import BackendResult
 from ElevatorBot.backgroundEvents import scheduler
-from ElevatorBot.misc.formating import embed_message
+from ElevatorBot.misc.formating import embed_message, format_discord_link
 from ElevatorBot.misc.helperFunctions import get_now_with_tz
 from ElevatorBot.static.emojis import custom_emojis
 from ElevatorBot.static.schemas import LfgInputData, LfgUpdateData
@@ -312,6 +314,20 @@ class LfgMessage:
             except JobLookupError:
                 pass
 
+    def alert_start_time_changed(self, previous_start_time: datetime.datetime):
+        """Alert all joined / backups that the event start time was changed"""
+
+        embed = embed_message(
+            "Attention Please",
+            f"The start time for the lfg event [{self.id}]({format_discord_link(self.guild.id, self.channel.id, self.message.id)}) has changed \nIt changed from {Timestamp.fromdatetime(previous_start_time).format(style=TimestampStyles.ShortDateTime)} to {Timestamp.fromdatetime(self.start_time).format(style=TimestampStyles.ShortDateTime)}",
+        )
+
+        for user in self.joined + self.backup:
+            try:
+                await user.send(embed=embed)
+            except Forbidden:
+                pass
+
     async def schedule_event(self):
         """(re-) scheduled the event with apscheduler using the lfg_id as event_id"""
 
@@ -385,7 +401,7 @@ class LfgMessage:
         # prepare embed
         embed = embed_message(
             f"LFG Event - {self.activity}",
-            f"The LFG event with the ID `{self.id}` is going to start in **{int(time_to_start.seconds / 60)} minutes**\n{voice_text}",
+            f"The LFG event [{self.id}]({format_discord_link(self.guild.id, self.channel.id, self.message.id)}) is going to start in **{int(time_to_start.seconds / 60)} minutes**\n{voice_text}",
             "Start Time",
         )
         embed.add_field(

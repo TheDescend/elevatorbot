@@ -20,7 +20,7 @@ from ElevatorBot.commandHelpers.responseTemplates import (
     respond_wrong_author,
     respond_wrong_channel_type,
 )
-from ElevatorBot.misc.formating import embed_message
+from ElevatorBot.misc.formating import embed_message, format_discord_link
 
 
 @dataclasses.dataclass()
@@ -83,7 +83,9 @@ async def handle_setup_command(
     # calculate the success message if that is not given
     if success_message is "None":
         if send_components:
-            success_message = f"Click [here](https://canary.discord.com/channels/{ctx.guild.id}/{channel.id}/{message.id}) to view the message"
+            success_message = (
+                f"Click [here]({format_discord_link(ctx.guild.id, channel.id, message.id)}) to view the message"
+            )
 
     # send confirmation message if everything went well
     if result:

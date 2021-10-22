@@ -1,7 +1,6 @@
 from typing import Any
 
-from dis_snek.models import Colour
-from dis_snek.models import Embed
+from dis_snek.models import Colour, Embed
 
 
 def embed_message(title: str = None, description: str = None, footer: str = None) -> Embed:
@@ -52,3 +51,9 @@ def format_timedelta(seconds: int) -> str:
     minutes = int(seconds % (60 * 60) / 60)
 
     return f"{hours}h {minutes}m"
+
+
+def format_discord_link(guild_id: int, channel_id: int, message_id: int) -> str:
+    """Format a discord hyperlink"""
+
+    return f"https://canary.discord.com/channels/{guild_id}/{channel_id}/{message_id}"
