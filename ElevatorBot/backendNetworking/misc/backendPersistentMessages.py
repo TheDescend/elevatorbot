@@ -18,7 +18,7 @@ class BackendPersistentMessages(BaseBackendConnection):
 
     discord_member: Member = dataclasses.field(init=False, default=None)
 
-    async def _get(self) -> BackendResult:
+    async def get(self) -> BackendResult:
         """Gets a persistent message"""
 
         return await self._backend_request(

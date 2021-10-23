@@ -33,5 +33,5 @@ class UpdateActivities(BaseEvent):
             # gather that to be speedier
             await asyncio.gather(*to_gather)
 
-            # try to _get the missing pgcr
+            # try to get the missing pgcr
             await activities.update_missing_pgcr()

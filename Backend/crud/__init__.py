@@ -1,4 +1,3 @@
-from Backend.crud.backendUsers import backend_user
 from Backend.crud.destiny.activities import (
     activities,
     activities_fail_to_get,
@@ -13,7 +12,8 @@ from Backend.crud.destiny.manifest import destiny_manifest
 from Backend.crud.destiny.records import records
 from Backend.crud.discord.elevatorServers import elevator_servers
 from Backend.crud.discord.roles import roles
-from Backend.crud.steamPlayers import d2_steam_players
-from Backend.crud.persistentMessages import persistent_messages
-from Backend.crud.polls import polls
-from Backend.crud.versions import versions
+from Backend.crud.misc.backendUsers import backend_user
+from Backend.crud.misc.persistentMessages import persistent_messages
+from Backend.crud.misc.polls import polls
+from Backend.crud.misc.steamPlayers import d2_steam_players
+from Backend.crud.misc.versions import versions

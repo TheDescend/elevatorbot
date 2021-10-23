@@ -16,7 +16,7 @@ from Backend.core.security.auth import (
 from Backend.database.models import BackendUser
 from Backend.dependencies import get_db_session
 from Backend.networking.elevatorApi import ElevatorApi
-from Backend.schemas.auth import (
+from Backend.schemas.misc.auth import (
     BackendUserModel,
     BungieTokenInput,
     BungieTokenOutput,
@@ -40,11 +40,11 @@ async def save_bungie_token(bungie_token: BungieTokenInput, db: AsyncSession = D
     )
 
     if result.success:
-        # _get users activities in background
+        # get users activities in background
         activities = DestinyActivities(db=db, user=user)
         asyncio.create_task(activities.update_activity_db())
 
-        # send a msg to Elevator and _get the mutual guild ids
+        # send a msg to Elevator and get the mutual guild ids
         elevator_api = ElevatorApi()
         response = await elevator_api.post(
             route_addition="registration/",
@@ -61,7 +61,7 @@ async def save_bungie_token(bungie_token: BungieTokenInput, db: AsyncSession = D
             if guild_id in response.content["guild_ids"]:
                 registered_role_id, unregistered_role_id = None, None
 
-                # _get both role ids
+                # get both role ids
                 for role in role_data:
                     if role.role_name == "Registered":
                         registered_role_id = role.role_id
@@ -132,7 +132,7 @@ async def register(
     hashed_password = get_password_hash(password)
 
     # todo dont make everyone admin
-    # _insert to db
+    # insert to db
     new_user = BackendUser(
         user_name=user_name,
         hashed_password=hashed_password,

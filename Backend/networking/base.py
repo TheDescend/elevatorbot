@@ -10,17 +10,17 @@ from Backend.core.errors import CustomException
 from Backend.networking.bungieRatelimiting import BungieRateLimiter
 from Backend.networking.schemas import InternalWebResponse, WebResponse
 
-# the limiter object which to not _get rate-limited by bungie. One obj for ever instance!
+# the limiter object which to not get rate-limited by bungie. One obj for ever instance!
 bungie_limiter = BungieRateLimiter()
 
 
 class NetworkBase:
     bungie_request = True
 
-    # _get logger
+    # get logger
     logger = logging.getLogger("bungieApi")
 
-    # _get limiter
+    # get limiter
     limiter = bungie_limiter
 
     # how many times to retry a request
@@ -92,7 +92,7 @@ class NetworkBase:
     ) -> Optional[InternalWebResponse]:
         """Handle the request results"""
 
-        # make sure the return is a json, sometimes we _get a http file for some reason
+        # make sure the return is a json, sometimes we get a http file for some reason
         if "application/json" not in request.headers["Content-Type"]:
             self.logger.error(
                 "'%s': Wrong content type '%s' with reason '%s' for '%s'",
@@ -106,7 +106,7 @@ class NetworkBase:
             await asyncio.sleep(3)
             return
 
-        # _get the response as a json
+        # get the response as a json
         try:
             response = InternalWebResponse(
                 content=await request.json(),

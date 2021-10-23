@@ -56,7 +56,7 @@ class BungieAuth(NetworkBase):
             "refresh_token": str(self.user.refresh_token),
         }
 
-        # _get a new token
+        # get a new token
         async with aiohttp.ClientSession() as session:
             current_time = int(time.time())
 

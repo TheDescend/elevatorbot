@@ -57,7 +57,7 @@ class DestinyProfile:
 
         triumph_hash = int(triumph_hash)
 
-        # _get from db and return that if it says user got the triumph
+        # get from db and return that if it says user got the triumph
         result = await records.has_record(db=self.db, destiny_id=self.destiny_id, triumph_hash=triumph_hash)
         if result:
             return result
@@ -113,7 +113,7 @@ class DestinyProfile:
 
         collectible_hash = int(collectible_hash)
 
-        # _get from db and return that if it says user got the collectible
+        # get from db and return that if it says user got the collectible
         result = await collectibles.has_collectible(
             db=self.db, destiny_id=self.destiny_id, collectible_hash=collectible_hash
         )
@@ -273,10 +273,10 @@ class DestinyProfile:
 
         result = await self.__get_profile()
 
-        # _get profile triumphs
+        # get profile triumphs
         triumphs = result["profileRecords"]["data"]["records"]
 
-        # _get character triumphs
+        # get character triumphs
         character_triumphs = [
             character_triumphs["records"]
             for character_id, character_triumphs in result["characterRecords"]["data"].items()
@@ -293,10 +293,10 @@ class DestinyProfile:
 
         result = await self.__get_profile()
 
-        # _get profile triumphs
+        # get profile triumphs
         collectibles = result["profileCollectibles"]["data"]["collectibles"]
 
-        # _get character triumphs
+        # get character triumphs
         character_collectibles = [
             character_triumphs["collectibles"]
             for _, character_triumphs in result["characterCollectibles"]["data"].items()
@@ -328,7 +328,7 @@ class DestinyProfile:
     async def get_solos(self) -> DestinyLowMansModel:
         """Return the destiny solos"""
 
-        # todo _get those from the db
+        # todo get those from the db
         interesting_solos = {
             "Shattered Throne": throneHashes,
             "Pit of Heresy": pitHashes,
@@ -341,7 +341,7 @@ class DestinyProfile:
             "Grandmaster Nightfalls": gmHashes,
         }
 
-        # _get the results for this in a gather (keeps order)
+        # get the results for this in a gather (keeps order)
         activities = DestinyActivities(db=self.db, user=self.user)
         results = await asyncio.gather(
             *[
@@ -429,7 +429,7 @@ class DestinyProfile:
         else:
             response = await self.api.get(route=route, params=params)
 
-        # _get bungie name
+        # get bungie name
         bungie_name = f"""{response.content["profile"]["data"]["userInfo"]["bungieGlobalDisplayName"]}#{response.content["profile"]["data"]["userInfo"]["bungieGlobalDisplayNameCode"]}"""
 
         # update name if different

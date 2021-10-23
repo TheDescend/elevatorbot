@@ -1,7 +1,9 @@
 from dis_snek.models import InteractionContext, Member, Message
 
+from ElevatorBot.backendNetworking.errorCodesAndResponses import (
+    error_codes_and_responses,
+)
 from ElevatorBot.misc.formating import embed_message
-from ElevatorBot.static.errorCodesAndResponses import error_codes_and_responses
 
 
 async def respond_discord_member_unknown(ctx: InteractionContext, discord_member: Member, hidden: bool = True) -> bool:

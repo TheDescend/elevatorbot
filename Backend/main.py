@@ -10,11 +10,12 @@ from Backend.dependencies import (
     auth_get_user_with_read_perm,
     auth_get_user_with_write_perm,
 )
-from Backend.endpoints import auth, elevatorInfo, persistentMessages
+from Backend.endpoints import auth
 from Backend.endpoints.destiny import account, clan, lfg, profile, roles
+from Backend.endpoints.misc import elevatorInfo, persistentMessages, polls
 from Backend.misc.initBackgroundEvents import register_background_events
 from Backend.misc.initLogging import init_logging
-from Backend.schemas.auth import BackendUserModel
+from Backend.schemas.misc.auth import BackendUserModel
 
 app = FastAPI()
 
@@ -46,6 +47,7 @@ async def log_requests(request: Request, call_next):
 app.include_router(elevatorInfo.router)
 app.include_router(auth.router)
 app.include_router(persistentMessages.router)
+app.include_router(polls.router)
 app.include_router(profile.router)
 app.include_router(account.router)
 app.include_router(clan.router)

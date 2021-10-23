@@ -62,7 +62,7 @@ If you want to feel like an [expert](https://www.youtube.com/watch?v=BKorP55Aqvg
 interact with LFG events:
 {custom_emojis.enter} `/lfg insert` - Create a new LFG event
 {custom_emojis.enter} `/lfg edit` - Edit parts of an LFG event
-{custom_emojis.enter} `/lfg _delete` - Remove the LFG event
+{custom_emojis.enter} `/lfg delete` - Remove the LFG event
 {custom_emojis.enter} `/lfg add` - Add a user to your own LFG event
 {custom_emojis.enter} `/lfg kick` - Kick a user from your own LFG event
 {custom_emojis.enter} `/lfg blacklist` - Blacklist a user from joining any of your own LFG events

@@ -15,7 +15,7 @@ from Backend.main import app
 is_test_mode(set_test_mode=True)
 
 
-# _insert a local testing db
+# insert a local testing db
 TESTING_DATABASE_URL = f"""postgresql+asyncpg://{os.environ.get("POSTGRES_USER")}:{os.environ.get("POSTGRES_PASSWORD")}@localhost:{os.environ.get("POSTGRES_PORT")}/postgres"""
 setup_engine(database_url=TESTING_DATABASE_URL)
 
@@ -39,7 +39,7 @@ async def init_db_tables():
     await create_tables(engine=setup_engine())
 
 
-# make it so that every function can _get the client by just specifying it as a param
+# make it so that every function can get the client by just specifying it as a param
 @pytest.fixture(scope="module")
 def client():
     with TestClient(app) as client:

@@ -40,7 +40,7 @@ class CRUDActivities(CRUDBase):
     async def insert(self, db: AsyncSession, instance_id: int, activity_time: datetime, pgcr: dict):
         """Get the activity with the instance_id"""
 
-        # _get this to not accidentally insert the same thing twice
+        # get this to not accidentally insert the same thing twice
         async with asyncio.Lock():
             return await self.__locked_insert(db=db, instance_id=instance_id, activity_time=activity_time, pgcr=pgcr)
 

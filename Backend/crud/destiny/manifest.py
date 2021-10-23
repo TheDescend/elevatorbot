@@ -23,7 +23,7 @@ class CRUDManifest(CRUDBase):
     async def get_version(db: AsyncSession):
         """Get the current version"""
 
-        return await versions._get(db=db, name="Manifest")
+        return await versions.get(db=db, name="Manifest")
 
     @staticmethod
     async def upsert_version(db: AsyncSession, version: str):
@@ -52,7 +52,7 @@ class CRUDManifest(CRUDBase):
     async def get_seals(self, db: AsyncSession) -> list[Seal]:
         """Get all current seals"""
 
-        # reference ids which should not _get returned here
+        # reference ids which should not get returned here
         not_available = []
 
         query = (

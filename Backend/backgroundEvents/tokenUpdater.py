@@ -28,5 +28,5 @@ class TokenUpdater(BaseEvent):
                 if user.token:
                     auth = BungieAuth(db=db, user=user)
 
-                    # _get a working token aka update
+                    # get a working token aka update
                     await auth.get_working_token()

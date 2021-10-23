@@ -1,8 +1,11 @@
+from typing import Optional
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.crud.base import CRUDBase
 from Backend.crud.cache import cache
 from Backend.database.models import PersistentMessage
+from Backend.misc.helperFunctions import convert_kwargs_into_dict
 
 
 class CRUDPersistentMessages(CRUDBase):
@@ -21,7 +24,12 @@ class CRUDPersistentMessages(CRUDBase):
         return self.cache.persistent_messages[cache_str]
 
     async def upsert(
-        self, db: AsyncSession, guild_id: int, message_name: str, channel_id: int = None, message_id: int = None
+        self,
+        db: AsyncSession,
+        guild_id: int,
+        message_name: str,
+        channel_id: Optional[int] = None,
+        message_id: Optional[int] = None,
     ) -> PersistentMessage:
         """Upsert the persistent message"""
 
@@ -30,10 +38,12 @@ class CRUDPersistentMessages(CRUDBase):
             "message_name": message_name,
             "guild_id": guild_id,
         }
-        if channel_id:
-            upsert_dict.update({"channel_id": channel_id})
-        if message_id:
-            upsert_dict.update({"message_id": message_id})
+        upsert_dict.update(
+            convert_kwargs_into_dict(
+                channel_id=channel_id,
+                message_id=message_id,
+            )
+        )
 
         model = await self._upsert(db=db, model_data=upsert_dict)
 

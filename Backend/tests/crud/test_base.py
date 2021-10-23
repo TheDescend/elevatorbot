@@ -31,7 +31,7 @@ test_user2 = BackendUser(
 
 
 # first, lets test the crud base backendNetworking, so they do not have to be retested for every item
-# if they dont _get overloaded at least
+# if they dont get overloaded at least
 # using BackendUser for that
 @pytest.mark.asyncio
 async def test_insert_and_get(db: AsyncSession):

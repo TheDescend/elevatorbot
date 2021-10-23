@@ -24,7 +24,7 @@ class CRUDDestinyClanLinks(CRUDBase):
         # check if the destiny guild is already linked to a discord server
         link = await self._get_multi(db, discord_guild_id=discord_guild_id)
         if link:
-            # if it does we need to delete that, since a destiny clan can only _get linked to one discord guild
+            # if it does we need to delete that, since a destiny clan can only get linked to one discord guild
             await self._delete(db, obj=link[0])
 
         # check if a link to a different destiny clan exists

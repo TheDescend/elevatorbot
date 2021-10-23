@@ -13,7 +13,7 @@ from Backend.database.base import get_async_session
 from Backend.database.models import BackendUser
 
 
-# _get the database session
+# get the database session
 async def get_db_session() -> AsyncSession:
     async with get_async_session().begin() as session:
         yield session
@@ -30,7 +30,7 @@ async def auth_get_user(token: str = Depends(oauth2_scheme), db: AsyncSession = 
     except JWTError:
         raise CREDENTIALS_EXCEPTION
 
-    # _get the user
+    # get the user
     user = await crud.backend_user._get_with_key(db, user_name)
 
     # verify that the user is OK

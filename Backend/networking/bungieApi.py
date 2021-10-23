@@ -20,7 +20,7 @@ class BungieApi(NetworkBase):
     normal_headers = {"X-API-Key": BUNGIE_TOKEN, "Accept": "application/json"}
     auth_headers = normal_headers.copy()
 
-    # the cache object. Low expire time since players dont want to wait an eternity for their stuff to _update
+    # the cache object. Low expire time since players dont want to wait an eternity for their stuff to update
     cache = aiohttp_client_cache.SQLiteBackend(
         cache_name="networking/bungie_networking_cache",
         expire_after=timedelta(minutes=5),
@@ -150,7 +150,7 @@ class BungieApi(NetworkBase):
     async def __set_auth_headers(self):
         """Update the auth headers to include a working token. Raise an error if that doesnt exist"""
 
-        # _get a working token or abort
+        # get a working token or abort
         auth = BungieAuth(db=self.db, user=self.user)
         token = await auth.get_working_token()
 

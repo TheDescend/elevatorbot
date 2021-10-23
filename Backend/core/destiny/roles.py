@@ -40,7 +40,7 @@ class UserRoles:
     async def get_missing_roles(self, guild_id: int) -> MissingRolesModel:
         """Return all the missing guild roles"""
 
-        # _get the users completion status
+        # get the users completion status
         user_roles = await self.get_guild_roles(guild_id=guild_id)
         missing_roles = user_roles.not_earned
 
@@ -69,7 +69,7 @@ class UserRoles:
     async def get_guild_roles(self, guild_id: int) -> EarnedRolesModel:
         """Return all the gotten / not gotten guild roles"""
 
-        # _get all guild roles
+        # get all guild roles
         guild_roles = await self.roles.get_guild_roles(db=self.db, guild_id=guild_id)
         user_roles = EarnedRolesModel()
 
@@ -118,7 +118,7 @@ class UserRoles:
 
     async def has_role(self, role: Roles, i_only_need_the_bool: bool = False) -> EarnedRoleModel:
         """
-        Return is the role is gotten and a dictionary of what is missing to _get the role
+        Return is the role is gotten and a dictionary of what is missing to get the role
 
         If the role is currently not acquirable, this returns RoleEnum.EARNED_BUT_REPLACED_BY_HIGHER_ROLE, None
 
@@ -287,7 +287,7 @@ class UserRoles:
                 for role_id in requirement_value:
                     # alright so this is a bit more convoluted
                     # simply calling this function again would lead to double checking / race conditions when checking all roles (because of .gather())
-                    # but just waiting would not work too, since a single role can _get checked too
+                    # but just waiting would not work too, since a single role can get checked too
                     # so we are waiting if called with gather, and looking ourselves if not
                     if called_with_asyncio_gather:
                         # 5 minutes wait time

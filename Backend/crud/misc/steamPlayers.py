@@ -10,10 +10,10 @@ class CRUDSteamPlayers(CRUDBase):
     async def upsert(self, db: AsyncSession, player_count: int):
         """Upsert the data"""
 
-        # _get the current date
+        # get the current date
         now = datetime.date.today()
 
-        # _get the players for the current date
+        # get the players for the current date
         current_value = await self._get_with_key(db=db, primary_key=now)
 
         # if that doesn't exist insert

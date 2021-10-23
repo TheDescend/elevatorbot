@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from Backend.crud import persistent_messages
 from Backend.dependencies import get_db_session
 from Backend.schemas.empty import EmptyResponseModel
-from Backend.schemas.persistentMessages import (
+from Backend.schemas.misc.persistentMessages import (
     PersistentMessage,
     PersistentMessageUpsert,
 )
@@ -15,11 +15,11 @@ router = APIRouter(
 )
 
 
-@router.get("/{guild_id}/_get/{message_name}", response_model=PersistentMessage)
+@router.get("/{guild_id}/get/{message_name}", response_model=PersistentMessage)
 async def get(guild_id: int, message_name: str, db: AsyncSession = Depends(get_db_session)):
     """Gets a persistent message"""
 
-    result = await persistent_messages._get(db=db, guild_id=guild_id, message_name=message_name)
+    result = await persistent_messages.get(db=db, guild_id=guild_id, message_name=message_name)
     return PersistentMessage.from_orm(result)
 
 

@@ -33,7 +33,7 @@ class DestinyManifest:
     async def update(self):
         """Checks the local manifests versions and updates the local copy should it have changed"""
 
-        # _get the manifest
+        # get the manifest
         db_manifest = destiny_manifest
         manifest = await self.api.get(route=manifest_route)
 
@@ -49,7 +49,7 @@ class DestinyManifest:
                     # delete old data
                     await db_manifest.delete_definition(db=self.db, db_model=DestinyActivityDefinition)
 
-                    # _get new data and save values as defaultdict
+                    # get new data and save values as defaultdict
                     data = await self.api.get(f"https://www.bungie.net{url}")
                     content = defaultdictify(data.content)
 
@@ -81,7 +81,7 @@ class DestinyManifest:
                     # delete old data
                     await db_manifest.delete_definition(db=self.db, db_model=DestinyActivityTypeDefinition)
 
-                    # _get new data and save values as defaultdict
+                    # get new data and save values as defaultdict
                     data = await self.api.get(f"https://www.bungie.net{url}")
                     content = defaultdictify(data.content)
 
@@ -103,7 +103,7 @@ class DestinyManifest:
                     # delete old data
                     await db_manifest.delete_definition(db=self.db, db_model=DestinyActivityModeDefinition)
 
-                    # _get new data and save values as defaultdict
+                    # get new data and save values as defaultdict
                     data = await self.api.get(f"https://www.bungie.net{url}")
                     content = defaultdictify(data.content)
 
@@ -132,7 +132,7 @@ class DestinyManifest:
                     # delete old data
                     await db_manifest.delete_definition(db=self.db, db_model=DestinyCollectibleDefinition)
 
-                    # _get new data and save values as defaultdict
+                    # get new data and save values as defaultdict
                     data = await self.api.get(f"https://www.bungie.net{url}")
                     content = defaultdictify(data.content)
 
@@ -157,7 +157,7 @@ class DestinyManifest:
                     # delete old data
                     await db_manifest.delete_definition(db=self.db, db_model=DestinyInventoryItemDefinition)
 
-                    # _get new data and save values as defaultdict
+                    # get new data and save values as defaultdict
                     data = await self.api.get(f"https://www.bungie.net{url}")
                     content = defaultdictify(data.content)
 
@@ -184,7 +184,7 @@ class DestinyManifest:
                     # delete old data
                     await db_manifest.delete_definition(db=self.db, db_model=DestinyRecordDefinition)
 
-                    # _get new data and save values as defaultdict
+                    # get new data and save values as defaultdict
                     data = await self.api.get(f"https://www.bungie.net{url}")
                     content = defaultdictify(data.content)
 
@@ -211,7 +211,7 @@ class DestinyManifest:
                     # delete old data
                     await db_manifest.delete_definition(db=self.db, db_model=DestinyInventoryBucketDefinition)
 
-                    # _get new data and save values as defaultdict
+                    # get new data and save values as defaultdict
                     data = await self.api.get(f"https://www.bungie.net{url}")
                     content = defaultdictify(data.content)
 
@@ -236,7 +236,7 @@ class DestinyManifest:
                     # delete old data
                     await db_manifest.delete_definition(db=self.db, db_model=DestinyPresentationNodeDefinition)
 
-                    # _get new data and save values as defaultdict
+                    # get new data and save values as defaultdict
                     data = await self.api.get(f"https://www.bungie.net{url}")
                     content = defaultdictify(data.content)
 

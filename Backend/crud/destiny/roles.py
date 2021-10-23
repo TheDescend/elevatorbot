@@ -50,7 +50,7 @@ class CRUDRoles(CRUDBase):
     async def delete_guild_roles(self, db: AsyncSession, guild_id: int):
         """Delete all guild roles"""
 
-        # _get all guild roles
+        # get all guild roles
         guild_roles: list[Roles] = await self._get_multi(db=db, guild_id=guild_id)
 
         # delete them

@@ -1,10 +1,11 @@
 import dataclasses
 
-from dis_snek.models import Embed
-from dis_snek.models import InteractionContext
+from dis_snek.models import Embed, InteractionContext
 
+from ElevatorBot.backendNetworking.errorCodesAndResponses import (
+    error_codes_and_responses,
+)
 from ElevatorBot.misc.formating import embed_message
-from ElevatorBot.static.errorCodesAndResponses import error_codes_and_responses
 
 
 @dataclasses.dataclass
@@ -54,6 +55,8 @@ class BackendResult:
         **format_kwargs,
     ):
         """Sends the error message. format_kwargs are used to format the message before sending it"""
+
+        # todo go through all usages and check when we send hidden and when not and make that consistent
 
         # format it
         if format_kwargs:

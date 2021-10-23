@@ -25,34 +25,34 @@ class MiscCommands(commands.Cog):
     def __init__(self, client):
         self.client = client
 
-    @cog_ext.cog_subcommand(
-        base="poll",
-        base_description="Making polls easy",
-        name="_insert",
-        description="Create a poll",
-        options=[
-            create_option(
-                name="name",
-                description="The name the poll should have",
-                option_type=3,
-                required=True,
-            ),
-            create_option(
-                name="description",
-                description="The description the poll should have",
-                option_type=3,
-                required=True,
-            ),
-        ],
-    )
-    async def _poll_create(self, ctx: SlashContext, name: str, description: str):
-        await create_poll_object(
-            ctx=ctx,
-            name=name,
-            description=description,
-            guild=ctx.guild,
-            channel=ctx.channel,
-        )
+    # @cog_ext.cog_subcommand(
+    #     base="poll",
+    #     base_description="Making polls easy",
+    #     name="_insert",
+    #     description="Create a poll",
+    #     options=[
+    #         create_option(
+    #             name="name",
+    #             description="The name the poll should have",
+    #             option_type=3,
+    #             required=True,
+    #         ),
+    #         create_option(
+    #             name="description",
+    #             description="The description the poll should have",
+    #             option_type=3,
+    #             required=True,
+    #         ),
+    #     ],
+    # )
+    # async def _poll_create(self, ctx: SlashContext, name: str, description: str):
+    #     await create_poll_object(
+    #         ctx=ctx,
+    #         name=name,
+    #         description=description,
+    #         guild=ctx.guild,
+    #         channel=ctx.channel,
+    #     )
 
     @cog_ext.cog_subcommand(
         base="poll",
@@ -166,7 +166,7 @@ class MiscCommands(commands.Cog):
         else:
             # check if user is allowed
             if ctx.author == poll.author or await has_elevated_permissions(user=ctx.author, guild=ctx.guild, ctx=ctx):
-                await poll.disable(edit_ctx=ctx)
+                await poll.disable(ctx=ctx)
 
     @cog_ext.cog_slash(
         name="socialist",

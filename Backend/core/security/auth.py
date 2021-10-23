@@ -23,7 +23,7 @@ CREDENTIALS_EXCEPTION = HTTPException(
 )
 
 
-# _get the secret key from a file if exists, otherwise generate one
+# get the secret key from a file if exists, otherwise generate one
 def get_secret_key():
     global _SECRET_KEY
 

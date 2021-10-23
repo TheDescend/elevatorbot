@@ -98,7 +98,7 @@ class TicTacToeGame:
         else:
             best = [-1, -1, 1000]
 
-        # _get the winner
+        # get the winner
         has_ended = self.is_end()
         if has_ended:
             # player won
@@ -231,7 +231,7 @@ class TicTacToeGame:
                 "9": [2, 2],
             }
 
-            # _get the move from the button id
+            # get the move from the button id
             player_move = moves[button_ctx.component_id]
 
             # set the symbol

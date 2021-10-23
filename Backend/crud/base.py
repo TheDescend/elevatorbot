@@ -65,7 +65,7 @@ class CRUDBase:
         # prepare insert
         stmt = postgresql.insert(self.model).values(model_data)
 
-        # _get primary key and info what should be updated if it fails
+        # get primary key and info what should be updated if it fails
         primary_keys = [key.name for key in inspect(self.model).primary_key]
         update_dict = {c.name: c for c in stmt.excluded if not c.primary_key}
         if not update_dict:
@@ -110,7 +110,7 @@ class CRUDBase:
         if not obj:
             return None
 
-        # _delete and return
+        # delete and return
         await db.delete(obj)
         await db.flush()
 

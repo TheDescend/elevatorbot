@@ -11,7 +11,7 @@ class CRUDBackendUser(CRUDBase):
     async def authenticate(self, db: AsyncSession, user_name: str, password: str) -> Optional[BackendUser]:
         """Checks if the user_name has a matching pw"""
 
-        # _get obj from db
+        # get obj from db
         user = await self._get_with_key(db, user_name)
         if not user:
             return None

@@ -19,7 +19,7 @@ router = APIRouter(
 )
 
 
-@router.get("/_get/all", response_model=AllLfgOutputModel)
+@router.get("/get/all", response_model=AllLfgOutputModel)
 async def get_all(guild_id: int, db: AsyncSession = Depends(get_db_session)):
     """Gets all the lfg events and info belonging to the guild"""
 
@@ -32,11 +32,11 @@ async def get_all(guild_id: int, db: AsyncSession = Depends(get_db_session)):
     return result
 
 
-@router.get("/_get/{lfg_id}", response_model=LfgOutputModel)
+@router.get("/get/{lfg_id}", response_model=LfgOutputModel)
 async def get(guild_id: int, lfg_id: int, db: AsyncSession = Depends(get_db_session)):
     """Gets the lfg info belonging to the lfg id and guild"""
 
-    obj = await lfg._get(db=db, lfg_id=lfg_id, guild_id=guild_id)
+    obj = await lfg.get(db=db, lfg_id=lfg_id, guild_id=guild_id)
 
     return LfgOutputModel.from_orm(obj)
 
@@ -67,10 +67,10 @@ async def create(
     Guild_id describes the guild where the lfg message got created and discord_id the author
     """
 
-    # todo _get channel_id from db
+    # todo get channel_id from db
     channel_id = None
 
-    # _get the creation time
+    # get the creation time
     creation_time = get_now_with_tz()
 
     # create the sql alchemy model

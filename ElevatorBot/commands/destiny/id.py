@@ -1,11 +1,7 @@
-from dis_snek.models import InteractionContext
-from dis_snek.models import Member
-from dis_snek.models import slash_command
+from dis_snek.models import InteractionContext, Member, slash_command
 
 from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
-
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
-
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formating import embed_message
 
@@ -25,7 +21,7 @@ class IdGet(BaseScale):
         result = await destiny_profile.get_destiny_name()
 
         if not result:
-            await result.send_error_message(ctx, hidden=True)
+            await result.send_error_message(ctx)
         else:
             await ctx.send(
                 embeds=embed_message(

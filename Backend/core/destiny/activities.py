@@ -62,7 +62,7 @@ class DestinyActivities:
 
         count, flawless_count, not_flawless_count, fastest = 0, 0, 0, None
 
-        # _get player data
+        # get player data
         low_activity_info = await activities.get_activities(
             db=self.db,
             activity_hashes=activity_ids,
@@ -76,7 +76,7 @@ class DestinyActivities:
         )
 
         # prepare player data
-        # todo _get and process data. No idea how it actually looks tbh. Need changing!
+        # todo get and process data. No idea how it actually looks tbh. Need changing!
         for solo in low_activity_info:
             count += 1
             if solo["deaths"] == 0:
@@ -141,7 +141,7 @@ class DestinyActivities:
                 if br:
                     break
 
-                # _get activities
+                # get activities
                 rep = await self.api.get(route=route, params=params)
 
                 # break if empty, fe. when pages are over
@@ -183,12 +183,12 @@ class DestinyActivities:
                 await activities_fail_to_get.delete(db=self.db, obj=activity)
                 continue
 
-            # _get PGCR
+            # get PGCR
             try:
                 pgcr = await self.get_pgcr(instance_id=activity.instance_id)
 
             except CustomException:
-                # only continue if we _get a response this time
+                # only continue if we get a response this time
                 continue
 
             # add info to DB
@@ -235,10 +235,10 @@ class DestinyActivities:
                     # insert information to DB
                     await activities.insert(db=self.db, instance_id=i, activity_time=t, pgcr=pgcr)
 
-        # _get the logger
+        # get the logger
         logger = logging.getLogger("updateActivityDb")
 
-        # _get the entry time
+        # get the entry time
         if not entry_time:
             entry_time = self.user.activities_last_updated
 
@@ -254,12 +254,12 @@ class DestinyActivities:
             instance_id: int = activity["activityDetails"]["instanceId"]
             activity_time: datetime.datetime = activity["period"]
 
-            # _update with newest entry timestamp
+            # update with newest entry timestamp
             if activity_time > entry_time:
                 entry_time = activity_time
 
             # check if info is already in DB, skip if so
-            if await activities._get(db=self.db, instance_id=instance_id) is not None:
+            if await activities.get(db=self.db, instance_id=instance_id) is not None:
                 continue
 
             # add to gather list
@@ -270,7 +270,7 @@ class DestinyActivities:
             if len(instance_ids) < 50:
                 continue
             else:
-                # _get and input the data
+                # get and input the data
                 await input_data(instance_ids, activity_times)
 
                 # reset gather list and restart
@@ -279,7 +279,7 @@ class DestinyActivities:
 
         # one last time to clean out the extras after the code is done
         if instance_ids:
-            # _get and input the data
+            # get and input the data
             await input_data(instance_ids, activity_times)
 
         # update with newest entry timestamp
@@ -291,7 +291,7 @@ class DestinyActivities:
     async def __get_full_character_list(self) -> list[dict]:
         """Get all character ids (including deleted characters)"""
 
-        # saving this one is the class to prevent the extra api call should it _get called again
+        # saving this one is the class to prevent the extra api call should it get called again
         if not self._full_character_list:
             user = DestinyProfile(db=self.db, user=self.user)
 

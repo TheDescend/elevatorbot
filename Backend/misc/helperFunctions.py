@@ -37,3 +37,13 @@ def defaultdictify(d: dict):
         return [defaultdictify(e) for e in d]
     else:
         return d
+
+
+def convert_kwargs_into_dict(**kwargs) -> dict:
+    """Convert kwargs that are not None into a dict"""
+
+    result = {}
+    for name, value in kwargs.items():
+        if value is not None:
+            result.update({name: value})
+    return result

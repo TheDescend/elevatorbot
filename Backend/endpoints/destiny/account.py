@@ -32,7 +32,7 @@ async def destiny_solos(guild_id: int, discord_id: int, db: AsyncSession = Depen
     user = await crud.discord_users.get_profile_from_discord_id(db, discord_id)
     profile = DestinyProfile(db=db, user=user)
 
-    # _get the solo data
+    # get the solo data
     return await profile.get_solos()
 
 
@@ -43,7 +43,7 @@ async def characters(guild_id: int, discord_id: int, db: AsyncSession = Depends(
     user = await crud.discord_users.get_profile_from_discord_id(db, discord_id)
     profile = DestinyProfile(db=db, user=user)
 
-    # _get the characters
+    # get the characters
     return await profile.get_character_info()
 
 
@@ -56,7 +56,7 @@ async def stat(
     user = await crud.discord_users.get_profile_from_discord_id(db, discord_id)
     profile = DestinyProfile(db=db, user=user)
 
-    # _get the stat value
+    # get the stat value
     value = await profile.get_stat_value(stat_name=stat_name, stat_category=stat_category)
 
     return DestinyStatModel(value=value)
@@ -71,13 +71,13 @@ async def stat_characters(
     user = await crud.discord_users.get_profile_from_discord_id(db, discord_id)
     profile = DestinyProfile(db=db, user=user)
 
-    # _get character ids
+    # get character ids
     character_ids = await profile.get_character_ids()
 
     result = {}
     # loop through characters
     for character_id in character_ids:
-        # _get the stat value
+        # get the stat value
         value = await profile.get_stat_value(stat_name=stat_name, stat_category=stat_category)
         result.update({character_id: DestinyStatModel(value=value)})
 

@@ -13,4 +13,7 @@ error_codes_and_responses = {
     "NoLfgEventWithIdForGuild": "No LFG event was found for that ID \nPlease try again",
     "NoLfgEventPermissions": "{discord_member.mention} does not have permissions to edit this LFG event \nOnly the creator and discord admins can do that",
     "RoleLookupTimedOut": "The role lookup for {discord_member.mention} timed out. This shouldn't happen, my bad. Consider me punished",
+    "PollNoPermission": "{discord_member.mention} does not have permissions to modify this poll",
+    "PollOptionNotExist": "This option does not exist. Make sure you spelled it correctly",
+    "PollNotExist": "This poll ID does not exist",
 }
