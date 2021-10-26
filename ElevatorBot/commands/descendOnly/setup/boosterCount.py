@@ -3,11 +3,12 @@ from dis_snek.models import (
     GuildVoice,
     InteractionContext,
     OptionTypes,
+    slash_command,
     slash_option,
-    sub_command,
 )
 
 from ElevatorBot.commandHelpers.responseTemplates import respond_wrong_channel_type
+from ElevatorBot.commandHelpers.subCommandTemplates import setup_sub_command
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.core.misc.persistentMessages import handle_setup_command
 from settings import COMMAND_GUILD_SCOPE
@@ -16,12 +17,11 @@ from settings import COMMAND_GUILD_SCOPE
 class BoosterCount(BaseScale):
 
     # todo perms
-    @sub_command(
-        base_name="setup",
-        base_description="Use these commands to setup ElevatorBot on this server",
-        sub_name="booster_count",
-        sub_description="Select a voice channel that will show the booster count",
-        scope=COMMAND_GUILD_SCOPE,
+    @slash_command(
+        **setup_sub_command,
+        sub_cmd_name="booster_count",
+        sub_cmd_description="Select a voice channel that will show the booster count",
+        scopes=COMMAND_GUILD_SCOPE,
     )
     @slash_option(
         name="channel",

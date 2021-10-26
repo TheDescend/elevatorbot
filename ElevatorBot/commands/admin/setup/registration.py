@@ -6,11 +6,12 @@ from dis_snek.models import (
     GuildText,
     InteractionContext,
     OptionTypes,
+    slash_command,
     slash_option,
-    sub_command,
 )
 
 from ElevatorBot.commandHelpers.responseTemplates import respond_wrong_channel_type
+from ElevatorBot.commandHelpers.subCommandTemplates import setup_sub_command
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.core.misc.persistentMessages import handle_setup_command
 
@@ -18,11 +19,10 @@ from ElevatorBot.core.misc.persistentMessages import handle_setup_command
 class Registration(BaseScale):
 
     # todo perms
-    @sub_command(
-        base_name="setup",
-        base_description="Use these commands to setup ElevatorBot on this server",
-        sub_name="registration",
-        sub_description="Setup a channel in which user can register with me by pressing a button",
+    @slash_command(
+        **setup_sub_command,
+        sub_cmd_name="registration",
+        sub_cmd_description="Setup a channel in which user can register with me by pressing a button",
     )
     @slash_option(
         name="channel",

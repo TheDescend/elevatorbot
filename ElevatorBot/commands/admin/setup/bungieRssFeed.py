@@ -3,11 +3,12 @@ from dis_snek.models import (
     GuildText,
     InteractionContext,
     OptionTypes,
+    slash_command,
     slash_option,
-    sub_command,
 )
 
 from ElevatorBot.commandHelpers.responseTemplates import respond_wrong_channel_type
+from ElevatorBot.commandHelpers.subCommandTemplates import setup_sub_command
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.core.misc.persistentMessages import handle_setup_command
 
@@ -15,11 +16,10 @@ from ElevatorBot.core.misc.persistentMessages import handle_setup_command
 class BungieRssFeed(BaseScale):
 
     # todo perms
-    @sub_command(
-        base_name="setup",
-        base_description="Use these commands to setup ElevatorBot on this server",
-        sub_name="bungie_feed",
-        sub_description="Links your own Destiny 2 clan with this discord. Requires Admin in both Discord and Destiny",
+    @slash_command(
+        **setup_sub_command,
+        sub_cmd_name="bungie_feed",
+        sub_cmd_description="Links your own Destiny 2 clan with this discord. Requires Admin in both Discord and Destiny",
     )
     @slash_option(
         name="channel",

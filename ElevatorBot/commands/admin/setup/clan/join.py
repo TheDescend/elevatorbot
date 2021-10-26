@@ -6,11 +6,15 @@ from dis_snek.models import (
     GuildText,
     InteractionContext,
     OptionTypes,
+    slash_command,
     slash_option,
-    sub_command,
 )
 
 from ElevatorBot.commandHelpers.responseTemplates import respond_wrong_channel_type
+from ElevatorBot.commandHelpers.subCommandTemplates import (
+    setup_sub_command,
+    setup_sub_command_clan_group,
+)
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.core.misc.persistentMessages import handle_setup_command
 
@@ -18,13 +22,11 @@ from ElevatorBot.core.misc.persistentMessages import handle_setup_command
 class ClanJoin(BaseScale):
 
     # todo perms
-    @sub_command(
-        base_name="setup",
-        base_description="Use these commands to setup ElevatorBot on this server",
-        group_name="clan",
-        group_description="Everything concerning the link from this server to your Destiny 2 clan",
-        sub_name="join",
-        sub_description="Designate a channel where players can join your clan by pressing a button. They will get an invite by the person which used /setup clan link",
+    @slash_command(
+        **setup_sub_command,
+        **setup_sub_command_clan_group,
+        sub_cmd_name="join",
+        sub_cmd_description="Designate a channel where players can join your clan by pressing a button. They will get an invite by the person which used /setup clan link",
     )
     @slash_option(
         name="channel",

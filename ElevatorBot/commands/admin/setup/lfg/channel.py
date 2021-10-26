@@ -3,11 +3,15 @@ from dis_snek.models import (
     GuildText,
     InteractionContext,
     OptionTypes,
+    slash_command,
     slash_option,
-    sub_command,
 )
 
 from ElevatorBot.commandHelpers.responseTemplates import respond_wrong_channel_type
+from ElevatorBot.commandHelpers.subCommandTemplates import (
+    setup_sub_command,
+    setup_sub_command_lfg_group,
+)
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.core.misc.persistentMessages import handle_setup_command
 from ElevatorBot.misc.formating import embed_message
@@ -17,13 +21,11 @@ from ElevatorBot.static.emojis import custom_emojis
 class LfgChannel(BaseScale):
 
     # todo perms
-    @sub_command(
-        base_name="setup",
-        base_description="Use these commands to setup ElevatorBot on this server",
-        group_name="lfg",
-        group_description="Everything needed to use my LFG system",
-        sub_name="channel",
-        sub_description="The channel in which the LFG messages get posted",
+    @slash_command(
+        **setup_sub_command,
+        **setup_sub_command_lfg_group,
+        sub_cmd_name="channel",
+        sub_cmd_description="The channel in which the LFG messages get posted",
     )
     @slash_option(
         name="channel",

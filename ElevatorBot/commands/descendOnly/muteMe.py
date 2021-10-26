@@ -16,7 +16,7 @@ from settings import COMMAND_GUILD_SCOPE
 
 
 class MuteMe(BaseScale):
-    @slash_command(name="muteme", description="I wonder what this does...", scope=COMMAND_GUILD_SCOPE)
+    @slash_command(name="muteme", description="I wonder what this does...", scopes=COMMAND_GUILD_SCOPE)
     @default_user_option()
     async def _mute_me(self, ctx: InteractionContext, user: Member = None):
 

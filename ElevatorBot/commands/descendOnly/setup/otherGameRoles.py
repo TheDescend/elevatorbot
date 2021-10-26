@@ -6,11 +6,12 @@ from dis_snek.models import (
     OptionTypes,
     Select,
     SelectOption,
+    slash_command,
     slash_option,
-    sub_command,
 )
 
 from ElevatorBot.commandHelpers.responseTemplates import respond_wrong_channel_type
+from ElevatorBot.commandHelpers.subCommandTemplates import setup_sub_command
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.core.misc.persistentMessages import handle_setup_command
 from ElevatorBot.misc.formating import embed_message
@@ -55,12 +56,11 @@ class OtherGameRoles(BaseScale):
     }
 
     # todo perms
-    @sub_command(
-        base_name="setup",
-        base_description="Use these commands to setup ElevatorBot on this server",
-        sub_name="other_game_roles",
-        sub_description="Setup a channel in which user can assign themselves other game roles",
-        scope=COMMAND_GUILD_SCOPE,
+    @slash_command(
+        **setup_sub_command,
+        sub_cmd_name="other_game_roles",
+        sub_cmd_description="Setup a channel in which user can assign themselves other game roles",
+        scopes=COMMAND_GUILD_SCOPE,
     )
     @slash_option(
         name="channel",

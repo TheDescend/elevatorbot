@@ -10,8 +10,8 @@ from dis_snek.models import (
     InteractionContext,
     Message,
     OptionTypes,
+    slash_command,
     slash_option,
-    sub_command,
 )
 
 from ElevatorBot.commandHelpers.optionTemplates import get_timezone_choices
@@ -20,6 +20,7 @@ from ElevatorBot.commandHelpers.responseTemplates import (
     respond_time_input_in_past,
     respond_timeout,
 )
+from ElevatorBot.commandHelpers.subCommandTemplates import lfg_sub_command
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.core.destiny.lfgSystem import LfgMessage
 from ElevatorBot.misc.formating import embed_message
@@ -30,11 +31,10 @@ from ElevatorBot.static.destinyActivities import dungeons, raids
 class LfgCreate(BaseScale):
 
 
-    @sub_command(
-        base_name="lfg",
-        base_description="Everything concerning my awesome Destiny 2 LFG system",
-        sub_name="create",
-        sub_description="Creates an LFG post",
+    @slash_command(
+        **lfg_sub_command,
+        sub_cmd_name="create",
+        sub_cmd_description="Creates an LFG post",
 
     )
     @slash_option(name="start_time", description="Format: 'HH:MM DD/MM' - When the event is supposed to start. `asap` to start as soon as it fills up", required=True, opt_type=OptionTypes.STRING)

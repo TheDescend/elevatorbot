@@ -1,15 +1,15 @@
-from dis_snek.models import InteractionContext, OptionTypes, slash_option, sub_command
+from dis_snek.models import InteractionContext, OptionTypes, slash_command, slash_option
 
+from ElevatorBot.commandHelpers.subCommandTemplates import poll_sub_command
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.core.misc.poll import Poll
 
 
 class PollAdd(BaseScale):
-    @sub_command(
-        base_name="poll",
-        base_description="Making polls easy",
-        sub_name="add",
-        sub_description="Add an option to a poll",
+    @slash_command(
+        **poll_sub_command,
+        sub_cmd_name="add",
+        sub_cmd_description="Add an option to a poll",
     )
     @slash_option(
         name="poll_id",

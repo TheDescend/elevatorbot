@@ -7,7 +7,7 @@ from settings import COMMAND_GUILD_SCOPE
 class Socialist(BaseScale):
 
     # todo perms
-    @slash_command(name="socialist", description="Spams #socialist", scope=COMMAND_GUILD_SCOPE)
+    @slash_command(name="socialist", description="Spams #socialist", scopes=COMMAND_GUILD_SCOPE)
     async def _socialist(self, ctx: InteractionContext):
         """Spams #socialist"""
 

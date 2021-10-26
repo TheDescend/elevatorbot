@@ -3,11 +3,12 @@ from dis_snek.models import (
     GuildText,
     InteractionContext,
     OptionTypes,
+    slash_command,
     slash_option,
-    sub_command,
 )
 
 from ElevatorBot.commandHelpers.responseTemplates import respond_wrong_channel_type
+from ElevatorBot.commandHelpers.subCommandTemplates import setup_sub_command
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.core.misc.persistentMessages import handle_setup_command
 from ElevatorBot.misc.formating import embed_message
@@ -17,12 +18,11 @@ from settings import COMMAND_GUILD_SCOPE
 class Status(BaseScale):
     # todo maybe use websocket to get backend updates and display them in discord
     # todo perms
-    @sub_command(
-        base_name="setup",
-        base_description="Use these commands to setup ElevatorBot on this server",
-        sub_name="status",
-        sub_description="The channel in which the status messages get posted and updated",
-        scope=COMMAND_GUILD_SCOPE,
+    @slash_command(
+        **setup_sub_command,
+        sub_cmd_name="status",
+        sub_cmd_description="The channel in which the status messages get posted and updated",
+        scopes=COMMAND_GUILD_SCOPE,
     )
     @slash_option(
         name="channel",

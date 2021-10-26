@@ -21,7 +21,7 @@
 #             ),
 #         ],
 #         default_permission=False,
-#         permissions=permissions_admin, scope=COMMAND_GUILD_SCOPE
+#         permissions=permissions_admin, scopes=COMMAND_GUILD_SCOPE
 #     )
 #     async def _rollreaction(self, ctx: SlashContext, draws: int):
 #         pass

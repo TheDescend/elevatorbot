@@ -1,6 +1,10 @@
-from dis_snek.models import InteractionContext, sub_command
+from dis_snek.models import InteractionContext, slash_command
 
 from ElevatorBot.backendNetworking.destiny.clan import DestinyClan
+from ElevatorBot.commandHelpers.subCommandTemplates import (
+    setup_sub_command,
+    setup_sub_command_clan_group,
+)
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formating import embed_message
 
@@ -9,13 +13,11 @@ class ClanUnlink(BaseScale):
     """Unlink the current Destiny 2 clan the discord server this was executed in"""
 
     # todo perms
-    @sub_command(
-        base_name="setup",
-        base_description="Use these commands to setup ElevatorBot on this server",
-        group_name="clan",
-        group_description="Everything concerning the link from this server to your Destiny 2 clan",
-        sub_name="unlink",
-        sub_description="Unlink the current Destiny 2 clan with this server",
+    @slash_command(
+        **setup_sub_command,
+        **setup_sub_command_clan_group,
+        sub_cmd_name="unlink",
+        sub_cmd_description="Unlink the current Destiny 2 clan with this server",
     )
     async def _unlink(
         self,

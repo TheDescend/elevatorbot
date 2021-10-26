@@ -11,12 +11,13 @@ from dis_snek.models import (
     Select,
     SelectOption,
     SlashCommandChoice,
+    slash_command,
     slash_option,
-    sub_command,
 )
 
 from ElevatorBot.backendNetworking.results import BackendResult
 from ElevatorBot.commandHelpers.responseTemplates import respond_timeout
+from ElevatorBot.commandHelpers.subCommandTemplates import lfg_sub_command
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.core.destiny.lfgSystem import LfgMessage
 from ElevatorBot.misc.formating import embed_message
@@ -27,11 +28,10 @@ from ElevatorBot.static.timezones import timezones_dict
 class LfgEdit(BaseScale):
 
 
-    @sub_command(
-        base_name="lfg",
-        base_description="Everything concerning my awesome Destiny 2 LFG system",
-        sub_name="edit",
-        sub_description="When you fucked up and need to edit an event",
+    @slash_command(
+        **lfg_sub_command,
+        sub_cmd_name="edit",
+        sub_cmd_description="When you fucked up and need to edit an event",
     )
     @slash_option(name="lfg_id", description="The lfg message id", required=True, opt_type=OptionTypes.INTEGER)
     @slash_option(
