@@ -168,95 +168,95 @@ class DestinyCommands(commands.Cog):
     #         f"Solo Completions: **{results[0]}**\nSolo Flawless Count: **{results[1]}**\nFastest Solo: **{results[2]}**"
     #     )
 
-    @cog_ext.cog_slash(
-        name="time",
-        description="Shows you your Destiny 2 playtime split up by season",
-        options=[
-            create_option(
-                name="class",
-                description="Default: 'Everything' - Which class you want to limit your playtime to",
-                option_type=3,
-                required=False,
-                choices=[
-                    create_choice(name="Everything", value="Everything"),
-                    create_choice(name="Warlock", value="Warlock"),
-                    create_choice(name="Hunter", value="Hunter"),
-                    create_choice(name="Titan", value="Titan"),
-                ],
-            ),
-            options_user(),
-        ],
-    )
-    async def _time(self, ctx: SlashContext, **kwargs):
-        user = await get_user_obj(ctx, kwargs)
-        destiny_player = await DestinyPlayer.from_discord_id(user.id, ctx=ctx)
-        if not destiny_player:
-            return
-
-        await ctx.defer()
-
-        # init the db request function with all the args
-        args = {
-            "destinyID": destiny_player.destiny_id,
-            "character_class": kwargs["class"] if ("class" in kwargs and kwargs["class"] != "Everything") else None,
-        }
-
-        # prepare embed for later use
-        embed = embed_message(
-            f"""{user.display_name} D2 Time Played {"- " + args["character_class"] if args["character_class"] else ""}""",
-            f"**Total:** {str(datetime.timedelta(seconds=await getTimePlayed(**args)))} \n**PvE:** {str(datetime.timedelta(seconds=await getTimePlayed(**args, mode=7)))} \n**PvP:** {str(datetime.timedelta(seconds=await getTimePlayed(**args, mode=5)))}",
-        )
-
-        # init the dict where the results _get saved
-        results = {}
-
-        # loop through the seasons
-        for season in self.season_and_expansion_dates:
-            season_date = datetime.datetime.strptime(season[0], "%Y-%m-%d")
-            season_name = season[1]
-
-            results[season_name] = {
-                "Total": 0,
-                "PvE": 0,
-                "PvP": 0,
-            }
-
-            # _get the next seasons start time as the cutoff or now if its the current season
-            try:
-                next_season_date = self.season_and_expansion_dates[(self.season_and_expansion_dates.index(season) + 1)][
-                    0
-                ]
-                next_season_date = datetime.datetime.strptime(next_season_date, "%Y-%m-%d")
-            except IndexError:
-                next_season_date = datetime.datetime.now()
-
-            args.update(
-                {
-                    "start_time": season_date,
-                    "end_time": next_season_date,
-                }
-            )
-
-            # loop through the modes
-            for mode_name, mode in {"Total": None, "PvE": 7, "PvP": 5}.items():
-                args.update({"mode": mode})
-
-                # actually _get time played now, using the definied args
-                time_played = await getTimePlayed(**args)
-                results[season_name].update({mode_name: time_played})
-
-        # loop through the results and add embed fields
-        for season_name, season_values in results.items():
-            # only append season info if they actually played that season
-            if season_values["Total"] == 0:
-                continue
-
-            text = []
-            for activity, value in season_values.items():
-                text.append(f"**{activity}**: {str(datetime.timedelta(seconds=value))}")
-            embed.add_field(name=season_name, value="\n".join(text), inline=True)
-
-        await ctx.send(embed=embed)
+    # @cog_ext.cog_slash(
+    #     name="time",
+    #     description="Shows you your Destiny 2 playtime split up by season",
+    #     options=[
+    #         create_option(
+    #             name="class",
+    #             description="Default: 'Everything' - Which class you want to limit your playtime to",
+    #             option_type=3,
+    #             required=False,
+    #             choices=[
+    #                 create_choice(name="Everything", value="Everything"),
+    #                 create_choice(name="Warlock", value="Warlock"),
+    #                 create_choice(name="Hunter", value="Hunter"),
+    #                 create_choice(name="Titan", value="Titan"),
+    #             ],
+    #         ),
+    #         options_user(),
+    #     ],
+    # )
+    # async def _time(self, ctx: SlashContext, **kwargs):
+    #     user = await get_user_obj(ctx, kwargs)
+    #     destiny_player = await DestinyPlayer.from_discord_id(user.id, ctx=ctx)
+    #     if not destiny_player:
+    #         return
+    #
+    #     await ctx.defer()
+    #
+    #     # init the db request function with all the args
+    #     args = {
+    #         "destinyID": destiny_player.destiny_id,
+    #         "character_class": kwargs["class"] if ("class" in kwargs and kwargs["class"] != "Everything") else None,
+    #     }
+    #
+    #     # prepare embed for later use
+    #     embed = embed_message(
+    #         f"""{user.display_name} D2 Time Played {"- " + args["character_class"] if args["character_class"] else ""}""",
+    #         f"**Total:** {str(datetime.timedelta(seconds=await getTimePlayed(**args)))} \n**PvE:** {str(datetime.timedelta(seconds=await getTimePlayed(**args, mode=7)))} \n**PvP:** {str(datetime.timedelta(seconds=await getTimePlayed(**args, mode=5)))}",
+    #     )
+    #
+    #     # init the dict where the results _get saved
+    #     results = {}
+    #
+    #     # loop through the seasons
+    #     for season in self.season_and_expansion_dates:
+    #         season_date = datetime.datetime.strptime(season[0], "%Y-%m-%d")
+    #         season_name = season[1]
+    #
+    #         results[season_name] = {
+    #             "Total": 0,
+    #             "PvE": 0,
+    #             "PvP": 0,
+    #         }
+    #
+    #         # _get the next seasons start time as the cutoff or now if its the current season
+    #         try:
+    #             next_season_date = self.season_and_expansion_dates[(self.season_and_expansion_dates.index(season) + 1)][
+    #                 0
+    #             ]
+    #             next_season_date = datetime.datetime.strptime(next_season_date, "%Y-%m-%d")
+    #         except IndexError:
+    #             next_season_date = datetime.datetime.now()
+    #
+    #         args.update(
+    #             {
+    #                 "start_time": season_date,
+    #                 "end_time": next_season_date,
+    #             }
+    #         )
+    #
+    #         # loop through the modes
+    #         for mode_name, mode in {"Total": None, "PvE": 7, "PvP": 5}.items():
+    #             args.update({"mode": mode})
+    #
+    #             # actually _get time played now, using the definied args
+    #             time_played = await getTimePlayed(**args)
+    #             results[season_name].update({mode_name: time_played})
+    #
+    #     # loop through the results and add embed fields
+    #     for season_name, season_values in results.items():
+    #         # only append season info if they actually played that season
+    #         if season_values["Total"] == 0:
+    #             continue
+    #
+    #         text = []
+    #         for activity, value in season_values.items():
+    #             text.append(f"**{activity}**: {str(datetime.timedelta(seconds=value))}")
+    #         embed.add_field(name=season_name, value="\n".join(text), inline=True)
+    #
+    #     await ctx.send(embed=embed)
 
     @cog_ext.cog_slash(
         name="poptimeline",

@@ -50,10 +50,7 @@ def default_user_option(
     return wrapper
 
 
-def default_class_option(
-    description: str,
-    required: bool = False,
-) -> Any:
+def default_class_option(description: str) -> Any:
     """
     Decorator that replaces @slash_option()
     Call with `@default_class_option()`
@@ -64,11 +61,40 @@ def default_class_option(
             name="destiny_class",
             description=description,
             opt_type=OptionTypes.STRING,
-            required=required,
+            required=False,
             choices=[
                 SlashCommandChoice(name="Warlock", value="Warlock"),
                 SlashCommandChoice(name="Hunter", value="Hunter"),
                 SlashCommandChoice(name="Titan", value="Titan"),
+            ],
+        )(func)
+
+    return wrapper
+
+
+def default_mode_option(description: str) -> Any:
+    """
+    Decorator that replaces @slash_option()
+    Call with `@default_mode_option()`
+    """
+
+    def wrapper(func):
+        return slash_option(
+            name="mode",
+            description=description,
+            opt_type=OptionTypes.INTEGER,
+            required=False,
+            choices=[
+                SlashCommandChoice(name="Raids", value=4),
+                SlashCommandChoice(name="Dungeon", value=82),
+                SlashCommandChoice(name="Story (including stuff like Presage)", value=2),
+                SlashCommandChoice(name="Strike", value=3),
+                SlashCommandChoice(name="Nightfall", value=46),
+                SlashCommandChoice(name="Everything PvE", value=7),
+                SlashCommandChoice(name="Trials", value=84),
+                SlashCommandChoice(name="Iron Banner", value=19),
+                SlashCommandChoice(name="Everything PvP", value=5),
+                SlashCommandChoice(name="Gambit", value=63),
             ],
         )(func)
 

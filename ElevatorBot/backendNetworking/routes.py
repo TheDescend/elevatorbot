@@ -1,5 +1,7 @@
 import os
 
+# todo maybe change all url params to data models like destiny_account_time_route
+
 base_route = f"""http://{os.environ.get("BACKEND_HOST")}:{os.environ.get("BACKEND_PORT")}/"""
 destiny_base_route = base_route + "destiny/{guild_id}/{discord_id}/"
 
@@ -24,6 +26,7 @@ destiny_account_stat_route = destiny_account_route + "stat/{stat_category}/{stat
 destiny_account_stat_characters_route = (
     destiny_account_route + "stat/{stat_category}/{stat_name}/character/{character_id}/"
 )  # GET
+destiny_account_time_route = destiny_account_route + "time/"  # GET
 
 # lfg system
 destiny_lfg_route = base_route + "destiny/{guild_id}/lfg/"

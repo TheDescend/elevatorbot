@@ -1,4 +1,3 @@
-from enum import Enum
 from typing import Optional
 
 from dis_snek.models import InteractionContext, Member
@@ -6,13 +5,7 @@ from dis_snek.models import InteractionContext, Member
 from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
 from ElevatorBot.misc.formating import embed_message
 from ElevatorBot.misc.helperFunctions import get_character_ids_from_class
-
-
-class StatScope(Enum):
-    EVERYTHING = "allTime"
-    PVE = "allPvE"
-    PVP = "allPvP"
-
+from ElevatorBot.static.destinyEnums import StatScope
 
 stat_translation = {
     "Kills": "kills",
@@ -56,19 +49,19 @@ async def get_stat_and_send(
     # might take a sec
     await ctx.defer()
 
-    profile = DestinyAccount(discord_guild=ctx.guild, discord_member=member, client=ctx.bot)
+    account = DestinyAccount(discord_guild=ctx.guild, discord_member=member, client=ctx.bot)
 
     # check if we need a user stat or a char stat
     if destiny_class:
         # get the users characters
-        character_ids = await get_character_ids_from_class(ctx=ctx, profile=profile, destiny_class=destiny_class)
+        character_ids = await get_character_ids_from_class(ctx=ctx, profile=account, destiny_class=destiny_class)
         if not character_ids:
             return
 
         # get the stats for each character ID
         stat_value = -1
         for character_id in character_ids:
-            result = await profile.get_stat_by_characters(
+            result = await account.get_stat_by_characters(
                 character_id=character_id, stat_name=stat_bungie_name, stat_category=scope.value
             )
 
@@ -103,7 +96,7 @@ async def get_stat_and_send(
 
     else:
         # get stats for the user
-        result = await profile.get_stat(stat_name=stat_bungie_name, stat_category=scope.value)
+        result = await account.get_stat(stat_name=stat_bungie_name, stat_category=scope.value)
 
         # catch errors
         if not result:

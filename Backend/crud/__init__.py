@@ -1,9 +1,4 @@
-from Backend.crud.destiny.activities import (
-    activities,
-    activities_fail_to_get,
-    activities_users_stats,
-    activities_users_stats_weapons,
-)
+from Backend.crud.destiny.activities import activities, activities_fail_to_get
 from Backend.crud.destiny.collectibles import collectibles
 from Backend.crud.destiny.destinyClanLinks import destiny_clan_links
 from Backend.crud.destiny.discordUsers import discord_users

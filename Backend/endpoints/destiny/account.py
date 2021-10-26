@@ -8,6 +8,8 @@ from Backend.schemas.destiny.account import (
     DestinyCharactersModel,
     DestinyNameModel,
     DestinyStatModel,
+    DestinyTimeInputModel,
+    DestinyTimeModel,
 )
 from Backend.schemas.destiny.profile import DestinyLowMansModel
 
@@ -80,3 +82,29 @@ async def stat_characters(
     value = await profile.get_stat_value(stat_name=stat_name, stat_category=stat_category, character_id=character_id)
 
     return DestinyStatModel(value=value)
+
+
+@router.get("/time", response_model=dict[int, DestinyTimeModel])
+async def time(
+    guild_id: int, discord_id: int, time_input: DestinyTimeInputModel, db: AsyncSession = Depends(get_db_session)
+):
+    """Return the time played for the specified modes"""
+
+    user = await crud.discord_users.get_profile_from_discord_id(db, discord_id)
+    profile = DestinyProfile(db=db, user=user)
+
+    # loop through the modes
+    result = {}
+    for mode in time_input.modes:
+        result.update(
+            {
+                mode: await profile.get_time_played(
+                    start_time=time_input.start_time,
+                    end_time=time_input.end_time,
+                    mode=mode,
+                    character_class=time_input.character_class,
+                )
+            }
+        )
+
+    return result

@@ -6,7 +6,7 @@ from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.destiny.activities import DestinyActivities
-from Backend.crud import destiny_manifest, discord_users
+from Backend.crud import activities, destiny_manifest, discord_users
 from Backend.crud.destiny.collectibles import collectibles
 from Backend.crud.destiny.records import records
 from Backend.database.models import Collectibles, DiscordUsers, Records
@@ -16,6 +16,7 @@ from Backend.networking.bungieRoutes import profile_route, stat_route
 from Backend.schemas.destiny.account import (
     DestinyCharacterModel,
     DestinyCharactersModel,
+    DestinyTimeModel,
 )
 from Backend.schemas.destiny.profile import (
     DestinyLowMansModel,
@@ -402,6 +403,22 @@ class DestinyProfile:
             gear.extend(character_power_items)
 
         return gear
+
+    async def get_time_played(
+        self, start_time: datetime, end_time: datetime, mode: int, character_class: str = None
+    ) -> DestinyTimeModel:
+        """Get the time played"""
+
+        return DestinyTimeModel(
+            time_played=await activities.calculate_time_played(
+                db=self.db,
+                destiny_id=self.destiny_id,
+                mode=mode,
+                start_time=start_time,
+                end_time=end_time,
+                character_class=character_class,
+            )
+        )
 
     async def __get_profile(self, *components_override: int, with_token: bool = False) -> dict:
         """

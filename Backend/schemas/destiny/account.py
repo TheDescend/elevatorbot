@@ -1,3 +1,6 @@
+import datetime
+from typing import Optional
+
 from pydantic import BaseModel
 
 
@@ -18,3 +21,14 @@ class DestinyCharacterModel(BaseModel):
 
 class DestinyCharactersModel(BaseModel):
     characters: list[DestinyCharacterModel] = []
+
+
+class DestinyTimeModel(BaseModel):
+    time_played: int  # in seconds
+
+
+class DestinyTimeInputModel(BaseModel):
+    start_time: datetime.datetime
+    end_time: datetime.datetime
+    modes: list[int]
+    character_class: Optional[str] = None

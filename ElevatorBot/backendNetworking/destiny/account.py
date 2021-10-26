@@ -1,4 +1,5 @@
 import dataclasses
+import datetime
 
 from dis_snek.client import Snake
 from dis_snek.models import Guild
@@ -11,7 +12,9 @@ from ElevatorBot.backendNetworking.routes import (
     destiny_account_solos_route,
     destiny_account_stat_characters_route,
     destiny_account_stat_route,
+    destiny_account_time_route,
 )
+from ElevatorBot.static.destinyEnums import ModeScope
 
 
 @dataclasses.dataclass
@@ -34,6 +37,29 @@ class DestinyAccount(BaseBackendConnection):
         return await self._backend_request(
             method="GET",
             route=destiny_account_solos_route.format(guild_id=self.discord_guild.id, discord_id=self.discord_member.id),
+        )
+
+    async def get_time(
+        self,
+        start_time: datetime.datetime,
+        end_time: datetime.datetime,
+        modes: list[ModeScope] = None,
+        character_class: str = None,
+    ) -> BackendResult:
+        """Return the time played for the given period"""
+
+        if modes is None:
+            modes = [ModeScope.ALL]
+
+        return await self._backend_request(
+            method="GET",
+            route=destiny_account_time_route.format(guild_id=self.discord_guild.id, discord_id=self.discord_member.id),
+            data={
+                "start_time": datetime,
+                "end_time": datetime,
+                "mode": [mode.value for mode in modes],
+                "character_class": character_class,
+            },
         )
 
     async def get_character_info(self) -> BackendResult:

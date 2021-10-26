@@ -11,6 +11,7 @@ from Backend.database.models import (
     ActivitiesUsers,
     ActivitiesUsersWeapons,
 )
+from Backend.misc.helperFunctions import get_now_with_tz
 
 
 class CRUDActivitiesFailToGet(CRUDBase):
@@ -208,16 +209,41 @@ class CRUDActivities(CRUDBase):
         result = await self._execute_query(db=db, query=query)
         return result.scalars().fetchall()
 
+    async def calculate_time_played(
+        self,
+        db: AsyncSession,
+        destiny_id: int,
+        mode: int,
+        start_time: datetime = None,
+        end_time: datetime.datetime = None,
+        character_class: str = None,
+    ) -> int:
+        """Calculate the time played (in seconds) from the DB"""
 
-class CRUDActivitiesUsersStats(CRUDBase):
-    pass
+        query = select(func.sum(ActivitiesUsers))
 
+        # filter mode
+        if mode != 0:
+            query = query.filter(ActivitiesUsers.activity.modes.any(mode))
 
-class CRUDActivitiesUsersStatsWeapons(CRUDBase):
-    pass
+        # limit to the allowed times if that is requested
+        if start_time:
+            query = query.filter(ActivitiesUsers.activity.period >= start_time)
+        if end_time:
+            query = query.filter(ActivitiesUsers.activity.period <= end_time)
+
+        # filter the destiny id
+        query = query.filter(ActivitiesUsers.destiny_id == destiny_id)
+
+        # limit the class
+        query = query.filter(ActivitiesUsers.character_class == character_class)
+
+        result = await self._execute_query(db=db, query=query)
+        result = result.scalar()
+
+        # I heard this can return None instead of 0, so we're doing this
+        return result if result else 0
 
 
 activities_fail_to_get = CRUDActivitiesFailToGet(ActivitiesFailToGet)
 activities = CRUDActivities(Activities)
-activities_users_stats = CRUDActivitiesUsersStats(ActivitiesUsers)
-activities_users_stats_weapons = CRUDActivitiesUsersStatsWeapons(ActivitiesUsersWeapons)
