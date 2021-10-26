@@ -261,7 +261,7 @@ class LfgMessage:
     async def send(self, ctx: ComponentContext = None):
         """send / edit the message in the channel"""
 
-        embed = self.__return_embed()
+        embed = await self.__return_embed()
 
         if not self.message:
             self.message = await self.channel.send(embed=embed, components=self.__buttons)
@@ -317,7 +317,7 @@ class LfgMessage:
             except JobLookupError:
                 pass
 
-    def alert_start_time_changed(self, previous_start_time: datetime.datetime):
+    async def alert_start_time_changed(self, previous_start_time: datetime.datetime):
         """Alert all joined / backups that the event start time was changed"""
 
         embed = embed_message(
@@ -523,7 +523,7 @@ class LfgMessage:
 
         return [member.mention for member in self.backup]
 
-    def __get_ics_url(self) -> str:
+    async def __get_ics_url(self) -> str:
         """Create an ics file, upload it, and return the url"""
 
         calendar = Calendar()
@@ -544,7 +544,7 @@ class LfgMessage:
 
         return file_message.attachments[0].url
 
-    def __return_embed(self) -> Embed:
+    async def __return_embed(self) -> Embed:
         """return the formatted embed"""
 
         embed = embed_message(
@@ -560,7 +560,7 @@ class LfgMessage:
         if isinstance(self.start_time, datetime.datetime):
             embed.add_field(
                 name="Start Time",
-                value=f"{Timestamp.fromdatetime(self.start_time).format(style=TimestampStyles.ShortDateTime)}\n[Add To Calendar]({self.__get_ics_url()})",
+                value=f"{Timestamp.fromdatetime(self.start_time).format(style=TimestampStyles.ShortDateTime)}\n[Add To Calendar]({await self.__get_ics_url()})",
                 inline=True,
             )
         else:

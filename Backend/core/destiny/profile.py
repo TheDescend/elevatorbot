@@ -405,7 +405,12 @@ class DestinyProfile:
         return gear
 
     async def get_time_played(
-        self, start_time: datetime, end_time: datetime, mode: int, character_class: str = None
+        self,
+        start_time: datetime,
+        end_time: datetime,
+        mode: int = 0,
+        activity_ids: list[int] = None,
+        character_class: str = None,
     ) -> DestinyTimeModel:
         """Get the time played"""
 
@@ -414,6 +419,7 @@ class DestinyProfile:
                 db=self.db,
                 destiny_id=self.destiny_id,
                 mode=mode,
+                activity_ids=activity_ids,
                 start_time=start_time,
                 end_time=end_time,
                 character_class=character_class,

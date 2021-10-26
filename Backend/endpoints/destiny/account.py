@@ -6,6 +6,7 @@ from Backend.core.destiny.profile import DestinyProfile
 from Backend.dependencies import get_db_session
 from Backend.schemas.destiny.account import (
     DestinyCharactersModel,
+    DestinyLastInputModel,
     DestinyNameModel,
     DestinyStatModel,
     DestinyTimeInputModel,
@@ -84,27 +85,62 @@ async def stat_characters(
     return DestinyStatModel(value=value)
 
 
-@router.get("/time", response_model=dict[int, DestinyTimeModel])
+@router.get("/time", response_model=dict[int | list[int], DestinyTimeModel])
 async def time(
     guild_id: int, discord_id: int, time_input: DestinyTimeInputModel, db: AsyncSession = Depends(get_db_session)
 ):
-    """Return the time played for the specified modes"""
+    """
+    Return the time played for the specified modes / activities
+
+    Returns either the mode: int as a key, or the activity_ids: list[int], if they are specified
+    """
 
     user = await crud.discord_users.get_profile_from_discord_id(db, discord_id)
     profile = DestinyProfile(db=db, user=user)
 
-    # loop through the modes
     result = {}
-    for mode in time_input.modes:
+    if not time_input.activity_ids:
+        # loop through the modes
+        for mode in time_input.modes:
+            result.update(
+                {
+                    mode: await profile.get_time_played(
+                        start_time=time_input.start_time,
+                        end_time=time_input.end_time,
+                        mode=mode,
+                        character_class=time_input.character_class,
+                    )
+                }
+            )
+    else:
+        # check the total then the activities
         result.update(
             {
-                mode: await profile.get_time_played(
+                0: await profile.get_time_played(
                     start_time=time_input.start_time,
                     end_time=time_input.end_time,
-                    mode=mode,
+                    mode=0,
                     character_class=time_input.character_class,
-                )
+                ),
+                time_input.activity_ids: await profile.get_time_played(
+                    start_time=time_input.start_time,
+                    end_time=time_input.end_time,
+                    activity_ids=time_input.activity_ids,
+                    character_class=time_input.character_class,
+                ),
             }
         )
+
+    return result
+
+
+@router.get("/last", response_model=aaaaaaaa)
+async def last(
+    guild_id: int, discord_id: int, time_input: DestinyLastInputModel, db: AsyncSession = Depends(get_db_session)
+):
+    """Return information about the last completed activity"""
+
+    user = await crud.discord_users.get_profile_from_discord_id(db, discord_id)
+    profile = DestinyProfile(db=db, user=user)
 
     return result

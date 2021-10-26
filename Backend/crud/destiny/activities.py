@@ -12,6 +12,7 @@ from Backend.database.models import (
     ActivitiesUsersWeapons,
 )
 from Backend.misc.helperFunctions import get_now_with_tz
+from Backend.schemas.destiny.activities import DestinyActivityModel
 
 
 class CRUDActivitiesFailToGet(CRUDBase):
@@ -213,7 +214,8 @@ class CRUDActivities(CRUDBase):
         self,
         db: AsyncSession,
         destiny_id: int,
-        mode: int,
+        mode: int = 0,
+        activity_ids: list[int] = None,
         start_time: datetime = None,
         end_time: datetime.datetime = None,
         character_class: str = None,
@@ -225,6 +227,10 @@ class CRUDActivities(CRUDBase):
         # filter mode
         if mode != 0:
             query = query.filter(ActivitiesUsers.activity.modes.any(mode))
+
+        # filter activities
+        if activity_ids:
+            query = query.filter(ActivitiesUsers.activity.reference_id.in_(activity_ids))
 
         # limit to the allowed times if that is requested
         if start_time:

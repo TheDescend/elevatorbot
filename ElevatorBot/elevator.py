@@ -6,10 +6,11 @@ from dis_snek.models.enums import Intents
 
 from ElevatorBot.discordEvents.base import register_discord_events
 from ElevatorBot.misc.discordStatus import update_status
-from ElevatorBot.misc.initBackgroundEvents import register_background_events
-from ElevatorBot.misc.initDocs import create_command_docs
-from ElevatorBot.misc.initLogging import init_logging
 from ElevatorBot.misc.veryMisc import yield_files_in_folder
+from ElevatorBot.startup.initAutocompleteOptions import load_autocomplete_options
+from ElevatorBot.startup.initBackgroundEvents import register_background_events
+from ElevatorBot.startup.initDocs import create_command_docs
+from ElevatorBot.startup.initLogging import init_logging
 from ElevatorBot.static.emojis import custom_emojis
 from ElevatorBot.webserver.server import run_webserver
 from settings import DISCORD_BOT_TOKEN, SYNC_COMMANDS
@@ -76,6 +77,9 @@ if __name__ == "__main__":
 
         print("Load Custom Emoji...")
         await custom_emojis.init_emojis(client)
+
+        print("Load Autocomplete Options...")
+        await load_autocomplete_options(client)
 
         print("Startup Finished!\n")
         print("--------------------------\n")

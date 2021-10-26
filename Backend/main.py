@@ -11,7 +11,7 @@ from Backend.dependencies import (
     auth_get_user_with_write_perm,
 )
 from Backend.endpoints import auth
-from Backend.endpoints.destiny import account, clan, lfg, profile, roles
+from Backend.endpoints.destiny import account, activities, clan, lfg, profile, roles
 from Backend.endpoints.misc import elevatorInfo, persistentMessages, polls
 from Backend.misc.initBackgroundEvents import register_background_events
 from Backend.misc.initLogging import init_logging
@@ -53,6 +53,7 @@ app.include_router(account.router)
 app.include_router(clan.router)
 app.include_router(lfg.router)
 app.include_router(roles.router)
+app.include_router(activities.router)
 
 
 # add exception handlers

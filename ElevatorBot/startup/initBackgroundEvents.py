@@ -2,14 +2,16 @@ import datetime
 import logging
 
 import pytz
-from apscheduler.events import EVENT_JOB_ADDED
-from apscheduler.events import EVENT_JOB_ERROR
-from apscheduler.events import EVENT_JOB_EXECUTED
-from apscheduler.events import EVENT_JOB_MISSED
-from apscheduler.events import EVENT_JOB_REMOVED
-from apscheduler.events import EVENT_JOB_SUBMITTED
+from apscheduler.events import (
+    EVENT_JOB_ADDED,
+    EVENT_JOB_ERROR,
+    EVENT_JOB_EXECUTED,
+    EVENT_JOB_MISSED,
+    EVENT_JOB_REMOVED,
+    EVENT_JOB_SUBMITTED,
+)
 from dis_snek.client import Snake
-from dis_snek.models import GuildChannel
+from dis_snek.models import GuildChannel, GuildText
 
 from ElevatorBot import backgroundEvents
 from ElevatorBot.backendNetworking.destiny.lfgSystem import DestinyLfgSystem
@@ -124,7 +126,7 @@ async def register_background_events(client: Snake):
 
             # create the objs from the returned data
             for event in events:
-                channel: GuildChannel = await guild.get_channel(event["channel_id"])
+                channel: GuildText = await guild.get_channel(event["channel_id"])
 
                 lfg_event = LfgMessage(
                     backend=backend,
@@ -149,8 +151,8 @@ async def register_background_events(client: Snake):
                         for member_id in event["alternate_members"]
                         if guild.get_member(member_id)
                     ],
-                    voice_channel=guild.get_channel(event["voice_channel_id"]),
-                    voice_category_channel=guild.get_channel(event["voice_category_channel_id"]),
+                    voice_channel=await guild.get_channel(event["voice_channel_id"]),
+                    voice_category_channel=await guild.get_channel(event["voice_category_channel_id"]),
                 )
 
                 # add the event

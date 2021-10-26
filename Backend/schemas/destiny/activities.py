@@ -10,3 +10,13 @@ class DestinyLowManModel(BaseModel):
     not_flawless_count: int
 
     fastest: datetime.timedelta = None
+
+
+class DestinyActivityModel(BaseModel):
+    name: str
+    description: str
+    activity_ids: list[int]
+
+
+class DestinyActivitiesModel(BaseModel):
+    activities = list[DestinyActivityModel]

@@ -62,7 +62,6 @@ persistent_messages_get_route = persistent_messages_route + "{guild_id}/get/{mes
 persistent_messages_upsert_route = persistent_messages_route + "{guild_id}/upsert/{message_name}/"  # POST
 persistent_messages_delete_route = persistent_messages_route + "{guild_id}/delete/{message_name}/"  # DELETE
 
-
 # polls
 polls_route = base_route + "polls/{guild_id}/{discord_id}/"
 polls_insert_route = polls_route + "insert/"  # POST
@@ -70,3 +69,7 @@ polls_get_route = polls_route + "{poll_id}/get/{"  # GET
 polls_delete_option_route = polls_route + "{poll_id}/delete_option/{option_name}"  # DELETE
 polls_user_input_route = polls_route + "{poll_id}/user_input/"  # POST
 polls_delete_route = polls_route + "{poll_id}/delete/{"  # DELETE
+
+# activities
+activities_route = base_route + "activities/"
+activities_get_all_route = activities_route + "get/all/"  # GET

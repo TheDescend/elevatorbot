@@ -1,5 +1,6 @@
 import dataclasses
 import datetime
+from typing import Optional
 
 from dis_snek.client import Snake
 from dis_snek.models import Guild
@@ -43,8 +44,9 @@ class DestinyAccount(BaseBackendConnection):
         self,
         start_time: datetime.datetime,
         end_time: datetime.datetime,
-        modes: list[ModeScope] = None,
-        character_class: str = None,
+        modes: Optional[list[ModeScope]] = None,
+        activity_ids: Optional[list[int]] = None,
+        character_class: Optional[str] = None,
     ) -> BackendResult:
         """Return the time played for the given period"""
 
@@ -55,9 +57,10 @@ class DestinyAccount(BaseBackendConnection):
             method="GET",
             route=destiny_account_time_route.format(guild_id=self.discord_guild.id, discord_id=self.discord_member.id),
             data={
-                "start_time": datetime,
-                "end_time": datetime,
+                "start_time": start_time,
+                "end_time": end_time,
                 "mode": [mode.value for mode in modes],
+                "activity_ids": activity_ids,
                 "character_class": character_class,
             },
         )

@@ -1,7 +1,9 @@
 from dis_snek.models import InteractionContext, Member, slash_command
 
 from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
+from ElevatorBot.commandHelpers.autocomplete import activities_by_id
 from ElevatorBot.commandHelpers.optionTemplates import (
+    autocomplete_activity_option,
     default_class_option,
     default_mode_option,
     default_stat_option,
@@ -26,9 +28,19 @@ class Time(BaseScale):
         description="Shows you your Destiny 2 playtime split up by season",
     )
     @default_mode_option(description="Restrict the game mode where the playtime counts. Default: All modes")
+    @autocomplete_activity_option(
+        description="Restrict the activity where the playtime counts. Overwrite `mode`. Default: All modes"
+    )
     @default_class_option(description="Restrict the class where the playtime counts. Default: All classes")
     @default_user_option()
-    async def _time(self, ctx: InteractionContext, destiny_class: str = None, mode: int = None, user: Member = None):
+    async def _time(
+        self,
+        ctx: InteractionContext,
+        destiny_class: str = None,
+        mode: int = None,
+        activity: str = None,
+        user: Member = None,
+    ):
         # might take a sec
         await ctx.defer()
 
@@ -48,9 +60,22 @@ class Time(BaseScale):
             for mode_scope in modes
         }
 
+        # get the activity ids
+        activity_name = None
+        if activity:
+            activity_ids = [int(activity_id) for activity_id in activity.split("|")]
+            activity_name = activities_by_id[activity_ids]
+            total = {
+                # the first one is the .ALL which we want to keep
+                list[modes_names.values()][0]: 0,
+                activity_name: 0,
+            }
+        else:
+            activity_ids = None
+            total = {mode_name: 0 for mode_name in modes_names.values()}
+
         # loop through the seasons and get the time played for each
         data = {}
-        total = {mode_name: 0 for mode_name in modes_names.values()}
         for season in season_and_expansion_dates:
             # get the next seasons start time as the cutoff or now if its the current season
             try:
@@ -63,6 +88,7 @@ class Time(BaseScale):
                 start_time=season.start,
                 end_time=next_season_date,
                 modes=list(modes_names),
+                activity_ids=activity_ids,
                 character_class=destiny_class,
             )
             if not result:
@@ -70,18 +96,39 @@ class Time(BaseScale):
                 return
 
             # save that info
-            data.update(
-                {
-                    season: {
-                        modes_names[ModeScope(mode_int)]: time_played["time_played"]
-                        for mode_int, time_played in result.result.items()
+            if not activity_ids:
+                # save by modes
+                data.update(
+                    {
+                        season: {
+                            modes_names[ModeScope(mode_int)]: time_played["time_played"]
+                            for mode_int, time_played in result.result.items()
+                        }
                     }
-                }
-            )
+                )
 
-            # add to the total amount
-            for mode_int, time_played in result.result.items():
-                total[modes_names[ModeScope(mode_int)]] += time_played["time_played"]
+                # add to the total amount
+                for mode_int, time_played in result.result.items():
+                    total[modes_names[ModeScope(mode_int)]] += time_played["time_played"]
+
+                # save by activities
+                data.update(
+                    {
+                        season: {
+                            list[modes_names.values()][0]: result.result[modes[0].value]["time_played"],
+                            activity_name: result.result[activity_ids]["time_played"],
+                        }
+                    }
+                )
+
+                # add to the total amount
+                total.update(
+                    {
+                        list[modes_names.values()][0]: total[list[modes_names][0]]
+                        + result.result[modes[0].value]["time_played"],
+                        activity_name: total[activity_name] + result.result[activity_ids]["time_played"],
+                    }
+                )
 
         # prepare the embed
         embed = embed_message(
@@ -93,15 +140,13 @@ class Time(BaseScale):
         footer = []
         if destiny_class:
             footer.append(f"Class: {destiny_class}")
-        if mode:
-            footer.append(f"Mode: {modes_names[ModeScope(mode)]}")
         if footer:
             embed.set_footer(" | ".join(footer))
 
         # loop through the results and add embed fields
         for season, season_values in data.items():
             # only append season info if they actually played that season
-            if season_values[ModeScope.ALL] == 0:
+            if season_values[list[modes_names.values()][0]] == 0:
                 continue
 
             embed.add_field(

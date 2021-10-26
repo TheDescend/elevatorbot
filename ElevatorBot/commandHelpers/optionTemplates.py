@@ -2,6 +2,7 @@ from typing import Any
 
 from dis_snek.models import OptionTypes, SlashCommandChoice, slash_option
 
+from ElevatorBot.commandHelpers.autocomplete import autocomplete_send_activity_name
 from ElevatorBot.core.destiny.stat import stat_translation
 from ElevatorBot.static.timezones import timezones_dict
 
@@ -50,7 +51,7 @@ def default_user_option(
     return wrapper
 
 
-def default_class_option(description: str) -> Any:
+def default_class_option(description: str = "Restrict the class. Default: All classes") -> Any:
     """
     Decorator that replaces @slash_option()
     Call with `@default_class_option()`
@@ -72,7 +73,7 @@ def default_class_option(description: str) -> Any:
     return wrapper
 
 
-def default_mode_option(description: str) -> Any:
+def default_mode_option(description: str = "Restrict the game mode. Default: All modes") -> Any:
     """
     Decorator that replaces @slash_option()
     Call with `@default_mode_option()`
@@ -116,5 +117,26 @@ def default_stat_option() -> Any:
             required=True,
             choices=[SlashCommandChoice(name=name, value=name) for name in stat_translation],
         )(func)
+
+    return wrapper
+
+
+def autocomplete_activity_option(description: str = "Restrict the activity. Default: All activities") -> Any:
+    """
+    Decorator that replaces @slash_option()
+    Call with `@autocomplete_activity_option()`
+    """
+
+    def wrapper(func):
+        name = "activity"
+
+        option = slash_option(
+            name=name, description=description, opt_type=OptionTypes.STRING, required=False, autocomplete=True
+        )(func)
+
+        # register the callback
+        func.autocomplete(name=name)(autocomplete_send_activity_name)
+
+        return option
 
     return wrapper

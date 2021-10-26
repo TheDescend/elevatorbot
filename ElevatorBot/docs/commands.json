@@ -1,11 +1,6 @@
 {
     "0": [
         {
-            "name": "invite",
-            "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
-            "options": []
-        },
-        {
             "name": "userinfo",
             "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
             "options": [
@@ -27,6 +22,11 @@
             ]
         },
         {
+            "name": "setup",
+            "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
+            "options": []
+        },
+        {
             "name": "destiny",
             "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
             "options": [
@@ -41,6 +41,70 @@
             "name": "solos",
             "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
             "options": [
+                {
+                    "name": "user",
+                    "description": "The name of the user you want to look up",
+                    "required": false
+                }
+            ]
+        },
+        {
+            "name": "time",
+            "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
+            "options": [
+                {
+                    "name": "mode",
+                    "description": "Restrict the game mode where the playtime counts. Default: All modes",
+                    "required": false,
+                    "choices": [
+                        {
+                            "name": "Raids"
+                        },
+                        {
+                            "name": "Dungeon"
+                        },
+                        {
+                            "name": "Story (including stuff like Presage)"
+                        },
+                        {
+                            "name": "Strike"
+                        },
+                        {
+                            "name": "Nightfall"
+                        },
+                        {
+                            "name": "Everything PvE"
+                        },
+                        {
+                            "name": "Trials"
+                        },
+                        {
+                            "name": "Iron Banner"
+                        },
+                        {
+                            "name": "Everything PvP"
+                        },
+                        {
+                            "name": "Gambit"
+                        }
+                    ]
+                },
+                {
+                    "name": "destiny_class",
+                    "description": "Restrict the class where the playtime counts. Default: All classes",
+                    "required": false,
+                    "choices": [
+                        {
+                            "name": "Warlock"
+                        },
+                        {
+                            "name": "Hunter"
+                        },
+                        {
+                            "name": "Titan"
+                        }
+                    ]
+                },
                 {
                     "name": "user",
                     "description": "The name of the user you want to look up",
@@ -106,12 +170,27 @@
             ]
         },
         {
+            "name": "lfg",
+            "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
+            "options": []
+        },
+        {
             "name": "register",
             "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
             "options": []
         },
         {
             "name": "unregister",
+            "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
+            "options": []
+        },
+        {
+            "name": "roles",
+            "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
+            "options": []
+        },
+        {
+            "name": "stat",
             "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
             "options": []
         },
@@ -138,6 +217,99 @@
         },
         {
             "name": "funfact",
+            "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
+            "options": []
+        },
+        {
+            "name": "invite",
+            "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
+            "options": []
+        },
+        {
+            "name": "poll",
+            "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
+            "options": []
+        },
+        {
+            "name": "tictactoe",
+            "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
+            "options": []
+        }
+    ],
+    "280456587464933376": [
+        {
+            "name": "mute",
+            "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
+            "options": [
+                {
+                    "name": "user",
+                    "description": "Which user to mute",
+                    "required": true
+                },
+                {
+                    "name": "hours",
+                    "description": "How many hours to mute the user for",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "muteme",
+            "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
+            "options": [
+                {
+                    "name": "user",
+                    "description": "The name of the user you want to look up",
+                    "required": false
+                }
+            ]
+        },
+        {
+            "name": "socialist",
+            "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
+            "options": []
+        },
+        {
+            "name": "setup",
+            "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
+            "options": []
+        }
+    ],
+    "556418279015448596": [
+        {
+            "name": "mute",
+            "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
+            "options": [
+                {
+                    "name": "user",
+                    "description": "Which user to mute",
+                    "required": true
+                },
+                {
+                    "name": "hours",
+                    "description": "How many hours to mute the user for",
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "muteme",
+            "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
+            "options": [
+                {
+                    "name": "user",
+                    "description": "The name of the user you want to look up",
+                    "required": false
+                }
+            ]
+        },
+        {
+            "name": "socialist",
+            "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
+            "options": []
+        },
+        {
+            "name": "setup",
             "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
             "options": []
         }

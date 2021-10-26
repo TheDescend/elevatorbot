@@ -7,7 +7,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from Backend.crud import versions
 from Backend.crud.base import CRUDBase
 from Backend.database.base import Base
-from Backend.database.models import DestinyRecordDefinition
+from Backend.database.models import DestinyActivityDefinition, DestinyRecordDefinition
+from Backend.schemas.destiny.activities import DestinyActivityModel
 
 ModelType = TypeVar("ModelType", bound=Base)
 
@@ -58,11 +59,41 @@ class CRUDManifest(CRUDBase):
         query = (
             select(DestinyRecordDefinition)
             .filter(DestinyRecordDefinition.has_title)
-            .filter(not_(DestinyRecordDefinition.has_title.in_(not_available)))
+            .filter(not_(DestinyRecordDefinition.reference_id.in_(not_available)))
         )
 
         result = await self._execute_query(db=db, query=query)
         return [Seal(**row) for row in result.scalars().fetchall()]
+
+    async def get_all_definitions(self, db: AsyncSession) -> list[DestinyActivityModel]:
+        """Gets all activities"""
+
+        # get them all from the db
+        query = select(DestinyActivityDefinition)
+
+        db_activities: list[DestinyActivityDefinition] = (
+            (await self._execute_query(db=db, query=query)).scalars().fetchall()
+        )
+
+        # loop through all activities and save them by name
+        data = {}
+        for activity in db_activities:
+            if activity.name not in data:
+                data.update({activity.name: []})
+            data[activity.name].append(activity)
+
+        # format them correctly
+        result = []
+        for activities in data.values():
+            result.append(
+                DestinyActivityModel(
+                    name=activities[0].name,
+                    description=activities[0].description,
+                    activity_ids=[activity.reference_id for activity in activities],
+                )
+            )
+
+        return result
 
 
 destiny_manifest = CRUDManifest(Base)
