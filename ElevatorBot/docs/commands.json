@@ -49,70 +49,6 @@
             ]
         },
         {
-            "name": "time",
-            "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
-            "options": [
-                {
-                    "name": "mode",
-                    "description": "Restrict the game mode where the playtime counts. Default: All modes",
-                    "required": false,
-                    "choices": [
-                        {
-                            "name": "Raids"
-                        },
-                        {
-                            "name": "Dungeon"
-                        },
-                        {
-                            "name": "Story (including stuff like Presage)"
-                        },
-                        {
-                            "name": "Strike"
-                        },
-                        {
-                            "name": "Nightfall"
-                        },
-                        {
-                            "name": "Everything PvE"
-                        },
-                        {
-                            "name": "Trials"
-                        },
-                        {
-                            "name": "Iron Banner"
-                        },
-                        {
-                            "name": "Everything PvP"
-                        },
-                        {
-                            "name": "Gambit"
-                        }
-                    ]
-                },
-                {
-                    "name": "destiny_class",
-                    "description": "Restrict the class where the playtime counts. Default: All classes",
-                    "required": false,
-                    "choices": [
-                        {
-                            "name": "Warlock"
-                        },
-                        {
-                            "name": "Hunter"
-                        },
-                        {
-                            "name": "Titan"
-                        }
-                    ]
-                },
-                {
-                    "name": "user",
-                    "description": "The name of the user you want to look up",
-                    "required": false
-                }
-            ]
-        },
-        {
             "name": "website",
             "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
             "options": [
@@ -270,7 +206,7 @@
             "options": []
         },
         {
-            "name": "setup",
+            "name": "descend_setup",
             "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
             "options": []
         }
@@ -309,7 +245,7 @@
             "options": []
         },
         {
-            "name": "setup",
+            "name": "descend_setup",
             "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
             "options": []
         }

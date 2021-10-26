@@ -3,6 +3,11 @@ setup_sub_command = {
     "description": "Use these commands to setup ElevatorBot on this server",
 }
 
+descend_setup_sub_command = {
+    "name": "descend_setup",
+    "description": setup_sub_command["description"],
+}
+
 setup_sub_command_clan_group = {
     "group_name": "clan",
     "group_description": "Everything concerning the link from this server to your Destiny 2 clan",

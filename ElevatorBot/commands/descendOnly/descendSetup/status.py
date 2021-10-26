@@ -8,7 +8,10 @@ from dis_snek.models import (
 )
 
 from ElevatorBot.commandHelpers.responseTemplates import respond_wrong_channel_type
-from ElevatorBot.commandHelpers.subCommandTemplates import setup_sub_command
+from ElevatorBot.commandHelpers.subCommandTemplates import (
+    descend_setup_sub_command,
+    setup_sub_command,
+)
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.core.misc.persistentMessages import handle_setup_command
 from ElevatorBot.misc.formating import embed_message
@@ -19,7 +22,7 @@ class Status(BaseScale):
     # todo maybe use websocket to get backend updates and display them in discord
     # todo perms
     @slash_command(
-        **setup_sub_command,
+        **descend_setup_sub_command,
         sub_cmd_name="status",
         sub_cmd_description="The channel in which the status messages get posted and updated",
         scopes=COMMAND_GUILD_SCOPE,
