@@ -5,11 +5,13 @@ from dis_snek.models import Guild
 
 from ElevatorBot.backendNetworking.http import BaseBackendConnection
 from ElevatorBot.backendNetworking.results import BackendResult
-from ElevatorBot.backendNetworking.routes import destiny_account_characters_route
-from ElevatorBot.backendNetworking.routes import destiny_account_name_route
-from ElevatorBot.backendNetworking.routes import destiny_account_solos_route
-from ElevatorBot.backendNetworking.routes import destiny_account_stat_characters_route
-from ElevatorBot.backendNetworking.routes import destiny_account_stat_route
+from ElevatorBot.backendNetworking.routes import (
+    destiny_account_characters_route,
+    destiny_account_name_route,
+    destiny_account_solos_route,
+    destiny_account_stat_characters_route,
+    destiny_account_stat_route,
+)
 
 
 @dataclasses.dataclass
@@ -57,7 +59,9 @@ class DestinyAccount(BaseBackendConnection):
             ),
         )
 
-    async def get_stat_by_characters(self, stat_name: str, stat_category: str = "allTime") -> BackendResult:
+    async def get_stat_by_characters(
+        self, character_id: int, stat_name: str, stat_category: str = "allTime"
+    ) -> BackendResult:
         """Return the stat value by character"""
 
         return await self._backend_request(
@@ -65,6 +69,7 @@ class DestinyAccount(BaseBackendConnection):
             route=destiny_account_stat_characters_route.format(
                 guild_id=self.discord_guild.id,
                 discord_id=self.discord_member.id,
+                character_id=character_id,
                 stat_category=stat_category,
                 stat_name=stat_name,
             ),

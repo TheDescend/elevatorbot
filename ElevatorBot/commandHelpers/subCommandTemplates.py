@@ -23,6 +23,11 @@ roles_sub_command = {
     "description": "Various commands concerning Destiny 2 achievement discord roles",
 }
 
+stat_sub_command = {
+    "name": "stat",
+    "description": "Shows you various Destiny 2 stats",
+}
+
 poll_sub_command = {
     "name": "poll",
     "description": "Making polls easy",

@@ -21,7 +21,9 @@ destiny_account_name_route = destiny_account_route + "name/"  # GET
 destiny_account_solos_route = destiny_account_route + "solos/"  # GET
 destiny_account_characters_route = destiny_account_route + "characters/"  # GET
 destiny_account_stat_route = destiny_account_route + "stat/{stat_category}/{stat_name}/"  # GET
-destiny_account_stat_characters_route = destiny_account_route + "stat/characters/{stat_category}/{stat_name}/"  # GET
+destiny_account_stat_characters_route = (
+    destiny_account_route + "stat/{stat_category}/{stat_name}/character/{character_id}/"
+)  # GET
 
 # lfg system
 destiny_lfg_route = base_route + "destiny/{guild_id}/lfg/"

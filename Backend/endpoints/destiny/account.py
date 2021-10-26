@@ -62,23 +62,21 @@ async def stat(
     return DestinyStatModel(value=value)
 
 
-@router.get("/stat/characters/{stat_category}/{stat_name}", response_model=dict[int, DestinyStatModel])
+@router.get("/stat/{stat_category}/{stat_name}/character/{character_id}", response_model=DestinyStatModel)
 async def stat_characters(
-    guild_id: int, discord_id: int, stat_category: str, stat_name: str, db: AsyncSession = Depends(get_db_session)
+    guild_id: int,
+    discord_id: int,
+    character_id: int,
+    stat_category: str,
+    stat_name: str,
+    db: AsyncSession = Depends(get_db_session),
 ):
     """Return the stat value by character_id"""
 
     user = await crud.discord_users.get_profile_from_discord_id(db, discord_id)
     profile = DestinyProfile(db=db, user=user)
 
-    # get character ids
-    character_ids = await profile.get_character_ids()
+    # get the stat value
+    value = await profile.get_stat_value(stat_name=stat_name, stat_category=stat_category, character_id=character_id)
 
-    result = {}
-    # loop through characters
-    for character_id in character_ids:
-        # get the stat value
-        value = await profile.get_stat_value(stat_name=stat_name, stat_category=stat_category)
-        result.update({character_id: DestinyStatModel(value=value)})
-
-    return result
+    return DestinyStatModel(value=value)

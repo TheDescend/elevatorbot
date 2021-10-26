@@ -652,84 +652,84 @@ class DestinyCommands(commands.Cog):
     #     )
     #
     #     await ctx.send(embed=embed)
-
-    @cog_ext.cog_subcommand(
-        base="stat",
-        base_description="Shows you various Destiny 2 stats",
-        name="everything",
-        description="Displays information for all activities",
-        options=[options_stat, options_user()],
-    )
-    async def _stat_everything(self, ctx: SlashContext, **kwargs):
-        # _get basic user data
-        user = await get_user_obj(ctx, kwargs)
-        destiny_player = await DestinyPlayer.from_discord_id(user.id, ctx=ctx)
-        if not destiny_player:
-            return
-
-        # might take a sec
-        await ctx.defer()
-
-        # _get stat
-        stat = await destiny_player.get_stat_value(kwargs["name"])
-        await ctx.send(
-            embed=embed_message(
-                f"{user.display_name}'s Stat Info",
-                f"Your `{kwargs['name']}` stat is currently at **{stat:,}**",
-            )
-        )
-
-    @cog_ext.cog_subcommand(
-        base="stat",
-        base_description="Shows you various Destiny 2 stats",
-        name="pve",
-        description="Displays information for all PvE activities",
-        options=[options_stat, options_user()],
-    )
-    async def _stat_pve(self, ctx: SlashContext, **kwargs):
-        # _get basic user data
-        user = await get_user_obj(ctx, kwargs)
-        destiny_player = await DestinyPlayer.from_discord_id(user.id, ctx=ctx)
-        if not destiny_player:
-            return
-
-        # might take a sec
-        await ctx.defer()
-
-        # _get stat
-        stat = await destiny_player.get_stat_value(kwargs["name"], stat_category="allPvE")
-        await ctx.send(
-            embed=embed_message(
-                f"{user.display_name}'s PvE Stat Info",
-                f"Your `{kwargs['name']}` stat is currently at **{stat:,}**",
-            )
-        )
-
-    @cog_ext.cog_subcommand(
-        base="stat",
-        base_description="Shows you various Destiny 2 stats",
-        name="pvp",
-        description="Displays information for all PvP activities",
-        options=[options_stat, options_user()],
-    )
-    async def _stat_pvp(self, ctx: SlashContext, **kwargs):
-        # _get basic user data
-        user = await get_user_obj(ctx, kwargs)
-        destiny_player = await DestinyPlayer.from_discord_id(user.id, ctx=ctx)
-        if not destiny_player:
-            return
-
-        # might take a sec
-        await ctx.defer()
-
-        # _get stat
-        stat = await destiny_player.get_stat_value(kwargs["name"], stat_category="allPvP")
-        await ctx.send(
-            embed=embed_message(
-                f"{user.display_name}'s PvP Stat Info",
-                f"Your `{kwargs['name']}` stat is currently at **{stat:,}**",
-            )
-        )
+    #
+    # @cog_ext.cog_subcommand(
+    #     base="stat",
+    #     base_description="Shows you various Destiny 2 stats",
+    #     name="everything",
+    #     description="Displays information for all activities",
+    #     options=[options_stat, options_user()],
+    # )
+    # async def _stat_everything(self, ctx: SlashContext, **kwargs):
+    #     # _get basic user data
+    #     user = await get_user_obj(ctx, kwargs)
+    #     destiny_player = await DestinyPlayer.from_discord_id(user.id, ctx=ctx)
+    #     if not destiny_player:
+    #         return
+    #
+    #     # might take a sec
+    #     await ctx.defer()
+    #
+    #     # _get stat
+    #     stat = await destiny_player.get_stat_value(kwargs["name"])
+    #     await ctx.send(
+    #         embed=embed_message(
+    #             f"{user.display_name}'s Stat Info",
+    #             f"Your `{kwargs['name']}` stat is currently at **{stat:,}**",
+    #         )
+    #     )
+    #
+    # @cog_ext.cog_subcommand(
+    #     base="stat",
+    #     base_description="Shows you various Destiny 2 stats",
+    #     name="pve",
+    #     description="Displays information for all PvE activities",
+    #     options=[options_stat, options_user()],
+    # )
+    # async def _stat_pve(self, ctx: SlashContext, **kwargs):
+    #     # _get basic user data
+    #     user = await get_user_obj(ctx, kwargs)
+    #     destiny_player = await DestinyPlayer.from_discord_id(user.id, ctx=ctx)
+    #     if not destiny_player:
+    #         return
+    #
+    #     # might take a sec
+    #     await ctx.defer()
+    #
+    #     # _get stat
+    #     stat = await destiny_player.get_stat_value(kwargs["name"], stat_category="allPvE")
+    #     await ctx.send(
+    #         embed=embed_message(
+    #             f"{user.display_name}'s PvE Stat Info",
+    #             f"Your `{kwargs['name']}` stat is currently at **{stat:,}**",
+    #         )
+    #     )
+    #
+    # @cog_ext.cog_subcommand(
+    #     base="stat",
+    #     base_description="Shows you various Destiny 2 stats",
+    #     name="pvp",
+    #     description="Displays information for all PvP activities",
+    #     options=[options_stat, options_user()],
+    # )
+    # async def _stat_pvp(self, ctx: SlashContext, **kwargs):
+    #     # _get basic user data
+    #     user = await get_user_obj(ctx, kwargs)
+    #     destiny_player = await DestinyPlayer.from_discord_id(user.id, ctx=ctx)
+    #     if not destiny_player:
+    #         return
+    #
+    #     # might take a sec
+    #     await ctx.defer()
+    #
+    #     # _get stat
+    #     stat = await destiny_player.get_stat_value(kwargs["name"], stat_category="allPvP")
+    #     await ctx.send(
+    #         embed=embed_message(
+    #             f"{user.display_name}'s PvP Stat Info",
+    #             f"Your `{kwargs['name']}` stat is currently at **{stat:,}**",
+    #         )
+    #     )
 
 
 class ClanActivitiesCommands(commands.Cog):
