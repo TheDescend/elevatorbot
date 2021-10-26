@@ -19,7 +19,15 @@ from Backend.networking.bungieRoutes import (
     stat_route_characters,
 )
 from Backend.networking.schemas import WebResponse
-from Backend.schemas.destiny.activities import DestinyLowManModel
+from Backend.schemas.destiny.activities import (
+    DestinyActivityDetailsModel,
+    DestinyActivityDetailsUsersModel,
+    DestinyLowManModel,
+)
+from Backend.schemas.destiny.profile import (
+    DestinyLowMansModel,
+    DestinyUpdatedLowManModel,
+)
 
 
 @dataclasses.dataclass
@@ -204,6 +212,62 @@ class DestinyActivities:
 
         return await self.api.get(route=pgcr_route.format(instance_id=instance_id))
 
+    async def get_last_played(
+        self,
+        mode: int = 0,
+        activity_ids: Optional[list[int]] = None,
+        character_class: Optional[str] = None,
+        completed: bool = True,
+    ) -> DestinyActivityDetailsModel:
+        """Get the last activity played"""
+
+        result = await activities.get_last_activity(
+            db=self.db,
+            destiny_id=self.destiny_id,
+            mode=mode,
+            activity_ids=activity_ids,
+            completed=completed,
+            character_class=character_class,
+        )
+
+        if not result:
+            raise CustomException("NoActivityFound")
+
+        # format that
+        data = DestinyActivityDetailsModel(
+            instance_id=result.instance_id,
+            period=result.period,
+            starting_phase_index=result.starting_phase_index,
+            reference_id=result.reference_id,
+            activity_duration_seconds=0,  # temp value
+            score=0,  # temp value
+        )
+
+        # loop through the users
+        for user in result.users:
+            if data.activity_duration_seconds == 0:
+                # update temp values
+                data.activity_duration_seconds = user.activity_duration_seconds
+                data.score = user.score
+
+            data.users.append(
+                DestinyActivityDetailsUsersModel(
+                    bungie_name=user.bungie_name,
+                    destiny_id=user.destiny_id,
+                    system=user.system,
+                    character_id=user.character_id,
+                    character_class=user.character_class,
+                    light_level=user.light_level,
+                    completed=True if user.completed == 1 else False,
+                    kills=user.kills,
+                    deaths=user.deaths,
+                    assists=user.assists,
+                    time_played_seconds=user.time_played_seconds,
+                )
+            )
+
+        return data
+
     async def update_activity_db(self, entry_time: datetime = None):
         """Gets this users not-saved history and saves it in the db"""
 
@@ -306,3 +370,35 @@ class DestinyActivities:
                 )
 
         return self._full_character_list
+
+    async def get_solos(self) -> DestinyLowMansModel:
+        """Return the destiny solos"""
+
+        # todo get those from the db
+        interesting_solos = {
+            "Shattered Throne": throneHashes,
+            "Pit of Heresy": pitHashes,
+            "Prophecy": prophHashes,
+            "Harbinger": harbHashes,
+            "Presage": presageHashes,
+            "Master Presage": presageMasterHashes,
+            "The Whisper": whisperHashes + herwhisperHashes,
+            "Zero Hour": zeroHashes + herzeroHashes,
+            "Grandmaster Nightfalls": gmHashes,
+        }
+
+        # get the results for this in a gather (keeps order)
+        activities = DestinyActivities(db=db, user=user)
+        results = await asyncio.gather(
+            *[
+                activities.get_lowman_count(activity_ids=solo_activity_ids, max_player_count=1)
+                for solo_activity_ids in interesting_solos.values()
+            ]
+        )
+        solos = DestinyLowMansModel()
+
+        # loop through the results
+        for result, activity_name in zip(results, interesting_solos.keys()):
+            solos.solos.append(DestinyUpdatedLowManModel(activity_name=activity_name, **result))
+
+        return solos

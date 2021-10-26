@@ -334,69 +334,69 @@ class DestinyCommands(commands.Cog):
         await asyncio.sleep(10)
         os.remove(title)
 
-    @cog_ext.cog_slash(
-        name="last",
-        description="Stats for the last activity you played",
-        options=[
-            create_option(
-                name="activity",
-                description="The type of the activity",
-                option_type=3,
-                required=True,
-                choices=choices_mode,
-            ),
-            options_user(),
-        ],
-    )
-    async def _last(self, ctx: SlashContext, **kwargs):
-        user = await get_user_obj(ctx, kwargs)
-        destiny_player = await DestinyPlayer.from_discord_id(user.id, ctx=ctx)
-        if not destiny_player:
-            return
-
-        # might take a sec
-        await ctx.defer()
-
-        # _get data for the mode specified
-        await destiny_player.update_activity_db()
-        data = await getLastActivity(
-            destiny_player.destiny_id,
-            mode=int(kwargs["activity"]) if "activity" in kwargs and kwargs["activity"] != "0" else None,
-        )
-        if not data:
-            await ctx.send(
-                embed=embed_message(
-                    "Error",
-                    "Couldn't find any data for that mode. If you think this is an error DM me",
-                )
-            )
-            return
-
-        # make data pretty and send msg
-        activity_name = (await getDestinyDefinition("DestinyActivityDefinition", data["directorActivityHash"]))[2]
-        embed = embed_message(
-            f"{user.display_name}'s Last Activity",
-            f"**{activity_name}{(' - ' + str(data['score']) + ' Points') if data['score'] > 0 else ''} - {str(datetime.timedelta(seconds=data['activityDurationSeconds']))}**",
-            f"Date: {data['period'].strftime('%d/%m/%Y, %H:%M')} - InstanceID: {data['instanceID']}",
-        )
-
-        for player in data["entries"]:
-            player_data = [
-                f"K: **{player['opponentsDefeated']}**, D: **{player['deaths']}**, A: **{player['assists']}**",
-                f"K/D: **{round((player['opponentsDefeated'] / player['deaths']) if player['deaths'] > 0 else player['opponentsDefeated'], 2)}** {'(DNF)' if not player['completed'] else ''}",
-                str(datetime.timedelta(seconds=player["timePlayedSeconds"])),
-            ]
-
-            # sometimes people dont have a class for some reason. Skipping that
-            if player["characterClass"] == "":
-                continue
-            embed.add_field(
-                name=f"{await get_emoji(self.client, self.classes[player['characterClass']])} {(await destiny_player.get_destiny_name_and_last_played())[0]} {await get_emoji(self.client, light_level_icon_emoji_id)} {player['lightLevel']}",
-                value="\n".join(player_data),
-                inline=True,
-            )
-
-        await ctx.send(embed=embed)
+    # @cog_ext.cog_slash(
+    #     name="last",
+    #     description="Stats for the last activity you played",
+    #     options=[
+    #         create_option(
+    #             name="activity",
+    #             description="The type of the activity",
+    #             option_type=3,
+    #             required=True,
+    #             choices=choices_mode,
+    #         ),
+    #         options_user(),
+    #     ],
+    # )
+    # async def _last(self, ctx: SlashContext, **kwargs):
+    #     user = await get_user_obj(ctx, kwargs)
+    #     destiny_player = await DestinyPlayer.from_discord_id(user.id, ctx=ctx)
+    #     if not destiny_player:
+    #         return
+    #
+    #     # might take a sec
+    #     await ctx.defer()
+    #
+    #     # _get data for the mode specified
+    #     await destiny_player.update_activity_db()
+    #     data = await getLastActivity(
+    #         destiny_player.destiny_id,
+    #         mode=int(kwargs["activity"]) if "activity" in kwargs and kwargs["activity"] != "0" else None,
+    #     )
+    #     if not data:
+    #         await ctx.send(
+    #             embed=embed_message(
+    #                 "Error",
+    #                 "Couldn't find any data for that mode. If you think this is an error DM me",
+    #             )
+    #         )
+    #         return
+    #
+    #     # make data pretty and send msg
+    #     activity_name = (await getDestinyDefinition("DestinyActivityDefinition", data["directorActivityHash"]))[2]
+    #     embed = embed_message(
+    #         f"{user.display_name}'s Last Activity",
+    #         f"**{activity_name}{(' - ' + str(data['score']) + ' Points') if data['score'] > 0 else ''} - {str(datetime.timedelta(seconds=data['activityDurationSeconds']))}**",
+    #         f"Date: {data['period'].strftime('%d/%m/%Y, %H:%M')} - InstanceID: {data['instanceID']}",
+    #     )
+    #
+    #     for player in data["entries"]:
+    #         player_data = [
+    #             f"K: **{player['opponentsDefeated']}**, D: **{player['deaths']}**, A: **{player['assists']}**",
+    #             f"K/D: **{round((player['opponentsDefeated'] / player['deaths']) if player['deaths'] > 0 else player['opponentsDefeated'], 2)}** {'(DNF)' if not player['completed'] else ''}",
+    #             str(datetime.timedelta(seconds=player["timePlayedSeconds"])),
+    #         ]
+    #
+    #         # sometimes people dont have a class for some reason. Skipping that
+    #         if player["characterClass"] == "":
+    #             continue
+    #         embed.add_field(
+    #             name=f"{await get_emoji(self.client, self.classes[player['characterClass']])} {(await destiny_player.get_destiny_name_and_last_played())[0]} {await get_emoji(self.client, light_level_icon_emoji_id)} {player['lightLevel']}",
+    #             value="\n".join(player_data),
+    #             inline=True,
+    #         )
+    #
+    #     await ctx.send(embed=embed)
 
     @cog_ext.cog_slash(
         name="challenges",

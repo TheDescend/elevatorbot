@@ -12,7 +12,7 @@ async def load_autocomplete_options(client: Snake):
     """Fetch the needed data from the DB"""
 
     # loop through them all and add them to the global activities dict
-    db_activities = await DestinyActivities(discord_member=None).get_all()
+    db_activities = await DestinyActivities(discord_member=None, client=None, discord_guild=None).get_all()
     for activity in db_activities.result["activities"]:
         model = DestinyActivityModel(
             name=activity["name"],
@@ -20,4 +20,5 @@ async def load_autocomplete_options(client: Snake):
             activity_ids=activity["activity_ids"],
         )
         activities.update({model.name.lower(): model})
-        activities_by_id.update({model.activity_ids: model})
+        for activity_id in model.activity_ids:
+            activities_by_id.update({activity_id: model})

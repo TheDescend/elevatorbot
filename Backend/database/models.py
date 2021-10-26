@@ -1,24 +1,24 @@
 import datetime
 
-from sqlalchemy import ARRAY
-from sqlalchemy import BigInteger
-from sqlalchemy import Boolean
-from sqlalchemy import Column
-from sqlalchemy import Date
-from sqlalchemy import DateTime
-from sqlalchemy import ForeignKey
-from sqlalchemy import Integer
-from sqlalchemy import JSON
-from sqlalchemy import Numeric
-from sqlalchemy import SmallInteger
-from sqlalchemy import Text
+from sqlalchemy import (
+    ARRAY,
+    JSON,
+    BigInteger,
+    Boolean,
+    Column,
+    Date,
+    DateTime,
+    ForeignKey,
+    Integer,
+    Numeric,
+    SmallInteger,
+    Text,
+)
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import relationship
 
-from Backend.database.base import Base
-from Backend.database.base import is_test_mode
+from Backend.database.base import Base, is_test_mode
 from Backend.misc.helperFunctions import get_now_with_tz
-
 
 """ All table models are in here, allowing for easy generation """
 
@@ -70,6 +70,7 @@ class ActivitiesUsers(Base):
     id = Column(BigInteger, nullable=False, primary_key=True)
 
     destiny_id = Column(BigInteger, nullable=False)
+    bungie_name = Column(Text, nullable=False)
     character_id = Column(BigInteger, nullable=False)
     character_class = Column(Text, nullable=True)
     character_level = Column(SmallInteger, nullable=False)

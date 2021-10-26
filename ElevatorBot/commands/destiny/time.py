@@ -23,10 +23,7 @@ from ElevatorBot.static.destinyEnums import ModeScope, StatScope
 
 
 class Time(BaseScale):
-    @slash_command(
-        name="time",
-        description="Shows you your Destiny 2 playtime split up by season",
-    )
+    @slash_command(name="time", description="Shows you your Destiny 2 playtime split up by season")
     @default_mode_option(description="Restrict the game mode where the playtime counts. Default: All modes")
     @autocomplete_activity_option(
         description="Restrict the activity where the playtime counts. Overwrite `mode`. Default: All modes"
@@ -64,7 +61,7 @@ class Time(BaseScale):
         activity_name = None
         if activity:
             activity_ids = [int(activity_id) for activity_id in activity.split("|")]
-            activity_name = activities_by_id[activity_ids]
+            activity_name = activities_by_id[activity_ids[0]]
             total = {
                 # the first one is the .ALL which we want to keep
                 list[modes_names.values()][0]: 0,
@@ -132,7 +129,7 @@ class Time(BaseScale):
 
         # prepare the embed
         embed = embed_message(
-            f"{user.display_name} D2 Time Played",
+            f"{member.display_name} D2 Time Played",
             "\n".join([f"**{name}**: {format_timedelta(value)}" for name, value in total.items()]),
         )
 

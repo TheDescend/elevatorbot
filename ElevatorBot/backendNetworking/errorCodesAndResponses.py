@@ -16,4 +16,5 @@ error_codes_and_responses = {
     "PollNoPermission": "{discord_member.mention} does not have permissions to modify this poll",
     "PollOptionNotExist": "This option does not exist. Make sure you spelled it correctly",
     "PollNotExist": "This poll ID does not exist",
+    "NoActivityFound": "{discord_member.mention} has never done an activity that fulfills the given requirements",
 }

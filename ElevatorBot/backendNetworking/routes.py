@@ -73,3 +73,4 @@ polls_delete_route = polls_route + "{poll_id}/delete/{"  # DELETE
 # activities
 activities_route = base_route + "activities/"
 activities_get_all_route = activities_route + "get/all/"  # GET
+activities_last_route = activities_route + "{guild_id}/{discord_id}/last/"  # GET

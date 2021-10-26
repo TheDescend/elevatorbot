@@ -22,7 +22,6 @@ from ElevatorBot.static.destinyEnums import ModeScope
 class DestinyAccount(BaseBackendConnection):
     client: Snake
     discord_guild: Guild
-    discord_member = None
 
     async def get_destiny_name(self) -> BackendResult:
         """Return the destiny name"""

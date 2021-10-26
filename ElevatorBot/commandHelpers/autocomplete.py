@@ -14,7 +14,7 @@ class DestinyActivityModel:
 # todo update after manifest update
 # all activities are in here at runtime
 activities: dict[str, DestinyActivityModel] = {}
-activities_by_id: dict[list[int], DestinyActivityModel] = {}
+activities_by_id: dict[int, DestinyActivityModel] = {}
 
 
 async def autocomplete_send_activity_name(ctx: AutocompleteContext):

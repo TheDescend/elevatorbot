@@ -1,5 +1,6 @@
 import asyncio
 import datetime
+from typing import Optional
 
 from sqlalchemy import distinct, func, not_, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -72,6 +73,7 @@ class CRUDActivities(CRUDBase):
         for player_pgcr in pgcr["entries"]:
             player = ActivitiesUsers(
                 destiny_id=player_pgcr["player"]["destinyUserInfo"]["membershipId"],
+                bungie_name=f"""{player_pgcr["player"]["destinyUserInfo"]["bungieGlobalDisplayName"]}#{player_pgcr["player"]["destinyUserInfo"]["bungieGlobalDisplayNameCode"]}""",
                 character_id=player_pgcr["characterId"],
                 character_class=player_pgcr["player"]["characterClass"]
                 if "characterClass" in player_pgcr["player"]
@@ -210,15 +212,53 @@ class CRUDActivities(CRUDBase):
         result = await self._execute_query(db=db, query=query)
         return result.scalars().fetchall()
 
+    async def get_last_activity(
+        self,
+        db: AsyncSession,
+        destiny_id: int,
+        mode: Optional[int] = None,
+        activity_ids: Optional[list[int]] = None,
+        completed: bool = True,
+        character_class: Optional[str] = None,
+    ) -> Optional[Activities]:
+        """Gets a list of all Activities that fulfill the get_requirements"""
+
+        query = select(Activities)
+
+        # check mode
+        if mode and not activity_ids:
+            query = query.filter(Activities.modes.any(mode))
+
+        # check activity_ids
+        if activity_ids:
+            query = query.filter(Activities.director_activity_hash.in_(activity_ids))
+
+        query = query.join(Activities.users)
+        query = query.group_by(ActivitiesUsers.id)
+
+        # filter the destiny id
+        query = query.filter(ActivitiesUsers.destiny_id == destiny_id)
+
+        # limit the class
+        if character_class:
+            query = query.filter(ActivitiesUsers.character_class == character_class)
+
+        # check completion status
+        if completed:
+            query = query.filter(ActivitiesUsers.completed == 1)
+
+        result = await self._execute_query(db=db, query=query)
+        return result.scalar()
+
     async def calculate_time_played(
         self,
         db: AsyncSession,
         destiny_id: int,
         mode: int = 0,
-        activity_ids: list[int] = None,
-        start_time: datetime = None,
-        end_time: datetime.datetime = None,
-        character_class: str = None,
+        activity_ids: Optional[list[int]] = None,
+        start_time: Optional[datetime.datetime] = None,
+        end_time: Optional[datetime.datetime] = None,
+        character_class: Optional[str] = None,
     ) -> int:
         """Calculate the time played (in seconds) from the DB"""
 
@@ -242,7 +282,8 @@ class CRUDActivities(CRUDBase):
         query = query.filter(ActivitiesUsers.destiny_id == destiny_id)
 
         # limit the class
-        query = query.filter(ActivitiesUsers.character_class == character_class)
+        if character_class:
+            query = query.filter(ActivitiesUsers.character_class == character_class)
 
         result = await self._execute_query(db=db, query=query)
         result = result.scalar()

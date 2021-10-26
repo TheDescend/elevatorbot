@@ -2,11 +2,11 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend import crud
+from Backend.core.destiny.activities import DestinyActivities
 from Backend.core.destiny.profile import DestinyProfile
 from Backend.dependencies import get_db_session
 from Backend.schemas.destiny.account import (
     DestinyCharactersModel,
-    DestinyLastInputModel,
     DestinyNameModel,
     DestinyStatModel,
     DestinyTimeInputModel,
@@ -34,9 +34,10 @@ async def destiny_solos(guild_id: int, discord_id: int, db: AsyncSession = Depen
 
     user = await crud.discord_users.get_profile_from_discord_id(db, discord_id)
     profile = DestinyProfile(db=db, user=user)
+    activities = DestinyActivities(db=db, user=user)
 
     # get the solo data
-    return await profile.get_solos()
+    return await activities.get_solos()
 
 
 @router.get("/characters", response_model=DestinyCharactersModel)
@@ -130,17 +131,5 @@ async def time(
                 ),
             }
         )
-
-    return result
-
-
-@router.get("/last", response_model=aaaaaaaa)
-async def last(
-    guild_id: int, discord_id: int, time_input: DestinyLastInputModel, db: AsyncSession = Depends(get_db_session)
-):
-    """Return information about the last completed activity"""
-
-    user = await crud.discord_users.get_profile_from_discord_id(db, discord_id)
-    profile = DestinyProfile(db=db, user=user)
 
     return result

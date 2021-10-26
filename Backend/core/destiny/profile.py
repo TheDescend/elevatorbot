@@ -1,11 +1,9 @@
-import asyncio
 import dataclasses
 import datetime
 from typing import Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from Backend.core.destiny.activities import DestinyActivities
 from Backend.crud import activities, destiny_manifest, discord_users
 from Backend.crud.destiny.collectibles import collectibles
 from Backend.crud.destiny.records import records
@@ -17,10 +15,6 @@ from Backend.schemas.destiny.account import (
     DestinyCharacterModel,
     DestinyCharactersModel,
     DestinyTimeModel,
-)
-from Backend.schemas.destiny.profile import (
-    DestinyLowMansModel,
-    DestinyUpdatedLowManModel,
 )
 
 
@@ -326,38 +320,6 @@ class DestinyProfile:
         result = await self.api.get(route=route)
         return result.content
 
-    async def get_solos(self) -> DestinyLowMansModel:
-        """Return the destiny solos"""
-
-        # todo get those from the db
-        interesting_solos = {
-            "Shattered Throne": throneHashes,
-            "Pit of Heresy": pitHashes,
-            "Prophecy": prophHashes,
-            "Harbinger": harbHashes,
-            "Presage": presageHashes,
-            "Master Presage": presageMasterHashes,
-            "The Whisper": whisperHashes + herwhisperHashes,
-            "Zero Hour": zeroHashes + herzeroHashes,
-            "Grandmaster Nightfalls": gmHashes,
-        }
-
-        # get the results for this in a gather (keeps order)
-        activities = DestinyActivities(db=self.db, user=self.user)
-        results = await asyncio.gather(
-            *[
-                activities.get_lowman_count(activity_ids=solo_activity_ids, max_player_count=1)
-                for solo_activity_ids in interesting_solos.values()
-            ]
-        )
-        solos = DestinyLowMansModel()
-
-        # loop through the results
-        for result, activity_name in zip(results, interesting_solos.keys()):
-            solos.solos.append(DestinyUpdatedLowManModel(activity_name=activity_name, **result))
-
-        return solos
-
     async def get_items_in_inventory_bucket(self, bucket: int) -> list:
         """
         Returns all items in bucket. Default is vault hash, for others search "bucket" at https://data.destinysets.com/
@@ -406,11 +368,11 @@ class DestinyProfile:
 
     async def get_time_played(
         self,
-        start_time: datetime,
-        end_time: datetime,
+        start_time: datetime.datetime,
+        end_time: datetime.datetime,
         mode: int = 0,
-        activity_ids: list[int] = None,
-        character_class: str = None,
+        activity_ids: Optional[list[int]] = None,
+        character_class: Optional[str] = None,
     ) -> DestinyTimeModel:
         """Get the time played"""
 
