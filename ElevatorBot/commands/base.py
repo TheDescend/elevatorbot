@@ -11,6 +11,7 @@ class BaseScale(Scale):
     def __init__(self, client):
         self.client: Snake = client
         self.add_scale_check(self.registered_check)
+        self.add_scale_check(self.no_dm_check)
 
     @staticmethod
     async def registered_check(ctx: InteractionContext) -> bool:
@@ -33,3 +34,12 @@ class BaseScale(Scale):
             )
 
         return result
+
+    @staticmethod
+    async def no_dm_check(ctx: InteractionContext) -> bool:
+        """
+        Default command that is run before the command is handled
+        Checks that the command is not invoked in dms
+        """
+
+        return bool(ctx.guild)
