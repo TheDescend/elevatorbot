@@ -6,6 +6,7 @@ from Backend.core.destiny.activities import DestinyActivities
 from Backend.core.destiny.profile import DestinyProfile
 from Backend.dependencies import get_db_session
 from Backend.schemas.destiny.account import (
+    BoolModel,
     DestinyCharactersModel,
     DestinyNameModel,
     DestinyStatModel,
@@ -26,6 +27,39 @@ async def destiny_name(guild_id: int, discord_id: int, db: AsyncSession = Depend
 
     user = await crud.discord_users.get_profile_from_discord_id(db, discord_id)
     return DestinyNameModel(name=user.bungie_name)
+
+
+@router.get("/collectible/{collectible_id}", response_model=BoolModel)
+async def has_collectible(
+    guild_id: int, discord_id: int, collectible_id: int, db: AsyncSession = Depends(get_db_session)
+):
+    """Return is the collectible is unlocked"""
+
+    user = await crud.discord_users.get_profile_from_discord_id(db, discord_id)
+    profile = DestinyProfile(db=db, user=user)
+    return BoolModel(bool=await profile.has_collectible(collectible_hash=collectible_id))
+
+
+@router.get("/triumph/{triumph_id}", response_model=BoolModel)
+async def has_triumph(guild_id: int, discord_id: int, triumph_id: int, db: AsyncSession = Depends(get_db_session)):
+    """Return is the triumph is unlocked"""
+
+    user = await crud.discord_users.get_profile_from_discord_id(db, discord_id)
+    profile = DestinyProfile(db=db, user=user)
+    return BoolModel(bool=await profile.has_triumph(triumph_hash=triumph_id))
+
+
+@router.get("/metric/{metric_id}", response_model=DestinyStatModel)
+async def metric(guild_id: int, discord_id: int, metric_id: int, db: AsyncSession = Depends(get_db_session)):
+    """Return the metric value"""
+
+    user = await crud.discord_users.get_profile_from_discord_id(db, discord_id)
+    profile = DestinyProfile(db=db, user=user)
+
+    # get the metric value
+    value = await profile.get_metric_value(metric_hash=metric_id)
+
+    return DestinyStatModel(value=value)
 
 
 @router.get("/solos", response_model=DestinyLowMansModel)

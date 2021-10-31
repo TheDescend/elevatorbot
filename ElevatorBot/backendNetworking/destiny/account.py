@@ -9,11 +9,14 @@ from ElevatorBot.backendNetworking.http import BaseBackendConnection
 from ElevatorBot.backendNetworking.results import BackendResult
 from ElevatorBot.backendNetworking.routes import (
     destiny_account_characters_route,
+    destiny_account_collectible_route,
+    destiny_account_metric_route,
     destiny_account_name_route,
     destiny_account_solos_route,
     destiny_account_stat_characters_route,
     destiny_account_stat_route,
     destiny_account_time_route,
+    destiny_account_triumph_route,
 )
 from ElevatorBot.static.destinyEnums import ModeScope
 
@@ -71,6 +74,36 @@ class DestinyAccount(BaseBackendConnection):
             method="GET",
             route=destiny_account_characters_route.format(
                 guild_id=self.discord_guild.id, discord_id=self.discord_member.id
+            ),
+        )
+
+    async def has_collectible(self, collectible_id: int) -> BackendResult:
+        """Return if the collectible is had"""
+
+        return await self._backend_request(
+            method="GET",
+            route=destiny_account_collectible_route.format(
+                guild_id=self.discord_guild.id, discord_id=self.discord_member.id, collectible_id=collectible_id
+            ),
+        )
+
+    async def has_triumph(self, triumph_id: int) -> BackendResult:
+        """Return if the triumph is had"""
+
+        return await self._backend_request(
+            method="GET",
+            route=destiny_account_triumph_route.format(
+                guild_id=self.discord_guild.id, discord_id=self.discord_member.id, triumph_id=triumph_id
+            ),
+        )
+
+    async def get_metric(self, metric_id: int) -> BackendResult:
+        """Return the metric value"""
+
+        return await self._backend_request(
+            method="GET",
+            route=destiny_account_metric_route.format(
+                guild_id=self.discord_guild.id, discord_id=self.discord_member.id, metric_id=metric_id
             ),
         )
 

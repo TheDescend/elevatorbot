@@ -18,6 +18,11 @@ setup_sub_command_lfg_group = {
     "group_description": "Everything needed to use my LFG system",
 }
 
+day1completions_sub_command = {
+    "name": "day_one",
+    "description": "Everything Destiny 2 Day One raid completions",
+}
+
 lfg_sub_command = {
     "name": "lfg",
     "description": "Everything concerning my awesome Destiny 2 LFG system",

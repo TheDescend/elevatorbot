@@ -132,7 +132,7 @@ class Day1Race(commands.Cog):
 
             # set new now
             now = datetime.datetime.now(datetime.timezone.utc)
-            print(f"Done with loop at {str(now)}")
+            print (f"Done with loop at {str(now)}")
 
         # write the completion message
         if self.finished_raid:
@@ -166,7 +166,7 @@ class Day1Race(commands.Cog):
                         f"""<:desc_circle_b:768906489464619008>**{name}** - Kills: *{int(kills):,}*, Deaths: *{int(deaths):,}*, Time: *{str(datetime.timedelta(seconds=time_spend))}*"""
                     )
                 except:
-                    print(f"Failed member {name}")
+                    print (f"Failed member {name}")
                     completions.append(
                         f"""<:desc_circle_b:768906489464619008>**{name}** finished the raid, but there is no info in the API yet"""
                     )
@@ -258,7 +258,7 @@ class Day1Race(commands.Cog):
 
                 """ vog only stuff over """
         except Exception as e:
-            print(e)
+            print (e)
 
         return member
 
@@ -320,68 +320,68 @@ class Day1Race(commands.Cog):
             else:
                 await self.leaderboard_msg.edit(embed=embed)
 
-    @cog_ext.cog_slash(
-        name="day1completions",
-        description="Returns a list of everyone who has completed the specified raid on Day One",
-        options=[
-            create_option(
-                name="raid",
-                description="The name of the raid",
-                option_type=3,
-                required=True,
-                choices=[
-                    create_choice(name="Last Wish", value="Last Wish"),
-                    create_choice(name="Scourge of the Past", value="Scourge of the Past"),
-                    create_choice(name="Crown of Sorrows", value="Crown of Sorrows"),
-                    create_choice(name="Garden of Salvation", value="Garden of Salvation"),
-                    create_choice(name="Deep Stone Crypt", value="Deep Stone Crypt"),
-                    create_choice(name="Vault of Glass", value="Vault of Glass"),
-                ],
-            ),
-        ],
-    )
-    async def _day1completions(self, ctx: SlashContext, raid: str):
-        raid_to_emblem_hash = {
-            "Last Wish": 1171206947,
-            "Scourge of the Past": 2473783710,
-            "Crown of Sorrows": 3171386140,
-            "Garden of Salvation": 3938759711,
-            "Deep Stone Crypt": 2273453972,
-            "Vault of Glass": 2172413746,
-        }
-
-        await ctx.defer()
-
-        member_role = ctx.guild.get_role(member_role_id)
-        clan_role = ctx.guild.get_role(clan_role_id)
-
-        self.clan_list = []
-        self.user_list = []
-
-        async def check_member(member):
-            if member_role in member.roles:
-                destiny_player = await DestinyPlayer.from_discord_id(member.id)
-                if destiny_player:
-                    if await destiny_player.has_collectible(str(raid_to_emblem_hash[raid])):
-                        if clan_role in member.roles:
-                            self.clan_list.append(member.display_name)
-                        else:
-                            self.user_list.append(member.display_name)
-
-        await asyncio.gather(*[check_member(member) for member in ctx.guild.members])
-
-        embed = embed_message(f"{raid} - Day One Completions")
-
-        if not self.clan_list and not self.user_list:
-            embed.description = "Sadly nobody here cleared this raid :("
-
-        if self.clan_list:
-            embed.add_field(name="Clan Members", value="\n".join(self.clan_list), inline=True)
-
-        if self.user_list:
-            embed.add_field(name="Other People", value="\n".join(self.user_list), inline=True)
-
-        await ctx.send(embed=embed)
+    # @cog_ext.cog_slash(
+    #     name="day1completions",
+    #     description="Returns a list of everyone who has completed the specified raid on Day One",
+    #     options=[
+    #         create_option(
+    #             name="raid",
+    #             description="The name of the raid",
+    #             option_type=3,
+    #             required=True,
+    #             choices=[
+    #                 create_choice(name="Last Wish", value="Last Wish"),
+    #                 create_choice(name="Scourge of the Past", value="Scourge of the Past"),
+    #                 create_choice(name="Crown of Sorrows", value="Crown of Sorrows"),
+    #                 create_choice(name="Garden of Salvation", value="Garden of Salvation"),
+    #                 create_choice(name="Deep Stone Crypt", value="Deep Stone Crypt"),
+    #                 create_choice(name="Vault of Glass", value="Vault of Glass"),
+    #             ],
+    #         ),
+    #     ],
+    # )
+    # async def _day1completions(self, ctx: SlashContext, raid: str):
+    #     raid_to_emblem_hash = {
+    #         "Last Wish": 1171206947,
+    #         "Scourge of the Past": 2473783710,
+    #         "Crown of Sorrows": 3171386140,
+    #         "Garden of Salvation": 3938759711,
+    #         "Deep Stone Crypt": 2273453972,
+    #         "Vault of Glass": 2172413746,
+    #     }
+    #
+    #     await ctx.defer()
+    #
+    #     member_role = ctx.guild.get_role(member_role_id)
+    #     clan_role = ctx.guild.get_role(clan_role_id)
+    #
+    #     self.clan_list = []
+    #     self.user_list = []
+    #
+    #     async def check_member(member):
+    #         if member_role in member.roles:
+    #             destiny_player = await DestinyPlayer.from_discord_id(member.id)
+    #             if destiny_player:
+    #                 if await destiny_player.has_collectible(str(raid_to_emblem_hash[raid])):
+    #                     if clan_role in member.roles:
+    #                         self.clan_list.append(member.display_name)
+    #                     else:
+    #                         self.user_list.append(member.display_name)
+    #
+    #     await asyncio.gather(*[check_member(member) for member in ctx.guild.members])
+    #
+    #     embed = embed_message(f"{raid} - Day One Completions")
+    #
+    #     if not self.clan_list and not self.user_list:
+    #         embed.description = "Sadly nobody here cleared this raid :("
+    #
+    #     if self.clan_list:
+    #         embed.add_field(name="Clan Members", value="\n".join(self.clan_list), inline=True)
+    #
+    #     if self.user_list:
+    #         embed.add_field(name="Other People", value="\n".join(self.user_list), inline=True)
+    #
+    #     await ctx.send(embed=embed)
 
 
 def setup(client):

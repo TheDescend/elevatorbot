@@ -12,6 +12,10 @@ class DestinyStatModel(BaseModel):
     value: int | float
 
 
+class BoolModel(BaseModel):
+    bool: bool
+
+
 class DestinyCharacterModel(BaseModel):
     character_id: int
     character_class: str
