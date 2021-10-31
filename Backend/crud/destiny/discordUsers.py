@@ -197,7 +197,7 @@ class CRUDDiscordUser(CRUDBase):
         )
 
         # remove registration roles
-        await self._remove_registration_roles(db=db, discord_id=user.discord_id)
+        await self.remove_registration_roles(db=db, discord_id=user.discord_id)
 
     async def token_is_expired(self, db: AsyncSession, user: DiscordUsers):
         """Checks if a token exists and the refresh token is not expired"""
@@ -231,35 +231,67 @@ class CRUDDiscordUser(CRUDBase):
             pass
 
         # remove registration roles
-        await self._remove_registration_roles(db=db, discord_id=discord_id)
+        await self.remove_registration_roles(db=db, discord_id=discord_id)
 
     @staticmethod
-    async def _remove_registration_roles(db: AsyncSession, discord_id: int):
-        """Removes registration roles from user in all guild"""
+    async def remove_registration_roles(db: AsyncSession, discord_id: int, guild_ids: list[int] = None):
+        """Removes registration roles from user in all guilds"""
 
         # loop through guilds to remove registration info from the user
         data = []
         role_data = await roles.get_registration_roles(db=db)
-        for guild_id, guild_data in role_data.items():
-            registered_role_id, unregistered_role_id = None, None
+        for role in role_data:
+            guild_id = role.guild_id
+            registered_role_id = role.channel_id
 
-            # get both role ids
-            for role in role_data:
-                if role.role_name == "Registered":
-                    registered_role_id = role.role_id
-                elif role.role_name == "Unregistered":
-                    unregistered_role_id = role.role_id
+            if guild_ids:
+                if guild_id not in guild_ids:
+                    continue
 
             # append that to the data we're gonna send elevator
-            if registered_role_id or unregistered_role_id:
-                data.append(
-                    {
-                        "discord_id": discord_id,
-                        "guild_id": guild_id,
-                        "to_assign_role_ids": [unregistered_role_id] if unregistered_role_id else None,
-                        "to_remove_role_ids": [registered_role_id] if registered_role_id else None,
-                    }
-                )
+            data.append(
+                {
+                    "discord_id": discord_id,
+                    "guild_id": guild_id,
+                    "to_assign_role_ids": None,
+                    "to_remove_role_ids": [registered_role_id],
+                }
+            )
+
+        # send elevator that data to apply the roles
+        if data:
+            elevator_api = ElevatorApi()
+            await elevator_api.post(
+                route_addition="roles/",
+                json={
+                    "data": data,
+                },
+            )
+
+    @staticmethod
+    async def add_registration_roles(db: AsyncSession, discord_id: int, guild_ids: list[int] = None):
+        """Add registration roles to user in all guilds"""
+
+        # loop through guilds to remove registration info from the user
+        data = []
+        role_data = await roles.get_registration_roles(db=db)
+        for role in role_data:
+            guild_id = role.guild_id
+            registered_role_id = role.channel_id
+
+            if guild_ids:
+                if guild_id not in guild_ids:
+                    continue
+
+            # append that to the data we're gonna send elevator
+            data.append(
+                {
+                    "discord_id": discord_id,
+                    "guild_id": guild_id,
+                    "to_assign_role_ids": [registered_role_id],
+                    "to_remove_role_ids": None,
+                }
+            )
 
         # send elevator that data to apply the roles
         if data:

@@ -1,5 +1,6 @@
 from typing import Optional
 
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.crud.base import CRUDBase
@@ -64,6 +65,16 @@ class CRUDPersistentMessages(CRUDBase):
             self.cache.persistent_messages.pop(cache_str)
         except KeyError:
             pass
+
+    async def get_registration_roles(self, db: AsyncSession, guild_id: int = None) -> list[PersistentMessage]:
+        """Get the registered role (channel_id)"""
+
+        if guild_id:
+            result = await self.get(db=db, guild_id=guild_id, message_name="registered_role")
+            return [result]
+
+        else:
+            return await self._get_multi(db=db, message_name="registered_role")
 
 
 persistent_messages = CRUDPersistentMessages(PersistentMessage)

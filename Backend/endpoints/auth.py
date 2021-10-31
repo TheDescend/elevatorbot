@@ -13,6 +13,7 @@ from Backend.core.security.auth import (
     create_access_token,
     get_password_hash,
 )
+from Backend.crud import discord_users
 from Backend.database.models import BackendUser
 from Backend.dependencies import get_db_session
 from Backend.networking.elevatorApi import ElevatorApi
@@ -53,40 +54,10 @@ async def save_bungie_token(bungie_token: BungieTokenInput, db: AsyncSession = D
             },
         )
 
-        # loop through guilds
-        data = []
-        role_data = await crud.roles.get_registration_roles(db=db)
-        for guild_id, guild_data in role_data.items():
-            # make sure we are in that guild
-            if guild_id in response.content["guild_ids"]:
-                registered_role_id, unregistered_role_id = None, None
-
-                # get both role ids
-                for role in role_data:
-                    if role.role_name == "Registered":
-                        registered_role_id = role.role_id
-                    elif role.role_name == "Unregistered":
-                        unregistered_role_id = role.role_id
-
-                # append that to the data we're gonna send elevator
-                if registered_role_id or unregistered_role_id:
-                    data.append(
-                        {
-                            "discord_id": discord_id,
-                            "guild_id": guild_id,
-                            "to_assign_role_ids": [registered_role_id] if registered_role_id else None,
-                            "to_remove_role_ids": [unregistered_role_id] if unregistered_role_id else None,
-                        }
-                    )
-
-        # send elevator that data to apply the roles
-        if data:
-            await elevator_api.post(
-                route_addition="roles/",
-                json={
-                    "data": data,
-                },
-            )
+        # assign the role in all guilds
+        await discord_users.add_registration_roles(
+            db=db, discord_id=discord_id, guild_ids=response.content["guild_ids"]
+        )
 
     return result
 

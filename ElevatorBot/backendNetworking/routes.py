@@ -16,6 +16,9 @@ destiny_profile_from_discord_id_route = destiny_profile_route + "discord/{discor
 destiny_profile_from_destiny_id_route = destiny_profile_route + "destiny/{destiny_id}/"  # GET
 destiny_profile_has_token_route = destiny_profile_route + "discord/{discord_id}/has_token/"  # GET
 destiny_profile_delete_route = destiny_profile_route + "delete/{discord_id}/"  # DELETE
+destiny_profile_registration_role_route = (
+    destiny_profile_route + "discord/{discord_id}/guild/{guild_id}/registration_role/"
+)  # GET
 
 # account
 destiny_account_route = destiny_base_route + "account/"

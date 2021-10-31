@@ -31,6 +31,15 @@ async def discord_has_token(discord_id: int, db: AsyncSession = Depends(get_db_s
     return DestinyHasTokenModel(token=not no_token)
 
 
+@router.get("/discord/{discord_id}/guild/{guild_id}/registration_role", response_model=EmptyResponseModel)
+async def discord_registration_role(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
+    """Assign the registration role if applicable"""
+
+    await discord_users.add_registration_roles(db=db, discord_id=discord_id, guild_ids=[guild_id])
+
+    return EmptyResponseModel()
+
+
 @router.get("/destiny/{destiny_id}", response_model=DestinyProfileModel)
 async def destiny_get(destiny_id: int, db: AsyncSession = Depends(get_db_session)):
     """Return a users profile"""

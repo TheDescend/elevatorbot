@@ -6,15 +6,17 @@ async def assign_roles_to_member(member: Member, *role_ids, reason: str = None):
 
     guild = member.guild
 
-    # loop through role_ids and get the role objs
-    for role_id in role_ids:
-        role = await guild.get_role(role_id)
+    # check if member is not pending
+    if not member.pending:
+        # loop through role_ids and get the role objs
+        for role_id in role_ids:
+            role = await guild.get_role(role_id)
 
-        if not role:
-            continue
+            if not role:
+                continue
 
-        # assign them
-        await member.add_role(role=role, reason=reason)
+            # assign them
+            await member.add_role(role=role, reason=reason)
 
 
 async def remove_roles_from_member(member: Member, *role_ids, reason: str = None):
@@ -22,12 +24,14 @@ async def remove_roles_from_member(member: Member, *role_ids, reason: str = None
 
     guild = member.guild
 
-    # loop through role_ids and get the role objs
-    for role_id in role_ids:
-        role = await guild.get_role(role_id)
+    # check if member is not pending
+    if not member.pending:
+        # loop through role_ids and get the role objs
+        for role_id in role_ids:
+            role = await guild.get_role(role_id)
 
-        if not role:
-            continue
+            if not role:
+                continue
 
-        # remove them
-        await member.remove_role(role=role, reason=reason)
+            # remove them
+            await member.remove_role(role=role, reason=reason)

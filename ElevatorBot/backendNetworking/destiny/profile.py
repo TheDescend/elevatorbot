@@ -12,6 +12,7 @@ from ElevatorBot.backendNetworking.routes import (
     destiny_profile_from_destiny_id_route,
     destiny_profile_from_discord_id_route,
     destiny_profile_has_token_route,
+    destiny_profile_registration_role_route,
 )
 from ElevatorBot.static.schemas import DestinyData
 
@@ -80,6 +81,16 @@ class DestinyProfile(BaseBackendConnection):
         if result:
             return result.result["token"]
         return False
+
+    async def assign_registration_role(self) -> BackendResult:
+        """Assign the user the registration role"""
+
+        return await self._backend_request(
+            method="GET",
+            route=destiny_profile_registration_role_route.format(
+                discord_id=self.discord_member.id, guild_id=self.discord_guild.id
+            ),
+        )
 
     async def delete(self) -> BackendResult:
         """Delete the profile"""
