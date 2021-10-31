@@ -33,7 +33,11 @@ class DayOneRaid(BaseScale):
         async def check_member(player: DestinyAccount):
             # check the members separately to make this faster
             if player:
-                if await player.has_collectible(collectible_id=raid_to_emblem_hash[raid]):
+                result = await player.has_collectible(collectible_id=raid_to_emblem_hash[raid])
+                if not result:
+                    await result.send_error_message(ctx)
+
+                else:
                     raid_completions.append(player.discord_member.mention)
 
         # might take a sec
@@ -55,7 +59,8 @@ class DayOneRaid(BaseScale):
         else:
             embed.description = ", ".join(raid_completions)
 
-        await ctx.send(embeds=embed)
+        if not ctx.responded:
+            await ctx.send(embeds=embed)
 
 
 def setup(client):
