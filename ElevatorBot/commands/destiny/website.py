@@ -1,4 +1,15 @@
-from dis_snek.models import ActionRow, Button, ButtonStyles, InteractionContext, Member, OptionTypes, SlashCommandChoice, SlashCommandOption, slash_command, slash_option
+from dis_snek.models import (
+    ActionRow,
+    Button,
+    ButtonStyles,
+    InteractionContext,
+    Member,
+    OptionTypes,
+    SlashCommandChoice,
+    SlashCommandOption,
+    slash_command,
+    slash_option,
+)
 
 from ElevatorBot.backendNetworking.destiny.profile import DestinyProfile
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
@@ -7,11 +18,7 @@ from ElevatorBot.commands.base import BaseScale
 
 class Website(BaseScale):
 
-    system_to_name = {
-        1: "xb",
-        2: "ps",
-        3: "pc"
-    }
+    system_to_name = {1: "xb", 2: "ps", 3: "pc"}
 
     @slash_command(name="website", description="Gets your personalised link to a bunch of Destiny 2 related websites")
     @slash_option(
@@ -33,7 +40,7 @@ class Website(BaseScale):
             SlashCommandChoice(name="Trials Report", value="Trials Report"),
             SlashCommandChoice(name="Triumph Report", value="Triumph Report"),
             SlashCommandChoice(name="Wasted on Destiny", value="Wasted on Destiny"),
-        ]
+        ],
     )
     @default_user_option()
     async def _website(self, ctx: InteractionContext, website: str, user: Member = None):
@@ -59,7 +66,9 @@ class Website(BaseScale):
                 text = f"https://raid.report/{self.system_to_name[destiny_player.system]}/{destiny_player.destiny_id}"
 
             case "Dungeon Report":
-                text = f"https://dungeon.report/{self.system_to_name[destiny_player.system]}/{destiny_player.destiny_id}"
+                text = (
+                    f"https://dungeon.report/{self.system_to_name[destiny_player.system]}/{destiny_player.destiny_id}"
+                )
 
             case "Grandmaster Report":
                 text = f"https://grandmaster.report/user/{destiny_player.system}/{destiny_player.destiny_id}"
@@ -83,7 +92,9 @@ class Website(BaseScale):
                 text = f"https://www.d2checklist.com/{destiny_player.system}/{destiny_player.destiny_id}"
 
             case "Destiny Tracker":
-                text = f"https://destinytracker.com/destiny-2/profile/{destiny_player.system}/{destiny_player.destiny_id}"
+                text = (
+                    f"https://destinytracker.com/destiny-2/profile/{destiny_player.system}/{destiny_player.destiny_id}"
+                )
 
             # Wasted on Destiny
             case _:

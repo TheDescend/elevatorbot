@@ -38,8 +38,7 @@ class Roles:
 
         # construct reply msg
         embed = embed_message(
-            f"{self.member.display_name}'s '{role.name}' Eligibility",
-            f"""**Earned: {result.result["earned"]}**"""
+            f"{self.member.display_name}'s '{role.name}' Eligibility", f"""**Earned: {result.result["earned"]}**"""
         )
 
         # loop through get_requirements
@@ -47,7 +46,9 @@ class Roles:
             match role_info:
                 case "require_activity_completions":
                     i = 0
-                    for role_activity, user_activity in zip(role_data[role_info].values(), user_data[role_info].values()):
+                    for role_activity, user_activity in zip(
+                        role_data[role_info].values(), user_data[role_info].values()
+                    ):
                         i += 1
 
                         # todo better naming system?
@@ -55,27 +56,30 @@ class Roles:
 
                 case "require_collectibles":
                     for role_collectible, user_collectible in zip(
-                        role_data[role_info].values(),
-                        user_data[role_info].values()
+                        role_data[role_info].values(), user_data[role_info].values()
                     ):
                         # todo get collectible name from db and cache it
-                        embed.add_field(name=f"[todo](https://www.light.gg/db/items/{role_collectible})", value=user_collectible, inline=True)
+                        embed.add_field(
+                            name=f"[todo](https://www.light.gg/db/items/{role_collectible})",
+                            value=user_collectible,
+                            inline=True,
+                        )
 
                 case "require_records":
-                    for role_record, user_record in zip(
-                        role_data[role_info].values(),
-                        user_data[role_info].values()
-                    ):
+                    for role_record, user_record in zip(role_data[role_info].values(), user_data[role_info].values()):
                         # todo get record name from db and cache it
-                        embed.add_field(name=f"[todo](https://www.light.gg/db/legend/triumphs/{role_record})", value=user_record, inline=True)
+                        embed.add_field(
+                            name=f"[todo](https://www.light.gg/db/legend/triumphs/{role_record})",
+                            value=user_record,
+                            inline=True,
+                        )
 
                 case "require_role_ids":
-                    for role_role_id, user_role_id in zip(
-                        role_data[role_info].values(),
-                        user_data[role_info].values()
-                    ):
+                    for role_role_id, user_role_id in zip(role_data[role_info].values(), user_data[role_info].values()):
                         # todo get record name from db and cache it
-                        embed.add_field(name=(await self.guild.get_role(role_role_id)).mention, value=user_role_id, inline=True)
+                        embed.add_field(
+                            name=(await self.guild.get_role(role_role_id)).mention, value=user_role_id, inline=True
+                        )
 
         await ctx.send(embeds=embed)
 

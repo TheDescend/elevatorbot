@@ -29,17 +29,30 @@ from ElevatorBot.static.destinyActivities import dungeons, raids
 
 
 class LfgCreate(BaseScale):
-
-
     @slash_command(
         **lfg_sub_command,
         sub_cmd_name="create",
         sub_cmd_description="Creates an LFG post",
-
     )
-    @slash_option(name="start_time", description="Format: 'HH:MM DD/MM' - When the event is supposed to start. `asap` to start as soon as it fills up", required=True, opt_type=OptionTypes.STRING)
-    @slash_option(name="timezone", description="What timezone you are in", required=True, opt_type=OptionTypes.STRING, choices=get_timezone_choices())
-    @slash_option(name="overwrite_max_members", description="You can overwrite the maximum number of people that can join your event", required=False, opt_type=OptionTypes.INTEGER)
+    @slash_option(
+        name="start_time",
+        description="Format: 'HH:MM DD/MM' - When the event is supposed to start. `asap` to start as soon as it fills up",
+        required=True,
+        opt_type=OptionTypes.STRING,
+    )
+    @slash_option(
+        name="timezone",
+        description="What timezone you are in",
+        required=True,
+        opt_type=OptionTypes.STRING,
+        choices=get_timezone_choices(),
+    )
+    @slash_option(
+        name="overwrite_max_members",
+        description="You can overwrite the maximum number of people that can join your event",
+        required=False,
+        opt_type=OptionTypes.INTEGER,
+    )
     async def _create(self, ctx: InteractionContext, start_time: str, timezone: str, overwrite_max_members: int = None):
 
         if start_time.lower() is not "asap":
@@ -100,10 +113,7 @@ class LfgCreate(BaseScale):
                 # Raids
                 case "Raids":
                     components = manage_components.spread_to_rows(
-                        *[
-                            manage_components.create_button(style=ButtonStyle.blue, label=raid)
-                            for raid in raids
-                        ]
+                        *[manage_components.create_button(style=ButtonStyle.blue, label=raid) for raid in raids]
                     )
                     embed = embed_message(
                         "Please Select the Raid",

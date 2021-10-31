@@ -43,7 +43,7 @@ async def register_background_events(client: Snake):
 
     def event_submitted(scheduler_event):
         job_name = backgroundEvents.scheduler.get_job(scheduler_event.job_id)
-        print(f"Running '{job_name}'")
+        print (f"Running '{job_name}'")
 
     backgroundEvents.scheduler.add_listener(event_submitted, EVENT_JOB_SUBMITTED)
 
@@ -111,9 +111,9 @@ async def register_background_events(client: Snake):
                 timezone=pytz.utc,
             )
         else:
-            print(f"Failed to load event {event}")
+            print (f"Failed to load event {event}")
     jobs = backgroundEvents.scheduler.get_jobs()
-    print(f"< {len(jobs)} > Background Events Loaded")
+    print (f"< {len(jobs)} > Background Events Loaded")
 
     # load the lfg events
     for guild in client.guilds:
@@ -158,4 +158,4 @@ async def register_background_events(client: Snake):
                 # add the event
                 await lfg_event.schedule_event()
 
-    print(f"< {len(backgroundEvents.scheduler.get_jobs()) - len(jobs)} > LFG Events Loaded")
+    print (f"< {len(backgroundEvents.scheduler.get_jobs()) - len(jobs)} > LFG Events Loaded")

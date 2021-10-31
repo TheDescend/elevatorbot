@@ -6,9 +6,4 @@ raids = [
     "Witch Queen Raid",
 ]
 
-dungeons = [
-    "Shattered Throne",
-    "Pit of Hersey",
-    "Prophecy",
-    "Pirate Dungeon 🏴‍☠️"
-]
+dungeons = ["Shattered Throne", "Pit of Hersey", "Prophecy", "Pirate Dungeon 🏴‍☠️"]

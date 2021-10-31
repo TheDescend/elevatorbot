@@ -75,10 +75,10 @@ async def write_perm(user: BackendUser = Depends(auth_get_user_with_write_perm))
 @app.on_event("startup")
 async def startup():
     # insert db tables
-    print("Creating Database Tables...")
+    print ("Creating Database Tables...")
     await create_tables(engine=setup_engine())
 
     # insert db tables
-    print("Loading Background Events...")
+    print ("Loading Background Events...")
     events_loaded = register_background_events(client)
-    print(f"< {events_loaded} > Background Events Loaded")
+    print (f"< {events_loaded} > Background Events Loaded")

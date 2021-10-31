@@ -1,14 +1,13 @@
 import logging
 
-from dis_snek.models import ComponentContext
-from dis_snek.models import InteractionContext
+from dis_snek.models import ComponentContext, InteractionContext
 
 
 async def on_slash_command(ctx: InteractionContext):
     """Gets triggered every slash command"""
 
     # print the command
-    print(f"{ctx.author.display_name} used '/{ctx.name}' with kwargs '{ctx.kwargs}'")
+    print (f"{ctx.author.display_name} used '/{ctx.name}' with kwargs '{ctx.kwargs}'")
 
     # log the command
     logger = logging.getLogger("commands")
