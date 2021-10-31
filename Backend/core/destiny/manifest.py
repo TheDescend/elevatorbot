@@ -71,11 +71,13 @@ class DestinyManifest:
                                 direct_activity_mode_type=values["directActivityModeType"],
                                 activity_mode_hashes=values["activityModeHashes"],
                                 activity_mode_types=values["activityModeTypes"],
-                             )
+                            )
                         )
 
                     # insert data in table
-                    await db_manifest.insert_definition(db=self.db, db_model=DestinyActivityDefinition, to_insert=to_insert)
+                    await db_manifest.insert_definition(
+                        db=self.db, db_model=DestinyActivityDefinition, to_insert=to_insert
+                    )
 
                 case "DestinyActivityTypeDefinition":
                     # delete old data
@@ -97,7 +99,9 @@ class DestinyManifest:
                         )
 
                     # insert data in table
-                    await db_manifest.insert_definition(db=self.db, db_model=DestinyActivityTypeDefinition, to_insert=to_insert)
+                    await db_manifest.insert_definition(
+                        db=self.db, db_model=DestinyActivityTypeDefinition, to_insert=to_insert
+                    )
 
                 case "DestinyActivityModeDefinition":
                     # delete old data
@@ -126,7 +130,9 @@ class DestinyManifest:
                         )
 
                     # insert data in table
-                    await db_manifest.insert_definition(db=self.db, db_model=DestinyActivityModeDefinition, to_insert=to_insert)
+                    await db_manifest.insert_definition(
+                        db=self.db, db_model=DestinyActivityModeDefinition, to_insert=to_insert
+                    )
 
                 case "DestinyCollectibleDefinition":
                     # delete old data
@@ -151,7 +157,9 @@ class DestinyManifest:
                         )
 
                     # insert data in table
-                    await db_manifest.insert_definition(db=self.db, db_model=DestinyCollectibleDefinition, to_insert=to_insert)
+                    await db_manifest.insert_definition(
+                        db=self.db, db_model=DestinyCollectibleDefinition, to_insert=to_insert
+                    )
 
                 case "DestinyInventoryItemDefinition":
                     # delete old data
@@ -178,7 +186,9 @@ class DestinyManifest:
                         )
 
                     # insert data in table
-                    await db_manifest.insert_definition(db=self.db, db_model=DestinyInventoryItemDefinition, to_insert=to_insert)
+                    await db_manifest.insert_definition(
+                        db=self.db, db_model=DestinyInventoryItemDefinition, to_insert=to_insert
+                    )
 
                 case "DestinyRecordDefinition":
                     # delete old data
@@ -205,7 +215,9 @@ class DestinyManifest:
                         )
 
                     # insert data in table
-                    await db_manifest.insert_definition(db=self.db, db_model=DestinyRecordDefinition, to_insert=to_insert)
+                    await db_manifest.insert_definition(
+                        db=self.db, db_model=DestinyRecordDefinition, to_insert=to_insert
+                    )
 
                 case "DestinyInventoryBucketDefinition":
                     # delete old data
@@ -230,7 +242,9 @@ class DestinyManifest:
                         )
 
                     # insert data in table
-                    await db_manifest.insert_definition(db=self.db, db_model=DestinyInventoryBucketDefinition, to_insert=to_insert)
+                    await db_manifest.insert_definition(
+                        db=self.db, db_model=DestinyInventoryBucketDefinition, to_insert=to_insert
+                    )
 
                 case "DestinyPresentationNodeDefinition":
                     # delete old data
@@ -250,8 +264,12 @@ class DestinyManifest:
                                 name=values["displayProperties"]["name"],
                                 objective_hash=values["objectiveHash"],
                                 presentation_node_type=values["presentationNodeType"],
-                                children_presentation_node_hash=[list(x.values())[0] for x in values["children"]["presentationNodes"]],
-                                children_collectible_hash=[list(x.values())[0] for x in values["children"]["collectibles"]],
+                                children_presentation_node_hash=[
+                                    list(x.values())[0] for x in values["children"]["presentationNodes"]
+                                ],
+                                children_collectible_hash=[
+                                    list(x.values())[0] for x in values["children"]["collectibles"]
+                                ],
                                 children_record_hash=[list(x.values())[0] for x in values["children"]["records"]],
                                 children_metric_hash=[list(x.values())[0] for x in values["children"]["metrics"]],
                                 parent_node_hashes=values["parentNodeHashes"],
@@ -261,7 +279,9 @@ class DestinyManifest:
                         )
 
                     # insert data in table
-                    await db_manifest.insert_definition(db=self.db, db_model=DestinyPresentationNodeDefinition, to_insert=to_insert)
+                    await db_manifest.insert_definition(
+                        db=self.db, db_model=DestinyPresentationNodeDefinition, to_insert=to_insert
+                    )
 
         # update version entry
         await db_manifest.upsert_version(db=self.db, version=version)
