@@ -14,6 +14,7 @@ from ElevatorBot.commandHelpers.subCommandTemplates import (
 )
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.core.misc.persistentMessages import handle_setup_command
+from ElevatorBot.misc.cache import descend_cache
 from settings import COMMAND_GUILD_SCOPE
 
 
@@ -43,6 +44,9 @@ class BoosterCount(BaseScale):
         await handle_setup_command(
             ctx=ctx, message_name=message_name, success_message=success_message, channel=channel, send_message=False
         )
+
+        # update the cache
+        descend_cache.booster_count_channel = channel
 
 
 def setup(client):

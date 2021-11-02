@@ -1,6 +1,6 @@
 import dataclasses
 
-from dis_snek.models import Guild, Role, ThreadChannel
+from dis_snek.models import Guild, GuildVoice, Role, ThreadChannel
 
 from ElevatorBot.core.misc.persistentMessages import PersistentMessages
 
@@ -30,5 +30,44 @@ class RegisteredRoleCache:
         return self._guild_to_role[guild.id]
 
 
+@dataclasses.dataclass
+class DescendCache:
+    """This saves descend only info"""
+
+    booster_count_channel: GuildVoice = dataclasses.field(init=False, default=None)
+    member_count_channel: GuildVoice = dataclasses.field(init=False, default=None)
+
+    async def get_booster_count(self, descend_guild: Guild) -> GuildVoice:
+        """Get the booster count channel"""
+
+        if not self.booster_count_channel:
+            # populate it
+            persistent_messages = PersistentMessages(guild=descend_guild, message_name="booster_count")
+            result = await persistent_messages.get()
+
+            if not result:
+                raise LookupError("There is no channel set")
+
+            self.booster_count_channel = await descend_guild.get_channel(result.result["channel_id"])
+
+        return self.booster_count_channel
+
+    async def get_member_count(self, descend_guild: Guild) -> GuildVoice:
+        """Get the member count channel"""
+
+        if not self.member_count_channel:
+            # populate it
+            persistent_messages = PersistentMessages(guild=descend_guild, message_name="member_count")
+            result = await persistent_messages.get()
+
+            if not result:
+                raise LookupError("There is no channel set")
+
+            self.member_count_channel = await descend_guild.get_channel(result.result["channel_id"])
+
+        return self.member_count_channel
+
+
 reply_cache = ReplyCache()
 registered_role_cache = RegisteredRoleCache()
+descend_cache = DescendCache()
