@@ -1,5 +1,5 @@
 import dataclasses
-from typing import TypeVar
+from typing import Any, Optional, TypeVar
 
 from sqlalchemy import not_, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -31,6 +31,12 @@ class CRUDManifest(CRUDBase):
         """Upsert the current version"""
 
         return await versions.upsert(db=db, name="Manifest", version=version)
+
+    @staticmethod
+    async def get(db: AsyncSession, table: ModelType, primary_key: Any) -> Optional[ModelType]:
+        """Get data from specified table"""
+
+        return await db.get(table, primary_key)
 
     async def delete_definition(self, db: AsyncSession, db_model: ModelType):
         """Delete all entries from the specified table"""

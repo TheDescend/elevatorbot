@@ -2,6 +2,7 @@ import dataclasses
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from Backend.core.destiny.profile import seasonal_challenges
 from Backend.crud import destiny_manifest
 from Backend.database.models import (
     DestinyActivityDefinition,
@@ -285,3 +286,6 @@ class DestinyManifest:
 
         # update version entry
         await db_manifest.upsert_version(db=self.db, version=version)
+
+        # invalidate caches
+        seasonal_challenges.definition = None

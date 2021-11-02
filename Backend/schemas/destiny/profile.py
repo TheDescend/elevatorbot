@@ -22,3 +22,20 @@ class DestinyUpdatedLowManModel(DestinyLowManModel):
 
 class DestinyLowMansModel(BaseModel):
     solos: list[DestinyUpdatedLowManModel] = []
+
+
+class SeasonalChallengesRecordModel(BaseModel):
+    record_id: int
+    name: str
+    description: str
+    completion_percentage: float = None
+    completion_status: str = None
+
+
+class SeasonalChallengesTopicsModel(BaseModel):
+    name: str
+    seasonal_challenges: list[SeasonalChallengesRecordModel] = []
+
+
+class SeasonalChallengesModel(BaseModel):
+    topics: list[SeasonalChallengesTopicsModel] = []

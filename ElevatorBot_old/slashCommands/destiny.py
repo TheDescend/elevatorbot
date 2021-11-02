@@ -398,140 +398,140 @@ class DestinyCommands(commands.Cog):
     #
     #     await ctx.send(embed=embed)
 
-    @cog_ext.cog_slash(
-        name="challenges",
-        description="Shows you the seasonal challenges and your completion status",
-        options=[options_user()],
-    )
-    async def _challenges(self, ctx: SlashContext, **kwargs):
-        await ctx.defer()
-        user = await get_user_obj(ctx, kwargs)
-        destiny_player = await DestinyPlayer.from_discord_id(user.id, ctx=ctx)
-        if not destiny_player:
-            return
+    # @cog_ext.cog_slash(
+    #     name="challenges",
+    #     description="Shows you the seasonal challenges and your completion status",
+    #     options=[options_user()],
+    # )
+    # async def _challenges(self, ctx: SlashContext, **kwargs):
+    #     await ctx.defer()
+    #     user = await get_user_obj(ctx, kwargs)
+    #     destiny_player = await DestinyPlayer.from_discord_id(user.id, ctx=ctx)
+    #     if not destiny_player:
+    #         return
+    #
+    #     # _get seasonal challenge info
+    #     seasonal_challenges = await getSeasonalChallengeInfo()
+    #     start = list(seasonal_challenges)[0]
+    #
+    #     # _get player triumphs
+    #     user_triumphs = await destiny_player.get_triumphs()
 
-        # _get seasonal challenge info
-        seasonal_challenges = await getSeasonalChallengeInfo()
-        start = list(seasonal_challenges)[0]
+    # # _get select components
+    # components = [
+    #     manage_components.create_actionrow(
+    #         manage_components.create_select(
+    #             options=[
+    #                 manage_components.create_select_option(
+    #                     emoji="📅",
+    #                     label=week,
+    #                     value=week,
+    #                 )
+    #                 for week in seasonal_challenges
+    #             ],
+    #             placeholder="Select the week you want to see",
+    #             min_values=1,
+    #             max_values=1,
+    #         )
+    #     ),
+    # ]
+    #
+    # # send data and wait for new user input
+    # await self._send_challenge_info(
+    #     ctx.author,
+    #     user,
+    #     start,
+    #     seasonal_challenges,
+    #     user_triumphs,
+    #     components,
+    #     ctx=ctx,
+    # )
 
-        # _get player triumphs
-        user_triumphs = await destiny_player.get_triumphs()
-
-        # _get select components
-        components = [
-            manage_components.create_actionrow(
-                manage_components.create_select(
-                    options=[
-                        manage_components.create_select_option(
-                            emoji="📅",
-                            label=week,
-                            value=week,
-                        )
-                        for week in seasonal_challenges
-                    ],
-                    placeholder="Select the week you want to see",
-                    min_values=1,
-                    max_values=1,
-                )
-            ),
-        ]
-
-        # send data and wait for new user input
-        await self._send_challenge_info(
-            ctx.author,
-            user,
-            start,
-            seasonal_challenges,
-            user_triumphs,
-            components,
-            ctx=ctx,
-        )
-
-    async def _send_challenge_info(
-        self,
-        author: discord.Member,
-        user: discord.Member,
-        week: str,
-        seasonal_challenges: dict,
-        user_triumphs: dict,
-        select_components: list,
-        ctx: SlashContext = None,
-        select_ctx: ComponentContext = None,
-        message: discord.Message = None,
-    ) -> None:
-        # this is a recursive commmand.
-
-        # make data pretty
-        embed = await self._get_challenge_info(user, week, seasonal_challenges, user_triumphs)
-
-        # send message
-        if not select_ctx:
-            message = await ctx.send(embed=embed, components=select_components)
-        else:
-            await select_ctx.edit_origin(embed=embed)
-
-        # wait 60s for selection
-        def check(select_ctx: ComponentContext):
-            return select_ctx.author == author
-
-        try:
-            select_ctx: ComponentContext = await manage_components.wait_for_component(
-                select_ctx.bot if select_ctx else ctx.bot,
-                components=select_components,
-                timeout=60,
-            )
-        except asyncio.TimeoutError:
-            await message.edit(components=None)
-            return
-        else:
-            new_week = select_ctx.selected_options[0]
-
-            # recursively call this function
-            await self._send_challenge_info(
-                author,
-                user,
-                new_week,
-                seasonal_challenges,
-                user_triumphs,
-                select_components,
-                select_ctx=select_ctx,
-                message=message,
-            )
-
-    @staticmethod
-    async def _get_challenge_info(
-        user: discord.Member, week: str, seasonal_challenges: dict, user_triumphs: dict
-    ) -> discord.Embed:
-        """Returns an embed for the specified week"""
-        embed = embed_message(f"{user.display_name}'s Seasonal Challenges - {week}")
-
-        # add the triumphs and what the user has done
-        for triumph in seasonal_challenges[week]:
-            user_triumph = user_triumphs[str(triumph["referenceID"])]
-
-            # calculate completion rate
-            rate = []
-            for objective in user_triumph["objectives"]:
-                rate.append(objective["progress"] / objective["completionValue"] if not objective["complete"] else 1)
-            rate = sum(rate) / len(rate)
-
-            # make emoji art for completion rate
-            bar_length = 10
-            bar_text = ""
-            for i in range(bar_length):
-                if round(rate, 1) <= 1 / bar_length * i:
-                    bar_text += "░"
-                else:
-                    bar_text += "▓"
-
-            # add field to embed
-            embed.add_field(
-                name=f"""{triumph["name"]}   |   {bar_text}  {int(rate * 100)}%""",
-                value=triumph["description"],
-                inline=False,
-            )
-
-        return embed
+    # async def _send_challenge_info(
+    #     self,
+    #     author: discord.Member,
+    #     user: discord.Member,
+    #     week: str,
+    #     seasonal_challenges: dict,
+    #     user_triumphs: dict,
+    #     select_components: list,
+    #     ctx: SlashContext = None,
+    #     select_ctx: ComponentContext = None,
+    #     message: discord.Message = None,
+    # ) -> None:
+    #     # this is a recursive commmand.
+    #
+    #     # make data pretty
+    #     embed = await self._get_challenge_info(user, week, seasonal_challenges, user_triumphs)
+    #
+    #     # send message
+    #     if not select_ctx:
+    #         message = await ctx.send(embed=embed, components=select_components)
+    #     else:
+    #         await select_ctx.edit_origin(embed=embed)
+    #
+    #     # wait 60s for selection
+    #     def check(select_ctx: ComponentContext):
+    #         return select_ctx.author == author
+    #
+    #     try:
+    #         select_ctx: ComponentContext = await manage_components.wait_for_component(
+    #             select_ctx.bot if select_ctx else ctx.bot,
+    #             components=select_components,
+    #             timeout=60,
+    #         )
+    #     except asyncio.TimeoutError:
+    #         await message.edit(components=None)
+    #         return
+    #     else:
+    #         new_week = select_ctx.selected_options[0]
+    #
+    #         # recursively call this function
+    #         await self._send_challenge_info(
+    #             author,
+    #             user,
+    #             new_week,
+    #             seasonal_challenges,
+    #             user_triumphs,
+    #             select_components,
+    #             select_ctx=select_ctx,
+    #             message=message,
+    #         )
+    #
+    # @staticmethod
+    # async def _get_challenge_info(
+    #     user: discord.Member, week: str, seasonal_challenges: dict, user_triumphs: dict
+    # ) -> discord.Embed:
+    #     """Returns an embed for the specified week"""
+    #     embed = embed_message(f"{user.display_name}'s Seasonal Challenges - {week}")
+    #
+    #     # add the triumphs and what the user has done
+    #     for triumph in seasonal_challenges[week]:
+    #         user_triumph = user_triumphs[str(triumph["referenceID"])]
+    #
+    #         # calculate completion rate
+    #         rate = []
+    #         for objective in user_triumph["objectives"]:
+    #             rate.append(objective["progress"] / objective["completionValue"] if not objective["complete"] else 1)
+    #         rate = sum(rate) / len(rate)
+    #
+    #         # make emoji art for completion rate
+    #         bar_length = 10
+    #         bar_text = ""
+    #         for i in range(bar_length):
+    #             if round(rate, 1) <= 1 / bar_length * i:
+    #                 bar_text += "░"
+    #             else:
+    #                 bar_text += "▓"
+    #
+    #         # add field to embed
+    #         embed.add_field(
+    #             name=f"""{triumph["name"]}   |   {bar_text}  {int(rate * 100)}%""",
+    #             value=triumph["description"],
+    #             inline=False,
+    #         )
+    #
+    #     return embed
 
     # todo not really needed
     @cog_ext.cog_slash(

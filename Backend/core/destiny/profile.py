@@ -7,7 +7,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from Backend.crud import activities, destiny_manifest, discord_users
 from Backend.crud.destiny.collectibles import collectibles
 from Backend.crud.destiny.records import records
-from Backend.database.models import Collectibles, DiscordUsers, Records
+from Backend.database.models import (
+    Collectibles,
+    DestinyPresentationNodeDefinition,
+    DestinyRecordDefinition,
+    DiscordUsers,
+    Records,
+)
 from Backend.misc.helperFunctions import get_datetime_from_bungie_entry
 from Backend.networking.bungieApi import BungieApi
 from Backend.networking.bungieRoutes import profile_route, stat_route
@@ -16,6 +22,18 @@ from Backend.schemas.destiny.account import (
     DestinyCharactersModel,
     DestinyTimeModel,
 )
+from Backend.schemas.destiny.profile import (
+    SeasonalChallengesModel,
+    SeasonalChallengesRecordModel,
+    SeasonalChallengesTopicsModel,
+)
+
+
+class SeasonalChallenges:
+    definition: Optional[SeasonalChallengesModel] = None
+
+
+seasonal_challenges = SeasonalChallenges()
 
 
 @dataclasses.dataclass
@@ -199,6 +217,81 @@ class DestinyProfile:
 
         result = await self.__get_profile(104, with_token=True)
         return result["profileProgression"]["data"]["seasonalArtifact"]
+
+    async def get_seasonal_challenges(self) -> SeasonalChallengesModel:
+        """Returns the seasonal challenges completion info"""
+
+        # do we have the info cached?
+        if not seasonal_challenges.definition:
+            definition = SeasonalChallengesModel()
+
+            # get the info from the db
+            sc_category_hash = 3443694067
+            sc_presentation_node = await destiny_manifest.get(
+                db=self.db, table=DestinyPresentationNodeDefinition, primary_key=sc_category_hash
+            )
+
+            # loop through those categories and get the "Weekly" one
+            for category_hash in sc_presentation_node.children_presentation_node_hash:
+                category = await destiny_manifest.get(
+                    db=self.db, table=DestinyPresentationNodeDefinition, primary_key=category_hash
+                )
+
+                if category.name == "Weekly":
+                    # loop through the seasonal challenges topics (Week1, Week2, etc...)
+                    for sc_topic_hash in category.children_presentation_node_hash:
+                        sc_topic = await destiny_manifest.get(
+                            db=self.db, table=DestinyPresentationNodeDefinition, primary_key=sc_topic_hash
+                        )
+
+                        topic = SeasonalChallengesTopicsModel(name=sc_topic.name)
+
+                        # loop through the actual seasonal challenges
+                        for sc_hash in sc_topic.children_record_hash:
+                            sc = await destiny_manifest.get(
+                                db=self.db, table=DestinyRecordDefinition, primary_key=sc_hash
+                            )
+
+                            topic.seasonal_challenges.append(
+                                SeasonalChallengesRecordModel(
+                                    record_id=sc.reference_id, name=sc.name, description=sc.description
+                                )
+                            )
+
+                        definition.topics.append(topic)
+                    break
+
+            seasonal_challenges.definition = definition
+
+        user_sc = seasonal_challenges.definition.copy()
+        user_records = await self.get_triumphs()
+
+        # now calculate the members completions status
+        for topic in user_sc.topics:
+            for sc in topic.seasonal_challenges:
+                record = user_records[str(sc.record_id)]
+
+                # calculate completion rate
+                rate = []
+                for objective in record["objectives"]:
+                    rate.append(
+                        objective["progress"] / objective["completionValue"] if not objective["complete"] else 1
+                    )
+                percentage = sum(rate) / len(rate)
+
+                # make emoji art for completion rate
+                bar_length = 10
+                bar_text = ""
+                for i in range(bar_length):
+                    if round(percentage, 1) <= 1 / bar_length * i:
+                        bar_text += "░"
+                    else:
+                        bar_text += "▓"
+
+                sc.completion_percentage = percentage
+                sc.completion_status = bar_text
+
+        return user_sc
 
     async def get_player_seals(self) -> tuple[list[int], list[int]]:
         """Returns all seals and the seals a player has. Returns two lists: [triumph_hash, ...] and removes wip seals like WF LW"""

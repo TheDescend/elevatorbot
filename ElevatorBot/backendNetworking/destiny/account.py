@@ -12,6 +12,7 @@ from ElevatorBot.backendNetworking.routes import (
     destiny_account_collectible_route,
     destiny_account_metric_route,
     destiny_account_name_route,
+    destiny_account_seasonal_challenges_route,
     destiny_account_solos_route,
     destiny_account_stat_characters_route,
     destiny_account_stat_route,
@@ -133,5 +134,15 @@ class DestinyAccount(BaseBackendConnection):
                 character_id=character_id,
                 stat_category=stat_category,
                 stat_name=stat_name,
+            ),
+        )
+
+    async def get_seasonal_challenges(self) -> BackendResult:
+        """Return the seasonal challenges"""
+
+        return await self._backend_request(
+            method="GET",
+            route=destiny_account_seasonal_challenges_route.format(
+                guild_id=self.discord_guild.id, discord_id=self.discord_member.id
             ),
         )

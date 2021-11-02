@@ -13,7 +13,7 @@ from Backend.schemas.destiny.account import (
     DestinyTimeInputModel,
     DestinyTimeModel,
 )
-from Backend.schemas.destiny.profile import DestinyLowMansModel
+from Backend.schemas.destiny.profile import DestinyLowMansModel, SeasonalChallengesModel
 
 router = APIRouter(
     prefix="/destiny/{guild_id}/{discord_id}/account",
@@ -167,3 +167,13 @@ async def time(
         )
 
     return result
+
+
+@router.get("/seasonal_challenges", response_model=SeasonalChallengesModel)
+async def seasonal_challenges(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
+    """Return the seasonal challenges completion ratio"""
+
+    user = await crud.discord_users.get_profile_from_discord_id(db, discord_id)
+    profile = DestinyProfile(db=db, user=user)
+
+    return await profile.get_seasonal_challenges()
