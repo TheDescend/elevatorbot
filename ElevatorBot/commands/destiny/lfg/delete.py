@@ -13,7 +13,9 @@ class LfgDelete(BaseScale):
         sub_cmd_name="delete",
         sub_cmd_description="When you fucked up and need to delete an event",
     )
-    @slash_option(name="lfg_id", description="The lfg message id", required=True, opt_type=OptionTypes.INTEGER)
+    @slash_option(
+        name="lfg_id", description="The lfg message id", required=True, opt_type=OptionTypes.INTEGER, min_value=0
+    )
     async def _delete(self, ctx: InteractionContext, lfg_id: int):
         # get the message obj
         lfg_message = await LfgMessage.from_lfg_id(lfg_id=lfg_id, client=ctx.bot, guild=ctx.guild)

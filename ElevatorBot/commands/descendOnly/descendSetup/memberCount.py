@@ -1,4 +1,5 @@
 from dis_snek.models import (
+    ChannelTypes,
     GuildChannel,
     GuildVoice,
     InteractionContext,
@@ -32,13 +33,9 @@ class MemberCount(BaseScale):
         description="The voice channel where the message should be displayed",
         required=True,
         opt_type=OptionTypes.CHANNEL,
+        channel_types=[ChannelTypes.GUILD_VOICE],
     )
     async def _member_count(self, ctx: InteractionContext, channel: GuildChannel):
-        # make sure the channel is a voice channel
-        if not isinstance(channel, GuildVoice):
-            await respond_wrong_channel_type(ctx=ctx)
-            return
-
         message_name = "member_count"
         success_message = f"The current member count will stay updated in {channel.mention}"
         await handle_setup_command(

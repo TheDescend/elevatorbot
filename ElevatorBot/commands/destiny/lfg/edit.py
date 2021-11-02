@@ -33,7 +33,7 @@ class LfgEdit(BaseScale):
         sub_cmd_name="edit",
         sub_cmd_description="When you fucked up and need to edit an event",
     )
-    @slash_option(name="lfg_id", description="The lfg message id", required=True, opt_type=OptionTypes.INTEGER)
+    @slash_option(name="lfg_id", description="The lfg message id", required=True, opt_type=OptionTypes.INTEGER, min_value=0)
     @slash_option(
         name="section",
         description="What section to edit",

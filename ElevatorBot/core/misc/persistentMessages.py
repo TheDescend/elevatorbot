@@ -46,7 +46,7 @@ async def handle_setup_command(
     send_components: list[ActionRow] = None,
     send_message_content: str = None,
     send_message_embed: Embed = None,
-    message_id: int = None,
+    message_id: Optional[int] = None,
 ):
     """Check stuff and then send the message and save it in the DB"""
 

@@ -20,7 +20,9 @@ class LfgKick(BaseScale):
         sub_cmd_name="kick",
         sub_cmd_description="Kick a user from an lfg event",
     )
-    @slash_option(name="lfg_id", description="The lfg message id", required=True, opt_type=OptionTypes.INTEGER)
+    @slash_option(
+        name="lfg_id", description="The lfg message id", required=True, opt_type=OptionTypes.INTEGER, min_value=0
+    )
     @default_user_option(description="The user you want to kick", required=True)
     async def _kick(self, ctx: InteractionContext, lfg_id: int, user: Member):
         # get the message obj

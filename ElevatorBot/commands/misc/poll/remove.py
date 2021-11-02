@@ -12,10 +12,7 @@ class PollRemove(BaseScale):
         sub_cmd_description="Remove an option from a poll",
     )
     @slash_option(
-        name="poll_id",
-        description="The ID of the poll",
-        opt_type=OptionTypes.INTEGER,
-        required=True,
+        name="poll_id", description="The ID of the poll", opt_type=OptionTypes.INTEGER, required=True, min_value=0
     )
     @slash_option(
         name="option",

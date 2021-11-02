@@ -13,10 +13,7 @@ class PollDelete(BaseScale):
         sub_cmd_description="Delete a poll",
     )
     @slash_option(
-        name="poll_id",
-        description="The ID of the poll",
-        opt_type=OptionTypes.INTEGER,
-        required=True,
+        name="poll_id", description="The ID of the poll", opt_type=OptionTypes.INTEGER, required=True, min_value=0
     )
     async def _poll_delete(self, ctx: InteractionContext, poll_id: int):
         backend = BackendPolls(discord_member=ctx.author, guild=ctx.guild)

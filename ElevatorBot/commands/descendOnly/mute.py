@@ -27,7 +27,11 @@ class Mute(BaseScale):
     )
     @default_user_option(description="Which user to mute", required=True)
     @slash_option(
-        name="hours", description="How many hours to mute the user for", required=True, opt_type=OptionTypes.INTEGER
+        name="hours",
+        description="How many hours to mute the user for",
+        required=True,
+        opt_type=OptionTypes.INTEGER,
+        min_value=1,
     )
     async def _mute(self, ctx: InteractionContext, user: Member, hours: int):
 

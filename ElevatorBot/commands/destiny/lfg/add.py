@@ -22,7 +22,9 @@ class LfgAdd(BaseScale):
         sub_cmd_name="add",
         sub_cmd_description="Add a user to an lfg event",
     )
-    @slash_option(name="lfg_id", description="The lfg message id", required=True, opt_type=OptionTypes.INTEGER)
+    @slash_option(
+        name="lfg_id", description="The lfg message id", required=True, opt_type=OptionTypes.INTEGER, min_value=0
+    )
     @default_user_option(description="The user you want to add", required=True)
     async def _add(self, ctx: InteractionContext, lfg_id: int, user: Member):
         # get the message obj

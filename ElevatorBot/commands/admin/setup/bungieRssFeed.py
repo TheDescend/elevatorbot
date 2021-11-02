@@ -1,4 +1,5 @@
 from dis_snek.models import (
+    ChannelTypes,
     GuildChannel,
     GuildText,
     InteractionContext,
@@ -26,19 +27,15 @@ class BungieRssFeed(BaseScale):
         description="The text channel where the messages should be displayed",
         required=True,
         opt_type=OptionTypes.CHANNEL,
+        channel_types=[ChannelTypes.GUILD_TEXT],
     )
     @slash_option(
-        name="message",
+        name="message_id",
         description="You can input a message ID to have me edit that message instead of sending a new one. Message must be from me and in the input channel",
         required=False,
-        opt_type=OptionTypes.INTEGER,
+        opt_type=OptionTypes.STRING,
     )
-    async def _bungie_rss_feed(self, ctx: InteractionContext, channel: GuildChannel):
-        # make sure the channel is a text channel
-        if not isinstance(channel, GuildText):
-            await respond_wrong_channel_type(ctx=ctx)
-            return
-
+    async def _bungie_rss_feed(self, ctx: InteractionContext, channel: GuildChannel, message_id: str = None):
         success_message = f"Future Bungie Updates will be posted in {channel.mention}"
         await handle_setup_command(
             ctx=ctx,
@@ -46,6 +43,7 @@ class BungieRssFeed(BaseScale):
             success_message=success_message,
             channel=channel,
             send_message=False,
+            message_id=int(message_id) if message_id else None,
         )
 
 

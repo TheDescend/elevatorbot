@@ -12,10 +12,7 @@ class PollDisable(BaseScale):
         sub_cmd_description="Disable a poll",
     )
     @slash_option(
-        name="poll_id",
-        description="The ID of the poll",
-        opt_type=OptionTypes.INTEGER,
-        required=True,
+        name="poll_id", description="The ID of the poll", opt_type=OptionTypes.INTEGER, required=True, min_value=0
     )
     async def _poll_disable(self, ctx: InteractionContext, poll_id: int):
         poll = await Poll.from_poll_id(poll_id=poll_id, ctx=ctx)

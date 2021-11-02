@@ -1,4 +1,5 @@
 from dis_snek.models import (
+    ChannelTypes,
     GuildChannel,
     GuildText,
     InteractionContext,
@@ -32,13 +33,9 @@ class LfgChannel(BaseScale):
         description="The text channel where the message should be displayed",
         required=True,
         opt_type=OptionTypes.CHANNEL,
+        channel_types=[ChannelTypes.GUILD_TEXT],
     )
     async def _channel(self, ctx: InteractionContext, channel: GuildChannel):
-        # make sure the channel is a text channel
-        if not isinstance(channel, GuildText):
-            await respond_wrong_channel_type(ctx=ctx)
-            return
-
         # todo add additional lfg commands to list
         embed = embed_message(
             "How to make an LFG post",

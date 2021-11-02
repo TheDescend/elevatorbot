@@ -23,7 +23,7 @@ class UserInfo(BaseScale):
     # todo perms
     @slash_command(name="userinfo", description="Gets collected info for the specified user")
     @slash_option(name="discord_user", description="Look up a discord user", required=False, opt_type=OptionTypes.USER)
-    @slash_option(name="destiny_id", description="Look up a destinyID", required=False, opt_type=OptionTypes.INTEGER)
+    @slash_option(name="destiny_id", description="Look up a destinyID", required=False, opt_type=OptionTypes.STRING)
     @slash_option(
         name="fuzzy_name", description="If you know how the user is called", required=False, opt_type=OptionTypes.STRING
     )
@@ -45,6 +45,9 @@ class UserInfo(BaseScale):
             return
         await ctx.defer()
         destiny_profile = DestinyProfile(client=ctx.bot, discord_member=discord_user, discord_guild=ctx.guild)
+
+        if destiny_id:
+            destiny_id = int(destiny_id)
 
         title = f"Available Info"
         profiles = []

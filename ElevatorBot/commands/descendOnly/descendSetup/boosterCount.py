@@ -1,4 +1,5 @@
 from dis_snek.models import (
+    ChannelTypes,
     GuildChannel,
     GuildVoice,
     InteractionContext,
@@ -32,13 +33,9 @@ class BoosterCount(BaseScale):
         description="The voice channel where the message should be displayed",
         required=True,
         opt_type=OptionTypes.CHANNEL,
+        channel_types=[ChannelTypes.GUILD_VOICE],
     )
     async def _booster_count(self, ctx: InteractionContext, channel: GuildChannel):
-        # make sure the channel is a voice channel
-        if not isinstance(channel, GuildVoice):
-            await respond_wrong_channel_type(ctx=ctx)
-            return
-
         message_name = "booster_count"
         success_message = f"The current booster count will stay updated in {channel.mention}"
         await handle_setup_command(

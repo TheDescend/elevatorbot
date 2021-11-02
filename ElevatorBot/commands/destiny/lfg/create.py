@@ -52,6 +52,8 @@ class LfgCreate(BaseScale):
         description="You can overwrite the maximum number of people that can join your event",
         required=False,
         opt_type=OptionTypes.INTEGER,
+        min_value=1,
+        max_value=50,
     )
     async def _create(self, ctx: InteractionContext, start_time: str, timezone: str, overwrite_max_members: int = None):
 
