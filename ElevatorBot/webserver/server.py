@@ -1,6 +1,7 @@
 from aiohttp import web
 from dis_snek.client import Snake
 
+from ElevatorBot.webserver.routes.messages import messages
 from ElevatorBot.webserver.routes.registration import registration
 from ElevatorBot.webserver.routes.roles import roles
 
@@ -11,6 +12,7 @@ async def run_webserver(client: Snake):
         [
             web.post("/registration", registration),
             web.post("/roles", roles),
+            web.post("/messages", messages),
         ]
     )
 

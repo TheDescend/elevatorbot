@@ -24,6 +24,12 @@ class CRUDPersistentMessages(CRUDBase):
 
         return self.cache.persistent_messages[cache_str]
 
+    async def get_all(self, db: AsyncSession, message_name: str) -> list[PersistentMessage]:
+        """Get the persistent message for all guilds"""
+
+        # not using cache for that since we dont know all guild_ids
+        return await self._get_multi(db=db, message_name=message_name)
+
     async def upsert(
         self,
         db: AsyncSession,

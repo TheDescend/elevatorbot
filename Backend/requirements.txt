@@ -4,6 +4,7 @@ aiosqlite==0.17.0
 apscheduler==3.8.1
 asyncpg==0.24.0
 fastapi==0.70.0
+feedparser==6.0.8
 passlib[bcrypt]==1.7.4
 pydantic==1.8.2
 python-jose[cryptography]==3.3.0
