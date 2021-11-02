@@ -145,7 +145,6 @@ def autocomplete_activity_option(description: str = "Restrict the activity. Defa
     return wrapper
 
 
-
 def autocomplete_weapon_option(description: str = "Restrict the weapon. Default: All weapons") -> Any:
     """
     Decorator that replaces @slash_option()
