@@ -1,7 +1,7 @@
 from dis_snek.models import InteractionContext, Member, slash_command
 
 from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
-from ElevatorBot.commandHelpers.autocomplete import activities_by_id
+from ElevatorBot.commandHelpers.autocomplete import activities, activities_by_id
 from ElevatorBot.commandHelpers.optionTemplates import (
     autocomplete_activity_option,
     default_class_option,
@@ -60,8 +60,9 @@ class Time(BaseScale):
         # get the activity ids
         activity_name = None
         if activity:
-            activity_ids = [int(activity_id) for activity_id in activity.split("|")]
-            activity_name = activities_by_id[activity_ids[0]]
+            activity_data = activities[activity.lower()]
+            activity_ids = activity_data.activity_ids
+            activity_name = activity_data.name
             total = {
                 # the first one is the .ALL which we want to keep
                 list[modes_names.values()][0]: 0,

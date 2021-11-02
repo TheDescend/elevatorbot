@@ -1,7 +1,7 @@
 from dis_snek.models import InteractionContext, Member, slash_command
 
 from ElevatorBot.backendNetworking.destiny.activities import DestinyActivities
-from ElevatorBot.commandHelpers.autocomplete import activities_by_id
+from ElevatorBot.commandHelpers.autocomplete import activities, activities_by_id
 from ElevatorBot.commandHelpers.optionTemplates import (
     autocomplete_activity_option,
     default_class_option,
@@ -10,6 +10,7 @@ from ElevatorBot.commandHelpers.optionTemplates import (
 )
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formating import embed_message, format_timedelta
+from ElevatorBot.static.destinyEnums import ModeScope
 from ElevatorBot.static.emojis import custom_emojis
 
 
@@ -30,10 +31,20 @@ class Last(BaseScale):
         # might take a sec
         await ctx.defer()
 
-        member = user or ctx.author
-        activities = DestinyActivities(client=ctx.bot, discord_guild=ctx.guild, discord_member=member)
+        # get the activity ids
+        activity_ids = None
+        if activity:
+            activity_data = activities[activity.lower()]
+            activity_ids = activity_data.activity_ids
 
-        result = await activities.last()
+        member = user or ctx.author
+        db_activities = DestinyActivities(client=ctx.bot, discord_guild=ctx.guild, discord_member=member)
+
+        result = await db_activities.last(
+            activity_ids=activity_ids,  # if this is supplied, mode is ignored
+            mode=ModeScope(mode) if mode else ModeScope.ALL,
+            character_class=destiny_class,
+        )
         if not result:
             await result.send_error_message(ctx=ctx)
             return
@@ -46,8 +57,22 @@ class Last(BaseScale):
         )
         embed.timestamp = result.result["period"]
 
-        class_emojis = {"Warlock": custom_emojis.warlock, "Hunter": custom_emojis.hunter, "Titan": custom_emojis.titan}
+        # set footer
+        footer = []
+        if destiny_class:
+            footer.append(f"Class: {destiny_class}")
+        if mode:
+            footer.append(
+                f"""Mode: {" ".join(
+                [part.capitalize().replace("Pve", "PvE").replace("Pvp", "PvP") for part in ModeScope(mode).name.split["_"]]
+            )}"""
+            )
+        if activity:
+            footer.append(f"Activity: {activity}")
+        if footer:
+            embed.set_footer(" | ".join(footer))
 
+        class_emojis = {"Warlock": custom_emojis.warlock, "Hunter": custom_emojis.hunter, "Titan": custom_emojis.titan}
         for player in result.result["users"]:
             # sometimes people dont have a class for some reason. Skipping that
             if player["character_class"] == "":

@@ -19,6 +19,7 @@ from Backend.endpoints.destiny import (
     profile,
     roles,
     steamPlayers,
+    weapons,
 )
 from Backend.endpoints.misc import elevatorInfo, persistentMessages, polls
 from Backend.misc.initBackgroundEvents import register_background_events
@@ -63,6 +64,7 @@ app.include_router(lfg.router)
 app.include_router(roles.router)
 app.include_router(activities.router)
 app.include_router(steamPlayers.router)
+app.include_router(weapons.router)
 
 
 # add exception handlers

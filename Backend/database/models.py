@@ -271,11 +271,16 @@ class DestinyInventoryItemDefinition(Base):
     reference_id = Column(BigInteger, nullable=False, primary_key=True)
     description = Column(Text)
     name = Column(Text)
+    flavor_text = Column(Text)
+    item_type = Column(SmallInteger)
+    item_sub_type = Column(SmallInteger)
     class_type = Column(SmallInteger)
     bucket_type_hash = Column(BigInteger)
     tier_type_hash = Column(BigInteger)
     tier_type_name = Column(Text)
     equippable = Column(Boolean)
+    default_damage_type = Column(SmallInteger)
+    ammo_type = Column(SmallInteger)
 
 
 class DestinyPresentationNodeDefinition(Base):

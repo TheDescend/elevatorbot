@@ -178,11 +178,16 @@ class DestinyManifest:
                                 reference_id=int(reference_id),
                                 description=values["displayProperties"]["description"],
                                 name=values["displayProperties"]["name"],
+                                flavor_text=values["flavorText"],
+                                item_type=values["itemType"],
+                                item_sub_type=values["itemSubType"],
                                 class_type=values["classType"],
                                 bucket_type_hash=values["inventory"]["bucketTypeHash"],
                                 tier_type_hash=values["inventory"]["tierTypeHash"],
                                 tier_type_name=values["inventory"]["tierTypeName"],
                                 equippable=values["equippable"],
+                                default_damage_type=values["defaultDamageType"],
+                                ammo_type=values["equippingBlock"]["ammoType"],
                             )
                         )
 

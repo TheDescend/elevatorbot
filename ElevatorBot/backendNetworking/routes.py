@@ -11,7 +11,7 @@ elevator_servers_add = base_route + "elevator/discordServers/add/{guild_id}/"
 elevator_servers_delete = base_route + "elevator/discordServers/delete/{guild_id}/"
 
 # profile
-destiny_profile_route = destiny_base_route + "profile/"
+destiny_profile_route = base_route + "profile/"
 destiny_profile_from_discord_id_route = destiny_profile_route + "discord/{discord_id}/"  # GET
 destiny_profile_from_destiny_id_route = destiny_profile_route + "destiny/{destiny_id}/"  # GET
 destiny_profile_has_token_route = destiny_profile_route + "discord/{discord_id}/has_token/"  # GET
@@ -78,10 +78,16 @@ polls_user_input_route = polls_route + "{poll_id}/user_input/"  # POST
 polls_delete_route = polls_route + "{poll_id}/delete/{"  # DELETE
 
 # activities
-activities_route = base_route + "activities/"
-activities_get_all_route = activities_route + "get/all/"  # GET
-activities_last_route = activities_route + "{guild_id}/{discord_id}/last/"  # GET
+destiny_activities_route = base_route + "activities/"
+destiny_activities_get_all_route = destiny_activities_route + "get/all/"  # GET
+destiny_activities_last_route = destiny_activities_route + "{guild_id}/{discord_id}/last/"  # GET
 
 # d2 steam player count
 steam_player_route = base_route + "steam_players/"
 steam_player_get_route = steam_player_route + "get/"  # GET
+
+# weapons
+destiny_weapons_route = base_route + "destiny/"
+destiny_weapons_get_all_route = destiny_weapons_route + "weapons/"  # GET
+destiny_weapons_get_top_route = destiny_weapons_route + "{guild_id}/{discord_id}/weapons/top/"  # GET
+destiny_weapons_get_weapon_route = destiny_weapons_route + "{guild_id}/{discord_id}/weapons/weapon/"  # GET

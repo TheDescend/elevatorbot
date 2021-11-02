@@ -49,6 +49,6 @@ class DestinyActivityDetailsModel(BaseModel):
 
 class DestinyLastInputModel(BaseModel):
     completed: bool
-    activity_ids: Optional[int] = None  # if this is supplied, mode is ignored
+    activity_ids: Optional[list[int]] = None  # if this is supplied, mode is ignored
     mode: Optional[int] = None
     character_class: Optional[str] = None

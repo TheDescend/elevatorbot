@@ -2,7 +2,10 @@ from typing import Any
 
 from dis_snek.models import OptionTypes, SlashCommandChoice, slash_option
 
-from ElevatorBot.commandHelpers.autocomplete import autocomplete_send_activity_name
+from ElevatorBot.commandHelpers.autocomplete import (
+    autocomplete_send_activity_name,
+    autocomplete_send_weapon_name,
+)
 from ElevatorBot.core.destiny.stat import stat_translation
 from ElevatorBot.static.timezones import timezones_dict
 
@@ -136,6 +139,27 @@ def autocomplete_activity_option(description: str = "Restrict the activity. Defa
 
         # register the callback
         func.autocomplete(name=name)(autocomplete_send_activity_name)
+
+        return option
+
+    return wrapper
+
+
+def autocomplete_weapon_option(description: str = "Restrict the weapon. Default: All weapons") -> Any:
+    """
+    Decorator that replaces @slash_option()
+    Call with `@autocomplete_weapon_option()`
+    """
+
+    def wrapper(func):
+        name = "weapon"
+
+        option = slash_option(
+            name=name, description=description, opt_type=OptionTypes.STRING, required=False, autocomplete=True
+        )(func)
+
+        # register the callback
+        func.autocomplete(name=name)(autocomplete_send_weapon_name)
 
         return option
 
