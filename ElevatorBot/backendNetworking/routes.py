@@ -80,3 +80,7 @@ polls_delete_route = polls_route + "{poll_id}/delete/{"  # DELETE
 activities_route = base_route + "activities/"
 activities_get_all_route = activities_route + "get/all/"  # GET
 activities_last_route = activities_route + "{guild_id}/{discord_id}/last/"  # GET
+
+# d2 steam player count
+steam_player_route = base_route + "steam_players/"
+steam_player_get_route = steam_player_route + "get/"  # GET

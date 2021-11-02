@@ -258,81 +258,81 @@ class DestinyCommands(commands.Cog):
     #
     #     await ctx.send(embed=embed)
 
-    @cog_ext.cog_slash(
-        name="poptimeline",
-        description="Shows the Destiny 2 steam population timeline",
-    )
-    async def _poptimeline(self, ctx: SlashContext):
-        # reading data from the DB
-        data = await get_d2_steam_player_info()
-
-        # Create figure and plot space
-        fig, ax = plt.subplots(figsize=(20, 10))
-        ax.yaxis.grid(True)
-
-        # filling plot
-        ax.plot(data["dateobj"], data["numberofplayers"], "darkred", zorder=2)
-
-        # Set title and labels for axes
-        ax.set_xlabel("Date", fontsize=20, fontweight="bold")
-        ax.set_ylabel("Players", fontsize=20, fontweight="bold")
-
-        # adding nice lines to mark important events
-        for dates in self.season_and_expansion_dates[7:]:
-            date = datetime.datetime.strptime(dates[0], "%Y-%m-%d")
-            ax.axvline(date, color="darkgreen", zorder=1)
-            ax.text(
-                date + datetime.timedelta(days=2),
-                (max(data["numberofplayers"]) - min(data["numberofplayers"])) * 1.02 + min(data["numberofplayers"]),
-                dates[1],
-                color="darkgreen",
-                fontweight="bold",
-                bbox=dict(facecolor="white", edgecolor="darkgreen", pad=4, zorder=3),
-            )
-        for dates in self.other_dates:
-            date = datetime.datetime.strptime(dates[0], "%Y-%m-%d")
-            ax.axvline(date, color="mediumaquamarine", zorder=1)
-            ax.text(
-                date + datetime.timedelta(days=2),
-                (max(data["numberofplayers"]) - min(data["numberofplayers"])) * 0.95 + min(data["numberofplayers"]),
-                dates[1],
-                color="mediumaquamarine",
-                bbox=dict(
-                    facecolor="white",
-                    edgecolor="mediumaquamarine",
-                    boxstyle="round",
-                    zorder=3,
-                ),
-            )
-        for dates in self.other_dates_lower:
-            date = datetime.datetime.strptime(dates[0], "%Y-%m-%d")
-            ax.axvline(date, color="mediumaquamarine", zorder=1)
-            ax.text(
-                date + datetime.timedelta(days=2),
-                (max(data["numberofplayers"]) - min(data["numberofplayers"])) * 0.90 + min(data["numberofplayers"]),
-                dates[1],
-                color="mediumaquamarine",
-                bbox=dict(
-                    facecolor="white",
-                    edgecolor="mediumaquamarine",
-                    boxstyle="round",
-                    zorder=3,
-                ),
-            )
-
-        # saving file
-        title = "d2population.png"
-        plt.savefig(title, bbox_inches="tight")
-
-        # sending them the file
-        embed = embed_message("Destiny 2 - Steam Player Count")
-        image = discord.File(title)
-        embed.set_image(url=f"attachment://{title}")
-        await ctx.send(file=image, embed=embed)
-
-        # _delete file
-        await asyncio.sleep(10)
-        os.remove(title)
+    # @cog_ext.cog_slash(
+    #     name="poptimeline",
+    #     description="Shows the Destiny 2 steam population timeline",
+    # )
+    # async def _poptimeline(self, ctx: SlashContext):
+    #     # reading data from the DB
+    #     data = await get_d2_steam_player_info()
+    #
+    #     # Create figure and plot space
+    #     fig, ax = plt.subplots(figsize=(20, 10))
+    #     ax.yaxis.grid(True)
+    #
+    #     # filling plot
+    #     ax.plot(data["dateobj"], data["numberofplayers"], "darkred", zorder=2)
+    #
+    #     # Set title and labels for axes
+    #     ax.set_xlabel("Date", fontsize=20, fontweight="bold")
+    #     ax.set_ylabel("Players", fontsize=20, fontweight="bold")
+    #
+    #     # adding nice lines to mark important events
+    #     for dates in self.season_and_expansion_dates[7:]:
+    #         date = datetime.datetime.strptime(dates[0], "%Y-%m-%d")
+    #         ax.axvline(date, color="darkgreen", zorder=1)
+    #         ax.text(
+    #             date + datetime.timedelta(days=2),
+    #             (max(data["numberofplayers"]) - min(data["numberofplayers"])) * 1.02 + min(data["numberofplayers"]),
+    #             dates[1],
+    #             color="darkgreen",
+    #             fontweight="bold",
+    #             bbox=dict(facecolor="white", edgecolor="darkgreen", pad=4, zorder=3),
+    #         )
+    #     for dates in self.other_dates:
+    #         date = datetime.datetime.strptime(dates[0], "%Y-%m-%d")
+    #         ax.axvline(date, color="mediumaquamarine", zorder=1)
+    #         ax.text(
+    #             date + datetime.timedelta(days=2),
+    #             (max(data["numberofplayers"]) - min(data["numberofplayers"])) * 0.95 + min(data["numberofplayers"]),
+    #             dates[1],
+    #             color="mediumaquamarine",
+    #             bbox=dict(
+    #                 facecolor="white",
+    #                 edgecolor="mediumaquamarine",
+    #                 boxstyle="round",
+    #                 zorder=3,
+    #             ),
+    #         )
+    #     for dates in self.other_dates_lower:
+    #         date = datetime.datetime.strptime(dates[0], "%Y-%m-%d")
+    #         ax.axvline(date, color="mediumaquamarine", zorder=1)
+    #         ax.text(
+    #             date + datetime.timedelta(days=2),
+    #             (max(data["numberofplayers"]) - min(data["numberofplayers"])) * 0.90 + min(data["numberofplayers"]),
+    #             dates[1],
+    #             color="mediumaquamarine",
+    #             bbox=dict(
+    #                 facecolor="white",
+    #                 edgecolor="mediumaquamarine",
+    #                 boxstyle="round",
+    #                 zorder=3,
+    #             ),
+    #         )
+    #
+    #     # saving file
+    #     title = "d2population.png"
+    #     plt.savefig(title, bbox_inches="tight")
+    #
+    #     # sending them the file
+    #     embed = embed_message("Destiny 2 - Steam Player Count")
+    #     image = discord.File(title)
+    #     embed.set_image(url=f"attachment://{title}")
+    #     await ctx.send(file=image, embed=embed)
+    #
+    #     # _delete file
+    #     await asyncio.sleep(10)
+    #     os.remove(title)
 
     # @cog_ext.cog_slash(
     #     name="last",
@@ -944,7 +944,7 @@ class ClanActivitiesCommands(commands.Cog):
         try:
             network.add_edge(dst, src, value=value, title=value, physics=True)
         except Exception:
-            print("error adding node")
+            print ("error adding node")
 
 
 class MysticCommands(commands.Cog):
@@ -1116,7 +1116,7 @@ class RankCommands(commands.Cog):
             await ctx.defer()
 
         if args:
-            print(f"Got unexpected args: {args}")
+            print (f"Got unexpected args: {args}")
 
         user = await get_user_obj(ctx, kwargs)
         leaderboard = kwargs["leaderboard"]
