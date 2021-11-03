@@ -11,6 +11,7 @@ from ElevatorBot.backendNetworking.routes import (
     destiny_weapons_get_top_route,
     destiny_weapons_get_weapon_route,
 )
+from NetworkingSchemas.destiny.weapons import DestinyWeaponsModel
 
 
 @dataclasses.dataclass
@@ -22,15 +23,20 @@ class DestinyWeapons(BaseBackendConnection):
     async def get_all(self) -> BackendResult:
         """Get all weapons"""
 
-        return await self._backend_request(
+        result = await self._backend_request(
             method="GET",
             route=destiny_weapons_get_all_route,
         )
 
+        if result:
+            # convert to correct pydantic model
+            result.result = DestinyWeaponsModel.parse_obj(result.result)
+        return result
+
     async def get_top(self) -> BackendResult:
         """Get top weapons"""
 
-        return await self._backend_request(
+        result = await self._backend_request(
             method="GET",
             route=destiny_weapons_get_top_route.format(
                 guild_id=self.discord_guild.id, discord_id=self.discord_member.id
@@ -38,13 +44,23 @@ class DestinyWeapons(BaseBackendConnection):
             data={},  # todo
         )
 
+        if result:
+            # convert to correct pydantic model
+            result.result = aaaaaaaaaaaaaa.parse_obj(result.result)
+        return result
+
     async def get_weapon(self) -> BackendResult:
         """Get the specified weapon stat"""
 
-        return await self._backend_request(
+        result = await self._backend_request(
             method="GET",
             route=destiny_weapons_get_weapon_route.format(
                 guild_id=self.discord_guild.id, discord_id=self.discord_member.id
             ),
             data={},  # todo
         )
+
+        if result:
+            # convert to correct pydantic model
+            result.result = aaaaaaaaaaaaaa.parse_obj(result.result)
+        return result

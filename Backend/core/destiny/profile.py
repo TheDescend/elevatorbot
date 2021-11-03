@@ -17,12 +17,10 @@ from Backend.database.models import (
 from Backend.misc.helperFunctions import get_datetime_from_bungie_entry
 from Backend.networking.bungieApi import BungieApi
 from Backend.networking.bungieRoutes import profile_route, stat_route
-from Backend.schemas.destiny.account import (
+from NetworkingSchemas.destiny.account import (
     DestinyCharacterModel,
     DestinyCharactersModel,
     DestinyTimeModel,
-)
-from Backend.schemas.destiny.profile import (
     SeasonalChallengesModel,
     SeasonalChallengesRecordModel,
     SeasonalChallengesTopicsModel,

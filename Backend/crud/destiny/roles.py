@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from Backend.crud.base import CRUDBase
 from Backend.crud.cache import cache
 from Backend.database.models import Roles
-from Backend.schemas.destiny.roles import RoleModel
+from NetworkingSchemas.destiny.roles import RoleModel
 
 
 class CRUDRoles(CRUDBase):

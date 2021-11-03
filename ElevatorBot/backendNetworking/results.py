@@ -1,22 +1,27 @@
 import dataclasses
+from typing import Optional, Type, TypeVar
 
 from dis_snek.models import Embed, InteractionContext
+from pydantic import BaseModel
+from typing_extensions import Protocol
 
 from ElevatorBot.backendNetworking.errorCodesAndResponses import (
     error_codes_and_responses,
 )
 from ElevatorBot.misc.formating import embed_message
 
+SchemaType = TypeVar("SchemaType", bound=BaseModel)
 
-@dataclasses.dataclass
+
+@dataclasses.dataclass()
 class BackendResult:
     """Holds the return info"""
 
     success: bool
-    result: dict = None
-    error: str = None
+    result: Optional[SchemaType | dict]
+    error: Optional[str]
 
-    __error_message: str = dataclasses.field(default=None, init=False, repr=False, compare=False)
+    __error_message: str = None
 
     def __bool__(self):
         return self.success

@@ -20,6 +20,15 @@ from ElevatorBot.backendNetworking.routes import (
     destiny_account_triumph_route,
 )
 from ElevatorBot.static.destinyEnums import ModeScope
+from NetworkingSchemas.destiny.account import (
+    BoolModel,
+    DestinyCharactersModel,
+    DestinyLowMansModel,
+    DestinyNameModel,
+    DestinyStatModel,
+    DestinyTimeModel,
+    SeasonalChallengesModel,
+)
 
 
 @dataclasses.dataclass
@@ -30,18 +39,28 @@ class DestinyAccount(BaseBackendConnection):
     async def get_destiny_name(self) -> BackendResult:
         """Return the destiny name"""
 
-        return await self._backend_request(
+        result = await self._backend_request(
             method="GET",
             route=destiny_account_name_route.format(guild_id=self.discord_guild.id, discord_id=self.discord_member.id),
         )
 
+        if result:
+            # convert to correct pydantic model
+            result.result = DestinyNameModel.parse_obj(result.result)
+        return result
+
     async def get_solos(self) -> BackendResult:
         """Return the solos the user has done"""
 
-        return await self._backend_request(
+        result = await self._backend_request(
             method="GET",
             route=destiny_account_solos_route.format(guild_id=self.discord_guild.id, discord_id=self.discord_member.id),
         )
+
+        if result:
+            # convert to correct pydantic model
+            result.result = DestinyLowMansModel.parse_obj(result.result)
+        return result
 
     async def get_time(
         self,
@@ -56,7 +75,7 @@ class DestinyAccount(BaseBackendConnection):
         if modes is None:
             modes = [ModeScope.ALL]
 
-        return await self._backend_request(
+        result = await self._backend_request(
             method="GET",
             route=destiny_account_time_route.format(guild_id=self.discord_guild.id, discord_id=self.discord_member.id),
             data={
@@ -68,50 +87,75 @@ class DestinyAccount(BaseBackendConnection):
             },
         )
 
+        if result:
+            # convert to correct pydantic model
+            result.result = DestinyTimeModel.parse_obj(result.result)
+        return result
+
     async def get_character_info(self) -> BackendResult:
         """Return the character info"""
 
-        return await self._backend_request(
+        result = await self._backend_request(
             method="GET",
             route=destiny_account_characters_route.format(
                 guild_id=self.discord_guild.id, discord_id=self.discord_member.id
             ),
         )
 
+        if result:
+            # convert to correct pydantic model
+            result.result = DestinyCharactersModel.parse_obj(result.result)
+        return result
+
     async def has_collectible(self, collectible_id: int) -> BackendResult:
         """Return if the collectible is had"""
 
-        return await self._backend_request(
+        result = await self._backend_request(
             method="GET",
             route=destiny_account_collectible_route.format(
                 guild_id=self.discord_guild.id, discord_id=self.discord_member.id, collectible_id=collectible_id
             ),
         )
 
+        if result:
+            # convert to correct pydantic model
+            result.result = BoolModel.parse_obj(result.result)
+        return result
+
     async def has_triumph(self, triumph_id: int) -> BackendResult:
         """Return if the triumph is had"""
 
-        return await self._backend_request(
+        result = await self._backend_request(
             method="GET",
             route=destiny_account_triumph_route.format(
                 guild_id=self.discord_guild.id, discord_id=self.discord_member.id, triumph_id=triumph_id
             ),
         )
 
+        if result:
+            # convert to correct pydantic model
+            result.result = BoolModel.parse_obj(result.result)
+        return result
+
     async def get_metric(self, metric_id: int) -> BackendResult:
         """Return the metric value"""
 
-        return await self._backend_request(
+        result = await self._backend_request(
             method="GET",
             route=destiny_account_metric_route.format(
                 guild_id=self.discord_guild.id, discord_id=self.discord_member.id, metric_id=metric_id
             ),
         )
 
+        if result:
+            # convert to correct pydantic model
+            result.result = DestinyStatModel.parse_obj(result.result)
+        return result
+
     async def get_stat(self, stat_name: str, stat_category: str = "allTime") -> BackendResult:
         """Return the stat value"""
 
-        return await self._backend_request(
+        result = await self._backend_request(
             method="GET",
             route=destiny_account_stat_route.format(
                 guild_id=self.discord_guild.id,
@@ -121,12 +165,17 @@ class DestinyAccount(BaseBackendConnection):
             ),
         )
 
+        if result:
+            # convert to correct pydantic model
+            result.result = DestinyStatModel.parse_obj(result.result)
+        return result
+
     async def get_stat_by_characters(
         self, character_id: int, stat_name: str, stat_category: str = "allTime"
     ) -> BackendResult:
         """Return the stat value by character"""
 
-        return await self._backend_request(
+        result = await self._backend_request(
             method="GET",
             route=destiny_account_stat_characters_route.format(
                 guild_id=self.discord_guild.id,
@@ -137,12 +186,22 @@ class DestinyAccount(BaseBackendConnection):
             ),
         )
 
+        if result:
+            # convert to correct pydantic model
+            result.result = DestinyStatModel.parse_obj(result.result)
+        return result
+
     async def get_seasonal_challenges(self) -> BackendResult:
         """Return the seasonal challenges"""
 
-        return await self._backend_request(
+        result = await self._backend_request(
             method="GET",
             route=destiny_account_seasonal_challenges_route.format(
                 guild_id=self.discord_guild.id, discord_id=self.discord_member.id
             ),
         )
+
+        if result:
+            # convert to correct pydantic model
+            result.result = SeasonalChallengesModel.parse_obj(result.result)
+        return result

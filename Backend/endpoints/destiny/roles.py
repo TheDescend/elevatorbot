@@ -7,7 +7,7 @@ from Backend.core.destiny.profile import DestinyProfile
 from Backend.core.destiny.roles import UserRoles
 from Backend.database.models import Roles
 from Backend.dependencies import get_db_session
-from Backend.schemas.destiny.roles import (
+from NetworkingSchemas.destiny.roles import (
     ActivityModel,
     EarnedRoleModel,
     EarnedRolesModel,
@@ -17,7 +17,7 @@ from Backend.schemas.destiny.roles import (
     RolesModel,
     TimePeriodModel,
 )
-from Backend.schemas.empty import EmptyResponseModel
+from NetworkingSchemas.empty import EmptyResponseModel
 
 router = APIRouter(
     prefix="/destiny/{guild_id}/roles",

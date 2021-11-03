@@ -17,7 +17,7 @@ from Backend.crud import discord_users
 from Backend.database.models import BackendUser
 from Backend.dependencies import get_db_session
 from Backend.networking.elevatorApi import ElevatorApi
-from Backend.schemas.misc.auth import (
+from NetworkingSchemas.misc.auth import (
     BackendUserModel,
     BungieTokenInput,
     BungieTokenOutput,

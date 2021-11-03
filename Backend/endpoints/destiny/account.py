@@ -5,15 +5,16 @@ from Backend import crud
 from Backend.core.destiny.activities import DestinyActivities
 from Backend.core.destiny.profile import DestinyProfile
 from Backend.dependencies import get_db_session
-from Backend.schemas.destiny.account import (
+from NetworkingSchemas.destiny.account import (
     BoolModel,
     DestinyCharactersModel,
+    DestinyLowMansModel,
     DestinyNameModel,
     DestinyStatModel,
     DestinyTimeInputModel,
     DestinyTimeModel,
+    SeasonalChallengesModel,
 )
-from Backend.schemas.destiny.profile import DestinyLowMansModel, SeasonalChallengesModel
 
 router = APIRouter(
     prefix="/destiny/{guild_id}/{discord_id}/account",

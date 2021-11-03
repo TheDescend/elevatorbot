@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.destiny.weapons import DestinyWeapons
 from Backend.dependencies import get_db_session
-from Backend.schemas.destiny.weapons import DestinyWeaponsModel
+from NetworkingSchemas.destiny.weapons import DestinyWeaponsModel
 
 router = APIRouter(
     prefix="/destiny",

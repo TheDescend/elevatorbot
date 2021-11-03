@@ -9,6 +9,7 @@ from ElevatorBot.backendNetworking.routes import (
     persistent_messages_get_route,
     persistent_messages_upsert_route,
 )
+from NetworkingSchemas.misc.persistentMessages import PersistentMessage
 
 
 @dataclasses.dataclass()
@@ -21,24 +22,37 @@ class BackendPersistentMessages(BaseBackendConnection):
     async def get(self) -> BackendResult:
         """Gets a persistent message"""
 
-        return await self._backend_request(
+        result = await self._backend_request(
             method="GET",
             route=persistent_messages_get_route.format(guild_id=self.guild.id, message_name=self.message_name),
         )
 
+        if result:
+            # convert to correct pydantic model
+            result.result = PersistentMessage.parse_obj(result.result)
+        return result
+
     async def upsert(self, channel_id: int, message_id: int = None) -> BackendResult:
         """Upserts a persistent message"""
 
-        return await self._backend_request(
+        result = await self._backend_request(
             method="POST",
             route=persistent_messages_upsert_route.format(guild_id=self.guild.id, message_name=self.message_name),
             data={"channel_id": channel_id, "message_id": message_id},
         )
 
+        if result:
+            # convert to correct pydantic model
+            result.result = PersistentMessage.parse_obj(result.result)
+        return result
+
     async def delete(self) -> BackendResult:
         """Deletes a persistent message"""
 
-        return await self._backend_request(
+        result = await self._backend_request(
             method="DELETE",
             route=persistent_messages_delete_route.format(guild_id=self.guild.id, message_name=self.message_name),
         )
+
+        # returns EmptyResponseModel
+        return result

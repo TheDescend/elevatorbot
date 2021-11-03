@@ -24,7 +24,7 @@ from Backend.endpoints.destiny import (
 from Backend.endpoints.misc import elevatorInfo, persistentMessages, polls
 from Backend.misc.initBackgroundEvents import register_background_events
 from Backend.misc.initLogging import init_logging
-from Backend.schemas.misc.auth import BackendUserModel
+from NetworkingSchemas.misc.auth import BackendUserModel
 
 app = FastAPI()
 

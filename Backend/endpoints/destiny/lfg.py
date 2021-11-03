@@ -5,13 +5,13 @@ from Backend.crud import lfg
 from Backend.database.models import LfgMessage
 from Backend.dependencies import get_db_session
 from Backend.misc.helperFunctions import get_now_with_tz
-from Backend.schemas.destiny.lfgSystem import (
+from NetworkingSchemas.destiny.lfgSystem import (
     AllLfgOutputModel,
     LfgCreateInputModel,
     LfgOutputModel,
     LfgUpdateInputModel,
 )
-from Backend.schemas.empty import EmptyResponseModel
+from NetworkingSchemas.empty import EmptyResponseModel
 
 router = APIRouter(
     prefix="/destiny/{guild_id}/lfg",

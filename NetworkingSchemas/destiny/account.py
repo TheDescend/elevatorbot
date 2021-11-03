@@ -3,6 +3,8 @@ from typing import Optional
 
 from pydantic import BaseModel
 
+from NetworkingSchemas.destiny.activities import DestinyLowManModel
+
 
 class DestinyNameModel(BaseModel):
     name: str
@@ -37,3 +39,28 @@ class DestinyTimeInputModel(BaseModel):
     modes: list[int]
     activity_ids: Optional[list[int]]  # if this is supplied, mode is ignored
     character_class: Optional[str] = None
+
+
+class DestinyUpdatedLowManModel(DestinyLowManModel):
+    activity_name: str
+
+
+class DestinyLowMansModel(BaseModel):
+    solos: list[DestinyUpdatedLowManModel] = []
+
+
+class SeasonalChallengesRecordModel(BaseModel):
+    record_id: int
+    name: str
+    description: str
+    completion_percentage: float = None
+    completion_status: str = None
+
+
+class SeasonalChallengesTopicsModel(BaseModel):
+    name: str
+    seasonal_challenges: list[SeasonalChallengesRecordModel] = []
+
+
+class SeasonalChallengesModel(BaseModel):
+    topics: list[SeasonalChallengesTopicsModel] = []

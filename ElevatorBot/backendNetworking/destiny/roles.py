@@ -11,6 +11,12 @@ from ElevatorBot.backendNetworking.routes import (
     destiny_role_get_missing_user_route,
     destiny_role_get_user_route,
 )
+from NetworkingSchemas.destiny.roles import (
+    EarnedRoleModel,
+    EarnedRolesModel,
+    MissingRolesModel,
+    RolesModel,
+)
 
 
 @dataclasses.dataclass
@@ -21,29 +27,44 @@ class DestinyRoles(BaseBackendConnection):
     async def get(self) -> BackendResult:
         """Get the users roles in the guild"""
 
-        return await self._backend_request(
+        result = await self._backend_request(
             method="GET",
             route=destiny_role_get_all_user_route.format(
                 guild_id=self.discord_guild.id, discord_id=self.discord_member.id
             ),
         )
 
+        if result:
+            # convert to correct pydantic model
+            result.result = EarnedRolesModel.parse_obj(result.result)
+        return result
+
     async def get_missing(self) -> BackendResult:
         """Get the users missing roles in the guild"""
 
-        return await self._backend_request(
+        result = await self._backend_request(
             method="GET",
             route=destiny_role_get_missing_user_route.format(
                 guild_id=self.discord_guild.id, discord_id=self.discord_member.id
             ),
         )
 
+        if result:
+            # convert to correct pydantic model
+            result.result = MissingRolesModel.parse_obj(result.result)
+        return result
+
     async def get_detail(self, role: Role) -> BackendResult:
         """Get the details for the users role completion"""
 
-        return await self._backend_request(
+        result = await self._backend_request(
             method="GET",
             route=destiny_role_get_user_route.format(
                 guild_id=self.discord_guild.id, role_id=role.id, discord_id=self.discord_member.id
             ),
         )
+
+        if result:
+            # convert to correct pydantic model
+            result.result = EarnedRoleModel.parse_obj(result.result)
+        return result

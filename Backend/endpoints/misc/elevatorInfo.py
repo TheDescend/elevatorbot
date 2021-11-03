@@ -3,8 +3,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.crud import elevator_servers
 from Backend.dependencies import get_db_session
-from Backend.schemas.empty import EmptyResponseModel
-from Backend.schemas.misc.elevatorInfo import ElevatorGuildModel, ElevatorGuildsModel
+from NetworkingSchemas.empty import EmptyResponseModel
+from NetworkingSchemas.misc.elevatorInfo import ElevatorGuildModel, ElevatorGuildsModel
 
 router = APIRouter(
     prefix="/elevator",

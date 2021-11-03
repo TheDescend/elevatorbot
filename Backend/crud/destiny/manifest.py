@@ -8,7 +8,7 @@ from Backend.crud import versions
 from Backend.crud.base import CRUDBase
 from Backend.database.base import Base
 from Backend.database.models import DestinyActivityDefinition, DestinyRecordDefinition
-from Backend.schemas.destiny.activities import DestinyActivityModel
+from NetworkingSchemas.destiny import DestinyActivityModel
 
 ModelType = TypeVar("ModelType", bound=Base)
 

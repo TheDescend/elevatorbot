@@ -19,12 +19,12 @@ from Backend.networking.bungieRoutes import (
     stat_route_characters,
 )
 from Backend.networking.schemas import WebResponse
-from Backend.schemas.destiny.activities import (
+from NetworkingSchemas.destiny import (
     DestinyActivityDetailsModel,
     DestinyActivityDetailsUsersModel,
     DestinyLowManModel,
 )
-from Backend.schemas.destiny.profile import (
+from NetworkingSchemas.destiny.account import (
     DestinyLowMansModel,
     DestinyUpdatedLowManModel,
 )

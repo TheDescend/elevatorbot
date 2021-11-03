@@ -2,13 +2,14 @@ import asyncio
 import dataclasses
 import logging
 import time
-from typing import Optional
+from typing import Optional, Type, TypeVar
 
 import aiohttp
 from aiohttp import ClientSession, ClientTimeout
 from dis_snek.models.discord_objects.user import Member
+from pydantic import BaseModel
 
-from ElevatorBot.backendNetworking.results import BackendResult
+from ElevatorBot.backendNetworking.results import BackendResult, SchemaType
 
 
 # the limiter object to not overload the backend
@@ -88,7 +89,7 @@ class BaseBackendConnection:
                     params=params,
                     data=data,
                 ) as response:
-                    result = await self.__backend_parse_response(response)
+                    result = await self.__backend_parse_response(response=response)
 
                     # if an error occurred, already do the basic formatting
                     if not result:
@@ -100,31 +101,20 @@ class BaseBackendConnection:
     async def __backend_parse_response(self, response: aiohttp.ClientResponse) -> BackendResult:
         """Handle any errors and then return the content of the response"""
 
-        result = {}
         if response.status == 200:
             success = True
+            error = None
             self.logger.info("%s: '%s' - '%s'", response.status, response.method, response.url)
-            result.update(
-                {
-                    "result": await response.json(),
-                }
-            )
+
+            # format the result to be the pydantic model
+            result = await response.json()
 
         else:
             success = False
-            result.update(
-                {
-                    "error": await self.__backend_handle_errors(response),
-                }
-            )
+            result = None
+            error = await self.__backend_handle_errors(response)
 
-        result.update(
-            {
-                "success": success,
-            }
-        )
-
-        return BackendResult(**result)
+        return BackendResult(result=result, success=success, error=error)
 
     async def __backend_handle_errors(self, response: aiohttp.ClientResponse) -> Optional[str]:
         """Handles potential errors. Returns None, None if the error should not be returned to the user and str, str if something should be returned to the user"""

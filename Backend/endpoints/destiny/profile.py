@@ -4,8 +4,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from Backend import crud
 from Backend.crud import discord_users
 from Backend.dependencies import get_db_session
-from Backend.schemas.destiny.profile import DestinyHasTokenModel, DestinyProfileModel
-from Backend.schemas.empty import EmptyResponseModel
+from NetworkingSchemas.destiny.profile import DestinyHasTokenModel, DestinyProfileModel
+from NetworkingSchemas.empty import EmptyResponseModel
 
 router = APIRouter(
     prefix="/profile",

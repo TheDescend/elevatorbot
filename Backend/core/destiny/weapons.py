@@ -8,12 +8,11 @@ from Backend.database.enums import (
     DestinyAmmunitionTypeEnum,
     DestinyDamageTypeEnum,
     DestinyItemSubTypeEnum,
-    DestinyItemTypeEnum,
     DestinyWeaponSlotEnum,
 )
 from Backend.database.models import DiscordUsers
 from Backend.networking.bungieApi import BungieApi
-from Backend.schemas.destiny.weapons import DestinyWeaponModel, DestinyWeaponsModel
+from NetworkingSchemas.destiny.weapons import DestinyWeaponModel, DestinyWeaponsModel
 
 
 @dataclasses.dataclass

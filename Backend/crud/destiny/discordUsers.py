@@ -13,7 +13,7 @@ from Backend.database.models import DiscordUsers
 from Backend.misc.helperFunctions import get_now_with_tz, localize_datetime
 from Backend.networking.base import NetworkBase
 from Backend.networking.elevatorApi import ElevatorApi
-from Backend.schemas.misc.auth import BungieTokenInput, BungieTokenOutput
+from NetworkingSchemas.misc.auth import BungieTokenInput, BungieTokenOutput
 from settings import BUNGIE_TOKEN
 
 

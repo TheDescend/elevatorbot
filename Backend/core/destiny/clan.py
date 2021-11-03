@@ -12,7 +12,7 @@ from Backend.networking.bungieRoutes import (
     clan_invite_route,
     clan_members_route,
 )
-from Backend.schemas.destiny.clan import DestinyClanMemberModel
+from NetworkingSchemas.destiny.clan import DestinyClanMemberModel
 
 
 @dataclasses.dataclass

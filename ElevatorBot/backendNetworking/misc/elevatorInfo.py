@@ -18,13 +18,19 @@ class ElevatorGuilds(BaseBackendConnection):
     async def add(self) -> BackendResult:
         """Add the guild"""
 
-        return await self._backend_request(
+        result = await self._backend_request(
             method="POST", route=elevator_servers_add.format(guild_id=self.discord_guild.id)
         )
+
+        # returns EmptyResponseModel
+        return result
 
     async def delete(self) -> BackendResult:
         """Delete the guild"""
 
-        return await self._backend_request(
+        result = await self._backend_request(
             method="DELETE", route=elevator_servers_delete.format(guild_id=self.discord_guild.id)
         )
+
+        # returns EmptyResponseModel
+        return result

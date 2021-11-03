@@ -12,8 +12,6 @@ from Backend.database.models import (
     ActivitiesUsers,
     ActivitiesUsersWeapons,
 )
-from Backend.misc.helperFunctions import get_now_with_tz
-from Backend.schemas.destiny.activities import DestinyActivityModel
 
 
 class CRUDActivitiesFailToGet(CRUDBase):

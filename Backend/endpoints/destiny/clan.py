@@ -6,11 +6,12 @@ from Backend.core.destiny.clan import DestinyClan
 from Backend.core.errors import CustomException
 from Backend.crud import destiny_clan_links, discord_users
 from Backend.dependencies import get_db_session
-from Backend.schemas.destiny.clan import (
+from NetworkingSchemas.destiny.clan import (
     DestinyClanLink,
     DestinyClanMembersModel,
     DestinyClanModel,
 )
+from NetworkingSchemas.empty import EmptyResponseModel
 
 router = APIRouter(
     prefix="/destiny/{guild_id}/{discord_id}/clan",
@@ -39,6 +40,20 @@ async def get_clan_members(guild_id: int, discord_id: int, db: AsyncSession = De
     clan = DestinyClan(db=db, user=profile)
 
     members = await clan.get_clan_members()
+
+    return DestinyClanMembersModel(members=members)
+
+
+@router.get("/get/members/search/{search_phrase}", response_model=DestinyClanMembersModel)
+async def search_clan_members(
+    guild_id: int, discord_id: int, search_phrase: str, db: AsyncSession = Depends(get_db_session)
+):
+    """Return the clan members"""
+
+    profile = await crud.discord_users.get_profile_from_discord_id(db, discord_id)
+    clan = DestinyClan(db=db, user=profile)
+
+    members = await clan.search_clan_for_member(member_name=search_phrase)
 
     return DestinyClanMembersModel(members=members)
 
@@ -86,8 +101,8 @@ async def unlink_clan(
     return DestinyClanLink(success=True, clan_name=clan_name)
 
 
-@router.get("/invite/", response_model=None)
-async def destiny_name(
+@router.get("/invite/", response_model=EmptyResponseModel)
+async def invite(
     guild_id: int,
     discord_id: int,
     db: AsyncSession = Depends(get_db_session),

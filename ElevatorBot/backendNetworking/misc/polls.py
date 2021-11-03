@@ -14,6 +14,7 @@ from ElevatorBot.backendNetworking.routes import (
     polls_insert_route,
     polls_user_input_route,
 )
+from NetworkingSchemas.misc.polls import PollSchema
 
 
 @dataclasses.dataclass()
@@ -24,7 +25,7 @@ class BackendPolls(BaseBackendConnection):
     async def insert(self, name: str, description: str, channel_id: int, message_id: int) -> BackendResult:
         """Insert a poll"""
 
-        return await self._backend_request(
+        result = await self._backend_request(
             method="POST",
             route=polls_insert_route.format(guild_id=self.guild.id, discord_id=self.discord_member.id),
             data={
@@ -38,18 +39,28 @@ class BackendPolls(BaseBackendConnection):
             },
         )
 
+        if result:
+            # convert to correct pydantic model
+            result.result = PollSchema.parse_obj(result.result)
+        return result
+
     async def get(self, poll_id: int) -> BackendResult:
         """Gets a poll"""
 
-        return await self._backend_request(
+        result = await self._backend_request(
             method="GET",
             route=polls_get_route.format(guild_id=self.guild.id, discord_id=self.discord_member.id, poll_id=poll_id),
         )
 
+        if result:
+            # convert to correct pydantic model
+            result.result = PollSchema.parse_obj(result.result)
+        return result
+
     async def user_input(self, poll_id: int, choice_name: str) -> BackendResult:
         """Handles a user input on a poll"""
 
-        return await self._backend_request(
+        result = await self._backend_request(
             method="POST",
             route=polls_user_input_route.format(
                 guild_id=self.guild.id, discord_id=self.discord_member.id, poll_id=poll_id
@@ -57,20 +68,35 @@ class BackendPolls(BaseBackendConnection):
             data={"choice_name": choice_name, "user_id": self.discord_member.id},
         )
 
+        if result:
+            # convert to correct pydantic model
+            result.result = PollSchema.parse_obj(result.result)
+        return result
+
     async def remove_option(self, poll_id: int, choice_name: str) -> BackendResult:
         """Remove an option from the db"""
 
-        return await self._backend_request(
+        result = await self._backend_request(
             method="DELETE",
             route=polls_delete_option_route.format(
                 guild_id=self.guild.id, discord_id=self.discord_member.id, poll_id=poll_id, option_name=choice_name
             ),
         )
 
+        if result:
+            # convert to correct pydantic model
+            result.result = PollSchema.parse_obj(result.result)
+        return result
+
     async def delete(self, poll_id: int) -> BackendResult:
         """Delete a poll"""
 
-        return await self._backend_request(
+        result = await self._backend_request(
             method="DELETE",
             route=polls_delete_route.format(guild_id=self.guild.id, discord_id=self.discord_member.id, poll_id=poll_id),
         )
+
+        if result:
+            # convert to correct pydantic model
+            result.result = PollSchema.parse_obj(result.result)
+        return result
