@@ -49,12 +49,12 @@ async def get_stat_and_send(
     # might take a sec
     await ctx.defer()
 
-    account = DestinyAccount(discord_guild=ctx.guild, discord_member=member, client=ctx.bot)
+    account = DestinyAccount(ctx=ctx, discord_guild=ctx.guild, discord_member=member, client=ctx.bot)
 
     # check if we need a user stat or a char stat
     if destiny_class:
         # get the users characters
-        character_ids = await get_character_ids_from_class(ctx=ctx, profile=account, destiny_class=destiny_class)
+        character_ids = await get_character_ids_from_class(profile=account, destiny_class=destiny_class)
         if not character_ids:
             return
 
@@ -67,32 +67,31 @@ async def get_stat_and_send(
 
             # catch errors
             if not result:
-                await result.send_error_message(ctx=ctx)
                 return
 
             # handle the stat calc differently depending on what stat it is
             if stat_bungie_name in ["efficiency", "averageKillDistance", "averageLifespan"]:
                 # take the average
                 if stat_value is -1:
-                    stat_value = result.result["value"]
+                    stat_value = result.value
                 else:
-                    stat_value = (stat_value + result.result["value"]) / 2
+                    stat_value = (stat_value + result.value) / 2
 
             elif stat_bungie_name in ["longestKillDistance", "longestKillSpree", "longestSingleLife"]:
                 # take the highest
                 if stat_value is -1:
-                    stat_value = result.result["value"]
+                    stat_value = result.value
                 else:
-                    if result.result["value"] > stat_value:
-                        stat_value = result.result["value"]
+                    if result.value > stat_value:
+                        stat_value = result.value
 
             else:
                 # add them together
                 if stat_value is -1:
-                    stat_value = result.result["value"]
+                    stat_value = result.value
                 else:
-                    if result.result["value"] > stat_value:
-                        stat_value = stat_value + result.result["value"]
+                    if result.value > stat_value:
+                        stat_value = stat_value + result.value
 
     else:
         # get stats for the user
@@ -100,10 +99,9 @@ async def get_stat_and_send(
 
         # catch errors
         if not result:
-            await result.send_error_message(ctx=ctx)
             return
 
-        stat_value = result.result["value"]
+        stat_value = result.value
 
     # format and send the stat message
     await ctx.send(

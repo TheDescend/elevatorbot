@@ -56,14 +56,14 @@ class PopTimeline(BaseScale):
 
         else:
             # get the data from the DB
-            result = await SteamPlayers().get()
+            result = await SteamPlayers(ctx=ctx).get()
 
             if not result:
-                await result.send_error_message(ctx=ctx)
                 return
 
             # convert to dataframe
-            data_frame = DataFrame(data=result.result["entries"])
+            dict_entries = [entry.dict() for entry in result.entries]
+            data_frame = DataFrame(data=dict_entries)
 
             # create figure and plot space
             fig, ax = plt.subplots(figsize=(20, 10))

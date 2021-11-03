@@ -13,6 +13,7 @@ from NetworkingSchemas.destiny.account import (
     DestinyStatModel,
     DestinyTimeInputModel,
     DestinyTimeModel,
+    DestinyTimesModel,
     SeasonalChallengesModel,
 )
 
@@ -121,7 +122,7 @@ async def stat_characters(
     return DestinyStatModel(value=value)
 
 
-@router.get("/time", response_model=dict[int | list[int], DestinyTimeModel])
+@router.get("/time", response_model=dict[int | list[int], DestinyTimesModel])
 async def time(
     guild_id: int, discord_id: int, time_input: DestinyTimeInputModel, db: AsyncSession = Depends(get_db_session)
 ):
@@ -134,40 +135,48 @@ async def time(
     user = await crud.discord_users.get_profile_from_discord_id(db, discord_id)
     profile = DestinyProfile(db=db, user=user)
 
-    result = {}
+    entries = []
     if not time_input.activity_ids:
         # loop through the modes
         for mode in time_input.modes:
-            result.update(
-                {
-                    mode: await profile.get_time_played(
+            entries.append(
+                DestinyTimeModel(
+                    mode=mode,
+                    time_played=await profile.get_time_played(
                         start_time=time_input.start_time,
                         end_time=time_input.end_time,
                         mode=mode,
                         character_class=time_input.character_class,
-                    )
-                }
+                    ),
+                )
             )
+
     else:
         # check the total then the activities
-        result.update(
-            {
-                0: await profile.get_time_played(
+        entries.append(
+            DestinyTimeModel(
+                mode=0,
+                time_played=await profile.get_time_played(
                     start_time=time_input.start_time,
                     end_time=time_input.end_time,
                     mode=0,
                     character_class=time_input.character_class,
                 ),
-                time_input.activity_ids: await profile.get_time_played(
+            )
+        )
+        entries.append(
+            DestinyTimeModel(
+                activity_ids=time_input.activity_ids,
+                time_played=await profile.get_time_played(
                     start_time=time_input.start_time,
                     end_time=time_input.end_time,
                     activity_ids=time_input.activity_ids,
                     character_class=time_input.character_class,
                 ),
-            }
+            )
         )
 
-    return result
+    return DestinyTimesModel(entries=entries)
 
 
 @router.get("/seasonal_challenges", response_model=SeasonalChallengesModel)

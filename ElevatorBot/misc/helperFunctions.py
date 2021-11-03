@@ -49,22 +49,18 @@ async def log_error(
     raise error
 
 
-async def get_character_ids_from_class(
-    profile: DestinyAccount, destiny_class: str, ctx: InteractionContext = None
-) -> Optional[list[int]]:
+async def get_character_ids_from_class(profile: DestinyAccount, destiny_class: str) -> Optional[list[int]]:
     """Return the users character_ids that fit the given class or None"""
 
     result = await profile.get_character_info()
 
     if not result:
-        if ctx:
-            await result.send_error_message(ctx=ctx)
         return
 
     # loop through the characters and return the correct ids
     character_ids = []
-    for character in result.result["characters"]:
-        if character["character_class"] == destiny_class:
-            character_ids.append(character["character_id"])
+    for character in result.characters:
+        if character.character_class == destiny_class:
+            character_ids.append(character.character_id)
 
     return character_ids if character_ids else None

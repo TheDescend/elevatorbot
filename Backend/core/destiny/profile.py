@@ -464,19 +464,17 @@ class DestinyProfile:
         mode: int = 0,
         activity_ids: Optional[list[int]] = None,
         character_class: Optional[str] = None,
-    ) -> DestinyTimeModel:
-        """Get the time played"""
+    ) -> int:
+        """Get the time played (in seconds)"""
 
-        return DestinyTimeModel(
-            time_played=await activities.calculate_time_played(
-                db=self.db,
-                destiny_id=self.destiny_id,
-                mode=mode,
-                activity_ids=activity_ids,
-                start_time=start_time,
-                end_time=end_time,
-                character_class=character_class,
-            )
+        return await activities.calculate_time_played(
+            db=self.db,
+            destiny_id=self.destiny_id,
+            mode=mode,
+            activity_ids=activity_ids,
+            start_time=start_time,
+            end_time=end_time,
+            character_class=character_class,
         )
 
     async def __get_profile(self, *components_override: int, with_token: bool = False) -> dict:

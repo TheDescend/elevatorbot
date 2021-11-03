@@ -17,7 +17,7 @@ class Destiny(BaseScale):
             user = ctx.author
 
         # get destiny info
-        destiny_profile = DestinyProfile(client=ctx.bot, discord_member=user, discord_guild=ctx.guild)
+        destiny_profile = DestinyProfile(ctx=ctx, client=ctx.bot, discord_member=user, discord_guild=ctx.guild)
         destiny_info = await destiny_profile.from_discord_member()
         if not destiny_info:
             await destiny_info.send_error_message(ctx)
@@ -26,59 +26,83 @@ class Destiny(BaseScale):
         heatmap_url = (
             f"https://chrisfried.github.io/secret-scrublandeux/guardian/{destiny_info.system}/{destiny_info.destiny_id}"
         )
-        destiny_account = DestinyAccount(client=ctx.bot, discord_member=user, discord_guild=ctx.guild)
+        destiny_account = DestinyAccount(ctx=ctx, client=ctx.bot, discord_member=user, discord_guild=ctx.guild)
 
         # get character infos
         characters = await destiny_account.get_character_info()
         if not characters:
-            await characters.send_error_message(ctx=ctx)
             return
 
+        seconds_played = {}
+        power = {}
+        activities_cleared = {}
+        kills = {}
+        deaths = {}
+        efficiency = {}
+
         # get stats
-        seconds_played = await destiny_account.get_stat_by_characters(stat_name="secondsPlayed")
-        if not seconds_played:
-            await seconds_played.send_error_message(ctx)
-            return
-        power = await destiny_account.get_stat_by_characters(stat_name="highestLightLevel")
-        if not power:
-            await power.send_error_message(ctx)
-            return
-        activities_cleared = await destiny_account.get_stat_by_characters(stat_name="activitiesCleared")
-        if not activities_cleared:
-            await activities_cleared.send_error_message(ctx)
-            return
-        kills = await destiny_account.get_stat_by_characters(stat_name="kills")
-        if not kills:
-            await kills.send_error_message(ctx)
-            return
-        deaths = await destiny_account.get_stat_by_characters(stat_name="deaths")
-        if not deaths:
-            await deaths.send_error_message(ctx)
-            return
-        efficiency = await destiny_account.get_stat_by_characters(stat_name="efficiency")
-        if not efficiency:
-            await efficiency.send_error_message(ctx)
-            return
+        for character in characters.characters:
+            result = await destiny_account.get_stat_by_characters(
+                stat_name="secondsPlayed", character_id=character.character_id
+            )
+            if not result:
+                return
+            seconds_played.update({character.character_id: result.value})
+
+            result = await destiny_account.get_stat_by_characters(
+                stat_name="highestLightLevel", character_id=character.character_id
+            )
+            if not result:
+                return
+            power.update({character.character_id: result.value})
+
+            result = await destiny_account.get_stat_by_characters(
+                stat_name="activitiesCleared", character_id=character.character_id
+            )
+            if not result:
+                return
+            activities_cleared.update({character.character_id: result.value})
+
+            result = await destiny_account.get_stat_by_characters(
+                stat_name="kills", character_id=character.character_id
+            )
+            if not result:
+                return
+            kills.update({character.character_id: result.value})
+
+            result = await destiny_account.get_stat_by_characters(
+                stat_name="deaths", character_id=character.character_id
+            )
+            if not result:
+                return
+            deaths.update({character.character_id: result.value})
+
+            result = await destiny_account.get_stat_by_characters(
+                stat_name="efficiency", character_id=character.character_id
+            )
+            if not result:
+                return
+            efficiency.update({character.character_id: result.value})
 
         embed = embed_message(
             f"{user.display_name}'s Destiny Stats",
-            f"**Total Playtime:** {format_timedelta(seconds=sum(seconds_played.result.values()))} \n[Click to see your heatmap]({heatmap_url})",
+            f"**Total Playtime:** {format_timedelta(seconds=sum(seconds_played.values()))} \n[Click to see your heatmap]({heatmap_url})",
             "For info on achievable discord roles, type: /roles missing",
         )
 
-        """ char info field """
+        # add char info fields
         embed.add_field(name="⁣", value=f"__**Characters:**__", inline=False)
-        for character in characters.result["characters"]:
-            character_id = character["character_id"]
+        for character in characters.characters:
+            character_id = character.character_id
 
-            text = f"""Playtime: {format_timedelta(seconds=seconds_played.result[character_id])} \n⁣\nPower: {power.result[character_id]:,} \nActivities: {activities_cleared.result[character_id]:,} \nKills: {kills.result[character_id]:,} \nDeaths: {deaths.result[character_id]:,} \nEfficiency: {round(efficiency.result[character_id], 2)}"""
+            text = f"""Playtime: {format_timedelta(seconds=seconds_played[character_id])} \n⁣\nPower: {power[character_id]:,} \nActivities: {activities_cleared[character_id]:,} \nKills: {kills[character_id]:,} \nDeaths: {deaths[character_id]:,} \nEfficiency: {round(efficiency[character_id], 2)}"""
             embed.add_field(
-                name=f"""{character["character_class"]} ({character["character_race"]} / {character["character_gender"]})""",
+                name=f"""{character.character_class} ({character.character_race} / {character.character_gender})""",
                 value=text,
                 inline=True,
             )
 
-        """ triumph info field """
+        # add triumph info field
         embed.add_field(name="⁣", value=f"__**Triumphs:**__", inline=False)
 
         # todo

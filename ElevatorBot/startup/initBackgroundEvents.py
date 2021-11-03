@@ -117,42 +117,40 @@ async def register_background_events(client: Snake):
 
     # load the lfg events
     for guild in client.guilds:
-        backend = DestinyLfgSystem(client=client, discord_guild=guild)
+        backend = DestinyLfgSystem(ctx=None, client=client, discord_guild=guild)
 
         # get all lfg ids
-        results = await backend.get_all()
-        if results:
-            events = results.result["events"]
+        result = await backend.get_all()
+        if result:
+            events = result.events
 
             # create the objs from the returned data
             for event in events:
-                channel: GuildText = await guild.get_channel(event["channel_id"])
+                channel: GuildText = await guild.get_channel(event.channel_id)
 
                 lfg_event = LfgMessage(
                     backend=backend,
                     client=client,
-                    id=event["id"],
+                    id=event.id,
                     guild=guild,
                     channel=channel,
-                    author=guild.get_member(event["author_id"]),
-                    activity=event["activity"],
-                    description=event["description"],
-                    start_time=event["start_time"],
-                    max_joined_members=event["max_joined_members"],
-                    message=await channel.fetch_message(event["message_id"]),
-                    creation_time=event["creation_time"],
+                    author=guild.get_member(event.author_id),
+                    activity=event.activity,
+                    description=event.description,
+                    start_time=event.start_time,
+                    max_joined_members=event.max_joined_members,
+                    message=await channel.fetch_message(event.message_id),
+                    creation_time=event.creation_time,
                     joined=[
-                        guild.get_member(member_id)
-                        for member_id in event["joined_members"]
-                        if guild.get_member(member_id)
+                        guild.get_member(member_id) for member_id in event.joined_members if guild.get_member(member_id)
                     ],
                     backup=[
                         guild.get_member(member_id)
-                        for member_id in event["alternate_members"]
+                        for member_id in event.alternate_members
                         if guild.get_member(member_id)
                     ],
-                    voice_channel=await guild.get_channel(event["voice_channel_id"]),
-                    voice_category_channel=await guild.get_channel(event["voice_category_channel_id"]),
+                    voice_channel=await guild.get_channel(event.voice_channel_id),
+                    voice_category_channel=await guild.get_channel(event.voice_category_channel_id),
                 )
 
                 # add the event

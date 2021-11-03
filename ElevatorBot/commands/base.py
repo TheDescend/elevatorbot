@@ -21,13 +21,25 @@ class BaseScale(Scale):
         Checks if the command invoker is registered
         """
 
-        # get registration role
+        # get the registration role
         registration_role = await registered_role_cache.get(guild=ctx.guild)
 
-        # todo test
-        result = await DestinyProfile(client=ctx.bot, discord_member=ctx.author, discord_guild=ctx.guild).has_token()
+        # check in cache if the user is registered
+        if registered_role_cache.is_not_registered():
+            result = None
+
+        else:
+            # todo test
+            # check their status with the backend
+            result = await DestinyProfile(
+                ctx=None, client=ctx.bot, discord_member=ctx.author, discord_guild=ctx.guild
+            ).has_token()
 
         if not result:
+            # test if it failed because of a backend request or cache
+            if isinstance(result, bool):
+                registered_role_cache.not_registered_users.append(ctx.author.id)
+
             # send error message
             await ctx.send(
                 embeds=embed_message(
@@ -38,16 +50,15 @@ class BaseScale(Scale):
             )
 
             # check if user has the registration role
-            registration_role = registered_role_cache.guild_to_role[ctx.guild.id]
-            if registration_role in ctx.author.roles:
+            if registration_role and registration_role in ctx.author.roles:
                 await ctx.author.remove_role(role=registration_role, reason="Registration outdated")
 
         else:
             # add registration role
-            if registration_role not in ctx.author.roles:
+            if registration_role and registration_role not in ctx.author.roles:
                 await ctx.author.add_role(role=registration_role, reason="Successful registration")
 
-        return result
+        return bool(result)
 
     @staticmethod
     async def no_dm_check(ctx: InteractionContext) -> bool:

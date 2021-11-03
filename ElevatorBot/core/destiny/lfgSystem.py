@@ -100,48 +100,44 @@ class LfgMessage:
         return True
 
     @classmethod
-    async def from_lfg_id(cls, lfg_id: int, client: Snake, guild: Guild) -> LfgMessage | BackendResult:
+    async def from_lfg_id(
+        cls, lfg_id: int, client: Snake, guild: Guild, ctx: InteractionContext = None
+    ) -> Optional[LfgMessage]:
         """
         Classmethod to get with a known lfg_id
         Returns LfgMessage() if successful, BackendResult() if not
         """
 
-        backend = DestinyLfgSystem(client=client, discord_guild=guild)
+        backend = DestinyLfgSystem(ctx=ctx, client=client, discord_guild=guild)
 
         # get the message by the id
         result = await backend.get(lfg_id=lfg_id)
         if not result:
-            return result
+            return
 
         # fill class info
-        channel: GuildText = await guild.get_channel(result.result["channel_id"])
-        start_time: datetime.datetime = result.result["start_time"]
+        channel: GuildText = await guild.get_channel(result.channel_id)
+        start_time: datetime.datetime = result.start_time
 
         lfg_message = cls(
             backend=backend,
             client=client,
-            id=result.result["id"],
+            id=result.id,
             guild=guild,
             channel=channel,
-            author=guild.get_member(result.result["author_id"]),
-            activity=result.result["activity"],
-            description=result.result["description"],
+            author=guild.get_member(result.author_id),
+            activity=result.activity,
+            description=result.description,
             start_time=start_time if start_time != asap_start_time else "asap",
-            max_joined_members=result.result["max_joined_members"],
-            message=await channel.fetch_message(result.result["message_id"]),
-            creation_time=result.result["creation_time"],
-            joined=[
-                guild.get_member(member_id)
-                for member_id in result.result["joined_members"]
-                if guild.get_member(member_id)
-            ],
+            max_joined_members=result.max_joined_members,
+            message=await channel.fetch_message(result.message_id),
+            creation_time=result.creation_time,
+            joined=[guild.get_member(member_id) for member_id in result.joined_members if guild.get_member(member_id)],
             backup=[
-                guild.get_member(member_id)
-                for member_id in result.result["alternate_members"]
-                if guild.get_member(member_id)
+                guild.get_member(member_id) for member_id in result.alternate_members if guild.get_member(member_id)
             ],
-            voice_channel=await guild.get_channel(result.result["voice_channel_id"]),
-            voice_category_channel=await guild.get_channel(result.result["voice_category_channel_id"]),
+            voice_channel=await guild.get_channel(result.voice_channel_id),
+            voice_category_channel=await guild.get_channel(result.voice_category_channel_id),
         )
 
         return lfg_message
@@ -157,7 +153,7 @@ class LfgMessage:
     ) -> Optional[LfgMessage]:
         """Classmethod to create a new lfg message"""
 
-        backend = DestinyLfgSystem(client=ctx.bot, discord_guild=ctx.guild)
+        backend = DestinyLfgSystem(ctx=ctx, client=ctx.bot, discord_guild=ctx.guild)
 
         # create the message and fill it later
         result = await backend.create(
@@ -174,22 +170,21 @@ class LfgMessage:
 
         # error out if need be
         if not result:
-            await result.send_error_message(ctx)
             return
 
         # create class obj
         lfg_message = cls(
             backend=backend,
             client=ctx.bot,
-            id=result.result["id"],
+            id=result.id,
             guild=ctx.guild,
-            channel=ctx.guild.get_channel(result.result["channel_id"]),
+            channel=ctx.guild.get_channel(result.channel_id),
             author=ctx.author,
             activity=activity,
             description=description,
             start_time=start_time,
             max_joined_members=max_joined_members,
-            voice_category_channel=ctx.guild.get_channel(result.result["voice_category_channel_id"]),
+            voice_category_channel=ctx.guild.get_channel(result.voice_category_channel_id),
         )
 
         # send message in the channel to populate missing entries
@@ -453,9 +448,9 @@ class LfgMessage:
 
         async with asyncio.Lock():
             # get all lfg ids
-            results = await self.backend.get_all()
-            if results:
-                events = results.result["events"]
+            result = await self.backend.get_all()
+            if result:
+                events = result.events
 
                 # only continue if there is more than one event
                 if len(events) <= 1:
@@ -469,34 +464,34 @@ class LfgMessage:
                 sorted_creation_times_by_creation_time = []
                 lfg_messages = []
                 for event in events:
-                    sorted_messages_by_creation_time.append(await self.channel.fetch_message(event["message_id"]))
-                    sorted_creation_times_by_creation_time.append(event["creation_time"])
+                    sorted_messages_by_creation_time.append(await self.channel.fetch_message(event.message_id))
+                    sorted_creation_times_by_creation_time.append(event.creation_time)
                     lfg_messages.append(
                         LfgMessage(
                             backend=self.backend,
                             client=self.client,
-                            id=event["id"],
+                            id=event.id,
                             guild=self.guild,
                             channel=self.channel,
-                            author=self.guild.get_member(event["author_id"]),
-                            activity=event["activity"],
-                            description=event["description"],
-                            start_time=event["start_time"],
-                            max_joined_members=event["max_joined_members"],
-                            message=await self.channel.fetch_message(event["message_id"]),
-                            creation_time=event["creation_time"],
+                            author=self.guild.get_member(event.author_id),
+                            activity=event.activity,
+                            description=event.description,
+                            start_time=event.start_time,
+                            max_joined_members=event.max_joined_members,
+                            message=await self.channel.fetch_message(event.message_id),
+                            creation_time=event.creation_time,
                             joined=[
                                 self.guild.get_member(member_id)
-                                for member_id in event["joined_members"]
+                                for member_id in event.joined_members
                                 if self.guild.get_member(member_id)
                             ],
                             backup=[
                                 self.guild.get_member(member_id)
-                                for member_id in event["alternate_members"]
+                                for member_id in event.alternate_members
                                 if self.guild.get_member(member_id)
                             ],
-                            voice_channel=await self.guild.get_channel(event["voice_channel_id"]),
-                            voice_category_channel=await self.guild.get_channel(event["voice_category_channel_id"]),
+                            voice_channel=await self.guild.get_channel(event.voice_channel_id),
+                            voice_category_channel=await self.guild.get_channel(event.voice_category_channel_id),
                         )
                     )
 

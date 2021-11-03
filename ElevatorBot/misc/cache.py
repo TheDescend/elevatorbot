@@ -1,4 +1,6 @@
 import dataclasses
+import datetime
+from typing import Optional
 
 from dis_snek.models import Guild, GuildVoice, Role, ThreadChannel
 
@@ -15,19 +17,33 @@ class ReplyCache:
 
 @dataclasses.dataclass
 class RegisteredRoleCache:
-    """This saves the registered role for each guild in the cache"""
+    """This saves registered data (for each guild) in the cache"""
 
-    _guild_to_role: dict[int, Role] = dataclasses.field(init=False, default_factory=dict)
+    guild_to_role: dict[int, Role] = dataclasses.field(init=False, default_factory=dict)
+    not_registered_users: list[int] = dataclasses.field(init=False, default_factory=list)
 
-    async def get(self, guild: Guild) -> Role:
+    async def get(self, guild: Guild) -> Optional[Role]:
         """Get the role for a guild"""
 
-        if guild.id not in self._guild_to_role:
-            persistent_messages = PersistentMessages(guild=guild, message_name="registered_role")
+        if guild.id not in self.guild_to_role:
+            persistent_messages = PersistentMessages(ctx=None, guild=guild, message_name="registered_role")
             result = await persistent_messages.get()
 
-            self._guild_to_role.update({guild.id: result.result["channel_id"]})
-        return self._guild_to_role[guild.id]
+            if not result:
+                return
+
+            role = await guild.get_role(result.channel_id)
+            if not role:
+                return
+
+            self.guild_to_role.update({guild.id: role})
+
+        return self.guild_to_role[guild.id]
+
+    async def is_not_registered(self, user_id: int) -> bool:
+        """Returns True if the user is not registered and that is cached. False if we dont know"""
+
+        return user_id in self.not_registered_users
 
 
 @dataclasses.dataclass
@@ -42,13 +58,13 @@ class DescendCache:
 
         if not self.booster_count_channel:
             # populate it
-            persistent_messages = PersistentMessages(guild=descend_guild, message_name="booster_count")
+            persistent_messages = PersistentMessages(ctx=None, guild=descend_guild, message_name="booster_count")
             result = await persistent_messages.get()
 
             if not result:
                 raise LookupError("There is no channel set")
 
-            self.booster_count_channel = await descend_guild.get_channel(result.result["channel_id"])
+            self.booster_count_channel = await descend_guild.get_channel(result.channel_id)
 
         return self.booster_count_channel
 
@@ -57,13 +73,13 @@ class DescendCache:
 
         if not self.member_count_channel:
             # populate it
-            persistent_messages = PersistentMessages(guild=descend_guild, message_name="member_count")
+            persistent_messages = PersistentMessages(ctx=None, guild=descend_guild, message_name="member_count")
             result = await persistent_messages.get()
 
             if not result:
                 raise LookupError("There is no channel set")
 
-            self.member_count_channel = await descend_guild.get_channel(result.result["channel_id"])
+            self.member_count_channel = await descend_guild.get_channel(result.channel_id)
 
         return self.member_count_channel
 

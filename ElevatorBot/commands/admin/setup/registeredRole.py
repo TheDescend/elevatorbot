@@ -33,25 +33,28 @@ class RegisteredRole(BaseScale):
     )
     async def _registered_role(self, ctx: InteractionContext, role: Role):
         # cheat a bit and register the role as a persistent message
-        persistent_messages = PersistentMessages(guild=ctx.guild, message_name="registered_role")
+        persistent_messages = PersistentMessages(ctx=ctx, guild=ctx.guild, message_name="registered_role")
+        persistent_messages.hidden = True
 
         result = await persistent_messages.upsert(channel_id=role.id)
         if not result:
-            await result.send_error_message(ctx)
-        else:
-            # save in cache
-            registered_role_cache._guild_to_role.update({ctx.guild.id: role})
+            return
 
-            await ctx.send(
-                embeds=embed_message("Success", f"{role.mention} is now assigned to everyone that is registered")
-            )
+        # save in cache
+        registered_role_cache.guild_to_role.update({ctx.guild.id: role})
 
-            # check all members
-            for member in ctx.guild.members:
-                # check if member is not pending
-                if not member.pending:
-                    destiny_profile = DestinyProfile(client=ctx.bot, discord_member=member, discord_guild=ctx.guild)
-                    await destiny_profile.assign_registration_role()
+        await ctx.send(
+            embeds=embed_message("Success", f"{role.mention} is now assigned to everyone that is registered")
+        )
+
+        # check all members
+        for member in ctx.guild.members:
+            # check if member is not pending
+            if not member.pending:
+                destiny_profile = DestinyProfile(
+                    ctx=ctx, client=ctx.bot, discord_member=member, discord_guild=ctx.guild
+                )
+                await destiny_profile.assign_registration_role()
 
 
 def setup(client):

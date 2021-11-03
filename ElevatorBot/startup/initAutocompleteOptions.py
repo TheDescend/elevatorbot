@@ -19,30 +19,21 @@ async def load_autocomplete_options(client: Snake):
 
     # get activities
     # loop through them all and add them to the global activities dict
-    db_activities = await DestinyActivities(discord_member=None, client=None, discord_guild=None).get_all()
-    for activity in db_activities.result["activities"]:
-        model = DestinyActivityModel(
-            name=activity["name"],
-            description=activity["description"],
-            activity_ids=activity["activity_ids"],
-        )
-        activities.update({model.name.lower(): model})
-        for activity_id in model.activity_ids:
-            activities_by_id.update({activity_id: model})
+    db_activities = await DestinyActivities(ctx=None, discord_member=None, client=None, discord_guild=None).get_all()
+    if not db_activities:
+        raise LookupError("Couldn't load activities")
+
+    for activity in db_activities.activities:
+        activities.update({activity.name.lower(): activity})
+        for activity_id in activity.activity_ids:
+            activities_by_id.update({activity_id: activity})
 
     # get weapons
-    db_weapons = await DestinyWeapons(discord_member=None, client=None, discord_guild=None).get_all()
-    for weapon in db_weapons.result["weapons"]:
-        model = DestinyWeaponModel(
-            name=weapon["name"],
-            description=weapon["description"],
-            flavor_text=weapon["flavor_text"],
-            weapon_type=weapon["weapon_type"],
-            weapon_slot=weapon["weapon_slot"],
-            damage_type=weapon["damage_type"],
-            ammo_type=weapon["ammo_type"],
-            reference_ids=weapon["reference_ids"],
-        )
-        weapons.update({model.name.lower(): model})
-        for reference_id in model.reference_ids:
-            weapons_by_id.update({reference_id: model})
+    db_weapons = await DestinyWeapons(ctx=None, discord_member=None, client=None, discord_guild=None).get_all()
+    if not db_activities:
+        raise LookupError("Couldn't load weapons")
+
+    for weapon in db_weapons.weapons:
+        weapons.update({weapon.name.lower(): weapon})
+        for reference_id in weapon.reference_ids:
+            weapons_by_id.update({reference_id: weapon})

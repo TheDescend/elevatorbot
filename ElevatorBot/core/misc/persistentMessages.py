@@ -28,11 +28,11 @@ class PersistentMessages(BackendPersistentMessages):
     async def get_channel_and_message(self) -> tuple[Optional[GuildChannel], Optional[Message]]:
         """Gets the channel and message"""
 
-        result = await self._get()
+        result = await self.get()
 
         if result:
-            channel = await self.guild.get_channel(result.result["channel_id"])
-            message = await channel.get_message(result.result["message_id"]) if channel else None
+            channel = await self.guild.get_channel(result.channel_id)
+            message = await channel.get_message(result.message_id) if channel else None
 
             return channel, message
 
@@ -64,7 +64,8 @@ async def handle_setup_command(
             await respond_wrong_author(ctx=ctx, author_must_be=ctx.bot.user)
             return
 
-    connection = PersistentMessages(guild=ctx.guild, message_name=message_name)
+    connection = PersistentMessages(ctx=ctx, guild=ctx.guild, message_name=message_name)
+    connection.hidden = True
 
     # send the message
     if send_message:
@@ -94,5 +95,3 @@ async def handle_setup_command(
                 success_message,
             ),
         )
-    else:
-        await result.send_error_message(ctx=ctx, hidden=True)

@@ -21,18 +21,18 @@ class ClanLink(BaseScale):
     )
     async def _link(self, ctx: InteractionContext):
 
-        clan = DestinyClan(client=ctx.bot, discord_member=ctx.author, discord_guild=ctx.guild)
+        clan = DestinyClan(ctx=ctx, client=ctx.bot, discord_member=ctx.author, discord_guild=ctx.guild)
         result = await clan.link()
 
         if not result:
-            await result.send_error_message(ctx)
-        else:
-            await ctx.send(
-                embeds=embed_message(
-                    "Success",
-                    f"This discord server has been successfully linked to the clan `{result.result['clan_name']}`",
-                )
+            return
+
+        await ctx.send(
+            embeds=embed_message(
+                "Success",
+                f"This discord server has been successfully linked to the clan `{result.clan_name}`",
             )
+        )
 
 
 def setup(client):

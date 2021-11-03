@@ -44,7 +44,7 @@ class UserInfo(BaseScale):
             )
             return
         await ctx.defer()
-        destiny_profile = DestinyProfile(client=ctx.bot, discord_member=discord_user, discord_guild=ctx.guild)
+        destiny_profile = DestinyProfile(ctx=ctx, client=ctx.bot, discord_member=discord_user, discord_guild=ctx.guild)
 
         if destiny_id:
             destiny_id = int(destiny_id)
@@ -65,7 +65,6 @@ class UserInfo(BaseScale):
 
             profile = await destiny_profile.from_destiny_id(destiny_id=destiny_id)
             if not profile:
-                await profile.send_error_message(ctx)
                 return
 
             profiles.append(profile)
@@ -74,7 +73,6 @@ class UserInfo(BaseScale):
         elif discord_user:
             profile = await destiny_profile.from_discord_member()
             if not profile:
-                await profile.send_error_message(ctx)
                 return
 
             profiles.append(profile)
@@ -82,26 +80,24 @@ class UserInfo(BaseScale):
         # if fuzzy name is given
         else:
             # todo get clan id from discord guild
-            clan = DestinyClan(client=ctx.bot, discord_member=discord_user, discord_guild=ctx.guild)
+            clan = DestinyClan(ctx=ctx, client=ctx.bot, discord_member=discord_user, discord_guild=ctx.guild)
             clan_members = await clan.search_for_clan_members(search_phrase=fuzzy_name)
 
             # handle errors
             if not clan_members:
-                await clan_members.send_error_message(ctx)
                 return
 
             # did we find sb?
-            if not clan_members.result["members"]:
+            if not clan_members.members:
                 await ctx.send(embeds=embed_message("Error", "No matches found for `{fuzzy_name}`"))
                 return
 
             # loop through the results
-            for potential_match in clan_members.result["members"]:
+            for potential_match in clan_members.members:
                 profile = await destiny_profile.from_destiny_id(destiny_id=potential_match.destiny_id)
 
                 # handle errors
                 if not profile:
-                    await profile.send_error_message(ctx)
                     return
 
                 profiles.append(profile)
@@ -117,10 +113,19 @@ class UserInfo(BaseScale):
         for profile in profiles:
             i += 1
 
+            discord_member = await ctx.guild.get_member(profile.discord_id)
+            if not discord_member:
+                await ctx.send(
+                    embeds=embed_message(
+                        "Error", f"The discord ID `{profile.discord_id}` is not in this discord server"
+                    )
+                )
+                return
+
             account = DestinyAccount(
                 ctx=ctx,
                 client=ctx.bot,
-                discord_member=profile.discord_member,
+                discord_member=discord_member,
                 discord_guild=ctx.guild,
             )
             destiny_name = await account.get_destiny_name()
@@ -131,7 +136,7 @@ class UserInfo(BaseScale):
 
             embed.add_field(
                 name=f"Option {i}",
-                value=f"Discord - {profile.discord_member.mention} \nDestinyID: `{profile.destiny_id}` \nSystem - `{profile.system}` \nDestiny Name - `{destiny_name.name}`",
+                value=f"Discord - {discord_member.mention} \nDestinyID: `{profile.destiny_id}` \nSystem - `{profile.system}` \nDestiny Name - `{destiny_name.name}`",
                 inline=False,
             )
 

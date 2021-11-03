@@ -17,16 +17,16 @@ class IdGet(BaseScale):
         # assign user to be the mentioned user if applicable
         user = user if user else ctx.author
 
-        destiny_profile = DestinyAccount(client=ctx.bot, discord_member=user, discord_guild=ctx.guild)
+        destiny_profile = DestinyAccount(ctx=ctx, client=ctx.bot, discord_member=user, discord_guild=ctx.guild)
         result = await destiny_profile.get_destiny_name()
 
         if not result:
-            await result.send_error_message(ctx)
+            return
         else:
             await ctx.send(
                 embeds=embed_message(
                     f"{user.display_name}'s Join Code",
-                    f"`/join {result.result['name']}`",
+                    f"`/join {result.name}`",
                 ),
             )
 

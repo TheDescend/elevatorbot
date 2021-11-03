@@ -3,25 +3,8 @@ import dataclasses
 from dis_snek.models import AutocompleteContext
 from rapidfuzz import fuzz, process
 
-
-@dataclasses.dataclass
-class DestinyActivityModel:
-    name: str
-    description: str
-    activity_ids: list[int]
-
-
-@dataclasses.dataclass
-class DestinyWeaponModel:
-    name: str
-    description: str
-    flavor_text: str
-    weapon_type: str
-    weapon_slot: str
-    damage_type: str
-    ammo_type: str
-    reference_ids: list[int]
-
+from NetworkingSchemas.destiny.activities import DestinyActivityModel
+from NetworkingSchemas.destiny.weapons import DestinyWeaponModel
 
 # all activities are in here at runtime
 activities: dict[str, DestinyActivityModel] = {}

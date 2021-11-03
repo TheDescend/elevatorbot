@@ -29,7 +29,7 @@ async def on_guild_join(guild: Guild):
 
     # todo make sure all current guilds are in the db too
     # add guild to the list of all guilds, needed for website info
-    elevator_guilds = ElevatorGuilds(discord_guild=guild)
+    elevator_guilds = ElevatorGuilds(ctx=None, discord_guild=guild)
     await elevator_guilds.add()
 
 
@@ -37,7 +37,7 @@ async def on_guild_remove(guild: Guild):
     """Triggers when ElevatorBot gets removed from a guild"""
 
     # remove guild from the list of all guilds, needed for website info
-    elevator_guilds = ElevatorGuilds(discord_guild=guild)
+    elevator_guilds = ElevatorGuilds(ctx=None, discord_guild=guild)
     await elevator_guilds.delete()
 
 

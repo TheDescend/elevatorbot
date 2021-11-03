@@ -18,8 +18,8 @@ class RoleMissing(BaseScale):
         await ctx.defer()
 
         # get the roles missing and send that
-        roles = Roles(client=self.client, guild=ctx.guild, member=user or ctx.author)
-        await roles.get_missing(ctx=ctx)
+        roles = Roles(ctx=ctx, client=self.client, guild=ctx.guild, member=user or ctx.author)
+        await roles.get_missing()
 
 
 def setup(client):

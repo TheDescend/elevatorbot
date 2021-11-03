@@ -42,7 +42,7 @@ class Time(BaseScale):
         await ctx.defer()
 
         member = user or ctx.author
-        account = DestinyAccount(discord_guild=ctx.guild, discord_member=member, client=ctx.bot)
+        account = DestinyAccount(ctx=ctx, discord_guild=ctx.guild, discord_member=member, client=ctx.bot)
 
         # get the modes
         # default is total and pve/pve, else its total and specified
@@ -90,31 +90,26 @@ class Time(BaseScale):
                 character_class=destiny_class,
             )
             if not result:
-                await result.send_error_message(ctx=ctx)
                 return
 
             # save that info
             if not activity_ids:
                 # save by modes
                 data.update(
-                    {
-                        season: {
-                            modes_names[ModeScope(mode_int)]: time_played["time_played"]
-                            for mode_int, time_played in result.result.items()
-                        }
-                    }
+                    {season: {modes_names[ModeScope(entry.mode)]: entry.time_played for entry in result.entries}}
                 )
 
                 # add to the total amount
-                for mode_int, time_played in result.result.items():
-                    total[modes_names[ModeScope(mode_int)]] += time_played["time_played"]
+                for entry in result.entries:
+                    total[modes_names[ModeScope(entry.mode)]] += entry.time_played
 
+            else:
                 # save by activities
                 data.update(
                     {
                         season: {
-                            list[modes_names.values()][0]: result.result[modes[0].value]["time_played"],
-                            activity_name: result.result[activity_ids]["time_played"],
+                            list[modes_names.values()][0]: result.entries[0].time_played,
+                            activity_name: result.entries[1].time_played,
                         }
                     }
                 )
@@ -123,8 +118,8 @@ class Time(BaseScale):
                 total.update(
                     {
                         list[modes_names.values()][0]: total[list[modes_names][0]]
-                        + result.result[modes[0].value]["time_played"],
-                        activity_name: total[activity_name] + result.result[activity_ids]["time_played"],
+                        + result.entries[modes[0].value].time_played,
+                        activity_name: total[activity_name] + result.entries[1].time_played,
                     }
                 )
 

@@ -28,7 +28,7 @@ class PollCreate(BaseScale):
         # todo allow images here
 
         poll = Poll(
-            backend=BackendPolls(discord_member=ctx.author, guild=ctx.guild),
+            backend=BackendPolls(ctx=ctx, discord_member=ctx.author, guild=ctx.guild),
             name=name,
             description=description,
             guild=ctx.guild,

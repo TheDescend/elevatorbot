@@ -15,6 +15,7 @@ from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formating import embed_message
+from NetworkingSchemas.destiny.account import SeasonalChallengesTopicsModel
 
 
 class SeasonalChallenges(BaseScale):
@@ -28,12 +29,11 @@ class SeasonalChallenges(BaseScale):
         user: Member = None,
     ):
         member = user or ctx.author
-        destiny_account = DestinyAccount(client=ctx.bot, discord_member=member, discord_guild=ctx.guild)
+        destiny_account = DestinyAccount(ctx=ctx, client=ctx.bot, discord_member=member, discord_guild=ctx.guild)
 
         # get the data
         result = await destiny_account.get_seasonal_challenges()
         if not result:
-            await result.send_error_message(ctx=ctx)
             return
 
         # create select components
@@ -46,7 +46,7 @@ class SeasonalChallenges(BaseScale):
                             label=topic.name,
                             value=topic.name,
                         )
-                        for topic in result.result["topics"]
+                        for topic in result.topics
                     ],
                     placeholder="Select the week you want to see",
                     min_values=1,
@@ -59,8 +59,8 @@ class SeasonalChallenges(BaseScale):
         await self._send_challenge_info(
             author=ctx.author,
             member=member,
-            week=result.result["topics"][0]["name"],
-            seasonal_challenges=result.result["topics"],
+            week=result.topics[0].name,
+            seasonal_challenges=result.topics,
             select=select,
             interaction_ctx=ctx,
         )
@@ -70,7 +70,7 @@ class SeasonalChallenges(BaseScale):
         author: Member,
         member: Member,
         week: str,
-        seasonal_challenges: list[dict],
+        seasonal_challenges: list[SeasonalChallengesTopicsModel],
         select: list[ActionRow] = None,
         interaction_ctx: InteractionContext = None,
         select_ctx: ComponentContext = None,
@@ -83,11 +83,11 @@ class SeasonalChallenges(BaseScale):
 
         # loop through the records and add them to the embed
         for topic in seasonal_challenges:
-            if topic["name"] == week:
-                for sc in topic["seasonal_challenges"]:
+            if topic.name == week:
+                for sc in topic.seasonal_challenges:
                     embed.add_field(
-                        name=f"""{sc["name"]}   |   {sc["completion_status"]}  {int(sc["completion_percentage"] * 100)}%""",
-                        value=sc["description"],
+                        name=f"""{sc.name}   |   {sc.completion_status}  {int(sc.completion_percentage * 100)}%""",
+                        value=sc.description,
                         inline=False,
                     )
 

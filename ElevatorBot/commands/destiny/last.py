@@ -38,7 +38,7 @@ class Last(BaseScale):
             activity_ids = activity_data.activity_ids
 
         member = user or ctx.author
-        db_activities = DestinyActivities(client=ctx.bot, discord_guild=ctx.guild, discord_member=member)
+        db_activities = DestinyActivities(ctx=ctx, client=ctx.bot, discord_guild=ctx.guild, discord_member=member)
 
         result = await db_activities.last(
             activity_ids=activity_ids,  # if this is supplied, mode is ignored
@@ -46,16 +46,15 @@ class Last(BaseScale):
             character_class=destiny_class,
         )
         if not result:
-            await result.send_error_message(ctx=ctx)
             return
 
         # prepare embed
         embed = embed_message(
             f"{member.display_name}'s Last Activity",
-            f"""**{activities_by_id[result.result["reference_id"]]}{(' - ' + str(result.result["score"]) + ' Points') if result.result["score"] > 0 else ""} - {format_timedelta(result.result["activity_duration_seconds"])}**""",
-            f"""InstanceID: {result.result["instance_id"]}""",
+            f"""**{activities_by_id[result.reference_id]}{(' - ' + str(result.score) + ' Points') if result.score > 0 else ""} - {format_timedelta(result.activity_duration_seconds)}**""",
+            f"""InstanceID: {result.instance_id}""",
         )
-        embed.timestamp = result.result["period"]
+        embed.timestamp = result.period
 
         # set footer
         footer = []
@@ -73,19 +72,19 @@ class Last(BaseScale):
             embed.set_footer(" | ".join(footer))
 
         class_emojis = {"Warlock": custom_emojis.warlock, "Hunter": custom_emojis.hunter, "Titan": custom_emojis.titan}
-        for player in result.result["users"]:
+        for player in result.users:
             # sometimes people dont have a class for some reason. Skipping that
-            if player["character_class"] == "":
+            if player.character_class == "":
                 continue
 
             player_data = [
-                f"""K: **{player["kills"]}**, D: **{player["deaths"]}**, A: **{player["assists"]}**""",
-                f"""K/D: **{round((player["kills"] / player["deaths"]) if player["deaths"] > 0 else player["kills"], 2)}** {"(DNF)" if not player["completed"] else ""}""",
-                format_timedelta(player["time_played_seconds"]),
+                f"""K: **{player.kills}**, D: **{player.deaths}**, A: **{player.assists}**""",
+                f"""K/D: **{round((player.kills / player.deaths) if player.deaths > 0 else player.kills, 2)}** {"(DNF)" if not player.completed else ""}""",
+                format_timedelta(player.time_played_seconds),
             ]
 
             embed.add_field(
-                name=f"""{class_emojis[player["character_class"]]} {player["bungie_name"]} {custom_emojis.light_level_icon} {player["light_level"]}""",
+                name=f"""{class_emojis[player.character_class]} {player.bungie_name} {custom_emojis.light_level_icon} {player.light_level}""",
                 value="\n".join(player_data),
                 inline=True,
             )

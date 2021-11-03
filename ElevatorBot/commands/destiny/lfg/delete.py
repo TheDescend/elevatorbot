@@ -18,11 +18,10 @@ class LfgDelete(BaseScale):
     )
     async def _delete(self, ctx: InteractionContext, lfg_id: int):
         # get the message obj
-        lfg_message = await LfgMessage.from_lfg_id(lfg_id=lfg_id, client=ctx.bot, guild=ctx.guild)
+        lfg_message = await LfgMessage.from_lfg_id(ctx=ctx, lfg_id=lfg_id, client=ctx.bot, guild=ctx.guild)
 
         # error if that is not an lfg message
-        if type(lfg_message) is BackendResult:
-            await lfg_message.send_error_message(ctx=ctx, hidden=True)
+        if not lfg_message:
             return
 
         await lfg_message.delete()

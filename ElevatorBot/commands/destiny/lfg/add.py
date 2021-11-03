@@ -28,11 +28,10 @@ class LfgAdd(BaseScale):
     @default_user_option(description="The user you want to add", required=True)
     async def _add(self, ctx: InteractionContext, lfg_id: int, user: Member):
         # get the message obj
-        lfg_message = await LfgMessage.from_lfg_id(lfg_id=lfg_id, client=ctx.bot, guild=ctx.guild)
+        lfg_message = await LfgMessage.from_lfg_id(ctx=ctx, lfg_id=lfg_id, client=ctx.bot, guild=ctx.guild)
 
         # error if that is not an lfg message
-        if type(lfg_message) is BackendResult:
-            await lfg_message.send_error_message(ctx=ctx, hidden=True)
+        if not lfg_message:
             return
 
         if await lfg_message.add_joined(user, force_into_joined=True):

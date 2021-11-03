@@ -16,8 +16,8 @@ class RoleGet(BaseScale):
         await ctx.defer()
 
         # get new roles and update the member
-        roles = Roles(client=self.client, guild=ctx.guild, member=ctx.author)
-        await roles.update(ctx=ctx)
+        roles = Roles(ctx=ctx, client=self.client, guild=ctx.guild, member=ctx.author)
+        await roles.update()
 
 
 def setup(client):

@@ -25,14 +25,14 @@ class DayOneUser(BaseScale):
 
         # check this members raid completions
         raid_completions = []
-        destiny_player = DestinyAccount(client=ctx.bot, discord_member=member, discord_guild=ctx.guild)
+        destiny_player = DestinyAccount(ctx=ctx, client=ctx.bot, discord_member=member, discord_guild=ctx.guild)
         for raid_name, collectible_id in raid_to_emblem_hash.items():
             result = await destiny_player.has_collectible(collectible_id=collectible_id)
             if not result:
-                await result.send_error_message(ctx)
                 return
 
-            raid_completions.append(raid_name)
+            if result.bool:
+                raid_completions.append(raid_name)
 
         if not raid_completions:
             embed.description = "None yet. Maybe next raid!"

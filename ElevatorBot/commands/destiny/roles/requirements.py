@@ -28,8 +28,8 @@ class RoleRequirements(BaseScale):
         await ctx.defer()
 
         # get role get_requirements
-        roles = Roles(client=self.client, guild=ctx.guild, member=user or ctx.author)
-        await roles.get_requirements(role=role, ctx=ctx)
+        roles = Roles(ctx=ctx, client=self.client, guild=ctx.guild, member=user or ctx.author)
+        await roles.get_requirements(role=role)
 
 
 def setup(client):

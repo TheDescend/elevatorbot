@@ -27,6 +27,7 @@ from NetworkingSchemas.destiny.account import (
     DestinyNameModel,
     DestinyStatModel,
     DestinyTimeModel,
+    DestinyTimesModel,
     SeasonalChallengesModel,
 )
 
@@ -65,7 +66,7 @@ class DestinyAccount(BaseBackendConnection):
         modes: Optional[list[ModeScope]] = None,
         activity_ids: Optional[list[int]] = None,
         character_class: Optional[str] = None,
-    ) -> Optional[DestinyTimeModel]:
+    ) -> Optional[DestinyTimesModel]:
         """Return the time played for the given period"""
 
         if modes is None:
@@ -84,7 +85,7 @@ class DestinyAccount(BaseBackendConnection):
         )
 
         # convert to correct pydantic model
-        return DestinyTimeModel.parse_obj(result.result) if result else None
+        return DestinyTimesModel.parse_obj(result.result) if result else None
 
     async def get_character_info(self) -> Optional[DestinyCharactersModel]:
         """Return the character info"""

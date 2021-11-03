@@ -18,27 +18,28 @@ class Roles:
     client: Snake
     guild: Guild
     member: Member
+    ctx: Optional[InteractionContext]
 
     def __post_init__(self):
-        self.roles = DestinyRoles(client=self.client, discord_guild=self.guild, discord_member=self.member)
+        self.roles = DestinyRoles(
+            ctx=self.ctx, client=self.client, discord_guild=self.guild, discord_member=self.member
+        )
 
-    async def get_requirements(self, role: Role, ctx: Optional[InteractionContext]):
+    async def get_requirements(self, role: Role):
         """Get a roles get_requirements and what user has done"""
 
         # get info what get_requirements the user fulfills and which not and info on the role
         result = await self.roles.get_detail(role)
 
         if not result:
-            if ctx:
-                await result.send_error_message(ctx=ctx)
             return
 
-        role_data = result.result["role_data"]
-        user_data = result.result["user_data"]
+        role_data = result.role_data
+        user_data = result.user_data
 
         # construct reply msg
         embed = embed_message(
-            f"{self.member.display_name}'s '{role.name}' Eligibility", f"""**Earned: {result.result["earned"]}**"""
+            f"{self.member.display_name}'s '{role.name}' Eligibility", f"""**Earned: {result.earned}**"""
         )
 
         # loop through get_requirements
@@ -81,20 +82,18 @@ class Roles:
                             name=(await self.guild.get_role(role_role_id)).mention, value=user_role_id, inline=True
                         )
 
-        await ctx.send(embeds=embed)
+        await self.ctx.send(embeds=embed)
 
-    async def get_missing(self, ctx: Optional[InteractionContext]):
+    async def get_missing(self):
         """Get a members missing roles"""
 
         result = await self.roles.get_missing()
 
         if not result:
-            if ctx:
-                await result.send_error_message(ctx=ctx)
             return
 
-        acquirable_roles: dict[str, list[int]] = result.result["acquirable"]
-        deprecated_roles: dict[str, list[int]] = result.result["deprecated"]
+        acquirable_roles: dict[str, list[int]] = result.acquirable
+        deprecated_roles: dict[str, list[int]] = result.deprecated
 
         # do the missing roles display
         embed = embed_message(f"{self.member.display_name}'s Roles")
@@ -125,25 +124,21 @@ class Roles:
                     inline=True,
                 )
 
-        await ctx.send(embeds=embed)
+        await self.ctx.send(embeds=embed)
 
-    async def update(self, ctx: Optional[InteractionContext]):
+    async def update(self):
         """Get and update a members roles"""
 
         result = await self.roles.get()
 
         if not result:
-            if ctx:
-                await result.send_error_message(ctx=ctx)
             return
 
-        roles_at_start = [role.id for role in ctx.author.roles]
+        roles_at_start = [role.id for role in self.ctx.author.roles]
 
-        earned_roles: dict[str, list[int]] = result.result["earned"]
-        earned_but_replaced_by_higher_role_roles: dict[str, list[int]] = result.result[
-            "earned_but_replaced_by_higher_role"
-        ]
-        not_earned_roles: dict[str, list[int]] = result.result["not_earned"]
+        earned_roles: dict[str, list[int]] = result.earned
+        earned_but_replaced_by_higher_role_roles: dict[str, list[int]] = result.earned_but_replaced_by_higher_role
+        not_earned_roles: dict[str, list[int]] = result.not_earned
 
         # assign new roles
         for category in earned_roles.values():
@@ -159,10 +154,10 @@ class Roles:
                 await self.member.remove_role(role=role_id)
 
         # send a message
-        if ctx:
+        if self.ctx:
             # if user has no roles show this
             if not earned_roles:
-                await ctx.send(
+                await self.ctx.send(
                     # todo link to where you can see all the roles
                     embeds=embed_message(
                         "Info",
@@ -213,7 +208,7 @@ class Roles:
                     roles.append(role_name)
                 embed.add_field(name=topic, value="\n".join(new_roles[topic]), inline=True)
 
-            await ctx.send(embeds=embed)
+            await self.ctx.send(embeds=embed)
 
     @staticmethod
     def _get_all_earned_roles(earned_roles: dict, earned_but_replaced_by_higher_role_roles: dict) -> dict:

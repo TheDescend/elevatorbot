@@ -30,7 +30,13 @@ class DestinyCharactersModel(BaseModel):
 
 
 class DestinyTimeModel(BaseModel):
+    mode: int = None
+    activity_ids: list[int] = None
     time_played: int  # in seconds
+
+
+class DestinyTimesModel(BaseModel):
+    entries: list[DestinyTimeModel] = []
 
 
 class DestinyTimeInputModel(BaseModel):

@@ -16,6 +16,7 @@ from dis_snek.models import (
 
 from ElevatorBot.backendNetworking.misc.polls import BackendPolls
 from ElevatorBot.misc.formating import embed_message
+from NetworkingSchemas.misc.polls import PollSchema
 
 
 @dataclasses.dataclass()
@@ -58,20 +59,22 @@ class Poll:
             else []
         )
 
+        self.backend.hidden = True
+
     @classmethod
-    async def from_dict(cls, client: Snake, data: dict):
+    async def from_pydantic_model(cls, client: Snake, data: PollSchema):
         """Create the obj from the PollSchema data"""
 
-        name = data["name"]
-        description = data["description"]
-        guild = await client.get_guild(data["guild_id"])
-        channel = await guild.get_channel(data["channel_id"])
-        author = await client.get_member(data["author_id"], guild.id)
-        poll_id = data["id"]
-        data = data["data"]
-        message = await channel.get_message(data["message_id"])
+        name = data.name
+        description = data.description
+        guild = await client.get_guild(data.guild_id)
+        channel = await guild.get_channel(data.channel_id)
+        author = await client.get_member(data.author_id, guild.id)
+        poll_id = data.id
+        poll_data = data.data
+        message = await channel.get_message(data.message_id)
 
-        backend = BackendPolls(author, guild)
+        backend = BackendPolls(ctx=None, discord_member=author, guild=guild)
 
         return cls(
             backend=backend,
@@ -81,7 +84,7 @@ class Poll:
             channel=channel,
             author=author,
             id=poll_id,
-            data=data,
+            data=poll_data,
             message=message,
         )
 
@@ -89,14 +92,14 @@ class Poll:
     async def from_poll_id(cls, poll_id: int, ctx: InteractionContext):
         """Create the obj from the poll id"""
 
-        backend = BackendPolls(discord_member=ctx.author, guild=ctx.guild)
+        backend = BackendPolls(ctx=ctx, discord_member=ctx.author, guild=ctx.guild)
+        backend.hidden = True
         result = await backend.get(poll_id=poll_id)
 
         if not result:
-            await result.send_error_message(hidden=True, ctx=ctx)
             return
 
-        return await Poll.from_dict(client=ctx.bot, data=result.result)
+        return await Poll.from_pydantic_model(client=ctx.bot, data=result)
 
     async def add_new_option(self, ctx: InteractionContext, option: str):
         """Add an option"""
@@ -114,10 +117,9 @@ class Poll:
         result = await self.backend.remove_option(poll_id=self.id, choice_name=option)
 
         if not result:
-            await result.send_error_message(ctx=ctx, hidden=True)
             return
 
-        new_poll = await Poll.from_dict(client=ctx.bot, data=result.result)
+        new_poll = await Poll.from_pydantic_model(client=ctx.bot, data=result)
         await new_poll.send(ctx=ctx)
 
     async def send(self, ctx: InteractionContext | ComponentContext = None) -> None:
@@ -162,7 +164,6 @@ class Poll:
         # delete from db
         result = await self.backend.delete(poll_id=self.id)
         if not result:
-            await result.send_error_message(ctx=ctx, hidden=True)
             return
 
         # edit the message to remove the select and the id
@@ -225,4 +226,4 @@ class Poll:
         )
 
         # save the id we got
-        self.id = result.result["id"]
+        self.id = result.id

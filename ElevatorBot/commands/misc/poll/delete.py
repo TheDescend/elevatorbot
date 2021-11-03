@@ -16,15 +16,14 @@ class PollDelete(BaseScale):
         name="poll_id", description="The ID of the poll", opt_type=OptionTypes.INTEGER, required=True, min_value=0
     )
     async def _poll_delete(self, ctx: InteractionContext, poll_id: int):
-        backend = BackendPolls(discord_member=ctx.author, guild=ctx.guild)
+        backend = BackendPolls(ctx=ctx, discord_member=ctx.author, guild=ctx.guild)
 
         result = await backend.delete(poll_id=poll_id)
         if not result:
-            await result.send_error_message(ctx=ctx, hidden=False)
             return
 
         # also delete the message
-        poll = await Poll.from_dict(client=ctx.bot, data=result.result)
+        poll = await Poll.from_pydantic_model(client=ctx.bot, data=result)
         await poll.message.delete()
 
 
