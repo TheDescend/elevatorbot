@@ -118,6 +118,7 @@ class UserInfo(BaseScale):
             i += 1
 
             account = DestinyAccount(
+                ctx=ctx,
                 client=ctx.bot,
                 discord_member=profile.discord_member,
                 discord_guild=ctx.guild,
@@ -126,12 +127,11 @@ class UserInfo(BaseScale):
 
             # error out if need be
             if not destiny_name:
-                await destiny_name.send_error_message(ctx)
                 return
 
             embed.add_field(
                 name=f"Option {i}",
-                value=f"Discord - {profile.discord_member.mention} \nDestinyID: `{profile.destiny_id}` \nSystem - `{profile.system}` \nDestiny Name - `{destiny_name.result['name']}`",
+                value=f"Discord - {profile.discord_member.mention} \nDestinyID: `{profile.destiny_id}` \nSystem - `{profile.system}` \nDestiny Name - `{destiny_name.name}`",
                 inline=False,
             )
 

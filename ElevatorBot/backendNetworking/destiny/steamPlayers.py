@@ -1,4 +1,5 @@
 import dataclasses
+from typing import Optional
 
 from dis_snek.models import Member
 
@@ -12,7 +13,7 @@ from NetworkingSchemas.destiny.steamPlayers import DestinySteamPlayersCountModel
 class SteamPlayers(BaseBackendConnection):
     discord_member: Member = dataclasses.field(init=False, default=None)
 
-    async def get(self) -> BackendResult:
+    async def get(self) -> Optional[DestinySteamPlayersCountModel]:
         """Return the steam player count"""
 
         result = await self._backend_request(
@@ -20,7 +21,5 @@ class SteamPlayers(BaseBackendConnection):
             route=steam_player_get_route,
         )
 
-        if result:
-            # convert to correct pydantic model
-            result.result = DestinySteamPlayersCountModel.parse_obj(result.result)
-        return result
+        # convert to correct pydantic model
+        return DestinySteamPlayersCountModel.parse_obj(result.result) if result else None

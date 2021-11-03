@@ -1,4 +1,5 @@
 import dataclasses
+from typing import Optional
 
 from dis_snek.models import Guild, Member
 
@@ -19,7 +20,7 @@ class BackendPersistentMessages(BaseBackendConnection):
 
     discord_member: Member = dataclasses.field(init=False, default=None)
 
-    async def get(self) -> BackendResult:
+    async def get(self) -> Optional[PersistentMessage]:
         """Gets a persistent message"""
 
         result = await self._backend_request(
@@ -27,12 +28,10 @@ class BackendPersistentMessages(BaseBackendConnection):
             route=persistent_messages_get_route.format(guild_id=self.guild.id, message_name=self.message_name),
         )
 
-        if result:
-            # convert to correct pydantic model
-            result.result = PersistentMessage.parse_obj(result.result)
-        return result
+        # convert to correct pydantic model
+        return PersistentMessage.parse_obj(result.result) if result else None
 
-    async def upsert(self, channel_id: int, message_id: int = None) -> BackendResult:
+    async def upsert(self, channel_id: int, message_id: int = None) -> Optional[PersistentMessage]:
         """Upserts a persistent message"""
 
         result = await self._backend_request(
@@ -41,12 +40,10 @@ class BackendPersistentMessages(BaseBackendConnection):
             data={"channel_id": channel_id, "message_id": message_id},
         )
 
-        if result:
-            # convert to correct pydantic model
-            result.result = PersistentMessage.parse_obj(result.result)
-        return result
+        # convert to correct pydantic model
+        return PersistentMessage.parse_obj(result.result) if result else None
 
-    async def delete(self) -> BackendResult:
+    async def delete(self) -> bool:
         """Deletes a persistent message"""
 
         result = await self._backend_request(
@@ -55,4 +52,4 @@ class BackendPersistentMessages(BaseBackendConnection):
         )
 
         # returns EmptyResponseModel
-        return result
+        return bool(result)

@@ -5,13 +5,6 @@ from dis_snek.models import Member
 
 
 @dataclasses.dataclass
-class DestinyData:
-    discord_member: Member
-    destiny_id: int
-    system: int
-
-
-@dataclasses.dataclass
 class LfgUpdateData:
     channel_id: int = None
     message_id: int = None

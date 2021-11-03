@@ -36,7 +36,7 @@ class DestinyAccount(BaseBackendConnection):
     client: Snake
     discord_guild: Guild
 
-    async def get_destiny_name(self) -> BackendResult:
+    async def get_destiny_name(self) -> Optional[DestinyNameModel]:
         """Return the destiny name"""
 
         result = await self._backend_request(
@@ -44,12 +44,10 @@ class DestinyAccount(BaseBackendConnection):
             route=destiny_account_name_route.format(guild_id=self.discord_guild.id, discord_id=self.discord_member.id),
         )
 
-        if result:
-            # convert to correct pydantic model
-            result.result = DestinyNameModel.parse_obj(result.result)
-        return result
+        # convert to correct pydantic model
+        return DestinyNameModel.parse_obj(result.result) if result else None
 
-    async def get_solos(self) -> BackendResult:
+    async def get_solos(self) -> Optional[DestinyLowMansModel]:
         """Return the solos the user has done"""
 
         result = await self._backend_request(
@@ -57,10 +55,8 @@ class DestinyAccount(BaseBackendConnection):
             route=destiny_account_solos_route.format(guild_id=self.discord_guild.id, discord_id=self.discord_member.id),
         )
 
-        if result:
-            # convert to correct pydantic model
-            result.result = DestinyLowMansModel.parse_obj(result.result)
-        return result
+        # convert to correct pydantic model
+        return DestinyLowMansModel.parse_obj(result.result) if result else None
 
     async def get_time(
         self,
@@ -69,7 +65,7 @@ class DestinyAccount(BaseBackendConnection):
         modes: Optional[list[ModeScope]] = None,
         activity_ids: Optional[list[int]] = None,
         character_class: Optional[str] = None,
-    ) -> BackendResult:
+    ) -> Optional[DestinyTimeModel]:
         """Return the time played for the given period"""
 
         if modes is None:
@@ -87,12 +83,10 @@ class DestinyAccount(BaseBackendConnection):
             },
         )
 
-        if result:
-            # convert to correct pydantic model
-            result.result = DestinyTimeModel.parse_obj(result.result)
-        return result
+        # convert to correct pydantic model
+        return DestinyTimeModel.parse_obj(result.result) if result else None
 
-    async def get_character_info(self) -> BackendResult:
+    async def get_character_info(self) -> Optional[DestinyCharactersModel]:
         """Return the character info"""
 
         result = await self._backend_request(
@@ -102,12 +96,10 @@ class DestinyAccount(BaseBackendConnection):
             ),
         )
 
-        if result:
-            # convert to correct pydantic model
-            result.result = DestinyCharactersModel.parse_obj(result.result)
-        return result
+        # convert to correct pydantic model
+        return DestinyCharactersModel.parse_obj(result.result) if result else None
 
-    async def has_collectible(self, collectible_id: int) -> BackendResult:
+    async def has_collectible(self, collectible_id: int) -> Optional[BoolModel]:
         """Return if the collectible is had"""
 
         result = await self._backend_request(
@@ -117,12 +109,10 @@ class DestinyAccount(BaseBackendConnection):
             ),
         )
 
-        if result:
-            # convert to correct pydantic model
-            result.result = BoolModel.parse_obj(result.result)
-        return result
+        # convert to correct pydantic model
+        return BoolModel.parse_obj(result.result) if result else None
 
-    async def has_triumph(self, triumph_id: int) -> BackendResult:
+    async def has_triumph(self, triumph_id: int) -> Optional[BoolModel]:
         """Return if the triumph is had"""
 
         result = await self._backend_request(
@@ -132,12 +122,10 @@ class DestinyAccount(BaseBackendConnection):
             ),
         )
 
-        if result:
-            # convert to correct pydantic model
-            result.result = BoolModel.parse_obj(result.result)
-        return result
+        # convert to correct pydantic model
+        return BoolModel.parse_obj(result.result) if result else None
 
-    async def get_metric(self, metric_id: int) -> BackendResult:
+    async def get_metric(self, metric_id: int) -> Optional[DestinyStatModel]:
         """Return the metric value"""
 
         result = await self._backend_request(
@@ -147,12 +135,10 @@ class DestinyAccount(BaseBackendConnection):
             ),
         )
 
-        if result:
-            # convert to correct pydantic model
-            result.result = DestinyStatModel.parse_obj(result.result)
-        return result
+        # convert to correct pydantic model
+        return DestinyStatModel.parse_obj(result.result) if result else None
 
-    async def get_stat(self, stat_name: str, stat_category: str = "allTime") -> BackendResult:
+    async def get_stat(self, stat_name: str, stat_category: str = "allTime") -> Optional[DestinyStatModel]:
         """Return the stat value"""
 
         result = await self._backend_request(
@@ -165,14 +151,12 @@ class DestinyAccount(BaseBackendConnection):
             ),
         )
 
-        if result:
-            # convert to correct pydantic model
-            result.result = DestinyStatModel.parse_obj(result.result)
-        return result
+        # convert to correct pydantic model
+        return DestinyStatModel.parse_obj(result.result) if result else None
 
     async def get_stat_by_characters(
         self, character_id: int, stat_name: str, stat_category: str = "allTime"
-    ) -> BackendResult:
+    ) -> Optional[DestinyStatModel]:
         """Return the stat value by character"""
 
         result = await self._backend_request(
@@ -186,12 +170,10 @@ class DestinyAccount(BaseBackendConnection):
             ),
         )
 
-        if result:
-            # convert to correct pydantic model
-            result.result = DestinyStatModel.parse_obj(result.result)
-        return result
+        # convert to correct pydantic model
+        return DestinyStatModel.parse_obj(result.result) if result else None
 
-    async def get_seasonal_challenges(self) -> BackendResult:
+    async def get_seasonal_challenges(self) -> Optional[SeasonalChallengesModel]:
         """Return the seasonal challenges"""
 
         result = await self._backend_request(
@@ -201,7 +183,5 @@ class DestinyAccount(BaseBackendConnection):
             ),
         )
 
-        if result:
-            # convert to correct pydantic model
-            result.result = SeasonalChallengesModel.parse_obj(result.result)
-        return result
+        # convert to correct pydantic model
+        return SeasonalChallengesModel.parse_obj(result.result) if result else None

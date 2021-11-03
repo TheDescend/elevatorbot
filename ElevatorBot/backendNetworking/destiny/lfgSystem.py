@@ -1,4 +1,5 @@
 import dataclasses
+from typing import Optional
 
 from dis_snek.client import Snake
 from dis_snek.models import Guild, Member
@@ -22,7 +23,7 @@ class DestinyLfgSystem(BaseBackendConnection):
     discord_guild: Guild
     discord_member: Member = dataclasses.field(init=False, default=None)
 
-    async def get_all(self) -> BackendResult:
+    async def get_all(self) -> Optional[AllLfgOutputModel]:
         """Gets all the lfg events and info belonging to the guild"""
 
         result = await self._backend_request(
@@ -30,12 +31,10 @@ class DestinyLfgSystem(BaseBackendConnection):
             route=destiny_lfg_get_all_route.format(guild_id=self.discord_guild.id),
         )
 
-        if result:
-            # convert to correct pydantic model
-            result.result = AllLfgOutputModel.parse_obj(result.result)
-        return result
+        # convert to correct pydantic model
+        return AllLfgOutputModel.parse_obj(result.result) if result else None
 
-    async def get(self, lfg_id: int) -> BackendResult:
+    async def get(self, lfg_id: int) -> Optional[LfgOutputModel]:
         """Gets the lfg info belonging to the lfg id and guild"""
 
         result = await self._backend_request(
@@ -43,17 +42,15 @@ class DestinyLfgSystem(BaseBackendConnection):
             route=destiny_lfg_get_route.format(guild_id=self.discord_guild.id, lfg_id=lfg_id),
         )
 
-        if result:
-            # convert to correct pydantic model
-            result.result = LfgOutputModel.parse_obj(result.result)
-        return result
+        # convert to correct pydantic model
+        return LfgOutputModel.parse_obj(result.result) if result else None
 
     async def update(
         self,
         lfg_id: int,
         discord_member: Member,
         lfg_data: LfgUpdateData,
-    ):
+    ) -> Optional[LfgOutputModel]:
         """Updates the lfg info belonging to the lfg id and guild"""
 
         result = await self._backend_request(
@@ -64,12 +61,10 @@ class DestinyLfgSystem(BaseBackendConnection):
             data=lfg_data.__dict__,
         )
 
-        if result:
-            # convert to correct pydantic model
-            result.result = LfgOutputModel.parse_obj(result.result)
-        return result
+        # convert to correct pydantic model
+        return LfgOutputModel.parse_obj(result.result) if result else None
 
-    async def create(self, discord_member: Member, lfg_data: LfgInputData):
+    async def create(self, discord_member: Member, lfg_data: LfgInputData) -> Optional[LfgOutputModel]:
         """Inserts the lfg info and gives it a new id"""
 
         result = self._backend_request(
@@ -78,12 +73,10 @@ class DestinyLfgSystem(BaseBackendConnection):
             data=lfg_data.__dict__,
         )
 
-        if result:
-            # convert to correct pydantic model
-            result.result = LfgOutputModel.parse_obj(result.result)
-        return result
+        # convert to correct pydantic model
+        return LfgOutputModel.parse_obj(result.result) if result else None
 
-    async def delete(self, discord_member: Member, lfg_id: int) -> BackendResult:
+    async def delete(self, discord_member: Member, lfg_id: int) -> bool:
         """Delete the lfg info belonging to the lfg id and guild"""
 
         result = await self._backend_request(
@@ -94,4 +87,4 @@ class DestinyLfgSystem(BaseBackendConnection):
         )
 
         # returns EmptyResponseModel
-        return result
+        return True if result else None

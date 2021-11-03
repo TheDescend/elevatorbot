@@ -6,10 +6,11 @@ from typing import Optional, Type, TypeVar
 
 import aiohttp
 from aiohttp import ClientSession, ClientTimeout
+from dis_snek.models import ComponentContext, InteractionContext
 from dis_snek.models.discord_objects.user import Member
 from pydantic import BaseModel
 
-from ElevatorBot.backendNetworking.results import BackendResult, SchemaType
+from ElevatorBot.backendNetworking.results import BackendResult
 
 
 # the limiter object to not overload the backend
@@ -40,14 +41,21 @@ class BackendRateLimiter:
 
 
 backend_limiter = BackendRateLimiter()
+_no_default = object()
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(init=False)
 class BaseBackendConnection:
     """
     Define default backend functions such as get, post and delete.
     These can be called by subclasses, and automatically handle networking and error handling
     """
+
+    # used for error message formatting
+    discord_member: Optional[Member]
+
+    # used to send error messages
+    ctx: Optional[InteractionContext | ComponentContext]
 
     # get logger
     logger: logging.Logger = dataclasses.field(
@@ -65,18 +73,38 @@ class BaseBackendConnection:
         repr=False,
     )
 
-    # discord member
-    # used for error message formatting
-    discord_member: Optional[Member]
+    # whether the ctx error message should be hidden
+    hidden: bool = dataclasses.field(
+        default=False,
+        init=False,
+        compare=False,
+        repr=False,
+    )
 
-    limiter = backend_limiter
+    # the rate limiter
+    limiter: BackendRateLimiter = dataclasses.field(
+        default=backend_limiter,
+        init=False,
+        compare=False,
+        repr=False,
+    )
 
     def __bool__(self):
         """Bool function to test if this exist. Useful for testing if this class got returned and not BackendResult, can be returned on errors"""
 
         return True
 
-    async def _backend_request(self, method: str, route: str, params: dict = None, data: dict = None) -> BackendResult:
+    async def send_error(self, result: BackendResult):
+        """Send the error message"""
+
+        if self.ctx:
+            if self.ctx.responded:
+                raise RuntimeError("The context was already responded")
+            await result.send_error_message(ctx=self.ctx, hidden=self.hidden)
+
+    async def _backend_request(
+        self, method: str, route: str, params: dict = None, data: dict = None, **error_message_kwargs
+    ) -> BackendResult:
         """Make a request to the specified backend route and return the results"""
 
         async with asyncio.Lock():
@@ -94,7 +122,8 @@ class BaseBackendConnection:
                     # if an error occurred, already do the basic formatting
                     if not result:
                         if self.discord_member:
-                            result.error_message = {"discord_member": self.discord_member}
+                            result.error_message = {"discord_member": self.discord_member, **error_message_kwargs}
+                            await self.send_error(result)
 
                     return result
 

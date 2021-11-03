@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 import dataclasses
+from typing import Optional
 
 from dis_snek.client import Snake
 from dis_snek.models import Guild, Member
 
 from ElevatorBot.backendNetworking.http import BaseBackendConnection
-from ElevatorBot.backendNetworking.results import BackendResult
 from ElevatorBot.backendNetworking.routes import (
     destiny_profile_delete_route,
     destiny_profile_from_destiny_id_route,
@@ -14,7 +14,7 @@ from ElevatorBot.backendNetworking.routes import (
     destiny_profile_has_token_route,
     destiny_profile_registration_role_route,
 )
-from ElevatorBot.static.schemas import DestinyData
+from NetworkingSchemas.destiny.profile import DestinyHasTokenModel, DestinyProfileModel
 
 
 @dataclasses.dataclass
@@ -25,7 +25,7 @@ class DestinyProfile(BaseBackendConnection):
     discord_member: Member
     discord_guild: Guild
 
-    async def from_destiny_id(self, destiny_id: int) -> DestinyData | BackendResult:
+    async def from_destiny_id(self, destiny_id: int) -> Optional[DestinyProfileModel]:
         """Get the destiny profile with a destiny_id"""
 
         # query the backend
@@ -36,23 +36,21 @@ class DestinyProfile(BaseBackendConnection):
         # check if that id exists
         if not result:
             result.error_message = {"destiny_id": destiny_id}
-            return result
+            await self.send_error(result=result)
+            return
 
         # check if the discord member is actually found
         discord_member = self.discord_guild.get_member(result.result["discord_id"])
         if not discord_member:
             result.error = "DestinyIdNotFound"
             result.error_message = {"destiny_id": destiny_id}
-            return result
+            await self.send_error(result=result)
+            return
 
-        # set attributes
-        return DestinyData(
-            discord_member=discord_member,
-            destiny_id=destiny_id,
-            system=result.result["system"],
-        )
+        # convert to correct pydantic model
+        return DestinyProfileModel.parse_obj(result.result) if result else None
 
-    async def from_discord_member(self) -> DestinyData | BackendResult:
+    async def from_discord_member(self) -> Optional[DestinyProfileModel]:
         """Get the destiny profile with a discord member object"""
 
         # query the backend
@@ -60,16 +58,8 @@ class DestinyProfile(BaseBackendConnection):
             method="GET", route=destiny_profile_from_discord_id_route.format(discord_id=self.discord_member.id)
         )
 
-        # check if that id exists
-        if not result:
-            return result
-
-        # set attributes
-        return DestinyData(
-            discord_member=self.discord_member,
-            destiny_id=result.result["destiny_id"],
-            system=result.result["system"],
-        )
+        # convert to correct pydantic model
+        return DestinyProfileModel.parse_obj(result.result) if result else None
 
     async def has_token(self) -> bool:
         """Does the user have a working token"""
@@ -79,10 +69,13 @@ class DestinyProfile(BaseBackendConnection):
         )
 
         if result:
-            return result.result["token"]
+            # convert to correct pydantic model
+            token = DestinyHasTokenModel.parse_obj(result.result)
+            if token.token:
+                return True
         return False
 
-    async def assign_registration_role(self) -> BackendResult:
+    async def assign_registration_role(self) -> bool:
         """Assign the user the registration role"""
 
         result = await self._backend_request(
@@ -93,9 +86,9 @@ class DestinyProfile(BaseBackendConnection):
         )
 
         # returns EmptyResponseModel
-        return result
+        return bool(result)
 
-    async def delete(self) -> BackendResult:
+    async def delete(self) -> bool:
         """Delete the profile"""
 
         result = await self._backend_request(
@@ -103,4 +96,4 @@ class DestinyProfile(BaseBackendConnection):
         )
 
         # returns EmptyResponseModel
-        return result
+        return bool(result)

@@ -15,7 +15,7 @@ class ElevatorGuilds(BaseBackendConnection):
     discord_guild: Guild
     discord_member: Member = dataclasses.field(init=False, default=None)
 
-    async def add(self) -> BackendResult:
+    async def add(self) -> bool:
         """Add the guild"""
 
         result = await self._backend_request(
@@ -23,9 +23,9 @@ class ElevatorGuilds(BaseBackendConnection):
         )
 
         # returns EmptyResponseModel
-        return result
+        return bool(result)
 
-    async def delete(self) -> BackendResult:
+    async def delete(self) -> bool:
         """Delete the guild"""
 
         result = await self._backend_request(
@@ -33,4 +33,4 @@ class ElevatorGuilds(BaseBackendConnection):
         )
 
         # returns EmptyResponseModel
-        return result
+        return bool(result)

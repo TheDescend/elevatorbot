@@ -10,15 +10,13 @@ from ElevatorBot.backendNetworking.errorCodesAndResponses import (
 )
 from ElevatorBot.misc.formating import embed_message
 
-SchemaType = TypeVar("SchemaType", bound=BaseModel)
-
 
 @dataclasses.dataclass()
 class BackendResult:
     """Holds the return info"""
 
     success: bool
-    result: Optional[SchemaType | dict]
+    result: Optional[dict]
     error: Optional[str]
 
     __error_message: str = None

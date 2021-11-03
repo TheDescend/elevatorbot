@@ -20,7 +20,7 @@ class DestinyActivities(BaseBackendConnection):
     discord_guild: Optional[Guild]
     discord_member: Optional[Member]
 
-    async def get_all(self) -> BackendResult:
+    async def get_all(self) -> Optional[DestinyActivitiesModel]:
         """Get all activities"""
 
         result = await self._backend_request(
@@ -28,10 +28,8 @@ class DestinyActivities(BaseBackendConnection):
             route=destiny_activities_get_all_route,
         )
 
-        if result:
-            # convert to correct pydantic model
-            result.result = DestinyActivitiesModel.parse_obj(result.result)
-        return result
+        # convert to correct pydantic model
+        return DestinyActivitiesModel.parse_obj(result.result) if result else None
 
     async def last(
         self,
@@ -39,7 +37,7 @@ class DestinyActivities(BaseBackendConnection):
         mode: Optional[ModeScope] = ModeScope.ALL,
         character_class: Optional[str] = None,
         completed: bool = True,
-    ) -> BackendResult:
+    ) -> Optional[DestinyActivityDetailsModel]:
         """Get the last activity"""
 
         result = await self._backend_request(
@@ -55,7 +53,5 @@ class DestinyActivities(BaseBackendConnection):
             },
         )
 
-        if result:
-            # convert to correct pydantic model
-            result.result = DestinyActivityDetailsModel.parse_obj(result.result)
-        return result
+        # convert to correct pydantic model
+        return DestinyActivityDetailsModel.parse_obj(result.result) if result else None

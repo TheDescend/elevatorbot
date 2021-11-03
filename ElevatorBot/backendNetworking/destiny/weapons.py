@@ -20,7 +20,7 @@ class DestinyWeapons(BaseBackendConnection):
     discord_guild: Optional[Guild]
     discord_member: Optional[Member]
 
-    async def get_all(self) -> BackendResult:
+    async def get_all(self) -> Optional[DestinyWeaponsModel]:
         """Get all weapons"""
 
         result = await self._backend_request(
@@ -28,12 +28,10 @@ class DestinyWeapons(BaseBackendConnection):
             route=destiny_weapons_get_all_route,
         )
 
-        if result:
-            # convert to correct pydantic model
-            result.result = DestinyWeaponsModel.parse_obj(result.result)
-        return result
+        # convert to correct pydantic model
+        return DestinyWeaponsModel.parse_obj(result.result) if result else None
 
-    async def get_top(self) -> BackendResult:
+    async def get_top(self) -> Optional[aaaaaaaaaaaaaa]:
         """Get top weapons"""
 
         result = await self._backend_request(
@@ -44,12 +42,10 @@ class DestinyWeapons(BaseBackendConnection):
             data={},  # todo
         )
 
-        if result:
-            # convert to correct pydantic model
-            result.result = aaaaaaaaaaaaaa.parse_obj(result.result)
-        return result
+        # convert to correct pydantic model
+        return aaaaaaaaaaaaaa.parse_obj(result.result) if result else None
 
-    async def get_weapon(self) -> BackendResult:
+    async def get_weapon(self) -> Optional[aaaaaaaaaaaaaa]:
         """Get the specified weapon stat"""
 
         result = await self._backend_request(
@@ -60,7 +56,5 @@ class DestinyWeapons(BaseBackendConnection):
             data={},  # todo
         )
 
-        if result:
-            # convert to correct pydantic model
-            result.result = aaaaaaaaaaaaaa.parse_obj(result.result)
-        return result
+        # convert to correct pydantic model
+        return aaaaaaaaaaaaaa.parse_obj(result.result) if result else None
