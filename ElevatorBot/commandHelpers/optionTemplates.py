@@ -7,6 +7,7 @@ from ElevatorBot.commandHelpers.autocomplete import (
     autocomplete_send_weapon_name,
 )
 from ElevatorBot.core.destiny.stat import stat_translation
+from ElevatorBot.static.destinyDates import expansion_dates, season_and_expansion_dates
 from ElevatorBot.static.timezones import timezones_dict
 
 
@@ -40,7 +41,7 @@ def get_timezone_choices() -> list[SlashCommandChoice]:
 
 
 def default_user_option(
-    description: str = "The name of the user you want to look up",
+    description: str = "The user you want to look up",
     required: bool = False,
 ) -> Any:
     """
@@ -105,7 +106,7 @@ def default_mode_option(description: str = "Restrict the game mode. Default: All
     return wrapper
 
 
-# todo maybe autocomplete? Needs an easy way to view all options then tho
+# todo maybe autocomplete? Needs an easy way to view all options then tho since there are more
 def default_stat_option() -> Any:
     """
     Decorator that replaces @slash_option()
@@ -119,6 +120,81 @@ def default_stat_option() -> Any:
             opt_type=OptionTypes.STRING,
             required=True,
             choices=[SlashCommandChoice(name=name, value=name) for name in stat_translation],
+        )(func)
+
+    return wrapper
+
+
+def default_time_option(
+    description: str = "Format: `HH:MM DD/MM` - Restrict the time", name: str = "start_time", required: bool = False
+) -> Any:
+    """
+    Decorator that replaces @slash_option()
+    Call with `@default_time_option()`
+    """
+
+    def wrapper(func):
+        return slash_option(
+            name=name,
+            description=description,
+            opt_type=OptionTypes.STRING,
+            required=required,
+        )(func)
+
+    return wrapper
+
+
+def default_expansion_option(description: str = "Restrict the time to the expansion", required: bool = False) -> Any:
+    """
+    Decorator that replaces @slash_option()
+    Call with `@default_expansion_option()`
+
+    The value is formatted:
+    "name: str|start_time_timestamp: int|end_time_timestamp: int"
+    """
+
+    def wrapper(func):
+        return slash_option(
+            name="expansion",
+            description=description,
+            opt_type=OptionTypes.STRING,
+            required=required,
+            choices=[
+                SlashCommandChoice(
+                    name=expansion.name,
+                    value=f"{expansion.name}|{int(expansion.start.timestamp())}|{int(season_and_expansion_dates[(season_and_expansion_dates.index(expansion) + 1)].start.timestamp())}",
+                )
+                for expansion in expansion_dates
+            ],
+        )(func)
+
+    return wrapper
+
+
+def default_season_option(
+    description: str = "Restrict the time to the season. Usually 3 months", required: bool = False
+) -> Any:
+    """
+    Decorator that replaces @slash_option()
+    Call with `@default_expansion_option()`
+
+    The value is formatted:
+    "name|start_time_timestamp|end_time_timestamp"
+    """
+
+    def wrapper(func):
+        return slash_option(
+            name="season",
+            description=description,
+            opt_type=OptionTypes.STRING,
+            required=required,
+            choices=[
+                SlashCommandChoice(
+                    name=season.name,
+                    value=f"{season.name}|{int(season.start.timestamp())}|{int(season_and_expansion_dates[(season_and_expansion_dates.index(season) + 1)].start.timestamp())}",
+                )
+                for season in season_and_expansion_dates
+            ],
         )(func)
 
     return wrapper
@@ -145,7 +221,9 @@ def autocomplete_activity_option(description: str = "Restrict the activity. Defa
     return wrapper
 
 
-def autocomplete_weapon_option(description: str = "Restrict the weapon. Default: All weapons") -> Any:
+def autocomplete_weapon_option(
+    description: str = "Restrict the weapon. Default: All weapons", required: bool = False
+) -> Any:
     """
     Decorator that replaces @slash_option()
     Call with `@autocomplete_weapon_option()`
@@ -155,7 +233,7 @@ def autocomplete_weapon_option(description: str = "Restrict the weapon. Default:
         name = "weapon"
 
         option = slash_option(
-            name=name, description=description, opt_type=OptionTypes.STRING, required=False, autocomplete=True
+            name=name, description=description, opt_type=OptionTypes.STRING, required=required, autocomplete=True
         )(func)
 
         # register the callback

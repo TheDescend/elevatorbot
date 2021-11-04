@@ -14,7 +14,10 @@ from dis_snek.models import (
     slash_option,
 )
 
-from ElevatorBot.commandHelpers.optionTemplates import get_timezone_choices
+from ElevatorBot.commandHelpers.optionTemplates import (
+    default_time_option,
+    get_timezone_choices,
+)
 from ElevatorBot.commandHelpers.responseTemplates import (
     respond_invalid_time_input,
     respond_time_input_in_past,
@@ -24,7 +27,7 @@ from ElevatorBot.commandHelpers.subCommandTemplates import lfg_sub_command
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.core.destiny.lfgSystem import LfgMessage
 from ElevatorBot.misc.formating import embed_message
-from ElevatorBot.misc.helperFunctions import get_now_with_tz
+from ElevatorBot.misc.helperFunctions import get_now_with_tz, parse_string_datetime
 from ElevatorBot.static.destinyActivities import dungeons, raids
 
 
@@ -34,11 +37,10 @@ class LfgCreate(BaseScale):
         sub_cmd_name="create",
         sub_cmd_description="Creates an LFG post",
     )
-    @slash_option(
+    @default_time_option(
         name="start_time",
-        description="Format: 'HH:MM DD/MM' - When the event is supposed to start. `asap` to start as soon as it fills up",
+        description="Format: `HH:MM DD/MM` - When the event is supposed to start. `asap` to start as soon as it fills up",
         required=True,
-        opt_type=OptionTypes.STRING,
     )
     @slash_option(
         name="timezone",
@@ -58,20 +60,8 @@ class LfgCreate(BaseScale):
     async def _create(self, ctx: InteractionContext, start_time: str, timezone: str, overwrite_max_members: int = None):
 
         if start_time.lower() is not "asap":
-            # get start time
-            try:
-                start_time = parse(start_time, dayfirst=True)
-            except ParserError:
-                await respond_invalid_time_input(ctx=ctx)
-                return
-
-            # make that timezone aware
-            tz = pytz.timezone(timezone)
-            start_time = tz.localize(start_time)
-
-            # make sure that is in the future
-            if start_time < get_now_with_tz():
-                await respond_time_input_in_past(ctx=ctx)
+            start_time = await parse_string_datetime(ctx=ctx, time=start_time, timezone=timezone)
+            if not start_time:
                 return
 
         # might take a sec

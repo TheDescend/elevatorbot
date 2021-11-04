@@ -1600,263 +1600,263 @@ class WeaponCommands(commands.Cog):
     def __init__(self, client):
         self.client = client
 
-    @cog_ext.cog_slash(
-        name="weapon",
-        description="Shows weapon stats for the specified weapon with in-depth customisation",
-        options=[
-            create_option(
-                name="weapon",
-                description="The name of the weapon you want to see stats for",
-                option_type=3,
-                required=True,
-            ),
-            create_option(
-                name="stat",
-                description="Which stat you want to see for the weapon",
-                option_type=3,
-                required=False,
-                choices=[
-                    create_choice(name="Kills (default)", value="kills"),
-                    create_choice(name="Precision Kills", value="precisionkills"),
-                    create_choice(name="% Precision Kills", value="precisionkillspercent"),
-                ],
-            ),
-            create_option(
-                name="graph",
-                description="Default: 'False' - See a timeline of your weapon usage instead of an overview of key stats",
-                option_type=5,
-                required=False,
-            ),
-            create_option(
-                name="class",
-                description="You can restrict the class where the weapon stats count",
-                option_type=3,
-                required=False,
-                choices=[
-                    create_choice(name="Warlock", value="2271682572"),
-                    create_choice(name="Hunter", value="671679327"),
-                    create_choice(name="Titan", value="3655393761"),
-                ],
-            ),
-            create_option(
-                name="starttime",
-                description="Format: 'DD/MM/YY' - You can restrict the time from when the weapon stats start counting",
-                option_type=3,
-                required=False,
-            ),
-            create_option(
-                name="endtime",
-                description="Format: 'DD/MM/YY' - You can restrict the time up until which the weapon stats count",
-                option_type=3,
-                required=False,
-            ),
-            create_option(
-                name="mode",
-                description="You can restrict the game mode where the weapon stats count",
-                option_type=3,
-                required=False,
-                choices=choices_mode,
-            ),
-            create_option(
-                name="activityhash",
-                description="You can restrict the activity where the weapon stats count (advanced)",
-                option_type=4,
-                required=False,
-            ),
-            options_user(),
-        ],
-    )
-    async def _weapon(self, ctx: SlashContext, **kwargs):
-        user = await get_user_obj(ctx, kwargs)
-        destiny_player = await DestinyPlayer.from_discord_id(user.id, ctx=ctx)
-        if not destiny_player:
-            return
-
-        # _get other params
-        (
-            stat,
-            graph,
-            character_class,
-            mode,
-            activity_hash,
-            starttime,
-            endtime,
-        ) = await self._compute_params(ctx, kwargs)
-        if not stat:
-            return
-
-        # _get weapon info
-        weapon_name, weapon_hashes = await searchForItem(ctx, kwargs["weapon"])
-        if not weapon_name:
-            return
-
-        # _update user db
-        await destiny_player.update_activity_db()
-
-        # _get the char class if that is asked for
-        charID = await destiny_player.get_character_id_by_class(character_class) if character_class else None
-
-        # _get all weapon infos
-        kwargs = {
-            "characterID": charID,
-            "mode": mode,
-            "activityID": activity_hash,
-            "start": starttime,
-            "end": endtime,
-        }
-
-        # loop through every variant of the weapon and add that together
-        result = []
-        for entry in weapon_hashes:
-            result.extend(
-                await getWeaponInfo(
-                    destiny_player.destiny_id,
-                    entry,
-                    **{k: v for k, v in kwargs.items() if v is not None},
-                )
-            )
-
-        # throw error if no weapon
-        if not result:
-            await ctx.send(embed=embed_message("Error", f"No weapon stats found for {weapon_name}"))
-            return
-
-        # either text
-        if not graph:
-            # _get data
-            kills = 0
-            precision_kills = 0
-            max_kills = 0
-            max_kills_id = None
-            for instanceID, uniqueweaponkills, uniqueweaponprecisionkills in result:
-                kills += uniqueweaponkills
-                precision_kills += uniqueweaponprecisionkills
-                if uniqueweaponkills > max_kills:
-                    max_kills = uniqueweaponkills
-                    max_kills_id = instanceID
-            percent_precision_kills = precision_kills / kills if kills else 0
-            avg_kills = kills / len(result)
-            res = await getPgcrActivity(max_kills_id)
-            max_kills_date = res[3]
-            max_kills_mode = (await getDestinyDefinition("DestinyActivityModeDefinition", res[5]))[2]
-            max_kills_name = (await getDestinyDefinition("DestinyActivityDefinition", res[2]))[2]
-
-            # make and post embed
-            embed = embed_message(f"{weapon_name} stats for {user.display_name}")
-            embed.add_field(name="Total Kills", value=f"**{kills:,}**", inline=True)
-            embed.add_field(
-                name="Total Precision Kills",
-                value=f"**{precision_kills:,}**",
-                inline=True,
-            )
-            embed.add_field(
-                name="% Precision Kills",
-                value=f"**{round(percent_precision_kills * 100, 2)}%**",
-                inline=True,
-            )
-            embed.add_field(
-                name="Average Kills",
-                value=f"**{round(avg_kills, 2)}**\nIn {len(result)} Activities",
-                inline=True,
-            )
-            embed.add_field(
-                name="Maximum Kills",
-                value=f"**{max_kills:,}**\nIn Activity ID: {max_kills_id}\n{max_kills_mode} - {max_kills_name}\nOn: {max_kills_date.strftime('%d/%m/%y')}",
-                inline=True,
-            )
-            await ctx.send(embed=embed)
-
-        # or do a graph
-        else:
-            # _get the time instead of the instance id and sort it so the earliest date is first
-            weapon_hashes = []
-            for instanceID, uniqueweaponkills, uniqueweaponprecisionkills in result:
-                instance_time = (await getPgcrActivity(instanceID))[3]
-                weapon_hashes.append((instance_time, uniqueweaponkills, uniqueweaponprecisionkills))
-            weapon_hashes = sorted(weapon_hashes, key=lambda x: x[0])
-
-            # _get clean, relevant data in a DF. easier for the graph later
-            df = pd.DataFrame(columns=["datetime", "statistic"])
-            name = ""
-            statistic1 = 0
-            statistic2 = 0
-            time = weapon_hashes[0][0]
-            for (
-                instance_time,
-                uniqueweaponkills,
-                uniqueweaponprecisionkills,
-            ) in weapon_hashes:
-                if instance_time.date() == time.date():
-                    if stat == "kills":
-                        statistic1 += uniqueweaponkills
-                        name = "Kills"
-                    elif stat == "precisionkills":
-                        statistic1 += uniqueweaponprecisionkills
-                        name = "Precision Kills"
-                    elif stat == "precisionkillspercent":
-                        statistic1 += uniqueweaponkills
-                        statistic2 += uniqueweaponprecisionkills
-                        name = "% Precision Kills"
-                    time = instance_time
-                else:
-                    # append to DF
-                    entry = {
-                        "datetime": time.date(),
-                        "statistic": statistic2 / statistic1 if stat == "precisionkillspercent" else statistic1,
-                    }
-                    df = df.append(entry, ignore_index=True)
-
-                    # save new data
-                    if stat == "kills":
-                        statistic1 = uniqueweaponkills
-                        name = "Kills"
-                    elif stat == "precisionkills":
-                        statistic1 = uniqueweaponprecisionkills
-                        name = "Precision Kills"
-                    elif stat == "precisionkillspercent":
-                        statistic1 = uniqueweaponkills
-                        statistic2 = uniqueweaponprecisionkills
-                        name = "% Precision Kills"
-                    time = instance_time
-
-            # append to DF
-            entry = {
-                "datetime": time,
-                "statistic": statistic2 / statistic1 if stat == "precisionkillspercent" else statistic1,
-            }
-            df = df.append(entry, ignore_index=True)
-
-            # convert to correct file types
-            df["datetime"] = pd.to_datetime(df["datetime"])
-            df["statistic"] = pd.to_numeric(df["statistic"])
-
-            # building the graph
-            # Create figure and plot space
-            fig, ax = plt.subplots(figsize=(20, 10))
-            ax.yaxis.grid(True)
-
-            # filling bar chart
-            ax.bar(df["datetime"], df["statistic"], color="#45b6fe")
-
-            # Set title and labels for axes
-            ax.set_title(
-                f"{weapon_name} stats for {user.display_name}",
-                fontweight="bold",
-                size=30,
-                pad=20,
-            )
-            ax.set_xlabel("Date", fontsize=20)
-            ax.set_ylabel(name, fontsize=20)
-
-            # saving file
-            title = "weapon.png"
-            plt.savefig(title)
-
-            # sending them the file
-            await ctx.send(file=discord.File(title))
-
-            # _delete file
-            os.remove(title)
+    # @cog_ext.cog_slash(
+    #     name="weapon",
+    #     description="Shows weapon stats for the specified weapon with in-depth customisation",
+    #     options=[
+    #         create_option(
+    #             name="weapon",
+    #             description="The name of the weapon you want to see stats for",
+    #             option_type=3,
+    #             required=True,
+    #         ),
+    #         create_option(
+    #             name="stat",
+    #             description="Which stat you want to see for the weapon",
+    #             option_type=3,
+    #             required=False,
+    #             choices=[
+    #                 create_choice(name="Kills (default)", value="kills"),
+    #                 create_choice(name="Precision Kills", value="precisionkills"),
+    #                 create_choice(name="% Precision Kills", value="precisionkillspercent"),
+    #             ],
+    #         ),
+    #         create_option(
+    #             name="graph",
+    #             description="Default: 'False' - See a timeline of your weapon usage instead of an overview of key stats",
+    #             option_type=5,
+    #             required=False,
+    #         ),
+    #         create_option(
+    #             name="class",
+    #             description="You can restrict the class where the weapon stats count",
+    #             option_type=3,
+    #             required=False,
+    #             choices=[
+    #                 create_choice(name="Warlock", value="2271682572"),
+    #                 create_choice(name="Hunter", value="671679327"),
+    #                 create_choice(name="Titan", value="3655393761"),
+    #             ],
+    #         ),
+    #         create_option(
+    #             name="starttime",
+    #             description="Format: 'DD/MM/YY' - You can restrict the time from when the weapon stats start counting",
+    #             option_type=3,
+    #             required=False,
+    #         ),
+    #         create_option(
+    #             name="endtime",
+    #             description="Format: 'DD/MM/YY' - You can restrict the time up until which the weapon stats count",
+    #             option_type=3,
+    #             required=False,
+    #         ),
+    #         create_option(
+    #             name="mode",
+    #             description="You can restrict the game mode where the weapon stats count",
+    #             option_type=3,
+    #             required=False,
+    #             choices=choices_mode,
+    #         ),
+    #         create_option(
+    #             name="activityhash",
+    #             description="You can restrict the activity where the weapon stats count (advanced)",
+    #             option_type=4,
+    #             required=False,
+    #         ),
+    #         options_user(),
+    #     ],
+    # )
+    # async def _weapon(self, ctx: SlashContext, **kwargs):
+    #     user = await get_user_obj(ctx, kwargs)
+    #     destiny_player = await DestinyPlayer.from_discord_id(user.id, ctx=ctx)
+    #     if not destiny_player:
+    #         return
+    #
+    #     # _get other params
+    #     (
+    #         stat,
+    #         graph,
+    #         character_class,
+    #         mode,
+    #         activity_hash,
+    #         starttime,
+    #         endtime,
+    #     ) = await self._compute_params(ctx, kwargs)
+    #     if not stat:
+    #         return
+    #
+    #     # _get weapon info
+    #     weapon_name, weapon_hashes = await searchForItem(ctx, kwargs["weapon"])
+    #     if not weapon_name:
+    #         return
+    #
+    #     # _update user db
+    #     await destiny_player.update_activity_db()
+    #
+    #     # _get the char class if that is asked for
+    #     charID = await destiny_player.get_character_id_by_class(character_class) if character_class else None
+    #
+    #     # _get all weapon infos
+    #     kwargs = {
+    #         "characterID": charID,
+    #         "mode": mode,
+    #         "activityID": activity_hash,
+    #         "start": starttime,
+    #         "end": endtime,
+    #     }
+    #
+    #     # loop through every variant of the weapon and add that together
+    #     result = []
+    #     for entry in weapon_hashes:
+    #         result.extend(
+    #             await getWeaponInfo(
+    #                 destiny_player.destiny_id,
+    #                 entry,
+    #                 **{k: v for k, v in kwargs.items() if v is not None},
+    #             )
+    #         )
+    #
+    #     # throw error if no weapon
+    #     if not result:
+    #         await ctx.send(embed=embed_message("Error", f"No weapon stats found for {weapon_name}"))
+    #         return
+    #
+    #     # either text
+    #     if not graph:
+    #         # _get data
+    #         kills = 0
+    #         precision_kills = 0
+    #         max_kills = 0
+    #         max_kills_id = None
+    #         for instanceID, uniqueweaponkills, uniqueweaponprecisionkills in result:
+    #             kills += uniqueweaponkills
+    #             precision_kills += uniqueweaponprecisionkills
+    #             if uniqueweaponkills > max_kills:
+    #                 max_kills = uniqueweaponkills
+    #                 max_kills_id = instanceID
+    #         percent_precision_kills = precision_kills / kills if kills else 0
+    #         avg_kills = kills / len(result)
+    #         res = await getPgcrActivity(max_kills_id)
+    #         max_kills_date = res[3]
+    #         max_kills_mode = (await getDestinyDefinition("DestinyActivityModeDefinition", res[5]))[2]
+    #         max_kills_name = (await getDestinyDefinition("DestinyActivityDefinition", res[2]))[2]
+    #
+    #         # make and post embed
+    #         embed = embed_message(f"{weapon_name} stats for {user.display_name}")
+    #         embed.add_field(name="Total Kills", value=f"**{kills:,}**", inline=True)
+    #         embed.add_field(
+    #             name="Total Precision Kills",
+    #             value=f"**{precision_kills:,}**",
+    #             inline=True,
+    #         )
+    #         embed.add_field(
+    #             name="% Precision Kills",
+    #             value=f"**{round(percent_precision_kills * 100, 2)}%**",
+    #             inline=True,
+    #         )
+    #         embed.add_field(
+    #             name="Average Kills",
+    #             value=f"**{round(avg_kills, 2)}**\nIn {len(result)} Activities",
+    #             inline=True,
+    #         )
+    #         embed.add_field(
+    #             name="Maximum Kills",
+    #             value=f"**{max_kills:,}**\nIn Activity ID: {max_kills_id}\n{max_kills_mode} - {max_kills_name}\nOn: {max_kills_date.strftime('%d/%m/%y')}",
+    #             inline=True,
+    #         )
+    #         await ctx.send(embed=embed)
+    #
+    #     # or do a graph
+    #     else:
+    #         # _get the time instead of the instance id and sort it so the earliest date is first
+    #         weapon_hashes = []
+    #         for instanceID, uniqueweaponkills, uniqueweaponprecisionkills in result:
+    #             instance_time = (await getPgcrActivity(instanceID))[3]
+    #             weapon_hashes.append((instance_time, uniqueweaponkills, uniqueweaponprecisionkills))
+    #         weapon_hashes = sorted(weapon_hashes, key=lambda x: x[0])
+    #
+    #         # _get clean, relevant data in a DF. easier for the graph later
+    #         df = pd.DataFrame(columns=["datetime", "statistic"])
+    #         name = ""
+    #         statistic1 = 0
+    #         statistic2 = 0
+    #         time = weapon_hashes[0][0]
+    #         for (
+    #             instance_time,
+    #             uniqueweaponkills,
+    #             uniqueweaponprecisionkills,
+    #         ) in weapon_hashes:
+    #             if instance_time.date() == time.date():
+    #                 if stat == "kills":
+    #                     statistic1 += uniqueweaponkills
+    #                     name = "Kills"
+    #                 elif stat == "precisionkills":
+    #                     statistic1 += uniqueweaponprecisionkills
+    #                     name = "Precision Kills"
+    #                 elif stat == "precisionkillspercent":
+    #                     statistic1 += uniqueweaponkills
+    #                     statistic2 += uniqueweaponprecisionkills
+    #                     name = "% Precision Kills"
+    #                 time = instance_time
+    #             else:
+    #                 # append to DF
+    #                 entry = {
+    #                     "datetime": time.date(),
+    #                     "statistic": statistic2 / statistic1 if stat == "precisionkillspercent" else statistic1,
+    #                 }
+    #                 df = df.append(entry, ignore_index=True)
+    #
+    #                 # save new data
+    #                 if stat == "kills":
+    #                     statistic1 = uniqueweaponkills
+    #                     name = "Kills"
+    #                 elif stat == "precisionkills":
+    #                     statistic1 = uniqueweaponprecisionkills
+    #                     name = "Precision Kills"
+    #                 elif stat == "precisionkillspercent":
+    #                     statistic1 = uniqueweaponkills
+    #                     statistic2 = uniqueweaponprecisionkills
+    #                     name = "% Precision Kills"
+    #                 time = instance_time
+    #
+    #         # append to DF
+    #         entry = {
+    #             "datetime": time,
+    #             "statistic": statistic2 / statistic1 if stat == "precisionkillspercent" else statistic1,
+    #         }
+    #         df = df.append(entry, ignore_index=True)
+    #
+    #         # convert to correct file types
+    #         df["datetime"] = pd.to_datetime(df["datetime"])
+    #         df["statistic"] = pd.to_numeric(df["statistic"])
+    #
+    #         # building the graph
+    #         # Create figure and plot space
+    #         fig, ax = plt.subplots(figsize=(20, 10))
+    #         ax.yaxis.grid(True)
+    #
+    #         # filling bar chart
+    #         ax.bar(df["datetime"], df["statistic"], color="#45b6fe")
+    #
+    #         # Set title and labels for axes
+    #         ax.set_title(
+    #             f"{weapon_name} stats for {user.display_name}",
+    #             fontweight="bold",
+    #             size=30,
+    #             pad=20,
+    #         )
+    #         ax.set_xlabel("Date", fontsize=20)
+    #         ax.set_ylabel(name, fontsize=20)
+    #
+    #         # saving file
+    #         title = "weapon.png"
+    #         plt.savefig(title)
+    #
+    #         # sending them the file
+    #         await ctx.send(file=discord.File(title))
+    #
+    #         # _delete file
+    #         os.remove(title)
 
     @cog_ext.cog_slash(
         name="topweapons",

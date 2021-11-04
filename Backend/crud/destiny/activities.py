@@ -5,12 +5,14 @@ from typing import Optional
 from sqlalchemy import distinct, func, not_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from Backend.core.errors import CustomException
 from Backend.crud.base import CRUDBase
 from Backend.database.models import (
     Activities,
     ActivitiesFailToGet,
     ActivitiesUsers,
     ActivitiesUsersWeapons,
+    DestinyActivityDefinition,
 )
 
 
@@ -33,10 +35,22 @@ class CRUDActivitiesFailToGet(CRUDBase):
 
 
 class CRUDActivities(CRUDBase):
-    async def get(self, db: AsyncSession, instance_id: int) -> Activities | None:
+    async def get(self, db: AsyncSession, instance_id: int) -> Optional[Activities]:
         """Get the activity with the instance_id"""
 
         return await self._get_with_key(db=db, primary_key=instance_id)
+
+    async def get_activity_name(self, db: AsyncSession, activity_id: int) -> str:
+        """Get the activity name"""
+
+        query = select(DestinyActivityDefinition.name).filter(DestinyActivityDefinition.reference_id == activity_id)
+
+        result = await self._execute_query(db=db, query=query)
+        result = result.scalar()
+        if not result:
+            raise CustomException("UnknownError")
+
+        return result
 
     async def insert(self, db: AsyncSession, instance_id: int, activity_time: datetime, pgcr: dict):
         """Get the activity with the instance_id"""
@@ -260,7 +274,7 @@ class CRUDActivities(CRUDBase):
     ) -> int:
         """Calculate the time played (in seconds) from the DB"""
 
-        query = select(func.sum(ActivitiesUsers))
+        query = select(func.sum(ActivitiesUsers.time_played_seconds))
 
         # filter mode
         if mode != 0:

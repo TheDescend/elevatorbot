@@ -21,7 +21,7 @@ from ElevatorBot.commandHelpers.subCommandTemplates import lfg_sub_command
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.core.destiny.lfgSystem import LfgMessage
 from ElevatorBot.misc.formating import embed_message
-from ElevatorBot.misc.helperFunctions import get_now_with_tz
+from ElevatorBot.misc.helperFunctions import get_now_with_tz, parse_string_datetime
 from ElevatorBot.static.timezones import timezones_dict
 
 
@@ -108,18 +108,8 @@ class LfgEdit(BaseScale):
                     await respond_timeout(message=message)
                     return
                 else:
-                    # get the datetime
-                    try:
-                        start_time = parse(answer_msg.content, dayfirst=True)
-                    except ParserError:
-                        await message.edit(
-                            embeds=embed_message(
-                                "Error",
-                                "There was an error with the formatting of the time parameters, please try again",
-                            )
-                        )
-                        await answer_msg.delete()
-                        return
+                    start_time = answer_msg.content
+
                     await answer_msg.delete()
                     answer_msg = None
 
@@ -159,19 +149,9 @@ class LfgEdit(BaseScale):
                     else:
                         selected = select_ctx.selected_options[0]
 
-                        # localize to that timezone
-                        tz = pytz.timezone(selected)
-                        start_time = tz.localize(start_time)
-
-                        # make sure that is in the future
-                        if start_time < get_now_with_tz():
-                            await select_ctx.edit_origin(
-                                components=None,
-                                embeds=embed_message(
-                                    "Error",
-                                    "The event cannot start in the past. Please try again",
-                                ),
-                            )
+                        # get the datetime
+                        start_time = await parse_string_datetime(ctx=ctx, time=start_time, timezone=selected)
+                        if not start_time:
                             return
 
                         old_start_time = lfg_message.start_time

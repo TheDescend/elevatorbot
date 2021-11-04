@@ -17,4 +17,5 @@ error_codes_and_responses = {
     "PollOptionNotExist": "This option does not exist. Make sure you spelled it correctly",
     "PollNotExist": "This poll ID does not exist",
     "NoActivityFound": "{discord_member.mention} has never done an activity that fulfills the given requirements",
+    "WeaponUnused": "{discord_member.mention} has never used the specified weapon in any activity that fulfills the given requirements",
 }

@@ -1,8 +1,11 @@
 import dataclasses
+import datetime
 from typing import Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from Backend.core.errors import CustomException
+from Backend.crud import activities, weapons
 from Backend.crud.destiny.items import destiny_items
 from Backend.database.enums import (
     DestinyAmmunitionTypeEnum,
@@ -12,7 +15,11 @@ from Backend.database.enums import (
 )
 from Backend.database.models import DiscordUsers
 from Backend.networking.bungieApi import BungieApi
-from NetworkingSchemas.destiny.weapons import DestinyWeaponModel, DestinyWeaponsModel
+from NetworkingSchemas.destiny.weapons import (
+    DestinyWeaponModel,
+    DestinyWeaponsModel,
+    DestinyWeaponStatsModel,
+)
 
 
 @dataclasses.dataclass
@@ -32,11 +39,10 @@ class DestinyWeapons:
             # the network class
             self.api = BungieApi(db=self.db, user=self.user)
 
-    @staticmethod
-    async def get_all_weapons() -> DestinyWeaponsModel:
+    async def get_all_weapons(self) -> DestinyWeaponsModel:
         """Return all weapons"""
 
-        weapons = await destiny_items.get_all_weapons()
+        weapons = await destiny_items.get_all_weapons(db=self.db)
 
         # loop through the weapons and format them
         format_helper = {}
@@ -80,3 +86,62 @@ class DestinyWeapons:
                 format_helper[weapon.name].reference_ids.append(weapon.reference_id)
 
         return DestinyWeaponsModel(weapons=list[format_helper.values()])
+
+    async def get_weapon_stats(
+        self,
+        weapon_ids: list[int],
+        character_class: Optional[str] = None,
+        character_ids: Optional[list[int]] = None,
+        mode: Optional[int] = None,
+        activity_hashes: Optional[list[int]] = None,
+        start_time: Optional[datetime.datetime] = None,
+        end_time: Optional[datetime.datetime] = None,
+    ) -> DestinyWeaponStatsModel:
+        """
+        Return the stats for the given weapon.
+        A weapon can have multiple ids, due to sunsetting. That's why the arg is a list
+        """
+
+        usages = await weapons.get_usage(
+            db=self.db,
+            weapon_ids=weapon_ids,
+            destiny_id=self.destiny_id,
+            character_class=character_class,
+            character_ids=character_ids,
+            mode=mode,
+            activity_hashes=activity_hashes,
+            start_time=start_time,
+            end_time=end_time,
+        )
+
+        result = DestinyWeaponStatsModel(
+            total_kills=0,
+            total_precision_kills=0,
+            total_activities=0,
+            best_kills=0,
+            best_kills_activity_name="",
+            best_kills_activity_id=0,
+            best_kills_date=datetime.datetime.min,
+        )
+
+        if not usages:
+            raise CustomException("WeaponUnused")
+
+        # loop through all the usages and find what we are looking for
+        for usage in usages:
+            result.total_kills += usage.unique_weapon_kills
+            result.total_precision_kills += usage.unique_weapon_precision_kills
+            result.total_activities += 1
+
+            if usage.unique_weapon_kills > result.best_kills:
+                result.best_kills = usage.unique_weapon_kills
+                result.best_kills_activity_name = str(usage.user.activity.reference_id)
+                result.best_kills_activity_id = usage.user.activity.instance_id
+                result.best_kills_date = usage.user.activity.period
+
+        # change the reference id of the best activity to the actual name
+        result.best_kills_activity_name = await activities.get_activity_name(
+            db=self.db, activity_id=int(result.best_kills_activity_name)
+        )
+
+        return result

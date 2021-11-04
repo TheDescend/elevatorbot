@@ -20,12 +20,17 @@ setup_sub_command_lfg_group = {
 
 day1completions_sub_command = {
     "name": "day_one",
-    "description": "Everything Destiny 2 Day One raid completions",
+    "description": "Everything concerning Destiny 2 Day One raid completions",
 }
 
 lfg_sub_command = {
     "name": "lfg",
     "description": "Everything concerning my awesome Destiny 2 LFG system",
+}
+
+weapons_sub_command = {
+    "name": "weapons",
+    "description": "Everything concerning Destiny 2 weapons and their usage",
 }
 
 roles_sub_command = {
