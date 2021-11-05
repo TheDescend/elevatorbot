@@ -1,8 +1,6 @@
 import dataclasses
 import datetime
 
-from dis_snek.models import Member
-
 
 @dataclasses.dataclass
 class LfgUpdateData:

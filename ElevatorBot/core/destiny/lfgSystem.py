@@ -18,7 +18,6 @@ from dis_snek.models import (
     File,
     Guild,
     GuildCategory,
-    GuildChannel,
     GuildText,
     GuildVoice,
     InteractionContext,
@@ -33,7 +32,6 @@ from dis_snek.models import (
 from ics import Calendar, Event
 
 from ElevatorBot.backendNetworking.destiny.lfgSystem import DestinyLfgSystem
-from ElevatorBot.backendNetworking.results import BackendResult
 from ElevatorBot.backgroundEvents import scheduler
 from ElevatorBot.misc.formating import embed_message
 from ElevatorBot.misc.helperFunctions import get_now_with_tz

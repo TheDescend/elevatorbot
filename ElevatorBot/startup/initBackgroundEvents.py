@@ -1,4 +1,3 @@
-import datetime
 import logging
 
 import pytz
@@ -11,7 +10,7 @@ from apscheduler.events import (
     EVENT_JOB_SUBMITTED,
 )
 from dis_snek.client import Snake
-from dis_snek.models import GuildChannel, GuildText
+from dis_snek.models import GuildText
 
 from ElevatorBot import backgroundEvents
 from ElevatorBot.backendNetworking.destiny.lfgSystem import DestinyLfgSystem

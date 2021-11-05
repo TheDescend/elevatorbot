@@ -6,7 +6,6 @@ from dis_snek.models.discord_objects.guild import Guild
 from dis_snek.models.discord_objects.role import Role
 
 from ElevatorBot.backendNetworking.http import BaseBackendConnection
-from ElevatorBot.backendNetworking.results import BackendResult
 from ElevatorBot.backendNetworking.routes import (
     destiny_role_get_all_user_route,
     destiny_role_get_missing_user_route,
@@ -16,7 +15,6 @@ from NetworkingSchemas.destiny.roles import (
     EarnedRoleModel,
     EarnedRolesModel,
     MissingRolesModel,
-    RolesModel,
 )
 
 

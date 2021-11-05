@@ -1,6 +1,6 @@
 import json
 from copy import copy
-from typing import Any, Optional
+from typing import Optional
 
 from dis_snek.client import Snake
 

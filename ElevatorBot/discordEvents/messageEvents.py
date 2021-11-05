@@ -1,5 +1,5 @@
 from dis_snek.client import Snake
-from dis_snek.models import AutoArchiveDuration, ChannelTypes, File, GuildText, Message
+from dis_snek.models import AutoArchiveDuration, ChannelTypes, GuildText, Message
 
 from ElevatorBot.misc.cache import reply_cache
 from ElevatorBot.misc.formating import embed_message

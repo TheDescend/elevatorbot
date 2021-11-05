@@ -2,8 +2,7 @@ import asyncio
 import itertools
 
 from dis_snek.client import Snake
-from dis_snek.models import Activity
-from dis_snek.models import ActivityType
+from dis_snek.models import Activity, ActivityType
 
 from ElevatorBot.static.emojis import custom_emojis
 

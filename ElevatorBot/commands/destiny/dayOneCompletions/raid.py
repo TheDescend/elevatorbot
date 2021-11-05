@@ -2,7 +2,6 @@ import asyncio
 
 from dis_snek.models import (
     InteractionContext,
-    Member,
     OptionTypes,
     SlashCommandChoice,
     slash_command,

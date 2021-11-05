@@ -3,8 +3,6 @@ from dis_snek.client import Snake
 from ElevatorBot.backendNetworking.destiny.activities import DestinyActivities
 from ElevatorBot.backendNetworking.destiny.weapons import DestinyWeapons
 from ElevatorBot.commandHelpers.autocomplete import (
-    DestinyActivityModel,
-    DestinyWeaponModel,
     activities,
     activities_by_id,
     weapons,

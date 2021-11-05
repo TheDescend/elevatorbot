@@ -1,11 +1,9 @@
 import asyncio
 import os
 import sys
-from typing import AsyncGenerator, Generator
 
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.database.base import get_async_session, is_test_mode, setup_engine
 from Backend.database.models import create_tables

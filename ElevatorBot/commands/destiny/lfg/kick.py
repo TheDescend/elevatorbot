@@ -6,7 +6,6 @@ from dis_snek.models import (
     slash_option,
 )
 
-from ElevatorBot.backendNetworking.results import BackendResult
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
 from ElevatorBot.commandHelpers.subCommandTemplates import lfg_sub_command
 from ElevatorBot.commands.base import BaseScale

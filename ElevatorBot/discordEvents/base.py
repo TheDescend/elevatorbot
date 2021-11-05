@@ -1,35 +1,4 @@
 from dis_snek.client import Snake
-from dis_snek.models import Listener
-
-from ElevatorBot.discordEvents.errorEvents import (
-    on_command_error,
-    on_component_callback_error,
-)
-from ElevatorBot.discordEvents.guildEvents import (
-    on_channel_create,
-    on_channel_delete,
-    on_channel_update,
-    on_guild_join,
-    on_guild_remove,
-    on_guild_role_delete,
-    on_guild_role_update,
-    on_thread_create,
-    on_thread_delete,
-    on_thread_update,
-)
-from ElevatorBot.discordEvents.interactionCallbacks import poll
-from ElevatorBot.discordEvents.interactionEvents import on_component, on_slash_command
-from ElevatorBot.discordEvents.memberEvents import (
-    on_member_add,
-    on_member_remove,
-    on_member_update,
-)
-from ElevatorBot.discordEvents.messageEvents import (
-    on_message,
-    on_message_delete,
-    on_message_edit,
-)
-from ElevatorBot.discordEvents.voiceEvents import on_voice_state_update
 
 
 def register_discord_events(client: Snake):

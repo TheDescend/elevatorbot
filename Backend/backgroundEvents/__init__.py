@@ -1,5 +1,4 @@
-from Backend.backgroundEvents.base import BaseEvent
-from Backend.backgroundEvents.base import scheduler
+from Backend.backgroundEvents.base import BaseEvent, scheduler
 from Backend.backgroundEvents.tokenUpdater import TokenUpdater
 from Backend.backgroundEvents.updateActivities import UpdateActivities
 from Backend.backgroundEvents.updateManifest import UpdateManifest

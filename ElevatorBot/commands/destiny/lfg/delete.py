@@ -1,6 +1,5 @@
 from dis_snek.models import InteractionContext, OptionTypes, slash_command, slash_option
 
-from ElevatorBot.backendNetworking.results import BackendResult
 from ElevatorBot.commandHelpers.subCommandTemplates import lfg_sub_command
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.core.destiny.lfgSystem import LfgMessage

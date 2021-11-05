@@ -1,6 +1,6 @@
-from typing import Any, overload
+from typing import Any
 
-from dis_snek.models import Colour, Embed, Message
+from dis_snek.models import Colour, Embed
 
 
 def embed_message(title: str = None, description: str = None, footer: str = None) -> Embed:

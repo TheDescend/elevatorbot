@@ -1,5 +1,4 @@
 import dataclasses
-import datetime
 from typing import Optional
 
 from dis_snek.models import Guild, GuildVoice, Role, ThreadChannel

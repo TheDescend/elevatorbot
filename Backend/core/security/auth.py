@@ -1,14 +1,12 @@
 import os
 import secrets
-from datetime import datetime, timedelta
+from datetime import timedelta
 from typing import Optional
 
 from fastapi import HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
 from passlib.context import CryptContext
-
-from Backend.database.models import BackendUser
 
 # defining algorithms
 from Backend.misc.helperFunctions import get_now_with_tz

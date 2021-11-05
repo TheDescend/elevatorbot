@@ -1,7 +1,5 @@
 import asyncio
 
-import pytz
-from dateutil.parser import ParserError, parse
 from dis_snek.models import (
     ActionRow,
     ComponentContext,
@@ -15,13 +13,12 @@ from dis_snek.models import (
     slash_option,
 )
 
-from ElevatorBot.backendNetworking.results import BackendResult
 from ElevatorBot.commandHelpers.responseTemplates import respond_timeout
 from ElevatorBot.commandHelpers.subCommandTemplates import lfg_sub_command
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.core.destiny.lfgSystem import LfgMessage
 from ElevatorBot.misc.formating import embed_message
-from ElevatorBot.misc.helperFunctions import get_now_with_tz, parse_string_datetime
+from ElevatorBot.misc.helperFunctions import parse_string_datetime
 from ElevatorBot.static.timezones import timezones_dict
 
 

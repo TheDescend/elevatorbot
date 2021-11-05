@@ -4,14 +4,12 @@ from dis_snek.models import (
     ButtonStyles,
     ChannelTypes,
     GuildChannel,
-    GuildText,
     InteractionContext,
     OptionTypes,
     slash_command,
     slash_option,
 )
 
-from ElevatorBot.commandHelpers.responseTemplates import respond_wrong_channel_type
 from ElevatorBot.commandHelpers.subCommandTemplates import (
     setup_sub_command,
     setup_sub_command_clan_group,

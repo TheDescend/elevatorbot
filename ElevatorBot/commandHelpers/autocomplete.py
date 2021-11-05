@@ -1,5 +1,3 @@
-import dataclasses
-
 from dis_snek.models import AutocompleteContext
 from rapidfuzz import fuzz, process
 

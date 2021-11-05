@@ -1,5 +1,3 @@
-from copy import copy
-
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 

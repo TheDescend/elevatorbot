@@ -6,7 +6,6 @@ from dis_snek.models import (
     Member,
     OptionTypes,
     SlashCommandChoice,
-    SlashCommandOption,
     slash_command,
     slash_option,
 )

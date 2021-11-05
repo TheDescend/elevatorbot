@@ -9,10 +9,7 @@ from dis_snek.models import (
 from ElevatorBot.backendNetworking.destiny.profile import DestinyProfile
 from ElevatorBot.commandHelpers.subCommandTemplates import setup_sub_command
 from ElevatorBot.commands.base import BaseScale
-from ElevatorBot.core.misc.persistentMessages import (
-    PersistentMessages,
-    handle_setup_command,
-)
+from ElevatorBot.core.misc.persistentMessages import PersistentMessages
 from ElevatorBot.misc.cache import registered_role_cache
 from ElevatorBot.misc.formating import embed_message
 

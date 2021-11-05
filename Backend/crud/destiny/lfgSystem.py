@@ -1,9 +1,8 @@
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.errors import CustomException
 from Backend.crud.base import CRUDBase
-from Backend.database.models import LfgMessage, LfgUser
+from Backend.database.models import LfgMessage
 
 
 class CRUDLfgMessages(CRUDBase):

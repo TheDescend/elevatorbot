@@ -2,24 +2,12 @@ import dataclasses
 from typing import Optional
 
 from dis_snek.errors import NotFound
-from dis_snek.models import (
-    ActionRow,
-    Button,
-    ButtonStyles,
-    Embed,
-    GuildChannel,
-    GuildText,
-    InteractionContext,
-    Message,
-)
+from dis_snek.models import ActionRow, Embed, GuildChannel, InteractionContext, Message
 
 from ElevatorBot.backendNetworking.misc.backendPersistentMessages import (
     BackendPersistentMessages,
 )
-from ElevatorBot.commandHelpers.responseTemplates import (
-    respond_wrong_author,
-    respond_wrong_channel_type,
-)
+from ElevatorBot.commandHelpers.responseTemplates import respond_wrong_author
 from ElevatorBot.misc.formating import embed_message
 
 

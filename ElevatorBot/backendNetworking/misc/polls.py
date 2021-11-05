@@ -4,11 +4,7 @@ from typing import Optional
 from dis_snek.models import Guild, Member
 
 from ElevatorBot.backendNetworking.http import BaseBackendConnection
-from ElevatorBot.backendNetworking.results import BackendResult
 from ElevatorBot.backendNetworking.routes import (
-    persistent_messages_delete_route,
-    persistent_messages_get_route,
-    persistent_messages_upsert_route,
     polls_delete_option_route,
     polls_delete_route,
     polls_get_route,

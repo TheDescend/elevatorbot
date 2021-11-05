@@ -3,7 +3,6 @@ import dataclasses
 from dis_snek.models import Guild, Member
 
 from ElevatorBot.backendNetworking.http import BaseBackendConnection
-from ElevatorBot.backendNetworking.results import BackendResult
 from ElevatorBot.backendNetworking.routes import (
     elevator_servers_add,
     elevator_servers_delete,

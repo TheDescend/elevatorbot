@@ -1,5 +1,4 @@
-from dis_snek.models import ComponentContext
-from dis_snek.models import InteractionContext
+from dis_snek.models import ComponentContext, InteractionContext
 
 from ElevatorBot.misc.helperFunctions import log_error
 

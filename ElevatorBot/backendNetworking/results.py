@@ -1,9 +1,7 @@
 import dataclasses
-from typing import Optional, Type, TypeVar
+from typing import Optional
 
 from dis_snek.models import Embed, InteractionContext
-from pydantic import BaseModel
-from typing_extensions import Protocol
 
 from ElevatorBot.backendNetworking.errorCodesAndResponses import (
     error_codes_and_responses,

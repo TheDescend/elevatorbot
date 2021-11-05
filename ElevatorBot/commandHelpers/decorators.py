@@ -1,7 +1,5 @@
 from dis_snek.models import InteractionContext
 
-from ElevatorBot.misc.formating import embed_message
-
 
 def has_user_option_permission(func):
     async def wrapper(ctx: InteractionContext, **kwargs):

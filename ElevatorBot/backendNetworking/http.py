@@ -2,13 +2,12 @@ import asyncio
 import dataclasses
 import logging
 import time
-from typing import Optional, Type, TypeVar
+from typing import Optional
 
 import aiohttp
 from aiohttp import ClientSession, ClientTimeout
 from dis_snek.models import ComponentContext, InteractionContext
 from dis_snek.models.discord_objects.user import Member
-from pydantic import BaseModel
 
 from ElevatorBot.backendNetworking.results import BackendResult
 

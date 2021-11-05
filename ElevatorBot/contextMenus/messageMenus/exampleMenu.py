@@ -1,6 +1,4 @@
-from dis_snek.models import CommandTypes
-from dis_snek.models import context_menu
-from dis_snek.models import InteractionContext
+from dis_snek.models import CommandTypes, InteractionContext, context_menu
 
 from ElevatorBot.commands.base import BaseScale
 

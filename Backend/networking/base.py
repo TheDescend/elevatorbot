@@ -1,7 +1,7 @@
 import asyncio
 import logging
 import random
-from typing import Optional, Union
+from typing import Optional
 
 import aiohttp
 import aiohttp_client_cache

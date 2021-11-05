@@ -20,7 +20,6 @@ from Backend.networking.bungieRoutes import profile_route, stat_route
 from NetworkingSchemas.destiny.account import (
     DestinyCharacterModel,
     DestinyCharactersModel,
-    DestinyTimeModel,
     SeasonalChallengesModel,
     SeasonalChallengesRecordModel,
     SeasonalChallengesTopicsModel,

@@ -1,7 +1,6 @@
 from dis_snek.models import Guild, GuildChannel, Role, ThreadChannel
 
 from ElevatorBot.backendNetworking.misc.elevatorInfo import ElevatorGuilds
-from ElevatorBot.misc.helperFunctions import elevator_permission_bits
 
 
 async def on_channel_delete(channel: GuildChannel):

@@ -1,8 +1,10 @@
 from aiohttp import web
 from dis_snek.client import Snake
 
-from ElevatorBot.misc.discordShortcutFunctions import assign_roles_to_member
-from ElevatorBot.misc.discordShortcutFunctions import remove_roles_from_member
+from ElevatorBot.misc.discordShortcutFunctions import (
+    assign_roles_to_member,
+    remove_roles_from_member,
+)
 
 
 async def roles(request: web.Request):

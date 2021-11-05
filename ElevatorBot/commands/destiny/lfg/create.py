@@ -1,7 +1,5 @@
 import asyncio
 
-import pytz
-from dateutil.parser import ParserError, parse
 from dis_snek.models import (
     ActionRow,
     Button,
@@ -18,16 +16,12 @@ from ElevatorBot.commandHelpers.optionTemplates import (
     default_time_option,
     get_timezone_choices,
 )
-from ElevatorBot.commandHelpers.responseTemplates import (
-    respond_invalid_time_input,
-    respond_time_input_in_past,
-    respond_timeout,
-)
+from ElevatorBot.commandHelpers.responseTemplates import respond_timeout
 from ElevatorBot.commandHelpers.subCommandTemplates import lfg_sub_command
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.core.destiny.lfgSystem import LfgMessage
 from ElevatorBot.misc.formating import embed_message
-from ElevatorBot.misc.helperFunctions import get_now_with_tz, parse_string_datetime
+from ElevatorBot.misc.helperFunctions import parse_string_datetime
 from ElevatorBot.static.destinyActivities import dungeons, raids
 
 
