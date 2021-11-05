@@ -53,7 +53,7 @@ class LfgCreate(BaseScale):
     )
     async def _create(self, ctx: InteractionContext, start_time: str, timezone: str, overwrite_max_members: int = None):
 
-        if start_time.lower() is not "asap":
+        if start_time.lower() != "asap":
             start_time = await parse_string_datetime(ctx=ctx, time=start_time, timezone=timezone)
             if not start_time:
                 return

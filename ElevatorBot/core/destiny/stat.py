@@ -72,14 +72,14 @@ async def get_stat_and_send(
             # handle the stat calc differently depending on what stat it is
             if stat_bungie_name in ["efficiency", "averageKillDistance", "averageLifespan"]:
                 # take the average
-                if stat_value is -1:
+                if stat_value == -1:
                     stat_value = result.value
                 else:
                     stat_value = (stat_value + result.value) / 2
 
             elif stat_bungie_name in ["longestKillDistance", "longestKillSpree", "longestSingleLife"]:
                 # take the highest
-                if stat_value is -1:
+                if stat_value == -1:
                     stat_value = result.value
                 else:
                     if result.value > stat_value:
@@ -87,7 +87,7 @@ async def get_stat_and_send(
 
             else:
                 # add them together
-                if stat_value is -1:
+                if stat_value == -1:
                     stat_value = result.value
                 else:
                     if result.value > stat_value:

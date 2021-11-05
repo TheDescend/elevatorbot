@@ -70,7 +70,7 @@ async def handle_setup_command(
         result = await connection.upsert(channel_id=channel.id)
 
     # calculate the success message if that is not given
-    if success_message is "None":
+    if success_message == "None":
         if send_components:
             success_message = f"Click [here]({message.jump_url}) to view the message"
 

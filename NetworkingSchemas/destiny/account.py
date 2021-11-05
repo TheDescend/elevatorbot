@@ -11,7 +11,7 @@ class DestinyNameModel(BaseModel):
 
 
 class DestinyStatModel(BaseModel):
-    value: int | float
+    value: float
 
 
 class BoolModel(BaseModel):

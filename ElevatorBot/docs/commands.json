@@ -32,7 +32,23 @@
             "options": [
                 {
                     "name": "user",
-                    "description": "The name of the user you want to look up",
+                    "description": "The user you want to look up",
+                    "required": false
+                }
+            ]
+        },
+        {
+            "name": "pop_timeline",
+            "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
+            "options": []
+        },
+        {
+            "name": "challenges",
+            "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
+            "options": [
+                {
+                    "name": "user",
+                    "description": "The user you want to look up",
                     "required": false
                 }
             ]
@@ -43,7 +59,7 @@
             "options": [
                 {
                     "name": "user",
-                    "description": "The name of the user you want to look up",
+                    "description": "The user you want to look up",
                     "required": false
                 }
             ]
@@ -95,15 +111,23 @@
                         },
                         {
                             "name": "Wasted on Destiny"
+                        },
+                        {
+                            "name": "Crucible Report"
                         }
                     ]
                 },
                 {
                     "name": "user",
-                    "description": "The name of the user you want to look up",
+                    "description": "The user you want to look up",
                     "required": false
                 }
             ]
+        },
+        {
+            "name": "day_one",
+            "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
+            "options": []
         },
         {
             "name": "lfg",
@@ -146,7 +170,7 @@
             "options": [
                 {
                     "name": "user",
-                    "description": "The name of the user you want to look up",
+                    "description": "The user you want to look up",
                     "required": false
                 }
             ]
@@ -195,7 +219,7 @@
             "options": [
                 {
                     "name": "user",
-                    "description": "The name of the user you want to look up",
+                    "description": "The user you want to look up",
                     "required": false
                 }
             ]
@@ -234,7 +258,7 @@
             "options": [
                 {
                     "name": "user",
-                    "description": "The name of the user you want to look up",
+                    "description": "The user you want to look up",
                     "required": false
                 }
             ]
