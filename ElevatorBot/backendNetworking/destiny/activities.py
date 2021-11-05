@@ -7,11 +7,11 @@ from dis_snek.models import Guild, Member
 from ElevatorBot.backendNetworking.http import BaseBackendConnection
 from ElevatorBot.backendNetworking.results import BackendResult
 from ElevatorBot.backendNetworking.routes import destiny_activities_get_all_route
-from ElevatorBot.static.destinyEnums import ModeScope
 from NetworkingSchemas.destiny.activities import (
     DestinyActivitiesModel,
     DestinyActivityDetailsModel,
 )
+from NetworkingSchemas.enums import UsableDestinyActivityModeTypeEnum
 
 
 @dataclasses.dataclass
@@ -34,7 +34,7 @@ class DestinyActivities(BaseBackendConnection):
     async def last(
         self,
         activity_ids: Optional[list[int]] = None,  # if this is supplied, mode is ignored
-        mode: Optional[ModeScope] = ModeScope.ALL,
+        mode: Optional[UsableDestinyActivityModeTypeEnum] = UsableDestinyActivityModeTypeEnum.ALL,
         character_class: Optional[str] = None,
         completed: bool = True,
     ) -> Optional[DestinyActivityDetailsModel]:

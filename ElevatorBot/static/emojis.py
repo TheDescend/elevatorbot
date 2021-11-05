@@ -15,14 +15,27 @@ class __ElevatorEmojis:
     descend_logo: CustomEmoji | int = 768907515193720874
     elevator_logo: CustomEmoji | int = 768907515386921020
 
+    kinetic: CustomEmoji | int = 1  # todo
+    stasis: CustomEmoji | int = 897797463799369769
+    arc: CustomEmoji | int = 897797463933583401
+    solar: CustomEmoji | int = 897797463937798174
+    void: CustomEmoji | int = 897797464013307905
+
+    unstoppable: CustomEmoji | int = 897797463807774752
+    barrier: CustomEmoji | int = 897797463988142091
+    overload: CustomEmoji | int = 897797463988142090
+
+    # todo emotes for the weapon types
+    # todo emotes for the ammo types
+
     # Emote Server
-    among_us: CustomEmoji | int = 751020830376591420
-    barotrauma: CustomEmoji | int = 756077724870901830
-    gta: CustomEmoji | int = 751020831382962247
-    valorant: CustomEmoji | int = 751020830414209064
-    lol: CustomEmoji | int = 756076309527920661
-    eft: CustomEmoji | int = 800866459286503445
-    minecraft: CustomEmoji | int = 860099796123123712
+    among_us: CustomEmoji | int = 905844106914332682
+    barotrauma: CustomEmoji | int = 905846654316445758
+    gta: CustomEmoji | int = 905847049059197009
+    valorant: CustomEmoji | int = 905849958601744385
+    lol: CustomEmoji | int = 905843726583226449
+    eft: CustomEmoji | int = 905846654211620865
+    minecraft: CustomEmoji | int = 905846654211620866
     new_world: CustomEmoji | int = 900640805784522762
 
     warlock: CustomEmoji | int = 830747907488612402

@@ -18,4 +18,6 @@ error_codes_and_responses = {
     "PollNotExist": "This poll ID does not exist",
     "NoActivityFound": "{discord_member.mention} has never done an activity that fulfills the given requirements",
     "WeaponUnused": "{discord_member.mention} has never used the specified weapon in any activity that fulfills the given requirements",
+    "WeaponTypeMismatch": "This weapon does not belong to the specified weapon type",
+    "WeaponDamageTypeMismatch": "This weapon does not have the specified damage type",
 }

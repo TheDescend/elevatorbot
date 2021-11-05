@@ -18,6 +18,16 @@ def embed_message(title: str = None, description: str = None, footer: str = None
     return embed
 
 
+def capitalize_string(s: str) -> str:
+    """Capitalise all parts of a string divided by "_" or " " """
+
+    split = []
+    for part in s.split("_"):
+        split.extend(part.split())
+
+    return " ".join([part.capitalize() for part in split])
+
+
 def split_into_chucks_of_max_2000_characters(text_str: str = None, text_list: list[Any] = None) -> list[str]:
     """Takes either a list of strings or a string and returns a list of strings with a max length of 4000"""
 

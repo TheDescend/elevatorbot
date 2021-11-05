@@ -19,7 +19,8 @@ from ElevatorBot.static.destinyDates import (
     season_and_expansion_dates,
     season_dates,
 )
-from ElevatorBot.static.destinyEnums import ModeScope, StatScope
+from ElevatorBot.static.destinyEnums import StatScope
+from NetworkingSchemas.enums import UsableDestinyActivityModeTypeEnum
 
 
 class Time(BaseScale):
@@ -47,9 +48,13 @@ class Time(BaseScale):
         # get the modes
         # default is total and pve/pve, else its total and specified
         if mode:
-            modes = [ModeScope(0), ModeScope(mode)]
+            modes = [UsableDestinyActivityModeTypeEnum(0), UsableDestinyActivityModeTypeEnum(mode)]
         else:
-            modes = [ModeScope(0), ModeScope(7), ModeScope(5)]
+            modes = [
+                UsableDestinyActivityModeTypeEnum(0),
+                UsableDestinyActivityModeTypeEnum(7),
+                UsableDestinyActivityModeTypeEnum(5),
+            ]
         modes_names = {
             mode_scope: " ".join(
                 [part.capitalize().replace("Pve", "PvE").replace("Pvp", "PvP") for part in mode_scope.name.split["_"]]
@@ -96,12 +101,17 @@ class Time(BaseScale):
             if not activity_ids:
                 # save by modes
                 data.update(
-                    {season: {modes_names[ModeScope(entry.mode)]: entry.time_played for entry in result.entries}}
+                    {
+                        season: {
+                            modes_names[UsableDestinyActivityModeTypeEnum(entry.mode)]: entry.time_played
+                            for entry in result.entries
+                        }
+                    }
                 )
 
                 # add to the total amount
                 for entry in result.entries:
-                    total[modes_names[ModeScope(entry.mode)]] += entry.time_played
+                    total[modes_names[UsableDestinyActivityModeTypeEnum(entry.mode)]] += entry.time_played
 
             else:
                 # save by activities

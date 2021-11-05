@@ -183,7 +183,7 @@ class DestinyManifest:
                                 item_sub_type=values["itemSubType"],
                                 class_type=values["classType"],
                                 bucket_type_hash=values["inventory"]["bucketTypeHash"],
-                                tier_type_hash=values["inventory"]["tierTypeHash"],
+                                tier_type=values["inventory"]["tierType"],
                                 tier_type_name=values["inventory"]["tierTypeName"],
                                 equippable=values["equippable"],
                                 default_damage_type=values["defaultDamageType"],

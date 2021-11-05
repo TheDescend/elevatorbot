@@ -276,7 +276,7 @@ class DestinyInventoryItemDefinition(Base):
     item_sub_type = Column(SmallInteger)
     class_type = Column(SmallInteger)
     bucket_type_hash = Column(BigInteger)
-    tier_type_hash = Column(BigInteger)
+    tier_type = Column(SmallInteger)
     tier_type_name = Column(Text)
     equippable = Column(Boolean)
     default_damage_type = Column(SmallInteger)

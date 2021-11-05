@@ -19,7 +19,6 @@ from ElevatorBot.backendNetworking.routes import (
     destiny_account_time_route,
     destiny_account_triumph_route,
 )
-from ElevatorBot.static.destinyEnums import ModeScope
 from NetworkingSchemas.destiny.account import (
     BoolModel,
     DestinyCharactersModel,
@@ -30,6 +29,7 @@ from NetworkingSchemas.destiny.account import (
     DestinyTimesModel,
     SeasonalChallengesModel,
 )
+from NetworkingSchemas.enums import UsableDestinyActivityModeTypeEnum
 
 
 @dataclasses.dataclass
@@ -63,14 +63,14 @@ class DestinyAccount(BaseBackendConnection):
         self,
         start_time: datetime.datetime,
         end_time: datetime.datetime,
-        modes: Optional[list[ModeScope]] = None,
+        modes: Optional[list[UsableDestinyActivityModeTypeEnum]] = None,
         activity_ids: Optional[list[int]] = None,
         character_class: Optional[str] = None,
     ) -> Optional[DestinyTimesModel]:
         """Return the time played for the given period"""
 
         if modes is None:
-            modes = [ModeScope.ALL]
+            modes = [UsableDestinyActivityModeTypeEnum.ALL]
 
         result = await self._backend_request(
             method="GET",

@@ -1858,224 +1858,224 @@ class WeaponCommands(commands.Cog):
     #         # _delete file
     #         os.remove(title)
 
-    @cog_ext.cog_slash(
-        name="topweapons",
-        description="Shows your top weapon ranking with in-depth customisation",
-        options=[
-            create_option(
-                name="weapon",
-                description="If you want a specific weapon to be included on the ranking",
-                option_type=3,
-                required=False,
-            ),
-            create_option(
-                name="stat",
-                description="Which stat you want to see for the weapon ranking",
-                option_type=3,
-                required=False,
-                choices=[
-                    create_choice(name="Kills (default)", value="kills"),
-                    create_choice(name="Precision Kills", value="precisionkills"),
-                    create_choice(name="% Precision Kills", value="precisionkillspercent"),
-                ],
-            ),
-            create_option(
-                name="class",
-                description="You can restrict the class where the weapon stats count",
-                option_type=3,
-                required=False,
-                choices=[
-                    create_choice(name="Warlock", value="2271682572"),
-                    create_choice(name="Hunter", value="671679327"),
-                    create_choice(name="Titan", value="3655393761"),
-                ],
-            ),
-            create_option(
-                name="expansion",
-                description="You can restrict the expansion (usually a year) to look at",
-                option_type=3,
-                required=False,
-                choices=[
-                    create_choice(name=expansion[1], value=f"{expansion[0]},{expansion[1]}")
-                    for expansion in expansion_dates
-                ],
-            ),
-            create_option(
-                name="season",
-                description="You can restrict the season to look at",
-                option_type=3,
-                required=False,
-                choices=[create_choice(name=season[1], value=f"{season[0]},{season[1]}") for season in season_dates],
-            ),
-            create_option(
-                name="starttime",
-                description="Format: 'DD/MM/YY' - You can restrict the time from when the weapon stats start counting",
-                option_type=3,
-                required=False,
-            ),
-            create_option(
-                name="endtime",
-                description="Format: 'DD/MM/YY' - You can restrict the time up until which the weapon stats count",
-                option_type=3,
-                required=False,
-            ),
-            create_option(
-                name="mode",
-                description="You can restrict the game mode where the weapon stats count",
-                option_type=3,
-                required=False,
-                choices=choices_mode,
-            ),
-            create_option(
-                name="activityhash",
-                description="You can restrict the activity where the weapon stats count (advanced)",
-                option_type=4,
-                required=False,
-            ),
-            options_user(),
-        ],
-    )
-    async def _topweapons(self, ctx: SlashContext, **kwargs):
-        user = await get_user_obj(ctx, kwargs)
-        destiny_player = await DestinyPlayer.from_discord_id(user.id, ctx=ctx)
-        if not destiny_player:
-            return
-
-        # _get other params
-        (
-            stat,
-            _,
-            character_class,
-            mode,
-            activity_hash,
-            starttime,
-            endtime,
-        ) = await self._compute_params(ctx, kwargs)
-        if not stat:
-            return
-
-        # _get the real weapon name if that param is given
-        weapon_name = None
-        if "weapon" in kwargs:
-            weapon_name, weapon_id = await searchForItem(ctx, kwargs["weapon"])
-            weapon_id = weapon_id[0]
-            if not weapon_name:
-                return
-
-        # might take a sec
-        if not ctx.deferred:
-            await ctx.defer()
-
-        # _update user db
-        await destiny_player.update_activity_db()
-
-        # _get the char class if that is asked for
-        charID = await destiny_player.get_character_id_by_class(character_class) if character_class else None
-
-        # _get all weaponID infos
-        kwargs = {
-            "characterID": charID,
-            "mode": mode,
-            "activityID": activity_hash,
-            "start": starttime,
-            "end": endtime,
-        }
-        result = await getTopWeapons(
-            destiny_player.destiny_id,
-            **{k: v for k, v in kwargs.items() if v is not None},
-        )
-
-        # loop through all weapons and divide them into kinetic / energy / power
-        weapons_by_slot = {
-            "Kinetic": [],
-            "Energy": [],
-            "Power": [],
-        }
-        for weapon in result:
-            if stat == "kills":
-                statistic_data = weapon[1]
-                statistic_visual = f"{statistic_data:,}"
-            elif stat == "precisionkills":
-                statistic_data = weapon[2]
-                statistic_visual = f"{statistic_data:,}"
-            else:  # precisionkillspercent
-                statistic_data = weapon[1] / weapon[2] if weapon[2] != 0 else 0
-                statistic_visual = f"{round(statistic_data * 100, 2)}%"
-
-            weapons_by_slot[translateWeaponSlot(weapon[4])].append(
-                {
-                    "weapon_id": weapon[0],
-                    "weapon_name": weapon[3],
-                    "weapon_stat": statistic_data,
-                    "weapon_stat_visual": statistic_visual,
-                }
-            )
-
-        # prepare embed
-        embed = embed_message(
-            f"Top Weapons for {user.display_name}",
-            footer=f"""Date: {starttime.strftime("%d/%m/%Y")} - {endtime.strftime("%d/%m/%Y")}""",
-        )
-        emoji = self.client.get_emoji(enter_emoji_id)
-
-        # loop through the slots
-        found = False if weapon_name else True
-        for slot, weapons in weapons_by_slot.items():
-            # sort the slots
-            sorted_weapons = sorted(weapons, key=lambda x: x["weapon_stat"], reverse=True)
-
-            # loop through the weapons
-            i = 0
-            max_weapons = 8
-            ranking = []
-            for weapon in sorted_weapons:
-                i += 1
-                if len(ranking) < max_weapons:
-                    # setting a flag if name is in list
-                    if weapon_name == weapon["weapon_name"]:
-                        found = True
-                        ranking.append(
-                            write_line(
-                                i,
-                                f"""**[{weapon["weapon_name"]}](https://www.light.gg/db/items/{weapon["weapon_id"]})**""",
-                                stat.capitalize(),
-                                weapon["weapon_stat_visual"],
-                                emoji,
-                            )
-                        )
-                    else:
-                        ranking.append(
-                            write_line(
-                                i,
-                                f"""[{weapon["weapon_name"]}](https://www.light.gg/db/items/{weapon["weapon_id"]})""",
-                                stat.capitalize(),
-                                weapon["weapon_stat_visual"],
-                                emoji,
-                            )
-                        )
-
-                # looping through rest until original user is found
-                elif (len(ranking) >= max_weapons) and (not found):
-                    # adding only this name
-                    if weapon_name == weapon["weapon_name"]:
-                        ranking.append("...")
-                        ranking.append(
-                            write_line(
-                                i,
-                                f"""[{weapon["weapon_name"]}](https://www.light.gg/db/items/{weapon["weapon_id"]})""",
-                                stat.capitalize(),
-                                weapon["weapon_stat_visual"],
-                                emoji,
-                            )
-                        )
-                        found = True
-                        break
-
-                else:
-                    break
-
-            # write that info in an embed field
-            embed.add_field(name=slot, value="\n".join(ranking), inline=True)
+    # @cog_ext.cog_slash(
+    #     name="topweapons",
+    #     description="Shows your top weapon ranking with in-depth customisation",
+    #     options=[
+    #         create_option(
+    #             name="weapon",
+    #             description="If you want a specific weapon to be included on the ranking",
+    #             option_type=3,
+    #             required=False,
+    #         ),
+    #         create_option(
+    #             name="stat",
+    #             description="Which stat you want to see for the weapon ranking",
+    #             option_type=3,
+    #             required=False,
+    #             choices=[
+    #                 create_choice(name="Kills (default)", value="kills"),
+    #                 create_choice(name="Precision Kills", value="precisionkills"),
+    #                 create_choice(name="% Precision Kills", value="precisionkillspercent"),
+    #             ],
+    #         ),
+    #         create_option(
+    #             name="class",
+    #             description="You can restrict the class where the weapon stats count",
+    #             option_type=3,
+    #             required=False,
+    #             choices=[
+    #                 create_choice(name="Warlock", value="2271682572"),
+    #                 create_choice(name="Hunter", value="671679327"),
+    #                 create_choice(name="Titan", value="3655393761"),
+    #             ],
+    #         ),
+    #         create_option(
+    #             name="expansion",
+    #             description="You can restrict the expansion (usually a year) to look at",
+    #             option_type=3,
+    #             required=False,
+    #             choices=[
+    #                 create_choice(name=expansion[1], value=f"{expansion[0]},{expansion[1]}")
+    #                 for expansion in expansion_dates
+    #             ],
+    #         ),
+    #         create_option(
+    #             name="season",
+    #             description="You can restrict the season to look at",
+    #             option_type=3,
+    #             required=False,
+    #             choices=[create_choice(name=season[1], value=f"{season[0]},{season[1]}") for season in season_dates],
+    #         ),
+    #         create_option(
+    #             name="starttime",
+    #             description="Format: 'DD/MM/YY' - You can restrict the time from when the weapon stats start counting",
+    #             option_type=3,
+    #             required=False,
+    #         ),
+    #         create_option(
+    #             name="endtime",
+    #             description="Format: 'DD/MM/YY' - You can restrict the time up until which the weapon stats count",
+    #             option_type=3,
+    #             required=False,
+    #         ),
+    #         create_option(
+    #             name="mode",
+    #             description="You can restrict the game mode where the weapon stats count",
+    #             option_type=3,
+    #             required=False,
+    #             choices=choices_mode,
+    #         ),
+    #         create_option(
+    #             name="activityhash",
+    #             description="You can restrict the activity where the weapon stats count (advanced)",
+    #             option_type=4,
+    #             required=False,
+    #         ),
+    #         options_user(),
+    #     ],
+    # )
+    # async def _topweapons(self, ctx: SlashContext, **kwargs):
+    #     user = await get_user_obj(ctx, kwargs)
+    #     destiny_player = await DestinyPlayer.from_discord_id(user.id, ctx=ctx)
+    #     if not destiny_player:
+    #         return
+    #
+    #     # _get other params
+    #     (
+    #         stat,
+    #         _,
+    #         character_class,
+    #         mode,
+    #         activity_hash,
+    #         starttime,
+    #         endtime,
+    #     ) = await self._compute_params(ctx, kwargs)
+    #     if not stat:
+    #         return
+    #
+    #     # _get the real weapon name if that param is given
+    #     weapon_name = None
+    #     if "weapon" in kwargs:
+    #         weapon_name, weapon_id = await searchForItem(ctx, kwargs["weapon"])
+    #         weapon_id = weapon_id[0]
+    #         if not weapon_name:
+    #             return
+    #
+    #     # might take a sec
+    #     if not ctx.deferred:
+    #         await ctx.defer()
+    #
+    #     # _update user db
+    #     await destiny_player.update_activity_db()
+    #
+    #     # _get the char class if that is asked for
+    #     charID = await destiny_player.get_character_id_by_class(character_class) if character_class else None
+    #
+    #     # _get all weaponID infos
+    #     kwargs = {
+    #         "characterID": charID,
+    #         "mode": mode,
+    #         "activityID": activity_hash,
+    #         "start": starttime,
+    #         "end": endtime,
+    #     }
+    #     result = await getTopWeapons(
+    #         destiny_player.destiny_id,
+    #         **{k: v for k, v in kwargs.items() if v is not None},
+    #     )
+    #
+    #     # loop through all weapons and divide them into kinetic / energy / power
+    #     weapons_by_slot = {
+    #         "Kinetic": [],
+    #         "Energy": [],
+    #         "Power": [],
+    #     }
+    #     for weapon in result:
+    #         if stat == "kills":
+    #             statistic_data = weapon[1]
+    #             statistic_visual = f"{statistic_data:,}"
+    #         elif stat == "precisionkills":
+    #             statistic_data = weapon[2]
+    #             statistic_visual = f"{statistic_data:,}"
+    #         else:  # precisionkillspercent
+    #             statistic_data = weapon[1] / weapon[2] if weapon[2] != 0 else 0
+    #             statistic_visual = f"{round(statistic_data * 100, 2)}%"
+    #
+    #         weapons_by_slot[translateWeaponSlot(weapon[4])].append(
+    #             {
+    #                 "weapon_id": weapon[0],
+    #                 "weapon_name": weapon[3],
+    #                 "weapon_stat": statistic_data,
+    #                 "weapon_stat_visual": statistic_visual,
+    #             }
+    #         )
+    #
+    #     # prepare embed
+    #     embed = embed_message(
+    #         f"Top Weapons for {user.display_name}",
+    #         footer=f"""Date: {starttime.strftime("%d/%m/%Y")} - {endtime.strftime("%d/%m/%Y")}""",
+    #     )
+    #     emoji = self.client.get_emoji(enter_emoji_id)
+    #
+    #     # loop through the slots
+    #     found = False if weapon_name else True
+    #     for slot, weapons in weapons_by_slot.items():
+    #         # sort the slots
+    #         sorted_weapons = sorted(weapons, key=lambda x: x["weapon_stat"], reverse=True)
+    #
+    #         # loop through the weapons
+    #         i = 0
+    #         max_weapons = 8
+    #         ranking = []
+    #         for weapon in sorted_weapons:
+    #             i += 1
+    #             if len(ranking) < max_weapons:
+    #                 # setting a flag if name is in list
+    #                 if weapon_name == weapon["weapon_name"]:
+    #                     found = True
+    #                     ranking.append(
+    #                         write_line(
+    #                             i,
+    #                             f"""**[{weapon["weapon_name"]}](https://www.light.gg/db/items/{weapon["weapon_id"]})**""",
+    #                             stat.capitalize(),
+    #                             weapon["weapon_stat_visual"],
+    #                             emoji,
+    #                         )
+    #                     )
+    #                 else:
+    #                     ranking.append(
+    #                         write_line(
+    #                             i,
+    #                             f"""[{weapon["weapon_name"]}](https://www.light.gg/db/items/{weapon["weapon_id"]})""",
+    #                             stat.capitalize(),
+    #                             weapon["weapon_stat_visual"],
+    #                             emoji,
+    #                         )
+    #                     )
+    #
+    #             # looping through rest until original user is found
+    #             elif (len(ranking) >= max_weapons) and (not found):
+    #                 # adding only this name
+    #                 if weapon_name == weapon["weapon_name"]:
+    #                     ranking.append("...")
+    #                     ranking.append(
+    #                         write_line(
+    #                             i,
+    #                             f"""[{weapon["weapon_name"]}](https://www.light.gg/db/items/{weapon["weapon_id"]})""",
+    #                             stat.capitalize(),
+    #                             weapon["weapon_stat_visual"],
+    #                             emoji,
+    #                         )
+    #                     )
+    #                     found = True
+    #                     break
+    #
+    #             else:
+    #                 break
+    #
+    #         # write that info in an embed field
+    #         embed.add_field(name=slot, value="\n".join(ranking), inline=True)
 
         # write a message in the embed, since it is not in there
         if not found:

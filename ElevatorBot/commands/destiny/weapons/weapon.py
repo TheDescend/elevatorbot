@@ -24,13 +24,19 @@ from ElevatorBot.commandHelpers.optionTemplates import (
 )
 from ElevatorBot.commandHelpers.subCommandTemplates import weapons_sub_command
 from ElevatorBot.commands.base import BaseScale
-from ElevatorBot.misc.formating import embed_message
+from ElevatorBot.misc.formating import capitalize_string, embed_message
 from ElevatorBot.misc.helperFunctions import (
     parse_datetime_options,
     parse_string_datetime,
 )
 from ElevatorBot.static.emojis import custom_emojis
 from NetworkingSchemas.destiny.weapons import DestinyWeaponStatsInputModel
+from NetworkingSchemas.enums import (
+    DestinyWeaponTypeEnum,
+    UsableDestinyActivityModeTypeEnum,
+    UsableDestinyAmmunitionTypeEnum,
+    UsableDestinyDamageTypeEnum,
+)
 
 
 class WeaponsWeapon(BaseScale):
@@ -96,7 +102,28 @@ class WeaponsWeapon(BaseScale):
         )
 
         # format them nicely
-        embed = embed_message(f"{member.display_name}'s {weapon.name} stats")
+        description = [
+            f"Name: [{weapon.name}](https://www.light.gg/db/items/{weapon.reference_ids[0]})",
+            f"Weapon Type: {getattr(custom_emojis, getattr(DestinyWeaponTypeEnum, weapon.weapon_type.upper()).name.lower())} {weapon.weapon_type}",
+            f"Damage Type: {getattr(custom_emojis, getattr(UsableDestinyDamageTypeEnum, weapon.damage_type.upper()).name.lower())} {weapon.damage_type}",
+            f"Ammo Type: {getattr(custom_emojis, getattr(UsableDestinyAmmunitionTypeEnum, weapon.ammo_type.upper()).name.lower())} {weapon.ammo_type}",
+            "⁣",
+            f"Date: {Timestamp.fromdatetime(start_time).format(style=TimestampStyles.ShortDateTime)} - {Timestamp.fromdatetime(end_time).format(style=TimestampStyles.ShortDateTime)}",
+        ]
+        embed = embed_message(f"{member.display_name}'s Weapon Stats", "\n".join(description))
+
+        # set the footer
+        footer = []
+        if mode:
+            footer.append(f"Mode: {capitalize_string(UsableDestinyActivityModeTypeEnum(mode).name)}")
+        if activity:
+            footer.append(f"Activity: {activity.name}")
+        if destiny_class:
+            footer.append(f"Class: {destiny_class}")
+        if footer:
+            embed.set_footer(" | ".join(footer))
+
+        # add the fields
         embed.add_field(name="Total Kills", value=f"**{stats.total_kills:,}**", inline=True)
         embed.add_field(
             name="Total Precision Kills",

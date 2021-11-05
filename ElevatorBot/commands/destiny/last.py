@@ -10,8 +10,10 @@ from ElevatorBot.commandHelpers.optionTemplates import (
 )
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formating import embed_message, format_timedelta
-from ElevatorBot.static.destinyEnums import ModeScope
 from ElevatorBot.static.emojis import custom_emojis
+from NetworkingSchemas.enums import UsableDestinyActivityModeTypeEnum
+
+# todo destiny_class parameter
 
 
 class Last(BaseScale):
@@ -42,7 +44,7 @@ class Last(BaseScale):
 
         result = await db_activities.last(
             activity_ids=activity_ids,  # if this is supplied, mode is ignored
-            mode=ModeScope(mode) if mode else ModeScope.ALL,
+            mode=UsableDestinyActivityModeTypeEnum(mode) if mode else UsableDestinyActivityModeTypeEnum.ALL,
             character_class=destiny_class,
         )
         if not result:
@@ -63,7 +65,7 @@ class Last(BaseScale):
         if mode:
             footer.append(
                 f"""Mode: {" ".join(
-                [part.capitalize().replace("Pve", "PvE").replace("Pvp", "PvP") for part in ModeScope(mode).name.split["_"]]
+                [part.capitalize().replace("Pve", "PvE").replace("Pvp", "PvP") for part in UsableDestinyActivityModeTypeEnum(mode).name.split["_"]]
             )}"""
             )
         if activity:
