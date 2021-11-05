@@ -36,13 +36,17 @@ class DestinyWeapons(BaseBackendConnection):
         # convert to correct pydantic model
         return DestinyWeaponsModel.parse_obj(result.result) if result else None
 
-    async def get_top(self, input_data: DestinyTopWeaponsInputModel) -> Optional[DestinyTopWeaponsModel]:
+    async def get_top(
+        self, input_data: DestinyTopWeaponsInputModel, discord_id: int = None
+    ) -> Optional[DestinyTopWeaponsModel]:
         """Get top weapons"""
+
+        assert self.discord_member or discord_id
 
         result = await self._backend_request(
             method="GET",
             route=destiny_weapons_get_top_route.format(
-                guild_id=self.discord_guild.id, discord_id=self.discord_member.id
+                guild_id=self.discord_guild.id, discord_id=self.discord_member.id if self.discord_member else discord_id
             ),
             data=input_data.dict(),
         )

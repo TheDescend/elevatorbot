@@ -152,8 +152,8 @@ class DestinyWeapons:
     async def get_top_weapons(
         self,
         stat: DestinyTopWeaponsStatInputModelEnum,
-        how_many_per_slot: int,
-        include_weapon_with_ids: list[int] = None,
+        how_many_per_slot: Optional[int] = None,
+        include_weapon_with_ids: Optional[list[int]] = None,
         weapon_type: Optional[DestinyItemSubTypeEnum] = None,
         damage_type: Optional[DestinyDamageTypeEnum] = None,
         character_class: Optional[str] = None,

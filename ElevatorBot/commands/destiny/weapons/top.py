@@ -134,12 +134,12 @@ class WeaponsTop(BaseScale):
 
         # format the message
         embed = embed_message(
-            f"{member.display_name}' Top Weapons",
+            f"{member.display_name}'s Top Weapons",
             f"Date: {Timestamp.fromdatetime(start_time).format(style=TimestampStyles.ShortDateTime)} - {Timestamp.fromdatetime(end_time).format(style=TimestampStyles.ShortDateTime)}",
         )
         if weapon_type:
             embed.description += f"\nWeapon Type: {getattr(custom_emojis, DestinyWeaponTypeEnum(weapon_type).name.lower())} {capitalize_string(DestinyWeaponTypeEnum(weapon_type).name)}"
-        if weapon_type:
+        if damage_type:
             embed.description += f"\nDamage Type: {getattr(custom_emojis, UsableDestinyDamageTypeEnum(damage_type).name.lower())} {capitalize_string(UsableDestinyDamageTypeEnum(damage_type).name)}"
 
         # set the footer
@@ -155,8 +155,8 @@ class WeaponsTop(BaseScale):
 
         # add the fields to the embed
         for entry in stats:
-            slot = entry[0]
-            slot_entries: list[DestinyTopWeaponModel] = getattr(stats, slot)
+            slot_name = entry[0]
+            slot_entries: list[DestinyTopWeaponModel] = getattr(stats, slot_name)
 
             field_text = []
             for item in slot_entries:
@@ -173,6 +173,8 @@ class WeaponsTop(BaseScale):
                     field_text.append(
                         f"""{item.ranking}) [{item.weapon_name}](https://www.light.gg/db/items/{item.weapon_ids[0]})\n{custom_emojis.enter} {capitalize_string(stat.name)}: {item.stat_value}"""
                     )
+
+            embed.add_field(name=slot_name, value="\n".join(field_text) or "None", inline=True)
 
         await ctx.send(embeds=embed)
 

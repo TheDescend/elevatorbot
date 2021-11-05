@@ -1,4 +1,5 @@
 import datetime
+from typing import Optional
 
 from pydantic import BaseModel
 
@@ -15,6 +16,7 @@ class DestinyClanMemberModel(BaseModel):
     is_online: bool
     last_online_status_change: datetime.datetime
     join_date: datetime.datetime
+    discord_id: Optional[int]
 
 
 class DestinyClanMembersModel(BaseModel):

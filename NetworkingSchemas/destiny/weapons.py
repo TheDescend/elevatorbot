@@ -64,7 +64,7 @@ class DestinyTopWeaponsStatInputModelEnum(str, Enum):
 
 class DestinyTopWeaponsInputModel(BaseModel):
     stat: DestinyTopWeaponsStatInputModelEnum
-    how_many_per_slot: int
+    how_many_per_slot: Optional[int] = None
     include_weapon_with_ids: Optional[list[int]] = None
     weapon_type: Optional[int] = None
     damage_type: Optional[int] = None

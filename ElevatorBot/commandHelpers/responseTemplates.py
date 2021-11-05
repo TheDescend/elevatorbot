@@ -6,6 +6,21 @@ from ElevatorBot.backendNetworking.errorCodesAndResponses import (
 from ElevatorBot.misc.formating import embed_message
 
 
+async def something_went_wrong(ctx: InteractionContext, hidden: bool = False) -> bool:
+    """Respond to the given context"""
+
+    if not ctx.responded:
+        await ctx.send(
+            ephemeral=hidden,
+            embeds=embed_message(
+                "Error",
+                "Sorry, something went wrong. My ~~slaves~~ volunteers are already on the hunt!",
+            ),
+        )
+        return True
+    return False
+
+
 async def respond_discord_member_unknown(ctx: InteractionContext, discord_member: Member, hidden: bool = True) -> bool:
     """Respond to the given context"""
 

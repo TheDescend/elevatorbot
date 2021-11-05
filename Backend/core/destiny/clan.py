@@ -3,6 +3,7 @@ import dataclasses
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.errors import CustomException
+from Backend.crud import discord_users
 from Backend.database.models import DiscordUsers
 from Backend.misc.helperFunctions import get_datetime_from_bungie_entry
 from Backend.networking.bungieApi import BungieApi
@@ -64,14 +65,23 @@ class DestinyClan:
 
         members = []
         for result in results:
+            destiny_id = int(result["destinyUserInfo"]["membershipId"])
+
+            # get discord data
+            try:
+                discord_data = await discord_users.get_profile_from_destiny_id(db=self.db, destiny_id=destiny_id)
+            except CustomException:
+                discord_data = None
+
             members.append(
                 DestinyClanMemberModel(
                     system=result["destinyUserInfo"]["membershipType"],
-                    destiny_id=int(result["destinyUserInfo"]["membershipId"]),
+                    destiny_id=destiny_id,
                     name=f"""{result["destinyUserInfo"]["bungieGlobalDisplayName"]}#{result["destinyUserInfo"]["bungieGlobalDisplayNameCode"]}""",
                     is_online=result["isOnline"],
                     last_online_status_change=get_datetime_from_bungie_entry(result["lastOnlineStatusChange"]),
                     join_date=get_datetime_from_bungie_entry(result["joinDate"]),
+                    discord_id=discord_data.discord_id if discord_data else None,
                 )
             )
 
