@@ -167,11 +167,11 @@ class WeaponsTop(BaseScale):
 
                 if weapon and weapon.reference_ids[0] in item.weapon_ids:
                     field_text.append(
-                        f"""**{item.ranking})** [{item.weapon_name}](https://www.light.gg/db/items/{item.weapon_ids[0]}) {custom_emojis.destiny}\n{custom_emojis.enter} {capitalize_string(stat.name)}: **{item.stat_value}**"""
+                        f"""**{item.ranking}) {getattr(custom_emojis, item.weapon_type.lower())}{getattr(custom_emojis, item.weapon_damage_type.lower())}{getattr(custom_emojis, item.weapon_ammo_type.lower())} [{item.weapon_name}](https://www.light.gg/db/items/{item.weapon_ids[0]})\n{custom_emojis.enter} {capitalize_string(stat.name)}: {item.stat_value}**"""
                     )
                 else:
                     field_text.append(
-                        f"""{item.ranking}) [{item.weapon_name}](https://www.light.gg/db/items/{item.weapon_ids[0]})\n{custom_emojis.enter} {capitalize_string(stat.name)}: {item.stat_value}"""
+                        f"""{item.ranking}) {getattr(custom_emojis, item.weapon_type.lower())}{getattr(custom_emojis, item.weapon_damage_type.lower())}{getattr(custom_emojis, item.weapon_ammo_type.lower())} [{item.weapon_name}](https://www.light.gg/db/items/{item.weapon_ids[0]})\n{custom_emojis.enter} {capitalize_string(stat.name)}: {item.stat_value}"""
                     )
 
             embed.add_field(name=slot_name, value="\n".join(field_text) or "None", inline=True)
