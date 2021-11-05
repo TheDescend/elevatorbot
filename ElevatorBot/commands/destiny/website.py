@@ -39,6 +39,7 @@ class Website(BaseScale):
             SlashCommandChoice(name="Trials Report", value="Trials Report"),
             SlashCommandChoice(name="Triumph Report", value="Triumph Report"),
             SlashCommandChoice(name="Wasted on Destiny", value="Wasted on Destiny"),
+            SlashCommandChoice(name="Crucible Report", value="Crucible Report"),
         ],
     )
     @default_user_option()
@@ -50,7 +51,6 @@ class Website(BaseScale):
         destiny_profile = DestinyProfile(ctx=ctx, client=ctx.bot, discord_member=user, discord_guild=ctx.guild)
         destiny_player = await destiny_profile.from_discord_member()
         if not destiny_player:
-            await destiny_player.send_error_message(ctx)
             return
 
         # get the text
@@ -94,6 +94,9 @@ class Website(BaseScale):
                 text = (
                     f"https://destinytracker.com/destiny-2/profile/{destiny_player.system}/{destiny_player.destiny_id}"
                 )
+
+            case "Crucible Report":
+                text = f"https://crucible.report/{destiny_player.system}/{destiny_player.destiny_id}"
 
             # Wasted on Destiny
             case _:

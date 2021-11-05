@@ -20,7 +20,6 @@ class Destiny(BaseScale):
         destiny_profile = DestinyProfile(ctx=ctx, client=ctx.bot, discord_member=user, discord_guild=ctx.guild)
         destiny_info = await destiny_profile.from_discord_member()
         if not destiny_info:
-            await destiny_info.send_error_message(ctx)
             return
 
         heatmap_url = (
