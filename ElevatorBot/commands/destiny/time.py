@@ -13,6 +13,7 @@ from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formating import embed_message, format_timedelta
 from ElevatorBot.misc.helperFunctions import get_now_with_tz
 from ElevatorBot.static.destinyDates import season_and_expansion_dates
+from ElevatorBot.static.emojis import custom_emojis
 
 
 class Time(BaseScale):
@@ -134,7 +135,7 @@ class Time(BaseScale):
         # set footer
         footer = []
         if destiny_class:
-            footer.append(f"Class: {destiny_class}")
+            footer.append(f"Class: {getattr(custom_emojis, destiny_class.lower())} {destiny_class}")
         if footer:
             embed.set_footer(" | ".join(footer))
 

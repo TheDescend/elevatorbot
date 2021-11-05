@@ -15,7 +15,7 @@ class __ElevatorEmojis:
     descend_logo: CustomEmoji | int = 768907515193720874
     elevator_logo: CustomEmoji | int = 768907515386921020
 
-    kinetic: CustomEmoji | int = 1  # todo
+    kinetic: CustomEmoji | int = 906180170875031562
     stasis: CustomEmoji | int = 897797463799369769
     arc: CustomEmoji | int = 897797463933583401
     solar: CustomEmoji | int = 897797463937798174
@@ -25,8 +25,26 @@ class __ElevatorEmojis:
     barrier: CustomEmoji | int = 897797463988142091
     overload: CustomEmoji | int = 897797463988142090
 
-    # todo emotes for the weapon types
-    # todo emotes for the ammo types
+    auto_rifle: CustomEmoji | int = 906180170778546226
+    shotgun: CustomEmoji | int = 906180170971484220
+    machine_gun: CustomEmoji | int = 906180170833100820
+    hand_cannon: CustomEmoji | int = 906180170979881000
+    rocket_launcher: CustomEmoji | int = 906180170799521812
+    fusion_rifle: CustomEmoji | int = 906180170929565777
+    sniper_rifle: CustomEmoji | int = 906180170807906366
+    pulse_rifle: CustomEmoji | int = 906180170820485190
+    scout_rifle: CustomEmoji | int = 906180170858250261
+    sidearm: CustomEmoji | int = 906180170833096774
+    sword: CustomEmoji | int = 906180170929565776
+    linear_fusion_rifle: CustomEmoji | int = 906180170807906365
+    grenade_launcher: CustomEmoji | int = 906180170405249025
+    submachine_gun: CustomEmoji | int = 906180170799521815
+    trace_rifle: CustomEmoji | int = 906180170858250260  # todo missing
+    bow: CustomEmoji | int = 906180170799538206
+
+    primary: CustomEmoji | int = 906180170887622656
+    special: CustomEmoji | int = 906180170858250260
+    heavy: CustomEmoji | int = 906180170451410985
 
     # Emote Server
     among_us: CustomEmoji | int = 905844106914332682
