@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from Backend.core.destiny.weapons import DestinyWeapons
 from Backend.crud import discord_users
 from Backend.dependencies import get_db_session
+from DestinyEnums.enums import DestinyDamageTypeEnum, DestinyItemSubTypeEnum
 from NetworkingSchemas.destiny.weapons import (
     DestinyTopWeaponsInputModel,
     DestinyTopWeaponsModel,
@@ -11,7 +12,6 @@ from NetworkingSchemas.destiny.weapons import (
     DestinyWeaponStatsInputModel,
     DestinyWeaponStatsModel,
 )
-from NetworkingSchemas.enums import DestinyDamageTypeEnum, DestinyItemSubTypeEnum
 
 router = APIRouter(
     prefix="/destiny",

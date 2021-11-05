@@ -45,6 +45,7 @@ services:
       - ./Logs/Backend:/app/Backend/logs
       - ./settings.py:/app/settings.py
       - ./NetworkingSchemas:/app/NetworkingSchemas
+      - ./DestinyEnums:/app/DestinyEnums
     environment:
       - POSTGRES_DB
       - POSTGRES_USER
@@ -96,6 +97,7 @@ services:
       - ./Logs/ElevatorBot:/app/ElevatorBot/logs
       - ./settings.py:/app/settings.py
       - ./NetworkingSchemas:/app/NetworkingSchemas
+      - ./DestinyEnums:/app/DestinyEnums
     environment:
       - BACKEND_HOST
       - BACKEND_PORT

@@ -11,12 +11,12 @@ from Backend.database.models import (
     ActivitiesUsersWeapons,
     DestinyInventoryItemDefinition,
 )
-from NetworkingSchemas.destiny.weapons import DestinyTopWeaponsStatInputModelEnum
-from NetworkingSchemas.enums import (
+from DestinyEnums.enums import (
     DestinyDamageTypeEnum,
     DestinyItemSubTypeEnum,
     DestinyWeaponSlotEnum,
 )
+from NetworkingSchemas.destiny.weapons import DestinyTopWeaponsStatInputModelEnum
 
 
 class CRUDWeapons(CRUDBase):

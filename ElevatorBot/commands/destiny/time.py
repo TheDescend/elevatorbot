@@ -1,26 +1,18 @@
 from dis_snek.models import InteractionContext, Member, slash_command
 
+from DestinyEnums.enums import UsableDestinyActivityModeTypeEnum
 from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
-from ElevatorBot.commandHelpers.autocomplete import activities, activities_by_id
+from ElevatorBot.commandHelpers.autocomplete import activities
 from ElevatorBot.commandHelpers.optionTemplates import (
     autocomplete_activity_option,
     default_class_option,
     default_mode_option,
-    default_stat_option,
     default_user_option,
 )
-from ElevatorBot.commandHelpers.subCommandTemplates import stat_sub_command
 from ElevatorBot.commands.base import BaseScale
-from ElevatorBot.core.destiny.stat import get_stat_and_send, stat_translation
 from ElevatorBot.misc.formating import embed_message, format_timedelta
 from ElevatorBot.misc.helperFunctions import get_now_with_tz
-from ElevatorBot.static.destinyDates import (
-    expansion_dates,
-    season_and_expansion_dates,
-    season_dates,
-)
-from ElevatorBot.static.destinyEnums import StatScope
-from NetworkingSchemas.enums import UsableDestinyActivityModeTypeEnum
+from ElevatorBot.static.destinyDates import season_and_expansion_dates
 
 
 class Time(BaseScale):

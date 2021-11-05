@@ -9,6 +9,11 @@ from dis_snek.models import (
     slash_option,
 )
 
+from DestinyEnums.enums import (
+    DestinyWeaponTypeEnum,
+    UsableDestinyActivityModeTypeEnum,
+    UsableDestinyDamageTypeEnum,
+)
 from ElevatorBot.backendNetworking.destiny.weapons import DestinyWeapons
 from ElevatorBot.commandHelpers.autocomplete import activities, weapons
 from ElevatorBot.commandHelpers.optionTemplates import (
@@ -22,25 +27,16 @@ from ElevatorBot.commandHelpers.optionTemplates import (
     default_time_option,
     default_user_option,
     default_weapon_type_option,
-    get_mode_choices,
 )
 from ElevatorBot.commandHelpers.subCommandTemplates import weapons_sub_command
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formating import capitalize_string, embed_message
 from ElevatorBot.misc.helperFunctions import parse_datetime_options
-from ElevatorBot.static.destinyDates import expansion_dates, season_dates
 from ElevatorBot.static.emojis import custom_emojis
-from NetworkingSchemas.destiny.activities import DestinyActivityModel
 from NetworkingSchemas.destiny.weapons import (
     DestinyTopWeaponModel,
     DestinyTopWeaponsInputModel,
     DestinyTopWeaponsStatInputModelEnum,
-)
-from NetworkingSchemas.enums import (
-    DestinyDamageTypeEnum,
-    DestinyWeaponTypeEnum,
-    UsableDestinyActivityModeTypeEnum,
-    UsableDestinyDamageTypeEnum,
 )
 
 

@@ -1,15 +1,17 @@
-import datetime
-
 from dis_snek.models import (
     InteractionContext,
     Member,
-    OptionTypes,
     Timestamp,
     TimestampStyles,
     slash_command,
-    slash_option,
 )
 
+from DestinyEnums.enums import (
+    DestinyWeaponTypeEnum,
+    UsableDestinyActivityModeTypeEnum,
+    UsableDestinyAmmunitionTypeEnum,
+    UsableDestinyDamageTypeEnum,
+)
 from ElevatorBot.backendNetworking.destiny.weapons import DestinyWeapons
 from ElevatorBot.commandHelpers.autocomplete import activities, weapons
 from ElevatorBot.commandHelpers.optionTemplates import (
@@ -25,18 +27,9 @@ from ElevatorBot.commandHelpers.optionTemplates import (
 from ElevatorBot.commandHelpers.subCommandTemplates import weapons_sub_command
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formating import capitalize_string, embed_message
-from ElevatorBot.misc.helperFunctions import (
-    parse_datetime_options,
-    parse_string_datetime,
-)
+from ElevatorBot.misc.helperFunctions import parse_datetime_options
 from ElevatorBot.static.emojis import custom_emojis
 from NetworkingSchemas.destiny.weapons import DestinyWeaponStatsInputModel
-from NetworkingSchemas.enums import (
-    DestinyWeaponTypeEnum,
-    UsableDestinyActivityModeTypeEnum,
-    UsableDestinyAmmunitionTypeEnum,
-    UsableDestinyDamageTypeEnum,
-)
 
 
 class WeaponsWeapon(BaseScale):

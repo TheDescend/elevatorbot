@@ -1,5 +1,6 @@
 from dis_snek.models import InteractionContext, Member, slash_command
 
+from DestinyEnums.enums import UsableDestinyActivityModeTypeEnum
 from ElevatorBot.backendNetworking.destiny.activities import DestinyActivities
 from ElevatorBot.commandHelpers.autocomplete import activities, activities_by_id
 from ElevatorBot.commandHelpers.optionTemplates import (
@@ -11,7 +12,6 @@ from ElevatorBot.commandHelpers.optionTemplates import (
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formating import embed_message, format_timedelta
 from ElevatorBot.static.emojis import custom_emojis
-from NetworkingSchemas.enums import UsableDestinyActivityModeTypeEnum
 
 # todo destiny_class parameter
 

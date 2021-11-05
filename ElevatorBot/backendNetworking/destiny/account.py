@@ -5,8 +5,8 @@ from typing import Optional
 from dis_snek.client import Snake
 from dis_snek.models import Guild
 
+from DestinyEnums.enums import UsableDestinyActivityModeTypeEnum
 from ElevatorBot.backendNetworking.http import BaseBackendConnection
-from ElevatorBot.backendNetworking.results import BackendResult
 from ElevatorBot.backendNetworking.routes import (
     destiny_account_characters_route,
     destiny_account_collectible_route,
@@ -25,11 +25,9 @@ from NetworkingSchemas.destiny.account import (
     DestinyLowMansModel,
     DestinyNameModel,
     DestinyStatModel,
-    DestinyTimeModel,
     DestinyTimesModel,
     SeasonalChallengesModel,
 )
-from NetworkingSchemas.enums import UsableDestinyActivityModeTypeEnum
 
 
 @dataclasses.dataclass
