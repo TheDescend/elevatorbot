@@ -17,6 +17,19 @@ class DestinyStatModel(BaseModel):
 class BoolModel(BaseModel):
     bool: bool
 
+    def __bool__(self):
+        return self.bool
+
+
+class BoolModelObjective(BaseModel):
+    objective_id: int
+    bool: bool
+
+
+class BoolModelRecord(BoolModel):
+    # this is empty if the triumph is earned
+    objectives: list[BoolModelObjective] = []
+
 
 class DestinyCharacterModel(BaseModel):
     character_id: int

@@ -28,7 +28,7 @@ class DayOneUser(BaseScale):
         destiny_player = DestinyAccount(ctx=ctx, client=ctx.bot, discord_member=member, discord_guild=ctx.guild)
         for raid_name, collectible_id in raid_to_emblem_hash.items():
             result = await destiny_player.has_collectible(collectible_id=collectible_id)
-            if not result:
+            if result is None:
                 return
 
             if result.bool:

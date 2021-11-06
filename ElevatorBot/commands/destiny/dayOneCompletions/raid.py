@@ -33,7 +33,7 @@ class DayOneRaid(BaseScale):
             # check the members separately to make this faster
             if player:
                 result = await player.has_collectible(collectible_id=raid_to_emblem_hash[raid])
-                if not result:
+                if result is None:
                     return
 
                 if result.bool:

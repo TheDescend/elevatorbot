@@ -21,6 +21,7 @@ from ElevatorBot.backendNetworking.routes import (
 )
 from NetworkingSchemas.destiny.account import (
     BoolModel,
+    BoolModelRecord,
     DestinyCharactersModel,
     DestinyLowMansModel,
     DestinyNameModel,
@@ -111,7 +112,7 @@ class DestinyAccount(BaseBackendConnection):
         # convert to correct pydantic model
         return BoolModel.parse_obj(result.result) if result else None
 
-    async def has_triumph(self, triumph_id: int) -> Optional[BoolModel]:
+    async def has_triumph(self, triumph_id: int) -> Optional[BoolModelRecord]:
         """Return if the triumph is had"""
 
         result = await self._backend_request(
@@ -122,7 +123,7 @@ class DestinyAccount(BaseBackendConnection):
         )
 
         # convert to correct pydantic model
-        return BoolModel.parse_obj(result.result) if result else None
+        return BoolModelRecord.parse_obj(result.result) if result else None
 
     async def get_metric(self, metric_id: int) -> Optional[DestinyStatModel]:
         """Return the metric value"""

@@ -18,6 +18,8 @@ from Backend.misc.helperFunctions import get_datetime_from_bungie_entry
 from Backend.networking.bungieApi import BungieApi
 from Backend.networking.bungieRoutes import profile_route, stat_route
 from NetworkingSchemas.destiny.account import (
+    BoolModelObjective,
+    BoolModelRecord,
     DestinyCharacterModel,
     DestinyCharactersModel,
     SeasonalChallengesModel,
@@ -62,7 +64,7 @@ class DestinyProfile:
         result = await self.__get_profile()
         return get_datetime_from_bungie_entry(result["profile"]["data"]["dateLastPlayed"])
 
-    async def has_triumph(self, triumph_hash: str | int) -> bool:
+    async def has_triumph(self, triumph_hash: str | int) -> BoolModelRecord:
         """Returns if the triumph is gotten"""
 
         triumph_hash = int(triumph_hash)
@@ -70,11 +72,12 @@ class DestinyProfile:
         # get from db and return that if it says user got the triumph
         result = await records.has_record(db=self.db, destiny_id=self.destiny_id, triumph_hash=triumph_hash)
         if result:
-            return result
+            return BoolModelRecord(bool=result)
 
         # alright, the user doesn't have the triumph, at least not in the db. So let's update the db entries
         triumphs_data = await self.get_triumphs()
         to_insert = []
+        sought_triumph = {}
 
         # loop through all triumphs and add them / update them in the db
         for triumph_id, triumph_info in triumphs_data.items():
@@ -86,7 +89,7 @@ class DestinyProfile:
             if result and result.completed:
                 continue
 
-            # calculate if the triumph is gotten
+            # calculate if the triumph is gotten and save the triumph we are looking for
             status = True
             if "objectives" not in triumph_info:
                 # make sure it's RewardUnavailable aka legacy
@@ -95,10 +98,13 @@ class DestinyProfile:
                 # https://bungie-net.github.io/multi/schema_Destiny-DestinyRecordState.html#schema_Destiny-DestinyRecordState
                 status &= triumph_info["state"] & 1
 
-                return status
+            else:
+                for part in triumph_info["objectives"]:
+                    status &= part["complete"]
 
-            for part in triumph_info["objectives"]:
-                status &= part["complete"]
+            # is this the triumph we are looking for?
+            if triumph_id == triumph_hash:
+                sought_triumph = triumph_info
 
             # don't really need to insert not-gained triumphs
             if status:
@@ -116,7 +122,16 @@ class DestinyProfile:
             await records.insert_records(db=self.db, objs=to_insert)
 
         # now check again if it completed
-        return await records.has_record(db=self.db, destiny_id=self.destiny_id, triumph_hash=triumph_hash)
+        result = await records.has_record(db=self.db, destiny_id=self.destiny_id, triumph_hash=triumph_hash)
+        if result:
+            return BoolModelRecord(bool=result)
+
+        # if not, return the data with the objectives info
+        result = BoolModelRecord(bool=False)
+        if "objectives" in sought_triumph:
+            for part in sought_triumph["objectives"]:
+                result.objectives.append(BoolModelObjective(objective_id=part["objectiveHash"], bool=part["complete"]))
+        return result
 
     async def has_collectible(self, collectible_hash: str | int) -> bool:
         """Returns if the collectible is gotten"""

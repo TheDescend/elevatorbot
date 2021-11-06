@@ -9,8 +9,8 @@ from ElevatorBot.misc.formating import embed_message
 class BaseScale(Scale):
     """Add checks to every scale"""
 
-    def __init__(self, client):
-        self.client: Snake = client
+    def __init__(self, client: Snake):
+        self.client = client
         self.add_scale_check(self.registered_check)
         self.add_scale_check(self.no_dm_check)
 

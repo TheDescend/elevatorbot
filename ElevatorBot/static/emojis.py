@@ -6,6 +6,10 @@ class __ElevatorEmojis:
     """To add an emoji add it to the class variables"""
 
     # Descend Font
+    tile_left: CustomEmoji | int = 768906489309822987
+    tile_mid: CustomEmoji | int = 768906489103384657
+    tile_right: CustomEmoji | int = 768906489729122344
+
     yes: CustomEmoji | int = 768908985557844028
     question: CustomEmoji | int = 768906489686655016
     enter: CustomEmoji | int = 768906489103384688
@@ -64,6 +68,8 @@ class __ElevatorEmojis:
     join: CustomEmoji | int = 850000522101391400
     leave: CustomEmoji | int = 850000522048045106
     backup: CustomEmoji | int = 850000522107027466
+
+    zoom: CustomEmoji | int = 906503515642425396
 
     # Descend [Test 01]
 

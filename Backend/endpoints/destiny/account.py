@@ -7,6 +7,7 @@ from Backend.core.destiny.profile import DestinyProfile
 from Backend.dependencies import get_db_session
 from NetworkingSchemas.destiny.account import (
     BoolModel,
+    BoolModelRecord,
     DestinyCharactersModel,
     DestinyLowMansModel,
     DestinyNameModel,
@@ -42,13 +43,14 @@ async def has_collectible(
     return BoolModel(bool=await profile.has_collectible(collectible_hash=collectible_id))
 
 
-@router.get("/triumph/{triumph_id}", response_model=BoolModel)
+@router.get("/triumph/{triumph_id}", response_model=BoolModelRecord)
 async def has_triumph(guild_id: int, discord_id: int, triumph_id: int, db: AsyncSession = Depends(get_db_session)):
     """Return is the triumph is unlocked"""
 
     user = await crud.discord_users.get_profile_from_discord_id(db, discord_id)
     profile = DestinyProfile(db=db, user=user)
-    return BoolModel(bool=await profile.has_triumph(triumph_hash=triumph_id))
+
+    return await profile.has_triumph(triumph_hash=triumph_id)
 
 
 @router.get("/metric/{metric_id}", response_model=DestinyStatModel)
