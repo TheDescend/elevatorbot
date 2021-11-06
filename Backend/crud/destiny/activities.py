@@ -14,6 +14,7 @@ from Backend.database.models import (
     ActivitiesUsersWeapons,
     DestinyActivityDefinition,
 )
+from NetworkingSchemas.destiny.roles import TimePeriodModel
 
 
 class CRUDActivitiesFailToGet(CRUDBase):
@@ -39,6 +40,11 @@ class CRUDActivities(CRUDBase):
         """Get the activity with the instance_id"""
 
         return await self._get_with_key(db=db, primary_key=instance_id)
+
+    async def get_user_stats(self, db: AsyncSession, destiny_id: int, instance_id: int) -> list[ActivitiesUsers]:
+        """Get the activity with the instance_id"""
+
+        return await self._get_multi(db=db, instance_id=instance_id, destiny_id=destiny_id)
 
     async def get_activity_name(self, db: AsyncSession, activity_id: int) -> str:
         """Get the activity name"""
@@ -146,18 +152,20 @@ class CRUDActivities(CRUDBase):
         self,
         db: AsyncSession,
         activity_hashes: list[int],
-        maximum_allowed_players: int,
         destiny_id: int,
-        no_checkpoints: bool = True,
-        require_team_flawless: bool = False,
-        require_individual_flawless: bool = False,
-        require_score: int = None,
-        require_kills: int = None,
-        require_kills_per_minute: float = None,
-        require_kda: float = None,
-        require_kd: float = None,
-        allow_time_periods: list[dict] = None,  # see TimePeriodModel
-        disallow_time_periods: list[dict] = None,  # see TimePeriodModel
+        no_checkpoints: Optional[bool] = True,
+        require_team_flawless: Optional[bool] = None,
+        require_individual_flawless: Optional[bool] = None,
+        character_class: Optional[str] = None,
+        character_ids: Optional[list[int]] = None,
+        maximum_allowed_players: Optional[int] = None,
+        require_score: Optional[int] = None,
+        require_kills: Optional[int] = None,
+        require_kills_per_minute: Optional[float] = None,
+        require_kda: Optional[float] = None,
+        require_kd: Optional[float] = None,
+        allow_time_periods: Optional[list[TimePeriodModel]] = None,
+        disallow_time_periods: Optional[list[TimePeriodModel]] = None,
     ) -> list[Activities]:
         """Gets a list of all Activities that fulfill the get_requirements"""
 
@@ -167,10 +175,12 @@ class CRUDActivities(CRUDBase):
         if no_checkpoints:
             query = query.filter(Activities.starting_phase_index == 0)
 
-        # limit max users to player_count
         query = query.join(Activities.users)
         query = query.group_by(ActivitiesUsers.id)
-        query = query.having(func.count(distinct(ActivitiesUsers.destiny_id)) <= maximum_allowed_players)
+
+        # limit max users to player_count
+        if maximum_allowed_players:
+            query = query.having(func.count(distinct(ActivitiesUsers.destiny_id)) <= maximum_allowed_players)
 
         # team flawless required?
         if require_team_flawless:
@@ -184,6 +194,14 @@ class CRUDActivities(CRUDBase):
         # individual flawless required?
         if require_individual_flawless:
             query = query.filter(ActivitiesUsers.deaths == 0)
+
+        # limit character class
+        if character_class:
+            query = query.filter(ActivitiesUsers.character_class == character_class)
+
+        # limit character ids
+        if character_ids:
+            query = query.filter(ActivitiesUsers.character_id.in_(character_ids))
 
         # minimum score?
         if require_score:
@@ -210,16 +228,12 @@ class CRUDActivities(CRUDBase):
         # do we have allowed datetimes
         if allow_time_periods:
             for time in allow_time_periods:
-                start = time["start_time"]
-                end = time["end_time"]
-                query = query.filter(Activities.period.between(start, end))
+                query = query.filter(Activities.period.between(time.start_time, time.end_time))
 
         # do we have disallowed datetimes
         if disallow_time_periods:
             for time in disallow_time_periods:
-                start = time["start_time"]
-                end = time["end_time"]
-                query = query.filter(not_(Activities.period.between(start, end)))
+                query = query.filter(not_(Activities.period.between(time.start_time, time.end_time)))
 
         result = await self._execute_query(db=db, query=query)
         return result.scalars().fetchall()

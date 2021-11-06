@@ -52,3 +52,24 @@ class DestinyLastInputModel(BaseModel):
     activity_ids: Optional[list[int]] = None  # if this is supplied, mode is ignored
     mode: Optional[int] = None
     character_class: Optional[str] = None
+
+
+class DestinyActivityInputModel(BaseModel):
+    activity_ids: list[int]
+    character_class: Optional[str] = None
+    character_ids: Optional[list[int]] = None
+    start_time: Optional[datetime.datetime] = None
+    end_time: Optional[datetime.datetime] = None
+
+
+class DestinyActivityOutputModel(BaseModel):
+    full_completions: int
+    cp_completions: int
+    kills: int
+    precision_kills: int
+    deaths: int
+    assists: int
+    time_spend: datetime.timedelta
+    fastest: Optional[datetime.timedelta]  # only includes full runs
+    fastest_instance_id: Optional[int]
+    average: datetime.timedelta

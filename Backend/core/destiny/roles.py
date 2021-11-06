@@ -14,6 +14,7 @@ from NetworkingSchemas.destiny.roles import (
     EarnedRoleModel,
     EarnedRolesModel,
     MissingRolesModel,
+    TimePeriodModel,
 )
 
 
@@ -200,8 +201,8 @@ class UserRoles:
                         require_kda=entry["require_kda"],
                         require_kd=entry["require_kd"],
                         maximum_allowed_players=entry["maximum_allowed_players"],
-                        allow_time_periods=entry["allow_time_periods"],
-                        disallow_time_periods=entry["disallow_time_periods"],
+                        allow_time_periods=[TimePeriodModel.parse_obj(entry) for entry in entry["allow_time_periods"]],
+                        disallow_time_periods=[TimePeriodModel.parse_obj(entry) for entry in entry["disallow_time_periods"]],
                     )
 
                     # todo make sure this can be viewed on a website nicely. Maybe even put a link there

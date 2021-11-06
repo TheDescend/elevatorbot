@@ -11,7 +11,7 @@ from Backend.core.destiny.profile import DestinyProfile
 from Backend.core.errors import CustomException
 from Backend.crud import activities, activities_fail_to_get, discord_users
 from Backend.database.models import DiscordUsers
-from Backend.misc.helperFunctions import get_datetime_from_bungie_entry
+from Backend.misc.helperFunctions import get_datetime_from_bungie_entry, get_now_with_tz
 from Backend.networking.bungieApi import BungieApi
 from Backend.networking.bungieRoutes import (
     activities_route,
@@ -28,6 +28,8 @@ from NetworkingSchemas.destiny.account import (
     DestinyLowMansModel,
     DestinyUpdatedLowManModel,
 )
+from NetworkingSchemas.destiny.activities import DestinyActivityOutputModel
+from NetworkingSchemas.destiny.roles import TimePeriodModel
 
 
 @dataclasses.dataclass
@@ -62,7 +64,7 @@ class DestinyActivities:
         max_player_count: int,
         require_flawless: bool = False,
         no_checkpoints: bool = True,
-        disallowed_datetimes: list[tuple[datetime.datetime, datetime.datetime]] = None,
+        disallowed_datetimes: list[TimePeriodModel] = None,
         score_threshold: int = None,
         min_kills_per_minute: float = None,
     ) -> DestinyLowManModel:
@@ -402,3 +404,81 @@ class DestinyActivities:
             solos.solos.append(DestinyUpdatedLowManModel(activity_name=activity_name, **result))
 
         return solos
+
+    async def get_activity_stats(
+        self,
+        activity_ids: list[int],
+        character_class: Optional[str] = None,
+        character_ids: Optional[list[int]] = None,
+        start_time: Optional[datetime.datetime] = None,
+        end_time: Optional[datetime.datetime] = None,
+    ) -> DestinyActivityOutputModel:
+        """Return the user's stats for the activity"""
+
+        allow_time_period = None
+        if start_time or end_time:
+            allow_time_period = [
+                TimePeriodModel(start_time=start_time or datetime.datetime.min, end_time=end_time or get_now_with_tz())
+            ]
+
+        data = await activities.get_activities(
+            db=self.db,
+            activity_hashes=activity_ids,
+            destiny_id=self.destiny_id,
+            allow_time_periods=allow_time_period,
+            character_class=character_class,
+            character_ids=character_ids,
+        )
+
+        # get output model
+        result = DestinyActivityOutputModel(
+            full_completions=0,
+            cp_completions=0,
+            kills=0,
+            precision_kills=0,
+            deaths=0,
+            assists=0,
+            time_spend=datetime.timedelta(seconds=0),
+            fastest=None,
+            fastest_instance_id=None,
+            average=datetime.timedelta(seconds=0),
+        )
+
+        # loop through all results
+        average_time_completed = []
+        for activity in data:
+            user_stats = await activities.get_user_stats(
+                db=self.db, destiny_id=self.destiny_id, instance_id=activity.instance_id
+            )
+
+            # loop through all characters the user played with in that activity
+            time_played = datetime.timedelta(seconds=0)
+            completed = False
+            for character in user_stats:
+                result.kills += character.kills
+                result.precision_kills += character.precision_kills
+                result.deaths += character.deaths
+                result.assists += character.assists
+
+                time_played += datetime.timedelta(seconds=character.time_played_seconds)
+
+                if user_stats[0].completed:
+                    completed = True
+
+            # register the activity completion and time
+            result.time_spend += time_played
+            if completed:
+                result.full_completions += 1
+                average_time_completed.append(time_played)
+
+                if not result.fastest or time_played <= result.fastest:
+                    result.fastest = time_played
+                    result.fastest_instance_id = activity.instance_id
+
+            else:
+                result.cp_completions += 1
+
+        # calculate the average
+        result.average = datetime.timedelta(seconds=sum(average_time_completed) / result.full_completions)
+
+        return result
