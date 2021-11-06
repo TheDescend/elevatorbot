@@ -81,6 +81,7 @@ polls_delete_route = polls_route + "{poll_id}/delete/{"  # DELETE
 destiny_activities_route = base_route + "activities/"
 destiny_activities_get_all_route = destiny_activities_route + "get/all/"  # GET
 destiny_activities_last_route = destiny_activities_route + "{guild_id}/{discord_id}/last/"  # GET
+destiny_activities_activity_route = destiny_activities_route + "{guild_id}/{discord_id}/activity/"  # GET
 
 # d2 steam player count
 steam_player_route = base_route + "steam_players/"

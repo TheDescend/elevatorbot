@@ -6,10 +6,15 @@ from dis_snek.models import Guild, Member
 
 from DestinyEnums.enums import UsableDestinyActivityModeTypeEnum
 from ElevatorBot.backendNetworking.http import BaseBackendConnection
-from ElevatorBot.backendNetworking.routes import destiny_activities_get_all_route
+from ElevatorBot.backendNetworking.routes import (
+    destiny_activities_activity_route,
+    destiny_activities_get_all_route,
+)
 from NetworkingSchemas.destiny.activities import (
     DestinyActivitiesModel,
     DestinyActivityDetailsModel,
+    DestinyActivityInputModel,
+    DestinyActivityOutputModel,
 )
 
 
@@ -54,3 +59,17 @@ class DestinyActivities(BaseBackendConnection):
 
         # convert to correct pydantic model
         return DestinyActivityDetailsModel.parse_obj(result.result) if result else None
+
+    async def get_activity_stats(self, input_model: DestinyActivityInputModel) -> Optional[DestinyActivityOutputModel]:
+        """Get all activities"""
+
+        result = await self._backend_request(
+            method="GET",
+            route=destiny_activities_activity_route.format(
+                guild_id=self.discord_guild.id, discord_id=self.discord_member.id
+            ),
+            data=input_model.dict(),
+        )
+
+        # convert to correct pydantic model
+        return DestinyActivityOutputModel.parse_obj(result.result) if result else None

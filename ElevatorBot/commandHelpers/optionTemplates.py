@@ -253,7 +253,9 @@ def default_damage_type_option(
     return wrapper
 
 
-def autocomplete_activity_option(description: str = "Restrict the activity. Default: All activities") -> Any:
+def autocomplete_activity_option(
+    description: str = "Restrict the activity. Default: All activities", required: bool = False
+) -> Any:
     """
     Decorator that replaces @slash_option()
     Call with `@autocomplete_activity_option()`
@@ -263,7 +265,7 @@ def autocomplete_activity_option(description: str = "Restrict the activity. Defa
         name = "activity"
 
         option = slash_option(
-            name=name, description=description, opt_type=OptionTypes.STRING, required=False, autocomplete=True
+            name=name, description=description, opt_type=OptionTypes.STRING, required=required, autocomplete=True
         )(func)
 
         # register the callback
