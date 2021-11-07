@@ -1,6 +1,7 @@
 import asyncio
 
 from dis_snek.client import Snake
+from dis_snek.errors import ExtensionLoadException
 from dis_snek.models import listen
 from dis_snek.models.enums import Intents
 
@@ -88,9 +89,10 @@ if __name__ == "__main__":
     print ("Loading Commands...")
     for path in yield_files_in_folder("commands", "py"):
         # todo remove once all commands are ported
+        # client.load_extension(path)
         try:
             client.load_extension(path)
-        except:
+        except (ExtensionLoadException, IndexError):
             print (f"Couldn't load {path}")
 
     global_commands = len(client.interactions[0])

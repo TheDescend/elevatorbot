@@ -198,6 +198,11 @@
     ],
     "280456587464933376": [
         {
+            "name": "day_one_raid_race",
+            "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
+            "options": []
+        },
+        {
             "name": "mute",
             "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
             "options": [
@@ -236,6 +241,11 @@
         }
     ],
     "556418279015448596": [
+        {
+            "name": "day_one_raid_race",
+            "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
+            "options": []
+        },
         {
             "name": "mute",
             "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",

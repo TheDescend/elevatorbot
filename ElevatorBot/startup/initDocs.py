@@ -11,7 +11,6 @@ from dis_snek.models import (
     OptionTypes,
     SlashCommand,
     SlashCommandOption,
-    SubCommand,
 )
 
 

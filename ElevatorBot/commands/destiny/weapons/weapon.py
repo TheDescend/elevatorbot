@@ -44,11 +44,11 @@ class WeaponsWeapon(BaseScale):
     @default_season_option(description="Restrict the season where the weapon stats count")
     @default_time_option(
         name="start_time",
-        description="Format: `HH:MM DD/MM` - Input the **earliest** date you want the weapon stats for. Default: Jesus's Birth",
+        description="Format: `DD/MM/YY` - Input the **earliest** date you want the weapon stats for. Default: Big Bang",
     )
     @default_time_option(
         name="end_time",
-        description="Format: `HH:MM DD/MM` - Input the **latest** date you want the weapon stats for. Default: Now",
+        description="Format: `DD/MM/YY` - Input the **latest** date you want the weapon stats for. Default: Now",
     )
     @default_user_option()
     async def _weapon(

@@ -19,13 +19,14 @@ from ElevatorBot.core.misc.persistentMessages import handle_setup_command
 
 
 class ClanJoin(BaseScale):
+    """Designate a channel where players can join your clan by pressing a button. They will get an invite by the person which used /setup clan link"""
 
     # todo perms
     @slash_command(
         **setup_sub_command,
         **setup_sub_command_clan_group,
         sub_cmd_name="join",
-        sub_cmd_description="Designate a channel where players can join your clan by pressing a button. They will get an invite by the person which used /setup clan link",
+        sub_cmd_description="Designate a channel where players can join your clan by pressing a button",
     )
     @slash_option(
         name="channel",
@@ -36,7 +37,7 @@ class ClanJoin(BaseScale):
     )
     @slash_option(
         name="message_id",
-        description="You can input a message ID to have me edit that message instead of sending a new one. Message must be from me and in the input channel",
+        description="You can input a message ID (needs to be from me and selected channel) to have me edit that message",
         required=False,
         opt_type=OptionTypes.STRING,
     )

@@ -55,7 +55,7 @@ class DestinyLastInputModel(BaseModel):
 
 
 class DestinyActivityInputModel(BaseModel):
-    activity_ids: [list[int]] = None
+    activity_ids: Optional[list[int]] = None
     mode: Optional[int] = (None,)
     character_class: Optional[str] = None
     character_ids: Optional[list[int]] = None

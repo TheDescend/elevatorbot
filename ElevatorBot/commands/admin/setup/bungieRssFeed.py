@@ -29,7 +29,7 @@ class BungieRssFeed(BaseScale):
     )
     @slash_option(
         name="message_id",
-        description="You can input a message ID to have me edit that message instead of sending a new one. Message must be from me and in the input channel",
+        description="-",
         required=False,
         opt_type=OptionTypes.STRING,
     )

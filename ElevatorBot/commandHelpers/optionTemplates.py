@@ -269,7 +269,7 @@ def autocomplete_activity_option(
         )(func)
 
         # register the callback
-        func.autocomplete(name=name)(autocomplete_send_activity_name)
+        func.autocomplete_callbacks(name=name)(autocomplete_send_activity_name)
 
         return option
 
