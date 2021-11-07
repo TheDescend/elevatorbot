@@ -103,39 +103,39 @@ class Rank(BaseScale):
 
     @slash_command(
         name="rank",
-        description="Display Destiny 2 leaderboard for the linked clan. Please pick exactly one leaderboard you want to see",
+        description="Display Destiny 2 leaderboard for the linked clan. Pick **exactly** one leaderboard from all options",
     )
     @slash_option(
         name="discord_leaderboards",
-        description="Leaderboards concerning this discord server. Please select **exactly** one leaderboard from all options",
+        description="Leaderboards concerning this discord server",
         opt_type=OptionTypes.STRING,
         required=False,
         choices=[SlashCommandChoice(name=name, value=value) for value, name in discord_leaderboards.items()],
     )
     @slash_option(
         name="basic_leaderboards",
-        description="Leaderboards concerning basic Destiny 2 stats. Please select **exactly** one leaderboard from all options",
+        description="Leaderboards concerning basic Destiny 2 stats",
         opt_type=OptionTypes.STRING,
         required=False,
         choices=[SlashCommandChoice(name=name, value=value) for value, name in basic_leaderboards.items()],
     )
     @slash_option(
         name="endgame_leaderboards",
-        description="Leaderboards concerning stats in Destiny 2 endgame activities. Please select **exactly** one leaderboard from all options",
+        description="Leaderboards concerning stats in Destiny 2 endgame activities",
         opt_type=OptionTypes.STRING,
         required=False,
         choices=[SlashCommandChoice(name=name, value=value) for value, name in endgame_leaderboards.items()],
     )
     @slash_option(
         name="activity_leaderboards",
-        description="Leaderboards concerning stats in Destiny 2 activities. Please input the sought activity in `activity`. Please select **exactly** one leaderboard from all options",
+        description="Leaderboards concerning stats in Destiny 2 activities. Input the sought activity in `activity`",
         opt_type=OptionTypes.STRING,
         required=False,
         choices=[SlashCommandChoice(name=name, value=value) for value, name in activity_leaderboards.items()],
     )
     @slash_option(
         name="weapon_leaderboards",
-        description="Leaderboards concerning Destiny 2 weapon stats. Please input the sought weapon in `weapon`. Please select **exactly** one leaderboard from all options",
+        description="Leaderboards concerning Destiny 2 weapon stats. Input the sought weapon in `weapon`",
         opt_type=OptionTypes.STRING,
         required=False,
         choices=[SlashCommandChoice(name=name, value=value) for value, name in weapon_leaderboards.items()],

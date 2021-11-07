@@ -45,7 +45,9 @@ from NetworkingSchemas.destiny.weapons import (
 
 class WeaponsMeta(BaseScale):
     @slash_command(
-        **weapons_sub_command, name="meta", description="Displays most used weapons by clan members in the linked clan"
+        **weapons_sub_command,
+        sub_cmd_name="meta",
+        sub_cmd_description="Displays most used weapons by clan members in the linked clan",
     )
     @default_mode_option(description="Restrict the game mode where the weapon stats count. Default: All modes")
     @autocomplete_activity_option(

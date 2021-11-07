@@ -41,7 +41,7 @@ from NetworkingSchemas.destiny.weapons import (
 
 
 class WeaponsTop(BaseScale):
-    @slash_command(**weapons_sub_command, name="top", description="Shows your top weapon ranking")
+    @slash_command(**weapons_sub_command, sub_cmd_name="top", sub_cmd_description="Shows your top weapon ranking")
     @slash_option(
         name="stat",
         description="Which stat you want the leaderboard to consider. Default: Kills",

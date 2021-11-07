@@ -33,7 +33,9 @@ from NetworkingSchemas.destiny.weapons import DestinyWeaponStatsInputModel
 
 
 class WeaponsWeapon(BaseScale):
-    @slash_command(**weapons_sub_command, name="weapon", description="Shows weapon stats for the specified weapon")
+    @slash_command(
+        **weapons_sub_command, sub_cmd_name="weapon", sub_cmd_description="Shows weapon stats for the specified weapon"
+    )
     @autocomplete_weapon_option(description="The weapon you want to look up", required=True)
     @default_mode_option(description="Restrict the game mode where the weapon stats count. Default: All modes")
     @autocomplete_activity_option(
