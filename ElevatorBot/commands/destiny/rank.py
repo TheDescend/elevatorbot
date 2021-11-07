@@ -36,7 +36,10 @@ from NetworkingSchemas.destiny.activities import (
     DestinyActivityModel,
 )
 from NetworkingSchemas.destiny.clan import DestinyClanMemberModel
-from NetworkingSchemas.destiny.weapons import DestinyWeaponModel
+from NetworkingSchemas.destiny.weapons import (
+    DestinyWeaponModel,
+    DestinyWeaponStatsInputModel,
+)
 
 
 @dataclasses.dataclass
@@ -339,20 +342,12 @@ class Rank(BaseScale):
         # handle each leaderboard differently
         match leaderboard_name:
             case "discord_roles":
-                # get the stat
-                aaaaaaaaa
-
-                # save the stat
-                result.sort_value = aaaa
-                result.display_text = aaaa
+                # todo
+                pass
 
             case "discord_join_date":
-                # get the stat
-                aaaaaaaaa
-
-                # save the stat
-                result.sort_value = aaaa
-                result.display_text = aaaa
+                # todo
+                pass
 
             case "basic_total_time":
                 # get the stat
@@ -365,12 +360,8 @@ class Rank(BaseScale):
                 result.display_text = f"Time Played: {format_timedelta(stat.value)}"
 
             case "basic_max_power":
-                # get the stat
-                aaaaaaaaa
-
-                # save the stat
-                result.sort_value = aaaa
-                result.display_text = aaaa
+                # todo
+                pass
 
             case "basic_kills":
                 # get the stat
@@ -443,44 +434,24 @@ class Rank(BaseScale):
                 result.display_text = f"Orbs: {stat.value:,}"
 
             case "basic_triumphs":
-                # get the stat
-                aaaaaaaaa
-
-                # save the stat
-                result.sort_value = aaaa
-                result.display_text = aaaa
+                # todo
+                pass
 
             case "basic_active_triumphs":
-                # get the stat
-                aaaaaaaaa
-
-                # save the stat
-                result.sort_value = aaaa
-                result.display_text = aaaa
+                # todo
+                pass
 
             case "basic_legacy_triumphs":
-                # get the stat
-                aaaaaaaaa
-
-                # save the stat
-                result.sort_value = aaaa
-                result.display_text = aaaa
+                # todo
+                pass
 
             case "basic_enhancement_cores":
-                # get the stat
-                aaaaaaaaa
-
-                # save the stat
-                result.sort_value = aaaa
-                result.display_text = aaaa
+                # todo
+                pass
 
             case "basic_vault_space":
-                # get the stat
-                aaaaaaaaa
-
-                # save the stat
-                result.sort_value = aaaa
-                result.display_text = aaaa
+                # todo
+                pass
 
             case "basic_forges":
                 # get the stat
@@ -492,16 +463,12 @@ class Rank(BaseScale):
 
                 # save the stat
                 result.sort_value = stat.full_completions
-                # todo cp runs
+                # todo afk runs
                 result.display_text = f"Forges: {stat.full_completions:,}"
 
             case "basic_afk_forges":
-                # get the stat
-                aaaaaaaaa
-
-                # save the stat
-                result.sort_value = aaaa
-                result.display_text = aaaa
+                # todo
+                pass
 
             case "endgame_raids":
                 # get the stat
@@ -528,28 +495,16 @@ class Rank(BaseScale):
                 result.display_text = f"Time Played: {format_timedelta(stat.time_spend)}"
 
             case "endgame_day_one_raids":
-                # get the stat
-                aaaaaaaaa
-
-                # save the stat
-                result.sort_value = aaaa
-                result.display_text = aaaa
+                # todo
+                pass
 
             case "endgame_gms":
-                # get the stat
-                aaaaaaaaa
-
-                # save the stat
-                result.sort_value = aaaa
-                result.display_text = aaaa
+                # todo
+                pass
 
             case "endgame_gm_time":
-                # get the stat
-                aaaaaaaaa
-
-                # save the stat
-                result.sort_value = aaaa
-                result.display_text = aaaa
+                # todo
+                pass
 
             case "activity_full_completions":
                 # get the stat
@@ -584,8 +539,9 @@ class Rank(BaseScale):
                     raise RuntimeError
 
                 # save the stat
+                percent = (stat.precision_kills / stat.kills) * 100 if stat.kills else 0
                 result.sort_value = stat.kills
-                result.display_text = f"Kills: {stat.kills:,}"
+                result.display_text = f"Kills: {stat.kills:,} _({round(percent, 2)}% prec)_"
 
             case "activity_precision_kills":
                 # get the stat
@@ -674,27 +630,41 @@ class Rank(BaseScale):
 
             case "weapon_kills":
                 # get the stat
-                aaaaaaaaa
+                stat = await backend_weapons.get_weapon(
+                    input_data=DestinyWeaponStatsInputModel(weapon_ids=weapon.reference_ids)
+                )
+                if not stat:
+                    raise RuntimeError
 
                 # save the stat
-                result.sort_value = aaaa
-                result.display_text = aaaa
+                percent = (stat.total_precision_kills / stat.total_kills) * 100 if stat.total_kills else 0
+                result.sort_value = stat.total_kills
+                result.display_text = f"Kills: {stat.total_kills:,} _({round(percent, 2)}% prec)_"
 
             case "weapon_precision_kills":
                 # get the stat
-                aaaaaaaaa
+                stat = await backend_weapons.get_weapon(
+                    input_data=DestinyWeaponStatsInputModel(weapon_ids=weapon.reference_ids)
+                )
+                if not stat:
+                    raise RuntimeError
 
                 # save the stat
-                result.sort_value = aaaa
-                result.display_text = aaaa
+                result.sort_value = stat.total_precision_kills
+                result.display_text = f"Precision Kills: {stat.total_precision_kills:,}"
 
             case "weapon_precision_kills_percent":
                 # get the stat
-                aaaaaaaaa
+                stat = await backend_weapons.get_weapon(
+                    input_data=DestinyWeaponStatsInputModel(weapon_ids=weapon.reference_ids)
+                )
+                if not stat:
+                    raise RuntimeError
 
                 # save the stat
-                result.sort_value = aaaa
-                result.display_text = aaaa
+                percent = (stat.total_precision_kills / stat.total_kills) * 100 if stat.total_kills else 0
+                result.sort_value = percent
+                result.display_text = f"% Precision Kills: {round(percent, 2)}"
 
         return result
 
