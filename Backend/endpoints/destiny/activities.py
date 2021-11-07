@@ -63,6 +63,7 @@ async def activity(
 
     return await activities.get_activity_stats(
         activity_ids=activity_input.activity_ids,
+        mode=activity_input.mode,
         character_class=activity_input.character_class,
         character_ids=activity_input.character_ids,
         start_time=activity_input.start_time,

@@ -228,9 +228,10 @@ class DayOneRace(BaseScale):
 
             # write the fancy text
             for destiny_id, entry in sorted_completions:
+                percent = (entry.precision_kills / entry.kills) * 100 if entry.kills else 0
                 text = [
                     f"{custom_emojis.enter} Time: **{format_timedelta(seconds=entry.time_spend)}**",
-                    f"{custom_emojis.enter} Kills: **{entry.kills}** ({(entry.precision_kills / entry.kills) * 100}% prec)",
+                    f"{custom_emojis.enter} Kills: **{entry.kills}** _({round(percent, 2)}% prec)_",
                     f"{custom_emojis.enter} Assists: **{entry.assists}**",
                     f"{custom_emojis.enter} Deaths: **{entry.deaths}**",
                 ]

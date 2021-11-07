@@ -407,7 +407,8 @@ class DestinyActivities:
 
     async def get_activity_stats(
         self,
-        activity_ids: list[int],
+        activity_ids: Optional[list[int]] = None,
+        mode: Optional[int] = None,
         character_class: Optional[str] = None,
         character_ids: Optional[list[int]] = None,
         start_time: Optional[datetime.datetime] = None,
@@ -424,6 +425,7 @@ class DestinyActivities:
         data = await activities.get_activities(
             db=self.db,
             activity_hashes=activity_ids,
+            mode=mode,
             destiny_id=self.destiny_id,
             allow_time_periods=allow_time_period,
             character_class=character_class,

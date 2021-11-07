@@ -14,10 +14,14 @@ from dis_snek.models import (
 
 from DestinyEnums.enums import (
     DestinyWeaponTypeEnum,
+    UsableDestinyActivityModeTypeEnum,
     UsableDestinyAmmunitionTypeEnum,
     UsableDestinyDamageTypeEnum,
 )
+from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
+from ElevatorBot.backendNetworking.destiny.activities import DestinyActivities
 from ElevatorBot.backendNetworking.destiny.clan import DestinyClan
+from ElevatorBot.backendNetworking.destiny.weapons import DestinyWeapons
 from ElevatorBot.commandHelpers.autocomplete import activities, weapons
 from ElevatorBot.commandHelpers.optionTemplates import (
     autocomplete_activity_option,
@@ -25,9 +29,12 @@ from ElevatorBot.commandHelpers.optionTemplates import (
     default_user_option,
 )
 from ElevatorBot.commands.base import BaseScale
-from ElevatorBot.misc.formating import embed_message
+from ElevatorBot.misc.formating import embed_message, format_timedelta
 from ElevatorBot.static.emojis import custom_emojis
-from NetworkingSchemas.destiny.activities import DestinyActivityModel
+from NetworkingSchemas.destiny.activities import (
+    DestinyActivityInputModel,
+    DestinyActivityModel,
+)
 from NetworkingSchemas.destiny.clan import DestinyClanMemberModel
 from NetworkingSchemas.destiny.weapons import DestinyWeaponModel
 
@@ -49,9 +56,9 @@ class Rank(BaseScale):
         "basic_total_time": "Total Playtime",
         "basic_max_power": "Maximum Power Level",
         "basic_kills": "Kills",
-        "basic_melee_kills": "Melee Kills",
-        "basic_super_kills": "Super Kills",
-        "basic_grenade_kills": "Grenade Kills",
+        "basic_melee_kills": "Kills with: Melee",
+        "basic_super_kills": "Kills with: Super",
+        "basic_grenade_kills": "Kills with: Grenade",
         "basic_deaths": "Deaths",
         "basic_suicides": "Suicides",
         "basic_orbs": "Orbs of Power Generated",
@@ -61,6 +68,7 @@ class Rank(BaseScale):
         "basic_enhancement_cores": "Enhancement Cores",
         "basic_vault_space": "Vault Space Used",
         "basic_forges": "Forges Done",
+        "basic_afk_forges": "AFK Forges Done",
     }
     endgame_leaderboards = {
         "endgame_raids": "Raids Completed",
@@ -217,9 +225,12 @@ class Rank(BaseScale):
             return
 
         # remove the clan members without a discord id
-        cleaned_clan_members: list[DestinyClanMemberModel] = [
-            clan_member for clan_member in clan_members.members if clan_member.discord_id
+        discord_members: list[Optional[Member]] = [
+            await ctx.guild.get_member(clan_member.discord_id)
+            for clan_member in clan_members.members
+            if clan_member.discord_id
         ]
+        discord_members = [discord_member for discord_member in discord_members if discord_member]
 
         # gather all results
         try:
@@ -227,12 +238,12 @@ class Rank(BaseScale):
                 *[
                     self.handle_member(
                         ctx=ctx,
-                        clan_member=clan_member,
+                        discord_member=discord_member,
                         leaderboard_name=leaderboard_name,
                         activity=activity,
                         weapon=weapon,
                     )
-                    for clan_member in cleaned_clan_members
+                    for discord_member in discord_members
                 ]
             )
         except RuntimeError:
@@ -300,7 +311,7 @@ class Rank(BaseScale):
     @staticmethod
     async def handle_member(
         ctx: InteractionContext,
-        clan_member: DestinyClanMemberModel,
+        discord_member: Member,
         leaderboard_name: str,
         activity: Optional[DestinyActivityModel] = None,
         weapon: Optional[DestinyWeaponModel] = None,
@@ -310,8 +321,21 @@ class Rank(BaseScale):
         Raises RuntimeError if something went wrong
         """
 
-        result = RankResult(clan_member=clan_member)
+        result = RankResult(discord_member=discord_member)
 
+        # open connections
+        backend_account = DestinyAccount(
+            ctx=ctx, client=ctx.bot, discord_member=discord_member, discord_guild=ctx.guild
+        )
+        backend_activities = DestinyActivities(
+            ctx=ctx, client=ctx.bot, discord_member=discord_member, discord_guild=ctx.guild
+        )
+        backend_weapons = DestinyWeapons(
+            ctx=ctx, client=ctx.bot, discord_member=discord_member, discord_guild=ctx.guild
+        )
+
+        # todo add :, to f stings
+        # todo were to sort which way
         # handle each leaderboard differently
         match leaderboard_name:
             case "discord_roles":
@@ -332,11 +356,13 @@ class Rank(BaseScale):
 
             case "basic_total_time":
                 # get the stat
-                aaaaaaaaa
+                stat = await backend_account.get_stat("secondsPlayed")
+                if not stat:
+                    raise RuntimeError
 
                 # save the stat
-                result.sort_value = aaaa
-                result.display_text = aaaa
+                result.sort_value = stat.value
+                result.display_text = f"Time Played: {format_timedelta(stat.value)}"
 
             case "basic_max_power":
                 # get the stat
@@ -348,59 +374,73 @@ class Rank(BaseScale):
 
             case "basic_kills":
                 # get the stat
-                aaaaaaaaa
+                stat = await backend_account.get_stat("kills")
+                if not stat:
+                    raise RuntimeError
 
                 # save the stat
-                result.sort_value = aaaa
-                result.display_text = aaaa
+                result.sort_value = stat.value
+                result.display_text = f"Kills: {stat.value:,}"
 
             case "basic_melee_kills":
                 # get the stat
-                aaaaaaaaa
+                stat = await backend_account.get_stat("weaponKillsMelee")
+                if not stat:
+                    raise RuntimeError
 
                 # save the stat
-                result.sort_value = aaaa
-                result.display_text = aaaa
+                result.sort_value = stat.value
+                result.display_text = f"Kills: {stat.value:,}"
 
             case "basic_super_kills":
                 # get the stat
-                aaaaaaaaa
+                stat = await backend_account.get_stat("weaponKillsSuper")
+                if not stat:
+                    raise RuntimeError
 
                 # save the stat
-                result.sort_value = aaaa
-                result.display_text = aaaa
+                result.sort_value = stat.value
+                result.display_text = f"Kills: {stat.value:,}"
 
             case "basic_grenade_kills":
                 # get the stat
-                aaaaaaaaa
+                stat = await backend_account.get_stat("weaponKillsGrenade")
+                if not stat:
+                    raise RuntimeError
 
                 # save the stat
-                result.sort_value = aaaa
-                result.display_text = aaaa
+                result.sort_value = stat.value
+                result.display_text = f"Kills: {stat.value:,}"
 
             case "basic_deaths":
                 # get the stat
-                aaaaaaaaa
+                stat = await backend_account.get_stat("deaths")
+                if not stat:
+                    raise RuntimeError
 
                 # save the stat
-                result.sort_value = aaaa
-                result.display_text = aaaa
+                result.sort_value = stat.value
+                result.display_text = f"Deaths: {stat.value:,}"
 
             case "basic_suicides":
                 # get the stat
-                aaaaaaaaa
+                stat = await backend_account.get_stat("suicides")
+                if not stat:
+                    raise RuntimeError
 
                 # save the stat
-                result.sort_value = aaaa
-                result.display_text = aaaa
+                result.sort_value = stat.value
+                result.display_text = f"Suicides: {stat.value:,}"
 
             case "basic_orbs":
                 # get the stat
-                aaaaaaaaa
+                stat = await backend_account.get_stat("orbsDropped")
+                if not stat:
+                    raise RuntimeError
 
                 # save the stat
-                result.sort_value = aaaa
-                result.display_text = aaaa
+                result.sort_value = stat.value
+                result.display_text = f"Orbs: {stat.value:,}"
 
             case "basic_triumphs":
                 # get the stat
@@ -444,6 +484,19 @@ class Rank(BaseScale):
 
             case "basic_forges":
                 # get the stat
+                stat = await backend_activities.get_activity_stats(
+                    input_model=DestinyActivityInputModel(activity_ids=activity.activity_ids)
+                )
+                if not stat:
+                    raise RuntimeError
+
+                # save the stat
+                result.sort_value = stat.full_completions
+                # todo cp runs
+                result.display_text = f"Forges: {stat.full_completions:,}"
+
+            case "basic_afk_forges":
+                # get the stat
                 aaaaaaaaa
 
                 # save the stat
@@ -452,19 +505,27 @@ class Rank(BaseScale):
 
             case "endgame_raids":
                 # get the stat
-                aaaaaaaaa
+                stat = await backend_activities.get_activity_stats(
+                    input_model=DestinyActivityInputModel(mode=UsableDestinyActivityModeTypeEnum.RAID.value)
+                )
+                if not stat:
+                    raise RuntimeError
 
                 # save the stat
-                result.sort_value = aaaa
-                result.display_text = aaaa
+                result.sort_value = stat.full_completions
+                result.display_text = f"Raids: {stat.full_completions:,} ({stat.cp_completions:,} CP)"
 
             case "endgame_raid_time":
                 # get the stat
-                aaaaaaaaa
+                stat = await backend_activities.get_activity_stats(
+                    input_model=DestinyActivityInputModel(mode=UsableDestinyActivityModeTypeEnum.RAID.value)
+                )
+                if not stat:
+                    raise RuntimeError
 
                 # save the stat
-                result.sort_value = aaaa
-                result.display_text = aaaa
+                result.sort_value = stat.time_spend
+                result.display_text = f"Time Played: {format_timedelta(stat.time_spend)}"
 
             case "endgame_day_one_raids":
                 # get the stat
@@ -492,83 +553,124 @@ class Rank(BaseScale):
 
             case "activity_full_completions":
                 # get the stat
-                aaaaaaaaa
+                stat = await backend_activities.get_activity_stats(
+                    input_model=DestinyActivityInputModel(activity_ids=activity.activity_ids)
+                )
+                if not stat:
+                    raise RuntimeError
 
                 # save the stat
-                result.sort_value = aaaa
-                result.display_text = aaaa
+                result.sort_value = stat.full_completions
+                result.display_text = f"Completions: {stat.full_completions:,} ({stat.cp_completions:,} CP)"
 
             case "activity_cp_completions":
                 # get the stat
-                aaaaaaaaa
+                stat = await backend_activities.get_activity_stats(
+                    input_model=DestinyActivityInputModel(activity_ids=activity.activity_ids)
+                )
+                if not stat:
+                    raise RuntimeError
 
                 # save the stat
-                result.sort_value = aaaa
-                result.display_text = aaaa
+                result.sort_value = stat.cp_completions
+                result.display_text = f"Completions: {stat.full_completions:,} ({stat.cp_completions:,} CP)"
 
             case "activity_kills":
                 # get the stat
-                aaaaaaaaa
+                stat = await backend_activities.get_activity_stats(
+                    input_model=DestinyActivityInputModel(activity_ids=activity.activity_ids)
+                )
+                if not stat:
+                    raise RuntimeError
 
                 # save the stat
-                result.sort_value = aaaa
-                result.display_text = aaaa
+                result.sort_value = stat.kills
+                result.display_text = f"Kills: {stat.kills:,}"
 
             case "activity_precision_kills":
                 # get the stat
-                aaaaaaaaa
+                stat = await backend_activities.get_activity_stats(
+                    input_model=DestinyActivityInputModel(activity_ids=activity.activity_ids)
+                )
+                if not stat:
+                    raise RuntimeError
 
                 # save the stat
-                result.sort_value = aaaa
-                result.display_text = aaaa
+                result.sort_value = stat.precision_kills
+                result.display_text = f"Precision Kills: {stat.precision_kills:,}"
 
             case "activity_percent_precision_kills":
                 # get the stat
-                aaaaaaaaa
+                stat = await backend_activities.get_activity_stats(
+                    input_model=DestinyActivityInputModel(activity_ids=activity.activity_ids)
+                )
+                if not stat:
+                    raise RuntimeError
 
                 # save the stat
-                result.sort_value = aaaa
-                result.display_text = aaaa
+                percent = (stat.precision_kills / stat.kills) * 100 if stat.kills else 0
+                result.sort_value = percent
+                result.display_text = f"% Precision Kills: {round(percent, 2)}%"
 
             case "activity_deaths":
                 # get the stat
-                aaaaaaaaa
+                stat = await backend_activities.get_activity_stats(
+                    input_model=DestinyActivityInputModel(activity_ids=activity.activity_ids)
+                )
+                if not stat:
+                    raise RuntimeError
 
                 # save the stat
-                result.sort_value = aaaa
-                result.display_text = aaaa
+                result.sort_value = stat.kills
+                result.display_text = f"Deaths: {stat.deaths:,}"
 
             case "activity_assists":
                 # get the stat
-                aaaaaaaaa
+                stat = await backend_activities.get_activity_stats(
+                    input_model=DestinyActivityInputModel(activity_ids=activity.activity_ids)
+                )
+                if not stat:
+                    raise RuntimeError
 
                 # save the stat
-                result.sort_value = aaaa
-                result.display_text = aaaa
+                result.sort_value = stat.assists
+                result.display_text = f"Assists: {stat.assists:,}"
 
             case "activity_time_spend":
                 # get the stat
-                aaaaaaaaa
+                stat = await backend_activities.get_activity_stats(
+                    input_model=DestinyActivityInputModel(activity_ids=activity.activity_ids)
+                )
+                if not stat:
+                    raise RuntimeError
 
                 # save the stat
-                result.sort_value = aaaa
-                result.display_text = aaaa
+                result.sort_value = stat.time_spend
+                result.display_text = f"Time Played: {format_timedelta(stat.time_spend)}"
 
             case "activity_fastest":
                 # get the stat
-                aaaaaaaaa
+                stat = await backend_activities.get_activity_stats(
+                    input_model=DestinyActivityInputModel(activity_ids=activity.activity_ids)
+                )
+                if not stat:
+                    raise RuntimeError
 
                 # save the stat
-                result.sort_value = aaaa
-                result.display_text = aaaa
+                result.sort_value = stat.fastest
+                result.display_text = f"Fastest Time: {format_timedelta(stat.fastest)}"
 
             case "activity_average":
                 # get the stat
-                aaaaaaaaa
+                stat = await backend_activities.get_activity_stats(
+                    input_model=DestinyActivityInputModel(activity_ids=activity.activity_ids)
+                )
+                if not stat:
+                    raise RuntimeError
 
                 # save the stat
-                result.sort_value = aaaa
-                result.display_text = aaaa
+                result.sort_value = stat.average
+                result.display_text = f"Average Time: {format_timedelta(stat.average)}"
 
             case "weapon_kills":
                 # get the stat

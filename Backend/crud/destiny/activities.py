@@ -151,8 +151,9 @@ class CRUDActivities(CRUDBase):
     async def get_activities(
         self,
         db: AsyncSession,
-        activity_hashes: list[int],
         destiny_id: int,
+        activity_hashes: Optional[list[int]] = None,
+        mode: Optional[int] = None,
         no_checkpoints: Optional[bool] = True,
         require_team_flawless: Optional[bool] = None,
         require_individual_flawless: Optional[bool] = None,
@@ -169,7 +170,15 @@ class CRUDActivities(CRUDBase):
     ) -> list[Activities]:
         """Gets a list of all Activities that fulfill the get_requirements"""
 
-        query = select(Activities).filter(Activities.director_activity_hash.in_(activity_hashes))
+        query = select(Activities)
+
+        # filter activity hashes
+        if activity_hashes:
+            query = query.filter(Activities.director_activity_hash.in_(activity_hashes))
+
+        # filter mode
+        if mode:
+            query = query.filter(Activities.modes.any(mode))
 
         # do we accept non checkpoint runs?
         if no_checkpoints:

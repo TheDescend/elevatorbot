@@ -123,9 +123,10 @@ class WeaponsWeapon(BaseScale):
             value=f"{custom_emojis.enter} **{stats.total_precision_kills:,}**",
             inline=True,
         )
+        percent = (stats.total_precision_kills / stats.total_kills) * 100 if stats.total_kills else 0
         embed.add_field(
             name="% Precision Kills",
-            value=f"{custom_emojis.enter} **{round((stats.total_precision_kills / stats.total_kills) * 100, 2)}%**",
+            value=f"{custom_emojis.enter} **{round(percent, 2)}%**",
             inline=True,
         )
         embed.add_field(

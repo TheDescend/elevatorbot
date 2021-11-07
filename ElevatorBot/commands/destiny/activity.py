@@ -104,9 +104,8 @@ class DestinyActivity(BaseScale):
                 value=f"[{format_timedelta(stats.fastest.seconds)}[(https://www.bungie.net/en/PGCR/{stats.fastest_instance_id})",
                 inline=True,
             )
-        embed.add_field(
-            name="Kills", value=f"{stats.kills} _({(stats.precision_kills / stats.kills) * 100}% prec)_", inline=False
-        )
+        percent = (stats.precision_kills / stats.kills) * 100 if stats.kills else 0
+        embed.add_field(name="Kills", value=f"{stats.kills} _({round(percent, 2)}% prec)_", inline=False)
         embed.add_field(name="Assists", value=str(stats.assists), inline=True)
         embed.add_field(name="Deaths", value=str(stats.deaths), inline=True)
 
