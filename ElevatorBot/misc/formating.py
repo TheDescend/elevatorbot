@@ -1,3 +1,4 @@
+import datetime
 from typing import Any
 
 from dis_snek.models import Colour, Embed
@@ -54,8 +55,11 @@ def split_into_chucks_of_max_2000_characters(text_str: str = None, text_list: li
         return return_list
 
 
-def format_timedelta(seconds: int) -> str:
+def format_timedelta(seconds: int | datetime.timedelta) -> str:
     """Returns a formatted message that is displayed whenever a command wants to display a duration"""
+
+    if isinstance(seconds, datetime.timedelta):
+        seconds = seconds.seconds
 
     hours = int(seconds / (60 * 60))
     minutes = int(seconds % (60 * 60) / 60)

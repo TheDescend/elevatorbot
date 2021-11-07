@@ -19,13 +19,18 @@ from dis_snek.models import (
 )
 
 from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
+from ElevatorBot.backendNetworking.destiny.activities import DestinyActivities
 from ElevatorBot.backendNetworking.destiny.clan import DestinyClan
 from ElevatorBot.commandHelpers.responseTemplates import something_went_wrong
 from ElevatorBot.commands.base import BaseScale
-from ElevatorBot.misc.formating import embed_message
+from ElevatorBot.misc.formating import embed_message, format_timedelta
 from ElevatorBot.misc.helperFunctions import get_now_with_tz
 from ElevatorBot.static.descendOnlyIds import bot_dev_channel_id
 from ElevatorBot.static.emojis import custom_emojis
+from NetworkingSchemas.destiny.activities import (
+    DestinyActivityInputModel,
+    DestinyActivityOutputModel,
+)
 from NetworkingSchemas.destiny.clan import (
     DestinyClanMemberModel,
     DestinyClanMembersModel,
@@ -35,9 +40,12 @@ from settings import COMMAND_GUILD_SCOPE
 
 class DayOneRace(BaseScale):
     # >>> CHANGE HERE FOR DIFFERENT DAY 1 HASHES <<<
-    # only change the vog only stuff further down, just search "vog only stuff from here on"
+    # see data.destinysets.com
+
+    # here updates get posted
     leaderboard_channel: int | GuildText = 837622568152203304
 
+    # the main triumph with encounter objectives
     activity_triumph_encounters: dict[int, dict[int, str]] = {
         3114569402: {
             4240665: "First Raid Run",
@@ -49,14 +57,18 @@ class DayOneRace(BaseScale):
         }
     }
 
+    # alternative things to look at if the main triumph fails
     alternative_activity_triumphs: list[int] = [384429092]
     activity_metrics: list[int] = [2506886274]
     emblem_hashes: list[int] = [2172413746]
 
+    # the activity ids of the raid
     activity_hashes: list[int] = [1485585878, 3711931140, 3881495763]
 
-    start: datetime.datetime = datetime.datetime(2021, 5, 22, 17, 0, tzinfo=datetime.timezone.utc)
+    # when the raid race ends
     cutoff_time: datetime.datetime = datetime.datetime(2021, 5, 23, 17, 0, tzinfo=datetime.timezone.utc)
+
+    # cosmetic data for the raid
     image_url: str = "https://static.wikia.nocookie.net/destinypedia/images/6/62/Vault.jpg/revision/latest/scale-to-width-down/1000?cb=20150330170833"
     raid_name: str = "Vault of Glass"
     location_name: str = "Ishtar Sink, Venus"
@@ -77,7 +89,7 @@ class DayOneRace(BaseScale):
 
         self.clan_members: Optional[DestinyClanMembersModel] = None
         # {destiny_id: @member | bungie_name#1234}
-        self.destiny_id_translation: dict[int, Member | str] = {}
+        self.destiny_id_translation: dict[int, Member] = {}
 
     # todo perms
     @slash_command(
@@ -118,7 +130,8 @@ class DayOneRace(BaseScale):
         for member in self.clan_members.members:
             discord_member = await ctx.guild.get_member(member.discord_id) if member.discord_id else None
             if not discord_member:
-                discord_member = member.name
+                await ctx.send(f"Don't know discord_id for {member.name}", ephemeral=True)
+                return
             self.destiny_id_translation.update({member.destiny_id: discord_member})
 
         await ctx.send("Done", ephemeral=True)
@@ -183,59 +196,71 @@ class DayOneRace(BaseScale):
 
         # todo do once /activity exists
         # write the completion message
+        embed = embed_message(f"{self.raid_name} - Raid Race Summary", "The raid race is over :(")
         if self.finished_raid:
-            # get total time spend in raid
-            completions = []
-            for member in self.finished_raid:
-                name = member[0]
-                destiny_player = await DestinyPlayer.from_discord_id(member[1])
+            embed.description += f"\nBut some clan members managed a completion\n⁣\n{custom_emojis.descend_logo} __**Completions**__ {custom_emojis.descend_logo}"
 
-                # loop though activities
-                time_spend = 0
-                kills = 0
-                deaths = 0
-                try:
-                    async for activity in destiny_player.get_activity_history(mode=4):
-                        period = datetime.datetime.strptime(activity["period"], "%Y-%m-%dT%H:%M:%SZ")
-                        tz_period = pytz.utc.localize(period)
+            # get stats for the raid
+            completions: list[tuple[int, DestinyActivityOutputModel]] = []
+            failed = []
+            for destiny_id, finished_date in self.finished_raid.items():
+                backend_activities = DestinyActivities(
+                    ctx=None,
+                    client=ctx.bot,
+                    discord_member=self.destiny_id_translation[destiny_id],
+                    discord_guild=ctx.guild,
+                )
 
-                        if tz_period < start:
-                            continue
-                        if tz_period > cutoff_time:
-                            continue
-
-                        if activity["activityDetails"]["directorActivityHash"] in self.activity_hashes:
-                            time_spend += activity["values"]["timePlayedSeconds"]["basic"]["value"]
-                            kills += activity["values"]["kills"]["basic"]["value"]
-                            deaths += activity["values"]["deaths"]["basic"]["value"]
-
-                    # write the fancy text
-                    completions.append(
-                        f"""<:desc_circle_b:768906489464619008>**{name}** - Kills: *{int(kills):,}*, Deaths: *{int(deaths):,}*,
-                        Time: *{str(datetime.timedelta(seconds=time_spend))}*"""
+                # get the stats. Check 15min in the future from the finish date, since you can get the triumph while will being in the activity
+                user_stats = await backend_activities.get_activity_stats(
+                    input_model=DestinyActivityInputModel(
+                        activity_ids=self.activity_hashes,
+                        end_time=finished_date + datetime.timedelta(minutes=15),
                     )
-                except:
-                    print (f"Failed member {name}")
-                    completions.append(
-                        f"""<:desc_circle_b:768906489464619008>**{name}** finished the raid, but there is no info in the API yet"""
-                    )
+                )
 
-            completion_text = "\n".join(completions)
-            msg = f"""The raid race is over :(. But some clan members managed to get a completion!\n⁣\n<:desc_logo_b:768907515193720874>
-            __**Completions:**__\n{completion_text}"""
+                if completions:
+                    completions.append((destiny_id, user_stats))
+                else:
+                    failed.append(destiny_id)
+
+            sorted_completions = sorted(completions, key=lambda completion: completion[1].time_spend, reverse=False)
+
+            # write the fancy text
+            for destiny_id, entry in sorted_completions:
+                text = [
+                    f"{custom_emojis.enter} Time: **{format_timedelta(seconds=entry.time_spend)}**",
+                    f"{custom_emojis.enter} Kills: **{entry.kills}** ({(entry.precision_kills / entry.kills) * 100}% prec)",
+                    f"{custom_emojis.enter} Assists: **{entry.assists}**",
+                    f"{custom_emojis.enter} Deaths: **{entry.deaths}**",
+                ]
+                embed.add_field(
+                    name=self.destiny_id_translation[destiny_id].display_name, value="\n".join(text), inline=True
+                )
+
+            for destiny_id in failed:
+                embed.add_field(
+                    name=self.destiny_id_translation[destiny_id].display_name,
+                    value="Sadly there is no information in the api yet",
+                    inline=True,
+                )
+
         else:
-            msg = "Sadly nobody here finished the raid in time, good luck next time!"
+            embed.description += "\nSadly nobody here finished the raid in time, good luck next time!"
 
-        embed = embed_message("Raid Race Summary", msg)
-        # todo current time in embed
-        stats = await channel.send(embed=embed)
+        stats = await channel.send(embeds=embed)
         await stats.pin()
 
     async def look_for_completion(self, member: DestinyClanMemberModel, channel: GuildText):
         """Gather all members since it is faster"""
 
         if member.destiny_id not in self.finished_raid:
-            account = DestinyAccount(ctx=None, client=self.client, discord_member=None, discord_guild=channel.guild)
+            account = DestinyAccount(
+                ctx=None,
+                client=self.client,
+                discord_member=self.destiny_id_translation[member.destiny_id],
+                discord_guild=channel.guild,
+            )
             completion = await account.has_triumph(triumph_id=self.activity_triumph)
             if completion is None:
                 raise RuntimeError
@@ -250,7 +275,7 @@ class DayOneRace(BaseScale):
                     if not self.finished_encounters[member.destiny_id][objective.objective_id]:
                         self.finished_encounters[member.destiny_id][objective.objective_id] = True
                         await channel.send(
-                            f"{custom_emojis.descend_logo} **{self.destiny_id_translation[member.destiny_id]}** finished `{self.activity_triumph_encounters[self.activity_triumph][objective.objective_id]}` {custom_emojis.zoom}"
+                            f"{custom_emojis.descend_logo} **{self.destiny_id_translation[member.destiny_id].mention}** finished `{self.activity_triumph_encounters[self.activity_triumph][objective.objective_id]}` {custom_emojis.zoom}"
                         )
 
                         # check if that was the last missing one
@@ -297,7 +322,7 @@ class DayOneRace(BaseScale):
 
         self.finished_raid.update({member.destiny_id: get_now_with_tz()})
         await channel.send(
-            f"{custom_emojis.descend_logo} **{self.destiny_id_translation[member.destiny_id]}** finished the raid. Congratulations {custom_emojis.zoom}"
+            f"{custom_emojis.descend_logo} **{self.destiny_id_translation[member.destiny_id].mention}** finished the raid. Congratulations {custom_emojis.zoom}"
         )
 
     async def update_leaderboard(self):
@@ -323,6 +348,7 @@ class DayOneRace(BaseScale):
             "First results are in! These are the current result:",
             "Note: If progress does not show up, the API might not show the info. Nothing I can do :(",
         )
+        embed.timestamp = get_now_with_tz()
 
         if self.finished_raid:
             sorted_finished_members = {
@@ -346,7 +372,7 @@ class DayOneRace(BaseScale):
             if destiny_ids:
                 embed.add_field(
                     name=encounter,
-                    value=", ".join([self.destiny_id_translation[destiny_id] for destiny_id in destiny_ids]),
+                    value=", ".join([self.destiny_id_translation[destiny_id].mention for destiny_id in destiny_ids]),
                     inline=False,
                 )
 
