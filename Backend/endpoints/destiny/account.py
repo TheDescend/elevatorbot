@@ -15,6 +15,7 @@ from NetworkingSchemas.destiny.account import (
     DestinyTimeInputModel,
     DestinyTimeModel,
     DestinyTimesModel,
+    DestinyTriumphScoreModel,
     SeasonalChallengesModel,
 )
 
@@ -189,3 +190,33 @@ async def seasonal_challenges(guild_id: int, discord_id: int, db: AsyncSession =
     profile = DestinyProfile(db=db, user=user)
 
     return await profile.get_seasonal_challenges()
+
+
+@router.get("/triumphs", response_model=DestinyTriumphScoreModel)
+async def triumph_score(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
+    """Return the user's triumph scores"""
+
+    user = await crud.discord_users.get_profile_from_discord_id(db, discord_id)
+    profile = DestinyProfile(db=db, user=user)
+
+    return await profile.get_triumph_score()
+
+
+@router.get("/artifact", response_model=DestinyStatModel)
+async def artifact_level(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
+    """Return the user's artifact power bonus"""
+
+    user = await crud.discord_users.get_profile_from_discord_id(db, discord_id)
+    profile = DestinyProfile(db=db, user=user)
+
+    return await profile.get_artifact_level()
+
+
+@router.get("/season_pass", response_model=DestinyStatModel)
+async def season_pass_level(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
+    """Return the user's season pass level"""
+
+    user = await crud.discord_users.get_profile_from_discord_id(db, discord_id)
+    profile = DestinyProfile(db=db, user=user)
+
+    return await profile.get_season_pass_level()

@@ -7,7 +7,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from Backend.crud import versions
 from Backend.crud.base import CRUDBase
 from Backend.database.base import Base
-from Backend.database.models import DestinyActivityDefinition, DestinyRecordDefinition
+from Backend.database.models import (
+    DestinyActivityDefinition,
+    DestinyRecordDefinition,
+    DestinySeasonPassDefinition,
+)
 from NetworkingSchemas.destiny import DestinyActivityModel
 
 ModelType = TypeVar("ModelType", bound=Base)
@@ -100,6 +104,14 @@ class CRUDManifest(CRUDBase):
             )
 
         return result
+
+    async def get_current_season_pass(self, db: AsyncSession) -> DestinySeasonPassDefinition:
+        """Get the current season pass from the DB"""
+
+        query = select(DestinySeasonPassDefinition).order_by(DestinySeasonPassDefinition.index.asc()).limit(1)
+
+        result = await self._execute_query(db=db, query=query)
+        return result.scalar()
 
 
 destiny_manifest = CRUDManifest(Base)

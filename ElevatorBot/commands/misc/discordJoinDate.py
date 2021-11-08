@@ -8,7 +8,7 @@ from ElevatorBot.misc.formating import embed_message
 class DiscordJoinDate(BaseScale):
     """Check your join date of the discord server where you execute the command"""
 
-    @slash_command(name="discordjoindate", description="Check when you joined this discord server")
+    @slash_command(name="discord_join_date", description="Check when you joined this discord server")
     @default_user_option()
     async def _discord_join_date(self, ctx: InteractionContext, user: Member):
 

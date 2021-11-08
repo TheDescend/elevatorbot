@@ -2,8 +2,8 @@ import dataclasses
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from Backend.core.destiny.profile import seasonal_challenges
 from Backend.crud import destiny_manifest
+from Backend.crud.cache import cache
 from Backend.database.models import (
     DestinyActivityDefinition,
     DestinyActivityModeDefinition,
@@ -13,6 +13,7 @@ from Backend.database.models import (
     DestinyInventoryItemDefinition,
     DestinyPresentationNodeDefinition,
     DestinyRecordDefinition,
+    DestinySeasonPassDefinition,
 )
 from Backend.misc.helperFunctions import defaultdictify
 from Backend.networking.bungieApi import BungieApi
@@ -289,8 +290,35 @@ class DestinyManifest:
                         db=self.db, db_model=DestinyPresentationNodeDefinition, to_insert=to_insert
                     )
 
+                case "DestinySeasonPassDefinition":
+                    # delete old data
+                    await db_manifest.delete_definition(db=self.db, db_model=DestinySeasonPassDefinition)
+
+                    # get new data and save values as defaultdict
+                    data = await self.api.get(f"https://www.bungie.net{url}")
+                    content = defaultdictify(data.content)
+
+                    # save data to bulk insert later
+                    to_insert = []
+                    for reference_id, values in content.items():
+                        to_insert.append(
+                            DestinySeasonPassDefinition(
+                                reference_id=int(reference_id),
+                                name=values["displayProperties"]["name"],
+                                reward_progression_hash=values["rewardProgressionHash"],
+                                prestige_progression_hash=values["prestigeProgressionHash"],
+                                index=values["index"],
+                            )
+                        )
+
+                    # insert data in table
+                    await db_manifest.insert_definition(
+                        db=self.db, db_model=DestinyPresentationNodeDefinition, to_insert=to_insert
+                    )
+
         # update version entry
         await db_manifest.upsert_version(db=self.db, version=version)
 
         # invalidate caches
-        seasonal_challenges.definition = None
+        cache.season_pass_definition = None
+        cache.seasonal_challenges_definition = None

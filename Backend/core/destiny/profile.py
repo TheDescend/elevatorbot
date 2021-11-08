@@ -1,3 +1,4 @@
+import asyncio
 import dataclasses
 import datetime
 from typing import Optional
@@ -5,6 +6,7 @@ from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.crud import activities, destiny_manifest, discord_users
+from Backend.crud.cache import cache
 from Backend.crud.destiny.collectibles import collectibles
 from Backend.crud.destiny.records import records
 from Backend.database.models import (
@@ -22,17 +24,12 @@ from NetworkingSchemas.destiny.account import (
     BoolModelRecord,
     DestinyCharacterModel,
     DestinyCharactersModel,
+    DestinyStatModel,
+    DestinyTriumphScoreModel,
     SeasonalChallengesModel,
     SeasonalChallengesRecordModel,
     SeasonalChallengesTopicsModel,
 )
-
-
-class SeasonalChallenges:
-    definition: Optional[SeasonalChallengesModel] = None
-
-
-seasonal_challenges = SeasonalChallenges()
 
 
 @dataclasses.dataclass
@@ -63,6 +60,17 @@ class DestinyProfile:
 
         result = await self.__get_profile()
         return get_datetime_from_bungie_entry(result["profile"]["data"]["dateLastPlayed"])
+
+    async def get_triumph_score(self) -> DestinyTriumphScoreModel:
+        """Returns the triumph score"""
+
+        triumphs_data = await self.get_triumphs()
+
+        return DestinyTriumphScoreModel(
+            active_score=triumphs_data["active_score"],
+            legacy_score=triumphs_data["legacy_score"],
+            lifetime_score=triumphs_data["lifetime_score"],
+        )
 
     async def has_triumph(self, triumph_hash: str | int) -> BoolModelRecord:
         """Returns if the triumph is gotten"""
@@ -224,58 +232,77 @@ class DestinyProfile:
                     stat: float = stats["merged"][stat_category][stat_name]["basic"]["value"]
                     return int(stat) if stat.is_integer() else stat
 
-    async def get_artifact(self) -> dict:
+    async def get_artifact_level(self) -> DestinyStatModel:
         """Returns the seasonal artifact data"""
 
         result = await self.__get_profile(104, with_token=True)
-        return result["profileProgression"]["data"]["seasonalArtifact"]
+        return DestinyStatModel(value=result["profileProgression"]["data"]["seasonalArtifact"]["powerBonus"])
+
+    async def get_season_pass_level(self) -> DestinyStatModel:
+        """Returns the seasonal pass level"""
+
+        # get the current season pass hash
+        async with asyncio.Lock():
+            if not cache.season_pass_definition:
+                cache.season_pass_definition = await destiny_manifest.get_current_season_pass(db=self.db)
+
+        # get a character id since they are character specific
+        character_id = (await self.get_character_ids())[0]
+
+        result = await self.__get_profile(202, with_token=True)
+        character_data = result["characterProgressions"]["data"][str(character_id)]["progressions"]
+        return DestinyStatModel(
+            value=character_data[str(cache.season_pass_definition.reward_progression_hash)]["level"]
+            + character_data[str(cache.season_pass_definition.prestige_progression_hash)]["level"]
+        )
 
     async def get_seasonal_challenges(self) -> SeasonalChallengesModel:
         """Returns the seasonal challenges completion info"""
 
         # do we have the info cached?
-        if not seasonal_challenges.definition:
-            definition = SeasonalChallengesModel()
+        async with asyncio.Lock():
+            if not cache.seasonal_challenges_definition:
+                definition = SeasonalChallengesModel()
 
-            # get the info from the db
-            sc_category_hash = 3443694067
-            sc_presentation_node = await destiny_manifest.get(
-                db=self.db, table=DestinyPresentationNodeDefinition, primary_key=sc_category_hash
-            )
-
-            # loop through those categories and get the "Weekly" one
-            for category_hash in sc_presentation_node.children_presentation_node_hash:
-                category = await destiny_manifest.get(
-                    db=self.db, table=DestinyPresentationNodeDefinition, primary_key=category_hash
+                # get the info from the db
+                sc_category_hash = 3443694067
+                sc_presentation_node = await destiny_manifest.get(
+                    db=self.db, table=DestinyPresentationNodeDefinition, primary_key=sc_category_hash
                 )
 
-                if category.name == "Weekly":
-                    # loop through the seasonal challenges topics (Week1, Week2, etc...)
-                    for sc_topic_hash in category.children_presentation_node_hash:
-                        sc_topic = await destiny_manifest.get(
-                            db=self.db, table=DestinyPresentationNodeDefinition, primary_key=sc_topic_hash
-                        )
+                # loop through those categories and get the "Weekly" one
+                for category_hash in sc_presentation_node.children_presentation_node_hash:
+                    category = await destiny_manifest.get(
+                        db=self.db, table=DestinyPresentationNodeDefinition, primary_key=category_hash
+                    )
 
-                        topic = SeasonalChallengesTopicsModel(name=sc_topic.name)
-
-                        # loop through the actual seasonal challenges
-                        for sc_hash in sc_topic.children_record_hash:
-                            sc = await destiny_manifest.get(
-                                db=self.db, table=DestinyRecordDefinition, primary_key=sc_hash
+                    if category.name == "Weekly":
+                        # loop through the seasonal challenges topics (Week1, Week2, etc...)
+                        for sc_topic_hash in category.children_presentation_node_hash:
+                            sc_topic = await destiny_manifest.get(
+                                db=self.db, table=DestinyPresentationNodeDefinition, primary_key=sc_topic_hash
                             )
 
-                            topic.seasonal_challenges.append(
-                                SeasonalChallengesRecordModel(
-                                    record_id=sc.reference_id, name=sc.name, description=sc.description
+                            topic = SeasonalChallengesTopicsModel(name=sc_topic.name)
+
+                            # loop through the actual seasonal challenges
+                            for sc_hash in sc_topic.children_record_hash:
+                                sc = await destiny_manifest.get(
+                                    db=self.db, table=DestinyRecordDefinition, primary_key=sc_hash
                                 )
-                            )
 
-                        definition.topics.append(topic)
-                    break
+                                topic.seasonal_challenges.append(
+                                    SeasonalChallengesRecordModel(
+                                        record_id=sc.reference_id, name=sc.name, description=sc.description
+                                    )
+                                )
 
-            seasonal_challenges.definition = definition
+                            definition.topics.append(topic)
+                        break
 
-        user_sc = seasonal_challenges.definition.copy()
+                cache.seasonal_challenges_definition = definition
+
+        user_sc = cache.seasonal_challenges_definition.copy()
         user_records = await self.get_triumphs()
 
         # now calculate the members completions status
@@ -375,6 +402,13 @@ class DestinyProfile:
 
         # get profile triumphs
         triumphs = result["profileRecords"]["data"]["records"]
+        triumphs.update(
+            {
+                "active_score": result["profileRecords"]["data"]["activeScore"],
+                "legacy_score": result["profileRecords"]["data"]["legacyScore"],
+                "lifetime_score": result["profileRecords"]["data"]["lifetimeScore"],
+            }
+        )
 
         # get character triumphs
         character_triumphs = [

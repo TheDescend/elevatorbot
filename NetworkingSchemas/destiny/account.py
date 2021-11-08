@@ -83,3 +83,9 @@ class SeasonalChallengesTopicsModel(BaseModel):
 
 class SeasonalChallengesModel(BaseModel):
     topics: list[SeasonalChallengesTopicsModel] = []
+
+
+class DestinyTriumphScoreModel(BaseModel):
+    active_score: int
+    legacy_score: int
+    lifetime_score: int

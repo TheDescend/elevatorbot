@@ -34,6 +34,9 @@ destiny_account_collectible_route = destiny_account_route + "collectible/{collec
 destiny_account_triumph_route = destiny_account_route + "triumph/{triumph_id}/"  # GET
 destiny_account_metric_route = destiny_account_route + "metric/{metric_id}/"  # GET
 destiny_account_seasonal_challenges_route = destiny_account_route + "seasonal_challenges/"  # GET
+destiny_account_triumph_score_route = destiny_account_route + "triumphs/"  # GET
+destiny_account_artifact_level_route = destiny_account_route + "artifact/"  # GET
+destiny_account_season_pass_level_route = destiny_account_route + "season_pass/"  # GET
 
 # lfg system
 destiny_lfg_route = base_route + "destiny/{guild_id}/lfg/"

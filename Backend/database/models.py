@@ -313,6 +313,16 @@ class DestinyRecordDefinition(Base):
     parent_node_hashes = Column(ARRAY(BigInteger()))
 
 
+class DestinySeasonPassDefinition(Base):
+    __tablename__ = "destinySeasonPassDefinition"
+
+    reference_id = Column(BigInteger, nullable=False, primary_key=True)
+    name = Column(Text, nullable=False)
+    reward_progression_hash = Column(BigInteger, nullable=False)
+    prestige_progression_hash = Column(BigInteger, nullable=False)
+    index = Column(SmallInteger, nullable=False)
+
+
 ################################################################
 # LFG System
 

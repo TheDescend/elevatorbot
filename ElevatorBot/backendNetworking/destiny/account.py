@@ -8,16 +8,19 @@ from dis_snek.models import Guild
 from DestinyEnums.enums import UsableDestinyActivityModeTypeEnum
 from ElevatorBot.backendNetworking.http import BaseBackendConnection
 from ElevatorBot.backendNetworking.routes import (
+    destiny_account_artifact_level_route,
     destiny_account_characters_route,
     destiny_account_collectible_route,
     destiny_account_metric_route,
     destiny_account_name_route,
+    destiny_account_season_pass_level_route,
     destiny_account_seasonal_challenges_route,
     destiny_account_solos_route,
     destiny_account_stat_characters_route,
     destiny_account_stat_route,
     destiny_account_time_route,
     destiny_account_triumph_route,
+    destiny_account_triumph_score_route,
 )
 from NetworkingSchemas.destiny.account import (
     BoolModel,
@@ -27,6 +30,7 @@ from NetworkingSchemas.destiny.account import (
     DestinyNameModel,
     DestinyStatModel,
     DestinyTimesModel,
+    DestinyTriumphScoreModel,
     SeasonalChallengesModel,
 )
 
@@ -185,3 +189,42 @@ class DestinyAccount(BaseBackendConnection):
 
         # convert to correct pydantic model
         return SeasonalChallengesModel.parse_obj(result.result) if result else None
+
+    async def get_triumph_score(self) -> Optional[DestinyTriumphScoreModel]:
+        """Return the user's triumph scores"""
+
+        result = await self._backend_request(
+            method="GET",
+            route=destiny_account_triumph_score_route.format(
+                guild_id=self.discord_guild.id, discord_id=self.discord_member.id
+            ),
+        )
+
+        # convert to correct pydantic model
+        return DestinyTriumphScoreModel.parse_obj(result.result) if result else None
+
+    async def get_artifact_level(self) -> Optional[DestinyStatModel]:
+        """Return the user's artifact_level"""
+
+        result = await self._backend_request(
+            method="GET",
+            route=destiny_account_artifact_level_route.format(
+                guild_id=self.discord_guild.id, discord_id=self.discord_member.id
+            ),
+        )
+
+        # convert to correct pydantic model
+        return DestinyStatModel.parse_obj(result.result) if result else None
+
+    async def get_season_pass_level(self) -> Optional[DestinyStatModel]:
+        """Return the user's season_pass_level"""
+
+        result = await self._backend_request(
+            method="GET",
+            route=destiny_account_season_pass_level_route.format(
+                guild_id=self.discord_guild.id, discord_id=self.discord_member.id
+            ),
+        )
+
+        # convert to correct pydantic model
+        return DestinyStatModel.parse_obj(result.result) if result else None

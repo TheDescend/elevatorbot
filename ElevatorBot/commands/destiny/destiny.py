@@ -104,48 +104,25 @@ class Destiny(BaseScale):
         # add triumph info field
         embed.add_field(name="⁣", value=f"__**Triumphs:**__", inline=False)
 
-        # todo
         # get triumph data
-        triumphs = await destiny_player.get_triumphs()
-        embed.add_field(
-            name="Lifetime Triumph Score",
-            value=f"""{triumphs["profileRecords"]["data"]["lifetimeScore"]:,}""",
-            inline=True,
-        )
-        embed.add_field(
-            name="Active Triumph Score",
-            value=f"""{triumphs["profileRecords"]["data"]["activeScore"]:,}""",
-            inline=True,
-        )
-        embed.add_field(
-            name="Legacy Triumph Score",
-            value=f"""{triumphs["profileRecords"]["data"]["legacyScore"]:,}""",
-            inline=True,
-        )
+        triumphs = await destiny_account.get_triumph_score()
+        if not triumphs:
+            return
+        embed.add_field(name="Lifetime Triumph Score", value=f"{triumphs.lifetime_score:,}", inline=True)
+        embed.add_field(name="Active Triumph Score", value=f"{triumphs.active_score:,}", inline=True)
+        embed.add_field(name="Legacy Triumph Score", value=f"{triumphs.legacy_score:,}", inline=True)
 
-        # todo
-        # get triumph completion rate
-        triumphs_data = triumphs["profileRecords"]["data"]["records"]
-        triumphs_completed = 0
-        triumphs_no_data = 0
-        for triumph in triumphs_data.values():
-            status = True
-            if "objectives" in triumph:
-                for part in triumph["objectives"]:
-                    status &= part["complete"]
-            elif "intervalObjectives" in triumph:
-                for part in triumph["intervalObjectives"]:
-                    status &= part["complete"]
-            else:
-                triumphs_no_data += 1
-                continue
-            if status:
-                triumphs_completed += 1
-        embed.add_field(
-            name="Triumphs",
-            value=f"{triumphs_completed} / {len(triumphs_data) - triumphs_no_data}",
-            inline=True,
-        )
+        # add seasonal info field
+        embed.add_field(name="⁣", value=f"__**Seasonal:**__", inline=False)
+
+        artifact = await destiny_account.get_artifact_level()
+        if not artifact:
+            return
+        embed.add_field(name="Artifact Level", value=f"{artifact.value:,}", inline=True)
+        season_pass = await destiny_account.get_season_pass_level()
+        if not season_pass:
+            return
+        embed.add_field(name="Season Pass Level", value=f"{season_pass.value:,}", inline=True)
 
         # todo
         # get seal completion rate

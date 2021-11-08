@@ -8,6 +8,8 @@ from dis_snek.models import (
     Member,
     OptionTypes,
     SlashCommandChoice,
+    Timestamp,
+    TimestampStyles,
     slash_command,
     slash_option,
 )
@@ -58,6 +60,7 @@ class Rank(BaseScale):
     basic_leaderboards = {
         "basic_total_time": "Total Playtime",
         "basic_max_power": "Maximum Power Level",
+        "basic_season_pass": "Maximum Season Pass Level",
         "basic_kills": "Kills",
         "basic_melee_kills": "Kills with: Melee",
         "basic_super_kills": "Kills with: Super",
@@ -346,8 +349,8 @@ class Rank(BaseScale):
                 pass
 
             case "discord_join_date":
-                # todo
-                pass
+                result.sort_value = discord_member.joined_at
+                result.display_text = f"Joined: {discord_member.joined_at.format(style=TimestampStyles.ShortDateTime)}"
 
             case "basic_total_time":
                 # get the stat
@@ -360,8 +363,18 @@ class Rank(BaseScale):
                 result.display_text = f"Time Played: {format_timedelta(stat.value)}"
 
             case "basic_max_power":
-                # todo
+                # todo calculate items and if no token is there get the stat
                 pass
+
+            case "basic_season_pass":
+                # get the stat
+                season_pass = await backend_account.get_season_pass_level()
+                if not season_pass:
+                    raise RuntimeError
+
+                # save the stat
+                result.sort_value = season_pass.value
+                result.display_text = f"Level: {season_pass.value:,}"
 
             case "basic_kills":
                 # get the stat
@@ -434,16 +447,34 @@ class Rank(BaseScale):
                 result.display_text = f"Orbs: {stat.value:,}"
 
             case "basic_triumphs":
-                # todo
-                pass
+                # get the stat
+                stat = await backend_account.get_triumph_score()
+                if not stat:
+                    raise RuntimeError
+
+                # save the stat
+                result.sort_value = stat.lifetime_score
+                result.display_text = f"Score: {stat.lifetime_score:,}"
 
             case "basic_active_triumphs":
-                # todo
-                pass
+                # get the stat
+                stat = await backend_account.get_triumph_score()
+                if not stat:
+                    raise RuntimeError
+
+                # save the stat
+                result.sort_value = stat.active_score
+                result.display_text = f"Score: {stat.active_score:,}"
 
             case "basic_legacy_triumphs":
-                # todo
-                pass
+                # get the stat
+                stat = await backend_account.get_triumph_score()
+                if not stat:
+                    raise RuntimeError
+
+                # save the stat
+                result.sort_value = stat.legacy_score
+                result.display_text = f"Score: {stat.legacy_score:,}"
 
             case "basic_enhancement_cores":
                 # todo
