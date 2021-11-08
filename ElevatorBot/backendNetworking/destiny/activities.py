@@ -9,6 +9,7 @@ from ElevatorBot.backendNetworking.http import BaseBackendConnection
 from ElevatorBot.backendNetworking.routes import (
     destiny_activities_activity_route,
     destiny_activities_get_all_route,
+    destiny_activities_get_grandmaster_route,
 )
 from NetworkingSchemas.destiny.activities import (
     DestinyActivitiesModel,
@@ -30,6 +31,17 @@ class DestinyActivities(BaseBackendConnection):
         result = await self._backend_request(
             method="GET",
             route=destiny_activities_get_all_route,
+        )
+
+        # convert to correct pydantic model
+        return DestinyActivitiesModel.parse_obj(result.result) if result else None
+
+    async def get_grandmaster(self) -> Optional[DestinyActivitiesModel]:
+        """Get all grandmaster nfs"""
+
+        result = await self._backend_request(
+            method="GET",
+            route=destiny_activities_get_grandmaster_route,
         )
 
         # convert to correct pydantic model

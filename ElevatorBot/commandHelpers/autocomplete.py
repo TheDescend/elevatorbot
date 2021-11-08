@@ -5,6 +5,7 @@ from NetworkingSchemas.destiny.activities import DestinyActivityModel
 from NetworkingSchemas.destiny.weapons import DestinyWeaponModel
 
 # all activities are in here at runtime
+activities_grandmaster: dict[str, DestinyActivityModel] = {}
 activities: dict[str, DestinyActivityModel] = {}
 activities_by_id: dict[int, DestinyActivityModel] = {}
 

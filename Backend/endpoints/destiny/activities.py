@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend import crud
 from Backend.core.destiny.activities import DestinyActivities
-from Backend.crud import destiny_manifest
+from Backend.crud import activities, destiny_manifest
 from Backend.dependencies import get_db_session
 from NetworkingSchemas.destiny.activities import (
     DestinyActivitiesModel,
@@ -69,3 +69,10 @@ async def activity(
         start_time=activity_input.start_time,
         end_time=activity_input.end_time,
     )
+
+
+@router.get("/get/grandmaster", response_model=DestinyActivitiesModel)
+async def activity(db: AsyncSession = Depends(get_db_session)):
+    """Return information about all grandmaster nfs from the DB"""
+
+    return DestinyActivitiesModel(activities=await destiny_manifest.get_grandmaster_nfs(db=db))

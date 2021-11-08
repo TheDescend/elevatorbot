@@ -24,7 +24,11 @@ from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
 from ElevatorBot.backendNetworking.destiny.activities import DestinyActivities
 from ElevatorBot.backendNetworking.destiny.clan import DestinyClan
 from ElevatorBot.backendNetworking.destiny.weapons import DestinyWeapons
-from ElevatorBot.commandHelpers.autocomplete import activities, weapons
+from ElevatorBot.commandHelpers.autocomplete import (
+    activities,
+    activities_grandmaster,
+    weapons,
+)
 from ElevatorBot.commandHelpers.optionTemplates import (
     autocomplete_activity_option,
     autocomplete_weapon_option,
@@ -530,12 +534,32 @@ class Rank(BaseScale):
                 pass
 
             case "endgame_gms":
-                # todo
-                pass
+                # get the stat
+                stat = await backend_activities.get_activity_stats(
+                    input_model=DestinyActivityInputModel(
+                        activity_ids=activities_grandmaster["Grandmaster: All".lower()].activity_ids
+                    )
+                )
+                if not stat:
+                    raise RuntimeError
+
+                # save the stat
+                result.sort_value = stat.full_completions
+                result.display_text = f"Grandmasters: {stat.full_completions:,}"
 
             case "endgame_gm_time":
-                # todo
-                pass
+                # get the stat
+                stat = await backend_activities.get_activity_stats(
+                    input_model=DestinyActivityInputModel(
+                        activity_ids=activities_grandmaster["Grandmaster: All".lower()].activity_ids
+                    )
+                )
+                if not stat:
+                    raise RuntimeError
+
+                # save the stat
+                result.sort_value = stat.time_spend
+                result.display_text = f"Time Played: {format_timedelta(stat.time_spend)}"
 
             case "activity_full_completions":
                 # get the stat

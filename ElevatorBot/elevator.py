@@ -51,8 +51,11 @@ if __name__ == "__main__":
     # actually get the bot obj
     client = Snake(intents=intents, sync_interactions=SYNC_COMMANDS, delete_unused_application_cmds=True)
 
-    # # add discord events and handlers
+    print ("Loading Discord Events...")
     register_discord_events(client)
+
+    print ("Loading Autocomplete Options...")
+    asyncio.run(load_autocomplete_options(client))
 
     @listen()
     async def on_ready():
@@ -76,11 +79,8 @@ if __name__ == "__main__":
         print ("Start Webserver...")
         asyncio.create_task(run_webserver(client=client))
 
-        print ("Load Custom Emoji...")
+        print ("Loading Custom Emoji...")
         await custom_emojis.init_emojis(client)
-
-        print ("Load Autocomplete Options...")
-        await load_autocomplete_options(client)
 
         print ("Startup Finished!\n")
         print ("--------------------------\n")
