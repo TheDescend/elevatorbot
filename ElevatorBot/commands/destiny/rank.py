@@ -1,5 +1,6 @@
 import asyncio
 import dataclasses
+import itertools
 from collections import namedtuple
 from typing import Optional
 
@@ -23,6 +24,7 @@ from DestinyEnums.enums import (
 from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
 from ElevatorBot.backendNetworking.destiny.activities import DestinyActivities
 from ElevatorBot.backendNetworking.destiny.clan import DestinyClan
+from ElevatorBot.backendNetworking.destiny.roles import DestinyRoles
 from ElevatorBot.backendNetworking.destiny.weapons import DestinyWeapons
 from ElevatorBot.commandHelpers.autocomplete import (
     activities,
@@ -36,6 +38,7 @@ from ElevatorBot.commandHelpers.optionTemplates import (
 )
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formating import embed_message, format_timedelta
+from ElevatorBot.static.destinyActivities import raid_to_emblem_hash
 from ElevatorBot.static.emojis import custom_emojis
 from NetworkingSchemas.destiny.activities import (
     DestinyActivityInputModel,
@@ -262,6 +265,8 @@ class Rank(BaseScale):
 
         # sort the results
         sort_by_ascending = results[0].sort_by_ascending
+        if reverse:
+            sort_by_ascending = not sort_by_ascending
         sorted_results: list[RankResult] = sorted(
             results, key=lambda entry: entry.sort_value, reverse=not sort_by_ascending
         )
@@ -282,6 +287,8 @@ class Rank(BaseScale):
                     "⁣",
                 ]
             )
+        if reverse:
+            embed.set_footer("Reverse: True")
 
         # add the rankings
         found = False
@@ -343,14 +350,24 @@ class Rank(BaseScale):
         backend_weapons = DestinyWeapons(
             ctx=ctx, client=ctx.bot, discord_member=discord_member, discord_guild=ctx.guild
         )
+        backend_roles = DestinyRoles(ctx=ctx, client=ctx.bot, discord_member=discord_member, discord_guild=ctx.guild)
 
         # todo add :, to f stings
         # todo were to sort which way
         # handle each leaderboard differently
         match leaderboard_name:
             case "discord_roles":
-                # todo
-                pass
+                # get the stat
+                roles = await backend_roles.get_missing()
+                if not roles:
+                    raise RuntimeError
+
+                # save the stat
+                missing = len(list(itertools.chain(*roles.acquirable.values())))
+                missing_deprecated = len(list(itertools.chain(*roles.deprecated.values())))
+
+                result.sort_value = missing
+                result.display_text = f"Missing: {missing:,} (+{missing_deprecated} deprecated)"
 
             case "discord_join_date":
                 result.sort_value = discord_member.joined_at
@@ -530,8 +547,17 @@ class Rank(BaseScale):
                 result.display_text = f"Time Played: {format_timedelta(stat.time_spend)}"
 
             case "endgame_day_one_raids":
-                # todo
-                pass
+                # get the stat
+                for raid_name, collectible_id in raid_to_emblem_hash.items():
+                    collectible = await backend_account.has_collectible(collectible_id=collectible_id)
+                    if collectible is None:
+                        raise RuntimeError
+
+                    if collectible:
+                        result.sort_value += 1
+
+                # save the stat
+                result.display_text = f"Raids: {result.sort_value:,}"
 
             case "endgame_gms":
                 # get the stat
