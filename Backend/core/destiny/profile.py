@@ -77,62 +77,70 @@ class DestinyProfile:
 
         triumph_hash = int(triumph_hash)
 
-        # get from db and return that if it says user got the triumph
-        result = await records.has_record(db=self.db, destiny_id=self.destiny_id, triumph_hash=triumph_hash)
-        if result:
-            return BoolModelRecord(bool=result)
+        # check cache
+        async with asyncio.Lock():
+            if self.destiny_id not in cache.triumphs:
+                cache.triumphs.update({self.destiny_id: {}})
 
-        # alright, the user doesn't have the triumph, at least not in the db. So let's update the db entries
-        triumphs_data = await self.get_triumphs()
-        to_insert = []
-        sought_triumph = {}
+            if triumph_hash not in cache.triumphs[self.destiny_id]:
+                # get from db and return that if it says user got the triumph
+                result = await records.has_record(db=self.db, destiny_id=self.destiny_id, triumph_hash=triumph_hash)
+                if result:
+                    # only caching already got triumphs
+                    cache.triumphs[self.destiny_id].update({triumph_hash: True})
+                    return BoolModelRecord(bool=True)
 
-        # loop through all triumphs and add them / update them in the db
-        for triumph_id, triumph_info in triumphs_data.items():
-            triumph_id = int(triumph_id)
+                # alright, the user doesn't have the triumph, at least not in the db. So let's update the db entries
+                triumphs_data = await self.get_triumphs()
+                to_insert = []
+                sought_triumph = {}
 
-            # does the entry exist in the db?
-            # we don't need to re calc the state if its already marked as earned in the db
-            result = await records.get_record(db=self.db, destiny_id=self.destiny_id, triumph_hash=triumph_id)
-            if result and result.completed:
-                continue
+                # loop through all triumphs and add them / update them in the db
+                for triumph_id, triumph_info in triumphs_data.items():
+                    triumph_id = int(triumph_id)
 
-            # calculate if the triumph is gotten and save the triumph we are looking for
-            status = True
-            if "objectives" not in triumph_info:
-                # make sure it's RewardUnavailable aka legacy
-                assert triumph_info["state"] & 2
+                    # does the entry exist in the db?
+                    # we don't need to re calc the state if its already marked as earned in the db
+                    result = await records.get_record(db=self.db, destiny_id=self.destiny_id, triumph_hash=triumph_id)
+                    if result and result.completed:
+                        continue
 
-                # https://bungie-net.github.io/multi/schema_Destiny-DestinyRecordState.html#schema_Destiny-DestinyRecordState
-                status &= triumph_info["state"] & 1
+                    # calculate if the triumph is gotten and save the triumph we are looking for
+                    status = True
+                    if "objectives" not in triumph_info:
+                        # make sure it's RewardUnavailable aka legacy
+                        assert triumph_info["state"] & 2
 
-            else:
-                for part in triumph_info["objectives"]:
-                    status &= part["complete"]
+                        # https://bungie-net.github.io/multi/schema_Destiny-DestinyRecordState.html#schema_Destiny-DestinyRecordState
+                        status &= triumph_info["state"] & 1
 
-            # is this the triumph we are looking for?
-            if triumph_id == triumph_hash:
-                sought_triumph = triumph_info
+                    else:
+                        for part in triumph_info["objectives"]:
+                            status &= part["complete"]
 
-            # don't really need to insert not-gained triumphs
-            if status:
-                # do we need to update or insert?
-                if not result:
-                    # insert
-                    to_insert.append(Records(destiny_id=self.destiny_id, record_id=triumph_id, completed=status))
+                    # is this the triumph we are looking for?
+                    if triumph_id == triumph_hash:
+                        sought_triumph = triumph_info
 
-                else:
-                    # update
-                    await records.update_record(db=self.db, obj=result, completed=status)
+                    # don't really need to insert not-gained triumphs
+                    if status:
+                        cache.triumphs[self.destiny_id].update({triumph_id: True})
+                        # do we need to update or insert?
+                        if not result:
+                            # insert
+                            to_insert.append(Records(destiny_id=self.destiny_id, record_id=triumph_id, completed=True))
 
-        # mass insert the missing entries
-        if to_insert:
-            await records.insert_records(db=self.db, objs=to_insert)
+                        else:
+                            # update
+                            await records.update_record(db=self.db, obj=result, completed=True)
 
-        # now check again if it completed
-        result = await records.has_record(db=self.db, destiny_id=self.destiny_id, triumph_hash=triumph_hash)
-        if result:
-            return BoolModelRecord(bool=result)
+                # mass insert the missing entries
+                if to_insert:
+                    await records.insert_records(db=self.db, objs=to_insert)
+
+        # now check again if its completed
+        if triumph_hash in cache.triumphs[self.destiny_id]:
+            return BoolModelRecord(bool=True)
 
         # if not, return the data with the objectives info
         result = BoolModelRecord(bool=False)
@@ -146,54 +154,64 @@ class DestinyProfile:
 
         collectible_hash = int(collectible_hash)
 
-        # get from db and return that if it says user got the collectible
-        result = await collectibles.has_collectible(
-            db=self.db, destiny_id=self.destiny_id, collectible_hash=collectible_hash
-        )
-        if result:
-            return result
+        # check cache
+        async with asyncio.Lock():
+            if self.destiny_id not in cache.collectibles:
+                cache.collectibles.update({self.destiny_id: {}})
 
-        # as with the triumphs, we need to update our local collectible data now
-        collectibles_data = await self.get_collectibles()
-        to_insert = []
+            if collectible_hash not in cache.collectibles[self.destiny_id]:
+                # get from db and return that if it says user got the collectible
+                result = await collectibles.has_collectible(
+                    db=self.db, destiny_id=self.destiny_id, collectible_hash=collectible_hash
+                )
+                if result:
+                    # only caching already got collectibles
+                    cache.collectibles[self.destiny_id].update({collectible_hash: True})
+                    return result
 
-        # loop through the collectibles
-        for collectible_id, collectible_info in collectibles_data.items():
-            collectible_id = int(collectible_id)
+                # as with the triumphs, we need to update our local collectible data now
+                collectibles_data = await self.get_collectibles()
+                to_insert = []
 
-            # does the entry exist in the db?
-            # we don't need to re calc the state if its already marked as owned in the db
-            result = await collectibles.get_collectible(
-                db=self.db, destiny_id=self.destiny_id, collectible_hash=collectible_id
-            )
-            if result and result.owned:
-                continue
+                # loop through the collectibles
+                for collectible_id, collectible_info in collectibles_data.items():
+                    collectible_id = int(collectible_id)
 
-            # bit 1 not being set means the collectible is gotten
-            # see https://bungie-net.github.io/multi/schema_Destiny-DestinyCollectibleState.html#schema_Destiny-DestinyCollectibleState
-            status = collectible_info["state"] & 1 == 0
-
-            # don't really need to insert not-owned collectibles
-            if status:
-                # do we need to update or insert?
-                if not result:
-                    # insert
-                    to_insert.append(
-                        Collectibles(destiny_id=self.destiny_id, collectible_id=collectible_id, owned=status)
+                    # does the entry exist in the db?
+                    # we don't need to re calc the state if its already marked as owned in the db
+                    result = await collectibles.get_collectible(
+                        db=self.db, destiny_id=self.destiny_id, collectible_hash=collectible_id
                     )
+                    if result and result.owned:
+                        continue
 
-                else:
-                    # update
-                    await collectibles.update_collectible(db=self.db, obj=result, owned=status)
+                    # bit 1 not being set means the collectible is gotten
+                    # see https://bungie-net.github.io/multi/schema_Destiny-DestinyCollectibleState.html#schema_Destiny-DestinyCollectibleState
+                    status = collectible_info["state"] & 1 == 0
 
-        # mass insert the missing entries
-        if to_insert:
-            await collectibles.insert_collectibles(db=self.db, objs=to_insert)
+                    # don't really need to insert not-owned collectibles
+                    if status:
+                        cache.collectibles[self.destiny_id].update({collectible_id: True})
+                        # do we need to update or insert?
+                        if not result:
+                            # insert
+                            to_insert.append(
+                                Collectibles(destiny_id=self.destiny_id, collectible_id=collectible_id, owned=True)
+                            )
 
-        # now check again if it owned
-        return await collectibles.has_collectible(
-            db=self.db, destiny_id=self.destiny_id, collectible_hash=collectible_hash
-        )
+                        else:
+                            # update
+                            await collectibles.update_collectible(db=self.db, obj=result, owned=True)
+
+                # mass insert the missing entries
+                if to_insert:
+                    await collectibles.insert_collectibles(db=self.db, objs=to_insert)
+
+        # now check again if its owned
+        if collectible_hash in cache.collectibles[self.destiny_id]:
+            return True
+        else:
+            return False
 
     async def get_metric_value(self, metric_hash: str | int) -> int:
         """Returns the value of the given metric hash"""
