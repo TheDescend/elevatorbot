@@ -8,12 +8,12 @@ from ElevatorBot.backendNetworking.routes import (
     destiny_collectible_name_route,
     destiny_triumph_name_route,
 )
-from NetworkingSchemas.destiny.account import DestinyNameModel
+from NetworkingSchemas.basic import NameModel
 
 
 @dataclasses.dataclass
 class DestinyItems(BaseBackendConnection):
-    async def get_triumph_name(self, triumph_id: int) -> Optional[DestinyNameModel]:
+    async def get_triumph_name(self, triumph_id: int) -> Optional[NameModel]:
         """Return the triumph name"""
 
         result = await self._backend_request(
@@ -22,9 +22,9 @@ class DestinyItems(BaseBackendConnection):
         )
 
         # convert to correct pydantic model
-        return DestinyNameModel.parse_obj(result.result) if result else None
+        return NameModel.parse_obj(result.result) if result else None
 
-    async def get_collectible_name(self, collectible_id: int) -> Optional[DestinyNameModel]:
+    async def get_collectible_name(self, collectible_id: int) -> Optional[NameModel]:
         """Return the collectible name"""
 
         result = await self._backend_request(
@@ -33,4 +33,4 @@ class DestinyItems(BaseBackendConnection):
         )
 
         # convert to correct pydantic model
-        return DestinyNameModel.parse_obj(result.result) if result else None
+        return NameModel.parse_obj(result.result) if result else None

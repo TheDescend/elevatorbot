@@ -18,13 +18,14 @@ from Backend.database.models import (
 )
 from Backend.misc.helperFunctions import get_datetime_from_bungie_entry
 from Backend.networking.bungieApi import BungieApi
-from Backend.networking.bungieRoutes import profile_route, stat_route
+from Backend.networking.bungieRoutes import item_route, profile_route, stat_route
+from DestinyEnums.enums import DestinyInventoryBucketEnum
+from NetworkingSchemas.basic import ValueModel
 from NetworkingSchemas.destiny.account import (
     BoolModelObjective,
     BoolModelRecord,
     DestinyCharacterModel,
     DestinyCharactersModel,
-    DestinyStatModel,
     DestinyTriumphScoreModel,
     SeasonalChallengesModel,
     SeasonalChallengesRecordModel,
@@ -54,6 +55,75 @@ class DestinyProfile:
 
         # the network class
         self.api = BungieApi(db=self.db, user=self.user)
+
+    async def get_consumable_amount(self, consumable_id: int) -> int:
+        """Returns the amount of a consumable this user has"""
+
+        buckets = await self.__get_profile_inventory_bucket(
+            DestinyInventoryBucketEnum.VAULT, DestinyInventoryBucketEnum.CONSUMABLES
+        )
+
+        # get the value
+        value = 0
+        for bucket in buckets.values():
+            if consumable_id in bucket:
+                value += bucket[consumable_id]["quantity"]
+
+        return value
+
+    async def get_max_power(self) -> float:
+        """Returns the max power of the user"""
+
+        data = await self.__get_character_inventory_bucket(include_item_level=True)
+
+        # look at each character
+        max_power = 0
+        for character in data:
+            helmet = 0
+            gauntlet = 0
+            chest = 0
+            leg = 0
+            class_item = 0
+
+            kinetic = 0
+            energy = 0
+            power = 0
+
+            for buckets in data[character]:
+                # save the items light level
+                for bucket, items in buckets.items():
+                    match bucket:
+                        case DestinyInventoryBucketEnum.HELMET:
+                            if items["power_level"] > helmet:
+                                helmet += items["power_level"]
+                        case DestinyInventoryBucketEnum.GAUNTLETS:
+                            if items["power_level"] > gauntlet:
+                                gauntlet += items["power_level"]
+                        case DestinyInventoryBucketEnum.CHEST:
+                            if items["power_level"] > chest:
+                                chest += items["power_level"]
+                        case DestinyInventoryBucketEnum.LEG:
+                            if items["power_level"] > leg:
+                                leg += items["power_level"]
+                        case DestinyInventoryBucketEnum.CLASS:
+                            if items["power_level"] > class_item:
+                                class_item += items["power_level"]
+                        case DestinyInventoryBucketEnum.KINETIC:
+                            if items["power_level"] > kinetic:
+                                kinetic += items["power_level"]
+                        case DestinyInventoryBucketEnum.ENERGY:
+                            if items["power_level"] > energy:
+                                energy += items["power_level"]
+                        case DestinyInventoryBucketEnum.POWER:
+                            if items["power_level"] > power:
+                                power += items["power_level"]
+
+            # get the max power
+            char_max_power = (helmet + gauntlet + chest + leg + class_item + kinetic + energy + power) / 8
+            if char_max_power > max_power:
+                max_power = char_max_power
+
+        return max_power
 
     async def get_last_online(self) -> datetime.datetime:
         """Returns the last online time"""
@@ -250,13 +320,13 @@ class DestinyProfile:
                     stat: float = stats["merged"][stat_category][stat_name]["basic"]["value"]
                     return int(stat) if stat.is_integer() else stat
 
-    async def get_artifact_level(self) -> DestinyStatModel:
+    async def get_artifact_level(self) -> ValueModel:
         """Returns the seasonal artifact data"""
 
         result = await self.__get_profile(104, with_token=True)
-        return DestinyStatModel(value=result["profileProgression"]["data"]["seasonalArtifact"]["powerBonus"])
+        return ValueModel(value=result["profileProgression"]["data"]["seasonalArtifact"]["powerBonus"])
 
-    async def get_season_pass_level(self) -> DestinyStatModel:
+    async def get_season_pass_level(self) -> ValueModel:
         """Returns the seasonal pass level"""
 
         # get the current season pass hash
@@ -269,7 +339,7 @@ class DestinyProfile:
 
         result = await self.__get_profile(202, with_token=True)
         character_data = result["characterProgressions"]["data"][str(character_id)]["progressions"]
-        return DestinyStatModel(
+        return ValueModel(
             value=character_data[str(cache.season_pass_definition.reward_progression_hash)]["level"]
             + character_data[str(cache.season_pass_definition.prestige_progression_hash)]["level"]
         )
@@ -542,6 +612,140 @@ class DestinyProfile:
             end_time=end_time,
             character_class=character_class,
         )
+
+    async def __get_inventory_bucket(
+        self, *buckets: DestinyInventoryBucketEnum
+    ) -> dict[DestinyInventoryBucketEnum, dict[int, dict]]:
+        """
+        Get all the items from an inventory bucket. Default: All buckets
+
+        Returns:
+        {
+            DestinyInventoryBucketEnum: {
+                item_hash: dict_data,
+                ...
+            },
+            ...
+        }
+        """
+
+        # default is vault
+        if not buckets:
+            buckets = DestinyInventoryBucketEnum.all
+
+        result = await self.__get_profile(102, with_token=True)
+
+        items = {}
+
+        # only get the items in the correct buckets
+        if buckets != DestinyInventoryBucketEnum.all:
+            for item in result["profileInventory"]["data"]["items"]:
+                for bucket in buckets:
+                    if item["bucketHash"] == bucket.value:
+                        if bucket not in items:
+                            items.update({bucket: {}})
+                        items[bucket].update({item["itemHash"]: item})
+
+        # get all buckets
+        else:
+            for item in result["profileInventory"]["data"]["items"]:
+                if item["bucketHash"] not in items:
+                    items.update({item["bucketHash"]: {}})
+                items[item["bucketHash"]].update({item["itemHash"]: item})
+
+        return items
+
+    async def __get_profile_inventory_bucket(
+        self, *buckets: DestinyInventoryBucketEnum
+    ) -> dict[DestinyInventoryBucketEnum, dict[int, dict]]:
+        """
+        Get all the items from an inventory bucket. Default: All buckets
+
+        Returns:
+        {
+            DestinyInventoryBucketEnum: {
+                item_hash: dict_data,
+                ...
+            },
+            ...
+        }
+        """
+
+        # default is vault
+        if not buckets:
+            buckets = DestinyInventoryBucketEnum.all
+
+        result = await self.__get_profile(102, with_token=True)
+
+        items = {}
+
+        # only get the items in the correct buckets
+        for item in result["profileInventory"]["data"]["items"]:
+            for bucket in buckets:
+                if item["bucketHash"] == bucket.value:
+                    item_hash = int(item["itemHash"])
+                    if bucket not in items:
+                        items.update({bucket: {}})
+                    items[bucket].update({item_hash: item})
+                    break
+
+        return items
+
+    async def __get_character_inventory_bucket(
+        self, *buckets: DestinyInventoryBucketEnum, include_item_level: bool = False
+    ) -> dict[int, dict[DestinyInventoryBucketEnum, dict[int, dict]]]:
+        """
+        Get all the items from an inventory bucket. Default: All buckets
+        Includes the power level is asked for under "power_level"
+
+        Returns:
+        {
+            character_id: {
+                DestinyInventoryBucketEnum: {
+                    item_hash: dict_data,
+                    ...
+                },
+                ...
+            },
+            ...
+        }
+        """
+
+        # default is vault
+        if not buckets:
+            buckets = DestinyInventoryBucketEnum.all
+
+        result = await self.__get_profile(201, with_token=True)
+
+        items = {}
+
+        for character_id, character_data in result["characterInventories"]["data"].items():
+            character_id = int(character_id)
+            if character_id not in items:
+                items.update({character_id: {}})
+
+            # only get the items in the correct buckets
+            for item in character_data["items"]:
+                for bucket in buckets:
+                    if item["bucketHash"] == bucket.value:
+                        item_hash = int(item["itemHash"])
+                        if bucket not in items[character_id]:
+                            items[character_id].update({bucket: {}})
+                        items[character_id][bucket].update({item_hash: item})
+                        if include_item_level:
+                            try:
+                                items[character_id][bucket][item_hash].update(
+                                    {
+                                        "power_level": result["itemComponents"]["instances"]["data"][str(item_hash)][
+                                            "primaryStat"
+                                        ]["value"]
+                                    }
+                                )
+                            except KeyError:
+                                pass
+                        break
+
+        return items
 
     async def __get_profile(self, *components_override: int, with_token: bool = False) -> dict:
         """

@@ -382,8 +382,18 @@ class Rank(BaseScale):
                 result.display_text = f"Time Played: {format_timedelta(stat.value)}"
 
             case "basic_max_power":
-                # todo calculate items and if no token is there get the stat
-                pass
+                # get the stat
+                stat = await backend_account.get_max_power()
+                if not stat:
+                    raise RuntimeError
+                # get the stat
+                artifact = await backend_account.get_artifact_level()
+                if not artifact:
+                    raise RuntimeError
+
+                # save the stat
+                result.sort_value = stat.value + artifact.value
+                result.display_text = f"Max Power: {stat.value:,} (+{artifact.value:,})"
 
             case "basic_season_pass":
                 # get the stat
@@ -496,8 +506,14 @@ class Rank(BaseScale):
                 result.display_text = f"Score: {stat.legacy_score:,}"
 
             case "basic_enhancement_cores":
-                # todo
-                pass
+                # get the stat
+                stat = await backend_account.get_consumable_amount(consumable_id=3853748946)
+                if not stat:
+                    raise RuntimeError
+
+                # save the stat
+                result.sort_value = stat.value
+                result.display_text = f"Cores: {stat.value:,}"
 
             case "basic_vault_space":
                 # todo

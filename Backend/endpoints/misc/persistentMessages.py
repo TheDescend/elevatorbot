@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.crud import persistent_messages
 from Backend.dependencies import get_db_session
-from NetworkingSchemas.empty import EmptyResponseModel
+from NetworkingSchemas.basic import EmptyResponseModel
 from NetworkingSchemas.misc.persistentMessages import (
     PersistentMessage,
     PersistentMessageUpsert,

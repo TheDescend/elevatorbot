@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from enum import Enum
 
 
@@ -223,3 +225,25 @@ class DestinyActivityModeTypeEnum(Enum):
     ELIMINATION = 80
     MOMENTUM = 81
     SUNDIAL = 83
+
+
+class DestinyInventoryBucketEnum(Enum):
+    VAULT = 138197802
+    CONSUMABLES = 1469714392
+
+    HELMET = 3448274439
+    GAUNTLETS = 3551918588
+    CHEST = 14239492
+    LEG = 20886954
+    CLASS = 1585787867
+
+    KINETIC = 1498876634
+    ENERGY = 2465295065
+    POWER = 953998645
+
+    BRIGHT_DUST = 2689798311
+    SHARDS = 2689798309
+
+    @property
+    def all(self) -> list[DestinyInventoryBucketEnum]:
+        return [e for e in DestinyInventoryBucketEnum]

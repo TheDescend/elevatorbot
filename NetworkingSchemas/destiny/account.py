@@ -3,22 +3,8 @@ from typing import Optional
 
 from pydantic import BaseModel
 
+from NetworkingSchemas.basic import BoolModel
 from NetworkingSchemas.destiny.activities import DestinyLowManModel
-
-
-class DestinyNameModel(BaseModel):
-    name: Optional[str] = None
-
-
-class DestinyStatModel(BaseModel):
-    value: float
-
-
-class BoolModel(BaseModel):
-    bool: bool
-
-    def __bool__(self):
-        return self.bool
 
 
 class BoolModelObjective(BaseModel):

@@ -37,6 +37,8 @@ destiny_account_seasonal_challenges_route = destiny_account_route + "seasonal_ch
 destiny_account_triumph_score_route = destiny_account_route + "triumphs/"  # GET
 destiny_account_artifact_level_route = destiny_account_route + "artifact/"  # GET
 destiny_account_season_pass_level_route = destiny_account_route + "season_pass/"  # GET
+destiny_account_consumable_amount_route = destiny_account_route + "consumable/{consumable_id}"  # GET
+destiny_account_max_power_route = destiny_account_route + "max_power/"  # GET
 
 # lfg system
 destiny_lfg_route = base_route + "destiny/{guild_id}/lfg/"

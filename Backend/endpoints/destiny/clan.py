@@ -6,12 +6,12 @@ from Backend.core.destiny.clan import DestinyClan
 from Backend.core.errors import CustomException
 from Backend.crud import destiny_clan_links, discord_users
 from Backend.dependencies import get_db_session
+from NetworkingSchemas.basic import EmptyResponseModel
 from NetworkingSchemas.destiny.clan import (
     DestinyClanLink,
     DestinyClanMembersModel,
     DestinyClanModel,
 )
-from NetworkingSchemas.empty import EmptyResponseModel
 
 router = APIRouter(
     prefix="/destiny/{guild_id}/{discord_id}/clan",

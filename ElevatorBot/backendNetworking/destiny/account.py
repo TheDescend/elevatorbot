@@ -11,6 +11,8 @@ from ElevatorBot.backendNetworking.routes import (
     destiny_account_artifact_level_route,
     destiny_account_characters_route,
     destiny_account_collectible_route,
+    destiny_account_consumable_amount_route,
+    destiny_account_max_power_route,
     destiny_account_metric_route,
     destiny_account_name_route,
     destiny_account_season_pass_level_route,
@@ -22,13 +24,11 @@ from ElevatorBot.backendNetworking.routes import (
     destiny_account_triumph_route,
     destiny_account_triumph_score_route,
 )
+from NetworkingSchemas.basic import BoolModel, NameModel, ValueModel
 from NetworkingSchemas.destiny.account import (
-    BoolModel,
     BoolModelRecord,
     DestinyCharactersModel,
     DestinyLowMansModel,
-    DestinyNameModel,
-    DestinyStatModel,
     DestinyTimesModel,
     DestinyTriumphScoreModel,
     SeasonalChallengesModel,
@@ -40,7 +40,7 @@ class DestinyAccount(BaseBackendConnection):
     client: Snake
     discord_guild: Guild
 
-    async def get_destiny_name(self) -> Optional[DestinyNameModel]:
+    async def get_destiny_name(self) -> Optional[NameModel]:
         """Return the destiny name"""
 
         result = await self._backend_request(
@@ -49,7 +49,7 @@ class DestinyAccount(BaseBackendConnection):
         )
 
         # convert to correct pydantic model
-        return DestinyNameModel.parse_obj(result.result) if result else None
+        return NameModel.parse_obj(result.result) if result else None
 
     async def get_solos(self) -> Optional[DestinyLowMansModel]:
         """Return the solos the user has done"""
@@ -129,7 +129,7 @@ class DestinyAccount(BaseBackendConnection):
         # convert to correct pydantic model
         return BoolModelRecord.parse_obj(result.result) if result else None
 
-    async def get_metric(self, metric_id: int) -> Optional[DestinyStatModel]:
+    async def get_metric(self, metric_id: int) -> Optional[ValueModel]:
         """Return the metric value"""
 
         result = await self._backend_request(
@@ -140,9 +140,9 @@ class DestinyAccount(BaseBackendConnection):
         )
 
         # convert to correct pydantic model
-        return DestinyStatModel.parse_obj(result.result) if result else None
+        return ValueModel.parse_obj(result.result) if result else None
 
-    async def get_stat(self, stat_name: str, stat_category: str = "allTime") -> Optional[DestinyStatModel]:
+    async def get_stat(self, stat_name: str, stat_category: str = "allTime") -> Optional[ValueModel]:
         """Return the stat value"""
 
         result = await self._backend_request(
@@ -156,11 +156,11 @@ class DestinyAccount(BaseBackendConnection):
         )
 
         # convert to correct pydantic model
-        return DestinyStatModel.parse_obj(result.result) if result else None
+        return ValueModel.parse_obj(result.result) if result else None
 
     async def get_stat_by_characters(
         self, character_id: int, stat_name: str, stat_category: str = "allTime"
-    ) -> Optional[DestinyStatModel]:
+    ) -> Optional[ValueModel]:
         """Return the stat value by character"""
 
         result = await self._backend_request(
@@ -175,7 +175,7 @@ class DestinyAccount(BaseBackendConnection):
         )
 
         # convert to correct pydantic model
-        return DestinyStatModel.parse_obj(result.result) if result else None
+        return ValueModel.parse_obj(result.result) if result else None
 
     async def get_seasonal_challenges(self) -> Optional[SeasonalChallengesModel]:
         """Return the seasonal challenges"""
@@ -203,7 +203,7 @@ class DestinyAccount(BaseBackendConnection):
         # convert to correct pydantic model
         return DestinyTriumphScoreModel.parse_obj(result.result) if result else None
 
-    async def get_artifact_level(self) -> Optional[DestinyStatModel]:
+    async def get_artifact_level(self) -> Optional[ValueModel]:
         """Return the user's artifact_level"""
 
         result = await self._backend_request(
@@ -214,9 +214,9 @@ class DestinyAccount(BaseBackendConnection):
         )
 
         # convert to correct pydantic model
-        return DestinyStatModel.parse_obj(result.result) if result else None
+        return ValueModel.parse_obj(result.result) if result else None
 
-    async def get_season_pass_level(self) -> Optional[DestinyStatModel]:
+    async def get_season_pass_level(self) -> Optional[ValueModel]:
         """Return the user's season_pass_level"""
 
         result = await self._backend_request(
@@ -227,4 +227,30 @@ class DestinyAccount(BaseBackendConnection):
         )
 
         # convert to correct pydantic model
-        return DestinyStatModel.parse_obj(result.result) if result else None
+        return ValueModel.parse_obj(result.result) if result else None
+
+    async def get_consumable_amount(self, consumable_id: int) -> Optional[ValueModel]:
+        """Return the user's consumable amount"""
+
+        result = await self._backend_request(
+            method="GET",
+            route=destiny_account_consumable_amount_route.format(
+                guild_id=self.discord_guild.id, discord_id=self.discord_member.id, consumable_id=consumable_id
+            ),
+        )
+
+        # convert to correct pydantic model
+        return ValueModel.parse_obj(result.result) if result else None
+
+    async def get_max_power(self) -> Optional[ValueModel]:
+        """Return the user's max power"""
+
+        result = await self._backend_request(
+            method="GET",
+            route=destiny_account_max_power_route.format(
+                guild_id=self.discord_guild.id, discord_id=self.discord_member.id
+            ),
+        )
+
+        # convert to correct pydantic model
+        return ValueModel.parse_obj(result.result) if result else None
