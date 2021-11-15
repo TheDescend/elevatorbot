@@ -242,14 +242,11 @@ class DestinyWeapons:
             )
 
             # set the rankings and the limit and include the sought weapon
-            i = 0
             found = sought_weapon.bucket_type_hash == slot.value if sought_weapon else True
             final_slot = []
-            for item in sorted_slot:
-                i += 1
-
-                if i <= how_many_per_slot:
-                    item.ranking = i
+            for i, item in enumerate(sorted_slot):
+                if i < how_many_per_slot:
+                    item.ranking = i + 1
                     final_slot.append(item)
 
                     if include_weapon_with_ids[0] in item.weapon_ids:
@@ -257,7 +254,7 @@ class DestinyWeapons:
 
                 elif not found:
                     if include_weapon_with_ids[0] in item.weapon_ids:
-                        item.ranking = i
+                        item.ranking = i + 1
                         final_slot.append(item)
                         found = True
 

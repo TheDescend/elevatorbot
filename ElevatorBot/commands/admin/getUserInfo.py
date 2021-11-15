@@ -109,10 +109,7 @@ class UserInfo(BaseScale):
         )
 
         # fill that
-        i = 0
-        for profile in profiles:
-            i += 1
-
+        for i, profile in enumerate(profiles):
             discord_member = await ctx.guild.get_member(profile.discord_id)
             if not discord_member:
                 await ctx.send(
@@ -135,7 +132,7 @@ class UserInfo(BaseScale):
                 return
 
             embed.add_field(
-                name=f"Option {i}",
+                name=f"Option {i + 1}",
                 value=f"Discord - {discord_member.mention} \nDestinyID: `{profile.destiny_id}` \nSystem - `{profile.system}` \nDestiny Name - `{destiny_name.name}`",
                 inline=False,
             )

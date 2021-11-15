@@ -293,27 +293,24 @@ class Rank(BaseScale):
 
         # add the rankings
         found = False
-        i = 0
-        for result in sorted_results:
-            i += 1
-
-            if i <= limit:
+        for i, result in enumerate(sorted_results):
+            if i < limit:
                 if result.discord_member == member:
                     found = True
                     description.append(
-                        f"**{i}) {result.discord_member.mention}\n{custom_emojis.enter} {result.display_text}**"
+                        f"**{i + 1}) {result.discord_member.mention}\n{custom_emojis.enter} {result.display_text}**"
                     )
 
                 else:
                     description.append(
-                        f"{i}) {result.discord_member.mention}\n{custom_emojis.enter} {result.display_text}"
+                        f"{i + 1}) {result.discord_member.mention}\n{custom_emojis.enter} {result.display_text}"
                     )
 
             elif not found:
                 if result.discord_member == member:
                     description.append("...")
                     description.append(
-                        f"{i}) {result.discord_member.mention}\n{custom_emojis.enter} {result.display_text}"
+                        f"{i + 1}) {result.discord_member.mention}\n{custom_emojis.enter} {result.display_text}"
                     )
                     break
 

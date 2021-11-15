@@ -176,13 +176,11 @@ class WeaponsMeta(BaseScale):
             embed.set_footer(" | ".join(footer))
 
         # add the fields to the embed
-        for slot_name, data in sorted_slot.items():
+        for i, (slot_name, data) in enumerate(sorted_slot.items()):
             field_text = []
-            i = 0
             for item in data:
-                i += 1
                 field_text.append(
-                    f"""{i}) {getattr(custom_emojis, item.weapon_type.lower())}{getattr(custom_emojis, item.weapon_damage_type.lower())}{getattr(custom_emojis, item.weapon_ammo_type.lower())} [{item.weapon_name}](https://www.light.gg/db/items/{item.weapon_ids[0]})\n{custom_emojis.enter} {capitalize_string(stat.name)}: {item.stat_value}"""
+                    f"""{i + 1}) {getattr(custom_emojis, item.weapon_type.lower())}{getattr(custom_emojis, item.weapon_damage_type.lower())}{getattr(custom_emojis, item.weapon_ammo_type.lower())} [{item.weapon_name}](https://www.light.gg/db/items/{item.weapon_ids[0]})\n{custom_emojis.enter} {capitalize_string(stat.name)}: {item.stat_value}"""
                 )
 
             embed.add_field(name=slot_name, value="\n".join(field_text) or "None", inline=True)
