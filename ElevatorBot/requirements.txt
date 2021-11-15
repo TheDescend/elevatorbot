@@ -1,6 +1,6 @@
-aiohttp[speedups]==3.8.0
+aiohttp[speedups]==3.8.1
 apscheduler==3.8.1
-dis-snek==1.5.1
+dis-snek==2.0.0
 ics==0.7
 matplotlib==3.4.3
 orjson==3.6.4
