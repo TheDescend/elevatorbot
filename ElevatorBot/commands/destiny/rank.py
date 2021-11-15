@@ -16,6 +16,7 @@ from dis_snek.models import (
 )
 
 from DestinyEnums.enums import (
+    DestinyActivityModeTypeEnum,
     DestinyWeaponTypeEnum,
     UsableDestinyActivityModeTypeEnum,
     UsableDestinyAmmunitionTypeEnum,
@@ -508,19 +509,37 @@ class Rank(BaseScale):
             case "basic_forges":
                 # get the stat
                 stat = await backend_activities.get_activity_stats(
-                    input_model=DestinyActivityInputModel(activity_ids=activity.activity_ids)
+                    input_model=DestinyActivityInputModel(mode=DestinyActivityModeTypeEnum.FORGE.value)
+                )
+                if not stat:
+                    raise RuntimeError
+
+                afk_stats = await backend_activities.get_activity_stats(
+                    input_model=DestinyActivityInputModel(
+                        mode=DestinyActivityModeTypeEnum.FORGE.value, need_zero_kills=True
+                    )
+                )
+                if not afk_stats:
+                    raise RuntimeError
+
+                # save the stat
+                afk_completions = afk_stats.full_completions + afk_stats.cp_completions
+                result.sort_value = stat.full_completions + stat.cp_completions - afk_completions
+                result.display_text = f"Forges: {result.sort_value:,} (+{afk_completions} AFK)"
+
+            case "basic_afk_forges":
+                # get the stat
+                stat = await backend_activities.get_activity_stats(
+                    input_model=DestinyActivityInputModel(
+                        mode=DestinyActivityModeTypeEnum.FORGE.value, need_zero_kills=True
+                    )
                 )
                 if not stat:
                     raise RuntimeError
 
                 # save the stat
-                result.sort_value = stat.full_completions
-                # todo afk runs
-                result.display_text = f"Forges: {stat.full_completions:,}"
-
-            case "basic_afk_forges":
-                # todo
-                pass
+                result.sort_value = stat.full_completions + stat.cp_completions
+                result.display_text = f"AFK Forges: {result.sort_value:,}"
 
             case "endgame_raids":
                 # get the stat

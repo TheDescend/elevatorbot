@@ -56,11 +56,14 @@ class DestinyLastInputModel(BaseModel):
 
 class DestinyActivityInputModel(BaseModel):
     activity_ids: Optional[list[int]] = None
-    mode: Optional[int] = (None,)
+    mode: Optional[int] = None
     character_class: Optional[str] = None
     character_ids: Optional[list[int]] = None
     start_time: Optional[datetime.datetime] = None
     end_time: Optional[datetime.datetime] = None
+
+    # this is used to get the afk forges
+    need_zero_kills: bool = False
 
 
 class DestinyActivityOutputModel(BaseModel):
