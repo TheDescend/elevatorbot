@@ -3,6 +3,7 @@ from typing import Optional
 
 from dis_snek.models import Guild, GuildVoice, Role, ThreadChannel
 
+from ElevatorBot.backendNetworking.destiny.items import DestinyItems
 from ElevatorBot.core.misc.persistentMessages import PersistentMessages
 
 
@@ -83,6 +84,47 @@ class DescendCache:
         return self.member_count_channel
 
 
+@dataclasses.dataclass
+class IDtoNameBase:
+    _id_to_name: dict[int, str] = dataclasses.field(init=False, default_factory=dict)
+
+
+@dataclasses.dataclass
+class CollectibleCache(IDtoNameBase):
+    async def get_name(self, collectible_id: int) -> str:
+        """Get the name of a collectible"""
+
+        if collectible_id not in self._id_to_name:
+            # populate it
+            result = await DestinyItems(ctx=None, discord_member=None).get_collectible_name(
+                collectible_id=collectible_id
+            )
+            if not result or not result.name:
+                raise LookupError
+
+            self._id_to_name[collectible_id] = result.name
+
+        return self._id_to_name[collectible_id]
+
+
+@dataclasses.dataclass
+class TriumphCache(IDtoNameBase):
+    async def get_name(self, triumph_id: int) -> str:
+        """Get the name of a triumph"""
+
+        if triumph_id not in self._id_to_name:
+            # populate it
+            result = await DestinyItems(ctx=None, discord_member=None).get_triumph_name(triumph_id=triumph_id)
+            if not result or not result.name:
+                raise LookupError
+
+            self._id_to_name[triumph_id] = result.name
+
+        return self._id_to_name[triumph_id]
+
+
 reply_cache = ReplyCache()
 registered_role_cache = RegisteredRoleCache()
 descend_cache = DescendCache()
+collectible_cache = CollectibleCache()
+triumph_cache = TriumphCache()

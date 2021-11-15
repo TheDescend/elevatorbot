@@ -15,6 +15,7 @@ from Backend.endpoints.destiny import (
     account,
     activities,
     clan,
+    items,
     lfg,
     profile,
     roles,
@@ -65,6 +66,7 @@ app.include_router(roles.router)
 app.include_router(activities.router)
 app.include_router(steamPlayers.router)
 app.include_router(weapons.router)
+app.include_router(items.router)
 
 
 # add exception handlers

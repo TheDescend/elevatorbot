@@ -30,6 +30,8 @@ class CRUDRoles(CRUDBase):
     async def create_role(self, db: AsyncSession, role: RoleModel):
         """Insert the new role"""
 
+        # todo validate that the role_data is valid
+
         db_role = Roles(
             role_id=role.role_id, guild_id=role.guild_id, role_name=role.role_name, role_data=role.role_data.dict()
         )
@@ -40,6 +42,8 @@ class CRUDRoles(CRUDBase):
 
     async def update_role(self, db: AsyncSession, role: RoleModel):
         """Update a role"""
+
+        # todo validate that the role_data is valid
 
         db_role = await self.get_role(db=db, role_id=role.role_id)
         await self._update(db=db, to_update=db_role, role_name=role.role_name, role_data=role.role_data.dict())

@@ -210,6 +210,7 @@ class UserRoles:
                     if len(found) < entry["count"]:
                         worthy = RoleEnum.NOT_EARNED
 
+                    # todo better return the additional information like do you need a flawless
                     self._cache_worthy_info[role.role_id]["require_activity_completions"].append(f"""{len(found)} / {entry["count"]}""")
 
                     # make this end early

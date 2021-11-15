@@ -8,6 +8,8 @@ from dis_snek.models.discord_objects.guild import Guild
 from dis_snek.models.discord_objects.user import Member
 
 from ElevatorBot.backendNetworking.destiny.roles import DestinyRoles
+from ElevatorBot.commandHelpers.autocomplete import activities_by_id
+from ElevatorBot.misc.cache import collectible_cache, triumph_cache
 from ElevatorBot.misc.formating import embed_message
 
 
@@ -42,45 +44,46 @@ class Roles:
             f"{self.member.display_name}'s '{role.name}' Eligibility", f"""**Earned: {result.earned}**"""
         )
 
-        # loop through get_requirements
+        # loop through the requirements and their statuses
+        activities: list[str] = []
+        collectibles: list[str] = []
+        records: list[str] = []
+        roles: list[str] = []
         for role_info, user_info in zip(role_data, user_data):
             match role_info:
                 case "require_activity_completions":
-                    i = 0
                     for role_activity, user_activity in zip(
                         role_data[role_info].values(), user_data[role_info].values()
                     ):
-                        i += 1
-
-                        # todo better naming system?
-                        embed.add_field(name=f"Activity #{i}", value=user_activity, inline=True)
+                        activities.append(f"{activities_by_id[role_activity].name}: {user_activity}")
 
                 case "require_collectibles":
                     for role_collectible, user_collectible in zip(
                         role_data[role_info].values(), user_data[role_info].values()
                     ):
-                        # todo get collectible name from db and cache it
-                        embed.add_field(
-                            name=f"[todo](https://www.light.gg/db/items/{role_collectible})",
-                            value=user_collectible,
-                            inline=True,
+                        collectibles.append(
+                            f"[{await collectible_cache.get_name(collectible_id=role_collectible)}](https://www.light.gg/db/items/{role_collectible}): {user_collectible}"
                         )
 
                 case "require_records":
                     for role_record, user_record in zip(role_data[role_info].values(), user_data[role_info].values()):
-                        # todo get record name from db and cache it
-                        embed.add_field(
-                            name=f"[todo](https://www.light.gg/db/legend/triumphs/{role_record})",
-                            value=user_record,
-                            inline=True,
+                        records.append(
+                            f"[{await triumph_cache.get_name(triumph_cache=role_record)}](https://www.light.gg/db/legend/triumphs/{role_record}): {user_record}"
                         )
 
                 case "require_role_ids":
                     for role_role_id, user_role_id in zip(role_data[role_info].values(), user_data[role_info].values()):
-                        # todo get record name from db and cache it
-                        embed.add_field(
-                            name=(await self.guild.get_role(role_role_id)).mention, value=user_role_id, inline=True
-                        )
+                        roles.append(f"{(await self.guild.get_role(role_role_id)).mention}: {user_role_id}")
+
+        # add the embed fields
+        if activities:
+            embed.add_field(name="Required Activity Completions", value="\n".join(activities), inline=False)
+        if collectibles:
+            embed.add_field(name="Required Collectibles", value="\n".join(collectibles), inline=False)
+        if records:
+            embed.add_field(name="Required Triumphs", value="\n".join(records), inline=False)
+        if roles:
+            embed.add_field(name="Required Roles", value="\n".join(roles), inline=False)
 
         await self.ctx.send(embeds=embed)
 

@@ -7,7 +7,7 @@ from NetworkingSchemas.destiny.activities import DestinyLowManModel
 
 
 class DestinyNameModel(BaseModel):
-    name: str
+    name: Optional[str] = None
 
 
 class DestinyStatModel(BaseModel):
