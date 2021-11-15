@@ -24,6 +24,11 @@ class RoleEnum(Enum):
     EARNED_BUT_REPLACED_BY_HIGHER_ROLE = 20
     NOT_EARNED = 30
 
+class RoleNotEarnedException(Exception):
+    """This is raised should a role not be earned and we don't want additional info"""
+
+    def __init__(self, role_id: int):
+        self.role_id = role_id
 
 @dataclasses.dataclass
 class UserRoles:
@@ -142,23 +147,23 @@ class UserRoles:
             return self._cache_worthy[role.role_id], self._cache_worthy_info[role.role_id]
 
         # gather all get_requirements
-        results = await asyncio.gather(
-            *[
-                self._check_requirements(
-                    role=role,
-                    requirement_name=requirement_name,
-                    requirement_value=requirement_value,
-                    i_only_need_the_bool=i_only_need_the_bool,
-                    called_with_asyncio_gather=called_with_asyncio_gather
-                )
-                for requirement_name, requirement_value in role.role_data.items()
-            ]
-        )
+        try:
+            results = await asyncio.gather(
+                *[
+                    self._check_requirements(
+                        role=role,
+                        requirement_name=requirement_name,
+                        requirement_value=requirement_value,
+                        i_only_need_the_bool=i_only_need_the_bool,
+                        called_with_asyncio_gather=called_with_asyncio_gather
+                    )
+                    for requirement_name, requirement_value in role.role_data.items()
+                ]
+            )
+        except RoleNotEarnedException as e:
+            return RoleEnum.NOT_EARNED, self._cache_worthy_info[e.role_id]
 
-        # check cache again to catch not-worthy's
-        if role.role_id in self._cache_worthy:
-            return self._cache_worthy[role.role_id], self._cache_worthy_info[role.role_id]
-
+        # loop through the results and check if all reqs are OK
         worthy = RoleEnum.EARNED
         for result in results:
             if result == RoleEnum.EARNED_BUT_REPLACED_BY_HIGHER_ROLE and worthy == RoleEnum.EARNED:
@@ -215,10 +220,7 @@ class UserRoles:
 
                     # make this end early
                     if i_only_need_the_bool and worthy == RoleEnum.NOT_EARNED:
-                        # put the results in the cache and return them
-                        self._cache_worthy[role.role_id] = worthy
-
-                        return self._cache_worthy[role.role_id]
+                        raise RoleNotEarnedException(role_id=role.role_id)
 
                     # check if other processes ended negatively already
                     if role.role_id in self._cache_worthy:
@@ -242,10 +244,7 @@ class UserRoles:
 
                     # make this end early
                     if i_only_need_the_bool and worthy == RoleEnum.NOT_EARNED:
-                        # put the results in the cache and return them
-                        self._cache_worthy[role.role_id] = worthy
-
-                        return self._cache_worthy[role.role_id]
+                        raise RoleNotEarnedException(role_id=role.role_id)
 
                     # check if other processes ended negatively already
                     if role.role_id in self._cache_worthy:
@@ -269,10 +268,7 @@ class UserRoles:
 
                     # make this end early
                     if i_only_need_the_bool and worthy == RoleEnum.NOT_EARNED:
-                        # put the results in the cache and return them
-                        self._cache_worthy[role.role_id] = worthy
-
-                        return self._cache_worthy[role.role_id]
+                        raise RoleNotEarnedException(role_id=role.role_id)
 
                     # check if other processes ended negatively already
                     if role.role_id in self._cache_worthy:
@@ -326,10 +322,7 @@ class UserRoles:
 
                     # make this end early
                     if i_only_need_the_bool and worthy == RoleEnum.NOT_EARNED:
-                        # put the results in the cache and return them
-                        self._cache_worthy[role.role_id] = worthy
-
-                        return self._cache_worthy[role.role_id]
+                        raise RoleNotEarnedException(role_id=role.role_id)
 
                     # check if other processes ended negatively already
                     if role.role_id in self._cache_worthy:
