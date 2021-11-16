@@ -1,4 +1,5 @@
 import dataclasses
+from typing import Optional
 
 from dis_snek.models import Guild, Member
 
@@ -24,11 +25,12 @@ class ElevatorGuilds(BaseBackendConnection):
         # returns EmptyResponseModel
         return bool(result)
 
-    async def delete(self) -> bool:
+    async def delete(self, guild_id: Optional[int] = None) -> bool:
         """Delete the guild"""
 
         result = await self._backend_request(
-            method="DELETE", route=elevator_servers_delete.format(guild_id=self.discord_guild.id)
+            method="DELETE",
+            route=elevator_servers_delete.format(guild_id=self.discord_guild.id if not guild_id else guild_id),
         )
 
         # returns EmptyResponseModel

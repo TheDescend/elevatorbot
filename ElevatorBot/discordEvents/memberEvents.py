@@ -3,8 +3,9 @@ from dis_snek.models import Member
 from ElevatorBot.backendNetworking.destiny.profile import DestinyProfile
 
 
-async def on_member_add(member: Member):
-    """ """
+async def on_member_add(member: Member, guild_id: int):
+    """Triggers when a user joins a guild"""
+
     # todo
 
     # only do stuff here if the member is not pending
@@ -16,14 +17,16 @@ async def on_member_add(member: Member):
         await destiny_profile.assign_registration_role()
 
 
-async def on_member_remove(member: Member):
-    """ """
+async def on_member_remove(member: Member, guild_id: int):
+    """Triggers when a member leaves / gets kicked from a guild"""
+
     # todo
     pass
 
 
-async def on_member_update(before: Member, after: Member):
-    """ """
+async def on_member_update(before: Member, after: Member, guild_id: int):
+    """Triggers when a member gets updated"""
+
     # todo
 
     # add registration role should the member no longer be pending

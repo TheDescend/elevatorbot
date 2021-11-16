@@ -6,6 +6,7 @@ from dis_snek.models import listen
 from dis_snek.models.enums import Intents
 
 from ElevatorBot.discordEvents.base import register_discord_events
+from ElevatorBot.discordEvents.errorEvents import CustomErrorSnake
 from ElevatorBot.misc.discordStatus import update_status
 from ElevatorBot.misc.veryMisc import yield_files_in_folder
 from ElevatorBot.startup.initAutocompleteOptions import load_autocomplete_options
@@ -49,7 +50,7 @@ if __name__ == "__main__":
     )
 
     # actually get the bot obj
-    client = Snake(intents=intents, sync_interactions=SYNC_COMMANDS, delete_unused_application_cmds=True)
+    client = CustomErrorSnake(intents=intents, sync_interactions=SYNC_COMMANDS, delete_unused_application_cmds=True)
 
     print ("Loading Discord Events...")
     register_discord_events(client)

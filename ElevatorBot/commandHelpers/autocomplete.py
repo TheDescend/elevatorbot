@@ -14,10 +14,10 @@ weapons: dict[str, DestinyWeaponModel] = {}
 weapons_by_id: dict[int, DestinyWeaponModel] = {}
 
 
-async def autocomplete_send_activity_name(ctx: AutocompleteContext):
+async def autocomplete_send_activity_name(ctx: AutocompleteContext, activity: str):
     """Send the user the best fitting activities (fuzzy)"""
 
-    best_matches = process.extract(ctx.input_text.lower(), list(activities), scorer=fuzz.WRatio, limit=25)
+    best_matches = process.extract(activity.lower(), list(activities), scorer=fuzz.WRatio, limit=25)
     await ctx.send(
         choices=[
             {
@@ -29,10 +29,10 @@ async def autocomplete_send_activity_name(ctx: AutocompleteContext):
     )
 
 
-async def autocomplete_send_weapon_name(ctx: AutocompleteContext):
+async def autocomplete_send_weapon_name(ctx: AutocompleteContext, weapon: str):
     """Send the user the best fitting weapons (fuzzy)"""
 
-    best_matches = process.extract(ctx.input_text.lower(), list(weapons), scorer=fuzz.WRatio, limit=25)
+    best_matches = process.extract(weapon.lower(), list(weapons), scorer=fuzz.WRatio, limit=25)
     await ctx.send(
         choices=[
             {

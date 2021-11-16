@@ -22,7 +22,7 @@ def init_logging() -> None:
     make_logger("commands")
 
     # Initialize logging for interaction usage
-    make_logger("interactions")
+    make_logger("components")
 
     # Initialize logging for background events
     make_logger("backgroundEvents")
