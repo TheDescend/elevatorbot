@@ -28,7 +28,7 @@ async def discord_has_token(discord_id: int, db: AsyncSession = Depends(get_db_s
     profile = await crud.discord_users.get_profile_from_discord_id(db, discord_id)
     no_token = await discord_users.token_is_expired(db=db, user=profile)
 
-    return DestinyHasTokenModel(token=not no_token)
+    return DestinyHasTokenModel(token=not no_token, value=profile.token if not no_token else None)
 
 
 @router.get("/discord/{discord_id}/guild/{guild_id}/registration_role", response_model=EmptyResponseModel)

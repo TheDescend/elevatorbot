@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import BaseModel
 
 
@@ -12,3 +14,4 @@ class DestinyProfileModel(BaseModel):
 
 class DestinyHasTokenModel(BaseModel):
     token: bool
+    value: Optional[str] = None

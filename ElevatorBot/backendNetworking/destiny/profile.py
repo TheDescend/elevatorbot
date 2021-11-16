@@ -61,19 +61,16 @@ class DestinyProfile(BaseBackendConnection):
         # convert to correct pydantic model
         return DestinyProfileModel.parse_obj(result.result) if result else None
 
-    async def has_token(self) -> bool:
+    async def has_token(self) -> Optional[DestinyHasTokenModel]:
         """Does the user have a working token"""
 
+        self.hidden = True
         result = await self._backend_request(
             method="GET", route=destiny_profile_has_token_route.format(discord_id=self.discord_member.id)
         )
 
-        if result:
-            # convert to correct pydantic model
-            token = DestinyHasTokenModel.parse_obj(result.result)
-            if token.token:
-                return True
-        return False
+        # convert to correct pydantic model
+        return DestinyHasTokenModel.parse_obj(result.result) if result else None
 
     async def assign_registration_role(self) -> bool:
         """Assign the user the registration role"""

@@ -4,6 +4,7 @@ from dis_snek.models import InteractionContext, Scale
 from ElevatorBot.backendNetworking.destiny.profile import DestinyProfile
 from ElevatorBot.misc.cache import registered_role_cache
 from ElevatorBot.misc.formating import embed_message
+from NetworkingSchemas.destiny.profile import DestinyHasTokenModel
 
 
 class BaseScale(Scale):
@@ -26,7 +27,7 @@ class BaseScale(Scale):
 
         # check in cache if the user is registered
         if registered_role_cache.is_not_registered():
-            result = None
+            result = DestinyHasTokenModel(token=False)
 
         else:
             # todo test
@@ -36,9 +37,10 @@ class BaseScale(Scale):
             ).has_token()
 
         if not result:
-            # test if it failed because of a backend request or cache
-            if isinstance(result, bool):
-                registered_role_cache.not_registered_users.append(ctx.author.id)
+            return False
+
+        if not result.token:
+            registered_role_cache.not_registered_users.append(ctx.author.id)
 
             # send error message
             await ctx.send(
@@ -58,7 +60,7 @@ class BaseScale(Scale):
             if registration_role and registration_role not in ctx.author.roles:
                 await ctx.author.add_role(role=registration_role, reason="Successful registration")
 
-        return bool(result)
+        return result.token
 
     @staticmethod
     async def no_dm_check(ctx: InteractionContext) -> bool:
