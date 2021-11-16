@@ -604,9 +604,9 @@ def main():
 
         await removeFromClanAfterLeftDiscord(client, member)
 
-    @client.event
-    async def on_message_edit(before, after):
-        await common_handle_message(after)
+    # @client.event
+    # async def on_message_edit(before, after):
+    #     await common_handle_message(after)
 
     # https://discordpy.readthedocs.io/en/latest/api.html#discord.RawReactionActionEvent
     @client.event

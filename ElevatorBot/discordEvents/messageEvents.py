@@ -30,8 +30,8 @@ async def on_message_delete(message: Message):
 async def on_message_edit(before: Message, after: Message):
     """Triggers when a message gets edited"""
 
-    # todo
-    pass
+    # run the message create checks
+    await on_message_create(after)
 
 
 async def on_message_create(message: Message):
