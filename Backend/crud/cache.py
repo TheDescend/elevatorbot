@@ -2,7 +2,7 @@ import dataclasses
 from typing import Optional
 
 from Backend.database.models import (
-    DestinySeasonPassDefinition,
+    DestinyInventoryItemDefinition, DestinySeasonPassDefinition,
     DiscordUsers,
     PersistentMessage,
     Roles,
@@ -34,5 +34,7 @@ class Cache:
     season_pass_definition: Optional[DestinySeasonPassDefinition] = dataclasses.field(init=False, default=None)
     seasonal_challenges_definition: Optional[SeasonalChallengesModel] = dataclasses.field(init=False, default=None)
 
+    # Inventory Items  - Key: reference_id
+    items: dict[int, Optional[DestinyInventoryItemDefinition]] = dataclasses.field(init=False, default=dict)
 
 cache = Cache()

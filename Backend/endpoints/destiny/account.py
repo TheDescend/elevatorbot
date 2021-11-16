@@ -240,3 +240,23 @@ async def get_max_power(guild_id: int, discord_id: int, db: AsyncSession = Depen
     profile = DestinyProfile(db=db, user=user)
 
     return ValueModel(value=await profile.get_max_power())
+
+# todo
+@router.get("/vault_space", response_model=ValueModel)
+async def get_vault_space(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
+    """Gets the current used vault space of the player"""
+
+    aaaaaaaaa
+
+@router.get("/bright_dust", response_model=ValueModel)
+async def get_bright_dust(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
+    """Gets the current bright dust of the player"""
+
+    aaaaaaaaa
+
+
+@router.get("/shards", response_model=ValueModel)
+async def get_leg_shards(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
+    """Gets the current legendary shards of the player"""
+
+    aaaaaaaaa

@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from Backend.crud import activities, destiny_manifest, discord_users
 from Backend.crud.cache import cache
 from Backend.crud.destiny.collectibles import collectibles
+from Backend.crud.destiny.items import destiny_items
 from Backend.crud.destiny.records import records
 from Backend.database.models import (
     Collectibles,
@@ -18,7 +19,7 @@ from Backend.database.models import (
 )
 from Backend.misc.helperFunctions import get_datetime_from_bungie_entry
 from Backend.networking.bungieApi import BungieApi
-from Backend.networking.bungieRoutes import item_route, profile_route, stat_route
+from Backend.networking.bungieRoutes import profile_route, stat_route
 from DestinyEnums.enums import DestinyInventoryBucketEnum
 from NetworkingSchemas.basic import ValueModel
 from NetworkingSchemas.destiny.account import (
@@ -74,11 +75,11 @@ class DestinyProfile:
     async def get_max_power(self) -> float:
         """Returns the max power of the user"""
 
-        data = await self.__get_character_inventory_bucket(include_item_level=True)
+        char_data = await self.__get_all_inventory_bucket(include_item_level=True)
 
         # look at each character
         max_power = 0
-        for character in data:
+        for character in char_data:
             helmet = 0
             gauntlet = 0
             chest = 0
@@ -89,7 +90,7 @@ class DestinyProfile:
             energy = 0
             power = 0
 
-            for buckets in data[character]:
+            for buckets in char_data[character]:
                 # save the items light level
                 for bucket, items in buckets.items():
                     match bucket:
@@ -656,7 +657,7 @@ class DestinyProfile:
         return items
 
     async def __get_profile_inventory_bucket(
-        self, *buckets: DestinyInventoryBucketEnum
+        self, *buckets: DestinyInventoryBucketEnum, include_item_level: bool = False
     ) -> dict[DestinyInventoryBucketEnum, dict[int, dict]]:
         """
         Get all the items from an inventory bucket. Default: All buckets
@@ -675,7 +676,10 @@ class DestinyProfile:
         if not buckets:
             buckets = DestinyInventoryBucketEnum.all
 
-        result = await self.__get_profile(102, with_token=True)
+        components = [102]
+        if include_item_level:
+            components.append(300)
+        result = await self.__get_profile(*components, with_token=True)
 
         items = {}
 
@@ -687,15 +691,25 @@ class DestinyProfile:
                     if bucket not in items:
                         items.update({bucket: {}})
                     items[bucket].update({item_hash: item})
+                    try:
+                        items[bucket][item_hash].update(
+                            {
+                                "power_level": result["itemComponents"]["instances"]["data"][str(item_hash)][
+                                    "primaryStat"
+                                ]["value"]
+                            }
+                        )
+                    except KeyError:
+                        pass
                     break
 
         return items
 
-    async def __get_character_inventory_bucket(
+    async def __get_all_inventory_bucket(
         self, *buckets: DestinyInventoryBucketEnum, include_item_level: bool = False
     ) -> dict[int, dict[DestinyInventoryBucketEnum, dict[int, dict]]]:
         """
-        Get all the items from an inventory bucket. Default: All buckets
+        Get all the items from an inventory bucket. Includes both profile and character. Default: All buckets
         Includes the power level is asked for under "power_level"
 
         Returns:
@@ -711,39 +725,89 @@ class DestinyProfile:
         }
         """
 
+        class_to_unlock_hash = {
+            2166136261, # Hunter
+        }
+
         # default is vault
         if not buckets:
             buckets = DestinyInventoryBucketEnum.all
 
-        result = await self.__get_profile(201, with_token=True)
-
+        components = [102, 200, 201, 205]
+        if include_item_level:
+            components.append(300)
+        result = await self.__get_profile(*components, with_token=True)
         items = {}
 
+        # first get the character ids and their class
+        character_ids = {}
+        for character_id, character_data in result["characters"]["data"].items():
+            class_type = character_data["classType"]
+            if class_type not in character_ids:
+                character_ids.update({class_type: [int(character_id)]})
+            else:
+                character_ids[class_type].append(int(character_id))
+
+        # func to add the items
+        def add_info(result_dict: dict, item: dict, char_id: int):
+            # only get the items in the correct buckets
+            for bucket in buckets:
+                if item["bucketHash"] == bucket.value:
+                    item_hash = int(item["itemHash"])
+                    if bucket not in result_dict[char_id]:
+                        result_dict[char_id].update({bucket: {}})
+                    result_dict[char_id][bucket].update({item_hash: item})
+                    if include_item_level:
+                        try:
+                            result_dict[char_id][bucket][item_hash].update(
+                                {
+                                    "power_level": result["itemComponents"]["instances"]["data"][str(item_hash)][
+                                        "primaryStat"
+                                    ]["value"]
+                                }
+                            )
+                        except KeyError:
+                            pass
+                    break
+
+
+        # get character inventory
         for character_id, character_data in result["characterInventories"]["data"].items():
             character_id = int(character_id)
             if character_id not in items:
                 items.update({character_id: {}})
 
-            # only get the items in the correct buckets
-            for item in character_data["items"]:
-                for bucket in buckets:
-                    if item["bucketHash"] == bucket.value:
-                        item_hash = int(item["itemHash"])
-                        if bucket not in items[character_id]:
-                            items[character_id].update({bucket: {}})
-                        items[character_id][bucket].update({item_hash: item})
-                        if include_item_level:
-                            try:
-                                items[character_id][bucket][item_hash].update(
-                                    {
-                                        "power_level": result["itemComponents"]["instances"]["data"][str(item_hash)][
-                                            "primaryStat"
-                                        ]["value"]
-                                    }
-                                )
-                            except KeyError:
-                                pass
-                        break
+            for inv_item in character_data["items"]:
+                add_info(items, inv_item, character_id)
+
+        # get character equipped
+        for character_id, character_data in result["characterEquipment"]["data"].items():
+            character_id = int(character_id)
+            for inv_item in character_data["items"]:
+                add_info(items, inv_item, character_id)
+
+        # get stuff in vault that is character specific
+        for profile_data in result["profileInventory"]["data"]:
+            # only check if it has a instance id and is in the correct bucket
+            if profile_data["bucketHash"] == DestinyInventoryBucketEnum.VAULT.value and "itemInstanceId" in profile_data:
+                # get the character class from the item id
+                definition = await destiny_items.get_item()
+
+                actual_bucket_hash = definition.bucket_type_hash
+                actual_character_ids = character_ids[definition.class_type]
+                for actual_character_id in actual_character_ids:
+                    items[actual_character_id][actual_bucket_hash].update({profile_data["itemHash"]: profile_data})
+                    if include_item_level:
+                        try:
+                            items[actual_character_id][actual_bucket_hash][profile_data["itemHash"]].update(
+                                {
+                                    "power_level": result["itemComponents"]["instances"]["data"][str(profile_data["itemHash"])][
+                                        "primaryStat"
+                                    ]["value"]
+                                }
+                            )
+                        except KeyError:
+                            pass
 
         return items
 
