@@ -57,6 +57,13 @@ class DestinyProfile:
         # the network class
         self.api = BungieApi(db=self.db, user=self.user)
 
+    async def get_used_vault_space(self) -> int:
+        """Gets the current used vault space of the user"""
+
+        buckets = await self.__get_profile_inventory_bucket(DestinyInventoryBucketEnum.VAULT)
+
+        return len(buckets[DestinyInventoryBucketEnum.VAULT])
+
     async def get_consumable_amount(self, consumable_id: int) -> int:
         """Returns the amount of a consumable this user has"""
 
@@ -726,7 +733,7 @@ class DestinyProfile:
         """
 
         class_to_unlock_hash = {
-            2166136261, # Hunter
+            2166136261,  # Hunter
         }
 
         # default is vault
@@ -770,7 +777,6 @@ class DestinyProfile:
                             pass
                     break
 
-
         # get character inventory
         for character_id, character_data in result["characterInventories"]["data"].items():
             character_id = int(character_id)
@@ -789,7 +795,10 @@ class DestinyProfile:
         # get stuff in vault that is character specific
         for profile_data in result["profileInventory"]["data"]:
             # only check if it has a instance id and is in the correct bucket
-            if profile_data["bucketHash"] == DestinyInventoryBucketEnum.VAULT.value and "itemInstanceId" in profile_data:
+            if (
+                profile_data["bucketHash"] == DestinyInventoryBucketEnum.VAULT.value
+                and "itemInstanceId" in profile_data
+            ):
                 # get the character class from the item id
                 definition = await destiny_items.get_item()
 
@@ -801,9 +810,9 @@ class DestinyProfile:
                         try:
                             items[actual_character_id][actual_bucket_hash][profile_data["itemHash"]].update(
                                 {
-                                    "power_level": result["itemComponents"]["instances"]["data"][str(profile_data["itemHash"])][
-                                        "primaryStat"
-                                    ]["value"]
+                                    "power_level": result["itemComponents"]["instances"]["data"][
+                                        str(profile_data["itemHash"])
+                                    ]["primaryStat"]["value"]
                                 }
                             )
                         except KeyError:

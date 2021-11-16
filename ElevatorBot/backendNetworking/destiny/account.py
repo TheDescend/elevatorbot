@@ -9,9 +9,11 @@ from DestinyEnums.enums import UsableDestinyActivityModeTypeEnum
 from ElevatorBot.backendNetworking.http import BaseBackendConnection
 from ElevatorBot.backendNetworking.routes import (
     destiny_account_artifact_level_route,
+    destiny_account_bright_dust_route,
     destiny_account_characters_route,
     destiny_account_collectible_route,
     destiny_account_consumable_amount_route,
+    destiny_account_leg_shards_route,
     destiny_account_max_power_route,
     destiny_account_metric_route,
     destiny_account_name_route,
@@ -23,6 +25,7 @@ from ElevatorBot.backendNetworking.routes import (
     destiny_account_time_route,
     destiny_account_triumph_route,
     destiny_account_triumph_score_route,
+    destiny_account_vault_space_route,
 )
 from NetworkingSchemas.basic import BoolModel, NameModel, ValueModel
 from NetworkingSchemas.destiny.account import (
@@ -248,6 +251,45 @@ class DestinyAccount(BaseBackendConnection):
         result = await self._backend_request(
             method="GET",
             route=destiny_account_max_power_route.format(
+                guild_id=self.discord_guild.id, discord_id=self.discord_member.id
+            ),
+        )
+
+        # convert to correct pydantic model
+        return ValueModel.parse_obj(result.result) if result else None
+
+    async def get_vault_space(self) -> Optional[ValueModel]:
+        """Return the user's vault space used"""
+
+        result = await self._backend_request(
+            method="GET",
+            route=destiny_account_vault_space_route.format(
+                guild_id=self.discord_guild.id, discord_id=self.discord_member.id
+            ),
+        )
+
+        # convert to correct pydantic model
+        return ValueModel.parse_obj(result.result) if result else None
+
+    async def get_bright_dust(self) -> Optional[ValueModel]:
+        """Return the user's bright dust"""
+
+        result = await self._backend_request(
+            method="GET",
+            route=destiny_account_bright_dust_route.format(
+                guild_id=self.discord_guild.id, discord_id=self.discord_member.id
+            ),
+        )
+
+        # convert to correct pydantic model
+        return ValueModel.parse_obj(result.result) if result else None
+
+    async def get_leg_shards(self) -> Optional[ValueModel]:
+        """Return the user's legendary shards"""
+
+        result = await self._backend_request(
+            method="GET",
+            route=destiny_account_leg_shards_route.format(
                 guild_id=self.discord_guild.id, discord_id=self.discord_member.id
             ),
         )

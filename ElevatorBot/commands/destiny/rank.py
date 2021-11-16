@@ -1,7 +1,6 @@
 import asyncio
 import dataclasses
 import itertools
-from collections import namedtuple
 from typing import Optional
 
 from dis_snek.models import (
@@ -9,7 +8,6 @@ from dis_snek.models import (
     Member,
     OptionTypes,
     SlashCommandChoice,
-    Timestamp,
     TimestampStyles,
     slash_command,
     slash_option,
@@ -45,7 +43,6 @@ from NetworkingSchemas.destiny.activities import (
     DestinyActivityInputModel,
     DestinyActivityModel,
 )
-from NetworkingSchemas.destiny.clan import DestinyClanMemberModel
 from NetworkingSchemas.destiny.weapons import (
     DestinyWeaponModel,
     DestinyWeaponStatsInputModel,
@@ -81,6 +78,9 @@ class Rank(BaseScale):
         "basic_legacy_triumphs": "Legacy Triumph Score",
         "basic_enhancement_cores": "Enhancement Cores",
         "basic_vault_space": "Vault Space Used",
+        "basic_bright_dust": "Bright Dust Owned",
+        "basic_legendary_shards": "Legendary Shards Owned",
+        "basic_raid_banners": "Raid Banners Owned",
         "basic_forges": "Forges Done",
         "basic_afk_forges": "AFK Forges Done",
     }
@@ -350,8 +350,6 @@ class Rank(BaseScale):
         )
         backend_roles = DestinyRoles(ctx=ctx, client=ctx.bot, discord_member=discord_member, discord_guild=ctx.guild)
 
-        # todo add :, to f stings
-        # todo were to sort which way
         # handle each leaderboard differently
         match leaderboard_name:
             case "discord_roles":
@@ -367,9 +365,13 @@ class Rank(BaseScale):
                 result.sort_value = missing
                 result.display_text = f"Missing: {missing:,} (+{missing_deprecated} deprecated)"
 
+                result.sort_by_ascending = True
+
             case "discord_join_date":
                 result.sort_value = discord_member.joined_at
                 result.display_text = f"Joined: {discord_member.joined_at.format(style=TimestampStyles.ShortDateTime)}"
+
+                result.sort_by_ascending = True
 
             case "basic_total_time":
                 # get the stat
@@ -516,8 +518,46 @@ class Rank(BaseScale):
                 result.display_text = f"Cores: {stat.value:,}"
 
             case "basic_vault_space":
-                # todo
-                pass
+                # get the stat
+                stat = await backend_account.get_vault_space()
+                if not stat:
+                    raise RuntimeError
+
+                # save the stat
+                result.sort_value = stat.value
+                result.display_text = f"Used Space: {stat.value:,}"
+
+                result.sort_by_ascending = True
+
+            case "basic_bright_dust":
+                # get the stat
+                stat = await backend_account.get_bright_dust()
+                if not stat:
+                    raise RuntimeError
+
+                # save the stat
+                result.sort_value = stat.value
+                result.display_text = f"Dust: {stat.value:,}"
+
+            case "basic_legendary_shards":
+                # get the stat
+                stat = await backend_account.get_leg_shards()
+                if not stat:
+                    raise RuntimeError
+
+                # save the stat
+                result.sort_value = stat.value
+                result.display_text = f"Shards: {stat.value:,}"
+
+            case "basic_raid_banners":
+                # get the stat
+                stat = await backend_account.get_consumable_amount(consumable_id=3282419336)
+                if not stat:
+                    raise RuntimeError
+
+                # save the stat
+                result.sort_value = stat.value
+                result.display_text = f"Banners: {stat.value:,}"
 
             case "basic_forges":
                 # get the stat
@@ -538,7 +578,7 @@ class Rank(BaseScale):
                 # save the stat
                 afk_completions = afk_stats.full_completions + afk_stats.cp_completions
                 result.sort_value = stat.full_completions + stat.cp_completions - afk_completions
-                result.display_text = f"Forges: {result.sort_value:,} (+{afk_completions} AFK)"
+                result.display_text = f"Forges: {result.sort_value:,} (+{afk_completions:,} AFK)"
 
             case "basic_afk_forges":
                 # get the stat
@@ -729,6 +769,8 @@ class Rank(BaseScale):
                 result.sort_value = stat.fastest
                 result.display_text = f"Fastest Time: {format_timedelta(stat.fastest)}"
 
+                result.sort_by_ascending = True
+
             case "activity_average":
                 # get the stat
                 stat = await backend_activities.get_activity_stats(
@@ -740,6 +782,8 @@ class Rank(BaseScale):
                 # save the stat
                 result.sort_value = stat.average
                 result.display_text = f"Average Time: {format_timedelta(stat.average)}"
+
+                result.sort_by_ascending = True
 
             case "weapon_kills":
                 # get the stat
