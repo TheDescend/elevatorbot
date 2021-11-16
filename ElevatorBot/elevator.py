@@ -6,6 +6,7 @@ from dis_snek.models import listen
 from dis_snek.models.enums import Intents
 
 from ElevatorBot.discordEvents.base import register_discord_events
+from ElevatorBot.discordEvents.componentCallbacks import add_component_callbacks
 from ElevatorBot.discordEvents.errorEvents import CustomErrorSnake
 from ElevatorBot.misc.discordStatus import update_status
 from ElevatorBot.misc.veryMisc import yield_files_in_folder
@@ -54,6 +55,9 @@ if __name__ == "__main__":
 
     print ("Loading Discord Events...")
     register_discord_events(client)
+
+    print ("Loading Component Callbacks...")
+    add_component_callbacks(client=client)
 
     print ("Loading Autocomplete Options...")
     asyncio.run(load_autocomplete_options(client))

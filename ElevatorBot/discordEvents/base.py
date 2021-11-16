@@ -1,6 +1,18 @@
-from dis_snek.client import Snake
-from dis_snek.models import Listener
+from typing import Awaitable, Callable, Coroutine, Type
 
+from dis_snek.client import Snake
+from dis_snek.models import ComponentCommand, Listener
+
+from ElevatorBot.discordEvents.componentCallbacks import (
+    clan_join_request,
+    increment_button,
+    lfg_backup,
+    lfg_join,
+    lfg_leave,
+    other_game_roles,
+    poll,
+    registration,
+)
 from ElevatorBot.discordEvents.guildEvents import (
     on_channel_create,
     on_channel_delete,
@@ -29,29 +41,26 @@ def register_discord_events(client: Snake):
     """Import all events and add then to the bot"""
 
     # message events
-    client.add_listener(Listener(on_message_create, "message_create"))
-    client.add_listener(Listener(on_message_delete, "message_delete"))
-    client.add_listener(Listener(on_message_edit, "message_edit"))
+    client.add_listener(Listener(func=on_message_create, event="message_create"))
+    client.add_listener(Listener(func=on_message_delete, event="message_delete"))
+    client.add_listener(Listener(func=on_message_edit, event="message_edit"))
 
     # member events
-    client.add_listener(Listener(on_member_add, "member_add"))
-    client.add_listener(Listener(on_member_remove, "member_remove"))
-    client.add_listener(Listener(on_member_update, "member_update"))
+    client.add_listener(Listener(func=on_member_add, event="member_add"))
+    client.add_listener(Listener(func=on_member_remove, event="member_remove"))
+    client.add_listener(Listener(func=on_member_update, event="member_update"))
 
     # guild events
-    client.add_listener(Listener(on_channel_delete, "channel_delete"))
-    client.add_listener(Listener(on_channel_create, "channel_create"))
-    client.add_listener(Listener(on_channel_update, "channel_update"))
-    client.add_listener(Listener(on_guild_join, "guild_join"))
-    client.add_listener(Listener(on_guild_left, "guild_left"))
-    client.add_listener(Listener(on_role_delete, "role_delete"))
-    client.add_listener(Listener(on_role_update, "role_update"))
-    client.add_listener(Listener(on_thread_create, "thread_create"))
-    client.add_listener(Listener(on_thread_update, "thread_update"))
-    client.add_listener(Listener(on_thread_delete, "thread_delete"))
+    client.add_listener(Listener(func=on_channel_delete, event="channel_delete"))
+    client.add_listener(Listener(func=on_channel_create, event="channel_create"))
+    client.add_listener(Listener(func=on_channel_update, event="channel_update"))
+    client.add_listener(Listener(func=on_guild_join, event="guild_join"))
+    client.add_listener(Listener(func=on_guild_left, event="guild_left"))
+    client.add_listener(Listener(func=on_role_delete, event="role_delete"))
+    client.add_listener(Listener(func=on_role_update, event="role_update"))
+    client.add_listener(Listener(func=on_thread_create, event="thread_create"))
+    client.add_listener(Listener(func=on_thread_update, event="thread_update"))
+    client.add_listener(Listener(func=on_thread_delete, event="thread_delete"))
 
     # # voice events
     # client.add_listener(Listener(on_voice_state_update, "voice_state_update"))  # todo currently missing
-    #
-    # # add the component callbacks
-    # # slash_client.add_component_callback(poll)   # todo currently missing

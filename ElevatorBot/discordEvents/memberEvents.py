@@ -16,7 +16,7 @@ async def on_member_add(member: Member, guild_id: int):
     """Triggers when a user joins a guild"""
 
     if not member.bot:
-        client = after._client
+        client = member._client
 
         # descend only stuff
         if member.guild.id == descend_guild_id:
@@ -24,7 +24,7 @@ async def on_member_add(member: Member, guild_id: int):
             await member.send(
                 embeds=embed_message(
                     f"{custom_emojis.descend_logo} Welcome to Descend {member.name}! {custom_emojis.descend_logo}",
-                    f"You can join the Destiny 2 clan in <#{registration_channel_id}> . \nYou can find our current requirements in the same channel. \n⁣\nWe have a wide variety of roles you can earn, for more information, please use `roles overview` or check out <#{community_roles_channel_id}>\n⁣\nIf you have any problems / questions, do not hesitate to write {member._client.user.mention} (me) a personal message with your problem / question. This will get forwarded to staff",
+                    f"Before you can do anything else, you need to accept our rules. Please read them and accept them [> here <](discord://-/member-verification/{descend_guild_id}), if you have not done so already \n⁣\nYou can join the Destiny 2 clan in <#{registration_channel_id}>\nYou can find our current requirements in the same channel. \n⁣\nWe have a wide variety of roles you can earn, for more information, please use `roles overview` or check out <#{community_roles_channel_id}>\n⁣\nIf you have any problems / questions, do not hesitate to write {member._client.user.mention} (me) a personal message with your problem / question. This will get forwarded to staff",
                 )
             )
 
