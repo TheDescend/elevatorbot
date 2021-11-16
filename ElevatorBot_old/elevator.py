@@ -97,14 +97,14 @@ def aiohttp_server(discord_client):
                 "redirect_uri": "http://elevatorbot.ch/elevatoradmin",
             }
             headers = {"Content-Type": "application/x-www-form-urlencoded"}
-            print("requesting token...")
+            print ("requesting token...")
             token_request = requests.post("%s/oauth2/token" % api_url, data=data, headers=headers)
             token_request.raise_for_status()
             oauth_cred = token_request.json()
             access_token = oauth_cred["access_token"]
 
             data_url = "%s/users/@me" % api_url
-            print("requesting data...")
+            print ("requesting data...")
             data_request = requests._get(data_url, headers={"Authorization": f"Bearer {access_token}"})
             user_data = data_request.json()
             user_id = user_data["id"]
@@ -115,7 +115,7 @@ def aiohttp_server(discord_client):
                 "user_name": user_name,
                 "user_discriminator": user_discriminator,
             }
-            print("logged in!")
+            print ("logged in!")
         elif "user_id" in request.query:
             # TODO save in cookie
             logged_in = {
@@ -151,7 +151,7 @@ def aiohttp_server(discord_client):
         discord_member = guild.get_member(int(logged_in["user_id"]))
 
         if not discord_member:
-            print(f'{logged_in["user_name"]} not in guild')
+            print (f'{logged_in["user_name"]} not in guild')
             return web.Response(
                 text="Member not in guild"
                 r"""<script>window.history.pushState({page: 1}, "Login Failed", "/elevatoradmin");</script>""",
@@ -165,7 +165,7 @@ def aiohttp_server(discord_client):
 
         if "join" in request.query and "req" in request.query:
             voice_chat = guild.get_channel(int(request.query["join"]))
-            print(f"{logged_in['user_name']}#{logged_in['user_discriminator']} joined bot to {request.query['join']}")
+            print (f"{logged_in['user_name']}#{logged_in['user_discriminator']} joined bot to {request.query['join']}")
 
             active = list(
                 filter(
@@ -186,10 +186,10 @@ def aiohttp_server(discord_client):
                     )
                 )
             else:
-                print(f"joining {voice_chat.name}")
+                print (f"joining {voice_chat.name}")
                 connection_task = loop.create_task(voice_chat.connect(timeout=5, reconnect=True))
                 if request.query["req"] != "":
-                    print(f"starting to play {request.query['req']}")
+                    print (f"starting to play {request.query['req']}")
                     loop.create_task(
                         play(
                             urllib.parse.unquote(request.query["req"]),
@@ -294,7 +294,7 @@ def run_server(runner):
     asyncio.set_event_loop(loop)
     loop.run_until_complete(runner.setup())
     site = web.TCPSite(runner, "0.0.0.0", 8080)
-    print(f"webserver running {site}")
+    print (f"webserver running {site}")
     loop.run_until_complete(site.start())
     loop.run_forever()
 
@@ -304,7 +304,7 @@ def run_server(runner):
 
 async def launch_event_loops(client):
     await get_connection_pool()
-    print("Made sure we are connected to the DB")
+    print ("Made sure we are connected to the DB")
 
     # # Scheduler that will be used to manage events
     # sched = get_scheduler()
@@ -460,127 +460,127 @@ def main():
 
     # Define event handlers for the client
     # on_ready may be called multiple times in the event of a reconnect,
-    @client.event
-    async def on_ready():
-        if this.running:
-            return
-        this.running = True
-        print("Logged in")
-
-        # run further launch event loops
-        await launch_event_loops(client)
+    # @client.event
+    # async def on_ready():
+    #     if this.running:
+    #         return
+    #     this.running = True
+    #     print("Logged in")
+    #
+    #     # run further launch event loops
+    #     await launch_event_loops(client)
 
     # The message handler for both new message and edits
-    @client.event
-    async def common_handle_message(message):
-        text = message.content
+    # @client.event
+    # async def common_handle_message(message):
+    #     text = message.content
 
-        # if the message was from an dm, post it in #admin-discussions: Don't do that if bot send an command
-        if isinstance(message.channel, discord.channel.DMChannel):
-            if not message.author.bot:
-                if not text.startswith(COMMAND_PREFIX):
-                    admin_discussions_channel = client.get_channel(admin_discussions_channel_id)
-                    if message.attachments:
-                        attached_files = [
-                            discord.File(
-                                BytesIO(await attachment.read()),
-                                filename=attachment.filename,
-                            )
-                            for attachment in message.attachments
-                        ]
-                        await admin_discussions_channel.send(
-                            f"From {message.author.mention}: \n{text}",
-                            files=attached_files,
-                        )
-                    else:
-                        await admin_discussions_channel.send(f"From {message.author.mention}: \n{text}")
-                    await message.author.send("Forwarded your message to staff, you will be contacted shortly 🙃")
+    # # if the message was from an dm, post it in #admin-discussions: Don't do that if bot send an command
+    # if isinstance(message.channel, discord.channel.DMChannel):
+    #     if not message.author.bot:
+    #         if not text.startswith(COMMAND_PREFIX):
+    #             admin_discussions_channel = client.get_channel(admin_discussions_channel_id)
+    #             if message.attachments:
+    #                 attached_files = [
+    #                     discord.File(
+    #                         BytesIO(await attachment.read()),
+    #                         filename=attachment.filename,
+    #                     )
+    #                     for attachment in message.attachments
+    #                 ]
+    #                 await admin_discussions_channel.send(
+    #                     f"From {message.author.mention}: \n{text}",
+    #                     files=attached_files,
+    #                 )
+    #             else:
+    #                 await admin_discussions_channel.send(f"From {message.author.mention}: \n{text}")
+    #             await message.author.send("Forwarded your message to staff, you will be contacted shortly 🙃")
 
-        if "äbidöpfel" in text:
-            texts = [
-                "<:NeriaHeart:671389916277506063> <:NeriaHeart:671389916277506063> <:NeriaHeart:671389916277506063>",
-                "knows what`s up",
-                "knows you can do the thing",
-                "has been voted plushie of the month",
-                "knows da wey",
-                "yes!",
-                "does`nt yeet teammtes of the map, be like Häbidöpfel",
-                "debuggin has proven effective 99.9% of the time (editors note: now 98.9%)",
-                "is cuteness incarnate",
-            ]
-            addition = random.choice(texts)
-            await message.channel.send(f"Häbidöpfel {addition}")
+    # if "äbidöpfel" in text:
+    #     texts = [
+    #         "<:NeriaHeart:671389916277506063> <:NeriaHeart:671389916277506063> <:NeriaHeart:671389916277506063>",
+    #         "knows what`s up",
+    #         "knows you can do the thing",
+    #         "has been voted plushie of the month",
+    #         "knows da wey",
+    #         "yes!",
+    #         "does`nt yeet teammtes of the map, be like Häbidöpfel",
+    #         "debuggin has proven effective 99.9% of the time (editors note: now 98.9%)",
+    #         "is cuteness incarnate",
+    #     ]
+    #     addition = random.choice(texts)
+    #     await message.channel.send(f"Häbidöpfel {addition}")
 
-        if "welcome" in text.lower() and message.mentions:
-            for mention in message.mentions:
-                neria_id = 109022023979667456
-                if mention.id == neria_id:
-                    welcome_choice = [
-                        "Welcome",
-                        "I mirëpritur",
-                        "Dobrodošli",
-                        "Vitejte",
-                        "Welkom",
-                        "Tere tulemast",
-                        "Tervetuloa",
-                        "Bienvenue",
-                        "Herzlich willkommen",
-                        "Üdvözöljük",
-                        "Velkominn",
-                        "Fáilte",
-                        "Benvenuta",
-                        "Velkommen",
-                        "Witamy",
-                        "Bine ați venit (this is spelled correctly thanks to <@171371726444167168>)",
-                        "Bienvenidas",
-                        "Välkommen",
-                        "Croeso",
-                        "Yeeeeeeeeeeeeeeeeeeeeeeeeeeeeehaw",
-                    ]
-                    await message.channel.send(f"{random.choice(welcome_choice)} <@{neria_id}>!")
+    # if "welcome" in text.lower() and message.mentions:
+    #     for mention in message.mentions:
+    #         neria_id = 109022023979667456
+    #         if mention.id == neria_id:
+    #             welcome_choice = [
+    #                 "Welcome",
+    #                 "I mirëpritur",
+    #                 "Dobrodošli",
+    #                 "Vitejte",
+    #                 "Welkom",
+    #                 "Tere tulemast",
+    #                 "Tervetuloa",
+    #                 "Bienvenue",
+    #                 "Herzlich willkommen",
+    #                 "Üdvözöljük",
+    #                 "Velkominn",
+    #                 "Fáilte",
+    #                 "Benvenuta",
+    #                 "Velkommen",
+    #                 "Witamy",
+    #                 "Bine ați venit (this is spelled correctly thanks to <@171371726444167168>)",
+    #                 "Bienvenidas",
+    #                 "Välkommen",
+    #                 "Croeso",
+    #                 "Yeeeeeeeeeeeeeeeeeeeeeeeeeeeeehaw",
+    #             ]
+    #             await message.channel.send(f"{random.choice(welcome_choice)} <@{neria_id}>!")
 
-        if client.user in message.mentions:  # If bot has been tagged
-            notification = client.get_emoji(751771924866269214)  # notification/angerping
-            # sentimentPositive = client.get_emoji(670369126983794700) #POGGERS
-            # sentimentNegative = client.get_emoji(670672093263822877) #SadChamp
-            await message.add_reaction(notification)
+    # if client.user in message.mentions:  # If bot has been tagged
+    #     notification = client.get_emoji(751771924866269214)  # notification/angerping
+    #     # sentimentPositive = client.get_emoji(670369126983794700) #POGGERS
+    #     # sentimentNegative = client.get_emoji(670672093263822877) #SadChamp
+    #     await message.add_reaction(notification)
 
-        # mute pepe for an hour if he trashes destiny
-        if message.author.id == 367385031569702912420:
-            if "destiny" in text.lower():
-                for insult in ["suck", "bad", "fuck", "shit", "trash"]:
-                    if insult in text.lower():
-                        # mute pepe and msg him about it
-                        await assignRolesToUser([muted_role_id], message.author, message.guild)
-                        await message.author.send("Stop trashing on destiny, muted for an hour :)")
-                        nick = message.author.nick
-                        await message.author.edit(nick="!Pepe the Muted for an Hour")
+    # # mute pepe for an hour if he trashes destiny
+    # if message.author.id == 367385031569702912420:
+    #     if "destiny" in text.lower():
+    #         for insult in ["suck", "bad", "fuck", "shit", "trash"]:
+    #             if insult in text.lower():
+    #                 # mute pepe and msg him about it
+    #                 await assignRolesToUser([muted_role_id], message.author, message.guild)
+    #                 await message.author.send("Stop trashing on destiny, muted for an hour :)")
+    #                 nick = message.author.nick
+    #                 await message.author.edit(nick="!Pepe the Muted for an Hour")
+    #
+    #                 # _delete muted role after an hour
+    #                 await asyncio.sleep(60 * 60)
+    #                 await removeRolesFromUser([muted_role_id], message.author, message.guild)
+    #                 await message.author.edit(nick=nick)
+    #                 await message.author.send("Unmuted again :(")
+    #                 return
+    #
+    # if message.author.name == "EscalatorBot":
+    #     for user in message.mentions:
+    #         member = await message.guild.fetch_member(user.id)
+    #         await member.add_roles(message.guild.get_role(registered_role_id))  # registered role
+    #         await member.remove_roles(message.guild.get_role(not_registered_role_id))  # unregistered role
+    #         await message.channel.send(f"{member.mention} has been marked as Registered")
+    #         await member.send("Registration successful!\nCome say hi in <#670400011519000616>")
+    #
+    #         # _update user DB
+    #         destiny_player = await DestinyPlayer.from_discord_id(member.id)
+    #         await destiny_player.update_activity_db()
 
-                        # _delete muted role after an hour
-                        await asyncio.sleep(60 * 60)
-                        await removeRolesFromUser([muted_role_id], message.author, message.guild)
-                        await message.author.edit(nick=nick)
-                        await message.author.send("Unmuted again :(")
-                        return
-
-        if message.author.name == "EscalatorBot":
-            for user in message.mentions:
-                member = await message.guild.fetch_member(user.id)
-                await member.add_roles(message.guild.get_role(registered_role_id))  # registered role
-                await member.remove_roles(message.guild.get_role(not_registered_role_id))  # unregistered role
-                await message.channel.send(f"{member.mention} has been marked as Registered")
-                await member.send("Registration successful!\nCome say hi in <#670400011519000616>")
-
-                # _update user DB
-                destiny_player = await DestinyPlayer.from_discord_id(member.id)
-                await destiny_player.update_activity_db()
-
-    @client.event
-    async def on_message(message):
-        # ignore msg from itself
-        if message.author == client.user:
-            return
-        asyncio.ensure_future(common_handle_message(message))
+    # @client.event
+    # async def on_message(message):
+    #     # ignore msg from itself
+    #     if message.author == client.user:
+    #         return
+    #     asyncio.ensure_future(common_handle_message(message))
 
     @client.event
     async def on_member_join(member):

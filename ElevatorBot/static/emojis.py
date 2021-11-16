@@ -70,6 +70,7 @@ class __ElevatorEmojis:
     backup: CustomEmoji | int = 850000522107027466
 
     zoom: CustomEmoji | int = 906503515642425396
+    ping_sock: CustomEmoji | int = 586436224013565992
 
     # Descend [Test 01]
 

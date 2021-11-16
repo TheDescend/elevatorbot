@@ -1,3 +1,5 @@
+import random
+
 from dis_snek.client import Snake
 from dis_snek.models import (
     AutoArchiveDuration,
@@ -12,7 +14,9 @@ from ElevatorBot.misc.formating import embed_message
 from ElevatorBot.static.descendOnlyIds import (
     bot_dev_channel_id,
     descend_admin_channel_id,
+    descend_guild_id,
 )
+from ElevatorBot.static.emojis import custom_emojis
 from settings import COMMAND_GUILD_SCOPE
 
 
@@ -37,6 +41,7 @@ async def on_message_create(message: Message):
     if not message.author.bot:
         client = message._client
 
+        # =========================================================================
         # handle thread messages
         if message.thread:
             thread = message.thread
@@ -74,6 +79,7 @@ async def on_message_create(message: Message):
                     for url in [attachment.url for attachment in message.attachments]:
                         await linked_user.send(content=url)
 
+        # =========================================================================
         # handle dm messages
         elif not message.guild:
             # reads a DM message and sends to Descend if the author is in the Descend Server
@@ -128,6 +134,13 @@ async def on_message_create(message: Message):
                                 )
                             )
 
+                            # send author a message to let them know that we got the msg
+                            await message.author.send(
+                                embeds=embed_message(
+                                    "Your Inquiry", "I forwarded your message to staff, you will be contacted shortly 🙃"
+                                )
+                            )
+
                         # save in cache
                         reply_cache.user_to_thread.update({message.author.id: thread})
                         reply_cache.thread_to_user.update({thread: message.author.id})
@@ -135,3 +148,60 @@ async def on_message_create(message: Message):
                     await thread.send(content=message.content)
                     for url in attached_files:
                         await thread.send(content=url)
+
+        # =========================================================================
+        # handle guild messages
+        else:
+            # descend only stuff
+            if message.guild.id == descend_guild_id:
+                # whatever this is
+                if "äbidöpfel" in message.content.lower():
+                    texts = [
+                        "<:NeriaHeart:671389916277506063> <:NeriaHeart:671389916277506063> <:NeriaHeart:671389916277506063>",
+                        "knows what`s up",
+                        "knows you can do the thing",
+                        "has been voted plushie of the month",
+                        "knows da wey",
+                        "yes!",
+                        "does`nt yeet teammtes of the map, be like Häbidöpfel",
+                        "debuggin has proven effective 99.9% of the time (editors note: now 98.9%)",
+                        "is cuteness incarnate",
+                    ]
+                    addition = random.choice(texts)
+                    await message.channel.send(f"Häbidöpfel {addition}")
+
+                # neria welcome message
+                if "welcome" in message.content.lower() and message.mentions:
+                    for mention in message.mentions:
+                        neria_id = 109022023979667456
+                        if mention.id == neria_id:
+                            welcome_choice = [
+                                "Welcome",
+                                "I mirëpritur",
+                                "Dobrodošli",
+                                "Vitejte",
+                                "Welkom",
+                                "Tere tulemast",
+                                "Tervetuloa",
+                                "Bienvenue",
+                                "Herzlich willkommen",
+                                "Üdvözöljük",
+                                "Velkominn",
+                                "Fáilte",
+                                "Benvenuta",
+                                "Velkommen",
+                                "Witamy",
+                                "Bine ați venit (this is spelled correctly thanks to <@171371726444167168>)",
+                                "Bienvenidas",
+                                "Välkommen",
+                                "Croeso",
+                                "Yeeeeeeeeeeeeeeeeeeeeeeeeeeeeehaw",
+                            ]
+                            await message.channel.send(f"{random.choice(welcome_choice)} <@{neria_id}>!")
+
+            # =========================================================================
+            # valid for all guilds
+
+            # be annoyed if getting pinged
+            if client.user in message.mentions:
+                await message.add_reaction(custom_emojis.ping_sock)
