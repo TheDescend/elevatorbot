@@ -16,6 +16,24 @@ class BaseScale(Scale):
         self.add_scale_check(self.no_dm_check)
 
     @staticmethod
+    async def no_dm_check(ctx: InteractionContext) -> bool:
+        """
+        Default command that is run before the command is handled
+        Checks that the command is not invoked in dms
+        """
+
+        return bool(ctx.guild)
+
+    @staticmethod
+    async def no_pending_check(ctx: InteractionContext) -> bool:
+        """
+        Default command that is run before the command is handled
+        Checks that the command is not invoked by pending members
+        """
+
+        return not ctx.author.pending
+
+    @staticmethod
     async def registered_check(ctx: InteractionContext) -> bool:
         """
         Default command that is run before the command is handled
@@ -61,12 +79,3 @@ class BaseScale(Scale):
                 await ctx.author.add_role(role=registration_role, reason="Successful registration")
 
         return result.token
-
-    @staticmethod
-    async def no_dm_check(ctx: InteractionContext) -> bool:
-        """
-        Default command that is run before the command is handled
-        Checks that the command is not invoked in dms
-        """
-
-        return bool(ctx.guild)

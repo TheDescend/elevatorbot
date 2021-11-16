@@ -582,27 +582,27 @@ def main():
     #         return
     #     asyncio.ensure_future(common_handle_message(message))
 
-    @client.event
-    async def on_member_join(member):
-        # inform the user that they should registration with the bot
-        await member.send(
-            embed=embed_message(
-                f"Welcome to Descend {member.name}!",
-                "You can join the destiny clan in **#registration**. \nYou can find our current get_requirements in the same channel. \n⁣\nWe have a wide variety of roles you can earn, for more information, check out #community-roles. \n⁣\nIf you have any problems / questions, do not hesitate to write **@ElevatorBot** (me) a personal message with your problem / question",
-            )
-        )
+    # @client.event
+    # async def on_member_join(member):
+    #     # inform the user that they should registration with the bot
+    #     await member.send(
+    #         embed=embed_message(
+    #             f"Welcome to Descend {member.name}!",
+    #             "You can join the destiny clan in **#registration**. \nYou can find our current get_requirements in the same channel. \n⁣\nWe have a wide variety of roles you can earn, for more information, check out #community-roles. \n⁣\nIf you have any problems / questions, do not hesitate to write **@ElevatorBot** (me) a personal message with your problem / question",
+    #         )
+    #     )
 
-    @client.event
-    async def on_member_remove(member: discord.Member):
-        # send a message in the join log channel if the server is descend
-        if member.guild.id == discord_server_id:
-            embed = embed_message("Member Left the Server", f"{member.mention} has left the server")
-            embed.add_field(name="Display Name", value=member.display_name)
-            embed.add_field(name="Name", value=member.name)
-            embed.add_field(name="Discord ID", value=member.id)
-            await member.guild.get_channel(join_log_channel_id).send(embed=embed)
-
-        await removeFromClanAfterLeftDiscord(client, member)
+    # @client.event
+    # async def on_member_remove(member: discord.Member):
+    #     # send a message in the join log channel if the server is descend
+    #     if member.guild.id == discord_server_id:
+    #         embed = embed_message("Member Left the Server", f"{member.mention} has left the server")
+    #         embed.add_field(name="Display Name", value=member.display_name)
+    #         embed.add_field(name="Name", value=member.name)
+    #         embed.add_field(name="Discord ID", value=member.id)
+    #         await member.guild.get_channel(join_log_channel_id).send(embed=embed)
+    #
+    #     await removeFromClanAfterLeftDiscord(client, member)
 
     # @client.event
     # async def on_message_edit(before, after):
@@ -650,25 +650,25 @@ def main():
             )
             return
 
-    @client.event
-    async def on_member_update(before, after):
-        """Add member role after Role Screening"""
-
-        if before.bot or after.bot:
-            return
-        if before.pending and not after.pending:
-            member = client.get_guild(before.guild.id).get_member(before.id)
-
-            # add @member
-            await assignRolesToUser([member_role_id], member, member.guild)
-
-            # add @Not Registered to user
-            await assignRolesToUser([not_registered_role_id], member, member.guild)
-
-            # add filler roles
-            await assignRolesToUser([divider_raider_role_id], member, member.guild)
-            await assignRolesToUser([divider_achievement_role_id], member, member.guild)
-            await assignRolesToUser([divider_misc_role_id], member, member.guild)
+    # @client.event
+    # async def on_member_update(before, after):
+    #     """Add member role after Role Screening"""
+    #
+    #     if before.bot or after.bot:
+    #         return
+    #     if before.pending and not after.pending:
+    #         member = client.get_guild(before.guild.id).get_member(before.id)
+    #
+    #         # add @member
+    #         await assignRolesToUser([member_role_id], member, member.guild)
+    #
+    #         # add @Not Registered to user
+    #         await assignRolesToUser([not_registered_role_id], member, member.guild)
+    #
+    #         # add filler roles
+    #         await assignRolesToUser([divider_raider_role_id], member, member.guild)
+    #         await assignRolesToUser([divider_achievement_role_id], member, member.guild)
+    #         await assignRolesToUser([divider_misc_role_id], member, member.guild)
 
     @client.event
     # async def on_slash_command(ctx: SlashContext):
