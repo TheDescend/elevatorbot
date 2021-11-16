@@ -1,7 +1,7 @@
 import dataclasses
 from typing import Optional
 
-from dis_snek.models import Guild, GuildVoice, Role, ThreadChannel
+from dis_snek.models import Guild, GuildVoice, Message, Role, ThreadChannel
 
 from ElevatorBot.backendNetworking.destiny.items import DestinyItems
 from ElevatorBot.core.misc.persistentMessages import PersistentMessages
@@ -13,6 +13,9 @@ class ReplyCache:
 
     user_to_thread: dict[int, ThreadChannel] = dataclasses.field(init=False, default_factory=dict)
     thread_to_user: dict[ThreadChannel, int] = dataclasses.field(init=False, default_factory=dict)
+
+    thread_message_id_to_user_message: dict[int, Message] = dataclasses.field(init=False, default_factory=dict)
+    user_message_id_to_thread_message: dict[int, Message] = dataclasses.field(init=False, default_factory=dict)
 
 
 @dataclasses.dataclass

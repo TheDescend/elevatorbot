@@ -23,18 +23,29 @@ from settings import COMMAND_GUILD_SCOPE
 async def on_message_delete(message: Message):
     """Triggers when a message gets deleted"""
 
-    # todo
-    pass
+    # ignore bot messages
+    if not message.author.bot:
+        # check if the deleted message was part of the conversation with a member and admins
+        if message.id in reply_cache.thread_message_id_to_user_message:
+            message = reply_cache.thread_message_id_to_user_message[message.id]
+            await message.delete()
+            reply_cache.thread_message_id_to_user_message.pop(message.id)
+
+        elif message.id in reply_cache.user_message_id_to_thread_message:
+            message = reply_cache.user_message_id_to_thread_message[message.id]
+            await message.delete()
+            reply_cache.user_message_id_to_thread_message.pop(message.id)
 
 
 async def on_message_edit(before: Message, after: Message):
     """Triggers when a message gets edited"""
 
-    # run the message create checks
-    await on_message_create(after)
+    if before != after:
+        # run the message create checks
+        await on_message_create(after, edit_mode=True)
 
 
-async def on_message_create(message: Message):
+async def on_message_create(message: Message, edit_mode: bool = False):
     """Triggers when a message gets send"""
 
     # ignore bot messages
@@ -47,7 +58,7 @@ async def on_message_create(message: Message):
             thread = message.thread
 
             # only do this for descend
-            if message.guild.id in COMMAND_GUILD_SCOPE:
+            if message.guild.id == descend_guild_id:
                 send = False
 
                 # check if message is in cache
@@ -73,7 +84,24 @@ async def on_message_create(message: Message):
                 if send:
                     # alright, lets send that to the linked member
                     linked_user = await client.get_user(reply_cache.thread_to_user[thread])
-                    await linked_user.send(content=message.content)
+
+                    # send the message
+                    if not edit_mode:
+                        user_message = await linked_user.send(content=message.content)
+                        reply_cache.thread_message_id_to_user_message.update({message.id: user_message})
+
+                    # edit the message
+                    else:
+                        user_message = (
+                            reply_cache.thread_message_id_to_user_message[message.id]
+                            if message.id in reply_cache.thread_message_id_to_user_message
+                            else None
+                        )
+                        if user_message:
+                            await user_message.edit(content=message.content)
+                        else:
+                            user_message = await linked_user.send(content=message.content)
+                            reply_cache.thread_message_id_to_user_message.update({message.id: user_message})
 
                     # also send images
                     for url in [attachment.url for attachment in message.attachments]:
@@ -145,7 +173,24 @@ async def on_message_create(message: Message):
                         reply_cache.user_to_thread.update({message.author.id: thread})
                         reply_cache.thread_to_user.update({thread: message.author.id})
 
-                    await thread.send(content=message.content)
+                    # send the message
+                    if not edit_mode:
+                        thread_message = await thread.send(content=message.content)
+                        reply_cache.user_message_id_to_thread_message.update({message.id: thread_message})
+
+                    # edit the message
+                    else:
+                        thread_message = (
+                            reply_cache.user_message_id_to_thread_message[message.id]
+                            if message.id in reply_cache.user_message_id_to_thread_message
+                            else None
+                        )
+                        if thread_message:
+                            await thread_message.edit(content=message.content)
+                        else:
+                            thread_message = await thread.send(content=message.content)
+                            reply_cache.user_message_id_to_thread_message.update({message.id: thread_message})
+
                     for url in attached_files:
                         await thread.send(content=url)
 
