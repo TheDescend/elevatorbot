@@ -23,7 +23,7 @@ router = APIRouter(
 async def get_all(db: AsyncSession = Depends(get_db_session)):
     """Return all activities and their hashes"""
 
-    return DestinyActivitiesModel(activities=await destiny_manifest.get_all_definitions(db=db))
+    return DestinyActivitiesModel(activities=await destiny_manifest.get_all_activities(db=db))
 
 
 @router.get("/{guild_id}/{discord_id}/last", response_model=DestinyActivityDetailsModel)

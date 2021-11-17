@@ -2,6 +2,7 @@ from dis_snek.models import AutocompleteContext
 from rapidfuzz import fuzz, process
 
 from NetworkingSchemas.destiny.activities import DestinyActivityModel
+from NetworkingSchemas.destiny.items import DestinyLoreModel
 from NetworkingSchemas.destiny.weapons import DestinyWeaponModel
 
 # all activities are in here at runtime
@@ -13,6 +14,10 @@ activities_by_id: dict[int, DestinyActivityModel] = {}
 weapons: dict[str, DestinyWeaponModel] = {}
 weapons_by_id: dict[int, DestinyWeaponModel] = {}
 
+# all lore is in here at runtime
+lore: dict[str, DestinyLoreModel] = {}
+lore_by_id: dict[int, DestinyLoreModel] = {}
+
 
 async def autocomplete_send_activity_name(ctx: AutocompleteContext, activity: str):
     """Send the user the best fitting activities (fuzzy)"""
@@ -22,7 +27,7 @@ async def autocomplete_send_activity_name(ctx: AutocompleteContext, activity: st
         choices=[
             {
                 "name": activities[match[0]].name,
-                "value": activities[match[0]].name,
+                "value": activities[match[0]].name.lower(),
             }
             for match in best_matches
         ]
@@ -37,7 +42,22 @@ async def autocomplete_send_weapon_name(ctx: AutocompleteContext, weapon: str):
         choices=[
             {
                 "name": weapons[match[0]].name,
-                "value": weapons[match[0]].name,
+                "value": weapons[match[0]].name.lower(),
+            }
+            for match in best_matches
+        ]
+    )
+
+
+async def autocomplete_send_lore_name(ctx: AutocompleteContext, name: str):
+    """Send the user the best fitting lore name (fuzzy)"""
+
+    best_matches = process.extract(name.lower(), list(lore), scorer=fuzz.WRatio, limit=25)
+    await ctx.send(
+        choices=[
+            {
+                "name": lore[match[0]].name,
+                "value": lore[match[0]].name.lower(),
             }
             for match in best_matches
         ]

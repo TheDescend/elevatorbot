@@ -10,11 +10,14 @@ from Backend.crud.base import CRUDBase
 from Backend.database.base import Base
 from Backend.database.models import (
     DestinyActivityDefinition,
+    DestinyLoreDefinition,
     DestinyRecordDefinition,
     DestinySeasonPassDefinition,
+    Versions,
 )
 from DestinyEnums.enums import UsableDestinyActivityModeTypeEnum
 from NetworkingSchemas.destiny import DestinyActivityModel
+from NetworkingSchemas.destiny.items import DestinyLoreModel
 
 ModelType = TypeVar("ModelType", bound=Base)
 
@@ -27,13 +30,13 @@ class Seal:
 
 class CRUDManifest(CRUDBase):
     @staticmethod
-    async def get_version(db: AsyncSession):
+    async def get_version(db: AsyncSession) -> Optional[Versions]:
         """Get the current version"""
 
         return await versions.get(db=db, name="Manifest")
 
     @staticmethod
-    async def upsert_version(db: AsyncSession, version: str):
+    async def upsert_version(db: AsyncSession, version: str) -> Versions:
         """Upsert the current version"""
 
         return await versions.upsert(db=db, name="Manifest", version=version)
@@ -77,7 +80,7 @@ class CRUDManifest(CRUDBase):
         result = await self._execute_query(db=db, query=query)
         return [Seal(**row) for row in result.scalars().fetchall()]
 
-    async def get_all_definitions(self, db: AsyncSession) -> list[DestinyActivityModel]:
+    async def get_all_activities(self, db: AsyncSession) -> list[DestinyActivityModel]:
         """Gets all activities"""
 
         # get them all from the db
@@ -107,6 +110,17 @@ class CRUDManifest(CRUDBase):
             )
 
         return result
+
+    async def get_all_lore(self, db: AsyncSession) -> list[DestinyLoreModel]:
+        """Gets all lore"""
+
+        # get them all from the db
+        query = select(DestinyLoreDefinition)
+
+        db_lore: list[DestinyLoreDefinition] = (await self._execute_query(db=db, query=query)).scalars().fetchall()
+
+        # format them correctly
+        return [DestinyLoreModel.from_orm(lore) for lore in db_lore]
 
     async def get_grandmaster_nfs(self, db: AsyncSession) -> list[DestinyActivityDefinition]:
         """Get all grandmaster nfs"""

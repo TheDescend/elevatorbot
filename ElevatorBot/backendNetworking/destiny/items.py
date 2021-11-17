@@ -6,9 +6,11 @@ from dis_snek import Snake
 from ElevatorBot.backendNetworking.http import BaseBackendConnection
 from ElevatorBot.backendNetworking.routes import (
     destiny_collectible_name_route,
+    destiny_get_all_lore_route,
     destiny_triumph_name_route,
 )
 from NetworkingSchemas.basic import NameModel
+from NetworkingSchemas.destiny.items import DestinyAllLoreModel
 
 
 @dataclasses.dataclass
@@ -34,3 +36,14 @@ class DestinyItems(BaseBackendConnection):
 
         # convert to correct pydantic model
         return NameModel.parse_obj(result.result) if result else None
+
+    async def get_all_lore(self) -> Optional[DestinyAllLoreModel]:
+        """Return all lore"""
+
+        result = await self._backend_request(
+            method="GET",
+            route=destiny_get_all_lore_route,
+        )
+
+        # convert to correct pydantic model
+        return DestinyAllLoreModel.parse_obj(result.result) if result else None

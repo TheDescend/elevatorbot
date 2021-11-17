@@ -9,6 +9,7 @@ from DestinyEnums.enums import (
 )
 from ElevatorBot.commandHelpers.autocomplete import (
     autocomplete_send_activity_name,
+    autocomplete_send_lore_name,
     autocomplete_send_weapon_name,
 )
 from ElevatorBot.core.destiny.stat import stat_translation
@@ -297,6 +298,31 @@ def autocomplete_weapon_option(
         if not hasattr(func, "autocomplete_callbacks"):
             func.autocomplete_callbacks = {}
         func.autocomplete_callbacks[name] = autocomplete_send_weapon_name
+
+        return option
+
+    return wrapper
+
+
+def autocomplete_lore_option(
+    description: str = "The name of item / card holding the lore", required: bool = True
+) -> Any:
+    """
+    Decorator that replaces @slash_option()
+    Call with `@autocomplete_lore_option()`
+    """
+
+    def wrapper(func):
+        name = "name"
+
+        option = slash_option(
+            name=name, description=description, opt_type=OptionTypes.STRING, required=required, autocomplete=True
+        )(func)
+
+        # register the callback
+        if not hasattr(func, "autocomplete_callbacks"):
+            func.autocomplete_callbacks = {}
+        func.autocomplete_callbacks[name] = autocomplete_send_lore_name
 
         return option
 

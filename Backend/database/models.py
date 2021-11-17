@@ -323,6 +323,16 @@ class DestinySeasonPassDefinition(Base):
     index = Column(SmallInteger, nullable=False)
 
 
+class DestinyLoreDefinition(Base):
+    __tablename__ = "destinyLoreDefinition"
+
+    reference_id = Column(BigInteger, nullable=False, primary_key=True)
+    name = Column(Text, nullable=False)
+    description = Column(Text, nullable=False)
+    sub_title = Column(Text, nullable=False)
+    redacted = Column(Boolean, nullable=False)
+
+
 ################################################################
 # LFG System
 

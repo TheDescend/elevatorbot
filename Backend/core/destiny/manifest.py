@@ -11,6 +11,7 @@ from Backend.database.models import (
     DestinyCollectibleDefinition,
     DestinyInventoryBucketDefinition,
     DestinyInventoryItemDefinition,
+    DestinyLoreDefinition,
     DestinyPresentationNodeDefinition,
     DestinyRecordDefinition,
     DestinySeasonPassDefinition,
@@ -305,6 +306,32 @@ class DestinyManifest:
                             DestinySeasonPassDefinition(
                                 reference_id=int(reference_id),
                                 name=values["displayProperties"]["name"],
+                                description=values["displayProperties"]["description"],
+                                sub_title=values["subtitle"],
+                                redacted=values["redacted"],
+                            )
+                        )
+
+                    # insert data in table
+                    await db_manifest.insert_definition(
+                        db=self.db, db_model=DestinySeasonPassDefinition, to_insert=to_insert
+                    )
+
+                case "DestinyLoreDefinition":
+                    # delete old data
+                    await db_manifest.delete_definition(db=self.db, db_model=DestinyLoreDefinition)
+
+                    # get new data and save values as defaultdict
+                    data = await self.api.get(f"https://www.bungie.net{url}")
+                    content = defaultdictify(data.content)
+
+                    # save data to bulk insert later
+                    to_insert = []
+                    for reference_id, values in content.items():
+                        to_insert.append(
+                            DestinyLoreDefinition(
+                                reference_id=int(reference_id),
+                                name=values["displayProperties"]["name"],
                                 reward_progression_hash=values["rewardProgressionHash"],
                                 prestige_progression_hash=values["prestigeProgressionHash"],
                                 index=values["index"],
@@ -312,9 +339,7 @@ class DestinyManifest:
                         )
 
                     # insert data in table
-                    await db_manifest.insert_definition(
-                        db=self.db, db_model=DestinyPresentationNodeDefinition, to_insert=to_insert
-                    )
+                    await db_manifest.insert_definition(db=self.db, db_model=DestinyLoreDefinition, to_insert=to_insert)
 
         # update version entry
         await db_manifest.upsert_version(db=self.db, version=version)

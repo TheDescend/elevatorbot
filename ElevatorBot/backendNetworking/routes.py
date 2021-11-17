@@ -106,3 +106,4 @@ destiny_weapons_get_weapon_route = destiny_weapons_route + "{guild_id}/{discord_
 destiny_items_route = base_route + "destiny/items/"
 destiny_collectible_name_route = destiny_items_route + "collectible/{collectible_id}/"  # GET
 destiny_triumph_name_route = destiny_items_route + "triumph/{triumph_id}/"  # GET
+destiny_get_all_lore_route = destiny_items_route + "lore/get/all/"  # GET
