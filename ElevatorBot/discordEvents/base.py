@@ -1,18 +1,6 @@
-from typing import Awaitable, Callable, Coroutine, Type
-
 from dis_snek.client import Snake
 from dis_snek.models import ComponentCommand, Listener
 
-from ElevatorBot.discordEvents.componentCallbacks import (
-    clan_join_request,
-    increment_button,
-    lfg_backup,
-    lfg_join,
-    lfg_leave,
-    other_game_roles,
-    poll,
-    registration,
-)
 from ElevatorBot.discordEvents.guildEvents import (
     on_channel_create,
     on_channel_delete,

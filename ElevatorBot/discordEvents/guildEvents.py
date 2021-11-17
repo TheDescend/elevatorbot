@@ -8,7 +8,7 @@ from ElevatorBot.backendNetworking.misc.elevatorInfo import ElevatorGuilds
 async def on_channel_delete(channel: GuildChannel):
     """Triggers when a channel gets deleted"""
 
-    # todo
+    # todo remove persistent message / lfg message definition
     pass
 
 
@@ -78,5 +78,5 @@ async def on_thread_update(before: ThreadChannel, after: ThreadChannel):
 async def on_thread_delete(thread: ThreadChannel):
     """Triggers when a thread gets deleted"""
 
-    # todo
+    # todo remove reply chach threads
     pass

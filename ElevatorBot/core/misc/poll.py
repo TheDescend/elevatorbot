@@ -40,7 +40,6 @@ class Poll:
             [
                 ActionRow(
                     Select(
-                        # todo callback
                         options=[
                             SelectOption(
                                 label=option_name,

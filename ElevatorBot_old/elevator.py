@@ -706,132 +706,132 @@ def main():
     #     # raising error again to making deving easier
     #     raise error
 
-    # handle registrations
-    @slash.component_callback()
-    async def registration(ctx: ComponentContext):
-        await elevatorRegistration(ctx.author)
+    # # handle registrations
+    # @slash.component_callback()
+    # async def registration(ctx: ComponentContext):
+    #     await elevatorRegistration(ctx.author)
+    #
+    #     await ctx.send(
+    #         hidden=True,
+    #         embed=embed_message(f"Thanks for Registering", f"I sent you a DM with the next steps!"),
+    #     )
 
-        await ctx.send(
-            hidden=True,
-            embed=embed_message(f"Thanks for Registering", f"I sent you a DM with the next steps!"),
-        )
-
-    # handle other game roles
-    @slash.component_callback()
-    async def other_game_roles(ctx: ComponentContext):
-        user_role_ids = [role.id for role in ctx.author.roles]
-
-        added = []
-        removed = []
-
-        # loop through the roles the user want (to loose)
-        for role in ctx.selected_options:
-            role_name, role_id = role.split("|")
-            role_id = int(role_id)
-
-            # add role
-            if role_id not in user_role_ids:
-                await assignRolesToUser([role_id], ctx.author, ctx.guild)
-                added.append(role_name)
-
-            # _delete role
-            else:
-                await removeRolesFromUser([role_id], ctx.author, ctx.guild)
-                removed.append(role_name)
-
-        # send message to user
-        embed = embed_message(
-            f"Role Update",
-        )
-        if added:
-            embed.add_field(name="Roles Added", value="\n".join(added), inline=True)
-        if removed:
-            embed.add_field(name="Roles Removed", value="\n".join(removed), inline=True)
-
-        await ctx.send(hidden=True, embed=embed)
-
-    # handle increment button
-    @slash.component_callback()
-    async def increment_button(ctx: ComponentContext):
-        components = [
-            manage_components.create_actionrow(
-                manage_components.create_button(
-                    custom_id="increment_button",
-                    style=ButtonStyle.blue,
-                    label=str(int(ctx.component["label"]) + 1),
-                ),
-            ),
-        ]
-        embed = ctx.origin_message.embeds[0]
-        embed.description = f"Last used by {ctx.author.mention} <:PeepoZoom:670369608498151456>"
-
-        if int(ctx.component["label"]) == 69420:
-            await ctx.send(hidden=True, content=f"Sorry, the game has been won and is over!")
-        else:
-            await ctx.edit_origin(components=components, embed=embed)
-
-    # handle lfg messages
-    @slash.component_callback()
-    async def lfg_join(ctx: ComponentContext):
-        # _get the lfg message
-        lfg_message = await get_lfg_message(client=ctx.bot, lfg_message_id=ctx.origin_message.id, guild=ctx.guild)
-        if not lfg_message:
-            return
-
-        res = await lfg_message.add_member(member=ctx.guild.get_member(ctx.author.id), ctx=ctx)
-        if not res:
-            await ctx.send(
-                hidden=True,
-                embed=embed_message(
-                    "Error",
-                    "You could not be added to the event\nThis is either because you are already in the event, the event is full, or the creator has blacklisted you from their events",
-                ),
-            )
-
-    @slash.component_callback()
-    async def lfg_leave(ctx: ComponentContext):
-        # _get the lfg message
-        lfg_message = await get_lfg_message(client=ctx.bot, lfg_message_id=ctx.origin_message.id, guild=ctx.guild)
-        if not lfg_message:
-            return
-
-        res = await lfg_message.remove_member(member=ctx.guild.get_member(ctx.author.id), ctx=ctx)
-        if not res:
-            await ctx.send(
-                hidden=True,
-                embed=embed_message(
-                    "Error",
-                    "You could not be removed from the event\nThis is because you are neither in the main nor in the backup roster",
-                ),
-            )
-
-    @slash.component_callback()
-    async def lfg_backup(ctx: ComponentContext):
-        # _get the lfg message
-        lfg_message = await get_lfg_message(client=ctx.bot, lfg_message_id=ctx.origin_message.id, guild=ctx.guild)
-        if not lfg_message:
-            return
-
-        res = await lfg_message.add_backup(member=ctx.guild.get_member(ctx.author.id), ctx=ctx)
-        if not res:
-            await ctx.send(
-                hidden=True,
-                embed=embed_message(
-                    "Error",
-                    "You could not be added as a backup to the event\nThis is either because you are already in the backup roster, or the creator has blacklisted you from their events",
-                ),
-            )
-
-    # handle clan join requests
-    @slash.component_callback()
-    async def clan_join_request(ctx: ComponentContext):
-        await on_clan_join_request(ctx)
-
-    # handle poll selects
-    @slash.component_callback()
-    async def poll(ctx: ComponentContext):
-        poll = await get_poll_object(guild=ctx.guild, poll_message_id=ctx.origin_message.id)
-        await poll.add_user(select_ctx=ctx, member=ctx.author, option=ctx.selected_options[0])
+    # # handle other game roles
+    # @slash.component_callback()
+    # async def other_game_roles(ctx: ComponentContext):
+    #     user_role_ids = [role.id for role in ctx.author.roles]
+    #
+    #     added = []
+    #     removed = []
+    #
+    #     # loop through the roles the user want (to loose)
+    #     for role in ctx.selected_options:
+    #         role_name, role_id = role.split("|")
+    #         role_id = int(role_id)
+    #
+    #         # add role
+    #         if role_id not in user_role_ids:
+    #             await assignRolesToUser([role_id], ctx.author, ctx.guild)
+    #             added.append(role_name)
+    #
+    #         # _delete role
+    #         else:
+    #             await removeRolesFromUser([role_id], ctx.author, ctx.guild)
+    #             removed.append(role_name)
+    #
+    #     # send message to user
+    #     embed = embed_message(
+    #         f"Role Update",
+    #     )
+    #     if added:
+    #         embed.add_field(name="Roles Added", value="\n".join(added), inline=True)
+    #     if removed:
+    #         embed.add_field(name="Roles Removed", value="\n".join(removed), inline=True)
+    #
+    #     await ctx.send(hidden=True, embed=embed)
+    #
+    # # handle increment button
+    # @slash.component_callback()
+    # async def increment_button(ctx: ComponentContext):
+    #     components = [
+    #         manage_components.create_actionrow(
+    #             manage_components.create_button(
+    #                 custom_id="increment_button",
+    #                 style=ButtonStyle.blue,
+    #                 label=str(int(ctx.component["label"]) + 1),
+    #             ),
+    #         ),
+    #     ]
+    #     embed = ctx.origin_message.embeds[0]
+    #     embed.description = f"Last used by {ctx.author.mention} <:PeepoZoom:670369608498151456>"
+    #
+    #     if int(ctx.component["label"]) == 69420:
+    #         await ctx.send(hidden=True, content=f"Sorry, the game has been won and is over!")
+    #     else:
+    #         await ctx.edit_origin(components=components, embed=embed)
+    #
+    # # handle lfg messages
+    # @slash.component_callback()
+    # async def lfg_join(ctx: ComponentContext):
+    #     # _get the lfg message
+    #     lfg_message = await get_lfg_message(client=ctx.bot, lfg_message_id=ctx.origin_message.id, guild=ctx.guild)
+    #     if not lfg_message:
+    #         return
+    #
+    #     res = await lfg_message.add_member(member=ctx.guild.get_member(ctx.author.id), ctx=ctx)
+    #     if not res:
+    #         await ctx.send(
+    #             hidden=True,
+    #             embed=embed_message(
+    #                 "Error",
+    #                 "You could not be added to the event\nThis is either because you are already in the event, the event is full, or the creator has blacklisted you from their events",
+    #             ),
+    #         )
+    #
+    # @slash.component_callback()
+    # async def lfg_leave(ctx: ComponentContext):
+    #     # _get the lfg message
+    #     lfg_message = await get_lfg_message(client=ctx.bot, lfg_message_id=ctx.origin_message.id, guild=ctx.guild)
+    #     if not lfg_message:
+    #         return
+    #
+    #     res = await lfg_message.remove_member(member=ctx.guild.get_member(ctx.author.id), ctx=ctx)
+    #     if not res:
+    #         await ctx.send(
+    #             hidden=True,
+    #             embed=embed_message(
+    #                 "Error",
+    #                 "You could not be removed from the event\nThis is because you are neither in the main nor in the backup roster",
+    #             ),
+    #         )
+    #
+    # @slash.component_callback()
+    # async def lfg_backup(ctx: ComponentContext):
+    #     # _get the lfg message
+    #     lfg_message = await get_lfg_message(client=ctx.bot, lfg_message_id=ctx.origin_message.id, guild=ctx.guild)
+    #     if not lfg_message:
+    #         return
+    #
+    #     res = await lfg_message.add_backup(member=ctx.guild.get_member(ctx.author.id), ctx=ctx)
+    #     if not res:
+    #         await ctx.send(
+    #             hidden=True,
+    #             embed=embed_message(
+    #                 "Error",
+    #                 "You could not be added as a backup to the event\nThis is either because you are already in the backup roster, or the creator has blacklisted you from their events",
+    #             ),
+    #         )
+    #
+    # # handle clan join requests
+    # @slash.component_callback()
+    # async def clan_join_request(ctx: ComponentContext):
+    #     await on_clan_join_request(ctx)
+    #
+    # # handle poll selects
+    # @slash.component_callback()
+    # async def poll(ctx: ComponentContext):
+    #     poll = await get_poll_object(guild=ctx.guild, poll_message_id=ctx.origin_message.id)
+    #     await poll.add_user(select_ctx=ctx, member=ctx.author, option=ctx.selected_options[0])
 
     # Finally, set the bot running
     # client.run(BOT_TOKEN)

@@ -1,17 +1,16 @@
 import asyncio
 
-from dis_snek.client import Snake
 from dis_snek.errors import ExtensionLoadException
 from dis_snek.models import listen
 from dis_snek.models.enums import Intents
 
 from ElevatorBot.discordEvents.base import register_discord_events
-from ElevatorBot.discordEvents.componentCallbacks import add_component_callbacks
 from ElevatorBot.discordEvents.errorEvents import CustomErrorSnake
 from ElevatorBot.misc.discordStatus import update_status
 from ElevatorBot.misc.veryMisc import yield_files_in_folder
 from ElevatorBot.startup.initAutocompleteOptions import load_autocomplete_options
 from ElevatorBot.startup.initBackgroundEvents import register_background_events
+from ElevatorBot.startup.initComponentCallbacks import add_component_callbacks
 from ElevatorBot.startup.initDocs import create_command_docs
 from ElevatorBot.startup.initLogging import init_logging
 from ElevatorBot.static.emojis import custom_emojis

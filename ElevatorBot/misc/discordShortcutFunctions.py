@@ -1,7 +1,7 @@
 from dis_snek.models import Member
 
 
-async def assign_roles_to_member(member: Member, *role_ids, reason: str = None):
+async def assign_roles_to_member(member: Member, *role_ids: int, reason: str = None):
     """Assigns the role_ids to the member if they exist, else fails silently"""
 
     guild = member.guild
@@ -19,7 +19,7 @@ async def assign_roles_to_member(member: Member, *role_ids, reason: str = None):
             await member.add_role(role=role, reason=reason)
 
 
-async def remove_roles_from_member(member: Member, *role_ids, reason: str = None):
+async def remove_roles_from_member(member: Member, *role_ids: int, reason: str = None):
     """Removes the role_ids from the member if they exist, else fails silently"""
 
     guild = member.guild

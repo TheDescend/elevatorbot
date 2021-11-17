@@ -42,7 +42,6 @@ class IncrementButton(BaseScale):
         components = [
             ActionRow(
                 Button(
-                    # todo callback
                     custom_id=message_name,
                     style=ButtonStyles.GREEN,
                     label="0",
