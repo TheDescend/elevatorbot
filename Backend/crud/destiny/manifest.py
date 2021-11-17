@@ -102,6 +102,7 @@ class CRUDManifest(CRUDBase):
                     name=activities[0].name,
                     description=activities[0].description,
                     activity_ids=[activity.reference_id for activity in activities],
+                    mode=activities[0].direct_activity_mode_type,
                 )
             )
 
