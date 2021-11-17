@@ -256,13 +256,17 @@ async def get_vault_space(guild_id: int, discord_id: int, db: AsyncSession = Dep
 async def get_bright_dust(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Gets the current bright dust of the player"""
 
-    # todo
-    aaaaaaaaa
+    user = await discord_users.get_profile_from_discord_id(db, discord_id)
+    profile = DestinyProfile(db=db, user=user)
+
+    return ValueModel(value=await profile.get_bright_dust())
 
 
 @router.get("/shards", response_model=ValueModel)
-async def get_leg_shards(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
+async def get_legendary_shards(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Gets the current legendary shards of the player"""
 
-    # todo
-    aaaaaaaaa
+    user = await discord_users.get_profile_from_discord_id(db, discord_id)
+    profile = DestinyProfile(db=db, user=user)
+
+    return ValueModel(value=await profile.get_legendary_shards())

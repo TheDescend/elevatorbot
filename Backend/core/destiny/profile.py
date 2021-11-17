@@ -64,6 +64,16 @@ class DestinyProfile:
 
         return len(buckets[DestinyInventoryBucketEnum.VAULT])
 
+    async def get_bright_dust(self) -> int:
+        """Gets the current bright dust of the user"""
+
+        return await self.__get_currency_amount(bucket=DestinyInventoryBucketEnum.BRIGHT_DUST)
+
+    async def get_legendary_shards(self) -> int:
+        """Gets the current legendary shards of the user"""
+
+        return await self.__get_currency_amount(bucket=DestinyInventoryBucketEnum.SHARDS)
+
     async def get_consumable_amount(self, consumable_id: int) -> int:
         """Returns the amount of a consumable this user has"""
 
@@ -858,3 +868,16 @@ class DestinyProfile:
             response.content.pop("profile")
 
         return response.content
+
+    async def __get_currency_amount(self, bucket: DestinyInventoryBucketEnum) -> int:
+        """Returns the amount of the specified currency owned"""
+
+        profile = await self.__get_profile(103)
+        items = profile["profileCurrencies"]["data"]["items"]
+
+        # get the item with the correct bucket
+        value = 0
+        for item in items():
+            if item["bucketHash"] == bucket.value:
+                value = item["quantity"]
+        return value
