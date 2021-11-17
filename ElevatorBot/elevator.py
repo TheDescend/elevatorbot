@@ -17,9 +17,6 @@ from ElevatorBot.static.emojis import custom_emojis
 from ElevatorBot.webserver.server import run_webserver
 from settings import DISCORD_BOT_TOKEN, SYNC_COMMANDS
 
-first_start = True
-
-
 if __name__ == "__main__":
     # config logging
     init_logging()
@@ -62,14 +59,8 @@ if __name__ == "__main__":
     asyncio.run(load_autocomplete_options(client))
 
     @listen()
-    async def on_ready():
-        """Get's triggered on startup and re-connects"""
-
-        # only run this on first startup
-        global first_start
-        if not first_start:
-            return
-        first_start = False
+    async def on_startup():
+        """Get's triggered on startup"""
 
         print ("Creating docs for commands...")
         create_command_docs(client)
