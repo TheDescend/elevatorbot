@@ -4,65 +4,35 @@
             "name": "userinfo",
             "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
             "options": [
-                {
-                    "name": "discord_user",
-                    "description": "Look up a discord user",
-                    "required": false
-                },
-                {
-                    "name": "destiny_id",
-                    "description": "Look up a destinyID",
-                    "required": false
-                },
-                {
-                    "name": "fuzzy_name",
-                    "description": "If you know how the user is called",
-                    "required": false
-                }
-            ]
+                {"name": "discord_user", "description": "Look up a discord user", "required": false},
+                {"name": "destiny_id", "description": "Look up a destinyID", "required": false},
+                {"name": "fuzzy_name", "description": "If you know how the user is called", "required": false},
+            ],
         },
         {
             "name": "setup",
             "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
-            "options": []
+            "options": [],
         },
         {
             "name": "destiny",
             "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
-            "options": [
-                {
-                    "name": "user",
-                    "description": "The user you want to look up",
-                    "required": false
-                }
-            ]
+            "options": [{"name": "user", "description": "The user you want to look up", "required": false}],
         },
         {
             "name": "pop_timeline",
             "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
-            "options": []
+            "options": [],
         },
         {
             "name": "challenges",
             "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
-            "options": [
-                {
-                    "name": "user",
-                    "description": "The user you want to look up",
-                    "required": false
-                }
-            ]
+            "options": [{"name": "user", "description": "The user you want to look up", "required": false}],
         },
         {
             "name": "solos",
             "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
-            "options": [
-                {
-                    "name": "user",
-                    "description": "The user you want to look up",
-                    "required": false
-                }
-            ]
+            "options": [{"name": "user", "description": "The user you want to look up", "required": false}],
         },
         {
             "name": "website",
@@ -73,215 +43,149 @@
                     "description": "The name of the website you want a personalised link for",
                     "required": true,
                     "choices": [
-                        {
-                            "name": "Braytech"
-                        },
-                        {
-                            "name": "D2 Checklist"
-                        },
-                        {
-                            "name": "Destiny Tracker"
-                        },
-                        {
-                            "name": "Dungeon Report"
-                        },
-                        {
-                            "name": "Grandmaster Report"
-                        },
-                        {
-                            "name": "Nightfall Report"
-                        },
-                        {
-                            "name": "Strike Report"
-                        },
-                        {
-                            "name": "Raid Report"
-                        },
-                        {
-                            "name": "Solo Report"
-                        },
-                        {
-                            "name": "Expunge Report"
-                        },
-                        {
-                            "name": "Trials Report"
-                        },
-                        {
-                            "name": "Triumph Report"
-                        },
-                        {
-                            "name": "Wasted on Destiny"
-                        },
-                        {
-                            "name": "Crucible Report"
-                        }
-                    ]
+                        {"name": "Braytech"},
+                        {"name": "D2 Checklist"},
+                        {"name": "Destiny Tracker"},
+                        {"name": "Dungeon Report"},
+                        {"name": "Grandmaster Report"},
+                        {"name": "Nightfall Report"},
+                        {"name": "Strike Report"},
+                        {"name": "Raid Report"},
+                        {"name": "Solo Report"},
+                        {"name": "Expunge Report"},
+                        {"name": "Trials Report"},
+                        {"name": "Triumph Report"},
+                        {"name": "Wasted on Destiny"},
+                        {"name": "Crucible Report"},
+                    ],
                 },
-                {
-                    "name": "user",
-                    "description": "The user you want to look up",
-                    "required": false
-                }
-            ]
+                {"name": "user", "description": "The user you want to look up", "required": false},
+            ],
         },
         {
             "name": "day_one",
             "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
-            "options": []
+            "options": [],
         },
         {
             "name": "lfg",
             "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
-            "options": []
+            "options": [],
         },
         {
             "name": "register",
             "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
-            "options": []
+            "options": [],
         },
         {
             "name": "unregister",
             "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
-            "options": []
+            "options": [],
         },
         {
             "name": "roles",
             "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
-            "options": []
+            "options": [],
         },
         {
             "name": "stat",
             "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
-            "options": []
+            "options": [],
         },
         {
             "name": "boosters",
             "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
-            "options": []
+            "options": [],
         },
         {
             "name": "calculator",
             "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
-            "options": []
+            "options": [],
         },
         {
             "name": "discordjoindate",
             "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
-            "options": [
-                {
-                    "name": "user",
-                    "description": "The user you want to look up",
-                    "required": false
-                }
-            ]
+            "options": [{"name": "user", "description": "The user you want to look up", "required": false}],
         },
         {
             "name": "funfact",
             "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
-            "options": []
+            "options": [],
         },
         {
             "name": "invite",
             "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
-            "options": []
+            "options": [],
         },
         {
             "name": "poll",
             "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
-            "options": []
+            "options": [],
         },
         {
             "name": "tictactoe",
             "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
-            "options": []
-        }
+            "options": [],
+        },
     ],
     "280456587464933376": [
         {
             "name": "day_one_raid_race",
             "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
-            "options": []
+            "options": [],
         },
         {
             "name": "mute",
             "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
             "options": [
-                {
-                    "name": "user",
-                    "description": "Which user to mute",
-                    "required": true
-                },
-                {
-                    "name": "hours",
-                    "description": "How many hours to mute the user for",
-                    "required": true
-                }
-            ]
+                {"name": "user", "description": "Which user to mute", "required": true},
+                {"name": "hours", "description": "How many hours to mute the user for", "required": true},
+            ],
         },
         {
             "name": "muteme",
             "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
-            "options": [
-                {
-                    "name": "user",
-                    "description": "The user you want to look up",
-                    "required": false
-                }
-            ]
+            "options": [{"name": "user", "description": "The user you want to look up", "required": false}],
         },
         {
             "name": "socialist",
             "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
-            "options": []
+            "options": [],
         },
         {
             "name": "descend_setup",
             "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
-            "options": []
-        }
+            "options": [],
+        },
     ],
     "556418279015448596": [
         {
             "name": "day_one_raid_race",
             "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
-            "options": []
+            "options": [],
         },
         {
             "name": "mute",
             "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
             "options": [
-                {
-                    "name": "user",
-                    "description": "Which user to mute",
-                    "required": true
-                },
-                {
-                    "name": "hours",
-                    "description": "How many hours to mute the user for",
-                    "required": true
-                }
-            ]
+                {"name": "user", "description": "Which user to mute", "required": true},
+                {"name": "hours", "description": "How many hours to mute the user for", "required": true},
+            ],
         },
         {
             "name": "muteme",
             "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
-            "options": [
-                {
-                    "name": "user",
-                    "description": "The user you want to look up",
-                    "required": false
-                }
-            ]
+            "options": [{"name": "user", "description": "The user you want to look up", "required": false}],
         },
         {
             "name": "socialist",
             "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
-            "options": []
+            "options": [],
         },
         {
             "name": "descend_setup",
             "description": "\n    Represents a discord slash command.\n\n    parameters:\n        name: The name of this command.\n        description: The description of this command.\n        options: A list of options for this command.\n    ",
-            "options": []
-        }
-    ]
+            "options": [],
+        },
+    ],
 }

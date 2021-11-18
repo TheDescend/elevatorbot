@@ -2,7 +2,7 @@
     "0": [
         {
             "name": "Get Join Code",
-            "description": "\n    Represents a discord context menu.\n\n    parameters:\n        name: The name of this entry.\n        type: The type of entry (user or message).\n    "
+            "description": "\n    Represents a discord context menu.\n\n    parameters:\n        name: The name of this entry.\n        type: The type of entry (user or message).\n    ",
         }
     ]
 }
