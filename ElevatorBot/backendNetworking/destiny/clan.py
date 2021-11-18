@@ -18,6 +18,7 @@ from NetworkingSchemas.destiny.clan import (
     DestinyClanMembersModel,
     DestinyClanModel,
 )
+from NetworkingSchemas.destiny.profile import DestinyProfileModel
 
 
 @dataclasses.dataclass
@@ -64,17 +65,16 @@ class DestinyClan(BaseBackendConnection):
         # convert to correct pydantic model
         return DestinyClanMembersModel.parse_obj(result.result) if result else None
 
-    async def invite_to_clan(self, to_invite: Member) -> bool:
-        """Return the destiny clan members which match the search term"""
+    async def invite_to_clan(self) -> Optional[DestinyProfileModel]:
+        """Invite the user to the linked clan"""
 
         result = await self._backend_request(
-            method="GET",
-            route=destiny_clan_invite_route.format(guild_id=self.discord_guild.id, discord_id=to_invite.id),
-            discord_member2=to_invite,
+            method="POST",
+            route=destiny_clan_invite_route.format(guild_id=self.discord_guild.id, discord_id=self.discord_member.id),
         )
 
-        # returns EmptyResponseModel
-        return True if result else None
+        # convert to correct pydantic model
+        return DestinyProfileModel.parse_obj(result.result) if result else None
 
     async def link(self) -> Optional[DestinyClanLink]:
         """Link the discord guild to the destiny guild"""

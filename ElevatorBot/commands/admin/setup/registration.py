@@ -41,7 +41,6 @@ class Registration(BaseScale):
         components = [
             ActionRow(
                 Button(
-                    # todo callback
                     custom_id=message_name,
                     style=ButtonStyles.GREEN,
                     label="Click to Connect your Destiny 2 Account",

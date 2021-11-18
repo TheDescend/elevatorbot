@@ -1,6 +1,7 @@
 from dis_snek import Snake
 from dis_snek.models import ComponentCommand
 
+from ElevatorBot.components.checks import check_pending
 from ElevatorBot.components.componentCallbacks import ComponentCallbacks
 
 
@@ -16,3 +17,6 @@ def add_component_callbacks(client: Snake):
                 listeners=[custom_id],
             )
         )
+
+    # add my pending check to all of them
+    client.add_component_check(func=check_pending)

@@ -56,7 +56,7 @@ destiny_clan_route = destiny_base_route + "clan/"
 destiny_clan_get_route = destiny_clan_route + "get/"
 destiny_clan_get_members_route = destiny_clan_route + "get/members/"
 destiny_clan_search_members_route = destiny_clan_route + "get/members/search/{search_phrase}/"
-destiny_clan_invite_route = destiny_clan_route + "invite/"
+destiny_clan_invite_route = destiny_clan_route + "invite/"  # POST
 destiny_clan_link_route = destiny_clan_route + "link/"
 destiny_clan_unlink_route = destiny_clan_route + "unlink/"
 

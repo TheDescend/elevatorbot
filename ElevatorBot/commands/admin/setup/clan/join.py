@@ -46,7 +46,6 @@ class ClanJoin(BaseScale):
         components = [
             ActionRow(
                 Button(
-                    # todo callback
                     custom_id=message_name,
                     style=ButtonStyles.GREEN,
                     label="Click to Join the Linked Destiny 2 Clan",

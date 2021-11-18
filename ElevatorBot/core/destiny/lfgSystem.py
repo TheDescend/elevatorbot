@@ -98,6 +98,20 @@ class LfgMessage:
         return True
 
     @classmethod
+    async def from_component_button(cls, ctx: ComponentContext) -> LfgMessage:
+        """Get the LFG data from an embed send by me"""
+
+        # read the lfg id from the embed
+        fields = ctx.message.embeds[0].fields
+        lfg_id = None
+        for field in fields:
+            if field.name == "ID":
+                lfg_id = int(field.value)
+        assert isinstance(lfg_id, int)
+
+        return await LfgMessage.from_lfg_id(ctx=ctx, lfg_id=lfg_id, client=ctx.bot, guild=ctx.guild)
+
+    @classmethod
     async def from_lfg_id(
         cls, lfg_id: int, client: Snake, guild: Guild, ctx: InteractionContext = None
     ) -> Optional[LfgMessage]:

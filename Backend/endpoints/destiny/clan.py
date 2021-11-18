@@ -12,6 +12,7 @@ from NetworkingSchemas.destiny.clan import (
     DestinyClanMembersModel,
     DestinyClanModel,
 )
+from NetworkingSchemas.destiny.profile import DestinyProfileModel
 
 router = APIRouter(
     prefix="/destiny/{guild_id}/{discord_id}/clan",
@@ -101,7 +102,7 @@ async def unlink_clan(
     return DestinyClanLink(success=True, clan_name=clan_name)
 
 
-@router.get("/invite/", response_model=EmptyResponseModel)
+@router.post("/invite/", response_model=DestinyProfileModel)
 async def invite(
     guild_id: int,
     discord_id: int,
@@ -119,3 +120,5 @@ async def invite(
     # invite to the clan
     clan = DestinyClan(db=db, user=clan_admin_user)
     await clan.invite_to_clan(to_invite_destiny_id=to_invite_user.destiny_id, to_invite_system=to_invite_user.system)
+
+    return DestinyProfileModel.from_orm(to_invite_user)

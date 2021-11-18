@@ -1,15 +1,18 @@
 from copy import copy
 
-from dis_snek.models import ActionRow, Button, ButtonStyles, ComponentContext
+from dis_snek.models import ComponentContext
 
 from Backend.database.models import Poll
+from ElevatorBot.backendNetworking.destiny.clan import DestinyClan
 from ElevatorBot.backendNetworking.misc.polls import BackendPolls
 from ElevatorBot.commands.destiny.registration.register import send_registration
+from ElevatorBot.core.destiny.lfgSystem import LfgMessage
 from ElevatorBot.misc.discordShortcutFunctions import (
     assign_roles_to_member,
     remove_roles_from_member,
 )
 from ElevatorBot.misc.formating import embed_message
+from ElevatorBot.static.descendOnlyIds import bot_dev_channel_id, descend_guild_id
 from ElevatorBot.static.emojis import custom_emojis
 
 
@@ -98,19 +101,17 @@ class ComponentCallbacks:
     async def lfg_join(ctx: ComponentContext):
         """Handles when a component with the custom_id 'lfg_join' gets interacted with"""
 
-        # todo
-        lfg_message = await get_lfg_message(client=ctx.bot, lfg_message_id=ctx.origin_message.id, guild=ctx.guild)
-        if not lfg_message:
-            return
+        await ctx.defer()
 
-        res = await lfg_message.add_member(member=ctx.guild.get_member(ctx.author.id), ctx=ctx)
-        if not res:
+        lfg_message = await LfgMessage.from_component_button(ctx=ctx)
+        result = await lfg_message.add_joined(member=ctx.author, ctx=ctx)
+
+        # tell them that it failed
+        if not result:
             await ctx.send(
-                hidden=True,
-                embed=embed_message(
-                    "Error",
-                    "You could not be added to the event\nThis is either because you are already in the event, the event is full, or the creator has "
-                    "blacklisted you from their events",
+                ephemeral=True,
+                embeds=embed_message(
+                    "Error", "You could not be added to the event because you are already in it or it is full"
                 ),
             )
 
@@ -118,44 +119,58 @@ class ComponentCallbacks:
     async def lfg_leave(ctx: ComponentContext):
         """Handles when a component with the custom_id 'lfg_leave' gets interacted with"""
 
-        # todo
-        lfg_message = await get_lfg_message(client=ctx.bot, lfg_message_id=ctx.origin_message.id, guild=ctx.guild)
-        if not lfg_message:
-            return
+        await ctx.defer()
 
-        res = await lfg_message.remove_member(member=ctx.guild.get_member(ctx.author.id), ctx=ctx)
-        if not res:
+        lfg_message = await LfgMessage.from_component_button(ctx=ctx)
+        result = await lfg_message.remove_member(member=ctx.author, ctx=ctx)
+
+        # tell them that it failed
+        if not result:
             await ctx.send(
-                hidden=True,
-                embed=embed_message(
-                    "Error",
-                    "You could not be removed from the event\nThis is because you are neither in the main nor in the backup roster",
-                ),
+                ephemeral=True,
+                embeds=embed_message("Error", "You can't be removed from an event you did not sign up for"),
             )
 
     @staticmethod
     async def lfg_backup(ctx: ComponentContext):
         """Handles when a component with the custom_id 'lfg_backup' gets interacted with"""
 
-        # todo
-        lfg_message = await get_lfg_message(client=ctx.bot, lfg_message_id=ctx.origin_message.id, guild=ctx.guild)
-        if not lfg_message:
-            return
+        await ctx.defer()
 
-        res = await lfg_message.add_backup(member=ctx.guild.get_member(ctx.author.id), ctx=ctx)
-        if not res:
+        lfg_message = await LfgMessage.from_component_button(ctx=ctx)
+        result = await lfg_message.add_backup(member=ctx.author, ctx=ctx)
+
+        # tell them that it failed
+        if not result:
             await ctx.send(
-                hidden=True,
-                embed=embed_message(
-                    "Error",
-                    "You could not be added as a backup to the event\nThis is either because you are already in the backup roster, or the creator has "
-                    "blacklisted you from their events",
-                ),
+                ephemeral=True,
+                embeds=embed_message("Error", "You are already in the backup"),
             )
 
     @staticmethod
     async def clan_join_request(ctx: ComponentContext):
         """Handles when a component with the custom_id 'clan_join_request' gets interacted with"""
 
-        # todo
-        await on_clan_join_request(ctx)
+        await ctx.defer()
+
+        # invite them to the clan
+        clan = DestinyClan(ctx=ctx, client=ctx.bot, discord_member=ctx.author, discord_guild=ctx.guild)
+        result = await clan.invite_to_clan()
+
+        if not result:
+            return
+
+        # send a message in descend if that's the guild
+        if ctx.guild.id == descend_guild_id:
+            channel = await ctx.guild.get_channel(bot_dev_channel_id)
+
+            embed = embed_message("Clan Update", f"An invite was send to {ctx.author.mention}")
+            embed.add_field(name="Bungie Name", value=result.bungie_name, inline=True)
+            embed.add_field(name="Destiny ID", value=result.destiny_id, inline=True)
+            embed.add_field(name="System", value=result.system, inline=True)
+
+            await channel.send(embeds=embed)
+
+        # inform user if invite was send
+        embed = embed_message("Clan Application", "Check your game, I sent you a clan application")
+        await ctx.send(ephemeral=True, embeds=embed)

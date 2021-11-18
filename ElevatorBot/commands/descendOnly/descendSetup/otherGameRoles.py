@@ -79,7 +79,6 @@ class OtherGameRoles(BaseScale):
         components = [
             ActionRow(
                 Select(
-                    # todo callback
                     custom_id=message_name,
                     options=[
                         SelectOption(

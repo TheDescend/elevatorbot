@@ -2,6 +2,7 @@ from dis_snek.client import Snake
 from dis_snek.models import InteractionContext, Scale
 
 from ElevatorBot.backendNetworking.destiny.profile import DestinyProfile
+from ElevatorBot.commandHelpers.responseTemplates import respond_pending
 from ElevatorBot.misc.cache import registered_role_cache
 from ElevatorBot.misc.formating import embed_message
 from NetworkingSchemas.destiny.profile import DestinyHasTokenModel
@@ -22,7 +23,15 @@ class BaseScale(Scale):
         Checks that the command is not invoked in dms
         """
 
-        return bool(ctx.guild)
+        if not ctx.guild:
+            await ctx.send(
+                embeds=embed_message(
+                    "Error",
+                    "My commands can only be used in a guild and not in DMs",
+                ),
+            )
+            return False
+        return True
 
     @staticmethod
     async def no_pending_check(ctx: InteractionContext) -> bool:
@@ -31,7 +40,10 @@ class BaseScale(Scale):
         Checks that the command is not invoked by pending members
         """
 
-        return not ctx.author.pending
+        if ctx.author.pending:
+            await respond_pending(ctx)
+            return False
+        return True
 
     @staticmethod
     async def registered_check(ctx: InteractionContext) -> bool:

@@ -1,4 +1,4 @@
-from dis_snek.models import InteractionContext, Member, Message
+from dis_snek.models import ComponentContext, InteractionContext, Member, Message
 
 from ElevatorBot.backendNetworking.errorCodesAndResponses import (
     error_codes_and_responses,
@@ -114,6 +114,21 @@ async def respond_wrong_author(ctx: InteractionContext, author_must_be: Member, 
             embeds=embed_message(
                 "Error",
                 f"The author of the message must be {author_must_be.mention}\nPlease try again",
+            ),
+        )
+        return True
+    return False
+
+
+async def respond_pending(ctx: InteractionContext | ComponentContext) -> bool:
+    """Respond to the given context"""
+
+    if not ctx.responded:
+        await ctx.send(
+            ephemeral=True,
+            embeds=embed_message(
+                "Error",
+                f"Please pass the member screening aka accept the rules and then try again",
             ),
         )
         return True
