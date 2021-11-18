@@ -20,7 +20,6 @@ from settings import DISCORD_BOT_TOKEN, SYNC_COMMANDS
 if __name__ == "__main__":
     # config logging
     init_logging()
-
     # print ascii art
     print("----------------------------------------------------------------------------------------")
     print(
