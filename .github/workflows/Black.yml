@@ -1,0 +1,25 @@
+name: Black Formating
+
+on:
+  push:
+    branches:
+    - master
+    paths:
+    - Backend/**/*.py
+    - ElevatorBot/**/*.py
+  pull_request:
+    branches:
+    - master
+    paths:
+    - Backend/**/*.py
+    - ElevatorBot/**/*.py
+
+jobs:
+  black:
+    name: Black Formatter
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: rickstaa/action-black@v1

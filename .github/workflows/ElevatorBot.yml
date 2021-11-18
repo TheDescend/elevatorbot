@@ -19,18 +19,18 @@ jobs:
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v2
-      
-    - name: Set Up Python 3.9
+
+    - name: Set Up Python 3.10
       uses: actions/setup-python@v2
       with:
-        python-version: '3.9'
-      
+        python-version: '3.10'
+
     - name: Install Python Requirements
-      run: |      
+      run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
       working-directory: ElevatorBot
-      
+
     - name: Lint with flake8
       run: |
         pip install flake8
@@ -39,7 +39,7 @@ jobs:
         # exit-zero treats all errors as warnings
         flake8 --count --exit-zero --max-complexity=10 --max-line-length=999 --statistics
       working-directory: ElevatorBot
-      
+
     - name: Test with pytest
       run: |
         # install pytest and useful wrappers
