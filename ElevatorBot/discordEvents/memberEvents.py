@@ -6,6 +6,7 @@ from ElevatorBot.misc.formating import embed_message
 from ElevatorBot.static.descendOnlyIds import (
     community_roles_channel_id,
     descend_guild_id,
+    descend_no_nickname_role_id,
     join_log_channel_id,
     registration_channel_id,
 )
@@ -67,3 +68,10 @@ async def on_member_update(before: Member, after: Member, guild_id: int):
 
             # assign their roles
             await Roles(client=client, guild=after.guild, member=after, ctx=None).update()
+
+        # descend only stuff
+        if after.guild.id == descend_guild_id:
+            # change nickname back if it is not None
+            if (not before.nickname) and after.nickname:
+                if descend_no_nickname_role_id in [role.id for role in after.roles]:
+                    await after.edit_nickname("")

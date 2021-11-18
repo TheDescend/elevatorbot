@@ -36,7 +36,7 @@ if __name__ == "__main__":
     print ("----------------------------------------------------------------------------------------\n")
     print ("Starting Up...")
 
-    # enable intents to allow certain events
+    # enable intents to allow certain events--
     # see https://discord.com/developers/docs/topics/gateway#gateway-intents
     intents = Intents.new(
         guilds=True,
