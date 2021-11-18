@@ -11,6 +11,7 @@ from Backend.networking.bungieRoutes import (
     clan_admins_route,
     clan_get_route,
     clan_invite_route,
+    clan_kick_route,
     clan_members_route,
 )
 from NetworkingSchemas.destiny.clan import DestinyClanMemberModel
@@ -49,9 +50,7 @@ class DestinyClan:
         return int(clan["group"]["groupId"]), clan["group"]["name"]
 
     async def search_clan_for_member(
-        self,
-        member_name: str,
-        clan_id: int = None,
+        self, member_name: str, clan_id: int = None, use_cache: bool = True
     ) -> list[DestinyClanMemberModel]:
         """Search the clan for members with that name"""
 
@@ -61,7 +60,7 @@ class DestinyClan:
         route = clan_members_route.format(clan_id=clan_id)
         params = {"nameSearch": member_name}
 
-        results = (await self.api.get(route=route, params=params)).content["results"]
+        results = (await self.api.get(route=route, params=params, use_cache=use_cache)).content["results"]
 
         members = []
         for result in results:
@@ -87,11 +86,11 @@ class DestinyClan:
 
         return members
 
-    async def get_clan_members(self, clan_id: int = None) -> list[DestinyClanMemberModel]:
+    async def get_clan_members(self, clan_id: int = None, use_cache: bool = True) -> list[DestinyClanMemberModel]:
         """Get all clan members from a clan"""
 
         # searching for an empty string results in the same. Just less duplicated code this way
-        return await self.search_clan_for_member(member_name="", clan_id=clan_id)
+        return await self.search_clan_for_member(member_name="", clan_id=clan_id, use_cache=use_cache)
 
     async def is_clan_admin(self, clan_id: int = None) -> bool:
         """Returns whether the user is an admin in the clan"""
@@ -129,3 +128,21 @@ class DestinyClan:
 
         # todo error out if already in clan. that should return a nice error by the api
         await self.api.post(route=route, json=welcome_message)
+
+    async def remove_from_clan(
+        self,
+        to_remove_destiny_id: int,
+        to_remove_system: int,
+    ):
+        """Remove the User from the clan if they are in it"""
+
+        clan_id, clan_name = await self.get_clan_id_and_name()
+
+        # check if remover actually is admin
+        if not await self.is_clan_admin(clan_id=clan_id):
+            raise CustomException("ClanNoPermissions")
+
+        route = clan_kick_route.format(clan_id=clan_id, system=to_remove_system, destiny_id=to_remove_destiny_id)
+
+        # todo check errors here
+        await self.api.post(route=route)

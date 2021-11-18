@@ -6,9 +6,11 @@ from dis_snek.models import Guild, Member
 
 from ElevatorBot.backendNetworking.http import BaseBackendConnection
 from ElevatorBot.backendNetworking.routes import (
+    destiny_clan_get_members_no_cache_route,
     destiny_clan_get_members_route,
     destiny_clan_get_route,
     destiny_clan_invite_route,
+    destiny_clan_kick_route,
     destiny_clan_link_route,
     destiny_clan_search_members_route,
     destiny_clan_unlink_route,
@@ -37,15 +39,23 @@ class DestinyClan(BaseBackendConnection):
         # convert to correct pydantic model
         return DestinyClanModel.parse_obj(result.result) if result else None
 
-    async def get_clan_members(self) -> Optional[DestinyClanMembersModel]:
+    async def get_clan_members(self, use_cache: bool = True) -> Optional[DestinyClanMembersModel]:
         """Return the destiny clan members"""
 
-        result = await self._backend_request(
-            method="GET",
-            route=destiny_clan_get_members_route.format(
-                guild_id=self.discord_guild.id, discord_id=self.discord_member.id
-            ),
-        )
+        if use_cache:
+            result = await self._backend_request(
+                method="GET",
+                route=destiny_clan_get_members_route.format(
+                    guild_id=self.discord_guild.id, discord_id=self.discord_member.id
+                ),
+            )
+        else:
+            result = await self._backend_request(
+                method="GET",
+                route=destiny_clan_get_members_no_cache_route.format(
+                    guild_id=self.discord_guild.id, discord_id=self.discord_member.id
+                ),
+            )
 
         # convert to correct pydantic model
         return DestinyClanMembersModel.parse_obj(result.result) if result else None
@@ -71,6 +81,17 @@ class DestinyClan(BaseBackendConnection):
         result = await self._backend_request(
             method="POST",
             route=destiny_clan_invite_route.format(guild_id=self.discord_guild.id, discord_id=self.discord_member.id),
+        )
+
+        # convert to correct pydantic model
+        return DestinyProfileModel.parse_obj(result.result) if result else None
+
+    async def kick_from_clan(self) -> Optional[DestinyProfileModel]:
+        """Kick the user from the linked clan"""
+
+        result = await self._backend_request(
+            method="POST",
+            route=destiny_clan_kick_route.format(guild_id=self.discord_guild.id, discord_id=self.discord_member.id),
         )
 
         # convert to correct pydantic model

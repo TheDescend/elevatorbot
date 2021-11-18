@@ -129,7 +129,7 @@ class BungieApi(NetworkBase):
                         params=params,
                     )
 
-    async def post(self, route: str, json: dict, params: dict = None) -> WebResponse:
+    async def post(self, route: str, json: dict = None, params: dict = None) -> WebResponse:
         """Post data to bungie. self.discord_id must have the authentication for the action"""
 
         # set the auth headers to a working token

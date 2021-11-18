@@ -45,6 +45,18 @@ async def get_clan_members(guild_id: int, discord_id: int, db: AsyncSession = De
     return DestinyClanMembersModel(members=members)
 
 
+@router.get("/get/members/no_cache", response_model=DestinyClanMembersModel)
+async def get_clan_members_no_cache(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
+    """Return the clan members without using any cached bungie data"""
+
+    profile = await crud.discord_users.get_profile_from_discord_id(db, discord_id)
+    clan = DestinyClan(db=db, user=profile)
+
+    members = await clan.get_clan_members(use_cache=False)
+
+    return DestinyClanMembersModel(members=members)
+
+
 @router.get("/get/members/search/{search_phrase}", response_model=DestinyClanMembersModel)
 async def search_clan_members(
     guild_id: int, discord_id: int, search_phrase: str, db: AsyncSession = Depends(get_db_session)
@@ -122,3 +134,25 @@ async def invite(
     await clan.invite_to_clan(to_invite_destiny_id=to_invite_user.destiny_id, to_invite_system=to_invite_user.system)
 
     return DestinyProfileModel.from_orm(to_invite_user)
+
+
+@router.post("/kick/", response_model=DestinyProfileModel)
+async def kick(
+    guild_id: int,
+    discord_id: int,
+    db: AsyncSession = Depends(get_db_session),
+):
+    """Kick discord_id from the clan linked to the guild_id"""
+
+    # get the clan link
+    link = await destiny_clan_links.get_link(db=db, discord_guild_id=guild_id)
+
+    # get the data for the users
+    clan_admin_user = await discord_users.get_profile_from_discord_id(db=db, discord_id=link.linked_by_discord_id)
+    to_kick_user = await discord_users.get_profile_from_discord_id(db=db, discord_id=discord_id)
+
+    # kick from clan
+    clan = DestinyClan(db=db, user=clan_admin_user)
+    await clan.remove_from_clan(to_remove_destiny_id=to_kick_user.destiny_id, to_remove_system=to_kick_user.system)
+
+    return DestinyProfileModel.from_orm(to_kick_user)
