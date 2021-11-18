@@ -10,13 +10,13 @@ def add_component_callbacks(client: Snake):
 
     # get all functions from the class. Magic
     for custom_id in [k for k in ComponentCallbacks.__dict__ if not k.startswith("__")]:
-        client.add_component_callback(
-            ComponentCommand(
-                name=f"ComponentCallback::{custom_id}",
-                callback=getattr(ComponentCallbacks, custom_id),
-                listeners=[custom_id],
-            )
+        component = ComponentCommand(
+            name=f"ComponentCallback::{custom_id}",
+            callback=getattr(ComponentCallbacks, custom_id),
+            listeners=[custom_id],
         )
 
-    # add my pending check to all of them
-    client.add_component_check(func=check_pending)
+        # add my pending check to all of them
+        component.checks.append(check_pending)
+
+        client.add_component_callback(component)
