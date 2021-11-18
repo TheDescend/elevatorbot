@@ -21,8 +21,11 @@ def init_logging() -> None:
     # Initialize logging for command usage
     make_logger("commands")
 
-    # Initialize logging for interaction usage
+    # Initialize logging for components usage
     make_logger("components")
+
+    # Initialize logging for registration
+    make_logger("registration")
 
     # Initialize logging for background events
     make_logger("backgroundEvents")

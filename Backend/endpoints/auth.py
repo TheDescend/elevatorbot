@@ -1,4 +1,5 @@
 import asyncio
+import logging
 from datetime import timedelta
 
 from fastapi import APIRouter, Depends, Form, HTTPException, status
@@ -41,6 +42,15 @@ async def save_bungie_token(bungie_token: BungieTokenInput, db: AsyncSession = D
     )
 
     if result.success:
+        logger = logging.getLogger("registration")
+        logger.info(
+            "User with discord ID '%s' has registered successfully with destiny ID '%s', system '%s', and bungie name '%s'",
+            user.discord_id,
+            user.destiny_id,
+            user.system,
+            user.bungie_name,
+        )
+
         # get users activities in background
         activities = DestinyActivities(db=db, user=user)
         asyncio.create_task(activities.update_activity_db())
