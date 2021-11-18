@@ -23,14 +23,14 @@ from ElevatorBot.static.timezones import timezones_dict
 
 
 class LfgEdit(BaseScale):
-
-
     @slash_command(
         **lfg_sub_command,
         sub_cmd_name="edit",
         sub_cmd_description="When you fucked up and need to edit an event",
     )
-    @slash_option(name="lfg_id", description="The lfg message id", required=True, opt_type=OptionTypes.INTEGER, min_value=0)
+    @slash_option(
+        name="lfg_id", description="The lfg message id", required=True, opt_type=OptionTypes.INTEGER, min_value=0
+    )
     @slash_option(
         name="section",
         description="What section to edit",
@@ -41,7 +41,7 @@ class LfgEdit(BaseScale):
             SlashCommandChoice(name="Description", value="Description"),
             SlashCommandChoice(name="Start Time", value="Start Time"),
             SlashCommandChoice(name="Maximum Members", value="Maximum Members"),
-        ]
+        ],
     )
     async def _edit(self, ctx: InteractionContext, lfg_id: int, section: str):
         # get the message obj
@@ -92,10 +92,7 @@ class LfgEdit(BaseScale):
 
             case "Start Time":
                 message = await ctx.send(
-                    embeds=embed_message(
-                        "Start Time",
-                        "Please enter a new start time like this \n`HH:MM DD/MM`"
-                    )
+                    embeds=embed_message("Start Time", "Please enter a new start time like this \n`HH:MM DD/MM`")
                 )
 
                 # wait 60s for message
@@ -156,7 +153,9 @@ class LfgEdit(BaseScale):
 
             # Maximum Members
             case _:
-                message = await ctx.send(embeds=embed_message("Maximum Members", "Please enter the new maximum members"))
+                message = await ctx.send(
+                    embeds=embed_message("Maximum Members", "Please enter the new maximum members")
+                )
 
                 # wait 60s for message
                 try:
@@ -187,10 +186,7 @@ class LfgEdit(BaseScale):
         if section == "Start Time":
             await lfg_message.alert_start_time_changed(previous_start_time=old_start_time)
 
-        await message.edit(
-            embeds=embed_message(f"Success", f"I've edited the post"),
-            components=[]
-        )
+        await message.edit(embeds=embed_message(f"Success", f"I've edited the post"), components=[])
 
 
 def setup(client):

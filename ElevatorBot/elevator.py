@@ -22,8 +22,8 @@ if __name__ == "__main__":
     init_logging()
 
     # print ascii art
-    print ("----------------------------------------------------------------------------------------")
-    print (
+    print("----------------------------------------------------------------------------------------")
+    print(
         """
           ______   _                          _                    ____            _
          |  ____| | |                        | |                  |  _ \          | |
@@ -33,8 +33,8 @@ if __name__ == "__main__":
          |______| |_|  \___|   \_/    \__,_|  \__|  \___/  |_|    |____/   \___/   \__|
         """
     )
-    print ("----------------------------------------------------------------------------------------\n")
-    print ("Starting Up...")
+    print("----------------------------------------------------------------------------------------\n")
+    print("Starting Up...")
 
     # enable intents to allow certain events--
     # see https://discord.com/developers/docs/topics/gateway#gateway-intents
@@ -49,69 +49,69 @@ if __name__ == "__main__":
     # actually get the bot obj
     client = CustomErrorSnake(intents=intents, sync_interactions=SYNC_COMMANDS, delete_unused_application_cmds=True)
 
-    print ("Loading Discord Events...")
+    print("Loading Discord Events...")
     register_discord_events(client)
 
-    print ("Loading Component Callbacks...")
+    print("Loading Component Callbacks...")
     add_component_callbacks(client=client)
 
-    print ("Loading Autocomplete Options...")
+    print("Loading Autocomplete Options...")
     asyncio.run(load_autocomplete_options(client))
 
     @listen()
     async def on_startup():
         """Get's triggered on startup"""
 
-        print ("Creating docs for commands...")
+        print("Creating docs for commands...")
         create_command_docs(client)
 
-        print ("Loading Background Events...")
+        print("Loading Background Events...")
         await register_background_events(client)
 
-        print ("Launching the Status Changer...")
+        print("Launching the Status Changer...")
         asyncio.create_task(update_status(client))
 
-        print ("Start Webserver...")
+        print("Start Webserver...")
         asyncio.create_task(run_webserver(client=client))
 
-        print ("Loading Custom Emoji...")
+        print("Loading Custom Emoji...")
         await custom_emojis.init_emojis(client)
 
-        print ("Startup Finished!\n")
-        print ("--------------------------\n")
+        print("Startup Finished!\n")
+        print("--------------------------\n")
 
     # load commands
-    print ("Loading Commands...")
+    print("Loading Commands...")
     for path in yield_files_in_folder("commands", "py"):
         # todo remove once all commands are ported
         # client.load_extension(path)
         try:
             client.load_extension(path)
         except (ExtensionLoadException, IndexError):
-            print (f"Couldn't load {path}")
+            print(f"Couldn't load {path}")
 
     global_commands = len(client.interactions[0])
-    print (f"< {global_commands} > Global Commands Loaded")
+    print(f"< {global_commands} > Global Commands Loaded")
 
     local_commands = 0
     for key, value in client.interactions.items():
         if key != 0:
             local_commands += len(value)
-    print (f"< {local_commands} > Local Commands Loaded")
+    print(f"< {local_commands} > Local Commands Loaded")
 
     # load context menus
-    print ("Loading Context Menus...")
+    print("Loading Context Menus...")
     for path in yield_files_in_folder("contextMenus", "py"):
         client.load_extension(path)
 
     global_context_menus = len(client.interactions[0])
-    print (f"< {global_context_menus - global_commands} > Global Context Menus Loaded")
+    print(f"< {global_context_menus - global_commands} > Global Context Menus Loaded")
 
     local_context_menus = 0
     for key, value in client.interactions.items():
         if key != 0:
             local_context_menus += len(value)
-    print (f"< {local_context_menus - local_commands} > Local Context Menus Loaded")
+    print(f"< {local_context_menus - local_commands} > Local Context Menus Loaded")
 
     # run the bot
     client.start(DISCORD_BOT_TOKEN)

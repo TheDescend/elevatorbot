@@ -184,11 +184,11 @@ class DayOneRace(BaseScale):
 
                 # set new now
                 now = get_now_with_tz()
-                print (f"Done with loop at {str(now)}")
+                print(f"Done with loop at {str(now)}")
 
             except Exception as e:
                 error_message = f"An error occurred while I was doing Day1 Stuff:\n{e}\n{e.__traceback__}"
-                print (error_message)
+                print(error_message)
                 await bot_dev_channel.send(e)
 
                 await asyncio.sleep(120)

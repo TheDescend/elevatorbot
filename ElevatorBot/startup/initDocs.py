@@ -54,12 +54,7 @@ def create_command_docs(client: Snake):
 
                 case SubCommand():
                     # todo docstrings are used where?
-                    doc = {
-                        "name": name,
-                        "description": data.description,
-                        "groups": [],
-                        "sub_commands": []
-                    }
+                    doc = {"name": name, "description": data.description, "groups": [], "sub_commands": []}
 
                     for group in data.options:
                         if group["type"] == OptionTypes.SUB_COMMAND_GROUP:
@@ -84,11 +79,10 @@ def create_command_docs(client: Snake):
                                     }
 
                                     if "choices" in option:
-                                        option_dict.update({
-                                            "choices": []
-                                        })
+                                        option_dict.update({"choices": []})
                                         for choice in option["choices"]:
-                                            option_dict["choices"].append({
+                                            option_dict["choices"].append(
+                                                {
                                                     "name": choice.name,
                                                 }
                                             )
@@ -112,12 +106,10 @@ def create_command_docs(client: Snake):
                                 }
 
                                 if "choices" in option:
-                                    option_dict.update({
-                                            "choices": []
-                                        }
-                                    )
+                                    option_dict.update({"choices": []})
                                     for choice in option["choices"]:
-                                        option_dict["choices"].append({
+                                        option_dict["choices"].append(
+                                            {
                                                 "name": choice["name"],
                                             }
                                         )
@@ -145,12 +137,10 @@ def create_command_docs(client: Snake):
                         }
 
                         if option.choices:
-                            option_dict.update({
-                                    "choices": []
-                                }
-                            )
+                            option_dict.update({"choices": []})
                             for choice in option.choices:
-                                option_dict["choices"].append({
+                                option_dict["choices"].append(
+                                    {
                                         "name": choice.name,
                                     }
                                 )
@@ -160,7 +150,6 @@ def create_command_docs(client: Snake):
                     if scope not in commands:
                         commands.update({scope: []})
                     commands[scope].append(doc)
-
 
     # write those to files
     with open("./docs/commands.json", "w+", encoding="utf-8") as file:

@@ -38,7 +38,7 @@ def register_background_events() -> int:
 
     def event_submitted(scheduler_event):
         job_name = backgroundEvents.scheduler.get_job(scheduler_event.job_id)
-        print (f"Running '{job_name}'")
+        print(f"Running '{job_name}'")
 
     backgroundEvents.scheduler.add_listener(event_submitted, EVENT_JOB_SUBMITTED)
 
@@ -103,6 +103,6 @@ def register_background_events() -> int:
                 timezone=datetime.timezone.utc,
             )
         else:
-            print (f"Failed to load event {event}")
+            print(f"Failed to load event {event}")
 
     return len(backgroundEvents.scheduler.get_jobs())

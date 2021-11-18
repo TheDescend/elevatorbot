@@ -11,7 +11,7 @@ class CustomErrorSnake(Snake):
         """Gets triggered after a slash command is run"""
 
         # print the command
-        print (f"{ctx.author.display_name} used '/{ctx.name}' with kwargs '{ctx.kwargs}'")
+        print(f"{ctx.author.display_name} used '/{ctx.name}' with kwargs '{ctx.kwargs}'")
 
         # log the command
         logger = logging.getLogger("commands")

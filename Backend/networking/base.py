@@ -38,7 +38,7 @@ class NetworkBase:
     ) -> WebResponse:
         """Make a request to the url with the method and handles the result"""
 
-        assert not(form_data and json), "Only json or form_data can be used"
+        assert not (form_data and json), "Only json or form_data can be used"
 
         allow_redirects = False if self.bungie_request and method == "POST" else True
 
