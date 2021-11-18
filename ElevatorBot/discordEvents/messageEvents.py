@@ -15,6 +15,7 @@ from ElevatorBot.static.descendOnlyIds import (
     bot_dev_channel_id,
     descend_admin_channel_id,
     descend_guild_id,
+    emote_suggestion_channel_id,
 )
 from ElevatorBot.static.emojis import custom_emojis
 from settings import COMMAND_GUILD_SCOPE
@@ -215,6 +216,7 @@ async def on_message_create(message: Message, edit_mode: bool = False):
                     addition = random.choice(texts)
                     await message.channel.send(f"Häbidöpfel {addition}")
 
+                # =========================================================================
                 # neria welcome message
                 if "welcome" in message.content.lower() and message.mentions:
                     for mention in message.mentions:
