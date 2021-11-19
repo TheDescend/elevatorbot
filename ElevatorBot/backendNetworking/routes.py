@@ -38,6 +38,8 @@ destiny_account_max_power_route = destiny_account_route + "max_power/"  # GET
 destiny_account_vault_space_route = destiny_account_route + "vault_space/"  # GET
 destiny_account_bright_dust_route = destiny_account_route + "bright_dust/"  # GET
 destiny_account_leg_shards_route = destiny_account_route + "shards/"  # GET
+destiny_account_catalysts_route = destiny_account_route + "catalysts/"  # GET
+
 
 # lfg system
 destiny_lfg_route = base_route + "destiny/{guild_id}/lfg/"

@@ -80,3 +80,16 @@ class DestinyTriumphScoreModel(BaseModel):
     active_score: int
     legacy_score: int
     lifetime_score: int
+
+
+class DestinyCatalystModel(BaseModel):
+    name: str
+    complete: bool
+    completion_percentage: float
+    completion_status: str
+
+
+class DestinyCatalystsModel(BaseModel):
+    kinetic: list[DestinyCatalystModel] = []
+    energy: list[DestinyCatalystModel] = []
+    power: list[DestinyCatalystModel] = []

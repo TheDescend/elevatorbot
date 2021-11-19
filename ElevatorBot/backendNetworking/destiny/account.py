@@ -10,6 +10,7 @@ from ElevatorBot.backendNetworking.http import BaseBackendConnection
 from ElevatorBot.backendNetworking.routes import (
     destiny_account_artifact_level_route,
     destiny_account_bright_dust_route,
+    destiny_account_catalysts_route,
     destiny_account_characters_route,
     destiny_account_collectible_route,
     destiny_account_consumable_amount_route,
@@ -30,6 +31,7 @@ from ElevatorBot.backendNetworking.routes import (
 from NetworkingSchemas.basic import BoolModel, NameModel, ValueModel
 from NetworkingSchemas.destiny.account import (
     BoolModelRecord,
+    DestinyCatalystsModel,
     DestinyCharactersModel,
     DestinyLowMansModel,
     DestinyStatInputModel,
@@ -290,3 +292,16 @@ class DestinyAccount(BaseBackendConnection):
 
         # convert to correct pydantic model
         return ValueModel.parse_obj(result.result) if result else None
+
+    async def get_catalyst_completion(self) -> Optional[DestinyCatalystsModel]:
+        """Gets all catalysts and the users completion status"""
+
+        result = await self._backend_request(
+            method="GET",
+            route=destiny_account_catalysts_route.format(
+                guild_id=self.discord_guild.id, discord_id=self.discord_member.id
+            ),
+        )
+
+        # convert to correct pydantic model
+        return DestinyCatalystsModel.parse_obj(result.result) if result else None

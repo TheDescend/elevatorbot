@@ -46,5 +46,14 @@ class CRUDDestinyItems(CRUDBase):
         results = await self._execute_query(db=db, query=query)
         return results.scalar()
 
+    async def get_catalysts(self, db: AsyncSession) -> list[DestinyRecordDefinition]:
+        """Returns a list of the current catalysts"""
+
+        query = select(DestinyRecordDefinition)
+        query = query.filter(DestinyRecordDefinition.name.like(f"% Catalyst"))
+
+        results = await self._execute_query(db=db, query=query)
+        return results.scalars().all()
+
 
 destiny_items = CRUDDestinyItems(DestinyInventoryItemDefinition)

@@ -131,6 +131,12 @@ class DestinyWeaponSlotEnum(Enum):
     POWER = 953998645
 
 
+class DestinyPresentationNodeWeaponSlotEnum(Enum):
+    KINETIC = 2538646043
+    ENERGY = 185103480
+    POWER = 3788273704
+
+
 class UsableDestinyActivityModeTypeEnum(Enum):
     ALL = 0
     RAID = 4

@@ -17,14 +17,22 @@ from Backend.database.models import (
     DiscordUsers,
     Records,
 )
-from Backend.misc.helperFunctions import get_datetime_from_bungie_entry
+from Backend.misc.helperFunctions import (
+    get_datetime_from_bungie_entry,
+    make_progress_bar_text,
+)
 from Backend.networking.bungieApi import BungieApi
 from Backend.networking.bungieRoutes import profile_route, stat_route
-from DestinyEnums.enums import DestinyInventoryBucketEnum
+from DestinyEnums.enums import (
+    DestinyInventoryBucketEnum,
+    DestinyPresentationNodeWeaponSlotEnum,
+)
 from NetworkingSchemas.basic import ValueModel
 from NetworkingSchemas.destiny.account import (
     BoolModelObjective,
     BoolModelRecord,
+    DestinyCatalystModel,
+    DestinyCatalystsModel,
     DestinyCharacterModel,
     DestinyCharactersModel,
     DestinyTriumphScoreModel,
@@ -56,6 +64,42 @@ class DestinyProfile:
 
         # the network class
         self.api = BungieApi(db=self.db, user=self.user)
+
+    async def get_catalyst_completion(self) -> DestinyCatalystsModel:
+        """Gets all catalysts and the users completion status"""
+
+        catalysts = await destiny_items.get_catalysts(db=self.db)
+        triumphs = await self.get_triumphs()
+
+        # check their completion
+        result = DestinyCatalystsModel()
+        for catalyst in catalysts:
+            user_data = triumphs[str(catalyst.reference_id)]["objectives"]
+
+            # get the completion rate
+            if user_data["complete"]:
+                completion_percentage = 1
+            elif user_data["completionValue"]:
+                completion_percentage = user_data["progress"] / user_data["completionValue"]
+            else:
+                completion_percentage = 0
+
+            model = DestinyCatalystModel(
+                name=catalyst.name,
+                complete=user_data["complete"],
+                completion_percentage=completion_percentage,
+                completion_status=make_progress_bar_text(completion_percentage),
+            )
+
+            # get the slot and sort them
+            if DestinyPresentationNodeWeaponSlotEnum.KINETIC.value in catalyst.parent_node_hashes:
+                result.kinetic.append(model)
+            elif DestinyPresentationNodeWeaponSlotEnum.ENERGY.value in catalyst.parent_node_hashes:
+                result.energy.append(model)
+            elif DestinyPresentationNodeWeaponSlotEnum.POWER.value in catalyst.parent_node_hashes:
+                result.power.append(model)
+
+        return result
 
     async def get_used_vault_space(self) -> int:
         """Gets the current used vault space of the user"""
@@ -425,16 +469,8 @@ class DestinyProfile:
                 percentage = sum(rate) / len(rate)
 
                 # make emoji art for completion rate
-                bar_length = 10
-                bar_text = ""
-                for i in range(bar_length):
-                    if round(percentage, 1) <= 1 / bar_length * i:
-                        bar_text += "░"
-                    else:
-                        bar_text += "▓"
-
                 sc.completion_percentage = percentage
-                sc.completion_status = bar_text
+                sc.completion_status = make_progress_bar_text(percentage)
 
         return user_sc
 

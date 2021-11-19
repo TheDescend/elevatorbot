@@ -8,6 +8,7 @@ from Backend.dependencies import get_db_session
 from NetworkingSchemas.basic import BoolModel, NameModel, ValueModel
 from NetworkingSchemas.destiny.account import (
     BoolModelRecord,
+    DestinyCatalystsModel,
     DestinyCharactersModel,
     DestinyLowMansModel,
     DestinyStatInputModel,
@@ -272,3 +273,13 @@ async def get_legendary_shards(guild_id: int, discord_id: int, db: AsyncSession 
     profile = DestinyProfile(db=db, user=user)
 
     return ValueModel(value=await profile.get_legendary_shards())
+
+
+@router.get("/catalysts", response_model=DestinyCatalystsModel)
+async def get_catalyst_completion(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
+    """Gets all catalysts and the users completion status"""
+
+    user = await discord_users.get_profile_from_discord_id(db, discord_id)
+    profile = DestinyProfile(db=db, user=user)
+
+    return await profile.get_catalyst_completion()

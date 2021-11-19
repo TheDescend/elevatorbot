@@ -47,3 +47,17 @@ def convert_kwargs_into_dict(**kwargs) -> dict:
         if value is not None:
             result.update({name: value})
     return result
+
+
+def make_progress_bar_text(percentage: float) -> str:
+    """Get the fancy progress bar used by seasonal challenges and catalysts"""
+
+    bar_length = 10
+    bar_text = ""
+    for i in range(bar_length):
+        if round(percentage, 1) <= 1 / bar_length * i:
+            bar_text += "░"
+        else:
+            bar_text += "▓"
+
+    return bar_text
