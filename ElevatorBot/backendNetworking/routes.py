@@ -1,14 +1,12 @@
 import os
 
-# todo maybe change all url params to data models like destiny_account_time_route
-
 base_route = f"""http://{os.environ.get("BACKEND_HOST")}:{os.environ.get("BACKEND_PORT")}/"""
 destiny_base_route = base_route + "destiny/{guild_id}/{discord_id}/"
 
 # elevators discord guilds
-elevator_servers_get = base_route + "elevator/discordServers/get/"
-elevator_servers_add = base_route + "elevator/discordServers/add/{guild_id}/"
-elevator_servers_delete = base_route + "elevator/discordServers/delete/{guild_id}/"
+elevator_servers_get = base_route + "elevator/discordServers/get/"  # GET
+elevator_servers_add = base_route + "elevator/discordServers/add/{guild_id}/"  # POST
+elevator_servers_delete = base_route + "elevator/discordServers/delete/{guild_id}/"  # DELETE
 
 # profile
 destiny_profile_route = base_route + "profile/"
@@ -25,10 +23,8 @@ destiny_account_route = destiny_base_route + "account/"
 destiny_account_name_route = destiny_account_route + "name/"  # GET
 destiny_account_solos_route = destiny_account_route + "solos/"  # GET
 destiny_account_characters_route = destiny_account_route + "characters/"  # GET
-destiny_account_stat_route = destiny_account_route + "stat/{stat_category}/{stat_name}/"  # GET
-destiny_account_stat_characters_route = (
-    destiny_account_route + "stat/{stat_category}/{stat_name}/character/{character_id}/"
-)  # GET
+destiny_account_stat_route = destiny_account_route + "stat/"  # GET
+destiny_account_stat_characters_route = destiny_account_route + "stat/character/{character_id}/"  # GET
 destiny_account_time_route = destiny_account_route + "time/"  # GET
 destiny_account_collectible_route = destiny_account_route + "collectible/{collectible_id}/"  # GET
 destiny_account_triumph_route = destiny_account_route + "triumph/{triumph_id}/"  # GET
@@ -60,7 +56,7 @@ destiny_clan_search_members_route = destiny_clan_route + "get/members/search/{se
 destiny_clan_invite_route = destiny_clan_route + "invite/"  # POST
 destiny_clan_kick_route = destiny_clan_route + "kick/"  # POST
 destiny_clan_link_route = destiny_clan_route + "link/"  # POST
-destiny_clan_unlink_route = destiny_clan_route + "unlink/"  # POST
+destiny_clan_unlink_route = destiny_clan_route + "unlink/"  # DELETE
 
 # roles
 destiny_role_route = base_route + "destiny/{guild_id}/roles/"

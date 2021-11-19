@@ -108,7 +108,6 @@ def default_mode_option(description: str = "Restrict the game mode. Default: All
     return wrapper
 
 
-# todo maybe autocomplete? Needs an easy way to view all options then tho since there are more
 def default_stat_option() -> Any:
     """
     Decorator that replaces @slash_option()

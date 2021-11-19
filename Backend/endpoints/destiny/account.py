@@ -10,6 +10,7 @@ from NetworkingSchemas.destiny.account import (
     BoolModelRecord,
     DestinyCharactersModel,
     DestinyLowMansModel,
+    DestinyStatInputModel,
     DestinyTimeInputModel,
     DestinyTimeModel,
     DestinyTimesModel,
@@ -88,9 +89,9 @@ async def characters(guild_id: int, discord_id: int, db: AsyncSession = Depends(
     return await profile.get_character_info()
 
 
-@router.get("/stat/{stat_category}/{stat_name}", response_model=ValueModel)
+@router.get("/stat/", response_model=ValueModel)
 async def stat(
-    guild_id: int, discord_id: int, stat_category: str, stat_name: str, db: AsyncSession = Depends(get_db_session)
+    guild_id: int, discord_id: int, stat_model: DestinyStatInputModel, db: AsyncSession = Depends(get_db_session)
 ):
     """Return the stat value"""
 
@@ -98,18 +99,17 @@ async def stat(
     profile = DestinyProfile(db=db, user=user)
 
     # get the stat value
-    value = await profile.get_stat_value(stat_name=stat_name, stat_category=stat_category)
+    value = await profile.get_stat_value(stat_name=stat_model.stat_name, stat_category=stat_model.stat_category)
 
     return ValueModel(value=value)
 
 
-@router.get("/stat/{stat_category}/{stat_name}/character/{character_id}", response_model=ValueModel)
+@router.get("/stat/character/{character_id}", response_model=ValueModel)
 async def stat_characters(
     guild_id: int,
     discord_id: int,
     character_id: int,
-    stat_category: str,
-    stat_name: str,
+    stat_model: DestinyStatInputModel,
     db: AsyncSession = Depends(get_db_session),
 ):
     """Return the stat value by character_id"""
@@ -118,7 +118,9 @@ async def stat_characters(
     profile = DestinyProfile(db=db, user=user)
 
     # get the stat value
-    value = await profile.get_stat_value(stat_name=stat_name, stat_category=stat_category, character_id=character_id)
+    value = await profile.get_stat_value(
+        stat_name=stat_model.stat_name, stat_category=stat_model.stat_category, character_id=character_id
+    )
 
     return ValueModel(value=value)
 

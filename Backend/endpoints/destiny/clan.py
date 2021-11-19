@@ -93,7 +93,7 @@ async def link_clan(
     return DestinyClanLink(success=True, clan_name=clan_name)
 
 
-@router.post("/unlink/", response_model=DestinyClanLink)
+@router.delete("/unlink/", response_model=DestinyClanLink)
 async def unlink_clan(
     guild_id: int,
     discord_id: int,

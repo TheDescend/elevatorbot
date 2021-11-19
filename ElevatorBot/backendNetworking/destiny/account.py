@@ -32,6 +32,7 @@ from NetworkingSchemas.destiny.account import (
     BoolModelRecord,
     DestinyCharactersModel,
     DestinyLowMansModel,
+    DestinyStatInputModel,
     DestinyTimesModel,
     DestinyTriumphScoreModel,
     SeasonalChallengesModel,
@@ -150,12 +151,8 @@ class DestinyAccount(BaseBackendConnection):
 
         result = await self._backend_request(
             method="GET",
-            route=destiny_account_stat_route.format(
-                guild_id=self.discord_guild.id,
-                discord_id=self.discord_member.id,
-                stat_category=stat_category,
-                stat_name=stat_name,
-            ),
+            route=destiny_account_stat_route.format(guild_id=self.discord_guild.id, discord_id=self.discord_member.id),
+            data=DestinyStatInputModel(stat_category=stat_category, stat_name=stat_name).dict(),
         )
 
         # convert to correct pydantic model
@@ -169,12 +166,9 @@ class DestinyAccount(BaseBackendConnection):
         result = await self._backend_request(
             method="GET",
             route=destiny_account_stat_characters_route.format(
-                guild_id=self.discord_guild.id,
-                discord_id=self.discord_member.id,
-                character_id=character_id,
-                stat_category=stat_category,
-                stat_name=stat_name,
+                guild_id=self.discord_guild.id, discord_id=self.discord_member.id, character_id=character_id
             ),
+            data=DestinyStatInputModel(stat_category=stat_category, stat_name=stat_name).dict(),
         )
 
         # convert to correct pydantic model

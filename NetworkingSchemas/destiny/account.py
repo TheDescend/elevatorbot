@@ -38,6 +38,11 @@ class DestinyTimesModel(BaseModel):
     entries: list[DestinyTimeModel] = []
 
 
+class DestinyStatInputModel(BaseModel):
+    stat_name: str
+    stat_category: str
+
+
 class DestinyTimeInputModel(BaseModel):
     start_time: datetime.datetime
     end_time: datetime.datetime
