@@ -1,8 +1,10 @@
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.errors import CustomException
 from Backend.crud.base import CRUDBase
 from Backend.database.models import LfgMessage
+from NetworkingSchemas.destiny.lfgSystem import LfgOutputModel, UserAllLfgOutputModel
 
 
 class CRUDLfgMessages(CRUDBase):
@@ -26,6 +28,19 @@ class CRUDLfgMessages(CRUDBase):
         """Get the lfg info for the guild"""
 
         return await self._get_multi(db=db, guild_id=guild_id)
+
+    async def get_user(self, db: AsyncSession, discord_id: int) -> UserAllLfgOutputModel:
+        """Get the lfg infos for the user"""
+
+        result = UserAllLfgOutputModel()
+
+        joined = await self._get_user_events(db=db, discord_id=discord_id, joined=True)
+        result.joined = [LfgOutputModel.from_orm(obj) for obj in joined]
+
+        backup = await self._get_user_events(db=db, discord_id=discord_id, backup=True)
+        result.backup = [LfgOutputModel.from_orm(obj) for obj in backup]
+
+        return result
 
     async def delete(self, db: AsyncSession, lfg_id: int, guild_id: int, discord_id: int):
         """Delete the lfg info belonging to the lfg id and guild"""
@@ -58,6 +73,21 @@ class CRUDLfgMessages(CRUDBase):
 
         if obj.author_id != discord_id:
             raise CustomException("NoLfgEventPermissions")
+
+    async def _get_user_events(
+        self, db: AsyncSession, discord_id: int, joined: bool = False, backup: bool = False
+    ) -> list[LfgMessage]:
+        """Get the lfg infos for the user"""
+
+        query = select(LfgMessage)
+
+        if joined:
+            query = query.filter(LfgMessage.joined_members.any(discord_id))
+        if backup:
+            query = query.filter(LfgMessage.alternate_members.any(discord_id))
+
+        result = await self._execute_query(db, query)
+        return result.scalars().fetchall()
 
 
 lfg = CRUDLfgMessages(LfgMessage)

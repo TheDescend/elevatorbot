@@ -30,6 +30,11 @@ class AllLfgOutputModel(BaseModel):
     events: list[LfgOutputModel] = []
 
 
+class UserAllLfgOutputModel(BaseModel):
+    joined: list[LfgOutputModel] = []
+    backup: list[LfgOutputModel] = []
+
+
 class LfgCreateInputModel(BaseModel):
     activity: str
     description: str

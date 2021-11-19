@@ -34,38 +34,35 @@ class LfgChannel(BaseScale):
         channel_types=[ChannelTypes.GUILD_TEXT],
     )
     async def _channel(self, ctx: InteractionContext, channel: GuildChannel):
-        # todo add additional lfg commands to list
         embed = embed_message(
             "How to make an LFG post",
             f"""
 Hello fellow humans, and welcome to this easy, 465 steps, guide:
 ⁣
 {custom_emojis.circle} **Step 1:**
-First, head to your local bot spam channel, or really any other channel (although you ~~might~~ will get yelled at for that)
+First, head to your local bot spam channel, or really any other channel (although you ~~might~~ will get yelled at for that).
 ⁣
 {custom_emojis.circle} **Step 2:**
-Then, use `/lfg insert` and follow the instructions to make an event.
-Due to timezones sucking and there being at least 16789 of them, you might not find your own timezone in the list. In that case please use
-UTC and an online converter
+Then, use `/lfg create` and follow the instructions to make an event.
+Due to timezones sucking and there being at least 16789 of them, you might not find your own timezone in the list. In that case please use UTC and an online converter.
 ⁣
 {custom_emojis.circle} **Step 3-464:**
 Praise {ctx.bot.user.mention}!
 ⁣
 {custom_emojis.circle} **Step 465:**
-After you made the LFG post, or if you just want to join an existing post, use the fancy buttons to interact with the event
+After you made the LFG post, or if you just want to join an existing post, use the fancy buttons to interact with the event.
 ⁣
 ⁣
-If you want to feel like an [expert](https://www.youtube.com/watch?v=BKorP55Aqvg), there are a bunch of additional commands you can use to
-interact with LFG events:
-{custom_emojis.enter} `/lfg insert` - Create a new LFG event
+If you want to feel like an [expert](https://www.youtube.com/watch?v=BKorP55Aqvg), there are a bunch of additional commands you can use to interact with LFG events:
+{custom_emojis.enter} `/lfg create` - Create a new LFG event
 {custom_emojis.enter} `/lfg edit` - Edit parts of an LFG event
 {custom_emojis.enter} `/lfg delete` - Remove the LFG event
 {custom_emojis.enter} `/lfg add` - Add a user to your own LFG event
 {custom_emojis.enter} `/lfg kick` - Kick a user from your own LFG event
-{custom_emojis.enter} `/lfg blacklist` - Blacklist a user from joining any of your own LFG events
+{custom_emojis.enter} `/lfg joined` - Shows you an overview which LFG events you have joined
 ⁣
 ⁣
-Basically just type `/lfg` and look around. There are many other cool commands too, so maybe just type `/`""",
+Basically just type `/lfg` and look around. There are many other cool commands too, so maybe just type `/`.""",
         )
         success_message = f"Future LFG posts will be posted in {channel.mention}"
         await handle_setup_command(

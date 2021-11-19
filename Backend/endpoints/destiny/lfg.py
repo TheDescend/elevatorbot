@@ -11,6 +11,7 @@ from NetworkingSchemas.destiny.lfgSystem import (
     LfgCreateInputModel,
     LfgOutputModel,
     LfgUpdateInputModel,
+    UserAllLfgOutputModel,
 )
 
 router = APIRouter(
@@ -39,6 +40,13 @@ async def get(guild_id: int, lfg_id: int, db: AsyncSession = Depends(get_db_sess
     obj = await lfg.get(db=db, lfg_id=lfg_id, guild_id=guild_id)
 
     return LfgOutputModel.from_orm(obj)
+
+
+@router.get("/{discord_id}/get/all", response_model=UserAllLfgOutputModel)
+async def user_get_all(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
+    """Gets the lfg infos belonging to the discord_id"""
+
+    return await lfg.get_user(db=db, discord_id=discord_id)
 
 
 @router.post("/{discord_id}/update/{lfg_id}", response_model=LfgOutputModel)
