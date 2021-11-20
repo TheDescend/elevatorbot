@@ -10,7 +10,7 @@ class DestinyLowManModel(BaseModel):
     flawless_count: int
     not_flawless_count: int
 
-    fastest: datetime.timedelta = None
+    fastest: Optional[datetime.timedelta] = None
 
 
 class DestinyActivityModel(BaseModel):

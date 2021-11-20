@@ -12,6 +12,7 @@ from Backend.database.models import (
 )
 from NetworkingSchemas.destiny.account import SeasonalChallengesModel
 from NetworkingSchemas.destiny.activities import DestinyActivityModel
+from NetworkingSchemas.destiny.roles import RoleModel
 
 
 @dataclasses.dataclass
@@ -20,10 +21,10 @@ class Cache:
     discord_users: dict[int, DiscordUsers] = dataclasses.field(init=False, default_factory=dict)
 
     # Roles Objects - Key: role_id
-    roles: dict[int, Roles] = dataclasses.field(init=False, default_factory=dict)
+    roles: dict[int, RoleModel] = dataclasses.field(init=False, default_factory=dict)
 
     # Guild Roles Objects - Key: guild_id
-    guild_roles: dict[int, list[Roles]] = dataclasses.field(init=False, default_factory=dict)
+    guild_roles: dict[int, list[RoleModel]] = dataclasses.field(init=False, default_factory=dict)
 
     # Persistent Messages Objects - Key: f"{guild_id}|{message_name}"
     persistent_messages: dict[str, PersistentMessage] = dataclasses.field(init=False, default_factory=dict)

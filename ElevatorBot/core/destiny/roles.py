@@ -40,9 +40,7 @@ class Roles:
         user_data = result.user_data
 
         # construct reply msg
-        embed = embed_message(
-            f"{self.member.display_name}'s '{role.name}' Eligibility", f"""**Earned: {result.earned}**"""
-        )
+        embed = embed_message(f"{self.member.display_name}'s '{role.name}' Eligibility", f"**Earned: {result.earned}**")
 
         # loop through the requirements and their statuses
         activities: list[str] = []

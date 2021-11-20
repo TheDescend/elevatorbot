@@ -16,6 +16,8 @@ class CustomException(Exception):
 
 
 async def handle_custom_exception(request: Request, exception: CustomException):
+    # todo log that maybe
+
     return JSONResponse(
         status_code=409,
         content={

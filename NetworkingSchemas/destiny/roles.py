@@ -1,4 +1,5 @@
 import datetime
+from typing import Optional
 
 from pydantic import BaseModel
 
@@ -49,11 +50,11 @@ class ActivityModel(BaseModel):
     require_individual_flawless: bool = False
 
     # do some other get_requirements need to be fulfilled
-    require_score: int = None
-    require_kills: int = None
-    require_kills_per_minute: float = None
-    require_kda: float = None
-    require_kd: float = None
+    require_score: Optional[int] = None
+    require_kills: Optional[int] = None
+    require_kills_per_minute: Optional[float] = None
+    require_kda: Optional[float] = None
+    require_kd: Optional[float] = None
 
     # does it need to be a lowman
     maximum_allowed_players: int = 6
@@ -79,7 +80,7 @@ class RoleDataModel(BaseModel):
     require_records: list[int] = []
 
     require_role_ids: list[int] = []
-    replaced_by_role_id: int = None
+    replaced_by_role_id: Optional[int] = None
 
 
 class RoleModel(BaseModel):

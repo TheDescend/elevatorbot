@@ -21,4 +21,5 @@ error_codes_and_responses = {
     "WeaponTypeMismatch": "This weapon does not belong to the specified weapon type",
     "WeaponDamageTypeMismatch": "This weapon does not have the specified damage type",
     "PersistentMessageNotExist": "This persistent message does not exist",
+    "RoleNotExist": "This role does not exist",
 }

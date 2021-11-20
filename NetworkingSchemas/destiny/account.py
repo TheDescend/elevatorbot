@@ -29,9 +29,9 @@ class DestinyCharactersModel(BaseModel):
 
 
 class DestinyTimeModel(BaseModel):
-    mode: int = None
-    activity_ids: list[int] = None
     time_played: int  # in seconds
+    mode: Optional[int] = None
+    activity_ids: Optional[list[int]] = None
 
 
 class DestinyTimesModel(BaseModel):
@@ -63,8 +63,8 @@ class SeasonalChallengesRecordModel(BaseModel):
     record_id: int
     name: str
     description: str
-    completion_percentage: float = None
-    completion_status: str = None
+    completion_percentage: Optional[float] = None
+    completion_status: Optional[str] = None
 
 
 class SeasonalChallengesTopicsModel(BaseModel):
