@@ -14,9 +14,6 @@ router = APIRouter(
     tags=["polls"],
 )
 
-# todo check that users have perms to update / delete poll
-# todo check that the guild is correct
-
 
 @router.post("/insert", response_model=PollSchema)
 async def insert(

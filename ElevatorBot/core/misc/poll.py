@@ -16,6 +16,7 @@ from dis_snek.models import (
 )
 
 from ElevatorBot.backendNetworking.misc.polls import BackendPolls
+from ElevatorBot.misc.discordShortcutFunctions import has_admin_permission
 from ElevatorBot.misc.formating import embed_message
 from NetworkingSchemas.misc.polls import PollSchema
 
@@ -104,6 +105,9 @@ class Poll:
     async def add_new_option(self, ctx: InteractionContext, option: str):
         """Add an option"""
 
+        if not await self._check_permission(ctx=ctx):
+            return
+
         self.data.update({option: []})
 
         # run the post init again to update select
@@ -114,6 +118,9 @@ class Poll:
     async def remove_option(self, ctx: InteractionContext, option: str):
         """Delete an option"""
 
+        if not await self._check_permission(ctx=ctx):
+            return
+
         result = await self.backend.remove_option(poll_id=self.id, choice_name=option)
 
         if not result:
@@ -121,6 +128,33 @@ class Poll:
 
         new_poll = await Poll.from_pydantic_model(client=ctx.bot, data=result)
         await new_poll.send(ctx=ctx)
+
+    async def delete(self, ctx: InteractionContext):
+        """Delete the poll"""
+
+        if not await self._check_permission(ctx=ctx):
+            return
+
+        result = await self.backend.delete(poll_id=self.id)
+        if not result:
+            return
+
+        await self.message.delete()
+
+    async def _check_permission(self, ctx: InteractionContext) -> bool:
+        """Checks permissions from the author"""
+
+        # test that the guild is correct
+        if ctx.guild.id != self.guild.id:
+            await ctx.send(ephemeral=True, embeds=embed_message("Error", "This poll does not belong to this guild"))
+            return False
+
+        # test if the user is admin or author
+        if ctx.author.id != self.author.id:
+            if not await has_admin_permission(ctx=ctx, member=ctx.author):
+                return False
+
+        return True
 
     async def send(self, ctx: Optional[InteractionContext | ComponentContext] = None):
         """Send the poll message"""
@@ -160,6 +194,9 @@ class Poll:
 
     async def disable(self, ctx: InteractionContext):
         """Disable the poll and delete it from the DB"""
+
+        if not await self._check_permission(ctx=ctx):
+            return
 
         # delete from db
         result = await self.backend.delete(poll_id=self.id)

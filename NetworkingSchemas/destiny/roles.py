@@ -19,6 +19,8 @@ class EarnedRolesModel(BaseModel):
 
 
 class EarnedRoleModel(BaseModel):
+    # todo get rid of dict stuff here
+
     earned: bool
     role_data: dict
     user_data: dict

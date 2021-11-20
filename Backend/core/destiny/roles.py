@@ -213,14 +213,14 @@ class UserRoles:
                         disallow_time_periods=entry.disallow_time_periods,
                     )
 
-                    # todo make sure this can be viewed on a website nicely. Maybe even put a link there
                     # check how many activities fulfill that
                     if len(found) < entry.count:
                         worthy = RoleEnum.NOT_EARNED
 
-                    # todo better return the additional information like do you need a flawless
+                    # todo better return the additional information like do you need a flawless -> link_to_role
+                    link_to_activity = "www.google.com"
                     self._cache_worthy_info[role.role_id]["require_activity_completions"].append(
-                        f"""{len(found)} / {entry.count}"""
+                        f"""{len(found)} / {entry.count} - [Details]({link_to_activity})"""
                     )
 
                     # make this end early

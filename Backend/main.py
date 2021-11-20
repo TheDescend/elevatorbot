@@ -93,5 +93,5 @@ async def startup():
 
     # insert db tables
     print("Loading Background Events...")
-    events_loaded = register_background_events(client)
+    events_loaded = register_background_events()
     print(f"< {events_loaded} > Background Events Loaded")
