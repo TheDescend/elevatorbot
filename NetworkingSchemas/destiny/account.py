@@ -93,3 +93,5 @@ class DestinyCatalystsModel(BaseModel):
     kinetic: list[DestinyCatalystModel] = []
     energy: list[DestinyCatalystModel] = []
     power: list[DestinyCatalystModel] = []
+
+    completed: int = 0

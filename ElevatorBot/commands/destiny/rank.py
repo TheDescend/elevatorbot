@@ -83,6 +83,7 @@ class Rank(BaseScale):
         "basic_raid_banners": "Raid Banners Owned",
         "basic_forges": "Forges Done",
         "basic_afk_forges": "AFK Forges Done",
+        "basic_catalysts": "Weapon Catalysts Completed",
     }
     endgame_leaderboards = {
         "endgame_raids": "Raids Completed",
@@ -593,6 +594,16 @@ class Rank(BaseScale):
                 # save the stat
                 result.sort_value = stat.full_completions + stat.cp_completions
                 result.display_text = f"AFK Forges: {result.sort_value:,}"
+
+            case "basic_catalysts":
+                # get the stat
+                stat = await backend_account.get_catalyst_completion()
+                if not stat:
+                    raise RuntimeError
+
+                # save the stat
+                result.sort_value = stat.completed
+                result.display_text = f"Catalysts: {stat.completed:,}"
 
             case "endgame_raids":
                 # get the stat

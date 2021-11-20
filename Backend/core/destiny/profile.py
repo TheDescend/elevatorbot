@@ -77,7 +77,8 @@ class DestinyProfile:
             user_data = triumphs[str(catalyst.reference_id)]["objectives"]
 
             # get the completion rate
-            if user_data["complete"]:
+            complete = user_data["complete"]
+            if complete:
                 completion_percentage = 1
             elif user_data["completionValue"]:
                 completion_percentage = user_data["progress"] / user_data["completionValue"]
@@ -86,7 +87,7 @@ class DestinyProfile:
 
             model = DestinyCatalystModel(
                 name=catalyst.name,
-                complete=user_data["complete"],
+                complete=complete,
                 completion_percentage=completion_percentage,
                 completion_status=make_progress_bar_text(completion_percentage),
             )
@@ -98,6 +99,10 @@ class DestinyProfile:
                 result.energy.append(model)
             elif DestinyPresentationNodeWeaponSlotEnum.POWER.value in catalyst.parent_node_hashes:
                 result.power.append(model)
+
+            # add to the total
+            if complete:
+                result.completed += 1
 
         return result
 
