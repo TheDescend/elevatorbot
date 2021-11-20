@@ -3,6 +3,7 @@ from typing import Optional
 
 from Backend.database.models import (
     DestinyInventoryItemDefinition,
+    DestinyRecordDefinition,
     DestinySeasonPassDefinition,
     DiscordUsers,
     PersistentMessage,
@@ -36,7 +37,10 @@ class Cache:
     seasonal_challenges_definition: Optional[SeasonalChallengesModel] = dataclasses.field(init=False, default=None)
 
     # Inventory Items  - Key: reference_id
-    items: dict[int, Optional[DestinyInventoryItemDefinition]] = dataclasses.field(init=False, default=dict)
+    items: dict[int, Optional[DestinyInventoryItemDefinition]] = dataclasses.field(init=False, default_factory=dict)
+
+    # Catalysts
+    catalysts: Optional[list[DestinyRecordDefinition]] = dataclasses.field(init=False, default=None)
 
 
 cache = Cache()

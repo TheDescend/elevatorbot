@@ -348,3 +348,4 @@ class DestinyManifest:
         cache.season_pass_definition = None
         cache.seasonal_challenges_definition = None
         cache.items = {}
+        cache.catalysts = None
