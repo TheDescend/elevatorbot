@@ -20,4 +20,5 @@ error_codes_and_responses = {
     "WeaponUnused": "{discord_member.mention} has never used the specified weapon in any activity that fulfills the given requirements",
     "WeaponTypeMismatch": "This weapon does not belong to the specified weapon type",
     "WeaponDamageTypeMismatch": "This weapon does not have the specified damage type",
+    "PersistentMessageNotExist": "This persistent message does not exist",
 }

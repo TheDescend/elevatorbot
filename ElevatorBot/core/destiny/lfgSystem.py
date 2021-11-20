@@ -279,8 +279,6 @@ class LfgMessage:
             if ctx:
                 await ctx.edit_origin(embeds=embed, components=self.__buttons)
             else:
-                # todo check if has admin role @elevator site
-
                 await self.message.edit(embeds=embed, components=self.__buttons)
             first_send = False
 
@@ -296,8 +294,6 @@ class LfgMessage:
 
     async def delete(self, delete_command_user: Optional[Member] = None):
         """removes the message and also the database entries"""
-
-        # todo check if delete_command_user has admin role @elevator site
 
         if not delete_command_user:
             delete_command_user = self.author

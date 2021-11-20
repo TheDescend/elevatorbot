@@ -59,8 +59,6 @@ async def update(
 ):
     """Updates the lfg info belonging to the lfg id and guild"""
 
-    # todo check if has admin role @elevator site
-
     obj = await lfg.update(db=db, lfg_id=lfg_id, guild_id=guild_id, discord_id=discord_id, **lfg_data.dict())
 
     return LfgOutputModel.from_orm(obj)
@@ -75,7 +73,6 @@ async def create(
     Guild_id describes the guild where the lfg message got created and discord_id the author
     """
 
-    # todo get channel_id from db
     channel_id = None
 
     # get the creation time
@@ -98,8 +95,6 @@ async def delete(guild_id: int, discord_id: int, lfg_id: int, db: AsyncSession =
     Delete the lfg info belonging to the lfg id and guild
     discord_id has to be the creator or an guild admin. If they are guild admin, set discord_id to 1
     """
-
-    # todo check if has admin role @elevator site
 
     await lfg.delete(db=db, lfg_id=lfg_id, guild_id=guild_id, discord_id=discord_id)
 

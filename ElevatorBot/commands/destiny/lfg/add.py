@@ -10,6 +10,7 @@ from ElevatorBot.commandHelpers.optionTemplates import default_user_option
 from ElevatorBot.commandHelpers.subCommandTemplates import lfg_sub_command
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.core.destiny.lfgSystem import LfgMessage
+from ElevatorBot.misc.discordShortcutFunctions import has_admin_permission
 from ElevatorBot.misc.formating import embed_message
 
 
@@ -32,6 +33,11 @@ class LfgAdd(BaseScale):
         # error if that is not an lfg message
         if not lfg_message:
             return
+
+        # test if the user is admin or author
+        if ctx.author.id != lfg_message.author.id:
+            if not await has_admin_permission(ctx=ctx, member=ctx.author):
+                return
 
         if await lfg_message.add_joined(user, force_into_joined=True):
             embed = embed_message(

@@ -17,6 +17,7 @@ from ElevatorBot.commandHelpers.responseTemplates import respond_timeout
 from ElevatorBot.commandHelpers.subCommandTemplates import lfg_sub_command
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.core.destiny.lfgSystem import LfgMessage
+from ElevatorBot.misc.discordShortcutFunctions import has_admin_permission
 from ElevatorBot.misc.formating import embed_message
 from ElevatorBot.misc.helperFunctions import parse_string_datetime
 from ElevatorBot.static.timezones import timezones_dict
@@ -44,6 +45,9 @@ class LfgEdit(BaseScale):
         ],
     )
     async def _edit(self, ctx: InteractionContext, lfg_id: int, section: str):
+        # might take a sec
+        await ctx.defer()
+
         # get the message obj
         lfg_message = await LfgMessage.from_lfg_id(ctx=ctx, lfg_id=lfg_id, client=ctx.bot, guild=ctx.guild)
 
@@ -51,8 +55,10 @@ class LfgEdit(BaseScale):
         if not lfg_message:
             return
 
-        # might take a sec
-        await ctx.defer()
+        # test if the user is admin or author
+        if ctx.author.id != lfg_message.author.id:
+            if not await has_admin_permission(ctx=ctx, member=ctx.author):
+                return
 
         # make sure the author replies to all further inputs
         def message_check(check_msg: Message):

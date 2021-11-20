@@ -2,6 +2,7 @@ from typing import Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from Backend.core.errors import CustomException
 from Backend.crud.base import CRUDBase
 from Backend.crud.cache import cache
 from Backend.database.models import PersistentMessage
@@ -17,9 +18,11 @@ class CRUDPersistentMessages(CRUDBase):
         # populate cache
         cache_str = f"{guild_id}|{message_name}"
         if cache_str not in self.cache.persistent_messages:
-            self.cache.persistent_messages.update(
-                {cache_str: await self._get_with_key(db=db, primary_key=(message_name, guild_id))}
-            )
+            result = await self._get_with_key(db=db, primary_key=(message_name, guild_id))
+            if not result:
+                raise CustomException("PersistentMessageNotExist")
+
+            self.cache.persistent_messages.update({cache_str: result})
 
         return self.cache.persistent_messages[cache_str]
 

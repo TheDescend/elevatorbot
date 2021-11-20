@@ -248,7 +248,7 @@ class CRUDActivities(CRUDBase):
         activity_ids: Optional[list[int]] = None,
         completed: bool = True,
         character_class: Optional[str] = None,
-    ) -> Optional[Activities]:
+    ) -> Activities:
         """Gets a list of all Activities that fulfill the get_requirements"""
 
         query = select(Activities)
@@ -276,7 +276,12 @@ class CRUDActivities(CRUDBase):
             query = query.filter(ActivitiesUsers.completed == 1)
 
         result = await self._execute_query(db=db, query=query)
-        return result.scalar()
+        result = result.scalar()
+
+        if not result:
+            raise CustomException("NoActivityFound")
+
+        return result
 
     async def calculate_time_played(
         self,

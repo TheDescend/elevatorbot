@@ -26,12 +26,12 @@ class CRUDCollectibles(CRUDBase):
     async def update_collectible(self, db: AsyncSession, obj: Collectibles, owned: bool):
         """Update the collectible entry in the db"""
 
-        return await self._update(db, obj, owned=owned)
+        await self._update(db, obj, owned=owned)
 
     async def insert_collectibles(self, db: AsyncSession, objs: list[Collectibles]):
         """Insert the collectible entries in the db"""
 
-        return await self._mass_insert(db, objs)
+        await self._mass_insert(db, objs)
 
 
 collectibles = CRUDCollectibles(Collectibles)

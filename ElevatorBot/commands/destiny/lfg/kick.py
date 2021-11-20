@@ -10,6 +10,7 @@ from ElevatorBot.commandHelpers.optionTemplates import default_user_option
 from ElevatorBot.commandHelpers.subCommandTemplates import lfg_sub_command
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.core.destiny.lfgSystem import LfgMessage
+from ElevatorBot.misc.discordShortcutFunctions import has_admin_permission
 from ElevatorBot.misc.formating import embed_message
 
 
@@ -31,16 +32,21 @@ class LfgKick(BaseScale):
         if not lfg_message:
             return
 
+        # test if the user is admin or author
+        if ctx.author.id != lfg_message.author.id:
+            if not await has_admin_permission(ctx=ctx, member=ctx.author):
+                return
+
         if await lfg_message.remove_member(user):
             embed = embed_message(
                 "Success",
-                f"{user.display_name} has been removed from the LFG post with the id `{lfg_id}`",
+                f"{user.mention} has been removed from the LFG post with the id `{lfg_id}`",
             )
 
         else:
             embed = embed_message(
                 "Error",
-                f"{user.display_name} could not be deleted from the LFG post with the id `{lfg_id}`, because they are not in it",
+                f"{user.mention} could not be deleted from the LFG post with the id `{lfg_id}`, because they are not in it",
             )
 
         await ctx.send(ephemeral=True, embeds=embed)

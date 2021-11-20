@@ -9,7 +9,6 @@ from Backend.misc.helperFunctions import convert_kwargs_into_dict
 
 
 class CRUDPolls(CRUDBase):
-    # todo need to raise CustomException whenever an error might occur. fe, here no poll might be foun. Check all crud files
     async def get(self, db: AsyncSession, poll_id: int) -> Poll:
         """Get the poll"""
 

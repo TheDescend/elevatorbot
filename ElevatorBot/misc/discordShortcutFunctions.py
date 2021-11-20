@@ -1,6 +1,24 @@
 from typing import Optional
 
-from dis_snek.models import Member
+from dis_snek.models import InteractionContext, Member, Permissions
+
+from ElevatorBot.misc.formating import embed_message
+
+
+async def has_admin_permission(member: Member, ctx: Optional[InteractionContext] = None, hidden: bool = True) -> bool:
+    """Returns if the member has admin permission"""
+
+    result = await member.has_permission(Permissions.ADMINISTRATOR)
+    if ctx:
+        if not ctx.responded:
+            embed = embed_message(
+                "Error",
+                "You need admin permissions to do this",
+            )
+
+            await ctx.send(embeds=embed, ephemeral=hidden)
+
+    return result
 
 
 async def assign_roles_to_member(member: Member, *role_ids: int, reason: Optional[str] = None):

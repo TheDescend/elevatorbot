@@ -55,14 +55,6 @@ class DestinyActivities:
         # the network class
         self.api = BungieApi(db=self.db, user=self.user)
 
-    async def get_character_activity_stats(self, character_id: int) -> dict:
-        """Get destiny stats for the specified character"""
-
-        route = stat_route_characters.format(system=self.system, destiny_id=self.destiny_id, character_id=character_id)
-
-        result = await self.api.get(route=route)
-        return result.content
-
     async def get_lowman_count(
         self,
         activity_ids: list[int],
@@ -236,9 +228,6 @@ class DestinyActivities:
             completed=completed,
             character_class=character_class,
         )
-
-        if not result:
-            raise CustomException("NoActivityFound")
 
         # format that
         data = DestinyActivityDetailsModel(

@@ -3,6 +3,7 @@ from dis_snek.models import InteractionContext, OptionTypes, slash_command, slas
 from ElevatorBot.commandHelpers.subCommandTemplates import lfg_sub_command
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.core.destiny.lfgSystem import LfgMessage
+from ElevatorBot.misc.discordShortcutFunctions import has_admin_permission
 from ElevatorBot.misc.formating import embed_message
 
 
@@ -22,6 +23,11 @@ class LfgDelete(BaseScale):
         # error if that is not an lfg message
         if not lfg_message:
             return
+
+        # test if the user is admin or author
+        if ctx.author.id != lfg_message.author.id:
+            if not await has_admin_permission(ctx=ctx, member=ctx.author):
+                return
 
         await lfg_message.delete()
         await ctx.send(
