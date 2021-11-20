@@ -1,58 +1,27 @@
+# ide stuff
 .vscode/
 .idea/
-config.py
-cache/
-*.content
-__pycache__/
-*.xlsx
-test.py
-.gitignore
-*.pickle
-userlist
-Lib/
-tcl/
-Include/
-Scripts/
-.ipynb_checkpoints/
-test.ipynb
-*.png
-share/
-raiddata/friendpickle
-*.sqlite3
-*.log
-images/
+**/__pycache__/**
+**/ENV/**
+**/VENV/**
+**/**.env
+**/.env/**
+.env
+.venv
+env/
 venv/
 .pytest_cache/
 
-ElevatorBot/database/rasputinCheck.py
-ElevatorBot/database/steamPlayerData.pickle
-ElevatorBot/database/steamPlayerData.pickle.bckp
-ElevatorBot/database/seals.pickle
-ElevatorBot/database/psql_credentials.py
-database/*.ipynb
-
-ElevatorBot/static/slashCommandConfig.py
-
-oauth/
-bbenv/
-checkpoint/
-commands/mysticlist.list
-nohup.out
-.uwsgi_plugins_builder
-HostingDetails
-ElevatorBot/database/databasemutation.py
-.pylintrc
-/ElevatorBot/networking/bungie_networking_cache.sqlite
-**/config.py
-**/psql_credentials.py
-
-
-# These are needed for sure
-/Website_old/database/psql_credentials.py
-/Website_old/oauth.sock
+# paths
 /Website/node_modules/
 /Database/
 /DatabaseBackups/
+
+# secret setting files
 **/secrets.py
 **/settings.py
+
+# file types
 **/*.sqlite
+**/*.log
+**/**.sock
