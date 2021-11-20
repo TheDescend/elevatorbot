@@ -362,7 +362,7 @@ class DestinyProfile:
         self,
         stat_name: str,
         stat_category: str = "allTime",
-        character_id: int | str = None,
+        character_id: Optional[int | str] = None,
     ) -> int | float:
         """Returns the value of the given stat. Int if no decimals, else float"""
 

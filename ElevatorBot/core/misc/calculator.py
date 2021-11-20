@@ -1,5 +1,6 @@
 import asyncio
 import dataclasses
+from typing import Optional
 
 from dis_snek.models import (
     ActionRow,
@@ -17,7 +18,7 @@ from ElevatorBot.misc.formating import embed_message
 class Calculator:
     ctx: InteractionContext
 
-    message: Message = None
+    message: Optional[Message] = None
     buttons: list[ActionRow] = dataclasses.field(init=False)
 
     def __post_init__(self):
@@ -145,7 +146,7 @@ class Calculator:
         self,
         text: str = "Please Input Your Equation",
         timeout: bool = False,
-        button_ctx: ComponentContext = None,
+        button_ctx: Optional[ComponentContext] = None,
     ):
         if not self.message:
             embed = embed_message(f"{self.ctx.author.display_name}'s Calculator", f"```{text}```")

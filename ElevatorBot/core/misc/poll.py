@@ -1,4 +1,5 @@
 import dataclasses
+from typing import Optional
 
 from dis_snek.client import Snake
 from dis_snek.models import (
@@ -28,9 +29,9 @@ class Poll:
     guild: Guild
     channel: GuildText
     author: Member
-    message: Message = None
+    message: Optional[Message] = None
 
-    id: int | str = None
+    id: Optional[int | str] = None
     data: dict = dataclasses.field(default_factory=dict)
 
     select: list[ActionRow] = dataclasses.field(init=False)
@@ -121,7 +122,7 @@ class Poll:
         new_poll = await Poll.from_pydantic_model(client=ctx.bot, data=result)
         await new_poll.send(ctx=ctx)
 
-    async def send(self, ctx: InteractionContext | ComponentContext = None) -> None:
+    async def send(self, ctx: Optional[InteractionContext | ComponentContext] = None):
         """Send the poll message"""
 
         if not self.id:

@@ -30,7 +30,7 @@ class BackendPersistentMessages(BaseBackendConnection):
         # convert to correct pydantic model
         return PersistentMessage.parse_obj(result.result) if result else None
 
-    async def upsert(self, channel_id: int, message_id: int = None) -> Optional[PersistentMessage]:
+    async def upsert(self, channel_id: int, message_id: Optional[int] = None) -> Optional[PersistentMessage]:
         """Upserts a persistent message"""
 
         result = await self._backend_request(

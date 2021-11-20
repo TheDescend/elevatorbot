@@ -1,4 +1,5 @@
 import os
+from typing import Optional
 
 from sqlalchemy.engine import Engine
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
@@ -41,7 +42,7 @@ def get_async_session() -> sessionmaker:
     return _SESSION
 
 
-def is_test_mode(set_test_mode: bool = None) -> bool:
+def is_test_mode(set_test_mode: Optional[bool] = None) -> bool:
     global _TEST_MODE
 
     if set_test_mode is not None:

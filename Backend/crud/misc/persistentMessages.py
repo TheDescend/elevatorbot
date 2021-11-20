@@ -71,7 +71,7 @@ class CRUDPersistentMessages(CRUDBase):
         except KeyError:
             pass
 
-    async def get_registration_roles(self, db: AsyncSession, guild_id: int = None) -> list[PersistentMessage]:
+    async def get_registration_roles(self, db: AsyncSession, guild_id: Optional[int] = None) -> list[PersistentMessage]:
         """Get the registered role (channel_id)"""
 
         if guild_id:

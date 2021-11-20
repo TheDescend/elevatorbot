@@ -37,7 +37,7 @@ class DestinyWeapons(BaseBackendConnection):
         return DestinyWeaponsModel.parse_obj(result.result) if result else None
 
     async def get_top(
-        self, input_data: DestinyTopWeaponsInputModel, discord_id: int = None
+        self, input_data: DestinyTopWeaponsInputModel, discord_id: Optional[int] = None
     ) -> Optional[DestinyTopWeaponsModel]:
         """Get top weapons"""
 

@@ -9,8 +9,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.destiny.profile import DestinyProfile
 from Backend.core.errors import CustomException
-from Backend.crud import activities, activities_fail_to_get, discord_users
-from Backend.database.models import DiscordUsers
+from Backend.crud import (
+    activities,
+    activities_fail_to_get,
+    destiny_manifest,
+    discord_users,
+)
+from Backend.database.models import ActivitiesUsers, DiscordUsers
 from Backend.misc.helperFunctions import get_datetime_from_bungie_entry, get_now_with_tz
 from Backend.networking.bungieApi import BungieApi
 from Backend.networking.bungieRoutes import (
@@ -19,16 +24,16 @@ from Backend.networking.bungieRoutes import (
     stat_route_characters,
 )
 from Backend.networking.schemas import WebResponse
-from NetworkingSchemas.destiny import (
-    DestinyActivityDetailsModel,
-    DestinyActivityDetailsUsersModel,
-    DestinyLowManModel,
-)
 from NetworkingSchemas.destiny.account import (
     DestinyLowMansModel,
     DestinyUpdatedLowManModel,
 )
-from NetworkingSchemas.destiny.activities import DestinyActivityOutputModel
+from NetworkingSchemas.destiny.activities import (
+    DestinyActivityDetailsModel,
+    DestinyActivityDetailsUsersModel,
+    DestinyActivityOutputModel,
+    DestinyLowManModel,
+)
 from NetworkingSchemas.destiny.roles import TimePeriodModel
 
 
@@ -64,9 +69,9 @@ class DestinyActivities:
         max_player_count: int,
         require_flawless: bool = False,
         no_checkpoints: bool = True,
-        disallowed_datetimes: list[TimePeriodModel] = None,
-        score_threshold: int = None,
-        min_kills_per_minute: float = None,
+        disallowed_datetimes: Optional[list[TimePeriodModel]] = None,
+        score_threshold: Optional[int] = None,
+        min_kills_per_minute: Optional[float] = None,
     ) -> DestinyLowManModel:
         """Returns low man data"""
 
@@ -86,15 +91,14 @@ class DestinyActivities:
         )
 
         # prepare player data
-        # todo get and process data. No idea how it actually looks tbh. Need changing!
         for solo in low_activity_info:
             count += 1
-            if solo["deaths"] == 0:
+            if solo.deaths == 0:
                 flawless_count += 1
             else:
                 not_flawless_count += 1
-            if not fastest or (solo["timeplayedseconds"] < fastest):
-                fastest = datetime.timedelta(seconds=solo["timeplayedseconds"])
+            if not fastest or (solo.time_played_seconds < fastest):
+                fastest = datetime.timedelta(seconds=solo.time_played_seconds)
 
         return DestinyLowManModel(
             activity_ids=activity_ids,
@@ -107,8 +111,8 @@ class DestinyActivities:
     async def get_activity_history(
         self,
         mode: int = 0,
-        earliest_allowed_datetime: datetime.datetime = None,
-        latest_allowed_datetime: datetime.datetime = None,
+        earliest_allowed_datetime: Optional[datetime.datetime] = None,
+        latest_allowed_datetime: Optional[datetime.datetime] = None,
     ) -> AsyncGenerator[dict]:
         """
         Generator which returns all activities with an extra field < activity['character_id'] = character_id >
@@ -186,28 +190,29 @@ class DestinyActivities:
     async def update_missing_pgcr(self):
         """Insert the missing pgcr"""
 
-        for activity in await activities_fail_to_get.get_all():
-            # check if info is already in DB, delete and skip if so
-            result = activity._get(db=self.db, instance_id=activity.instance_id)
-            if result:
+        with asyncio.Lock():
+            for activity in await activities_fail_to_get.get_all():
+                # check if info is already in DB, delete and skip if so
+                result = activities.get(db=self.db, instance_id=activity.instance_id)
+                if result:
+                    await activities_fail_to_get.delete(db=self.db, obj=activity)
+                    continue
+
+                # get PGCR
+                try:
+                    pgcr = await self.get_pgcr(instance_id=activity.instance_id)
+
+                except CustomException:
+                    # only continue if we get a response this time
+                    continue
+
+                # add info to DB
+                await activities.insert(
+                    db=self.db, instance_id=activity.instance_id, activity_time=activity.period, pgcr=pgcr.content
+                )
+
+                # delete from to-do DB
                 await activities_fail_to_get.delete(db=self.db, obj=activity)
-                continue
-
-            # get PGCR
-            try:
-                pgcr = await self.get_pgcr(instance_id=activity.instance_id)
-
-            except CustomException:
-                # only continue if we get a response this time
-                continue
-
-            # add info to DB
-            await activities.insert(
-                db=self.db, instance_id=activity.instance_id, activity_time=activity.period, pgcr=pgcr.content
-            )
-
-            # delete from to-do DB
-            await activities_fail_to_get.delete(db=self.db, obj=activity)
 
     async def get_pgcr(self, instance_id: int) -> WebResponse:
         """Return the pgcr from the api"""
@@ -270,7 +275,7 @@ class DestinyActivities:
 
         return data
 
-    async def update_activity_db(self, entry_time: datetime = None):
+    async def update_activity_db(self, entry_time: Optional[datetime.datetime] = None):
         """Gets this users not-saved history and saves it in the db"""
 
         async def handle(i: int, t: datetime.datetime) -> Optional[list[int, datetime.datetime, dict]]:
@@ -376,32 +381,20 @@ class DestinyActivities:
     async def get_solos(self) -> DestinyLowMansModel:
         """Return the destiny solos"""
 
-        # todo get those from the db
-        interesting_solos = {
-            "Shattered Throne": throneHashes,
-            "Pit of Heresy": pitHashes,
-            "Prophecy": prophHashes,
-            "Harbinger": harbHashes,
-            "Presage": presageHashes,
-            "Master Presage": presageMasterHashes,
-            "The Whisper": whisperHashes + herwhisperHashes,
-            "Zero Hour": zeroHashes + herzeroHashes,
-            "Grandmaster Nightfalls": gmHashes,
-        }
+        interesting_solos = await destiny_manifest.get_challenging_solo_activities(db=self.db)
 
         # get the results for this in a gather (keeps order)
-        activities = DestinyActivities(db=db, user=user)
         results = await asyncio.gather(
             *[
-                activities.get_lowman_count(activity_ids=solo_activity_ids, max_player_count=1)
-                for solo_activity_ids in interesting_solos.values()
+                self.get_lowman_count(activity_ids=activity.activity_ids, max_player_count=1)
+                for activity in interesting_solos
             ]
         )
         solos = DestinyLowMansModel()
 
         # loop through the results
-        for result, activity_name in zip(results, interesting_solos.keys()):
-            solos.solos.append(DestinyUpdatedLowManModel(activity_name=activity_name, **result))
+        for result, activity in zip(results, interesting_solos):
+            solos.solos.append(DestinyUpdatedLowManModel(activity_name=activity.name, **result))
 
         return solos
 
@@ -448,10 +441,8 @@ class DestinyActivities:
 
         # loop through all results
         average_time_completed = []
-        for activity in data:
-            user_stats = await activities.get_user_stats(
-                db=self.db, destiny_id=self.destiny_id, instance_id=activity.instance_id
-            )
+        for activity_stats in data:
+            user_stats: list[ActivitiesUsers] = activity_stats.activity.users
 
             # loop through all characters the user played with in that activity
             time_played = datetime.timedelta(seconds=0)
@@ -475,7 +466,7 @@ class DestinyActivities:
 
                 if not result.fastest or time_played <= result.fastest:
                     result.fastest = time_played
-                    result.fastest_instance_id = activity.instance_id
+                    result.fastest_instance_id = activity_stats.activity_instance_id
 
             else:
                 result.cp_completions += 1

@@ -31,9 +31,9 @@ async def handle_setup_command(
     channel: GuildChannel,
     success_message: str = "None",
     send_message: bool = True,
-    send_components: list[ActionRow] = None,
-    send_message_content: str = None,
-    send_message_embed: Embed = None,
+    send_components: Optional[list[ActionRow]] = None,
+    send_message_content: Optional[str] = None,
+    send_message_embed: Optional[Embed] = None,
     message_id: Optional[int] = None,
 ):
     """Check stuff and then send the message and save it in the DB"""

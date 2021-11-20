@@ -102,7 +102,12 @@ class BaseBackendConnection:
             await result.send_error_message(ctx=self.ctx, hidden=self.hidden)
 
     async def _backend_request(
-        self, method: str, route: str, params: dict = None, data: dict = None, **error_message_kwargs
+        self,
+        method: str,
+        route: str,
+        params: Optional[dict] = None,
+        data: Optional[dict] = None,
+        **error_message_kwargs,
     ) -> BackendResult:
         """Make a request to the specified backend route and return the results"""
 

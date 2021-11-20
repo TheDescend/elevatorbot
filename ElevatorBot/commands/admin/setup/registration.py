@@ -1,3 +1,5 @@
+from typing import Optional
+
 from dis_snek.models import (
     ActionRow,
     Button,
@@ -36,7 +38,7 @@ class Registration(BaseScale):
         required=False,
         opt_type=OptionTypes.STRING,
     )
-    async def _registration(self, ctx: InteractionContext, channel: GuildChannel, message_id: str = None):
+    async def _registration(self, ctx: InteractionContext, channel: GuildChannel, message_id: Optional[str] = None):
         message_name = "registration"
         components = [
             ActionRow(

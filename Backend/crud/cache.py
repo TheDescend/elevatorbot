@@ -2,6 +2,7 @@ import dataclasses
 from typing import Optional
 
 from Backend.database.models import (
+    DestinyActivityDefinition,
     DestinyInventoryItemDefinition,
     DestinyRecordDefinition,
     DestinySeasonPassDefinition,
@@ -10,6 +11,7 @@ from Backend.database.models import (
     Roles,
 )
 from NetworkingSchemas.destiny.account import SeasonalChallengesModel
+from NetworkingSchemas.destiny.activities import DestinyActivityModel
 
 
 @dataclasses.dataclass
@@ -40,7 +42,10 @@ class Cache:
     items: dict[int, Optional[DestinyInventoryItemDefinition]] = dataclasses.field(init=False, default_factory=dict)
 
     # Catalysts
-    catalysts: Optional[list[DestinyRecordDefinition]] = dataclasses.field(init=False, default=None)
+    catalysts: list[DestinyRecordDefinition] = dataclasses.field(init=False, default_factory=list)
+
+    # Interesting Solos  - Key: activity_name
+    interesting_solos: list[DestinyActivityModel] = dataclasses.field(init=False, default_factory=list)
 
 
 cache = Cache()

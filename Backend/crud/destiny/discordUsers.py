@@ -234,7 +234,7 @@ class CRUDDiscordUser(CRUDBase):
         await self.remove_registration_roles(db=db, discord_id=discord_id)
 
     @staticmethod
-    async def remove_registration_roles(db: AsyncSession, discord_id: int, guild_ids: list[int] = None):
+    async def remove_registration_roles(db: AsyncSession, discord_id: int, guild_ids: Optional[list[int]] = None):
         """Removes registration roles from user in all guilds"""
 
         # loop through guilds to remove registration info from the user
@@ -269,7 +269,7 @@ class CRUDDiscordUser(CRUDBase):
             )
 
     @staticmethod
-    async def add_registration_roles(db: AsyncSession, discord_id: int, guild_ids: list[int] = None):
+    async def add_registration_roles(db: AsyncSession, discord_id: int, guild_ids: Optional[list[int]] = None):
         """Add registration roles to user in all guilds"""
 
         # loop through guilds to remove registration info from the user

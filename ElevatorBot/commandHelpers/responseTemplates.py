@@ -1,3 +1,5 @@
+from typing import Optional
+
 from dis_snek.models import ComponentContext, InteractionContext, Member, Message
 
 from ElevatorBot.backendNetworking.errorCodesAndResponses import (
@@ -77,7 +79,7 @@ async def respond_time_input_in_past(ctx: InteractionContext, hidden: bool = Tru
     return False
 
 
-async def respond_timeout(message: Message = None):
+async def respond_timeout(message: Optional[Message] = None):
     """Respond to the given context"""
 
     await message.edit(

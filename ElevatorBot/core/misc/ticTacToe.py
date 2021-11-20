@@ -1,6 +1,7 @@
 import asyncio
 import dataclasses
 import random
+from typing import Optional
 
 from dis_snek.models import (
     ActionRow,
@@ -24,11 +25,11 @@ class TicTacToeGame:
 
     # if versus is on
     versus: bool = False
-    player1: Member = None
-    player2: Member = None
-    player_turn: Member = None
+    player1: Optional[Member] = None
+    player2: Optional[Member] = None
+    player_turn: Optional[Member] = None
 
-    message: Message = None
+    message: Optional[Message] = None
     current_state: list = dataclasses.field(init=False)
     buttons: list[ActionRow] = dataclasses.field(init=False)
 
@@ -150,7 +151,7 @@ class TicTacToeGame:
         return check
 
     # play the move and change the board
-    async def make_move(self, x: int, y: int, symbol: str, button_ctx: ComponentContext = None) -> bool:
+    async def make_move(self, x: int, y: int, symbol: str, button_ctx: Optional[ComponentContext] = None) -> bool:
         if self.is_valid(x, y):
             self.current_state[x][y] = symbol
             button_update = {
@@ -323,11 +324,11 @@ class TicTacToeGame:
     # update the user message
     async def send_message(
         self,
-        winner: str = None,
+        winner: Optional[str] = None,
         disable_buttons: bool = False,
         enable_buttons: bool = False,
         timeout: bool = False,
-        button_ctx: ComponentContext = None,
+        button_ctx: Optional[ComponentContext] = None,
     ):
         if disable_buttons:
             self.disable_buttons()

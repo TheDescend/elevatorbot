@@ -1,6 +1,7 @@
 import dataclasses
 import logging
 import os
+from typing import Optional
 
 import aiohttp
 
@@ -16,7 +17,9 @@ class ElevatorApi(NetworkBase):
 
     bungie_request: bool = False
 
-    async def post(self, route_addition: str, json: dict = None, params: dict = None) -> WebResponse:
+    async def post(
+        self, route_addition: str, json: Optional[dict] = None, params: Optional[dict] = None
+    ) -> WebResponse:
         """Post Request"""
 
         async with aiohttp.ClientSession() as session:

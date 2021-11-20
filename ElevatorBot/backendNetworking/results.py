@@ -17,7 +17,7 @@ class BackendResult:
     result: Optional[dict]
     error: Optional[str]
 
-    __error_message: str = None
+    __error_message: Optional[str] = None
 
     def __bool__(self):
         return self.success

@@ -1,4 +1,5 @@
 import dataclasses
+from typing import Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -50,7 +51,7 @@ class DestinyClan:
         return int(clan["group"]["groupId"]), clan["group"]["name"]
 
     async def search_clan_for_member(
-        self, member_name: str, clan_id: int = None, use_cache: bool = True
+        self, member_name: str, clan_id: Optional[int] = None, use_cache: bool = True
     ) -> list[DestinyClanMemberModel]:
         """Search the clan for members with that name"""
 
@@ -86,13 +87,15 @@ class DestinyClan:
 
         return members
 
-    async def get_clan_members(self, clan_id: int = None, use_cache: bool = True) -> list[DestinyClanMemberModel]:
+    async def get_clan_members(
+        self, clan_id: Optional[int] = None, use_cache: bool = True
+    ) -> list[DestinyClanMemberModel]:
         """Get all clan members from a clan"""
 
         # searching for an empty string results in the same. Just less duplicated code this way
         return await self.search_clan_for_member(member_name="", clan_id=clan_id, use_cache=use_cache)
 
-    async def is_clan_admin(self, clan_id: int = None) -> bool:
+    async def is_clan_admin(self, clan_id: Optional[int] = None) -> bool:
         """Returns whether the user is an admin in the clan"""
 
         if not clan_id:

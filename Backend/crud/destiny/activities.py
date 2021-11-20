@@ -42,11 +42,6 @@ class CRUDActivities(CRUDBase):
 
         return await self._get_with_key(db=db, primary_key=instance_id)
 
-    async def get_user_stats(self, db: AsyncSession, destiny_id: int, instance_id: int) -> list[ActivitiesUsers]:
-        """Get the activity with the instance_id"""
-
-        return await self._get_multi(db=db, instance_id=instance_id, destiny_id=destiny_id)
-
     async def get_activity_name(self, db: AsyncSession, activity_id: int) -> str:
         """Get the activity name"""
 
@@ -168,25 +163,22 @@ class CRUDActivities(CRUDBase):
         require_kd: Optional[float] = None,
         allow_time_periods: Optional[list[TimePeriodModel]] = None,
         disallow_time_periods: Optional[list[TimePeriodModel]] = None,
-    ) -> list[Activities]:
+    ) -> list[ActivitiesUsers]:
         """Gets a list of all Activities that fulfill the get_requirements"""
 
-        query = select(Activities)
+        query = select(ActivitiesUsers)
 
         # filter activity hashes
         if activity_hashes:
-            query = query.filter(Activities.director_activity_hash.in_(activity_hashes))
+            query = query.filter(ActivitiesUsers.activity.director_activity_hash.in_(activity_hashes))
 
         # filter mode
         if mode:
-            query = query.filter(Activities.modes.any(mode))
+            query = query.filter(ActivitiesUsers.activity.modes.any(mode))
 
         # do we accept non checkpoint runs?
         if no_checkpoints:
-            query = query.filter(Activities.starting_phase_index == 0)
-
-        query = query.join(Activities.users)
-        query = query.group_by(ActivitiesUsers.id)
+            query = query.filter(ActivitiesUsers.activity.starting_phase_index == 0)
 
         # limit max users to player_count
         if maximum_allowed_players:
@@ -238,12 +230,12 @@ class CRUDActivities(CRUDBase):
         # do we have allowed datetimes
         if allow_time_periods:
             for time in allow_time_periods:
-                query = query.filter(Activities.period.between(time.start_time, time.end_time))
+                query = query.filter(ActivitiesUsers.activity.period.between(time.start_time, time.end_time))
 
         # do we have disallowed datetimes
         if disallow_time_periods:
             for time in disallow_time_periods:
-                query = query.filter(not_(Activities.period.between(time.start_time, time.end_time)))
+                query = query.filter(not_(ActivitiesUsers.activity.period.between(time.start_time, time.end_time)))
 
         result = await self._execute_query(db=db, query=query)
         return result.scalars().fetchall()

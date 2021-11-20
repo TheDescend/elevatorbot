@@ -31,7 +31,7 @@ class CRUDBase:
 
         return await self._get_multi(db=db)
 
-    async def _get_multi(self, db: AsyncSession, limit: int = None, **filter_kwargs) -> List[ModelType]:
+    async def _get_multi(self, db: AsyncSession, limit: Optional[int] = None, **filter_kwargs) -> List[ModelType]:
         """Returns a list of all the objects which fulfill the filter clauses"""
 
         query = select(self.model)
@@ -98,7 +98,9 @@ class CRUDBase:
 
         await db.flush()
 
-    async def _delete(self, db: AsyncSession, primary_key: Any = None, obj: ModelType = None) -> Optional[ModelType]:
+    async def _delete(
+        self, db: AsyncSession, primary_key: Optional[Any] = None, obj: Optional[ModelType] = None
+    ) -> Optional[ModelType]:
         """Delete an entry from the database by primary key"""
 
         assert primary_key or obj

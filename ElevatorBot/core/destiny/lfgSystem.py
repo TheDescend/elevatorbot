@@ -59,13 +59,13 @@ class LfgMessage:
     start_time: datetime.datetime
     max_joined_members: int
 
-    message: Message = None
-    creation_time: datetime.datetime = None
-    joined: list[Member] = None
+    message: Optional[Message] = None
+    creation_time: Optional[datetime.datetime] = None
+    joined: Optional[list[Member]] = None
     backup: list[Member] = dataclasses.field(default_factory=list)
 
-    voice_category_channel: GuildCategory = None
-    voice_channel: GuildVoice = None
+    voice_category_channel: Optional[GuildCategory] = None
+    voice_channel: Optional[GuildVoice] = None
 
     # post init to do list
     def __post_init__(self):
@@ -113,7 +113,7 @@ class LfgMessage:
 
     @classmethod
     async def from_lfg_id(
-        cls, lfg_id: int, client: Snake, guild: Guild, ctx: InteractionContext = None
+        cls, lfg_id: int, client: Snake, guild: Guild, ctx: Optional[InteractionContext] = None
     ) -> Optional[LfgMessage]:
         """
         Classmethod to get with a known lfg_id
@@ -210,7 +210,7 @@ class LfgMessage:
     async def add_joined(
         self,
         member: Member,
-        ctx: ComponentContext = None,
+        ctx: Optional[ComponentContext] = None,
         force_into_joined: bool = False,
     ) -> bool:
         """add a member"""
@@ -236,7 +236,7 @@ class LfgMessage:
             return True
         return False
 
-    async def add_backup(self, member: Member, ctx: ComponentContext = None) -> bool:
+    async def add_backup(self, member: Member, ctx: Optional[ComponentContext] = None) -> bool:
         """Add a backup or move member to backup"""
 
         if member not in self.backup:
@@ -249,7 +249,7 @@ class LfgMessage:
             return True
         return False
 
-    async def remove_member(self, member: Member, ctx: ComponentContext = None) -> bool:
+    async def remove_member(self, member: Member, ctx: Optional[ComponentContext] = None) -> bool:
         """Delete a member"""
 
         if member in self.joined:
@@ -265,7 +265,7 @@ class LfgMessage:
             return True
         return False
 
-    async def send(self, ctx: ComponentContext = None):
+    async def send(self, ctx: Optional[ComponentContext] = None):
         """send / edit the message in the channel"""
 
         embed = await self.__return_embed()
@@ -294,7 +294,7 @@ class LfgMessage:
         if first_send:
             await self.__sort_lfg_messages()
 
-    async def delete(self, delete_command_user: Member = None):
+    async def delete(self, delete_command_user: Optional[Member] = None):
         """removes the message and also the database entries"""
 
         # todo check if delete_command_user has admin role @elevator site
