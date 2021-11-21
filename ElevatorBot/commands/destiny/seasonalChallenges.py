@@ -14,7 +14,7 @@ from dis_snek.models import (
 from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
 from ElevatorBot.commands.base import BaseScale
-from ElevatorBot.misc.formating import embed_message
+from ElevatorBot.misc.formating import embed_message, format_progress
 from NetworkingSchemas.destiny.account import SeasonalChallengesTopicsModel
 
 
@@ -86,7 +86,11 @@ class SeasonalChallenges(BaseScale):
             if topic.name == week:
                 for sc in topic.seasonal_challenges:
                     embed.add_field(
-                        name=f"""{sc.name}   |   {sc.completion_status}  {int(sc.completion_percentage * 100)}%""",
+                        name=format_progress(
+                            name=sc.name,
+                            completion_status=sc.completion_status,
+                            completion_percentage=sc.completion_percentage,
+                        ),
                         value=sc.description,
                         inline=False,
                     )

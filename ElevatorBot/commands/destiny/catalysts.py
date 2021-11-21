@@ -26,7 +26,7 @@ from ElevatorBot.commandHelpers.responseTemplates import respond_timeout
 from ElevatorBot.commandHelpers.subCommandTemplates import lfg_sub_command
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.core.destiny.lfgSystem import LfgMessage
-from ElevatorBot.misc.formating import embed_message
+from ElevatorBot.misc.formating import embed_message, format_progress
 from ElevatorBot.misc.helperFunctions import parse_string_datetime
 from ElevatorBot.static.destinyActivities import dungeons, raids
 
@@ -51,7 +51,11 @@ class Catalysts(BaseScale):
             name="Kinetic",
             value="\n".join(
                 [
-                    f"{catalyst.name}   |   {catalyst.completion_status}  {int(catalyst.completion_percentage * 100)}%"
+                    format_progress(
+                        name=catalyst.name,
+                        completion_status=catalyst.completion_status,
+                        completion_percentage=catalyst.completion_percentage,
+                    )
                     for catalyst in catalysts.kinetic
                 ]
             ),
@@ -61,7 +65,11 @@ class Catalysts(BaseScale):
             name="Energy",
             value="\n".join(
                 [
-                    f"{catalyst.name}   |   {catalyst.completion_status}  {int(catalyst.completion_percentage * 100)}%"
+                    format_progress(
+                        name=catalyst.name,
+                        completion_status=catalyst.completion_status,
+                        completion_percentage=catalyst.completion_percentage,
+                    )
                     for catalyst in catalysts.energy
                 ]
             ),
@@ -71,7 +79,11 @@ class Catalysts(BaseScale):
             name="Power",
             value="\n".join(
                 [
-                    f"{catalyst.name}   |   {catalyst.completion_status}  {int(catalyst.completion_percentage * 100)}%"
+                    format_progress(
+                        name=catalyst.name,
+                        completion_status=catalyst.completion_status,
+                        completion_percentage=catalyst.completion_percentage,
+                    )
                     for catalyst in catalysts.power
                 ]
             ),

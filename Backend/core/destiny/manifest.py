@@ -214,7 +214,7 @@ class DestinyManifest:
                                 reference_id=int(reference_id),
                                 description=values["displayProperties"]["description"],
                                 name=values["displayProperties"]["name"],
-                                has_title=values["titleInfo"]["hasTitle"],
+                                for_title_gilding=values["forTitleGilding"],
                                 title_name=values["titleInfo"]["titlesByGender"]["Male"],
                                 objective_hashes=values["objectiveHashes"],
                                 score_value=values["completionInfo"]["ScoreValue"],
@@ -345,8 +345,4 @@ class DestinyManifest:
         await db_manifest.upsert_version(db=self.db, version=version)
 
         # invalidate caches
-        cache.season_pass_definition = None
-        cache.seasonal_challenges_definition = None
-        cache.items = {}
-        cache.catalysts = []
-        cache.interesting_solos = []
+        cache.reset()

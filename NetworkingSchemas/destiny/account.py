@@ -95,3 +95,25 @@ class DestinyCatalystsModel(BaseModel):
     power: list[DestinyCatalystModel] = []
 
     completed: int = 0
+
+
+class DestinyRecordModel(BaseModel):
+    name: str
+    description: str
+    completed: bool
+
+
+class DestinySealModel(BaseModel):
+    name: str
+    description: str
+    completed: bool
+    completion_percentage: float
+    completion_status: str
+    records: list[DestinyRecordModel] = []
+
+
+class DestinySealsModel(BaseModel):
+    completed: list[DestinySealModel] = []
+    not_completed: list[DestinySealModel] = []
+    guilded: list[DestinySealModel] = []
+    not_guilded: list[DestinySealModel] = []

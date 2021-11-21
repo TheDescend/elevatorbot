@@ -18,6 +18,7 @@ from ElevatorBot.backendNetworking.routes import (
     destiny_account_max_power_route,
     destiny_account_metric_route,
     destiny_account_name_route,
+    destiny_account_seals_route,
     destiny_account_season_pass_level_route,
     destiny_account_seasonal_challenges_route,
     destiny_account_solos_route,
@@ -34,6 +35,7 @@ from NetworkingSchemas.destiny.account import (
     DestinyCatalystsModel,
     DestinyCharactersModel,
     DestinyLowMansModel,
+    DestinySealsModel,
     DestinyStatInputModel,
     DestinyTimesModel,
     DestinyTriumphScoreModel,
@@ -305,3 +307,14 @@ class DestinyAccount(BaseBackendConnection):
 
         # convert to correct pydantic model
         return DestinyCatalystsModel.parse_obj(result.result) if result else None
+
+    async def get_seal_completion(self) -> Optional[DestinySealsModel]:
+        """Gets all seals and the users completion status"""
+
+        result = await self._backend_request(
+            method="GET",
+            route=destiny_account_seals_route.format(guild_id=self.discord_guild.id, discord_id=self.discord_member.id),
+        )
+
+        # convert to correct pydantic model
+        return DestinySealsModel.parse_obj(result.result) if result else None

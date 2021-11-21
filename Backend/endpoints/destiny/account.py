@@ -11,6 +11,7 @@ from NetworkingSchemas.destiny.account import (
     DestinyCatalystsModel,
     DestinyCharactersModel,
     DestinyLowMansModel,
+    DestinySealsModel,
     DestinyStatInputModel,
     DestinyTimeInputModel,
     DestinyTimeModel,
@@ -283,3 +284,13 @@ async def get_catalyst_completion(guild_id: int, discord_id: int, db: AsyncSessi
     profile = DestinyProfile(db=db, user=user)
 
     return await profile.get_catalyst_completion()
+
+
+@router.get("/seals", response_model=DestinySealsModel)
+async def get_seal_completion(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
+    """Gets all seals and the users completion status"""
+
+    user = await discord_users.get_profile_from_discord_id(db, discord_id)
+    profile = DestinyProfile(db=db, user=user)
+
+    return await profile.get_seal_completion()

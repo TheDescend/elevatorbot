@@ -69,3 +69,9 @@ def format_timedelta(seconds: float | datetime.timedelta) -> str:
     minutes = int(seconds % (60 * 60) / 60)
 
     return f"{hours}h {minutes}m"
+
+
+def format_progress(name: str, completion_status: str, completion_percentage: float) -> str:
+    """Returns a formatted message that is displayed whenever a command wants to display a progress message"""
+
+    return f"{name}   |   {completion_status}  {int(completion_percentage * 100)}%"

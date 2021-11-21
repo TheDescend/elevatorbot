@@ -19,6 +19,7 @@ from Backend.database.models import (
 )
 from Backend.misc.helperFunctions import (
     get_datetime_from_bungie_entry,
+    get_now_with_tz,
     make_progress_bar_text,
 )
 from Backend.networking.bungieApi import BungieApi
@@ -35,11 +36,16 @@ from NetworkingSchemas.destiny.account import (
     DestinyCatalystsModel,
     DestinyCharacterModel,
     DestinyCharactersModel,
+    DestinyRecordModel,
+    DestinySealModel,
+    DestinySealsModel,
     DestinyTriumphScoreModel,
     SeasonalChallengesModel,
     SeasonalChallengesRecordModel,
     SeasonalChallengesTopicsModel,
 )
+
+# todo check usage of ALL functions
 
 
 @dataclasses.dataclass
@@ -56,6 +62,12 @@ class DestinyProfile:
     }
     class_map = {671679327: "Hunter", 2271682572: "Warlock", 3655393761: "Titan"}
 
+    _triumphs: dict = dataclasses.field(init=False, default_factory=dict)
+
+    # field to stop re-calculating items a lot
+    _last_triumph_update: datetime.datetime = dataclasses.field(init=False, default=datetime.datetime.min)
+    _last_collectible_update: datetime.datetime = dataclasses.field(init=False, default=datetime.datetime.min)
+
     def __post_init__(self):
         # some shortcuts
         self.discord_id = self.user.discord_id
@@ -64,6 +76,76 @@ class DestinyProfile:
 
         # the network class
         self.api = BungieApi(db=self.db, user=self.user)
+
+    async def get_seal_completion(self) -> DestinySealsModel:
+        """Gets all seals and the users completion status"""
+
+        # get the seals
+        seals = await destiny_items.get_seals(db=self.db)
+
+        # loop through the seals and format the data
+        result = DestinySealsModel()
+        for seal, triumphs in seals.items():
+            # get user completion
+            user_guilded_completed = []
+            user_guilded_completed_int = 0
+            user_completed = []
+            user_completed_int = 0
+            for triumph in triumphs:
+                user_data = await self.has_triumph(triumph.reference_id)
+                model = DestinyRecordModel(
+                    name=triumph.name,
+                    description=triumph.description,
+                    completed=user_data.bool,
+                )
+
+                # handle guilded triumphs differently
+                if triumph.for_title_gilding:
+                    user_guilded_completed.append(model)
+                    if user_data.bool:
+                        user_guilded_completed_int += 1
+
+                else:
+                    user_completed.append(model)
+                    if user_data.bool:
+                        user_completed_int += 1
+
+            # normal triumph data
+            completion_percentage = user_completed_int / len(user_completed)
+            data = DestinySealModel(
+                name=seal.name,
+                description=seal.description,
+                completed=True if completion_percentage == 1 else False,
+                completion_percentage=completion_percentage,
+                completion_status=make_progress_bar_text(completion_percentage),
+                records=user_completed,
+            )
+
+            # add it to the correct type
+            if data.completed:
+                result.completed.append(data)
+            else:
+                result.not_completed.append(data)
+
+            # guilded triumph data
+            if user_guilded_completed:
+                completion_percentage = user_guilded_completed_int / len(user_guilded_completed)
+                data = DestinySealModel(
+                    name=seal.name,
+                    description=seal.description,
+                    completed=True if completion_percentage == 1 else False,
+                    completion_percentage=completion_percentage,
+                    completion_status=make_progress_bar_text(completion_percentage),
+                    records=user_guilded_completed,
+                )
+
+                # add it to the correct type
+                if data.completed:
+                    result.guilded.append(data)
+                else:
+                    result.not_guilded.append(data)
+
+        return result
 
     async def get_catalyst_completion(self) -> DestinyCatalystsModel:
         """Gets all catalysts and the users completion status"""
@@ -212,6 +294,7 @@ class DestinyProfile:
     async def has_triumph(self, triumph_hash: str | int) -> BoolModelRecord:
         """Returns if the triumph is gotten"""
 
+        # todo if we check 100 triumphs, this can result in a lot of recalulation of not gotten trioumphs. Maybe make a class varaible field that only rechecks this if not called within 10 mins
         triumph_hash = int(triumph_hash)
 
         # check cache
@@ -220,60 +303,76 @@ class DestinyProfile:
                 cache.triumphs.update({self.destiny_id: {}})
 
             if triumph_hash not in cache.triumphs[self.destiny_id]:
-                # get from db and return that if it says user got the triumph
-                result = await records.has_record(db=self.db, destiny_id=self.destiny_id, triumph_hash=triumph_hash)
-                if result:
-                    # only caching already got triumphs
-                    cache.triumphs[self.destiny_id].update({triumph_hash: True})
-                    return BoolModelRecord(bool=True)
+                # check if the last update is older than 10 minutes
+                if self._last_triumph_update + datetime.timedelta(minutes=10) > get_now_with_tz():
+                    sought_triumph = self._triumphs[str(triumph_hash)]
 
-                # alright, the user doesn't have the triumph, at least not in the db. So let's update the db entries
-                triumphs_data = await self.get_triumphs()
-                to_insert = []
-                sought_triumph = {}
+                else:
+                    # get from db and return that if it says user got the triumph
+                    result = await records.has_record(db=self.db, destiny_id=self.destiny_id, triumph_hash=triumph_hash)
+                    if result:
+                        # only caching already got triumphs
+                        cache.triumphs[self.destiny_id].update({triumph_hash: True})
+                        return BoolModelRecord(bool=True)
 
-                # loop through all triumphs and add them / update them in the db
-                for triumph_id, triumph_info in triumphs_data.items():
-                    triumph_id = int(triumph_id)
+                    # alright, the user doesn't have the triumph, at least not in the db. So let's update the db entries
+                    triumphs_data = await self.get_triumphs()
+                    to_insert = []
+                    sought_triumph = {}
 
-                    # does the entry exist in the db?
-                    # we don't need to re calc the state if its already marked as earned in the db
-                    result = await records.get_record(db=self.db, destiny_id=self.destiny_id, triumph_hash=triumph_id)
-                    if result and result.completed:
-                        continue
+                    # loop through all triumphs and add them / update them in the db
+                    for triumph_id, triumph_info in triumphs_data.items():
+                        triumph_id = int(triumph_id)
 
-                    # calculate if the triumph is gotten and save the triumph we are looking for
-                    status = True
-                    if "objectives" not in triumph_info:
-                        # make sure it's RewardUnavailable aka legacy
-                        assert triumph_info["state"] & 2
+                        if triumph_id in cache.triumphs[self.destiny_id]:
+                            continue
 
-                        # https://bungie-net.github.io/multi/schema_Destiny-DestinyRecordState.html#schema_Destiny-DestinyRecordState
-                        status &= triumph_info["state"] & 1
+                        # does the entry exist in the db?
+                        # we don't need to re calc the state if its already marked as earned in the db
+                        result = await records.get_record(
+                            db=self.db, destiny_id=self.destiny_id, triumph_hash=triumph_id
+                        )
+                        if result and result.completed:
+                            cache.triumphs[self.destiny_id].update({triumph_id: True})
+                            continue
 
-                    else:
-                        for part in triumph_info["objectives"]:
-                            status &= part["complete"]
+                        # calculate if the triumph is gotten and save the triumph we are looking for
+                        status = True
+                        if "objectives" not in triumph_info:
+                            # make sure it's RewardUnavailable aka legacy
+                            assert triumph_info["state"] & 2
 
-                    # is this the triumph we are looking for?
-                    if triumph_id == triumph_hash:
-                        sought_triumph = triumph_info
-
-                    # don't really need to insert not-gained triumphs
-                    if status:
-                        cache.triumphs[self.destiny_id].update({triumph_id: True})
-                        # do we need to update or insert?
-                        if not result:
-                            # insert
-                            to_insert.append(Records(destiny_id=self.destiny_id, record_id=triumph_id, completed=True))
+                            # https://bungie-net.github.io/multi/schema_Destiny-DestinyRecordState.html#schema_Destiny-DestinyRecordState
+                            status &= triumph_info["state"] & 1
 
                         else:
-                            # update
-                            await records.update_record(db=self.db, obj=result, completed=True)
+                            for part in triumph_info["objectives"]:
+                                status &= part["complete"]
 
-                # mass insert the missing entries
-                if to_insert:
-                    await records.insert_records(db=self.db, objs=to_insert)
+                        # is this the triumph we are looking for?
+                        if triumph_id == triumph_hash:
+                            sought_triumph = triumph_info
+
+                        # don't really need to insert not-gained triumphs
+                        if status:
+                            cache.triumphs[self.destiny_id].update({triumph_id: True})
+                            # do we need to update or insert?
+                            if not result:
+                                # insert
+                                to_insert.append(
+                                    Records(destiny_id=self.destiny_id, record_id=triumph_id, completed=True)
+                                )
+
+                            else:
+                                # update
+                                await records.update_record(db=self.db, obj=result, completed=True)
+
+                    # mass insert the missing entries
+                    if to_insert:
+                        await records.insert_records(db=self.db, objs=to_insert)
+
+                    # save the update time
+                    self._last_triumph_update = get_now_with_tz()
 
         # now check again if its completed
         if triumph_hash in cache.triumphs[self.destiny_id]:
@@ -297,6 +396,10 @@ class DestinyProfile:
                 cache.collectibles.update({self.destiny_id: {}})
 
             if collectible_hash not in cache.collectibles[self.destiny_id]:
+                # check if the last update is older than 10 minutes
+                if self._last_collectible_update + datetime.timedelta(minutes=10) > get_now_with_tz():
+                    return False
+
                 # get from db and return that if it says user got the collectible
                 result = await collectibles.has_collectible(
                     db=self.db, destiny_id=self.destiny_id, collectible_hash=collectible_hash
@@ -314,12 +417,16 @@ class DestinyProfile:
                 for collectible_id, collectible_info in collectibles_data.items():
                     collectible_id = int(collectible_id)
 
+                    if collectible_id in cache.collectibles[self.destiny_id]:
+                        continue
+
                     # does the entry exist in the db?
                     # we don't need to re calc the state if its already marked as owned in the db
                     result = await collectibles.get_collectible(
                         db=self.db, destiny_id=self.destiny_id, collectible_hash=collectible_id
                     )
                     if result and result.owned:
+                        cache.collectibles[self.destiny_id].update({collectible_id: True})
                         continue
 
                     # bit 1 not being set means the collectible is gotten
@@ -343,6 +450,9 @@ class DestinyProfile:
                 # mass insert the missing entries
                 if to_insert:
                     await collectibles.insert_collectibles(db=self.db, objs=to_insert)
+
+                # save the update time
+                self._last_collectible_update = get_now_with_tz()
 
         # now check again if its owned
         if collectible_hash in cache.collectibles[self.destiny_id]:
@@ -479,20 +589,6 @@ class DestinyProfile:
 
         return user_sc
 
-    async def get_player_seals(self) -> tuple[list[int], list[int]]:
-        """Returns all seals and the seals a player has. Returns two lists: [triumph_hash, ...] and removes wip seals like WF LW"""
-
-        all_seals = []
-        completed_seals = []
-
-        seals = await destiny_manifest.get_seals(db=self.db)
-        for seal in seals:
-            all_seals.append(seal[0])
-            if await self.has_triumph(seal[0]):
-                completed_seals.append(seal)
-
-        return all_seals, completed_seals
-
     async def get_character_id_by_class(self, character_class: str) -> Optional[int]:
         """Return the matching character id if exists"""
 
@@ -567,7 +663,8 @@ class DestinyProfile:
         for triumph in character_triumphs:
             triumphs.update(triumph)
 
-        return triumphs
+        self._triumphs = triumphs
+        return self._triumphs
 
     async def get_collectibles(self) -> dict:
         """Populate the collectibles and then return them"""
@@ -575,7 +672,7 @@ class DestinyProfile:
         result = await self.__get_profile()
 
         # get profile triumphs
-        collectibles = result["profileCollectibles"]["data"]["collectibles"]
+        user_collectibles = result["profileCollectibles"]["data"]["collectibles"]
 
         # get character triumphs
         character_collectibles = [
@@ -589,9 +686,9 @@ class DestinyProfile:
             # see https://bungie-net.github.io/multi/schema_Destiny-DestinyCollectibleState.html#schema_Destiny-DestinyCollectibleState
             for collectible_hash, collectible_state in character:
                 if collectible_state["state"] & 1 == 0:
-                    collectibles.update({collectible_hash: collectible_state})
+                    user_collectibles.update({collectible_hash: collectible_state})
 
-        return collectibles
+        return user_collectibles
 
     async def get_metrics(self) -> dict:
         """Populate the metrics and then return them"""
@@ -622,35 +719,6 @@ class DestinyProfile:
                 items.append(item)
 
         return items
-
-    async def get_player_gear(self) -> list[dict]:
-        """Returns a list of items - equipped and unequipped"""
-
-        characters = await self.get_character_ids()
-
-        # not equipped on characters
-        gear = []
-        used_items = await self.__get_profile(201, 205, 300, with_token=True)
-        item_power = {
-            weapon_id: int(weapon_data._get("primaryStat", {"value": 0})["value"])
-            for weapon_id, weapon_data in used_items["itemComponents"]["instances"]["data"].items()
-        }
-        item_power["none"] = 0
-        for character_id in characters:
-            character_items = (
-                used_items["characterInventories"]["data"][character_id]["items"]
-                + used_items["characterEquipment"]["data"][character_id]["items"]
-            )
-            character_power_items = map(
-                lambda character_item: dict(
-                    character_item,
-                    **{"lightlevel": item_power[character_item._get("itemInstanceId", "none")]},
-                ),
-                character_items,
-            )
-            gear.extend(character_power_items)
-
-        return gear
 
     async def get_time_played(
         self,
@@ -782,10 +850,6 @@ class DestinyProfile:
             ...
         }
         """
-
-        class_to_unlock_hash = {
-            2166136261,  # Hunter
-        }
 
         # default is vault
         if not buckets:

@@ -66,21 +66,6 @@ class CRUDManifest(CRUDBase):
         # bulk insert
         await self._insert_multi(db=db, to_create=to_insert)
 
-    async def get_seals(self, db: AsyncSession) -> list[Seal]:
-        """Get all current seals"""
-
-        # reference ids which should not get returned here
-        not_available = []
-
-        query = (
-            select(DestinyRecordDefinition)
-            .filter(DestinyRecordDefinition.has_title)
-            .filter(not_(DestinyRecordDefinition.reference_id.in_(not_available)))
-        )
-
-        result = await self._execute_query(db=db, query=query)
-        return [Seal(**row) for row in result.scalars().fetchall()]
-
     async def get_all_activities(self, db: AsyncSession) -> list[DestinyActivityModel]:
         """Gets all activities"""
 

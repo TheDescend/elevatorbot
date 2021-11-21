@@ -124,12 +124,19 @@ class Destiny(BaseScale):
             return
         embed.add_field(name="Season Pass Level", value=f"{season_pass.value:,}", inline=True)
 
-        # todo
         # get seal completion rate
-        total_seals, completed_seals = await destiny_player.get_player_seals()
+        seals = await destiny_account.get_seal_completion()
+        if not seals:
+            return
+
         embed.add_field(
             name="Seals",
-            value=f"{len(completed_seals)} / {len(total_seals)}",
+            value=f"{len(seals.completed)} / {len(seals.not_completed)}",
+            inline=True,
+        )
+        embed.add_field(
+            name="Guilded Seals",
+            value=f"{len(seals.guilded)} / {len(seals.not_guilded)}",
             inline=True,
         )
 

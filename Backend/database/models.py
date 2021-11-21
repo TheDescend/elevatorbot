@@ -306,7 +306,7 @@ class DestinyRecordDefinition(Base):
     reference_id = Column(BigInteger, nullable=False, primary_key=True)
     description = Column(Text)
     name = Column(Text)
-    has_title = Column(Boolean)
+    for_title_gilding = Column(Boolean)
     title_name = Column(Text)
     objective_hashes = Column(ARRAY(BigInteger()))
     score_value = Column(Integer)

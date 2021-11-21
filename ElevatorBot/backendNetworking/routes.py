@@ -39,6 +39,7 @@ destiny_account_vault_space_route = destiny_account_route + "vault_space/"  # GE
 destiny_account_bright_dust_route = destiny_account_route + "bright_dust/"  # GET
 destiny_account_leg_shards_route = destiny_account_route + "shards/"  # GET
 destiny_account_catalysts_route = destiny_account_route + "catalysts/"  # GET
+destiny_account_seals_route = destiny_account_route + "seals/"  # GET
 
 
 # lfg system

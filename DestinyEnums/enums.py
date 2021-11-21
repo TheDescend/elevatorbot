@@ -137,6 +137,10 @@ class DestinyPresentationNodeWeaponSlotEnum(Enum):
     POWER = 3788273704
 
 
+class DestinyPresentationNodesEnum(Enum):
+    SEALS = 616318467
+
+
 class UsableDestinyActivityModeTypeEnum(Enum):
     ALL = 0
     RAID = 4

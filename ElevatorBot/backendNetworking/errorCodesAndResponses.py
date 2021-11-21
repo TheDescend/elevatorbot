@@ -5,6 +5,7 @@ error_codes_and_responses = {
     "BungieDed": "The Bungie API is down at the moment \nPlease try again later",
     "BungieBadRequest": "I got a 404 error. This shouldn't happen, my bad. Consider me punished",
     "BungieDestinyItemNotFound": "{discord_member.mention} doesn't own this item",
+    "BungieDestinyItemNotExist": "I tried to find an item that does not exist \nPlease excuse this mishap while I punish myself",
     "BungieDestinyPrivacyRestriction": "{discord_member.mention} has a private profile \nPlease change your [privacy settings](https://www.bungie.net/en/Profile/Settings/)",
     "BungieClanTargetDisallowsInvites": "{discord_member.mention} is not allowing clan invites \nPlease change your [privacy settings](https://www.bungie.net/en/Profile/Settings/)",
     "UnknownError": "I got an unknown error while handling your request \nPlease contact a developer",

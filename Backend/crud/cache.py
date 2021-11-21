@@ -4,6 +4,7 @@ from typing import Optional
 from Backend.database.models import (
     DestinyActivityDefinition,
     DestinyInventoryItemDefinition,
+    DestinyPresentationNodeDefinition,
     DestinyRecordDefinition,
     DestinySeasonPassDefinition,
     DiscordUsers,
@@ -45,8 +46,23 @@ class Cache:
     # Catalysts
     catalysts: list[DestinyRecordDefinition] = dataclasses.field(init=False, default_factory=list)
 
+    # Seals
+    seals: dict[DestinyPresentationNodeDefinition, list[DestinyRecordDefinition]] = dataclasses.field(
+        init=False, default_factory=dict
+    )
+
     # Interesting Solos  - Key: activity_name
     interesting_solos: list[DestinyActivityModel] = dataclasses.field(init=False, default_factory=list)
+
+    def reset(self):
+        """Reset the caches after a manifest update"""
+
+        self.season_pass_definition = None
+        self.seasonal_challenges_definition = None
+        self.items = {}
+        self.catalysts = []
+        self.seals = {}
+        self.interesting_solos = []
 
 
 cache = Cache()
