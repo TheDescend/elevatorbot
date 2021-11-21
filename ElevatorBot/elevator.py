@@ -83,12 +83,7 @@ if __name__ == "__main__":
     # load commands
     print("Loading Commands...")
     for path in yield_files_in_folder("commands", "py"):
-        # todo remove once all commands are ported
-        # client.load_extension(path)
-        try:
-            client.load_extension(path)
-        except (ExtensionLoadException, IndexError):
-            print(f"Couldn't load {path}")
+        client.load_extension(path)
 
     global_commands = len(client.interactions[0])
     print(f"< {global_commands} > Global Commands Loaded")

@@ -1,10 +1,12 @@
 import dataclasses
+import datetime
 from typing import Optional
 
 from dis_snek.models import Guild, GuildVoice, Message, Role, ThreadChannel
 
 from ElevatorBot.backendNetworking.destiny.items import DestinyItems
 from ElevatorBot.core.misc.persistentMessages import PersistentMessages
+from ElevatorBot.misc.helperFunctions import get_now_with_tz
 
 
 @dataclasses.dataclass
@@ -126,8 +128,31 @@ class TriumphCache(IDtoNameBase):
         return self._id_to_name[triumph_id]
 
 
+@dataclasses.dataclass
+class PopTimelineCache:
+    """This saves the url in the cache for an hour"""
+
+    _time: datetime.datetime = dataclasses.field(init=False, default=datetime.datetime.min)
+    _url: str = dataclasses.field(init=False, default=None)
+
+    @property
+    def url(self) -> Optional[str]:
+        """Get the url if its not an hour old else None"""
+
+        if self._time + datetime.timedelta(hours=1) > get_now_with_tz():
+            return self._url
+
+    @url.setter
+    def url(self, new_url: str):
+        """Set the url"""
+
+        self._url = new_url
+        self._time = get_now_with_tz()
+
+
 reply_cache = ReplyCache()
 registered_role_cache = RegisteredRoleCache()
 descend_cache = DescendCache()
 collectible_cache = CollectibleCache()
 triumph_cache = TriumphCache()
+pop_timeline_cache = PopTimelineCache()

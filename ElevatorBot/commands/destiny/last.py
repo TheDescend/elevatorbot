@@ -13,8 +13,6 @@ from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formating import embed_message, format_timedelta
 from ElevatorBot.static.emojis import custom_emojis
 
-# todo destiny_class parameter
-
 
 class Last(BaseScale):
     @slash_command(name="last", description="Stats for the last activity you played")

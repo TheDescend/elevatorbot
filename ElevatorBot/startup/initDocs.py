@@ -3,8 +3,6 @@ from copy import copy
 from typing import Optional
 
 from dis_snek.client import Snake
-
-# todo
 from dis_snek.models import (
     CommandTypes,
     ContextMenu,

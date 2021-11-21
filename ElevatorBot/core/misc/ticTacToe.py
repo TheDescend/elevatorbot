@@ -40,7 +40,6 @@ class TicTacToeGame:
     def __post_init__(self):
         self.current_state = [["", "", ""], ["", "", ""], ["", "", ""]]
 
-        # todo callback
         self.buttons = [
             ActionRow(
                 *[
