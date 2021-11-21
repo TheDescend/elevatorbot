@@ -57,8 +57,6 @@ class BackendResult:
     ):
         """Sends the error message. format_kwargs are used to format the message before sending it"""
 
-        # todo go through all usages and check when we send hidden and when not and make that consistent
-
         # format it
         if format_kwargs:
             self.error_message = format_kwargs

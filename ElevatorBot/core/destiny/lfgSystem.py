@@ -203,6 +203,7 @@ class LfgMessage:
         await lfg_message.send()
 
         # respond to the context
+        # todo better message with link
         await ctx.send(embeds=embed_message("Success", f"I've created the event \nIt has the ID `{lfg_message.id}`"))
 
         return lfg_message

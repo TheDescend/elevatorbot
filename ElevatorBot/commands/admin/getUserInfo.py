@@ -89,7 +89,7 @@ class UserInfo(BaseScale):
 
             # did we find sb?
             if not clan_members.members:
-                await ctx.send(embeds=embed_message("Error", "No matches found for `{fuzzy_name}`"))
+                await ctx.send(embeds=embed_message("Error", f"No matches found for `{fuzzy_name}`"))
                 return
 
             # loop through the results

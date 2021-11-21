@@ -135,6 +135,8 @@ class PopTimeline(BaseScale):
             # save the url in cache
             cache.url = message.attachments[0].url
 
+            # todo cache this for an hour
+
 
 def setup(client):
     PopTimeline(client)

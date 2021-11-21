@@ -84,6 +84,7 @@ class LfgEdit(BaseScale):
                     lfg_message.activity = answer_msg.content
 
             case "Description":
+                # todo text field input
                 message = await ctx.send(embeds=embed_message("Description", "Please enter a new description"))
 
                 # wait 60s for message

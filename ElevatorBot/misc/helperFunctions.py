@@ -79,10 +79,11 @@ async def parse_datetime_options(
 
     if wrong_args:
         await ctx.send(
+            ephemeral=True,
             embeds=embed_message(
                 "Error",
                 f"You can only input the following three combinations. Either: \n{custom_emojis.enter} `expansion` \n{custom_emojis.enter} `season` \n{custom_emojis.enter} `start_time` and/or `end_time`",
-            )
+            ),
         )
         return None, None
 

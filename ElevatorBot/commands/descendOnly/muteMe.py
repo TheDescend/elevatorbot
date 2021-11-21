@@ -20,7 +20,7 @@ class MuteMe(BaseScale):
     @default_user_option()
     async def _mute_me(self, ctx: InteractionContext, user: Member = None):
 
-        # no mentioning others here smileyface
+        # no mentioning others here smiley face
         if user:
             await ctx.send("I saw what you did there, that doesn't work here mate")
         else:

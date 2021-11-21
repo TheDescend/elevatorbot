@@ -92,39 +92,3 @@ async def login_for_access_token(
         detail="Incorrect username or password",
         headers={"WWW-Authenticate": "Bearer"},
     )
-
-
-@router.post("/registration")
-async def register(
-    user_name: str = Form(...),
-    password: str = Form(...),
-    db: AsyncSession = Depends(get_db_session),
-):
-    """Register a new user"""
-
-    # look if a user with that name exists
-    user = await crud.backend_user._get_with_key(db, user_name)
-    if user:
-        raise HTTPException(
-            status_code=400,
-            detail="An account with this user name already exists",
-        )
-
-    hashed_password = get_password_hash(password)
-
-    # todo dont make everyone admin
-    # insert to db
-    new_user = BackendUser(
-        user_name=user_name,
-        hashed_password=hashed_password,
-        allowed_scopes=[],
-        has_write_permission=True,
-        has_read_permission=True,
-    )
-    await crud.backend_user._insert(db, new_user)
-
-    # todo remove. just demonstration
-    if new_user.user_name == "a":
-        raise CustomException("wrongPw")
-
-    return BackendUserModel.from_orm(new_user)

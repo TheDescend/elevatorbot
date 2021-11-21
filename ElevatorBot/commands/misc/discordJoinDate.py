@@ -12,6 +12,7 @@ class DiscordJoinDate(BaseScale):
     @default_user_option()
     async def _discord_join_date(self, ctx: InteractionContext, user: Member):
 
+        # todo timestamp
         await ctx.send(
             embeds=embed_message(
                 f"{user.display_name}'s Discord Join Date",

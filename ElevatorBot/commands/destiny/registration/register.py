@@ -22,7 +22,7 @@ class Register(Scale):
 
         # not in dms
         if not ctx.guild:
-            await ctx.send("Error" "Please use this command in your clans bot-channel")
+            await ctx.send("Error" "This command cannot be used in DMs, only in discord guilds")
             return
 
         await send_registration(ctx)

@@ -23,7 +23,7 @@ async def something_went_wrong(ctx: InteractionContext, hidden: bool = False) ->
     return False
 
 
-async def respond_discord_member_unknown(ctx: InteractionContext, discord_member: Member, hidden: bool = True) -> bool:
+async def respond_discord_member_unknown(ctx: InteractionContext, discord_member: Member, hidden: bool = False) -> bool:
     """Respond to the given context"""
 
     if not ctx.responded:
@@ -38,7 +38,7 @@ async def respond_discord_member_unknown(ctx: InteractionContext, discord_member
     return False
 
 
-async def respond_destiny_id_unknown(ctx: InteractionContext, destiny_id: int, hidden: bool = True) -> bool:
+async def respond_destiny_id_unknown(ctx: InteractionContext, destiny_id: int, hidden: bool = False) -> bool:
     """Respond to the given context"""
 
     if not ctx.responded:

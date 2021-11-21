@@ -194,7 +194,9 @@ class DayOneRace(BaseScale):
                 await asyncio.sleep(120)
                 continue
 
-        # todo do once /activity exists
+        # wait 5 minutes to give last second finishes time to get to the api
+        await asyncio.sleep(5 * 60)
+
         # write the completion message
         embed = embed_message(f"{self.raid_name} - Raid Race Summary", "The raid race is over :(")
         if self.finished_raid:
