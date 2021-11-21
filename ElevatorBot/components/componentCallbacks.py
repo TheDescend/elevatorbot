@@ -154,8 +154,8 @@ class ComponentCallbacks:
         await ctx.defer()
 
         # invite them to the clan
-        clan = DestinyClan(ctx=ctx, client=ctx.bot, discord_member=ctx.author, discord_guild=ctx.guild)
-        result = await clan.invite_to_clan()
+        clan = DestinyClan(ctx=ctx, client=ctx.bot, discord_guild=ctx.guild)
+        result = await clan.invite_to_clan(to_invite=ctx.author)
 
         if not result:
             return

@@ -1,6 +1,7 @@
 import asyncio
 
 from dis_snek.models import ActionRow, Button, ButtonStyles, Member
+from dis_snek.models.events import Component
 
 from ElevatorBot.backendNetworking.destiny.clan import DestinyClan
 from ElevatorBot.backendNetworking.destiny.profile import DestinyProfile
@@ -64,7 +65,7 @@ async def on_member_remove(member: Member, guild_id: int):
         # wait 10 min bc bungie takes forever in updating the clan roster
         await asyncio.sleep(10 * 60)
 
-        clan = DestinyClan(ctx=None, client=client, discord_member=member, discord_guild=member.guild)
+        clan = DestinyClan(ctx=None, client=client, discord_guild=member.guild)
 
         # check if the user was in the clan
         result = await clan.get_clan_members(use_cache=False)
@@ -80,10 +81,12 @@ async def on_member_remove(member: Member, guild_id: int):
                 components = [
                     ActionRow(
                         Button(
+                            custom_id="clan_kick_yes",
                             style=ButtonStyles.GREEN,
                             label="Kick Them",
                         ),
                         Button(
+                            custom_id="clan_kick_no",
                             style=ButtonStyles.RED,
                             label="Ignore This",
                         ),
@@ -98,19 +101,26 @@ async def on_member_remove(member: Member, guild_id: int):
 
                 message = await channel.send(embeds=embed, components=components)
 
-                # todo wait for component
-                if reaction.emoji == yes:
-                    # kick the user from the clan
-                    result = await clan.kick_from_clan()
-
-                    if result:
-                        text = "Successfully removed!"
-                    else:
-                        text = "Something went wrong. Please remove them manually"
+                try:
+                    component: Component = await client.wait_for_component(components=components)
+                except asyncio.TimeoutError:
+                    await message.edit(components=[])
+                    return
                 else:
-                    text = "Aborted"
+                    button_ctx = component.context
 
-                await button_ctx.send(text)
+                    if button_ctx.custom_id == "clan_kick_yes":
+                        # kick the user from the clan
+                        result = await clan.kick_from_clan(to_kick=member)
+
+                        if result:
+                            text = "Successfully removed!"
+                        else:
+                            text = "Something went wrong. Please remove them manually"
+                    else:
+                        text = "Aborted"
+
+                    await button_ctx.send(text)
 
 
 async def on_member_update(before: Member, after: Member, guild_id: int):

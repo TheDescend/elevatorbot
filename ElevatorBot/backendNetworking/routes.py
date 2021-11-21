@@ -52,15 +52,15 @@ destiny_lfg_delete_route = destiny_lfg_route + "{discord_id}/delete/{lfg_id}/"  
 destiny_lfg_create_route = destiny_lfg_route + "{discord_id}/create/"  # POST
 
 # clan
-destiny_clan_route = destiny_base_route + "clan/"
+destiny_clan_route = base_route + "destiny/{guild_id}/clan/"
 destiny_clan_get_route = destiny_clan_route + "get/"  # GET
 destiny_clan_get_members_route = destiny_clan_route + "get/members/"  # GET
 destiny_clan_get_members_no_cache_route = destiny_clan_route + "get/members/no_cache/"  # GET
 destiny_clan_search_members_route = destiny_clan_route + "get/members/search/{search_phrase}/"  # GET
-destiny_clan_invite_route = destiny_clan_route + "invite/"  # POST
-destiny_clan_kick_route = destiny_clan_route + "kick/"  # POST
-destiny_clan_link_route = destiny_clan_route + "link/"  # POST
-destiny_clan_unlink_route = destiny_clan_route + "unlink/"  # DELETE
+destiny_clan_invite_route = destiny_clan_route + "{discord_id}/invite/"  # POST
+destiny_clan_kick_route = destiny_clan_route + "{discord_id}/kick/"  # POST
+destiny_clan_link_route = destiny_clan_route + "{discord_id}/link/"  # POST
+destiny_clan_unlink_route = destiny_clan_route + "{discord_id}/unlink/"  # DELETE
 
 # roles
 destiny_role_route = base_route + "destiny/{guild_id}/roles/"

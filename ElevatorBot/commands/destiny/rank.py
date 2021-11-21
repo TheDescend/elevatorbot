@@ -231,7 +231,7 @@ class Rank(BaseScale):
 
         # get the linked clan member
         member = user or ctx.author
-        clan = DestinyClan(client=ctx.bot, discord_guild=ctx.guild, discord_member=member, ctx=ctx)
+        clan = DestinyClan(client=ctx.bot, discord_guild=ctx.guild, ctx=ctx)
         clan_info = await clan.get_clan()
         if not clan_info:
             return
@@ -274,7 +274,7 @@ class Rank(BaseScale):
         )
 
         # make the data pretty
-        embed = embed_message(f"Top Clan Members - {self.all_leaderboards[leaderboard_name]}")
+        embed = embed_message(f"{clan_info.name}'s Top Members - {self.all_leaderboards[leaderboard_name]}")
 
         description = []
         if activity:

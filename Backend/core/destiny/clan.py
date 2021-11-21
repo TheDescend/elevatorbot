@@ -4,7 +4,7 @@ from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.errors import CustomException
-from Backend.crud import discord_users
+from Backend.crud import destiny_clan_links, discord_users
 from Backend.database.models import DiscordUsers
 from Backend.misc.helperFunctions import get_datetime_from_bungie_entry
 from Backend.networking.bungieApi import BungieApi
@@ -23,7 +23,8 @@ class DestinyClan:
     """Clan specific API calls"""
 
     db: AsyncSession
-    user: DiscordUsers
+    guild_id: int
+    user: Optional[DiscordUsers] = None
 
     def __post_init__(self):
         # some shortcuts
@@ -37,18 +38,17 @@ class DestinyClan:
     async def get_clan_id_and_name(self) -> tuple[int, str]:
         """Gets clan information"""
 
-        route = clan_get_route.format(system=self.system, destiny_id=self.destiny_id)
-        result = await self.api.get(
-            route=route,
-        )
+        # get data from db
+        link = await destiny_clan_links.get_link(db=self.db, discord_guild_id=self.guild_id)
+
+        route = clan_get_route.format(clan_id=link.destiny_clan_id)
+        result = await self.api.get(route=route)
 
         # check if clan exists
-        if not result.content["results"]:
-            raise CustomException("UserNotInClan")
+        if not result:
+            raise CustomException("NoClan")
 
-        # we only care about the first one
-        clan = result.content["results"][0]
-        return int(clan["group"]["groupId"]), clan["group"]["name"]
+        return link.destiny_clan_id, result.content["detail"]["name"]
 
     async def search_clan_for_member(
         self, member_name: str, clan_id: Optional[int] = None, use_cache: bool = True

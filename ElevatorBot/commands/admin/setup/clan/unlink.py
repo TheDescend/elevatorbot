@@ -24,8 +24,8 @@ class ClanUnlink(BaseScale):
         ctx: InteractionContext,
     ):
 
-        clan = DestinyClan(ctx=ctx, client=ctx.bot, discord_member=ctx.author, discord_guild=ctx.guild)
-        result = await clan.unlink()
+        clan = DestinyClan(ctx=ctx, client=ctx.bot, discord_guild=ctx.guild)
+        result = await clan.unlink(unlinked_by=ctx.author)
 
         if not result:
             return

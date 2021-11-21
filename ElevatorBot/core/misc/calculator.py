@@ -10,6 +10,7 @@ from dis_snek.models import (
     InteractionContext,
     Message,
 )
+from dis_snek.models.events import Component
 
 from ElevatorBot.misc.formating import embed_message
 
@@ -158,8 +159,9 @@ class Calculator:
             if "=" in text:
                 try:
                     embed.description = f"```{eval(embed.description[3:-3])}```"
-                except:
+                except Exception:
                     embed.description = f"```Error: Please Try again```"
+
             # check if user pressed c
             elif "c" in text:
                 if not ("Error" in embed.description or "Please" in embed.description):
@@ -196,16 +198,16 @@ class Calculator:
                 await self.message.edit(components=self.buttons, embeds=embed)
 
     # checks that the button press author is the same as the message command invoker and that the message matches
-    def check_author_and_message(self, ctx: ComponentContext):
-        return (ctx.author == self.ctx.author) and (self.ctx.message.id == ctx.origin_message.id)
+    def check_author_and_message(self, component: Component):
+        return (component.context.author == self.ctx.author) and (
+            self.ctx.message.id == component.context.origin_message.id
+        )
 
     # wait for button press look
     async def wait_for_button_press(self):
         # wait 60s for button press
         try:
-            # todo
-            button_ctx: ComponentContext = await wait_for_component(
-                self.ctx.bot,
+            component: Component = await self.ctx.bot.wait_for_component(
                 components=self.buttons,
                 timeout=60,
                 check=self.check_author_and_message,
@@ -215,12 +217,10 @@ class Calculator:
             await self.send_message(timeout=True)
             return
         else:
-            text = button_ctx.component_id
+            button_ctx = component.context
+            text = button_ctx.custom_id
 
-            if text == "(-)":
-                text = "-"
-
-            if button_ctx.component_id not in [
+            if text not in [
                 "0",
                 "1",
                 "2",
@@ -235,6 +235,9 @@ class Calculator:
                 ".",
             ]:
                 text = f" {text} "
+
+            if text == "(-)":
+                text = "-"
 
             # send new message
             await self.send_message(text=text, button_ctx=button_ctx)

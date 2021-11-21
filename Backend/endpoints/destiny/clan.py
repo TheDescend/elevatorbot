@@ -15,17 +15,16 @@ from NetworkingSchemas.destiny.clan import (
 from NetworkingSchemas.destiny.profile import DestinyProfileModel
 
 router = APIRouter(
-    prefix="/destiny/{guild_id}/{discord_id}/clan",
+    prefix="/destiny/{guild_id}/clan",
     tags=["destiny", "clan"],
 )
 
 
 @router.get("/get", response_model=DestinyClanModel)
 async def get_clan(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
-    """Return the clan id and name"""
+    """Return the linked destiny clan"""
 
-    profile = await crud.discord_users.get_profile_from_discord_id(db, discord_id)
-    clan = DestinyClan(db=db, user=profile)
+    clan = DestinyClan(db=db, guild_id=guild_id)
 
     # get name and id
     clan_id, clan_name = await clan.get_clan_id_and_name()
@@ -37,8 +36,7 @@ async def get_clan(guild_id: int, discord_id: int, db: AsyncSession = Depends(ge
 async def get_clan_members(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Return the clan members"""
 
-    profile = await crud.discord_users.get_profile_from_discord_id(db, discord_id)
-    clan = DestinyClan(db=db, user=profile)
+    clan = DestinyClan(db=db, guild_id=guild_id)
 
     members = await clan.get_clan_members()
 
@@ -49,8 +47,7 @@ async def get_clan_members(guild_id: int, discord_id: int, db: AsyncSession = De
 async def get_clan_members_no_cache(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Return the clan members without using any cached bungie data"""
 
-    profile = await crud.discord_users.get_profile_from_discord_id(db, discord_id)
-    clan = DestinyClan(db=db, user=profile)
+    clan = DestinyClan(db=db, guild_id=guild_id)
 
     members = await clan.get_clan_members(use_cache=False)
 
@@ -63,8 +60,7 @@ async def search_clan_members(
 ):
     """Return the clan members"""
 
-    profile = await crud.discord_users.get_profile_from_discord_id(db, discord_id)
-    clan = DestinyClan(db=db, user=profile)
+    clan = DestinyClan(db=db, guild_id=guild_id)
 
     members = await clan.search_clan_for_member(member_name=search_phrase)
 
@@ -80,7 +76,7 @@ async def link_clan(
     """Links the discord guild to the destiny clan"""
 
     profile = await crud.discord_users.get_profile_from_discord_id(db, discord_id)
-    clan = DestinyClan(db=db, user=profile)
+    clan = DestinyClan(db=db, user=profile, guild_id=guild_id)
 
     clan_id, clan_name = await clan.get_clan_id_and_name()
 
@@ -102,7 +98,7 @@ async def unlink_clan(
     """Unlinks the discord guild from the destiny clan"""
 
     profile = await crud.discord_users.get_profile_from_discord_id(db, discord_id)
-    clan = DestinyClan(db=db, user=profile)
+    clan = DestinyClan(db=db, user=profile, guild_id=guild_id)
 
     clan_id, clan_name = await clan.get_clan_id_and_name()
 
@@ -130,7 +126,7 @@ async def invite(
     to_invite_user = await discord_users.get_profile_from_discord_id(db=db, discord_id=discord_id)
 
     # invite to the clan
-    clan = DestinyClan(db=db, user=clan_admin_user)
+    clan = DestinyClan(db=db, user=clan_admin_user, guild_id=guild_id)
     await clan.invite_to_clan(to_invite_destiny_id=to_invite_user.destiny_id, to_invite_system=to_invite_user.system)
 
     return DestinyProfileModel.from_orm(to_invite_user)

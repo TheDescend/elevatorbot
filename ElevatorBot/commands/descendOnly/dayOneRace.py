@@ -123,7 +123,7 @@ class DayOneRace(BaseScale):
             self.finished_encounters_blueprint[encounter] = False
 
         # get clan members
-        clan = DestinyClan(client=ctx.bot, discord_guild=ctx.guild, discord_member=ctx.author, ctx=ctx)
+        clan = DestinyClan(client=ctx.bot, discord_guild=ctx.guild, ctx=ctx)
         self.clan_members = await clan.get_clan_members()
         if not self.clan_members:
             return

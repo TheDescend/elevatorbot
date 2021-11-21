@@ -2,20 +2,21 @@ from typing import Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from Backend.core.errors import CustomException
 from Backend.crud.base import CRUDBase
 from Backend.database.models import DestinyClanLinks
 from Backend.misc.helperFunctions import get_now_with_tz
 
 
 class CRUDDestinyClanLinks(CRUDBase):
-    async def get_link(
-        self,
-        db: AsyncSession,
-        discord_guild_id: int,
-    ) -> Optional[DestinyClanLinks]:
+    async def get_link(self, db: AsyncSession, discord_guild_id: int) -> DestinyClanLinks:
         """Gets the discord guilds linked clan"""
 
-        return await self._get_with_key(db, discord_guild_id)
+        result = await self._get_with_key(db, discord_guild_id)
+        if not result:
+            raise CustomException("NoClanLink")
+
+        return result
 
     async def link(self, db: AsyncSession, discord_id: int, discord_guild_id: int, destiny_clan_id: int):
         """Insert a clan link"""
@@ -51,11 +52,7 @@ class CRUDDestinyClanLinks(CRUDBase):
                 ),
             )
 
-    async def unlink(
-        self,
-        db: AsyncSession,
-        discord_guild_id: int,
-    ):
+    async def unlink(self, db: AsyncSession, discord_guild_id: int):
         """Delete a clan link"""
 
         await self._delete(db, primary_key=discord_guild_id)

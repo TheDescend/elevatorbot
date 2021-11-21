@@ -83,7 +83,7 @@ class WeaponsMeta(BaseScale):
         stat = DestinyTopWeaponsStatInputModelEnum.KILLS
 
         # get the linked clan member
-        clan = DestinyClan(client=ctx.bot, discord_guild=ctx.guild, discord_member=ctx.author, ctx=ctx)
+        clan = DestinyClan(client=ctx.bot, discord_guild=ctx.guild, ctx=ctx)
         clan_info = await clan.get_clan()
         if not clan_info:
             return

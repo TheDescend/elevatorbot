@@ -107,7 +107,7 @@ class SeasonalChallenges(BaseScale):
             return component_check.context.author == author
 
         try:
-            component = await self.client.wait_for_component(components=select, timeout=60, check=check)
+            component: Component = await self.client.wait_for_component(components=select, timeout=60, check=check)
         except asyncio.TimeoutError:
             await message.edit(components=[])
             return

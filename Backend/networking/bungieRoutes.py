@@ -16,6 +16,6 @@ clan_members_route = clan_route + "{clan_id}/Members/"
 clan_admins_route = clan_route + "{clan_id}/AdminsAndFounder/"
 clan_invite_route = clan_members_route + "IndividualInvite/{system}/{destiny_id}/"
 clan_kick_route = clan_members_route + "{system}/{destiny_id}/Kick/"
-clan_get_route = clan_route + "User/{system}/{destiny_id}/0/1/"
+clan_get_route = clan_route + "{clan_id}/"
 
 manifest_route = destiny_route + "Manifest/"

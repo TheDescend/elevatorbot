@@ -79,8 +79,7 @@ class UserInfo(BaseScale):
 
         # if fuzzy name is given
         else:
-            # todo get clan id from discord guild
-            clan = DestinyClan(ctx=ctx, client=ctx.bot, discord_member=discord_user, discord_guild=ctx.guild)
+            clan = DestinyClan(ctx=ctx, client=ctx.bot, discord_guild=ctx.guild)
             clan_members = await clan.search_for_clan_members(search_phrase=fuzzy_name)
 
             # handle errors

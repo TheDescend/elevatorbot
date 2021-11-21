@@ -294,7 +294,6 @@ class DestinyProfile:
     async def has_triumph(self, triumph_hash: str | int) -> BoolModelRecord:
         """Returns if the triumph is gotten"""
 
-        # todo if we check 100 triumphs, this can result in a lot of recalulation of not gotten trioumphs. Maybe make a class varaible field that only rechecks this if not called within 10 mins
         triumph_hash = int(triumph_hash)
 
         # check cache

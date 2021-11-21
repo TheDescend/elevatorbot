@@ -12,6 +12,7 @@ from dis_snek.models import (
     Member,
     Message,
 )
+from dis_snek.models.events import Component
 
 from ElevatorBot.misc.formating import embed_message
 
@@ -135,18 +136,20 @@ class TicTacToeGame:
         return best
 
     # checks that the button press author is the same as the message command invoker and that the message matches
-    def check_author_and_message(self, ctx: ComponentContext):
+    def check_author_and_message(self, component: Component):
         # versus mode
         if self.versus:
-            check = self.ctx.message.id == ctx.origin_message.id
+            check = self.ctx.message.id == component.context.origin_message.id
             if self.player_turn:
-                check = check and (ctx.author == self.player_turn)
+                check = check and (component.context.author == self.player_turn)
             elif self.player1:
-                check = check and (ctx.author != self.player1)
+                check = check and (component.context.author != self.player1)
 
         # ai mode
         else:
-            check = (ctx.author == self.ctx.author) and (self.ctx.message.id == ctx.origin_message.id)
+            check = (component.context.author == self.ctx.author) and (
+                self.ctx.message.id == component.context.origin_message.id
+            )
 
         return check
 
@@ -200,9 +203,7 @@ class TicTacToeGame:
 
         # wait 60s for button press
         try:
-            # todo
-            button_ctx: ComponentContext = await manage_components.wait_for_component(
-                self.ctx.bot,
+            component: Component = await self.ctx.bot.wait_for_component(
                 components=self.buttons,
                 timeout=60,
                 check=self.check_author_and_message,
@@ -212,6 +213,8 @@ class TicTacToeGame:
             await self.send_message(timeout=True, disable_buttons=True)
             return
         else:
+            button_ctx = component.context
+
             # make sure the players are set
             if self.versus:
                 if not self.player1:
@@ -233,7 +236,7 @@ class TicTacToeGame:
             }
 
             # get the move from the button id
-            player_move = moves[button_ctx.component_id]
+            player_move = moves[button_ctx.custom_id]
 
             # set the symbol
             symbol = self.ai_symbol if self.versus and self.player2 == button_ctx.author else self.player_symbol
