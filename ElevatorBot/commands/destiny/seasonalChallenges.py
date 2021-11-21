@@ -10,6 +10,7 @@ from dis_snek.models import (
     SelectOption,
     slash_command,
 )
+from dis_snek.models.events import Component
 
 from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
@@ -101,21 +102,17 @@ class SeasonalChallenges(BaseScale):
         else:
             await select_ctx.edit_origin(embeds=embed)
 
-        # todo
         # wait 60s for selection
-        def check(select_ctx: ComponentContext):
-            return select_ctx.author == author
+        def check(component_check: Component):
+            return component_check.context.author == author
 
         try:
-            select_ctx: ComponentContext = await manage_components.wait_for_component(
-                select_ctx.bot if select_ctx else ctx.bot,
-                components=select,
-                timeout=60,
-            )
+            component = await self.client.wait_for_component(components=select, timeout=60, check=check)
         except asyncio.TimeoutError:
             await message.edit(components=[])
             return
         else:
+            select_ctx = component.context
             new_week = select_ctx.values[0]
 
             # recursively call this function
