@@ -30,7 +30,7 @@ class DestinyWeapons:
     """Clan specific API calls"""
 
     db: AsyncSession
-    user: Optional[DiscordUsers]
+    user: Optional[DiscordUsers] = None
 
     def __post_init__(self):
         if self.user:

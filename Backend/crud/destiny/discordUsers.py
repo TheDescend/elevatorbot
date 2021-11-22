@@ -7,9 +7,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.errors import CustomException
 from Backend.crud.base import CRUDBase
-from Backend.crud.cache import cache
 from Backend.crud.discord.roles import roles
 from Backend.database.models import DiscordUsers
+from Backend.misc.cache import cache
 from Backend.misc.helperFunctions import get_now_with_tz, localize_datetime
 from Backend.networking.base import NetworkBase
 from Backend.networking.elevatorApi import ElevatorApi

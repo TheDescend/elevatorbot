@@ -20,7 +20,7 @@ class Roles:
     client: Snake
     guild: Guild
     member: Member
-    ctx: Optional[InteractionContext]
+    ctx: Optional[InteractionContext] = None
 
     def __post_init__(self):
         self.roles = DestinyRoles(

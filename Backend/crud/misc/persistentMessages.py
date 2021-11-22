@@ -4,8 +4,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.errors import CustomException
 from Backend.crud.base import CRUDBase
-from Backend.crud.cache import cache
 from Backend.database.models import PersistentMessage
+from Backend.misc.cache import cache
 from Backend.misc.helperFunctions import convert_kwargs_into_dict
 
 

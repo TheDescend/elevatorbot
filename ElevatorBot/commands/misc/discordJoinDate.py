@@ -1,4 +1,10 @@
-from dis_snek.models import InteractionContext, Member, slash_command
+from dis_snek.models import (
+    InteractionContext,
+    Member,
+    Timestamp,
+    TimestampStyles,
+    slash_command,
+)
 
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
 from ElevatorBot.commands.base import BaseScale
@@ -11,12 +17,11 @@ class DiscordJoinDate(BaseScale):
     @slash_command(name="discord_join_date", description="Check when you joined this discord server")
     @default_user_option()
     async def _discord_join_date(self, ctx: InteractionContext, user: Member):
+        member = user or ctx.author
 
-        # todo timestamp
         await ctx.send(
             embeds=embed_message(
-                f"{user.display_name}'s Discord Join Date",
-                f"You joined on <t:{int(user.joined_at.timestamp())}>",
+                f"{user.display_name}'s Discord Join Date", member.joined_at.format(style=TimestampStyles.ShortTime)
             )
         )
 

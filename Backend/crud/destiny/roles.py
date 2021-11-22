@@ -2,8 +2,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.errors import CustomException
 from Backend.crud.base import CRUDBase
-from Backend.crud.cache import cache
 from Backend.database.models import Roles
+from Backend.misc.cache import cache
 from NetworkingSchemas.destiny.roles import RoleDataModel, RoleModel
 
 

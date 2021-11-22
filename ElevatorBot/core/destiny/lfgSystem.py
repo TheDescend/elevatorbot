@@ -49,9 +49,7 @@ class LfgMessage:
 
     client: Snake
     id: int
-
     guild: Guild
-    channel: Optional[GuildText]
 
     author: Member
     activity: str
@@ -59,6 +57,7 @@ class LfgMessage:
     start_time: datetime.datetime
     max_joined_members: int
 
+    channel: Optional[GuildText] = None
     message: Optional[Message] = None
     creation_time: Optional[datetime.datetime] = None
     joined: Optional[list[Member]] = None
@@ -148,8 +147,10 @@ class LfgMessage:
             backup=[
                 guild.get_member(member_id) for member_id in result.alternate_members if guild.get_member(member_id)
             ],
-            voice_channel=await guild.get_channel(result.voice_channel_id),
-            voice_category_channel=await guild.get_channel(result.voice_category_channel_id),
+            voice_channel=await ctx.guild.get_channel(result.voice_channel_id) if result.voice_channel_id else None,
+            voice_category_channel=await guild.get_channel(result.voice_category_channel_id)
+            if result.voice_category_channel_id
+            else None,
         )
 
         return lfg_message
@@ -190,13 +191,15 @@ class LfgMessage:
             client=ctx.bot,
             id=result.id,
             guild=ctx.guild,
-            channel=ctx.guild.get_channel(result.channel_id),
+            channel=await ctx.guild.get_channel(result.channel_id),
             author=ctx.author,
             activity=activity,
             description=description,
             start_time=start_time,
             max_joined_members=max_joined_members,
-            voice_category_channel=ctx.guild.get_channel(result.voice_category_channel_id),
+            voice_category_channel=await ctx.guild.get_channel(result.voice_category_channel_id)
+            if result.voice_category_channel_id
+            else None,
         )
 
         # send message in the channel to populate missing entries
@@ -503,8 +506,12 @@ class LfgMessage:
                                 for member_id in event.alternate_members
                                 if self.guild.get_member(member_id)
                             ],
-                            voice_channel=await self.guild.get_channel(event.voice_channel_id),
-                            voice_category_channel=await self.guild.get_channel(event.voice_category_channel_id),
+                            voice_channel=await self.guild.get_channel(event.voice_channel_id)
+                            if event.voice_channel_id
+                            else None,
+                            voice_category_channel=await self.guild.get_channel(event.voice_category_channel_id)
+                            if event.voice_category_channel_id
+                            else None,
                         )
                     )
 

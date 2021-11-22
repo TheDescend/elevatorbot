@@ -24,11 +24,15 @@ router = APIRouter(
 async def get_all(guild_id: int, db: AsyncSession = Depends(get_db_session)):
     """Gets all the lfg events and info belonging to the guild"""
 
+    voice_category_channel_id = await lfg.get_voice_category_channel_id(db=db, guild_id=guild_id)
     objs = await lfg.get_all(db=db, guild_id=guild_id)
 
     result = AllLfgOutputModel()
     for obj in objs:
-        result.events.append(LfgOutputModel.from_orm(obj))
+        model = LfgOutputModel.from_orm(obj)
+        model.voice_category_channel_id = voice_category_channel_id
+
+        result.events.append(model)
 
     return result
 
@@ -37,16 +41,20 @@ async def get_all(guild_id: int, db: AsyncSession = Depends(get_db_session)):
 async def get(guild_id: int, lfg_id: int, db: AsyncSession = Depends(get_db_session)):
     """Gets the lfg info belonging to the lfg id and guild"""
 
+    voice_category_channel_id = await lfg.get_voice_category_channel_id(db=db, guild_id=guild_id)
     obj = await lfg.get(db=db, lfg_id=lfg_id, guild_id=guild_id)
 
-    return LfgOutputModel.from_orm(obj)
+    result = LfgOutputModel.from_orm(obj)
+    result.voice_category_channel_id = voice_category_channel_id
+
+    return result
 
 
 @router.get("/{discord_id}/get/all", response_model=UserAllLfgOutputModel)
 async def user_get_all(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Gets the lfg infos belonging to the discord_id"""
 
-    return await lfg.get_user(db=db, discord_id=discord_id)
+    return await lfg.get_user(db=db, discord_id=discord_id, guild_id=guild_id)
 
 
 @router.post("/{discord_id}/update/{lfg_id}", response_model=LfgOutputModel)
@@ -59,9 +67,13 @@ async def update(
 ):
     """Updates the lfg info belonging to the lfg id and guild"""
 
+    voice_category_channel_id = await lfg.get_voice_category_channel_id(db=db, guild_id=guild_id)
     obj = await lfg.update(db=db, lfg_id=lfg_id, guild_id=guild_id, discord_id=discord_id, **lfg_data.dict())
 
-    return LfgOutputModel.from_orm(obj)
+    result = LfgOutputModel.from_orm(obj)
+    result.voice_category_channel_id = voice_category_channel_id
+
+    return result
 
 
 @router.post("/{discord_id}/create", response_model=LfgOutputModel)
@@ -86,7 +98,12 @@ async def create(
     # insert that
     await lfg.insert(db=db, to_create=to_create)
 
-    return LfgOutputModel.from_orm(to_create)
+    result = LfgOutputModel.from_orm(to_create)
+
+    voice_category_channel_id = await lfg.get_voice_category_channel_id(db=db, guild_id=guild_id)
+    result.voice_category_channel_id = voice_category_channel_id
+
+    return result
 
 
 @router.delete("/{discord_id}/delete/{lfg_id}", response_model=EmptyResponseModel)

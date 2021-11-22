@@ -17,9 +17,7 @@ class LfgOutputModel(BaseModel):
     joined_members: list[int]
     alternate_members: list[int]
     creation_time: datetime.datetime
-    voice_channel_id: Optional[int]
-
-    # todo also return voice_category_channel_id
+    voice_channel_id: Optional[int] = None
     voice_category_channel_id: Optional[int] = None
 
     class Config:
@@ -45,13 +43,13 @@ class LfgCreateInputModel(BaseModel):
 
 
 class LfgUpdateInputModel(BaseModel):
-    channel_id: Optional[int]
-    message_id: Optional[int]
-    voice_channel_id: Optional[int]
+    channel_id: Optional[int] = None
+    message_id: Optional[int] = None
+    voice_channel_id: Optional[int] = None
 
-    activity: Optional[str]
-    description: Optional[str]
-    start_time: Optional[datetime.datetime]
-    max_joined_members: Optional[int]
-    joined_members: Optional[list[int]]
-    alternate_members: Optional[list[int]]
+    activity: Optional[str] = None
+    description: Optional[str] = None
+    start_time: Optional[datetime.datetime] = None
+    max_joined_members: Optional[int] = None
+    joined_members: Optional[list[int]] = None
+    alternate_members: Optional[list[int]] = None

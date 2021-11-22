@@ -3,7 +3,6 @@ import dataclasses
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.crud import destiny_manifest
-from Backend.crud.cache import cache
 from Backend.database.models import (
     DestinyActivityDefinition,
     DestinyActivityModeDefinition,
@@ -16,6 +15,7 @@ from Backend.database.models import (
     DestinyRecordDefinition,
     DestinySeasonPassDefinition,
 )
+from Backend.misc.cache import cache
 from Backend.misc.helperFunctions import defaultdictify
 from Backend.networking.bungieApi import BungieApi
 from Backend.networking.bungieRoutes import manifest_route

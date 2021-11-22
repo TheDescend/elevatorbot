@@ -15,4 +15,4 @@ class PersistentMessage(BaseModel):
 
 class PersistentMessageUpsert(BaseModel):
     channel_id: int
-    message_id: Optional[int]
+    message_id: Optional[int] = None

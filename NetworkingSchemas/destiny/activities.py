@@ -75,6 +75,6 @@ class DestinyActivityOutputModel(BaseModel):
     deaths: int
     assists: int
     time_spend: datetime.timedelta
-    fastest: Optional[datetime.timedelta]  # only includes full runs
-    fastest_instance_id: Optional[int]
+    fastest: Optional[datetime.timedelta] = None  # only includes full runs
+    fastest_instance_id: Optional[int] = None
     average: datetime.timedelta

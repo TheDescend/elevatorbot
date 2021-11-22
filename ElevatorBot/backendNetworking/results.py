@@ -14,8 +14,8 @@ class BackendResult:
     """Holds the return info"""
 
     success: bool
-    result: Optional[dict]
-    error: Optional[str]
+    result: Optional[dict] = None
+    error: Optional[str] = None
 
     __error_message: Optional[str] = None
 

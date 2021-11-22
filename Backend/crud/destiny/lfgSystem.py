@@ -1,13 +1,39 @@
+import asyncio
+from typing import Optional
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.errors import CustomException
+from Backend.crud import persistent_messages
 from Backend.crud.base import CRUDBase
 from Backend.database.models import LfgMessage
+from Backend.misc.cache import cache
 from NetworkingSchemas.destiny.lfgSystem import LfgOutputModel, UserAllLfgOutputModel
 
 
 class CRUDLfgMessages(CRUDBase):
+    @staticmethod
+    async def get_voice_category_channel_id(db: AsyncSession, guild_id: int) -> Optional[int]:
+        """Return the guild's lfg voice category channel id if set"""
+
+        # check cache:
+        async with asyncio.Lock():
+            cache_key = f"{guild_id}|lfg_voice_category"
+
+            # populate cache
+            if cache_key not in cache.persistent_messages:
+                try:
+                    await persistent_messages.get(db=db, guild_id=guild_id, message_name="lfg_voice_category")
+                except CustomException as e:
+                    if e.error == "PersistentMessageNotExist":
+                        cache.persistent_messages.update({cache_key: None})
+                    else:
+                        raise e
+
+            result = cache.persistent_messages[cache_key]
+            return result.channel_id if result else None
+
     async def insert(self, db: AsyncSession, to_create: LfgMessage):
         """Inserts the lfg info and gives it a new id"""
 
@@ -29,16 +55,22 @@ class CRUDLfgMessages(CRUDBase):
 
         return await self._get_multi(db=db, guild_id=guild_id)
 
-    async def get_user(self, db: AsyncSession, discord_id: int) -> UserAllLfgOutputModel:
+    async def get_user(self, db: AsyncSession, discord_id: int, guild_id: int) -> UserAllLfgOutputModel:
         """Get the lfg infos for the user"""
+
+        voice_category_channel_id = await self.get_voice_category_channel_id(db=db, guild_id=guild_id)
 
         result = UserAllLfgOutputModel()
 
         joined = await self._get_user_events(db=db, discord_id=discord_id, joined=True)
         result.joined = [LfgOutputModel.from_orm(obj) for obj in joined]
+        for entry in result.joined:
+            entry.voice_category_channel_id = voice_category_channel_id
 
         backup = await self._get_user_events(db=db, discord_id=discord_id, backup=True)
         result.backup = [LfgOutputModel.from_orm(obj) for obj in backup]
+        for entry in result.backup:
+            entry.voice_category_channel_id = voice_category_channel_id
 
         return result
 

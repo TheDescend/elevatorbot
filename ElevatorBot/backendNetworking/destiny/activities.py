@@ -21,9 +21,9 @@ from NetworkingSchemas.destiny.activities import (
 
 @dataclasses.dataclass
 class DestinyActivities(BaseBackendConnection):
-    client: Optional[Snake]
-    discord_guild: Optional[Guild]
-    discord_member: Optional[Member]
+    client: Optional[Snake] = None
+    discord_guild: Optional[Guild] = None
+    discord_member: Optional[Member] = None
 
     async def get_all(self) -> Optional[DestinyActivitiesModel]:
         """Get all activities"""
@@ -50,7 +50,7 @@ class DestinyActivities(BaseBackendConnection):
     async def last(
         self,
         activity_ids: Optional[list[int]] = None,  # if this is supplied, mode is ignored
-        mode: Optional[UsableDestinyActivityModeTypeEnum] = UsableDestinyActivityModeTypeEnum.ALL,
+        mode: UsableDestinyActivityModeTypeEnum = UsableDestinyActivityModeTypeEnum.ALL,
         character_class: Optional[str] = None,
         completed: bool = True,
     ) -> Optional[DestinyActivityDetailsModel]:

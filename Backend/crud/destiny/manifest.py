@@ -1,21 +1,19 @@
 import dataclasses
 from typing import Any, Optional, TypeVar
 
-from sqlalchemy import not_, or_, select
+from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from Backend.core.errors import CustomException
 from Backend.crud import versions
 from Backend.crud.base import CRUDBase
-from Backend.crud.cache import cache
 from Backend.database.base import Base
 from Backend.database.models import (
     DestinyActivityDefinition,
     DestinyLoreDefinition,
-    DestinyRecordDefinition,
     DestinySeasonPassDefinition,
     Versions,
 )
+from Backend.misc.cache import cache
 from DestinyEnums.enums import UsableDestinyActivityModeTypeEnum
 from NetworkingSchemas.destiny.activities import DestinyActivityModel
 from NetworkingSchemas.destiny.items import DestinyLoreModel

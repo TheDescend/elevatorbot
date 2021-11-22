@@ -16,7 +16,7 @@ class DestinyClanMemberModel(BaseModel):
     is_online: bool
     last_online_status_change: datetime.datetime
     join_date: datetime.datetime
-    discord_id: Optional[int]
+    discord_id: Optional[int] = None
 
 
 class DestinyClanMembersModel(BaseModel):

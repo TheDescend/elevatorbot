@@ -6,7 +6,6 @@ from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.crud import activities, destiny_manifest, discord_users
-from Backend.crud.cache import cache
 from Backend.crud.destiny.collectibles import collectibles
 from Backend.crud.destiny.items import destiny_items
 from Backend.crud.destiny.records import records
@@ -17,6 +16,7 @@ from Backend.database.models import (
     DiscordUsers,
     Records,
 )
+from Backend.misc.cache import cache
 from Backend.misc.helperFunctions import (
     get_datetime_from_bungie_entry,
     get_now_with_tz,

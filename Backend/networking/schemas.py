@@ -7,8 +7,8 @@ from typing import Optional
 class InternalWebResponse:
     """Internally used class containing the info that the web request produced"""
 
-    content: Optional[dict]
-    status: Optional[int]
+    content: Optional[dict] = None
+    status: Optional[int] = None
     time: int = int(time.time())
     success: bool = False
     error: str = None

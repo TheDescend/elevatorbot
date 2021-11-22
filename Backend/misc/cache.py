@@ -2,14 +2,12 @@ import dataclasses
 from typing import Optional
 
 from Backend.database.models import (
-    DestinyActivityDefinition,
     DestinyInventoryItemDefinition,
     DestinyPresentationNodeDefinition,
     DestinyRecordDefinition,
     DestinySeasonPassDefinition,
     DiscordUsers,
     PersistentMessage,
-    Roles,
 )
 from NetworkingSchemas.destiny.account import SeasonalChallengesModel
 from NetworkingSchemas.destiny.activities import DestinyActivityModel
@@ -28,7 +26,7 @@ class Cache:
     guild_roles: dict[int, list[RoleModel]] = dataclasses.field(init=False, default_factory=dict)
 
     # Persistent Messages Objects - Key: f"{guild_id}|{message_name}"
-    persistent_messages: dict[str, PersistentMessage] = dataclasses.field(init=False, default_factory=dict)
+    persistent_messages: dict[str, Optional[PersistentMessage]] = dataclasses.field(init=False, default_factory=dict)
 
     # User Triumphs - Key: destiny_id[triumph_hash]
     triumphs: dict[int, dict[int, bool]] = dataclasses.field(init=False, default_factory=dict)

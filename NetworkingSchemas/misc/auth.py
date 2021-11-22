@@ -31,4 +31,4 @@ class BungieTokenInput(BaseModel):
 
 class BungieTokenOutput(BaseModel):
     success: bool
-    error_message: Optional[str]
+    error_message: Optional[str] = None

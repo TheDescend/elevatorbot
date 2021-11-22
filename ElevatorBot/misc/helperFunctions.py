@@ -56,10 +56,10 @@ async def parse_string_datetime(
 
 async def parse_datetime_options(
     ctx: InteractionContext,
-    expansion: Optional[str],
-    season: Optional[str],
-    start_time: Optional[str],
-    end_time: Optional[str],
+    expansion: Optional[str] = None,
+    season: Optional[str] = None,
+    start_time: Optional[str] = None,
+    end_time: Optional[str] = None,
 ) -> tuple[Optional[datetime.datetime], Optional[datetime.datetime]]:
     """
     Parse datetime options and return:

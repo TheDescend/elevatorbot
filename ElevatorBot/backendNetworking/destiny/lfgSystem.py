@@ -82,7 +82,7 @@ class DestinyLfgSystem(BaseBackendConnection):
     async def create(self, discord_member: Member, lfg_data: LfgInputData) -> Optional[LfgOutputModel]:
         """Inserts the lfg info and gives it a new id"""
 
-        result = self._backend_request(
+        result = await self._backend_request(
             method="POST",
             route=destiny_lfg_create_route.format(guild_id=self.discord_guild.id, discord_id=discord_member.id),
             data=lfg_data.__dict__,

@@ -29,7 +29,7 @@ def create_command_docs(client: Snake):
             # todo
             permissions = copy(data.permissions)
 
-            docstring = overwrite_options_text(docstring, options)
+            docstring = overwrite_options_text(options=options, docstring=docstring)
 
             # check what type of interaction this is
             match data:
@@ -160,7 +160,7 @@ def create_command_docs(client: Snake):
         json.dump(context_menus_message, file, indent=4)
 
 
-def overwrite_options_text(docstring: Optional[str], options: list[SlashCommandOption]) -> str:
+def overwrite_options_text(options: list[SlashCommandOption], docstring: Optional[str] = None) -> str:
     """Overwrite the options if there is extra info in the docstring"""
 
     # loop through the options and see if we have an override
