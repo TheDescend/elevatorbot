@@ -12,8 +12,8 @@ from dis_snek.models import (
 from ElevatorBot.misc.cache import reply_cache
 from ElevatorBot.misc.formating import embed_message
 from ElevatorBot.static.descendOnlyIds import (
-    bot_dev_channel_id,
     descend_admin_channel_id,
+    descend_bot_dev_channel_id,
     descend_guild_id,
     emote_suggestion_channel_id,
 )
@@ -67,8 +67,13 @@ async def on_message_create(message: Message, edit_mode: bool = False):
                     send = True
 
                 # look if it follows the naming scheme and is in the correct channel
-                elif thread.channel.id in [descend_admin_channel_id, bot_dev_channel_id] and thread.name.startswith(
-                    "Message from"
+                elif (
+                    thread.channel.id
+                    in [
+                        descend_admin_channel_id,
+                        descend_bot_dev_channel_id,
+                    ]
+                    and thread.name.startswith("Message from")
                 ):
                     linked_user_id = thread.name.split("|")[1]
                     linked_user = await client.get_user(linked_user_id)
@@ -123,7 +128,7 @@ async def on_message_create(message: Message, edit_mode: bool = False):
                         f"Message from {message.author.username}_{message.author.discriminator}|{message.author.id}"
                     )
                     channel: GuildText = await client.get_channel(descend_admin_channel_id) or await client.get_channel(
-                        bot_dev_channel_id
+                        descend_bot_dev_channel_id
                     )
 
                     # we just need to get the url, no need to re-upload

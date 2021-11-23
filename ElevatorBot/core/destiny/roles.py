@@ -132,7 +132,6 @@ class Roles:
     async def update(self):
         """Get and update a members roles"""
 
-        # todo filler roles?
         result = await self.roles.get()
 
         if not result:

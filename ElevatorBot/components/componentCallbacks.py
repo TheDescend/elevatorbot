@@ -12,7 +12,10 @@ from ElevatorBot.misc.discordShortcutFunctions import (
     remove_roles_from_member,
 )
 from ElevatorBot.misc.formating import embed_message
-from ElevatorBot.static.descendOnlyIds import bot_dev_channel_id, descend_guild_id
+from ElevatorBot.static.descendOnlyIds import (
+    descend_bot_dev_channel_id,
+    descend_guild_id,
+)
 from ElevatorBot.static.emojis import custom_emojis
 
 
@@ -162,7 +165,7 @@ class ComponentCallbacks:
 
         # send a message in descend if that's the guild
         if ctx.guild.id == descend_guild_id:
-            channel = await ctx.guild.get_channel(bot_dev_channel_id)
+            channel = await ctx.guild.get_channel(descend_bot_dev_channel_id)
 
             embed = embed_message("Clan Update", f"An invite was send to {ctx.author.mention}")
             embed.add_field(name="Bungie Name", value=result.bungie_name, inline=True)

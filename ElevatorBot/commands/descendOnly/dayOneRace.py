@@ -25,7 +25,7 @@ from ElevatorBot.commandHelpers.responseTemplates import something_went_wrong
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formating import embed_message, format_timedelta
 from ElevatorBot.misc.helperFunctions import get_now_with_tz
-from ElevatorBot.static.descendOnlyIds import bot_dev_channel_id
+from ElevatorBot.static.descendOnlyIds import descend_bot_dev_channel_id
 from ElevatorBot.static.emojis import custom_emojis
 from NetworkingSchemas.destiny.activities import (
     DestinyActivityInputModel,
@@ -99,7 +99,7 @@ class DayOneRace(BaseScale):
         self.__init__(client=ctx.bot)
 
         channel = ctx.channel
-        bot_dev_channel = await ctx.guild.get_channel(bot_dev_channel_id)
+        bot_dev_channel = await ctx.guild.get_channel(descend_bot_dev_channel_id)
 
         # printing the raid image. Taken from data.destinysets.com
         activity_name = f"{self.location_name} - {self.raid_name}"
