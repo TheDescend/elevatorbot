@@ -13,8 +13,6 @@ from ElevatorBot.commandHelpers.autocomplete import (
     weapons,
     weapons_by_id,
 )
-
-# todo redo those on manifest update
 from NetworkingSchemas.destiny.activities import DestinyActivityModel
 
 

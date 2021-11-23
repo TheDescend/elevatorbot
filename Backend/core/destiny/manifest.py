@@ -19,6 +19,7 @@ from Backend.misc.cache import cache
 from Backend.misc.helperFunctions import defaultdictify
 from Backend.networking.bungieApi import BungieApi
 from Backend.networking.bungieRoutes import manifest_route
+from Backend.networking.elevatorApi import ElevatorApi
 
 
 @dataclasses.dataclass
@@ -346,3 +347,7 @@ class DestinyManifest:
 
         # invalidate caches
         cache.reset()
+
+        # populate the autocomplete options again
+        elevator_api = ElevatorApi()
+        result = await elevator_api.post(route_addition="manifest_update/")
