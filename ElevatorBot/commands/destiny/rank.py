@@ -360,11 +360,11 @@ class Rank(BaseScale):
                     raise RuntimeError
 
                 # save the stat
-                missing = len(list(itertools.chain(*roles.acquirable.values())))
-                missing_deprecated = len(list(itertools.chain(*roles.deprecated.values())))
+                missing = len(roles.acquirable)
+                missing_deprecated = len(roles.deprecated)
 
                 result.sort_value = missing
-                result.display_text = f"Missing: {missing:,} (+{missing_deprecated} deprecated)"
+                result.display_text = f"Missing Roles: {missing:,} (+{missing_deprecated} deprecated)"
 
                 result.sort_by_ascending = True
 

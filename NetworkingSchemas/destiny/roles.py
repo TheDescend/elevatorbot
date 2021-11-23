@@ -1,35 +1,24 @@
 import datetime
+from enum import Enum
 from typing import Optional
 
 from pydantic import BaseModel
 
 
+class RolesCategoryModel(BaseModel):
+    category: str
+    discord_role_id: int
+
+
 class EarnedRolesModel(BaseModel):
-    """
-    Format:
-
-    {
-        "category_name": list[role_ids]
-    }
-    """
-
-    earned: dict[str, list[int]] = {}
-    earned_but_replaced_by_higher_role: dict[str, list[int]] = {}
-    not_earned: dict[str, list[int]] = {}
-
-
-class EarnedRoleModel(BaseModel):
-    # todo get rid of dict stuff here
-
-    earned: bool
-    role_data: dict
-    user_data: dict
+    earned: list[RolesCategoryModel] = []
+    earned_but_replaced_by_higher_role: list[RolesCategoryModel] = []
+    not_earned: list[RolesCategoryModel] = []
 
 
 class MissingRolesModel(BaseModel):
-    # same format as EarnedRolesModel
-    acquirable: dict[str, list[int]] = {}
-    deprecated: dict[str, list[int]] = {}
+    acquirable: list[RolesCategoryModel] = []
+    deprecated: list[RolesCategoryModel] = []
 
 
 class TimePeriodModel(BaseModel):
@@ -77,12 +66,18 @@ class RoleDataModel(BaseModel):
     acquirable: bool = True
 
     require_activity_completions: list[ActivityModel] = []
-
     require_collectibles: list[int] = []
     require_records: list[int] = []
-
     require_role_ids: list[int] = []
+
     replaced_by_role_id: Optional[int] = None
+
+
+class RoleDataUserModel(BaseModel):
+    require_activity_completions: Optional[list[str]] = None
+    require_collectibles: Optional[list[bool]] = None
+    require_records: Optional[list[bool]] = None
+    require_role_ids: Optional[list[bool]] = None
 
 
 class RoleModel(BaseModel):
@@ -94,3 +89,16 @@ class RoleModel(BaseModel):
 
 class RolesModel(BaseModel):
     roles: list[RoleModel] = []
+
+
+class RoleEnum(Enum):
+    NOT_ACQUIRABLE = "Not currently acquirable"
+    EARNED = "Earned"
+    EARNED_BUT_REPLACED_BY_HIGHER_ROLE = "Earned, but replaced by higher role"
+    NOT_EARNED = "Not Earned"
+
+
+class EarnedRoleModel(BaseModel):
+    earned: RoleEnum
+    role: RoleModel
+    user_role_data: Optional[RoleDataUserModel] = None

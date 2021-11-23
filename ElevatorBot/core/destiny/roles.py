@@ -10,7 +10,12 @@ from dis_snek.models.discord_objects.user import Member
 from ElevatorBot.backendNetworking.destiny.roles import DestinyRoles
 from ElevatorBot.commandHelpers.autocomplete import activities_by_id
 from ElevatorBot.misc.cache import collectible_cache, triumph_cache
+from ElevatorBot.misc.discordShortcutFunctions import (
+    assign_roles_to_member,
+    remove_roles_from_member,
+)
 from ElevatorBot.misc.formating import embed_message
+from NetworkingSchemas.destiny.roles import RolesCategoryModel
 
 
 @dataclasses.dataclass()
@@ -36,42 +41,36 @@ class Roles:
         if not result:
             return
 
-        role_data = result.role_data
-        user_data = result.user_data
+        role_data = result.role.role_data
+        user_data = result.user_role_data
 
         # construct reply msg
-        embed = embed_message(f"{self.member.display_name}'s '{role.name}' Eligibility", f"**Earned: {result.earned}**")
+        embed = embed_message(
+            f"{self.member.display_name}'s '{role.name}' Eligibility", f"**Status: {result.earned.value}**"
+        )
 
         # loop through the requirements and their statuses
         activities: list[str] = []
+        for activity_info, user_activity in zip(
+            role_data.require_activity_completions, user_data.require_activity_completions
+        ):
+            activities.append(f"{activities_by_id[activity_info.allowed_activity_hashes[0]].name}: {user_activity}")
+
         collectibles: list[str] = []
+        for collectible_id, user_collectible in zip(role_data.require_collectibles, user_data.require_collectibles):
+            collectibles.append(
+                f"[{await collectible_cache.get_name(collectible_id=collectible_id)}](https://www.light.gg/db/items/{collectible_id}): {user_collectible}"
+            )
+
         records: list[str] = []
+        for triumph_id, user_triumph in zip(role_data.require_collectibles, user_data.require_collectibles):
+            records.append(
+                f"[{await triumph_cache.get_name(triumph_id=triumph_id)}](https://www.light.gg/db/legend/triumphs/{triumph_id}): {user_triumph}"
+            )
+
         roles: list[str] = []
-        for role_info, user_info in zip(role_data, user_data):
-            match role_info:
-                case "require_activity_completions":
-                    for role_activity, user_activity in zip(
-                        role_data[role_info].values(), user_data[role_info].values()
-                    ):
-                        activities.append(f"{activities_by_id[role_activity].name}: {user_activity}")
-
-                case "require_collectibles":
-                    for role_collectible, user_collectible in zip(
-                        role_data[role_info].values(), user_data[role_info].values()
-                    ):
-                        collectibles.append(
-                            f"[{await collectible_cache.get_name(collectible_id=role_collectible)}](https://www.light.gg/db/items/{role_collectible}): {user_collectible}"
-                        )
-
-                case "require_records":
-                    for role_record, user_record in zip(role_data[role_info].values(), user_data[role_info].values()):
-                        records.append(
-                            f"[{await triumph_cache.get_name(triumph_cache=role_record)}](https://www.light.gg/db/legend/triumphs/{role_record}): {user_record}"
-                        )
-
-                case "require_role_ids":
-                    for role_role_id, user_role_id in zip(role_data[role_info].values(), user_data[role_info].values()):
-                        roles.append(f"{(await self.guild.get_role(role_role_id)).mention}: {user_role_id}")
+        for role_id, user_role in zip(role_data.require_collectibles, user_data.require_collectibles):
+            roles.append(f"{(await self.guild.get_role(role_id)).mention}: {user_role}")
 
         # add the embed fields
         if activities:
@@ -93,19 +92,19 @@ class Roles:
         if not result:
             return
 
-        acquirable_roles: dict[str, list[int]] = result.acquirable
-        deprecated_roles: dict[str, list[int]] = result.deprecated
-
         # do the missing roles display
         embed = embed_message(f"{self.member.display_name}'s Roles")
         embed.add_field(name="⁣", value=f"__**Acquirable Roles:**__", inline=False)
 
         # only do this if there are roles to get
-        if acquirable_roles:
-            for category, role_ids in acquirable_roles.items():
+        if result.acquirable:
+            # sort by category
+            by_category = await self.__sort_by_category(result.acquirable)
+
+            for category, role_mentions in by_category.items():
                 embed.add_field(
                     name=category,
-                    value=("\n".join([(await self.guild.get_role(role_id)).mention for role_id in role_ids]) or "None"),
+                    value="\n".join(role_mentions),
                     inline=True,
                 )
         else:
@@ -117,11 +116,14 @@ class Roles:
 
         # Do the same for the deprecated roles
         embed.add_field(name="⁣", value=f"__**Deprecated Roles:**__", inline=False)
-        if deprecated_roles:
-            for category, role_ids in deprecated_roles.items():
+        if result.deprecated:
+            # sort by category
+            by_category = await self.__sort_by_category(result.deprecated)
+
+            for category, role_mentions in by_category.items():
                 embed.add_field(
                     name=category,
-                    value="\n".join([(await self.guild.get_role(role_id)).mention for role_id in role_ids]),
+                    value="\n".join(role_mentions),
                     inline=True,
                 )
 
@@ -136,29 +138,31 @@ class Roles:
         if not result:
             return
 
-        roles_at_start = [role.id for role in self.ctx.author.roles]
-
-        earned_roles: dict[str, list[int]] = result.earned
-        earned_but_replaced_by_higher_role_roles: dict[str, list[int]] = result.earned_but_replaced_by_higher_role
-        not_earned_roles: dict[str, list[int]] = result.not_earned
+        roles_at_start = [role.id for role in self.member.roles]
 
         # assign new roles
-        for category in earned_roles.values():
-            for role_id in category:
-                await self.member.add_role(role=role_id)
+        await assign_roles_to_member(
+            member=self.member,
+            *[role_data.discord_role_id for role_data in result.earned],
+            reason="Destiny 2 Role Update",
+        )
 
         # remove old roles
-        for category in earned_but_replaced_by_higher_role_roles.values():
-            for role_id in category:
-                await self.member.remove_role(role=role_id)
-        for category in not_earned_roles.values():
-            for role_id in category:
-                await self.member.remove_role(role=role_id)
+        await remove_roles_from_member(
+            member=self.member,
+            *[role_data.discord_role_id for role_data in result.earned_but_replaced_by_higher_role],
+            reason="Destiny 2 Role Update",
+        )
+        await remove_roles_from_member(
+            member=self.member,
+            *[role_data.discord_role_id for role_data in result.not_earned],
+            reason="Destiny 2 Role Update",
+        )
 
         # send a message
         if self.ctx:
             # if user has no roles show this
-            if not earned_roles:
+            if not result.earned:
                 await self.ctx.send(
                     # todo link to where you can see all the roles
                     embeds=embed_message(
@@ -168,26 +172,26 @@ class Roles:
                 )
                 return
 
-            all_earned_roles = self._get_all_earned_roles(earned_roles, earned_but_replaced_by_higher_role_roles)
+            all_earned_roles = result.earned + result.earned_but_replaced_by_higher_role
 
             # now separate into newly earned roles and the old ones
             old_roles = {}
             new_roles = {}
-            for category, role_ids in all_earned_roles.items():
-                for role_id in role_ids:
-                    discord_role = await self.guild.get_role(role_id)
+            for role_data in all_earned_roles:
+                discord_role = await self.guild.get_role(role_data.discord_role_id)
+                category = role_data.category
 
-                    if discord_role:
-                        # check if they had the role
-                        if discord_role.id in roles_at_start:
-                            if category not in old_roles:
-                                old_roles.update({category: []})
-                            old_roles[category].append(discord_role.mention)
+                if discord_role:
+                    # check if they had the role
+                    if discord_role.id in roles_at_start:
+                        if category not in old_roles:
+                            old_roles.update({category: []})
+                        old_roles[category].append(discord_role.mention)
 
-                        else:
-                            if category not in new_roles:
-                                new_roles.update({category: []})
-                            new_roles[category].append(discord_role.mention)
+                    else:
+                        if category not in new_roles:
+                            new_roles.update({category: []})
+                        new_roles[category].append(discord_role.mention)
 
             # construct reply msg
             embed = embed_message(f"{self.member.display_name}'s new Roles", f"__Previous Roles:__")
@@ -212,15 +216,13 @@ class Roles:
 
             await self.ctx.send(embeds=embed)
 
-    @staticmethod
-    def _get_all_earned_roles(earned_roles: dict, earned_but_replaced_by_higher_role_roles: dict) -> dict:
-        """Combine earned_roles and earned_but_replaced_by_higher_role_roles"""
+    async def __sort_by_category(self, items: list[RolesCategoryModel]) -> dict[str, list[str]]:
+        """Sort list[RolesCategoryModel] by category"""
 
-        all_earned_roles = earned_roles.copy()
-        for category, role_ids in earned_but_replaced_by_higher_role_roles.items():
-            for role_id in role_ids:
-                if category not in all_earned_roles:
-                    all_earned_roles.update({category: []})
-                all_earned_roles[category].append(role_id)
+        by_category: dict[str, list[str]] = {}
+        for role_data in items:
+            if role_data.category not in by_category:
+                by_category.update({role_data.category: []})
+            by_category[role_data.category].append((await self.guild.get_role(role_data.discord_role_id)).mention)
 
-        return all_earned_roles
+        return by_category

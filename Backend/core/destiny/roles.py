@@ -1,6 +1,5 @@
 import asyncio
 import dataclasses
-from enum import Enum
 from typing import Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -14,15 +13,11 @@ from NetworkingSchemas.destiny.roles import (
     EarnedRoleModel,
     EarnedRolesModel,
     MissingRolesModel,
+    RoleDataUserModel,
+    RoleEnum,
     RoleModel,
+    RolesCategoryModel,
 )
-
-
-class RoleEnum(Enum):
-    NOT_ACQUIRABLE = 0
-    EARNED = 10
-    EARNED_BUT_REPLACED_BY_HIGHER_ROLE = 20
-    NOT_EARNED = 30
 
 
 class RoleNotEarnedException(Exception):
@@ -54,21 +49,16 @@ class UserRoles:
         result = MissingRolesModel()
 
         # loop through the roles and sort them based on if they are acquirable or not
-        for category, role_ids in missing_roles.items():
-            # loop through the roles
-            for role_id in role_ids:
-                role = await self.roles.get_role(db=self.db, role_id=role_id)
+        for role_data in missing_roles:
+            role = await self.roles.get_role(db=self.db, role_id=role_data.discord_role_id)
 
-                # check if deprecated
-                if role.role_data.deprecated:
-                    if category not in result.deprecated:
-                        result.deprecated.update({category: []})
-                    result.deprecated["category"].append(role_id)
+            model = RolesCategoryModel(category=role.role_data.category, discord_role_id=role.role_id)
 
-                else:
-                    if category not in result.acquirable:
-                        result.acquirable.update({category: []})
-                    result.acquirable["category"].append(role_id)
+            # check if deprecated
+            if role.role_data.deprecated:
+                result.deprecated.append(model)
+            else:
+                result.acquirable.append(model)
 
         return result
 
@@ -89,42 +79,33 @@ class UserRoles:
 
         # loop through the roles now that the gather is done and categorise them
         for role in guild_roles:
+            category = str(role.role_data.category)
+            model = RolesCategoryModel(category=category, discord_role_id=role.role_id)
+
             replaced_by_role_id = role.role_data.replaced_by_role_id
 
             if self._cache_worthy[role.role_id] == RoleEnum.EARNED:
-                category = str(role.role_data.category)
-                if category not in user_roles.earned:
-                    user_roles.earned.update({category: []})
-
-                user_roles.earned[category].append(role.role_id)
+                user_roles.earned.append(model)
 
             elif self._cache_worthy[role.role_id] == RoleEnum.NOT_EARNED:
-                category = str(role.role_data.category)
-                if category not in user_roles.not_earned:
-                    user_roles.not_earned.update({category: []})
-
-                user_roles.not_earned[category].append(role.role_id)
+                user_roles.not_earned.append(model)
 
             if replaced_by_role_id:
                 if (
                     self._cache_worthy[role.role_id] == RoleEnum.EARNED
                     and self._cache_worthy[replaced_by_role_id] == RoleEnum.EARNED
                 ):
-                    category = str(role.role_data.category)
-                    if category not in user_roles.earned_but_replaced_by_higher_role:
-                        user_roles.earned_but_replaced_by_higher_role.update({category: []})
-
-                    user_roles.earned_but_replaced_by_higher_role[category].append(role.role_id)
+                    user_roles.earned_but_replaced_by_higher_role.append(model)
 
                     # remove the old entry if exist
                     try:
-                        user_roles.earned[category].pop(role.role_id)
+                        user_roles.earned.remove(model)
                     except KeyError:
                         pass
 
         return user_roles
 
-    async def has_role(self, role: Roles, i_only_need_the_bool: bool = False) -> EarnedRoleModel:
+    async def has_role(self, role: RoleModel, i_only_need_the_bool: bool = False) -> EarnedRoleModel:
         """
         Return is the role is gotten and a dictionary of what is missing to get the role
 
@@ -136,11 +117,11 @@ class UserRoles:
         worthy, data = await self._has_role(
             role=role, called_with_asyncio_gather=False, i_only_need_the_bool=i_only_need_the_bool
         )
-        return EarnedRoleModel(earned=worthy, user_data=data, role_data=role.role_data)
+        return EarnedRoleModel(earned=worthy, user_data=data, user_role_data=role.role_data)
 
     async def _has_role(
         self, role: RoleModel, called_with_asyncio_gather: bool, i_only_need_the_bool: bool
-    ) -> tuple[RoleEnum, Optional[dict]]:
+    ) -> tuple[RoleEnum, Optional[RoleDataUserModel]]:
         """Check the role. Can be asyncio.gather()'d"""
 
         # check if it is set as acquirable
@@ -165,7 +146,7 @@ class UserRoles:
                 ]
             )
         except RoleNotEarnedException as e:
-            return RoleEnum.NOT_EARNED, self._cache_worthy_info[e.role_id]
+            return RoleEnum.NOT_EARNED, RoleDataUserModel.parse_obj(self._cache_worthy_info[e.role_id])
 
         # loop through the results and check if all reqs are OK
         worthy = RoleEnum.EARNED
@@ -261,7 +242,7 @@ class UserRoles:
                     if not result:
                         worthy = RoleEnum.NOT_EARNED
 
-                    self._cache_worthy_info[role.role_id]["require_records"].append(result)
+                    self._cache_worthy_info[role.role_id]["require_records"].append(result.bool)
 
                     # make this end early
                     if i_only_need_the_bool and worthy == RoleEnum.NOT_EARNED:
