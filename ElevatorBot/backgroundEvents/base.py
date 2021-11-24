@@ -1,6 +1,9 @@
+import re
+
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from dis_snek.client import Snake
 
+from ElevatorBot.misc.status import update_events_status_message
 
 scheduler = AsyncIOScheduler()
 
@@ -30,7 +33,14 @@ class BaseEvent:
             # https://apscheduler.readthedocs.io/en/stable/modules/triggers/date.html
             self.run_date = kwargs["run_date"]  # datetime(2000, 2, 20, 19, 30, 50)
 
-    # Every event must override this method
+    async def call(self, client: Snake):
+        """Run the post event functions"""
+
+        await self.run(client=client)
+
+        # update status message
+        await update_events_status_message(event_name=type(self).__name__)
+
     async def run(self, client: Snake):
-        # To be defined by every event
+        """Every event must override this method"""
         raise NotImplementedError

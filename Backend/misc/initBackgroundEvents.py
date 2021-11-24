@@ -81,14 +81,14 @@ def register_background_events() -> int:
         # check the type of job and schedule accordingly
         if event.scheduler_type == "interval":
             backgroundEvents.scheduler.add_job(
-                func=event.run,
+                func=event.call,
                 trigger="interval",
                 minutes=event.interval_minutes,
                 jitter=15 * 60,
             )
         elif event.scheduler_type == "cron":
             backgroundEvents.scheduler.add_job(
-                func=event.run,
+                func=event.call,
                 trigger="cron",
                 day_of_week=event.dow_day_of_week,
                 hour=event.dow_hour,
@@ -97,7 +97,7 @@ def register_background_events() -> int:
             )
         elif event.scheduler_type == "date":
             backgroundEvents.scheduler.add_job(
-                func=event.run,
+                func=event.call,
                 trigger="date",
                 run_date=event.run_date,
                 timezone=datetime.timezone.utc,

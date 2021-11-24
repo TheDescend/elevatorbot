@@ -85,7 +85,7 @@ async def register_background_events(client: Snake):
         # check the type of job and schedule accordingly
         if event.scheduler_type == "interval":
             backgroundEvents.scheduler.add_job(
-                func=event.run,
+                func=event.call,
                 trigger="interval",
                 args=(client,),
                 minutes=event.interval_minutes,
@@ -93,7 +93,7 @@ async def register_background_events(client: Snake):
             )
         elif event.scheduler_type == "cron":
             backgroundEvents.scheduler.add_job(
-                func=event.run,
+                func=event.call,
                 trigger="cron",
                 args=(client,),
                 day_of_week=event.dow_day_of_week,
@@ -103,7 +103,7 @@ async def register_background_events(client: Snake):
             )
         elif event.scheduler_type == "date":
             backgroundEvents.scheduler.add_job(
-                func=event.run,
+                func=event.call,
                 trigger="date",
                 args=(client,),
                 run_date=event.run_date,

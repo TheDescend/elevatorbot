@@ -12,10 +12,7 @@ from ElevatorBot.misc.discordShortcutFunctions import (
     remove_roles_from_member,
 )
 from ElevatorBot.misc.formating import embed_message
-from ElevatorBot.static.descendOnlyIds import (
-    descend_bot_dev_channel_id,
-    descend_guild_id,
-)
+from ElevatorBot.static.descendOnlyIds import descend_channels
 from ElevatorBot.static.emojis import custom_emojis
 
 
@@ -164,15 +161,13 @@ class ComponentCallbacks:
             return
 
         # send a message in descend if that's the guild
-        if ctx.guild.id == descend_guild_id:
-            channel = await ctx.guild.get_channel(descend_bot_dev_channel_id)
-
+        if ctx.guild == descend_channels.guild:
             embed = embed_message("Clan Update", f"An invite was send to {ctx.author.mention}")
             embed.add_field(name="Bungie Name", value=result.bungie_name, inline=True)
             embed.add_field(name="Destiny ID", value=result.destiny_id, inline=True)
             embed.add_field(name="System", value=result.system, inline=True)
 
-            await channel.send(embeds=embed)
+            await descend_channels.bot_dev_channel.send(embeds=embed)
 
         # inform user if invite was send
         embed = embed_message("Clan Application", "Check your game, I sent you a clan application")

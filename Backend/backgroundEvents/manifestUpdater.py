@@ -3,7 +3,7 @@ from Backend.core.destiny.manifest import DestinyManifest
 from Backend.database.base import get_async_session
 
 
-class UpdateManifest(BaseEvent):
+class ManifestUpdater(BaseEvent):
     """Check for Manifest Update hourly"""
 
     def __init__(self):

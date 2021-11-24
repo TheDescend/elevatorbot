@@ -6,13 +6,14 @@ from dis_snek.models.enums import Intents
 
 from ElevatorBot.discordEvents.base import register_discord_events
 from ElevatorBot.discordEvents.errorEvents import CustomErrorSnake
-from ElevatorBot.misc.discordStatus import update_status
+from ElevatorBot.misc.status import update_discord_bot_status
 from ElevatorBot.misc.veryMisc import yield_files_in_folder
 from ElevatorBot.startup.initAutocompleteOptions import load_autocomplete_options
 from ElevatorBot.startup.initBackgroundEvents import register_background_events
 from ElevatorBot.startup.initComponentCallbacks import add_component_callbacks
 from ElevatorBot.startup.initDocs import create_command_docs
 from ElevatorBot.startup.initLogging import init_logging
+from ElevatorBot.static.descendOnlyIds import descend_channels
 from ElevatorBot.static.emojis import custom_emojis
 from ElevatorBot.webserver.server import run_webserver
 from settings import DISCORD_BOT_TOKEN, SYNC_COMMANDS
@@ -69,13 +70,17 @@ if __name__ == "__main__":
         await register_background_events(client)
 
         print("Launching the Status Changer...")
-        asyncio.create_task(update_status(client))
+        asyncio.create_task(update_discord_bot_status(client))
 
         print("Start Webserver...")
         asyncio.create_task(run_webserver(client=client))
 
         print("Loading Custom Emoji...")
         await custom_emojis.init_emojis(client)
+
+        print("Setting Up Descend Data...")
+        await descend_channels.init_channels(client)
+        # todo cache descend guild (dis-senk method)
 
         print("Startup Finished!\n")
         print("--------------------------\n")

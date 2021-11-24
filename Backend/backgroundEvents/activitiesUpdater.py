@@ -6,7 +6,7 @@ from Backend.crud import discord_users
 from Backend.database.base import get_async_session
 
 
-class UpdateActivities(BaseEvent):
+class ActivitiesUpdater(BaseEvent):
     """Check for Activity Updates 4 times a day"""
 
     def __init__(self):

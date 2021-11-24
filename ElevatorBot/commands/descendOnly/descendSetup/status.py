@@ -15,7 +15,6 @@ from settings import COMMAND_GUILD_SCOPE
 
 
 class Status(BaseScale):
-    # todo maybe use websocket to get backend updates and display them in discord
     # todo perms
     @slash_command(
         **descend_setup_sub_command,
@@ -39,6 +38,7 @@ class Status(BaseScale):
     async def _status(self, ctx: InteractionContext, channel: GuildChannel, message_id: str = None):
         message_name = "status"
         embed = embed_message("Status: Last valid...")
+        embed.set_footer("Updated")
         await handle_setup_command(
             ctx=ctx,
             message_name=message_name,

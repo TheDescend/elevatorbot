@@ -1,2 +1,2 @@
+from ElevatorBot.backgroundEvents.automaticRoleAssigment import AutomaticRoleAssignment
 from ElevatorBot.backgroundEvents.base import BaseEvent, scheduler
-from ElevatorBot.backgroundEvents.roleAssigment import AutomaticRoleAssignment

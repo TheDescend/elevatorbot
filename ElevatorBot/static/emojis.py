@@ -43,7 +43,7 @@ class __ElevatorEmojis:
     linear_fusion_rifle: CustomEmoji | int = 906180170807906365
     grenade_launcher: CustomEmoji | int = 906180170405249025
     submachine_gun: CustomEmoji | int = 906180170799521815
-    trace_rifle: CustomEmoji | int = 1  # todo missing
+    trace_rifle: CustomEmoji | int = 912989912251367444
     bow: CustomEmoji | int = 906180170799538206
 
     primary: CustomEmoji | int = 906180170887622656

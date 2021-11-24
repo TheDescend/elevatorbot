@@ -351,3 +351,5 @@ class DestinyManifest:
         # populate the autocomplete options again
         elevator_api = ElevatorApi()
         result = await elevator_api.post(route_addition="manifest_update/")
+        if not result:
+            raise ConnectionError

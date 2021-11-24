@@ -5,7 +5,7 @@ from Backend.networking.bungieApi import BungieApi
 from settings import STEAM_TOKEN
 
 
-class UpdateSteamPlayers(BaseEvent):
+class SteamPlayerUpdater(BaseEvent):
     """Check for Steam Players hourly"""
 
     def __init__(self):

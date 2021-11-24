@@ -11,12 +11,7 @@ from dis_snek.models import (
 
 from ElevatorBot.misc.cache import reply_cache
 from ElevatorBot.misc.formating import embed_message
-from ElevatorBot.static.descendOnlyIds import (
-    descend_admin_channel_id,
-    descend_bot_dev_channel_id,
-    descend_guild_id,
-    emote_suggestion_channel_id,
-)
+from ElevatorBot.static.descendOnlyIds import descend_channels
 from ElevatorBot.static.emojis import custom_emojis
 from settings import COMMAND_GUILD_SCOPE
 
@@ -59,7 +54,7 @@ async def on_message_create(message: Message, edit_mode: bool = False):
             thread = message.thread
 
             # only do this for descend
-            if message.guild.id == descend_guild_id:
+            if message.guild == descend_channels.guild:
                 send = False
 
                 # check if message is in cache
@@ -70,8 +65,8 @@ async def on_message_create(message: Message, edit_mode: bool = False):
                 elif (
                     thread.channel.id
                     in [
-                        descend_admin_channel_id,
-                        descend_bot_dev_channel_id,
+                        descend_channels.admin_channel.id,
+                        descend_channels.bot_dev_channel.id,
                     ]
                     and thread.name.startswith("Message from")
                 ):
@@ -127,9 +122,6 @@ async def on_message_create(message: Message, edit_mode: bool = False):
                     thread_name = (
                         f"Message from {message.author.username}_{message.author.discriminator}|{message.author.id}"
                     )
-                    channel: GuildText = await client.get_channel(descend_admin_channel_id) or await client.get_channel(
-                        descend_bot_dev_channel_id
-                    )
 
                     # we just need to get the url, no need to re-upload
                     attached_files = [attachment.url for attachment in message.attachments]
@@ -141,8 +133,8 @@ async def on_message_create(message: Message, edit_mode: bool = False):
                     else:
                         # todo correct function to get all threads for that channel if that exists
                         channel_threads = (
-                            await channel.get_public_archived_threads()
-                        ).threads + await channel.get_active_threads()
+                            await descend_channels.admin_channel.get_public_archived_threads()
+                        ).threads + await descend_channels.admin_channel.get_active_threads()
 
                         # maybe a thread does exist, but is not cached since we restarted
                         threads = [thread for thread in channel_threads if thread.name == thread_name]
@@ -153,7 +145,7 @@ async def on_message_create(message: Message, edit_mode: bool = False):
 
                         else:
                             # create a thread
-                            thread = await channel.create_thread_without_message(
+                            thread = await descend_channels.admin_channel.create_thread_without_message(
                                 name=thread_name,
                                 thread_type=ChannelTypes.GUILD_PUBLIC_THREAD,
                                 auto_archive_duration=AutoArchiveDuration.ONE_HOUR,
@@ -204,7 +196,7 @@ async def on_message_create(message: Message, edit_mode: bool = False):
         # handle guild messages
         else:
             # descend only stuff
-            if message.guild.id == descend_guild_id:
+            if message.guild == descend_channels.guild:
                 # whatever this is
                 if "äbidöpfel" in message.content.lower():
                     texts = [

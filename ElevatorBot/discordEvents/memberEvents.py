@@ -10,13 +10,9 @@ from ElevatorBot.core.destiny.roles import Roles
 from ElevatorBot.misc.discordShortcutFunctions import assign_roles_to_member
 from ElevatorBot.misc.formating import embed_message
 from ElevatorBot.static.descendOnlyIds import (
-    descend_bot_dev_channel_id,
-    descend_community_roles_channel_id,
+    descend_channels,
     descend_filler_role_ids,
-    descend_guild_id,
-    descend_join_log_channel_id,
     descend_no_nickname_role_id,
-    descend_registration_channel_id,
 )
 from ElevatorBot.static.emojis import custom_emojis
 
@@ -28,12 +24,12 @@ async def on_member_add(member: Member, guild_id: int):
         client = member._client
 
         # descend only stuff
-        if member.guild.id == descend_guild_id:
+        if member.guild == descend_channels.guild:
             # inform the user that they should registration with the bot
             await member.send(
                 embeds=embed_message(
                     f"{custom_emojis.descend_logo} Welcome to Descend {member.name}! {custom_emojis.descend_logo}",
-                    f"Before you can do anything else, you need to accept our rules. Please read them and accept them [> here <](discord://-/member-verification/{descend_guild_id}), if you have not done so already \n⁣\nYou can join the Destiny 2 clan in <#{descend_registration_channel_id}>\nYou can find our current requirements in the same channel. \n⁣\nWe have a wide variety of roles you can earn, for more information, please use `roles overview` or check out <#{descend_community_roles_channel_id}>\n⁣\nIf you have any problems / questions, do not hesitate to write {member._client.user.mention} (me) a personal message with your problem / question. This will get forwarded to staff",
+                    f"Before you can do anything else, you need to accept our rules. Please read them and accept them [> here <](discord://-/member-verification/{descend_channels.guild.id}), if you have not done so already \n⁣\nYou can join the Destiny 2 clan in {descend_channels.registration_channel.mention}\nYou can find our current requirements in the same channel. \n⁣\nWe have a wide variety of roles you can earn, for more information, please use `roles overview` or check out {descend_channels.community_roles_channel.mention}\n⁣\nIf you have any problems / questions, do not hesitate to write {member._client.user.mention} (me) a personal message with your problem / question. This will get forwarded to staff",
                 )
             )
 
@@ -48,14 +44,13 @@ async def on_member_remove(member: Member, guild_id: int):
     client = member._client
 
     # descend only stuff
-    if member.guild.id == descend_guild_id:
+    if member.guild == descend_channels.guild:
         # send a message in the join log channel
         embed = embed_message("Member Left the Server", f"{member.mention} has left the server")
         embed.add_field(name="Display Name", value=member.display_name)
         embed.add_field(name="Name", value=member.name)
         embed.add_field(name="Discord ID", value=member.id)
-        channel = await member.guild.get_channel(descend_join_log_channel_id)
-        await channel.send(embeds=embed)
+        await descend_channels.join_log_channel.send(embeds=embed)
 
         # todo removeFromClanAfterLeftDiscord(client, member)
         # =========================================================================
@@ -74,8 +69,6 @@ async def on_member_remove(member: Member, guild_id: int):
         for player in result.members:
             if player.discord_id == member.id:
                 # prompt in bot-dev
-                channel = await client.get_channel(descend_bot_dev_channel_id)
-
                 components = [
                     ActionRow(
                         Button(
@@ -97,7 +90,7 @@ async def on_member_remove(member: Member, guild_id: int):
                 embed.add_field(name="Destiny ID", value=player.destiny_id, inline=True)
                 embed.add_field(name="System", value=player.system, inline=True)
 
-                message = await channel.send(embeds=embed, components=components)
+                message = await descend_channels.bot_dev_channel.send(embeds=embed, components=components)
 
                 try:
                     component: Component = await client.wait_for_component(components=components)
@@ -132,7 +125,7 @@ async def on_member_update(before: Member, after: Member, guild_id: int):
             await _assign_roles_on_join(client=client, member=after)
 
         # descend only stuff
-        if after.guild.id == descend_guild_id:
+        if after.guild == descend_channels.guild:
             # change nickname back if it is not None
             if (not before.nickname) and after.nickname:
                 if descend_no_nickname_role_id in [role.id for role in after.roles]:
@@ -146,7 +139,7 @@ async def _assign_roles_on_join(client: Snake, member: Member):
     await destiny_profile.assign_registration_role()
 
     # add filler roles for descend
-    if member.guild.id == descend_guild_id:
+    if member.guild == descend_channels.guild:
         await assign_roles_to_member(member=member, *descend_filler_role_ids, reason="Destiny 2 Filler Roles")
 
     # assign their roles

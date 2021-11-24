@@ -1,5 +1,5 @@
+from Backend.backgroundEvents.activitiesUpdater import ActivitiesUpdater
 from Backend.backgroundEvents.base import BaseEvent, scheduler
+from Backend.backgroundEvents.manifestUpdater import ManifestUpdater
+from Backend.backgroundEvents.steamPlayerUpdater import SteamPlayerUpdater
 from Backend.backgroundEvents.tokenUpdater import TokenUpdater
-from Backend.backgroundEvents.updateActivities import UpdateActivities
-from Backend.backgroundEvents.updateManifest import UpdateManifest
-from Backend.backgroundEvents.updateSteamPlayers import UpdateSteamPlayers

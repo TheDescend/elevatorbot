@@ -55,6 +55,8 @@ class RegisteredRoleCache:
 class DescendCache:
     """This saves descend only info"""
 
+    status_message: Message = None
+
     booster_count_channel: GuildVoice = dataclasses.field(init=False, default=None)
     member_count_channel: GuildVoice = dataclasses.field(init=False, default=None)
 
