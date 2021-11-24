@@ -20,7 +20,7 @@ class CustomErrorSnake(Snake):
             f"{ctx.kwargs}' in guildID '{ctx.guild.id}', channelID '{ctx.channel.id}'"
         )
 
-    async def on_command_error(self, ctx: InteractionContext, error: Exception):
+    async def on_command_error(self, ctx: InteractionContext, error: Exception, *args, **kwargs):
         """Gets triggered on slash command errors"""
 
         await log_error(ctx=ctx, error=error, situation="commands")
@@ -34,7 +34,7 @@ class CustomErrorSnake(Snake):
             f"InteractionID '{ctx.interaction_id}' - User '{ctx.author.name}' with discordID '{ctx.author.id}' clicked on componentType '{ctx.component_type}', componentID '{ctx.component_id}' in guildID '{ctx.origin_message.guild.id}', channelID '{ctx.origin_message.channel.id}', messageID '{ctx.origin_message.id}'"
         )
 
-    async def on_component_error(self, ctx: ComponentContext, error: Exception):
+    async def on_component_error(self, ctx: ComponentContext, error: Exception, *args, **kwargs):
         """Gets triggered on component callback errors"""
 
         await log_error(ctx=ctx, error=error, situation="components")

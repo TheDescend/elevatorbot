@@ -1,13 +1,7 @@
 import random
 
-from dis_snek.client import Snake
-from dis_snek.models import (
-    AutoArchiveDuration,
-    ChannelTypes,
-    GuildText,
-    Message,
-    ThreadChannel,
-)
+from dis_snek.models import AutoArchiveDuration, ChannelTypes, ThreadList
+from dis_snek.models.events import MessageCreate, MessageDelete, MessageUpdate
 
 from ElevatorBot.misc.cache import reply_cache
 from ElevatorBot.misc.formating import embed_message
@@ -16,38 +10,43 @@ from ElevatorBot.static.emojis import custom_emojis
 from settings import COMMAND_GUILD_SCOPE
 
 
-async def on_message_delete(message: Message):
+async def on_message_delete(event: MessageDelete):
     """Triggers when a message gets deleted"""
 
+    client = event.bot
+
     # ignore bot messages
-    if not message.author.bot:
+    if not event.message.author.bot:
         # check if the deleted message was part of the conversation with a member and admins
-        if message.id in reply_cache.thread_message_id_to_user_message:
-            message = reply_cache.thread_message_id_to_user_message[message.id]
+        if event.message.id in reply_cache.thread_message_id_to_user_message:
+            message = reply_cache.thread_message_id_to_user_message[event.message.id]
             await message.delete()
             reply_cache.thread_message_id_to_user_message.pop(message.id)
 
-        elif message.id in reply_cache.user_message_id_to_thread_message:
-            message = reply_cache.user_message_id_to_thread_message[message.id]
+        elif event.message.id in reply_cache.user_message_id_to_thread_message:
+            message = reply_cache.user_message_id_to_thread_message[event.message.id]
             await message.delete()
             reply_cache.user_message_id_to_thread_message.pop(message.id)
 
 
-async def on_message_edit(before: Message, after: Message):
+async def on_message_update(event: MessageUpdate):
     """Triggers when a message gets edited"""
 
-    if before != after:
+    client = event.bot
+
+    if event.before != event.after:
         # run the message create checks
-        await on_message_create(after, edit_mode=True)
+        await on_message_create(event=MessageCreate(bot=client, message=event.after), edit_mode=True)
 
 
-async def on_message_create(message: Message, edit_mode: bool = False):
+async def on_message_create(event: MessageCreate, edit_mode: bool = False):
     """Triggers when a message gets send"""
+
+    client = event.bot
+    message = event.message
 
     # ignore bot messages
     if not message.author.bot:
-        client = message._client
-
         # =========================================================================
         # handle thread messages
         if message.thread:
@@ -131,13 +130,10 @@ async def on_message_create(message: Message, edit_mode: bool = False):
                         thread = reply_cache.user_to_thread[message.author.id]
 
                     else:
-                        # todo correct function to get all threads for that channel if that exists
-                        channel_threads = (
-                            await descend_channels.admin_channel.get_public_archived_threads()
-                        ).threads + await descend_channels.admin_channel.get_active_threads()
+                        channel_threads: ThreadList = await descend_channels.admin_channel.get_all_threads()
 
                         # maybe a thread does exist, but is not cached since we restarted
-                        threads = [thread for thread in channel_threads if thread.name == thread_name]
+                        threads = [thread for thread in channel_threads.threads if thread.name == thread_name]
 
                         if threads:
                             # only one entry

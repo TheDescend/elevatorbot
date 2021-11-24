@@ -21,7 +21,7 @@ from ElevatorBot.discordEvents.memberEvents import (
 from ElevatorBot.discordEvents.messageEvents import (
     on_message_create,
     on_message_delete,
-    on_message_edit,
+    on_message_update,
 )
 
 
@@ -31,7 +31,7 @@ def register_discord_events(client: Snake):
     # message events
     client.add_listener(Listener(func=on_message_create, event="message_create"))
     client.add_listener(Listener(func=on_message_delete, event="message_delete"))
-    client.add_listener(Listener(func=on_message_edit, event="message_edit"))
+    client.add_listener(Listener(func=on_message_update, event="message_update"))
 
     # member events
     client.add_listener(Listener(func=on_member_add, event="member_add"))

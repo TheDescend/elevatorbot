@@ -43,7 +43,7 @@ async def update_events_status_message(event_name: str):
 
     now = get_now_with_tz()
     correctly_formatted_event_name = " ".join(re.findall("[A-Z][^A-Z]*", event_name))
-    correctly_formatted_event_time = Timestamp.fromdatetime(now).format(style=TimestampStyles.ShortDateTime)
+    correctly_formatted_event_time = f"{Timestamp.fromdatetime(now).format(style=TimestampStyles.ShortDateTime)} | {Timestamp.fromdatetime(now).format(style=TimestampStyles.RelativeTime)}"
 
     # get the message from cache
     if not descend_cache.message:
