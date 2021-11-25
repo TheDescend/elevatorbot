@@ -6,7 +6,7 @@ from Backend.database.models import Poll
 from ElevatorBot.backendNetworking.destiny.clan import DestinyClan
 from ElevatorBot.backendNetworking.misc.polls import BackendPolls
 from ElevatorBot.commands.destiny.registration.register import send_registration
-from ElevatorBot.core.destiny.lfgSystem import LfgMessage
+from ElevatorBot.core.destiny.lfg.lfgSystem import LfgMessage
 from ElevatorBot.misc.discordShortcutFunctions import (
     assign_roles_to_member,
     remove_roles_from_member,

@@ -14,7 +14,7 @@ from dis_snek.models import GuildText
 
 from ElevatorBot import backgroundEvents
 from ElevatorBot.backendNetworking.destiny.lfgSystem import DestinyLfgSystem
-from ElevatorBot.core.destiny.lfgSystem import LfgMessage
+from ElevatorBot.core.destiny.lfg.lfgSystem import LfgMessage
 
 
 async def register_background_events(client: Snake):

@@ -28,10 +28,12 @@ class Time(BaseScale):
         self,
         ctx: InteractionContext,
         destiny_class: str = None,
-        mode: int = None,
+        mode: str = None,
         activity: str = None,
         user: Member = None,
     ):
+        mode = int(mode) if mode else None
+
         # might take a sec
         await ctx.defer()
 

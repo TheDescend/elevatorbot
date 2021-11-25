@@ -1,4 +1,4 @@
-from Backend.backgroundEvents import BaseEvent
+from Backend.backgroundEvents.base import BaseEvent
 from Backend.crud import discord_users
 from Backend.database.base import get_async_session
 from Backend.networking.bungieAuth import BungieAuth

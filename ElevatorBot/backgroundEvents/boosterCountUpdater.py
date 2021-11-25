@@ -1,6 +1,6 @@
 from dis_snek.client import Snake
 
-from ElevatorBot.backgroundEvents import BaseEvent
+from ElevatorBot.backgroundEvents.base import BaseEvent
 from ElevatorBot.misc.cache import descend_cache
 from ElevatorBot.static.descendOnlyIds import descend_channels
 

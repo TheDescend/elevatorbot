@@ -15,8 +15,6 @@ from ElevatorBot.commandHelpers.responseTemplates import (
 from ElevatorBot.misc.formating import embed_message
 from ElevatorBot.static.emojis import custom_emojis
 
-elevator_permission_bits = 536299961937
-
 
 def get_now_with_tz() -> datetime.datetime:
     """Returns the current datetime (timezone aware)"""

@@ -9,7 +9,7 @@ from dis_snek.models import (
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
 from ElevatorBot.commandHelpers.subCommandTemplates import lfg_sub_command
 from ElevatorBot.commands.base import BaseScale
-from ElevatorBot.core.destiny.lfgSystem import LfgMessage
+from ElevatorBot.core.destiny.lfg.lfgSystem import LfgMessage
 from ElevatorBot.misc.discordShortcutFunctions import has_admin_permission
 from ElevatorBot.misc.formating import embed_message
 

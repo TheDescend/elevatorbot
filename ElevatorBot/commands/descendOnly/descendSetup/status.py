@@ -10,6 +10,7 @@ from dis_snek.models import (
 from ElevatorBot.commandHelpers.subCommandTemplates import descend_setup_sub_command
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.core.misc.persistentMessages import handle_setup_command
+from ElevatorBot.misc.cache import descend_cache
 from ElevatorBot.misc.formating import embed_message
 from settings import COMMAND_GUILD_SCOPE
 
@@ -39,7 +40,7 @@ class Status(BaseScale):
         message_name = "status"
         embed = embed_message("Status: Last valid...")
         embed.set_footer("Updated")
-        await handle_setup_command(
+        message = await handle_setup_command(
             ctx=ctx,
             message_name=message_name,
             channel=channel,
@@ -47,6 +48,10 @@ class Status(BaseScale):
             send_message_embed=embed,
             message_id=int(message_id) if message_id else None,
         )
+
+        if message:
+            # cache that
+            descend_cache.status_message = message
 
 
 def setup(client):

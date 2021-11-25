@@ -2,7 +2,7 @@ import asyncio
 
 from dis_snek.client import Snake
 
-from ElevatorBot.backgroundEvents import BaseEvent
+from ElevatorBot.backgroundEvents.base import BaseEvent
 from ElevatorBot.core.destiny.roles import Roles
 
 

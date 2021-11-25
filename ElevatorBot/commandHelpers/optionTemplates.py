@@ -18,6 +18,7 @@ from ElevatorBot.static.destinyDates import expansion_dates, season_and_expansio
 from ElevatorBot.static.timezones import timezones_dict
 
 
+# todo unify naming (alt + f7)
 def get_mode_choices() -> list[SlashCommandChoice]:
     return [
         SlashCommandChoice(name="Everything (Default)", value="0"),
@@ -94,12 +95,12 @@ def default_mode_option(description: str = "Restrict the game mode. Default: All
         return slash_option(
             name="mode",
             description=description,
-            opt_type=OptionTypes.INTEGER,
+            opt_type=OptionTypes.STRING,
             required=False,
             choices=[
                 SlashCommandChoice(
                     name=capitalize_string(activity_type.name),
-                    value=activity_type.value,
+                    value=str(activity_type.value),
                 )
                 for activity_type in UsableDestinyActivityModeTypeEnum
             ],
@@ -145,7 +146,9 @@ def default_time_option(
     return wrapper
 
 
-def default_expansion_option(description: str = "Restrict the time to the expansion", required: bool = False) -> Any:
+def default_expansion_option(
+    description: str = "Restrict the expansion. Default: All expansions", required: bool = False
+) -> Any:
     """
     Decorator that replaces @slash_option()
     Call with `@default_expansion_option()`
@@ -163,7 +166,9 @@ def default_expansion_option(description: str = "Restrict the time to the expans
             choices=[
                 SlashCommandChoice(
                     name=expansion.name,
-                    value=f"{expansion.name}|{int(expansion.start.timestamp())}|{int(season_and_expansion_dates[(season_and_expansion_dates.index(expansion) + 1)].start.timestamp())}",
+                    value=f"{expansion.name}|{int(expansion.start.timestamp())}|{int(expansion_dates[(expansion_dates.index(expansion) + 1)].start.timestamp())}"
+                    if expansion_dates.index(expansion) + 1 < len(expansion_dates)
+                    else f"{expansion.name}|{int(expansion.start.timestamp())}|9999999999",
                 )
                 for expansion in expansion_dates
             ],
@@ -173,7 +178,7 @@ def default_expansion_option(description: str = "Restrict the time to the expans
 
 
 def default_season_option(
-    description: str = "Restrict the time to the season. Usually 3 months", required: bool = False
+    description: str = "Restrict the season. Default: All seasons", required: bool = False
 ) -> Any:
     """
     Decorator that replaces @slash_option()
@@ -192,7 +197,9 @@ def default_season_option(
             choices=[
                 SlashCommandChoice(
                     name=season.name,
-                    value=f"{season.name}|{int(season.start.timestamp())}|{int(season_and_expansion_dates[(season_and_expansion_dates.index(season) + 1)].start.timestamp())}",
+                    value=f"{season.name}|{int(season.start.timestamp())}|{int(season_and_expansion_dates[(season_and_expansion_dates.index(season) + 1)].start.timestamp())}"
+                    if season_and_expansion_dates.index(season) + 1 < len(season_and_expansion_dates)
+                    else f"{season.name}|{int(season.start.timestamp())}|9999999999",
                 )
                 for season in season_and_expansion_dates
             ],
@@ -202,7 +209,7 @@ def default_season_option(
 
 
 def default_weapon_type_option(
-    description: str = "Restrict the weapon type is looked at", required: bool = False
+    description: str = "Restrict the weapon type. Default: All types", required: bool = False
 ) -> Any:
     """
     Decorator that replaces @slash_option()
@@ -228,7 +235,7 @@ def default_weapon_type_option(
 
 
 def default_damage_type_option(
-    description: str = "Restrict the damage type which are looked at. Default: All types", required: bool = False
+    description: str = "Restrict the damage type. Default: All types", required: bool = False
 ) -> Any:
     """
     Decorator that replaces @slash_option()
@@ -254,7 +261,7 @@ def default_damage_type_option(
 
 
 def autocomplete_activity_option(
-    description: str = "Restrict the activity. Default: All activities", required: bool = False
+    description: str = "Restrict the activity. Overwrites `mode`. Default: All activities", required: bool = False
 ) -> Any:
     """
     Decorator that replaces @slash_option()

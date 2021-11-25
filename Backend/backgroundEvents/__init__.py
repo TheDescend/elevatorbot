@@ -1,5 +1,5 @@
 from Backend.backgroundEvents.activitiesUpdater import ActivitiesUpdater
-from Backend.backgroundEvents.base import BaseEvent, scheduler
 from Backend.backgroundEvents.manifestUpdater import ManifestUpdater
+from Backend.backgroundEvents.rssFeedChecker import RssFeedChecker
 from Backend.backgroundEvents.steamPlayerUpdater import SteamPlayerUpdater
 from Backend.backgroundEvents.tokenUpdater import TokenUpdater

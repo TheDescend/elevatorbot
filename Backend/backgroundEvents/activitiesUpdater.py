@@ -1,6 +1,6 @@
 import asyncio
 
-from Backend.backgroundEvents import BaseEvent
+from Backend.backgroundEvents.base import BaseEvent
 from Backend.core.destiny.activities import DestinyActivities
 from Backend.crud import discord_users
 from Backend.database.base import get_async_session

@@ -37,13 +37,11 @@ class WeaponsWeapon(BaseScale):
         **weapons_sub_command, sub_cmd_name="weapon", sub_cmd_description="Shows weapon stats for the specified weapon"
     )
     @autocomplete_weapon_option(description="The weapon you want to look up", required=True)
-    @default_mode_option(description="Restrict the game mode where the weapon stats count. Default: All modes")
-    @autocomplete_activity_option(
-        description="Restrict the activity where the weapon stats count. Overwrites `mode`. Default: All modes"
-    )
-    @default_class_option(description="Restrict the class where the weapon stats count. Default: All classes")
-    @default_expansion_option(description="Restrict the expansion where the weapon stats count")
-    @default_season_option(description="Restrict the season where the weapon stats count")
+    @default_mode_option()
+    @autocomplete_activity_option()
+    @default_class_option()
+    @default_expansion_option()
+    @default_season_option()
     @default_time_option(
         name="start_time",
         description="Format: `DD/MM/YY` - Input the **earliest** date you want the weapon stats for. Default: Big Bang",
@@ -57,7 +55,7 @@ class WeaponsWeapon(BaseScale):
         self,
         ctx: InteractionContext,
         weapon: str,
-        mode: int = None,
+        mode: str = None,
         activity: str = None,
         destiny_class: str = None,
         expansion: str = None,
@@ -66,6 +64,8 @@ class WeaponsWeapon(BaseScale):
         end_time: str = None,
         user: Member = None,
     ):
+        mode = int(mode) if mode else None
+
         # parse start and end time
         start_time, end_time = parse_datetime_options(
             ctx=ctx, expansion=expansion, season=season, start_time=start_time, end_time=end_time

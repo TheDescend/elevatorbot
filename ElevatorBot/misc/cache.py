@@ -7,6 +7,7 @@ from dis_snek.models import Guild, GuildVoice, Message, Role, ThreadChannel
 from ElevatorBot.backendNetworking.destiny.items import DestinyItems
 from ElevatorBot.core.misc.persistentMessages import PersistentMessages
 from ElevatorBot.misc.helperFunctions import get_now_with_tz
+from ElevatorBot.static.descendOnlyIds import descend_channels
 
 
 @dataclasses.dataclass
@@ -89,6 +90,18 @@ class DescendCache:
             self.member_count_channel = await descend_guild.get_channel(result.channel_id)
 
         return self.member_count_channel
+
+    async def init_status_message(self):
+        """Cache the message where the status updates are"""
+
+        persistent_messages = PersistentMessages(ctx=None, guild=descend_channels.guild, message_name="status")
+        result = await persistent_messages.get()
+        if not result:
+            # when we have not set a message yet
+            return
+
+        channel = await descend_channels.guild.get_channel(result.channel_id)
+        self.status_message = await channel.get_message(result.message_id)
 
 
 @dataclasses.dataclass

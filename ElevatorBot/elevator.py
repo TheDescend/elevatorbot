@@ -1,6 +1,5 @@
 import asyncio
 
-from dis_snek.errors import ExtensionLoadException
 from dis_snek.models import listen
 from dis_snek.models.enums import Intents
 
@@ -16,7 +15,7 @@ from ElevatorBot.startup.initLogging import init_logging
 from ElevatorBot.static.descendOnlyIds import descend_channels
 from ElevatorBot.static.emojis import custom_emojis
 from ElevatorBot.webserver.server import run_webserver
-from settings import DISCORD_BOT_TOKEN, SYNC_COMMANDS
+from settings import DISCORD_BOT_TOKEN, ENABLE_DEBUG_MODE, SYNC_COMMANDS
 
 if __name__ == "__main__":
     # config logging
@@ -26,13 +25,13 @@ if __name__ == "__main__":
     print("----------------------------------------------------------------------------------------")
     print(
         """
-          ______   _                          _                    ____            _
-         |  ____| | |                        | |                  |  _ \          | |
-         | |__    | |   ___  __   __   __ _  | |_    ___    _ __  | |_) |   ___   | |_
-         |  __|   | |  / _ \ \ \ / /  / _` | | __|  / _ \  | '__| |  _ <   / _ \  | __|
-         | |____  | | |  __/  \ V /  | (_| | | |_  | (_) | | |    | |_) | | (_) | | |_
-         |______| |_|  \___|   \_/    \__,_|  \__|  \___/  |_|    |____/   \___/   \__|
-        """
+  ______   _                          _                    ____            _
+ |  ____| | |                        | |                  |  _ \          | |
+ | |__    | |   ___  __   __   __ _  | |_    ___    _ __  | |_) |   ___   | |_
+ |  __|   | |  / _ \ \ \ / /  / _` | | __|  / _ \  | '__| |  _ <   / _ \  | __|
+ | |____  | | |  __/  \ V /  | (_| | | |_  | (_) | | |    | |_) | | (_) | | |_
+ |______| |_|  \___|   \_/    \__,_|  \__|  \___/  |_|    |____/   \___/   \__|
+    """
     )
     print("----------------------------------------------------------------------------------------\n")
     print("Starting Up...")
@@ -48,7 +47,9 @@ if __name__ == "__main__":
     )
 
     # actually get the bot obj
-    client = CustomErrorSnake(intents=intents, sync_interactions=SYNC_COMMANDS, delete_unused_application_cmds=True)
+    client = CustomErrorSnake(
+        intents=intents, sync_interactions=SYNC_COMMANDS, delete_unused_application_cmds=not ENABLE_DEBUG_MODE
+    )
 
     print("Loading Discord Events...")
     register_discord_events(client)
@@ -80,7 +81,9 @@ if __name__ == "__main__":
 
         print("Setting Up Descend Data...")
         await descend_channels.init_channels(client)
-        # todo cache descend guild (dis-senk method)
+
+        # chunk descend, but not all guilds
+        await descend_channels.guild.chunk_guild()
 
         print("Startup Finished!\n")
         print("--------------------------\n")
@@ -88,7 +91,9 @@ if __name__ == "__main__":
     # load commands
     print("Loading Commands...")
     for path in yield_files_in_folder("commands", "py"):
-        client.load_extension(path)
+        # todo remove those once discord increases their stupid character limit (Currently 6145 chars)
+        if "weapons.meta" not in path and "weapons.top" not in path:
+            client.load_extension(path)
 
     global_commands = len(client.interactions[0])
     print(f"< {global_commands} > Global Commands Loaded")

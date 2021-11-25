@@ -1,6 +1,6 @@
 import feedparser
 
-from Backend.backgroundEvents import BaseEvent
+from Backend.backgroundEvents.base import BaseEvent
 from Backend.crud import persistent_messages, rss_feed
 from Backend.database.base import get_async_session
 from Backend.networking.elevatorApi import ElevatorApi

@@ -55,9 +55,11 @@ async def on_channel_update(event: ChannelUpdate):
 async def on_guild_join(event: GuildJoin):
     """Triggers when ElevatorBot gets added to a guild"""
 
-    # add guild to the list of all guilds, needed for website info
-    elevator_guilds = ElevatorGuilds(ctx=None, discord_guild=event.guild)
-    await elevator_guilds.add()
+    # this gets called on startup. We don't want that
+    if event.guild._client._startup:
+        # add guild to the list of all guilds, needed for website info
+        elevator_guilds = ElevatorGuilds(ctx=None, discord_guild=event.guild)
+        await elevator_guilds.add()
 
 
 async def on_guild_left(event: GuildLeft):

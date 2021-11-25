@@ -49,15 +49,13 @@ class WeaponsMeta(BaseScale):
         sub_cmd_name="meta",
         sub_cmd_description="Displays most used weapons by clan members in the linked clan",
     )
-    @default_mode_option(description="Restrict the game mode where the weapon stats count. Default: All modes")
-    @autocomplete_activity_option(
-        description="Restrict the activity where the weapon stats count. Overwrites `mode`. Default: All modes"
-    )
-    @default_weapon_type_option(description="Restrict the weapon type is looked at. Default: All types")
-    @default_damage_type_option(description="Restrict the damage type which are looked at. Default: All types")
-    @default_class_option(description="Restrict the class where the weapon stats count. Default: All classes")
-    @default_expansion_option(description="Restrict the expansion where the weapon stats count")
-    @default_season_option(description="Restrict the season where the weapon stats count")
+    @default_mode_option()
+    @autocomplete_activity_option()
+    @default_weapon_type_option()
+    @default_damage_type_option()
+    @default_class_option()
+    @default_expansion_option()
+    @default_season_option()
     @default_time_option(
         name="start_time",
         description="Format: `DD/MM/YY` - Input the **earliest** date you want the weapon stats for. Default: Big Bang",
@@ -69,7 +67,7 @@ class WeaponsMeta(BaseScale):
     async def _meta(
         self,
         ctx: InteractionContext,
-        mode: int = None,
+        mode: str = None,
         activity: str = None,
         destiny_class: str = None,
         weapon_type: int = None,
@@ -79,6 +77,8 @@ class WeaponsMeta(BaseScale):
         start_time: str = None,
         end_time: str = None,
     ):
+        mode = int(mode) if mode else None
+
         limit = 8
         stat = DestinyTopWeaponsStatInputModelEnum.KILLS
 

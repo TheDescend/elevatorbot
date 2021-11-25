@@ -35,7 +35,7 @@ async def handle_setup_command(
     send_message_content: Optional[str] = None,
     send_message_embed: Optional[Embed] = None,
     message_id: Optional[int] = None,
-):
+) -> Optional[Message]:
     """Check stuff and then send the message and save it in the DB"""
 
     if send_message:
@@ -83,3 +83,4 @@ async def handle_setup_command(
                 success_message,
             ),
         )
+        return message

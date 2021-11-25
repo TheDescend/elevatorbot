@@ -1,4 +1,4 @@
-from Backend.backgroundEvents import BaseEvent
+from Backend.backgroundEvents.base import BaseEvent
 from Backend.core.destiny.manifest import DestinyManifest
 from Backend.database.base import get_async_session
 

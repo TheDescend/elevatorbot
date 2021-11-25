@@ -16,7 +16,7 @@ from dis_snek.models import (
 from ElevatorBot.commandHelpers.responseTemplates import respond_timeout
 from ElevatorBot.commandHelpers.subCommandTemplates import lfg_sub_command
 from ElevatorBot.commands.base import BaseScale
-from ElevatorBot.core.destiny.lfgSystem import LfgMessage
+from ElevatorBot.core.destiny.lfg.lfgSystem import LfgMessage
 from ElevatorBot.misc.discordShortcutFunctions import has_admin_permission
 from ElevatorBot.misc.formating import embed_message
 from ElevatorBot.misc.helperFunctions import parse_string_datetime

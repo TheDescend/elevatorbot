@@ -1,5 +1,3 @@
-import re
-
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from dis_snek.client import Snake
 

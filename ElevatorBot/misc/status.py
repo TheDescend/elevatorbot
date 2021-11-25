@@ -4,12 +4,10 @@ import re
 from copy import copy
 
 from dis_snek.client import Snake
-from dis_snek.models import Activity, ActivityType, Timestamp, TimestampStyles
+from dis_snek.models import Activity, Timestamp, TimestampStyles
 
-from ElevatorBot.core.misc.persistentMessages import PersistentMessages
 from ElevatorBot.misc.cache import descend_cache
 from ElevatorBot.misc.helperFunctions import get_now_with_tz
-from ElevatorBot.static.descendOnlyIds import descend_channels
 from ElevatorBot.static.emojis import custom_emojis
 
 
@@ -46,15 +44,8 @@ async def update_events_status_message(event_name: str):
     correctly_formatted_event_time = f"{Timestamp.fromdatetime(now).format(style=TimestampStyles.ShortDateTime)} | {Timestamp.fromdatetime(now).format(style=TimestampStyles.RelativeTime)}"
 
     # get the message from cache
-    if not descend_cache.message:
-        persistent_messages = PersistentMessages(ctx=None, guild=descend_channels.guild, message_name="status")
-        result = await persistent_messages.get()
-        if not result:
-            # when we have not set a message yet
-            return
-
-        channel = await descend_channels.guild.get_channel(result.channel_id)
-        descend_cache.message = await channel.get_message(result.message_id)
+    if not descend_cache.status_message:
+        return
 
     embed = copy(descend_cache.message.embeds[0])
     embed.timestamp = now
@@ -71,4 +62,4 @@ async def update_events_status_message(event_name: str):
     if not found:
         embed.add_field(name=correctly_formatted_event_name, value=correctly_formatted_event_time, inline=True)
 
-    await descend_cache.message.edit(embeds=embed)
+    await descend_cache.status_message.edit(embeds=embed)

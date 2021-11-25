@@ -32,7 +32,8 @@ from dis_snek.models import (
 from ics import Calendar, Event
 
 from ElevatorBot.backendNetworking.destiny.lfgSystem import DestinyLfgSystem
-from ElevatorBot.backgroundEvents import scheduler
+from ElevatorBot.backgroundEvents.base import scheduler
+from ElevatorBot.core.destiny.lfg.scheduledEvents import delete_lfg_scheduled_events
 from ElevatorBot.misc.formating import embed_message
 from ElevatorBot.misc.helperFunctions import get_now_with_tz
 from ElevatorBot.static.emojis import custom_emojis
@@ -348,12 +349,8 @@ class LfgMessage:
         if self.message or self.channel:
             # only do this if is it has a start date
             if self.start_time != "asap":
-
                 # try to delete old job
-                try:
-                    self.scheduler.remove_job(str(self.id))
-                except JobLookupError:
-                    pass
+                delete_lfg_scheduled_events(event_scheduler=scheduler, event_ids=[self.id])
 
                 # using the id the job gets added
                 timedelta = datetime.timedelta(minutes=10)

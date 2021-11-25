@@ -1,7 +1,6 @@
 import dataclasses
 from typing import Optional
 
-from apscheduler.jobstores.base import JobLookupError
 from dis_snek.client import Snake
 from dis_snek.models import Guild, Member
 
@@ -15,7 +14,8 @@ from ElevatorBot.backendNetworking.routes import (
     destiny_lfg_update_route,
     destiny_lfg_user_get_all_route,
 )
-from ElevatorBot.backgroundEvents import scheduler
+from ElevatorBot.backgroundEvents.base import scheduler
+from ElevatorBot.core.destiny.lfg.scheduledEvents import delete_lfg_scheduled_events
 from ElevatorBot.static.schemas import LfgInputData, LfgUpdateData
 from NetworkingSchemas.destiny.lfgSystem import (
     AllLfgDeleteOutputModel,
@@ -120,11 +120,6 @@ class DestinyLfgSystem(BaseBackendConnection):
         model = AllLfgDeleteOutputModel.parse_obj(result.result) if result else None
 
         if model:
-            # remove all scheduled events
-            for event_id in model.event_ids:
-                try:
-                    scheduler.remove_job(str(event_id))
-                except JobLookupError:
-                    pass
+            delete_lfg_scheduled_events(event_scheduler=scheduler, event_ids=model.event_ids)
 
         return model

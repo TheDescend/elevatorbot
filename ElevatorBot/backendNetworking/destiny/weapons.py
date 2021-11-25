@@ -21,9 +21,9 @@ from NetworkingSchemas.destiny.weapons import (
 
 @dataclasses.dataclass
 class DestinyWeapons(BaseBackendConnection):
-    client: Optional[Snake] = None
-    discord_guild: Optional[Guild] = None
-    discord_member: Optional[Member] = None
+    client: Optional[Snake]
+    discord_guild: Optional[Guild]
+    discord_member: Optional[Member]
 
     async def get_all(self) -> Optional[DestinyWeaponsModel]:
         """Get all weapons"""

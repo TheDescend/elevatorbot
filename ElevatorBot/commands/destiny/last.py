@@ -23,11 +23,13 @@ class Last(BaseScale):
     async def _last(
         self,
         ctx: InteractionContext,
-        destiny_class: str = None,
-        mode: int = None,
+        mode: str = None,
         activity: str = None,
+        destiny_class: str = None,
         user: Member = None,
     ):
+        mode = int(mode) if mode else None
+
         # might take a sec
         await ctx.defer()
 

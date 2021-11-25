@@ -1,8 +1,8 @@
 {
     "0": [
         {
-            "name": "example",
-            "description": "\n    Represents a discord context menu.\n\n    parameters:\n        name: The name of this entry.\n        type: The type of entry (user or message).\n    ",
+            "name": "Add Emoji",
+            "description": "Add the image to the guild as an emoji"
         }
     ]
 }

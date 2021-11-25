@@ -1,4 +1,4 @@
-from Backend.backgroundEvents import BaseEvent
+from Backend.backgroundEvents.base import BaseEvent
 from Backend.crud import d2_steam_players
 from Backend.database.base import get_async_session
 from Backend.networking.bungieApi import BungieApi
