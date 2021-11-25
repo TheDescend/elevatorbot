@@ -2,28 +2,17 @@ import asyncio
 import logging
 from datetime import timedelta
 
-from fastapi import APIRouter, Depends, Form, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend import crud
 from Backend.core.destiny.activities import DestinyActivities
-from Backend.core.errors import CustomException
-from Backend.core.security.auth import (
-    ACCESS_TOKEN_EXPIRE_MINUTES,
-    create_access_token,
-    get_password_hash,
-)
+from Backend.core.security.auth import ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token
 from Backend.crud import discord_users
-from Backend.database.models import BackendUser
 from Backend.dependencies import get_db_session
 from Backend.networking.elevatorApi import ElevatorApi
-from NetworkingSchemas.misc.auth import (
-    BackendUserModel,
-    BungieTokenInput,
-    BungieTokenOutput,
-    Token,
-)
+from NetworkingSchemas.misc.auth import BungieTokenInput, BungieTokenOutput, Token
 
 router = APIRouter(
     prefix="/auth",

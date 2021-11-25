@@ -1,8 +1,6 @@
 import dataclasses
 from typing import Optional
 
-from dis_snek import Snake
-
 from ElevatorBot.backendNetworking.http import BaseBackendConnection
 from ElevatorBot.backendNetworking.routes import (
     destiny_collectible_name_route,

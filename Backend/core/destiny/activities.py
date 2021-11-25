@@ -18,11 +18,7 @@ from Backend.crud import (
 from Backend.database.models import ActivitiesUsers, DiscordUsers
 from Backend.misc.helperFunctions import get_datetime_from_bungie_entry, get_now_with_tz
 from Backend.networking.bungieApi import BungieApi
-from Backend.networking.bungieRoutes import (
-    activities_route,
-    pgcr_route,
-    stat_route_characters,
-)
+from Backend.networking.bungieRoutes import activities_route, pgcr_route
 from Backend.networking.schemas import WebResponse
 from NetworkingSchemas.destiny.account import (
     DestinyLowMansModel,

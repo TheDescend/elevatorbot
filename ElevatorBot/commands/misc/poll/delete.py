@@ -1,10 +1,8 @@
 from dis_snek.models import InteractionContext, OptionTypes, slash_command, slash_option
 
-from ElevatorBot.backendNetworking.misc.polls import BackendPolls
 from ElevatorBot.commandHelpers.subCommandTemplates import poll_sub_command
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.core.misc.poll import Poll
-from ElevatorBot.misc.formating import embed_message
 
 
 class PollDelete(BaseScale):

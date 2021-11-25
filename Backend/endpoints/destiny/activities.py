@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend import crud
 from Backend.core.destiny.activities import DestinyActivities
-from Backend.crud import activities, destiny_manifest
+from Backend.crud import destiny_manifest
 from Backend.dependencies import get_db_session
 from NetworkingSchemas.destiny.activities import (
     DestinyActivitiesModel,

@@ -1,12 +1,11 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from Backend.core.destiny.profile import DestinyProfile
-from Backend.crud import destiny_manifest, discord_users
+from Backend.crud import destiny_manifest
 from Backend.crud.destiny.items import destiny_items
 from Backend.dependencies import get_db_session
-from NetworkingSchemas.basic import NameModel, ValueModel
-from NetworkingSchemas.destiny.items import DestinyAllLoreModel, DestinyLoreModel
+from NetworkingSchemas.basic import NameModel
+from NetworkingSchemas.destiny.items import DestinyAllLoreModel
 
 router = APIRouter(
     prefix="/destiny/items",

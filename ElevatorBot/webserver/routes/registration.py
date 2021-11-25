@@ -1,5 +1,3 @@
-import logging
-
 from aiohttp import web
 from dis_snek.client import Snake
 from dis_snek.models import User

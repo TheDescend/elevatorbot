@@ -1,6 +1,5 @@
 import asyncio
 import dataclasses
-import itertools
 from typing import Optional
 
 from dis_snek.models import (

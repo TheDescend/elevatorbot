@@ -2,7 +2,7 @@ import asyncio
 import datetime
 from typing import Optional
 
-from sqlalchemy import distinct, func, not_, or_, select
+from sqlalchemy import distinct, func, not_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.errors import CustomException
@@ -14,7 +14,6 @@ from Backend.database.models import (
     ActivitiesUsersWeapons,
     DestinyActivityDefinition,
 )
-from DestinyEnums.enums import UsableDestinyActivityModeTypeEnum
 from NetworkingSchemas.destiny.roles import TimePeriodModel
 
 

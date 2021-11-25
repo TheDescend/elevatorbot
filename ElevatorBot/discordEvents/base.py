@@ -1,5 +1,5 @@
 from dis_snek.client import Snake
-from dis_snek.models import ComponentCommand, Listener
+from dis_snek.models import Listener
 
 from ElevatorBot.discordEvents.guildEvents import (
     on_channel_create,
