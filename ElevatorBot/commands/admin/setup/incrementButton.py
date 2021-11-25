@@ -54,7 +54,9 @@ class IncrementButton(BaseScale):
             channel=channel,
             send_message=True,
             send_components=components,
-            send_message_embed=embed_message("Use the button to increase the count! Road to ram overflow!"),
+            send_message_embed=embed_message(
+                "Button Up Already", "Use the button to increase the count! Road to ram overflow!"
+            ),
             message_id=int(message_id) if message_id else None,
         )
 

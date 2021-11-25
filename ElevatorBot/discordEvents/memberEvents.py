@@ -45,7 +45,7 @@ async def on_member_remove(event: MemberRemove):
     if event.member.guild == descend_channels.guild:
         # =========================================================================
         # send a message in the join log channel
-        embed = embed_message("Member Left the Server", f"{event.member.mention} has left the server")
+        embed = embed_message("Server Update", f"{event.member.mention} has left the server")
         embed.add_field(name="Display Name", value=event.member.display_name)
         embed.add_field(name="Name", value=event.member.name)
         embed.add_field(name="Discord ID", value=event.member.id)

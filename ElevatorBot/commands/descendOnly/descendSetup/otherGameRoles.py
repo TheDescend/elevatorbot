@@ -96,7 +96,7 @@ class OtherGameRoles(BaseScale):
                 ),
             ),
         ]
-        embed = embed_message("Other Game Roles", "Select options to add / remove the related roles")
+        embed = embed_message("Miscellaneous Roles", "Select options to add / remove the related roles")
         await handle_setup_command(
             ctx=ctx,
             message_name=message_name,

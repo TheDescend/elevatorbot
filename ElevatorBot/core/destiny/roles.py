@@ -193,7 +193,7 @@ class Roles:
                         new_roles[category].append(discord_role.mention)
 
             # construct reply msg
-            embed = embed_message(f"{self.member.display_name}'s new Roles", f"__Previous Roles:__")
+            embed = embed_message(f"{self.member.display_name}'s New Roles", f"__Previous Roles:__")
             if not old_roles:
                 embed.add_field(name=f"You didn't have any roles before", value="⁣", inline=True)
 

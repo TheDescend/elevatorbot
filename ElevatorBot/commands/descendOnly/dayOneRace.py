@@ -346,7 +346,7 @@ class DayOneRace(BaseScale):
                         running_raid[encounter_name].append(member.destiny_id)
 
         embed = embed_message(
-            "Race for Worlds First / Day One",
+            "Race for Worlds First",
             "First results are in! These are the current result:",
             "Note: If progress does not show up, the API might not show the info. Nothing I can do :(",
         )

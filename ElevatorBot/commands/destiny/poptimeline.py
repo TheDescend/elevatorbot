@@ -21,7 +21,7 @@ class PopTimeline(BaseScale):
     @slash_command(name="pop_timeline", description="Shows you the Destiny 2 steam maximum population timeline")
     async def _pop_timeline(self, ctx: InteractionContext):
         async with asyncio.Lock():
-            embed = embed_message("Destiny 2 - Steam Player Count")
+            embed = embed_message("Maximum Destiny 2 Steam Player Count")
 
             # do we have an url cached?
             cache_url = pop_timeline_cache.url

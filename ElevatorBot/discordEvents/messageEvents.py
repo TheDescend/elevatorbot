@@ -152,7 +152,7 @@ async def on_message_create(event: MessageCreate, edit_mode: bool = False):
                             # first message in thread
                             await thread.send(
                                 embeds=embed_message(
-                                    f"Inquiry from {message.author.display_name}",
+                                    f"{message.author.display_name}'s Inquiry",
                                     f"Any message you send here that starts with `@ElevatorBot` is relayed to them (not including the mention of course)\nI will react with {custom_emojis.descend_logo} if I conveyed the message successfully",
                                 )
                             )
