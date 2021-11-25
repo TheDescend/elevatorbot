@@ -56,7 +56,7 @@ async def on_guild_join(event: GuildJoin):
     """Triggers when ElevatorBot gets added to a guild"""
 
     # this gets called on startup. We don't want that
-    if event.guild._client._startup:
+    if event.guild.bot._startup:
         # add guild to the list of all guilds, needed for website info
         elevator_guilds = ElevatorGuilds(ctx=None, discord_guild=event.guild)
         await elevator_guilds.add()

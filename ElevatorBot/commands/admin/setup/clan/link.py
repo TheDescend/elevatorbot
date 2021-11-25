@@ -10,14 +10,16 @@ from ElevatorBot.misc.formating import embed_message
 
 
 class ClanLink(BaseScale):
-    """Links your own Destiny 2 clan with the discord server this was executed in"""
+    """
+    Links your own Destiny 2 clan with the discord server this was executed in
+    """
 
     # todo perms
     @slash_command(
         **setup_sub_command,
         **setup_sub_command_clan_group,
         sub_cmd_name="link",
-        sub_cmd_description="Links your own Destiny 2 clan with this discord. Requires Admin in both Discord and Destiny",
+        sub_cmd_description="Links your own Destiny 2 clan with this discord",
     )
     async def _link(self, ctx: InteractionContext):
 

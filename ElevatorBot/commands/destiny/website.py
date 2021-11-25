@@ -19,10 +19,10 @@ class Website(BaseScale):
 
     system_to_name = {1: "xb", 2: "ps", 3: "pc"}
 
-    @slash_command(name="website", description="Gets your personalised link to a bunch of Destiny 2 related websites")
+    @slash_command(name="website", description="Gets your personalised link to curated Destiny 2 stat websites")
     @slash_option(
         name="website",
-        description="The name of the website you want a personalised link for",
+        description="The website you want a personalised link for",
         required=True,
         opt_type=OptionTypes.STRING,
         choices=[

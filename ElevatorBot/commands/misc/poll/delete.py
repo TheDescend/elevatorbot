@@ -11,7 +11,7 @@ class PollDelete(BaseScale):
     @slash_command(
         **poll_sub_command,
         sub_cmd_name="delete",
-        sub_cmd_description="Delete a poll",
+        sub_cmd_description="Delete an existing poll",
     )
     @slash_option(
         name="poll_id", description="The ID of the poll", opt_type=OptionTypes.INTEGER, required=True, min_value=0

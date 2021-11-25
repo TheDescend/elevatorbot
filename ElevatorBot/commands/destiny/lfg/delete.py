@@ -1,5 +1,6 @@
 from dis_snek.models import InteractionContext, OptionTypes, slash_command, slash_option
 
+from ElevatorBot.commandHelpers.optionTemplates import lfg_event_id
 from ElevatorBot.commandHelpers.subCommandTemplates import lfg_sub_command
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.core.destiny.lfg.lfgSystem import LfgMessage
@@ -13,9 +14,7 @@ class LfgDelete(BaseScale):
         sub_cmd_name="delete",
         sub_cmd_description="When you fucked up and need to delete an event",
     )
-    @slash_option(
-        name="lfg_id", description="The lfg message id", required=True, opt_type=OptionTypes.INTEGER, min_value=0
-    )
+    @lfg_event_id()
     async def _delete(self, ctx: InteractionContext, lfg_id: int):
         # get the message obj
         lfg_message = await LfgMessage.from_lfg_id(ctx=ctx, lfg_id=lfg_id, client=ctx.bot, guild=ctx.guild)
@@ -25,7 +24,7 @@ class LfgDelete(BaseScale):
             return
 
         # test if the user is admin or author
-        if ctx.author.id != lfg_message.author.id:
+        if ctx.author.id != lfg_message.author_id.id:
             if not await has_admin_permission(ctx=ctx, member=ctx.author):
                 return
 

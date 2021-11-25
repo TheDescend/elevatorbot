@@ -17,11 +17,9 @@ class RoleRequirements(BaseScale):
     @slash_command(
         **roles_sub_command,
         sub_cmd_name="get_requirements",
-        sub_cmd_description="Shows you what you need to do to get the specified role",
+        sub_cmd_description="Shows you what you still need to do to get the specified Destiny 2 achievement role",
     )
-    @slash_option(
-        name="role", description="The name of the role you want to look up", opt_type=OptionTypes.ROLE, required=True
-    )
+    @slash_option(name="role", description="The role you want to look up", opt_type=OptionTypes.ROLE, required=True)
     @default_user_option()
     async def _roles_requirements(self, ctx: InteractionContext, role: Role, user: Member = None):
         # might take a sec

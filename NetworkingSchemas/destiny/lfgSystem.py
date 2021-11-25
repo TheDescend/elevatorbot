@@ -15,7 +15,7 @@ class LfgOutputModel(BaseModel):
     start_time: datetime.datetime
     max_joined_members: int
     joined_members: list[int]
-    alternate_members: list[int]
+    backup_members: list[int]
     creation_time: datetime.datetime
     voice_channel_id: Optional[int] = None
     voice_category_channel_id: Optional[int] = None
@@ -43,7 +43,7 @@ class LfgCreateInputModel(BaseModel):
     start_time: datetime.datetime
     max_joined_members: int
     joined_members: list[int]
-    alternate_members: list[int]
+    backup_members: list[int]
 
 
 class LfgUpdateInputModel(BaseModel):
@@ -56,4 +56,4 @@ class LfgUpdateInputModel(BaseModel):
     start_time: Optional[datetime.datetime] = None
     max_joined_members: Optional[int] = None
     joined_members: Optional[list[int]] = None
-    alternate_members: Optional[list[int]] = None
+    backup_members: Optional[list[int]] = None

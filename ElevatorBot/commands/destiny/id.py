@@ -7,11 +7,13 @@ from ElevatorBot.misc.formating import embed_message
 
 
 class IdGet(BaseScale):
-    """Get the users Bungie Name, which can be used to join people in Destiny 2 without adding them as a friend"""
+    """
+    Get a users Bungie Name. It can be used to join people in Destiny 2 without adding them as a friend
+    """
 
     @slash_command(
         name="id",
-        description="Get the users Bungie Name, which can be used to join people in Destiny 2",
+        description="Get a users Bungie Name. It can be used to join people in Destiny 2",
     )
     @default_user_option()
     async def _id(self, ctx: InteractionContext, user: Member = None):

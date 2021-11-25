@@ -12,7 +12,7 @@ class DayOneUser(BaseScale):
     @slash_command(
         **day1completions_sub_command,
         sub_cmd_name="user",
-        sub_cmd_description="Look up the Day One raid completions of the specified user or yourself",
+        sub_cmd_description="Look up the Day One raid completions",
     )
     @default_user_option()
     async def _day1_user(self, ctx: InteractionContext, user: Member = None):

@@ -11,7 +11,7 @@ class TicTacToeHuman(BaseScale):
         sub_cmd_name="versus",
         sub_cmd_description="Play against other humans",
     )
-    async def _tictactoe_versus(self, ctx: InteractionContext):
+    async def _tic_tac_toe_versus(self, ctx: InteractionContext):
         game = TicTacToeGame(ctx=ctx, versus=True)
         await game.play_game()
 

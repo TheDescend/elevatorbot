@@ -5,7 +5,9 @@ from dis_snek.models import ActionRow, Button, ButtonStyles, Member
 from dis_snek.models.events import Component, MemberAdd, MemberRemove, MemberUpdate
 
 from ElevatorBot.backendNetworking.destiny.clan import DestinyClan
+from ElevatorBot.backendNetworking.destiny.lfgSystem import DestinyLfgSystem
 from ElevatorBot.backendNetworking.destiny.profile import DestinyProfile
+from ElevatorBot.core.destiny.lfg.lfgSystem import LfgMessage
 from ElevatorBot.core.destiny.roles import Roles
 from ElevatorBot.misc.discordShortcutFunctions import assign_roles_to_member
 from ElevatorBot.misc.formating import embed_message
@@ -109,6 +111,25 @@ async def on_member_remove(event: MemberRemove):
                         text = "Aborted"
 
                     await button_ctx.send(text)
+
+    # =========================================================================
+    # remove them from any lfg events
+    backend = DestinyLfgSystem(ctx=None, client=event.bot, discord_guild=event.member.guild)
+    result = await backend.user_get_all(discord_member=event.member)
+    if not result:
+        raise LookupError
+
+    # delete them from all of them
+    for lfg_event in result.joined + result.backup:
+        guild = await event.bot.get_guild(lfg_event.guild_id)
+        if not guild:
+            raise ValueError
+        backend = DestinyLfgSystem(ctx=None, client=event.bot, discord_guild=guild)
+        lfg_message = await LfgMessage.from_lfg_output_model(
+            client=event.bot, model=lfg_event, backend=backend, guild=guild
+        )
+
+        await lfg_message.remove_member(member=event.member)
 
 
 async def on_member_update(event: MemberUpdate):

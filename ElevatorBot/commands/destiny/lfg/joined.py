@@ -15,7 +15,7 @@ class LfgJoined(BaseScale):
     @slash_command(
         **lfg_sub_command,
         sub_cmd_name="joined",
-        sub_cmd_description="Shows you an overview of all LFG event you have joined",
+        sub_cmd_description="Shows you an overview of all LFG events you have joined",
     )
     async def _joined(self, ctx: InteractionContext):
         # get all the lfg events the user joined

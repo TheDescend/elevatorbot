@@ -14,11 +14,8 @@ from ElevatorBot.misc.formating import embed_message
 
 
 class UserInfo(BaseScale):
-    # todo write docs like this for everything
     """
-    Gets collected info for the specified user
-
-    :option:discord_user: Here I describe special option behaviour so I can go very in-depth. It just needs to be in one line no matter how loooooooooooooooooooooooooooooooooooooooooooong the text is
+    Gets collected info for the specified user. Exactly one option needs to be filled out
     """
 
     # todo perms

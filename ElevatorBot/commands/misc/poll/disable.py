@@ -9,7 +9,7 @@ class PollDisable(BaseScale):
     @slash_command(
         **poll_sub_command,
         sub_cmd_name="disable",
-        sub_cmd_description="Disable a poll",
+        sub_cmd_description="Disable an existing poll",
     )
     @slash_option(
         name="poll_id", description="The ID of the poll", opt_type=OptionTypes.INTEGER, required=True, min_value=0

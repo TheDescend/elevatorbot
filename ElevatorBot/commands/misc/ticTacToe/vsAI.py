@@ -17,7 +17,7 @@ class TicTacToeAI(BaseScale):
         opt_type=OptionTypes.BOOLEAN,
         required=False,
     )
-    async def _tictactoe_ai(self, ctx: InteractionContext, easy_mode: bool = False):
+    async def _tic_tac_toe_ai(self, ctx: InteractionContext, easy_mode: bool = False):
         game = TicTacToeGame(ctx=ctx, easy_mode=easy_mode)
         await game.play_game()
 

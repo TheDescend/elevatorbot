@@ -21,7 +21,7 @@ from NetworkingSchemas.destiny.account import SeasonalChallengesTopicsModel
 
 class SeasonalChallenges(BaseScale):
     @slash_command(
-        name="challenges", description="Shows you the current seasonal challenges and your completion status"
+        name="challenges", description="Shows you the current Destiny 2 seasonal challenges and your completion status"
     )
     @default_user_option()
     async def _challenges(

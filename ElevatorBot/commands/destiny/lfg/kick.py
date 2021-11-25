@@ -6,7 +6,7 @@ from dis_snek.models import (
     slash_option,
 )
 
-from ElevatorBot.commandHelpers.optionTemplates import default_user_option
+from ElevatorBot.commandHelpers.optionTemplates import default_user_option, lfg_event_id
 from ElevatorBot.commandHelpers.subCommandTemplates import lfg_sub_command
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.core.destiny.lfg.lfgSystem import LfgMessage
@@ -20,9 +20,7 @@ class LfgKick(BaseScale):
         sub_cmd_name="kick",
         sub_cmd_description="Kick a user from an lfg event",
     )
-    @slash_option(
-        name="lfg_id", description="The lfg message id", required=True, opt_type=OptionTypes.INTEGER, min_value=0
-    )
+    @lfg_event_id()
     @default_user_option(description="The user you want to kick", required=True)
     async def _kick(self, ctx: InteractionContext, lfg_id: int, user: Member):
         # get the message obj
@@ -33,7 +31,7 @@ class LfgKick(BaseScale):
             return
 
         # test if the user is admin or author
-        if ctx.author.id != lfg_message.author.id:
+        if ctx.author.id != lfg_message.author_id.id:
             if not await has_admin_permission(ctx=ctx, member=ctx.author):
                 return
 

@@ -10,7 +10,9 @@ from ElevatorBot.misc.formating import embed_message
 
 
 class ClanUnlink(BaseScale):
-    """Unlink the current Destiny 2 clan the discord server this was executed in"""
+    """
+    Unlinks the current Destiny 2 clan and the discord server this was executed in
+    """
 
     # todo perms
     @slash_command(

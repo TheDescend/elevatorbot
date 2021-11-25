@@ -13,12 +13,11 @@ from ElevatorBot.core.misc.persistentMessages import handle_setup_command
 
 
 class BungieRssFeed(BaseScale):
-
     # todo perms
     @slash_command(
         **setup_sub_command,
         sub_cmd_name="bungie_feed",
-        sub_cmd_description="Links your own Destiny 2 clan with this discord. Requires Admin in both Discord and Destiny",
+        sub_cmd_description="Designate a channel where bungie articles get posted",
     )
     @slash_option(
         name="channel",

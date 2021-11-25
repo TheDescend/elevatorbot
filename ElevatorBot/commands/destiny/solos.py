@@ -7,7 +7,9 @@ from ElevatorBot.misc.formating import embed_message
 
 
 class Solos(BaseScale):
-    @slash_command(name="solos", description="Shows you an overview of your Destiny 2 solo activity completions")
+    @slash_command(
+        name="solos", description="Shows you an overview of your notable Destiny 2 solo activity completions"
+    )
     @default_user_option()
     async def _solos(self, ctx: InteractionContext, user: Member):
 

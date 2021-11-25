@@ -144,9 +144,7 @@ async def register_background_events(client: Snake):
                         guild.get_member(member_id) for member_id in event.joined_members if guild.get_member(member_id)
                     ],
                     backup=[
-                        guild.get_member(member_id)
-                        for member_id in event.alternate_members
-                        if guild.get_member(member_id)
+                        guild.get_member(member_id) for member_id in event.backup_members if guild.get_member(member_id)
                     ],
                     voice_channel=await guild.get_channel(event.voice_channel_id),
                     voice_category_channel=await guild.get_channel(event.voice_category_channel_id),

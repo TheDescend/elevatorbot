@@ -9,7 +9,7 @@ class RoleGet(BaseScale):
     @slash_command(
         **roles_sub_command,
         sub_cmd_name="get",
-        sub_cmd_description="Assigns you all the roles you've earned",
+        sub_cmd_description="Assigns you all the Destiny 2 achievement roles you have earned",
     )
     async def _roles_get(self, ctx: InteractionContext):
         # might take a sec

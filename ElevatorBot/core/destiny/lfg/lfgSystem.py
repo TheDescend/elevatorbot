@@ -37,7 +37,11 @@ from ElevatorBot.core.destiny.lfg.scheduledEvents import delete_lfg_scheduled_ev
 from ElevatorBot.misc.formating import embed_message
 from ElevatorBot.misc.helperFunctions import get_now_with_tz
 from ElevatorBot.static.emojis import custom_emojis
-from ElevatorBot.static.schemas import LfgInputData, LfgUpdateData
+from NetworkingSchemas.destiny.lfgSystem import (
+    LfgCreateInputModel,
+    LfgOutputModel,
+    LfgUpdateInputModel,
+)
 
 asap_start_time = datetime.datetime(year=1997, month=6, day=11, tzinfo=datetime.timezone.utc)
 
@@ -52,7 +56,7 @@ class LfgMessage:
     id: int
     guild: Guild
 
-    author: Member
+    author_id: int
     activity: str
     description: str
     start_time: datetime.datetime
@@ -61,8 +65,8 @@ class LfgMessage:
     channel: Optional[GuildText] = None
     message: Optional[Message] = None
     creation_time: Optional[datetime.datetime] = None
-    joined: Optional[list[Member]] = None
-    backup: list[Member] = dataclasses.field(default_factory=list)
+    joined_ids: Optional[list[int]] = None
+    backup_ids: list[int] = dataclasses.field(default_factory=list)
 
     voice_category_channel: Optional[GuildCategory] = None
     voice_channel: Optional[GuildVoice] = None
@@ -98,6 +102,44 @@ class LfgMessage:
         return True
 
     @classmethod
+    async def from_lfg_output_model(
+        cls, client: Snake, model: LfgOutputModel, backend: DestinyLfgSystem, guild: Optional[Guild] = None
+    ) -> LfgMessage:
+        """Parse the info from the pydantic model"""
+
+        if not guild:
+            guild = await client.get_guild(model.guild_id)
+            if not guild:
+                raise ValueError
+
+        # fill class info
+        channel: GuildText = await guild.get_channel(model.channel_id)
+        start_time: datetime.datetime = model.start_time
+
+        lfg_message = cls(
+            backend=backend,
+            client=client,
+            id=model.id,
+            guild=guild,
+            channel=channel,
+            author_id=model.author_id,
+            activity=model.activity,
+            description=model.description,
+            start_time=start_time if start_time != asap_start_time else "asap",
+            max_joined_members=model.max_joined_members,
+            message=await channel.get_message(model.message_id),
+            creation_time=model.creation_time,
+            joined_ids=model.joined_members,
+            backup_ids=model.backup_members,
+            voice_channel=await guild.get_channel(model.voice_channel_id) if model.voice_channel_id else None,
+            voice_category_channel=await guild.get_channel(model.voice_category_channel_id)
+            if model.voice_category_channel_id
+            else None,
+        )
+
+        return lfg_message
+
+    @classmethod
     async def from_component_button(cls, ctx: ComponentContext) -> LfgMessage:
         """Get the LFG data from an embed send by me"""
 
@@ -127,34 +169,7 @@ class LfgMessage:
         if not result:
             return
 
-        # fill class info
-        channel: GuildText = await guild.get_channel(result.channel_id)
-        start_time: datetime.datetime = result.start_time
-
-        lfg_message = cls(
-            backend=backend,
-            client=client,
-            id=result.id,
-            guild=guild,
-            channel=channel,
-            author=guild.get_member(result.author_id),
-            activity=result.activity,
-            description=result.description,
-            start_time=start_time if start_time != asap_start_time else "asap",
-            max_joined_members=result.max_joined_members,
-            message=await channel.fetch_message(result.message_id),
-            creation_time=result.creation_time,
-            joined=[guild.get_member(member_id) for member_id in result.joined_members if guild.get_member(member_id)],
-            backup=[
-                guild.get_member(member_id) for member_id in result.alternate_members if guild.get_member(member_id)
-            ],
-            voice_channel=await ctx.guild.get_channel(result.voice_channel_id) if result.voice_channel_id else None,
-            voice_category_channel=await guild.get_channel(result.voice_category_channel_id)
-            if result.voice_category_channel_id
-            else None,
-        )
-
-        return lfg_message
+        return await LfgMessage.from_lfg_output_model(client=client, model=result, backend=backend, guild=guild)
 
     @classmethod
     async def create(
@@ -172,13 +187,13 @@ class LfgMessage:
         # create the message and fill it later
         result = await backend.create(
             discord_member=ctx.author,
-            lfg_data=LfgInputData(
+            lfg_data=LfgCreateInputModel(
                 activity=activity,
                 description=description,
                 start_time=start_time if isinstance(start_time, datetime.datetime) else asap_start_time,
                 max_joined_members=max_joined_members,
                 joined_members=[ctx.author.id],
-                alternate_members=[],
+                backup_members=[],
             ),
         )
 
@@ -193,7 +208,7 @@ class LfgMessage:
             id=result.id,
             guild=ctx.guild,
             channel=await ctx.guild.get_channel(result.channel_id),
-            author=ctx.author,
+            author_id=ctx.author.id,
             activity=activity,
             description=description,
             start_time=start_time,
@@ -224,20 +239,20 @@ class LfgMessage:
     ) -> bool:
         """add a member"""
 
-        if member not in self.joined:
-            if (len(self.joined) < self.max_joined_members) or force_into_joined:
-                self.joined.append(member)
-                if member in self.backup:
-                    self.backup.remove(member)
+        if member.id not in self.joined_ids:
+            if (len(self.joined_ids) < self.max_joined_members) or force_into_joined:
+                self.joined_ids.append(member.id)
+                if member.id in self.backup_ids:
+                    self.backup_ids.remove(member.id)
 
                 # check if the post is full and the event is supposed to start asap
-                if self.start_time == "asap" and len(self.joined) >= self.max_joined_members:
+                if self.start_time == "asap" and len(self.joined_ids) >= self.max_joined_members:
                     self.start_time = datetime.datetime.now(tz=datetime.timezone.utc)
                     await self.__notify_about_start(datetime.timedelta(minutes=10))
 
             else:
-                if member not in self.backup:
-                    self.backup.append(member)
+                if member.id not in self.backup_ids:
+                    self.backup_ids.append(member.id)
                 else:
                     return False
 
@@ -248,11 +263,11 @@ class LfgMessage:
     async def add_backup(self, member: Member, ctx: Optional[ComponentContext] = None) -> bool:
         """Add a backup or move member to backup"""
 
-        if member not in self.backup:
-            self.backup.append(member)
+        if member.id not in self.backup_ids:
+            self.backup_ids.append(member.id)
 
-            if member in self.joined:
-                self.joined.remove(member)
+            if member.id in self.joined_ids:
+                self.joined_ids.remove(member.id)
 
             await self.send(ctx=ctx)
             return True
@@ -261,14 +276,14 @@ class LfgMessage:
     async def remove_member(self, member: Member, ctx: Optional[ComponentContext] = None) -> bool:
         """Delete a member"""
 
-        if member in self.joined:
-            self.joined.remove(member)
+        if member.id in self.joined_ids:
+            self.joined_ids.remove(member.id)
 
             await self.send(ctx=ctx)
             return True
 
-        elif member in self.backup:
-            self.backup.remove(member)
+        elif member.id in self.backup_ids:
+            self.backup_ids.remove(member.id)
 
             await self.send(ctx=ctx)
             return True
@@ -301,11 +316,11 @@ class LfgMessage:
         if first_send:
             await self.__sort_lfg_messages()
 
-    async def delete(self, delete_command_user: Optional[Member] = None):
+    async def delete(self, delete_command_user_id: Optional[int] = None):
         """removes the message and also the database entries"""
 
-        if not delete_command_user:
-            delete_command_user = self.author
+        if not delete_command_user_id:
+            delete_command_user_id = self.author_id
 
         # delete message
         if self.message:
@@ -319,7 +334,7 @@ class LfgMessage:
                 pass
 
         # delete DB entry
-        result = await self.backend.delete(discord_member=delete_command_user, lfg_id=self.id)
+        result = await self.backend.delete(discord_member_id=delete_command_user_id, lfg_id=self.id)
 
         if result:
             # delete scheduler event
@@ -337,9 +352,11 @@ class LfgMessage:
             f"The start time for the lfg event [{self.id}]({self.message.jump_url}) has changed \nIt changed from {Timestamp.fromdatetime(previous_start_time).format(style=TimestampStyles.ShortDateTime)} to {Timestamp.fromdatetime(self.start_time).format(style=TimestampStyles.ShortDateTime)}",
         )
 
-        for user in self.joined + self.backup:
+        for user_id in self.joined_ids + self.backup_ids:
             try:
-                await user.send(embed=embed)
+                user = await self.guild.get_member(user_id)
+                if user:
+                    await user.send(embed=embed)
             except Forbidden:
                 pass
 
@@ -377,12 +394,12 @@ class LfgMessage:
 
             # allow each participant to move members
             permission_overrides = []
-            for member in self.joined:
+            for member_id in self.joined_ids:
                 # allow the author to also mute
-                if member == self.author:
+                if member_id == self.author_id:
                     permission_overrides.append(
                         PermissionOverwrite(
-                            id=member.id,
+                            id=member_id,
                             type=OverwriteTypes.MEMBER,
                             allow=Permissions.MOVE_MEMBERS | Permissions.MUTE_MEMBERS,
                         )
@@ -391,7 +408,7 @@ class LfgMessage:
                 else:
                     permission_overrides.append(
                         PermissionOverwrite(
-                            id=member.id,
+                            id=member_id,
                             type=OverwriteTypes.MEMBER,
                             allow=Permissions.MOVE_MEMBERS,
                         )
@@ -423,8 +440,8 @@ class LfgMessage:
         embed.timestamp = self.start_time
 
         # if the event was not full
-        missing = self.max_joined_members - len(self.joined)
-        if self.backup:
+        missing = self.max_joined_members - len(self.joined_ids)
+        if self.backup_ids:
             embed.add_field(
                 name="Backup",
                 value=", ".join(self.__get_alternate_members_display_names()),
@@ -433,16 +450,20 @@ class LfgMessage:
 
             # dm the backup if they are needed
             if missing > 0:
-                for user in self.backup:
+                for user_id in self.backup_ids:
                     try:
-                        await user.send(embed=embed)
+                        user = await self.guild.get_member(user_id)
+                        if user:
+                            await user.send(embed=embed)
                     except Forbidden:
                         pass
 
         # dm the users
-        for user in self.joined:
+        for user_id in self.joined_ids:
             try:
-                await user.send(embed=embed)
+                user = await self.guild.get_member(user_id)
+                if user:
+                    await user.send(embed=embed)
             except Forbidden:
                 pass
 
@@ -486,23 +507,15 @@ class LfgMessage:
                             id=event.id,
                             guild=self.guild,
                             channel=self.channel,
-                            author=self.guild.get_member(event.author_id),
+                            author_id=event.author_id,
                             activity=event.activity,
                             description=event.description,
                             start_time=event.start_time,
                             max_joined_members=event.max_joined_members,
                             message=await self.channel.fetch_message(event.message_id),
                             creation_time=event.creation_time,
-                            joined=[
-                                self.guild.get_member(member_id)
-                                for member_id in event.joined_members
-                                if self.guild.get_member(member_id)
-                            ],
-                            backup=[
-                                self.guild.get_member(member_id)
-                                for member_id in event.alternate_members
-                                if self.guild.get_member(member_id)
-                            ],
+                            joined_ids=event.joined_members,
+                            backup_ids=event.backup_members,
                             voice_channel=await self.guild.get_channel(event.voice_channel_id)
                             if event.voice_channel_id
                             else None,
@@ -528,12 +541,20 @@ class LfgMessage:
     def __get_joined_members_display_names(self) -> list[str]:
         """gets the display name of the joined members"""
 
-        return [member.mention for member in self.joined]
+        mentions = []
+        for member_id in self.joined_ids:
+            member = await self.guild.get_member(member_id)
+            mentions.append(member.mention if member else f"`{member_id}`")
+        return mentions
 
     def __get_alternate_members_display_names(self) -> list[str]:
         """gets the display name of the alternate members"""
 
-        return [member.mention for member in self.backup]
+        mentions = []
+        for member_id in self.backup_ids:
+            member = await self.guild.get_member(member_id)
+            mentions.append(member.mention if member else f"`{member_id}`")
+        return mentions
 
     async def __get_ics_url(self) -> str:
         """Create an ics file, upload it, and return the url"""
@@ -559,8 +580,9 @@ class LfgMessage:
     async def __return_embed(self) -> Embed:
         """return the formatted embed"""
 
+        author = await self.guild.get_member(self.author_id)
         embed = embed_message(
-            footer=f"Creator: {self.author.display_name}   |   Your Time",
+            footer=f"Creator: {author.display_name if author else self.author_id}   |   Your Time",
         )
 
         # add the fields with the data
@@ -592,11 +614,11 @@ class LfgMessage:
             inline=False,
         )
         embed.add_field(
-            name=f"Guardians Joined ({len(self.joined)}/{self.max_joined_members})",
-            value=", ".join(self.__get_joined_members_display_names()) if self.joined else "_Empty Space :(_",
+            name=f"Guardians Joined ({len(self.joined_ids)}/{self.max_joined_members})",
+            value=", ".join(self.__get_joined_members_display_names()) if self.joined_ids else "_Empty Space :(_",
             inline=True,
         )
-        if self.backup:
+        if self.backup_ids:
             embed.add_field(
                 name="Backup",
                 value=", ".join(self.__get_alternate_members_display_names()),
@@ -614,8 +636,8 @@ class LfgMessage:
 
         await self.backend.update(
             lfg_id=self.id,
-            discord_member=self.author,
-            lfg_data=LfgUpdateData(
+            discord_member_id=self.author_id,
+            lfg_data=LfgUpdateInputModel(
                 channel_id=self.channel.id,
                 message_id=self.message.id,
                 voice_channel_id=self.voice_channel.id if self.voice_channel else None,
@@ -623,8 +645,8 @@ class LfgMessage:
                 description=self.description,
                 start_time=self.start_time if isinstance(self.start_time, datetime.datetime) else asap_start_time,
                 max_joined_members=self.max_joined_members,
-                joined_members=[member.id for member in self.joined],
-                alternate_members=[member.id for member in self.backup],
+                joined_members=self.joined_ids,
+                backup_members=self.backup_ids,
             ),
         )
 

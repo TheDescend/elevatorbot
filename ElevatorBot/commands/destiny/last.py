@@ -15,10 +15,10 @@ from ElevatorBot.static.emojis import custom_emojis
 
 
 class Last(BaseScale):
-    @slash_command(name="last", description="Stats for the last activity you played")
-    @default_mode_option(description="Restrict the game mode. Default: All modes")
-    @autocomplete_activity_option(description="Restrict the activity. Overwrite `mode`. Default: All modes")
-    @default_class_option(description="Restrict the class. Default: All classes")
+    @slash_command(name="last", description="Stats for the last Destiny 2 activity you played")
+    @default_mode_option()
+    @autocomplete_activity_option()
+    @default_class_option()
     @default_user_option()
     async def _last(
         self,

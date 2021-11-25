@@ -6,7 +6,7 @@ from ElevatorBot.misc.formating import embed_message
 
 
 class FunFact(BaseScale):
-    @slash_command(name="funfact", description="Very fun fun facts just for the funny fun of it")
+    @slash_command(name="funfact", description="Get a fun fact, which most of the time is even pretty interesting")
     async def _fun_fact(self, ctx: InteractionContext):
 
         url = "https://uselessfacts.jsph.pl/random.json?language=en"

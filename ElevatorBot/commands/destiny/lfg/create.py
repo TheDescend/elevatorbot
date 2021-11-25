@@ -29,7 +29,7 @@ class LfgCreate(BaseScale):
     @slash_command(
         **lfg_sub_command,
         sub_cmd_name="create",
-        sub_cmd_description="Creates an LFG post",
+        sub_cmd_description="Creates an LFG event",
     )
     @default_time_option(
         name="start_time",

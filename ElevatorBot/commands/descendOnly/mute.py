@@ -31,9 +31,7 @@ from settings import COMMAND_GUILD_SCOPE
 class Mute(BaseScale):
 
     # todo perm
-    @slash_command(
-        name="mute", description="Mutes the specified user for specified amount of time", scopes=COMMAND_GUILD_SCOPE
-    )
+    @slash_command(name="mute", description="Mutes the specified user", scopes=COMMAND_GUILD_SCOPE)
     @default_user_option(description="Which user to mute", required=True)
     @slash_option(
         name="muted_type",

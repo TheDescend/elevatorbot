@@ -61,8 +61,8 @@ class OtherGameRoles(BaseScale):
     # todo perms
     @slash_command(
         **descend_setup_sub_command,
-        sub_cmd_name="other_game_roles",
-        sub_cmd_description="Setup a channel in which user can assign themselves other game roles",
+        sub_cmd_name="miscellaneous_roles",
+        sub_cmd_description="Designate a channel in which user can assign themselves miscellaneous roles",
         scopes=COMMAND_GUILD_SCOPE,
     )
     @slash_option(

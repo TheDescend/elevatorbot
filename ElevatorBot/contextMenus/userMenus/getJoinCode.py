@@ -7,7 +7,7 @@ from ElevatorBot.misc.formating import embed_message
 
 class UserMenuCommands(BaseScale):
     """
-    Gets collected info for the specified user
+    Gets the selected users Destiny 2 join code, like `/join Name#1234`
     """
 
     @context_menu(name="Get Join Code", context_type=CommandTypes.USER)

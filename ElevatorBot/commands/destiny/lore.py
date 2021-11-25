@@ -7,7 +7,7 @@ from ElevatorBot.misc.formating import embed_message
 
 
 class DestinyLore(BaseScale):
-    @slash_command(name="lore", description="Shows you in-game lore")
+    @slash_command(name="lore", description="Shows you Destiny 2 lore")
     @autocomplete_lore_option()
     async def _destiny(self, ctx: InteractionContext, name: str):
         # get the lore item

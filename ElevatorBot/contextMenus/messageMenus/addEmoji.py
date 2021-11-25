@@ -9,7 +9,7 @@ from ElevatorBot.misc.formating import embed_message
 
 class MessageMenuCommands(BaseScale):
     """
-    Add the image to the guild as an emoji
+    Add the selected image to the guild as an emoji
     """
 
     # todo perms -> descend only

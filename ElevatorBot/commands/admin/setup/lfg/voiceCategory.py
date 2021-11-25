@@ -16,13 +16,16 @@ from ElevatorBot.core.misc.persistentMessages import handle_setup_command
 
 
 class LfgVoiceCategory(BaseScale):
+    """
+    Designate a category channel under which my LFG voice channels get created. If you want me to automatically create voice channels for each LFG event, use this to set it up
+    """
 
     # todo perms
     @slash_command(
         **setup_sub_command,
         **setup_sub_command_lfg_group,
         sub_cmd_name="voice_category",
-        sub_cmd_description="The category channel in which the LFG voice channel are created",
+        sub_cmd_description="Designate a category channel under which my LFG voice channels get created",
     )
     @slash_option(
         name="channel",

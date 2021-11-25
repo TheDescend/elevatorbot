@@ -126,7 +126,7 @@ class CRUDLfgMessages(CRUDBase):
         if joined:
             query = query.filter(LfgMessage.joined_members.any(discord_id))
         if backup:
-            query = query.filter(LfgMessage.alternate_members.any(discord_id))
+            query = query.filter(LfgMessage.backup_members.any(discord_id))
 
         result = await self._execute_query(db, query)
         return result.scalars().fetchall()

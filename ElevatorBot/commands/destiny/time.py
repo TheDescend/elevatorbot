@@ -18,11 +18,9 @@ from ElevatorBot.static.emojis import custom_emojis
 
 class Time(BaseScale):
     @slash_command(name="time", description="Shows you your Destiny 2 playtime split up by season")
-    @default_mode_option(description="Restrict the game mode where the playtime counts. Default: All modes")
-    @autocomplete_activity_option(
-        description="Restrict the activity where the playtime counts. Overwrites `mode`. Default: All modes"
-    )
-    @default_class_option(description="Restrict the class where the playtime counts. Default: All classes")
+    @default_mode_option()
+    @autocomplete_activity_option()
+    @default_class_option()
     @default_user_option()
     async def _time(
         self,

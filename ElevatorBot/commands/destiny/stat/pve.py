@@ -15,10 +15,10 @@ class StatPvE(BaseScale):
     @slash_command(
         **stat_sub_command,
         sub_cmd_name="pve",
-        sub_cmd_description="Displays information for all PvE activities",
+        sub_cmd_description="Displays the specified stat for all PvE activities",
     )
     @default_stat_option()
-    @default_class_option(description="Restrict the class where the stats count. Default: All classes")
+    @default_class_option()
     @default_user_option()
     async def _pve(self, ctx: InteractionContext, name: str, destiny_class: str = None, user: Member = None):
         member = user or ctx.author

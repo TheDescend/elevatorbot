@@ -20,7 +20,7 @@ class Status(BaseScale):
     @slash_command(
         **descend_setup_sub_command,
         sub_cmd_name="status",
-        sub_cmd_description="The channel in which the status messages get posted and updated",
+        sub_cmd_description="Designate a channel in which status messages get posted and updated",
         scopes=COMMAND_GUILD_SCOPE,
     )
     @slash_option(

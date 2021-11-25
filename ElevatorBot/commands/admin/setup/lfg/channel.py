@@ -24,7 +24,7 @@ class LfgChannel(BaseScale):
         **setup_sub_command,
         **setup_sub_command_lfg_group,
         sub_cmd_name="channel",
-        sub_cmd_description="The channel in which the LFG messages get posted",
+        sub_cmd_description="Designate a channel where my LFG events get posted",
     )
     @slash_option(
         name="channel",

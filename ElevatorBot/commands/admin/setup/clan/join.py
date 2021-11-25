@@ -19,7 +19,9 @@ from ElevatorBot.core.misc.persistentMessages import handle_setup_command
 
 
 class ClanJoin(BaseScale):
-    """Designate a channel where players can join your clan by pressing a button. They will get an invite by the person which used /setup clan link"""
+    """
+    Designate a channel where players can join your Destiny 2 clan by pressing a button. They will receive an invite by the person which used `/setup clan link`
+    """
 
     # todo perms
     @slash_command(

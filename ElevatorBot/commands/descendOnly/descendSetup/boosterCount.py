@@ -20,7 +20,7 @@ class BoosterCount(BaseScale):
     @slash_command(
         **descend_setup_sub_command,
         sub_cmd_name="booster_count",
-        sub_cmd_description="Select a voice channel that will show the booster count",
+        sub_cmd_description="Designate a voice channel that will always show the current booster count",
         scopes=COMMAND_GUILD_SCOPE,
     )
     @slash_option(

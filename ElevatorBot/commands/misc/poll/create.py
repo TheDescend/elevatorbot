@@ -10,7 +10,7 @@ class PollCreate(BaseScale):
     @slash_command(
         **poll_sub_command,
         sub_cmd_name="create",
-        sub_cmd_description="Create a poll",
+        sub_cmd_description="Create a new poll",
     )
     @slash_option(
         name="name",

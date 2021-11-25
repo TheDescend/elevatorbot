@@ -18,23 +18,6 @@ from ElevatorBot.static.destinyDates import expansion_dates, season_and_expansio
 from ElevatorBot.static.timezones import timezones_dict
 
 
-# todo unify naming (alt + f7)
-def get_mode_choices() -> list[SlashCommandChoice]:
-    return [
-        SlashCommandChoice(name="Everything (Default)", value="0"),
-        SlashCommandChoice(name="Raids", value="4"),
-        SlashCommandChoice(name="Dungeon", value="82"),
-        SlashCommandChoice(name="Story (including stuff like Presage)", value="2"),
-        SlashCommandChoice(name="Strike", value="3"),
-        SlashCommandChoice(name="Nightfall", value="46"),
-        SlashCommandChoice(name="Everything PvE", value="7"),
-        SlashCommandChoice(name="Trials", value="84"),
-        SlashCommandChoice(name="Iron Banner", value="19"),
-        SlashCommandChoice(name="Everything PvP", value="5"),
-        SlashCommandChoice(name="Gambit", value="63"),
-    ]
-
-
 def get_timezone_choices() -> list[SlashCommandChoice]:
     return [
         SlashCommandChoice(
@@ -46,8 +29,6 @@ def get_timezone_choices() -> list[SlashCommandChoice]:
 
 
 # Decorators:
-
-
 def default_user_option(
     description: str = "The user you want to look up",
     required: bool = False,
@@ -59,6 +40,20 @@ def default_user_option(
 
     def wrapper(func):
         return slash_option(name="user", description=description, opt_type=OptionTypes.USER, required=required)(func)
+
+    return wrapper
+
+
+def lfg_event_id() -> Any:
+    """
+    Decorator that replaces @slash_option()
+    Call with `@lfg_event_id()`
+    """
+
+    def wrapper(func):
+        return slash_option(
+            name="lfg_id", description="The lfg event ID", opt_type=OptionTypes.INTEGER, required=True, min_value=0
+        )(func)
 
     return wrapper
 
@@ -128,7 +123,7 @@ def default_stat_option() -> Any:
 
 
 def default_time_option(
-    description: str = "Format: `HH:MM DD/MM` - Restrict the time", name: str = "start_time", required: bool = False
+    name: str, description: str = "Format: `HH:MM DD/MM` - Restrict the time", required: bool = False
 ) -> Any:
     """
     Decorator that replaces @slash_option()
@@ -285,9 +280,7 @@ def autocomplete_activity_option(
     return wrapper
 
 
-def autocomplete_weapon_option(
-    description: str = "Restrict the weapon. Default: All weapons", required: bool = False
-) -> Any:
+def autocomplete_weapon_option(description: str, required: bool = False) -> Any:
     """
     Decorator that replaces @slash_option()
     Call with `@autocomplete_weapon_option()`
@@ -311,7 +304,7 @@ def autocomplete_weapon_option(
 
 
 def autocomplete_lore_option(
-    description: str = "The name of item / card holding the lore", required: bool = True
+    description: str = "The name of item / card having the lore", required: bool = True
 ) -> Any:
     """
     Decorator that replaces @slash_option()

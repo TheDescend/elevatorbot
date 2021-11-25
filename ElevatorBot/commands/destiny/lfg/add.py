@@ -6,7 +6,7 @@ from dis_snek.models import (
     slash_option,
 )
 
-from ElevatorBot.commandHelpers.optionTemplates import default_user_option
+from ElevatorBot.commandHelpers.optionTemplates import default_user_option, lfg_event_id
 from ElevatorBot.commandHelpers.subCommandTemplates import lfg_sub_command
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.core.destiny.lfg.lfgSystem import LfgMessage
@@ -15,16 +15,16 @@ from ElevatorBot.misc.formating import embed_message
 
 
 class LfgAdd(BaseScale):
-    """This is so cool, it adds people into the main roster even if full"""
+    """
+    This adds people into the main roster of an LFG event, even if is full
+    """
 
     @slash_command(
         **lfg_sub_command,
         sub_cmd_name="add",
         sub_cmd_description="Add a user to an lfg event",
     )
-    @slash_option(
-        name="lfg_id", description="The lfg message id", required=True, opt_type=OptionTypes.INTEGER, min_value=0
-    )
+    @lfg_event_id()
     @default_user_option(description="The user you want to add", required=True)
     async def _add(self, ctx: InteractionContext, lfg_id: int, user: Member):
         # get the message obj
@@ -35,7 +35,7 @@ class LfgAdd(BaseScale):
             return
 
         # test if the user is admin or author
-        if ctx.author.id != lfg_message.author.id:
+        if ctx.author.id != lfg_message.author_id.id:
             if not await has_admin_permission(ctx=ctx, member=ctx.author):
                 return
 

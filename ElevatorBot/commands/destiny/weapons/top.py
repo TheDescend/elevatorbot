@@ -41,7 +41,15 @@ from NetworkingSchemas.destiny.weapons import (
 
 
 class WeaponsTop(BaseScale):
-    @slash_command(**weapons_sub_command, sub_cmd_name="top", sub_cmd_description="Shows your top weapon ranking")
+    """
+    Shows your top Destiny 2 weapon ranking
+
+    :option:weapon: If you want a specific weapon to be included in the ranking. Otherwise the command will only show your top eight weapons per slot
+    """
+
+    @slash_command(
+        **weapons_sub_command, sub_cmd_name="top", sub_cmd_description="Shows your top Destiny 2 weapon ranking"
+    )
     @slash_option(
         name="stat",
         description="Which stat you want the leaderboard to consider. Default: Kills",

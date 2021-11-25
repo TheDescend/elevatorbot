@@ -16,11 +16,12 @@ from ElevatorBot.backendNetworking.routes import (
 )
 from ElevatorBot.backgroundEvents.base import scheduler
 from ElevatorBot.core.destiny.lfg.scheduledEvents import delete_lfg_scheduled_events
-from ElevatorBot.static.schemas import LfgInputData, LfgUpdateData
 from NetworkingSchemas.destiny.lfgSystem import (
     AllLfgDeleteOutputModel,
     AllLfgOutputModel,
+    LfgCreateInputModel,
     LfgOutputModel,
+    LfgUpdateInputModel,
     UserAllLfgOutputModel,
 )
 
@@ -67,41 +68,41 @@ class DestinyLfgSystem(BaseBackendConnection):
     async def update(
         self,
         lfg_id: int,
-        discord_member: Member,
-        lfg_data: LfgUpdateData,
+        discord_member_id: int,
+        lfg_data: LfgUpdateInputModel,
     ) -> Optional[LfgOutputModel]:
         """Updates the lfg info belonging to the lfg id and guild"""
 
         result = await self._backend_request(
             method="POST",
             route=destiny_lfg_update_route.format(
-                guild_id=self.discord_guild.id, discord_id=discord_member.id, lfg_id=lfg_id
+                guild_id=self.discord_guild.id, discord_id=discord_member_id, lfg_id=lfg_id
             ),
-            data=lfg_data.__dict__,
+            data=lfg_data.dict(),
         )
 
         # convert to correct pydantic model
         return LfgOutputModel.parse_obj(result.result) if result else None
 
-    async def create(self, discord_member: Member, lfg_data: LfgInputData) -> Optional[LfgOutputModel]:
+    async def create(self, discord_member: Member, lfg_data: LfgCreateInputModel) -> Optional[LfgOutputModel]:
         """Inserts the lfg info and gives it a new id"""
 
         result = await self._backend_request(
             method="POST",
             route=destiny_lfg_create_route.format(guild_id=self.discord_guild.id, discord_id=discord_member.id),
-            data=lfg_data.__dict__,
+            data=lfg_data.dict(),
         )
 
         # convert to correct pydantic model
         return LfgOutputModel.parse_obj(result.result) if result else None
 
-    async def delete(self, discord_member: Member, lfg_id: int) -> bool:
+    async def delete(self, discord_member_id: int, lfg_id: int) -> bool:
         """Delete the lfg info belonging to the lfg id and guild"""
 
         result = await self._backend_request(
             method="DELETE",
             route=destiny_lfg_delete_route.format(
-                guild_id=self.discord_guild.id, discord_id=discord_member.id, lfg_id=lfg_id
+                guild_id=self.discord_guild.id, discord_id=discord_member_id, lfg_id=lfg_id
             ),
         )
 

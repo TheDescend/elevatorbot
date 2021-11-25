@@ -352,7 +352,7 @@ class LfgMessage(Base):
     start_time = Column(DateTime(True), nullable=False)
     max_joined_members = Column(Integer, nullable=False)
     joined_members = Column(ARRAY(BigInteger()), nullable=False)
-    alternate_members = Column(ARRAY(BigInteger()), nullable=False)
+    backup_members = Column(ARRAY(BigInteger()), nullable=False)
 
     creation_time = Column(DateTime(True), nullable=False)
     voice_channel_id = Column(BigInteger, nullable=True)

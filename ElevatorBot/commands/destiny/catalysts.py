@@ -8,7 +8,7 @@ from ElevatorBot.misc.formating import embed_message, format_progress
 
 class Catalysts(BaseScale):
     @slash_command(
-        name="catalysts", description="Shows you Destiny 2 exotic weapon catalysts and your completion status"
+        name="catalysts", description="Shows you Destiny 2 exotic weapon catalysts and their completion status"
     )
     @default_user_option()
     async def _catalysts(self, ctx: InteractionContext, user: Member = None):

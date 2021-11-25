@@ -20,7 +20,7 @@ class RegisteredRole(BaseScale):
     @slash_command(
         **setup_sub_command,
         sub_cmd_name="registered_role",
-        sub_cmd_description="Assign the role that is given to people that /register",
+        sub_cmd_description="Designate the role that is given to people that `/register` with me",
     )
     @slash_option(
         name="role",

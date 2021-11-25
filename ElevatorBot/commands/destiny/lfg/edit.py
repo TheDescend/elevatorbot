@@ -13,6 +13,7 @@ from dis_snek.models import (
     slash_option,
 )
 
+from ElevatorBot.commandHelpers.optionTemplates import lfg_event_id
 from ElevatorBot.commandHelpers.responseTemplates import respond_timeout
 from ElevatorBot.commandHelpers.subCommandTemplates import lfg_sub_command
 from ElevatorBot.commands.base import BaseScale
@@ -29,9 +30,7 @@ class LfgEdit(BaseScale):
         sub_cmd_name="edit",
         sub_cmd_description="When you fucked up and need to edit an event",
     )
-    @slash_option(
-        name="lfg_id", description="The lfg message id", required=True, opt_type=OptionTypes.INTEGER, min_value=0
-    )
+    @lfg_event_id()
     @slash_option(
         name="section",
         description="What section to edit",
@@ -56,7 +55,7 @@ class LfgEdit(BaseScale):
             return
 
         # test if the user is admin or author
-        if ctx.author.id != lfg_message.author.id:
+        if ctx.author.id != lfg_message.author_id.id:
             if not await has_admin_permission(ctx=ctx, member=ctx.author):
                 return
 

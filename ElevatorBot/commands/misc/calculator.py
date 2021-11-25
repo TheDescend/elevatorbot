@@ -5,7 +5,7 @@ from ElevatorBot.core.misc.calculator import Calculator
 
 
 class CalculatorCommand(BaseScale):
-    @slash_command(name="calculator", description="A handy calculator!")
+    @slash_command(name="calculator", description="Summons a handy calculator")
     async def _calculator(self, ctx: InteractionContext):
 
         calc = Calculator(ctx)

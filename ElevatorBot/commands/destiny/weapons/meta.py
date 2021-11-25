@@ -47,7 +47,7 @@ class WeaponsMeta(BaseScale):
     @slash_command(
         **weapons_sub_command,
         sub_cmd_name="meta",
-        sub_cmd_description="Displays most used weapons by clan members in the linked clan",
+        sub_cmd_description="Displays the most used Destiny 2 weapons by clan members from the linked clan",
     )
     @default_mode_option()
     @autocomplete_activity_option()

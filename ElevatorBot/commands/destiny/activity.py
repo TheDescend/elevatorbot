@@ -24,11 +24,11 @@ from NetworkingSchemas.destiny.activities import DestinyActivityInputModel
 
 
 class DestinyActivity(BaseScale):
-    @slash_command(name="activity", description="Display stats for the chosen activity")
+    @slash_command(name="activity", description="Display stats for Destiny 2 activities")
     @autocomplete_activity_option(description="Chose the activity you want to see the stats for", required=True)
-    @default_class_option(description="Restrict the class where the weapon stats count. Default: All classes")
-    @default_expansion_option(description="Restrict the expansion where the weapon stats count")
-    @default_season_option(description="Restrict the season where the weapon stats count")
+    @default_class_option()
+    @default_expansion_option()
+    @default_season_option()
     @default_time_option(
         name="start_time",
         description="Format: `DD/MM/YY` - Input the **earliest** date you want the weapon stats for. Default: Big Bang",
