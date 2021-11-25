@@ -7,6 +7,7 @@ from Backend.dependencies import get_db_session
 from Backend.misc.helperFunctions import get_now_with_tz
 from NetworkingSchemas.basic import EmptyResponseModel
 from NetworkingSchemas.destiny.lfgSystem import (
+    AllLfgDeleteOutputModel,
     AllLfgOutputModel,
     LfgCreateInputModel,
     LfgOutputModel,
@@ -116,3 +117,12 @@ async def delete(guild_id: int, discord_id: int, lfg_id: int, db: AsyncSession =
     await lfg.delete(db=db, lfg_id=lfg_id, guild_id=guild_id, discord_id=discord_id)
 
     return EmptyResponseModel()
+
+
+@router.delete("/delete/all", response_model=AllLfgDeleteOutputModel)
+async def delete_all(guild_id: int, db: AsyncSession = Depends(get_db_session)):
+    """
+    Delete all lfg events for the guild
+    """
+
+    return await lfg.delete_all(db=db, guild_id=guild_id)

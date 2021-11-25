@@ -5,6 +5,7 @@ from dis_snek.models import Guild, Member
 
 from ElevatorBot.backendNetworking.http import BaseBackendConnection
 from ElevatorBot.backendNetworking.routes import (
+    polls_delete_all_route,
     polls_delete_option_route,
     polls_delete_route,
     polls_get_route,
@@ -16,8 +17,8 @@ from NetworkingSchemas.misc.polls import PollSchema
 
 @dataclasses.dataclass()
 class BackendPolls(BaseBackendConnection):
-    guild: Guild
-    discord_member: Member
+    guild: Optional[Guild]
+    discord_member: Optional[Member]
 
     async def insert(self, name: str, description: str, channel_id: int, message_id: int) -> Optional[PollSchema]:
         """Insert a poll"""
@@ -87,3 +88,14 @@ class BackendPolls(BaseBackendConnection):
 
         # convert to correct pydantic model
         return PollSchema.parse_obj(result.result) if result else None
+
+    async def delete_all(self, guild_id: int) -> bool:
+        """Deletes all polls for a guild"""
+
+        result = await self._backend_request(
+            method="DELETE",
+            route=polls_delete_all_route.format(guild_id=guild_id),
+        )
+
+        # returns EmptyResponseModel
+        return bool(result)

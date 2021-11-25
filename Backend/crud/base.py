@@ -118,6 +118,19 @@ class CRUDBase:
 
         return obj
 
+    async def _delete_multi(self, db: AsyncSession, **delete_kwargs) -> list[ModelType]:
+        """Delete all entries from the table"""
+
+        # get the objects
+        objs = await self._get_multi(db=db, **delete_kwargs)
+
+        # delete and return
+        for obj in objs:
+            await db.delete(obj)
+        await db.flush()
+
+        return objs
+
     async def _delete_all(self, db: AsyncSession):
         """Delete all entries from the table"""
 

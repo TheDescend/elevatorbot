@@ -7,6 +7,7 @@ from Backend.crud.base import CRUDBase
 from Backend.database.models import PersistentMessage
 from Backend.misc.cache import cache
 from Backend.misc.helperFunctions import convert_kwargs_into_dict
+from NetworkingSchemas.misc.persistentMessages import PersistentMessageDeleteInput
 
 
 class CRUDPersistentMessages(CRUDBase):
@@ -62,17 +63,33 @@ class CRUDPersistentMessages(CRUDBase):
 
         return model
 
-    async def delete(self, db: AsyncSession, guild_id: int, message_name: str):
+    async def delete(self, db: AsyncSession, guild_id: int, to_delete: PersistentMessageDeleteInput):
         """Delete the persistent message"""
 
-        await self._delete(db=db, primary_key=(message_name, guild_id))
+        if to_delete.message_name:
+            objs = [await self._delete(db=db, primary_key=(to_delete.message_name, guild_id))]
+        elif to_delete.channel_id:
+            objs = await self._delete_multi(db=db, guild_id=guild_id, channel_id=to_delete.channel_id)
+        else:
+            objs = await self._delete_multi(db=db, guild_id=guild_id, message_id=to_delete.message_id)
 
         # delete from cache
-        cache_str = f"{guild_id}|{message_name}"
-        try:
-            self.cache.persistent_messages.pop(cache_str)
-        except KeyError:
-            pass
+        for obj in objs:
+            cache_str = f"{guild_id}|{obj.message_name}"
+            try:
+                self.cache.persistent_messages.pop(cache_str)
+            except KeyError:
+                pass
+
+    async def delete_all(self, db: AsyncSession, guild_id: int):
+        """Deletes all persistent message for a guild"""
+
+        await self._delete_multi(db=db, guild_id=guild_id)
+
+        # delete from cache
+        for key in list(self.cache.persistent_messages.keys()):
+            if key.startswith(str(guild_id)):
+                self.cache.persistent_messages.pop(key)
 
     async def get_registration_roles(self, db: AsyncSession, guild_id: Optional[int] = None) -> list[PersistentMessage]:
         """Get the registered role (channel_id)"""

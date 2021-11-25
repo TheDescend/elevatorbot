@@ -9,7 +9,11 @@ from Backend.crud import persistent_messages
 from Backend.crud.base import CRUDBase
 from Backend.database.models import LfgMessage
 from Backend.misc.cache import cache
-from NetworkingSchemas.destiny.lfgSystem import LfgOutputModel, UserAllLfgOutputModel
+from NetworkingSchemas.destiny.lfgSystem import (
+    AllLfgDeleteOutputModel,
+    LfgOutputModel,
+    UserAllLfgOutputModel,
+)
 
 
 class CRUDLfgMessages(CRUDBase):
@@ -83,6 +87,12 @@ class CRUDLfgMessages(CRUDBase):
         await self._check_author(obj=obj, discord_id=discord_id)
 
         await self._delete(db=db, obj=obj)
+
+    async def delete_all(self, db: AsyncSession, guild_id: int) -> AllLfgDeleteOutputModel:
+        """Delete all lfg events for the guild"""
+
+        objs: list[LfgMessage] = await self._delete_multi(db=db, guild_id=guild_id)
+        return AllLfgDeleteOutputModel(event_ids=[obj.id for obj in objs])
 
     async def update(self, db: AsyncSession, lfg_id: int, guild_id: int, discord_id: int, **update_data) -> LfgMessage:
         """Update the lfg info belonging to the lfg id and guild"""

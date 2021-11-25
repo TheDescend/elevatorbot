@@ -134,4 +134,4 @@ async def delete_all(guild_id: int, db: AsyncSession = Depends(get_db_session)):
 async def delete_role(guild_id: int, role_id: int, db: AsyncSession = Depends(get_db_session)):
     """Delete a role from a guild"""
 
-    await roles.delete_guild_roles(db=db, role_id=role_id)
+    await roles.delete_role(db=db, role_id=role_id)

@@ -12,7 +12,7 @@ from ElevatorBot.backendNetworking.routes import (
 
 @dataclasses.dataclass
 class ElevatorGuilds(BaseBackendConnection):
-    discord_guild: Guild
+    discord_guild: Optional[Guild]
     discord_member: Member = dataclasses.field(init=False, default=None)
 
     async def add(self) -> bool:
@@ -25,12 +25,12 @@ class ElevatorGuilds(BaseBackendConnection):
         # returns EmptyResponseModel
         return bool(result)
 
-    async def delete(self, guild_id: Optional[int] = None) -> bool:
+    async def delete(self, guild_id: int) -> bool:
         """Delete the guild"""
 
         result = await self._backend_request(
             method="DELETE",
-            route=elevator_servers_delete.format(guild_id=self.discord_guild.id if not guild_id else guild_id),
+            route=elevator_servers_delete.format(guild_id=guild_id),
         )
 
         # returns EmptyResponseModel

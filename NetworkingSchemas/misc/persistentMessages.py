@@ -16,3 +16,9 @@ class PersistentMessage(BaseModel):
 class PersistentMessageUpsert(BaseModel):
     channel_id: int
     message_id: Optional[int] = None
+
+
+class PersistentMessageDeleteInput(BaseModel):
+    message_name: Optional[str] = None
+    channel_id: Optional[int] = None
+    message_id: Optional[int] = None

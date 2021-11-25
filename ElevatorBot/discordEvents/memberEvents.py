@@ -20,8 +20,6 @@ from ElevatorBot.static.emojis import custom_emojis
 async def on_member_add(event: MemberAdd):
     """Triggers when a user joins a guild"""
 
-    client = event.bot
-
     if not event.member.bot:
         # descend only stuff
         if event.member.guild == descend_channels.guild:
@@ -29,22 +27,21 @@ async def on_member_add(event: MemberAdd):
             await event.member.send(
                 embeds=embed_message(
                     f"{custom_emojis.descend_logo} Welcome to Descend {event.member.name}! {custom_emojis.descend_logo}",
-                    f"Before you can do anything else, you need to accept our rules. Please read them and accept them [> here <](discord://-/event.member-verification/{descend_channels.guild.id}), if you have not done so already \n⁣\nYou can join the Destiny 2 clan in {descend_channels.registration_channel.mention}\nYou can find our current requirements in the same channel. \n⁣\nWe have a wide variety of roles you can earn, for more information, please use `roles overview` or check out {descend_channels.community_roles_channel.mention}\n⁣\nIf you have any problems / questions, do not hesitate to write {client.user.mention} (me) a personal message with your problem / question. This will get forwarded to staff",
+                    f"Before you can do anything else, you need to accept our rules. Please read them and accept them [> here <](discord://-/event.member-verification/{descend_channels.guild.id}), if you have not done so already \n⁣\nYou can join the Destiny 2 clan in {descend_channels.registration_channel.mention}\nYou can find our current requirements in the same channel. \n⁣\nWe have a wide variety of roles you can earn, for more information, please use `roles overview` or check out {descend_channels.community_roles_channel.mention}\n⁣\nIf you have any problems / questions, do not hesitate to write {event.bot.user.mention} (me) a personal message with your problem / question. This will get forwarded to staff",
                 )
             )
 
         # only do stuff here if the event.member is not pending
         if not event.member.pending:
-            await _assign_roles_on_join(client=client, member=event.member)
+            await _assign_roles_on_join(client=event.bot, member=event.member)
 
 
 async def on_member_remove(event: MemberRemove):
     """Triggers when a member leaves / gets kicked from a guild"""
 
-    client = event.bot
-
     # descend only stuff
     if event.member.guild == descend_channels.guild:
+        # =========================================================================
         # send a message in the join log channel
         embed = embed_message("Member Left the Server", f"{event.member.mention} has left the server")
         embed.add_field(name="Display Name", value=event.member.display_name)
@@ -52,13 +49,12 @@ async def on_member_remove(event: MemberRemove):
         embed.add_field(name="Discord ID", value=event.member.id)
         await descend_channels.join_log_channel.send(embeds=embed)
 
-        # todo removeFromClanAfterLeftDiscord(client, event.member)
         # =========================================================================
         # remove destiny clan event.members from the clan
         # wait 10 min bc bungie takes forever in updating the clan roster
         await asyncio.sleep(10 * 60)
 
-        clan = DestinyClan(ctx=None, client=client, discord_guild=event.member.guild)
+        clan = DestinyClan(ctx=None, client=event.bot, discord_guild=event.member.guild)
 
         # check if the user was in the clan
         result = await clan.get_clan_members(use_cache=False)
@@ -94,7 +90,7 @@ async def on_member_remove(event: MemberRemove):
                 message = await descend_channels.bot_dev_channel.send(embeds=embed, components=components)
 
                 try:
-                    component: Component = await client.wait_for_component(components=components)
+                    component: Component = await event.bot.wait_for_component(components=components)
                 except asyncio.TimeoutError:
                     await message.edit(components=[])
                     return
@@ -118,12 +114,10 @@ async def on_member_remove(event: MemberRemove):
 async def on_member_update(event: MemberUpdate):
     """Triggers when a member gets updated"""
 
-    client = event.bot
-
     if not event.after.bot:
         # add registration role should the member no longer be pending
         if event.before.pending and not event.after.pending:
-            await _assign_roles_on_join(client=client, member=event.after)
+            await _assign_roles_on_join(client=event.bot, member=event.after)
 
         # descend only stuff
         if event.after.guild == descend_channels.guild:

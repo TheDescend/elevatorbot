@@ -1,20 +1,24 @@
 import dataclasses
 from typing import Optional
 
+from apscheduler.jobstores.base import JobLookupError
 from dis_snek.client import Snake
 from dis_snek.models import Guild, Member
 
 from ElevatorBot.backendNetworking.http import BaseBackendConnection
 from ElevatorBot.backendNetworking.routes import (
     destiny_lfg_create_route,
+    destiny_lfg_delete_all_route,
     destiny_lfg_delete_route,
     destiny_lfg_get_all_route,
     destiny_lfg_get_route,
     destiny_lfg_update_route,
     destiny_lfg_user_get_all_route,
 )
+from ElevatorBot.backgroundEvents import scheduler
 from ElevatorBot.static.schemas import LfgInputData, LfgUpdateData
 from NetworkingSchemas.destiny.lfgSystem import (
+    AllLfgDeleteOutputModel,
     AllLfgOutputModel,
     LfgOutputModel,
     UserAllLfgOutputModel,
@@ -24,7 +28,7 @@ from NetworkingSchemas.destiny.lfgSystem import (
 @dataclasses.dataclass
 class DestinyLfgSystem(BaseBackendConnection):
     client: Snake
-    discord_guild: Guild
+    discord_guild: Optional[Guild]
     discord_member: Member = dataclasses.field(init=False, default=None)
 
     async def get_all(self) -> Optional[AllLfgOutputModel]:
@@ -103,3 +107,24 @@ class DestinyLfgSystem(BaseBackendConnection):
 
         # returns EmptyResponseModel
         return True if result else None
+
+    async def delete_all(self, guild_id: int) -> Optional[AllLfgDeleteOutputModel]:
+        """Delete the lfg info belonging to the lfg id and guild"""
+
+        result = await self._backend_request(
+            method="DELETE",
+            route=destiny_lfg_delete_all_route.format(guild_id=guild_id),
+        )
+
+        # convert to correct pydantic model
+        model = AllLfgDeleteOutputModel.parse_obj(result.result) if result else None
+
+        if model:
+            # remove all scheduled events
+            for event_id in model.event_ids:
+                try:
+                    scheduler.remove_job(str(event_id))
+                except JobLookupError:
+                    pass
+
+        return model

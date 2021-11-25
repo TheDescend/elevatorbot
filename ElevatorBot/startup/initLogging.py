@@ -17,12 +17,15 @@ def init_logging() -> None:
 
     # Initialize logging for discord events (on_member_add, etc.)
     make_logger("discordEvents")
+    make_logger("generalExceptions")
 
     # Initialize logging for command usage
     make_logger("commands")
+    make_logger("commandsExceptions")
 
     # Initialize logging for components usage
     make_logger("components")
+    make_logger("componentsExceptions")
 
     # Initialize logging for registration
     make_logger("registration")

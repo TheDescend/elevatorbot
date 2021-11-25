@@ -6,6 +6,7 @@ from Backend.dependencies import get_db_session
 from NetworkingSchemas.basic import EmptyResponseModel
 from NetworkingSchemas.misc.persistentMessages import (
     PersistentMessage,
+    PersistentMessageDeleteInput,
     PersistentMessageUpsert,
 )
 
@@ -39,9 +40,17 @@ async def upsert(
     return PersistentMessage.from_orm(result)
 
 
-@router.delete("/{guild_id}/delete/{message_name}", response_model=EmptyResponseModel)
-async def delete(guild_id: int, message_name: str, db: AsyncSession = Depends(get_db_session)):
+@router.delete("/{guild_id}/delete", response_model=EmptyResponseModel)
+async def delete(guild_id: int, to_delete: PersistentMessageDeleteInput, db: AsyncSession = Depends(get_db_session)):
     """Deletes a persistent message"""
 
-    await persistent_messages.delete(db=db, guild_id=guild_id, message_name=message_name)
+    await persistent_messages.delete(db=db, guild_id=guild_id, to_delete=to_delete)
+    return EmptyResponseModel()
+
+
+@router.delete("/{guild_id}/delete/all", response_model=EmptyResponseModel)
+async def delete_all(guild_id: int, db: AsyncSession = Depends(get_db_session)):
+    """Deletes all persistent messages for a guild"""
+
+    await persistent_messages.delete_all(db=db, guild_id=guild_id)
     return EmptyResponseModel()

@@ -99,5 +99,10 @@ class CRUDPolls(CRUDBase):
 
         return poll
 
+    async def delete_all(self, db: AsyncSession, guild_id: int):
+        """Deletes all polls for the guild"""
+
+        await self._delete_multi(db=db, guild_id=guild_id)
+
 
 polls = CRUDPolls(Poll)

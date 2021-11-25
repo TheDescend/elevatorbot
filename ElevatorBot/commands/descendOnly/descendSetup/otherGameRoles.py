@@ -52,6 +52,10 @@ class OtherGameRoles(BaseScale):
             "emoji": custom_emojis.valorant,
             "role_id": 709378171832893572,
         },
+        "Formula 1": {
+            "emoji": "🐎",
+            "role_id": 913416199856062485,
+        },
     }
 
     # todo perms

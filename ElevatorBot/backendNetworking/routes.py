@@ -50,6 +50,8 @@ destiny_lfg_user_get_all_route = destiny_lfg_route + "{discord_id}/get/all/"  # 
 destiny_lfg_update_route = destiny_lfg_route + "{discord_id}/update/{lfg_id}/"  # POST
 destiny_lfg_delete_route = destiny_lfg_route + "{discord_id}/delete/{lfg_id}/"  # DELETE
 destiny_lfg_create_route = destiny_lfg_route + "{discord_id}/create/"  # POST
+destiny_lfg_delete_all_route = destiny_lfg_route + "delete/all/"  # POST
+
 
 # clan
 destiny_clan_route = base_route + "destiny/{guild_id}/clan/"
@@ -78,14 +80,18 @@ persistent_messages_route = base_route + "persistentMessages/"
 persistent_messages_get_route = persistent_messages_route + "{guild_id}/get/{message_name}/"  # GET
 persistent_messages_upsert_route = persistent_messages_route + "{guild_id}/upsert/{message_name}/"  # POST
 persistent_messages_delete_route = persistent_messages_route + "{guild_id}/delete/{message_name}/"  # DELETE
+persistent_messages_delete_all_route = persistent_messages_route + "{guild_id}/delete/all/"  # DELETE
+
 
 # polls
-polls_route = base_route + "polls/{guild_id}/{discord_id}/"
-polls_insert_route = polls_route + "insert/"  # POST
-polls_get_route = polls_route + "{poll_id}/get/{"  # GET
-polls_delete_option_route = polls_route + "{poll_id}/delete_option/{option_name}"  # DELETE
-polls_user_input_route = polls_route + "{poll_id}/user_input/"  # POST
-polls_delete_route = polls_route + "{poll_id}/delete/{"  # DELETE
+polls_route = base_route + "polls/{guild_id}/"
+polls_insert_route = polls_route + "{discord_id}/insert/"  # POST
+polls_get_route = polls_route + "{discord_id}/{poll_id}/get/{"  # GET
+polls_delete_option_route = polls_route + "{{discord_id}/poll_id}/delete_option/{option_name}"  # DELETE
+polls_user_input_route = polls_route + "{discord_id}/{poll_id}/user_input/"  # POST
+polls_delete_route = polls_route + "{discord_id}/{poll_id}/delete/{"  # DELETE
+polls_delete_all_route = polls_route + "delete/all{"  # DELETE
+
 
 # activities
 destiny_activities_route = base_route + "activities/"

@@ -13,8 +13,6 @@ from settings import COMMAND_GUILD_SCOPE
 async def on_message_delete(event: MessageDelete):
     """Triggers when a message gets deleted"""
 
-    client = event.bot
-
     # ignore bot messages
     if not event.message.author.bot:
         # check if the deleted message was part of the conversation with a member and admins
@@ -32,17 +30,14 @@ async def on_message_delete(event: MessageDelete):
 async def on_message_update(event: MessageUpdate):
     """Triggers when a message gets edited"""
 
-    client = event.bot
-
     if event.before != event.after:
         # run the message create checks
-        await on_message_create(event=MessageCreate(bot=client, message=event.after), edit_mode=True)
+        await on_message_create(event=MessageCreate(bot=event.bot, message=event.after), edit_mode=True)
 
 
 async def on_message_create(event: MessageCreate, edit_mode: bool = False):
     """Triggers when a message gets send"""
 
-    client = event.bot
     message = event.message
 
     # ignore bot messages
@@ -70,42 +65,48 @@ async def on_message_create(event: MessageCreate, edit_mode: bool = False):
                     and thread.name.startswith("Message from")
                 ):
                     linked_user_id = thread.name.split("|")[1]
-                    linked_user = await client.get_user(linked_user_id)
+                    linked_user = await event.bot.get_user(linked_user_id)
 
-                    if not linked_user:
-                        return
+                    if linked_user:
+                        # save in cache
+                        reply_cache.user_to_thread.update({linked_user.id: thread})
+                        reply_cache.thread_to_user.update({thread: linked_user.id})
 
-                    # save in cache
-                    reply_cache.user_to_thread.update({linked_user.id: thread})
-                    reply_cache.thread_to_user.update({thread: linked_user.id})
-
-                    send = True
+                        send = True
 
                 if send:
-                    # alright, lets send that to the linked member
-                    linked_user = await client.get_user(reply_cache.thread_to_user[thread])
+                    # check that the message starts with a @ElevatorBot mention and remove that
+                    content = message.content
+                    if content.startswith(event.bot.user.mention):
+                        content.removeprefix(event.bot.user.mention)
 
-                    # send the message
-                    if not edit_mode:
-                        user_message = await linked_user.send(content=message.content)
-                        reply_cache.thread_message_id_to_user_message.update({message.id: user_message})
+                        # alright, lets send that to the linked member
+                        linked_user = await event.bot.get_user(reply_cache.thread_to_user[thread])
 
-                    # edit the message
-                    else:
-                        user_message = (
-                            reply_cache.thread_message_id_to_user_message[message.id]
-                            if message.id in reply_cache.thread_message_id_to_user_message
-                            else None
-                        )
-                        if user_message:
-                            await user_message.edit(content=message.content)
-                        else:
-                            user_message = await linked_user.send(content=message.content)
+                        # send the message
+                        if not edit_mode:
+                            user_message = await linked_user.send(content=content)
                             reply_cache.thread_message_id_to_user_message.update({message.id: user_message})
 
-                    # also send images
-                    for url in [attachment.url for attachment in message.attachments]:
-                        await linked_user.send(content=url)
+                        # edit the message
+                        else:
+                            user_message = (
+                                reply_cache.thread_message_id_to_user_message[message.id]
+                                if message.id in reply_cache.thread_message_id_to_user_message
+                                else None
+                            )
+                            if user_message:
+                                await user_message.edit(content=content)
+                            else:
+                                user_message = await linked_user.send(content=content)
+                                reply_cache.thread_message_id_to_user_message.update({message.id: user_message})
+
+                        # also send images
+                        for url in [attachment.url for attachment in message.attachments]:
+                            await linked_user.send(content=url)
+
+                        # react to the message to signal the OK
+                        await message.add_reaction(custom_emojis.descend_logo)
 
         # =========================================================================
         # handle dm messages
@@ -114,7 +115,7 @@ async def on_message_create(event: MessageCreate, edit_mode: bool = False):
             mutual_guilds = message.author.guilds
             if mutual_guilds:
                 # check is author is in descend. Checking COMMAND_GUILD_SCOPE for that, since that already has the id and doesn't break testing
-                allowed_guilds = [await client.get_guild(guild_id) for guild_id in COMMAND_GUILD_SCOPE]
+                allowed_guilds = [await event.bot.get_guild(guild_id) for guild_id in COMMAND_GUILD_SCOPE]
                 mutual_allowed_guilds = [g for g in allowed_guilds if g.id in mutual_guilds]
 
                 if mutual_allowed_guilds:
@@ -152,7 +153,7 @@ async def on_message_create(event: MessageCreate, edit_mode: bool = False):
                             await thread.send(
                                 embeds=embed_message(
                                     f"Inquiry from {message.author.display_name}",
-                                    "Any message you send here is relayed to them, be careful what you type :)",
+                                    f"Any message you send here that starts with `@ElevatorBot` is relayed to them (not including the mention of course)\nI will react with {custom_emojis.descend_logo} if I conveyed the message successfully",
                                 )
                             )
 
@@ -243,5 +244,5 @@ async def on_message_create(event: MessageCreate, edit_mode: bool = False):
             # valid for all guilds
 
             # be annoyed if getting pinged
-            if client.user in message.mentions:
+            if event.bot.user in message.mentions:
                 await message.add_reaction(custom_emojis.ping_sock)

@@ -28,6 +28,10 @@ class AllLfgOutputModel(BaseModel):
     events: list[LfgOutputModel] = []
 
 
+class AllLfgDeleteOutputModel(BaseModel):
+    event_ids: list[int]
+
+
 class UserAllLfgOutputModel(BaseModel):
     joined: list[LfgOutputModel] = []
     backup: list[LfgOutputModel] = []

@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.crud import polls
 from Backend.dependencies import get_db_session
+from NetworkingSchemas.basic import EmptyResponseModel
 from NetworkingSchemas.misc.polls import (
     PollInsertSchema,
     PollSchema,
@@ -10,12 +11,12 @@ from NetworkingSchemas.misc.polls import (
 )
 
 router = APIRouter(
-    prefix="/polls/{guild_id}/{discord_id}",
+    prefix="/polls/{guild_id}",
     tags=["polls"],
 )
 
 
-@router.post("/insert", response_model=PollSchema)
+@router.post("/{discord_id}/insert", response_model=PollSchema)
 async def insert(
     guild_id: int, discord_id: int, insert_data: PollInsertSchema, db: AsyncSession = Depends(get_db_session)
 ):
@@ -25,7 +26,7 @@ async def insert(
     return PollSchema.from_orm(result)
 
 
-@router.get("/{poll_id}/get", response_model=PollSchema)
+@router.get("/{discord_id}/{poll_id}/get", response_model=PollSchema)
 async def get(guild_id: int, discord_id: int, poll_id: int, db: AsyncSession = Depends(get_db_session)):
     """Gets a persistent message"""
 
@@ -33,7 +34,7 @@ async def get(guild_id: int, discord_id: int, poll_id: int, db: AsyncSession = D
     return PollSchema.from_orm(result)
 
 
-@router.delete("/{poll_id}/delete_option/{option_name}", response_model=PollSchema)
+@router.delete("/{discord_id}/{poll_id}/delete_option/{option_name}", response_model=PollSchema)
 async def delete_option(
     guild_id: int,
     discord_id: int,
@@ -47,7 +48,7 @@ async def delete_option(
     return PollSchema.from_orm(result)
 
 
-@router.post("/{poll_id}/user_input", response_model=PollSchema)
+@router.post("/{discord_id}/{poll_id}/user_input", response_model=PollSchema)
 async def user_input(
     guild_id: int,
     discord_id: int,
@@ -61,9 +62,17 @@ async def user_input(
     return PollSchema.from_orm(result)
 
 
-@router.delete("/{poll_id}/delete", response_model=PollSchema)
+@router.delete("/{discord_id}/{poll_id}/delete", response_model=PollSchema)
 async def delete(guild_id: int, discord_id: int, poll_id: int, db: AsyncSession = Depends(get_db_session)):
     """Deletes a poll"""
 
     result = await polls.delete(db=db, poll_id=poll_id, invoker_user_id=discord_id)
     return PollSchema.from_orm(result)
+
+
+@router.delete("/delete/all", response_model=EmptyResponseModel)
+async def delete(guild_id: int, db: AsyncSession = Depends(get_db_session)):
+    """Deletes all polls for a guild"""
+
+    await polls.delete_all(db=db, guild_id=guild_id)
+    return EmptyResponseModel()
