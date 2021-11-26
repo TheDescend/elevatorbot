@@ -6,7 +6,7 @@ def init_logging() -> None:
         logger = logging.getLogger(log_name)
         logger.setLevel(logging.DEBUG)
         file_handler = logging.FileHandler(
-            filename=f"logs/{log_name}.log",
+            filename=f"/Logs/Backend/{log_name}.log",
             encoding="utf-8",
         )
         file_handler.setFormatter(formatter)

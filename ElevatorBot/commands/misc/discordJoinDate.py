@@ -15,7 +15,7 @@ class DiscordJoinDate(BaseScale):
 
         await ctx.send(
             embeds=embed_message(
-                f"{user.display_name}'s Discord Join Date", member.joined_at.format(style=TimestampStyles.ShortTime)
+                f"{user.display_name}'s Discord Join Date", member.joined_at.format(style=TimestampStyles.ShortDateTime)
             )
         )
 

@@ -23,14 +23,10 @@ class CustomErrorSnake(Snake):
     async def on_command(self, ctx: InteractionContext):
         """Gets triggered after a slash command is run"""
 
-        # print the command
-        print(f"{ctx.author.display_name} used '/{ctx.name}' with kwargs '{ctx.kwargs}'")
-
         # log the command
         logger = logging.getLogger("commands")
         logger.info(
-            f"InteractionID '{ctx.interaction_id}' - User '{ctx.author.name}' with discordID '{ctx.author.id}' executed '/{ctx.name}' with kwargs '"
-            f"{ctx.kwargs}' in guildID '{ctx.guild.id}', channelID '{ctx.channel.id}'"
+            f"InteractionID '{ctx.interaction_id}' - CommandName '/{ctx.invoked_name}' - Kwargs '{ctx.kwargs}' - DiscordName '{ctx.author.name}' - DiscordID '{ctx.author.id}' - GuildID '{ctx.guild.id}' - ChannelID '{ctx.channel.id}'"
         )
 
     async def on_command_error(self, ctx: InteractionContext, error: Exception, *args, **kwargs):
@@ -42,9 +38,9 @@ class CustomErrorSnake(Snake):
         """Gets triggered after a component callback is run"""
 
         # log the command
-        logger = logging.getLogger("interactions")
+        logger = logging.getLogger("components")
         logger.info(
-            f"InteractionID '{ctx.interaction_id}' - User '{ctx.author.name}' with discordID '{ctx.author.id}' clicked on componentType '{ctx.component_type}', componentID '{ctx.component_id}' in guildID '{ctx.origin_message.guild.id}', channelID '{ctx.origin_message.channel.id}', messageID '{ctx.origin_message.id}'"
+            f"InteractionID '{ctx.interaction_id}' - Component '{ctx.invoked_name}' - Target '{ctx.target_id}' - DiscordName '{ctx.author.name}' - DiscordID '{ctx.author.id}' - GuildID '{ctx.guild.id}' - ChannelID '{ctx.channel.id}'"
         )
 
     async def on_component_error(self, ctx: ComponentContext, error: Exception, *args, **kwargs):
