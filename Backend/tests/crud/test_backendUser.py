@@ -5,10 +5,8 @@ from Backend import crud
 from Backend.core.security.auth import get_password_hash
 from Backend.database.models import BackendUser
 
-
 user_name = "auth_test"
 hashed_password = get_password_hash("correct_password")
-allowed_scopes = ["here", "also here"]
 has_write_permission = True
 has_read_permission = False
 
@@ -18,7 +16,6 @@ async def test_authenticate(db: AsyncSession):
     test_user = BackendUser(
         user_name=user_name,
         hashed_password=hashed_password,
-        allowed_scopes=allowed_scopes,
         has_write_permission=has_write_permission,
         has_read_permission=has_read_permission,
     )

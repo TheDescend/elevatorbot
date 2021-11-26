@@ -4,6 +4,11 @@
 # Some commands are only visible in the guilds you define here
 COMMAND_GUILD_SCOPE: list[int] = []
 
+# This setting changes the docker build process to no longer listen to file changes
+# Annoying for testing, great for production
+# Default: False
+PRODUCTION: bool = False
+
 # This setting enables additional console log and print statements
 # Default: False
 ENABLE_DEBUG_MODE: bool = False
@@ -12,6 +17,11 @@ ENABLE_DEBUG_MODE: bool = False
 # Enable to _update changes made, but disable if many restarts are made to prevent rate limits
 # Default: True
 SYNC_COMMANDS: bool = True
+
+# This is the admin password for the website that is generated on startup
+# Please change it to something only you know
+# User Name is "admin"
+ADMIN_PASSWORD: str = ""
 
 # The discord bot token to launch the bot
 DISCORD_BOT_TOKEN: str = ""

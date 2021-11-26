@@ -8,21 +8,18 @@ from Backend.database.models import BackendUser
 user_name = "test"
 user_name2 = "test2"
 hashed_password = get_password_hash("test")
-allowed_scopes = ["here", "also here"]
 has_write_permission = True
 has_read_permission = False
 
 test_user = BackendUser(
     user_name=user_name,
     hashed_password=hashed_password,
-    allowed_scopes=allowed_scopes,
     has_write_permission=has_write_permission,
     has_read_permission=has_read_permission,
 )
 test_user2 = BackendUser(
     user_name=user_name2,
     hashed_password=hashed_password,
-    allowed_scopes=allowed_scopes,
     has_write_permission=has_write_permission,
     has_read_permission=has_read_permission,
 )

@@ -23,6 +23,8 @@ CREDENTIALS_EXCEPTION = HTTPException(
 
 # get the secret key from a file if exists, otherwise generate one
 def get_secret_key():
+    """Get the secret key used to create a jwt token"""
+
     global _SECRET_KEY
 
     if not _SECRET_KEY:
@@ -45,14 +47,20 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """Make sure the hashed password is correct"""
+
     return pwd_context.verify(plain_password, hashed_password)
 
 
 def get_password_hash(plain_password: str) -> str:
+    """Hash the password"""
+
     return pwd_context.hash(plain_password)
 
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
+    """Create a jwt token to authenticate with"""
+
     to_encode = data.copy()
     if expires_delta:
         expire = get_now_with_tz() + expires_delta
