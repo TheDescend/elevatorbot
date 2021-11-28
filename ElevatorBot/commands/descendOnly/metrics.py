@@ -1,3 +1,6 @@
+import datetime
+
+import dateutil.parser
 import psutil as psutil
 from dis_snek.models import (
     InteractionContext,
@@ -9,6 +12,7 @@ from psutil._common import bytes2human
 
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formating import embed_message
+from ElevatorBot.misc.helperFunctions import get_now_with_tz
 from ElevatorBot.static.descendOnlyIds import descend_channels
 from settings import COMMAND_GUILD_SCOPE
 from version import __version__
@@ -30,6 +34,11 @@ class Metrics(BaseScale):
             inline=True,
         )
 
+        # cpu usage
+        embed.add_field(
+            name="CPU Usage", value=f"{psutil.cpu_count} cores - {round(psutil.cpu_percent() * 100, 2)}%", inline=True
+        )
+
         # guilds
         embed.add_field(name="Guilds", value=f"{len(ctx.bot.guilds):,}", inline=False)
 
@@ -44,11 +53,6 @@ class Metrics(BaseScale):
         embed.add_field(name="Global Commands", value=f"{global_commands:,}", inline=True)
         embed.add_field(name="Descend Commands", value=f"{descend_commands:,}", inline=True)
 
-        # cpu usage
-        embed.add_field(
-            name="CPU Usage", value=f"{psutil.cpu_count} cores - {round(psutil.cpu_percent() * 100, 2)}%", inline=False
-        )
-
         # ram usage
         memory = psutil.virtual_memory()
         embed.add_field(
@@ -60,7 +64,12 @@ class Metrics(BaseScale):
         # command usage
         commands: dict[str, list[int, int]] = {}
         members: dict[str, int] = {}
+        used: int = 0
+        used_last_week: int = 0
         with open("/Logs/ElevatorBot/commands.log" "r") as f:
+            cutoff_date_last_week = get_now_with_tz() - datetime.timedelta(days=7)
+            cutoff_date_last_week_passed = False
+
             for line in f.readline():
                 data = line.split(":")[1].split("-")
 
@@ -86,6 +95,18 @@ class Metrics(BaseScale):
                 if descend:
                     before_list[1] += 1
                 commands[name] = before_list
+
+                # general usage statistics
+                used += 1
+                date_str = line.split(":")[0].split("-")[0].strip()
+                date = dateutil.parser.parse(date_str)
+                if (not cutoff_date_last_week_passed) and (date > cutoff_date_last_week):
+                    used_last_week += 1
+                elif not cutoff_date_last_week_passed:
+                    cutoff_date_last_week_passed = True
+
+        embed.add_field(name="Total Command Usage", value=f"{used:,}", inline=False)
+        embed.add_field(name="Command Usage Last Week", value=f"{used_last_week:,}", inline=True)
 
         sorted_commands_usage = [
             f"`{k}` - {v[0]:,} Uses ({v[1]:,} Descend)"
