@@ -157,7 +157,7 @@ class TicTacToeGame:
         if self.is_valid(x, y):
             self.current_state[x][y] = symbol
             button_update = {
-                "style": ButtonStyles.BLUE if symbol == self.player_symbol else ButtonStyles.RED,
+                "style": ButtonStyles.GREEN if symbol == self.player_symbol else ButtonStyles.RED,
                 "label": symbol,
             }
             self.buttons[x].components[y].update(button_update)
@@ -341,9 +341,9 @@ class TicTacToeGame:
         if not self.message:
             embed = embed_message(
                 f"{self.ctx.author.display_name}'s TicTacToe Game",
-                footer=f"""You are blue{f" - Easy Mode: On" if self.easy_mode else ""}"""
+                footer=f"""You are green{f" - Easy Mode: On" if self.easy_mode else ""}"""
                 if not self.versus
-                else "First user to press a button plays blue, second plays red",
+                else "First user to press a button plays green, second plays red",
             )
             self.message = await self.ctx.send(components=self.buttons, embeds=embed)
         else:
@@ -355,13 +355,13 @@ class TicTacToeGame:
                 embed.description = (
                     "**You Lost:** You took to long to play"
                     if not self.versus
-                    else f"""{"**Red Wins:** Blue took to long to play" if self.player_turn == self.player1 else "**Blue Wins:** Red took to long to play"}"""
+                    else f"""{"**Red Wins:** Green took to long to play" if self.player_turn == self.player1 else "**Green Wins:** Red took to long to play"}"""
                 )
 
             # check if there is a winner
             elif winner:
                 if winner == self.player_symbol:
-                    text = "**You Won:** Try the hard mode next time 🙃" if not self.versus else f"**Blue Wins**"
+                    text = "**You Won:** Try the hard mode next time 🙃" if not self.versus else f"**Green Wins**"
                 elif winner == self.ai_symbol:
                     banter = [
                         "Imagine losing in Tic Tac Toe",
@@ -374,6 +374,7 @@ class TicTacToeGame:
                         "You sure you played this game before",
                         "Hopefully that was not your A game",
                         "You know you can win nitro here right?",
+                        "<@238388130581839872> would have won",
                     ]
                     text = f"**You Lost:** {random.choice(banter)}" if not self.versus else f"**Red Wins**"
                 else:
