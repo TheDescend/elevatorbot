@@ -64,11 +64,11 @@ class LfgCreate(BaseScale):
         # ask for the activity
         components = [
             ActionRow(
-                Button(style=ButtonStyles.BLUE, label="Raids"),
-                Button(style=ButtonStyles.BLUE, label="Dungeons"),
-                Button(style=ButtonStyles.BLUE, label="Trials"),
-                Button(style=ButtonStyles.BLUE, label="Iron Banner"),
-                Button(style=ButtonStyles.BLUE, label="Other"),
+                Button(style=ButtonStyles.GREEN, label="Raids"),
+                Button(style=ButtonStyles.GREEN, label="Dungeons"),
+                Button(style=ButtonStyles.GREEN, label="Trials"),
+                Button(style=ButtonStyles.GREEN, label="Iron Banner"),
+                Button(style=ButtonStyles.GREEN, label="Other"),
             ),
         ]
         embed = embed_message(

@@ -11,11 +11,7 @@ def embed_message(
 
     assert title or description or footer, "Need to input either title or description or footer"
 
-    embed = Embed(
-        title=title,
-        description=description,
-        color=Colour.from_rgb(r=115, g=215, b=248),  # Descend Turquoise Blue
-    )
+    embed = Embed(title=title, description=description, color=Colour.from_hex("#7fc2c7"))
     if footer:
         embed.set_footer(text=footer)
     return embed
