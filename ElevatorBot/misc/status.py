@@ -9,6 +9,7 @@ from dis_snek.models import Activity, Timestamp, TimestampStyles
 from ElevatorBot.misc.cache import descend_cache
 from ElevatorBot.misc.helperFunctions import get_now_with_tz
 from ElevatorBot.static.emojis import custom_emojis
+from version import __version__
 
 
 async def update_discord_bot_status(client: Snake):
@@ -16,16 +17,19 @@ async def update_discord_bot_status(client: Snake):
 
     status_messages = [
         "Type '/' to see available commands",
-        "Type '/register' to registration your Destiny 2 account",
-        "DM me to contact staff",
+        "Type '/register' to register your Destiny 2 account",
+        "If you encounter a bug, please use '/bug'",
+        "Also visit my improved website: 'elevatorbot.ch'",
+        "Use the button above to invite me to your own server",
         "↓ Psst! Did you know this person stinks",
-        f"30th Anniversary releases in {Timestamp.fromtimestamp(1638900000).format(style=TimestampStyles.RelativeTime)}",
         f"Witch Queen releases in {Timestamp.fromtimestamp(1645552800).format(style=TimestampStyles.RelativeTime)}",
-        "Rewrite complete",
+        f"Version: ElevatorBot@{__version__}",
         "To invite me to your own server, click on my user",
         "I can win the hard mode TicTacToe, can you?",
-        "Presenting: Extra context! Right click a message or a user to be amazed",
+        "Presenting: Extra context! Right click a message or a user and be amazed",
         "I have been successfully snekified",
+        "Now using Descend™ green",
+        "Join the Descend discord: 'discord.gg/descend'",
     ]
 
     for element in itertools.cycle(status_messages):
