@@ -18,7 +18,7 @@ from ElevatorBot.static.emojis import custom_emojis
 from settings import COMMAND_GUILD_SCOPE
 
 
-class OtherGameRoles(BaseScale):
+class MiscellaneousRoles(BaseScale):
     other_games: dict = {
         "Among Us": {
             "emoji": custom_emojis.among_us,
@@ -78,7 +78,7 @@ class OtherGameRoles(BaseScale):
         required=False,
         opt_type=OptionTypes.STRING,
     )
-    async def _other_game_roles(self, ctx: InteractionContext, channel: GuildChannel, message_id: str = None):
+    async def _misc_roles(self, ctx: InteractionContext, channel: GuildChannel, message_id: str = None):
         message_name = "other_game_roles"
         components = [
             ActionRow(
@@ -109,4 +109,4 @@ class OtherGameRoles(BaseScale):
 
 
 def setup(client):
-    OtherGameRoles(client)
+    MiscellaneousRoles(client)

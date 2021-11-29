@@ -15,7 +15,7 @@ class ActivitiesUpdater(BaseEvent):
 
     async def run(self):
         async with get_async_session().begin() as db:
-            all_users = await discord_users.get_all(db=db)
+            all_users = await discord_users.get_all_name(db=db)
 
             to_gather = []
 

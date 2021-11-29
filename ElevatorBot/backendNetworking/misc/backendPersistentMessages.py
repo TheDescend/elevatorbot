@@ -7,12 +7,14 @@ from ElevatorBot.backendNetworking.http import BaseBackendConnection
 from ElevatorBot.backendNetworking.routes import (
     persistent_messages_delete_all_route,
     persistent_messages_delete_route,
+    persistent_messages_get_all_route,
     persistent_messages_get_route,
     persistent_messages_upsert_route,
 )
 from NetworkingSchemas.misc.persistentMessages import (
     PersistentMessage,
     PersistentMessageDeleteInput,
+    PersistentMessages,
 )
 
 
@@ -33,6 +35,17 @@ class BackendPersistentMessages(BaseBackendConnection):
 
         # convert to correct pydantic model
         return PersistentMessage.parse_obj(result.result) if result else None
+
+    async def get_all(self) -> Optional[PersistentMessages]:
+        """Gets all persistent messages for the guild"""
+
+        result = await self._backend_request(
+            method="GET",
+            route=persistent_messages_get_all_route.format(guild_id=self.guild.id),
+        )
+
+        # convert to correct pydantic model
+        return PersistentMessages.parse_obj(result.result) if result else None
 
     async def upsert(self, channel_id: int, message_id: Optional[int] = None) -> Optional[PersistentMessage]:
         """Upserts a persistent message"""

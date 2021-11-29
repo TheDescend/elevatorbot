@@ -21,7 +21,7 @@ async def get(db: AsyncSession = Depends(get_db_session)):
     data = DestinySteamPlayersCountModel()
 
     # get and prepare data
-    result = await d2_steam_players.get_all(db=db)
+    result = await d2_steam_players.get_all_name(db=db)
     for entry in result:
         data.entries.append(DestinySteamPlayerCountModel(date=entry.date, number_of_players=entry.number_of_players))
 

@@ -26,7 +26,7 @@ async def get_all(guild_id: int, db: AsyncSession = Depends(get_db_session)):
     """Gets all the lfg events and info belonging to the guild"""
 
     voice_category_channel_id = await lfg.get_voice_category_channel_id(db=db, guild_id=guild_id)
-    objs = await lfg.get_all(db=db, guild_id=guild_id)
+    objs = await lfg.get_all_name(db=db, guild_id=guild_id)
 
     result = AllLfgOutputModel()
     for obj in objs:

@@ -78,6 +78,7 @@ destiny_role_delete_route = destiny_role_route + "delete/{role_id}/"  # DELETE
 # persistent messages
 persistent_messages_route = base_route + "persistentMessages/"
 persistent_messages_get_route = persistent_messages_route + "{guild_id}/get/{message_name}/"  # GET
+persistent_messages_get_all_route = persistent_messages_route + "{guild_id}/get/all/"  # GET
 persistent_messages_upsert_route = persistent_messages_route + "{guild_id}/upsert/{message_name}/"  # POST
 persistent_messages_delete_route = persistent_messages_route + "{guild_id}/delete/{message_name}/"  # DELETE
 persistent_messages_delete_all_route = persistent_messages_route + "{guild_id}/delete/all/"  # DELETE

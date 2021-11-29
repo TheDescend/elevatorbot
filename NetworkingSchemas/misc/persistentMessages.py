@@ -13,6 +13,10 @@ class PersistentMessage(BaseModel):
         orm_mode = True
 
 
+class PersistentMessages(BaseModel):
+    messages: list[PersistentMessage]
+
+
 class PersistentMessageUpsert(BaseModel):
     channel_id: int
     message_id: Optional[int] = None

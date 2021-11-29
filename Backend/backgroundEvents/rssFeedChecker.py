@@ -29,7 +29,7 @@ class RssFeedChecker(BaseEvent):
             if to_publish:
                 # get all guilds that have subscribed
                 subscribed_data = []
-                for subscribed in await persistent_messages.get_all(db=db, message_name="rss"):
+                for subscribed in await persistent_messages.get_all_name(db=db, message_name="rss"):
                     subscribed_data.append(
                         {
                             "guild_id": subscribed.guild_id,

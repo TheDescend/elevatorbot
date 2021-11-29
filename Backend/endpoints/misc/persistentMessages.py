@@ -7,6 +7,7 @@ from NetworkingSchemas.basic import EmptyResponseModel
 from NetworkingSchemas.misc.persistentMessages import (
     PersistentMessage,
     PersistentMessageDeleteInput,
+    PersistentMessages,
     PersistentMessageUpsert,
 )
 
@@ -22,6 +23,14 @@ async def get(guild_id: int, message_name: str, db: AsyncSession = Depends(get_d
 
     result = await persistent_messages.get(db=db, guild_id=guild_id, message_name=message_name)
     return PersistentMessage.from_orm(result)
+
+
+@router.get("/{guild_id}/get/all", response_model=PersistentMessages)
+async def get_all(guild_id: int, db: AsyncSession = Depends(get_db_session)):
+    """Gets all persistent messages for the guild"""
+
+    db_results = await persistent_messages.get(db=db, guild_id=guild_id)
+    return PersistentMessages(messages=[PersistentMessage.from_orm(result) for result in db_results])
 
 
 @router.post("/{guild_id}/upsert/{message_name}", response_model=PersistentMessage)
