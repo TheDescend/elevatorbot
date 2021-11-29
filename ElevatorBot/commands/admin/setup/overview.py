@@ -96,18 +96,14 @@ class Overview(BaseScale):
             obj = handy_dict["booster_count"] if "booster_count" in handy_dict else None
             embed.add_field(
                 name="Booster Count Channel",
-                value=f"[Click To View The Linked Message](https://canary.discord.com/channels/{obj.guild_id}/{obj.channel_id}/{obj.message_id})"
-                if obj
-                else "Not Set-Up",
+                value=f"<#{obj.channel_id}>" if obj else "Not Set-Up",
                 inline=False,
             )
 
             obj = handy_dict["member_count"] if "member_count" in handy_dict else None
             embed.add_field(
                 name="Member Count Channel",
-                value=f"[Click To View The Linked Message](https://canary.discord.com/channels/{obj.guild_id}/{obj.channel_id}/{obj.message_id})"
-                if obj
-                else "Not Set-Up",
+                value=f"<#{obj.channel_id}>" if obj else "Not Set-Up",
                 inline=True,
             )
 
