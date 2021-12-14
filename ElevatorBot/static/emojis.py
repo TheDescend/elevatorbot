@@ -1,5 +1,6 @@
-from dis_snek.client import Snake
 from dis_snek.models import CustomEmoji
+
+from ElevatorBot.elevator import ElevatorSnake
 
 
 class __ElevatorEmojis:
@@ -78,7 +79,7 @@ class __ElevatorEmojis:
     thumps_up: CustomEmoji | int = 754946723612196975
     thumps_down: CustomEmoji | int = 754946723503276124
 
-    async def init_emojis(self, client: Snake):
+    async def init_emojis(self, client: ElevatorSnake):
         """Runs on startup to get the emojis we use"""
 
         emojis = []

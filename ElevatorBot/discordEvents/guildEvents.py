@@ -29,7 +29,7 @@ async def on_channel_delete(event: ChannelDelete):
     if data and data.channel_id == event.channel.id:
         # this is the lfg channel. Delete all the data
         lfg = DestinyLfgSystem(ctx=None, client=event.bot, discord_guild=None)
-        result = await lfg.delete_all(guild_id=event.channel.guild.id)
+        result = await lfg.delete_all(client=event.bot, guild_id=event.channel.guild.id)
         if not result:
             raise LookupError
 
@@ -91,7 +91,7 @@ async def on_guild_left(event: GuildLeft):
 
     # remove all lfg stuff
     lfg = DestinyLfgSystem(ctx=None, client=event.bot, discord_guild=None)
-    result = await lfg.delete_all(guild_id=event.guild_id)
+    result = await lfg.delete_all(client=event.bot, guild_id=event.guild_id)
     if not result:
         raise LookupError
 

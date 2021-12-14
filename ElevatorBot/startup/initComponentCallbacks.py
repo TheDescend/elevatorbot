@@ -1,11 +1,11 @@
-from dis_snek import Snake
 from dis_snek.models import ComponentCommand
 
 from ElevatorBot.components.checks import check_pending
 from ElevatorBot.components.componentCallbacks import ComponentCallbacks
+from ElevatorBot.elevator import ElevatorSnake
 
 
-def add_component_callbacks(client: Snake):
+def add_component_callbacks(client: ElevatorSnake):
     """Add global custom component callbacks"""
 
     # get all functions from the class. Magic

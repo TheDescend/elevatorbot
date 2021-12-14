@@ -1,5 +1,7 @@
 import asyncio
+import logging
 
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from dis_snek.models import listen
 from dis_snek.models.enums import Intents
 
@@ -16,6 +18,41 @@ from ElevatorBot.static.descendOnlyIds import descend_channels
 from ElevatorBot.static.emojis import custom_emojis
 from ElevatorBot.webserver.server import run_webserver
 from settings import DISCORD_BOT_TOKEN, ENABLE_DEBUG_MODE, SYNC_COMMANDS
+
+
+class ElevatorSnake(CustomErrorSnake):
+    # register the scheduler for easier access
+    scheduler = AsyncIOScheduler()
+
+    # load startup event
+    @listen()
+    async def on_startup(self):
+        """Gets triggered on startup"""
+
+        print("Creating docs for commands...")
+        create_command_docs(client)
+
+        print("Loading Background Events...")
+        await register_background_events(client)
+
+        print("Launching the Status Changer...")
+        asyncio.create_task(update_discord_bot_status(client))
+
+        print("Start Webserver...")
+        asyncio.create_task(run_webserver(client=client))
+
+        print("Loading Custom Emoji...")
+        await custom_emojis.init_emojis(client)
+
+        print("Setting Up Descend Data...")
+        await descend_channels.init_channels(client)
+
+        # chunk descend and load its data, but not all guilds
+        await descend_channels.guild.chunk_guild()
+
+        print("Startup Finished!\n")
+        print("--------------------------\n")
+
 
 if __name__ == "__main__":
     # config logging
@@ -47,7 +84,7 @@ if __name__ == "__main__":
     )
 
     # actually get the bot obj
-    client = CustomErrorSnake(
+    client = ElevatorSnake(
         intents=intents, sync_interactions=SYNC_COMMANDS, delete_unused_application_cmds=not ENABLE_DEBUG_MODE
     )
 
@@ -59,34 +96,6 @@ if __name__ == "__main__":
 
     print("Loading Autocomplete Options...")
     asyncio.run(load_autocomplete_options(client))
-
-    @listen()
-    async def on_startup():
-        """Get's triggered on startup"""
-
-        print("Creating docs for commands...")
-        create_command_docs(client)
-
-        print("Loading Background Events...")
-        await register_background_events(client)
-
-        print("Launching the Status Changer...")
-        asyncio.create_task(update_discord_bot_status(client))
-
-        print("Start Webserver...")
-        asyncio.create_task(run_webserver(client=client))
-
-        print("Loading Custom Emoji...")
-        await custom_emojis.init_emojis(client)
-
-        print("Setting Up Descend Data...")
-        await descend_channels.init_channels(client)
-
-        # chunk descend, but not all guilds
-        await descend_channels.guild.chunk_guild()
-
-        print("Startup Finished!\n")
-        print("--------------------------\n")
 
     # load commands
     print("Loading Commands...")

@@ -1,6 +1,6 @@
 from aiohttp import web
-from dis_snek.client import Snake
 
+from ElevatorBot.elevator import ElevatorSnake
 from ElevatorBot.webserver.routes.manifestUpdate import manifest_update
 from ElevatorBot.webserver.routes.messages import messages
 from ElevatorBot.webserver.routes.registration import registration
@@ -8,7 +8,7 @@ from ElevatorBot.webserver.routes.roles import roles
 from ElevatorBot.webserver.routes.statusUpdate import status_update
 
 
-async def run_webserver(client: Snake):
+async def run_webserver(client: ElevatorSnake):
     app = web.Application()
     app.add_routes(
         [

@@ -7,7 +7,6 @@ import io
 from typing import Optional
 
 from apscheduler.jobstores.base import JobLookupError
-from dis_snek.client import Snake
 from dis_snek.errors import Forbidden, NotFound
 from dis_snek.models import (
     ActionRow,
@@ -32,8 +31,8 @@ from dis_snek.models import (
 from ics import Calendar, Event
 
 from ElevatorBot.backendNetworking.destiny.lfgSystem import DestinyLfgSystem
-from ElevatorBot.backgroundEvents.base import scheduler
 from ElevatorBot.core.destiny.lfg.scheduledEvents import delete_lfg_scheduled_events
+from ElevatorBot.elevator import ElevatorSnake
 from ElevatorBot.misc.formating import embed_message
 from ElevatorBot.misc.helperFunctions import get_now_with_tz
 from ElevatorBot.static.emojis import custom_emojis
@@ -52,7 +51,7 @@ class LfgMessage:
 
     backend: DestinyLfgSystem
 
-    client: Snake
+    client: ElevatorSnake
     id: int
     guild: Guild
 
@@ -73,9 +72,6 @@ class LfgMessage:
 
     # post init to do list
     def __post_init__(self):
-        # get the scheduler object
-        self.scheduler = scheduler
-
         # get the button emojis
         self.__join_emoji = custom_emojis.join
         self.__leave_emoji = custom_emojis.leave
@@ -103,7 +99,7 @@ class LfgMessage:
 
     @classmethod
     async def from_lfg_output_model(
-        cls, client: Snake, model: LfgOutputModel, backend: DestinyLfgSystem, guild: Optional[Guild] = None
+        cls, client: ElevatorSnake, model: LfgOutputModel, backend: DestinyLfgSystem, guild: Optional[Guild] = None
     ) -> LfgMessage:
         """Parse the info from the pydantic model"""
 
@@ -155,7 +151,7 @@ class LfgMessage:
 
     @classmethod
     async def from_lfg_id(
-        cls, lfg_id: int, client: Snake, guild: Guild, ctx: Optional[InteractionContext] = None
+        cls, lfg_id: int, client: ElevatorSnake, guild: Guild, ctx: Optional[InteractionContext] = None
     ) -> Optional[LfgMessage]:
         """
         Classmethod to get with a known lfg_id
@@ -340,7 +336,7 @@ class LfgMessage:
             # delete scheduler event
             # try to delete old job
             try:
-                self.scheduler.remove_job(str(self.id))
+                self.client.scheduler.remove_job(str(self.id))
             except JobLookupError:
                 pass
 
@@ -367,7 +363,7 @@ class LfgMessage:
             # only do this if is it has a start date
             if self.start_time != "asap":
                 # try to delete old job
-                delete_lfg_scheduled_events(event_scheduler=scheduler, event_ids=[self.id])
+                delete_lfg_scheduled_events(event_scheduler=self.client.scheduler, event_ids=[self.id])
 
                 # using the id the job gets added
                 timedelta = datetime.timedelta(minutes=10)
@@ -375,7 +371,7 @@ class LfgMessage:
                 now = get_now_with_tz()
                 if run_date < now:
                     run_date = now
-                self.scheduler.add_job(
+                self.client.scheduler.add_job(
                     self.__notify_about_start,
                     "date",
                     (self.client, self.guild, self.id, timedelta),

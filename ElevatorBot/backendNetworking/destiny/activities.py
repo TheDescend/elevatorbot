@@ -1,7 +1,6 @@
 import dataclasses
 from typing import Optional
 
-from dis_snek.client import Snake
 from dis_snek.models import Guild, Member
 
 from DestinyEnums.enums import UsableDestinyActivityModeTypeEnum
@@ -11,6 +10,7 @@ from ElevatorBot.backendNetworking.routes import (
     destiny_activities_get_all_route,
     destiny_activities_get_grandmaster_route,
 )
+from ElevatorBot.elevator import ElevatorSnake
 from NetworkingSchemas.destiny.activities import (
     DestinyActivitiesModel,
     DestinyActivityDetailsModel,
@@ -21,7 +21,7 @@ from NetworkingSchemas.destiny.activities import (
 
 @dataclasses.dataclass
 class DestinyActivities(BaseBackendConnection):
-    client: Optional[Snake]
+    client: Optional[ElevatorSnake]
     discord_guild: Optional[Guild]
     discord_member: Optional[Member]
 

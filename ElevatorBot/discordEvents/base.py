@@ -1,4 +1,3 @@
-from dis_snek.client import Snake
 from dis_snek.models import Listener
 
 from ElevatorBot.discordEvents.guildEvents import (
@@ -23,9 +22,10 @@ from ElevatorBot.discordEvents.messageEvents import (
     on_message_delete,
     on_message_update,
 )
+from ElevatorBot.elevator import ElevatorSnake
 
 
-def register_discord_events(client: Snake):
+def register_discord_events(client: ElevatorSnake):
     """Import all events and add then to the bot"""
 
     # message events
