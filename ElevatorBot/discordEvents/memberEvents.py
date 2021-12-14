@@ -1,6 +1,5 @@
 import asyncio
 
-from dis_snek import Snake
 from dis_snek.models import ActionRow, Button, ButtonStyles, Member
 from dis_snek.models.events import Component, MemberAdd, MemberRemove, MemberUpdate
 
@@ -9,6 +8,7 @@ from ElevatorBot.backendNetworking.destiny.lfgSystem import DestinyLfgSystem
 from ElevatorBot.backendNetworking.destiny.profile import DestinyProfile
 from ElevatorBot.core.destiny.lfg.lfgSystem import LfgMessage
 from ElevatorBot.core.destiny.roles import Roles
+from ElevatorBot.elevator import ElevatorSnake
 from ElevatorBot.misc.discordShortcutFunctions import assign_roles_to_member
 from ElevatorBot.misc.formating import embed_message
 from ElevatorBot.static.descendOnlyIds import (
@@ -148,7 +148,7 @@ async def on_member_update(event: MemberUpdate):
                     await event.after.edit_nickname("")
 
 
-async def _assign_roles_on_join(client: Snake, member: Member):
+async def _assign_roles_on_join(client: ElevatorSnake, member: Member):
     """Assign all applicable roles when a member joins a guild"""
 
     destiny_profile = DestinyProfile(ctx=None, client=client, discord_member=member, discord_guild=member.guild)

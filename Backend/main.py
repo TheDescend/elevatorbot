@@ -23,7 +23,7 @@ from Backend.endpoints.destiny import (
     steamPlayers,
     weapons,
 )
-from Backend.endpoints.misc import elevatorInfo, persistentMessages, polls
+from Backend.endpoints.misc import elevatorInfo, moderation, persistentMessages, polls
 from Backend.misc.initBackgroundEvents import register_background_events
 from Backend.misc.initLogging import init_logging
 from NetworkingSchemas.misc.auth import BackendUserModel
@@ -68,6 +68,7 @@ app.include_router(activities.router)
 app.include_router(steamPlayers.router)
 app.include_router(weapons.router)
 app.include_router(items.router)
+app.include_router(moderation.router)
 
 
 # add exception handlers

@@ -26,7 +26,7 @@ class TimePeriodModel(BaseModel):
     end_time: datetime.datetime
 
 
-class ActivityModel(BaseModel):
+class RequirementActivityModel(BaseModel):
     # which activities are allowed
     allowed_activity_hashes: list[int]
 
@@ -54,6 +54,17 @@ class ActivityModel(BaseModel):
     allow_time_periods: list[TimePeriodModel] = []
     disallow_time_periods: list[TimePeriodModel] = []
 
+    # reverse this requirement - only people WITHOUT it get it
+    inverse: bool = False
+
+
+class RequirementIntegerModel(BaseModel):
+    # the id of the collectible / record / role
+    id: int
+
+    # reverse this requirement - only people WITHOUT it get it
+    inverse: bool = False
+
 
 class RoleDataModel(BaseModel):
     # the category of the role. Used to better format roles
@@ -65,10 +76,10 @@ class RoleDataModel(BaseModel):
     # set whether the role can be earned
     acquirable: bool = True
 
-    require_activity_completions: list[ActivityModel] = []
-    require_collectibles: list[int] = []
-    require_records: list[int] = []
-    require_role_ids: list[int] = []
+    require_activity_completions: list[RequirementActivityModel] = []
+    require_collectibles: list[RequirementIntegerModel] = []
+    require_records: list[RequirementIntegerModel] = []
+    require_role_ids: list[RequirementIntegerModel] = []
 
     replaced_by_role_id: Optional[int] = None
 

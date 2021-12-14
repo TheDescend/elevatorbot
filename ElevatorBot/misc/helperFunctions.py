@@ -112,7 +112,9 @@ async def parse_datetime_options(
     return formatted_start_time, formatted_end_time
 
 
-async def log_error(ctx: Optional[InteractionContext | ComponentContext], error: Exception, situation: str) -> None:
+async def log_error(
+    ctx: Optional[InteractionContext | ComponentContext], error: Exception, logger: logging.Logger
+) -> None:
     """Respond to the context and log error"""
 
     if not ctx.responded:
@@ -125,7 +127,6 @@ async def log_error(ctx: Optional[InteractionContext | ComponentContext], error:
         )
 
     # log the error
-    logger = logging.getLogger(situation)
     logger.exception(
         f"InteractionID '{ctx.interaction_id}' - Error '{error}' - Traceback: \n{''.join(traceback.format_tb(error.__traceback__))}"
     )

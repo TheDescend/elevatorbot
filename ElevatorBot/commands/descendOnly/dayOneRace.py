@@ -6,7 +6,6 @@ from io import BytesIO
 from typing import Optional
 
 import aiohttp
-from dis_snek.client import Snake
 from dis_snek.models import (
     File,
     GuildText,
@@ -23,6 +22,7 @@ from ElevatorBot.backendNetworking.destiny.activities import DestinyActivities
 from ElevatorBot.backendNetworking.destiny.clan import DestinyClan
 from ElevatorBot.commandHelpers.responseTemplates import something_went_wrong
 from ElevatorBot.commands.base import BaseScale
+from ElevatorBot.elevator import ElevatorSnake
 from ElevatorBot.misc.formating import embed_message, format_timedelta
 from ElevatorBot.misc.helperFunctions import get_now_with_tz
 from ElevatorBot.static.descendOnlyIds import descend_channels
@@ -74,7 +74,7 @@ class DayOneRace(BaseScale):
     location_name: str = "Ishtar Sink, Venus"
 
     # vars needed for the command
-    def __init__(self, client: Snake):
+    def __init__(self, client: ElevatorSnake):
         super().__init__(client=client)
 
         self.leaderboard_msg: Optional[Message] = None

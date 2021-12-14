@@ -73,7 +73,6 @@ class Last(BaseScale):
         if footer:
             embed.set_footer(" | ".join(footer))
 
-        class_emojis = {"Warlock": custom_emojis.warlock, "Hunter": custom_emojis.hunter, "Titan": custom_emojis.titan}
         for player in result.users:
             # sometimes people dont have a class for some reason. Skipping that
             if player.character_class == "":

@@ -10,6 +10,7 @@ from sqlalchemy import (
     DateTime,
     ForeignKey,
     Integer,
+    Interval,
     Numeric,
     SmallInteger,
     Text,
@@ -404,6 +405,20 @@ class PersistentMessage(Base):
     guild_id = Column(BigInteger, nullable=False, primary_key=True, autoincrement=False)
     channel_id = Column(BigInteger, nullable=False)
     message_id = Column(BigInteger, nullable=False)
+
+
+class ModerationLog(Base):
+    __tablename__ = "moderationLog"
+
+    id = Column(Text, nullable=False, primary_key=True)
+    guild_id = Column(BigInteger, nullable=False)
+    discord_id = Column(BigInteger, nullable=False)
+    mod_discord_id = Column(BigInteger, nullable=False)
+
+    type = Column(Text, nullable=False)
+    duration_in_seconds = Column(BigInteger, nullable=True)
+    reason = Column(Text, nullable=False)
+    date = Column(DateTime(True), nullable=False)
 
 
 # insert all tables

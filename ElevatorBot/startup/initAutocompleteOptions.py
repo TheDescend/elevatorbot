@@ -1,5 +1,3 @@
-from dis_snek.client import Snake
-
 from DestinyEnums.enums import DestinyActivityModeTypeEnum
 from ElevatorBot.backendNetworking.destiny.activities import DestinyActivities
 from ElevatorBot.backendNetworking.destiny.items import DestinyItems
@@ -13,10 +11,11 @@ from ElevatorBot.commandHelpers.autocomplete import (
     weapons,
     weapons_by_id,
 )
+from ElevatorBot.elevator import ElevatorSnake
 from NetworkingSchemas.destiny.activities import DestinyActivityModel
 
 
-async def load_autocomplete_options(client: Snake):
+async def load_autocomplete_options(client: ElevatorSnake):
     """Fetch the needed data from the DB"""
 
     # get activities

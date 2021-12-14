@@ -116,3 +116,8 @@ destiny_items_route = base_route + "destiny/items/"
 destiny_collectible_name_route = destiny_items_route + "collectible/{collectible_id}/"  # GET
 destiny_triumph_name_route = destiny_items_route + "triumph/{triumph_id}/"  # GET
 destiny_get_all_lore_route = destiny_items_route + "lore/get/all/"  # GET
+
+# moderation
+moderation_route = base_route + "moderation/{guild_id}/{discord_id}/"
+moderation_mute = moderation_route + "mute/"  # GET / POST
+moderation_warning = moderation_route + "warning/"  # GET / POST

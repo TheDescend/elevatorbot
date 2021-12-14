@@ -1,7 +1,7 @@
 from aiohttp import web
-from dis_snek.client import Snake
 from dis_snek.errors import NotFound
 
+from ElevatorBot.elevator import ElevatorSnake
 from ElevatorBot.misc.formating import embed_message
 
 
@@ -25,7 +25,7 @@ async def messages(request: web.Request):
     When the message field is empty, both embed fields must be supplied
     """
 
-    client: Snake = request.app["client"]
+    client: ElevatorSnake = request.app["client"]
     parameters = await request.json()
 
     guilds_with_errors = []

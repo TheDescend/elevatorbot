@@ -1,9 +1,8 @@
 import asyncio
 
-from dis_snek.client import Snake
-
 from ElevatorBot.backgroundEvents.base import BaseEvent
 from ElevatorBot.core.destiny.roles import Roles
+from ElevatorBot.elevator import ElevatorSnake
 
 
 class AutomaticRoleAssignment(BaseEvent):
@@ -20,7 +19,7 @@ class AutomaticRoleAssignment(BaseEvent):
             dow_minute=dow_minute,
         )
 
-    async def run(self, client: Snake):
+    async def run(self, client: ElevatorSnake):
         # loop through all guilds
         for guild in client.guilds:
             # gather the members

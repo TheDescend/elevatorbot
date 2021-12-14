@@ -1,5 +1,6 @@
-from dis_snek import Snake
 from dis_snek.models import Guild, GuildText
+
+from ElevatorBot.elevator import ElevatorSnake
 
 descend_filler_role_ids = [670395920327639085, 670385837044662285, 670385313994113025, 776854211585376296]
 
@@ -17,7 +18,7 @@ class __DescendChannels:
     community_roles_channel: GuildText | int = 686568386590802000
     join_log_channel: GuildText | int = 669293365900214298
 
-    async def init_channels(self, client: Snake):
+    async def init_channels(self, client: ElevatorSnake):
         """Runs on startup to get the channels we use"""
 
         self.guild = await client.get_guild(self.guild)

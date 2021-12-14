@@ -1,7 +1,6 @@
 import dataclasses
 from typing import Optional
 
-from dis_snek.client import Snake
 from dis_snek.models import Guild, Member
 
 from ElevatorBot.backendNetworking.http import BaseBackendConnection
@@ -10,6 +9,7 @@ from ElevatorBot.backendNetworking.routes import (
     destiny_weapons_get_top_route,
     destiny_weapons_get_weapon_route,
 )
+from ElevatorBot.elevator import ElevatorSnake
 from NetworkingSchemas.destiny.weapons import (
     DestinyTopWeaponsInputModel,
     DestinyTopWeaponsModel,
@@ -21,7 +21,7 @@ from NetworkingSchemas.destiny.weapons import (
 
 @dataclasses.dataclass
 class DestinyWeapons(BaseBackendConnection):
-    client: Optional[Snake]
+    client: Optional[ElevatorSnake]
     discord_guild: Optional[Guild]
     discord_member: Optional[Member]
 

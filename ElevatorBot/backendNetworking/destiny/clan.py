@@ -1,7 +1,6 @@
 import dataclasses
 from typing import Optional
 
-from dis_snek.client import Snake
 from dis_snek.models import Guild, Member
 
 from ElevatorBot.backendNetworking.http import BaseBackendConnection
@@ -15,6 +14,7 @@ from ElevatorBot.backendNetworking.routes import (
     destiny_clan_search_members_route,
     destiny_clan_unlink_route,
 )
+from ElevatorBot.elevator import ElevatorSnake
 from NetworkingSchemas.destiny.clan import (
     DestinyClanLink,
     DestinyClanMembersModel,
@@ -25,7 +25,7 @@ from NetworkingSchemas.destiny.profile import DestinyProfileModel
 
 @dataclasses.dataclass
 class DestinyClan(BaseBackendConnection):
-    client: Snake
+    client: ElevatorSnake
     discord_guild: Guild
 
     discord_member: Member = dataclasses.field(init=False)

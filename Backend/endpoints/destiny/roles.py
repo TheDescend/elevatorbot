@@ -9,10 +9,10 @@ from Backend.database.models import Roles
 from Backend.dependencies import get_db_session
 from NetworkingSchemas.basic import EmptyResponseModel
 from NetworkingSchemas.destiny.roles import (
-    ActivityModel,
     EarnedRoleModel,
     EarnedRolesModel,
     MissingRolesModel,
+    RequirementActivityModel,
     RoleDataModel,
     RoleModel,
     RolesModel,
@@ -45,7 +45,7 @@ async def get_all(guild_id: int, db: AsyncSession = Depends(get_db_session)):
                 disallowed_times.append(TimePeriodModel(**disallowed_time))
 
             activity_models.append(
-                ActivityModel(
+                RequirementActivityModel(
                     allow_time_periods=allowed_times, disallow_time_periods=disallowed_times, **activity_model
                 )
             )

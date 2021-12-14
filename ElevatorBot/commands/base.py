@@ -1,8 +1,8 @@
-from dis_snek.client import Snake
 from dis_snek.models import InteractionContext, Scale
 
 from ElevatorBot.backendNetworking.destiny.profile import DestinyProfile
 from ElevatorBot.commandHelpers.responseTemplates import respond_pending
+from ElevatorBot.elevator import ElevatorSnake
 from ElevatorBot.misc.cache import registered_role_cache
 from ElevatorBot.misc.formating import embed_message
 from NetworkingSchemas.destiny.profile import DestinyHasTokenModel
@@ -11,7 +11,7 @@ from NetworkingSchemas.destiny.profile import DestinyHasTokenModel
 class BaseScale(Scale):
     """Add checks to every scale"""
 
-    def __init__(self, client: Snake):
+    def __init__(self, client: ElevatorSnake):
         self.client = client
         self.add_scale_check(self.registered_check)
         self.add_scale_check(self.no_dm_check)
