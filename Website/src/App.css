@@ -1,38 +1,67 @@
-.App {
-  text-align: center;
+html {
+  height: 100%;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+body {
+  height: 100%;
+  margin: 0;
+  font-family: Ubuntu;
+  background: linear-gradient(#b3ffab, #67fffc);
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.header {
+  height: 30px;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+  background: linear-gradient(#444444, #333333);
+  color: #bbbbbb;
+}
+
+.headerContent {
+  display: flex;
+  width:100%;
+  margin-left: 10px;
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
+.page {
+  display: flex;
+  height: calc( 100vh - 30px);
+  /* calculate the height. Header is 30px */
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.sideBar {
+  width: 100px;
+  background: red;
+}
+
+.content {
+  background: blue;
+  flex: 1 0 auto;
+  /* enable grow, disable shrink */
+}
+
+div.headerContent nav {
+  width: 100%;
+  display: flex;
+  
+  justify-content:space-between;
+}
+
+.left-header {
+  width: 40%;
+  justify-content:flex-start;
+}
+
+.left-header a{
+  margin-right: 20px;
+}
+
+.right-header {
+  align-self: flex-end;
+  margin-right:10px;
+}
+
+a:visited {
+  color:white;
 }

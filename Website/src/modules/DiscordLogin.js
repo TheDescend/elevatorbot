@@ -1,21 +1,28 @@
 import React, {useState, useEffect} from "react"
+import { Redirect } from "react-router"
+
 import UserProfile from "./UserProfile"
 
-function DiscordLogin({auth_params}){
+function DiscordLogin({auth_params, userfunctions, guildfunctions}){
     console.log('DiscordLogin')
     console.log(auth_params)
     let state = "hi"
     let code = "bye"
-    const [error, setError] = useState(null);
-    const [isLoaded, setIsLoaded] = useState(false);
-    const [guilds, setGuilds] = useState(null);
-    const [user, setUser] = useState(null)
+    const [error, setError] = useState(null)
+    const [isLoaded, setIsLoaded] = useState(false)
+
+    const [getUser, setUser] = userfunctions
+    const [getGuilds, setGuilds] = guildfunctions
+
     const [isUserLoaded, setIsUserLoaded] = useState(null)
+
     console.assert(state === "hi")
 
     const API_ENDPOINT = 'https://discord.com/api/v9'
 
     useEffect(() => {
+        console.log("auth params changed")
+        console.log(auth_params)
         if (!auth_params)
             return
         let {access_token, expires_in, scope, state, token_type,} = auth_params
@@ -40,6 +47,8 @@ function DiscordLogin({auth_params}){
     }, [auth_params])
 
     useEffect(() => {
+        console.log("auth params changed")
+        console.log(auth_params)
         if (!auth_params)
             return
         let {access_token, expires_in, scope, state, token_type,} = auth_params
@@ -55,6 +64,7 @@ function DiscordLogin({auth_params}){
                     setUser(resp)
                     setIsUserLoaded(true)
                     setError(null)
+                    console.log(resp)
                 }else{
                     console.log(resp)
                     setError(`Getting user failed, got ${typeof(resp)} instead`)
@@ -71,30 +81,7 @@ function DiscordLogin({auth_params}){
         //https://discordapi.com/permissions.html
 
         return (
-            <div>
-                <div>
-                    User: {isUserLoaded?<UserProfile user={user}/>:"Loading..."}
-                </div>
-                <ul>
-                    {guilds.map(item => (
-                    <li key={item.id}>
-                        {item.owner? <img
-                            style={{width:"20px"}}
-                            src="https://cdn.icon-icons.com/icons2/2248/PNG/512/crown_icon_135729.png"
-                            alt="Owner Icon"
-                        />:null} 
-                        {item.name} 
-                        {item.icon? <img
-                            style={{width:"20px"}}
-                            src={`https://cdn.discordapp.com/icons/${item.id}/${item.icon}.webp?size=128`}
-                            alt="Owner Icon"
-                        />:null} 
-                        {item.permissions}<br/>
-                        Admin:{(item.permissions&8)>0?"Yes":"No"} 
-                    </li>
-                    ))}
-                </ul>
-            </div>
+            <Redirect to={"/userinfo/" + getUser().id} />
         )
       }
 }

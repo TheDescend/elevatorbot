@@ -1,4 +1,4 @@
-import React from "react";
+import {React, useEffect, useState} from "react"
 import {
   BrowserRouter as Router,
   Switch,
@@ -6,10 +6,23 @@ import {
   Link,
   useLocation,
   useParams
-} from "react-router-dom";
+} from "react-router-dom"
+import Button from 'react-bootstrap/Button'
+import Collapse from 'react-bootstrap/Collapse'
 
 import Auth from "./modules/Auth"
 import DiscordLogin from "./modules/DiscordLogin"
+import Home from "./modules/Home"
+import About from "./modules/About"
+import Users from "./modules/Users"
+import UserInfo from "./modules/UserInfo"
+
+import Session from 'react-session-api'
+
+
+import './App.css';
+
+
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);
@@ -18,72 +31,140 @@ function useQuery() {
 export default function App() {
   return (
     <Router>
-      <RouterFunc/>
+        <RouterFunc/>
     </Router>
   );
 }
 
 function RouterFunc(){
   let query = useQuery()
-  let auth_url = "https://discord.com/api/oauth2/authorize?response_type=token&client_id=847935658072604712&state=hi&scope=guilds%20identify" //
+  let auth_url = "https://discord.com/api/oauth2/authorize?response_type=token&client_id=847935658072604712&state=hi&scope=guilds%20identify"
   let state = "&state=hi" 
-  const { hash } = useLocation();
+
+  const [guilds, setGuilds] = useState(null)
+  const [user, setUser] = useState(null)
+
+  useEffect(() => {
+      let storage_user = localStorage.getItem('user')
+      let storage_guilds = localStorage.getItem('guilds')
+      console.log(storage_user)
+      if (!!storage_user && !!storage_guilds){
+        setUser(JSON.parse(storage_user))
+        setGuilds(JSON.parse(storage_guilds))
+        console.log("loaded user")
+      }
+  }, [])
+  
+
+
+  const get_global_user = () => user
+  const set_global_user = (user) => setUser(user)
+
+  const get_global_guilds = () => guilds
+  const set_global_guilds = (guilds) => setGuilds(guilds)
+
+
+  //logout = localStorage.removeItem('myData'); // or localStorage.clear();
+
+  useEffect(() => {
+    console.log(user)
+    if (!!user){
+      let storage_user = JSON.stringify(user)
+      console.log(storage_user)
+      localStorage.setItem('user', storage_user);
+      console.log("wrote user")
+    }
+      
+  }, [user])
+
+  useEffect(() => {
+    console.log(guilds)
+    if (!!guilds){
+      let storage_guilds = JSON.stringify(guilds)
+      localStorage.setItem('guilds', storage_guilds);
+      console.log("wrote guilds")
+    }
+      
+  }, [guilds])
+
+  const { hash } = useLocation()
   const hash_groups = hash.substr(1).split("&") // remove #
-  const hash_obj = hash_groups.reduce(function(obj, x) {
+  const url_params = hash_groups.reduce(function(obj, x) {
       let [key, value] = x.split('=')
       obj[key] = value;
       return obj;
     }, {});
   return (
     <div>
-        <nav>
+      <div className="header">
+        <div className="headerContent">
+          <nav>
+            <div className="left-header">
+            <Link to="/">Home</Link>
+            <Link to="/about">About</Link>
+            <Link to="/users">Users</Link>
+            </div>
+            <div className="right-header">
+              {user?user.username + "#" + user.discriminator :<a href={auth_url + state}>Authenticate with Discord</a>}
+            </div>
+          </nav>
+        </div>
+      </div>
+      <div className="page">
+        <div className="sideBar">
           <ul>
             <li>
-              <Link to="/">Home</Link>
+              Getting Started
             </li>
             <li>
-              <Link to="/about">About</Link>
+              Documentation
             </li>
             <li>
-              <Link to="/users">Users</Link>
-            </li>
-            <li>
-              <a href={auth_url + state}>Authenticate with Discord</a>
+              Admin-ServerName
+              <ul>
+                <li>
+                  Potential Admin Stuff
+                </li>
+                <li>
+                  More potential Admin Stuff
+                </li>
+              </ul>
             </li>
           </ul>
-        </nav>
-
-        {/* A <Switch> looks through its children <Route>s and
-            renders the first one that matches the current URL. */}
-        <Switch>
-          <Route path="/about">
-            <About />
-          </Route>
-          <Route path="/users">
-            <Users />
-          </Route>
-          <Route path="/discordlogin">
-            <DiscordLogin auth_params={hash_obj}/>
-          </Route>
-          <Route path="/oauth">
-            <Auth code={query.get("code")} state={query.get("state")}/>
-          </Route>
-          <Route path="/">
-            <Home /> {/* Catches everything not defined above */}
-          </Route>
-        </Switch>
+        </div>
+          {/* A <Switch> looks through its children <Route>s and
+              renders the first one that matches the current URL. */}
+          <Switch>
+            <Route path="/about">
+              <About />
+            </Route>
+            <Route path="/users">
+              <Users />
+            </Route>
+            <Route path="/discordlogin">
+              <DiscordLogin 
+                auth_params={url_params}
+                userfunctions={[get_global_user, set_global_user]}
+                guildfunctions={[get_global_guilds, set_global_guilds]}
+              />
+            </Route>
+            <Route path="/oauth">
+              <Auth 
+                code={query.get("code")} 
+                state={query.get("state")}
+              />
+            </Route>
+            <Route path="/userinfo/:userid" children={
+              <UserInfo
+                userfunctions={[get_global_user, set_global_user]}
+                guildfunctions={[get_global_guilds, set_global_guilds]}
+              />
+            }/>
+            <Route path="/">
+              <Home /> {/* Catches everything not defined above */}
+            </Route>
+          </Switch>
+        </div>
       </div>
     )
-}
-
-function Home() {
-  return <h2>Home</h2>;
-}
-
-function About() {
-  return <h2>About</h2>;
-}
-
-function Users() {
-  return <h2>Users</h2>;
 }
