@@ -196,7 +196,12 @@ class UserRoles:
 
                     # check how many activities fulfill that
                     if len(found) < entry.count:
-                        worthy = RoleEnum.NOT_EARNED
+                        if not entry.inverse:
+                            worthy = RoleEnum.NOT_EARNED
+
+                    else:
+                        if entry.inverse:
+                            worthy = RoleEnum.NOT_EARNED
 
                     # todo better return the additional information like do you need a flawless -> link_to_role
                     link_to_activity = "www.google.com"
@@ -217,10 +222,14 @@ class UserRoles:
 
                 # loop through the collectibles
                 for collectible in role.role_data.require_collectibles:
-                    result = await self.user.has_collectible(collectible)
+                    result = await self.user.has_collectible(collectible.id)
 
                     if not result:
-                        worthy = RoleEnum.NOT_EARNED
+                        if not collectible.inverse:
+                            worthy = RoleEnum.NOT_EARNED
+                    else:
+                        if collectible.inverse:
+                            worthy = RoleEnum.NOT_EARNED
 
                     self._cache_worthy_info[role.role_id]["require_collectibles"].append(result)
 
@@ -237,10 +246,14 @@ class UserRoles:
 
                 # loop through the records
                 for record in role.role_data.require_records:
-                    result = await self.user.has_triumph(record)
+                    result = await self.user.has_triumph(record.id)
 
                     if not result:
-                        worthy = RoleEnum.NOT_EARNED
+                        if not record.inverse:
+                            worthy = RoleEnum.NOT_EARNED
+                    else:
+                        if record.inverse:
+                            worthy = RoleEnum.NOT_EARNED
 
                     self._cache_worthy_info[role.role_id]["require_records"].append(result.bool)
 
@@ -256,7 +269,7 @@ class UserRoles:
                 self._cache_worthy_info[role.role_id].update({"require_role_ids": []})
 
                 # loop through the role_ids
-                for role_id in role.role_data.require_role_ids:
+                for requirement_role in role.role_data.require_role_ids:
                     # alright so this is a bit more convoluted
                     # simply calling this function again would lead to double checking / race conditions when checking all roles (because of .gather())
                     # but just waiting would not work too, since a single role can get checked too
@@ -265,13 +278,20 @@ class UserRoles:
                         # 5 minutes wait time
                         waited_for = 0
                         while waited_for < 300:
-                            if role_id in self._cache_worthy:
+                            if requirement_role.id in self._cache_worthy:
 
-                                if self._cache_worthy[role_id] == RoleEnum.NOT_EARNED:
-                                    worthy = RoleEnum.NOT_EARNED
-                                    self._cache_worthy_info[role.role_id]["require_role_ids"].append(False)
+                                if self._cache_worthy[requirement_role.id] == RoleEnum.NOT_EARNED:
+                                    if not requirement_role.inverse:
+                                        worthy = RoleEnum.NOT_EARNED
+                                        self._cache_worthy_info[role.role_id]["require_role_ids"].append(False)
+                                    else:
+                                        self._cache_worthy_info[role.role_id]["require_role_ids"].append(True)
                                 else:
-                                    self._cache_worthy_info[role.role_id]["require_role_ids"].append(True)
+                                    if not requirement_role.inverse:
+                                        self._cache_worthy_info[role.role_id]["require_role_ids"].append(True)
+                                    else:
+                                        worthy = RoleEnum.NOT_EARNED
+                                        self._cache_worthy_info[role.role_id]["require_role_ids"].append(False)
 
                                 break
 
@@ -284,7 +304,7 @@ class UserRoles:
 
                     # check the sub-roles ourselves
                     else:
-                        sub_role: Roles = await roles.get_role(db=self.db, role_id=role_id)
+                        sub_role: Roles = await roles.get_role(db=self.db, role_id=requirement_role.id)
                         sub_role_worthy, _ = await self._has_role(
                             role=sub_role, called_with_asyncio_gather=False, i_only_need_the_bool=i_only_need_the_bool
                         )
@@ -293,11 +313,18 @@ class UserRoles:
                             sub_role_worthy == RoleEnum.EARNED
                             or sub_role_worthy == RoleEnum.EARNED_BUT_REPLACED_BY_HIGHER_ROLE
                         ):
-                            self._cache_worthy_info[role.role_id]["require_role_ids"].append(True)
+                            if not requirement_role.inverse:
+                                self._cache_worthy_info[role.role_id]["require_role_ids"].append(True)
+                            else:
+                                worthy = RoleEnum.NOT_EARNED
+                                self._cache_worthy_info[role.role_id]["require_role_ids"].append(False)
 
                         else:
-                            worthy = RoleEnum.NOT_EARNED
-                            self._cache_worthy_info[role.role_id]["require_role_ids"].append(False)
+                            if not requirement_role.inverse:
+                                worthy = RoleEnum.NOT_EARNED
+                                self._cache_worthy_info[role.role_id]["require_role_ids"].append(False)
+                            else:
+                                self._cache_worthy_info[role.role_id]["require_role_ids"].append(True)
 
                     # make this end early
                     if i_only_need_the_bool and worthy == RoleEnum.NOT_EARNED:
