@@ -12,6 +12,7 @@ from dis_snek.models import (
     slash_option,
 )
 
+from ElevatorBot.backendNetworking.misc.moderation import Moderation
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.discordShortcutFunctions import (
@@ -46,8 +47,22 @@ class Mute(BaseScale):
         opt_type=OptionTypes.INTEGER,
         min_value=1,
     )
-    async def _mute(self, ctx: InteractionContext, user: Member, muted_type: str, hours: int):
+    @slash_option(
+        name="reason",
+        description="Whats the reason for the mute",
+        required=True,
+        opt_type=OptionTypes.STRING,
+    )
+    async def _mute(self, ctx: InteractionContext, user: Member, muted_type: str, hours: int, reason: str):
         muted_type = int(muted_type)
+
+        # add it to the backend logs
+        backend = Moderation(discord_member=user, discord_guild=ctx.guild, ctx=ctx)
+        result = await backend.add_mute(
+            reason=reason, duration_in_seconds=hours * 60 * 60, mod_discord_id=ctx.author.id
+        )
+        if not result:
+            return
 
         if muted_type == descend_no_nickname_role_id:
             # todo test if that removes it
@@ -60,15 +75,16 @@ class Mute(BaseScale):
         status = await ctx.send(
             embeds=embed_message(
                 "Success",
-                f"Muted {user.mention} for {hours} hours. They will be un-muted {unmute_date_formatted}\nI will edit this message once the time is over",
-                f"Type: {descend_muted_ids[muted_type]}",
+                f"Muted {user.mention} for {hours} hours. They will be un-muted {unmute_date_formatted}\nI will edit this message once the time is over\n⁣\n**Reason:** `{reason}`",
+                f"Type: {descend_muted_ids[muted_type]} | Muted by {ctx.author.username}#{ctx.author.discriminator}",
             )
         )
 
         await user.send(
             embeds=embed_message(
                 f"You have been: {descend_muted_ids[muted_type]}",
-                f"You will regain that permission {unmute_date_formatted}",
+                f"You will regain that permission {unmute_date_formatted}\n⁣\n**Reason:** `{reason}`",
+                f"Muted by {ctx.author.username}#{ctx.author.discriminator}",
             )
         )
 
