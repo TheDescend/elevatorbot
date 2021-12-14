@@ -25,3 +25,9 @@ venv/
 **/*.sqlite
 **/*.log
 **/**.sock
+
+package-lock.json
+psql_credentials.py
+config.py
+slashCommandConfig.py
+Website/package-lock.json
