@@ -1,3 +1,5 @@
+import pytest
+
 from Backend.core.security.auth import (
     create_access_token,
     get_password_hash,
@@ -6,7 +8,8 @@ from Backend.core.security.auth import (
 )
 
 
-def test_get_secret_key():
+@pytest.mark.asyncio
+async def test_get_secret_key():
     secret_key1 = get_secret_key()
     secret_key2 = get_secret_key()
 
@@ -14,7 +17,8 @@ def test_get_secret_key():
     assert isinstance(secret_key1, str)
 
 
-def test_verify_password_hash():
+@pytest.mark.asyncio
+async def test_verify_password_hash():
     hashed_pw = get_password_hash("secret")
     assert isinstance(hashed_pw, str)
 
@@ -25,7 +29,8 @@ def test_verify_password_hash():
     assert not result
 
 
-def test_create_access_token():
+@pytest.mark.asyncio
+async def test_create_access_token():
     data1 = {"sub": "Tester"}
     token1 = create_access_token(data1)
 

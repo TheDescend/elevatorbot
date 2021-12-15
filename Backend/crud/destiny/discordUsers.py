@@ -88,7 +88,7 @@ class CRUDDiscordUser(CRUDBase):
                 },
             )
 
-        # get the users destiny info
+        # get the user's destiny info
         destiny_id = int(destiny_info.content["primaryMembershipId"])
 
         # get the system

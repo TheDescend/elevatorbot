@@ -1,0 +1,21 @@
+{
+    "https://www.bungie.net/platform/User/GetMembershipsForCurrentUser/": {
+        "destinyMemberships": [
+            {
+                "LastSeenDisplayName": "Tom",
+                "membershipType": 555,
+                "membershipId": "444",
+                "bungieGlobalDisplayName": "Tom",
+                "bungieGlobalDisplayNameCode": 1234
+            },
+            {
+                "LastSeenDisplayName": "Wrong",
+                "membershipType": 0,
+                "membershipId": "0",
+                "bungieGlobalDisplayName": "Wrong",
+                "bungieGlobalDisplayNameCode": 9999
+            }
+        ],
+        "primaryMembershipId": "444"
+    }
+}

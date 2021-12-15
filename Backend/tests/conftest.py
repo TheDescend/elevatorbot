@@ -3,20 +3,23 @@ import os
 import sys
 
 import pytest
+
+# enable test mode
+from dummyData.insert import insert_dummy_data
 from fastapi.testclient import TestClient
+from pytest_mock import MockerFixture
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.database.base import get_async_session, is_test_mode, setup_engine
 from Backend.database.models import create_tables
 from Backend.main import app
 
-# enable test mode
 is_test_mode(set_test_mode=True)
 
 
 # insert a local testing db
 TESTING_DATABASE_URL = f"""postgresql+asyncpg://{os.environ.get("POSTGRES_USER")}:{os.environ.get("POSTGRES_PASSWORD")}@localhost:{os.environ.get("POSTGRES_PORT")}/postgres"""
 setup_engine(database_url=TESTING_DATABASE_URL)
-
 
 #  need to override the event loop to not close
 @pytest.fixture(scope="session", autouse=True)
@@ -44,8 +47,14 @@ def client():
         yield client
 
 
-# also we want the db object
-@pytest.fixture(scope="module")
+# we also want the db object
+@pytest.fixture(scope="session")
 async def db():
     async with get_async_session().begin() as session:
         yield session
+
+
+# insert the dummy data into the tables
+@pytest.fixture(scope="session", autouse=True)
+async def populate_tables(db: AsyncSession):
+    await insert_dummy_data(db=db)

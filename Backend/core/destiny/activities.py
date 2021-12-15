@@ -145,7 +145,7 @@ class DestinyActivities:
                     break
 
                 # get activities
-                rep = await self.api.get(route=route, params=params)
+                rep = await self.get(route=route, params=params)
 
                 # break if empty, fe. when pages are over
                 if not rep.content:

@@ -20,9 +20,12 @@ router = APIRouter(
 )
 
 
-@router.post("/bungie", response_model=BungieTokenOutput)
+@router.post("/bungie", response_model=BungieTokenOutput)  # has test
 async def save_bungie_token(bungie_token: BungieTokenInput, db: AsyncSession = Depends(get_db_session)):
     """Saves a bungie token"""
+
+    # since this is a prerequisite for everything really, the test for this is called in insert_dummy_data()
+    # it is not tested directly, since we don't want to update the activities in the background
 
     # save in db
     result, user, discord_id, guild_id = await crud.discord_users.insert_profile(
