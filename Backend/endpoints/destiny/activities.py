@@ -72,7 +72,7 @@ async def activity(
 
 
 @router.get("/get/grandmaster", response_model=DestinyActivitiesModel)
-async def activity(db: AsyncSession = Depends(get_db_session)):
+async def grandmaster(db: AsyncSession = Depends(get_db_session)):
     """Return information about all grandmaster nfs from the DB"""
 
     return DestinyActivitiesModel(activities=await destiny_manifest.get_grandmaster_nfs(db=db))

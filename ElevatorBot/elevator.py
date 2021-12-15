@@ -99,7 +99,7 @@ if __name__ == "__main__":
 
     # load commands
     print("Loading Commands...")
-    for path in yield_files_in_folder("commands", "py"):
+    for path in yield_files_in_folder("ElevatorBot/commands", "py"):
         # todo remove those once discord increases their stupid character limit (Currently 6145 chars)
         if "weapons.meta" not in path and "weapons.top" not in path:
             client.load_extension(path)
@@ -115,7 +115,7 @@ if __name__ == "__main__":
 
     # load context menus
     print("Loading Context Menus...")
-    for path in yield_files_in_folder("contextMenus", "py"):
+    for path in yield_files_in_folder("ElevatorBot/contextMenus", "py"):
         client.load_extension(path)
 
     global_context_menus = len(client.interactions[0])
