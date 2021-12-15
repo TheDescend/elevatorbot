@@ -16,6 +16,7 @@ from Backend.crud import (
     discord_users,
 )
 from Backend.database.models import ActivitiesUsers, DiscordUsers
+from Backend.misc.cache import cache
 from Backend.misc.helperFunctions import get_datetime_from_bungie_entry, get_now_with_tz
 from Backend.networking.bungieApi import BungieApi
 from Backend.networking.bungieRoutes import activities_route, pgcr_route
@@ -201,6 +202,7 @@ class DestinyActivities:
 
                 # delete from to-do DB
                 await activities_fail_to_get.delete(db=self.db, obj=activity)
+                cache.saved_pgcrs.add(activity.instance_id)
 
     async def get_pgcr(self, instance_id: int) -> WebResponse:
         """Return the pgcr from the api"""
@@ -261,7 +263,7 @@ class DestinyActivities:
         return data
 
     async def update_activity_db(self, entry_time: Optional[datetime.datetime] = None):
-        """Gets this users not-saved history and saves it in the db"""
+        """Gets this user's not-saved history and saves it in the db"""
 
         async def handle(i: int, t: datetime.datetime) -> Optional[list[int, datetime.datetime, dict]]:
             """Get pgcr"""
@@ -270,8 +272,12 @@ class DestinyActivities:
                 pgcr = await self.get_pgcr(i)
 
             except CustomException:
-                # looks like it failed, lets try again later
                 logger.warning("Failed getting pgcr <%s>", i)
+
+                # remove the instance_id from the cache
+                cache.saved_pgcrs.remove(i)
+
+                # looks like it failed, lets try again later
                 await activities_fail_to_get.insert(db=self.db, instance_id=i, period=t)
 
                 return
@@ -314,9 +320,19 @@ class DestinyActivities:
             if activity_time > entry_time:
                 entry_time = activity_time
 
-            # check if info is already in DB, skip if so
-            if await activities.get(db=self.db, instance_id=instance_id) is not None:
-                continue
+            # needs to be same from gathers
+            with asyncio.Lock():
+                # check if info is already in DB, skip if so. query the cache first
+                if instance_id in cache.saved_pgcrs:
+                    continue
+
+                # add the instance_id to the cache to prevent other users with the same instance to double check this
+                # will get removed again if something fails
+                cache.saved_pgcrs.add(instance_id)
+
+                # check if the cache is maybe just wrong
+                if await activities.get(db=self.db, instance_id=instance_id) is not None:
+                    continue
 
             # add to gather list
             instance_ids.append(instance_id)
