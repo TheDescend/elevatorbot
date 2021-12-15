@@ -49,9 +49,8 @@ for root, dirs, files in os.walk("Backend/endpoints"):
         if file.endswith(f".py") and not file.startswith("__init__"):
             file = file.removesuffix(f".py")
             path = os.path.join(root, file).replace("/", ".").replace("\\", ".")
-            print(path)
-
             resolved_path = importlib.util.resolve_name(path, None)
+
             module = importlib.import_module(resolved_path)
             router = setup = getattr(module, "router")
             app.include_router(router)
