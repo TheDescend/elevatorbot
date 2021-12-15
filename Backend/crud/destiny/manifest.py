@@ -4,8 +4,8 @@ from typing import Any, Optional, TypeVar
 from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from Backend.crud import versions
 from Backend.crud.base import CRUDBase
+from Backend.crud.misc.versions import versions
 from Backend.database.base import Base
 from Backend.database.models import (
     DestinyActivityDefinition,

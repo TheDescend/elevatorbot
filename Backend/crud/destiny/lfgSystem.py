@@ -5,8 +5,8 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.errors import CustomException
-from Backend.crud import persistent_messages
 from Backend.crud.base import CRUDBase
+from Backend.crud.misc.persistentMessages import persistent_messages
 from Backend.database.models import LfgMessage
 from Backend.misc.cache import cache
 from NetworkingSchemas.destiny.lfgSystem import (

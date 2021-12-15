@@ -127,7 +127,7 @@ async def stat_characters(
     return ValueModel(value=value)
 
 
-@router.get("/time", response_model=dict[int | list[int], DestinyTimesModel])
+@router.get("/time", response_model=DestinyTimesModel)
 async def time(
     guild_id: int, discord_id: int, time_input: DestinyTimeInputModel, db: AsyncSession = Depends(get_db_session)
 ):
