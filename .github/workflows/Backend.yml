@@ -47,6 +47,7 @@ jobs:
         pip install pytest-asyncio
         pip install pytest_mock
         pip install aiosqlite
+        pip install httpx
 
         # make sure the db runs
         docker-compose run -d --service-ports postgres
