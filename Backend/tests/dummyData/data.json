@@ -1,5 +1,5 @@
 {
-    "https://www.bungie.net/platform/User/GetMembershipsForCurrentUser/": {
+    "https://www.bungie.net/platform/User/GetMembershipsForCurrentUser/?": {
         "destinyMemberships": [
             {
                 "LastSeenDisplayName": "Tom",
@@ -17,5 +17,523 @@
             }
         ],
         "primaryMembershipId": "444"
+    },
+    "https://www.bungie.net/Platform/Destiny2/555/Account/444/Stats/?": {
+        "mergedDeletedCharacters": {
+            "results": {
+                "allPvE": {
+                    "allTime": {
+                        "kills": {
+                            "statId": "kills",
+                            "basic": {
+                                "value": 221810.0,
+                                "displayValue": "221810"
+                            },
+                            "pga": {
+                                "value": 93.987288135593218,
+                                "displayValue": "94.0"
+                            }
+                        }
+                    }
+                },
+                "allPvP": {
+                    "allTime": {
+                        "kills": {
+                            "statId": "kills",
+                            "basic": {
+                                "value": 11672.0,
+                                "displayValue": "11672"
+                            },
+                            "pga": {
+                                "value": 11.042573320719017,
+                                "displayValue": "11.0"
+                            }
+                        }
+                    }
+                }
+            },
+            "merged": {
+                "allTime": {
+                    "kills": {
+                        "statId": "kills",
+                        "basic": {
+                            "value": 233482.0,
+                            "displayValue": "233482"
+                        },
+                        "pga": {
+                            "value": 68.329528826455956,
+                            "displayValue": "68.3"
+                        }
+                    }
+                }
+            }
+        },
+        "mergedAllCharacters": {
+            "results": {
+                "allPvE": {
+                    "allTime": {
+                        "kills": {
+                            "statId": "kills",
+                            "basic": {
+                                "value": 1041425.0,
+                                "displayValue": "1041425"
+                            },
+                            "pga": {
+                                "value": 60.759918319719951,
+                                "displayValue": "60.8"
+                            }
+                        }
+                    }
+                },
+                "allPvP": {
+                    "allTime": {
+                        "kills": {
+                            "statId": "kills",
+                            "basic": {
+                                "value": 47532.0,
+                                "displayValue": "47532"
+                            },
+                            "pga": {
+                                "value": 12.732922582373426,
+                                "displayValue": "12.7"
+                            }
+                        }
+                    }
+                }
+            },
+            "merged": {
+                "allTime": {
+                    "kills": {
+                        "statId": "kills",
+                        "basic": {
+                            "value": 1088957.0,
+                            "displayValue": "1088957"
+                        },
+                        "pga": {
+                            "value": 52.170603171561346,
+                            "displayValue": "52.2"
+                        }
+                    }
+                }
+            }
+        },
+        "characters": [
+            {
+                "characterId": "666",
+                "deleted": false,
+                "results": {
+                    "allPvP": {
+                        "allTime": {
+                            "kills": {
+                                "statId": "kills",
+                                "basic": {
+                                    "value": 15198.0,
+                                    "displayValue": "15198"
+                                },
+                                "pga": {
+                                    "value": 12.447174447174447,
+                                    "displayValue": "12.4"
+                                }
+                            }
+                        }
+                    },
+                    "allPvE": {
+                        "allTime": {
+                            "kills": {
+                                "statId": "kills",
+                                "basic": {
+                                    "value": 525128.0,
+                                    "displayValue": "525128"
+                                },
+                                "pga": {
+                                    "value": 64.196577017114919,
+                                    "displayValue": "64.2"
+                                }
+                            }
+                        }
+                    }
+                },
+                "merged": {
+                    "allTime": {
+                        "kills": {
+                            "statId": "kills",
+                            "basic": {
+                                "value": 540326.0,
+                                "displayValue": "540326"
+                            },
+                            "pga": {
+                                "value": 57.475374960110628,
+                                "displayValue": "57.5"
+                            }
+                        }
+                    }
+                }
+            }
+        ]
+    },
+    "https://www.bungie.net/Platform/Destiny2/555/Account/444/Character/666/Stats/Activities/?mode=0&count=250&page=0": {
+        "activities": [
+            {
+                "period": "2021-12-15T14:24:15Z",
+                "activityDetails": {
+                    "referenceId": 1337,
+                    "directorActivityHash": 1337,
+                    "instanceId": "12345",
+                    "mode": 4,
+                    "modes": [
+                        7,
+                        4,
+                        18
+                    ],
+                    "isPrivate": false,
+                    "membershipType": 555
+                },
+                "values": {
+                    "assists": {
+                        "statId": "assists",
+                        "basic": {
+                            "value": 78.0,
+                            "displayValue": "78"
+                        }
+                    },
+                    "score": {
+                        "statId": "score",
+                        "basic": {
+                            "value": 158650.0,
+                            "displayValue": "158,650"
+                        }
+                    },
+                    "kills": {
+                        "statId": "kills",
+                        "basic": {
+                            "value": 157.0,
+                            "displayValue": "157"
+                        }
+                    },
+                    "averageScorePerKill": {
+                        "statId": "averageScorePerKill",
+                        "basic": {
+                            "value": 1010.5095541401274,
+                            "displayValue": "1010.51"
+                        }
+                    },
+                    "deaths": {
+                        "statId": "deaths",
+                        "basic": {
+                            "value": 5.0,
+                            "displayValue": "5"
+                        }
+                    },
+                    "averageScorePerLife": {
+                        "statId": "averageScorePerLife",
+                        "basic": {
+                            "value": 26441.666666666668,
+                            "displayValue": "26441.67"
+                        }
+                    },
+                    "completed": {
+                        "statId": "completed",
+                        "basic": {
+                            "value": 1.0,
+                            "displayValue": "Yes"
+                        }
+                    },
+                    "opponentsDefeated": {
+                        "statId": "opponentsDefeated",
+                        "basic": {
+                            "value": 235.0,
+                            "displayValue": "235"
+                        }
+                    },
+                    "efficiency": {
+                        "statId": "efficiency",
+                        "basic": {
+                            "value": 47.0,
+                            "displayValue": "47.00"
+                        }
+                    },
+                    "killsDeathsRatio": {
+                        "statId": "killsDeathsRatio",
+                        "basic": {
+                            "value": 31.4,
+                            "displayValue": "31.40"
+                        }
+                    },
+                    "killsDeathsAssists": {
+                        "statId": "killsDeathsAssists",
+                        "basic": {
+                            "value": 39.2,
+                            "displayValue": "39.20"
+                        }
+                    },
+                    "activityDurationSeconds": {
+                        "statId": "activityDurationSeconds",
+                        "basic": {
+                            "value": 1161.0,
+                            "displayValue": "19m 21s"
+                        }
+                    },
+                    "team": {
+                        "statId": "team",
+                        "basic": {
+                            "value": 0.0,
+                            "displayValue": ""
+                        }
+                    },
+                    "completionReason": {
+                        "statId": "completionReason",
+                        "basic": {
+                            "value": 0.0,
+                            "displayValue": "Objective Completed"
+                        }
+                    },
+                    "fireteamId": {
+                        "statId": "fireteamId",
+                        "basic": {
+                            "value": 3.9097422141914184E+18,
+                            "displayValue": "-2147483648"
+                        }
+                    },
+                    "startSeconds": {
+                        "statId": "startSeconds",
+                        "basic": {
+                            "value": 2.0,
+                            "displayValue": "0m 2s"
+                        }
+                    },
+                    "timePlayedSeconds": {
+                        "statId": "timePlayedSeconds",
+                        "basic": {
+                            "value": 1159.0,
+                            "displayValue": "19m 19s"
+                        }
+                    },
+                    "playerCount": {
+                        "statId": "playerCount",
+                        "basic": {
+                            "value": 3.0,
+                            "displayValue": "3"
+                        }
+                    },
+                    "teamScore": {
+                        "statId": "teamScore",
+                        "basic": {
+                            "value": 289100.0,
+                            "displayValue": "289,100"
+                        }
+                    }
+                }
+            }
+        ]
+    },
+    "https://www.bungie.net/Platform/Destiny2/555/Account/444/Character/666/Stats/Activities/?mode=0&count=250&page=1": {},
+    "https://www.bungie.net/Platform/Destiny2/Stats/PostGameCarnageReport/12345/?": {
+        "period": "2021-12-15T14:24:15Z",
+        "startingPhaseIndex": 0,
+        "activityDetails": {
+            "referenceId": 1337,
+            "directorActivityHash": 1337,
+            "instanceId": "12345",
+            "mode": 4,
+            "modes": [
+                7,
+                4,
+                18
+            ],
+            "isPrivate": false,
+            "membershipType": 555
+        },
+        "entries": [
+            {
+                "standing": 0,
+                "score": {
+                    "basic": {
+                        "value": 0.0,
+                        "displayValue": "0"
+                    }
+                },
+                "player": {
+                    "destinyUserInfo": {
+                        "iconPath": "/common/destiny2_content/icons/8980083dab60cc239bcf5d68463034cf.jpg",
+                        "crossSaveOverride": 555,
+                        "applicableMembershipTypes": [
+                            555
+                        ],
+                        "isPublic": true,
+                        "membershipType": 555,
+                        "membershipId": "444",
+                        "displayName": "Tom",
+                        "bungieGlobalDisplayName": "Tom",
+                        "bungieGlobalDisplayNameCode": 1234
+                    },
+                    "characterClass": "Hunter",
+                    "classHash": 671679327,
+                    "raceHash": 2803282938,
+                    "genderHash": 2204441813,
+                    "characterLevel": 50,
+                    "lightLevel": 1322,
+                    "emblemHash": 1714370698
+                },
+                "characterId": "666",
+                "values": {
+                    "assists": {
+                        "basic": {
+                            "value": 6.0,
+                            "displayValue": "6"
+                        }
+                    },
+                    "completed": {
+                        "basic": {
+                            "value": 1.0,
+                            "displayValue": "Yes"
+                        }
+                    },
+                    "deaths": {
+                        "basic": {
+                            "value": 1.0,
+                            "displayValue": "1"
+                        }
+                    },
+                    "kills": {
+                        "basic": {
+                            "value": 22.0,
+                            "displayValue": "22"
+                        }
+                    },
+                    "opponentsDefeated": {
+                        "basic": {
+                            "value": 28.0,
+                            "displayValue": "28"
+                        }
+                    },
+                    "efficiency": {
+                        "basic": {
+                            "value": 28.0,
+                            "displayValue": "28.00"
+                        }
+                    },
+                    "killsDeathsRatio": {
+                        "basic": {
+                            "value": 22.0,
+                            "displayValue": "22.00"
+                        }
+                    },
+                    "killsDeathsAssists": {
+                        "basic": {
+                            "value": 25.0,
+                            "displayValue": "25.00"
+                        }
+                    },
+                    "score": {
+                        "basic": {
+                            "value": 0.0,
+                            "displayValue": "0"
+                        }
+                    },
+                    "activityDurationSeconds": {
+                        "basic": {
+                            "value": 917.0,
+                            "displayValue": "15m 17s"
+                        }
+                    },
+                    "completionReason": {
+                        "basic": {
+                            "value": 0.0,
+                            "displayValue": "Objective Completed"
+                        }
+                    },
+                    "fireteamId": {
+                        "basic": {
+                            "value": -7.9491100817267681E+18,
+                            "displayValue": "-2147483648"
+                        }
+                    },
+                    "startSeconds": {
+                        "basic": {
+                            "value": 360.0,
+                            "displayValue": "6m 0s"
+                        }
+                    },
+                    "timePlayedSeconds": {
+                        "basic": {
+                            "value": 557.0,
+                            "displayValue": "9m 17s"
+                        }
+                    },
+                    "playerCount": {
+                        "basic": {
+                            "value": 1.0,
+                            "displayValue": "1"
+                        }
+                    },
+                    "teamScore": {
+                        "basic": {
+                            "value": 0.0,
+                            "displayValue": "0"
+                        }
+                    }
+                },
+                "extended": {
+                    "weapons": [
+                        {
+                            "referenceId": 9876,
+                            "values": {
+                                "uniqueWeaponKills": {
+                                    "basic": {
+                                        "value": 16.0,
+                                        "displayValue": "16"
+                                    }
+                                },
+                                "uniqueWeaponPrecisionKills": {
+                                    "basic": {
+                                        "value": 10.0,
+                                        "displayValue": "10"
+                                    }
+                                },
+                                "uniqueWeaponKillsPrecisionKills": {
+                                    "basic": {
+                                        "value": 0.625,
+                                        "displayValue": "63%"
+                                    }
+                                }
+                            }
+                        }
+                    ],
+                    "values": {
+                        "precisionKills": {
+                            "basic": {
+                                "value": 10.0,
+                                "displayValue": "10"
+                            }
+                        },
+                        "weaponKillsGrenade": {
+                            "basic": {
+                                "value": 4.0,
+                                "displayValue": "4"
+                            }
+                        },
+                        "weaponKillsMelee": {
+                            "basic": {
+                                "value": 5.0,
+                                "displayValue": "5"
+                            }
+                        },
+                        "weaponKillsSuper": {
+                            "basic": {
+                                "value": 7.0,
+                                "displayValue": "7"
+                            }
+                        },
+                        "weaponKillsAbility": {
+                            "basic": {
+                                "value": 9.0,
+                                "displayValue": "9"
+                            }
+                        }
+                    }
+                }
+            }
+        ],
+        "teams": []
     }
 }

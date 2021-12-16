@@ -60,7 +60,7 @@ class CRUDDiscordUser(CRUDBase):
 
     async def insert_profile(
         self, db: AsyncSession, bungie_token: BungieTokenInput
-    ) -> tuple[BungieTokenOutput, Optional[DiscordUsers], int, int]:
+    ) -> tuple[BungieTokenOutput, Optional[DiscordUsers], int, int]:  # has test
         """Inserts a users token data"""
 
         # get current time

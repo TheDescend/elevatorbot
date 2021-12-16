@@ -3,19 +3,16 @@ import os
 import sys
 
 import pytest
-
-# enable test mode
 from dummyData.insert import insert_dummy_data
-from fastapi.testclient import TestClient
-from pytest_mock import MockerFixture
+from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.database.base import get_async_session, is_test_mode, setup_engine
 from Backend.database.models import create_tables
 from Backend.main import app
 
+# enable test mode
 is_test_mode(set_test_mode=True)
-
 
 # insert a local testing db
 TESTING_DATABASE_URL = f"""postgresql+asyncpg://{os.environ.get("POSTGRES_USER")}:{os.environ.get("POSTGRES_PASSWORD")}@localhost:{os.environ.get("POSTGRES_PORT")}/postgres"""
@@ -41,15 +38,15 @@ async def init_db_tables():
 
 
 # make it so that every function can get the client by just specifying it as a param
-@pytest.fixture(scope="module")
-def client():
-    with TestClient(app) as client:
+@pytest.fixture(scope="session")
+async def client() -> AsyncClient:
+    async with AsyncClient(app=app) as client:
         yield client
 
 
 # we also want the db object
 @pytest.fixture(scope="session")
-async def db():
+async def db() -> AsyncSession:
     async with get_async_session().begin() as session:
         yield session
 

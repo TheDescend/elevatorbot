@@ -46,7 +46,7 @@ class CRUDBase:
         return result.scalars().fetchall()
 
     @staticmethod
-    async def _insert(db: AsyncSession, to_create: ModelType) -> None:
+    async def _insert(db: AsyncSession, to_create: ModelType) -> None:  # has test
         """Insert a initiated ModelType into the database"""
 
         db.add(to_create)

@@ -5,7 +5,7 @@ from typing import Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from Backend.crud import activities, destiny_manifest, discord_users
+from Backend.crud import crud_activities, destiny_manifest, discord_users
 from Backend.crud.destiny.collectibles import collectibles
 from Backend.crud.destiny.items import destiny_items
 from Backend.crud.destiny.records import records
@@ -729,7 +729,7 @@ class DestinyProfile:
     ) -> int:
         """Get the time played (in seconds)"""
 
-        return await activities.calculate_time_played(
+        return await crud_activities.calculate_time_played(
             db=self.db,
             destiny_id=self.destiny_id,
             mode=mode,

@@ -18,7 +18,7 @@ from NetworkingSchemas.destiny.roles import TimePeriodModel
 
 
 class CRUDActivitiesFailToGet(CRUDBase):
-    async def get_all(self, db: AsyncSession) -> list[ActivitiesFailToGet]:
+    async def get_all(self, db: AsyncSession) -> list[ActivitiesFailToGet]:  # has test
         """Get all missing pgcr ids"""
 
         return await self._get_all(db=db)
@@ -36,7 +36,7 @@ class CRUDActivitiesFailToGet(CRUDBase):
 
 
 class CRUDActivities(CRUDBase):
-    async def get(self, db: AsyncSession, instance_id: int) -> Optional[Activities]:
+    async def get(self, db: AsyncSession, instance_id: int) -> Optional[Activities]:  # has test
         """Get the activity with the instance_id"""
 
         return await self._get_with_key(db=db, primary_key=instance_id)
@@ -53,21 +53,17 @@ class CRUDActivities(CRUDBase):
 
         return result
 
-    async def insert(self, db: AsyncSession, instance_id: int, activity_time: datetime, pgcr: dict):
+    async def insert(self, db: AsyncSession, instance_id: int, activity_time: datetime, pgcr: dict):  # has test
         """Get the activity with the instance_id"""
 
         # get this to not accidentally insert the same thing twice
         async with asyncio.Lock():
             return await self.__locked_insert(db=db, instance_id=instance_id, activity_time=activity_time, pgcr=pgcr)
 
-    async def __locked_insert(self, db: AsyncSession, instance_id: int, activity_time: datetime, pgcr: dict):
+    async def __locked_insert(
+        self, db: AsyncSession, instance_id: int, activity_time: datetime, pgcr: dict
+    ):  # has test
         """Actually do the insert"""
-
-        # does the activity exist?
-        if self.get(db=db, instance_id=instance_id):
-            return
-
-        to_create = []
 
         # build the activity
         activity = Activities(
@@ -85,9 +81,9 @@ class CRUDActivities(CRUDBase):
         # loop through the members of the activity and append that data
         for player_pgcr in pgcr["entries"]:
             player = ActivitiesUsers(
-                destiny_id=player_pgcr["player"]["destinyUserInfo"]["membershipId"],
+                destiny_id=int(player_pgcr["player"]["destinyUserInfo"]["membershipId"]),
                 bungie_name=f"""{player_pgcr["player"]["destinyUserInfo"]["bungieGlobalDisplayName"]}#{player_pgcr["player"]["destinyUserInfo"]["bungieGlobalDisplayNameCode"]}""",
-                character_id=player_pgcr["characterId"],
+                character_id=int(player_pgcr["characterId"]),
                 character_class=player_pgcr["player"]["characterClass"]
                 if "characterClass" in player_pgcr["player"]
                 else None,
@@ -130,18 +126,13 @@ class CRUDActivities(CRUDBase):
                     )
 
                     # append weapon data to player
-                    to_create.append(weapon)
                     player.weapons.append(weapon)
 
             # append player data to activity
-            to_create.append(player)
             activity.users.append(player)
 
-        # append activity so it also gets inserted
-        to_create.append(activity)
-
-        # mass insert all the stuff to the db
-        await self._insert_multi(db=db, to_create=to_create)
+        # insert all the stuff to the db
+        await self._insert(db=db, to_create=activity)
 
     async def get_activities(
         self,
@@ -324,5 +315,5 @@ class CRUDActivities(CRUDBase):
         return result if result else 0
 
 
-activities_fail_to_get = CRUDActivitiesFailToGet(ActivitiesFailToGet)
-activities = CRUDActivities(Activities)
+crud_activities_fail_to_get = CRUDActivitiesFailToGet(ActivitiesFailToGet)
+crud_activities = CRUDActivities(Activities)

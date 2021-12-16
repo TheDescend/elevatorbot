@@ -10,8 +10,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from Backend.core.destiny.profile import DestinyProfile
 from Backend.core.errors import CustomException
 from Backend.crud import (
-    activities,
-    activities_fail_to_get,
+    crud_activities,
+    crud_activities_fail_to_get,
     destiny_manifest,
     discord_users,
 )
@@ -67,7 +67,7 @@ class DestinyActivities:
         count, flawless_count, not_flawless_count, fastest = 0, 0, 0, None
 
         # get player data
-        low_activity_info = await activities.get_activities(
+        low_activity_info = await crud_activities.get_activities(
             db=self.db,
             activity_hashes=activity_ids,
             maximum_allowed_players=max_player_count,
@@ -102,7 +102,7 @@ class DestinyActivities:
         mode: int = 0,
         earliest_allowed_datetime: Optional[datetime.datetime] = None,
         latest_allowed_datetime: Optional[datetime.datetime] = None,
-    ) -> AsyncGenerator[dict]:
+    ) -> AsyncGenerator[dict]:  # has test
         """
         Generator which returns all activities with an extra field < activity['character_id'] = character_id >
         For more Info visit https://bungie-net.github.io/multi/schema_Destiny-HistoricalStats-DestinyHistoricalStatsPeriodGroup.html#schema_Destiny-HistoricalStats-DestinyHistoricalStatsPeriodGroup
@@ -145,7 +145,7 @@ class DestinyActivities:
                     break
 
                 # get activities
-                rep = await self.get(route=route, params=params)
+                rep = await self.api.get(route=route, params=params)
 
                 # break if empty, fe. when pages are over
                 if not rep.content:
@@ -180,11 +180,11 @@ class DestinyActivities:
         """Insert the missing pgcr"""
 
         async with asyncio.Lock():
-            for activity in await activities_fail_to_get.get_all_name():
+            for activity in await crud_activities_fail_to_get.get_all_name():
                 # check if info is already in DB, delete and skip if so
-                result = activities.get(db=self.db, instance_id=activity.instance_id)
+                result = crud_activities.get(db=self.db, instance_id=activity.instance_id)
                 if result:
-                    await activities_fail_to_get.delete(db=self.db, obj=activity)
+                    await crud_activities_fail_to_get.delete(db=self.db, obj=activity)
                     continue
 
                 # get PGCR
@@ -196,15 +196,15 @@ class DestinyActivities:
                     continue
 
                 # add info to DB
-                await activities.insert(
+                await crud_activities.insert(
                     db=self.db, instance_id=activity.instance_id, activity_time=activity.period, pgcr=pgcr.content
                 )
 
                 # delete from to-do DB
-                await activities_fail_to_get.delete(db=self.db, obj=activity)
+                await crud_activities_fail_to_get.delete(db=self.db, obj=activity)
                 cache.saved_pgcrs.add(activity.instance_id)
 
-    async def get_pgcr(self, instance_id: int) -> WebResponse:
+    async def get_pgcr(self, instance_id: int) -> WebResponse:  # has test
         """Return the pgcr from the api"""
 
         return await self.api.get(route=pgcr_route.format(instance_id=instance_id))
@@ -218,7 +218,7 @@ class DestinyActivities:
     ) -> DestinyActivityDetailsModel:
         """Get the last activity played"""
 
-        result = await activities.get_last_activity(
+        result = await crud_activities.get_last_activity(
             db=self.db,
             destiny_id=self.destiny_id,
             mode=mode,
@@ -262,7 +262,7 @@ class DestinyActivities:
 
         return data
 
-    async def update_activity_db(self, entry_time: Optional[datetime.datetime] = None):
+    async def update_activity_db(self, entry_time: Optional[datetime.datetime] = None):  # has test
         """Gets this user's not-saved history and saves it in the db"""
 
         async def handle(i: int, t: datetime.datetime) -> Optional[list[int, datetime.datetime, dict]]:
@@ -278,7 +278,7 @@ class DestinyActivities:
                 cache.saved_pgcrs.remove(i)
 
                 # looks like it failed, lets try again later
-                await activities_fail_to_get.insert(db=self.db, instance_id=i, period=t)
+                await crud_activities_fail_to_get.insert(db=self.db, instance_id=i, period=t)
 
                 return
             return [i, t, pgcr.content]
@@ -295,7 +295,7 @@ class DestinyActivities:
                     pgcr = result[2]
 
                     # insert information to DB
-                    await activities.insert(db=self.db, instance_id=i, activity_time=t, pgcr=pgcr)
+                    await crud_activities.insert(db=self.db, instance_id=i, activity_time=t, pgcr=pgcr)
 
         # get the logger
         logger = logging.getLogger("updateActivityDb")
@@ -313,15 +313,15 @@ class DestinyActivities:
         async for activity in self.get_activity_history(mode=0, earliest_allowed_datetime=entry_time):
             success = True
 
-            instance_id: int = activity["activityDetails"]["instanceId"]
+            instance_id = int(activity["activityDetails"]["instanceId"])
             activity_time: datetime.datetime = activity["period"]
 
-            # update with newest entry timestamp
+            # update with the newest entry timestamp
             if activity_time > entry_time:
                 entry_time = activity_time
 
             # needs to be same from gathers
-            with asyncio.Lock():
+            async with asyncio.Lock():
                 # check if info is already in DB, skip if so. query the cache first
                 if instance_id in cache.saved_pgcrs:
                     continue
@@ -331,7 +331,7 @@ class DestinyActivities:
                 cache.saved_pgcrs.add(instance_id)
 
                 # check if the cache is maybe just wrong
-                if await activities.get(db=self.db, instance_id=instance_id) is not None:
+                if await crud_activities.get(db=self.db, instance_id=instance_id) is not None:
                     continue
 
             # add to gather list
@@ -354,13 +354,13 @@ class DestinyActivities:
             # get and input the data
             await input_data(instance_ids, activity_times)
 
-        # update with newest entry timestamp
+        # update them with the newest entry timestamp
         if success:
             await discord_users.update(db=self.db, to_update=self.user, activities_last_updated=entry_time)
 
         logger.info("Done with activity DB update for destinyID <%s>", self.destiny_id)
 
-    async def __get_full_character_list(self) -> list[dict]:
+    async def __get_full_character_list(self) -> list[dict]:  # has test
         """Get all character ids (including deleted characters)"""
 
         # saving this one is the class to prevent the extra api call should it get called again
@@ -416,7 +416,7 @@ class DestinyActivities:
                 TimePeriodModel(start_time=start_time or datetime.datetime.min, end_time=end_time or get_now_with_tz())
             ]
 
-        data = await activities.get_activities(
+        data = await crud_activities.get_activities(
             db=self.db,
             activity_hashes=activity_ids,
             mode=mode,

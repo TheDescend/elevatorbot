@@ -5,7 +5,7 @@ from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.errors import CustomException
-from Backend.crud import activities, weapons
+from Backend.crud import crud_activities, weapons
 from Backend.crud.destiny.items import destiny_items
 from Backend.database.models import DiscordUsers
 from Backend.networking.bungieApi import BungieApi
@@ -143,7 +143,7 @@ class DestinyWeapons:
                 result.best_kills_date = usage.user.activity.period
 
         # change the reference id of the best activity to the actual name
-        result.best_kills_activity_name = await activities.get_activity_name(
+        result.best_kills_activity_name = await crud_activities.get_activity_name(
             db=self.db, activity_id=int(result.best_kills_activity_name)
         )
 
