@@ -26,15 +26,15 @@ router = APIRouter(
 )
 
 
-@router.get("/name", response_model=NameModel)
+@router.get("/name", response_model=NameModel)  # has test
 async def destiny_name(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
-    """Return the destiny name"""
+    """Return the bungie name"""
 
     user = await discord_users.get_profile_from_discord_id(db, discord_id)
     return NameModel(name=user.bungie_name)
 
 
-@router.get("/collectible/{collectible_id}", response_model=BoolModel)
+@router.get("/collectible/{collectible_id}", response_model=BoolModel)  # has test
 async def has_collectible(
     guild_id: int, discord_id: int, collectible_id: int, db: AsyncSession = Depends(get_db_session)
 ):

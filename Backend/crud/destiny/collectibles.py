@@ -7,7 +7,7 @@ from Backend.database.models import Collectibles
 
 
 class CRUDCollectibles(CRUDBase):
-    async def has_collectible(self, db: AsyncSession, destiny_id: int, collectible_hash: int) -> bool:
+    async def has_collectible(self, db: AsyncSession, destiny_id: int, collectible_hash: int) -> bool:  # has test
         """Return if the collectible is gotten (in the db)"""
 
         result: Optional[Collectibles] = await self._get_with_key(db, (destiny_id, collectible_hash))

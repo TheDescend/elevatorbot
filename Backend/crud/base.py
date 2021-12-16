@@ -21,7 +21,7 @@ class CRUDBase:
         """
         self.model = model
 
-    async def _get_with_key(self, db: AsyncSession, primary_key: Any) -> Optional[ModelType]:
+    async def _get_with_key(self, db: AsyncSession, primary_key: Any) -> Optional[ModelType]:  # has test
         """Returns the object by primary key or None"""
 
         return await db.get(self.model, primary_key)

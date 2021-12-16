@@ -165,6 +165,12 @@ class DiscordUsers(Base):
     activities_last_updated = Column(
         DateTime(timezone=True), nullable=False, default=datetime.datetime(2000, 1, 1, tzinfo=datetime.timezone.utc)
     )
+    collectibles_last_updated = Column(
+        DateTime(timezone=True), nullable=False, default=datetime.datetime(2000, 1, 1, tzinfo=datetime.timezone.utc)
+    )
+    triumphs_last_updated = Column(
+        DateTime(timezone=True), nullable=False, default=datetime.datetime(2000, 1, 1, tzinfo=datetime.timezone.utc)
+    )
 
 
 class DestinyClanLinks(Base):

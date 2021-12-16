@@ -535,5 +535,215 @@
             }
         ],
         "teams": []
+    },
+    "https://www.bungie.net/Platform/Destiny2/555/Profile/444/?components=100%2C200%2C800%2C900%2C1100": {
+        "profile": {
+            "data": {
+                "userInfo": {
+                    "crossSaveOverride": 555,
+                    "applicableMembershipTypes": [
+                        555
+                    ],
+                    "isPublic": true,
+                    "membershipType": 555,
+                    "membershipId": "444",
+                    "displayName": "Tom",
+                    "bungieGlobalDisplayName": "Tom",
+                    "bungieGlobalDisplayNameCode": 1234
+                },
+                "dateLastPlayed": "2021-12-16T10:15:18Z",
+                "versionsOwned": 511,
+                "characterIds": [
+                    "2305843009300285667",
+                    "2305843009302043968",
+                    "2305843009395157838"
+                ],
+                "seasonHashes": [
+                    1743682818,
+                    1743682819,
+                    2809059425,
+                    2809059424,
+                    2809059427,
+                    2809059426,
+                    2809059429,
+                    2809059428
+                ],
+                "currentSeasonHash": 2809059428,
+                "currentSeasonRewardPowerCap": 1330
+            },
+            "privacy": 1
+        },
+        "profileRecords": {
+            "data": {
+                "score": 20097,
+                "activeScore": 20097,
+                "legacyScore": 117570,
+                "lifetimeScore": 137667,
+                "records": {
+                    "12": {
+                        "state": 12,
+                        "objectives": [
+                            {
+                                "objectiveHash": 1289597760,
+                                "progress": 0,
+                                "completionValue": 2,
+                                "complete": true,
+                                "visible": true
+                            },
+                            {
+                                "objectiveHash": 698203561,
+                                "progress": 0,
+                                "completionValue": 200,
+                                "complete": false,
+                                "visible": true
+                            }
+                        ],
+                        "intervalsRedeemedCount": 0
+                    }
+                },
+                "recordCategoriesRootNodeHash": 1866538467,
+                "recordSealsRootNodeHash": 616318467
+            },
+            "privacy": 2
+        },
+        "profileCollectibles": {
+            "data": {
+                "recentCollectibleHashes": [
+                    3133782080
+                ],
+                "newnessFlaggedCollectibleHashes": [
+                    1866399776
+                ],
+                "collectibles": {
+                    "1": {
+                        "state": 64
+                    }
+                },
+                "collectionCategoriesRootNodeHash": 3790247699,
+                "collectionBadgesRootNodeHash": 498211331
+            },
+            "privacy": 2
+        },
+        "metrics": {
+            "data": {
+                "metrics": {
+                    "21": {
+                        "invisible": false,
+                        "objectiveProgress": {
+                            "objectiveHash": 3347800745,
+                            "progress": 1337,
+                            "completionValue": 1000,
+                            "complete": true,
+                            "visible": true
+                        }
+                    }
+                },
+                "metricsRootNodeHash": 1074663644
+            },
+            "privacy": 2
+        },
+        "characters": {
+            "data": {
+                "666": {
+                    "membershipId": "444",
+                    "membershipType": 555,
+                    "characterId": "666",
+                    "dateLastPlayed": "2021-12-15T15:01:38Z",
+                    "minutesPlayedThisSession": "89",
+                    "minutesPlayedTotal": "95724",
+                    "light": 1348,
+                    "stats": {
+                        "1935470627": 1348,
+                        "2996146975": 30,
+                        "392767087": 31,
+                        "1943323491": 102,
+                        "1735777505": 89,
+                        "144602215": 42,
+                        "4244567218": 12
+                    },
+                    "raceHash": 3887404748,
+                    "genderHash": 3111576190,
+                    "classHash": 2271682572,
+                    "raceType": 0,
+                    "classType": 2,
+                    "genderType": 0,
+                    "emblemPath": "/common/destiny2_content/icons/5f3614bd64c0668febb1ff1ae3d1632b.jpg",
+                    "emblemBackgroundPath": "/common/destiny2_content/icons/c612ec23a7f3b57042cb988788ef37a8.jpg",
+                    "emblemHash": 3800278198,
+                    "emblemColor": {
+                        "red": 2,
+                        "green": 2,
+                        "blue": 2,
+                        "alpha": 255
+                    },
+                    "levelProgression": {
+                        "progressionHash": 1716568313,
+                        "dailyProgress": 0,
+                        "dailyLimit": 0,
+                        "weeklyProgress": 0,
+                        "weeklyLimit": 0,
+                        "currentProgress": 0,
+                        "level": 50,
+                        "levelCap": 50,
+                        "stepIndex": 50,
+                        "progressToNextLevel": 0,
+                        "nextLevelAt": 0
+                    },
+                    "baseCharacterLevel": 50,
+                    "percentToNextLevel": 0.0,
+                    "titleRecordHash": 2056461735
+                }
+            },
+            "privacy": 1
+        },
+        "characterRecords": {
+            "data": {
+                "666": {
+                    "featuredRecordHashes": [
+                        3241995275,
+                        3623956709,
+                        1257350901
+                    ],
+                    "records": {
+                        "11": {
+                            "state": 0,
+                            "objectives": [
+                                {
+                                    "objectiveHash": 1192806779,
+                                    "progress": 1,
+                                    "completionValue": 1,
+                                    "complete": true,
+                                    "visible": true
+                                },
+                                {
+                                    "objectiveHash": 1192806780,
+                                    "progress": 1500,
+                                    "completionValue": 150,
+                                    "complete": true,
+                                    "visible": true
+                                }
+                            ],
+                            "intervalsRedeemedCount": 0
+                        }
+                    },
+                    "recordCategoriesRootNodeHash": 1866538467,
+                    "recordSealsRootNodeHash": 616318467
+                }
+            },
+            "privacy": 2
+        },
+        "characterCollectibles": {
+            "data": {
+                "666": {
+                    "collectibles": {
+                        "2": {
+                            "state": 69
+                        }
+                    },
+                    "collectionCategoriesRootNodeHash": 3790247699,
+                    "collectionBadgesRootNodeHash": 498211331
+                }
+            }
+        }
     }
 }

@@ -7,7 +7,7 @@ from Backend.database.models import Records
 
 
 class CRUDRecords(CRUDBase):
-    async def has_record(self, db: AsyncSession, destiny_id: int, triumph_hash: int) -> bool:
+    async def has_record(self, db: AsyncSession, destiny_id: int, triumph_hash: int) -> bool:  # has test
         """Return if the triumph is gotten (in the db)"""
 
         result: Optional[Records] = await self._get_with_key(db, (destiny_id, triumph_hash))

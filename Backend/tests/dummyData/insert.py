@@ -15,12 +15,17 @@ from static import (
     dummy_discord_channel_id,
     dummy_discord_guild_id,
     dummy_discord_id,
+    dummy_gotten_collectible_id,
+    dummy_gotten_record_id,
     dummy_instance_id,
+    dummy_not_gotten_collectible_id,
+    dummy_not_gotten_record_id,
     dummy_refresh_token,
     dummy_token,
 )
 
 from Backend.core.destiny.activities import DestinyActivities
+from Backend.core.destiny.profile import DestinyProfile
 from Backend.crud import crud_activities, crud_activities_fail_to_get, discord_users
 from Backend.database.models import DiscordUsers
 from Backend.main import app
@@ -100,3 +105,29 @@ async def insert_dummy_data(db: AsyncSession):
 
     # try that again, it should not throw any error (which means it did not try to insert again)
     await activities.update_activity_db()
+
+    # insert collectibles
+    profile = DestinyProfile(db=db, user=user)
+
+    data = await profile.has_collectible(dummy_gotten_collectible_id)
+    assert data is True
+
+    data = await profile.has_collectible(dummy_not_gotten_collectible_id)
+    assert data is False
+
+    # test DB call
+    data = await profile.has_collectible(dummy_gotten_collectible_id)
+    assert data is True
+
+    # insert triumphs
+    data = await profile.has_triumph(dummy_gotten_record_id)
+    assert data.bool is True
+
+    data = await profile.has_triumph(dummy_not_gotten_record_id)
+    assert data.bool is False
+    assert data.objectives[0].bool is True
+    assert data.objectives[1].bool is False
+
+    # test DB call
+    data = await profile.has_triumph(dummy_gotten_record_id)
+    assert data.bool is True

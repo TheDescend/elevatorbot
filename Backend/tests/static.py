@@ -14,3 +14,11 @@ dummy_instance_id = 12345
 dummy_activity_reference_id = 1337
 dummy_mode = 4
 dummy_weapon_id = 9876
+
+# saved destiny data
+dummy_gotten_collectible_id = 1
+dummy_not_gotten_collectible_id = 2
+dummy_gotten_record_id = 11
+dummy_not_gotten_record_id = 12
+dummy_metric_id = 21
+dummy_metric_value = 1337

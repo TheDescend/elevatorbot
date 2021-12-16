@@ -64,10 +64,6 @@ class DestinyProfile:
 
     _triumphs: dict = dataclasses.field(init=False, default_factory=dict)
 
-    # field to stop re-calculating items a lot
-    _last_triumph_update: datetime.datetime = dataclasses.field(init=False, default=datetime.datetime.min)
-    _last_collectible_update: datetime.datetime = dataclasses.field(init=False, default=datetime.datetime.min)
-
     def __post_init__(self):
         # some shortcuts
         self.discord_id = self.user.discord_id
@@ -291,7 +287,7 @@ class DestinyProfile:
             lifetime_score=triumphs_data["lifetime_score"],
         )
 
-    async def has_triumph(self, triumph_hash: str | int) -> BoolModelRecord:
+    async def has_triumph(self, triumph_hash: str | int) -> BoolModelRecord:  # has test
         """Returns if the triumph is gotten"""
 
         triumph_hash = int(triumph_hash)
@@ -303,7 +299,7 @@ class DestinyProfile:
 
             if triumph_hash not in cache.triumphs[self.destiny_id]:
                 # check if the last update is older than 10 minutes
-                if self._last_triumph_update + datetime.timedelta(minutes=10) > get_now_with_tz():
+                if self.user.triumphs_last_updated + datetime.timedelta(minutes=10) > get_now_with_tz():
                     sought_triumph = self._triumphs[str(triumph_hash)]
 
                 else:
@@ -321,7 +317,11 @@ class DestinyProfile:
 
                     # loop through all triumphs and add them / update them in the db
                     for triumph_id, triumph_info in triumphs_data.items():
-                        triumph_id = int(triumph_id)
+                        try:
+                            triumph_id = int(triumph_id)
+                        except ValueError:
+                            # this is the "active_score", ... fields
+                            continue
 
                         if triumph_id in cache.triumphs[self.destiny_id]:
                             continue
@@ -371,7 +371,7 @@ class DestinyProfile:
                         await records.insert_records(db=self.db, objs=to_insert)
 
                     # save the update time
-                    self._last_triumph_update = get_now_with_tz()
+                    await discord_users.update(db=self.db, to_update=self.user, triumphs_last_updated=get_now_with_tz())
 
         # now check again if its completed
         if triumph_hash in cache.triumphs[self.destiny_id]:
@@ -384,7 +384,7 @@ class DestinyProfile:
                 result.objectives.append(BoolModelObjective(objective_id=part["objectiveHash"], bool=part["complete"]))
         return result
 
-    async def has_collectible(self, collectible_hash: str | int) -> bool:
+    async def has_collectible(self, collectible_hash: str | int) -> bool:  # has test
         """Returns if the collectible is gotten"""
 
         collectible_hash = int(collectible_hash)
@@ -396,7 +396,7 @@ class DestinyProfile:
 
             if collectible_hash not in cache.collectibles[self.destiny_id]:
                 # check if the last update is older than 10 minutes
-                if self._last_collectible_update + datetime.timedelta(minutes=10) > get_now_with_tz():
+                if self.user.collectibles_last_updated + datetime.timedelta(minutes=10) > get_now_with_tz():
                     return False
 
                 # get from db and return that if it says user got the collectible
@@ -406,7 +406,7 @@ class DestinyProfile:
                 if result:
                     # only caching already got collectibles
                     cache.collectibles[self.destiny_id].update({collectible_hash: True})
-                    return result
+                    return True
 
                 # as with the triumphs, we need to update our local collectible data now
                 collectibles_data = await self.get_collectibles()
@@ -451,7 +451,7 @@ class DestinyProfile:
                     await collectibles.insert_collectibles(db=self.db, objs=to_insert)
 
                 # save the update time
-                self._last_collectible_update = get_now_with_tz()
+                await discord_users.update(db=self.db, to_update=self.user, collectibles_last_updated=get_now_with_tz())
 
         # now check again if its owned
         if collectible_hash in cache.collectibles[self.destiny_id]:
@@ -637,7 +637,7 @@ class DestinyProfile:
 
         return characters
 
-    async def get_triumphs(self) -> dict:
+    async def get_triumphs(self) -> dict:  # has test
         """Populate the triumphs and then return them"""
 
         result = await self.__get_profile()
@@ -665,7 +665,7 @@ class DestinyProfile:
         self._triumphs = triumphs
         return self._triumphs
 
-    async def get_collectibles(self) -> dict:
+    async def get_collectibles(self) -> dict:  # has test
         """Populate the collectibles and then return them"""
 
         result = await self.__get_profile()
@@ -683,7 +683,7 @@ class DestinyProfile:
         for character in character_collectibles:
             # loop through all the collectibles and only update them if the collectible is earned
             # see https://bungie-net.github.io/multi/schema_Destiny-DestinyCollectibleState.html#schema_Destiny-DestinyCollectibleState
-            for collectible_hash, collectible_state in character:
+            for collectible_hash, collectible_state in character.items():
                 if collectible_state["state"] & 1 == 0:
                     user_collectibles.update({collectible_hash: collectible_state})
 
@@ -934,7 +934,7 @@ class DestinyProfile:
 
         return items
 
-    async def __get_profile(self, *components_override: int, with_token: bool = False) -> dict:
+    async def __get_profile(self, *components_override: int, with_token: bool = False) -> dict:  # has test
         """
         Return info from the profile call
         https://bungie-net.github.io/multi/schema_Destiny-DestinyComponentType.html#schema_Destiny-DestinyComponentType

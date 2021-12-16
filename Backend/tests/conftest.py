@@ -40,7 +40,7 @@ async def init_db_tables():
 # make it so that every function can get the client by just specifying it as a param
 @pytest.fixture(scope="session")
 async def client() -> AsyncClient:
-    async with AsyncClient(app=app) as client:
+    async with AsyncClient(app=app, base_url="http://testserver", follow_redirects=True) as client:
         yield client
 
 

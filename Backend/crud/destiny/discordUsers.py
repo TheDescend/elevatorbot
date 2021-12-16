@@ -20,7 +20,7 @@ from settings import BUNGIE_TOKEN
 class CRUDDiscordUser(CRUDBase):
     cache = cache
 
-    async def get_profile_from_discord_id(self, db: AsyncSession, discord_id: int) -> DiscordUsers:
+    async def get_profile_from_discord_id(self, db: AsyncSession, discord_id: int) -> DiscordUsers:  # has test
         """Return the profile information"""
 
         # check if exists in cache
@@ -179,7 +179,7 @@ class CRUDDiscordUser(CRUDBase):
 
         return BungieTokenOutput(success=True, errror_message=None), user, discord_id, guild_id
 
-    async def update(self, db: AsyncSession, to_update: DiscordUsers, **update_kwargs):
+    async def update(self, db: AsyncSession, to_update: DiscordUsers, **update_kwargs):  # has test
         """Updates a profile"""
 
         await self._update(db=db, to_update=to_update, **update_kwargs)
