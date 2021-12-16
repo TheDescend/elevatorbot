@@ -16,7 +16,7 @@ from Backend.database.models import (
     DestinySeasonPassDefinition,
 )
 from Backend.misc.cache import cache
-from Backend.misc.helperFunctions import defaultdictify
+from Backend.misc.helperFunctions import DefaultDict
 from Backend.networking.bungieApi import BungieApi
 from Backend.networking.bungieRoutes import manifest_route
 from Backend.networking.elevatorApi import ElevatorApi
@@ -34,7 +34,7 @@ class DestinyManifest:
             db=self.db, i_understand_what_im_doing_and_that_setting_this_to_true_might_break_stuff=True
         )
 
-    async def update(self):
+    async def update(self):  # has test
         """Checks the local manifests versions and updates the local copy should it have changed"""
 
         # get the manifest
@@ -55,7 +55,7 @@ class DestinyManifest:
 
                     # get new data and save values as defaultdict
                     data = await self.api.get(f"https://www.bungie.net{url}")
-                    content = defaultdictify(data.content)
+                    content = DefaultDict(data.content)
 
                     # save data to bulk insert later
                     to_insert = []
@@ -63,18 +63,18 @@ class DestinyManifest:
                         to_insert.append(
                             DestinyActivityDefinition(
                                 reference_id=int(reference_id),
-                                description=values["displayProperties"]["description"],
-                                name=values["displayProperties"]["name"],
-                                activity_level=values["activityLevel"] if "activityLevel" in values else 0,
-                                activity_light_level=values["activityLightLevel"],
-                                destination_hash=values["destinationHash"],
-                                place_hash=values["placeHash"],
-                                activity_type_hash=values["activityTypeHash"],
-                                is_pvp=values["isPvP"],
-                                direct_activity_mode_hash=values["directActivityModeHash"],
-                                direct_activity_mode_type=values["directActivityModeType"],
-                                activity_mode_hashes=values["activityModeHashes"],
-                                activity_mode_types=values["activityModeTypes"],
+                                description=values.get("displayProperties", "description"),
+                                name=values.get("displayProperties", "name"),
+                                activity_level=values.get("activityLevel"),
+                                activity_light_level=values.get("activityLightLevel"),
+                                destination_hash=values.get("destinationHash"),
+                                place_hash=values.get("placeHash"),
+                                activity_type_hash=values.get("activityTypeHash"),
+                                is_pvp=values.get("isPvP"),
+                                direct_activity_mode_hash=values.get("directActivityModeHash"),
+                                direct_activity_mode_type=values.get("directActivityModeType"),
+                                activity_mode_hashes=values.get("activityModeHashes"),
+                                activity_mode_types=values.get("activityModeTypes"),
                             )
                         )
 
@@ -89,7 +89,7 @@ class DestinyManifest:
 
                     # get new data and save values as defaultdict
                     data = await self.api.get(f"https://www.bungie.net{url}")
-                    content = defaultdictify(data.content)
+                    content = DefaultDict(data.content)
 
                     # save data to bulk insert later
                     to_insert = []
@@ -97,8 +97,8 @@ class DestinyManifest:
                         to_insert.append(
                             DestinyActivityTypeDefinition(
                                 reference_id=int(reference_id),
-                                description=values["displayProperties"]["description"],
-                                name=values["displayProperties"]["name"],
+                                description=values.get("displayProperties", "description"),
+                                name=values.get("displayProperties", "name"),
                             )
                         )
 
@@ -113,7 +113,7 @@ class DestinyManifest:
 
                     # get new data and save values as defaultdict
                     data = await self.api.get(f"https://www.bungie.net{url}")
-                    content = defaultdictify(data.content)
+                    content = DefaultDict(data.content)
 
                     # save data to bulk insert later
                     to_insert = []
@@ -121,15 +121,15 @@ class DestinyManifest:
                         to_insert.append(
                             DestinyActivityModeDefinition(
                                 reference_id=int(reference_id),
-                                parent_hashes=values["parentHashes"],
-                                mode_type=values["modeType"],
-                                description=values["displayProperties"]["description"],
-                                name=values["displayProperties"]["name"],
-                                activity_mode_category=values["activityModeCategory"],
-                                is_team_based=values["isTeamBased"],
-                                friendly_name=values["friendlyName"],
-                                display=values["display"],
-                                redacted=values["redacted"],
+                                parent_hashes=values.get("parentHashes"),
+                                mode_type=values.get("modeType"),
+                                description=values.get("displayProperties", "description"),
+                                name=values.get("displayProperties", "name"),
+                                activity_mode_category=values.get("activityModeCategory"),
+                                is_team_based=values.get("isTeamBased"),
+                                friendly_name=values.get("friendlyName"),
+                                display=values.get("display"),
+                                redacted=values.get("redacted"),
                             )
                         )
 
@@ -144,7 +144,7 @@ class DestinyManifest:
 
                     # get new data and save values as defaultdict
                     data = await self.api.get(f"https://www.bungie.net{url}")
-                    content = defaultdictify(data.content)
+                    content = DefaultDict(data.content)
 
                     # save data to bulk insert later
                     to_insert = []
@@ -152,11 +152,11 @@ class DestinyManifest:
                         to_insert.append(
                             DestinyCollectibleDefinition(
                                 reference_id=int(reference_id),
-                                description=values["displayProperties"]["description"],
-                                name=values["displayProperties"]["name"],
-                                source_hash=values["sourceHash"],
-                                item_hash=values["itemHash"],
-                                parent_node_hashes=values["parentNodeHashes"],
+                                description=values.get("displayProperties", "description"),
+                                name=values.get("displayProperties", "name"),
+                                source_hash=values.get("sourceHash"),
+                                item_hash=values.get("itemHash"),
+                                parent_node_hashes=values.get("parentNodeHashes"),
                             )
                         )
 
@@ -171,7 +171,7 @@ class DestinyManifest:
 
                     # get new data and save values as defaultdict
                     data = await self.api.get(f"https://www.bungie.net{url}")
-                    content = defaultdictify(data.content)
+                    content = DefaultDict(data.content)
 
                     # save data to bulk insert later
                     to_insert = []
@@ -179,18 +179,18 @@ class DestinyManifest:
                         to_insert.append(
                             DestinyInventoryItemDefinition(
                                 reference_id=int(reference_id),
-                                description=values["displayProperties"]["description"],
-                                name=values["displayProperties"]["name"],
-                                flavor_text=values["flavorText"],
-                                item_type=values["itemType"],
-                                item_sub_type=values["itemSubType"],
-                                class_type=values["classType"],
-                                bucket_type_hash=values["inventory"]["bucketTypeHash"],
-                                tier_type=values["inventory"]["tierType"],
-                                tier_type_name=values["inventory"]["tierTypeName"],
-                                equippable=values["equippable"],
-                                default_damage_type=values["defaultDamageType"],
-                                ammo_type=values["equippingBlock"]["ammoType"],
+                                description=values.get("displayProperties", "description"),
+                                name=values.get("displayProperties", "name"),
+                                flavor_text=values.get("flavorText"),
+                                item_type=values.get("itemType"),
+                                item_sub_type=values.get("itemSubType"),
+                                class_type=values.get("classType"),
+                                bucket_type_hash=values.get("inventory", "bucketTypeHash"),
+                                tier_type=values.get("inventory", "tierType"),
+                                tier_type_name=values.get("inventory", "tierTypeName"),
+                                equippable=values.get("equippable"),
+                                default_damage_type=values.get("defaultDamageType"),
+                                ammo_type=values.get("equippingBlock", "ammoType"),
                             )
                         )
 
@@ -205,7 +205,7 @@ class DestinyManifest:
 
                     # get new data and save values as defaultdict
                     data = await self.api.get(f"https://www.bungie.net{url}")
-                    content = defaultdictify(data.content)
+                    content = DefaultDict(data.content)
 
                     # save data to bulk insert later
                     to_insert = []
@@ -213,13 +213,13 @@ class DestinyManifest:
                         to_insert.append(
                             DestinyRecordDefinition(
                                 reference_id=int(reference_id),
-                                description=values["displayProperties"]["description"],
-                                name=values["displayProperties"]["name"],
-                                for_title_gilding=values["forTitleGilding"],
-                                title_name=values["titleInfo"]["titlesByGender"]["Male"],
-                                objective_hashes=values["objectiveHashes"],
-                                score_value=values["completionInfo"]["ScoreValue"],
-                                parent_node_hashes=values["parentNodeHashes"],
+                                description=values.get("displayProperties", "description"),
+                                name=values.get("displayProperties", "name"),
+                                for_title_gilding=values.get("forTitleGilding"),
+                                title_name=values.get("titleInfo", "titlesByGender", "Male"),
+                                objective_hashes=values.get("objectiveHashes"),
+                                score_value=values.get("completionInfo", "ScoreValue"),
+                                parent_node_hashes=values.get("parentNodeHashes"),
                             )
                         )
 
@@ -234,7 +234,7 @@ class DestinyManifest:
 
                     # get new data and save values as defaultdict
                     data = await self.api.get(f"https://www.bungie.net{url}")
-                    content = defaultdictify(data.content)
+                    content = DefaultDict(data.content)
 
                     # save data to bulk insert later
                     to_insert = []
@@ -242,11 +242,11 @@ class DestinyManifest:
                         to_insert.append(
                             DestinyInventoryBucketDefinition(
                                 reference_id=int(reference_id),
-                                description=values["displayProperties"]["description"],
-                                name=values["displayProperties"]["name"],
-                                category=values["category"],
-                                item_count=values["itemCount"],
-                                location=values["location"],
+                                description=values.get("displayProperties", "description"),
+                                name=values.get("displayProperties", "name"),
+                                category=values.get("category"),
+                                item_count=values.get("itemCount"),
+                                location=values.get("location"),
                             )
                         )
 
@@ -261,7 +261,7 @@ class DestinyManifest:
 
                     # get new data and save values as defaultdict
                     data = await self.api.get(f"https://www.bungie.net{url}")
-                    content = defaultdictify(data.content)
+                    content = DefaultDict(data.content)
 
                     # save data to bulk insert later
                     to_insert = []
@@ -269,21 +269,21 @@ class DestinyManifest:
                         to_insert.append(
                             DestinyPresentationNodeDefinition(
                                 reference_id=int(reference_id),
-                                description=values["displayProperties"]["description"],
-                                name=values["displayProperties"]["name"],
-                                objective_hash=values["objectiveHash"],
-                                presentation_node_type=values["presentationNodeType"],
+                                description=values.get("displayProperties", "description"),
+                                name=values.get("displayProperties", "name"),
+                                objective_hash=values.get("objectiveHash"),
+                                presentation_node_type=values.get("presentationNodeType"),
                                 children_presentation_node_hash=[
-                                    list(x.values())[0] for x in values["children"]["presentationNodes"]
+                                    list(x.values())[0] for x in values.get("children", "presentationNodes")
                                 ],
                                 children_collectible_hash=[
-                                    list(x.values())[0] for x in values["children"]["collectibles"]
+                                    list(x.values())[0] for x in values.get("children", "collectibles")
                                 ],
-                                children_record_hash=[list(x.values())[0] for x in values["children"]["records"]],
-                                children_metric_hash=[list(x.values())[0] for x in values["children"]["metrics"]],
-                                parent_node_hashes=values["parentNodeHashes"],
-                                index=values["index"],
-                                redacted=values["redacted"],
+                                children_record_hash=[list(x.values())[0] for x in values.get("children", "records")],
+                                children_metric_hash=[list(x.values())[0] for x in values.get("children", "metrics")],
+                                parent_node_hashes=values.get("parentNodeHashes"),
+                                index=values.get("index"),
+                                redacted=values.get("redacted"),
                             )
                         )
 
@@ -298,7 +298,7 @@ class DestinyManifest:
 
                     # get new data and save values as defaultdict
                     data = await self.api.get(f"https://www.bungie.net{url}")
-                    content = defaultdictify(data.content)
+                    content = DefaultDict(data.content)
 
                     # save data to bulk insert later
                     to_insert = []
@@ -306,10 +306,10 @@ class DestinyManifest:
                         to_insert.append(
                             DestinySeasonPassDefinition(
                                 reference_id=int(reference_id),
-                                name=values["displayProperties"]["name"],
-                                description=values["displayProperties"]["description"],
-                                sub_title=values["subtitle"],
-                                redacted=values["redacted"],
+                                name=values.get("displayProperties", "name"),
+                                reward_progression_hash=values.get("rewardProgressionHash"),
+                                prestige_progression_hash=values.get("prestigeProgressionHash"),
+                                index=values.get("index"),
                             )
                         )
 
@@ -324,7 +324,7 @@ class DestinyManifest:
 
                     # get new data and save values as defaultdict
                     data = await self.api.get(f"https://www.bungie.net{url}")
-                    content = defaultdictify(data.content)
+                    content = DefaultDict(data.content)
 
                     # save data to bulk insert later
                     to_insert = []
@@ -332,10 +332,10 @@ class DestinyManifest:
                         to_insert.append(
                             DestinyLoreDefinition(
                                 reference_id=int(reference_id),
-                                name=values["displayProperties"]["name"],
-                                reward_progression_hash=values["rewardProgressionHash"],
-                                prestige_progression_hash=values["prestigeProgressionHash"],
-                                index=values["index"],
+                                name=values.get("displayProperties", "name"),
+                                description=values.get("displayProperties", "description"),
+                                sub_title=values.get("subtitle"),
+                                redacted=values.get("redacted"),
                             )
                         )
 

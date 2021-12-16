@@ -745,5 +745,642 @@
                 }
             }
         }
+    },
+    "https://www.bungie.net/Platform/Destiny2/Manifest/?": {
+        "version": "99687.21.11.15.1900-1-bnet.41786",
+        "jsonWorldComponentContentPaths": {
+            "en": {
+                "DestinyNodeStepSummaryDefinition": "/common/destiny2_content/json/en/DestinyNodeStepSummaryDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyArtDyeChannelDefinition": "/common/destiny2_content/json/en/DestinyArtDyeChannelDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyArtDyeReferenceDefinition": "/common/destiny2_content/json/en/DestinyArtDyeReferenceDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyPlaceDefinition": "/common/destiny2_content/json/en/DestinyPlaceDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyActivityDefinition": "/common/destiny2_content/json/en/DestinyActivityDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyActivityTypeDefinition": "/common/destiny2_content/json/en/DestinyActivityTypeDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyClassDefinition": "/common/destiny2_content/json/en/DestinyClassDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyGenderDefinition": "/common/destiny2_content/json/en/DestinyGenderDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyInventoryBucketDefinition": "/common/destiny2_content/json/en/DestinyInventoryBucketDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyRaceDefinition": "/common/destiny2_content/json/en/DestinyRaceDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyTalentGridDefinition": "/common/destiny2_content/json/en/DestinyTalentGridDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyUnlockDefinition": "/common/destiny2_content/json/en/DestinyUnlockDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyMaterialRequirementSetDefinition": "/common/destiny2_content/json/en/DestinyMaterialRequirementSetDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinySandboxPerkDefinition": "/common/destiny2_content/json/en/DestinySandboxPerkDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyStatGroupDefinition": "/common/destiny2_content/json/en/DestinyStatGroupDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyProgressionMappingDefinition": "/common/destiny2_content/json/en/DestinyProgressionMappingDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyFactionDefinition": "/common/destiny2_content/json/en/DestinyFactionDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyVendorGroupDefinition": "/common/destiny2_content/json/en/DestinyVendorGroupDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyRewardSourceDefinition": "/common/destiny2_content/json/en/DestinyRewardSourceDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyUnlockValueDefinition": "/common/destiny2_content/json/en/DestinyUnlockValueDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyRewardMappingDefinition": "/common/destiny2_content/json/en/DestinyRewardMappingDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyRewardSheetDefinition": "/common/destiny2_content/json/en/DestinyRewardSheetDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyItemCategoryDefinition": "/common/destiny2_content/json/en/DestinyItemCategoryDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyDamageTypeDefinition": "/common/destiny2_content/json/en/DestinyDamageTypeDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyActivityModeDefinition": "/common/destiny2_content/json/en/DestinyActivityModeDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyMedalTierDefinition": "/common/destiny2_content/json/en/DestinyMedalTierDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyAchievementDefinition": "/common/destiny2_content/json/en/DestinyAchievementDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyActivityGraphDefinition": "/common/destiny2_content/json/en/DestinyActivityGraphDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyActivityInteractableDefinition": "/common/destiny2_content/json/en/DestinyActivityInteractableDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyBondDefinition": "/common/destiny2_content/json/en/DestinyBondDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyCharacterCustomizationCategoryDefinition": "/common/destiny2_content/json/en/DestinyCharacterCustomizationCategoryDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyCharacterCustomizationOptionDefinition": "/common/destiny2_content/json/en/DestinyCharacterCustomizationOptionDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyCollectibleDefinition": "/common/destiny2_content/json/en/DestinyCollectibleDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyDestinationDefinition": "/common/destiny2_content/json/en/DestinyDestinationDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyEntitlementOfferDefinition": "/common/destiny2_content/json/en/DestinyEntitlementOfferDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyEquipmentSlotDefinition": "/common/destiny2_content/json/en/DestinyEquipmentSlotDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyStatDefinition": "/common/destiny2_content/json/en/DestinyStatDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyInventoryItemDefinition": "/common/destiny2_content/json/en/DestinyInventoryItemDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyInventoryItemLiteDefinition": "/common/destiny2_content/json/en/DestinyInventoryItemLiteDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyItemTierTypeDefinition": "/common/destiny2_content/json/en/DestinyItemTierTypeDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyLocationDefinition": "/common/destiny2_content/json/en/DestinyLocationDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyLoreDefinition": "/common/destiny2_content/json/en/DestinyLoreDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyMetricDefinition": "/common/destiny2_content/json/en/DestinyMetricDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyObjectiveDefinition": "/common/destiny2_content/json/en/DestinyObjectiveDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyPlatformBucketMappingDefinition": "/common/destiny2_content/json/en/DestinyPlatformBucketMappingDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyPlugSetDefinition": "/common/destiny2_content/json/en/DestinyPlugSetDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyPowerCapDefinition": "/common/destiny2_content/json/en/DestinyPowerCapDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyPresentationNodeDefinition": "/common/destiny2_content/json/en/DestinyPresentationNodeDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyProgressionDefinition": "/common/destiny2_content/json/en/DestinyProgressionDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyProgressionLevelRequirementDefinition": "/common/destiny2_content/json/en/DestinyProgressionLevelRequirementDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyRecordDefinition": "/common/destiny2_content/json/en/DestinyRecordDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyRewardAdjusterPointerDefinition": "/common/destiny2_content/json/en/DestinyRewardAdjusterPointerDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyRewardAdjusterProgressionMapDefinition": "/common/destiny2_content/json/en/DestinyRewardAdjusterProgressionMapDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyRewardItemListDefinition": "/common/destiny2_content/json/en/DestinyRewardItemListDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinySackRewardItemListDefinition": "/common/destiny2_content/json/en/DestinySackRewardItemListDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinySandboxPatternDefinition": "/common/destiny2_content/json/en/DestinySandboxPatternDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinySeasonDefinition": "/common/destiny2_content/json/en/DestinySeasonDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinySeasonPassDefinition": "/common/destiny2_content/json/en/DestinySeasonPassDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinySocketCategoryDefinition": "/common/destiny2_content/json/en/DestinySocketCategoryDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinySocketTypeDefinition": "/common/destiny2_content/json/en/DestinySocketTypeDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyTraitDefinition": "/common/destiny2_content/json/en/DestinyTraitDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyTraitCategoryDefinition": "/common/destiny2_content/json/en/DestinyTraitCategoryDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyUnlockCountMappingDefinition": "/common/destiny2_content/json/en/DestinyUnlockCountMappingDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyUnlockEventDefinition": "/common/destiny2_content/json/en/DestinyUnlockEventDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyUnlockExpressionMappingDefinition": "/common/destiny2_content/json/en/DestinyUnlockExpressionMappingDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyVendorDefinition": "/common/destiny2_content/json/en/DestinyVendorDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyMilestoneDefinition": "/common/destiny2_content/json/en/DestinyMilestoneDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyActivityModifierDefinition": "/common/destiny2_content/json/en/DestinyActivityModifierDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyReportReasonCategoryDefinition": "/common/destiny2_content/json/en/DestinyReportReasonCategoryDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyArtifactDefinition": "/common/destiny2_content/json/en/DestinyArtifactDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyBreakerTypeDefinition": "/common/destiny2_content/json/en/DestinyBreakerTypeDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyChecklistDefinition": "/common/destiny2_content/json/en/DestinyChecklistDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json",
+                "DestinyEnergyTypeDefinition": "/common/destiny2_content/json/en/DestinyEnergyTypeDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json"
+            }
+        }
+    },
+    "https://www.bungie.net/common/destiny2_content/json/en/DestinyActivityDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json?": {
+        "1337": {
+            "displayProperties": {
+                "description": "Enter the realm of the Nine and ask the question: \"What is the nature of the Darkness?\"",
+                "name": "Prophecy",
+                "icon": "/img/misc/missing_icon_d2.png",
+                "hasIcon": false
+            },
+            "originalDisplayProperties": {
+                "description": "Enter the realm of the Nine and ask the question: \"What is the nature of the Darkness?\"",
+                "name": "Prophecy",
+                "icon": "/img/misc/missing_icon_d2.png",
+                "hasIcon": false
+            },
+            "releaseIcon": "/img/misc/missing_icon_d2.png",
+            "releaseTime": 0,
+            "completionUnlockHash": 0,
+            "activityLightLevel": 1040,
+            "destinationHash": 1553550479,
+            "placeHash": 3747705955,
+            "activityTypeHash": 2043403989,
+            "tier": -1,
+            "pgcrImage": "/img/theme/destiny/bgs/pgcrs/placeholder.jpg",
+            "rewards": [],
+            "modifiers": [],
+            "isPlaylist": false,
+            "challenges": [],
+            "optionalUnlockStrings": [],
+            "inheritFromFreeRoam": false,
+            "suppressOtherRewards": false,
+            "playlistItems": [],
+            "matchmaking": {
+                "isMatchmade": false,
+                "minParty": 1,
+                "maxParty": 3,
+                "maxPlayers": 3,
+                "requiresGuardianOath": false
+            },
+            "isPvP": false,
+            "insertionPoints": [],
+            "activityLocationMappings": [],
+            "hash": 12345,
+            "index": 308,
+            "redacted": false,
+            "blacklisted": false
+        }
+    },
+    "https://www.bungie.net/common/destiny2_content/json/en/DestinyActivityTypeDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json?": {
+        "2043403989": {
+            "displayProperties": {
+                "description": "Form a fireteam of six and brave the strange and powerful realms of our enemies.",
+                "name": "Raid",
+                "icon": "/common/destiny2_content/icons/8b1bfd1c1ce1cab51d23c78235a6e067.png",
+                "hasIcon": true
+            },
+            "hash": 2043403989,
+            "index": 7,
+            "redacted": false,
+            "blacklisted": false
+        }
+    },
+    "https://www.bungie.net/common/destiny2_content/json/en/DestinyActivityModeDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json?": {
+        "2043403989": {
+            "displayProperties": {
+                "description": "All of your Raid stats rolled into one.",
+                "name": "Raid",
+                "icon": "/common/destiny2_content/icons/DestinyActivityModeDefinition_bfe80e3dafe6686a9dc42df0606bdc9b.png",
+                "hasIcon": true
+            },
+            "pgcrImage": "/img/theme/destiny/bgs/stats/banner_raid_1.jpg",
+            "modeType": 4,
+            "activityModeCategory": 1,
+            "isTeamBased": false,
+            "tier": 0,
+            "isAggregateMode": false,
+            "parentHashes": [
+                1164760493
+            ],
+            "friendlyName": "raid",
+            "supportsFeedFiltering": false,
+            "display": true,
+            "order": 2000,
+            "hash": 2043403989,
+            "index": 7,
+            "redacted": false,
+            "blacklisted": false
+        }
+    },
+    "https://www.bungie.net/common/destiny2_content/json/en/DestinyCollectibleDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json?": {
+        "1": {
+            "displayProperties": {
+                "description": "",
+                "name": "Earned Collectible",
+                "icon": "/common/destiny2_content/icons/742a58e6b9332d61bf1311616ec2a497.jpg",
+                "hasIcon": true
+            },
+            "scope": 1,
+            "sourceString": "Source: Complete Crucible matches and earn rank-up packages from Lord Shaxx.",
+            "sourceHash": 897576623,
+            "itemHash": 2094233929,
+            "acquisitionInfo": {
+                "acquireMaterialRequirementHash": 983547049,
+                "runOnlyAcquisitionRewardSite": false
+            },
+            "stateInfo": {
+                "requirements": {
+                    "entitlementUnavailableMessage": ""
+                }
+            },
+            "presentationNodeType": 2,
+            "traitIds": [],
+            "traitHashes": [],
+            "parentNodeHashes": [
+                1633867910
+            ],
+            "hash": 1,
+            "index": 0,
+            "redacted": false,
+            "blacklisted": false
+        },
+        "2": {
+            "displayProperties": {
+                "description": "",
+                "name": "Not Earned Collectible",
+                "icon": "/common/destiny2_content/icons/d6b0ad1beb2269a181e351039c2b296d.jpg",
+                "hasIcon": true
+            },
+            "scope": 1,
+            "sourceString": "Source: Complete Crucible matches and earn rank-up packages from Lord Shaxx.",
+            "sourceHash": 897576623,
+            "itemHash": 3797729472,
+            "acquisitionInfo": {
+                "acquireMaterialRequirementHash": 983547049,
+                "runOnlyAcquisitionRewardSite": false
+            },
+            "stateInfo": {
+                "requirements": {
+                    "entitlementUnavailableMessage": ""
+                }
+            },
+            "presentationNodeType": 2,
+            "traitIds": [],
+            "traitHashes": [],
+            "parentNodeHashes": [
+                1633867910
+            ],
+            "hash": 2,
+            "index": 1,
+            "redacted": false,
+            "blacklisted": false
+        }
+    },
+    "https://www.bungie.net/common/destiny2_content/json/en/DestinyInventoryItemDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json?": {
+        "2899766705": {
+            "displayProperties": {
+                "description": "",
+                "name": "Gauntlets",
+                "icon": "/common/destiny2_content/icons/43632a486e585efb1497a051833dbe4f.jpg",
+                "hasIcon": true
+            },
+            "tooltipNotifications": [
+            ],
+            "backgroundColor": {
+                "colorHash": 0,
+                "red": 0,
+                "green": 0,
+                "blue": 0,
+                "alpha": 0
+            },
+            "screenshot": "/common/destiny2_content/screenshots/2899766705.jpg",
+            "itemTypeDisplayName": "Gauntlets",
+            "flavorText": "",
+            "uiItemDisplayStyle": "",
+            "itemTypeAndTierDisplayName": "Common Gauntlets",
+            "displaySource": "",
+            "action": {
+                "verbName": "Dismantle",
+                "verbDescription": "",
+                "isPositive": false,
+                "requiredCooldownSeconds": 0,
+                "requiredItems": [
+                ],
+                "progressionRewards": [
+                ],
+                "actionTypeLabel": "shard",
+                "rewardSheetHash": 0,
+                "rewardItemHash": 0,
+                "rewardSiteHash": 0,
+                "requiredCooldownHash": 0,
+                "deleteOnAction": true,
+                "consumeEntireStack": false,
+                "useOnAcquire": false
+            },
+            "inventory": {
+                "maxStackSize": 1,
+                "bucketTypeHash": 3551918588,
+                "recoveryBucketTypeHash": 0,
+                "tierTypeHash": 3340296461,
+                "isInstanceItem": true,
+                "nonTransferrableOriginal": false,
+                "tierTypeName": "Common",
+                "tierType": 2,
+                "expirationTooltip": "",
+                "expiredInActivityMessage": "",
+                "expiredInOrbitMessage": "",
+                "suppressExpirationWhenObjectivesComplete": true
+            },
+            "stats": {
+                "disablePrimaryStatDisplay": false,
+                "statGroupHash": 548191128,
+                "stats": {
+                    "3897883278": {
+                        "statHash": 3897883278,
+                        "value": 0,
+                        "minimum": 0,
+                        "maximum": 0,
+                        "displayMaximum": 42
+                    },
+                    "1935470627": {
+                        "statHash": 1935470627,
+                        "value": 0,
+                        "minimum": 0,
+                        "maximum": 0,
+                        "displayMaximum": 42
+                    },
+                    "1885944937": {
+                        "statHash": 1885944937,
+                        "value": 10,
+                        "minimum": 0,
+                        "maximum": 0,
+                        "displayMaximum": 42
+                    },
+                    "2996146975": {
+                        "statHash": 2996146975,
+                        "value": 1,
+                        "minimum": 0,
+                        "maximum": 0,
+                        "displayMaximum": 42
+                    }
+                },
+                "hasDisplayableStats": true,
+                "primaryBaseStatHash": 3897883278
+            },
+            "equippingBlock": {
+                "uniqueLabelHash": 0,
+                "equipmentSlotTypeHash": 3551918588,
+                "attributes": 0,
+                "equippingSoundHash": 0,
+                "hornSoundHash": 0,
+                "ammoType": 0,
+                "displayStrings": [
+                    ""
+                ]
+            },
+            "translationBlock": {
+                "weaponPatternHash": 0,
+                "defaultDyes": [
+                ],
+                "lockedDyes": [
+                    {
+                        "channelHash": 662199250,
+                        "dyeHash": 747371980
+                    },
+                    {
+                        "channelHash": 1367384683,
+                        "dyeHash": 1496392761
+                    },
+                    {
+                        "channelHash": 218592586,
+                        "dyeHash": 693816112
+                    }
+                ],
+                "customDyes": [
+                ],
+                "arrangements": [
+                    {
+                        "classHash": 0,
+                        "artArrangementHash": 2899766705
+                    }
+                ],
+                "hasGeometry": true
+            },
+            "quality": {
+                "itemLevels": [
+                ],
+                "qualityLevel": 0,
+                "infusionCategoryName": "0",
+                "infusionCategoryHash": 0,
+                "infusionCategoryHashes": [
+                ],
+                "progressionLevelRequirementHash": 0,
+                "currentVersion": 0,
+                "versions": [
+                    {
+                        "powerCapHash": 1031089514
+                    }
+                ],
+                "displayVersionWatermarkIcons": [
+                    ""
+                ]
+            },
+            "acquireRewardSiteHash": 0,
+            "acquireUnlockHash": 0,
+            "talentGrid": {
+                "talentGridHash": 521135891,
+                "itemDetailString": "Details",
+                "hudDamageType": 1
+            },
+            "investmentStats": [
+                {
+                    "statTypeHash": 3897883278,
+                    "value": 0,
+                    "isConditionallyActive": false
+                },
+                {
+                    "statTypeHash": 1935470627,
+                    "value": 0,
+                    "isConditionallyActive": false
+                },
+                {
+                    "statTypeHash": 1885944937,
+                    "value": 10,
+                    "isConditionallyActive": false
+                },
+                {
+                    "statTypeHash": 2996146975,
+                    "value": 1,
+                    "isConditionallyActive": false
+                }
+            ],
+            "perks": [],
+            "allowActions": true,
+            "doesPostmasterPullHaveSideEffects": false,
+            "nonTransferrable": false,
+            "itemCategoryHashes": [
+                23,
+                46,
+                20
+            ],
+            "specialItemType": 0,
+            "itemType": 2,
+            "itemSubType": 27,
+            "classType": 1,
+            "breakerType": 0,
+            "equippable": true,
+            "defaultDamageType": 0,
+            "isWrapper": false,
+            "traitIds": [
+                "armor_type.arms",
+                "item_type.armor"
+            ],
+            "traitHashes": [
+                2839453028,
+                1734090384
+            ],
+            "hash": 2899766705,
+            "index": 0,
+            "redacted": false,
+            "blacklisted": false
+        }
+    },
+    "https://www.bungie.net/common/destiny2_content/json/en/DestinyRecordDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json?": {
+        "11": {
+            "displayProperties": {
+                "description": "Trophies from conquest in the Crucible.",
+                "name": "Gotten Record",
+                "icon": "/common/destiny2_content/icons/35f0ec59bb17b563d61602831383ef06.png",
+                "hasIcon": true
+            },
+            "scope": 0,
+            "objectiveHashes": [
+                1192806779
+            ],
+            "recordValueStyle": 0,
+            "forTitleGilding": false,
+            "titleInfo": {
+                "hasTitle": false
+            },
+            "completionInfo": {
+                "partialCompletionObjectiveCountThreshold": 0,
+                "ScoreValue": 0,
+                "shouldFireToast": true,
+                "toastStyle": 3
+            },
+            "stateInfo": {
+                "featuredPriority": 2147483647,
+                "completeUnlockHash": 0,
+                "claimedUnlockHash": 0,
+                "completedCounterUnlockValueHash": 0
+            },
+            "requirements": {
+                "entitlementUnavailableMessage": ""
+            },
+            "expirationInfo": {
+                "hasExpiration": false,
+                "description": ""
+            },
+            "intervalInfo": {
+                "intervalObjectives": [],
+                "intervalRewards": [],
+                "originalObjectiveArrayInsertionIndex": 0,
+                "isIntervalVersionedFromNormalRecord": false
+            },
+            "rewardItems": [],
+            "anyRewardHasConditionalVisibility": false,
+            "presentationNodeType": 1,
+            "traitIds": [],
+            "traitHashes": [],
+            "parentNodeHashes": [],
+            "hash": 1618576679,
+            "index": 0,
+            "redacted": false,
+            "blacklisted": false
+        },
+        "12": {
+            "displayProperties": {
+                "description": "Trophies from the battlefields of the Red War.",
+                "name": "Not Gotten Record",
+                "icon": "/common/destiny2_content/icons/741c16d25f5ebd956ae23f5dace90247.png",
+                "hasIcon": true
+            },
+            "scope": 0,
+            "objectiveHashes": [
+                1835016018
+            ],
+            "recordValueStyle": 0,
+            "forTitleGilding": false,
+            "titleInfo": {
+                "hasTitle": false
+            },
+            "completionInfo": {
+                "partialCompletionObjectiveCountThreshold": 0,
+                "ScoreValue": 0,
+                "shouldFireToast": true,
+                "toastStyle": 3
+            },
+            "stateInfo": {
+                "featuredPriority": 2147483647,
+                "completeUnlockHash": 0,
+                "claimedUnlockHash": 0,
+                "completedCounterUnlockValueHash": 0
+            },
+            "requirements": {
+                "entitlementUnavailableMessage": ""
+            },
+            "expirationInfo": {
+                "hasExpiration": false,
+                "description": ""
+            },
+            "intervalInfo": {
+                "intervalObjectives": [],
+                "intervalRewards": [],
+                "originalObjectiveArrayInsertionIndex": 0,
+                "isIntervalVersionedFromNormalRecord": false
+            },
+            "rewardItems": [],
+            "anyRewardHasConditionalVisibility": false,
+            "presentationNodeType": 1,
+            "traitIds": [],
+            "traitHashes": [],
+            "parentNodeHashes": [],
+            "hash": 12,
+            "index": 1,
+            "redacted": false,
+            "blacklisted": false
+        }
+    },
+    "https://www.bungie.net/common/destiny2_content/json/en/DestinyInventoryBucketDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json?": {
+        "1498876634": {
+            "displayProperties": {
+                "description": "Weapons that deal kinetic damage",
+                "name": "Kinetic Weapons",
+                "hasIcon": false
+            },
+            "scope": 0,
+            "category": 3,
+            "bucketOrder": 20,
+            "itemCount": 10,
+            "location": 1,
+            "hasTransferDestination": true,
+            "enabled": true,
+            "fifo": false,
+            "hash": 1498876634,
+            "index": 0,
+            "redacted": false,
+            "blacklisted": false
+        }
+    },
+    "https://www.bungie.net/common/destiny2_content/json/en/DestinyPresentationNodeDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json?": {
+        "3790247699": {
+            "displayProperties": {
+                "description": "",
+                "name": "Items",
+                "hasIcon": false
+            },
+            "nodeType": 1,
+            "scope": 1,
+            "objectiveHash": 3395152237,
+            "children": {
+                "presentationNodes": [
+                    {
+                        "presentationNodeHash": 1068557105
+                    },
+                    {
+                        "presentationNodeHash": 1528930164
+                    }
+                ],
+                "collectibles": [],
+                "records": [],
+                "metrics": []
+            },
+            "displayStyle": 0,
+            "screenStyle": 0,
+            "requirements": {
+                "entitlementUnavailableMessage": ""
+            },
+            "disableChildSubscreenNavigation": false,
+            "categoryScoreUnlockValueHash": 0,
+            "maxCategoryRecordScore": 0,
+            "presentationNodeType": 1,
+            "traitIds": [],
+            "traitHashes": [],
+            "parentNodeHashes": [],
+            "hash": 3790247699,
+            "index": 0,
+            "redacted": false,
+            "blacklisted": false
+        }
+    },
+    "https://www.bungie.net/common/destiny2_content/json/en/DestinySeasonPassDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json?": {
+        "155514181": {
+            "displayProperties": {
+                "name": "Season of the Undying",
+                "hasIcon": false
+            },
+            "rewardProgressionHash": 1628407317,
+            "prestigeProgressionHash": 3184735011,
+            "hash": 155514181,
+            "index": 0,
+            "redacted": false,
+            "blacklisted": false
+        }
+    },
+    "https://www.bungie.net/common/destiny2_content/json/en/DestinyLoreDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json?": {
+        "31": {
+            "displayProperties": {
+                "description": "An iris unfurls. Our gaze caught. Cortex clutched. Suspended.\n\nA million lights bend inward. Pulled on a wave of enigmatic tone.\n\nA million lights rip inward. Fall. Link. Scream. Cycle. Bleed. Blend. Cycle.\n\nOne light alone. Pulled. Discordant. Suspended in the Endless.\n\nScreams.\n\nAn iris unfurls.\n\nRun. Run. Run.\n\nAn iris unfurls.\n\nRun. Run.\n\nAn iris unfurls.\n\nRun.\n\nBlink. An iris folds in.",
+                "name": "The Gate Lord's Eye",
+                "hasIcon": false
+            },
+            "subtitle": "It looks through you, toward the infinite.",
+            "hash": 31,
+            "index": 0,
+            "redacted": false,
+            "blacklisted": false
+        }
     }
 }

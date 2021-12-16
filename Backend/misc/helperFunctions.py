@@ -1,5 +1,8 @@
+from __future__ import annotations
+
+import dataclasses
 import datetime
-from collections import defaultdict
+from typing import Any, Generator, Optional
 
 import pytz
 
@@ -28,15 +31,27 @@ def add_utc_tz(obj: datetime.datetime) -> datetime.datetime:
     return pytz.utc.localize(obj)
 
 
-def defaultdictify(d: dict):
-    """Converts a dictionary to a defaultdict. Returns a defaultdict"""
+@dataclasses.dataclass
+class DefaultDict:
+    """A dictionary that supports nested .get() calls which return None if the key does not exist"""
 
-    if isinstance(d, dict):
-        return defaultdict(lambda: None, {k: defaultdictify(v) for k, v in d.items()})
-    elif isinstance(d, list):
-        return [defaultdictify(e) for e in d]
-    else:
-        return d
+    _dict: dict
+
+    def get(self, *keys: Any) -> Optional[Any]:
+        """Get the key value or None"""
+
+        depth = self._dict
+        for key in keys:
+            if key not in depth:
+                return None
+            depth = depth[key]
+        return depth
+
+    def items(self) -> Generator[tuple[str, DefaultDict]]:
+        """Iterate over the items"""
+
+        for key, value in self._dict.items():
+            yield key, DefaultDict(value)
 
 
 def convert_kwargs_into_dict(**kwargs) -> dict:

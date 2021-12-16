@@ -336,7 +336,7 @@ class DestinyLoreDefinition(Base):
     reference_id = Column(BigInteger, nullable=False, primary_key=True)
     name = Column(Text, nullable=False)
     description = Column(Text, nullable=False)
-    sub_title = Column(Text, nullable=False)
+    sub_title = Column(Text, nullable=True)
     redacted = Column(Boolean, nullable=False)
 
 

@@ -55,7 +55,7 @@ async def has_triumph(guild_id: int, discord_id: int, triumph_id: int, db: Async
     return await profile.has_triumph(triumph_hash=triumph_id)
 
 
-@router.get("/metric/{metric_id}", response_model=ValueModel)
+@router.get("/metric/{metric_id}", response_model=ValueModel)  # has test
 async def metric(guild_id: int, discord_id: int, metric_id: int, db: AsyncSession = Depends(get_db_session)):
     """Return the metric value"""
 
@@ -68,12 +68,11 @@ async def metric(guild_id: int, discord_id: int, metric_id: int, db: AsyncSessio
     return ValueModel(value=value)
 
 
-@router.get("/solos", response_model=DestinyLowMansModel)
+@router.get("/solos", response_model=DestinyLowMansModel)  # has test
 async def destiny_solos(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Return the destiny solos"""
 
     user = await discord_users.get_profile_from_discord_id(db, discord_id)
-    profile = DestinyProfile(db=db, user=user)
     activities = DestinyActivities(db=db, user=user)
 
     # get the solo data

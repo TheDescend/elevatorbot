@@ -35,7 +35,7 @@ class CRUDManifest(CRUDBase):
         return await versions.get(db=db, name="Manifest")
 
     @staticmethod
-    async def upsert_version(db: AsyncSession, version: str) -> Versions:
+    async def upsert_version(db: AsyncSession, version: str) -> Versions:  # has test
         """Upsert the current version"""
 
         return await versions.upsert(db=db, name="Manifest", version=version)
@@ -55,7 +55,7 @@ class CRUDManifest(CRUDBase):
         # delete table
         await self._delete_all(db=db)
 
-    async def insert_definition(self, db: AsyncSession, db_model: ModelType, to_insert: list[ModelType]):
+    async def insert_definition(self, db: AsyncSession, db_model: ModelType, to_insert: list[ModelType]):  # has test
         """Insert the data into the table"""
 
         # set table to the correct one
@@ -151,12 +151,11 @@ class CRUDManifest(CRUDBase):
         result.insert(0, all_grandmaster)
         return result
 
-    async def get_challenging_solo_activities(self, db: AsyncSession) -> list[DestinyActivityModel]:
+    async def get_challenging_solo_activities(self, db: AsyncSession) -> list[DestinyActivityModel]:  # has test
         """Get activities that are difficult to solo"""
 
         # check cache
         if not cache.interesting_solos:
-            # todo pirate dungeon name
             interesting_solos = [
                 "Shattered Throne",
                 "Pit of Heresy",
@@ -167,6 +166,7 @@ class CRUDManifest(CRUDBase):
                 "The Whisper",
                 "Zero Hour",
                 "Grandmaster Nightfalls",
+                "Grasp of Avarice",
             ]
 
             # loop through each of the entries

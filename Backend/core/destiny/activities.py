@@ -379,7 +379,7 @@ class DestinyActivities:
 
         return self._full_character_list
 
-    async def get_solos(self) -> DestinyLowMansModel:
+    async def get_solos(self) -> DestinyLowMansModel:  # has test
         """Return the destiny solos"""
 
         interesting_solos = await destiny_manifest.get_challenging_solo_activities(db=self.db)

@@ -5,6 +5,7 @@ from typing import Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from Backend.core.errors import CustomException
 from Backend.crud import crud_activities, destiny_manifest, discord_users
 from Backend.crud.destiny.collectibles import collectibles
 from Backend.crud.destiny.items import destiny_items
@@ -461,13 +462,16 @@ class DestinyProfile:
         else:
             return False
 
-    async def get_metric_value(self, metric_hash: str | int) -> int:
+    async def get_metric_value(self, metric_hash: str | int) -> int:  # has test
         """Returns the value of the given metric hash"""
 
         metric_hash = str(metric_hash)
         metrics = await self.get_metrics()
 
-        return metrics[metric_hash]["objectiveProgress"]["progress"]
+        try:
+            return metrics[metric_hash]["objectiveProgress"]["progress"]
+        except KeyError:
+            raise CustomException("BungieDestinyItemNotExist")
 
     async def get_stat_value(
         self,
@@ -691,7 +695,7 @@ class DestinyProfile:
 
         return user_collectibles
 
-    async def get_metrics(self) -> dict:
+    async def get_metrics(self) -> dict:  # has test
         """Populate the metrics and then return them"""
 
         metrics = await self.__get_profile()
