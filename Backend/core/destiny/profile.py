@@ -299,7 +299,9 @@ class DestinyProfile:
 
             if triumph_hash not in cache.triumphs[self.destiny_id]:
                 # check if the last update is older than 10 minutes
-                if self.user.triumphs_last_updated + datetime.timedelta(minutes=10) > get_now_with_tz():
+                if self._triumphs and (
+                    self.user.triumphs_last_updated + datetime.timedelta(minutes=10) > get_now_with_tz()
+                ):
                     sought_triumph = self._triumphs[str(triumph_hash)]
 
                 else:

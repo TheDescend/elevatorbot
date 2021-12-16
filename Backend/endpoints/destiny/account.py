@@ -45,7 +45,7 @@ async def has_collectible(
     return BoolModel(bool=await profile.has_collectible(collectible_hash=collectible_id))
 
 
-@router.get("/triumph/{triumph_id}", response_model=BoolModelRecord)
+@router.get("/triumph/{triumph_id}", response_model=BoolModelRecord)  # has test
 async def has_triumph(guild_id: int, discord_id: int, triumph_id: int, db: AsyncSession = Depends(get_db_session)):
     """Return is the triumph is unlocked"""
 
