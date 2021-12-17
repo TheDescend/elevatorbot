@@ -2,6 +2,7 @@ from datetime import timedelta
 
 import aiohttp
 import aiohttp_client_cache
+import orjson
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.errors import CustomException
@@ -64,7 +65,9 @@ class BungieApi(NetworkBase):
                 return await self.get_with_token(route=route, params=params, use_cache=use_cache)
 
         try:
-            async with aiohttp_client_cache.CachedSession(cache=self.cache) as session:
+            async with aiohttp_client_cache.CachedSession(
+                cache=self.cache, json_serialize=lambda x: orjson.dumps(x).decode()
+            ) as session:
                 # use cache for the responses
                 if use_cache:
                     return await self._request(

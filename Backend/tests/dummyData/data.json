@@ -596,7 +596,7 @@
                     "genderHash": 3111576190,
                     "classHash": 2271682572,
                     "raceType": 0,
-                    "classType": 2,
+                    "classType": 1,
                     "genderType": 0,
                     "emblemPath": "/common/destiny2_content/icons/5f3614bd64c0668febb1ff1ae3d1632b.jpg",
                     "emblemBackgroundPath": "/common/destiny2_content/icons/c612ec23a7f3b57042cb988788ef37a8.jpg",
@@ -739,6 +739,104 @@
                             }
                         ],
                         "intervalsRedeemedCount": 0
+                    },
+                    "206322164": {
+                        "state": 0,
+                        "objectives": [
+                            {
+                                "objectiveHash": 1289597760,
+                                "progress": 100,
+                                "completionValue": 100,
+                                "complete": true,
+                                "visible": true
+                            }
+                        ],
+                        "intervalsRedeemedCount": 0
+                    },
+                    "206322165": {
+                        "state": 12,
+                        "objectives": [
+                            {
+                                "objectiveHash": 1289597760,
+                                "progress": 2,
+                                "completionValue": 2,
+                                "complete": true,
+                                "visible": true
+                            },
+                            {
+                                "objectiveHash": 698203561,
+                                "progress": 1,
+                                "completionValue": 2,
+                                "complete": false,
+                                "visible": true
+                            }
+                        ],
+                        "intervalsRedeemedCount": 0
+                    },
+                    "2467484432": {
+                        "state": 0,
+                        "objectives": [
+                            {
+                                "objectiveHash": 1289597760,
+                                "progress": 100,
+                                "completionValue": 100,
+                                "complete": true,
+                                "visible": true
+                            }
+                        ],
+                        "intervalsRedeemedCount": 0
+                    },
+                    "24674432": {
+                        "state": 0,
+                        "objectives": [
+                            {
+                                "objectiveHash": 1289597760,
+                                "progress": 100,
+                                "completionValue": 100,
+                                "complete": true,
+                                "visible": true
+                            }
+                        ],
+                        "intervalsRedeemedCount": 0
+                    },
+                    "2467484433": {
+                        "state": 0,
+                        "objectives": [
+                            {
+                                "objectiveHash": 1289597760,
+                                "progress": 100,
+                                "completionValue": 100,
+                                "complete": true,
+                                "visible": true
+                            }
+                        ],
+                        "intervalsRedeemedCount": 0
+                    },
+                    "2259051223": {
+                        "state": 12,
+                        "objectives": [
+                            {
+                                "objectiveHash": 1289597760,
+                                "progress": 0,
+                                "completionValue": 100,
+                                "complete": false,
+                                "visible": true
+                            }
+                        ],
+                        "intervalsRedeemedCount": 0
+                    },
+                    "24674433": {
+                        "state": 12,
+                        "objectives": [
+                            {
+                                "objectiveHash": 1289597760,
+                                "progress": 0,
+                                "completionValue": 100,
+                                "complete": false,
+                                "visible": true
+                            }
+                        ],
+                        "intervalsRedeemedCount": 0
                     }
                 },
                 "recordCategoriesRootNodeHash": 1866538467,
@@ -846,15 +944,405 @@
                         "dismantlePermission": 0,
                         "isWrapper": false,
                         "tooltipNotificationIndexes": []
+                    },
+                    {
+                        "itemHash": 52,
+                        "itemInstanceId": "152",
+                        "quantity": 1,
+                        "bindStatus": 0,
+                        "location": 2,
+                        "bucketHash": 138197802,
+                        "transferStatus": 0,
+                        "lockable": false,
+                        "state": 0,
+                        "dismantlePermission": 0,
+                        "isWrapper": false,
+                        "tooltipNotificationIndexes": []
+                    },
+                    {
+                        "itemHash": 53,
+                        "itemInstanceId": "153",
+                        "quantity": 1,
+                        "bindStatus": 0,
+                        "location": 2,
+                        "bucketHash": 138197802,
+                        "transferStatus": 0,
+                        "lockable": false,
+                        "state": 0,
+                        "dismantlePermission": 0,
+                        "isWrapper": false,
+                        "tooltipNotificationIndexes": []
+                    },
+                    {
+                        "itemHash": 54,
+                        "itemInstanceId": "154",
+                        "quantity": 1,
+                        "bindStatus": 0,
+                        "location": 2,
+                        "bucketHash": 138197802,
+                        "transferStatus": 0,
+                        "lockable": false,
+                        "state": 0,
+                        "dismantlePermission": 0,
+                        "isWrapper": false,
+                        "tooltipNotificationIndexes": []
+                    },
+                    {
+                        "itemHash": 55,
+                        "itemInstanceId": "155",
+                        "quantity": 1,
+                        "bindStatus": 0,
+                        "location": 2,
+                        "bucketHash": 138197802,
+                        "transferStatus": 0,
+                        "lockable": false,
+                        "state": 0,
+                        "dismantlePermission": 0,
+                        "isWrapper": false,
+                        "tooltipNotificationIndexes": []
+                    },
+                    {
+                        "itemHash": 61,
+                        "itemInstanceId": "161",
+                        "quantity": 1,
+                        "bindStatus": 0,
+                        "location": 2,
+                        "bucketHash": 138197802,
+                        "transferStatus": 0,
+                        "lockable": false,
+                        "state": 0,
+                        "dismantlePermission": 0,
+                        "isWrapper": false,
+                        "tooltipNotificationIndexes": []
+                    },
+                    {
+                        "itemHash": 62,
+                        "itemInstanceId": "162",
+                        "quantity": 1,
+                        "bindStatus": 0,
+                        "location": 2,
+                        "bucketHash": 138197802,
+                        "transferStatus": 0,
+                        "lockable": false,
+                        "state": 0,
+                        "dismantlePermission": 0,
+                        "isWrapper": false,
+                        "tooltipNotificationIndexes": []
+                    },
+                    {
+                        "itemHash": 63,
+                        "itemInstanceId": "163",
+                        "quantity": 1,
+                        "bindStatus": 0,
+                        "location": 2,
+                        "bucketHash": 138197802,
+                        "transferStatus": 0,
+                        "lockable": false,
+                        "state": 0,
+                        "dismantlePermission": 0,
+                        "isWrapper": false,
+                        "tooltipNotificationIndexes": []
+                    },
+                    {
+                        "itemHash": 64,
+                        "itemInstanceId": "165",
+                        "quantity": 1,
+                        "bindStatus": 0,
+                        "location": 2,
+                        "bucketHash": 138197802,
+                        "transferStatus": 0,
+                        "lockable": false,
+                        "state": 0,
+                        "dismantlePermission": 0,
+                        "isWrapper": false,
+                        "tooltipNotificationIndexes": []
                     }
                 ]
             },
             "privacy": 2
+        },
+        "characterInventories": {
+            "data": {
+                "666": {
+                    "items": [
+                        {
+                            "itemHash": 63,
+                            "itemInstanceId": "164",
+                            "quantity": 1,
+                            "bindStatus": 0,
+                            "location": 2,
+                            "bucketHash": 953998645,
+                            "transferStatus": 0,
+                            "lockable": false,
+                            "state": 0,
+                            "dismantlePermission": 0,
+                            "isWrapper": false,
+                            "tooltipNotificationIndexes": []
+                        }
+                    ]
+                }
+            }
+        },
+        "characterEquipment": {
+            "data": {
+                "666": {
+                    "items": [
+                        {
+                            "itemHash": 51,
+                            "itemInstanceId": "151",
+                            "quantity": 1,
+                            "bindStatus": 0,
+                            "location": 2,
+                            "bucketHash": 3448274439,
+                            "transferStatus": 0,
+                            "lockable": false,
+                            "state": 0,
+                            "dismantlePermission": 0,
+                            "isWrapper": false,
+                            "tooltipNotificationIndexes": []
+                        }
+                    ]
+                }
+            }
+        },
+        "itemComponents": {
+            "instances": {
+                "data": {
+                    "151": {
+                        "damageType": 0,
+                        "primaryStat": {
+                            "statHash": 3897883278,
+                            "value": 1000
+                        },
+                        "itemLevel": 133,
+                        "quality": 0,
+                        "isEquipped": false,
+                        "canEquip": false,
+                        "equipRequiredLevel": 50,
+                        "unlockHashesRequiredToEquip": [
+                            2166136261
+                        ],
+                        "cannotEquipReason": 2,
+                        "energy": {
+                            "energyTypeHash": 1819698290,
+                            "energyType": 6,
+                            "energyCapacity": 4,
+                            "energyUsed": 4,
+                            "energyUnused": 0
+                        }
+                    },
+                    "152": {
+                        "damageType": 0,
+                        "primaryStat": {
+                            "statHash": 3897883278,
+                            "value": 1000
+                        },
+                        "itemLevel": 133,
+                        "quality": 0,
+                        "isEquipped": false,
+                        "canEquip": false,
+                        "equipRequiredLevel": 50,
+                        "unlockHashesRequiredToEquip": [
+                            2166136261
+                        ],
+                        "cannotEquipReason": 2,
+                        "energy": {
+                            "energyTypeHash": 1819698290,
+                            "energyType": 6,
+                            "energyCapacity": 4,
+                            "energyUsed": 4,
+                            "energyUnused": 0
+                        }
+                    },
+                    "153": {
+                        "damageType": 0,
+                        "primaryStat": {
+                            "statHash": 3897883278,
+                            "value": 1000
+                        },
+                        "itemLevel": 133,
+                        "quality": 0,
+                        "isEquipped": false,
+                        "canEquip": false,
+                        "equipRequiredLevel": 50,
+                        "unlockHashesRequiredToEquip": [
+                            2166136261
+                        ],
+                        "cannotEquipReason": 2,
+                        "energy": {
+                            "energyTypeHash": 1819698290,
+                            "energyType": 6,
+                            "energyCapacity": 4,
+                            "energyUsed": 4,
+                            "energyUnused": 0
+                        }
+                    },
+                    "154": {
+                        "damageType": 0,
+                        "primaryStat": {
+                            "statHash": 3897883278,
+                            "value": 1000
+                        },
+                        "itemLevel": 133,
+                        "quality": 0,
+                        "isEquipped": false,
+                        "canEquip": false,
+                        "equipRequiredLevel": 50,
+                        "unlockHashesRequiredToEquip": [
+                            2166136261
+                        ],
+                        "cannotEquipReason": 2,
+                        "energy": {
+                            "energyTypeHash": 1819698290,
+                            "energyType": 6,
+                            "energyCapacity": 4,
+                            "energyUsed": 4,
+                            "energyUnused": 0
+                        }
+                    },
+                    "155": {
+                        "damageType": 0,
+                        "primaryStat": {
+                            "statHash": 3897883278,
+                            "value": 1000
+                        },
+                        "itemLevel": 133,
+                        "quality": 0,
+                        "isEquipped": false,
+                        "canEquip": false,
+                        "equipRequiredLevel": 50,
+                        "unlockHashesRequiredToEquip": [
+                            2166136261
+                        ],
+                        "cannotEquipReason": 2,
+                        "energy": {
+                            "energyTypeHash": 1819698290,
+                            "energyType": 6,
+                            "energyCapacity": 4,
+                            "energyUsed": 4,
+                            "energyUnused": 0
+                        }
+                    },
+                    "161": {
+                        "damageType": 4,
+                        "damageTypeHash": 3454344768,
+                        "primaryStat": {
+                            "statHash": 1480404414,
+                            "value": 1000
+                        },
+                        "itemLevel": 133,
+                        "quality": 0,
+                        "isEquipped": true,
+                        "canEquip": true,
+                        "equipRequiredLevel": 50,
+                        "unlockHashesRequiredToEquip": [
+                            2166136261
+                        ],
+                        "cannotEquipReason": 0
+                    },
+                    "162": {
+                        "damageType": 4,
+                        "damageTypeHash": 3454344768,
+                        "primaryStat": {
+                            "statHash": 1480404414,
+                            "value": 1000
+                        },
+                        "itemLevel": 133,
+                        "quality": 0,
+                        "isEquipped": true,
+                        "canEquip": true,
+                        "equipRequiredLevel": 50,
+                        "unlockHashesRequiredToEquip": [
+                            2166136261
+                        ],
+                        "cannotEquipReason": 0
+                    },
+                    "163": {
+                        "damageType": 4,
+                        "damageTypeHash": 3454344768,
+                        "primaryStat": {
+                            "statHash": 1480404414,
+                            "value": 1
+                        },
+                        "itemLevel": 133,
+                        "quality": 0,
+                        "isEquipped": true,
+                        "canEquip": true,
+                        "equipRequiredLevel": 50,
+                        "unlockHashesRequiredToEquip": [
+                            2166136261
+                        ],
+                        "cannotEquipReason": 0
+                    },
+                    "164": {
+                        "damageType": 4,
+                        "damageTypeHash": 3454344768,
+                        "primaryStat": {
+                            "statHash": 1480404414,
+                            "value": 1000
+                        },
+                        "itemLevel": 133,
+                        "quality": 0,
+                        "isEquipped": true,
+                        "canEquip": true,
+                        "equipRequiredLevel": 50,
+                        "unlockHashesRequiredToEquip": [
+                            2166136261
+                        ],
+                        "cannotEquipReason": 0
+                    },
+                    "165": {
+                        "damageType": 4,
+                        "damageTypeHash": 3454344768,
+                        "primaryStat": {
+                            "statHash": 1480404414,
+                            "value": 10000
+                        },
+                        "itemLevel": 133,
+                        "quality": 0,
+                        "isEquipped": true,
+                        "canEquip": true,
+                        "equipRequiredLevel": 50,
+                        "unlockHashesRequiredToEquip": [
+                            2166136261
+                        ],
+                        "cannotEquipReason": 0
+                    }
+                }
+            }
+        },
+        "profileCurrencies": {
+            "data": {
+                "items": [
+                    {
+                        "itemHash": 3159615086,
+                        "quantity": 50,
+                        "bindStatus": 0,
+                        "location": 1,
+                        "bucketHash": 2689798311,
+                        "transferStatus": 2,
+                        "lockable": false,
+                        "state": 0,
+                        "dismantlePermission": 0,
+                        "isWrapper": false,
+                        "tooltipNotificationIndexes": []
+                    },
+                    {
+                        "itemHash": 3159615086,
+                        "quantity": 100,
+                        "bindStatus": 0,
+                        "location": 1,
+                        "bucketHash": 2689798309,
+                        "transferStatus": 2,
+                        "lockable": false,
+                        "state": 0,
+                        "dismantlePermission": 0,
+                        "isWrapper": false,
+                        "tooltipNotificationIndexes": []
+                    }
+                ]
+            }
         }
-
-
-
-
     },
     "https://www.bungie.net/Platform/Destiny2/Manifest/?": {
         "version": "99687.21.11.15.1900-1-bnet.41786",
@@ -1089,46 +1577,22 @@
         }
     },
     "https://www.bungie.net/common/destiny2_content/json/en/DestinyInventoryItemDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json?": {
-        "2899766705": {
+        "41": {
             "displayProperties": {
                 "description": "",
-                "name": "Gauntlets",
+                "name": "Collectible",
                 "icon": "/common/destiny2_content/icons/43632a486e585efb1497a051833dbe4f.jpg",
                 "hasIcon": true
             },
-            "tooltipNotifications": [
-            ],
-            "backgroundColor": {
-                "colorHash": 0,
-                "red": 0,
-                "green": 0,
-                "blue": 0,
-                "alpha": 0
-            },
+            "tooltipNotifications": [],
+            "backgroundColor": {},
             "screenshot": "/common/destiny2_content/screenshots/2899766705.jpg",
             "itemTypeDisplayName": "Gauntlets",
             "flavorText": "",
             "uiItemDisplayStyle": "",
             "itemTypeAndTierDisplayName": "Common Gauntlets",
             "displaySource": "",
-            "action": {
-                "verbName": "Dismantle",
-                "verbDescription": "",
-                "isPositive": false,
-                "requiredCooldownSeconds": 0,
-                "requiredItems": [
-                ],
-                "progressionRewards": [
-                ],
-                "actionTypeLabel": "shard",
-                "rewardSheetHash": 0,
-                "rewardItemHash": 0,
-                "rewardSiteHash": 0,
-                "requiredCooldownHash": 0,
-                "deleteOnAction": true,
-                "consumeEntireStack": false,
-                "useOnAcquire": false
-            },
+            "action": {},
             "inventory": {
                 "maxStackSize": 1,
                 "bucketTypeHash": 3551918588,
@@ -1143,42 +1607,7 @@
                 "expiredInOrbitMessage": "",
                 "suppressExpirationWhenObjectivesComplete": true
             },
-            "stats": {
-                "disablePrimaryStatDisplay": false,
-                "statGroupHash": 548191128,
-                "stats": {
-                    "3897883278": {
-                        "statHash": 3897883278,
-                        "value": 0,
-                        "minimum": 0,
-                        "maximum": 0,
-                        "displayMaximum": 42
-                    },
-                    "1935470627": {
-                        "statHash": 1935470627,
-                        "value": 0,
-                        "minimum": 0,
-                        "maximum": 0,
-                        "displayMaximum": 42
-                    },
-                    "1885944937": {
-                        "statHash": 1885944937,
-                        "value": 10,
-                        "minimum": 0,
-                        "maximum": 0,
-                        "displayMaximum": 42
-                    },
-                    "2996146975": {
-                        "statHash": 2996146975,
-                        "value": 1,
-                        "minimum": 0,
-                        "maximum": 0,
-                        "displayMaximum": 42
-                    }
-                },
-                "hasDisplayableStats": true,
-                "primaryBaseStatHash": 3897883278
-            },
+            "stats": {},
             "equippingBlock": {
                 "uniqueLabelHash": 0,
                 "equipmentSlotTypeHash": 3551918588,
@@ -1190,34 +1619,7 @@
                     ""
                 ]
             },
-            "translationBlock": {
-                "weaponPatternHash": 0,
-                "defaultDyes": [
-                ],
-                "lockedDyes": [
-                    {
-                        "channelHash": 662199250,
-                        "dyeHash": 747371980
-                    },
-                    {
-                        "channelHash": 1367384683,
-                        "dyeHash": 1496392761
-                    },
-                    {
-                        "channelHash": 218592586,
-                        "dyeHash": 693816112
-                    }
-                ],
-                "customDyes": [
-                ],
-                "arrangements": [
-                    {
-                        "classHash": 0,
-                        "artArrangementHash": 2899766705
-                    }
-                ],
-                "hasGeometry": true
-            },
+            "translationBlock": {},
             "quality": {
                 "itemLevels": [
                 ],
@@ -1239,33 +1641,8 @@
             },
             "acquireRewardSiteHash": 0,
             "acquireUnlockHash": 0,
-            "talentGrid": {
-                "talentGridHash": 521135891,
-                "itemDetailString": "Details",
-                "hudDamageType": 1
-            },
-            "investmentStats": [
-                {
-                    "statTypeHash": 3897883278,
-                    "value": 0,
-                    "isConditionallyActive": false
-                },
-                {
-                    "statTypeHash": 1935470627,
-                    "value": 0,
-                    "isConditionallyActive": false
-                },
-                {
-                    "statTypeHash": 1885944937,
-                    "value": 10,
-                    "isConditionallyActive": false
-                },
-                {
-                    "statTypeHash": 2996146975,
-                    "value": 1,
-                    "isConditionallyActive": false
-                }
-            ],
+            "talentGrid": {},
+            "investmentStats": [],
             "perks": [],
             "allowActions": true,
             "doesPostmasterPullHaveSideEffects": false,
@@ -1283,10 +1660,844 @@
             "equippable": true,
             "defaultDamageType": 0,
             "isWrapper": false,
-            "traitIds": [
-                "armor_type.arms",
-                "item_type.armor"
+            "traitIds": [],
+            "traitHashes": [
+                2839453028,
+                1734090384
             ],
+            "hash": 2899766705,
+            "index": 0,
+            "redacted": false,
+            "blacklisted": false
+        },
+        "51": {
+            "displayProperties": {
+                "description": "",
+                "name": "Helmet",
+                "icon": "/common/destiny2_content/icons/43632a486e585efb1497a051833dbe4f.jpg",
+                "hasIcon": true
+            },
+            "tooltipNotifications": [],
+            "backgroundColor": {},
+            "screenshot": "/common/destiny2_content/screenshots/2899766705.jpg",
+            "itemTypeDisplayName": "Gauntlets",
+            "flavorText": "",
+            "uiItemDisplayStyle": "",
+            "itemTypeAndTierDisplayName": "Common Gauntlets",
+            "displaySource": "",
+            "action": {},
+            "inventory": {
+                "maxStackSize": 1,
+                "bucketTypeHash": 3448274439,
+                "recoveryBucketTypeHash": 0,
+                "tierTypeHash": 3340296461,
+                "isInstanceItem": true,
+                "nonTransferrableOriginal": false,
+                "tierTypeName": "Common",
+                "tierType": 2,
+                "expirationTooltip": "",
+                "expiredInActivityMessage": "",
+                "expiredInOrbitMessage": "",
+                "suppressExpirationWhenObjectivesComplete": true
+            },
+            "stats": {},
+            "equippingBlock": {
+                "uniqueLabelHash": 0,
+                "equipmentSlotTypeHash": 3551918588,
+                "attributes": 0,
+                "equippingSoundHash": 0,
+                "hornSoundHash": 0,
+                "ammoType": 0,
+                "displayStrings": [
+                    ""
+                ]
+            },
+            "translationBlock": {},
+            "quality": {
+                "itemLevels": [
+                ],
+                "qualityLevel": 0,
+                "infusionCategoryName": "0",
+                "infusionCategoryHash": 0,
+                "infusionCategoryHashes": [
+                ],
+                "progressionLevelRequirementHash": 0,
+                "currentVersion": 0,
+                "versions": [
+                    {
+                        "powerCapHash": 1031089514
+                    }
+                ],
+                "displayVersionWatermarkIcons": [
+                    ""
+                ]
+            },
+            "acquireRewardSiteHash": 0,
+            "acquireUnlockHash": 0,
+            "talentGrid": {},
+            "investmentStats": [],
+            "perks": [],
+            "allowActions": true,
+            "doesPostmasterPullHaveSideEffects": false,
+            "nonTransferrable": false,
+            "itemCategoryHashes": [
+                23,
+                46,
+                20
+            ],
+            "specialItemType": 0,
+            "itemType": 2,
+            "itemSubType": 27,
+            "classType": 1,
+            "breakerType": 0,
+            "equippable": true,
+            "defaultDamageType": 0,
+            "isWrapper": false,
+            "traitIds": [],
+            "traitHashes": [
+                2839453028,
+                1734090384
+            ],
+            "hash": 2899766705,
+            "index": 0,
+            "redacted": false,
+            "blacklisted": false
+        },
+        "52": {
+            "displayProperties": {
+                "description": "",
+                "name": "Gauntlets",
+                "icon": "/common/destiny2_content/icons/43632a486e585efb1497a051833dbe4f.jpg",
+                "hasIcon": true
+            },
+            "tooltipNotifications": [],
+            "backgroundColor": {},
+            "screenshot": "/common/destiny2_content/screenshots/2899766705.jpg",
+            "itemTypeDisplayName": "Gauntlets",
+            "flavorText": "",
+            "uiItemDisplayStyle": "",
+            "itemTypeAndTierDisplayName": "Common Gauntlets",
+            "displaySource": "",
+            "action": {},
+            "inventory": {
+                "maxStackSize": 1,
+                "bucketTypeHash": 3551918588,
+                "recoveryBucketTypeHash": 0,
+                "tierTypeHash": 3340296461,
+                "isInstanceItem": true,
+                "nonTransferrableOriginal": false,
+                "tierTypeName": "Common",
+                "tierType": 2,
+                "expirationTooltip": "",
+                "expiredInActivityMessage": "",
+                "expiredInOrbitMessage": "",
+                "suppressExpirationWhenObjectivesComplete": true
+            },
+            "stats": {},
+            "equippingBlock": {
+                "uniqueLabelHash": 0,
+                "equipmentSlotTypeHash": 3551918588,
+                "attributes": 0,
+                "equippingSoundHash": 0,
+                "hornSoundHash": 0,
+                "ammoType": 0,
+                "displayStrings": [
+                    ""
+                ]
+            },
+            "translationBlock": {},
+            "quality": {
+                "itemLevels": [
+                ],
+                "qualityLevel": 0,
+                "infusionCategoryName": "0",
+                "infusionCategoryHash": 0,
+                "infusionCategoryHashes": [
+                ],
+                "progressionLevelRequirementHash": 0,
+                "currentVersion": 0,
+                "versions": [
+                    {
+                        "powerCapHash": 1031089514
+                    }
+                ],
+                "displayVersionWatermarkIcons": [
+                    ""
+                ]
+            },
+            "acquireRewardSiteHash": 0,
+            "acquireUnlockHash": 0,
+            "talentGrid": {},
+            "investmentStats": [],
+            "perks": [],
+            "allowActions": true,
+            "doesPostmasterPullHaveSideEffects": false,
+            "nonTransferrable": false,
+            "itemCategoryHashes": [
+                23,
+                46,
+                20
+            ],
+            "specialItemType": 0,
+            "itemType": 2,
+            "itemSubType": 27,
+            "classType": 1,
+            "breakerType": 0,
+            "equippable": true,
+            "defaultDamageType": 0,
+            "isWrapper": false,
+            "traitIds": [],
+            "traitHashes": [
+                2839453028,
+                1734090384
+            ],
+            "hash": 2899766705,
+            "index": 0,
+            "redacted": false,
+            "blacklisted": false
+        },
+        "53": {
+            "displayProperties": {
+                "description": "",
+                "name": "Chest",
+                "icon": "/common/destiny2_content/icons/43632a486e585efb1497a051833dbe4f.jpg",
+                "hasIcon": true
+            },
+            "tooltipNotifications": [],
+            "backgroundColor": {},
+            "screenshot": "/common/destiny2_content/screenshots/2899766705.jpg",
+            "itemTypeDisplayName": "Gauntlets",
+            "flavorText": "",
+            "uiItemDisplayStyle": "",
+            "itemTypeAndTierDisplayName": "Common Gauntlets",
+            "displaySource": "",
+            "action": {},
+            "inventory": {
+                "maxStackSize": 1,
+                "bucketTypeHash": 14239492,
+                "recoveryBucketTypeHash": 0,
+                "tierTypeHash": 3340296461,
+                "isInstanceItem": true,
+                "nonTransferrableOriginal": false,
+                "tierTypeName": "Common",
+                "tierType": 2,
+                "expirationTooltip": "",
+                "expiredInActivityMessage": "",
+                "expiredInOrbitMessage": "",
+                "suppressExpirationWhenObjectivesComplete": true
+            },
+            "stats": {},
+            "equippingBlock": {
+                "uniqueLabelHash": 0,
+                "equipmentSlotTypeHash": 3551918588,
+                "attributes": 0,
+                "equippingSoundHash": 0,
+                "hornSoundHash": 0,
+                "ammoType": 0,
+                "displayStrings": [
+                    ""
+                ]
+            },
+            "translationBlock": {},
+            "quality": {
+                "itemLevels": [
+                ],
+                "qualityLevel": 0,
+                "infusionCategoryName": "0",
+                "infusionCategoryHash": 0,
+                "infusionCategoryHashes": [
+                ],
+                "progressionLevelRequirementHash": 0,
+                "currentVersion": 0,
+                "versions": [
+                    {
+                        "powerCapHash": 1031089514
+                    }
+                ],
+                "displayVersionWatermarkIcons": [
+                    ""
+                ]
+            },
+            "acquireRewardSiteHash": 0,
+            "acquireUnlockHash": 0,
+            "talentGrid": {},
+            "investmentStats": [],
+            "perks": [],
+            "allowActions": true,
+            "doesPostmasterPullHaveSideEffects": false,
+            "nonTransferrable": false,
+            "itemCategoryHashes": [
+                23,
+                46,
+                20
+            ],
+            "specialItemType": 0,
+            "itemType": 2,
+            "itemSubType": 27,
+            "classType": 1,
+            "breakerType": 0,
+            "equippable": true,
+            "defaultDamageType": 0,
+            "isWrapper": false,
+            "traitIds": [],
+            "traitHashes": [
+                2839453028,
+                1734090384
+            ],
+            "hash": 2899766705,
+            "index": 0,
+            "redacted": false,
+            "blacklisted": false
+        },
+        "54": {
+            "displayProperties": {
+                "description": "",
+                "name": "Leg",
+                "icon": "/common/destiny2_content/icons/43632a486e585efb1497a051833dbe4f.jpg",
+                "hasIcon": true
+            },
+            "tooltipNotifications": [],
+            "backgroundColor": {},
+            "screenshot": "/common/destiny2_content/screenshots/2899766705.jpg",
+            "itemTypeDisplayName": "Gauntlets",
+            "flavorText": "",
+            "uiItemDisplayStyle": "",
+            "itemTypeAndTierDisplayName": "Common Gauntlets",
+            "displaySource": "",
+            "action": {},
+            "inventory": {
+                "maxStackSize": 1,
+                "bucketTypeHash": 20886954,
+                "recoveryBucketTypeHash": 0,
+                "tierTypeHash": 3340296461,
+                "isInstanceItem": true,
+                "nonTransferrableOriginal": false,
+                "tierTypeName": "Common",
+                "tierType": 2,
+                "expirationTooltip": "",
+                "expiredInActivityMessage": "",
+                "expiredInOrbitMessage": "",
+                "suppressExpirationWhenObjectivesComplete": true
+            },
+            "stats": {},
+            "equippingBlock": {
+                "uniqueLabelHash": 0,
+                "equipmentSlotTypeHash": 3551918588,
+                "attributes": 0,
+                "equippingSoundHash": 0,
+                "hornSoundHash": 0,
+                "ammoType": 0,
+                "displayStrings": [
+                    ""
+                ]
+            },
+            "translationBlock": {},
+            "quality": {
+                "itemLevels": [
+                ],
+                "qualityLevel": 0,
+                "infusionCategoryName": "0",
+                "infusionCategoryHash": 0,
+                "infusionCategoryHashes": [
+                ],
+                "progressionLevelRequirementHash": 0,
+                "currentVersion": 0,
+                "versions": [
+                    {
+                        "powerCapHash": 1031089514
+                    }
+                ],
+                "displayVersionWatermarkIcons": [
+                    ""
+                ]
+            },
+            "acquireRewardSiteHash": 0,
+            "acquireUnlockHash": 0,
+            "talentGrid": {},
+            "investmentStats": [],
+            "perks": [],
+            "allowActions": true,
+            "doesPostmasterPullHaveSideEffects": false,
+            "nonTransferrable": false,
+            "itemCategoryHashes": [
+                23,
+                46,
+                20
+            ],
+            "specialItemType": 0,
+            "itemType": 2,
+            "itemSubType": 27,
+            "classType": 1,
+            "breakerType": 0,
+            "equippable": true,
+            "defaultDamageType": 0,
+            "isWrapper": false,
+            "traitIds": [],
+            "traitHashes": [
+                2839453028,
+                1734090384
+            ],
+            "hash": 2899766705,
+            "index": 0,
+            "redacted": false,
+            "blacklisted": false
+        },
+        "55": {
+            "displayProperties": {
+                "description": "",
+                "name": "Class",
+                "icon": "/common/destiny2_content/icons/43632a486e585efb1497a051833dbe4f.jpg",
+                "hasIcon": true
+            },
+            "tooltipNotifications": [],
+            "backgroundColor": {},
+            "screenshot": "/common/destiny2_content/screenshots/2899766705.jpg",
+            "itemTypeDisplayName": "Gauntlets",
+            "flavorText": "",
+            "uiItemDisplayStyle": "",
+            "itemTypeAndTierDisplayName": "Common Gauntlets",
+            "displaySource": "",
+            "action": {},
+            "inventory": {
+                "maxStackSize": 1,
+                "bucketTypeHash": 1585787867,
+                "recoveryBucketTypeHash": 0,
+                "tierTypeHash": 3340296461,
+                "isInstanceItem": true,
+                "nonTransferrableOriginal": false,
+                "tierTypeName": "Common",
+                "tierType": 2,
+                "expirationTooltip": "",
+                "expiredInActivityMessage": "",
+                "expiredInOrbitMessage": "",
+                "suppressExpirationWhenObjectivesComplete": true
+            },
+            "stats": {},
+            "equippingBlock": {
+                "uniqueLabelHash": 0,
+                "equipmentSlotTypeHash": 3551918588,
+                "attributes": 0,
+                "equippingSoundHash": 0,
+                "hornSoundHash": 0,
+                "ammoType": 0,
+                "displayStrings": [
+                    ""
+                ]
+            },
+            "translationBlock": {},
+            "quality": {
+                "itemLevels": [
+                ],
+                "qualityLevel": 0,
+                "infusionCategoryName": "0",
+                "infusionCategoryHash": 0,
+                "infusionCategoryHashes": [
+                ],
+                "progressionLevelRequirementHash": 0,
+                "currentVersion": 0,
+                "versions": [
+                    {
+                        "powerCapHash": 1031089514
+                    }
+                ],
+                "displayVersionWatermarkIcons": [
+                    ""
+                ]
+            },
+            "acquireRewardSiteHash": 0,
+            "acquireUnlockHash": 0,
+            "talentGrid": {},
+            "investmentStats": [],
+            "perks": [],
+            "allowActions": true,
+            "doesPostmasterPullHaveSideEffects": false,
+            "nonTransferrable": false,
+            "itemCategoryHashes": [
+                23,
+                46,
+                20
+            ],
+            "specialItemType": 0,
+            "itemType": 2,
+            "itemSubType": 27,
+            "classType": 1,
+            "breakerType": 0,
+            "equippable": true,
+            "defaultDamageType": 0,
+            "isWrapper": false,
+            "traitIds": [],
+            "traitHashes": [
+                2839453028,
+                1734090384
+            ],
+            "hash": 2899766705,
+            "index": 0,
+            "redacted": false,
+            "blacklisted": false
+        },
+        "61": {
+            "displayProperties": {
+                "description": "",
+                "name": "kinetic",
+                "icon": "/common/destiny2_content/icons/43632a486e585efb1497a051833dbe4f.jpg",
+                "hasIcon": true
+            },
+            "tooltipNotifications": [],
+            "backgroundColor": {},
+            "screenshot": "/common/destiny2_content/screenshots/2899766705.jpg",
+            "itemTypeDisplayName": "Gauntlets",
+            "flavorText": "",
+            "uiItemDisplayStyle": "",
+            "itemTypeAndTierDisplayName": "Common Gauntlets",
+            "displaySource": "",
+            "action": {},
+            "inventory": {
+                "maxStackSize": 1,
+                "bucketTypeHash": 1498876634,
+                "recoveryBucketTypeHash": 0,
+                "tierTypeHash": 3340296461,
+                "isInstanceItem": true,
+                "nonTransferrableOriginal": false,
+                "tierTypeName": "Common",
+                "tierType": 2,
+                "expirationTooltip": "",
+                "expiredInActivityMessage": "",
+                "expiredInOrbitMessage": "",
+                "suppressExpirationWhenObjectivesComplete": true
+            },
+            "stats": {},
+            "equippingBlock": {
+                "uniqueLabelHash": 0,
+                "equipmentSlotTypeHash": 3551918588,
+                "attributes": 0,
+                "equippingSoundHash": 0,
+                "hornSoundHash": 0,
+                "ammoType": 0,
+                "displayStrings": [
+                    ""
+                ]
+            },
+            "translationBlock": {},
+            "quality": {
+                "itemLevels": [
+                ],
+                "qualityLevel": 0,
+                "infusionCategoryName": "0",
+                "infusionCategoryHash": 0,
+                "infusionCategoryHashes": [
+                ],
+                "progressionLevelRequirementHash": 0,
+                "currentVersion": 0,
+                "versions": [
+                    {
+                        "powerCapHash": 1031089514
+                    }
+                ],
+                "displayVersionWatermarkIcons": [
+                    ""
+                ]
+            },
+            "acquireRewardSiteHash": 0,
+            "acquireUnlockHash": 0,
+            "talentGrid": {},
+            "investmentStats": [],
+            "perks": [],
+            "allowActions": true,
+            "doesPostmasterPullHaveSideEffects": false,
+            "nonTransferrable": false,
+            "itemCategoryHashes": [
+                23,
+                46,
+                20
+            ],
+            "specialItemType": 0,
+            "itemType": 2,
+            "itemSubType": 27,
+            "classType": 1,
+            "breakerType": 0,
+            "equippable": true,
+            "defaultDamageType": 0,
+            "isWrapper": false,
+            "traitIds": [],
+            "traitHashes": [
+                2839453028,
+                1734090384
+            ],
+            "hash": 2899766705,
+            "index": 0,
+            "redacted": false,
+            "blacklisted": false
+        },
+        "62": {
+            "displayProperties": {
+                "description": "",
+                "name": "energy",
+                "icon": "/common/destiny2_content/icons/43632a486e585efb1497a051833dbe4f.jpg",
+                "hasIcon": true
+            },
+            "tooltipNotifications": [],
+            "backgroundColor": {},
+            "screenshot": "/common/destiny2_content/screenshots/2899766705.jpg",
+            "itemTypeDisplayName": "Gauntlets",
+            "flavorText": "",
+            "uiItemDisplayStyle": "",
+            "itemTypeAndTierDisplayName": "Common Gauntlets",
+            "displaySource": "",
+            "action": {},
+            "inventory": {
+                "maxStackSize": 1,
+                "bucketTypeHash": 2465295065,
+                "recoveryBucketTypeHash": 0,
+                "tierTypeHash": 3340296461,
+                "isInstanceItem": true,
+                "nonTransferrableOriginal": false,
+                "tierTypeName": "Common",
+                "tierType": 2,
+                "expirationTooltip": "",
+                "expiredInActivityMessage": "",
+                "expiredInOrbitMessage": "",
+                "suppressExpirationWhenObjectivesComplete": true
+            },
+            "stats": {},
+            "equippingBlock": {
+                "uniqueLabelHash": 0,
+                "equipmentSlotTypeHash": 3551918588,
+                "attributes": 0,
+                "equippingSoundHash": 0,
+                "hornSoundHash": 0,
+                "ammoType": 0,
+                "displayStrings": [
+                    ""
+                ]
+            },
+            "translationBlock": {},
+            "quality": {
+                "itemLevels": [
+                ],
+                "qualityLevel": 0,
+                "infusionCategoryName": "0",
+                "infusionCategoryHash": 0,
+                "infusionCategoryHashes": [
+                ],
+                "progressionLevelRequirementHash": 0,
+                "currentVersion": 0,
+                "versions": [
+                    {
+                        "powerCapHash": 1031089514
+                    }
+                ],
+                "displayVersionWatermarkIcons": [
+                    ""
+                ]
+            },
+            "acquireRewardSiteHash": 0,
+            "acquireUnlockHash": 0,
+            "talentGrid": {},
+            "investmentStats": [],
+            "perks": [],
+            "allowActions": true,
+            "doesPostmasterPullHaveSideEffects": false,
+            "nonTransferrable": false,
+            "itemCategoryHashes": [
+                23,
+                46,
+                20
+            ],
+            "specialItemType": 0,
+            "itemType": 2,
+            "itemSubType": 27,
+            "classType": 1,
+            "breakerType": 0,
+            "equippable": true,
+            "defaultDamageType": 0,
+            "isWrapper": false,
+            "traitIds": [],
+            "traitHashes": [
+                2839453028,
+                1734090384
+            ],
+            "hash": 2899766705,
+            "index": 0,
+            "redacted": false,
+            "blacklisted": false
+        },
+        "63": {
+            "displayProperties": {
+                "description": "",
+                "name": "power",
+                "icon": "/common/destiny2_content/icons/43632a486e585efb1497a051833dbe4f.jpg",
+                "hasIcon": true
+            },
+            "tooltipNotifications": [],
+            "backgroundColor": {},
+            "screenshot": "/common/destiny2_content/screenshots/2899766705.jpg",
+            "itemTypeDisplayName": "Gauntlets",
+            "flavorText": "",
+            "uiItemDisplayStyle": "",
+            "itemTypeAndTierDisplayName": "Common Gauntlets",
+            "displaySource": "",
+            "action": {},
+            "inventory": {
+                "maxStackSize": 1,
+                "bucketTypeHash": 953998645,
+                "recoveryBucketTypeHash": 0,
+                "tierTypeHash": 3340296461,
+                "isInstanceItem": true,
+                "nonTransferrableOriginal": false,
+                "tierTypeName": "Common",
+                "tierType": 2,
+                "expirationTooltip": "",
+                "expiredInActivityMessage": "",
+                "expiredInOrbitMessage": "",
+                "suppressExpirationWhenObjectivesComplete": true
+            },
+            "stats": {},
+            "equippingBlock": {
+                "uniqueLabelHash": 0,
+                "equipmentSlotTypeHash": 3551918588,
+                "attributes": 0,
+                "equippingSoundHash": 0,
+                "hornSoundHash": 0,
+                "ammoType": 0,
+                "displayStrings": [
+                    ""
+                ]
+            },
+            "translationBlock": {},
+            "quality": {
+                "itemLevels": [
+                ],
+                "qualityLevel": 0,
+                "infusionCategoryName": "0",
+                "infusionCategoryHash": 0,
+                "infusionCategoryHashes": [
+                ],
+                "progressionLevelRequirementHash": 0,
+                "currentVersion": 0,
+                "versions": [
+                    {
+                        "powerCapHash": 1031089514
+                    }
+                ],
+                "displayVersionWatermarkIcons": [
+                    ""
+                ]
+            },
+            "acquireRewardSiteHash": 0,
+            "acquireUnlockHash": 0,
+            "talentGrid": {},
+            "investmentStats": [],
+            "perks": [],
+            "allowActions": true,
+            "doesPostmasterPullHaveSideEffects": false,
+            "nonTransferrable": false,
+            "itemCategoryHashes": [
+                23,
+                46,
+                20
+            ],
+            "specialItemType": 0,
+            "itemType": 2,
+            "itemSubType": 27,
+            "classType": 1,
+            "breakerType": 0,
+            "equippable": true,
+            "defaultDamageType": 0,
+            "isWrapper": false,
+            "traitIds": [],
+            "traitHashes": [
+                2839453028,
+                1734090384
+            ],
+            "hash": 2899766705,
+            "index": 0,
+            "redacted": false,
+            "blacklisted": false
+        },
+        "64": {
+            "displayProperties": {
+                "description": "",
+                "name": "power",
+                "icon": "/common/destiny2_content/icons/43632a486e585efb1497a051833dbe4f.jpg",
+                "hasIcon": true
+            },
+            "tooltipNotifications": [],
+            "backgroundColor": {},
+            "screenshot": "/common/destiny2_content/screenshots/2899766705.jpg",
+            "itemTypeDisplayName": "Gauntlets",
+            "flavorText": "",
+            "uiItemDisplayStyle": "",
+            "itemTypeAndTierDisplayName": "Common Gauntlets",
+            "displaySource": "",
+            "action": {},
+            "inventory": {
+                "maxStackSize": 1,
+                "bucketTypeHash": 953998645,
+                "recoveryBucketTypeHash": 0,
+                "tierTypeHash": 3340296461,
+                "isInstanceItem": true,
+                "nonTransferrableOriginal": false,
+                "tierTypeName": "Common",
+                "tierType": 2,
+                "expirationTooltip": "",
+                "expiredInActivityMessage": "",
+                "expiredInOrbitMessage": "",
+                "suppressExpirationWhenObjectivesComplete": true
+            },
+            "stats": {},
+            "equippingBlock": {
+                "uniqueLabelHash": 0,
+                "equipmentSlotTypeHash": 3551918588,
+                "attributes": 0,
+                "equippingSoundHash": 0,
+                "hornSoundHash": 0,
+                "ammoType": 0,
+                "displayStrings": [
+                    ""
+                ]
+            },
+            "translationBlock": {},
+            "quality": {
+                "itemLevels": [
+                ],
+                "qualityLevel": 0,
+                "infusionCategoryName": "0",
+                "infusionCategoryHash": 0,
+                "infusionCategoryHashes": [
+                ],
+                "progressionLevelRequirementHash": 0,
+                "currentVersion": 0,
+                "versions": [
+                    {
+                        "powerCapHash": 1031089514
+                    }
+                ],
+                "displayVersionWatermarkIcons": [
+                    ""
+                ]
+            },
+            "acquireRewardSiteHash": 0,
+            "acquireUnlockHash": 0,
+            "talentGrid": {},
+            "investmentStats": [],
+            "perks": [],
+            "allowActions": true,
+            "doesPostmasterPullHaveSideEffects": false,
+            "nonTransferrable": false,
+            "itemCategoryHashes": [
+                23,
+                46,
+                20
+            ],
+            "specialItemType": 0,
+            "itemType": 2,
+            "itemSubType": 27,
+            "classType": 2,
+            "breakerType": 0,
+            "equippable": true,
+            "defaultDamageType": 0,
+            "isWrapper": false,
+            "traitIds": [],
             "traitHashes": [
                 2839453028,
                 1734090384
@@ -1460,6 +2671,391 @@
             ],
             "hash": 3571655900,
             "index": 250,
+            "redacted": false,
+            "blacklisted": false
+        },
+        "206322164": {
+            "displayProperties": {
+                "description": "Defeat enemies using Tractor Cannon.",
+                "name": "Tractor Cannon Catalyst",
+                "icon": "/common/destiny2_content/icons/44c851a53be2f7666ae847e6d3917374.png",
+                "hasIcon": true
+            },
+            "scope": 0,
+            "objectiveHashes": [
+                3712289368,
+                778472337
+            ],
+            "recordValueStyle": 0,
+            "forTitleGilding": false,
+            "titleInfo": {
+                "hasTitle": false
+            },
+            "completionInfo": {
+                "partialCompletionObjectiveCountThreshold": 0,
+                "ScoreValue": 0,
+                "shouldFireToast": true,
+                "toastStyle": 1
+            },
+            "stateInfo": {
+                "featuredPriority": 2147483647,
+                "completeUnlockHash": 0,
+                "claimedUnlockHash": 0,
+                "completedCounterUnlockValueHash": 0
+            },
+            "requirements": {
+                "entitlementUnavailableMessage": ""
+            },
+            "expirationInfo": {
+                "hasExpiration": false,
+                "description": ""
+            },
+            "intervalInfo": {
+                "intervalObjectives": [],
+                "intervalRewards": [],
+                "originalObjectiveArrayInsertionIndex": 0,
+                "isIntervalVersionedFromNormalRecord": false
+            },
+            "rewardItems": [],
+            "anyRewardHasConditionalVisibility": false,
+            "presentationNodeType": 1,
+            "traitIds": [],
+            "traitHashes": [],
+            "parentNodeHashes": [
+                3788273704
+            ],
+            "hash": 206322164,
+            "index": 115,
+            "redacted": false,
+            "blacklisted": false
+        },
+        "206322165": {
+            "displayProperties": {
+                "description": "Defeat enemies using Legend of Acrius.",
+                "name": "Acrius Catalyst",
+                "icon": "/common/destiny2_content/icons/44c851a53be2f7666ae847e6d3917374.png",
+                "hasIcon": true
+            },
+            "scope": 0,
+            "objectiveHashes": [
+                3712289369,
+                2132182086
+            ],
+            "recordValueStyle": 0,
+            "forTitleGilding": false,
+            "titleInfo": {
+                "hasTitle": false
+            },
+            "completionInfo": {
+                "partialCompletionObjectiveCountThreshold": 0,
+                "ScoreValue": 0,
+                "shouldFireToast": true,
+                "toastStyle": 1
+            },
+            "stateInfo": {
+                "featuredPriority": 2147483647,
+                "completeUnlockHash": 0,
+                "claimedUnlockHash": 0,
+                "completedCounterUnlockValueHash": 0
+            },
+            "requirements": {
+                "entitlementUnavailableMessage": ""
+            },
+            "expirationInfo": {
+                "hasExpiration": false,
+                "description": ""
+            },
+            "intervalInfo": {
+                "intervalObjectives": [],
+                "intervalRewards": [],
+                "originalObjectiveArrayInsertionIndex": 0,
+                "isIntervalVersionedFromNormalRecord": false
+            },
+            "rewardItems": [],
+            "anyRewardHasConditionalVisibility": false,
+            "presentationNodeType": 1,
+            "traitIds": [],
+            "traitHashes": [],
+            "parentNodeHashes": [
+                3788273704
+            ],
+            "hash": 206322165,
+            "index": 116,
+            "redacted": false,
+            "blacklisted": false
+        },
+        "2467484432": {
+            "displayProperties": {
+                "description": "Defeat enemies using Legend of Acrius.",
+                "name": "Seal #1",
+                "icon": "/common/destiny2_content/icons/44c851a53be2f7666ae847e6d3917374.png",
+                "hasIcon": true
+            },
+            "scope": 0,
+            "objectiveHashes": [
+                3712289369,
+                2132182086
+            ],
+            "recordValueStyle": 0,
+            "forTitleGilding": false,
+            "titleInfo": {
+                "hasTitle": false
+            },
+            "completionInfo": {
+                "partialCompletionObjectiveCountThreshold": 0,
+                "ScoreValue": 0,
+                "shouldFireToast": true,
+                "toastStyle": 1
+            },
+            "stateInfo": {
+                "featuredPriority": 2147483647,
+                "completeUnlockHash": 0,
+                "claimedUnlockHash": 0,
+                "completedCounterUnlockValueHash": 0
+            },
+            "requirements": {
+                "entitlementUnavailableMessage": ""
+            },
+            "expirationInfo": {
+                "hasExpiration": false,
+                "description": ""
+            },
+            "intervalInfo": {
+                "intervalObjectives": [],
+                "intervalRewards": [],
+                "originalObjectiveArrayInsertionIndex": 0,
+                "isIntervalVersionedFromNormalRecord": false
+            },
+            "rewardItems": [],
+            "anyRewardHasConditionalVisibility": false,
+            "presentationNodeType": 1,
+            "traitIds": [],
+            "traitHashes": [],
+            "parentNodeHashes": [
+                3788273704
+            ],
+            "hash": 206322165,
+            "index": 116,
+            "redacted": false,
+            "blacklisted": false
+        },
+        "24674432": {
+            "displayProperties": {
+                "description": "Defeat enemies using Legend of Acrius.",
+                "name": "Seal #2",
+                "icon": "/common/destiny2_content/icons/44c851a53be2f7666ae847e6d3917374.png",
+                "hasIcon": true
+            },
+            "scope": 0,
+            "objectiveHashes": [
+                3712289369,
+                2132182086
+            ],
+            "recordValueStyle": 0,
+            "forTitleGilding": false,
+            "titleInfo": {
+                "hasTitle": false
+            },
+            "completionInfo": {
+                "partialCompletionObjectiveCountThreshold": 0,
+                "ScoreValue": 0,
+                "shouldFireToast": true,
+                "toastStyle": 1
+            },
+            "stateInfo": {
+                "featuredPriority": 2147483647,
+                "completeUnlockHash": 0,
+                "claimedUnlockHash": 0,
+                "completedCounterUnlockValueHash": 0
+            },
+            "requirements": {
+                "entitlementUnavailableMessage": ""
+            },
+            "expirationInfo": {
+                "hasExpiration": false,
+                "description": ""
+            },
+            "intervalInfo": {
+                "intervalObjectives": [],
+                "intervalRewards": [],
+                "originalObjectiveArrayInsertionIndex": 0,
+                "isIntervalVersionedFromNormalRecord": false
+            },
+            "rewardItems": [],
+            "anyRewardHasConditionalVisibility": false,
+            "presentationNodeType": 1,
+            "traitIds": [],
+            "traitHashes": [],
+            "parentNodeHashes": [
+                3788273704
+            ],
+            "hash": 206322165,
+            "index": 116,
+            "redacted": false,
+            "blacklisted": false
+        },
+        "2467484433": {
+            "displayProperties": {
+                "description": "Defeat enemies using Legend of Acrius.",
+                "name": "Seal #3",
+                "icon": "/common/destiny2_content/icons/44c851a53be2f7666ae847e6d3917374.png",
+                "hasIcon": true
+            },
+            "scope": 0,
+            "objectiveHashes": [
+                3712289369,
+                2132182086
+            ],
+            "recordValueStyle": 0,
+            "forTitleGilding": true,
+            "titleInfo": {
+                "hasTitle": false
+            },
+            "completionInfo": {
+                "partialCompletionObjectiveCountThreshold": 0,
+                "ScoreValue": 0,
+                "shouldFireToast": true,
+                "toastStyle": 1
+            },
+            "stateInfo": {
+                "featuredPriority": 2147483647,
+                "completeUnlockHash": 0,
+                "claimedUnlockHash": 0,
+                "completedCounterUnlockValueHash": 0
+            },
+            "requirements": {
+                "entitlementUnavailableMessage": ""
+            },
+            "expirationInfo": {
+                "hasExpiration": false,
+                "description": ""
+            },
+            "intervalInfo": {
+                "intervalObjectives": [],
+                "intervalRewards": [],
+                "originalObjectiveArrayInsertionIndex": 0,
+                "isIntervalVersionedFromNormalRecord": false
+            },
+            "rewardItems": [],
+            "anyRewardHasConditionalVisibility": false,
+            "presentationNodeType": 1,
+            "traitIds": [],
+            "traitHashes": [],
+            "parentNodeHashes": [
+                3788273704
+            ],
+            "hash": 206322165,
+            "index": 116,
+            "redacted": false,
+            "blacklisted": false
+        },
+        "2259051223": {
+            "displayProperties": {
+                "description": "Defeat enemies using Legend of Acrius.",
+                "name": "Seal #4",
+                "icon": "/common/destiny2_content/icons/44c851a53be2f7666ae847e6d3917374.png",
+                "hasIcon": true
+            },
+            "scope": 0,
+            "objectiveHashes": [
+                3712289369,
+                2132182086
+            ],
+            "recordValueStyle": 0,
+            "forTitleGilding": false,
+            "titleInfo": {
+                "hasTitle": false
+            },
+            "completionInfo": {
+                "partialCompletionObjectiveCountThreshold": 0,
+                "ScoreValue": 0,
+                "shouldFireToast": true,
+                "toastStyle": 1
+            },
+            "stateInfo": {
+                "featuredPriority": 2147483647,
+                "completeUnlockHash": 0,
+                "claimedUnlockHash": 0,
+                "completedCounterUnlockValueHash": 0
+            },
+            "requirements": {
+                "entitlementUnavailableMessage": ""
+            },
+            "expirationInfo": {
+                "hasExpiration": false,
+                "description": ""
+            },
+            "intervalInfo": {
+                "intervalObjectives": [],
+                "intervalRewards": [],
+                "originalObjectiveArrayInsertionIndex": 0,
+                "isIntervalVersionedFromNormalRecord": false
+            },
+            "rewardItems": [],
+            "anyRewardHasConditionalVisibility": false,
+            "presentationNodeType": 1,
+            "traitIds": [],
+            "traitHashes": [],
+            "parentNodeHashes": [
+                3788273704
+            ],
+            "hash": 206322165,
+            "index": 116,
+            "redacted": false,
+            "blacklisted": false
+        },
+        "24674433": {
+            "displayProperties": {
+                "description": "Defeat enemies using Legend of Acrius.",
+                "name": "Seal #5",
+                "icon": "/common/destiny2_content/icons/44c851a53be2f7666ae847e6d3917374.png",
+                "hasIcon": true
+            },
+            "scope": 0,
+            "objectiveHashes": [
+                3712289369,
+                2132182086
+            ],
+            "recordValueStyle": 0,
+            "forTitleGilding": true,
+            "titleInfo": {
+                "hasTitle": false
+            },
+            "completionInfo": {
+                "partialCompletionObjectiveCountThreshold": 0,
+                "ScoreValue": 0,
+                "shouldFireToast": true,
+                "toastStyle": 1
+            },
+            "stateInfo": {
+                "featuredPriority": 2147483647,
+                "completeUnlockHash": 0,
+                "claimedUnlockHash": 0,
+                "completedCounterUnlockValueHash": 0
+            },
+            "requirements": {
+                "entitlementUnavailableMessage": ""
+            },
+            "expirationInfo": {
+                "hasExpiration": false,
+                "description": ""
+            },
+            "intervalInfo": {
+                "intervalObjectives": [],
+                "intervalRewards": [],
+                "originalObjectiveArrayInsertionIndex": 0,
+                "isIntervalVersionedFromNormalRecord": false
+            },
+            "rewardItems": [],
+            "anyRewardHasConditionalVisibility": false,
+            "presentationNodeType": 1,
+            "traitIds": [],
+            "traitHashes": [],
+            "parentNodeHashes": [
+                3788273704
+            ],
+            "hash": 206322165,
+            "index": 116,
             "redacted": false,
             "blacklisted": false
         }
@@ -1641,6 +3237,183 @@
             ],
             "hash": 3608142460,
             "index": 1136,
+            "redacted": false,
+            "blacklisted": false
+        },
+        "3665267419": {
+            "displayProperties": {
+                "description": "Complete all Gambit Triumphs.",
+                "name": "Gambit",
+                "icon": "/common/destiny2_content/icons/7f2c8cf97807a0e4a3da082657b6ef1f.png",
+                "iconSequences": [
+                    {
+                        "frames": [
+                            "/common/destiny2_content/icons/7f2c8cf97807a0e4a3da082657b6ef1f.png",
+                            "/common/destiny2_content/icons/093d2ba7c1fd636d7f3858674b687b03.png",
+                            "/common/destiny2_content/icons/72a0d316ab86a6358be86ff71ff6b945.png"
+                        ]
+                    },
+                    {
+                        "frames": [
+                            "/common/destiny2_content/icons/aa754e0bde3eba2fb9e0c9b4dab330b1.png",
+                            "/common/destiny2_content/icons/a8e5bf1f38cd06550b97e4ea3ded40cc.png",
+                            "/common/destiny2_content/icons/887b6229c113a56bc1f1f40618c7b824.png"
+                        ]
+                    }
+                ],
+                "hasIcon": true
+            },
+            "originalIcon": "/common/destiny2_content/icons/7f2c8cf97807a0e4a3da082657b6ef1f.png",
+            "rootViewIcon": "/common/destiny2_content/icons/7f2c8cf97807a0e4a3da082657b6ef1f.png",
+            "nodeType": 3,
+            "scope": 0,
+            "completionRecordHash": 1556658903,
+            "children": {
+                "presentationNodes": [],
+                "collectibles": [],
+                "records": [
+                    {
+                        "recordHash": 2467484432
+                    },
+                    {
+                        "recordHash": 2467484433
+                    }
+                ],
+                "metrics": []
+            },
+            "displayStyle": 2,
+            "screenStyle": 2,
+            "requirements": {
+                "entitlementUnavailableMessage": ""
+            },
+            "disableChildSubscreenNavigation": false,
+            "categoryScoreUnlockValueHash": 0,
+            "maxCategoryRecordScore": 110,
+            "presentationNodeType": 1,
+            "traitIds": [],
+            "traitHashes": [],
+            "parentNodeHashes": [
+                616318467
+            ],
+            "hash": 3665267419,
+            "index": 1100,
+            "redacted": false,
+            "blacklisted": false
+        },
+        "3665267418": {
+            "displayProperties": {
+                "description": "Complete all Triumphs.",
+                "name": "Not Gambit",
+                "icon": "/common/destiny2_content/icons/7f2c8cf97807a0e4a3da082657b6ef1f.png",
+                "iconSequences": [
+                    {
+                        "frames": [
+                            "/common/destiny2_content/icons/7f2c8cf97807a0e4a3da082657b6ef1f.png",
+                            "/common/destiny2_content/icons/093d2ba7c1fd636d7f3858674b687b03.png",
+                            "/common/destiny2_content/icons/72a0d316ab86a6358be86ff71ff6b945.png"
+                        ]
+                    },
+                    {
+                        "frames": [
+                            "/common/destiny2_content/icons/aa754e0bde3eba2fb9e0c9b4dab330b1.png",
+                            "/common/destiny2_content/icons/a8e5bf1f38cd06550b97e4ea3ded40cc.png",
+                            "/common/destiny2_content/icons/887b6229c113a56bc1f1f40618c7b824.png"
+                        ]
+                    }
+                ],
+                "hasIcon": true
+            },
+            "originalIcon": "/common/destiny2_content/icons/7f2c8cf97807a0e4a3da082657b6ef1f.png",
+            "rootViewIcon": "/common/destiny2_content/icons/7f2c8cf97807a0e4a3da082657b6ef1f.png",
+            "nodeType": 3,
+            "scope": 0,
+            "completionRecordHash": 1556658903,
+            "children": {
+                "presentationNodes": [],
+                "collectibles": [],
+                "records": [
+                    {
+                        "recordHash": 24674432
+                    },
+                    {
+                        "recordHash": 24674433
+                    }
+                ],
+                "metrics": []
+            },
+            "displayStyle": 2,
+            "screenStyle": 2,
+            "requirements": {
+                "entitlementUnavailableMessage": ""
+            },
+            "disableChildSubscreenNavigation": false,
+            "categoryScoreUnlockValueHash": 0,
+            "maxCategoryRecordScore": 110,
+            "presentationNodeType": 1,
+            "traitIds": [],
+            "traitHashes": [],
+            "parentNodeHashes": [
+                616318467
+            ],
+            "hash": 3665267419,
+            "index": 1100,
+            "redacted": false,
+            "blacklisted": false
+        },
+        "1106177979": {
+            "displayProperties": {
+                "description": "Complete all Destination Triumphs.",
+                "name": "Destinations",
+                "icon": "/common/destiny2_content/icons/db6f3a9fa3daeeb691bd616d72852045.png",
+                "iconSequences": [
+                    {
+                        "frames": [
+                            "/common/destiny2_content/icons/db6f3a9fa3daeeb691bd616d72852045.png",
+                            "/common/destiny2_content/icons/e2c166d5777358298c774399d2d3b509.png",
+                            "/common/destiny2_content/icons/24bc6a66e254ff0ce51d14eed8d06073.png"
+                        ]
+                    },
+                    {
+                        "frames": [
+                            "/common/destiny2_content/icons/8973c48ad5bc9ace6603850e16bb0dc5.png",
+                            "/common/destiny2_content/icons/f65f9cc458abd100cbdab9ec0bab4554.png",
+                            "/common/destiny2_content/icons/95499ae32789354f6c54cfd6cfde2938.png"
+                        ]
+                    }
+                ],
+                "hasIcon": true
+            },
+            "originalIcon": "/common/destiny2_content/icons/db6f3a9fa3daeeb691bd616d72852045.png",
+            "rootViewIcon": "/common/destiny2_content/icons/db6f3a9fa3daeeb691bd616d72852045.png",
+            "nodeType": 3,
+            "scope": 1,
+            "completionRecordHash": 758645239,
+            "children": {
+                "presentationNodes": [],
+                "collectibles": [],
+                "records": [
+                    {
+                        "recordHash": 2259051223
+                    }
+                ],
+                "metrics": []
+            },
+            "displayStyle": 2,
+            "screenStyle": 2,
+            "requirements": {
+                "entitlementUnavailableMessage": ""
+            },
+            "disableChildSubscreenNavigation": false,
+            "categoryScoreUnlockValueHash": 0,
+            "maxCategoryRecordScore": 1740,
+            "presentationNodeType": 1,
+            "traitIds": [],
+            "traitHashes": [],
+            "parentNodeHashes": [
+                616318467
+            ],
+            "hash": 1106177979,
+            "index": 1101,
             "redacted": false,
             "blacklisted": false
         }

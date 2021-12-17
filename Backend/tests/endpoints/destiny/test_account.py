@@ -27,8 +27,10 @@ from Backend.misc.cache import cache
 from NetworkingSchemas.basic import BoolModel, NameModel, ValueModel
 from NetworkingSchemas.destiny.account import (
     BoolModelRecord,
+    DestinyCatalystsModel,
     DestinyCharactersModel,
     DestinyLowMansModel,
+    DestinySealsModel,
     DestinyStatInputModel,
     DestinyTimeInputModel,
     DestinyTimesModel,
@@ -343,4 +345,73 @@ async def test_get_max_power(client: AsyncClient, mocker: MockerFixture):
     r = await client.get(f"/destiny/{dummy_discord_guild_id}/{dummy_discord_id}/account/max_power")
     assert r.status_code == 200
     data = ValueModel.parse_obj(r.json())
-    assert data.value == 17
+    assert data.value == 1000
+
+
+@pytest.mark.asyncio
+async def test_get_vault_space(client: AsyncClient, mocker: MockerFixture):
+    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+
+    r = await client.get(f"/destiny/{dummy_discord_guild_id}/{dummy_discord_id}/account/vault_space")
+    assert r.status_code == 200
+    data = ValueModel.parse_obj(r.json())
+    assert data.value == 9
+
+
+@pytest.mark.asyncio
+async def test_get_bright_dust(client: AsyncClient, mocker: MockerFixture):
+    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+
+    r = await client.get(f"/destiny/{dummy_discord_guild_id}/{dummy_discord_id}/account/bright_dust")
+    assert r.status_code == 200
+    data = ValueModel.parse_obj(r.json())
+    assert data.value == 50
+
+
+@pytest.mark.asyncio
+async def test_get_legendary_shards(client: AsyncClient, mocker: MockerFixture):
+    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+
+    r = await client.get(f"/destiny/{dummy_discord_guild_id}/{dummy_discord_id}/account/shards")
+    assert r.status_code == 200
+    data = ValueModel.parse_obj(r.json())
+    assert data.value == 100
+
+
+@pytest.mark.asyncio
+async def test_get_catalyst_completion(client: AsyncClient, mocker: MockerFixture):
+    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+
+    r = await client.get(f"/destiny/{dummy_discord_guild_id}/{dummy_discord_id}/account/catalysts")
+    assert r.status_code == 200
+    data = DestinyCatalystsModel.parse_obj(r.json())
+    assert data.completed == 1
+    assert len(data.power) == 2
+    assert data.power[0].name == "Tractor Cannon Catalyst"
+    assert data.power[0].complete is True
+    assert data.power[0].completion_percentage == 1
+    assert data.power[0].completion_status == "▓▓▓▓▓▓▓▓▓▓"
+    assert data.power[1].name == "Acrius Catalyst"
+    assert data.power[1].complete is False
+    assert data.power[1].completion_percentage == 0.75
+    assert data.power[1].completion_status == "▓▓▓▓▓▓▓▓░░"
+
+
+@pytest.mark.asyncio
+async def test_get_seal_completion(client: AsyncClient, mocker: MockerFixture):
+    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+
+    r = await client.get(f"/destiny/{dummy_discord_guild_id}/{dummy_discord_id}/account/seals")
+    assert r.status_code == 200
+    data = DestinySealsModel.parse_obj(r.json())
+    assert len(data.completed) == 2
+    assert data.completed[0].name == "Gambit"
+    assert data.completed[1].name == "Not Gambit"
+    assert len(data.not_completed) == 1
+    assert data.not_completed[0].name == "Destinations"
+    assert len(data.guilded) == 1
+    assert data.guilded[0].name == "Gambit"
+    assert len(data.not_guilded) == 1
+    assert data.not_guilded[0].name == "Not Gambit"
+
+    assert cache.seals != {}

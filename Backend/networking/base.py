@@ -6,6 +6,7 @@ from urllib.parse import urlencode
 
 import aiohttp
 import aiohttp_client_cache
+from orjson import orjson
 
 from Backend.core.errors import CustomException
 from Backend.networking.bungieRatelimiting import BungieRateLimiter
@@ -116,7 +117,7 @@ class NetworkBase:
         # get the response as a json
         try:
             response = InternalWebResponse(
-                content=await request.json(),
+                content=await request.json(loads=orjson.loads),
                 status=request.status,
             )
 

@@ -243,7 +243,7 @@ async def get_max_power(guild_id: int, discord_id: int, db: AsyncSession = Depen
     return ValueModel(value=await profile.get_max_power())
 
 
-@router.get("/vault_space", response_model=ValueModel)
+@router.get("/vault_space", response_model=ValueModel)  # has test
 async def get_vault_space(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Gets the current used vault space of the player"""
 
@@ -253,7 +253,7 @@ async def get_vault_space(guild_id: int, discord_id: int, db: AsyncSession = Dep
     return ValueModel(value=await profile.get_used_vault_space())
 
 
-@router.get("/bright_dust", response_model=ValueModel)
+@router.get("/bright_dust", response_model=ValueModel)  # has test
 async def get_bright_dust(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Gets the current bright dust of the player"""
 
@@ -263,7 +263,7 @@ async def get_bright_dust(guild_id: int, discord_id: int, db: AsyncSession = Dep
     return ValueModel(value=await profile.get_bright_dust())
 
 
-@router.get("/shards", response_model=ValueModel)
+@router.get("/shards", response_model=ValueModel)  # has test
 async def get_legendary_shards(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Gets the current legendary shards of the player"""
 
@@ -273,7 +273,7 @@ async def get_legendary_shards(guild_id: int, discord_id: int, db: AsyncSession 
     return ValueModel(value=await profile.get_legendary_shards())
 
 
-@router.get("/catalysts", response_model=DestinyCatalystsModel)
+@router.get("/catalysts", response_model=DestinyCatalystsModel)  # has test
 async def get_catalyst_completion(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Gets all catalysts and the users completion status"""
 

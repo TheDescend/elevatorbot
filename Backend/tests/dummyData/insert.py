@@ -206,9 +206,9 @@ async def insert_dummy_data(db: AsyncSession):
     assert data.item_hash == 2094233929
     assert data.parent_node_hashes == [1633867910]
 
-    data = await destiny_manifest.get(db=db, table=DestinyInventoryItemDefinition, primary_key=2899766705)
+    data = await destiny_manifest.get(db=db, table=DestinyInventoryItemDefinition, primary_key=41)
     assert data.description == ""
-    assert data.name == "Gauntlets"
+    assert data.name == "Collectible"
     assert data.flavor_text == ""
     assert data.item_type == 2
     assert data.item_sub_type == 27

@@ -4,6 +4,7 @@ import os
 from typing import Optional
 
 import aiohttp
+from orjson import orjson
 
 from Backend.networking.base import NetworkBase
 from Backend.networking.schemas import WebResponse
@@ -22,7 +23,7 @@ class ElevatorApi(NetworkBase):
     ) -> WebResponse:
         """Post Request"""
 
-        async with aiohttp.ClientSession() as session:
+        async with aiohttp.ClientSession(json_serialize=lambda x: orjson.dumps(x).decode()) as session:
             return await self._request(
                 session=session,
                 method="POST",

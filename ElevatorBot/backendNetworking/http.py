@@ -124,7 +124,9 @@ class BaseBackendConnection:
         async with asyncio.Lock():
             await self.limiter.wait_for_token()
 
-            async with ClientSession(timeout=self.timeout) as session:
+            async with ClientSession(
+                timeout=self.timeout, json_serialize=lambda x: orjson.dumps(x).decode()
+            ) as session:
                 async with session.request(
                     method=method,
                     url=route,
@@ -150,7 +152,7 @@ class BaseBackendConnection:
             self.logger.info("%s: '%s' - '%s'", response.status, response.method, response.url)
 
             # format the result to be the pydantic model
-            result = await response.json()
+            result = await response.json(loads=orjson.loads)
 
         else:
             success = False
