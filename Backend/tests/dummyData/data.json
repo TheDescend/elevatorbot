@@ -536,7 +536,7 @@
         ],
         "teams": []
     },
-    "https://www.bungie.net/Platform/Destiny2/555/Profile/444/?components=100%2C200%2C800%2C900%2C1100": {
+    "https://www.bungie.net/Platform/Destiny2/555/Profile/444/?components=100%2C101%2C102%2C103%2C104%2C105%2C200%2C201%2C202%2C203%2C204%2C205%2C300%2C301%2C302%2C303%2C304%2C305%2C306%2C307%2C400%2C401%2C402%2C500%2C600%2C700%2C800%2C900%2C1100": {
         "profile": {
             "data": {
                 "userInfo": {
@@ -572,75 +572,6 @@
                 "currentSeasonRewardPowerCap": 1330
             },
             "privacy": 1
-        },
-        "profileRecords": {
-            "data": {
-                "score": 20097,
-                "activeScore": 20097,
-                "legacyScore": 117570,
-                "lifetimeScore": 137667,
-                "records": {
-                    "12": {
-                        "state": 12,
-                        "objectives": [
-                            {
-                                "objectiveHash": 1289597760,
-                                "progress": 0,
-                                "completionValue": 2,
-                                "complete": true,
-                                "visible": true
-                            },
-                            {
-                                "objectiveHash": 698203561,
-                                "progress": 0,
-                                "completionValue": 200,
-                                "complete": false,
-                                "visible": true
-                            }
-                        ],
-                        "intervalsRedeemedCount": 0
-                    }
-                },
-                "recordCategoriesRootNodeHash": 1866538467,
-                "recordSealsRootNodeHash": 616318467
-            },
-            "privacy": 2
-        },
-        "profileCollectibles": {
-            "data": {
-                "recentCollectibleHashes": [
-                    3133782080
-                ],
-                "newnessFlaggedCollectibleHashes": [
-                    1866399776
-                ],
-                "collectibles": {
-                    "1": {
-                        "state": 64
-                    }
-                },
-                "collectionCategoriesRootNodeHash": 3790247699,
-                "collectionBadgesRootNodeHash": 498211331
-            },
-            "privacy": 2
-        },
-        "metrics": {
-            "data": {
-                "metrics": {
-                    "21": {
-                        "invisible": false,
-                        "objectiveProgress": {
-                            "objectiveHash": 3347800745,
-                            "progress": 1337,
-                            "completionValue": 1000,
-                            "complete": true,
-                            "visible": true
-                        }
-                    }
-                },
-                "metricsRootNodeHash": 1074663644
-            },
-            "privacy": 2
         },
         "characters": {
             "data": {
@@ -696,6 +627,125 @@
             },
             "privacy": 1
         },
+        "profileProgression": {
+            "data": {
+                "checklists": {},
+                "seasonalArtifact": {
+                    "artifactHash": 2894222926,
+                    "pointProgression": {
+                        "progressionHash": 3915124631,
+                        "dailyProgress": 0,
+                        "dailyLimit": 0,
+                        "weeklyProgress": 0,
+                        "weeklyLimit": 0,
+                        "currentProgress": 4130000,
+                        "level": 12,
+                        "levelCap": 12,
+                        "stepIndex": 12,
+                        "progressToNextLevel": 0,
+                        "nextLevelAt": 0
+                    },
+                    "pointsAcquired": 12,
+                    "powerBonusProgression": {
+                        "progressionHash": 243419342,
+                        "dailyProgress": 0,
+                        "dailyLimit": 0,
+                        "weeklyProgress": 691648,
+                        "weeklyLimit": 0,
+                        "currentProgress": 19958938,
+                        "level": 20,
+                        "levelCap": -1,
+                        "stepIndex": 20,
+                        "progressToNextLevel": 103938,
+                        "nextLevelAt": 2145000
+                    },
+                    "powerBonus": 20
+                }
+            },
+            "privacy": 2
+        },
+        "characterProgressions": {
+            "data": {
+                "666": {
+                    "progressions": {
+                        "1628407317": {
+                            "progressionHash": 1628407317,
+                            "dailyProgress": 0,
+                            "dailyLimit": 0,
+                            "weeklyProgress": 0,
+                            "weeklyLimit": 0,
+                            "currentProgress": 9900000,
+                            "level": 100,
+                            "levelCap": 100,
+                            "stepIndex": 100,
+                            "progressToNextLevel": 0,
+                            "nextLevelAt": 0,
+                            "rewardItemStates": []
+                        },
+                        "3184735011": {
+                            "progressionHash": 3184735011,
+                            "dailyProgress": 0,
+                            "dailyLimit": 0,
+                            "weeklyProgress": 0,
+                            "weeklyLimit": 0,
+                            "currentProgress": 11010964,
+                            "level": 110,
+                            "levelCap": -1,
+                            "stepIndex": 0,
+                            "progressToNextLevel": 10964,
+                            "nextLevelAt": 100000
+                        }
+                    }
+                }
+            },
+            "privacy": 2
+        },
+        "profileRecords": {
+            "data": {
+                "score": 20097,
+                "activeScore": 20097,
+                "legacyScore": 117570,
+                "lifetimeScore": 137667,
+                "records": {
+                    "12": {
+                        "state": 12,
+                        "objectives": [
+                            {
+                                "objectiveHash": 1289597760,
+                                "progress": 0,
+                                "completionValue": 2,
+                                "complete": true,
+                                "visible": true
+                            },
+                            {
+                                "objectiveHash": 698203561,
+                                "progress": 0,
+                                "completionValue": 200,
+                                "complete": false,
+                                "visible": true
+                            }
+                        ],
+                        "intervalsRedeemedCount": 0
+                    },
+                    "3571655900": {
+                        "state": 0,
+                        "objectives": [
+                            {
+                                "objectiveHash": 1289597760,
+                                "progress": 100,
+                                "completionValue": 100,
+                                "complete": true,
+                                "visible": true
+                            }
+                        ],
+                        "intervalsRedeemedCount": 0
+                    }
+                },
+                "recordCategoriesRootNodeHash": 1866538467,
+                "recordSealsRootNodeHash": 616318467
+            },
+            "privacy": 2
+        },
         "characterRecords": {
             "data": {
                 "666": {
@@ -732,6 +782,24 @@
             },
             "privacy": 2
         },
+        "profileCollectibles": {
+            "data": {
+                "recentCollectibleHashes": [
+                    3133782080
+                ],
+                "newnessFlaggedCollectibleHashes": [
+                    1866399776
+                ],
+                "collectibles": {
+                    "1": {
+                        "state": 64
+                    }
+                },
+                "collectionCategoriesRootNodeHash": 3790247699,
+                "collectionBadgesRootNodeHash": 498211331
+            },
+            "privacy": 2
+        },
         "characterCollectibles": {
             "data": {
                 "666": {
@@ -744,7 +812,49 @@
                     "collectionBadgesRootNodeHash": 498211331
                 }
             }
+        },
+        "metrics": {
+            "data": {
+                "metrics": {
+                    "21": {
+                        "invisible": false,
+                        "objectiveProgress": {
+                            "objectiveHash": 3347800745,
+                            "progress": 1337,
+                            "completionValue": 1000,
+                            "complete": true,
+                            "visible": true
+                        }
+                    }
+                },
+                "metricsRootNodeHash": 1074663644
+            },
+            "privacy": 2
+        },
+        "profileInventory": {
+            "data": {
+                "items": [
+                    {
+                        "itemHash": 41,
+                        "quantity": 17,
+                        "bindStatus": 0,
+                        "location": 2,
+                        "bucketHash": 138197802,
+                        "transferStatus": 0,
+                        "lockable": false,
+                        "state": 0,
+                        "dismantlePermission": 0,
+                        "isWrapper": false,
+                        "tooltipNotificationIndexes": []
+                    }
+                ]
+            },
+            "privacy": 2
         }
+
+
+
+
     },
     "https://www.bungie.net/Platform/Destiny2/Manifest/?": {
         "version": "99687.21.11.15.1900-1-bnet.41786",
@@ -1291,6 +1401,67 @@
             "index": 1,
             "redacted": false,
             "blacklisted": false
+        },
+        "3571655900": {
+            "displayProperties": {
+                "description": "Complete all Seasonal Challenges during Season of the Lost.",
+                "name": "Master of All",
+                "icon": "/common/destiny2_content/icons/dfdf6f8a2d5f9ba70ef18f1d0fe7687f.png",
+                "iconSequences": [],
+                "hasIcon": true
+            },
+            "scope": 1,
+            "objectiveHashes": [
+                2169399393
+            ],
+            "recordValueStyle": 0,
+            "forTitleGilding": false,
+            "titleInfo": {
+                "hasTitle": false
+            },
+            "completionInfo": {
+                "partialCompletionObjectiveCountThreshold": 0,
+                "ScoreValue": 0,
+                "shouldFireToast": true,
+                "toastStyle": 6
+            },
+            "stateInfo": {
+                "featuredPriority": 2147483647,
+                "completeUnlockHash": 0,
+                "claimedUnlockHash": 0,
+                "completedCounterUnlockValueHash": 0
+            },
+            "requirements": {
+                "entitlementUnavailableMessage": ""
+            },
+            "expirationInfo": {
+                "hasExpiration": false,
+                "description": ""
+            },
+            "intervalInfo": {
+                "intervalObjectives": [],
+                "intervalRewards": [],
+                "originalObjectiveArrayInsertionIndex": 0,
+                "isIntervalVersionedFromNormalRecord": false
+            },
+            "rewardItems": [
+                {
+                    "itemHash": 717890187,
+                    "quantity": 1,
+                    "hasConditionalVisibility": true
+                }
+            ],
+            "anyRewardHasConditionalVisibility": false,
+            "presentationNodeType": 1,
+            "traitIds": [],
+            "traitHashes": [],
+            "parentNodeHashes": [
+                3608142460
+            ],
+            "hash": 3571655900,
+            "index": 250,
+            "redacted": false,
+            "blacklisted": false
         }
     },
     "https://www.bungie.net/common/destiny2_content/json/en/DestinyInventoryBucketDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json?": {
@@ -1351,6 +1522,125 @@
             "parentNodeHashes": [],
             "hash": 3790247699,
             "index": 0,
+            "redacted": false,
+            "blacklisted": false
+        },
+        "3443694067": {
+            "displayProperties": {
+                "description": "Complete limited-time challenges for Season rank, Bright Dust, and other rewards.",
+                "name": "Seasonal Challenges",
+                "icon": "/common/destiny2_content/icons/DestinyPresentationNodeDefinition_265abf1e776ea726de1f1459392727b6.png",
+                "iconSequences": [],
+                "hasIcon": true
+            },
+            "originalIcon": "/common/destiny2_content/icons/98ab820785900cef91a4d0927935a8aa.png",
+            "rootViewIcon": "/img/destiny_content/seasons/icons/season15.png",
+            "nodeType": 1,
+            "scope": 1,
+            "objectiveHash": 1964364237,
+            "children": {
+                "presentationNodes": [
+                    {
+                        "presentationNodeHash": 102658401
+                    }
+                ],
+                "collectibles": [],
+                "records": [],
+                "metrics": []
+            },
+            "displayStyle": 0,
+            "screenStyle": 0,
+            "requirements": {
+                "entitlementUnavailableMessage": ""
+            },
+            "disableChildSubscreenNavigation": false,
+            "categoryScoreUnlockValueHash": 0,
+            "maxCategoryRecordScore": 0,
+            "presentationNodeType": 1,
+            "traitIds": [],
+            "traitHashes": [],
+            "parentNodeHashes": [],
+            "hash": 3443694067,
+            "index": 1131,
+            "redacted": false,
+            "blacklisted": false
+        },
+        "102658401": {
+            "displayProperties": {
+                "description": "",
+                "name": "Weekly",
+                "icon": "/common/destiny2_content/icons/91e741cc3ac2fd4ab1ded5f8355271f6.png",
+                "hasIcon": true
+            },
+            "originalIcon": "/common/destiny2_content/icons/91e741cc3ac2fd4ab1ded5f8355271f6.png",
+            "rootViewIcon": "/common/destiny2_content/icons/91e741cc3ac2fd4ab1ded5f8355271f6.png",
+            "nodeType": 1,
+            "scope": 1,
+            "objectiveHash": 4242565139,
+            "children": {
+                "presentationNodes": [
+                    {
+                        "presentationNodeHash": 3608142460
+                    }
+                ],
+                "collectibles": [],
+                "records": [],
+                "metrics": []
+            },
+            "displayStyle": 0,
+            "screenStyle": 0,
+            "requirements": {
+                "entitlementUnavailableMessage": ""
+            },
+            "disableChildSubscreenNavigation": false,
+            "categoryScoreUnlockValueHash": 0,
+            "maxCategoryRecordScore": 0,
+            "presentationNodeType": 1,
+            "traitIds": [],
+            "traitHashes": [],
+            "parentNodeHashes": [
+                3443694067
+            ],
+            "hash": 102658401,
+            "index": 1135,
+            "redacted": false,
+            "blacklisted": false
+        },
+        "3608142460": {
+            "displayProperties": {
+                "description": "",
+                "name": "Seasonal",
+                "hasIcon": false
+            },
+            "nodeType": 3,
+            "scope": 1,
+            "objectiveHash": 621104858,
+            "children": {
+                "presentationNodes": [],
+                "collectibles": [],
+                "records": [
+                    {
+                        "recordHash": 3571655900
+                    }
+                ],
+                "metrics": []
+            },
+            "displayStyle": 0,
+            "screenStyle": 0,
+            "requirements": {
+                "entitlementUnavailableMessage": ""
+            },
+            "disableChildSubscreenNavigation": false,
+            "categoryScoreUnlockValueHash": 0,
+            "maxCategoryRecordScore": 0,
+            "presentationNodeType": 1,
+            "traitIds": [],
+            "traitHashes": [],
+            "parentNodeHashes": [
+                102658401
+            ],
+            "hash": 3608142460,
+            "index": 1136,
             "redacted": false,
             "blacklisted": false
         }

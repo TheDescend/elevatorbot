@@ -289,6 +289,7 @@ class CRUDActivities(CRUDBase):
         """Calculate the time played (in seconds) from the DB"""
 
         query = select(func.sum(ActivitiesUsers.time_played_seconds))
+        query = query.join(ActivitiesUsers.activity)
 
         # filter mode
         if mode != 0:

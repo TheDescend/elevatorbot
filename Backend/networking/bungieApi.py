@@ -27,7 +27,7 @@ class BungieApi(NetworkBase):
         urls_expire_after={
             "platform/app/oauth/token": 0,  # do not save token stuff
             "Destiny2/Stats/PostGameCarnageReport": 0,  # do not save pgcr. We save them anyway and don't look them up more than once
-            "Destiny2/*/Profile/**components=": timedelta(minutes=15),  # profile call
+            "Destiny2/*/Profile/**components=": timedelta(minutes=30),  # profile call
             "Destiny2/*/Account/*/Stats": timedelta(minutes=60),  # stats
             "Destiny2/*/Account/*/Character/*/Stats/Activities": timedelta(minutes=5),  # activity history
         },

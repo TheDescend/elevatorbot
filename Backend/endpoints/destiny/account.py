@@ -79,7 +79,7 @@ async def destiny_solos(guild_id: int, discord_id: int, db: AsyncSession = Depen
     return await activities.get_solos()
 
 
-@router.get("/characters", response_model=DestinyCharactersModel)
+@router.get("/characters", response_model=DestinyCharactersModel)  # has test
 async def characters(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Return the characters with info on them"""
 
@@ -90,7 +90,7 @@ async def characters(guild_id: int, discord_id: int, db: AsyncSession = Depends(
     return await profile.get_character_info()
 
 
-@router.get("/stat/", response_model=ValueModel)
+@router.post("/stat/", response_model=ValueModel)  # has test
 async def stat(
     guild_id: int, discord_id: int, stat_model: DestinyStatInputModel, db: AsyncSession = Depends(get_db_session)
 ):
@@ -105,7 +105,7 @@ async def stat(
     return ValueModel(value=value)
 
 
-@router.get("/stat/character/{character_id}", response_model=ValueModel)
+@router.post("/stat/character/{character_id}", response_model=ValueModel)  # has test
 async def stat_characters(
     guild_id: int,
     discord_id: int,
@@ -126,14 +126,12 @@ async def stat_characters(
     return ValueModel(value=value)
 
 
-@router.get("/time", response_model=DestinyTimesModel)
+@router.post("/time", response_model=DestinyTimesModel)  # has test
 async def time(
     guild_id: int, discord_id: int, time_input: DestinyTimeInputModel, db: AsyncSession = Depends(get_db_session)
 ):
     """
     Return the time played for the specified modes / activities
-
-    Returns either the mode: int as a key, or the activity_ids: list[int], if they are specified
     """
 
     user = await discord_users.get_profile_from_discord_id(db, discord_id)
@@ -183,7 +181,7 @@ async def time(
     return DestinyTimesModel(entries=entries)
 
 
-@router.get("/seasonal_challenges", response_model=SeasonalChallengesModel)
+@router.get("/seasonal_challenges", response_model=SeasonalChallengesModel)  # has test
 async def seasonal_challenges(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Return the seasonal challenges completion ratio"""
 
@@ -193,7 +191,7 @@ async def seasonal_challenges(guild_id: int, discord_id: int, db: AsyncSession =
     return await profile.get_seasonal_challenges()
 
 
-@router.get("/triumphs", response_model=DestinyTriumphScoreModel)
+@router.get("/triumphs", response_model=DestinyTriumphScoreModel)  # has test
 async def triumph_score(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Return the user's triumph scores"""
 
@@ -203,7 +201,7 @@ async def triumph_score(guild_id: int, discord_id: int, db: AsyncSession = Depen
     return await profile.get_triumph_score()
 
 
-@router.get("/artifact", response_model=ValueModel)
+@router.get("/artifact", response_model=ValueModel)  # has test
 async def artifact_level(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Return the user's artifact power bonus"""
 
@@ -213,7 +211,7 @@ async def artifact_level(guild_id: int, discord_id: int, db: AsyncSession = Depe
     return await profile.get_artifact_level()
 
 
-@router.get("/season_pass", response_model=ValueModel)
+@router.get("/season_pass", response_model=ValueModel)  # has test
 async def season_pass_level(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Return the user's season pass level"""
 
@@ -223,7 +221,7 @@ async def season_pass_level(guild_id: int, discord_id: int, db: AsyncSession = D
     return await profile.get_season_pass_level()
 
 
-@router.get("/consumable/{consumable_id}", response_model=ValueModel)
+@router.get("/consumable/{consumable_id}", response_model=ValueModel)  # has test
 async def get_consumable_amount(
     guild_id: int, discord_id: int, consumable_id: int, db: AsyncSession = Depends(get_db_session)
 ):
@@ -235,7 +233,7 @@ async def get_consumable_amount(
     return ValueModel(value=await profile.get_consumable_amount(consumable_id=consumable_id))
 
 
-@router.get("/max_power", response_model=ValueModel)
+@router.get("/max_power", response_model=ValueModel)  # has test
 async def get_max_power(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Gets the current max power of the player"""
 

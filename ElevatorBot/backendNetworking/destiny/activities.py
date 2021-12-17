@@ -2,6 +2,7 @@ import dataclasses
 from typing import Optional
 
 from dis_snek.models import Guild, Member
+from orjson import orjson
 
 from DestinyEnums.enums import UsableDestinyActivityModeTypeEnum
 from ElevatorBot.backendNetworking.http import BaseBackendConnection
@@ -80,7 +81,7 @@ class DestinyActivities(BaseBackendConnection):
             route=destiny_activities_activity_route.format(
                 guild_id=self.discord_guild.id, discord_id=self.discord_member.id
             ),
-            data=input_model.dict(),
+            data=input_model,
         )
 
         # convert to correct pydantic model

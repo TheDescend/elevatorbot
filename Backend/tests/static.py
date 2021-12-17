@@ -24,3 +24,4 @@ dummy_not_gotten_record_id = 12
 dummy_metric_id = 21
 dummy_metric_value = 1337
 dummy_lore_id = 31
+dummy_consumable_id = 41

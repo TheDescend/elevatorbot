@@ -1,6 +1,7 @@
 error_codes_and_responses = {
     "DestinyIdNotFound": "I don't possess information for the user with the DestinyID `{destiny_id}` \nPlease `/registration` to use my commands",
     "DiscordIdNotFound": "I don't possess information for {discord_member.mention} \nPlease `/registration` to use my commands",
+    "CharacterIdNotFound": "{discord_member.mention} does not have a character with that ID",
     "NoToken": "{discord_member.mention} registration is outdated \nPlease `/registration` again",
     "BungieDed": "The Bungie API is down at the moment \nPlease try again later",
     "BungieBadRequest": "I got a 404 error. This shouldn't happen, my bad. Consider me punished",
