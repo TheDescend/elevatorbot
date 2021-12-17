@@ -288,7 +288,7 @@ class DestinyProfile:
             lifetime_score=triumphs_data["lifetime_score"],
         )
 
-    async def has_triumph(self, triumph_hash: str | int) -> BoolModelRecord:  # has test
+    async def has_triumph(self, triumph_hash: str | int) -> BoolModelRecord:
         """Returns if the triumph is gotten"""
 
         triumph_hash = int(triumph_hash)
@@ -387,7 +387,7 @@ class DestinyProfile:
                 result.objectives.append(BoolModelObjective(objective_id=part["objectiveHash"], bool=part["complete"]))
         return result
 
-    async def has_collectible(self, collectible_hash: str | int) -> bool:  # has test
+    async def has_collectible(self, collectible_hash: str | int) -> bool:
         """Returns if the collectible is gotten"""
 
         collectible_hash = int(collectible_hash)
@@ -462,7 +462,7 @@ class DestinyProfile:
         else:
             return False
 
-    async def get_metric_value(self, metric_hash: str | int) -> int:  # has test
+    async def get_metric_value(self, metric_hash: str | int) -> int:
         """Returns the value of the given metric hash"""
 
         metric_hash = str(metric_hash)
@@ -643,7 +643,7 @@ class DestinyProfile:
 
         return characters
 
-    async def get_triumphs(self) -> dict:  # has test
+    async def get_triumphs(self) -> dict:
         """Populate the triumphs and then return them"""
 
         result = await self.__get_profile()
@@ -671,7 +671,7 @@ class DestinyProfile:
         self._triumphs = triumphs
         return self._triumphs
 
-    async def get_collectibles(self) -> dict:  # has test
+    async def get_collectibles(self) -> dict:
         """Populate the collectibles and then return them"""
 
         result = await self.__get_profile()
@@ -695,7 +695,7 @@ class DestinyProfile:
 
         return user_collectibles
 
-    async def get_metrics(self) -> dict:  # has test
+    async def get_metrics(self) -> dict:
         """Populate the metrics and then return them"""
 
         metrics = await self.__get_profile()
@@ -940,7 +940,7 @@ class DestinyProfile:
 
         return items
 
-    async def __get_profile(self, *components_override: int, with_token: bool = False) -> dict:  # has test
+    async def __get_profile(self, *components_override: int, with_token: bool = False) -> dict:
         """
         Return info from the profile call
         https://bungie-net.github.io/multi/schema_Destiny-DestinyComponentType.html#schema_Destiny-DestinyComponentType

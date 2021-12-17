@@ -21,7 +21,7 @@ class CRUDBase:
         """
         self.model = model
 
-    async def _get_with_key(self, db: AsyncSession, primary_key: Any) -> Optional[ModelType]:  # has test
+    async def _get_with_key(self, db: AsyncSession, primary_key: Any) -> Optional[ModelType]:
         """Returns the object by primary key or None"""
 
         return await db.get(self.model, primary_key)
@@ -46,7 +46,7 @@ class CRUDBase:
         return result.scalars().fetchall()
 
     @staticmethod
-    async def _insert(db: AsyncSession, to_create: ModelType) -> None:  # has test
+    async def _insert(db: AsyncSession, to_create: ModelType) -> None:
         """Insert a initiated ModelType into the database"""
 
         db.add(to_create)

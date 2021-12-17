@@ -102,7 +102,7 @@ class DestinyActivities:
         mode: int = 0,
         earliest_allowed_datetime: Optional[datetime.datetime] = None,
         latest_allowed_datetime: Optional[datetime.datetime] = None,
-    ) -> AsyncGenerator[dict]:  # has test
+    ) -> AsyncGenerator[dict]:
         """
         Generator which returns all activities with an extra field < activity['character_id'] = character_id >
         For more Info visit https://bungie-net.github.io/multi/schema_Destiny-HistoricalStats-DestinyHistoricalStatsPeriodGroup.html#schema_Destiny-HistoricalStats-DestinyHistoricalStatsPeriodGroup
@@ -204,7 +204,7 @@ class DestinyActivities:
                 await crud_activities_fail_to_get.delete(db=self.db, obj=activity)
                 cache.saved_pgcrs.add(activity.instance_id)
 
-    async def get_pgcr(self, instance_id: int) -> WebResponse:  # has test
+    async def get_pgcr(self, instance_id: int) -> WebResponse:
         """Return the pgcr from the api"""
 
         return await self.api.get(route=pgcr_route.format(instance_id=instance_id))
@@ -262,7 +262,7 @@ class DestinyActivities:
 
         return data
 
-    async def update_activity_db(self, entry_time: Optional[datetime.datetime] = None):  # has test
+    async def update_activity_db(self, entry_time: Optional[datetime.datetime] = None):
         """Gets this user's not-saved history and saves it in the db"""
 
         async def handle(i: int, t: datetime.datetime) -> Optional[list[int, datetime.datetime, dict]]:
@@ -360,7 +360,7 @@ class DestinyActivities:
 
         logger.info("Done with activity DB update for destinyID <%s>", self.destiny_id)
 
-    async def __get_full_character_list(self) -> list[dict]:  # has test
+    async def __get_full_character_list(self) -> list[dict]:
         """Get all character ids (including deleted characters)"""
 
         # saving this one is the class to prevent the extra api call should it get called again
@@ -379,7 +379,7 @@ class DestinyActivities:
 
         return self._full_character_list
 
-    async def get_solos(self) -> DestinyLowMansModel:  # has test
+    async def get_solos(self) -> DestinyLowMansModel:
         """Return the destiny solos"""
 
         interesting_solos = await destiny_manifest.get_challenging_solo_activities(db=self.db)
@@ -395,7 +395,7 @@ class DestinyActivities:
 
         # loop through the results
         for result, activity in zip(results, interesting_solos):
-            solos.solos.append(DestinyUpdatedLowManModel(activity_name=activity.name, **result))
+            solos.solos.append(DestinyUpdatedLowManModel(activity_name=activity.name, **result.dict()))
 
         return solos
 

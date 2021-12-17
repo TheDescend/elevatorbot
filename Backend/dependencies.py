@@ -1,3 +1,5 @@
+from typing import AsyncGenerator
+
 from fastapi import Depends, HTTPException
 from jose import JWTError, jwt
 from sqlalchemy.ext.asyncio import AsyncSession

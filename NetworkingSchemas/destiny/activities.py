@@ -17,7 +17,7 @@ class DestinyActivityModel(BaseModel):
     name: str
     description: str
     activity_ids: list[int]
-    mode: int
+    mode: Optional[int] = None
 
 
 class DestinyActivitiesModel(BaseModel):

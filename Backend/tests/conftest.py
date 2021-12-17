@@ -11,16 +11,21 @@ from Backend.database.base import get_async_session, is_test_mode, setup_engine
 from Backend.database.models import create_tables
 from Backend.main import app
 
-# enable test mode
-is_test_mode(set_test_mode=True)
 
-# insert a local testing db
-TESTING_DATABASE_URL = f"""postgresql+asyncpg://{os.environ.get("POSTGRES_USER")}:{os.environ.get("POSTGRES_PASSWORD")}@localhost:{os.environ.get("POSTGRES_PORT")}/postgres"""
-setup_engine(database_url=TESTING_DATABASE_URL)
+# set up some important variables
+@pytest.fixture(scope="session")
+def setup():
+    # enable test mode
+    is_test_mode(set_test_mode=True)
+
+    # insert a local testing db
+    TESTING_DATABASE_URL = f"""postgresql+asyncpg://{os.environ.get("POSTGRES_USER")}:{os.environ.get("POSTGRES_PASSWORD")}@localhost:{os.environ.get("POSTGRES_PORT")}/postgres"""
+    setup_engine(database_url=TESTING_DATABASE_URL)
+
 
 #  need to override the event loop to not close
-@pytest.fixture(scope="session", autouse=True)
-def event_loop():
+@pytest.fixture(scope="session")
+def event_loop(setup):
     if sys.platform.startswith("win") and sys.version_info[:2] >= (3, 8):
         # Avoid "RuntimeError: Event loop is closed" on Windows when tearing down tests
         # https://github.com/encode/httpx/issues/914
@@ -32,26 +37,25 @@ def event_loop():
 
 
 # init the tables
-@pytest.fixture(scope="session", autouse=True)
-async def init_db_tables():
+@pytest.fixture(scope="session")
+async def init_db_tables(event_loop):
     await create_tables(engine=setup_engine())
 
 
-# make it so that every function can get the client by just specifying it as a param
-@pytest.fixture(scope="session")
-async def client() -> AsyncClient:
-    async with AsyncClient(app=app, base_url="http://testserver", follow_redirects=True) as client:
-        yield client
-
-
 # we also want the db object
-@pytest.fixture(scope="session")
-async def db() -> AsyncSession:
+@pytest.fixture(scope="session", autouse=True)
+async def db(init_db_tables) -> AsyncSession:
+    # first, insert the dummy data
+    async with get_async_session().begin() as session:
+        await insert_dummy_data(db=session)
+
+    # yield the session obj to the rest
     async with get_async_session().begin() as session:
         yield session
 
 
-# insert the dummy data into the tables
-@pytest.fixture(scope="session", autouse=True)
-async def populate_tables(db: AsyncSession):
-    await insert_dummy_data(db=db)
+# make it so that every function can get the client by just specifying it as a param
+@pytest.fixture(scope="session")
+async def client(db) -> AsyncClient:
+    async with AsyncClient(app=app, base_url="http://testserver", follow_redirects=True) as client:
+        yield client

@@ -4,6 +4,7 @@ from typing import Optional
 
 from sqlalchemy import distinct, func, not_, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 
 from Backend.core.errors import CustomException
 from Backend.crud.base import CRUDBase
@@ -18,7 +19,7 @@ from NetworkingSchemas.destiny.roles import TimePeriodModel
 
 
 class CRUDActivitiesFailToGet(CRUDBase):
-    async def get_all(self, db: AsyncSession) -> list[ActivitiesFailToGet]:  # has test
+    async def get_all(self, db: AsyncSession) -> list[ActivitiesFailToGet]:
         """Get all missing pgcr ids"""
 
         return await self._get_all(db=db)
@@ -36,7 +37,7 @@ class CRUDActivitiesFailToGet(CRUDBase):
 
 
 class CRUDActivities(CRUDBase):
-    async def get(self, db: AsyncSession, instance_id: int) -> Optional[Activities]:  # has test
+    async def get(self, db: AsyncSession, instance_id: int) -> Optional[Activities]:
         """Get the activity with the instance_id"""
 
         return await self._get_with_key(db=db, primary_key=instance_id)
@@ -53,16 +54,14 @@ class CRUDActivities(CRUDBase):
 
         return result
 
-    async def insert(self, db: AsyncSession, instance_id: int, activity_time: datetime, pgcr: dict):  # has test
+    async def insert(self, db: AsyncSession, instance_id: int, activity_time: datetime, pgcr: dict):
         """Get the activity with the instance_id"""
 
         # get this to not accidentally insert the same thing twice
         async with asyncio.Lock():
             return await self.__locked_insert(db=db, instance_id=instance_id, activity_time=activity_time, pgcr=pgcr)
 
-    async def __locked_insert(
-        self, db: AsyncSession, instance_id: int, activity_time: datetime, pgcr: dict
-    ):  # has test
+    async def __locked_insert(self, db: AsyncSession, instance_id: int, activity_time: datetime, pgcr: dict):
         """Actually do the insert"""
 
         # build the activity
@@ -157,18 +156,22 @@ class CRUDActivities(CRUDBase):
         """Gets a list of all Activities that fulfill the get_requirements"""
 
         query = select(ActivitiesUsers)
+        query = query.join(ActivitiesUsers.activity)
+
+        query = query.group_by(ActivitiesUsers.id)
+        query = query.group_by(Activities.instance_id)
 
         # filter activity hashes
         if activity_hashes:
-            query = query.filter(ActivitiesUsers.activity.director_activity_hash.in_(activity_hashes))
+            query = query.filter(Activities.director_activity_hash.in_(activity_hashes))
 
         # filter mode
         if mode:
-            query = query.filter(ActivitiesUsers.activity.modes.any(mode))
+            query = query.filter(Activities.modes.any(mode))
 
         # do we accept non checkpoint runs?
         if no_checkpoints:
-            query = query.filter(ActivitiesUsers.activity.starting_phase_index == 0)
+            query = query.filter(Activities.starting_phase_index == 0)
 
         # limit max users to player_count
         if maximum_allowed_players:
@@ -220,12 +223,12 @@ class CRUDActivities(CRUDBase):
         # do we have allowed datetimes
         if allow_time_periods:
             for time in allow_time_periods:
-                query = query.filter(ActivitiesUsers.activity.period.between(time.start_time, time.end_time))
+                query = query.filter(Activities.period.between(time.start_time, time.end_time))
 
         # do we have disallowed datetimes
         if disallow_time_periods:
             for time in disallow_time_periods:
-                query = query.filter(not_(ActivitiesUsers.activity.period.between(time.start_time, time.end_time)))
+                query = query.filter(not_(Activities.period.between(time.start_time, time.end_time)))
 
         result = await self._execute_query(db=db, query=query)
         return result.scalars().fetchall()
@@ -289,17 +292,17 @@ class CRUDActivities(CRUDBase):
 
         # filter mode
         if mode != 0:
-            query = query.filter(ActivitiesUsers.activity.modes.any(mode))
+            query = query.filter(Activities.modes.any(mode))
 
         # filter activities
         if activity_ids:
-            query = query.filter(ActivitiesUsers.activity.reference_id.in_(activity_ids))
+            query = query.filter(Activities.reference_id.in_(activity_ids))
 
         # limit to the allowed times if that is requested
         if start_time:
-            query = query.filter(ActivitiesUsers.activity.period >= start_time)
+            query = query.filter(Activities.period >= start_time)
         if end_time:
-            query = query.filter(ActivitiesUsers.activity.period <= end_time)
+            query = query.filter(Activities.period <= end_time)
 
         # filter the destiny id
         query = query.filter(ActivitiesUsers.destiny_id == destiny_id)

@@ -20,7 +20,7 @@ from settings import BUNGIE_TOKEN
 class CRUDDiscordUser(CRUDBase):
     cache = cache
 
-    async def get_profile_from_discord_id(self, db: AsyncSession, discord_id: int) -> DiscordUsers:  # has test
+    async def get_profile_from_discord_id(self, db: AsyncSession, discord_id: int) -> DiscordUsers:
         """Return the profile information"""
 
         # check if exists in cache
@@ -60,7 +60,7 @@ class CRUDDiscordUser(CRUDBase):
 
     async def insert_profile(
         self, db: AsyncSession, bungie_token: BungieTokenInput
-    ) -> tuple[BungieTokenOutput, Optional[DiscordUsers], int, int]:  # has test
+    ) -> tuple[BungieTokenOutput, Optional[DiscordUsers], int, int]:
         """Inserts a users token data"""
 
         # get current time
@@ -163,6 +163,7 @@ class CRUDDiscordUser(CRUDBase):
 
         else:
             # now we call the update function instead of the insert function
+            datetime_default = datetime.datetime(2000, 1, 1, tzinfo=datetime.timezone.utc)
             await self.update(
                 db=db,
                 to_update=user,
@@ -175,11 +176,14 @@ class CRUDDiscordUser(CRUDBase):
                 refresh_token_expiry=localize_datetime(
                     datetime.datetime.fromtimestamp(current_time + bungie_token.refresh_expires_in)
                 ),
+                activities_last_updated=datetime_default,
+                collectibles_last_updated=datetime_default,
+                triumphs_last_updated=datetime_default,
             )
 
         return BungieTokenOutput(success=True, errror_message=None), user, discord_id, guild_id
 
-    async def update(self, db: AsyncSession, to_update: DiscordUsers, **update_kwargs):  # has test
+    async def update(self, db: AsyncSession, to_update: DiscordUsers, **update_kwargs):
         """Updates a profile"""
 
         await self._update(db=db, to_update=to_update, **update_kwargs)

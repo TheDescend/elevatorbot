@@ -20,7 +20,7 @@ router = APIRouter(
 )
 
 
-@router.post("/bungie", response_model=BungieTokenOutput)  # has test
+@router.post("/bungie", response_model=BungieTokenOutput)
 async def save_bungie_token(bungie_token: BungieTokenInput, db: AsyncSession = Depends(get_db_session)):
     """Saves a bungie token"""
 

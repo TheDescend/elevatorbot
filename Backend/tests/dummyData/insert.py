@@ -7,6 +7,7 @@ from urllib.parse import urlencode
 
 from httpx import AsyncClient
 from pytest_mock import MockerFixture
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from static import (
     dummy_activity_reference_id,
@@ -176,10 +177,10 @@ async def insert_dummy_data(db: AsyncSession):
     assert data.place_hash == 3747705955
     assert data.activity_type_hash == 2043403989
     assert data.is_pvp is False
-    assert data.direct_activity_mode_hash is None
-    assert data.direct_activity_mode_type is None
-    assert data.activity_mode_hashes is None
-    assert data.activity_mode_types is None
+    assert data.direct_activity_mode_hash == 2043403989
+    assert data.direct_activity_mode_type == 4
+    assert data.activity_mode_hashes == [2043403989]
+    assert data.activity_mode_types == [4]
 
     data = await destiny_manifest.get(db=db, table=DestinyActivityTypeDefinition, primary_key=2043403989)
     assert data.description == "Form a fireteam of six and brave the strange and powerful realms of our enemies."
@@ -262,3 +263,5 @@ async def insert_dummy_data(db: AsyncSession):
     )
     assert data.sub_title == "It looks through you, toward the infinite."
     assert data.redacted is False
+
+    # =========================================================================
