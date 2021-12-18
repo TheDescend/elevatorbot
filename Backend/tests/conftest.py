@@ -10,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from Backend.database.base import get_async_session, is_test_mode, setup_engine
 from Backend.database.models import create_tables
 from Backend.main import app
+from Backend.misc.initLogging import init_logging
 
 
 # set up some important variables
@@ -17,6 +18,9 @@ from Backend.main import app
 def setup():
     # enable test mode
     is_test_mode(set_test_mode=True)
+
+    # create the logs
+    init_logging()
 
     # insert a local testing db
     TESTING_DATABASE_URL = f"""postgresql+asyncpg://{os.environ.get("POSTGRES_USER")}:{os.environ.get("POSTGRES_PASSWORD")}@localhost:{os.environ.get("POSTGRES_PORT")}/postgres"""
