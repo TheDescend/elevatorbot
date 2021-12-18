@@ -18,6 +18,7 @@ def init_logging() -> None:
 
     # Initialize logging for incoming requests
     make_logger("requests")
+
     work = os.getcwd()
     print(work)
     for root, dirs, files in os.walk(work):
