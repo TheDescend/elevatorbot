@@ -13,8 +13,8 @@ on:
     - ElevatorBot/**/*.py
 
 jobs:
-  python-tests:
-    name: Test ElevatorBot
+  pytest:
+    name: Pytest
 
     runs-on: ubuntu-latest
 

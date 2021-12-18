@@ -5,18 +5,16 @@ on:
     branches:
     - master
     paths:
-    - Backend/**/*.py
     - ElevatorBot/**/*.py
   pull_request:
     branches:
     - master
     paths:
-    - Backend/**/*.py
     - ElevatorBot/**/*.py
 
 jobs:
   black:
-    name: Black Formatter
+    name: Black
 
     runs-on: ubuntu-latest
 
@@ -26,3 +24,5 @@ jobs:
 
       - name: Format with Black
         uses: rickstaa/action-black@v1
+        with:
+          black_args: "ElevatorBot"

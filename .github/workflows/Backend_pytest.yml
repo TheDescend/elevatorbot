@@ -13,8 +13,8 @@ on:
     - Backend/**/*.py
 
 jobs:
-  python-tests:
-    name: Test Backend
+  pytest:
+    name: Pytest
 
     runs-on: ubuntu-latest
 
