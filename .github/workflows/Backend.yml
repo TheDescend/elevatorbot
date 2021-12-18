@@ -56,7 +56,7 @@ jobs:
         export $(grep -v '^#' .env | xargs -d '\n')
 
         # add the backend dir to pythonpath
-        export PYTHONPATH="${PYTHONPATH}:/home/runner/work/elevatorbot/elevatorbot/Backend"
+        export PYTHONPATH="${PYTHONPATH}:/home/runner/work/elevatorbot/Backend"
 
         # rename the settings file
         sudo mv rename_to_settings.py settings.py
