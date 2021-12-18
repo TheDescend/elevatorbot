@@ -348,8 +348,8 @@
                 "standing": 0,
                 "score": {
                     "basic": {
-                        "value": 0.0,
-                        "displayValue": "0"
+                        "value": 17.0,
+                        "displayValue": "17"
                     }
                 },
                 "player": {
@@ -426,8 +426,8 @@
                     },
                     "score": {
                         "basic": {
-                            "value": 0.0,
-                            "displayValue": "0"
+                            "value": 17.0,
+                            "displayValue": "17"
                         }
                     },
                     "activityDurationSeconds": {

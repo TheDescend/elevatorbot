@@ -34,8 +34,8 @@ destiny_account_seals_route = destiny_account_route + "seals/"  # GET
 destiny_activities_route = base_route + "destiny/activities/"
 destiny_activities_get_all_route = destiny_activities_route + "get/all/"  # GET
 destiny_activities_get_grandmaster_route = destiny_activities_route + "get/grandmaster/"  # GET
-destiny_activities_last_route = destiny_activities_route + "{guild_id}/{discord_id}/last/"  # GET
-destiny_activities_activity_route = destiny_activities_route + "{guild_id}/{discord_id}/activity/"  # GET
+destiny_activities_last_route = destiny_activities_route + "{guild_id}/{discord_id}/last/"  # POST
+destiny_activities_activity_route = destiny_activities_route + "{guild_id}/{discord_id}/activity/"  # POST
 
 # clan
 destiny_clan_route = base_route + "destiny/clan/{guild_id}/"

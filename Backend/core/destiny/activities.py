@@ -227,6 +227,8 @@ class DestinyActivities:
             completed=completed,
             character_class=character_class,
         )
+        if not result:
+            raise CustomException("NoActivityFound")
 
         # format that
         data = DestinyActivityDetailsModel(
@@ -443,39 +445,48 @@ class DestinyActivities:
             average=datetime.timedelta(seconds=0),
         )
 
+        # save some stats for each activity. needed because a user can participate with multiple characters in an activity
+        # key: instance_id
+        activities_time_played: dict[int, datetime.timedelta] = {}
+        activities_completed: dict[int, bool] = {}
+
         # loop through all results
-        average_time_completed = []
         for activity_stats in data:
-            user_stats: list[ActivitiesUsers] = activity_stats.activity.users
+            result.kills += activity_stats.kills
+            result.precision_kills += activity_stats.precision_kills
+            result.deaths += activity_stats.deaths
+            result.assists += activity_stats.assists
+            result.time_spend += datetime.timedelta(seconds=activity_stats.time_played_seconds)
 
-            # loop through all characters the user played with in that activity
-            time_played = datetime.timedelta(seconds=0)
-            completed = False
-            for character in user_stats:
-                result.kills += character.kills
-                result.precision_kills += character.precision_kills
-                result.deaths += character.deaths
-                result.assists += character.assists
+            # register the activity completion (with all chars)
+            if (activity_stats.activity_instance_id not in activities_completed) or (
+                not activities_completed[activity_stats.activity_instance_id] and activity_stats.completed
+            ):
+                activities_completed.update({activity_stats.activity_instance_id: activity_stats.completed})
 
-                time_played += datetime.timedelta(seconds=character.time_played_seconds)
+            # register the activity duration (once, same for all chars)
+            if activity_stats.activity_instance_id not in activities_time_played:
+                activities_time_played.update(
+                    {
+                        activity_stats.activity_instance_id: datetime.timedelta(
+                            seconds=activity_stats.activity_duration_seconds
+                        )
+                    }
+                )
 
-                if user_stats[0].completed:
-                    completed = True
+        # get the completion count
+        result.full_completions = sum(activities_completed.values())
+        result.cp_completions = len(activities_completed) - result.full_completions
 
-            # register the activity completion and time
-            result.time_spend += time_played
+        # get the fastest / average time
+        activities_completed_time_played: dict[int, datetime.timedelta] = {}
+        for completed_id, completed in activities_completed.items():
             if completed:
-                result.full_completions += 1
-                average_time_completed.append(time_played)
-
-                if not result.fastest or time_played <= result.fastest:
-                    result.fastest = time_played
-                    result.fastest_instance_id = activity_stats.activity_instance_id
-
-            else:
-                result.cp_completions += 1
-
-        # calculate the average
-        result.average = datetime.timedelta(seconds=sum(average_time_completed) / result.full_completions)
+                activities_completed_time_played.update({completed_id: activities_time_played[completed_id]})
+        result.fastest_instance_id = min(activities_completed_time_played, key=activities_completed_time_played.get)
+        result.fastest = activities_completed_time_played[result.fastest_instance_id]
+        result.average = sum(activities_completed_time_played.values(), datetime.timedelta(seconds=0)) / len(
+            activities_completed_time_played
+        )
 
         return result

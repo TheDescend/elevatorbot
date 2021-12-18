@@ -21,7 +21,7 @@ class DestinyActivityModel(BaseModel):
 
 
 class DestinyActivitiesModel(BaseModel):
-    activities = list[DestinyActivityModel]
+    activities: list[DestinyActivityModel]
 
 
 class DestinyActivityDetailsUsersModel(BaseModel):
@@ -49,7 +49,7 @@ class DestinyActivityDetailsModel(BaseModel):
 
 
 class DestinyLastInputModel(BaseModel):
-    completed: bool
+    completed: bool  # if this is False, the activity does not need to be completed (but can be)
     activity_ids: Optional[list[int]] = None  # if this is supplied, mode is ignored
     mode: Optional[int] = None
     character_class: Optional[str] = None

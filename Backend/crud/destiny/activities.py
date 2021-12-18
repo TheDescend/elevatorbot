@@ -156,7 +156,7 @@ class CRUDActivities(CRUDBase):
         """Gets a list of all Activities that fulfill the get_requirements"""
 
         query = select(ActivitiesUsers)
-        query = query.join(ActivitiesUsers.activity)
+        query = query.join(Activities)
 
         query = query.group_by(ActivitiesUsers.id)
         query = query.group_by(Activities.instance_id)
@@ -254,7 +254,8 @@ class CRUDActivities(CRUDBase):
         if activity_ids:
             query = query.filter(Activities.director_activity_hash.in_(activity_ids))
 
-        query = query.join(Activities.users)
+        query = query.options(joinedload(Activities.users))
+        query = query.group_by(Activities.instance_id)
         query = query.group_by(ActivitiesUsers.id)
 
         # filter the destiny id
