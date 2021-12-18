@@ -27,16 +27,6 @@ def init_logging() -> None:
     # Initialize logging for incoming requests
     make_logger("requests")
 
-    work = os.getcwd()
-    print(work)
-    for root, dirs, files in os.walk(work):
-        level = root.replace(work, "").count(os.sep)
-        indent = " " * 4 * (level)
-        print("{}{}/".format(indent, os.path.basename(root)))
-        subindent = " " * 4 * (level + 1)
-        for f in files:
-            print("{}{}".format(subindent, f))
-
     # Initialize logging for external api requests
     make_logger("bungieApi")
     make_logger("elevatorApi")
