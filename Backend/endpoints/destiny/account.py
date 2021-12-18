@@ -21,7 +21,7 @@ from NetworkingSchemas.destiny.account import (
 )
 
 router = APIRouter(
-    prefix="/destiny/{guild_id}/{discord_id}/account",
+    prefix="/destiny/account/{guild_id}/{discord_id}",
     tags=["destiny", "account"],
 )
 

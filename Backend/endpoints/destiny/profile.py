@@ -8,7 +8,7 @@ from NetworkingSchemas.basic import EmptyResponseModel
 from NetworkingSchemas.destiny.profile import DestinyHasTokenModel, DestinyProfileModel
 
 router = APIRouter(
-    prefix="/profile",
+    prefix="/destiny/profile",
     tags=["destiny", "profile"],
 )
 
@@ -21,7 +21,7 @@ async def discord_get(discord_id: int, db: AsyncSession = Depends(get_db_session
     return DestinyProfileModel.from_orm(profile)
 
 
-@router.get("/discord/{discord_id}/has_token", response_model=DestinyHasTokenModel)
+@router.get("/{discord_id}/has_token", response_model=DestinyHasTokenModel)
 async def discord_has_token(discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Return if a user has a valid token"""
 
@@ -31,7 +31,7 @@ async def discord_has_token(discord_id: int, db: AsyncSession = Depends(get_db_s
     return DestinyHasTokenModel(token=not no_token, value=profile.token if not no_token else None)
 
 
-@router.get("/discord/{discord_id}/guild/{guild_id}/registration_role", response_model=EmptyResponseModel)
+@router.get("/{guild_id}/{discord_id}/registration_role/", response_model=EmptyResponseModel)
 async def discord_registration_role(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Assign the registration role if applicable"""
 
@@ -48,7 +48,7 @@ async def destiny_get(destiny_id: int, db: AsyncSession = Depends(get_db_session
     return DestinyProfileModel.from_orm(profile)
 
 
-@router.delete("/delete/{discord_id}", response_model=EmptyResponseModel)
+@router.delete("/{discord_id}/delete", response_model=EmptyResponseModel)
 async def discord_delete(discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Delete a users profile"""
 

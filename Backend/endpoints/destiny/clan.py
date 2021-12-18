@@ -14,7 +14,7 @@ from NetworkingSchemas.destiny.clan import (
 from NetworkingSchemas.destiny.profile import DestinyProfileModel
 
 router = APIRouter(
-    prefix="/destiny/{guild_id}/clan",
+    prefix="/destiny/clan/{guild_id}",
     tags=["destiny", "clan"],
 )
 
@@ -31,7 +31,7 @@ async def get_clan(guild_id: int, discord_id: int, db: AsyncSession = Depends(ge
     return DestinyClanModel(clan_id=clan_id, clan_name=clan_name)
 
 
-@router.get("/get/members", response_model=DestinyClanMembersModel)
+@router.get("/members", response_model=DestinyClanMembersModel)
 async def get_clan_members(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Return the clan members"""
 
@@ -42,7 +42,7 @@ async def get_clan_members(guild_id: int, discord_id: int, db: AsyncSession = De
     return DestinyClanMembersModel(members=members)
 
 
-@router.get("/get/members/no_cache", response_model=DestinyClanMembersModel)
+@router.get("/members/no_cache", response_model=DestinyClanMembersModel)
 async def get_clan_members_no_cache(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Return the clan members without using any cached bungie data"""
 
@@ -53,7 +53,7 @@ async def get_clan_members_no_cache(guild_id: int, discord_id: int, db: AsyncSes
     return DestinyClanMembersModel(members=members)
 
 
-@router.get("/get/members/search/{search_phrase}", response_model=DestinyClanMembersModel)
+@router.get("/members/search/{search_phrase}", response_model=DestinyClanMembersModel)
 async def search_clan_members(
     guild_id: int, discord_id: int, search_phrase: str, db: AsyncSession = Depends(get_db_session)
 ):

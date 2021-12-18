@@ -5,23 +5,7 @@ from dummyData.insert import mock_request
 from httpx import AsyncClient
 from orjson import orjson
 from pytest_mock import MockerFixture
-from sqlalchemy.ext.asyncio import AsyncSession
-from static import (
-    dummy_activity_name,
-    dummy_activity_reference_id,
-    dummy_bungie_name,
-    dummy_character_id,
-    dummy_consumable_id,
-    dummy_destiny_id,
-    dummy_discord_guild_id,
-    dummy_discord_id,
-    dummy_gotten_collectible_id,
-    dummy_gotten_record_id,
-    dummy_metric_id,
-    dummy_metric_value,
-    dummy_not_gotten_collectible_id,
-    dummy_not_gotten_record_id,
-)
+from static import *
 
 from Backend.misc.cache import cache
 from NetworkingSchemas.basic import BoolModel, NameModel, ValueModel
@@ -43,12 +27,12 @@ from NetworkingSchemas.destiny.account import (
 async def test_destiny_name(client: AsyncClient, mocker: MockerFixture):
     mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
 
-    r = await client.get(f"/destiny/{dummy_discord_guild_id}/{dummy_discord_id}/account/name/")
+    r = await client.get(f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/name/")
     assert r.status_code == 200
     data = NameModel.parse_obj(r.json())
     assert data.name == dummy_bungie_name
 
-    r = await client.get(f"/destiny/0/0/account/name")
+    r = await client.get(f"/destiny/account/0/0/name")
     assert r.status_code == 409
     assert r.json() == {"error": "DiscordIdNotFound"}
 
@@ -58,7 +42,7 @@ async def test_has_collectible(client: AsyncClient, mocker: MockerFixture):
     mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
 
     r = await client.get(
-        f"/destiny/{dummy_discord_guild_id}/{dummy_discord_id}/account/collectible/{dummy_gotten_collectible_id}"
+        f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/collectible/{dummy_gotten_collectible_id}"
     )
     assert r.status_code == 200
     data = BoolModel.parse_obj(r.json())
@@ -66,7 +50,7 @@ async def test_has_collectible(client: AsyncClient, mocker: MockerFixture):
     assert dummy_gotten_collectible_id in cache.collectibles[dummy_destiny_id]
 
     r = await client.get(
-        f"/destiny/{dummy_discord_guild_id}/{dummy_discord_id}/account/collectible/{dummy_not_gotten_collectible_id}"
+        f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/collectible/{dummy_not_gotten_collectible_id}"
     )
     assert r.status_code == 200
     data = BoolModel.parse_obj(r.json())
@@ -79,7 +63,7 @@ async def test_has_triumph(client: AsyncClient, mocker: MockerFixture):
     mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
 
     r = await client.get(
-        f"/destiny/{dummy_discord_guild_id}/{dummy_discord_id}/account/triumph/{dummy_gotten_record_id}"
+        f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/triumph/{dummy_gotten_record_id}"
     )
     assert r.status_code == 200
     data = BoolModelRecord.parse_obj(r.json())
@@ -88,7 +72,7 @@ async def test_has_triumph(client: AsyncClient, mocker: MockerFixture):
     assert dummy_gotten_record_id in cache.triumphs[dummy_destiny_id]
 
     r = await client.get(
-        f"/destiny/{dummy_discord_guild_id}/{dummy_discord_id}/account/triumph/{dummy_not_gotten_record_id}"
+        f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/triumph/{dummy_not_gotten_record_id}"
     )
     assert r.status_code == 200
     data = BoolModelRecord.parse_obj(r.json())
@@ -102,7 +86,7 @@ async def test_has_triumph(client: AsyncClient, mocker: MockerFixture):
 async def test_metric(client: AsyncClient, mocker: MockerFixture):
     mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
 
-    r = await client.get(f"/destiny/{dummy_discord_guild_id}/{dummy_discord_id}/account/metric/{dummy_metric_id}")
+    r = await client.get(f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/metric/{dummy_metric_id}")
     assert r.status_code == 200
     data = ValueModel.parse_obj(r.json())
     assert data.value == dummy_metric_value
@@ -112,7 +96,7 @@ async def test_metric(client: AsyncClient, mocker: MockerFixture):
 async def test_destiny_solos(client: AsyncClient, mocker: MockerFixture):
     mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
 
-    r = await client.get(f"/destiny/{dummy_discord_guild_id}/{dummy_discord_id}/account/solos")
+    r = await client.get(f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/solos")
     assert r.status_code == 200
     data = DestinyLowMansModel.parse_obj(r.json())
     assert data.solos
@@ -128,7 +112,7 @@ async def test_destiny_solos(client: AsyncClient, mocker: MockerFixture):
 async def test_characters(client: AsyncClient, mocker: MockerFixture):
     mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
 
-    r = await client.get(f"/destiny/{dummy_discord_guild_id}/{dummy_discord_id}/account/characters")
+    r = await client.get(f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/characters")
     assert r.status_code == 200
     data = DestinyCharactersModel.parse_obj(r.json())
     assert data.characters
@@ -140,13 +124,13 @@ async def test_stat(client: AsyncClient, mocker: MockerFixture):
     mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
 
     input_model = DestinyStatInputModel(stat_name="kills", stat_category="allPvE")
-    r = await client.post(f"/destiny/{dummy_discord_guild_id}/{dummy_discord_id}/account/stat", json=input_model.dict())
+    r = await client.post(f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/stat", json=input_model.dict())
     assert r.status_code == 200
     data = ValueModel.parse_obj(r.json())
     assert data.value == 1041425
 
     input_model = DestinyStatInputModel(stat_name="kills", stat_category="allTime")
-    r = await client.post(f"/destiny/{dummy_discord_guild_id}/{dummy_discord_id}/account/stat", json=input_model.dict())
+    r = await client.post(f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/stat", json=input_model.dict())
     assert r.status_code == 200
     data = ValueModel.parse_obj(r.json())
     assert data.value == 1088957
@@ -158,7 +142,7 @@ async def test_stat_characters(client: AsyncClient, mocker: MockerFixture):
 
     input_model = DestinyStatInputModel(stat_name="kills", stat_category="allPvE")
     r = await client.post(
-        f"/destiny/{dummy_discord_guild_id}/{dummy_discord_id}/account/stat/character/{dummy_character_id}",
+        f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/stat/character/{dummy_character_id}",
         json=input_model.dict(),
     )
     assert r.status_code == 200
@@ -167,7 +151,7 @@ async def test_stat_characters(client: AsyncClient, mocker: MockerFixture):
 
     input_model = DestinyStatInputModel(stat_name="kills", stat_category="allTime")
     r = await client.post(
-        f"/destiny/{dummy_discord_guild_id}/{dummy_discord_id}/account/stat/character/{dummy_character_id}",
+        f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/stat/character/{dummy_character_id}",
         json=input_model.dict(),
     )
     assert r.status_code == 200
@@ -176,7 +160,7 @@ async def test_stat_characters(client: AsyncClient, mocker: MockerFixture):
 
     input_model = DestinyStatInputModel(stat_name="kills", stat_category="allTime")
     r = await client.post(
-        f"/destiny/{dummy_discord_guild_id}/{dummy_discord_id}/account/stat/character/1", json=input_model.dict()
+        f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/stat/character/1", json=input_model.dict()
     )
     assert r.status_code == 409
 
@@ -193,7 +177,7 @@ async def test_time(client: AsyncClient, mocker: MockerFixture):
         character_class=None,
     )
     r = await client.post(
-        f"/destiny/{dummy_discord_guild_id}/{dummy_discord_id}/account/time", json=orjson.loads(input_model.json())
+        f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/time", json=orjson.loads(input_model.json())
     )
     assert r.status_code == 200
     data = DestinyTimesModel.parse_obj(r.json())
@@ -211,7 +195,7 @@ async def test_time(client: AsyncClient, mocker: MockerFixture):
         character_class=None,
     )
     r = await client.post(
-        f"/destiny/{dummy_discord_guild_id}/{dummy_discord_id}/account/time", json=orjson.loads(input_model.json())
+        f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/time", json=orjson.loads(input_model.json())
     )
     assert r.status_code == 200
     data = DestinyTimesModel.parse_obj(r.json())
@@ -226,7 +210,7 @@ async def test_time(client: AsyncClient, mocker: MockerFixture):
         character_class="Hunter",
     )
     r = await client.post(
-        f"/destiny/{dummy_discord_guild_id}/{dummy_discord_id}/account/time", json=orjson.loads(input_model.json())
+        f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/time", json=orjson.loads(input_model.json())
     )
     assert r.status_code == 200
     data = DestinyTimesModel.parse_obj(r.json())
@@ -241,7 +225,7 @@ async def test_time(client: AsyncClient, mocker: MockerFixture):
         character_class="Warlock",
     )
     r = await client.post(
-        f"/destiny/{dummy_discord_guild_id}/{dummy_discord_id}/account/time", json=orjson.loads(input_model.json())
+        f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/time", json=orjson.loads(input_model.json())
     )
     assert r.status_code == 200
     data = DestinyTimesModel.parse_obj(r.json())
@@ -256,7 +240,7 @@ async def test_time(client: AsyncClient, mocker: MockerFixture):
         character_class=None,
     )
     r = await client.post(
-        f"/destiny/{dummy_discord_guild_id}/{dummy_discord_id}/account/time", json=orjson.loads(input_model.json())
+        f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/time", json=orjson.loads(input_model.json())
     )
     assert r.status_code == 200
     data = DestinyTimesModel.parse_obj(r.json())
@@ -271,7 +255,7 @@ async def test_time(client: AsyncClient, mocker: MockerFixture):
         character_class=None,
     )
     r = await client.post(
-        f"/destiny/{dummy_discord_guild_id}/{dummy_discord_id}/account/time", json=orjson.loads(input_model.json())
+        f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/time", json=orjson.loads(input_model.json())
     )
     assert r.status_code == 200
     data = DestinyTimesModel.parse_obj(r.json())
@@ -283,7 +267,7 @@ async def test_time(client: AsyncClient, mocker: MockerFixture):
 async def test_seasonal_challenges(client: AsyncClient, mocker: MockerFixture):
     mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
 
-    r = await client.get(f"/destiny/{dummy_discord_guild_id}/{dummy_discord_id}/account/seasonal_challenges")
+    r = await client.get(f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/seasonal_challenges")
     assert r.status_code == 200
     data = SeasonalChallengesModel.parse_obj(r.json())
     assert data.topics
@@ -298,7 +282,7 @@ async def test_seasonal_challenges(client: AsyncClient, mocker: MockerFixture):
 async def test_triumphs(client: AsyncClient, mocker: MockerFixture):
     mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
 
-    r = await client.get(f"/destiny/{dummy_discord_guild_id}/{dummy_discord_id}/account/triumphs")
+    r = await client.get(f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/triumphs")
     assert r.status_code == 200
     data = DestinyTriumphScoreModel.parse_obj(r.json())
     assert data.active_score == 20097
@@ -310,7 +294,7 @@ async def test_triumphs(client: AsyncClient, mocker: MockerFixture):
 async def test_artifact_level(client: AsyncClient, mocker: MockerFixture):
     mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
 
-    r = await client.get(f"/destiny/{dummy_discord_guild_id}/{dummy_discord_id}/account/artifact")
+    r = await client.get(f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/artifact")
     assert r.status_code == 200
     data = ValueModel.parse_obj(r.json())
     assert data.value == 20
@@ -320,7 +304,7 @@ async def test_artifact_level(client: AsyncClient, mocker: MockerFixture):
 async def test_season_pass_level(client: AsyncClient, mocker: MockerFixture):
     mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
 
-    r = await client.get(f"/destiny/{dummy_discord_guild_id}/{dummy_discord_id}/account/season_pass")
+    r = await client.get(f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/season_pass")
     assert r.status_code == 200
     data = ValueModel.parse_obj(r.json())
     assert data.value == 210
@@ -331,7 +315,7 @@ async def test_get_consumable_amount(client: AsyncClient, mocker: MockerFixture)
     mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
 
     r = await client.get(
-        f"/destiny/{dummy_discord_guild_id}/{dummy_discord_id}/account/consumable/{dummy_consumable_id}"
+        f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/consumable/{dummy_consumable_id}"
     )
     assert r.status_code == 200
     data = ValueModel.parse_obj(r.json())
@@ -342,7 +326,7 @@ async def test_get_consumable_amount(client: AsyncClient, mocker: MockerFixture)
 async def test_get_max_power(client: AsyncClient, mocker: MockerFixture):
     mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
 
-    r = await client.get(f"/destiny/{dummy_discord_guild_id}/{dummy_discord_id}/account/max_power")
+    r = await client.get(f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/max_power")
     assert r.status_code == 200
     data = ValueModel.parse_obj(r.json())
     assert data.value == 1000
@@ -352,7 +336,7 @@ async def test_get_max_power(client: AsyncClient, mocker: MockerFixture):
 async def test_get_vault_space(client: AsyncClient, mocker: MockerFixture):
     mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
 
-    r = await client.get(f"/destiny/{dummy_discord_guild_id}/{dummy_discord_id}/account/vault_space")
+    r = await client.get(f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/vault_space")
     assert r.status_code == 200
     data = ValueModel.parse_obj(r.json())
     assert data.value == 9
@@ -362,7 +346,7 @@ async def test_get_vault_space(client: AsyncClient, mocker: MockerFixture):
 async def test_get_bright_dust(client: AsyncClient, mocker: MockerFixture):
     mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
 
-    r = await client.get(f"/destiny/{dummy_discord_guild_id}/{dummy_discord_id}/account/bright_dust")
+    r = await client.get(f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/bright_dust")
     assert r.status_code == 200
     data = ValueModel.parse_obj(r.json())
     assert data.value == 50
@@ -372,7 +356,7 @@ async def test_get_bright_dust(client: AsyncClient, mocker: MockerFixture):
 async def test_get_legendary_shards(client: AsyncClient, mocker: MockerFixture):
     mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
 
-    r = await client.get(f"/destiny/{dummy_discord_guild_id}/{dummy_discord_id}/account/shards")
+    r = await client.get(f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/shards")
     assert r.status_code == 200
     data = ValueModel.parse_obj(r.json())
     assert data.value == 100
@@ -382,7 +366,7 @@ async def test_get_legendary_shards(client: AsyncClient, mocker: MockerFixture):
 async def test_get_catalyst_completion(client: AsyncClient, mocker: MockerFixture):
     mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
 
-    r = await client.get(f"/destiny/{dummy_discord_guild_id}/{dummy_discord_id}/account/catalysts")
+    r = await client.get(f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/catalysts")
     assert r.status_code == 200
     data = DestinyCatalystsModel.parse_obj(r.json())
     assert data.completed == 1
@@ -401,7 +385,7 @@ async def test_get_catalyst_completion(client: AsyncClient, mocker: MockerFixtur
 async def test_get_seal_completion(client: AsyncClient, mocker: MockerFixture):
     mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
 
-    r = await client.get(f"/destiny/{dummy_discord_guild_id}/{dummy_discord_id}/account/seals")
+    r = await client.get(f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/seals")
     assert r.status_code == 200
     data = DestinySealsModel.parse_obj(r.json())
     assert len(data.completed) == 2
