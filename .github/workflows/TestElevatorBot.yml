@@ -1,4 +1,4 @@
-name: ElevatorBot
+name: Test ElevatorBot
 
 on:
   push:
@@ -14,6 +14,8 @@ on:
 
 jobs:
   python-tests:
+    name: Test ElevatorBot
+
     runs-on: ubuntu-latest
 
     steps:
@@ -31,15 +33,6 @@ jobs:
         pip install -r requirements.txt
       working-directory: ElevatorBot
 
-    - name: Lint with flake8
-      run: |
-        pip install flake8
-        # stop the build if there are Python syntax errors or undefined names
-        flake8 --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings
-        flake8 --count --exit-zero --max-complexity=10 --max-line-length=999 --statistics
-      working-directory: ElevatorBot
-
     - name: Test with pytest
       run: |
         # install pytest and useful wrappers
@@ -48,8 +41,7 @@ jobs:
         pip install pytest_mock
 
         # rename the settings file
-        sudo mv ../rename_to_settings.py ../settings.py
+        sudo mv rename_to_settings.py settings.py
 
         # run tests
-        pytest
-      working-directory: ElevatorBot
+        pytest ElevatorBot
