@@ -1,4 +1,12 @@
 import logging
+import os
+from typing import Optional
+
+
+class MakeFileHandler(logging.FileHandler):
+    def __init__(self, filename: str, mode: str = "a", encoding: Optional[str] = None, delay: bool = False):
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
+        logging.FileHandler.__init__(self, filename, mode, encoding, delay)
 
 
 def init_logging() -> None:
