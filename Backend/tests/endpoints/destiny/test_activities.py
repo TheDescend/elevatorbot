@@ -22,7 +22,7 @@ async def test_get_all(client: AsyncClient, mocker: MockerFixture):
     assert r.status_code == 200
     data = DestinyActivitiesModel.parse_obj(r.json())
     assert data.activities
-    assert len(data.activities) == 1
+    assert len(data.activities) > 0
     assert data.activities[0].name == "Prophecy"
     assert (
         data.activities[0].description
@@ -126,3 +126,22 @@ async def test_activity(client: AsyncClient, mocker: MockerFixture):
     assert data.fastest.seconds == 917
     assert data.fastest_instance_id == dummy_instance_id
     assert data.average.seconds == 917
+
+
+@pytest.mark.asyncio
+async def test_get_grandmaster(client: AsyncClient, mocker: MockerFixture):
+    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+
+    r = await client.get(f"/destiny/activities/get/grandmaster")
+    assert r.status_code == 200
+    data = DestinyActivitiesModel.parse_obj(r.json())
+    assert data.activities
+    assert len(data.activities) == 3
+    assert data.activities[0].name == "Grandmaster: All"
+    assert data.activities[0].activity_ids == [8761236781273, 8761236781274]
+    assert data.activities[1].name == "Grandmaster: Lake of Shadows"
+    assert data.activities[1].description == "Grandmaster: Lake of Shadows"
+    assert data.activities[1].activity_ids == [8761236781273]
+    assert data.activities[1].mode == 46
+    assert data.activities[2].name == "Grandmaster: NF"
+    assert data.activities[2].activity_ids == [8761236781274]

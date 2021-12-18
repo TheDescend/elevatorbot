@@ -114,8 +114,10 @@ class CRUDManifest(CRUDBase):
             DestinyActivityDefinition.activity_mode_types.any(UsableDestinyActivityModeTypeEnum.NIGHTFALL.value)
         )
         query = query.filter(
-            or_(DestinyActivityDefinition.name.contains(f"Grandmaster")),
-            (DestinyActivityDefinition.activity_light_level == 1100),
+            or_(
+                DestinyActivityDefinition.name.contains("Grandmaster"),
+                (DestinyActivityDefinition.activity_light_level == 1100),
+            )
         )
 
         results = await self._execute_query(db=db, query=query)
