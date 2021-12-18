@@ -15,6 +15,7 @@ from Backend.crud import (
     destiny_manifest,
     discord_users,
 )
+from Backend.database.base import get_async_session
 from Backend.database.models import ActivitiesUsers, DiscordUsers
 from Backend.misc.cache import cache
 from Backend.misc.helperFunctions import get_datetime_from_bungie_entry, get_now_with_tz
@@ -288,14 +289,16 @@ class DestinyActivities:
 
             results = await asyncio.gather(*[handle(i, t) for i, t in zip(gather_instance_ids, gather_activity_times)])
 
-            for result in results:
-                if result:
-                    i = result[0]
-                    t = result[1]
-                    pgcr = result[2]
+            # do this with a separate DB session, do make smaller commits
+            async with get_async_session().begin() as session:
+                for result in results:
+                    if result:
+                        i = result[0]
+                        t = result[1]
+                        pgcr = result[2]
 
-                    # insert information to DB
-                    await crud_activities.insert(db=self.db, instance_id=i, activity_time=t, pgcr=pgcr)
+                        # insert information to DB
+                        await crud_activities.insert(db=session, instance_id=i, activity_time=t, pgcr=pgcr)
 
         # get the logger
         logger = logging.getLogger("updateActivityDb")
