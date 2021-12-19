@@ -24,7 +24,7 @@ from Backend.misc.helperFunctions import (
     make_progress_bar_text,
 )
 from Backend.networking.bungieApi import BungieApi
-from Backend.networking.bungieRoutes import profile_route, stat_route
+from Backend.networking.bungieRoutes import clan_user_route, profile_route, stat_route
 from DestinyEnums.enums import (
     DestinyInventoryBucketEnum,
     DestinyPresentationNodeWeaponSlotEnum,
@@ -47,6 +47,7 @@ from NetworkingSchemas.destiny.account import (
 )
 
 # todo check usage of ALL functions
+from NetworkingSchemas.destiny.clan import DestinyClanModel
 
 
 @dataclasses.dataclass
@@ -73,6 +74,15 @@ class DestinyProfile:
 
         # the network class
         self.api = BungieApi(db=self.db, user=self.user)
+
+    async def get_clan(self) -> DestinyClanModel:
+        """Return the user's clan"""
+
+        response = await self.api.get(route=clan_user_route.format(destiny_id=self.destiny_id, system=self.system))
+        results = response.content["results"]
+        if not results:
+            raise CustomException("UserNoClan")
+        return DestinyClanModel(id=results[0]["group"]["groupId"], name=results[0]["group"]["name"])
 
     async def get_seal_completion(self) -> DestinySealsModel:
         """Gets all seals and the users completion status"""

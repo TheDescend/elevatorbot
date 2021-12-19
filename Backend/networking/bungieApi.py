@@ -21,16 +21,20 @@ class BungieApi(NetworkBase):
     normal_headers = {"X-API-Key": BUNGIE_TOKEN, "Accept": "application/json"}
     auth_headers = normal_headers.copy()
 
-    # the cache object. Low expire time since players dont want to wait an eternity for their stuff to update
+    # the cache object. Low expire time since players don't want to wait an eternity for their stuff to update
     cache = aiohttp_client_cache.SQLiteBackend(
         cache_name="networking/bungie_networking_cache",
+        allowed_methods=["GET"],
         expire_after=timedelta(minutes=5),
         urls_expire_after={
-            "platform/app/oauth/token": 0,  # do not save token stuff
-            "Destiny2/Stats/PostGameCarnageReport": 0,  # do not save pgcr. We save them anyway and don't look them up more than once
-            "Destiny2/*/Profile/**components=": timedelta(minutes=30),  # profile call
-            "Destiny2/*/Account/*/Stats": timedelta(minutes=60),  # stats
-            "Destiny2/*/Account/*/Character/*/Stats/Activities": timedelta(minutes=5),  # activity history
+            "**/platform/app/oauth/token": 0,  # do not save token stuff
+            "**/Destiny2/Stats/PostGameCarnageReport": 0,  # do not save pgcr. We save them anyway and don't look them up more than once
+            "**/Destiny2/*/Profile/**components=": timedelta(minutes=30),  # profile call
+            "**/Destiny2/*/Account/*/Stats": timedelta(minutes=60),  # stats
+            "**/Destiny2/*/Account/*/Character/*/Stats/Activities": timedelta(minutes=5),  # activity history
+            "**/GroupV2/*/Members": timedelta(minutes=60),  # all clan member stuff
+            "**/GroupV2/*/AdminsAndFounder": timedelta(minutes=60),  # all clan admin stuff
+            "**/GroupV2": timedelta(days=1),  # all clan stuff
         },
     )
 

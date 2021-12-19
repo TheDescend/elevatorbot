@@ -12,6 +12,7 @@ activities_route = destiny_route + "{system}/Account/{destiny_id}/Character/{cha
 pgcr_route = destiny_route + "Stats/PostGameCarnageReport/{instance_id}/"
 
 clan_route = base_route + "GroupV2/"
+clan_user_route = base_route + "User/{system}/{destiny_id}/0/1/"
 clan_members_route = clan_route + "{clan_id}/Members/"
 clan_admins_route = clan_route + "{clan_id}/AdminsAndFounder/"
 clan_invite_route = clan_members_route + "IndividualInvite/{system}/{destiny_id}/"

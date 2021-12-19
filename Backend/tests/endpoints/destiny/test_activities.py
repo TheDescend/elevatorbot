@@ -1,9 +1,9 @@
 import pytest
 from dummyData.insert import mock_request
+from dummyData.static import *
 from httpx import AsyncClient
 from orjson import orjson
 from pytest_mock import MockerFixture
-from static import *
 
 from NetworkingSchemas.destiny.activities import (
     DestinyActivitiesModel,

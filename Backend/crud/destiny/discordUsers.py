@@ -124,10 +124,10 @@ class CRUDDiscordUser(CRUDBase):
 
             # if that returned something, we need to make sure the destiny_id belongs to the same discord_id
             if not user.discord_id == discord_id:
-                # if it doesnt, we need to delete that entry, otherwise a destiny account could be registered to multiple persons
+                # if it doesn't, we need to delete that entry, otherwise a destiny account could be registered to multiple persons
                 await self.delete_profile(db=db, discord_id=user.discord_id)
 
-                # now we gotta make it an insert instead of an update
+                # now we have to make it an insert instead of an update
                 method_insert = True
 
             else:

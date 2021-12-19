@@ -15,7 +15,7 @@ from Backend.networking.bungieRoutes import (
     clan_kick_route,
     clan_members_route,
 )
-from NetworkingSchemas.destiny.clan import DestinyClanMemberModel
+from NetworkingSchemas.destiny.clan import DestinyClanMemberModel, DestinyClanModel
 
 
 @dataclasses.dataclass
@@ -28,14 +28,17 @@ class DestinyClan:
 
     def __post_init__(self):
         # some shortcuts
-        self.discord_id = self.user.discord_id
-        self.destiny_id = self.user.destiny_id
-        self.system = self.user.system
+        if self.user:
+            self.discord_id = self.user.discord_id
+            self.destiny_id = self.user.destiny_id
+            self.system = self.user.system
 
         # the network class
-        self.api = BungieApi(db=self.db, user=self.user)
+        self.api = BungieApi(
+            db=self.db, user=self.user, i_understand_what_im_doing_and_that_setting_this_to_true_might_break_stuff=True
+        )
 
-    async def get_clan_id_and_name(self) -> tuple[int, str]:
+    async def get_clan(self) -> DestinyClanModel:
         """Gets clan information"""
 
         # get data from db
@@ -48,7 +51,7 @@ class DestinyClan:
         if not result:
             raise CustomException("NoClan")
 
-        return link.destiny_clan_id, result.content["detail"]["name"]
+        return DestinyClanModel(id=link.destiny_clan_id, name=result.content["detail"]["name"])
 
     async def search_clan_for_member(
         self, member_name: str, clan_id: Optional[int] = None, use_cache: bool = True
@@ -56,7 +59,8 @@ class DestinyClan:
         """Search the clan for members with that name"""
 
         if not clan_id:
-            clan_id, _ = await self.get_clan_id_and_name()
+            clan = await self.get_clan()
+            clan_id = clan.id
 
         route = clan_members_route.format(clan_id=clan_id)
         params = {"nameSearch": member_name}
@@ -99,10 +103,10 @@ class DestinyClan:
         """Returns whether the user is an admin in the clan"""
 
         if not clan_id:
-            clan_id, _ = await self.get_clan_id_and_name()
+            clan = await self.get_clan()
+            clan_id = clan.id
 
         route = clan_admins_route.format(clan_id=clan_id)
-
         results = (await self.api.get(route=route)).content["results"]
 
         # look if destiny_id is in there
@@ -119,15 +123,15 @@ class DestinyClan:
     ):
         """Invite the User to the clan"""
 
-        clan_id, clan_name = await self.get_clan_id_and_name()
+        clan = await self.get_clan()
 
         # check if inviter actually is admin
-        if not await self.is_clan_admin(clan_id=clan_id):
+        if not await self.is_clan_admin(clan_id=clan.id):
             raise CustomException("ClanNoPermissions")
 
-        route = clan_invite_route.format(clan_id=clan_id, system=to_invite_system, destiny_id=to_invite_destiny_id)
+        route = clan_invite_route.format(clan_id=clan.id, system=to_invite_system, destiny_id=to_invite_destiny_id)
 
-        welcome_message = {"message": f"Welcome to {clan_name}"}
+        welcome_message = {"message": f"Welcome to {clan.id}"}
 
         # todo error out if already in clan. that should return a nice error by the api
         await self.api.post(route=route, json=welcome_message)
@@ -139,13 +143,13 @@ class DestinyClan:
     ):
         """Remove the User from the clan if they are in it"""
 
-        clan_id, clan_name = await self.get_clan_id_and_name()
+        clan = await self.get_clan()
 
         # check if remover actually is admin
-        if not await self.is_clan_admin(clan_id=clan_id):
+        if not await self.is_clan_admin(clan_id=clan.id):
             raise CustomException("ClanNoPermissions")
 
-        route = clan_kick_route.format(clan_id=clan_id, system=to_remove_system, destiny_id=to_remove_destiny_id)
+        route = clan_kick_route.format(clan_id=clan.id, system=to_remove_system, destiny_id=to_remove_destiny_id)
 
         # todo check errors here
         await self.api.post(route=route)

@@ -1,31 +1,12 @@
 import datetime
 import json as json_lib
 import os
+import time
 import unittest.mock
-from unittest import mock
 from urllib.parse import urlencode
 
-from httpx import AsyncClient
-from pytest_mock import MockerFixture
-from sqlalchemy import select
+from dummyData.static import *
 from sqlalchemy.ext.asyncio import AsyncSession
-from static import (
-    dummy_activity_reference_id,
-    dummy_bungie_name,
-    dummy_destiny_id,
-    dummy_destiny_system,
-    dummy_discord_channel_id,
-    dummy_discord_guild_id,
-    dummy_discord_id,
-    dummy_gotten_collectible_id,
-    dummy_gotten_record_id,
-    dummy_instance_id,
-    dummy_lore_id,
-    dummy_not_gotten_collectible_id,
-    dummy_not_gotten_record_id,
-    dummy_refresh_token,
-    dummy_token,
-)
 
 from Backend.core.destiny.activities import DestinyActivities
 from Backend.core.destiny.manifest import DestinyManifest
@@ -49,9 +30,8 @@ from Backend.database.models import (
     DestinySeasonPassDefinition,
     DiscordUsers,
 )
-from Backend.main import app
 from Backend.misc.cache import cache
-from Backend.misc.helperFunctions import get_now_with_tz
+from Backend.misc.helperFunctions import get_now_with_tz, localize_datetime
 from Backend.networking.schemas import WebResponse
 from NetworkingSchemas.misc.auth import BungieTokenInput
 
@@ -103,14 +83,26 @@ async def insert_dummy_data(db: AsyncSession):
         membership_id=dummy_destiny_id,
         state=f"{dummy_discord_id}:{dummy_discord_guild_id}:{dummy_discord_channel_id}",
     )
-
-    # insert the user
     result, user, discord_id, guild_id = await discord_users.insert_profile(db=db, bungie_token=token_data)
-
     assert result.success is True
     assert user.destiny_id == dummy_destiny_id
     assert discord_id == dummy_discord_id
     assert guild_id == dummy_discord_guild_id
+
+    # create our registered destiny user without perms
+    user_without_perms = DiscordUsers(
+        discord_id=dummy_discord_id_without_perms,
+        destiny_id=dummy_destiny_id_without_perms,
+        system=dummy_destiny_system,
+        bungie_name="X#1234",
+        token="abc",
+        refresh_token="def",
+        token_expiry=localize_datetime(datetime.datetime.fromtimestamp(int(time.time()) + 999999999)),
+        refresh_token_expiry=localize_datetime(datetime.datetime.fromtimestamp(int(time.time()) + 999999999)),
+        signup_date=get_now_with_tz(),
+        signup_server_id=dummy_discord_guild_id,
+    )
+    await discord_users._insert(db=db, to_create=user_without_perms)
 
     # =========================================================================
     # update their activities

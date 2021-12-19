@@ -12,6 +12,7 @@ error_codes_and_responses = {
     "UnknownError": "I got an unknown error while handling your request \nPlease contact a developer",
     "NoClanLink": "This guild does not have a linked clan\nPlease have an admin run `/setup clan link` to set this up",
     "NoClan": "The linked clan could not be found. Either bungie is having problems, or the clan link is broken\nPlease consider having an admin run `/setup clan link` again",
+    "UserNoClan": "{discord_member.mention} is not in any clan",
     "ClanNoPermissions": "Could not invite {discord_member.mention} to the linked clan, since the user who linked the clan to this discord guild is no longer a Destiny 2 clan admin\nPlease have an Admin re-link the clan to fix this",
     "NoLfgEventWithIdForGuild": "No LFG event was found for that ID \nPlease try again",
     "NoLfgEventPermissions": "{discord_member.mention} does not have permissions to edit this LFG event \nOnly the creator and discord admins can do that",

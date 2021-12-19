@@ -1344,6 +1344,248 @@
             }
         }
     },
+    "https://www.bungie.net/Platform/User/555/444/0/1/?": {
+        "results": [
+            {
+                "group": {
+                    "groupId": "4107840",
+                    "name": "Descend",
+                    "groupType": 1,
+                    "membershipIdCreated": "17041075",
+                    "creationDate": "2020-01-24T20:39:16.063Z",
+                    "modificationDate": "2021-08-09T14:29:24.626Z",
+                    "about": "We are an EU based community of veteran players who have created their own community for chill PVE and PVP activities while still focusing on raids and other endgame activities.\n\nRequirements:\nJoin the Discord: https://discord.gg/4bjZZ2w\n\nOur community Discord server has a number of roles you can earn through raids and other in-game activities. With new content releases more are added.\n\nMore information about the community can be found in the discord server.",
+                    "tags": [],
+                    "memberCount": 79,
+                    "isPublic": true,
+                    "isPublicTopicAdminOnly": false,
+                    "motto": "With every end, there is a new beginning",
+                    "allowChat": true,
+                    "isDefaultPostPublic": false,
+                    "chatSecurity": 0,
+                    "locale": "en",
+                    "avatarImageIndex": 0,
+                    "homepage": 0,
+                    "membershipOption": 2,
+                    "defaultPublicity": 2,
+                    "theme": "Group_Community1",
+                    "bannerPath": "/img/Themes/Group_Community1/struct_images/group_top_banner.jpg",
+                    "avatarPath": "/img/profile/avatars/group/defaultGroup.png",
+                    "conversationId": "55838701",
+                    "enableInvitationMessagingForAdmins": false,
+                    "banExpireDate": "2001-01-01T00:00:00Z",
+                    "features": {
+                        "maximumMembers": 100,
+                        "maximumMembershipsOfGroupType": 1,
+                        "capabilities": 31,
+                        "membershipTypes": [
+                            1,
+                            2,
+                            3,
+                            5
+                        ],
+                        "invitePermissionOverride": true,
+                        "updateCulturePermissionOverride": true,
+                        "hostGuidedGamePermissionOverride": 2,
+                        "updateBannerPermissionOverride": true,
+                        "joinLevel": 1
+                    },
+                    "clanInfo": {
+                        "d2ClanProgressions": {},
+                        "clanCallsign": "D",
+                        "clanBannerData": {
+                            "decalId": 4142223384,
+                            "decalColorId": 3379387803,
+                            "decalBackgroundColorId": 3568748763,
+                            "gonfalonId": 1473910866,
+                            "gonfalonColorId": 2157636335,
+                            "gonfalonDetailId": 1681253714,
+                            "gonfalonDetailColorId": 4128900502
+                        }
+                    }
+                }
+            }
+        ],
+        "totalResults": 1,
+        "hasMore": false,
+        "query": {
+            "itemsPerPage": 1000,
+            "currentPage": 1
+        },
+        "useTotalResults": true
+    },
+    "https://www.bungie.net/Platform/User/555/445/0/1/?": {
+        "results": [
+            {
+                "group": {
+                    "groupId": "4107840",
+                    "name": "Descend",
+                    "groupType": 1,
+                    "membershipIdCreated": "17041075",
+                    "creationDate": "2020-01-24T20:39:16.063Z",
+                    "modificationDate": "2021-08-09T14:29:24.626Z",
+                    "about": "We are an EU based community of veteran players who have created their own community for chill PVE and PVP activities while still focusing on raids and other endgame activities.\n\nRequirements:\nJoin the Discord: https://discord.gg/4bjZZ2w\n\nOur community Discord server has a number of roles you can earn through raids and other in-game activities. With new content releases more are added.\n\nMore information about the community can be found in the discord server.",
+                    "tags": [],
+                    "memberCount": 79,
+                    "isPublic": true,
+                    "isPublicTopicAdminOnly": false,
+                    "motto": "With every end, there is a new beginning",
+                    "allowChat": true,
+                    "isDefaultPostPublic": false,
+                    "chatSecurity": 0,
+                    "locale": "en",
+                    "avatarImageIndex": 0,
+                    "homepage": 0,
+                    "membershipOption": 2,
+                    "defaultPublicity": 2,
+                    "theme": "Group_Community1",
+                    "bannerPath": "/img/Themes/Group_Community1/struct_images/group_top_banner.jpg",
+                    "avatarPath": "/img/profile/avatars/group/defaultGroup.png",
+                    "conversationId": "55838701",
+                    "enableInvitationMessagingForAdmins": false,
+                    "banExpireDate": "2001-01-01T00:00:00Z",
+                    "features": {
+                        "maximumMembers": 100,
+                        "maximumMembershipsOfGroupType": 1,
+                        "capabilities": 31,
+                        "membershipTypes": [
+                            1,
+                            2,
+                            3,
+                            5
+                        ],
+                        "invitePermissionOverride": true,
+                        "updateCulturePermissionOverride": true,
+                        "hostGuidedGamePermissionOverride": 2,
+                        "updateBannerPermissionOverride": true,
+                        "joinLevel": 1
+                    },
+                    "clanInfo": {
+                        "d2ClanProgressions": {},
+                        "clanCallsign": "D",
+                        "clanBannerData": {
+                            "decalId": 4142223384,
+                            "decalColorId": 3379387803,
+                            "decalBackgroundColorId": 3568748763,
+                            "gonfalonId": 1473910866,
+                            "gonfalonColorId": 2157636335,
+                            "gonfalonDetailId": 1681253714,
+                            "gonfalonDetailColorId": 4128900502
+                        }
+                    }
+                }
+            }
+        ],
+        "totalResults": 1,
+        "hasMore": false,
+        "query": {
+            "itemsPerPage": 1000,
+            "currentPage": 1
+        },
+        "useTotalResults": true
+    },
+    "https://www.bungie.net/Platform/GroupV2/4107840/?": {
+        "detail": {
+            "groupId": "4107840",
+            "name": "Descend",
+            "groupType": 1,
+            "membershipIdCreated": "17041075",
+            "creationDate": "2020-01-24T20:39:16.063Z",
+            "modificationDate": "2021-08-09T14:29:24.626Z",
+            "about": "We are an EU based community of veteran players who have created their own community for chill PVE and PVP activities while still focusing on raids and other endgame activities.\n\nRequirements:\nJoin the Discord: https://discord.gg/4bjZZ2w\n\nOur community Discord server has a number of roles you can earn through raids and other in-game activities. With new content releases more are added.\n\nMore information about the community can be found in the discord server.",
+            "tags": [],
+            "memberCount": 79,
+            "isPublic": true,
+            "isPublicTopicAdminOnly": false,
+            "motto": "With every end, there is a new beginning",
+            "allowChat": true,
+            "isDefaultPostPublic": false,
+            "chatSecurity": 0,
+            "locale": "en",
+            "avatarImageIndex": 0,
+            "homepage": 0,
+            "membershipOption": 2,
+            "defaultPublicity": 2,
+            "theme": "Group_Community1",
+            "bannerPath": "/img/Themes/Group_Community1/struct_images/group_top_banner.jpg",
+            "avatarPath": "/img/profile/avatars/group/defaultGroup.png",
+            "conversationId": "55838701",
+            "enableInvitationMessagingForAdmins": false,
+            "banExpireDate": "2001-01-01T00:00:00Z",
+            "features": {
+                "maximumMembers": 100,
+                "maximumMembershipsOfGroupType": 1,
+                "capabilities": 31,
+                "membershipTypes": [
+                    1,
+                    2,
+                    3,
+                    5
+                ],
+                "invitePermissionOverride": true,
+                "updateCulturePermissionOverride": true,
+                "hostGuidedGamePermissionOverride": 2,
+                "updateBannerPermissionOverride": true,
+                "joinLevel": 1
+            },
+            "clanInfo": {
+                "d2ClanProgressions": {}
+            },
+            "clanCallsign": "Ð",
+            "clanBannerData": {}
+        },
+        "founder": {},
+        "alliedIds": [],
+        "allianceStatus": 0,
+        "groupJoinInviteCount": 0,
+        "currentUserMembershipsInactiveForDestiny": false,
+        "currentUserMemberMap": {},
+        "currentUserPotentialMemberMap": {}
+    },
+    "https://www.bungie.net/Platform/GroupV2/4107840/AdminsAndFounder/?": {
+        "results": [
+            {
+                "memberType": 555,
+                "isOnline": false,
+                "lastOnlineStatusChange": "1639914359",
+                "groupId": "4107840",
+                "destinyUserInfo": {
+                    "LastSeenDisplayName": "Tom",
+                    "LastSeenDisplayNameType": 3,
+                    "iconPath": "/img/theme/bungienet/icons/steamLogo.png",
+                    "crossSaveOverride": 555,
+                    "applicableMembershipTypes": [
+                        555
+                    ],
+                    "isPublic": false,
+                    "membershipType": 555,
+                    "membershipId": "444",
+                    "displayName": "Tom",
+                    "bungieGlobalDisplayName": "Tom",
+                    "bungieGlobalDisplayNameCode": 1234
+                },
+                "bungieNetUserInfo": {
+                    "supplementalDisplayName": "Tom#1234",
+                    "iconPath": "/img/profile/avatars/gholsbane_avatar.gif",
+                    "crossSaveOverride": 0,
+                    "isPublic": false,
+                    "membershipType": 254,
+                    "membershipId": "16674604",
+                    "displayName": "Tom",
+                    "bungieGlobalDisplayName": "Tom",
+                    "bungieGlobalDisplayNameCode": 1234
+                },
+                "joinDate": "2021-08-23T15:56:11Z"
+            }
+        ],
+        "totalResults": 1,
+        "hasMore": false,
+        "query": {
+            "itemsPerPage": 100,
+            "currentPage": 1
+        },
+        "useTotalResults": true
+    },
     "https://www.bungie.net/Platform/Destiny2/Manifest/?": {
         "version": "99687.21.11.15.1900-1-bnet.41786",
         "jsonWorldComponentContentPaths": {
@@ -1514,10 +1756,16 @@
             "index": 308,
             "redacted": false,
             "blacklisted": false,
-            "directActivityModeHash": 547513715 ,
+            "directActivityModeHash": 547513715,
             "directActivityModeType": 46,
-            "activityModeHashes": [547513715],
-            "activityModeTypes": [7, 18, 46]
+            "activityModeHashes": [
+                547513715
+            ],
+            "activityModeTypes": [
+                7,
+                18,
+                46
+            ]
         },
         "8761236781274": {
             "displayProperties": {
@@ -1563,10 +1811,16 @@
             "index": 308,
             "redacted": false,
             "blacklisted": false,
-            "directActivityModeHash": 547513715 ,
+            "directActivityModeHash": 547513715,
             "directActivityModeType": 46,
-            "activityModeHashes": [547513715],
-            "activityModeTypes": [7, 18, 46]
+            "activityModeHashes": [
+                547513715
+            ],
+            "activityModeTypes": [
+                7,
+                18,
+                46
+            ]
         }
     },
     "https://www.bungie.net/common/destiny2_content/json/en/DestinyActivityTypeDefinition-724760e3-1eeb-4614-923b-bbd4ea7e95c9.json?": {
@@ -1683,7 +1937,8 @@
                 "hasIcon": true
             },
             "tooltipNotifications": [],
-            "backgroundColor": {},
+            "backgroundColor": {
+            },
             "screenshot": "/common/destiny2_content/screenshots/2899766705.jpg",
             "itemTypeDisplayName": "Gauntlets",
             "flavorText": "",
@@ -1776,7 +2031,8 @@
                 "hasIcon": true
             },
             "tooltipNotifications": [],
-            "backgroundColor": {},
+            "backgroundColor": {
+            },
             "screenshot": "/common/destiny2_content/screenshots/2899766705.jpg",
             "itemTypeDisplayName": "Gauntlets",
             "flavorText": "",
@@ -1869,7 +2125,8 @@
                 "hasIcon": true
             },
             "tooltipNotifications": [],
-            "backgroundColor": {},
+            "backgroundColor": {
+            },
             "screenshot": "/common/destiny2_content/screenshots/2899766705.jpg",
             "itemTypeDisplayName": "Gauntlets",
             "flavorText": "",
@@ -1962,7 +2219,8 @@
                 "hasIcon": true
             },
             "tooltipNotifications": [],
-            "backgroundColor": {},
+            "backgroundColor": {
+            },
             "screenshot": "/common/destiny2_content/screenshots/2899766705.jpg",
             "itemTypeDisplayName": "Gauntlets",
             "flavorText": "",
@@ -2055,7 +2313,8 @@
                 "hasIcon": true
             },
             "tooltipNotifications": [],
-            "backgroundColor": {},
+            "backgroundColor": {
+            },
             "screenshot": "/common/destiny2_content/screenshots/2899766705.jpg",
             "itemTypeDisplayName": "Gauntlets",
             "flavorText": "",
@@ -2148,7 +2407,8 @@
                 "hasIcon": true
             },
             "tooltipNotifications": [],
-            "backgroundColor": {},
+            "backgroundColor": {
+            },
             "screenshot": "/common/destiny2_content/screenshots/2899766705.jpg",
             "itemTypeDisplayName": "Gauntlets",
             "flavorText": "",
@@ -2241,7 +2501,8 @@
                 "hasIcon": true
             },
             "tooltipNotifications": [],
-            "backgroundColor": {},
+            "backgroundColor": {
+            },
             "screenshot": "/common/destiny2_content/screenshots/2899766705.jpg",
             "itemTypeDisplayName": "Gauntlets",
             "flavorText": "",
@@ -2334,7 +2595,8 @@
                 "hasIcon": true
             },
             "tooltipNotifications": [],
-            "backgroundColor": {},
+            "backgroundColor": {
+            },
             "screenshot": "/common/destiny2_content/screenshots/2899766705.jpg",
             "itemTypeDisplayName": "Gauntlets",
             "flavorText": "",
@@ -2427,7 +2689,8 @@
                 "hasIcon": true
             },
             "tooltipNotifications": [],
-            "backgroundColor": {},
+            "backgroundColor": {
+            },
             "screenshot": "/common/destiny2_content/screenshots/2899766705.jpg",
             "itemTypeDisplayName": "Gauntlets",
             "flavorText": "",
@@ -2520,7 +2783,8 @@
                 "hasIcon": true
             },
             "tooltipNotifications": [],
-            "backgroundColor": {},
+            "backgroundColor": {
+            },
             "screenshot": "/common/destiny2_content/screenshots/2899766705.jpg",
             "itemTypeDisplayName": "Gauntlets",
             "flavorText": "",

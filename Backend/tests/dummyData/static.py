@@ -9,6 +9,9 @@ dummy_bungie_name = "Tom#1234"
 dummy_token = 111111
 dummy_refresh_token = 222222
 
+dummy_destiny_id_without_perms = 445
+dummy_discord_id_without_perms = 334
+
 # saved pgcr data
 dummy_instance_id = 12345
 dummy_activity_reference_id = 1337
