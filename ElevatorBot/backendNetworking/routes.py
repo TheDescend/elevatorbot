@@ -43,8 +43,8 @@ destiny_clan_get_route = destiny_clan_route + "get/"  # GET
 destiny_clan_get_members_route = destiny_clan_route + "members/"  # GET
 destiny_clan_get_members_no_cache_route = destiny_clan_route + "members/no_cache/"  # GET
 destiny_clan_search_members_route = destiny_clan_route + "members/search/{search_phrase}/"  # GET
-destiny_clan_invite_route = destiny_clan_route + "{discord_id}/invite/"  # POST
-destiny_clan_kick_route = destiny_clan_route + "{discord_id}/kick/"  # POST
+destiny_clan_invite_route = destiny_clan_route + "invite/{discord_id}/"  # POST
+destiny_clan_kick_route = destiny_clan_route + "kick/{discord_id}/"  # POST
 destiny_clan_link_route = destiny_clan_route + "{discord_id}/link/"  # POST
 destiny_clan_unlink_route = destiny_clan_route + "{discord_id}/unlink/"  # DELETE
 

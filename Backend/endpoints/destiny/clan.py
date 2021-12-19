@@ -30,7 +30,7 @@ async def get_clan(guild_id: int, db: AsyncSession = Depends(get_db_session)):
     return await clan.get_clan()
 
 
-@router.get("/members", response_model=DestinyClanMembersModel)
+@router.get("/members", response_model=DestinyClanMembersModel)  # has test
 async def get_clan_members(guild_id: int, db: AsyncSession = Depends(get_db_session)):
     """Return the clan members"""
 
@@ -41,7 +41,7 @@ async def get_clan_members(guild_id: int, db: AsyncSession = Depends(get_db_sess
     return DestinyClanMembersModel(members=members)
 
 
-@router.get("/members/no_cache", response_model=DestinyClanMembersModel)
+@router.get("/members/no_cache", response_model=DestinyClanMembersModel)  # has test
 async def get_clan_members_no_cache(guild_id: int, db: AsyncSession = Depends(get_db_session)):
     """Return the clan members without using any cached bungie data"""
 
@@ -52,7 +52,7 @@ async def get_clan_members_no_cache(guild_id: int, db: AsyncSession = Depends(ge
     return DestinyClanMembersModel(members=members)
 
 
-@router.get("/members/search/{search_phrase}", response_model=DestinyClanMembersModel)
+@router.get("/members/search/{search_phrase}", response_model=DestinyClanMembersModel)  # has test
 async def search_clan_members(guild_id: int, search_phrase: str, db: AsyncSession = Depends(get_db_session)):
     """Return the clan members"""
 
@@ -108,7 +108,7 @@ async def unlink_clan(
     return DestinyClanLink(success=True, clan_name=linked_clan.name)
 
 
-@router.post("/{discord_id}/invite/", response_model=DestinyProfileModel)
+@router.post("/invite/{discord_id}/", response_model=DestinyProfileModel)  # has test
 async def invite(
     guild_id: int,
     discord_id: int,
@@ -130,7 +130,7 @@ async def invite(
     return DestinyProfileModel.from_orm(to_invite_user)
 
 
-@router.post("/{discord_id}/kick/", response_model=DestinyProfileModel)
+@router.post("/kick/{discord_id}/", response_model=DestinyProfileModel)  # has test
 async def kick(
     guild_id: int,
     discord_id: int,
@@ -146,7 +146,7 @@ async def kick(
     to_kick_user = await discord_users.get_profile_from_discord_id(db=db, discord_id=discord_id)
 
     # kick from clan
-    clan = DestinyClan(db=db, user=clan_admin_user)
+    clan = DestinyClan(db=db, guild_id=guild_id, user=clan_admin_user)
     await clan.remove_from_clan(to_remove_destiny_id=to_kick_user.destiny_id, to_remove_system=to_kick_user.system)
 
     return DestinyProfileModel.from_orm(to_kick_user)

@@ -46,24 +46,18 @@ async def mock_request(
 ) -> WebResponse:
     if params is None:
         params = {}
+    param_route = f"{route}?{urlencode(params)}"
 
-    if method == "GET":
-        with open(
-            os.path.join(os.path.dirname(os.path.realpath(__file__)), "data.json"), "r", encoding="utf-8"
-        ) as file:
-            dummy_data: dict = json_lib.load(file)
+    with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), "data.json"), "r", encoding="utf-8") as file:
+        dummy_data: dict = json_lib.load(file)
 
         # capture the required route when this fails
-        param_route = f"{route}?{urlencode(params)}"
         try:
             return WebResponse(0, 200, dummy_data[param_route], True)
         except KeyError as e:
             print("Tried to call this route, but it doesnt exist in the dummy data:")
             print(route)
             raise e
-
-    else:
-        raise ValueError(f"Method was not GET, but {method}")
 
 
 async def mock_elevator_post(self, *args, **kwargs):

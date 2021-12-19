@@ -1586,6 +1586,96 @@
         },
         "useTotalResults": true
     },
+    "https://www.bungie.net/Platform/GroupV2/4107840/Members/?nameSearch=": {
+        "results": [
+            {
+                "memberType": 2,
+                "isOnline": true,
+                "lastOnlineStatusChange": "1638713012",
+                "groupId": "4107840",
+                "destinyUserInfo": {
+                    "LastSeenDisplayName": "Tom",
+                    "LastSeenDisplayNameType": 555,
+                    "iconPath": "/img/theme/bungienet/icons/steamLogo.png",
+                    "crossSaveOverride": 555,
+                    "applicableMembershipTypes": [
+                        555
+                    ],
+                    "isPublic": false,
+                    "membershipType": 555,
+                    "membershipId": "444",
+                    "displayName": "kev",
+                    "bungieGlobalDisplayName": "Tom",
+                    "bungieGlobalDisplayNameCode": 1234
+                },
+                "bungieNetUserInfo": {
+                    "supplementalDisplayName": "Tom#1234",
+                    "iconPath": "/img/profile/avatars/cc00004.jpg",
+                    "crossSaveOverride": 0,
+                    "isPublic": false,
+                    "membershipType": 254,
+                    "membershipId": "23367403",
+                    "displayName": "Tom",
+                    "bungieGlobalDisplayName": "Tom",
+                    "bungieGlobalDisplayNameCode": 1234
+                },
+                "joinDate": "2021-07-06T02:31:44Z"
+            }
+        ],
+        "totalResults": 1,
+        "hasMore": false,
+        "query": {
+            "itemsPerPage": 100,
+            "currentPage": 1
+        },
+        "useTotalResults": true
+    },
+    "https://www.bungie.net/Platform/GroupV2/4107840/Members/?nameSearch=tom": {
+        "results": [
+            {
+                "memberType": 2,
+                "isOnline": true,
+                "lastOnlineStatusChange": "1638713012",
+                "groupId": "4107840",
+                "destinyUserInfo": {
+                    "LastSeenDisplayName": "Tom",
+                    "LastSeenDisplayNameType": 555,
+                    "iconPath": "/img/theme/bungienet/icons/steamLogo.png",
+                    "crossSaveOverride": 555,
+                    "applicableMembershipTypes": [
+                        555
+                    ],
+                    "isPublic": false,
+                    "membershipType": 555,
+                    "membershipId": "444",
+                    "displayName": "kev",
+                    "bungieGlobalDisplayName": "Tom",
+                    "bungieGlobalDisplayNameCode": 1234
+                },
+                "bungieNetUserInfo": {
+                    "supplementalDisplayName": "Tom#1234",
+                    "iconPath": "/img/profile/avatars/cc00004.jpg",
+                    "crossSaveOverride": 0,
+                    "isPublic": false,
+                    "membershipType": 254,
+                    "membershipId": "23367403",
+                    "displayName": "Tom",
+                    "bungieGlobalDisplayName": "Tom",
+                    "bungieGlobalDisplayNameCode": 1234
+                },
+                "joinDate": "2021-07-06T02:31:44Z"
+            }
+        ],
+        "totalResults": 1,
+        "hasMore": false,
+        "query": {
+            "itemsPerPage": 100,
+            "currentPage": 1
+        },
+        "useTotalResults": true
+    },
+    "https://www.bungie.net/Platform/GroupV2/4107840/Members/IndividualInvite/555/444/?": {},
+    "https://www.bungie.net/Platform/GroupV2/4107840/Members/555/444/Kick/?": {},
     "https://www.bungie.net/Platform/Destiny2/Manifest/?": {
         "version": "99687.21.11.15.1900-1-bnet.41786",
         "jsonWorldComponentContentPaths": {

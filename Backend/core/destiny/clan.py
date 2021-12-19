@@ -1,4 +1,5 @@
 import dataclasses
+import datetime
 from typing import Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -6,7 +7,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from Backend.core.errors import CustomException
 from Backend.crud import destiny_clan_links, discord_users
 from Backend.database.models import DiscordUsers
-from Backend.misc.helperFunctions import get_datetime_from_bungie_entry
+from Backend.misc.helperFunctions import (
+    get_datetime_from_bungie_entry,
+    localize_datetime,
+)
 from Backend.networking.bungieApi import BungieApi
 from Backend.networking.bungieRoutes import (
     clan_admins_route,
@@ -83,7 +87,9 @@ class DestinyClan:
                     destiny_id=destiny_id,
                     name=f"""{result["destinyUserInfo"]["bungieGlobalDisplayName"]}#{result["destinyUserInfo"]["bungieGlobalDisplayNameCode"]}""",
                     is_online=result["isOnline"],
-                    last_online_status_change=get_datetime_from_bungie_entry(result["lastOnlineStatusChange"]),
+                    last_online_status_change=localize_datetime(
+                        datetime.datetime.fromtimestamp(int(result["lastOnlineStatusChange"]))
+                    ),
                     join_date=get_datetime_from_bungie_entry(result["joinDate"]),
                     discord_id=discord_data.discord_id if discord_data else None,
                 )
@@ -131,7 +137,7 @@ class DestinyClan:
 
         route = clan_invite_route.format(clan_id=clan.id, system=to_invite_system, destiny_id=to_invite_destiny_id)
 
-        welcome_message = {"message": f"Welcome to {clan.id}"}
+        welcome_message = {"message": f"Welcome to {clan.name}"}
 
         # todo error out if already in clan. that should return a nice error by the api
         await self.api.post(route=route, json=welcome_message)
@@ -151,5 +157,4 @@ class DestinyClan:
 
         route = clan_kick_route.format(clan_id=clan.id, system=to_remove_system, destiny_id=to_remove_destiny_id)
 
-        # todo check errors here
         await self.api.post(route=route)

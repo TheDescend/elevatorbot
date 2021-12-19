@@ -4,7 +4,7 @@ import dataclasses
 import datetime
 from typing import Any, Generator, Optional
 
-import pytz
+import dateutil.parser
 
 
 def get_now_with_tz() -> datetime.datetime:
@@ -22,13 +22,7 @@ def localize_datetime(obj: datetime.datetime) -> datetime.datetime:
 def get_datetime_from_bungie_entry(string: str) -> datetime.datetime:
     """Converts the bungie string to a utc datetime obj"""
 
-    return add_utc_tz(datetime.datetime.strptime(string, "%Y-%m-%dT%H:%M:%SZ"))
-
-
-def add_utc_tz(obj: datetime.datetime) -> datetime.datetime:
-    """Returns a timezone aware object, localized to utc"""
-
-    return pytz.utc.localize(obj)
+    return dateutil.parser.parse(string)
 
 
 @dataclasses.dataclass

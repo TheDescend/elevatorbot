@@ -224,6 +224,17 @@ class NetworkBase:
 
                 await asyncio.sleep(throttle_seconds + random.randrange(1, 3))
 
+            case (status, "GroupMembershipNotFound"):
+                # if user doesn't have that item
+                self.logger.error(
+                    "'%s - %s': User is not in clan '%s' - '%s'",
+                    status,
+                    response.error,
+                    route_with_params,
+                    response,
+                )
+                raise CustomException("BungieGroupMembershipNotFound")
+
             case (status, "DestinyItemNotFound"):
                 # if user doesn't have that item
                 self.logger.error(
