@@ -1,4 +1,5 @@
 import datetime
+from time import sleep
 
 from sqlalchemy import (
     ARRAY,
@@ -436,9 +437,19 @@ async def create_tables(engine: Engine):
 
     if not _TABLES_CREATED:
         _TABLES_CREATED = True
+        failed = False
+        for _ in range(10):
+            try:
+                async with engine.begin() as connection:
+                    if is_test_mode():
+                        await connection.run_sync(Base.metadata.drop_all)
 
-        async with engine.begin() as connection:
-            if is_test_mode():
-                await connection.run_sync(Base.metadata.drop_all)
+                    await connection.run_sync(Base.metadata.create_all)
+                    if failed:
+                        print("Database connection success")
+            except:
+                sleep(1)
+                print("Database not ready, retrying...")
+                failed = True
+                pass
 
-            await connection.run_sync(Base.metadata.create_all)
