@@ -88,7 +88,7 @@ class DestinyWeapons:
             else:
                 format_helper[weapon.name].reference_ids.append(weapon.reference_id)
 
-        return DestinyWeaponsModel(weapons=list[format_helper.values()])
+        return DestinyWeaponsModel(weapons=list(format_helper.values()))
 
     async def get_weapon_stats(
         self,
