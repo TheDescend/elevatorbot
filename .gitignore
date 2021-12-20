@@ -31,3 +31,4 @@ psql_credentials.py
 config.py
 slashCommandConfig.py
 Website/package-lock.json
+Website/build
