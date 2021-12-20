@@ -20,11 +20,11 @@ SYNC_COMMANDS: bool = True
 
 # This is the admin password for the website that is generated on startup
 # Please change it to something only you know
-# User Name is "admin"
+# Username is "admin"
 ADMIN_PASSWORD: str = ""
 
 # The discord bot token to launch the bot
-DISCORD_BOT_TOKEN: str = ""
+DISCORD_APPLICATION_API_KEY: str = ""
 
 # Your own bungie token, and you bungie secret data. Needed to access bungies api
 BUNGIE_APPLICATION_API_KEY: str = ""
@@ -32,4 +32,4 @@ BUNGIE_APPLICATION_CLIENT_SECRET: str = ""
 BUNGIE_APPLICATION_CLIENT_ID: str = ""
 
 # Your steam token. This is needed to access the steam api and query the current amount of D2 players
-STEAM_TOKEN: str = ""
+STEAM_APPLICATION_API_KEY: str = ""
