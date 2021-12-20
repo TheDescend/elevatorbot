@@ -35,6 +35,13 @@ from Backend.database.models import (
 from Backend.misc.cache import cache
 from Backend.misc.helperFunctions import get_now_with_tz, localize_datetime
 from Backend.networking.schemas import WebResponse
+from NetworkingSchemas.destiny.roles import (
+    RequirementActivityModel,
+    RequirementIntegerModel,
+    RoleDataModel,
+    RoleModel,
+    RolesModel,
+)
 from NetworkingSchemas.misc.auth import BungieTokenInput
 from NetworkingSchemas.misc.persistentMessages import (
     PersistentMessage,
@@ -294,3 +301,41 @@ async def insert_dummy_data(db: AsyncSession, client: AsyncClient):
     assert data.guild_id == dummy_discord_guild_id
     assert data.channel_id == dummy_persistent_lfg_voice_category_id
     assert data.message_id is None
+
+    assert cache.persistent_messages
+
+    # =========================================================================
+    # insert roles
+    input_model = RoleModel(
+        role_id=1,
+        guild_id=dummy_discord_guild_id,
+        role_name="Test Role",
+        role_data=RoleDataModel(
+            category="Destiny Roles",
+            deprecated=False,
+            acquirable=True,
+            require_activity_completions=[],
+            require_collectibles=[],
+            require_records=[RequirementIntegerModel(id=dummy_gotten_record_id)],
+            require_role_ids=[],
+            replaced_by_role_id=None,
+        ),
+    )
+    r = await client.post(f"/destiny/roles/{dummy_discord_guild_id}/create", json=orjson.loads(input_model.json()))
+    assert r.status_code == 200
+
+    # delete all roles
+    r = await client.delete(f"/destiny/roles/{dummy_discord_guild_id}/delete/all")
+    assert r.status_code == 200
+
+    r = await client.get(f"/destiny/roles/{dummy_discord_guild_id}/get/all")
+    assert r.status_code == 200
+    data = RolesModel.parse_obj(r.json())
+    assert data.roles == []
+
+    # insert the role again because we need it
+    r = await client.post(f"/destiny/roles/{dummy_discord_guild_id}/create", json=orjson.loads(input_model.json()))
+    assert r.status_code == 200
+
+    assert cache.roles
+    assert cache.guild_roles

@@ -1,6 +1,3 @@
-import datetime
-import time
-
 import pytest
 from dummyData.insert import mock_request
 from dummyData.static import *
@@ -8,9 +5,6 @@ from httpx import AsyncClient
 from pytest_mock import MockerFixture
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from Backend.crud import discord_users
-from Backend.database.models import DiscordUsers
-from Backend.misc.helperFunctions import get_now_with_tz, localize_datetime
 from NetworkingSchemas.destiny.profile import DestinyHasTokenModel, DestinyProfileModel
 
 

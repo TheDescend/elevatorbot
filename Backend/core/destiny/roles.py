@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from Backend.core.destiny.profile import DestinyProfile
 from Backend.core.errors import CustomException
 from Backend.crud import crud_activities
-from Backend.crud.destiny.roles import CRUDRoles, roles
+from Backend.crud.destiny.roles import CRUDRoles, crud_roles
 from Backend.database.models import Roles
 from NetworkingSchemas.destiny.roles import (
     EarnedRoleModel,
@@ -34,7 +34,7 @@ class UserRoles:
     db: AsyncSession
     user: DestinyProfile
 
-    roles: CRUDRoles = roles
+    crud_roles: CRUDRoles = crud_roles
 
     _cache_worthy: dict = dataclasses.field(default_factory=dict, init=False)
     _cache_worthy_info: dict = dataclasses.field(default_factory=dict, init=False)
@@ -50,7 +50,7 @@ class UserRoles:
 
         # loop through the roles and sort them based on if they are acquirable or not
         for role_data in missing_roles:
-            role = await self.roles.get_role(db=self.db, role_id=role_data.discord_role_id)
+            role = await self.crud_roles.get_role(db=self.db, role_id=role_data.discord_role_id)
 
             model = RolesCategoryModel(category=role.role_data.category, discord_role_id=role.role_id)
 
@@ -66,7 +66,7 @@ class UserRoles:
         """Return all the gotten / not gotten guild roles"""
 
         # get all guild roles
-        guild_roles = await self.roles.get_guild_roles(db=self.db, guild_id=guild_id)
+        guild_roles = await self.crud_roles.get_guild_roles(db=self.db, guild_id=guild_id)
         user_roles = EarnedRolesModel()
 
         # gather the results for faster responses
@@ -117,7 +117,7 @@ class UserRoles:
         worthy, data = await self._has_role(
             role=role, called_with_asyncio_gather=False, i_only_need_the_bool=i_only_need_the_bool
         )
-        return EarnedRoleModel(earned=worthy, user_data=data, user_role_data=role.role_data)
+        return EarnedRoleModel(earned=worthy, role=role, user_role_data=data)
 
     async def _has_role(
         self, role: RoleModel, called_with_asyncio_gather: bool, i_only_need_the_bool: bool
@@ -133,6 +133,7 @@ class UserRoles:
             return self._cache_worthy[role.role_id], self._cache_worthy_info[role.role_id]
 
         # gather all get_requirements
+        self._cache_worthy_info[role.role_id] = {}
         try:
             results = await asyncio.gather(
                 *[
@@ -146,7 +147,8 @@ class UserRoles:
                 ]
             )
         except RoleNotEarnedException as e:
-            return RoleEnum.NOT_EARNED, RoleDataUserModel.parse_obj(self._cache_worthy_info[e.role_id])
+            self._cache_worthy[role.role_id] = RoleEnum.NOT_EARNED
+            return self._cache_worthy[role.role_id], RoleDataUserModel.parse_obj(self._cache_worthy_info[e.role_id])
 
         # loop through the results and check if all reqs are OK
         worthy = RoleEnum.EARNED
@@ -180,6 +182,7 @@ class UserRoles:
                 for entry in role.role_data.require_activity_completions:
                     found = await crud_activities.get_activities(
                         db=self.db,
+                        destiny_id=self.user.destiny_id,
                         activity_hashes=entry.allowed_activity_hashes,
                         no_checkpoints=not entry.allow_checkpoints,
                         require_team_flawless=entry.require_team_flawless,
@@ -304,7 +307,7 @@ class UserRoles:
 
                     # check the sub-roles ourselves
                     else:
-                        sub_role: Roles = await roles.get_role(db=self.db, role_id=requirement_role.id)
+                        sub_role: Roles = await crud_roles.get_role(db=self.db, role_id=requirement_role.id)
                         sub_role_worthy, _ = await self._has_role(
                             role=sub_role, called_with_asyncio_gather=False, i_only_need_the_bool=i_only_need_the_bool
                         )
@@ -338,7 +341,9 @@ class UserRoles:
                 # only need to check this sometimes
                 if role.role_data.replaced_by_role_id and not called_with_asyncio_gather:
                     # check the higher role
-                    higher_role: Roles = await roles.get_role(db=self.db, role_id=role.role_data.replaced_by_role_id)
+                    higher_role: Roles = await crud_roles.get_role(
+                        db=self.db, role_id=role.role_data.replaced_by_role_id
+                    )
                     higher_role_worthy, _ = await self._has_role(
                         role=higher_role, called_with_asyncio_gather=False, i_only_need_the_bool=i_only_need_the_bool
                     )
