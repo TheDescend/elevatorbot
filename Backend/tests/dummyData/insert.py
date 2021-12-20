@@ -104,6 +104,21 @@ async def insert_dummy_data(db: AsyncSession, client: AsyncClient):
     )
     await discord_users._insert(db=db, to_create=user_without_perms)
 
+    # create a user that is deleted later
+    user_to_delete = DiscordUsers(
+        discord_id=99,
+        destiny_id=98,
+        system=dummy_destiny_system,
+        bungie_name="Y#1234",
+        token="abc",
+        refresh_token="def",
+        token_expiry=localize_datetime(datetime.datetime.fromtimestamp(int(time.time()) + 999999999)),
+        refresh_token_expiry=localize_datetime(datetime.datetime.fromtimestamp(int(time.time()) + 999999999)),
+        signup_date=get_now_with_tz(),
+        signup_server_id=dummy_discord_guild_id,
+    )
+    await discord_users._insert(db=db, to_create=user_to_delete)
+
     # =========================================================================
     # update their activities
     activities = DestinyActivities(db=db, user=user)
