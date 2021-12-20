@@ -51,7 +51,8 @@ async def init_db_tables(event_loop):
 async def db(init_db_tables) -> AsyncSession:
     # first, insert the dummy data
     async with get_async_session().begin() as session:
-        await insert_dummy_data(db=session)
+        async with AsyncClient(app=app, base_url="http://testserver", follow_redirects=True) as client:
+            await insert_dummy_data(db=session, client=client)
 
     # yield the session obj to the rest
     async with get_async_session().begin() as session:

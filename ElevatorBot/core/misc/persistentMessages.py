@@ -41,7 +41,7 @@ async def handle_setup_command(
     if send_message:
         assert send_message_content or send_message_embed
 
-    # check that the message if from me
+    # check that the message exists
     message = None
     if message_id:
         try:

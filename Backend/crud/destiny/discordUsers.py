@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from Backend.core.errors import CustomException
 from Backend.crud.base import CRUDBase
 from Backend.crud.discord.roles import roles
+from Backend.crud.misc.persistentMessages import persistent_messages
 from Backend.database.models import DiscordUsers
 from Backend.misc.cache import cache
 from Backend.misc.helperFunctions import get_now_with_tz, localize_datetime
@@ -243,7 +244,7 @@ class CRUDDiscordUser(CRUDBase):
 
         # loop through guilds to remove registration info from the user
         data = []
-        role_data = await roles.get_registration_roles(db=db)
+        role_data = await persistent_messages.get_registration_roles(db=db)
         for role in role_data:
             guild_id = role.guild_id
             registered_role_id = role.channel_id
@@ -278,7 +279,7 @@ class CRUDDiscordUser(CRUDBase):
 
         # loop through guilds to remove registration info from the user
         data = []
-        role_data = await roles.get_registration_roles(db=db)
+        role_data = await persistent_messages.get_registration_roles(db=db)
         for role in role_data:
             guild_id = role.guild_id
             registered_role_id = role.channel_id

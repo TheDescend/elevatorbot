@@ -17,7 +17,7 @@ from ElevatorBot.startup.initLogging import init_logging
 from ElevatorBot.static.descendOnlyIds import descend_channels
 from ElevatorBot.static.emojis import custom_emojis
 from ElevatorBot.webserver.server import run_webserver
-from settings import DISCORD_BOT_TOKEN, ENABLE_DEBUG_MODE, SYNC_COMMANDS
+from settings import DISCORD_APPLICATION_API_KEY, ENABLE_DEBUG_MODE, SYNC_COMMANDS
 
 
 class ElevatorSnake(CustomErrorSnake):
@@ -128,4 +128,4 @@ if __name__ == "__main__":
     print(f"< {local_context_menus - local_commands} > Local Context Menus Loaded")
 
     # run the bot
-    client.start(DISCORD_BOT_TOKEN)
+    client.start(DISCORD_APPLICATION_API_KEY)

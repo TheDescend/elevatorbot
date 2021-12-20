@@ -2,7 +2,7 @@ from Backend.backgroundEvents.base import BaseEvent
 from Backend.crud import d2_steam_players
 from Backend.database.base import get_async_session
 from Backend.networking.bungieApi import BungieApi
-from settings import STEAM_TOKEN
+from settings import STEAM_APPLICATION_API_KEY
 
 
 class SteamPlayerUpdater(BaseEvent):
@@ -15,7 +15,7 @@ class SteamPlayerUpdater(BaseEvent):
     async def run(self):
         async with get_async_session().begin() as db:
             # init api connection
-            headers = {"X-API-Key": STEAM_TOKEN}
+            headers = {"X-API-Key": STEAM_APPLICATION_API_KEY}
             steam_api = BungieApi(db=db, user=None, headers=headers)
 
             # get current amount of players

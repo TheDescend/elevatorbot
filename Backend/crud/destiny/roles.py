@@ -108,8 +108,16 @@ class CRUDRoles(CRUDBase):
     async def _update_cache(self, db: AsyncSession, role: RoleModel):
         """Update the role cache"""
 
-        self.cache.roles.update({role.role_id: role})
-        await self.__update_guild_cache(db=db, guild_id=role.guild_id)
+        # get the pydantic model
+        pydantic_model = RoleModel(
+            role_id=role.role_id,
+            guild_id=role.guild_id,
+            role_name=role.role_name,
+            role_data=RoleDataModel.parse_obj(role.role_data),
+        )
+
+        self.cache.roles.update({pydantic_model.role_id: pydantic_model})
+        await self.__update_guild_cache(db=db, guild_id=pydantic_model.guild_id)
 
     async def __update_guild_cache(self, db: AsyncSession, guild_id: int):
         """Update the guild role cache"""
@@ -121,4 +129,4 @@ class CRUDRoles(CRUDBase):
         await self.get_guild_roles(db=db, guild_id=guild_id)
 
 
-roles = CRUDRoles(Roles)
+crud_roles = CRUDRoles(Roles)

@@ -21,12 +21,12 @@ router = APIRouter(
 )
 
 
-@router.get("/get/all", response_model=AllLfgOutputModel)
+@router.get("/get/all", response_model=AllLfgOutputModel)  # has test
 async def get_all(guild_id: int, db: AsyncSession = Depends(get_db_session)):
     """Gets all the lfg events and info belonging to the guild"""
 
     voice_category_channel_id = await lfg.get_voice_category_channel_id(db=db, guild_id=guild_id)
-    objs = await lfg.get_all_name(db=db, guild_id=guild_id)
+    objs = await lfg.get_all(db=db, guild_id=guild_id)
 
     result = AllLfgOutputModel()
     for obj in objs:
@@ -38,7 +38,7 @@ async def get_all(guild_id: int, db: AsyncSession = Depends(get_db_session)):
     return result
 
 
-@router.get("/get/{lfg_id}", response_model=LfgOutputModel)
+@router.get("/get/{lfg_id}", response_model=LfgOutputModel)  # has test
 async def get(guild_id: int, lfg_id: int, db: AsyncSession = Depends(get_db_session)):
     """Gets the lfg info belonging to the lfg id and guild"""
 
@@ -51,14 +51,14 @@ async def get(guild_id: int, lfg_id: int, db: AsyncSession = Depends(get_db_sess
     return result
 
 
-@router.get("/{discord_id}/get/all", response_model=UserAllLfgOutputModel)
+@router.get("/{discord_id}/get/all", response_model=UserAllLfgOutputModel)  # has test
 async def user_get_all(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Gets the lfg infos belonging to the discord_id"""
 
     return await lfg.get_user(db=db, discord_id=discord_id, guild_id=guild_id)
 
 
-@router.post("/{discord_id}/update/{lfg_id}", response_model=LfgOutputModel)
+@router.post("/{discord_id}/update/{lfg_id}", response_model=LfgOutputModel)  # has test
 async def update(
     guild_id: int,
     discord_id: int,
@@ -77,7 +77,7 @@ async def update(
     return result
 
 
-@router.post("/{discord_id}/create", response_model=LfgOutputModel)
+@router.post("/{discord_id}/create", response_model=LfgOutputModel)  # has test
 async def create(
     guild_id: int, discord_id: int, lfg_data: LfgCreateInputModel, db: AsyncSession = Depends(get_db_session)
 ):
@@ -86,7 +86,8 @@ async def create(
     Guild_id describes the guild where the lfg message got created and discord_id the author
     """
 
-    channel_id = None
+    # get the linked lfg channel
+    channel_id = await lfg.get_channel_id(db=db, guild_id=guild_id)
 
     # get the creation time
     creation_time = get_now_with_tz()
@@ -107,7 +108,7 @@ async def create(
     return result
 
 
-@router.delete("/{discord_id}/delete/{lfg_id}", response_model=EmptyResponseModel)
+@router.delete("/{discord_id}/delete/{lfg_id}", response_model=EmptyResponseModel)  # has test
 async def delete(guild_id: int, discord_id: int, lfg_id: int, db: AsyncSession = Depends(get_db_session)):
     """
     Delete the lfg info belonging to the lfg id and guild
@@ -119,7 +120,7 @@ async def delete(guild_id: int, discord_id: int, lfg_id: int, db: AsyncSession =
     return EmptyResponseModel()
 
 
-@router.delete("/delete/all", response_model=AllLfgDeleteOutputModel)
+@router.delete("/delete/all", response_model=AllLfgDeleteOutputModel)  # has test
 async def delete_all(guild_id: int, db: AsyncSession = Depends(get_db_session)):
     """
     Delete all lfg events for the guild

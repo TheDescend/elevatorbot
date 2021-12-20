@@ -411,7 +411,7 @@ class PersistentMessage(Base):
 
     guild_id = Column(BigInteger, nullable=False, primary_key=True, autoincrement=False)
     channel_id = Column(BigInteger, nullable=False)
-    message_id = Column(BigInteger, nullable=False)
+    message_id = Column(BigInteger, nullable=True)
 
 
 class ModerationLog(Base):

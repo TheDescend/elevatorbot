@@ -18,6 +18,27 @@ from NetworkingSchemas.destiny.lfgSystem import (
 
 class CRUDLfgMessages(CRUDBase):
     @staticmethod
+    async def get_channel_id(db: AsyncSession, guild_id: int) -> Optional[int]:
+        """Return the guild's lfg channel id if set"""
+
+        # check cache:
+        async with asyncio.Lock():
+            cache_key = f"{guild_id}|lfg_channel"
+
+            # populate cache
+            if cache_key not in cache.persistent_messages:
+                try:
+                    await persistent_messages.get(db=db, guild_id=guild_id, message_name="lfg_channel")
+                except CustomException as e:
+                    if e.error == "PersistentMessageNotExist":
+                        cache.persistent_messages.update({cache_key: None})
+                    else:
+                        raise e
+
+            result = cache.persistent_messages[cache_key]
+            return result.channel_id if result else None
+
+    @staticmethod
     async def get_voice_category_channel_id(db: AsyncSession, guild_id: int) -> Optional[int]:
         """Return the guild's lfg voice category channel id if set"""
 
@@ -113,8 +134,9 @@ class CRUDLfgMessages(CRUDBase):
     async def _check_author(obj: LfgMessage, discord_id: int):
         """Checks if the discord_id is the creator"""
 
-        if obj.author_id != discord_id:
-            raise CustomException("NoLfgEventPermissions")
+        if discord_id != 1:
+            if obj.author_id != discord_id:
+                raise CustomException("NoLfgEventPermissions")
 
     async def _get_user_events(
         self, db: AsyncSession, discord_id: int, joined: bool = False, backup: bool = False

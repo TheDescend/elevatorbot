@@ -13,7 +13,7 @@ router = APIRouter(
 )
 
 
-@router.get("/collectible/{collectible_id}", response_model=NameModel)
+@router.get("/collectible/{collectible_id}", response_model=NameModel)  # has test
 async def get_collectible_name(collectible_id: int, db: AsyncSession = Depends(get_db_session)):
     """Gets the collectible name"""
 
@@ -21,15 +21,15 @@ async def get_collectible_name(collectible_id: int, db: AsyncSession = Depends(g
     return NameModel(name=result.name) if result else NameModel(name=None)
 
 
-@router.get("/triumph/{triumph_id}", response_model=NameModel)
+@router.get("/triumph/{triumph_id}", response_model=NameModel)  # has test
 async def get_triumph_name(triumph_id: int, db: AsyncSession = Depends(get_db_session)):
     """Gets the triumph name"""
 
-    result = await destiny_items.get_record(db=db, triumph_id=triumph_id)
+    result = await destiny_items.get_record(db=db, record_id=triumph_id)
     return NameModel(name=result.name) if result else NameModel(name=None)
 
 
-@router.get("/lore/get/all", response_model=DestinyAllLoreModel)
+@router.get("/lore/get/all", response_model=DestinyAllLoreModel)  # has test
 async def get_all_lore(db: AsyncSession = Depends(get_db_session)):
     """Return all lore"""
 

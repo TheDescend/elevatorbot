@@ -6,6 +6,8 @@ import unittest.mock
 from urllib.parse import urlencode
 
 from dummyData.static import *
+from httpx import AsyncClient
+from orjson import orjson
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.destiny.activities import DestinyActivities
@@ -33,7 +35,18 @@ from Backend.database.models import (
 from Backend.misc.cache import cache
 from Backend.misc.helperFunctions import get_now_with_tz, localize_datetime
 from Backend.networking.schemas import WebResponse
+from NetworkingSchemas.destiny.roles import (
+    RequirementActivityModel,
+    RequirementIntegerModel,
+    RoleDataModel,
+    RoleModel,
+    RolesModel,
+)
 from NetworkingSchemas.misc.auth import BungieTokenInput
+from NetworkingSchemas.misc.persistentMessages import (
+    PersistentMessage,
+    PersistentMessageUpsert,
+)
 
 
 async def mock_request(
@@ -66,7 +79,7 @@ async def mock_elevator_post(self, *args, **kwargs):
 
 @unittest.mock.patch("Backend.networking.base.NetworkBase._request", mock_request)
 @unittest.mock.patch("Backend.networking.elevatorApi.ElevatorApi.post", mock_elevator_post)
-async def insert_dummy_data(db: AsyncSession):
+async def insert_dummy_data(db: AsyncSession, client: AsyncClient):
     # create our registered destiny user
     token_data = BungieTokenInput(
         access_token=dummy_token,
@@ -97,6 +110,21 @@ async def insert_dummy_data(db: AsyncSession):
         signup_server_id=dummy_discord_guild_id,
     )
     await discord_users._insert(db=db, to_create=user_without_perms)
+
+    # create a user that is deleted later
+    user_to_delete = DiscordUsers(
+        discord_id=99,
+        destiny_id=98,
+        system=dummy_destiny_system,
+        bungie_name="Y#1234",
+        token="abc",
+        refresh_token="def",
+        token_expiry=localize_datetime(datetime.datetime.fromtimestamp(int(time.time()) + 999999999)),
+        refresh_token_expiry=localize_datetime(datetime.datetime.fromtimestamp(int(time.time()) + 999999999)),
+        signup_date=get_now_with_tz(),
+        signup_server_id=dummy_discord_guild_id,
+    )
+    await discord_users._insert(db=db, to_create=user_to_delete)
 
     # =========================================================================
     # update their activities
@@ -251,3 +279,63 @@ async def insert_dummy_data(db: AsyncSession):
     assert data.redacted is False
 
     # =========================================================================
+    # insert persistent messages
+    input_model = PersistentMessageUpsert(channel_id=dummy_persistent_lfg_channel_id, message_id=None)
+    r = await client.post(
+        f"/persistentMessages/{dummy_discord_guild_id}/upsert/lfg_channel", json=orjson.loads(input_model.json())
+    )
+    assert r.status_code == 200
+    data = PersistentMessage.parse_obj(r.json())
+    assert data.message_name == "lfg_channel"
+    assert data.guild_id == dummy_discord_guild_id
+    assert data.channel_id == dummy_persistent_lfg_channel_id
+    assert data.message_id is None
+
+    input_model = PersistentMessageUpsert(channel_id=dummy_persistent_lfg_voice_category_id, message_id=None)
+    r = await client.post(
+        f"/persistentMessages/{dummy_discord_guild_id}/upsert/lfg_voice_category", json=orjson.loads(input_model.json())
+    )
+    assert r.status_code == 200
+    data = PersistentMessage.parse_obj(r.json())
+    assert data.message_name == "lfg_voice_category"
+    assert data.guild_id == dummy_discord_guild_id
+    assert data.channel_id == dummy_persistent_lfg_voice_category_id
+    assert data.message_id is None
+
+    assert cache.persistent_messages
+
+    # =========================================================================
+    # insert roles
+    input_model = RoleModel(
+        role_id=1,
+        guild_id=dummy_discord_guild_id,
+        role_name="Test Role",
+        role_data=RoleDataModel(
+            category="Destiny Roles",
+            deprecated=False,
+            acquirable=True,
+            require_activity_completions=[],
+            require_collectibles=[],
+            require_records=[RequirementIntegerModel(id=dummy_gotten_record_id)],
+            require_role_ids=[],
+            replaced_by_role_id=None,
+        ),
+    )
+    r = await client.post(f"/destiny/roles/{dummy_discord_guild_id}/create", json=orjson.loads(input_model.json()))
+    assert r.status_code == 200
+
+    # delete all roles
+    r = await client.delete(f"/destiny/roles/{dummy_discord_guild_id}/delete/all")
+    assert r.status_code == 200
+
+    r = await client.get(f"/destiny/roles/{dummy_discord_guild_id}/get/all")
+    assert r.status_code == 200
+    data = RolesModel.parse_obj(r.json())
+    assert data.roles == []
+
+    # insert the role again because we need it
+    r = await client.post(f"/destiny/roles/{dummy_discord_guild_id}/create", json=orjson.loads(input_model.json()))
+    assert r.status_code == 200
+
+    assert cache.roles
+    assert cache.guild_roles

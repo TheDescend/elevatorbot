@@ -12,6 +12,9 @@ dummy_refresh_token = 222222
 dummy_destiny_id_without_perms = 445
 dummy_discord_id_without_perms = 334
 
+dummy_persistent_lfg_channel_id = 700
+dummy_persistent_lfg_voice_category_id = 701
+
 # saved pgcr data
 dummy_instance_id = 12345
 dummy_activity_reference_id = 1337

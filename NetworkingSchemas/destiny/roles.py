@@ -85,10 +85,10 @@ class RoleDataModel(BaseModel):
 
 
 class RoleDataUserModel(BaseModel):
-    require_activity_completions: Optional[list[str]] = None
-    require_collectibles: Optional[list[bool]] = None
-    require_records: Optional[list[bool]] = None
-    require_role_ids: Optional[list[bool]] = None
+    require_activity_completions: list[str]
+    require_collectibles: list[bool]
+    require_records: list[bool]
+    require_role_ids: list[bool]
 
 
 class RoleModel(BaseModel):

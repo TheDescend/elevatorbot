@@ -7,7 +7,7 @@ class PersistentMessage(BaseModel):
     message_name: str
     guild_id: int
     channel_id: int
-    message_id: int
+    message_id: Optional[int] = None
 
     class Config:
         orm_mode = True

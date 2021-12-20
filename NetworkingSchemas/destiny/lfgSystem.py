@@ -8,7 +8,6 @@ class LfgOutputModel(BaseModel):
     id: int
     guild_id: int
     channel_id: int
-    message_id: int
     author_id: int
     activity: str
     description: str
@@ -17,6 +16,7 @@ class LfgOutputModel(BaseModel):
     joined_members: list[int]
     backup_members: list[int]
     creation_time: datetime.datetime
+    message_id: Optional[int] = None
     voice_channel_id: Optional[int] = None
     voice_category_channel_id: Optional[int] = None
 
