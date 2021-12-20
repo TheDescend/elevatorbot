@@ -13,4 +13,4 @@ class DestinyLoreModel(BaseModel):
 
 
 class DestinyAllLoreModel(BaseModel):
-    items = list[DestinyLoreModel]
+    items: list[DestinyLoreModel]
