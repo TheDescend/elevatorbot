@@ -16,9 +16,7 @@ import Home from "./modules/Home"
 import About from "./modules/About"
 import Users from "./modules/Users"
 import UserInfo from "./modules/UserInfo"
-
-import Session from 'react-session-api'
-
+import GuildInfo from "./modules/UserInfo"
 
 import './App.css';
 
@@ -41,8 +39,8 @@ function RouterFunc(){
   let auth_url = "https://discord.com/api/oauth2/authorize?response_type=token&client_id=847935658072604712&state=hi&scope=guilds%20identify"
   let state = "&state=hi" 
 
-  const [guilds, setGuilds] = useState(null)
-  const [user, setUser] = useState(null)
+  const [guilds, setGuilds] = useState([])
+  const [user, setUser] = useState([])
 
   useEffect(() => {
       let storage_user = localStorage.getItem('user')
@@ -120,15 +118,23 @@ function RouterFunc(){
               Documentation
             </li>
             <li>
-              Admin-ServerName
-              <ul>
-                <li>
-                  Potential Admin Stuff
-                </li>
-                <li>
-                  More potential Admin Stuff
-                </li>
-              </ul>
+              {guilds.map(item => (
+                  <li key={item.id}>
+                      {item.owner? <img
+                          style={{width:"20px"}}
+                          src="https://cdn.icon-icons.com/icons2/2248/PNG/512/crown_icon_135729.png"
+                          alt="Owner Icon"
+                      />:null} 
+                      <Link to={"/guilds/" + item.id}>{item.name}</Link>
+                      {item.icon? <img
+                          style={{width:"20px"}}
+                          src={`https://cdn.discordapp.com/icons/${item.id}/${item.icon}.webp?size=128`}
+                          alt="Owner Icon"
+                      />:null} 
+                      {item.permissions}<br/>
+                      Admin:{(item.permissions&8)>0?"Yes":"No"} 
+                  </li>
+                  ))}
             </li>
           </ul>
         </div>
@@ -156,6 +162,12 @@ function RouterFunc(){
             </Route>
             <Route path="/userinfo/:userid" children={
               <UserInfo
+                userfunctions={[get_global_user, set_global_user]}
+                guildfunctions={[get_global_guilds, set_global_guilds]}
+              />
+            }/>
+            <Route path="/guilds/:guildid" children={
+              <GuildInfo
                 userfunctions={[get_global_user, set_global_user]}
                 guildfunctions={[get_global_guilds, set_global_guilds]}
               />
