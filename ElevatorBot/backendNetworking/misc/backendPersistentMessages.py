@@ -2,6 +2,7 @@ import dataclasses
 from typing import Optional
 
 from dis_snek.models import Guild, Member
+from orjson import orjson
 
 from ElevatorBot.backendNetworking.http import BaseBackendConnection
 from ElevatorBot.backendNetworking.routes import (
@@ -67,9 +68,11 @@ class BackendPersistentMessages(BaseBackendConnection):
         result = await self._backend_request(
             method="DELETE",
             route=persistent_messages_delete_route.format(guild_id=self.guild.id),
-            data=PersistentMessageDeleteInput(
-                message_name=message_name, channel_id=channel_id, message_id=message_id
-            ).dict(),
+            json=orjson.loads(
+                PersistentMessageDeleteInput(
+                    message_name=message_name, channel_id=channel_id, message_id=message_id
+                ).json()
+            ),
         )
 
         # returns EmptyResponseModel

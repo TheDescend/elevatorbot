@@ -14,12 +14,12 @@ from NetworkingSchemas.destiny.weapons import (
 )
 
 router = APIRouter(
-    prefix="/destiny",
+    prefix="/destiny/weapons",
     tags=["destiny", "weapons"],
 )
 
 
-@router.get("/weapons", response_model=DestinyWeaponsModel)
+@router.get("/get/all", response_model=DestinyWeaponsModel)
 async def get_all(db: AsyncSession = Depends(get_db_session)):
     """Return all weapons there currently are"""
 
@@ -27,7 +27,7 @@ async def get_all(db: AsyncSession = Depends(get_db_session)):
     return await weapons.get_all_weapons()
 
 
-@router.get("/{guild_id}/{discord_id}/weapons/top", response_model=DestinyTopWeaponsModel)
+@router.get("/{guild_id}/{discord_id}/top", response_model=DestinyTopWeaponsModel)
 async def get_top(
     guild_id: int,
     discord_id: int,
@@ -53,7 +53,7 @@ async def get_top(
     )
 
 
-@router.get("/{guild_id}/{discord_id}/weapons/weapon", response_model=DestinyWeaponStatsModel)
+@router.get("/{guild_id}/{discord_id}/weapon", response_model=DestinyWeaponStatsModel)
 async def get_weapon(
     guild_id: int,
     discord_id: int,

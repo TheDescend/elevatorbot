@@ -5,9 +5,11 @@ import time
 from typing import Optional
 
 import aiohttp
+import orjson
 from aiohttp import ClientSession, ClientTimeout
 from dis_snek.models import ComponentContext, InteractionContext
 from dis_snek.models.discord_objects.user import Member
+from pydantic import BaseModel
 
 from ElevatorBot.backendNetworking.results import BackendResult
 
@@ -106,20 +108,30 @@ class BaseBackendConnection:
         method: str,
         route: str,
         params: Optional[dict] = None,
-        data: Optional[dict] = None,
+        data: Optional[dict | BaseModel] = None,
         **error_message_kwargs,
     ) -> BackendResult:
         """Make a request to the specified backend route and return the results"""
 
+        if data:
+            # load with orjson to convert complex types such as datetime to a string
+            if isinstance(data, BaseModel):
+                data = data.json()
+            else:
+                data = orjson.dumps(data)
+            data = orjson.loads(data)
+
         async with asyncio.Lock():
             await self.limiter.wait_for_token()
 
-            async with ClientSession(timeout=self.timeout) as session:
+            async with ClientSession(
+                timeout=self.timeout, json_serialize=lambda x: orjson.dumps(x).decode()
+            ) as session:
                 async with session.request(
                     method=method,
                     url=route,
                     params=params,
-                    data=data,
+                    json=data,
                 ) as response:
                     result = await self.__backend_parse_response(response=response)
 
@@ -140,7 +152,7 @@ class BaseBackendConnection:
             self.logger.info("%s: '%s' - '%s'", response.status, response.method, response.url)
 
             # format the result to be the pydantic model
-            result = await response.json()
+            result = await response.json(loads=orjson.loads)
 
         else:
             success = False

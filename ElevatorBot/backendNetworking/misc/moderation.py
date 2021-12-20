@@ -36,7 +36,7 @@ class Moderation(BaseBackendConnection):
             route=moderation_mute.format(guild_id=self.discord_guild.id, discord_id=self.discord_member.id),
             data=ModerationAddModel(
                 reason=reason, duration_in_seconds=duration_in_seconds, mod_discord_id=mod_discord_id
-            ).dict(),
+            ),
         )
 
         # convert to correct pydantic model
@@ -59,7 +59,7 @@ class Moderation(BaseBackendConnection):
         result = await self._backend_request(
             method="POST",
             route=moderation_warning.format(guild_id=self.discord_guild.id, discord_id=self.discord_member.id),
-            data=ModerationAddModel(reason=reason, mod_discord_id=mod_discord_id).dict(),
+            data=ModerationAddModel(reason=reason, mod_discord_id=mod_discord_id),
         )
 
         # convert to correct pydantic model

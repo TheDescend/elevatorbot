@@ -10,12 +10,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from Backend.core.destiny.profile import DestinyProfile
 from Backend.core.errors import CustomException
 from Backend.crud import (
-    activities,
-    activities_fail_to_get,
+    crud_activities,
+    crud_activities_fail_to_get,
     destiny_manifest,
     discord_users,
 )
+from Backend.database.base import get_async_session
 from Backend.database.models import ActivitiesUsers, DiscordUsers
+from Backend.misc.cache import cache
 from Backend.misc.helperFunctions import get_datetime_from_bungie_entry, get_now_with_tz
 from Backend.networking.bungieApi import BungieApi
 from Backend.networking.bungieRoutes import activities_route, pgcr_route
@@ -66,7 +68,7 @@ class DestinyActivities:
         count, flawless_count, not_flawless_count, fastest = 0, 0, 0, None
 
         # get player data
-        low_activity_info = await activities.get_activities(
+        low_activity_info = await crud_activities.get_activities(
             db=self.db,
             activity_hashes=activity_ids,
             maximum_allowed_players=max_player_count,
@@ -179,11 +181,11 @@ class DestinyActivities:
         """Insert the missing pgcr"""
 
         async with asyncio.Lock():
-            for activity in await activities_fail_to_get.get_all_name():
+            for activity in await crud_activities_fail_to_get.get_all_name():
                 # check if info is already in DB, delete and skip if so
-                result = activities.get(db=self.db, instance_id=activity.instance_id)
+                result = crud_activities.get(db=self.db, instance_id=activity.instance_id)
                 if result:
-                    await activities_fail_to_get.delete(db=self.db, obj=activity)
+                    await crud_activities_fail_to_get.delete(db=self.db, obj=activity)
                     continue
 
                 # get PGCR
@@ -195,12 +197,13 @@ class DestinyActivities:
                     continue
 
                 # add info to DB
-                await activities.insert(
+                await crud_activities.insert(
                     db=self.db, instance_id=activity.instance_id, activity_time=activity.period, pgcr=pgcr.content
                 )
 
                 # delete from to-do DB
-                await activities_fail_to_get.delete(db=self.db, obj=activity)
+                await crud_activities_fail_to_get.delete(db=self.db, obj=activity)
+                cache.saved_pgcrs.add(activity.instance_id)
 
     async def get_pgcr(self, instance_id: int) -> WebResponse:
         """Return the pgcr from the api"""
@@ -216,7 +219,7 @@ class DestinyActivities:
     ) -> DestinyActivityDetailsModel:
         """Get the last activity played"""
 
-        result = await activities.get_last_activity(
+        result = await crud_activities.get_last_activity(
             db=self.db,
             destiny_id=self.destiny_id,
             mode=mode,
@@ -224,6 +227,8 @@ class DestinyActivities:
             completed=completed,
             character_class=character_class,
         )
+        if not result:
+            raise CustomException("NoActivityFound")
 
         # format that
         data = DestinyActivityDetailsModel(
@@ -261,7 +266,7 @@ class DestinyActivities:
         return data
 
     async def update_activity_db(self, entry_time: Optional[datetime.datetime] = None):
-        """Gets this users not-saved history and saves it in the db"""
+        """Gets this user's not-saved history and saves it in the db"""
 
         async def handle(i: int, t: datetime.datetime) -> Optional[list[int, datetime.datetime, dict]]:
             """Get pgcr"""
@@ -270,9 +275,13 @@ class DestinyActivities:
                 pgcr = await self.get_pgcr(i)
 
             except CustomException:
-                # looks like it failed, lets try again later
                 logger.warning("Failed getting pgcr <%s>", i)
-                await activities_fail_to_get.insert(db=self.db, instance_id=i, period=t)
+
+                # remove the instance_id from the cache
+                cache.saved_pgcrs.remove(i)
+
+                # looks like it failed, lets try again later
+                await crud_activities_fail_to_get.insert(db=self.db, instance_id=i, period=t)
 
                 return
             return [i, t, pgcr.content]
@@ -282,14 +291,16 @@ class DestinyActivities:
 
             results = await asyncio.gather(*[handle(i, t) for i, t in zip(gather_instance_ids, gather_activity_times)])
 
-            for result in results:
-                if result:
-                    i = result[0]
-                    t = result[1]
-                    pgcr = result[2]
+            # do this with a separate DB session, do make smaller commits
+            async with get_async_session().begin() as session:
+                for result in results:
+                    if result:
+                        i = result[0]
+                        t = result[1]
+                        pgcr = result[2]
 
-                    # insert information to DB
-                    await activities.insert(db=self.db, instance_id=i, activity_time=t, pgcr=pgcr)
+                        # insert information to DB
+                        await crud_activities.insert(db=session, instance_id=i, activity_time=t, pgcr=pgcr)
 
         # get the logger
         logger = logging.getLogger("updateActivityDb")
@@ -307,16 +318,26 @@ class DestinyActivities:
         async for activity in self.get_activity_history(mode=0, earliest_allowed_datetime=entry_time):
             success = True
 
-            instance_id: int = activity["activityDetails"]["instanceId"]
+            instance_id = int(activity["activityDetails"]["instanceId"])
             activity_time: datetime.datetime = activity["period"]
 
-            # update with newest entry timestamp
+            # update with the newest entry timestamp
             if activity_time > entry_time:
                 entry_time = activity_time
 
-            # check if info is already in DB, skip if so
-            if await activities.get(db=self.db, instance_id=instance_id) is not None:
-                continue
+            # needs to be same from gathers
+            async with asyncio.Lock():
+                # check if info is already in DB, skip if so. query the cache first
+                if instance_id in cache.saved_pgcrs:
+                    continue
+
+                # add the instance_id to the cache to prevent other users with the same instance to double check this
+                # will get removed again if something fails
+                cache.saved_pgcrs.add(instance_id)
+
+                # check if the cache is maybe just wrong
+                if await crud_activities.get(db=self.db, instance_id=instance_id) is not None:
+                    continue
 
             # add to gather list
             instance_ids.append(instance_id)
@@ -338,7 +359,7 @@ class DestinyActivities:
             # get and input the data
             await input_data(instance_ids, activity_times)
 
-        # update with newest entry timestamp
+        # update them with the newest entry timestamp
         if success:
             await discord_users.update(db=self.db, to_update=self.user, activities_last_updated=entry_time)
 
@@ -379,7 +400,7 @@ class DestinyActivities:
 
         # loop through the results
         for result, activity in zip(results, interesting_solos):
-            solos.solos.append(DestinyUpdatedLowManModel(activity_name=activity.name, **result))
+            solos.solos.append(DestinyUpdatedLowManModel(activity_name=activity.name, **result.dict()))
 
         return solos
 
@@ -400,7 +421,7 @@ class DestinyActivities:
                 TimePeriodModel(start_time=start_time or datetime.datetime.min, end_time=end_time or get_now_with_tz())
             ]
 
-        data = await activities.get_activities(
+        data = await crud_activities.get_activities(
             db=self.db,
             activity_hashes=activity_ids,
             mode=mode,
@@ -424,39 +445,48 @@ class DestinyActivities:
             average=datetime.timedelta(seconds=0),
         )
 
+        # save some stats for each activity. needed because a user can participate with multiple characters in an activity
+        # key: instance_id
+        activities_time_played: dict[int, datetime.timedelta] = {}
+        activities_completed: dict[int, bool] = {}
+
         # loop through all results
-        average_time_completed = []
         for activity_stats in data:
-            user_stats: list[ActivitiesUsers] = activity_stats.activity.users
+            result.kills += activity_stats.kills
+            result.precision_kills += activity_stats.precision_kills
+            result.deaths += activity_stats.deaths
+            result.assists += activity_stats.assists
+            result.time_spend += datetime.timedelta(seconds=activity_stats.time_played_seconds)
 
-            # loop through all characters the user played with in that activity
-            time_played = datetime.timedelta(seconds=0)
-            completed = False
-            for character in user_stats:
-                result.kills += character.kills
-                result.precision_kills += character.precision_kills
-                result.deaths += character.deaths
-                result.assists += character.assists
+            # register the activity completion (with all chars)
+            if (activity_stats.activity_instance_id not in activities_completed) or (
+                not activities_completed[activity_stats.activity_instance_id] and activity_stats.completed
+            ):
+                activities_completed.update({activity_stats.activity_instance_id: activity_stats.completed})
 
-                time_played += datetime.timedelta(seconds=character.time_played_seconds)
+            # register the activity duration (once, same for all chars)
+            if activity_stats.activity_instance_id not in activities_time_played:
+                activities_time_played.update(
+                    {
+                        activity_stats.activity_instance_id: datetime.timedelta(
+                            seconds=activity_stats.activity_duration_seconds
+                        )
+                    }
+                )
 
-                if user_stats[0].completed:
-                    completed = True
+        # get the completion count
+        result.full_completions = sum(activities_completed.values())
+        result.cp_completions = len(activities_completed) - result.full_completions
 
-            # register the activity completion and time
-            result.time_spend += time_played
+        # get the fastest / average time
+        activities_completed_time_played: dict[int, datetime.timedelta] = {}
+        for completed_id, completed in activities_completed.items():
             if completed:
-                result.full_completions += 1
-                average_time_completed.append(time_played)
-
-                if not result.fastest or time_played <= result.fastest:
-                    result.fastest = time_played
-                    result.fastest_instance_id = activity_stats.activity_instance_id
-
-            else:
-                result.cp_completions += 1
-
-        # calculate the average
-        result.average = datetime.timedelta(seconds=sum(average_time_completed) / result.full_completions)
+                activities_completed_time_played.update({completed_id: activities_time_played[completed_id]})
+        result.fastest_instance_id = min(activities_completed_time_played, key=activities_completed_time_played.get)
+        result.fastest = activities_completed_time_played[result.fastest_instance_id]
+        result.average = sum(activities_completed_time_played.values(), datetime.timedelta(seconds=0)) / len(
+            activities_completed_time_played
+        )
 
         return result

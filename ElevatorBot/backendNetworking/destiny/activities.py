@@ -2,6 +2,7 @@ import dataclasses
 from typing import Optional
 
 from dis_snek.models import Guild, Member
+from orjson import orjson
 
 from DestinyEnums.enums import UsableDestinyActivityModeTypeEnum
 from ElevatorBot.backendNetworking.http import BaseBackendConnection
@@ -9,6 +10,7 @@ from ElevatorBot.backendNetworking.routes import (
     destiny_activities_activity_route,
     destiny_activities_get_all_route,
     destiny_activities_get_grandmaster_route,
+    destiny_activities_last_route,
 )
 from ElevatorBot.elevator import ElevatorSnake
 from NetworkingSchemas.destiny.activities import (
@@ -56,9 +58,10 @@ class DestinyActivities(BaseBackendConnection):
     ) -> Optional[DestinyActivityDetailsModel]:
         """Get the last activity"""
 
+        # todo use pydantic model
         result = await self._backend_request(
-            method="GET",
-            route=destiny_activities_get_all_route.format(
+            method="POST",
+            route=destiny_activities_last_route.format(
                 guild_id=self.discord_guild.id, discord_id=self.discord_member.id
             ),
             data={
@@ -76,11 +79,11 @@ class DestinyActivities(BaseBackendConnection):
         """Get all activities"""
 
         result = await self._backend_request(
-            method="GET",
+            method="POST",
             route=destiny_activities_activity_route.format(
                 guild_id=self.discord_guild.id, discord_id=self.discord_member.id
             ),
-            data=input_model.dict(),
+            data=input_model,
         )
 
         # convert to correct pydantic model

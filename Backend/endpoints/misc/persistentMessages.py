@@ -12,12 +12,12 @@ from NetworkingSchemas.misc.persistentMessages import (
 )
 
 router = APIRouter(
-    prefix="/persistentMessages",
+    prefix="/persistentMessages/{guild_id}",
     tags=["persistent messages"],
 )
 
 
-@router.get("/{guild_id}/get/{message_name}", response_model=PersistentMessage)
+@router.get("/get/{message_name}", response_model=PersistentMessage)
 async def get(guild_id: int, message_name: str, db: AsyncSession = Depends(get_db_session)):
     """Gets a persistent message"""
 
@@ -25,7 +25,7 @@ async def get(guild_id: int, message_name: str, db: AsyncSession = Depends(get_d
     return PersistentMessage.from_orm(result)
 
 
-@router.get("/{guild_id}/get/all", response_model=PersistentMessages)
+@router.get("/get/all", response_model=PersistentMessages)
 async def get_all(guild_id: int, db: AsyncSession = Depends(get_db_session)):
     """Gets all persistent messages for the guild"""
 
@@ -33,7 +33,7 @@ async def get_all(guild_id: int, db: AsyncSession = Depends(get_db_session)):
     return PersistentMessages(messages=[PersistentMessage.from_orm(result) for result in db_results])
 
 
-@router.post("/{guild_id}/upsert/{message_name}", response_model=PersistentMessage)
+@router.post("/upsert/{message_name}", response_model=PersistentMessage)
 async def upsert(
     guild_id: int, message_name: str, update_data: PersistentMessageUpsert, db: AsyncSession = Depends(get_db_session)
 ):
@@ -49,7 +49,7 @@ async def upsert(
     return PersistentMessage.from_orm(result)
 
 
-@router.delete("/{guild_id}/delete", response_model=EmptyResponseModel)
+@router.delete("/delete", response_model=EmptyResponseModel)
 async def delete(guild_id: int, to_delete: PersistentMessageDeleteInput, db: AsyncSession = Depends(get_db_session)):
     """Deletes a persistent message"""
 
@@ -57,7 +57,7 @@ async def delete(guild_id: int, to_delete: PersistentMessageDeleteInput, db: Asy
     return EmptyResponseModel()
 
 
-@router.delete("/{guild_id}/delete/all", response_model=EmptyResponseModel)
+@router.delete("/delete/all", response_model=EmptyResponseModel)
 async def delete_all(guild_id: int, db: AsyncSession = Depends(get_db_session)):
     """Deletes all persistent messages for a guild"""
 

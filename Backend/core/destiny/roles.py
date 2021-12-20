@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.destiny.profile import DestinyProfile
 from Backend.core.errors import CustomException
-from Backend.crud import activities
+from Backend.crud import crud_activities
 from Backend.crud.destiny.roles import CRUDRoles, roles
 from Backend.database.models import Roles
 from NetworkingSchemas.destiny.roles import (
@@ -178,7 +178,7 @@ class UserRoles:
 
                 # loop through the activities
                 for entry in role.role_data.require_activity_completions:
-                    found = await activities.get_activities(
+                    found = await crud_activities.get_activities(
                         db=self.db,
                         activity_hashes=entry.allowed_activity_hashes,
                         no_checkpoints=not entry.allow_checkpoints,

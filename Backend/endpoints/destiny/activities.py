@@ -1,9 +1,8 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from Backend import crud
 from Backend.core.destiny.activities import DestinyActivities
-from Backend.crud import destiny_manifest
+from Backend.crud import destiny_manifest, discord_users
 from Backend.dependencies import get_db_session
 from NetworkingSchemas.destiny.activities import (
     DestinyActivitiesModel,
@@ -14,25 +13,25 @@ from NetworkingSchemas.destiny.activities import (
 )
 
 router = APIRouter(
-    prefix="/activities",
+    prefix="/destiny/activities",
     tags=["destiny", "activities"],
 )
 
 
-@router.get("/get/all", response_model=DestinyActivitiesModel)
+@router.get("/get/all", response_model=DestinyActivitiesModel)  # has test
 async def get_all(db: AsyncSession = Depends(get_db_session)):
     """Return all activities and their hashes"""
 
     return DestinyActivitiesModel(activities=await destiny_manifest.get_all_activities(db=db))
 
 
-@router.get("/{guild_id}/{discord_id}/last", response_model=DestinyActivityDetailsModel)
+@router.post("/{guild_id}/{discord_id}/last", response_model=DestinyActivityDetailsModel)  # has test
 async def last(
     guild_id: int, discord_id: int, last_input: DestinyLastInputModel, db: AsyncSession = Depends(get_db_session)
 ):
     """Return information about the last completed activity"""
 
-    user = await crud.discord_users.get_profile_from_discord_id(db, discord_id)
+    user = await discord_users.get_profile_from_discord_id(db, discord_id)
 
     # update the users db entries
     activities = DestinyActivities(db=db, user=user)
@@ -46,7 +45,7 @@ async def last(
     )
 
 
-@router.get("/{guild_id}/{discord_id}/activity", response_model=DestinyActivityOutputModel)
+@router.post("/{guild_id}/{discord_id}/activity", response_model=DestinyActivityOutputModel)  # has test
 async def activity(
     guild_id: int,
     discord_id: int,
@@ -55,9 +54,9 @@ async def activity(
 ):
     """Return information about the user their stats in the supplied activity ids"""
 
-    user = await crud.discord_users.get_profile_from_discord_id(db, discord_id)
+    user = await discord_users.get_profile_from_discord_id(db, discord_id)
 
-    # update the users db entries
+    # update the user's db entries
     activities = DestinyActivities(db=db, user=user)
     await activities.update_activity_db()
 
@@ -71,8 +70,8 @@ async def activity(
     )
 
 
-@router.get("/get/grandmaster", response_model=DestinyActivitiesModel)
-async def activity(db: AsyncSession = Depends(get_db_session)):
+@router.get("/get/grandmaster", response_model=DestinyActivitiesModel)  # has test
+async def grandmaster(db: AsyncSession = Depends(get_db_session)):
     """Return information about all grandmaster nfs from the DB"""
 
     return DestinyActivitiesModel(activities=await destiny_manifest.get_grandmaster_nfs(db=db))

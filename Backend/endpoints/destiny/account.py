@@ -21,20 +21,20 @@ from NetworkingSchemas.destiny.account import (
 )
 
 router = APIRouter(
-    prefix="/destiny/{guild_id}/{discord_id}/account",
+    prefix="/destiny/account/{guild_id}/{discord_id}",
     tags=["destiny", "account"],
 )
 
 
-@router.get("/name", response_model=NameModel)
+@router.get("/name", response_model=NameModel)  # has test
 async def destiny_name(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
-    """Return the destiny name"""
+    """Return the bungie name"""
 
     user = await discord_users.get_profile_from_discord_id(db, discord_id)
     return NameModel(name=user.bungie_name)
 
 
-@router.get("/collectible/{collectible_id}", response_model=BoolModel)
+@router.get("/collectible/{collectible_id}", response_model=BoolModel)  # has test
 async def has_collectible(
     guild_id: int, discord_id: int, collectible_id: int, db: AsyncSession = Depends(get_db_session)
 ):
@@ -45,7 +45,7 @@ async def has_collectible(
     return BoolModel(bool=await profile.has_collectible(collectible_hash=collectible_id))
 
 
-@router.get("/triumph/{triumph_id}", response_model=BoolModelRecord)
+@router.get("/triumph/{triumph_id}", response_model=BoolModelRecord)  # has test
 async def has_triumph(guild_id: int, discord_id: int, triumph_id: int, db: AsyncSession = Depends(get_db_session)):
     """Return is the triumph is unlocked"""
 
@@ -55,7 +55,7 @@ async def has_triumph(guild_id: int, discord_id: int, triumph_id: int, db: Async
     return await profile.has_triumph(triumph_hash=triumph_id)
 
 
-@router.get("/metric/{metric_id}", response_model=ValueModel)
+@router.get("/metric/{metric_id}", response_model=ValueModel)  # has test
 async def metric(guild_id: int, discord_id: int, metric_id: int, db: AsyncSession = Depends(get_db_session)):
     """Return the metric value"""
 
@@ -68,19 +68,18 @@ async def metric(guild_id: int, discord_id: int, metric_id: int, db: AsyncSessio
     return ValueModel(value=value)
 
 
-@router.get("/solos", response_model=DestinyLowMansModel)
+@router.get("/solos", response_model=DestinyLowMansModel)  # has test
 async def destiny_solos(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Return the destiny solos"""
 
     user = await discord_users.get_profile_from_discord_id(db, discord_id)
-    profile = DestinyProfile(db=db, user=user)
     activities = DestinyActivities(db=db, user=user)
 
     # get the solo data
     return await activities.get_solos()
 
 
-@router.get("/characters", response_model=DestinyCharactersModel)
+@router.get("/characters", response_model=DestinyCharactersModel)  # has test
 async def characters(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Return the characters with info on them"""
 
@@ -91,7 +90,7 @@ async def characters(guild_id: int, discord_id: int, db: AsyncSession = Depends(
     return await profile.get_character_info()
 
 
-@router.get("/stat/", response_model=ValueModel)
+@router.post("/stat/", response_model=ValueModel)  # has test
 async def stat(
     guild_id: int, discord_id: int, stat_model: DestinyStatInputModel, db: AsyncSession = Depends(get_db_session)
 ):
@@ -106,7 +105,7 @@ async def stat(
     return ValueModel(value=value)
 
 
-@router.get("/stat/character/{character_id}", response_model=ValueModel)
+@router.post("/stat/character/{character_id}", response_model=ValueModel)  # has test
 async def stat_characters(
     guild_id: int,
     discord_id: int,
@@ -127,14 +126,12 @@ async def stat_characters(
     return ValueModel(value=value)
 
 
-@router.get("/time", response_model=dict[int | list[int], DestinyTimesModel])
+@router.post("/time", response_model=DestinyTimesModel)  # has test
 async def time(
     guild_id: int, discord_id: int, time_input: DestinyTimeInputModel, db: AsyncSession = Depends(get_db_session)
 ):
     """
     Return the time played for the specified modes / activities
-
-    Returns either the mode: int as a key, or the activity_ids: list[int], if they are specified
     """
 
     user = await discord_users.get_profile_from_discord_id(db, discord_id)
@@ -184,7 +181,7 @@ async def time(
     return DestinyTimesModel(entries=entries)
 
 
-@router.get("/seasonal_challenges", response_model=SeasonalChallengesModel)
+@router.get("/seasonal_challenges", response_model=SeasonalChallengesModel)  # has test
 async def seasonal_challenges(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Return the seasonal challenges completion ratio"""
 
@@ -194,7 +191,7 @@ async def seasonal_challenges(guild_id: int, discord_id: int, db: AsyncSession =
     return await profile.get_seasonal_challenges()
 
 
-@router.get("/triumphs", response_model=DestinyTriumphScoreModel)
+@router.get("/triumphs", response_model=DestinyTriumphScoreModel)  # has test
 async def triumph_score(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Return the user's triumph scores"""
 
@@ -204,7 +201,7 @@ async def triumph_score(guild_id: int, discord_id: int, db: AsyncSession = Depen
     return await profile.get_triumph_score()
 
 
-@router.get("/artifact", response_model=ValueModel)
+@router.get("/artifact", response_model=ValueModel)  # has test
 async def artifact_level(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Return the user's artifact power bonus"""
 
@@ -214,7 +211,7 @@ async def artifact_level(guild_id: int, discord_id: int, db: AsyncSession = Depe
     return await profile.get_artifact_level()
 
 
-@router.get("/season_pass", response_model=ValueModel)
+@router.get("/season_pass", response_model=ValueModel)  # has test
 async def season_pass_level(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Return the user's season pass level"""
 
@@ -224,7 +221,7 @@ async def season_pass_level(guild_id: int, discord_id: int, db: AsyncSession = D
     return await profile.get_season_pass_level()
 
 
-@router.get("/consumable/{consumable_id}", response_model=ValueModel)
+@router.get("/consumable/{consumable_id}", response_model=ValueModel)  # has test
 async def get_consumable_amount(
     guild_id: int, discord_id: int, consumable_id: int, db: AsyncSession = Depends(get_db_session)
 ):
@@ -236,7 +233,7 @@ async def get_consumable_amount(
     return ValueModel(value=await profile.get_consumable_amount(consumable_id=consumable_id))
 
 
-@router.get("/max_power", response_model=ValueModel)
+@router.get("/max_power", response_model=ValueModel)  # has test
 async def get_max_power(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Gets the current max power of the player"""
 
@@ -246,7 +243,7 @@ async def get_max_power(guild_id: int, discord_id: int, db: AsyncSession = Depen
     return ValueModel(value=await profile.get_max_power())
 
 
-@router.get("/vault_space", response_model=ValueModel)
+@router.get("/vault_space", response_model=ValueModel)  # has test
 async def get_vault_space(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Gets the current used vault space of the player"""
 
@@ -256,7 +253,7 @@ async def get_vault_space(guild_id: int, discord_id: int, db: AsyncSession = Dep
     return ValueModel(value=await profile.get_used_vault_space())
 
 
-@router.get("/bright_dust", response_model=ValueModel)
+@router.get("/bright_dust", response_model=ValueModel)  # has test
 async def get_bright_dust(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Gets the current bright dust of the player"""
 
@@ -266,7 +263,7 @@ async def get_bright_dust(guild_id: int, discord_id: int, db: AsyncSession = Dep
     return ValueModel(value=await profile.get_bright_dust())
 
 
-@router.get("/shards", response_model=ValueModel)
+@router.get("/shards", response_model=ValueModel)  # has test
 async def get_legendary_shards(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Gets the current legendary shards of the player"""
 
@@ -276,7 +273,7 @@ async def get_legendary_shards(guild_id: int, discord_id: int, db: AsyncSession 
     return ValueModel(value=await profile.get_legendary_shards())
 
 
-@router.get("/catalysts", response_model=DestinyCatalystsModel)
+@router.get("/catalysts", response_model=DestinyCatalystsModel)  # has test
 async def get_catalyst_completion(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Gets all catalysts and the users completion status"""
 

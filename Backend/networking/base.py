@@ -2,9 +2,11 @@ import asyncio
 import logging
 import random
 from typing import Optional
+from urllib.parse import urlencode
 
 import aiohttp
 import aiohttp_client_cache
+from orjson import orjson
 
 from Backend.core.errors import CustomException
 from Backend.networking.bungieRatelimiting import BungieRateLimiter
@@ -61,6 +63,7 @@ class NetworkBase:
                 ) as request:
                     response = await self.__handle_request_data(
                         request=request,
+                        params=params,
                         route=route,
                     )
 
@@ -73,7 +76,7 @@ class NetworkBase:
                         return WebResponse(**response.__dict__)
 
             except (asyncio.exceptions.TimeoutError, ConnectionResetError):
-                self.logger.error("Timeout error for '%s'", route)
+                self.logger.error("Timeout error for '%s'", f"{route}?{urlencode(params)}")
                 await asyncio.sleep(random.randrange(2, 6))
                 continue
 
@@ -89,8 +92,13 @@ class NetworkBase:
         self,
         request: aiohttp.ClientResponse | aiohttp_client_cache.CachedResponse,
         route: str,
+        params: Optional[dict],
     ) -> Optional[InternalWebResponse]:
         """Handle the request results"""
+
+        if not params:
+            params = {}
+        route_with_params = f"{route}?{urlencode(params)}"
 
         # make sure the return is a json, sometimes we get a http file for some reason
         if "application/json" not in request.headers["Content-Type"]:
@@ -99,7 +107,7 @@ class NetworkBase:
                 request.status,
                 request.headers["Content-Type"],
                 request.reason,
-                route,
+                route_with_params,
             )
             if request.status == 200:
                 self.logger.error("Wrong content type returned text: '%s'", await request.text())
@@ -109,7 +117,7 @@ class NetworkBase:
         # get the response as a json
         try:
             response = InternalWebResponse(
-                content=await request.json(),
+                content=await request.json(loads=orjson.loads),
                 status=request.status,
             )
 
@@ -129,10 +137,10 @@ class NetworkBase:
                 response.from_cache = False
 
         except aiohttp.ClientPayloadError:
-            self.logger.error("'%s': Payload error, retrying for '%s'", request.status, route)
+            self.logger.error("'%s': Payload error, retrying for '%s'", request.status, route_with_params)
             return
         except aiohttp.ContentTypeError:
-            self.logger.error("'%s': Content type error, retrying for '%s'", request.status, route)
+            self.logger.error("'%s': Content type error, retrying for '%s'", request.status, route_with_params)
             return
 
         # if response is ok return it
@@ -148,11 +156,14 @@ class NetworkBase:
         # handling any errors if not ok
         await self.__handle_bungie_errors(
             route=route,
+            params=params,
             response=response,
         )
 
-    async def __handle_bungie_errors(self, route: str, response: InternalWebResponse):
+    async def __handle_bungie_errors(self, route: str, params: dict, response: InternalWebResponse):
         """Looks for typical bungie errors and handles / logs them"""
+
+        route_with_params = f"{route}?{urlencode(params)}"
 
         match (response.status, response.error):
             case (400, error):
@@ -161,7 +172,7 @@ class NetworkBase:
                     "'%s - %s': Generic bad request for '%s' - '%s'",
                     response.status,
                     error,
-                    route,
+                    route_with_params,
                     response,
                 )
                 raise CustomException("BungieDed")
@@ -172,7 +183,7 @@ class NetworkBase:
                     "'%s - %s': No stats found for '%s' - '%s'",
                     response.status,
                     error,
-                    route,
+                    route_with_params,
                     response,
                 )
                 raise CustomException("BungieBadRequest")
@@ -183,7 +194,7 @@ class NetworkBase:
                     "'%s - %s': Server is overloaded for '%s' - '%s'",
                     response.status,
                     error,
-                    route,
+                    route_with_params,
                     response,
                 )
                 await asyncio.sleep(10)
@@ -194,7 +205,7 @@ class NetworkBase:
                     "'%s - %s': Getting rate limited for '%s' - '%s'",
                     response.status,
                     error,
-                    route,
+                    route_with_params,
                     response,
                 )
                 await asyncio.sleep(2)
@@ -205,7 +216,7 @@ class NetworkBase:
                     "'%s - %s': Getting throttled for '%s' - '%s'",
                     status,
                     response.error,
-                    route,
+                    route_with_params,
                     response,
                 )
 
@@ -213,13 +224,24 @@ class NetworkBase:
 
                 await asyncio.sleep(throttle_seconds + random.randrange(1, 3))
 
+            case (status, "GroupMembershipNotFound"):
+                # if user doesn't have that item
+                self.logger.error(
+                    "'%s - %s': User is not in clan '%s' - '%s'",
+                    status,
+                    response.error,
+                    route_with_params,
+                    response,
+                )
+                raise CustomException("BungieGroupMembershipNotFound")
+
             case (status, "DestinyItemNotFound"):
                 # if user doesn't have that item
                 self.logger.error(
                     "'%s - %s': User doesn't have that item for '%s' - '%s'",
                     status,
                     response.error,
-                    route,
+                    route_with_params,
                     response,
                 )
                 raise CustomException("BungieDestinyItemNotFound")
@@ -230,7 +252,7 @@ class NetworkBase:
                     "'%s - %s': User has private Profile for '%s' - '%s'",
                     status,
                     response.error,
-                    route,
+                    route_with_params,
                     response,
                 )
                 raise CustomException("BungieDestinyPrivacyRestriction")
@@ -241,7 +263,7 @@ class NetworkBase:
                     "'%s - %s': Getting timeouts for '%s' - '%s'",
                     status,
                     response.error,
-                    route,
+                    route_with_params,
                     response,
                 )
                 await asyncio.sleep(60)
@@ -252,7 +274,7 @@ class NetworkBase:
                     "'%s - %s': User disallows clan invites '%s' - '%s'",
                     status,
                     response.error,
-                    route,
+                    route_with_params,
                     response,
                 )
                 raise CustomException("BungieClanTargetDisallowsInvites")
@@ -263,7 +285,7 @@ class NetworkBase:
                     "'%s - %s': User refresh token is outdated and they need to re-registration for '%s' - '%s'",
                     status,
                     response,
-                    route,
+                    route_with_params,
                     response.error_message,
                 )
                 raise CustomException("NoToken")
@@ -274,7 +296,7 @@ class NetworkBase:
                     "'%s - %s': Request failed for '%s' - '%s'",
                     status,
                     error,
-                    route,
+                    route_with_params,
                     response,
                 )
                 await asyncio.sleep(2)

@@ -1,6 +1,7 @@
 import datetime
 import logging
 
+import pytz
 from apscheduler.events import (
     EVENT_JOB_ADDED,
     EVENT_JOB_ERROR,
@@ -93,14 +94,14 @@ def register_background_events() -> int:
                 day_of_week=event.dow_day_of_week,
                 hour=event.dow_hour,
                 minute=event.dow_minute,
-                timezone=datetime.timezone.utc,
+                timezone=pytz.utc,
             )
         elif event.scheduler_type == "date":
             backgroundEvents.scheduler.add_job(
                 func=event.call,
                 trigger="date",
                 run_date=event.run_date,
-                timezone=datetime.timezone.utc,
+                timezone=pytz.utc,
             )
         else:
             print(f"Failed to load event {event}")

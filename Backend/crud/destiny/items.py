@@ -81,7 +81,7 @@ class CRUDDestinyItems(CRUDBase):
         if not cache.seals:
             query = select(DestinyPresentationNodeDefinition)
             query = query.filter(
-                DestinyRecordDefinition.parent_node_hashes.any(DestinyPresentationNodesEnum.SEALS.value)
+                DestinyPresentationNodeDefinition.parent_node_hashes.any(DestinyPresentationNodesEnum.SEALS.value)
             )
 
             results = await self._execute_query(db=db, query=query)

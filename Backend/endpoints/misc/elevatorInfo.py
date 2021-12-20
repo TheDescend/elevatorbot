@@ -7,12 +7,12 @@ from NetworkingSchemas.basic import EmptyResponseModel
 from NetworkingSchemas.misc.elevatorInfo import ElevatorGuildModel, ElevatorGuildsModel
 
 router = APIRouter(
-    prefix="/elevator",
+    prefix="/elevator/discord_servers",
     tags=["elevator"],
 )
 
 
-@router.get("/discordServers/get", response_model=ElevatorGuildsModel)
+@router.get("/get", response_model=ElevatorGuildsModel)
 async def get_discord_servers(db: AsyncSession = Depends(get_db_session)):
     """Saves a bungie token"""
 
@@ -20,7 +20,7 @@ async def get_discord_servers(db: AsyncSession = Depends(get_db_session)):
     return ElevatorGuildsModel(guilds=[ElevatorGuildModel.from_orm(result) for result in results])
 
 
-@router.post("/discordServers/add/{guild_id}", response_model=EmptyResponseModel)
+@router.post("/add/{guild_id}", response_model=EmptyResponseModel)
 async def add_discord_server(guild_id: int, db: AsyncSession = Depends(get_db_session)):
     """Add a discord server to the ones Elevator is currently in"""
 
@@ -28,7 +28,7 @@ async def add_discord_server(guild_id: int, db: AsyncSession = Depends(get_db_se
     return EmptyResponseModel()
 
 
-@router.delete("/discordServers/delete/{guild_id}", response_model=EmptyResponseModel)
+@router.delete("/delete/{guild_id}", response_model=EmptyResponseModel)
 async def delete_discord_server(guild_id: int, db: AsyncSession = Depends(get_db_session)):
     """Delete a discord server from the ones Elevator is currently in"""
 

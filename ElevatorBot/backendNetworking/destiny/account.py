@@ -82,9 +82,9 @@ class DestinyAccount(BaseBackendConnection):
 
         if modes is None:
             modes = [UsableDestinyActivityModeTypeEnum.ALL]
-
+        # todo pydantic model
         result = await self._backend_request(
-            method="GET",
+            method="POST",
             route=destiny_account_time_route.format(guild_id=self.discord_guild.id, discord_id=self.discord_member.id),
             data={
                 "start_time": start_time,
@@ -154,9 +154,9 @@ class DestinyAccount(BaseBackendConnection):
         """Return the stat value"""
 
         result = await self._backend_request(
-            method="GET",
+            method="POST",
             route=destiny_account_stat_route.format(guild_id=self.discord_guild.id, discord_id=self.discord_member.id),
-            data=DestinyStatInputModel(stat_category=stat_category, stat_name=stat_name).dict(),
+            data=DestinyStatInputModel(stat_category=stat_category, stat_name=stat_name),
         )
 
         # convert to correct pydantic model
@@ -168,11 +168,11 @@ class DestinyAccount(BaseBackendConnection):
         """Return the stat value by character"""
 
         result = await self._backend_request(
-            method="GET",
+            method="POST",
             route=destiny_account_stat_characters_route.format(
                 guild_id=self.discord_guild.id, discord_id=self.discord_member.id, character_id=character_id
             ),
-            data=DestinyStatInputModel(stat_category=stat_category, stat_name=stat_name).dict(),
+            data=DestinyStatInputModel(stat_category=stat_category, stat_name=stat_name),
         )
 
         # convert to correct pydantic model

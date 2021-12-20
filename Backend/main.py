@@ -1,4 +1,6 @@
+import importlib.util
 import logging
+import os
 import time
 
 from fastapi import Depends, FastAPI, Request
@@ -11,19 +13,6 @@ from Backend.dependencies import (
     auth_get_user_with_read_perm,
     auth_get_user_with_write_perm,
 )
-from Backend.endpoints import auth
-from Backend.endpoints.destiny import (
-    account,
-    activities,
-    clan,
-    items,
-    lfg,
-    profile,
-    roles,
-    steamPlayers,
-    weapons,
-)
-from Backend.endpoints.misc import elevatorInfo, moderation, persistentMessages, polls
 from Backend.misc.initBackgroundEvents import register_background_events
 from Backend.misc.initLogging import init_logging
 from NetworkingSchemas.misc.auth import BackendUserModel
@@ -55,20 +44,16 @@ async def log_requests(request: Request, call_next):
 
 
 # add routers
-app.include_router(elevatorInfo.router)
-app.include_router(auth.router)
-app.include_router(persistentMessages.router)
-app.include_router(polls.router)
-app.include_router(profile.router)
-app.include_router(account.router)
-app.include_router(clan.router)
-app.include_router(lfg.router)
-app.include_router(roles.router)
-app.include_router(activities.router)
-app.include_router(steamPlayers.router)
-app.include_router(weapons.router)
-app.include_router(items.router)
-app.include_router(moderation.router)
+for root, dirs, files in os.walk("Backend/endpoints"):
+    for file in files:
+        if file.endswith(f".py") and not file.startswith("__init__"):
+            file = file.removesuffix(f".py")
+            path = os.path.join(root, file).replace("/", ".").replace("\\", ".")
+            resolved_path = importlib.util.resolve_name(path, None)
+
+            module = importlib.import_module(resolved_path)
+            router = setup = getattr(module, "router")
+            app.include_router(router)
 
 
 # add exception handlers

@@ -16,7 +16,7 @@ from NetworkingSchemas.destiny.lfgSystem import (
 )
 
 router = APIRouter(
-    prefix="/destiny/{guild_id}/lfg",
+    prefix="/destiny/lfg/{guild_id}",
     tags=["destiny", "lfg"],
 )
 

@@ -4,6 +4,7 @@ from typing import Optional
 
 from sqlalchemy import distinct, func, not_, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 
 from Backend.core.errors import CustomException
 from Backend.crud.base import CRUDBase
@@ -63,12 +64,6 @@ class CRUDActivities(CRUDBase):
     async def __locked_insert(self, db: AsyncSession, instance_id: int, activity_time: datetime, pgcr: dict):
         """Actually do the insert"""
 
-        # does the activity exist?
-        if self.get(db=db, instance_id=instance_id):
-            return
-
-        to_create = []
-
         # build the activity
         activity = Activities(
             instance_id=instance_id,
@@ -85,9 +80,9 @@ class CRUDActivities(CRUDBase):
         # loop through the members of the activity and append that data
         for player_pgcr in pgcr["entries"]:
             player = ActivitiesUsers(
-                destiny_id=player_pgcr["player"]["destinyUserInfo"]["membershipId"],
+                destiny_id=int(player_pgcr["player"]["destinyUserInfo"]["membershipId"]),
                 bungie_name=f"""{player_pgcr["player"]["destinyUserInfo"]["bungieGlobalDisplayName"]}#{player_pgcr["player"]["destinyUserInfo"]["bungieGlobalDisplayNameCode"]}""",
-                character_id=player_pgcr["characterId"],
+                character_id=int(player_pgcr["characterId"]),
                 character_class=player_pgcr["player"]["characterClass"]
                 if "characterClass" in player_pgcr["player"]
                 else None,
@@ -130,18 +125,13 @@ class CRUDActivities(CRUDBase):
                     )
 
                     # append weapon data to player
-                    to_create.append(weapon)
                     player.weapons.append(weapon)
 
             # append player data to activity
-            to_create.append(player)
             activity.users.append(player)
 
-        # append activity so it also gets inserted
-        to_create.append(activity)
-
-        # mass insert all the stuff to the db
-        await self._insert_multi(db=db, to_create=to_create)
+        # insert all the stuff to the db
+        await self._insert(db=db, to_create=activity)
 
     async def get_activities(
         self,
@@ -166,18 +156,22 @@ class CRUDActivities(CRUDBase):
         """Gets a list of all Activities that fulfill the get_requirements"""
 
         query = select(ActivitiesUsers)
+        query = query.join(Activities)
+
+        query = query.group_by(ActivitiesUsers.id)
+        query = query.group_by(Activities.instance_id)
 
         # filter activity hashes
         if activity_hashes:
-            query = query.filter(ActivitiesUsers.activity.director_activity_hash.in_(activity_hashes))
+            query = query.filter(Activities.director_activity_hash.in_(activity_hashes))
 
         # filter mode
         if mode:
-            query = query.filter(ActivitiesUsers.activity.modes.any(mode))
+            query = query.filter(Activities.modes.any(mode))
 
         # do we accept non checkpoint runs?
         if no_checkpoints:
-            query = query.filter(ActivitiesUsers.activity.starting_phase_index == 0)
+            query = query.filter(Activities.starting_phase_index == 0)
 
         # limit max users to player_count
         if maximum_allowed_players:
@@ -229,12 +223,12 @@ class CRUDActivities(CRUDBase):
         # do we have allowed datetimes
         if allow_time_periods:
             for time in allow_time_periods:
-                query = query.filter(ActivitiesUsers.activity.period.between(time.start_time, time.end_time))
+                query = query.filter(Activities.period.between(time.start_time, time.end_time))
 
         # do we have disallowed datetimes
         if disallow_time_periods:
             for time in disallow_time_periods:
-                query = query.filter(not_(ActivitiesUsers.activity.period.between(time.start_time, time.end_time)))
+                query = query.filter(not_(Activities.period.between(time.start_time, time.end_time)))
 
         result = await self._execute_query(db=db, query=query)
         return result.scalars().fetchall()
@@ -260,7 +254,8 @@ class CRUDActivities(CRUDBase):
         if activity_ids:
             query = query.filter(Activities.director_activity_hash.in_(activity_ids))
 
-        query = query.join(Activities.users)
+        query = query.options(joinedload(Activities.users))
+        query = query.group_by(Activities.instance_id)
         query = query.group_by(ActivitiesUsers.id)
 
         # filter the destiny id
@@ -295,20 +290,21 @@ class CRUDActivities(CRUDBase):
         """Calculate the time played (in seconds) from the DB"""
 
         query = select(func.sum(ActivitiesUsers.time_played_seconds))
+        query = query.join(ActivitiesUsers.activity)
 
         # filter mode
         if mode != 0:
-            query = query.filter(ActivitiesUsers.activity.modes.any(mode))
+            query = query.filter(Activities.modes.any(mode))
 
         # filter activities
         if activity_ids:
-            query = query.filter(ActivitiesUsers.activity.reference_id.in_(activity_ids))
+            query = query.filter(Activities.reference_id.in_(activity_ids))
 
         # limit to the allowed times if that is requested
         if start_time:
-            query = query.filter(ActivitiesUsers.activity.period >= start_time)
+            query = query.filter(Activities.period >= start_time)
         if end_time:
-            query = query.filter(ActivitiesUsers.activity.period <= end_time)
+            query = query.filter(Activities.period <= end_time)
 
         # filter the destiny id
         query = query.filter(ActivitiesUsers.destiny_id == destiny_id)
@@ -324,5 +320,5 @@ class CRUDActivities(CRUDBase):
         return result if result else 0
 
 
-activities_fail_to_get = CRUDActivitiesFailToGet(ActivitiesFailToGet)
-activities = CRUDActivities(Activities)
+crud_activities_fail_to_get = CRUDActivitiesFailToGet(ActivitiesFailToGet)
+crud_activities = CRUDActivities(Activities)

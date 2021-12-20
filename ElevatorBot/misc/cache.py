@@ -152,7 +152,7 @@ class PopTimelineCache:
 
     @property
     def url(self) -> Optional[str]:
-        """Get the url if its not an hour old else None"""
+        """Get the url if it is not an hour old else None"""
 
         if self._time + datetime.timedelta(hours=1) > get_now_with_tz():
             return self._url

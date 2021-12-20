@@ -2,6 +2,7 @@ import dataclasses
 from typing import Optional
 
 from dis_snek.models import Guild, Member
+from orjson import orjson
 
 from ElevatorBot.backendNetworking.http import BaseBackendConnection
 from ElevatorBot.backendNetworking.routes import (
@@ -48,7 +49,7 @@ class DestinyWeapons(BaseBackendConnection):
             route=destiny_weapons_get_top_route.format(
                 guild_id=self.discord_guild.id, discord_id=self.discord_member.id if self.discord_member else discord_id
             ),
-            data=input_data.dict(),
+            data=input_data,
         )
 
         # convert to correct pydantic model
@@ -62,7 +63,7 @@ class DestinyWeapons(BaseBackendConnection):
             route=destiny_weapons_get_weapon_route.format(
                 guild_id=self.discord_guild.id, discord_id=self.discord_member.id
             ),
-            data=input_data.dict(),
+            data=input_data,
         )
 
         # convert to correct pydantic model

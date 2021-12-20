@@ -1,7 +1,10 @@
-import datetime
-from collections import defaultdict
+from __future__ import annotations
 
-import pytz
+import dataclasses
+import datetime
+from typing import Any, Generator, Optional
+
+import dateutil.parser
 
 
 def get_now_with_tz() -> datetime.datetime:
@@ -19,24 +22,30 @@ def localize_datetime(obj: datetime.datetime) -> datetime.datetime:
 def get_datetime_from_bungie_entry(string: str) -> datetime.datetime:
     """Converts the bungie string to a utc datetime obj"""
 
-    return add_utc_tz(datetime.datetime.strptime(string, "%Y-%m-%dT%H:%M:%SZ"))
+    return dateutil.parser.parse(string)
 
 
-def add_utc_tz(obj: datetime.datetime) -> datetime.datetime:
-    """Returns a timezone aware object, localized to utc"""
+@dataclasses.dataclass
+class DefaultDict:
+    """A dictionary that supports nested .get() calls which return None if the key does not exist"""
 
-    return pytz.utc.localize(obj)
+    _dict: dict
 
+    def get(self, *keys: Any) -> Optional[Any]:
+        """Get the key value or None"""
 
-def defaultdictify(d: dict):
-    """Converts a dictionary to a defaultdict. Returns a defaultdict"""
+        depth = self._dict
+        for key in keys:
+            if key not in depth:
+                return None
+            depth = depth[key]
+        return depth
 
-    if isinstance(d, dict):
-        return defaultdict(lambda: None, {k: defaultdictify(v) for k, v in d.items()})
-    elif isinstance(d, list):
-        return [defaultdictify(e) for e in d]
-    else:
-        return d
+    def items(self) -> Generator[tuple[str, DefaultDict]]:
+        """Iterate over the items"""
+
+        for key, value in self._dict.items():
+            yield key, DefaultDict(value)
 
 
 def convert_kwargs_into_dict(**kwargs) -> dict:

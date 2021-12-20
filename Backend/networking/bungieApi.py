@@ -2,6 +2,7 @@ from datetime import timedelta
 
 import aiohttp
 import aiohttp_client_cache
+import orjson
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.errors import CustomException
@@ -20,16 +21,20 @@ class BungieApi(NetworkBase):
     normal_headers = {"X-API-Key": BUNGIE_APPLICATION_API_KEY, "Accept": "application/json"}
     auth_headers = normal_headers.copy()
 
-    # the cache object. Low expire time since players dont want to wait an eternity for their stuff to update
+    # the cache object. Low expire time since players don't want to wait an eternity for their stuff to update
     cache = aiohttp_client_cache.SQLiteBackend(
         cache_name="networking/bungie_networking_cache",
+        allowed_methods=["GET"],
         expire_after=timedelta(minutes=5),
         urls_expire_after={
-            "platform/app/oauth/token": 0,  # do not save token stuff
-            "Destiny2/Stats/PostGameCarnageReport": 0,  # do not save pgcr. We save them anyway and don't look them up more than once
-            "Destiny2/*/Profile/**components=": timedelta(minutes=15),  # profile call
-            "Destiny2/*/Account/*/Stats": timedelta(minutes=60),  # stats
-            "Destiny2/*/Account/*/Character/*/Stats/Activities": timedelta(minutes=5),  # activity history
+            "**/platform/app/oauth/token": 0,  # do not save token stuff
+            "**/Destiny2/Stats/PostGameCarnageReport": 0,  # do not save pgcr. We save them anyway and don't look them up more than once
+            "**/Destiny2/*/Profile/**components=": timedelta(minutes=30),  # profile call
+            "**/Destiny2/*/Account/*/Stats": timedelta(minutes=60),  # stats
+            "**/Destiny2/*/Account/*/Character/*/Stats/Activities": timedelta(minutes=5),  # activity history
+            "**/GroupV2/*/Members": timedelta(minutes=60),  # all clan member stuff
+            "**/GroupV2/*/AdminsAndFounder": timedelta(minutes=60),  # all clan admin stuff
+            "**/GroupV2": timedelta(days=1),  # all clan stuff
         },
     )
 
@@ -64,7 +69,9 @@ class BungieApi(NetworkBase):
                 return await self.get_with_token(route=route, params=params, use_cache=use_cache)
 
         try:
-            async with aiohttp_client_cache.CachedSession(cache=self.cache) as session:
+            async with aiohttp_client_cache.CachedSession(
+                cache=self.cache, json_serialize=lambda x: orjson.dumps(x).decode()
+            ) as session:
                 # use cache for the responses
                 if use_cache:
                     return await self._request(

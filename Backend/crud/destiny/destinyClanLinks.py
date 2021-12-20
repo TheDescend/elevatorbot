@@ -22,12 +22,13 @@ class CRUDDestinyClanLinks(CRUDBase):
         # check if the destiny guild is already linked to a discord server
         link = await self._get_multi(db, discord_guild_id=discord_guild_id)
         if link:
-            # if it does we need to delete that, since a destiny clan can only get linked to one discord guild
+            # if it does, we need to delete that, since a destiny clan can only get linked to one discord guild
             await self._delete(db, obj=link[0])
 
         # check if a link to a different destiny clan exists
-        link = await self.get_link(db, discord_guild_id)
-        if link:
+        try:
+            link = await self.get_link(db, discord_guild_id)
+
             # now we need to update and not insert
             await self._update(
                 db=db,
@@ -36,14 +37,12 @@ class CRUDDestinyClanLinks(CRUDBase):
                 link_date=get_now_with_tz(),
                 linked_by_discord_id=discord_id,
             )
-
-        else:
+        except CustomException:
             # insert clan link
             await self._insert(
                 db=db,
                 to_create=DestinyClanLinks(
                     discord_guild_id=discord_guild_id,
-                    to_update=link,
                     destiny_clan_id=destiny_clan_id,
                     link_date=get_now_with_tz(),
                     linked_by_discord_id=discord_id,

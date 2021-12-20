@@ -2,6 +2,7 @@ import dataclasses
 from typing import Optional
 
 from dis_snek.models import Guild, Member
+from orjson import orjson
 
 from ElevatorBot.backendNetworking.http import BaseBackendConnection
 from ElevatorBot.backendNetworking.routes import (
@@ -77,7 +78,7 @@ class DestinyLfgSystem(BaseBackendConnection):
             route=destiny_lfg_update_route.format(
                 guild_id=self.discord_guild.id, discord_id=discord_member_id, lfg_id=lfg_id
             ),
-            data=lfg_data.dict(),
+            data=lfg_data,
         )
 
         # convert to correct pydantic model
@@ -89,7 +90,7 @@ class DestinyLfgSystem(BaseBackendConnection):
         result = await self._backend_request(
             method="POST",
             route=destiny_lfg_create_route.format(guild_id=self.discord_guild.id, discord_id=discord_member.id),
-            data=lfg_data.dict(),
+            data=lfg_data,
         )
 
         # convert to correct pydantic model

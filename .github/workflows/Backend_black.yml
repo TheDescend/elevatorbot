@@ -1,0 +1,28 @@
+name: Black Formating
+
+on:
+  push:
+    branches:
+    - master
+    paths:
+    - Backend/**/*.py
+  pull_request:
+    branches:
+    - master
+    paths:
+    - Backend/**/*.py
+
+jobs:
+  black:
+    name: Black
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Format with Black
+        uses: rickstaa/action-black@v1
+        with:
+          black_args: "Backend"

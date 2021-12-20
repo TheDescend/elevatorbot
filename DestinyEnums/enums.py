@@ -254,6 +254,6 @@ class DestinyInventoryBucketEnum(Enum):
     BRIGHT_DUST = 2689798311
     SHARDS = 2689798309
 
-    @property
-    def all(self) -> list[DestinyInventoryBucketEnum]:
+    @staticmethod
+    def all() -> list[DestinyInventoryBucketEnum]:
         return [e for e in DestinyInventoryBucketEnum]

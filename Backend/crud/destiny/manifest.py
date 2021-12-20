@@ -4,9 +4,9 @@ from typing import Any, Optional, TypeVar
 from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from Backend.crud import versions
 from Backend.crud.base import CRUDBase
-from Backend.database.base import Base
+from Backend.crud.misc.versions import versions
+from Backend.database.base import Base, is_test_mode
 from Backend.database.models import (
     DestinyActivityDefinition,
     DestinyLoreDefinition,
@@ -114,8 +114,10 @@ class CRUDManifest(CRUDBase):
             DestinyActivityDefinition.activity_mode_types.any(UsableDestinyActivityModeTypeEnum.NIGHTFALL.value)
         )
         query = query.filter(
-            or_(DestinyActivityDefinition.name.like(f"%Grandmaster%")),
-            (DestinyActivityDefinition.activity_light_level == 1100),
+            or_(
+                DestinyActivityDefinition.name.contains("Grandmaster"),
+                (DestinyActivityDefinition.activity_light_level == 1100),
+            )
         )
 
         results = await self._execute_query(db=db, query=query)
@@ -156,7 +158,6 @@ class CRUDManifest(CRUDBase):
 
         # check cache
         if not cache.interesting_solos:
-            # todo pirate dungeon name
             interesting_solos = [
                 "Shattered Throne",
                 "Pit of Heresy",
@@ -167,12 +168,13 @@ class CRUDManifest(CRUDBase):
                 "The Whisper",
                 "Zero Hour",
                 "Grandmaster Nightfalls",
+                "Grasp of Avarice",
             ]
 
             # loop through each of the entries
             for activity_name in interesting_solos:
                 query = select(DestinyActivityDefinition)
-                query = query.filter(DestinyActivityDefinition.name.like(f"%{activity_name}%"))
+                query = query.filter(DestinyActivityDefinition.name.contains(activity_name))
 
                 db_results = await self._execute_query(db=db, query=query)
                 db_result: list[DestinyActivityDefinition] = db_results.scalars().all()
@@ -191,9 +193,11 @@ class CRUDManifest(CRUDBase):
                         data.activity_ids.append(activity.reference_id)
 
                 # check that we got some
-                assert data
+                if not is_test_mode():
+                    assert data
 
-                cache.interesting_solos.append(data)
+                if data:
+                    cache.interesting_solos.append(data)
 
         return cache.interesting_solos
 

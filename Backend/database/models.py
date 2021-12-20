@@ -165,6 +165,12 @@ class DiscordUsers(Base):
     activities_last_updated = Column(
         DateTime(timezone=True), nullable=False, default=datetime.datetime(2000, 1, 1, tzinfo=datetime.timezone.utc)
     )
+    collectibles_last_updated = Column(
+        DateTime(timezone=True), nullable=False, default=datetime.datetime(2000, 1, 1, tzinfo=datetime.timezone.utc)
+    )
+    triumphs_last_updated = Column(
+        DateTime(timezone=True), nullable=False, default=datetime.datetime(2000, 1, 1, tzinfo=datetime.timezone.utc)
+    )
 
 
 class DestinyClanLinks(Base):
@@ -207,18 +213,18 @@ class DestinyActivityDefinition(Base):
     __tablename__ = "destinyActivityDefinition"
 
     reference_id = Column(BigInteger, nullable=False, primary_key=True)
-    description = Column(Text)
-    name = Column(Text)
+    description = Column(Text, nullable=False)
+    name = Column(Text, nullable=False)
     activity_level = Column(SmallInteger)
-    activity_light_level = Column(Integer)
-    destination_hash = Column(BigInteger)
-    place_hash = Column(BigInteger)
-    activity_type_hash = Column(BigInteger)
-    is_pvp = Column(Boolean)
-    direct_activity_mode_hash = Column(BigInteger)
-    direct_activity_mode_type = Column(SmallInteger)
-    activity_mode_hashes = Column(ARRAY(BigInteger()))
-    activity_mode_types = Column(ARRAY(SmallInteger()))
+    activity_light_level = Column(Integer, nullable=False)
+    destination_hash = Column(BigInteger, nullable=False)
+    place_hash = Column(BigInteger, nullable=False)
+    activity_type_hash = Column(BigInteger, nullable=False)
+    is_pvp = Column(Boolean, nullable=False)
+    direct_activity_mode_hash = Column(BigInteger, nullable=False)
+    direct_activity_mode_type = Column(SmallInteger, nullable=False)
+    activity_mode_hashes = Column(ARRAY(BigInteger()), nullable=False)
+    activity_mode_types = Column(ARRAY(SmallInteger()), nullable=False)
 
 
 class DestinyActivityModeDefinition(Base):
@@ -330,7 +336,7 @@ class DestinyLoreDefinition(Base):
     reference_id = Column(BigInteger, nullable=False, primary_key=True)
     name = Column(Text, nullable=False)
     description = Column(Text, nullable=False)
-    sub_title = Column(Text, nullable=False)
+    sub_title = Column(Text, nullable=True)
     redacted = Column(Boolean, nullable=False)
 
 

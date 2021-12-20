@@ -16,10 +16,13 @@ from NetworkingSchemas.destiny.roles import RoleModel
 
 @dataclasses.dataclass
 class Cache:
+    # Saved PGCR IDs - Key: instance_id
+    saved_pgcrs: set[int] = dataclasses.field(init=False, default_factory=set)
+
     # User Objects - Key: discord_id
     discord_users: dict[int, DiscordUsers] = dataclasses.field(init=False, default_factory=dict)
 
-    # Roles Objects - Key: role_id
+    # Role Objects - Key: role_id
     roles: dict[int, RoleModel] = dataclasses.field(init=False, default_factory=dict)
 
     # Guild Roles Objects - Key: guild_id

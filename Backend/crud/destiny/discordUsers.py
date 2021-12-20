@@ -88,7 +88,7 @@ class CRUDDiscordUser(CRUDBase):
                 },
             )
 
-        # get the users destiny info
+        # get the user's destiny info
         destiny_id = int(destiny_info.content["primaryMembershipId"])
 
         # get the system
@@ -124,10 +124,10 @@ class CRUDDiscordUser(CRUDBase):
 
             # if that returned something, we need to make sure the destiny_id belongs to the same discord_id
             if not user.discord_id == discord_id:
-                # if it doesnt, we need to delete that entry, otherwise a destiny account could be registered to multiple persons
+                # if it doesn't, we need to delete that entry, otherwise a destiny account could be registered to multiple persons
                 await self.delete_profile(db=db, discord_id=user.discord_id)
 
-                # now we gotta make it an insert instead of an update
+                # now we have to make it an insert instead of an update
                 method_insert = True
 
             else:
@@ -163,6 +163,7 @@ class CRUDDiscordUser(CRUDBase):
 
         else:
             # now we call the update function instead of the insert function
+            datetime_default = datetime.datetime(2000, 1, 1, tzinfo=datetime.timezone.utc)
             await self.update(
                 db=db,
                 to_update=user,
@@ -175,6 +176,9 @@ class CRUDDiscordUser(CRUDBase):
                 refresh_token_expiry=localize_datetime(
                     datetime.datetime.fromtimestamp(current_time + bungie_token.refresh_expires_in)
                 ),
+                activities_last_updated=datetime_default,
+                collectibles_last_updated=datetime_default,
+                triumphs_last_updated=datetime_default,
             )
 
         return BungieTokenOutput(success=True, errror_message=None), user, discord_id, guild_id

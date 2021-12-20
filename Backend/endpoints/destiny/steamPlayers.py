@@ -9,12 +9,12 @@ from NetworkingSchemas.destiny.steamPlayers import (
 )
 
 router = APIRouter(
-    prefix="/steam_players",
+    prefix="/destiny/steam_players",
     tags=["destiny", "steam_players"],
 )
 
 
-@router.get("/get", response_model=DestinySteamPlayersCountModel)
+@router.get("/get/all", response_model=DestinySteamPlayersCountModel)
 async def get(db: AsyncSession = Depends(get_db_session)):
     """Return the steam players and times"""
 

@@ -5,7 +5,8 @@ from typing import Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from Backend.crud import activities, destiny_manifest, discord_users
+from Backend.core.errors import CustomException
+from Backend.crud import crud_activities, destiny_manifest, discord_users
 from Backend.crud.destiny.collectibles import collectibles
 from Backend.crud.destiny.items import destiny_items
 from Backend.crud.destiny.records import records
@@ -23,7 +24,7 @@ from Backend.misc.helperFunctions import (
     make_progress_bar_text,
 )
 from Backend.networking.bungieApi import BungieApi
-from Backend.networking.bungieRoutes import profile_route, stat_route
+from Backend.networking.bungieRoutes import clan_user_route, profile_route, stat_route
 from DestinyEnums.enums import (
     DestinyInventoryBucketEnum,
     DestinyPresentationNodeWeaponSlotEnum,
@@ -46,6 +47,7 @@ from NetworkingSchemas.destiny.account import (
 )
 
 # todo check usage of ALL functions
+from NetworkingSchemas.destiny.clan import DestinyClanModel
 
 
 @dataclasses.dataclass
@@ -64,10 +66,6 @@ class DestinyProfile:
 
     _triumphs: dict = dataclasses.field(init=False, default_factory=dict)
 
-    # field to stop re-calculating items a lot
-    _last_triumph_update: datetime.datetime = dataclasses.field(init=False, default=datetime.datetime.min)
-    _last_collectible_update: datetime.datetime = dataclasses.field(init=False, default=datetime.datetime.min)
-
     def __post_init__(self):
         # some shortcuts
         self.discord_id = self.user.discord_id
@@ -76,6 +74,15 @@ class DestinyProfile:
 
         # the network class
         self.api = BungieApi(db=self.db, user=self.user)
+
+    async def get_clan(self) -> DestinyClanModel:
+        """Return the user's clan"""
+
+        response = await self.api.get(route=clan_user_route.format(destiny_id=self.destiny_id, system=self.system))
+        results = response.content["results"]
+        if not results:
+            raise CustomException("UserNoClan")
+        return DestinyClanModel(id=results[0]["group"]["groupId"], name=results[0]["group"]["name"])
 
     async def get_seal_completion(self) -> DestinySealsModel:
         """Gets all seals and the users completion status"""
@@ -156,20 +163,27 @@ class DestinyProfile:
         # check their completion
         result = DestinyCatalystsModel()
         for catalyst in catalysts:
-            user_data = triumphs[str(catalyst.reference_id)]["objectives"]
-
             # get the completion rate
-            complete = user_data["complete"]
-            if complete:
+            if await self.has_triumph(catalyst.reference_id):
                 completion_percentage = 1
-            elif user_data["completionValue"]:
-                completion_percentage = user_data["progress"] / user_data["completionValue"]
             else:
-                completion_percentage = 0
+                user_data = triumphs[str(catalyst.reference_id)]
+
+                if user_data["objectives"] and user_data["objectives"][0]["completionValue"]:
+                    i = 0
+                    percentages = []
+                    for part in user_data["objectives"]:
+                        i += 1
+                        percentages.append(
+                            part["progress"] / part["completionValue"] if part["completionValue"] != 0 else 0
+                        )
+                    completion_percentage = sum(percentages) / len(percentages)
+                else:
+                    completion_percentage = 0
 
             model = DestinyCatalystModel(
                 name=catalyst.name,
-                complete=complete,
+                complete=completion_percentage == 1,
                 completion_percentage=completion_percentage,
                 completion_status=make_progress_bar_text(completion_percentage),
             )
@@ -183,7 +197,7 @@ class DestinyProfile:
                 result.power.append(model)
 
             # add to the total
-            if complete:
+            if model.complete:
                 result.completed += 1
 
         return result
@@ -238,34 +252,35 @@ class DestinyProfile:
             energy = 0
             power = 0
 
-            for buckets in char_data[character]:
+            # todo not all items get loaded
+            for bucket, data in char_data[character].items():
                 # save the items light level
-                for bucket, items in buckets.items():
+                for item_id, item_data in data.items():
                     match bucket:
                         case DestinyInventoryBucketEnum.HELMET:
-                            if items["power_level"] > helmet:
-                                helmet += items["power_level"]
+                            if item_data["power_level"] > helmet:
+                                helmet = item_data["power_level"]
                         case DestinyInventoryBucketEnum.GAUNTLETS:
-                            if items["power_level"] > gauntlet:
-                                gauntlet += items["power_level"]
+                            if item_data["power_level"] > gauntlet:
+                                gauntlet = item_data["power_level"]
                         case DestinyInventoryBucketEnum.CHEST:
-                            if items["power_level"] > chest:
-                                chest += items["power_level"]
+                            if item_data["power_level"] > chest:
+                                chest = item_data["power_level"]
                         case DestinyInventoryBucketEnum.LEG:
-                            if items["power_level"] > leg:
-                                leg += items["power_level"]
+                            if item_data["power_level"] > leg:
+                                leg = item_data["power_level"]
                         case DestinyInventoryBucketEnum.CLASS:
-                            if items["power_level"] > class_item:
-                                class_item += items["power_level"]
+                            if item_data["power_level"] > class_item:
+                                class_item = item_data["power_level"]
                         case DestinyInventoryBucketEnum.KINETIC:
-                            if items["power_level"] > kinetic:
-                                kinetic += items["power_level"]
+                            if item_data["power_level"] > kinetic:
+                                kinetic = item_data["power_level"]
                         case DestinyInventoryBucketEnum.ENERGY:
-                            if items["power_level"] > energy:
-                                energy += items["power_level"]
+                            if item_data["power_level"] > energy:
+                                energy = item_data["power_level"]
                         case DestinyInventoryBucketEnum.POWER:
-                            if items["power_level"] > power:
-                                power += items["power_level"]
+                            if item_data["power_level"] > power:
+                                power = item_data["power_level"]
 
             # get the max power
             char_max_power = (helmet + gauntlet + chest + leg + class_item + kinetic + energy + power) / 8
@@ -303,7 +318,9 @@ class DestinyProfile:
 
             if triumph_hash not in cache.triumphs[self.destiny_id]:
                 # check if the last update is older than 10 minutes
-                if self._last_triumph_update + datetime.timedelta(minutes=10) > get_now_with_tz():
+                if self._triumphs and (
+                    self.user.triumphs_last_updated + datetime.timedelta(minutes=10) > get_now_with_tz()
+                ):
                     sought_triumph = self._triumphs[str(triumph_hash)]
 
                 else:
@@ -321,7 +338,11 @@ class DestinyProfile:
 
                     # loop through all triumphs and add them / update them in the db
                     for triumph_id, triumph_info in triumphs_data.items():
-                        triumph_id = int(triumph_id)
+                        try:
+                            triumph_id = int(triumph_id)
+                        except ValueError:
+                            # this is the "active_score", ... fields
+                            continue
 
                         if triumph_id in cache.triumphs[self.destiny_id]:
                             continue
@@ -371,7 +392,7 @@ class DestinyProfile:
                         await records.insert_records(db=self.db, objs=to_insert)
 
                     # save the update time
-                    self._last_triumph_update = get_now_with_tz()
+                    await discord_users.update(db=self.db, to_update=self.user, triumphs_last_updated=get_now_with_tz())
 
         # now check again if its completed
         if triumph_hash in cache.triumphs[self.destiny_id]:
@@ -396,7 +417,7 @@ class DestinyProfile:
 
             if collectible_hash not in cache.collectibles[self.destiny_id]:
                 # check if the last update is older than 10 minutes
-                if self._last_collectible_update + datetime.timedelta(minutes=10) > get_now_with_tz():
+                if self.user.collectibles_last_updated + datetime.timedelta(minutes=10) > get_now_with_tz():
                     return False
 
                 # get from db and return that if it says user got the collectible
@@ -406,7 +427,7 @@ class DestinyProfile:
                 if result:
                     # only caching already got collectibles
                     cache.collectibles[self.destiny_id].update({collectible_hash: True})
-                    return result
+                    return True
 
                 # as with the triumphs, we need to update our local collectible data now
                 collectibles_data = await self.get_collectibles()
@@ -451,7 +472,7 @@ class DestinyProfile:
                     await collectibles.insert_collectibles(db=self.db, objs=to_insert)
 
                 # save the update time
-                self._last_collectible_update = get_now_with_tz()
+                await discord_users.update(db=self.db, to_update=self.user, collectibles_last_updated=get_now_with_tz())
 
         # now check again if its owned
         if collectible_hash in cache.collectibles[self.destiny_id]:
@@ -465,7 +486,10 @@ class DestinyProfile:
         metric_hash = str(metric_hash)
         metrics = await self.get_metrics()
 
-        return metrics[metric_hash]["objectiveProgress"]["progress"]
+        try:
+            return metrics[metric_hash]["objectiveProgress"]["progress"]
+        except KeyError:
+            raise CustomException("BungieDestinyItemNotExist")
 
     async def get_stat_value(
         self,
@@ -481,25 +505,35 @@ class DestinyProfile:
             "allPvP",
         ]
         assert stat_category in possible_stat_categories, f"Stat must be one of {possible_stat_categories}"
+        topic = "merged" if stat_category == "allTime" else "results"
 
         stats = await self.get_stats()
 
-        # total stats
-        if not character_id:
-            stat: float = stats["mergedAllCharacters"]["merged"][stat_category][stat_name]["basic"]["value"]
-            return int(stat) if stat.is_integer() else stat
-
         # character stats
-        else:
+        if character_id:
+            found = False
             for char in stats["characters"]:
                 if char["characterId"] == str(character_id):
-                    stat: float = stats["merged"][stat_category][stat_name]["basic"]["value"]
-                    return int(stat) if stat.is_integer() else stat
+                    stats = char
+                    found = True
+
+            if not found:
+                raise CustomException("CharacterIdNotFound")
+
+        # total stats
+        else:
+            stats = stats["mergedAllCharacters"]
+
+        stats = stats[topic][stat_category]
+        if stat_category != "allTime":
+            stats = stats["allTime"]
+        stat: float = stats[stat_name]["basic"]["value"]
+        return int(stat) if stat.is_integer() else stat
 
     async def get_artifact_level(self) -> ValueModel:
         """Returns the seasonal artifact data"""
 
-        result = await self.__get_profile(104, with_token=True)
+        result = await self.__get_profile()
         return ValueModel(value=result["profileProgression"]["data"]["seasonalArtifact"]["powerBonus"])
 
     async def get_season_pass_level(self) -> ValueModel:
@@ -513,7 +547,7 @@ class DestinyProfile:
         # get a character id since they are character specific
         character_id = (await self.get_character_ids())[0]
 
-        result = await self.__get_profile(202, with_token=True)
+        result = await self.__get_profile()
         character_data = result["characterProgressions"]["data"][str(character_id)]["progressions"]
         return ValueModel(
             value=character_data[str(cache.season_pass_definition.reward_progression_hash)]["level"]
@@ -683,7 +717,7 @@ class DestinyProfile:
         for character in character_collectibles:
             # loop through all the collectibles and only update them if the collectible is earned
             # see https://bungie-net.github.io/multi/schema_Destiny-DestinyCollectibleState.html#schema_Destiny-DestinyCollectibleState
-            for collectible_hash, collectible_state in character:
+            for collectible_hash, collectible_state in character.items():
                 if collectible_state["state"] & 1 == 0:
                     user_collectibles.update({collectible_hash: collectible_state})
 
@@ -710,7 +744,7 @@ class DestinyProfile:
             Vault: 138197802
         """
 
-        result = await self.__get_profile(102, with_token=True)
+        result = await self.__get_profile()
         all_items = result["profileInventory"]["data"]["items"]
         items = []
         for item in all_items:
@@ -729,7 +763,7 @@ class DestinyProfile:
     ) -> int:
         """Get the time played (in seconds)"""
 
-        return await activities.calculate_time_played(
+        return await crud_activities.calculate_time_played(
             db=self.db,
             destiny_id=self.destiny_id,
             mode=mode,
@@ -757,14 +791,14 @@ class DestinyProfile:
 
         # default is vault
         if not buckets:
-            buckets = DestinyInventoryBucketEnum.all
+            buckets = DestinyInventoryBucketEnum.all()
 
-        result = await self.__get_profile(102, with_token=True)
+        result = await self.__get_profile()
 
         items = {}
 
         # only get the items in the correct buckets
-        if buckets != DestinyInventoryBucketEnum.all:
+        if buckets != DestinyInventoryBucketEnum.all():
             for item in result["profileInventory"]["data"]["items"]:
                 for bucket in buckets:
                     if item["bucketHash"] == bucket.value:
@@ -782,7 +816,7 @@ class DestinyProfile:
         return items
 
     async def __get_profile_inventory_bucket(
-        self, *buckets: DestinyInventoryBucketEnum, include_item_level: bool = False
+        self, *buckets: DestinyInventoryBucketEnum
     ) -> dict[DestinyInventoryBucketEnum, dict[int, dict]]:
         """
         Get all the items from an inventory bucket. Default: All buckets
@@ -799,12 +833,9 @@ class DestinyProfile:
 
         # default is vault
         if not buckets:
-            buckets = DestinyInventoryBucketEnum.all
+            buckets = DestinyInventoryBucketEnum.all()
 
-        components = [102]
-        if include_item_level:
-            components.append(300)
-        result = await self.__get_profile(*components, with_token=True)
+        result = await self.__get_profile()
 
         items = {}
 
@@ -841,7 +872,7 @@ class DestinyProfile:
         {
             character_id: {
                 DestinyInventoryBucketEnum: {
-                    item_hash: dict_data,
+                    itemInstanceId: itemComponents_data,
                     ...
                 },
                 ...
@@ -850,14 +881,33 @@ class DestinyProfile:
         }
         """
 
+        def add_info(result_dict: dict, item: dict, char_id: int):
+            """Func to add the items"""
+
+            # only get the items in the correct buckets
+            for bucket in buckets:
+                if item["bucketHash"] == bucket.value:
+                    if bucket not in result_dict[char_id]:
+                        result_dict[char_id].update({bucket: {}})
+                    result_dict[char_id][bucket].update({item["itemInstanceId"]: item})
+                    if include_item_level:
+                        try:
+                            result_dict[char_id][bucket][item["itemInstanceId"]].update(
+                                {
+                                    "power_level": result["itemComponents"]["instances"]["data"][
+                                        item["itemInstanceId"]
+                                    ]["primaryStat"]["value"]
+                                }
+                            )
+                        except KeyError:
+                            pass
+                    break
+
         # default is vault
         if not buckets:
-            buckets = DestinyInventoryBucketEnum.all
+            buckets = DestinyInventoryBucketEnum.all()
 
-        components = [102, 200, 201, 205]
-        if include_item_level:
-            components.append(300)
-        result = await self.__get_profile(*components, with_token=True)
+        result = await self.__get_profile()
         items = {}
 
         # first get the character ids and their class
@@ -868,28 +918,6 @@ class DestinyProfile:
                 character_ids.update({class_type: [int(character_id)]})
             else:
                 character_ids[class_type].append(int(character_id))
-
-        # func to add the items
-        def add_info(result_dict: dict, item: dict, char_id: int):
-            # only get the items in the correct buckets
-            for bucket in buckets:
-                if item["bucketHash"] == bucket.value:
-                    item_hash = int(item["itemHash"])
-                    if bucket not in result_dict[char_id]:
-                        result_dict[char_id].update({bucket: {}})
-                    result_dict[char_id][bucket].update({item_hash: item})
-                    if include_item_level:
-                        try:
-                            result_dict[char_id][bucket][item_hash].update(
-                                {
-                                    "power_level": result["itemComponents"]["instances"]["data"][str(item_hash)][
-                                        "primaryStat"
-                                    ]["value"]
-                                }
-                            )
-                        except KeyError:
-                            pass
-                    break
 
         # get character inventory
         for character_id, character_data in result["characterInventories"]["data"].items():
@@ -907,58 +935,68 @@ class DestinyProfile:
                 add_info(items, inv_item, character_id)
 
         # get stuff in vault that is character specific
-        for profile_data in result["profileInventory"]["data"]:
+        for profile_data in result["profileInventory"]["data"]["items"]:
             # only check if it has a instance id and is in the correct bucket
             if (
                 profile_data["bucketHash"] == DestinyInventoryBucketEnum.VAULT.value
                 and "itemInstanceId" in profile_data
             ):
-                # get the character class from the item id
-                definition = await destiny_items.get_item()
+                # get the character class and actual bucket hash from the item id
+                definition = await destiny_items.get_item(db=self.db, item_id=profile_data["itemHash"])
+                profile_data["bucketHash"] = definition.bucket_type_hash
 
-                actual_bucket_hash = definition.bucket_type_hash
-                actual_character_ids = character_ids[definition.class_type]
-                for actual_character_id in actual_character_ids:
-                    items[actual_character_id][actual_bucket_hash].update({profile_data["itemHash"]: profile_data})
-                    if include_item_level:
-                        try:
-                            items[actual_character_id][actual_bucket_hash][profile_data["itemHash"]].update(
-                                {
-                                    "power_level": result["itemComponents"]["instances"]["data"][
-                                        str(profile_data["itemHash"])
-                                    ]["primaryStat"]["value"]
-                                }
-                            )
-                        except KeyError:
-                            pass
+                # try to catch users which deleted their warlock but still have warlock items
+                if definition.class_type in character_ids:
+                    # add the data to each character
+                    actual_character_ids = character_ids[definition.class_type]
+                    for actual_character_id in actual_character_ids:
+                        add_info(items, profile_data, actual_character_id)
 
         return items
 
-    async def __get_profile(self, *components_override: int, with_token: bool = False) -> dict:
+    async def __get_profile(self) -> dict:
         """
         Return info from the profile call
         https://bungie-net.github.io/multi/schema_Destiny-DestinyComponentType.html#schema_Destiny-DestinyComponentType
-
-        Call the override if you want specific components, otherwise its always the default
-        Default: components_override = (100, 200, 800, 900, 1100)
         """
-
-        if not components_override:
-            components_override = (100, 200, 800, 900, 1100)
-
-        # add 100 to the profile call. Remove that data in the result and only use it to update Bungie Name
-        added = False
-        if 100 not in components_override:
-            added = True
-            components_override += (100,)
+        # just calling nearly all of them. Don't need all quite yet, but who knows what the future will bring
+        components = (
+            100,
+            101,
+            102,
+            103,
+            104,
+            105,
+            200,
+            201,
+            202,
+            203,
+            204,
+            205,
+            300,
+            301,
+            302,
+            303,
+            304,
+            305,
+            306,
+            307,
+            400,
+            401,
+            402,
+            500,
+            600,
+            700,
+            800,
+            900,
+            1100,
+        )
 
         route = profile_route.format(system=self.system, destiny_id=self.destiny_id)
-        params = {"components": ",".join(map(str, components_override))}
+        params = {"components": ",".join(map(str, components))}
 
-        if with_token:
-            response = await self.api.get_with_token(route=route, params=params)
-        else:
-            response = await self.api.get(route=route, params=params)
+        # need to call this with a token, since this data is sensitive
+        response = await self.api.get_with_token(route=route, params=params)
 
         # get bungie name
         bungie_name = f"""{response.content["profile"]["data"]["userInfo"]["bungieGlobalDisplayName"]}#{response.content["profile"]["data"]["userInfo"]["bungieGlobalDisplayNameCode"]}"""
@@ -967,21 +1005,17 @@ class DestinyProfile:
         if bungie_name != self.user.bungie_name:
             await discord_users.update(db=self.db, to_update=self.user, bungie_name=bungie_name)
 
-        # remove 100 data from response
-        if added:
-            response.content.pop("profile")
-
         return response.content
 
     async def __get_currency_amount(self, bucket: DestinyInventoryBucketEnum) -> int:
         """Returns the amount of the specified currency owned"""
 
-        profile = await self.__get_profile(103)
+        profile = await self.__get_profile()
         items = profile["profileCurrencies"]["data"]["items"]
 
         # get the item with the correct bucket
         value = 0
-        for item in items():
+        for item in items:
             if item["bucketHash"] == bucket.value:
                 value = item["quantity"]
         return value

@@ -26,9 +26,9 @@ async def insert(
     return PollSchema.from_orm(result)
 
 
-@router.get("/{discord_id}/{poll_id}/get", response_model=PollSchema)
+@router.get("/{discord_id}/get/{poll_id}", response_model=PollSchema)
 async def get(guild_id: int, discord_id: int, poll_id: int, db: AsyncSession = Depends(get_db_session)):
-    """Gets a persistent message"""
+    """Gets a poll"""
 
     result = await polls.get(db=db, poll_id=poll_id)
     return PollSchema.from_orm(result)
@@ -48,7 +48,7 @@ async def delete_option(
     return PollSchema.from_orm(result)
 
 
-@router.post("/{discord_id}/{poll_id}/user_input", response_model=PollSchema)
+@router.post("/{discord_id}/user_input/{poll_id}", response_model=PollSchema)
 async def user_input(
     guild_id: int,
     discord_id: int,
@@ -62,7 +62,7 @@ async def user_input(
     return PollSchema.from_orm(result)
 
 
-@router.delete("/{discord_id}/{poll_id}/delete", response_model=PollSchema)
+@router.delete("/{discord_id}/delete/{poll_id}", response_model=PollSchema)
 async def delete(guild_id: int, discord_id: int, poll_id: int, db: AsyncSession = Depends(get_db_session)):
     """Deletes a poll"""
 

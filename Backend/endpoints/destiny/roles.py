@@ -20,7 +20,7 @@ from NetworkingSchemas.destiny.roles import (
 )
 
 router = APIRouter(
-    prefix="/destiny/{guild_id}/roles",
+    prefix="/destiny/roles/{guild_id}",
     tags=["destiny", "roles"],
 )
 
@@ -62,7 +62,7 @@ async def get_all(guild_id: int, db: AsyncSession = Depends(get_db_session)):
     return RolesModel(roles=result)
 
 
-@router.get("/get/all/{discord_id}", response_model=EarnedRolesModel)
+@router.get("/{discord_id}/get/all", response_model=EarnedRolesModel)
 async def get_user_all(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Get all roles for a user in their guild"""
 
@@ -77,7 +77,7 @@ async def get_user_all(guild_id: int, discord_id: int, db: AsyncSession = Depend
     return await user_roles.get_guild_roles(guild_id=guild_id)
 
 
-@router.get("/get/missing/{discord_id}", response_model=MissingRolesModel)
+@router.get("/{discord_id}/get/missing", response_model=MissingRolesModel)
 async def get_user_missing(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Get the missing roles for a user in a guild"""
 
@@ -92,7 +92,7 @@ async def get_user_missing(guild_id: int, discord_id: int, db: AsyncSession = De
     return await user_roles.get_missing_roles(guild_id=guild_id)
 
 
-@router.get("/get/{role_id}/{discord_id}", response_model=EarnedRoleModel)
+@router.get("/{discord_id}/get/{role_id}", response_model=EarnedRoleModel)
 async def get_user_role(guild_id: int, role_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Get completion info for a role for a user"""
 
