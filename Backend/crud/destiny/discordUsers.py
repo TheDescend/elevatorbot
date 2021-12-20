@@ -14,7 +14,7 @@ from Backend.misc.helperFunctions import get_now_with_tz, localize_datetime
 from Backend.networking.base import NetworkBase
 from Backend.networking.elevatorApi import ElevatorApi
 from NetworkingSchemas.misc.auth import BungieTokenInput, BungieTokenOutput
-from settings import BUNGIE_TOKEN
+from settings import BUNGIE_APPLICATION_API_KEY
 
 
 class CRUDDiscordUser(CRUDBase):
@@ -82,7 +82,7 @@ class CRUDDiscordUser(CRUDBase):
                 method="GET",
                 route="https://www.bungie.net/platform/User/GetMembershipsForCurrentUser/",
                 headers={
-                    "X-API-Key": BUNGIE_TOKEN,
+                    "X-API-Key": BUNGIE_APPLICATION_API_KEY,
                     "Accept": "application/json",
                     "Authorization": f"Bearer {bungie_token.access_token}",
                 },

@@ -27,9 +27,9 @@ ADMIN_PASSWORD: str = ""
 DISCORD_BOT_TOKEN: str = ""
 
 # Your own bungie token, and you bungie secret data. Needed to access bungies api
-BUNGIE_TOKEN: str = ""
-B64_SECRET: str = ""
-BUNGIE_OAUTH: str = ""
+BUNGIE_APPLICATION_API_KEY: str = ""
+BUNGIE_APPLICATION_CLIENT_SECRET: str = ""
+BUNGIE_APPLICATION_CLIENT_ID: str = ""
 
 # Your steam token. This is needed to access the steam api and query the current amount of D2 players
 STEAM_TOKEN: str = ""

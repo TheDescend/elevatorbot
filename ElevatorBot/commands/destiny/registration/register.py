@@ -10,7 +10,7 @@ from dis_snek.models import (
 
 from ElevatorBot.elevator import ElevatorSnake
 from ElevatorBot.misc.formating import embed_message
-from settings import BUNGIE_OAUTH
+from settings import BUNGIE_APPLICATION_CLIENT_ID
 
 
 class Register(Scale):
@@ -37,7 +37,7 @@ async def send_registration(ctx: InteractionContext | ComponentContext):
             Button(
                 style=ButtonStyles.URL,
                 label=f"Registration Link",
-                url=f"""https://www.bungie.net/en/oauth/authorize?client_id={BUNGIE_OAUTH}&response_type=code&state={f"{ctx.author.id}:{ctx.guild.id}:{ctx.channel.id}"}""",
+                url=f"""https://www.bungie.net/en/oauth/authorize?client_id={BUNGIE_APPLICATION_CLIENT_ID}&response_type=code&state={f"{ctx.author.id}:{ctx.guild.id}:{ctx.channel.id}"}""",
             ),
         ),
     ]

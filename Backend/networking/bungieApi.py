@@ -10,14 +10,14 @@ from Backend.database.models import DiscordUsers
 from Backend.networking.base import NetworkBase
 from Backend.networking.bungieAuth import BungieAuth
 from Backend.networking.schemas import WebResponse
-from settings import BUNGIE_TOKEN
+from settings import BUNGIE_APPLICATION_API_KEY
 
 
 class BungieApi(NetworkBase):
     """Handles all networking to any API. To call an api that is not bungies, change the headers"""
 
     # base bungie headers
-    normal_headers = {"X-API-Key": BUNGIE_TOKEN, "Accept": "application/json"}
+    normal_headers = {"X-API-Key": BUNGIE_APPLICATION_API_KEY, "Accept": "application/json"}
     auth_headers = normal_headers.copy()
 
     # the cache object. Low expire time since players dont want to wait an eternity for their stuff to update
