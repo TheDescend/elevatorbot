@@ -6,6 +6,8 @@ import unittest.mock
 from urllib.parse import urlencode
 
 from dummyData.static import *
+from httpx import AsyncClient
+from orjson import orjson
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.destiny.activities import DestinyActivities
@@ -34,6 +36,10 @@ from Backend.misc.cache import cache
 from Backend.misc.helperFunctions import get_now_with_tz, localize_datetime
 from Backend.networking.schemas import WebResponse
 from NetworkingSchemas.misc.auth import BungieTokenInput
+from NetworkingSchemas.misc.persistentMessages import (
+    PersistentMessage,
+    PersistentMessageUpsert,
+)
 
 
 async def mock_request(
@@ -66,7 +72,7 @@ async def mock_elevator_post(self, *args, **kwargs):
 
 @unittest.mock.patch("Backend.networking.base.NetworkBase._request", mock_request)
 @unittest.mock.patch("Backend.networking.elevatorApi.ElevatorApi.post", mock_elevator_post)
-async def insert_dummy_data(db: AsyncSession):
+async def insert_dummy_data(db: AsyncSession, client: AsyncClient):
     # create our registered destiny user
     token_data = BungieTokenInput(
         access_token=dummy_token,
@@ -251,3 +257,25 @@ async def insert_dummy_data(db: AsyncSession):
     assert data.redacted is False
 
     # =========================================================================
+    # insert persistent messages
+    input_model = PersistentMessageUpsert(channel_id=dummy_persistent_lfg_channel_id, message_id=None)
+    r = await client.post(
+        f"/persistentMessages/{dummy_discord_guild_id}/upsert/lfg_channel", json=orjson.loads(input_model.json())
+    )
+    assert r.status_code == 200
+    data = PersistentMessage.parse_obj(r.json())
+    assert data.message_name == "lfg_channel"
+    assert data.guild_id == dummy_discord_guild_id
+    assert data.channel_id == dummy_persistent_lfg_channel_id
+    assert data.message_id is None
+
+    input_model = PersistentMessageUpsert(channel_id=dummy_persistent_lfg_voice_category_id, message_id=None)
+    r = await client.post(
+        f"/persistentMessages/{dummy_discord_guild_id}/upsert/lfg_voice_category", json=orjson.loads(input_model.json())
+    )
+    assert r.status_code == 200
+    data = PersistentMessage.parse_obj(r.json())
+    assert data.message_name == "lfg_voice_category"
+    assert data.guild_id == dummy_discord_guild_id
+    assert data.channel_id == dummy_persistent_lfg_voice_category_id
+    assert data.message_id is None

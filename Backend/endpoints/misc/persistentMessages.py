@@ -33,7 +33,7 @@ async def get_all(guild_id: int, db: AsyncSession = Depends(get_db_session)):
     return PersistentMessages(messages=[PersistentMessage.from_orm(result) for result in db_results])
 
 
-@router.post("/upsert/{message_name}", response_model=PersistentMessage)
+@router.post("/upsert/{message_name}", response_model=PersistentMessage)  # has test
 async def upsert(
     guild_id: int, message_name: str, update_data: PersistentMessageUpsert, db: AsyncSession = Depends(get_db_session)
 ):
