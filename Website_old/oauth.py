@@ -6,7 +6,8 @@ import os
 import time
 
 import requests
-from config import B64_SECRET, BOT_ACCOUNT_PUBLIC_KEY, BUNGIE_TOKEN, NEWTONS_WEBHOOK
+from base64 import b64encode
+from config import BUNGIE_APPLICATION_CLIENT_SECRET, BOT_ACCOUNT_PUBLIC_KEY, BUNGIE_APPLICATION_API_KEY, NEWTONS_WEBHOOK, BUNGIE_APPLICATION_CLIENT_ID
 from flask import (
     Flask,
     Response,
@@ -66,7 +67,7 @@ def root():
     url = "https://www.bungie.net/platform/app/oauth/token/"
     headers = {
         "content-type": "application/x-www-form-urlencoded",
-        "authorization": "Basic " + str(B64_SECRET),  # unqiue to this app
+        "authorization": "Basic " + b64encode(f"{BUNGIE_APPLICATION_CLIENT_ID}:{BUNGIE_APPLICATION_CLIENT_SECRET}".encode("ascii")).decode("ascii"),  # unqiue to this app
     }
 
     data = f"grant_type=authorization_code&code={code}"
@@ -84,7 +85,7 @@ def root():
 
     reqParams = {
         "Authorization": "Bearer " + str(access_token),
-        "X-API-Key": BUNGIE_TOKEN,
+        "X-API-Key": BUNGIE_APPLICATION_API_KEY,
     }
 
     r = requests.get(
