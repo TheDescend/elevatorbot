@@ -45,10 +45,10 @@ class ElevatorSnake(CustomErrorSnake):
         await custom_emojis.init_emojis(client)
 
         print("Setting Up Descend Data...")
-        await descend_channels.init_channels(client)
-
-        # chunk descend and load its data, but not all guilds
-        await descend_channels.guild.chunk_guild()
+        is_descend = await descend_channels.init_channels(client)
+        if is_descend:
+            # chunk descend and load its data, but not all guilds
+            await descend_channels.guild.chunk_guild()
 
         print("Startup Finished!\n")
         print("--------------------------\n")
