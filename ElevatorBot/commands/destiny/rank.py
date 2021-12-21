@@ -114,7 +114,7 @@ class Rank(BaseScale):
 
     @slash_command(
         name="rank",
-        description="Display Destiny 2 leaderboards for the linked clan. Pick **exactly** one leaderboard from all options",
+        description="Display Destiny 2 leaderboards for the linked clan. Pick **only** one leaderboard from all options",
     )
     @slash_option(
         name="discord_leaderboards",
