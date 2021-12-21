@@ -139,7 +139,7 @@ class BaseBackendConnection:
                     if not result:
                         if self.discord_member:
                             result.error_message = {"discord_member": self.discord_member, **error_message_kwargs}
-                            await self.send_error(result)
+                        await self.send_error(result)
 
                     return result
 
