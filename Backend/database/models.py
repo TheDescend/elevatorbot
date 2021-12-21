@@ -417,7 +417,7 @@ class PersistentMessage(Base):
 class ModerationLog(Base):
     __tablename__ = "moderationLog"
 
-    id = Column(Text, nullable=False, primary_key=True)
+    id = Column(BigInteger, nullable=False, primary_key=True)
     guild_id = Column(BigInteger, nullable=False)
     discord_id = Column(BigInteger, nullable=False)
     mod_discord_id = Column(BigInteger, nullable=False)
@@ -452,4 +452,3 @@ async def create_tables(engine: Engine):
                 print("Database not ready, retrying...")
                 failed = True
                 pass
-
