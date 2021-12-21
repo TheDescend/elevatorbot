@@ -68,7 +68,7 @@ services:
   website:
     build: Website
     ports:
-      - "${WEBSITE_PORT}:3000"
+      - "${WEBSITE_PORT}:80"
     volumes:
       - ./Website:/app/Website
       - ./ElevatorBot/docs:/app/ElevatorBot/docs
