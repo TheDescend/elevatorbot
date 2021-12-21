@@ -387,7 +387,7 @@ class D2SteamPlayer(Base):
 class Poll(Base):
     __tablename__ = "polls"
 
-    id = Column(Integer, nullable=False, primary_key=True)
+    id = Column(BigInteger, nullable=False, primary_key=True)
     name = Column(Text, nullable=False)
     description = Column(Text, nullable=False)
     data = Column(JSON, nullable=False)

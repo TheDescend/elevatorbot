@@ -15,10 +15,9 @@ from dis_snek.models import (
 )
 
 from ElevatorBot.backendNetworking.misc.polls import BackendPolls
-
 from ElevatorBot.misc.discordShortcutFunctions import has_admin_permission
 from ElevatorBot.misc.formating import embed_message
-from NetworkingSchemas.misc.polls import PollSchema
+from NetworkingSchemas.misc.polls import PollChoice, PollSchema
 
 
 @dataclasses.dataclass()
@@ -33,7 +32,7 @@ class Poll:
     message: Optional[Message] = None
 
     id: Optional[int | str] = None
-    data: dict = dataclasses.field(default_factory=dict)
+    choices: list[PollChoice] = dataclasses.field(default_factory=list)
 
     select: list[ActionRow] = dataclasses.field(init=False)
 
@@ -44,10 +43,10 @@ class Poll:
                     Select(
                         options=[
                             SelectOption(
-                                label=option_name,
-                                value=option_name,
+                                label=choice.name,
+                                value=choice.name,
                             )
-                            for option_name in self.data
+                            for choice in self.choices
                         ],
                         placeholder="Please select your choice",
                         min_values=1,
@@ -56,7 +55,7 @@ class Poll:
                     )
                 ),
             ]
-            if self.data
+            if self.choices
             else []
         )
 
@@ -66,26 +65,22 @@ class Poll:
     async def from_pydantic_model(cls, client, data: PollSchema):
         """Create the obj from the PollSchema data"""
 
-        name = data.name
-        description = data.description
         guild = await client.get_guild(data.guild_id)
         channel = await guild.get_channel(data.channel_id)
         author = await client.get_member(data.author_id, guild.id)
-        poll_id = data.id
-        poll_data = data.data
         message = await channel.get_message(data.message_id)
 
         backend = BackendPolls(ctx=None, discord_member=author, guild=guild)
 
         return cls(
             backend=backend,
-            name=name,
-            description=description,
+            name=data.name,
+            description=data.description,
             guild=guild,
             channel=channel,
             author=author,
-            id=poll_id,
-            data=poll_data,
+            id=data.id,
+            choices=data.choices,
             message=message,
         )
 
@@ -108,7 +103,11 @@ class Poll:
         if not await self._check_permission(ctx=ctx):
             return
 
-        self.data.update({option: []})
+        model = PollChoice(name=option, discord_ids=[])
+        if model in self.choices:
+            await ctx.send(embeds=embed_message("Error", f"Option `{option}` already exists"))
+            return
+        self.choices.append(model)
 
         # run the post init again to update select
         self.__post_init__()
@@ -215,7 +214,7 @@ class Poll:
     def _get_embed(self) -> Embed:
         """Get embed"""
 
-        total_users_count = sum([len(option_users) for option_users in self.data.values()])
+        total_users_count = sum([len(choice.discord_ids) for choice in self.choices])
 
         embed = embed_message(
             f"Poll: {self.name}",
@@ -224,11 +223,11 @@ class Poll:
         )
 
         # sort the data by most answers
-        self.data = {k: v for k, v in sorted(self.data.items(), key=lambda item: len(item[1]), reverse=True)}
+        self.choices = sorted(self.choices, key=lambda item: len(item.discord_ids), reverse=True)
 
-        # add options
-        for option_name, option_users in self.data.items():
-            option_users_count = len(option_users)
+        # add choices
+        for choice in self.choices:
+            option_users_count = len(choice.discord_ids)
 
             # number of text elements
             n = 10
@@ -245,7 +244,7 @@ class Poll:
                 text += "░"
 
             embed.add_field(
-                name=option_name,
+                name=choice.name,
                 value=f"{text} {int(progress * 100)}%",
                 inline=False,
             )

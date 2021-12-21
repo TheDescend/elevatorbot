@@ -49,7 +49,7 @@ async def upsert(
     return PersistentMessage.from_orm(result)
 
 
-@router.post("/delete", response_model=EmptyResponseModel)
+@router.post("/delete", response_model=EmptyResponseModel)  # has test
 async def delete(guild_id: int, to_delete: PersistentMessageDeleteInput, db: AsyncSession = Depends(get_db_session)):
     """Deletes a persistent message"""
 

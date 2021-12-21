@@ -4,6 +4,7 @@ from sqlalchemy import delete, inspect, select
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.engine import Result
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm.attributes import flag_modified
 from sqlalchemy.sql import Select
 
 from Backend.database.base import Base
@@ -95,6 +96,10 @@ class CRUDBase:
 
         for key, value in update_kwargs.items():
             setattr(to_update, key, value)
+
+            # make sure to set them as modified
+            # otherwise they might not get updated
+            flag_modified(to_update, key)
 
         await db.flush()
 

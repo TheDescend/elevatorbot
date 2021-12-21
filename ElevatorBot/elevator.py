@@ -2,6 +2,7 @@ import asyncio
 import logging
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from dis_snek import AutoDefer
 from dis_snek.models import listen
 from dis_snek.models.enums import Intents
 
@@ -85,7 +86,11 @@ if __name__ == "__main__":
 
     # actually get the bot obj
     client = ElevatorSnake(
-        intents=intents, sync_interactions=SYNC_COMMANDS, delete_unused_application_cmds=not ENABLE_DEBUG_MODE
+        intents=intents,
+        sync_interactions=SYNC_COMMANDS,
+        delete_unused_application_cmds=not ENABLE_DEBUG_MODE,
+        fetch_members=True,
+        auto_defer=AutoDefer(enabled=True),
     )
 
     print("Loading Discord Events...")

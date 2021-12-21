@@ -59,7 +59,7 @@ class BackendPolls(BaseBackendConnection):
             route=polls_user_input_route.format(
                 guild_id=self.guild.id, discord_id=self.discord_member.id, poll_id=poll_id
             ),
-            data={"choice_name": choice_name, "user_id": self.discord_member.id},
+            data={"choice_name": choice_name},
         )
 
         # convert to correct pydantic model
