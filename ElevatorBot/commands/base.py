@@ -2,7 +2,7 @@ from dis_snek.models import InteractionContext, Scale
 
 from ElevatorBot.backendNetworking.destiny.profile import DestinyProfile
 from ElevatorBot.commandHelpers.responseTemplates import respond_pending
-from ElevatorBot.elevator import ElevatorSnake
+
 from ElevatorBot.misc.cache import registered_role_cache
 from ElevatorBot.misc.formating import embed_message
 from NetworkingSchemas.destiny.profile import DestinyHasTokenModel
@@ -11,7 +11,7 @@ from NetworkingSchemas.destiny.profile import DestinyHasTokenModel
 class BaseScale(Scale):
     """Add checks to every scale"""
 
-    def __init__(self, client: ElevatorSnake):
+    def __init__(self, client):
         self.client = client
         self.add_scale_check(self.registered_check)
         self.add_scale_check(self.no_dm_check)
@@ -56,14 +56,16 @@ class BaseScale(Scale):
         registration_role = await registered_role_cache.get(guild=ctx.guild)
 
         # check in cache if the user is registered
-        if registered_role_cache.is_not_registered():
+        if await registered_role_cache.is_not_registered(ctx.author.id):
             result = DestinyHasTokenModel(token=False)
-
         else:
             # todo test
             # check their status with the backend
             result = await DestinyProfile(
-                ctx=None, client=ctx.bot, discord_member=ctx.author, discord_guild=ctx.guild
+                ctx=None, 
+                #client=ctx.bot, 
+                discord_member=ctx.author, 
+                discord_guild=ctx.guild
             ).has_token()
 
         if not result:
