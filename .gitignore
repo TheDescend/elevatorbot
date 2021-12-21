@@ -32,3 +32,4 @@ config.py
 slashCommandConfig.py
 Website/package-lock.json
 Website/build
+pytest.ini
