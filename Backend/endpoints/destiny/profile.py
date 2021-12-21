@@ -26,6 +26,8 @@ async def discord_has_token(discord_id: int, db: AsyncSession = Depends(get_db_s
     """Return if a user has a valid token"""
 
     profile = await crud.discord_users.get_profile_from_discord_id(db, discord_id)
+    if not profile:
+        return DestinyHasTokenModel(token=False, value=None)
     no_token = await discord_users.token_is_expired(db=db, user=profile)
 
     return DestinyHasTokenModel(token=not no_token, value=profile.token if not no_token else None)
