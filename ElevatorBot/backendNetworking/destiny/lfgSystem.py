@@ -15,7 +15,7 @@ from ElevatorBot.backendNetworking.routes import (
     destiny_lfg_user_get_all_route,
 )
 from ElevatorBot.core.destiny.lfg.scheduledEvents import delete_lfg_scheduled_events
-from ElevatorBot.elevator import ElevatorSnake
+
 from NetworkingSchemas.destiny.lfgSystem import (
     AllLfgDeleteOutputModel,
     AllLfgOutputModel,
@@ -28,7 +28,6 @@ from NetworkingSchemas.destiny.lfgSystem import (
 
 @dataclasses.dataclass
 class DestinyLfgSystem(BaseBackendConnection):
-    client: ElevatorSnake
     discord_guild: Optional[Guild]
     discord_member: Member = dataclasses.field(init=False, default=None)
 
@@ -109,7 +108,7 @@ class DestinyLfgSystem(BaseBackendConnection):
         # returns EmptyResponseModel
         return True if result else None
 
-    async def delete_all(self, client: ElevatorSnake, guild_id: int) -> Optional[AllLfgDeleteOutputModel]:
+    async def delete_all(self, client, guild_id: int) -> Optional[AllLfgDeleteOutputModel]:
         """Delete the lfg info belonging to the lfg id and guild"""
 
         result = await self._backend_request(

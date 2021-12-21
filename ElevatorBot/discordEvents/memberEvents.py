@@ -8,7 +8,7 @@ from ElevatorBot.backendNetworking.destiny.lfgSystem import DestinyLfgSystem
 from ElevatorBot.backendNetworking.destiny.profile import DestinyProfile
 from ElevatorBot.core.destiny.lfg.lfgSystem import LfgMessage
 from ElevatorBot.core.destiny.roles import Roles
-from ElevatorBot.elevator import ElevatorSnake
+
 from ElevatorBot.misc.discordShortcutFunctions import assign_roles_to_member
 from ElevatorBot.misc.formating import embed_message
 from ElevatorBot.static.descendOnlyIds import (
@@ -114,7 +114,11 @@ async def on_member_remove(event: MemberRemove):
 
     # =========================================================================
     # remove them from any lfg events
-    backend = DestinyLfgSystem(ctx=None, client=event.bot, discord_guild=event.member.guild)
+    backend = DestinyLfgSystem(
+        ctx=None,
+        #client=event.bot, 
+        discord_guild=event.member.guild
+    )
     result = await backend.user_get_all(discord_member=event.member)
     if not result:
         raise LookupError
@@ -124,7 +128,11 @@ async def on_member_remove(event: MemberRemove):
         guild = await event.bot.get_guild(lfg_event.guild_id)
         if not guild:
             raise ValueError
-        backend = DestinyLfgSystem(ctx=None, client=event.bot, discord_guild=guild)
+        backend = DestinyLfgSystem(
+            ctx=None, 
+            #client=event.bot, 
+            discord_guild=guild
+        )
         lfg_message = await LfgMessage.from_lfg_output_model(
             client=event.bot, model=lfg_event, backend=backend, guild=guild
         )
@@ -148,7 +156,7 @@ async def on_member_update(event: MemberUpdate):
                     await event.after.edit_nickname("")
 
 
-async def _assign_roles_on_join(client: ElevatorSnake, member: Member):
+async def _assign_roles_on_join(client, member: Member):
     """Assign all applicable roles when a member joins a guild"""
 
     destiny_profile = DestinyProfile(ctx=None, client=client, discord_member=member, discord_guild=member.guild)

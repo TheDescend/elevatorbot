@@ -1,5 +1,5 @@
 from ElevatorBot.backgroundEvents.base import BaseEvent
-from ElevatorBot.elevator import ElevatorSnake
+
 from ElevatorBot.misc.cache import descend_cache
 from ElevatorBot.static.descendOnlyIds import descend_channels
 
@@ -11,7 +11,7 @@ class MemberCountUpdater(BaseEvent):
         interval_minutes = 30
         super().__init__(scheduler_type="interval", interval_minutes=interval_minutes)
 
-    async def run(self, client: ElevatorSnake):
+    async def run(self, client):
         # get the channel if exists and update that message
         try:
             channel = await descend_cache.get_member_count(descend_guild=descend_channels.guild)

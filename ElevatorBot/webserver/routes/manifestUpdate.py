@@ -1,7 +1,7 @@
 from aiohttp import web
 
 from ElevatorBot.commandHelpers import autocomplete
-from ElevatorBot.elevator import ElevatorSnake
+
 from ElevatorBot.startup.initAutocompleteOptions import load_autocomplete_options
 
 
@@ -9,7 +9,7 @@ async def manifest_update(request: web.Request):
     """
     Update the autocomplete options after a manifest update
     """
-    client: ElevatorSnake = request.app["client"]
+    client = request.app["client"]
 
     # delete old data
     autocomplete.activities_grandmaster = {}

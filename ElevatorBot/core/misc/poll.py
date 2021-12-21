@@ -15,7 +15,7 @@ from dis_snek.models import (
 )
 
 from ElevatorBot.backendNetworking.misc.polls import BackendPolls
-from ElevatorBot.elevator import ElevatorSnake
+
 from ElevatorBot.misc.discordShortcutFunctions import has_admin_permission
 from ElevatorBot.misc.formating import embed_message
 from NetworkingSchemas.misc.polls import PollSchema
@@ -63,7 +63,7 @@ class Poll:
         self.backend.hidden = True
 
     @classmethod
-    async def from_pydantic_model(cls, client: ElevatorSnake, data: PollSchema):
+    async def from_pydantic_model(cls, client, data: PollSchema):
         """Create the obj from the PollSchema data"""
 
         name = data.name

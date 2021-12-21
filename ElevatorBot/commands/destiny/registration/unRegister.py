@@ -1,13 +1,13 @@
 from dis_snek.models import InteractionContext, Scale, slash_command
 
 from ElevatorBot.backendNetworking.destiny.profile import DestinyProfile
-from ElevatorBot.elevator import ElevatorSnake
+
 from ElevatorBot.misc.formating import embed_message
 
 
 class UnRegister(Scale):
     def __init__(self, client):
-        self.client: ElevatorSnake = client
+        self.client = client
 
     @slash_command(name="unregister", description="Unlink your Destiny 2 account from ElevatorBot")
     async def _unregister(

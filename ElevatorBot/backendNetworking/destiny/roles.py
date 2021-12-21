@@ -12,7 +12,7 @@ from ElevatorBot.backendNetworking.routes import (
     destiny_role_get_missing_user_route,
     destiny_role_get_user_route,
 )
-from ElevatorBot.elevator import ElevatorSnake
+
 from ElevatorBot.misc.cache import registered_role_cache
 from NetworkingSchemas.destiny.roles import (
     EarnedRoleModel,
@@ -23,7 +23,7 @@ from NetworkingSchemas.destiny.roles import (
 
 @dataclasses.dataclass
 class DestinyRoles(BaseBackendConnection):
-    client: ElevatorSnake
+    
     discord_guild: Optional[Guild]
 
     async def get(self) -> Optional[EarnedRolesModel]:

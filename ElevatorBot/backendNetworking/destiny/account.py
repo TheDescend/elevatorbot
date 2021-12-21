@@ -28,7 +28,7 @@ from ElevatorBot.backendNetworking.routes import (
     destiny_account_triumph_score_route,
     destiny_account_vault_space_route,
 )
-from ElevatorBot.elevator import ElevatorSnake
+
 from NetworkingSchemas.basic import BoolModel, NameModel, ValueModel
 from NetworkingSchemas.destiny.account import (
     BoolModelRecord,
@@ -45,7 +45,7 @@ from NetworkingSchemas.destiny.account import (
 
 @dataclasses.dataclass
 class DestinyAccount(BaseBackendConnection):
-    client: ElevatorSnake
+    
     discord_guild: Guild
 
     async def get_destiny_name(self) -> Optional[NameModel]:

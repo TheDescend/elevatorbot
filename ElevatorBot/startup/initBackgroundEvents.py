@@ -13,10 +13,10 @@ from apscheduler.events import (
 from ElevatorBot import backgroundEvents
 from ElevatorBot.backendNetworking.destiny.lfgSystem import DestinyLfgSystem
 from ElevatorBot.core.destiny.lfg.lfgSystem import LfgMessage
-from ElevatorBot.elevator import ElevatorSnake
 
 
-async def register_background_events(client: ElevatorSnake):
+
+async def register_background_events(client):
     """Adds all the events to apscheduler"""
 
     # gotta start the scheduler in the first place
@@ -115,7 +115,11 @@ async def register_background_events(client: ElevatorSnake):
 
     # load the lfg events
     for guild in client.guilds:
-        backend = DestinyLfgSystem(ctx=None, client=client, discord_guild=guild)
+        backend = DestinyLfgSystem(
+            ctx=None, 
+            #client=client, 
+            discord_guild=guild
+        )
 
         # get all lfg ids
         result = await backend.get_all()

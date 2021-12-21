@@ -1,6 +1,6 @@
 from aiohttp import web
 
-from ElevatorBot.elevator import ElevatorSnake
+
 from ElevatorBot.misc.discordShortcutFunctions import (
     assign_roles_to_member,
     remove_roles_from_member,
@@ -23,7 +23,7 @@ async def roles(request: web.Request):
     }
     """
 
-    client: ElevatorSnake = request.app["client"]
+    client = request.app["client"]
     parameters = await request.json()
 
     # get mutual guilds

@@ -22,10 +22,9 @@ from ElevatorBot.discordEvents.messageEvents import (
     on_message_delete,
     on_message_update,
 )
-from ElevatorBot.elevator import ElevatorSnake
 
 
-def register_discord_events(client: ElevatorSnake):
+def register_discord_events(client):
     """Import all events and add then to the bot"""
 
     # message events

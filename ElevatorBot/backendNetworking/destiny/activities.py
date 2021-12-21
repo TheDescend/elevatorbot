@@ -12,7 +12,7 @@ from ElevatorBot.backendNetworking.routes import (
     destiny_activities_get_grandmaster_route,
     destiny_activities_last_route,
 )
-from ElevatorBot.elevator import ElevatorSnake
+
 from NetworkingSchemas.destiny.activities import (
     DestinyActivitiesModel,
     DestinyActivityDetailsModel,
@@ -23,7 +23,6 @@ from NetworkingSchemas.destiny.activities import (
 
 @dataclasses.dataclass
 class DestinyActivities(BaseBackendConnection):
-    client: Optional[ElevatorSnake]
     discord_guild: Optional[Guild]
     discord_member: Optional[Member]
 

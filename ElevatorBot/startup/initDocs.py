@@ -4,8 +4,6 @@ from typing import Optional
 
 from dis_snek.models import CommandTypes, ContextMenu, SlashCommand, SlashCommandOption
 
-from ElevatorBot.elevator import ElevatorSnake
-
 
 class NoValidatorOption:
     def __init__(self, obj: SlashCommandOption):
@@ -16,7 +14,7 @@ class NoValidatorOption:
         self.choices = obj.choices
 
 
-def create_command_docs(client: ElevatorSnake):
+def create_command_docs(client):
     """Create user documentation for commands and context menus in ./ElevatorBot/docs"""
 
     commands = {}

@@ -1,4 +1,3 @@
-from ElevatorBot.elevator import ElevatorSnake
 from ElevatorBot.misc.status import update_events_status_message
 
 
@@ -27,7 +26,7 @@ class BaseEvent:
             # https://apscheduler.readthedocs.io/en/stable/modules/triggers/date.html
             self.run_date = kwargs["run_date"]  # datetime(2000, 2, 20, 19, 30, 50)
 
-    async def call(self, client: ElevatorSnake):
+    async def call(self, client):
         """Run the post event functions"""
 
         await self.run(client=client)
@@ -35,6 +34,6 @@ class BaseEvent:
         # update status message
         await update_events_status_message(event_name=type(self).__name__)
 
-    async def run(self, client: ElevatorSnake):
+    async def run(self, client):
         """Every event must override this method"""
         raise NotImplementedError

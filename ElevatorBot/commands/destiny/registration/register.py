@@ -8,14 +8,14 @@ from dis_snek.models import (
     slash_command,
 )
 
-from ElevatorBot.elevator import ElevatorSnake
+
 from ElevatorBot.misc.formating import embed_message
 from settings import BUNGIE_APPLICATION_CLIENT_ID
 
 
 class Register(Scale):
     def __init__(self, client):
-        self.client: ElevatorSnake = client
+        self.client = client
 
     @slash_command(name="register", description="Link your Destiny 2 account with ElevatorBot")
     async def _register(self, ctx: InteractionContext):

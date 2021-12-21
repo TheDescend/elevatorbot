@@ -1,6 +1,6 @@
 from dis_snek.models import CustomEmoji
+from dis_snek.errors import Forbidden
 
-from ElevatorBot.elevator import ElevatorSnake
 
 
 class __ElevatorEmojis:
@@ -79,15 +79,19 @@ class __ElevatorEmojis:
     thumps_up: CustomEmoji | int = 754946723612196975
     thumps_down: CustomEmoji | int = 754946723503276124
 
-    async def init_emojis(self, client: ElevatorSnake):
+    async def init_emojis(self, client):
         """Runs on startup to get the emojis we use"""
 
         emojis = []
 
         # get all emojis from the emote servers
         for guild_id in [768902336914391070, 724676552175910934, 556418279015448596, 697720309847162921]:
-            guild = await client.get_guild(guild_id)
-            emojis.extend(await guild.get_all_custom_emojis())
+            try:
+                guild = await client.get_guild(guild_id)
+                emojis.extend(await guild.get_all_custom_emojis())
+            except Forbidden:
+                continue
+
 
         # loop through found emojis
         for emoji in emojis:

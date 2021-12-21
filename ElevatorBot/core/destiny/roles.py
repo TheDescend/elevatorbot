@@ -8,7 +8,7 @@ from dis_snek.models.discord_objects.user import Member
 
 from ElevatorBot.backendNetworking.destiny.roles import DestinyRoles
 from ElevatorBot.commandHelpers.autocomplete import activities_by_id
-from ElevatorBot.elevator import ElevatorSnake
+
 from ElevatorBot.misc.cache import collectible_cache, triumph_cache
 from ElevatorBot.misc.discordShortcutFunctions import (
     assign_roles_to_member,
@@ -22,7 +22,7 @@ from NetworkingSchemas.destiny.roles import RolesCategoryModel
 class Roles:
     """Class to handle achievement Roles"""
 
-    client: ElevatorSnake
+    
     guild: Guild
     member: Member
     ctx: Optional[InteractionContext] = None

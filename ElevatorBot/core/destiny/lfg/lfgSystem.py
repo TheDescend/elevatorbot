@@ -32,7 +32,7 @@ from ics import Calendar, Event
 
 from ElevatorBot.backendNetworking.destiny.lfgSystem import DestinyLfgSystem
 from ElevatorBot.core.destiny.lfg.scheduledEvents import delete_lfg_scheduled_events
-from ElevatorBot.elevator import ElevatorSnake
+
 from ElevatorBot.misc.formating import embed_message
 from ElevatorBot.misc.helperFunctions import get_now_with_tz
 from ElevatorBot.static.emojis import custom_emojis
@@ -51,7 +51,7 @@ class LfgMessage:
 
     backend: DestinyLfgSystem
 
-    client: ElevatorSnake
+    
     id: int
     guild: Guild
 
@@ -99,7 +99,7 @@ class LfgMessage:
 
     @classmethod
     async def from_lfg_output_model(
-        cls, client: ElevatorSnake, model: LfgOutputModel, backend: DestinyLfgSystem, guild: Optional[Guild] = None
+        cls, client, model: LfgOutputModel, backend: DestinyLfgSystem, guild: Optional[Guild] = None
     ) -> LfgMessage:
         """Parse the info from the pydantic model"""
 
@@ -151,14 +151,18 @@ class LfgMessage:
 
     @classmethod
     async def from_lfg_id(
-        cls, lfg_id: int, client: ElevatorSnake, guild: Guild, ctx: Optional[InteractionContext] = None
+        cls, lfg_id: int, client, guild: Guild, ctx: Optional[InteractionContext] = None
     ) -> Optional[LfgMessage]:
         """
         Classmethod to get with a known lfg_id
         Returns LfgMessage() if successful, BackendResult() if not
         """
 
-        backend = DestinyLfgSystem(ctx=ctx, client=client, discord_guild=guild)
+        backend = DestinyLfgSystem(
+            ctx=ctx, 
+            #client=client, 
+            discord_guild=guild
+        )
 
         # get the message by the id
         result = await backend.get(lfg_id=lfg_id)
@@ -178,7 +182,11 @@ class LfgMessage:
     ) -> Optional[LfgMessage]:
         """Classmethod to create a new lfg message"""
 
-        backend = DestinyLfgSystem(ctx=ctx, client=ctx.bot, discord_guild=ctx.guild)
+        backend = DestinyLfgSystem(
+            ctx=ctx, 
+            #client=ctx.bot, 
+            discord_guild=ctx.guild
+        )
 
         # create the message and fill it later
         result = await backend.create(
@@ -534,7 +542,7 @@ class LfgMessage:
                     lfg_message.creation_time = creation_time
                     await lfg_message.send()
 
-    def __get_joined_members_display_names(self) -> list[str]:
+    async def __get_joined_members_display_names(self) -> list[str]:
         """gets the display name of the joined members"""
 
         mentions = []
@@ -543,7 +551,7 @@ class LfgMessage:
             mentions.append(member.mention if member else f"`{member_id}`")
         return mentions
 
-    def __get_alternate_members_display_names(self) -> list[str]:
+    async def __get_alternate_members_display_names(self) -> list[str]:
         """gets the display name of the alternate members"""
 
         mentions = []

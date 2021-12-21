@@ -5,14 +5,13 @@ from copy import copy
 
 from dis_snek.models import Activity, Timestamp, TimestampStyles
 
-from ElevatorBot.elevator import ElevatorSnake
 from ElevatorBot.misc.cache import descend_cache
 from ElevatorBot.misc.helperFunctions import get_now_with_tz
 from ElevatorBot.static.emojis import custom_emojis
 from version import __version__
 
 
-async def update_discord_bot_status(client: ElevatorSnake):
+async def update_discord_bot_status(client):
     """Update the Bots status in an endless loop"""
 
     status_messages = [

@@ -2,7 +2,7 @@ import asyncio
 
 from ElevatorBot.backgroundEvents.base import BaseEvent
 from ElevatorBot.core.destiny.roles import Roles
-from ElevatorBot.elevator import ElevatorSnake
+ 
 
 
 class AutomaticRoleAssignment(BaseEvent):
@@ -19,7 +19,7 @@ class AutomaticRoleAssignment(BaseEvent):
             dow_minute=dow_minute,
         )
 
-    async def run(self, client: ElevatorSnake):
+    async def run(self, client):
         # loop through all guilds
         for guild in client.guilds:
             # gather the members
