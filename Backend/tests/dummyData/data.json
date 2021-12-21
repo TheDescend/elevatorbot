@@ -476,12 +476,12 @@
                 "extended": {
                     "weapons": [
                         {
-                            "referenceId": 9876,
+                            "referenceId": 61,
                             "values": {
                                 "uniqueWeaponKills": {
                                     "basic": {
-                                        "value": 16.0,
-                                        "displayValue": "16"
+                                        "value": 100.0,
+                                        "displayValue": "100"
                                     }
                                 },
                                 "uniqueWeaponPrecisionKills": {
@@ -2595,7 +2595,7 @@
             },
             "screenshot": "/common/destiny2_content/screenshots/2899766705.jpg",
             "itemTypeDisplayName": "Gauntlets",
-            "flavorText": "",
+            "flavorText": "Oh my gawd",
             "uiItemDisplayStyle": "",
             "itemTypeAndTierDisplayName": "Common Gauntlets",
             "displaySource": "",
@@ -2621,7 +2621,7 @@
                 "attributes": 0,
                 "equippingSoundHash": 0,
                 "hornSoundHash": 0,
-                "ammoType": 0,
+                "ammoType": 2,
                 "displayStrings": [
                     ""
                 ]
@@ -2660,12 +2660,12 @@
                 20
             ],
             "specialItemType": 0,
-            "itemType": 2,
-            "itemSubType": 27,
+            "itemType": 3,
+            "itemSubType": 25,
             "classType": 1,
             "breakerType": 0,
             "equippable": true,
-            "defaultDamageType": 0,
+            "defaultDamageType": 6,
             "isWrapper": false,
             "traitIds": [],
             "traitHashes": [
@@ -2715,7 +2715,7 @@
                 "attributes": 0,
                 "equippingSoundHash": 0,
                 "hornSoundHash": 0,
-                "ammoType": 0,
+                "ammoType": 2,
                 "displayStrings": [
                     ""
                 ]
@@ -2754,12 +2754,12 @@
                 20
             ],
             "specialItemType": 0,
-            "itemType": 2,
-            "itemSubType": 27,
+            "itemType": 3,
+            "itemSubType": 25,
             "classType": 1,
             "breakerType": 0,
             "equippable": true,
-            "defaultDamageType": 0,
+            "defaultDamageType": 6,
             "isWrapper": false,
             "traitIds": [],
             "traitHashes": [
@@ -2809,7 +2809,7 @@
                 "attributes": 0,
                 "equippingSoundHash": 0,
                 "hornSoundHash": 0,
-                "ammoType": 0,
+                "ammoType": 2,
                 "displayStrings": [
                     ""
                 ]
@@ -2848,12 +2848,12 @@
                 20
             ],
             "specialItemType": 0,
-            "itemType": 2,
-            "itemSubType": 27,
+            "itemType": 3,
+            "itemSubType": 25,
             "classType": 1,
             "breakerType": 0,
             "equippable": true,
-            "defaultDamageType": 0,
+            "defaultDamageType": 6,
             "isWrapper": false,
             "traitIds": [],
             "traitHashes": [
@@ -2903,7 +2903,7 @@
                 "attributes": 0,
                 "equippingSoundHash": 0,
                 "hornSoundHash": 0,
-                "ammoType": 0,
+                "ammoType": 2,
                 "displayStrings": [
                     ""
                 ]
@@ -2942,12 +2942,12 @@
                 20
             ],
             "specialItemType": 0,
-            "itemType": 2,
-            "itemSubType": 27,
+            "itemType": 3,
+            "itemSubType": 25,
             "classType": 2,
             "breakerType": 0,
             "equippable": true,
-            "defaultDamageType": 0,
+            "defaultDamageType": 6,
             "isWrapper": false,
             "traitIds": [],
             "traitHashes": [

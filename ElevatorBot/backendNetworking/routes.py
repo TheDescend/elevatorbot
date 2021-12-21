@@ -90,8 +90,8 @@ steam_player_get_route = steam_player_route + "get/all"  # GET
 # weapons
 destiny_weapons_route = base_route + "destiny/weapons/"
 destiny_weapons_get_all_route = destiny_weapons_route + "get/all/"  # GET
-destiny_weapons_get_top_route = destiny_weapons_route + "{guild_id}/{discord_id}/top/"  # GET
-destiny_weapons_get_weapon_route = destiny_weapons_route + "{guild_id}/{discord_id}/weapon/"  # GET
+destiny_weapons_get_top_route = destiny_weapons_route + "{guild_id}/{discord_id}/top/"  # POST
+destiny_weapons_get_weapon_route = destiny_weapons_route + "{guild_id}/{discord_id}/weapon/"  # POST
 
 
 # ===========================================================================

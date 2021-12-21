@@ -19,7 +19,7 @@ router = APIRouter(
 )
 
 
-@router.get("/get/all", response_model=DestinyWeaponsModel)
+@router.get("/get/all", response_model=DestinyWeaponsModel)  # has test
 async def get_all(db: AsyncSession = Depends(get_db_session)):
     """Return all weapons there currently are"""
 
@@ -27,7 +27,7 @@ async def get_all(db: AsyncSession = Depends(get_db_session)):
     return await weapons.get_all_weapons()
 
 
-@router.get("/{guild_id}/{discord_id}/top", response_model=DestinyTopWeaponsModel)
+@router.post("/{guild_id}/{discord_id}/top", response_model=DestinyTopWeaponsModel)  # has test
 async def get_top(
     guild_id: int,
     discord_id: int,
@@ -42,8 +42,8 @@ async def get_top(
         stat=input_model.stat,
         how_many_per_slot=input_model.how_many_per_slot,
         include_weapon_with_ids=input_model.include_weapon_with_ids,
-        weapon_type=DestinyItemSubTypeEnum(input_model.weapon_type),
-        damage_type=DestinyDamageTypeEnum(input_model.damage_type),
+        weapon_type=DestinyItemSubTypeEnum(input_model.weapon_type) if input_model.weapon_type else None,
+        damage_type=DestinyDamageTypeEnum(input_model.damage_type) if input_model.damage_type else None,
         character_class=input_model.character_class,
         character_ids=input_model.character_ids,
         mode=input_model.mode,
@@ -53,7 +53,7 @@ async def get_top(
     )
 
 
-@router.get("/{guild_id}/{discord_id}/weapon", response_model=DestinyWeaponStatsModel)
+@router.post("/{guild_id}/{discord_id}/weapon", response_model=DestinyWeaponStatsModel)  # has test
 async def get_weapon(
     guild_id: int,
     discord_id: int,
