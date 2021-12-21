@@ -14,7 +14,7 @@ from Backend.networking.schemas import WebResponse
 class ElevatorApi(NetworkBase):
     logger = logging.getLogger("elevatorApi")
 
-    route = f"""{os.environ.get("ELEVATOR_HOST")}:{os.environ.get("ELEVATOR_PORT")}/"""
+    route = f"""http://{os.environ.get("ELEVATOR_HOST")}:{os.environ.get("ELEVATOR_PORT")}/"""
 
     bungie_request: bool = False
 
