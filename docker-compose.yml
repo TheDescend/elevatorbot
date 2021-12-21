@@ -99,7 +99,6 @@ services:
       - ./NetworkingSchemas:/app/NetworkingSchemas
       - ./DestinyEnums:/app/DestinyEnums
       - ./version.py:/app/version.py
-      - ./Backend:/app/Backend
     environment:
       - BACKEND_HOST
       - BACKEND_PORT
