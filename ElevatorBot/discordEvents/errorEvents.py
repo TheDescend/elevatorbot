@@ -34,7 +34,7 @@ class CustomErrorSnake(Snake):
 
         # log the command
         self.logger_commands.info(
-            f"InteractionID '{ctx.interaction_id}' - CommandName '/{ctx.invoked_name}' - Kwargs '{ctx.kwargs}' - DiscordName '{ctx.author.name}' - DiscordID '{ctx.author.id}' - GuildID '{ctx.guild.id}' - ChannelID '{ctx.channel.id}'"
+            f"InteractionID '{ctx.interaction_id}' - CommandName '/{ctx.invoked_name}' - Kwargs '{ctx.kwargs}' - DiscordName '{ctx.author.username}' - DiscordID '{ctx.author.id}' - GuildID '{ctx.guild.id}' - ChannelID '{ctx.channel.id}'"
         )
 
     async def on_command_error(self, ctx: InteractionContext, error: Exception, *args, **kwargs):
@@ -47,7 +47,7 @@ class CustomErrorSnake(Snake):
 
         # log the command
         self.logger_components.info(
-            f"InteractionID '{ctx.interaction_id}' - Component '{ctx.invoked_name}' - Target '{ctx.target_id}' - DiscordName '{ctx.author.name}' - DiscordID '{ctx.author.id}' - GuildID '{ctx.guild.id}' - ChannelID '{ctx.channel.id}'"
+            f"InteractionID '{ctx.interaction_id}' - Component '{ctx.invoked_name}' - Target '{ctx.target_id}' - DiscordName '{ctx.author.username}' - DiscordID '{ctx.author.id}' - GuildID '{ctx.guild.id}' - ChannelID '{ctx.channel.id}'"
         )
 
     async def on_component_error(self, ctx: ComponentContext, error: Exception, *args, **kwargs):
