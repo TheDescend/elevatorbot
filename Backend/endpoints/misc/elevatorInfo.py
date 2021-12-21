@@ -14,7 +14,7 @@ router = APIRouter(
 
 @router.get("/get", response_model=ElevatorGuildsModel)
 async def get_discord_servers(db: AsyncSession = Depends(get_db_session)):
-    """Saves a bungie token"""
+    """Get discord servers Elevator is currently in"""
 
     results = await elevator_servers.get(db)
     return ElevatorGuildsModel(guilds=[ElevatorGuildModel.from_orm(result) for result in results])
