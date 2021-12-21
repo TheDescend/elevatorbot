@@ -74,7 +74,7 @@ class BackendPersistentMessages(BaseBackendConnection):
         """Deletes a persistent message"""
 
         result = await self._backend_request(
-            method="DELETE",
+            method="POST",
             route=persistent_messages_delete_route.format(guild_id=self.guild.id),
             json=orjson.loads(
                 PersistentMessageDeleteInput(

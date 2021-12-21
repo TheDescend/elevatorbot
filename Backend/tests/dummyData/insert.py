@@ -45,6 +45,7 @@ from NetworkingSchemas.destiny.roles import (
 from NetworkingSchemas.misc.auth import BungieTokenInput
 from NetworkingSchemas.misc.persistentMessages import (
     PersistentMessage,
+    PersistentMessages,
     PersistentMessageUpsert,
 )
 
@@ -290,6 +291,21 @@ async def insert_dummy_data(db: AsyncSession, client: AsyncClient):
     assert data.guild_id == dummy_discord_guild_id
     assert data.channel_id == dummy_persistent_lfg_channel_id
     assert data.message_id is None
+
+    # does delete work?
+    r = await client.delete(f"/persistentMessages/{dummy_discord_guild_id}/delete/all")
+    assert r.status_code == 200
+    r = await client.get(f"/persistentMessages/{dummy_discord_guild_id}/get/all")
+    assert r.status_code == 200
+    data = PersistentMessages.parse_obj(r.json())
+    assert data.messages == []
+
+    # now input them for real
+    input_model = PersistentMessageUpsert(channel_id=dummy_persistent_lfg_channel_id, message_id=None)
+    r = await client.post(
+        f"/persistentMessages/{dummy_discord_guild_id}/upsert/lfg_channel", json=orjson.loads(input_model.json())
+    )
+    assert r.status_code == 200
 
     input_model = PersistentMessageUpsert(channel_id=dummy_persistent_lfg_voice_category_id, message_id=None)
     r = await client.post(
