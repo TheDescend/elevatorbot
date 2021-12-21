@@ -32,7 +32,7 @@ class CRUDDiscordUser(CRUDBase):
 
         # make sure the user exists
         if not profile:
-            return None
+            raise CustomException(error="DiscordIdNotFound")
 
         # populate cache
         self.cache.discord_users.update({discord_id: profile})
@@ -46,9 +46,7 @@ class CRUDDiscordUser(CRUDBase):
 
         # make sure the user exists
         if not profiles:
-            raise CustomException(
-                error="DestinyIdNotFound",
-            )
+            raise CustomException(error="DestinyIdNotFound")
 
         return profiles[0]
 

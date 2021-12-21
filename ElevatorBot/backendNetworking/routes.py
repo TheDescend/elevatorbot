@@ -99,7 +99,7 @@ destiny_weapons_get_weapon_route = destiny_weapons_route + "{guild_id}/{discord_
 
 # elevators discord guilds
 elevator_servers_route = base_route + "elevator/discord_servers/"
-elevator_servers_get = elevator_servers_route + "get/"  # GET
+elevator_servers_get = elevator_servers_route + "get/all/"  # GET
 elevator_servers_add = elevator_servers_route + "add/{guild_id}/"  # POST
 elevator_servers_delete = elevator_servers_route + "delete/{guild_id}/"  # DELETE
 
