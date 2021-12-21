@@ -244,5 +244,5 @@ async def on_message_create(event: MessageCreate, edit_mode: bool = False):
             # valid for all guilds
 
             # be annoyed if getting pinged
-            if event.bot.user in message.mentions:
+            if event.bot.user in [member for member in await message.mention_users()]:
                 await message.add_reaction(custom_emojis.ping_sock)
