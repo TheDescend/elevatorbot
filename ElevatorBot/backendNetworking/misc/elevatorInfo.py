@@ -7,6 +7,7 @@ from ElevatorBot.backendNetworking.http import BaseBackendConnection
 from ElevatorBot.backendNetworking.routes import (
     elevator_servers_add,
     elevator_servers_delete,
+    elevator_servers_get
 )
 
 
@@ -35,3 +36,13 @@ class ElevatorGuilds(BaseBackendConnection):
 
         # returns EmptyResponseModel
         return bool(result)
+    
+    async def get(self) -> list:
+        """Get Guild Data"""
+
+        result = await self._backend_request(
+            method="GET",
+            route=elevator_servers_get
+        )
+
+        return result
