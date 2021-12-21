@@ -5,6 +5,7 @@ from Backend.database.models import ElevatorServers
 
 
 class CRUDElevatorServers(CRUDBase):
+
     async def insert(self, db: AsyncSession, discord_guild_id: int):
         """Insert the item"""
 
@@ -22,8 +23,7 @@ class CRUDElevatorServers(CRUDBase):
         db: AsyncSession,
     ) -> list[ElevatorServers]:
         """Get all items"""
-
         return await self._get_multi(db)
 
 
-elevator_servers = CRUDBase(ElevatorServers)
+elevator_servers = CRUDElevatorServers(ElevatorServers) #CRUDBase(ElevatorServers)
