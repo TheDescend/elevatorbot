@@ -42,7 +42,7 @@ services:
       - "${BACKEND_PORT}:8000"
     volumes:
       - ./Backend:/app/Backend
-      - ./Logs/Backend:/Logs/Backend
+      - ./logs/Backend:/app/Logs/Backend
       - ./settings.py:/app/settings.py
       - ./NetworkingSchemas:/app/NetworkingSchemas
       - ./DestinyEnums:/app/DestinyEnums
