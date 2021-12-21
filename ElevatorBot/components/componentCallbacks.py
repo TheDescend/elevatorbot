@@ -2,11 +2,11 @@ from copy import copy
 
 from dis_snek.models import ComponentContext
 
-from Backend.database.models import Poll
 from ElevatorBot.backendNetworking.destiny.clan import DestinyClan
 from ElevatorBot.backendNetworking.misc.polls import BackendPolls
 from ElevatorBot.commands.destiny.registration.register import send_registration
 from ElevatorBot.core.destiny.lfg.lfgSystem import LfgMessage
+from ElevatorBot.core.misc.poll import Poll
 from ElevatorBot.misc.discordShortcutFunctions import (
     assign_roles_to_member,
     remove_roles_from_member,
@@ -29,12 +29,11 @@ class ComponentCallbacks:
 
         # inform the db that sb voted
         result = await backend.user_input(poll_id=poll_id, choice_name=ctx.values[0])
-
         if not result:
             return
 
         # create a poll obj from that data
-        poll_obj = await Poll.from_dict(client=ctx.bot, data=result)
+        poll_obj = await Poll.from_pydantic_model(client=ctx.bot, data=result)
         await poll_obj.send(ctx)
 
     @staticmethod
