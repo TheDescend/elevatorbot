@@ -28,7 +28,7 @@ class WebResponse:
     status: int
     content: dict
     from_cache: bool
-    success: Optional[bool]
+    success: bool = False
 
     def __bool__(self):
         return self.status == 200
