@@ -18,9 +18,9 @@ RUN npm run build
 
 FROM nginx:latest
 RUN apt-get update && apt-get upgrade -y
-WORKDIR /app/Website
+#WORKDIR /app/Website
 COPY --from=site_compile /app/Website/build /usr/share/nginx/html
 COPY default.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+#CMD ["nginx", "-g", "daemon off;"]
