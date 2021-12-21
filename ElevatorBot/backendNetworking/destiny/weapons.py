@@ -45,7 +45,7 @@ class DestinyWeapons(BaseBackendConnection):
         assert self.discord_member or discord_id
 
         result = await self._backend_request(
-            method="GET",
+            method="POST",
             route=destiny_weapons_get_top_route.format(
                 guild_id=self.discord_guild.id, discord_id=self.discord_member.id if self.discord_member else discord_id
             ),
@@ -59,7 +59,7 @@ class DestinyWeapons(BaseBackendConnection):
         """Get the specified weapon stat"""
 
         result = await self._backend_request(
-            method="GET",
+            method="POST",
             route=destiny_weapons_get_weapon_route.format(
                 guild_id=self.discord_guild.id, discord_id=self.discord_member.id
             ),

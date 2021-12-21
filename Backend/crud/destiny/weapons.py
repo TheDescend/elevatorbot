@@ -4,10 +4,13 @@ from typing import Optional
 from sqlalchemy import func, select
 from sqlalchemy.engine import Row
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 from sqlalchemy.sql import Select
 
 from Backend.crud.base import CRUDBase
 from Backend.database.models import (
+    Activities,
+    ActivitiesUsers,
     ActivitiesUsersWeapons,
     DestinyInventoryItemDefinition,
 )
@@ -36,6 +39,9 @@ class CRUDWeapons(CRUDBase):
 
         query = select(ActivitiesUsersWeapons)
 
+        # join the relationships
+        query = query.options(joinedload(ActivitiesUsersWeapons.user).joinedload(ActivitiesUsers.activity))
+
         # filter by weapon ids
         query = query.filter(ActivitiesUsersWeapons.weapon_id.in_(weapon_ids))
 
@@ -52,7 +58,7 @@ class CRUDWeapons(CRUDBase):
         )
 
         result = await self._execute_query(db=db, query=query)
-        return result.all()
+        return result.scalars().all()
 
     async def get_top(
         self,
@@ -83,7 +89,17 @@ class CRUDWeapons(CRUDBase):
         )
 
         # join the tables together
+        query = query.join(ActivitiesUsers)
+        query = query.join(Activities)
         query = query.filter(ActivitiesUsersWeapons.weapon_id == DestinyInventoryItemDefinition.reference_id)
+
+        # group them
+        query = query.group_by(ActivitiesUsersWeapons.weapon_id)
+        query = query.group_by(DestinyInventoryItemDefinition.name)
+        query = query.group_by(DestinyInventoryItemDefinition.item_sub_type)
+        query = query.group_by(DestinyInventoryItemDefinition.tier_type_name)
+        query = query.group_by(DestinyInventoryItemDefinition.default_damage_type)
+        query = query.group_by(DestinyInventoryItemDefinition.ammo_type)
 
         # make sure the slot is correct
         query = query.filter(DestinyInventoryItemDefinition.bucket_type_hash == slot.value)
@@ -132,31 +148,31 @@ class CRUDWeapons(CRUDBase):
         """Filter by the params"""
 
         # filter by destiny id
-        query = query.filter(ActivitiesUsersWeapons.user.destiny_id == destiny_id)
+        query = query.filter(ActivitiesUsers.destiny_id == destiny_id)
 
         # filter by character class
         if character_class:
-            query = query.filter(ActivitiesUsersWeapons.user.character_class == character_class)
+            query = query.filter(ActivitiesUsers.character_class == character_class)
 
         # filter by character ids
         if character_ids:
-            query = query.filter(ActivitiesUsersWeapons.user.character_id.in_(character_ids))
+            query = query.filter(ActivitiesUsers.character_id.in_(character_ids))
 
         # filter by mode
         if mode and not activity_hashes:
-            query = query.filter(ActivitiesUsersWeapons.user.activity.modes.any(mode))
+            query = query.filter(Activities.modes.any(mode))
 
         # filter by character class
         if activity_hashes:
-            query = query.filter(ActivitiesUsersWeapons.user.activity.director_activity_hash.in_(activity_hashes))
+            query = query.filter(Activities.director_activity_hash.in_(activity_hashes))
 
         # filter by start time
         if start_time:
-            query = query.filter(ActivitiesUsersWeapons.user.activity.period >= start_time)
+            query = query.filter(Activities.period >= start_time)
 
         # filter by end time
         if end_time:
-            query = query.filter(ActivitiesUsersWeapons.user.activity.period <= end_time)
+            query = query.filter(Activities.period <= end_time)
 
         return query
 

@@ -249,11 +249,11 @@ class DestinyWeapons:
                     item.ranking = i + 1
                     final_slot.append(item)
 
-                    if include_weapon_with_ids[0] in item.weapon_ids:
+                    if sought_weapon and include_weapon_with_ids[0] in item.weapon_ids:
                         found = True
 
                 elif not found:
-                    if include_weapon_with_ids[0] in item.weapon_ids:
+                    if sought_weapon and include_weapon_with_ids[0] in item.weapon_ids:
                         item.ranking = i + 1
                         final_slot.append(item)
                         found = True
