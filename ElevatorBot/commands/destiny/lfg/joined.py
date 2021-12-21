@@ -19,7 +19,10 @@ class LfgJoined(BaseScale):
     )
     async def _joined(self, ctx: InteractionContext):
         # get all the lfg events the user joined
-        backend = DestinyLfgSystem(ctx=ctx, client=ctx.bot, discord_guild=ctx.guild)
+        backend = DestinyLfgSystem(ctx=ctx, 
+            #client=ctx.bot, 
+            discord_guild=ctx.guild
+        )
         result = await backend.user_get_all(discord_member=ctx.author)
         if not result:
             return

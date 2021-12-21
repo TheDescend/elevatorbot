@@ -11,16 +11,16 @@ from ElevatorBot.commandHelpers.autocomplete import (
     weapons,
     weapons_by_id,
 )
-from ElevatorBot.elevator import ElevatorSnake
+
 from NetworkingSchemas.destiny.activities import DestinyActivityModel
 
 
-async def load_autocomplete_options(client: ElevatorSnake):
+async def load_autocomplete_options(client):
     """Fetch the needed data from the DB"""
 
     # get activities
     # loop through them all and add them to the global activities dict
-    backend = DestinyActivities(ctx=None, discord_member=None, client=None, discord_guild=None)
+    backend = DestinyActivities(ctx=None, discord_member=None, discord_guild=None)
     db_activities = await backend.get_all()
     if not db_activities:
         raise LookupError("Couldn't load activities")
@@ -81,7 +81,7 @@ async def load_autocomplete_options(client: ElevatorSnake):
 
     # ==================================================================
     # get weapons
-    db_weapons = await DestinyWeapons(ctx=None, discord_member=None, client=None, discord_guild=None).get_all()
+    db_weapons = await DestinyWeapons(ctx=None, discord_member=None, discord_guild=None).get_all()
     if not db_activities:
         raise LookupError("Couldn't load weapons")
 

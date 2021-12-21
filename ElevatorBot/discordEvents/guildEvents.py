@@ -28,7 +28,11 @@ async def on_channel_delete(event: ChannelDelete):
     data = await persistent_messages.get()
     if data and data.channel_id == event.channel.id:
         # this is the lfg channel. Delete all the data
-        lfg = DestinyLfgSystem(ctx=None, client=event.bot, discord_guild=None)
+        lfg = DestinyLfgSystem(
+            ctx=None, 
+            #client=event.bot, 
+            discord_guild=None
+        )
         result = await lfg.delete_all(client=event.bot, guild_id=event.channel.guild.id)
         if not result:
             raise LookupError
@@ -54,11 +58,17 @@ async def on_channel_update(event: ChannelUpdate):
 
 async def on_guild_join(event: GuildJoin):
     """Triggers when ElevatorBot gets added to a guild"""
-
+    elevator_guilds = ElevatorGuilds(ctx=None, discord_guild=event.guild)
+    activated_guild = event.guild
+    guilds_saved = await elevator_guilds.get()
+    if guilds_saved.success:
+        guild_list = guilds_saved.result["guilds"]
+    #{'guild_id': 223433090817720320, 'join_date': '2021-12-20T22:32:19.965987+00:00'}
+    guild_id_list = [guild["guild_id"] for guild in guild_list] 
+    guild_id = activated_guild.id
     # this gets called on startup. We don't want that
-    if event.guild.bot._startup:
+    if not guild_id in guild_id_list:
         # add guild to the list of all guilds, needed for website info
-        elevator_guilds = ElevatorGuilds(ctx=None, discord_guild=event.guild)
         await elevator_guilds.add()
 
 
@@ -90,7 +100,11 @@ async def on_guild_left(event: GuildLeft):
         raise LookupError
 
     # remove all lfg stuff
-    lfg = DestinyLfgSystem(ctx=None, client=event.bot, discord_guild=None)
+    lfg = DestinyLfgSystem(
+        ctx=None, 
+        #client=event.bot, 
+        discord_guild=None
+    )
     result = await lfg.delete_all(client=event.bot, guild_id=event.guild_id)
     if not result:
         raise LookupError
