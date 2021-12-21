@@ -28,17 +28,25 @@ class BackendPersistentMessages(BaseBackendConnection):
 
     async def get(self) -> Optional[PersistentMessage]:
         """Gets a persistent message"""
+        if self.guild is None:
+            return None
 
         result = await self._backend_request(
             method="GET",
             route=persistent_messages_get_route.format(guild_id=self.guild.id, message_name=self.message_name),
         )
 
+        if not result:
+            return None
+
         # convert to correct pydantic model
-        return PersistentMessage.parse_obj(result.result) if result else None
+        return PersistentMessage.parse_obj(result.result)
 
     async def get_all(self) -> Optional[PersistentMessages]:
         """Gets all persistent messages for the guild"""
+
+        if self.guild is None:
+            return None
 
         result = await self._backend_request(
             method="GET",
