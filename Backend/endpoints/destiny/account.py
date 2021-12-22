@@ -68,6 +68,7 @@ async def metric(guild_id: int, discord_id: int, metric_id: int, db: AsyncSessio
     return ValueModel(value=value)
 
 
+# todo this is really slow for some reason (check logs)
 @router.get("/solos", response_model=DestinyLowMansModel)  # has test
 async def destiny_solos(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Return the destiny solos"""
@@ -183,7 +184,7 @@ async def time(
 
 @router.get("/seasonal_challenges", response_model=SeasonalChallengesModel)  # has test
 async def seasonal_challenges(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
-    """Return the seasonal challenges completion ratio"""
+    """Return the seasonal challenge's completion ratio"""
 
     user = await discord_users.get_profile_from_discord_id(db, discord_id)
     profile = DestinyProfile(db=db, user=user)
@@ -275,7 +276,7 @@ async def get_legendary_shards(guild_id: int, discord_id: int, db: AsyncSession 
 
 @router.get("/catalysts", response_model=DestinyCatalystsModel)  # has test
 async def get_catalyst_completion(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
-    """Gets all catalysts and the users completion status"""
+    """Gets all catalysts and the user's completion status"""
 
     user = await discord_users.get_profile_from_discord_id(db, discord_id)
     profile = DestinyProfile(db=db, user=user)
@@ -285,7 +286,7 @@ async def get_catalyst_completion(guild_id: int, discord_id: int, db: AsyncSessi
 
 @router.get("/seals", response_model=DestinySealsModel)
 async def get_seal_completion(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
-    """Gets all seals and the users completion status"""
+    """Gets all seals and the user's completion status"""
 
     user = await discord_users.get_profile_from_discord_id(db, discord_id)
     profile = DestinyProfile(db=db, user=user)

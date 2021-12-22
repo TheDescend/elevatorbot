@@ -80,6 +80,7 @@ class DestinyActivities:
             disallow_time_periods=disallowed_datetimes,
         )
 
+        # todo asyncio.thread maybe
         # prepare player data
         for solo in low_activity_info:
             count += 1
