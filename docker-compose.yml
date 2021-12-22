@@ -37,15 +37,13 @@ services:
       - postgres
 
   backend:
-    build: ./Backend
+    build:
+      context: ./
+      dockerfile: ./Backend/Dockerfile
     ports:
       - "${BACKEND_PORT}:8000"
     volumes:
-      - ./Backend:/app/Backend
       - ./logs/Backend:/app/Logs/Backend
-      - ./settings.py:/app/settings.py
-      - ./NetworkingSchemas:/app/NetworkingSchemas
-      - ./DestinyEnums:/app/DestinyEnums
     environment:
       - POSTGRES_DB
       - POSTGRES_USER
