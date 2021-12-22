@@ -4,6 +4,9 @@ FROM kigstn/uvicorn-gunicorn-fastapi:python3.10.0
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
+# add the path to pythonpath
+ENV PYTHONPATH "${PYTHONPATH}:/app"
+
 # install the requirements
 COPY ./Backend/requirements.txt /app/Backend/requirements.txt
 RUN pip3.10 install -r /app/Backend/requirements.txt

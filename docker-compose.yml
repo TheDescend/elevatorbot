@@ -87,16 +87,13 @@ services:
       - backend
 
   elevator:
-    build: ./ElevatorBot
+    build:
+      context: ./
+      dockerfile: ./ElevatorBot/Dockerfile
     ports:
       - "${ELEVATOR_PORT}:8080"
     volumes:
-      - ./ElevatorBot:/app/ElevatorBot
       - ./Logs/ElevatorBot:/app/Logs/ElevatorBot
-      - ./settings.py:/app/settings.py
-      - ./NetworkingSchemas:/app/NetworkingSchemas
-      - ./DestinyEnums:/app/DestinyEnums
-      - ./version.py:/app/version.py
     environment:
       - BACKEND_HOST
       - BACKEND_PORT
