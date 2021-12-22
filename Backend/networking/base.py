@@ -73,7 +73,10 @@ class NetworkBase:
 
                     # return response
                     else:
-                        return WebResponse(**response.__dict__)
+                        try:
+                            return WebResponse.from_dict(response.__dict__)
+                        except:
+                            print(1)
 
             except (asyncio.exceptions.TimeoutError, ConnectionResetError):
                 self.logger.error("Timeout error for '%s'", f"{route}?{urlencode(params)}")

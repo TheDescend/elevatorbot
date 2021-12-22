@@ -83,6 +83,7 @@ class DestinyItemSubTypeEnum(Enum):
 
 
 class UsableDestinyDamageTypeEnum(Enum):
+    NONE = 0
     KINETIC = 1
     ARC = 2
     VOID = 4

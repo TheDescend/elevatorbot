@@ -34,7 +34,7 @@ class DestinyManifest:
             db=self.db, i_understand_what_im_doing_and_that_setting_this_to_true_might_break_stuff=True
         )
 
-    async def update(self):
+    async def update(self, post_elevator: bool = True):
         """Checks the local manifests versions and updates the local copy should it have changed"""
 
         # get the manifest
@@ -43,7 +43,8 @@ class DestinyManifest:
 
         # check if the downloaded version is different to ours in the db, if so drop entries and re-download info
         version = manifest.content["version"]
-        if version == await db_manifest.get_version(db=self.db):
+        db_version = await db_manifest.get_version(db=self.db)
+        if db_version and (version == db_version.version):
             return
 
         # version is different, so re-download
@@ -131,17 +132,24 @@ class DestinyManifest:
                 data = await destiny_manifest.get(
                     db=self.db, table=DestinyActivityModeDefinition, primary_key=activity_type_hash
                 )
+                if not data:
+                    # sometimes we get entries without a mode definition
+                    # set the mode type to 0
+                    direct_activity_mode_type = 0
+                    activity_mode_types = []
+
+                else:
+                    direct_activity_mode_type = data.mode_type
+                    activity_mode_types = [direct_activity_mode_type]
+
                 direct_activity_mode_hash = activity_type_hash
-                direct_activity_mode_type = data.mode_type
                 activity_mode_hashes = [activity_type_hash]
-                activity_mode_types = [direct_activity_mode_type]
 
             to_insert.append(
                 DestinyActivityDefinition(
                     reference_id=int(reference_id),
                     description=values.get("displayProperties", "description"),
                     name=values.get("displayProperties", "name"),
-                    activity_level=values.get("activityLevel"),
                     activity_light_level=values.get("activityLightLevel"),
                     destination_hash=values.get("destinationHash"),
                     place_hash=values.get("placeHash"),
@@ -208,7 +216,7 @@ class DestinyManifest:
                     class_type=values.get("classType"),
                     bucket_type_hash=values.get("inventory", "bucketTypeHash"),
                     tier_type=values.get("inventory", "tierType"),
-                    tier_type_name=values.get("inventory", "tierTypeName"),
+                    tier_type_name=values.get("inventory", "tierTypeName") or "Unknown",
                     equippable=values.get("equippable"),
                     default_damage_type=values.get("defaultDamageType"),
                     ammo_type=values.get("equippingBlock", "ammoType"),
@@ -361,14 +369,15 @@ class DestinyManifest:
         # insert data in table
         await db_manifest.insert_definition(db=self.db, db_model=DestinyLoreDefinition, to_insert=to_insert)
 
-        # update version entry
-        await db_manifest.upsert_version(db=self.db, version=version)
-
         # invalidate caches
         cache.reset()
 
-        # populate the autocomplete options again
-        elevator_api = ElevatorApi()
-        result = await elevator_api.post(route_addition="manifest_update/")
-        if not result:
-            raise ConnectionError
+        # update version entry
+        await db_manifest.upsert_version(db=self.db, version=version)
+
+        if post_elevator:
+            # populate the autocomplete options again
+            elevator_api = ElevatorApi()
+            result = await elevator_api.post(route_addition="manifest_update/")
+            if not result:
+                raise ConnectionError

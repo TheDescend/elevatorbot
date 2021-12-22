@@ -239,7 +239,6 @@ async def insert_dummy_data(db: AsyncSession, client: AsyncClient):
     assert data.description == "Trophies from conquest in the Crucible."
     assert data.name == "Gotten Record"
     assert data.for_title_gilding is False
-    assert data.title_name is None
     assert data.objective_hashes == [1192806779]
     assert data.score_value == 0
     assert data.parent_node_hashes == []

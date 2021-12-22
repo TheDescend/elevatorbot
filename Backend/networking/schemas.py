@@ -1,4 +1,5 @@
 import dataclasses
+import inspect
 import time
 from typing import Optional
 
@@ -20,7 +21,7 @@ class InternalWebResponse:
         return self.success
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass()
 class WebResponse:
     """This gets returned from an api request"""
 
@@ -28,7 +29,11 @@ class WebResponse:
     status: int
     content: dict
     from_cache: bool
-    success: bool = False
+    success: bool
 
     def __bool__(self):
         return self.status == 200
+
+    @classmethod
+    def from_dict(cls, data: dict):
+        return cls(**{k: v for k, v in data.items() if k in inspect.signature(cls).parameters})
