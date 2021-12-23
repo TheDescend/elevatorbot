@@ -21,12 +21,6 @@ jobs:
         id: version
         run: echo ::set-output name=version::$(cat version.py| sed 's/"/\n/2' | cut -c 16-)
 
-      - name: Generate Changelog
-        id: changelog
-        uses: mikepenz/release-changelog-builder-action@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -35,6 +29,6 @@ jobs:
         with:
           tag_name: v${{ steps.version.outputs.version }}
           release_name: Release v${{ steps.vars.outputs.version }}
-          body: ${{steps.changelog.outputs.changelog}}
+          body: A new release for ElevatorBot
           draft: false
           prerelease: true
