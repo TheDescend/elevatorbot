@@ -64,12 +64,12 @@ services:
       - postgresbackups
 
   website:
-    build: Website
+    build:
+      context: ./
+      dockerfile: ./Website/Dockerfile
     ports:
       - "${WEBSITE_PORT}:80"
     volumes:
-      - ./Website:/app/Website
-      - ./ElevatorBot/docs:/app/ElevatorBot/docs
       - ./Logs/Website:/app/Logs/Website
     environment:
       - BACKEND_HOST
