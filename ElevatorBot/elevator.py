@@ -2,7 +2,7 @@ import asyncio
 import logging
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from dis_snek import AutoDefer
+from dis_snek import AutoDefer, logger_name
 from dis_snek.models import listen
 from dis_snek.models.enums import Intents
 
@@ -92,6 +92,11 @@ if __name__ == "__main__":
         fetch_members=True,
         auto_defer=AutoDefer(enabled=True),
     )
+
+    if ENABLE_DEBUG_MODE:
+        print("Setting Up Snek Logging...")
+        cls_log = logging.getLogger(logger_name)
+        cls_log.setLevel(logging.DEBUG)
 
     print("Loading Discord Events...")
     register_discord_events(client)
