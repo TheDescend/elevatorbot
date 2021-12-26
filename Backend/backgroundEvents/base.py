@@ -2,7 +2,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from Backend.networking.elevatorApi import ElevatorApi
 
-scheduler = AsyncIOScheduler()
+scheduler = AsyncIOScheduler(timezone="UTC")
 
 
 class BaseEvent:

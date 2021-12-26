@@ -13,7 +13,10 @@ class DestinyLore(BaseScale):
         # get the lore item
         lore_item = lore[name]
 
-        embed = embed_message(f"Lore: {lore_item.name}", lore_item.description.replace("\n", "⁣\n"))
+        embed = embed_message(
+            f"Lore: {lore_item.name}",
+            lore_item.description.replace("\n", "⁣\n") if lore_item.description != "" else "_No Text Available_",
+        )
         if lore_item.redacted:
             embed.set_footer("This is still redacted and thus only visible to you")
 

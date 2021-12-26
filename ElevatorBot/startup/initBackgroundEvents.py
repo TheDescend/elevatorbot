@@ -1,6 +1,5 @@
 import logging
 
-import pytz
 from apscheduler.events import (
     EVENT_JOB_ADDED,
     EVENT_JOB_ERROR,
@@ -13,7 +12,6 @@ from apscheduler.events import (
 from ElevatorBot import backgroundEvents
 from ElevatorBot.backendNetworking.destiny.lfgSystem import DestinyLfgSystem
 from ElevatorBot.core.destiny.lfg.lfgSystem import LfgMessage
-
 
 
 async def register_background_events(client):
@@ -98,7 +96,6 @@ async def register_background_events(client):
                 day_of_week=event.dow_day_of_week,
                 hour=event.dow_hour,
                 minute=event.dow_minute,
-                timezone=pytz.utc,
             )
         elif event.scheduler_type == "date":
             client.scheduler.add_job(
@@ -106,7 +103,6 @@ async def register_background_events(client):
                 trigger="date",
                 args=(client,),
                 run_date=event.run_date,
-                timezone=pytz.utc,
             )
         else:
             print(f"Failed to load event {event}")
@@ -116,9 +112,9 @@ async def register_background_events(client):
     # load the lfg events
     for guild in client.guilds:
         backend = DestinyLfgSystem(
-            ctx=None, 
-            #client=client, 
-            discord_guild=guild
+            ctx=None,
+            # client=client,
+            discord_guild=guild,
         )
 
         # get all lfg ids

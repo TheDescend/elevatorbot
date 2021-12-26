@@ -1,9 +1,9 @@
 import datetime
 import logging
 import traceback
+import zoneinfo
 from typing import Optional
 
-import pytz
 from dateutil.parser import ParserError, parse
 from dis_snek.models import ComponentContext, InteractionContext
 
@@ -40,9 +40,10 @@ async def parse_string_datetime(
         await respond_invalid_time_input(ctx=ctx)
         return
 
-    # make that timezone aware
-    tz = pytz.timezone(timezone)
-    start_time = tz.localize(start_time)
+    if not start_time.tzinfo:
+        # make that timezone aware
+        tz = zoneinfo.ZoneInfo(timezone)
+        start_time = start_time.replace(tzinfo=tz)
 
     # make sure that is in the future
     if start_time < get_now_with_tz():

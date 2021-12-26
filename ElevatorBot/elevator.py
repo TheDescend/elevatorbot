@@ -23,7 +23,7 @@ from settings import DISCORD_APPLICATION_API_KEY, ENABLE_DEBUG_MODE, SYNC_COMMAN
 
 class ElevatorSnake(CustomErrorSnake):
     # register the scheduler for easier access
-    scheduler = AsyncIOScheduler()
+    scheduler = AsyncIOScheduler(timezone="UTC")
 
     # load startup event
     @listen()
