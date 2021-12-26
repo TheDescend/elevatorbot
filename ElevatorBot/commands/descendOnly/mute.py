@@ -21,11 +21,9 @@ from ElevatorBot.misc.discordShortcutFunctions import (
 )
 from ElevatorBot.misc.formating import embed_message
 from ElevatorBot.misc.helperFunctions import get_now_with_tz
-from ElevatorBot.static.descendOnlyIds import (
-    descend_muted_ids,
-    descend_no_nickname_role_id,
-)
-from settings import COMMAND_GUILD_SCOPE
+from settings import COMMAND_GUILD_SCOPE, DESCEND_ROLE_NO_NICKNAME_ID
+
+muted_ids = {0: "Muted", DESCEND_ROLE_NO_NICKNAME_ID: "Muted - No Nickname"}
 
 
 class Mute(BaseScale):
@@ -38,7 +36,7 @@ class Mute(BaseScale):
         description="How should the user be muted",
         required=True,
         opt_type=OptionTypes.STRING,
-        choices=[SlashCommandChoice(name=name, value=str(role_id)) for role_id, name in descend_muted_ids.items()],
+        choices=[SlashCommandChoice(name=name, value=str(role_id)) for role_id, name in muted_ids.items()],
     )
     @slash_option(
         name="hours",
@@ -55,6 +53,7 @@ class Mute(BaseScale):
     )
     async def _mute(self, ctx: InteractionContext, user: Member, muted_type: str, hours: int, reason: str):
         muted_type = int(muted_type)
+        unmute_date = get_now_with_tz() + datetime.timedelta(hours=hours)
 
         # add it to the backend logs
         backend = Moderation(discord_member=user, discord_guild=ctx.guild, ctx=ctx)
@@ -64,25 +63,27 @@ class Mute(BaseScale):
         if not result:
             return
 
-        if muted_type == descend_no_nickname_role_id:
+        if muted_type == DESCEND_ROLE_NO_NICKNAME_ID:
             # todo test if that removes it
             await user.edit_nickname("")
+            await assign_roles_to_member(user, muted_type, reason=f"/mute by {ctx.author}")
 
-        await assign_roles_to_member(user, muted_type, reason=f"/mute by {ctx.author}")
+        else:
+            # time them out instead
+            await user.timeout(communication_disabled_until=unmute_date, reason=f"/mute by {ctx.author}")
 
-        unmute_date = get_now_with_tz() + datetime.timedelta(hours=hours)
         unmute_date_formatted = Timestamp.fromdatetime(unmute_date).format(style=TimestampStyles.RelativeTime)
         status = await ctx.send(
             embeds=embed_message(
                 "Success",
                 f"Muted {user.mention} for {hours} hours. They will be un-muted {unmute_date_formatted}\nI will edit this message once the time is over\n⁣\n**Reason:** `{reason}`",
-                f"Type: {descend_muted_ids[muted_type]} | Muted by {ctx.author.username}#{ctx.author.discriminator}",
+                f"Type: {muted_ids[muted_type]} | Muted by {ctx.author.username}#{ctx.author.discriminator}",
             )
         )
 
         await user.send(
             embeds=embed_message(
-                f"You have been: {descend_muted_ids[muted_type]}",
+                f"You have been: {muted_ids[muted_type]}",
                 f"You will regain that permission {unmute_date_formatted}\n⁣\n**Reason:** `{reason}`",
                 f"Muted by {ctx.author.username}#{ctx.author.discriminator}",
             )

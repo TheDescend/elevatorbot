@@ -8,15 +8,11 @@ from ElevatorBot.backendNetworking.destiny.lfgSystem import DestinyLfgSystem
 from ElevatorBot.backendNetworking.destiny.profile import DestinyProfile
 from ElevatorBot.core.destiny.lfg.lfgSystem import LfgMessage
 from ElevatorBot.core.destiny.roles import Roles
-
 from ElevatorBot.misc.discordShortcutFunctions import assign_roles_to_member
 from ElevatorBot.misc.formating import embed_message
-from ElevatorBot.static.descendOnlyIds import (
-    descend_channels,
-    descend_filler_role_ids,
-    descend_no_nickname_role_id,
-)
+from ElevatorBot.static.descendOnlyIds import descend_channels
 from ElevatorBot.static.emojis import custom_emojis
+from settings import DESCEND_ROLE_FILLER_IDS, DESCEND_ROLE_NO_NICKNAME_ID
 
 
 async def on_member_add(event: MemberAdd):
@@ -35,7 +31,7 @@ async def on_member_add(event: MemberAdd):
 
         # only do stuff here if the event.member is not pending
         if not event.member.pending:
-            await _assign_roles_on_join(client=event.bot, member=event.member)
+            await _assign_roles_on_join(member=event.member)
 
 
 async def on_member_remove(event: MemberRemove):
@@ -56,7 +52,7 @@ async def on_member_remove(event: MemberRemove):
         # wait 10 min bc bungie takes forever in updating the clan roster
         await asyncio.sleep(10 * 60)
 
-        clan = DestinyClan(ctx=None, client=event.bot, discord_guild=event.member.guild)
+        clan = DestinyClan(ctx=None, discord_guild=event.member.guild)
 
         # check if the user was in the clan
         result = await clan.get_clan_members(use_cache=False)
@@ -116,8 +112,8 @@ async def on_member_remove(event: MemberRemove):
     # remove them from any lfg events
     backend = DestinyLfgSystem(
         ctx=None,
-        #client=event.bot, 
-        discord_guild=event.member.guild
+        # client=event.bot,
+        discord_guild=event.member.guild,
     )
     result = await backend.user_get_all(discord_member=event.member)
     if not result:
@@ -128,11 +124,7 @@ async def on_member_remove(event: MemberRemove):
         guild = await event.bot.get_guild(lfg_event.guild_id)
         if not guild:
             raise ValueError
-        backend = DestinyLfgSystem(
-            ctx=None, 
-            #client=event.bot, 
-            discord_guild=guild
-        )
+        backend = DestinyLfgSystem(ctx=None, discord_guild=guild)
         lfg_message = await LfgMessage.from_lfg_output_model(
             client=event.bot, model=lfg_event, backend=backend, guild=guild
         )
@@ -146,25 +138,25 @@ async def on_member_update(event: MemberUpdate):
     if not event.after.bot:
         # add registration role should the member no longer be pending
         if event.before.pending and not event.after.pending:
-            await _assign_roles_on_join(client=event.bot, member=event.after)
+            await _assign_roles_on_join(member=event.after)
 
         # descend only stuff
         if event.after.guild == descend_channels.guild:
             # change nickname back if it is not None
             if (not event.before.nickname) and event.after.nickname:
-                if descend_no_nickname_role_id in [role.id for role in event.after.roles]:
+                if DESCEND_ROLE_NO_NICKNAME_ID in [role.id for role in event.after.roles]:
                     await event.after.edit_nickname("")
 
 
-async def _assign_roles_on_join(client, member: Member):
+async def _assign_roles_on_join(member: Member):
     """Assign all applicable roles when a member joins a guild"""
 
-    destiny_profile = DestinyProfile(ctx=None, client=client, discord_member=member, discord_guild=member.guild)
+    destiny_profile = DestinyProfile(ctx=None, discord_member=member, discord_guild=member.guild)
     await destiny_profile.assign_registration_role()
 
     # add filler roles for descend
     if member.guild == descend_channels.guild:
-        await assign_roles_to_member(member=member, *descend_filler_role_ids, reason="Destiny 2 Filler Roles")
+        await assign_roles_to_member(member=member, *DESCEND_ROLE_FILLER_IDS, reason="Destiny 2 Filler Roles")
 
     # assign their roles
-    await Roles(client=client, guild=member.guild, member=member, ctx=None).update()
+    await Roles(guild=member.guild, member=member, ctx=None).update()

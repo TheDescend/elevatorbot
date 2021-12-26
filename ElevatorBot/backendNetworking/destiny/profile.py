@@ -13,7 +13,6 @@ from ElevatorBot.backendNetworking.routes import (
     destiny_profile_has_token_route,
     destiny_profile_registration_role_route,
 )
-
 from NetworkingSchemas.destiny.profile import DestinyHasTokenModel, DestinyProfileModel
 
 
@@ -21,7 +20,6 @@ from NetworkingSchemas.destiny.profile import DestinyHasTokenModel, DestinyProfi
 class DestinyProfile(BaseBackendConnection):
     """Get basic destiny information (discord_member, destiny_id, system)"""
 
-    
     discord_member: Member
     discord_guild: Guild
 

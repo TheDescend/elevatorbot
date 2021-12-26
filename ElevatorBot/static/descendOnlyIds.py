@@ -1,21 +1,24 @@
 from dis_snek.errors import Forbidden
 from dis_snek.models import Guild, GuildText
 
-descend_filler_role_ids = [670395920327639085, 670385837044662285, 670385313994113025, 776854211585376296]
-
-descend_muted_role_id = 681944329698541585
-descend_no_nickname_role_id = 887021717053124659
-descend_muted_ids = {descend_muted_role_id: "Muted", descend_no_nickname_role_id: "Muted - No Nickname"}
+from settings import (
+    DESCEND_CHANNEL_ADMIN_ID,
+    DESCEND_CHANNEL_BOT_DEV_ID,
+    DESCEND_CHANNEL_COMMUNITY_ROLES_ID,
+    DESCEND_CHANNEL_JOIN_LOG_ID,
+    DESCEND_CHANNEL_REGISTRATION_ID,
+    DESCEND_GUILD_ID,
+)
 
 
 class __DescendChannels:
-    guild: Guild | int | None = 669293365900214293
+    guild: Guild | int | None = DESCEND_GUILD_ID
 
-    admin_channel: GuildText | int | None = 671264040974024705
-    bot_dev_channel: GuildText | int | None = 670570955290181675
-    registration_channel: GuildText | int | None = 769612069581881434
-    community_roles_channel: GuildText | int | None = 686568386590802000
-    join_log_channel: GuildText | int | None = 669293365900214298
+    admin_channel: GuildText | int | None = DESCEND_CHANNEL_ADMIN_ID
+    bot_dev_channel: GuildText | int | None = DESCEND_CHANNEL_BOT_DEV_ID
+    registration_channel: GuildText | int | None = DESCEND_CHANNEL_REGISTRATION_ID
+    community_roles_channel: GuildText | int | None = DESCEND_CHANNEL_COMMUNITY_ROLES_ID
+    join_log_channel: GuildText | int | None = DESCEND_CHANNEL_JOIN_LOG_ID
 
     async def init_channels(self, client):
         """Runs on startup to get the channels we use"""

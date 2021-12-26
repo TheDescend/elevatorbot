@@ -2,11 +2,11 @@
     "0": [
         {
             "name": "user_info",
-            "description": "Gets collected info for the specified user",
+            "description": "Gets collected info for the specified user. Exactly one option needs to be filled out",
             "options": [
                 {
                     "name": "discord_user",
-                    "description": "Here I describe special option behaviour so I can go very in-depth. It just needs to be in one line no matter how loooooooooooooooooooooooooooooooooooooooooooong the text is",
+                    "description": "Look up a discord user",
                     "required": false,
                     "autocomplete": false
                 },
@@ -26,7 +26,7 @@
         },
         {
             "name": "activity",
-            "description": "Display stats for the chosen activity",
+            "description": "Display stats for Destiny 2 activities",
             "options": [
                 {
                     "name": "activity",
@@ -36,7 +36,7 @@
                 },
                 {
                     "name": "destiny_class",
-                    "description": "Restrict the class where the weapon stats count. Default: All classes",
+                    "description": "Restrict the class. Default: All classes",
                     "required": false,
                     "autocomplete": false,
                     "choices": [
@@ -47,7 +47,7 @@
                 },
                 {
                     "name": "expansion",
-                    "description": "Restrict the expansion where the weapon stats count",
+                    "description": "Restrict the expansion. Default: All expansions",
                     "required": false,
                     "autocomplete": false,
                     "choices": [
@@ -60,7 +60,7 @@
                 },
                 {
                     "name": "season",
-                    "description": "Restrict the season where the weapon stats count",
+                    "description": "Restrict the season. Default: All seasons",
                     "required": false,
                     "autocomplete": false,
                     "choices": [
@@ -104,7 +104,7 @@
         },
         {
             "name": "catalysts",
-            "description": "Shows you Destiny 2 exotic weapon catalysts and your completion status",
+            "description": "Shows you Destiny 2 exotic weapon catalysts and their completion status",
             "options": [
                 {
                     "name": "user",
@@ -116,7 +116,7 @@
         },
         {
             "name": "destiny",
-            "description": "Gives you various destiny stats",
+            "description": "Gives you an overview of your Destiny 2 stats",
             "options": [
                 {
                     "name": "user",
@@ -128,7 +128,7 @@
         },
         {
             "name": "id",
-            "description": "Get the users Bungie Name, which can be used to join people in Destiny 2 without adding them as a friend",
+            "description": "Get a users Bungie Name. It can be used to join people in Destiny 2 without adding them as a friend",
             "options": [
                 {
                     "name": "user",
@@ -140,7 +140,7 @@
         },
         {
             "name": "last",
-            "description": "Stats for the last activity you played",
+            "description": "Stats for the last Destiny 2 activity you played",
             "options": [
                 {
                     "name": "mode",
@@ -165,7 +165,7 @@
                 },
                 {
                     "name": "activity",
-                    "description": "Restrict the activity. Overwrite `mode`. Default: All modes",
+                    "description": "Restrict the activity. Overwrites `mode`. Default: All activities",
                     "required": false,
                     "autocomplete": true
                 },
@@ -190,11 +190,11 @@
         },
         {
             "name": "lore",
-            "description": "Shows you in-game lore",
+            "description": "Shows you Destiny 2 lore",
             "options": [
                 {
                     "name": "name",
-                    "description": "The name of item / card holding the lore",
+                    "description": "The name of item / card having the lore",
                     "required": true,
                     "autocomplete": true
                 }
@@ -202,12 +202,12 @@
         },
         {
             "name": "pop_timeline",
-            "description": "Shows the Destiny 2 steam maximum population timeline",
+            "description": "Shows you the Destiny 2 steam maximum population timeline",
             "options": []
         },
         {
             "name": "rank",
-            "description": "Display Destiny 2 leaderboard for the linked clan. Pick **exactly** one leaderboard from all options",
+            "description": "Display Destiny 2 leaderboards for the linked clan. Pick **only** one leaderboard from all options",
             "options": [
                 {
                     "name": "discord_leaderboards",
@@ -330,7 +330,7 @@
         },
         {
             "name": "challenges",
-            "description": "Shows you the current seasonal challenges and your completion status",
+            "description": "Shows you the current Destiny 2 seasonal challenges and your completion status",
             "options": [
                 {
                     "name": "user",
@@ -342,7 +342,7 @@
         },
         {
             "name": "solos",
-            "description": "Shows you an overview of your Destiny 2 solo activity completions",
+            "description": "Shows you an overview of your notable Destiny 2 solo activity completions",
             "options": [
                 {
                     "name": "user",
@@ -358,7 +358,7 @@
             "options": [
                 {
                     "name": "mode",
-                    "description": "Restrict the game mode where the playtime counts. Default: All modes",
+                    "description": "Restrict the game mode. Default: All modes",
                     "required": false,
                     "autocomplete": false,
                     "choices": [
@@ -379,13 +379,13 @@
                 },
                 {
                     "name": "activity",
-                    "description": "Restrict the activity where the playtime counts. Overwrites `mode`. Default: All modes",
+                    "description": "Restrict the activity. Overwrites `mode`. Default: All activities",
                     "required": false,
                     "autocomplete": true
                 },
                 {
                     "name": "destiny_class",
-                    "description": "Restrict the class where the playtime counts. Default: All classes",
+                    "description": "Restrict the class. Default: All classes",
                     "required": false,
                     "autocomplete": false,
                     "choices": [
@@ -404,11 +404,11 @@
         },
         {
             "name": "website",
-            "description": "Gets your personalised link to a bunch of Destiny 2 related websites",
+            "description": "Gets your personalised link to curated Destiny 2 stat websites",
             "options": [
                 {
                     "name": "website",
-                    "description": "The name of the website you want a personalised link for",
+                    "description": "The website you want a personalised link for",
                     "required": true,
                     "autocomplete": false,
                     "choices": [
@@ -448,12 +448,29 @@
         },
         {
             "name": "boosters",
-            "description": "Prints all premium subscribers",
+            "description": "Prints all premium subscribers (boosters) of this discord server",
             "options": []
         },
         {
+            "name": "bubble_wrap",
+            "description": "This 100% recreates the happy feeling of popping bubble wrap",
+            "options": []
+        },
+        {
+            "name": "bug",
+            "description": "Use this if you want to report any bugs to the developer",
+            "options": [
+                {
+                    "name": "message",
+                    "description": "Please describe the bug you have noticed",
+                    "required": true,
+                    "autocomplete": false
+                }
+            ]
+        },
+        {
             "name": "calculator",
-            "description": "A handy calculator!",
+            "description": "Summons a handy calculator",
             "options": []
         },
         {
@@ -470,14 +487,14 @@
         },
         {
             "name": "funfact",
-            "description": "Very fun fun facts just for the funny fun of it",
+            "description": "Get a fun fact, which most of the time is even pretty interesting",
             "options": []
         }
     ],
     "280456587464933376": [
         {
             "name": "get_api_key",
-            "description": "Get your D2 API Oauth Api Key",
+            "description": "Get your own Destiny 2 oauth api key",
             "options": []
         },
         {
@@ -491,8 +508,13 @@
             "options": []
         },
         {
+            "name": "metrics",
+            "description": "Shows interesting ElevatorBot metrics",
+            "options": []
+        },
+        {
             "name": "mute",
-            "description": "Mutes the specified user for specified amount of time",
+            "description": "Mutes the specified user",
             "options": [
                 {
                     "name": "user",
@@ -515,11 +537,17 @@
                     "description": "How many hours to mute the user for",
                     "required": true,
                     "autocomplete": false
+                },
+                {
+                    "name": "reason",
+                    "description": "Whats the reason for the mute",
+                    "required": true,
+                    "autocomplete": false
                 }
             ]
         },
         {
-            "name": "muteme",
+            "name": "mute_me",
             "description": "I wonder what this does...",
             "options": [
                 {
@@ -532,14 +560,32 @@
         },
         {
             "name": "socialist",
-            "description": "Spams #socialist",
+            "description": "Spams `#socialist` \ud83d\ude43",
             "options": []
+        },
+        {
+            "name": "warning",
+            "description": "Warns the specified user",
+            "options": [
+                {
+                    "name": "user",
+                    "description": "Which user to warn",
+                    "required": true,
+                    "autocomplete": false
+                },
+                {
+                    "name": "reason",
+                    "description": "Whats the reason for the warning",
+                    "required": true,
+                    "autocomplete": false
+                }
+            ]
         }
     ],
     "556418279015448596": [
         {
             "name": "get_api_key",
-            "description": "Get your D2 API Oauth Api Key",
+            "description": "Get your own Destiny 2 oauth api key",
             "options": []
         },
         {
@@ -553,8 +599,13 @@
             "options": []
         },
         {
+            "name": "metrics",
+            "description": "Shows interesting ElevatorBot metrics",
+            "options": []
+        },
+        {
             "name": "mute",
-            "description": "Mutes the specified user for specified amount of time",
+            "description": "Mutes the specified user",
             "options": [
                 {
                     "name": "user",
@@ -577,11 +628,17 @@
                     "description": "How many hours to mute the user for",
                     "required": true,
                     "autocomplete": false
+                },
+                {
+                    "name": "reason",
+                    "description": "Whats the reason for the mute",
+                    "required": true,
+                    "autocomplete": false
                 }
             ]
         },
         {
-            "name": "muteme",
+            "name": "mute_me",
             "description": "I wonder what this does...",
             "options": [
                 {
@@ -594,8 +651,26 @@
         },
         {
             "name": "socialist",
-            "description": "Spams #socialist",
+            "description": "Spams `#socialist` \ud83d\ude43",
             "options": []
+        },
+        {
+            "name": "warning",
+            "description": "Warns the specified user",
+            "options": [
+                {
+                    "name": "user",
+                    "description": "Which user to warn",
+                    "required": true,
+                    "autocomplete": false
+                },
+                {
+                    "name": "reason",
+                    "description": "Whats the reason for the warning",
+                    "required": true,
+                    "autocomplete": false
+                }
+            ]
         }
     ]
 }

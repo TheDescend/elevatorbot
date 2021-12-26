@@ -2,7 +2,7 @@
     "0": [
         {
             "name": "Add Emoji",
-            "description": "Add the image to the guild as an emoji"
+            "description": "Add the selected image to the guild as an emoji"
         }
     ]
 }

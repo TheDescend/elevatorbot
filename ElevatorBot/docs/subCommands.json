@@ -41,6 +41,11 @@
                     ]
                 },
                 {
+                    "name": "overview",
+                    "description": "Use these commands to setup ElevatorBot on this server",
+                    "options": []
+                },
+                {
                     "name": "registered_role",
                     "description": "Use these commands to setup ElevatorBot on this server",
                     "options": [
@@ -72,7 +77,7 @@
                 },
                 {
                     "name": "clan join",
-                    "description": "Designate a channel where players can join your clan by pressing a button. They will get an invite by the person which used /setup clan link",
+                    "description": "Designate a channel where players can join your Destiny 2 clan by pressing a button. They will receive an invite by the person which used `/setup clan link`",
                     "options": [
                         {
                             "name": "channel",
@@ -95,7 +100,7 @@
                 },
                 {
                     "name": "clan unlink",
-                    "description": "Unlink the current Destiny 2 clan the discord server this was executed in",
+                    "description": "Unlinks the current Destiny 2 clan and the discord server this was executed in",
                     "options": []
                 },
                 {
@@ -112,7 +117,7 @@
                 },
                 {
                     "name": "lfg voice_category",
-                    "description": "Use these commands to setup ElevatorBot on this server",
+                    "description": "Designate a category channel under which my LFG voice channels get created. If you want me to automatically create voice channels for each LFG event, use this to set it up",
                     "options": [
                         {
                             "name": "channel",
@@ -168,11 +173,11 @@
             "sub_commands": [
                 {
                     "name": "add",
-                    "description": "This is so cool, it adds people into the main roster even if full",
+                    "description": "This adds people into the main roster of an LFG event, even if is full",
                     "options": [
                         {
                             "name": "lfg_id",
-                            "description": "The lfg message id",
+                            "description": "The lfg event ID",
                             "required": true,
                             "autocomplete": false
                         },
@@ -223,7 +228,7 @@
                     "options": [
                         {
                             "name": "lfg_id",
-                            "description": "The lfg message id",
+                            "description": "The lfg event ID",
                             "required": true,
                             "autocomplete": false
                         }
@@ -235,7 +240,7 @@
                     "options": [
                         {
                             "name": "lfg_id",
-                            "description": "The lfg message id",
+                            "description": "The lfg event ID",
                             "required": true,
                             "autocomplete": false
                         },
@@ -264,7 +269,7 @@
                     "options": [
                         {
                             "name": "lfg_id",
-                            "description": "The lfg message id",
+                            "description": "The lfg event ID",
                             "required": true,
                             "autocomplete": false
                         },
@@ -305,7 +310,7 @@
                     "options": [
                         {
                             "name": "role",
-                            "description": "The name of the role you want to look up",
+                            "description": "The role you want to look up",
                             "required": true,
                             "autocomplete": false
                         },
@@ -362,7 +367,7 @@
                         },
                         {
                             "name": "destiny_class",
-                            "description": "Restrict the class where the stats count. Default: All classes",
+                            "description": "Restrict the class. Default: All classes",
                             "required": false,
                             "autocomplete": false,
                             "choices": [
@@ -418,7 +423,7 @@
                         },
                         {
                             "name": "destiny_class",
-                            "description": "Restrict the class where the stats count. Default: All classes",
+                            "description": "Restrict the class. Default: All classes",
                             "required": false,
                             "autocomplete": false,
                             "choices": [
@@ -474,7 +479,7 @@
                         },
                         {
                             "name": "destiny_class",
-                            "description": "Restrict the class where the stats count. Default: All classes",
+                            "description": "Restrict the class. Default: All classes",
                             "required": false,
                             "autocomplete": false,
                             "choices": [
@@ -742,7 +747,7 @@
                     ]
                 },
                 {
-                    "name": "other_game_roles",
+                    "name": "miscellaneous_roles",
                     "description": "Use these commands to setup ElevatorBot on this server",
                     "options": [
                         {
@@ -810,7 +815,7 @@
                     ]
                 },
                 {
-                    "name": "other_game_roles",
+                    "name": "miscellaneous_roles",
                     "description": "Use these commands to setup ElevatorBot on this server",
                     "options": [
                         {

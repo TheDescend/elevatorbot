@@ -20,11 +20,6 @@ from ElevatorBot.misc.discordShortcutFunctions import (
     remove_roles_from_member,
 )
 from ElevatorBot.misc.formating import embed_message
-from ElevatorBot.misc.helperFunctions import get_now_with_tz
-from ElevatorBot.static.descendOnlyIds import (
-    descend_muted_ids,
-    descend_no_nickname_role_id,
-)
 from settings import COMMAND_GUILD_SCOPE
 
 

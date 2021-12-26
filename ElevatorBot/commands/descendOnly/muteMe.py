@@ -1,4 +1,5 @@
 import asyncio
+import datetime
 import io
 import random
 
@@ -7,11 +8,7 @@ from dis_snek.models import InteractionContext, Member, slash_command
 
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
 from ElevatorBot.commands.base import BaseScale
-from ElevatorBot.misc.discordShortcutFunctions import (
-    assign_roles_to_member,
-    remove_roles_from_member,
-)
-from ElevatorBot.static.descendOnlyIds import descend_muted_role_id
+from ElevatorBot.misc.helperFunctions import get_now_with_tz
 from settings import COMMAND_GUILD_SCOPE
 
 
@@ -50,15 +47,16 @@ class MuteMe(BaseScale):
             await asyncio.sleep(2)
             await ctx.author.send("Better luck next time if you were hunting for the jackpot")
 
-        # add muted role
-        await assign_roles_to_member(ctx.author, descend_muted_role_id, reason=f"/muteme by {ctx.author}")
+        # time them out
+        await ctx.author.timeout(
+            communication_disabled_until=get_now_with_tz() + datetime.timedelta(minutes=timeout),
+            reason=f"/muteme by {ctx.author}",
+        )
 
-        # delete muted role after time is over
+        # inform user once timeout is over
         await asyncio.sleep(60 * timeout)
-
-        await remove_roles_from_member(user, descend_muted_role_id, reason=f"/muteme by {ctx.author}")
         await ctx.author.send(
-            "Sadly your victory is no more and you are no longer muted. Hope to see you back again soon!"
+            "Sadly your victory is no more and you are no longer timed out. Hope to see you back again soon!"
         )
 
 
