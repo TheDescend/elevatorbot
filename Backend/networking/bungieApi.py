@@ -23,7 +23,7 @@ class BungieApi(NetworkBase):
 
     # the cache object. Low expire time since players don't want to wait an eternity for their stuff to update
     cache = aiohttp_client_cache.SQLiteBackend(
-        cache_name="networking/bungie_networking_cache",
+        cache_name="./Backend/networking/bungie_networking_cache",
         allowed_methods=["GET"],
         expire_after=timedelta(minutes=5),
         urls_expire_after={

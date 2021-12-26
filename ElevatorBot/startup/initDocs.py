@@ -99,13 +99,13 @@ def create_command_docs(client):
                         commands[scope].append(doc)
 
     # write those to files
-    with open("./docs/commands.json", "w+", encoding="utf-8") as file:
+    with open("./ElevatorBot/docs/commands.json", "w+", encoding="utf-8") as file:
         json.dump(commands, file, indent=4)
-    with open("./docs/subCommands.json", "w+", encoding="utf-8") as file:
+    with open("./ElevatorBot/docs/subCommands.json", "w+", encoding="utf-8") as file:
         json.dump(sub_commands, file, indent=4)
-    with open("./docs/contextMenusUser.json", "w+", encoding="utf-8") as file:
+    with open("./ElevatorBot/docs/contextMenusUser.json", "w+", encoding="utf-8") as file:
         json.dump(context_menus_user, file, indent=4)
-    with open("./docs/contextMenusMessage.json", "w+", encoding="utf-8") as file:
+    with open("./ElevatorBot/docs/contextMenusMessage.json", "w+", encoding="utf-8") as file:
         json.dump(context_menus_message, file, indent=4)
 
 
