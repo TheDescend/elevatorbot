@@ -39,9 +39,6 @@ class DayOneRaid(BaseScale):
                 if result.bool:
                     raid_completions.append(player.discord_member.mention)
 
-        # might take a sec
-        await ctx.defer()
-
         raid_completions = []
         await asyncio.gather(
             *[

@@ -11,8 +11,6 @@ class Destiny(BaseScale):
     @slash_command(name="destiny", description="Gives you an overview of your Destiny 2 stats")
     @default_user_option()
     async def _destiny(self, ctx: InteractionContext, user: Member = None):
-        await ctx.defer()
-
         if not user:
             user = ctx.author
 

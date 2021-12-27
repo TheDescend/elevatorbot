@@ -12,9 +12,7 @@ class Solos(BaseScale):
     )
     @default_user_option()
     async def _solos(self, ctx: InteractionContext, user: Member):
-
-        await ctx.defer()
-        account = DestinyAccount(ctx=ctx, client=ctx.bot, discord_member=user, discord_guild=ctx.guild)
+        account = DestinyAccount(ctx=ctx, discord_member=user, discord_guild=ctx.guild)
 
         # get the solo data
         solos = await account.get_solos()

@@ -41,7 +41,7 @@ class UserInfo(BaseScale):
                 embeds=embed_message("Error", "Exactly one of the arguments must be used"),
             )
             return
-        await ctx.defer()
+
         destiny_profile = DestinyProfile(ctx=ctx, client=ctx.bot, discord_member=discord_user, discord_guild=ctx.guild)
 
         if destiny_id:

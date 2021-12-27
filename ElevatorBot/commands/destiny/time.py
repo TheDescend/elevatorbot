@@ -32,9 +32,6 @@ class Time(BaseScale):
     ):
         mode = int(mode) if mode else None
 
-        # might take a sec
-        await ctx.defer()
-
         member = user or ctx.author
         account = DestinyAccount(ctx=ctx, discord_guild=ctx.guild, discord_member=member, client=ctx.bot)
 

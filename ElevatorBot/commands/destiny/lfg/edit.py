@@ -44,9 +44,6 @@ class LfgEdit(BaseScale):
         ],
     )
     async def _edit(self, ctx: InteractionContext, lfg_id: int, section: str):
-        # might take a sec
-        await ctx.defer()
-
         # get the message obj
         lfg_message = await LfgMessage.from_lfg_id(ctx=ctx, lfg_id=lfg_id, client=ctx.bot, guild=ctx.guild)
 

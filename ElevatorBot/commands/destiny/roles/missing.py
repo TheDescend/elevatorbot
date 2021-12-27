@@ -14,8 +14,6 @@ class RoleMissing(BaseScale):
     )
     @default_user_option()
     async def _roles_missing(self, ctx: InteractionContext, user: Member = None):
-        # might take a sec
-        await ctx.defer()
 
         # get the roles missing and send that
         roles = Roles(ctx=ctx, client=self.client, guild=ctx.guild, member=user or ctx.author)

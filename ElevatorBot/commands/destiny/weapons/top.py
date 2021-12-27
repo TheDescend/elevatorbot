@@ -115,9 +115,6 @@ class WeaponsTop(BaseScale):
         if activity:
             activity = activities[activity.lower()]
 
-        # might take a sec
-        await ctx.defer()
-
         member = user or ctx.author
         backend_weapons = DestinyWeapons(ctx=ctx, client=ctx.bot, discord_member=member, discord_guild=ctx.guild)
 

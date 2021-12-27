@@ -30,9 +30,6 @@ class Last(BaseScale):
     ):
         mode = int(mode) if mode else None
 
-        # might take a sec
-        await ctx.defer()
-
         # get the activity ids
         activity_ids = None
         if activity:

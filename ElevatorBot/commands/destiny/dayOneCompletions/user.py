@@ -18,9 +18,6 @@ class DayOneUser(BaseScale):
     async def _day1_user(self, ctx: InteractionContext, user: Member = None):
         member = user or ctx.author
 
-        # might take a sec
-        await ctx.defer()
-
         embed = embed_message(f"{member.display_name}'s Day One Completions")
 
         # check this members raid completions

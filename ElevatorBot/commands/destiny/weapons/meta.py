@@ -102,9 +102,6 @@ class WeaponsMeta(BaseScale):
         if activity:
             activity = activities[activity.lower()]
 
-        # might take a sec
-        await ctx.defer()
-
         # gather the clan members
         results = await asyncio.gather(
             *[

@@ -46,9 +46,6 @@ async def get_stat_and_send(
 ):
     """Gets the stat specified in the context and sends the message"""
 
-    # might take a sec
-    await ctx.defer()
-
     account = DestinyAccount(ctx=ctx, discord_guild=ctx.guild, discord_member=member, client=ctx.bot)
 
     # check if we need a user stat or a char stat

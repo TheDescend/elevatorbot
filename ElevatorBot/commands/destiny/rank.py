@@ -225,9 +225,6 @@ class Rank(BaseScale):
             # get the actual weapon
             weapon: DestinyWeaponModel = weapons[weapon.lower()]
 
-        # might take a sec
-        await ctx.defer()
-
         # get the linked clan member
         member = user or ctx.author
         clan = DestinyClan(client=ctx.bot, discord_guild=ctx.guild, ctx=ctx)

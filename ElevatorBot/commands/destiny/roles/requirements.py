@@ -22,9 +22,6 @@ class RoleRequirements(BaseScale):
     @slash_option(name="role", description="The role you want to look up", opt_type=OptionTypes.ROLE, required=True)
     @default_user_option()
     async def _roles_requirements(self, ctx: InteractionContext, role: Role, user: Member = None):
-        # might take a sec
-        await ctx.defer()
-
         # get role get_requirements
         roles = Roles(ctx=ctx, client=self.client, guild=ctx.guild, member=user or ctx.author)
         await roles.get_requirements(role=role)

@@ -99,9 +99,6 @@ class ComponentCallbacks:
     @staticmethod
     async def lfg_join(ctx: ComponentContext):
         """Handles when a component with the custom_id 'lfg_join' gets interacted with"""
-
-        await ctx.defer()
-
         lfg_message = await LfgMessage.from_component_button(ctx=ctx)
         result = await lfg_message.add_joined(member=ctx.author, ctx=ctx)
 
@@ -118,8 +115,6 @@ class ComponentCallbacks:
     async def lfg_leave(ctx: ComponentContext):
         """Handles when a component with the custom_id 'lfg_leave' gets interacted with"""
 
-        await ctx.defer()
-
         lfg_message = await LfgMessage.from_component_button(ctx=ctx)
         result = await lfg_message.remove_member(member=ctx.author, ctx=ctx)
 
@@ -134,8 +129,6 @@ class ComponentCallbacks:
     async def lfg_backup(ctx: ComponentContext):
         """Handles when a component with the custom_id 'lfg_backup' gets interacted with"""
 
-        await ctx.defer()
-
         lfg_message = await LfgMessage.from_component_button(ctx=ctx)
         result = await lfg_message.add_backup(member=ctx.author, ctx=ctx)
 
@@ -149,8 +142,6 @@ class ComponentCallbacks:
     @staticmethod
     async def clan_join_request(ctx: ComponentContext):
         """Handles when a component with the custom_id 'clan_join_request' gets interacted with"""
-
-        await ctx.defer()
 
         # invite them to the clan
         clan = DestinyClan(ctx=ctx, client=ctx.bot, discord_guild=ctx.guild)

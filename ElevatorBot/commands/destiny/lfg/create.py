@@ -58,9 +58,6 @@ class LfgCreate(BaseScale):
             if not start_time:
                 return
 
-        # might take a sec
-        await ctx.defer()
-
         # ask for the activity
         components = [
             ActionRow(
