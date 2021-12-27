@@ -67,7 +67,7 @@ async def mock_request(
 
         # capture the required route when this fails
         try:
-            return WebResponse(0, 200, dummy_data[param_route], True)
+            return WebResponse(0, 200, dummy_data[param_route], True, True)
         except KeyError as e:
             print("Tried to call this route, but it doesnt exist in the dummy data:")
             print(route)
@@ -186,7 +186,6 @@ async def insert_dummy_data(db: AsyncSession, client: AsyncClient):
     data = await destiny_manifest.get(db=db, table=DestinyActivityDefinition, primary_key=dummy_activity_reference_id)
     assert data.description == 'Enter the realm of the Nine and ask the question: "What is the nature of the Darkness?"'
     assert data.name == "Prophecy"
-    assert data.activity_level is None
     assert data.activity_light_level == 1040
     assert data.destination_hash == 1553550479
     assert data.place_hash == 3747705955
