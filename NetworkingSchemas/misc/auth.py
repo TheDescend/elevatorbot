@@ -2,8 +2,10 @@ from typing import Optional
 
 from pydantic import BaseModel
 
+from NetworkingSchemas.base import CustomBaseModel
 
-class BackendUserModel(BaseModel):
+
+class BackendUserModel(CustomBaseModel):
     user_name: str
     allowed_scopes: list[str]
     has_write_permission: bool
@@ -14,12 +16,12 @@ class BackendUserModel(BaseModel):
         orm_mode = True
 
 
-class Token(BaseModel):
+class Token(CustomBaseModel):
     access_token: str
     token_type: str
 
 
-class BungieTokenInput(BaseModel):
+class BungieTokenInput(CustomBaseModel):
     access_token: str
     token_type: str
     expires_in: int
@@ -29,6 +31,6 @@ class BungieTokenInput(BaseModel):
     state: str
 
 
-class BungieTokenOutput(BaseModel):
+class BungieTokenOutput(CustomBaseModel):
     success: bool
     error_message: Optional[str] = None

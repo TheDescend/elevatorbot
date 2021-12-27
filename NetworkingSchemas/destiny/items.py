@@ -2,8 +2,10 @@ from typing import Optional
 
 from pydantic import BaseModel
 
+from NetworkingSchemas.base import CustomBaseModel
 
-class DestinyLoreModel(BaseModel):
+
+class DestinyLoreModel(CustomBaseModel):
     reference_id: int
     name: str
     description: str
@@ -14,5 +16,5 @@ class DestinyLoreModel(BaseModel):
         orm_mode = True
 
 
-class DestinyAllLoreModel(BaseModel):
+class DestinyAllLoreModel(CustomBaseModel):
     items: list[DestinyLoreModel]

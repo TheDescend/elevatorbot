@@ -2,13 +2,15 @@ from typing import Optional
 
 from pydantic import BaseModel
 
+from NetworkingSchemas.base import CustomBaseModel
 
-class PollChoice(BaseModel):
+
+class PollChoice(CustomBaseModel):
     name: str
     discord_ids: list[int]
 
 
-class PollInsertSchema(BaseModel):
+class PollInsertSchema(CustomBaseModel):
     name: str
     description: str
     author_id: int
@@ -25,11 +27,11 @@ class PollSchema(PollInsertSchema):
         orm_mode = True
 
 
-class PollUserInputSchema(BaseModel):
+class PollUserInputSchema(CustomBaseModel):
     choice_name: str
 
 
-class PollUpdateSchema(BaseModel):
+class PollUpdateSchema(CustomBaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
     author_id: Optional[int] = None

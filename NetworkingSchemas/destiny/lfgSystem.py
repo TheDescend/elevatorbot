@@ -3,8 +3,10 @@ from typing import Optional
 
 from pydantic import BaseModel
 
+from NetworkingSchemas.base import CustomBaseModel
 
-class LfgOutputModel(BaseModel):
+
+class LfgOutputModel(CustomBaseModel):
     id: int
     guild_id: int
     channel_id: int
@@ -24,20 +26,20 @@ class LfgOutputModel(BaseModel):
         orm_mode = True
 
 
-class AllLfgOutputModel(BaseModel):
+class AllLfgOutputModel(CustomBaseModel):
     events: list[LfgOutputModel] = []
 
 
-class AllLfgDeleteOutputModel(BaseModel):
+class AllLfgDeleteOutputModel(CustomBaseModel):
     event_ids: list[int]
 
 
-class UserAllLfgOutputModel(BaseModel):
+class UserAllLfgOutputModel(CustomBaseModel):
     joined: list[LfgOutputModel] = []
     backup: list[LfgOutputModel] = []
 
 
-class LfgCreateInputModel(BaseModel):
+class LfgCreateInputModel(CustomBaseModel):
     activity: str
     description: str
     start_time: datetime.datetime
@@ -46,7 +48,7 @@ class LfgCreateInputModel(BaseModel):
     backup_members: list[int]
 
 
-class LfgUpdateInputModel(BaseModel):
+class LfgUpdateInputModel(CustomBaseModel):
     channel_id: Optional[int] = None
     message_id: Optional[int] = None
     voice_channel_id: Optional[int] = None

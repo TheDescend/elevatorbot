@@ -2,21 +2,23 @@ from typing import Optional
 
 from pydantic import BaseModel
 
+from NetworkingSchemas.base import CustomBaseModel
 
-class EmptyResponseModel(BaseModel):
+
+class EmptyResponseModel(CustomBaseModel):
     pass
 
 
-class NameModel(BaseModel):
+class NameModel(CustomBaseModel):
     name: Optional[str] = None
 
 
-class BoolModel(BaseModel):
+class BoolModel(CustomBaseModel):
     bool: bool
 
     def __bool__(self):
         return self.bool
 
 
-class ValueModel(BaseModel):
+class ValueModel(CustomBaseModel):
     value: float

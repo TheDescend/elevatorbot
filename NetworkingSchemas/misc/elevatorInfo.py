@@ -2,8 +2,10 @@ import datetime
 
 from pydantic import BaseModel
 
+from NetworkingSchemas.base import CustomBaseModel
 
-class ElevatorGuildModel(BaseModel):
+
+class ElevatorGuildModel(CustomBaseModel):
     guild_id: int
     join_date: datetime.datetime
 
@@ -11,5 +13,5 @@ class ElevatorGuildModel(BaseModel):
         orm_mode = True
 
 
-class ElevatorGuildsModel(BaseModel):
+class ElevatorGuildsModel(CustomBaseModel):
     guilds: list[ElevatorGuildModel]

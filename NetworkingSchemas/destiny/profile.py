@@ -2,8 +2,10 @@ from typing import Optional
 
 from pydantic import BaseModel
 
+from NetworkingSchemas.base import CustomBaseModel
 
-class DestinyProfileModel(BaseModel):
+
+class DestinyProfileModel(CustomBaseModel):
     discord_id: int
     destiny_id: int
     system: int
@@ -13,6 +15,6 @@ class DestinyProfileModel(BaseModel):
         orm_mode = True
 
 
-class DestinyHasTokenModel(BaseModel):
+class DestinyHasTokenModel(CustomBaseModel):
     token: bool
     value: Optional[str] = None

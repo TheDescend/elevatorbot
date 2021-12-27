@@ -4,29 +4,31 @@ from typing import Optional
 
 from pydantic import BaseModel
 
+from NetworkingSchemas.base import CustomBaseModel
 
-class RolesCategoryModel(BaseModel):
+
+class RolesCategoryModel(CustomBaseModel):
     category: str
     discord_role_id: int
 
 
-class EarnedRolesModel(BaseModel):
+class EarnedRolesModel(CustomBaseModel):
     earned: list[RolesCategoryModel] = []
     earned_but_replaced_by_higher_role: list[RolesCategoryModel] = []
     not_earned: list[RolesCategoryModel] = []
 
 
-class MissingRolesModel(BaseModel):
+class MissingRolesModel(CustomBaseModel):
     acquirable: list[RolesCategoryModel] = []
     deprecated: list[RolesCategoryModel] = []
 
 
-class TimePeriodModel(BaseModel):
+class TimePeriodModel(CustomBaseModel):
     start_time: datetime.datetime
     end_time: datetime.datetime
 
 
-class RequirementActivityModel(BaseModel):
+class RequirementActivityModel(CustomBaseModel):
     # which activities are allowed
     allowed_activity_hashes: list[int]
 
@@ -58,7 +60,7 @@ class RequirementActivityModel(BaseModel):
     inverse: bool = False
 
 
-class RequirementIntegerModel(BaseModel):
+class RequirementIntegerModel(CustomBaseModel):
     # the id of the collectible / record / role
     id: int
 
@@ -66,7 +68,7 @@ class RequirementIntegerModel(BaseModel):
     inverse: bool = False
 
 
-class RoleDataModel(BaseModel):
+class RoleDataModel(CustomBaseModel):
     # the category of the role. Used to better format roles
     category: str = "Destiny Roles"
 
@@ -84,21 +86,21 @@ class RoleDataModel(BaseModel):
     replaced_by_role_id: Optional[int] = None
 
 
-class RoleDataUserModel(BaseModel):
+class RoleDataUserModel(CustomBaseModel):
     require_activity_completions: list[str]
     require_collectibles: list[bool]
     require_records: list[bool]
     require_role_ids: list[bool]
 
 
-class RoleModel(BaseModel):
+class RoleModel(CustomBaseModel):
     role_id: int
     guild_id: int
     role_name: str
     role_data: RoleDataModel
 
 
-class RolesModel(BaseModel):
+class RolesModel(CustomBaseModel):
     roles: list[RoleModel] = []
 
 
@@ -109,7 +111,7 @@ class RoleEnum(Enum):
     NOT_EARNED = "Not Earned"
 
 
-class EarnedRoleModel(BaseModel):
+class EarnedRoleModel(CustomBaseModel):
     earned: RoleEnum
     role: RoleModel
     user_role_data: Optional[RoleDataUserModel] = None

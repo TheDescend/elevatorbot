@@ -14,8 +14,10 @@ from pydantic import BaseModel
 from ElevatorBot.backendNetworking.errors import BackendException
 from ElevatorBot.backendNetworking.results import BackendResult
 
-
 # the limiter object to not overload the backend
+from NetworkingSchemas.base import CustomBaseModel
+
+
 class BackendRateLimiter:
     RATE = 250
     MAX_TOKENS = 10000
@@ -114,14 +116,14 @@ class BaseBackendConnection:
         method: str,
         route: str,
         params: Optional[dict] = None,
-        data: Optional[dict | BaseModel] = None,
+        data: Optional[dict | CustomBaseModel] = None,
         **error_message_kwargs,
     ) -> BackendResult:
         """Make a request to the specified backend route and return the results"""
 
         if data:
             # load with orjson to convert complex types such as datetime to a string
-            if isinstance(data, BaseModel):
+            if isinstance(data, CustomBaseModel):
                 data = data.json()
             else:
                 data = orjson.dumps(data)
@@ -173,7 +175,7 @@ class BaseBackendConnection:
         if response.status == 409:
             # this means the errors isn't really an error and we want to return info to the user
             self.logger.info("%s: '%s' - '%s'", response.status, response.method, response.url)
-            error_json = await response.json()
+            error_json = await response.json(loads=orjson.loads)
             return error_json["error"]
 
         else:
@@ -183,6 +185,6 @@ class BaseBackendConnection:
                 response.status,
                 response.method,
                 response.url,
-                await response.json(),
+                await response.json(loads=orjson.loads),
             )
             return None

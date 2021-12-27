@@ -2,8 +2,10 @@ import datetime
 
 from pydantic import BaseModel
 
+from NetworkingSchemas.base import CustomBaseModel
 
-class DestinySteamPlayerCountModel(BaseModel):
+
+class DestinySteamPlayerCountModel(CustomBaseModel):
     date: datetime.date
     number_of_players: int
 
@@ -11,5 +13,5 @@ class DestinySteamPlayerCountModel(BaseModel):
         orm_mode = True
 
 
-class DestinySteamPlayersCountModel(BaseModel):
+class DestinySteamPlayersCountModel(CustomBaseModel):
     entries: list[DestinySteamPlayerCountModel] = []

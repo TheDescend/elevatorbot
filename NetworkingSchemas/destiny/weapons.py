@@ -4,8 +4,10 @@ from typing import Optional
 
 from pydantic import BaseModel
 
+from NetworkingSchemas.base import CustomBaseModel
 
-class DestinyWeaponModel(BaseModel):
+
+class DestinyWeaponModel(CustomBaseModel):
     name: str
     description: str
     flavor_text: str
@@ -16,11 +18,11 @@ class DestinyWeaponModel(BaseModel):
     reference_ids: list[int]
 
 
-class DestinyWeaponsModel(BaseModel):
+class DestinyWeaponsModel(CustomBaseModel):
     weapons: list[DestinyWeaponModel]
 
 
-class DestinyWeaponStatsInputModel(BaseModel):
+class DestinyWeaponStatsInputModel(CustomBaseModel):
     weapon_ids: list[int]
     character_class: Optional[str] = None
     character_ids: Optional[list[int]] = None
@@ -30,7 +32,7 @@ class DestinyWeaponStatsInputModel(BaseModel):
     end_time: Optional[datetime.datetime] = None
 
 
-class DestinyWeaponStatsModel(BaseModel):
+class DestinyWeaponStatsModel(CustomBaseModel):
     total_kills: int
     total_precision_kills: int
     total_activities: int
@@ -40,7 +42,7 @@ class DestinyWeaponStatsModel(BaseModel):
     best_kills_date: datetime.datetime
 
 
-class DestinyTopWeaponModel(BaseModel):
+class DestinyTopWeaponModel(CustomBaseModel):
     ranking: int
     stat_value: int
     weapon_ids: list[int]
@@ -51,7 +53,7 @@ class DestinyTopWeaponModel(BaseModel):
     weapon_ammo_type: str
 
 
-class DestinyTopWeaponsModel(BaseModel):
+class DestinyTopWeaponsModel(CustomBaseModel):
     kinetic: list[DestinyTopWeaponModel] = []
     energy: list[DestinyTopWeaponModel] = []
     power: list[DestinyTopWeaponModel] = []
@@ -62,7 +64,7 @@ class DestinyTopWeaponsStatInputModelEnum(str, Enum):
     PRECISION_KILLS = "precision_kills"
 
 
-class DestinyTopWeaponsInputModel(BaseModel):
+class DestinyTopWeaponsInputModel(CustomBaseModel):
     stat: DestinyTopWeaponsStatInputModelEnum
     how_many_per_slot: Optional[int] = None
     include_weapon_with_ids: Optional[list[int]] = None

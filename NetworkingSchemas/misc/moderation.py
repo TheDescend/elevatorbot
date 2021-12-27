@@ -3,8 +3,10 @@ from typing import Optional
 
 from pydantic import BaseModel
 
+from NetworkingSchemas.base import CustomBaseModel
 
-class ModerationModel(BaseModel):
+
+class ModerationModel(CustomBaseModel):
     id: str
     guild_id: int
     discord_id: int
@@ -18,11 +20,11 @@ class ModerationModel(BaseModel):
         orm_mode = True
 
 
-class ModerationsModel(BaseModel):
+class ModerationsModel(CustomBaseModel):
     entries: list[ModerationModel] = []
 
 
-class ModerationAddModel(BaseModel):
+class ModerationAddModel(CustomBaseModel):
     mod_discord_id: int
     reason: str
     duration_in_seconds: Optional[int] = None

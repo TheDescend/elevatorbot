@@ -36,6 +36,7 @@ from NetworkingSchemas.destiny.account import (
     DestinyLowMansModel,
     DestinySealsModel,
     DestinyStatInputModel,
+    DestinyTimeInputModel,
     DestinyTimesModel,
     DestinyTriumphScoreModel,
     SeasonalChallengesModel,
@@ -81,17 +82,16 @@ class DestinyAccount(BaseBackendConnection):
 
         if modes is None:
             modes = [UsableDestinyActivityModeTypeEnum.ALL]
-        # todo pydantic model
         result = await self._backend_request(
             method="POST",
             route=destiny_account_time_route.format(guild_id=self.discord_guild.id, discord_id=self.discord_member.id),
-            data={
-                "start_time": start_time,
-                "end_time": end_time,
-                "mode": [mode.value for mode in modes],
-                "activity_ids": activity_ids,
-                "character_class": character_class,
-            },
+            data=DestinyTimeInputModel(
+                start_time=start_time,
+                end_time=end_time,
+                modes=[mode.value for mode in modes],
+                activity_ids=activity_ids,
+                character_class=character_class,
+            ),
         )
 
         # convert to correct pydantic model

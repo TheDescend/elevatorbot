@@ -3,13 +3,15 @@ from typing import Optional
 
 from pydantic import BaseModel
 
+from NetworkingSchemas.base import CustomBaseModel
 
-class DestinyClanModel(BaseModel):
+
+class DestinyClanModel(CustomBaseModel):
     id: int
     name: str
 
 
-class DestinyClanMemberModel(BaseModel):
+class DestinyClanMemberModel(CustomBaseModel):
     system: int
     destiny_id: int
     name: str
@@ -19,10 +21,10 @@ class DestinyClanMemberModel(BaseModel):
     discord_id: Optional[int] = None
 
 
-class DestinyClanMembersModel(BaseModel):
+class DestinyClanMembersModel(CustomBaseModel):
     members: list[DestinyClanMemberModel]
 
 
-class DestinyClanLink(BaseModel):
+class DestinyClanLink(CustomBaseModel):
     success: bool
     clan_name: str

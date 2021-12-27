@@ -3,8 +3,10 @@ from typing import Optional
 
 from pydantic import BaseModel
 
+from NetworkingSchemas.base import CustomBaseModel
 
-class DestinyLowManModel(BaseModel):
+
+class DestinyLowManModel(CustomBaseModel):
     activity_ids: list[int]
     count: int
     flawless_count: int
@@ -13,18 +15,18 @@ class DestinyLowManModel(BaseModel):
     fastest: Optional[datetime.timedelta] = None
 
 
-class DestinyActivityModel(BaseModel):
+class DestinyActivityModel(CustomBaseModel):
     name: str
     description: str
     activity_ids: list[int]
     mode: Optional[int] = None
 
 
-class DestinyActivitiesModel(BaseModel):
+class DestinyActivitiesModel(CustomBaseModel):
     activities: list[DestinyActivityModel]
 
 
-class DestinyActivityDetailsUsersModel(BaseModel):
+class DestinyActivityDetailsUsersModel(CustomBaseModel):
     bungie_name: str
     destiny_id: int
     system: int
@@ -38,7 +40,7 @@ class DestinyActivityDetailsUsersModel(BaseModel):
     time_played_seconds: int
 
 
-class DestinyActivityDetailsModel(BaseModel):
+class DestinyActivityDetailsModel(CustomBaseModel):
     instance_id: int
     reference_id: int
     period: datetime.datetime
@@ -48,14 +50,14 @@ class DestinyActivityDetailsModel(BaseModel):
     users: list[DestinyActivityDetailsUsersModel] = []
 
 
-class DestinyLastInputModel(BaseModel):
+class DestinyLastInputModel(CustomBaseModel):
     completed: bool  # if this is False, the activity does not need to be completed (but can be)
     activity_ids: Optional[list[int]] = None  # if this is supplied, mode is ignored
     mode: Optional[int] = None
     character_class: Optional[str] = None
 
 
-class DestinyActivityInputModel(BaseModel):
+class DestinyActivityInputModel(CustomBaseModel):
     activity_ids: Optional[list[int]] = None
     mode: Optional[int] = None
     character_class: Optional[str] = None
@@ -67,7 +69,7 @@ class DestinyActivityInputModel(BaseModel):
     need_zero_kills: bool = False
 
 
-class DestinyActivityOutputModel(BaseModel):
+class DestinyActivityOutputModel(CustomBaseModel):
     full_completions: int
     cp_completions: int
     kills: int
