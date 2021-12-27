@@ -1,8 +1,10 @@
+import concurrent.futures
 from copy import copy
 
 from dis_snek.models import ComponentContext
 
 from ElevatorBot.backendNetworking.destiny.clan import DestinyClan
+from ElevatorBot.backendNetworking.github import get_github_repo
 from ElevatorBot.backendNetworking.misc.polls import BackendPolls
 from ElevatorBot.commands.destiny.registration.register import send_registration
 from ElevatorBot.core.destiny.lfg.lfgSystem import LfgMessage
@@ -157,3 +159,23 @@ class ComponentCallbacks:
         # inform user if invite was send
         embed = embed_message("Clan Application", "Check your game, I sent you a clan application")
         await ctx.send(ephemeral=True, embeds=embed)
+
+    @staticmethod
+    async def github(ctx: ComponentContext):
+        """Handles when a component with the custom_id 'github' gets interacted with"""
+
+        # close the issue
+        def close_issue():
+            issue_id = int(ctx.message.embeds[0].footer.text.split(":")[1].strip())
+            repo = get_github_repo()
+            issue = repo.get_issue(issue_id)
+            issue.edit(state="closed")
+
+        # run those in a thread because it is blocking
+        with concurrent.futures.ThreadPoolExecutor() as pool:
+            await ctx.bot.loop.run_in_executor(executor=pool, func=close_issue)
+
+        # disable the button
+        components = copy(ctx.message.components)
+        components[1].components[0].disabled = True
+        await ctx.edit_origin(components=components)

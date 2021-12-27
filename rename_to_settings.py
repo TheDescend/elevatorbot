@@ -1,3 +1,5 @@
+from typing import Optional
+
 # Fill out these settings, then rename the file to "settings.py" before running the app
 
 # This should be a list of guild_ids
@@ -28,6 +30,14 @@ BUNGIE_APPLICATION_CLIENT_ID: str = ""
 
 # Your steam token. This is needed to access the steam api and query the current amount of D2 players
 STEAM_APPLICATION_API_KEY: str = ""
+
+# Your GitHub api data. This is needed to automatically post bug reports on the repo when users use `/bug`
+# Use this to find your own repo ID - https://stackoverflow.com/questions/13902593/how-does-one-find-out-ones-own-repo-id/13902640
+GITHUB_APPLICATION_API_KEY: Optional[str] = None
+GITHUB_REPOSITORY_ID: Optional[int] = None
+
+# The names of the labels the issues should get
+GITHUB_ISSUE_LABEL_NAMES: Optional[list[str]] = None
 
 # ======================================================================
 # This bot is designed to run on the Descend discord server, where it has some extra functionality
