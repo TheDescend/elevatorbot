@@ -167,8 +167,8 @@ class BaseBackendConnection:
 
         return BackendResult(result=result, success=success, error=error)
 
-    async def __backend_handle_errors(self, response: aiohttp.ClientResponse) -> str:
-        """Handles potential errors. Returns None, None if the error should not be returned to the user and str, str if something should be returned to the user"""
+    async def __backend_handle_errors(self, response: aiohttp.ClientResponse) -> Optional[str]:
+        """Handles potential errors. Returns None if the error should not be returned to the user and str, str if something should be returned to the user"""
 
         if response.status == 409:
             # this means the errors isn't really an error and we want to return info to the user
