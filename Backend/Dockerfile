@@ -1,4 +1,4 @@
-FROM kigstn/uvicorn-gunicorn-fastapi:python3.10.0
+FROM kigstn/uvicorn-gunicorn-fastapi:python3.10.1
 
 # we want stdout
 ENV PYTHONDONTWRITEBYTECODE=1
