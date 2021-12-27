@@ -3,6 +3,6 @@ class BackendException(Exception):
 
     def __init__(
         self,
-        error: str,
+        error: str = "Unknown",
     ):
         self.error = error

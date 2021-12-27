@@ -6,6 +6,7 @@ from dis_snek.models.events import Component, MemberAdd, MemberRemove, MemberUpd
 from ElevatorBot.backendNetworking.destiny.clan import DestinyClan
 from ElevatorBot.backendNetworking.destiny.lfgSystem import DestinyLfgSystem
 from ElevatorBot.backendNetworking.destiny.profile import DestinyProfile
+from ElevatorBot.backendNetworking.errors import BackendException
 from ElevatorBot.core.destiny.lfg.lfgSystem import LfgMessage
 from ElevatorBot.core.destiny.roles import Roles
 from ElevatorBot.misc.discordShortcutFunctions import assign_roles_to_member
@@ -112,11 +113,11 @@ async def on_member_remove(event: MemberRemove):
     # remove them from any lfg events
     backend = DestinyLfgSystem(
         ctx=None,
-        # client=event.bot,
         discord_guild=event.member.guild,
     )
-    result = await backend.user_get_all(discord_member=event.member)
-    if not result:
+    try:
+        result = await backend.user_get_all(discord_member=event.member)
+    except BackendException:
         raise LookupError
 
     # delete them from all of them

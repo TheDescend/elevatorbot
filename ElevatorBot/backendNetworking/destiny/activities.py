@@ -17,6 +17,7 @@ from NetworkingSchemas.destiny.activities import (
     DestinyActivityDetailsModel,
     DestinyActivityInputModel,
     DestinyActivityOutputModel,
+    DestinyLastInputModel,
 )
 
 
@@ -56,18 +57,14 @@ class DestinyActivities(BaseBackendConnection):
     ) -> DestinyActivityDetailsModel:
         """Get the last activity"""
 
-        # todo use pydantic model
         result = await self._backend_request(
             method="POST",
             route=destiny_activities_last_route.format(
                 guild_id=self.discord_guild.id, discord_id=self.discord_member.id
             ),
-            data={
-                "completed": completed,
-                "activity_ids": activity_ids,
-                "mode": mode,
-                "character_class": character_class,
-            },
+            data=DestinyLastInputModel(
+                completed=completed, activity_ids=activity_ids, mode=mode, character_class=character_class
+            ),
         )
 
         # convert to correct pydantic model

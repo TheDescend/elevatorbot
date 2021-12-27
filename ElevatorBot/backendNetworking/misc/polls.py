@@ -12,7 +12,11 @@ from ElevatorBot.backendNetworking.routes import (
     polls_insert_route,
     polls_user_input_route,
 )
-from NetworkingSchemas.misc.polls import PollSchema
+from NetworkingSchemas.misc.polls import (
+    PollInsertSchema,
+    PollSchema,
+    PollUserInputSchema,
+)
 
 
 @dataclasses.dataclass()
@@ -26,15 +30,14 @@ class BackendPolls(BaseBackendConnection):
         result = await self._backend_request(
             method="POST",
             route=polls_insert_route.format(guild_id=self.guild.id, discord_id=self.discord_member.id),
-            data={
-                "name": name,
-                "description": description,
-                "data": {},
-                "author_id": self.discord_member.id,
-                "guild_id": self.guild.id,
-                "channel_id": channel_id,
-                "message_id": message_id,
-            },
+            data=PollInsertSchema(
+                name=name,
+                description=description,
+                author_id=self.discord_member.id,
+                guild_id=self.guild.id,
+                channel_id=channel_id,
+                message_id=message_id,
+            ),
         )
 
         # convert to correct pydantic model
@@ -59,7 +62,7 @@ class BackendPolls(BaseBackendConnection):
             route=polls_user_input_route.format(
                 guild_id=self.guild.id, discord_id=self.discord_member.id, poll_id=poll_id
             ),
-            data={"choice_name": choice_name},
+            data=PollUserInputSchema(choice_name=choice_name),
         )
 
         # convert to correct pydantic model
@@ -89,13 +92,10 @@ class BackendPolls(BaseBackendConnection):
         # convert to correct pydantic model
         return PollSchema.parse_obj(result.result)
 
-    async def delete_all(self, guild_id: int) -> bool:
+    async def delete_all(self, guild_id: int):
         """Deletes all polls for a guild"""
 
-        result = await self._backend_request(
+        await self._backend_request(
             method="DELETE",
             route=polls_delete_all_route.format(guild_id=guild_id),
         )
-
-        # returns EmptyResponseModel
-        return bool(result)

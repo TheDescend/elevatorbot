@@ -75,25 +75,19 @@ class DestinyProfile(BaseBackendConnection):
         # convert to correct pydantic model
         return DestinyHasTokenModel.parse_obj(result.result)
 
-    async def assign_registration_role(self) -> bool:
+    async def assign_registration_role(self):
         """Assign the user the registration role"""
 
-        result = await self._backend_request(
+        await self._backend_request(
             method="GET",
             route=destiny_profile_registration_role_route.format(
                 discord_id=self.discord_member.id, guild_id=self.discord_guild.id
             ),
         )
 
-        # returns EmptyResponseModel
-        return bool(result)
-
-    async def delete(self) -> bool:
+    async def delete(self):
         """Delete the profile"""
 
-        result = await self._backend_request(
+        await self._backend_request(
             method="DELETE", route=destiny_profile_delete_route.format(discord_id=self.discord_member.id)
         )
-
-        # returns EmptyResponseModel
-        return bool(result)

@@ -240,9 +240,11 @@ async def on_message_create(event: MessageCreate, edit_mode: bool = False):
                             ]
                             await message.channel.send(f"{random.choice(welcome_choice)} <@{neria_id}>!")
 
+                # be annoyed if getting pinged
+                async for member in message.mention_users:
+                    if member == event.bot.user:
+                        await message.add_reaction(custom_emojis.ping_sock)
+                        break
+
             # =========================================================================
             # valid for all guilds
-
-            # be annoyed if getting pinged
-            if event.bot.user in [member for member in await message.mention_users()]:
-                await message.add_reaction(custom_emojis.ping_sock)
