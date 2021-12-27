@@ -7,6 +7,7 @@ import io
 from typing import Optional
 
 from apscheduler.jobstores.base import JobLookupError
+from dis_snek import Snake
 from dis_snek.errors import Forbidden, NotFound
 from dis_snek.models import (
     ActionRow,
@@ -32,7 +33,7 @@ from ics import Calendar, Event
 
 from ElevatorBot.backendNetworking.destiny.lfgSystem import DestinyLfgSystem
 from ElevatorBot.core.destiny.lfg.scheduledEvents import delete_lfg_scheduled_events
-
+from ElevatorBot.elevator import ElevatorSnake
 from ElevatorBot.misc.formating import embed_message
 from ElevatorBot.misc.helperFunctions import get_now_with_tz
 from ElevatorBot.static.emojis import custom_emojis
@@ -49,9 +50,9 @@ asap_start_time = datetime.datetime(year=1997, month=6, day=11, tzinfo=datetime.
 class LfgMessage:
     """Class to hold an LFG message"""
 
+    client: ElevatorSnake | Snake
     backend: DestinyLfgSystem
 
-    
     id: int
     guild: Guild
 
@@ -151,18 +152,14 @@ class LfgMessage:
 
     @classmethod
     async def from_lfg_id(
-        cls, lfg_id: int, client, guild: Guild, ctx: Optional[InteractionContext] = None
+        cls, lfg_id: int, client: ElevatorSnake | Snake, guild: Guild, ctx: Optional[InteractionContext] = None
     ) -> Optional[LfgMessage]:
         """
         Classmethod to get with a known lfg_id
         Returns LfgMessage() if successful, BackendResult() if not
         """
 
-        backend = DestinyLfgSystem(
-            ctx=ctx, 
-            #client=client, 
-            discord_guild=guild
-        )
+        backend = DestinyLfgSystem(ctx=ctx, discord_guild=guild)
 
         # get the message by the id
         result = await backend.get(lfg_id=lfg_id)
@@ -182,11 +179,7 @@ class LfgMessage:
     ) -> Optional[LfgMessage]:
         """Classmethod to create a new lfg message"""
 
-        backend = DestinyLfgSystem(
-            ctx=ctx, 
-            #client=ctx.bot, 
-            discord_guild=ctx.guild
-        )
+        backend = DestinyLfgSystem(ctx=ctx, discord_guild=ctx.guild)
 
         # create the message and fill it later
         result = await backend.create(
@@ -338,15 +331,14 @@ class LfgMessage:
                 pass
 
         # delete DB entry
-        result = await self.backend.delete(discord_member_id=delete_command_user_id, lfg_id=self.id)
+        await self.backend.delete(discord_member_id=delete_command_user_id, lfg_id=self.id)
 
-        if result:
-            # delete scheduler event
-            # try to delete old job
-            try:
-                self.client.scheduler.remove_job(str(self.id))
-            except JobLookupError:
-                pass
+        # delete scheduler event
+        # try to delete old job
+        try:
+            self.client.scheduler.remove_job(str(self.id))
+        except JobLookupError:
+            pass
 
     async def alert_start_time_changed(self, previous_start_time: datetime.datetime):
         """Alert all joined / backups that the event start time was changed"""
@@ -438,7 +430,7 @@ class LfgMessage:
         )
         embed.add_field(
             name="Guardians",
-            value=", ".join(self.__get_joined_members_display_names()),
+            value=", ".join(await self.__get_joined_members_display_names()),
             inline=False,
         )
         embed.timestamp = self.start_time
@@ -448,7 +440,7 @@ class LfgMessage:
         if self.backup_ids:
             embed.add_field(
                 name="Backup",
-                value=", ".join(self.__get_alternate_members_display_names()),
+                value=", ".join(await self.__get_alternate_members_display_names()),
                 inline=False,
             )
 
@@ -619,13 +611,13 @@ class LfgMessage:
         )
         embed.add_field(
             name=f"Guardians Joined ({len(self.joined_ids)}/{self.max_joined_members})",
-            value=", ".join(self.__get_joined_members_display_names()) if self.joined_ids else "_Empty Space :(_",
+            value=", ".join(await self.__get_joined_members_display_names()) if self.joined_ids else "_Empty Space :(_",
             inline=True,
         )
         if self.backup_ids:
             embed.add_field(
                 name="Backup",
-                value=", ".join(self.__get_alternate_members_display_names()),
+                value=", ".join(await self.__get_alternate_members_display_names()),
                 inline=True,
             )
 

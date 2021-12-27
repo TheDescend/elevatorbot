@@ -38,13 +38,9 @@ class Warning(BaseScale):
         backend = Moderation(discord_member=user, discord_guild=ctx.guild, ctx=ctx)
         # get past warnings
         past_warnings = await backend.get_warnings()
-        if not past_warnings:
-            return
 
         # add warning to the backend logs
-        result = await backend.add_warning(reason=reason, mod_discord_id=ctx.author.id)
-        if not result:
-            return
+        await backend.add_warning(reason=reason, mod_discord_id=ctx.author.id)
 
         embed = embed_message(
             "Warning",

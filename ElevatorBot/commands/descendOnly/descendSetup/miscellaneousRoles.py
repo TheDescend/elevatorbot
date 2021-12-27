@@ -19,6 +19,7 @@ from settings import COMMAND_GUILD_SCOPE
 
 
 class MiscellaneousRoles(BaseScale):
+    # todo settings.py
     other_games: dict = {
         "Among Us": {
             "emoji": custom_emojis.among_us,

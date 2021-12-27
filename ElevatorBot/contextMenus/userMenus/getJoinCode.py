@@ -14,19 +14,16 @@ class UserMenuCommands(BaseScale):
     async def command(self, ctx: InteractionContext):
         member = await ctx.guild.get_member(ctx.target_id)
 
-        destiny_profile = DestinyAccount(ctx=ctx, client=ctx.bot, discord_member=member, discord_guild=ctx.guild)
+        destiny_profile = DestinyAccount(ctx=ctx, discord_member=member, discord_guild=ctx.guild)
         result = await destiny_profile.get_destiny_name()
 
-        if not result:
-            return
-        else:
-            await ctx.send(
-                ephemeral=True,
-                embeds=embed_message(
-                    f"{member.display_name}'s Join Code",
-                    f"`/join {result.name}`",
-                ),
-            )
+        await ctx.send(
+            ephemeral=True,
+            embeds=embed_message(
+                f"{member.display_name}'s Join Code",
+                f"`/join {result.name}`",
+            ),
+        )
 
 
 def setup(client):

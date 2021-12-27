@@ -11,12 +11,9 @@ class ApiKey(BaseScale):
     # todo perm
     @slash_command(name="get_api_key", description="Get your own Destiny 2 oauth api key", scopes=COMMAND_GUILD_SCOPE)
     async def _get_api_key(self, ctx: InteractionContext):
-        token = await DestinyProfile(
-            ctx=ctx, client=ctx.bot, discord_member=ctx.author, discord_guild=ctx.guild
-        ).has_token()
+        token = await DestinyProfile(ctx=ctx, discord_member=ctx.author, discord_guild=ctx.guild).has_token()
 
-        if token:
-            await ctx.send(embeds=embed_message(f"Your Token", f"`Bearer {token.value}`"), ephemeral=True)
+        await ctx.send(embeds=embed_message(f"Your Token", f"`Bearer {token.value}`"), ephemeral=True)
 
 
 def setup(client):

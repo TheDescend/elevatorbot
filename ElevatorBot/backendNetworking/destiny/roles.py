@@ -12,7 +12,6 @@ from ElevatorBot.backendNetworking.routes import (
     destiny_role_get_missing_user_route,
     destiny_role_get_user_route,
 )
-
 from ElevatorBot.misc.cache import registered_role_cache
 from NetworkingSchemas.destiny.roles import (
     EarnedRoleModel,
@@ -23,10 +22,10 @@ from NetworkingSchemas.destiny.roles import (
 
 @dataclasses.dataclass
 class DestinyRoles(BaseBackendConnection):
-    
+
     discord_guild: Optional[Guild]
 
-    async def get(self) -> Optional[EarnedRolesModel]:
+    async def get(self) -> EarnedRolesModel:
         """Get the users roles in the guild"""
 
         result = await self._backend_request(
@@ -37,9 +36,9 @@ class DestinyRoles(BaseBackendConnection):
         )
 
         # convert to correct pydantic model
-        return EarnedRolesModel.parse_obj(result.result) if result else None
+        return EarnedRolesModel.parse_obj(result.result)
 
-    async def get_missing(self) -> Optional[MissingRolesModel]:
+    async def get_missing(self) -> MissingRolesModel:
         """Get the users missing roles in the guild"""
 
         result = await self._backend_request(
@@ -50,9 +49,9 @@ class DestinyRoles(BaseBackendConnection):
         )
 
         # convert to correct pydantic model
-        return MissingRolesModel.parse_obj(result.result) if result else None
+        return MissingRolesModel.parse_obj(result.result)
 
-    async def get_detail(self, role: Role) -> Optional[EarnedRoleModel]:
+    async def get_detail(self, role: Role) -> EarnedRoleModel:
         """Get the details for the users role completion"""
 
         result = await self._backend_request(
@@ -63,7 +62,7 @@ class DestinyRoles(BaseBackendConnection):
         )
 
         # convert to correct pydantic model
-        return EarnedRoleModel.parse_obj(result.result) if result else None
+        return EarnedRoleModel.parse_obj(result.result)
 
     async def delete_all(self, guild_id: int) -> bool:
         """Delete all guild roles"""

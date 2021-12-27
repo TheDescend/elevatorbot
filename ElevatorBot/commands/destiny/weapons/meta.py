@@ -82,21 +82,17 @@ class WeaponsMeta(BaseScale):
         limit = 8
         stat = DestinyTopWeaponsStatInputModelEnum.KILLS
 
-        # get the linked clan member
-        clan = DestinyClan(client=ctx.bot, discord_guild=ctx.guild, ctx=ctx)
-        clan_info = await clan.get_clan()
-        if not clan_info:
-            return
-        clan_members = await clan.get_clan_members()
-        if not clan_members:
-            return
-
         # parse start and end time
         start_time, end_time = parse_datetime_options(
             ctx=ctx, expansion=expansion, season=season, start_time=start_time, end_time=end_time
         )
         if not start_time:
             return
+
+        # get the linked clan member
+        clan = DestinyClan(discord_guild=ctx.guild, ctx=ctx)
+        clan_info = await clan.get_clan()
+        clan_members = await clan.get_clan_members()
 
         # get the actual activity
         if activity:
@@ -120,11 +116,6 @@ class WeaponsMeta(BaseScale):
                 for clan_member in clan_members.members
             ]
         )
-
-        # fail is something went wrong
-        if any([not result for result in results]):
-            await something_went_wrong(ctx=ctx)
-            return
 
         # loop through the results and combine the weapon stats
         to_sort = {}
@@ -184,8 +175,8 @@ class WeaponsMeta(BaseScale):
 
         await ctx.send(embeds=embed)
 
+    @staticmethod
     async def handle_clan_member(
-        self,
         stat: DestinyTopWeaponsStatInputModelEnum,
         discord_id: int,
         guild: Guild,
@@ -196,11 +187,11 @@ class WeaponsMeta(BaseScale):
         destiny_class: str = None,
         weapon_type: int = None,
         damage_type: int = None,
-    ) -> Optional[DestinyTopWeaponsModel]:
+    ) -> DestinyTopWeaponsModel:
         """Gather all clan members. Return None if something fails"""
 
         # get the top weapons for the user
-        backend_weapons = DestinyWeapons(ctx=None, client=self.client, discord_member=None, discord_guild=guild)
+        backend_weapons = DestinyWeapons(ctx=None, discord_member=None, discord_guild=guild)
         return await backend_weapons.get_top(
             discord_id=discord_id,
             input_data=DestinyTopWeaponsInputModel(

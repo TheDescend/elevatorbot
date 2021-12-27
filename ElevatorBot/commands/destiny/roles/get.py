@@ -13,7 +13,7 @@ class RoleGet(BaseScale):
     )
     async def _roles_get(self, ctx: InteractionContext):
         # get new roles and update the member
-        roles = Roles(ctx=ctx, client=self.client, guild=ctx.guild, member=ctx.author)
+        roles = Roles(ctx=ctx, guild=ctx.guild, member=ctx.author)
         await roles.update()
 
 

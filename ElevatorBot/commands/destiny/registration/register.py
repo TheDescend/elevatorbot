@@ -8,23 +8,14 @@ from dis_snek.models import (
     slash_command,
 )
 
-
+from ElevatorBot.commands.base import RegisteredScale
 from ElevatorBot.misc.formating import embed_message
 from settings import BUNGIE_APPLICATION_CLIENT_ID
 
 
-class Register(Scale):
-    def __init__(self, client):
-        self.client = client
-
+class Register(RegisteredScale):
     @slash_command(name="register", description="Link your Destiny 2 account with ElevatorBot")
     async def _register(self, ctx: InteractionContext):
-
-        # not in dms
-        if not ctx.guild:
-            await ctx.send("Error" "This command cannot be used in DMs, only in discord guilds")
-            return
-
         await send_registration(ctx)
 
 

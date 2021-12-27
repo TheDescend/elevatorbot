@@ -37,15 +37,13 @@ class Last(BaseScale):
             activity_ids = activity_data.activity_ids
 
         member = user or ctx.author
-        db_activities = DestinyActivities(ctx=ctx, client=ctx.bot, discord_guild=ctx.guild, discord_member=member)
+        db_activities = DestinyActivities(ctx=ctx, discord_guild=ctx.guild, discord_member=member)
 
         result = await db_activities.last(
             activity_ids=activity_ids,  # if this is supplied, mode is ignored
             mode=UsableDestinyActivityModeTypeEnum(mode) if mode else UsableDestinyActivityModeTypeEnum.ALL,
             character_class=destiny_class,
         )
-        if not result:
-            return
 
         # prepare embed
         embed = embed_message(

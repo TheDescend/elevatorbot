@@ -31,7 +31,7 @@ class MessageMenuCommands(BaseScale):
                     await ctx.send(ephemeral=True, embeds=embed_message("Error", "Web request failed, try again"))
                 image_data = io.BytesIO(await resp.read())
 
-        # todo ask for the name in hidden text field component
+        # todo wait for modals
         name = "aaa"
 
         emoji = await ctx.guild.create_custom_emoji(name=name, imagefile=image_data)

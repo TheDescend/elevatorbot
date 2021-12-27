@@ -30,12 +30,10 @@ class SeasonalChallenges(BaseScale):
         user: Member = None,
     ):
         member = user or ctx.author
-        destiny_account = DestinyAccount(ctx=ctx, client=ctx.bot, discord_member=member, discord_guild=ctx.guild)
+        destiny_account = DestinyAccount(ctx=ctx, discord_member=member, discord_guild=ctx.guild)
 
         # get the data
         result = await destiny_account.get_seasonal_challenges()
-        if not result:
-            return
 
         # create select components
         select = [

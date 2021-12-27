@@ -19,7 +19,7 @@ class IdGet(BaseScale):
     async def _id(self, ctx: InteractionContext, user: Member = None):
         member = user or ctx.author
 
-        destiny_profile = DestinyAccount(ctx=ctx, client=ctx.bot, discord_member=member, discord_guild=ctx.guild)
+        destiny_profile = DestinyAccount(ctx=ctx, discord_member=member, discord_guild=ctx.guild)
         result = await destiny_profile.get_destiny_name()
 
         if not result:

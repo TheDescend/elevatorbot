@@ -22,13 +22,11 @@ class DayOneUser(BaseScale):
 
         # check this members raid completions
         raid_completions = []
-        destiny_player = DestinyAccount(ctx=ctx, client=ctx.bot, discord_member=member, discord_guild=ctx.guild)
+        destiny_player = DestinyAccount(ctx=ctx, discord_member=member, discord_guild=ctx.guild)
         for raid_name, collectible_id in raid_to_emblem_hash.items():
             result = await destiny_player.has_collectible(collectible_id=collectible_id)
-            if result is None:
-                return
 
-            if result.bool:
+            if result:
                 raid_completions.append(raid_name)
 
         if not raid_completions:

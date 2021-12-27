@@ -48,10 +48,8 @@ class Website(BaseScale):
             user = ctx.author
 
         # get destiny info
-        destiny_profile = DestinyProfile(ctx=ctx, client=ctx.bot, discord_member=user, discord_guild=ctx.guild)
+        destiny_profile = DestinyProfile(ctx=ctx, discord_member=user, discord_guild=ctx.guild)
         destiny_player = await destiny_profile.from_discord_member()
-        if not destiny_player:
-            return
 
         # get the text
         match website:

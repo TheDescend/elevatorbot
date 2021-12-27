@@ -26,7 +26,7 @@ class BackendPersistentMessages(BaseBackendConnection):
 
     discord_member: Member = dataclasses.field(init=False, default=None)
 
-    async def get(self) -> Optional[PersistentMessage]:
+    async def get(self) -> PersistentMessage:
         """Gets a persistent message"""
         if self.guild is None:
             return None
@@ -42,7 +42,7 @@ class BackendPersistentMessages(BaseBackendConnection):
         # convert to correct pydantic model
         return PersistentMessage.parse_obj(result.result)
 
-    async def get_all(self) -> Optional[PersistentMessages]:
+    async def get_all(self) -> PersistentMessages:
         """Gets all persistent messages for the guild"""
 
         if self.guild is None:
@@ -54,9 +54,9 @@ class BackendPersistentMessages(BaseBackendConnection):
         )
 
         # convert to correct pydantic model
-        return PersistentMessages.parse_obj(result.result) if result else None
+        return PersistentMessages.parse_obj(result.result)
 
-    async def upsert(self, channel_id: int, message_id: Optional[int] = None) -> Optional[PersistentMessage]:
+    async def upsert(self, channel_id: int, message_id: Optional[int] = None) -> PersistentMessage:
         """Upserts a persistent message"""
 
         result = await self._backend_request(
@@ -66,7 +66,7 @@ class BackendPersistentMessages(BaseBackendConnection):
         )
 
         # convert to correct pydantic model
-        return PersistentMessage.parse_obj(result.result) if result else None
+        return PersistentMessage.parse_obj(result.result)
 
     async def delete(
         self, message_name: Optional[str] = None, channel_id: Optional[int] = None, message_id: Optional[int] = None

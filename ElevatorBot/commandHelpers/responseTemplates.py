@@ -1,5 +1,6 @@
 from typing import Optional
 
+from dis_snek import SnakeBotUser
 from dis_snek.models import ComponentContext, InteractionContext, Member, Message
 
 from ElevatorBot.backendNetworking.errorCodesAndResponses import (
@@ -107,7 +108,9 @@ async def respond_wrong_channel_type(
     return False
 
 
-async def respond_wrong_author(ctx: InteractionContext, author_must_be: Member, hidden: bool = True) -> bool:
+async def respond_wrong_author(
+    ctx: InteractionContext, author_must_be: Member | SnakeBotUser, hidden: bool = True
+) -> bool:
     """Respond to the given context"""
 
     if not ctx.responded:

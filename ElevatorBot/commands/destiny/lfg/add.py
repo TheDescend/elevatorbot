@@ -29,7 +29,7 @@ class LfgAdd(BaseScale):
             return
 
         # test if the user is admin or author
-        if ctx.author.id != lfg_message.author_id.id:
+        if ctx.author.id != lfg_message.author_id:
             if not await has_admin_permission(ctx=ctx, member=ctx.author):
                 return
 

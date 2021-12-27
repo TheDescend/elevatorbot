@@ -23,7 +23,7 @@ class RoleRequirements(BaseScale):
     @default_user_option()
     async def _roles_requirements(self, ctx: InteractionContext, role: Role, user: Member = None):
         # get role get_requirements
-        roles = Roles(ctx=ctx, client=self.client, guild=ctx.guild, member=user or ctx.author)
+        roles = Roles(ctx=ctx, guild=ctx.guild, member=user or ctx.author)
         await roles.get_requirements(role=role)
 
 

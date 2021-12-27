@@ -29,8 +29,6 @@ class ComponentCallbacks:
 
         # inform the db that sb voted
         result = await backend.user_input(poll_id=poll_id, choice_name=ctx.values[0])
-        if not result:
-            return
 
         # create a poll obj from that data
         poll_obj = await Poll.from_pydantic_model(client=ctx.bot, data=result)
@@ -53,7 +51,7 @@ class ComponentCallbacks:
         added = []
         removed = []
 
-        # loop through the roles the user wants (to loose)
+        # loop through the roles the user wants (to lose)
         for role in ctx.values:
             role_name, role_id = role.split("|")
             role_id = int(role_id)
@@ -144,11 +142,8 @@ class ComponentCallbacks:
         """Handles when a component with the custom_id 'clan_join_request' gets interacted with"""
 
         # invite them to the clan
-        clan = DestinyClan(ctx=ctx, client=ctx.bot, discord_guild=ctx.guild)
+        clan = DestinyClan(ctx=ctx, discord_guild=ctx.guild)
         result = await clan.invite_to_clan(to_invite=ctx.author)
-
-        if not result:
-            return
 
         # send a message in descend if that's the guild
         if ctx.guild == descend_channels.guild:

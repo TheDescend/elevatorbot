@@ -92,9 +92,6 @@ class Poll:
         backend.hidden = True
         result = await backend.get(poll_id=poll_id)
 
-        if not result:
-            return
-
         return await Poll.from_pydantic_model(client=ctx.bot, data=result)
 
     async def add_new_option(self, ctx: InteractionContext, option: str):
@@ -122,9 +119,6 @@ class Poll:
 
         result = await self.backend.remove_option(poll_id=self.id, choice_name=option)
 
-        if not result:
-            return
-
         new_poll = await Poll.from_pydantic_model(client=ctx.bot, data=result)
         await new_poll.send(ctx=ctx)
 
@@ -134,10 +128,7 @@ class Poll:
         if not await self._check_permission(ctx=ctx):
             return
 
-        result = await self.backend.delete(poll_id=self.id)
-        if not result:
-            return
-
+        await self.backend.delete(poll_id=self.id)
         await self.message.delete()
 
     async def _check_permission(self, ctx: InteractionContext) -> bool:
@@ -159,7 +150,7 @@ class Poll:
         """Send the poll message"""
 
         if not self.id:
-            # we have not send anything to the db yet, so gotta do that and get our id
+            # we have not sent anything to the db yet, so gotta do that and get our id
             self.message = await self.channel.send(
                 embeds=embed_message(f"Poll: {self.name}", "Constructing Poll, gimme a sec...")
             )
@@ -198,9 +189,7 @@ class Poll:
             return
 
         # delete from db
-        result = await self.backend.delete(poll_id=self.id)
-        if not result:
-            return
+        await self.backend.delete(poll_id=self.id)
 
         # edit the message to remove the select and the id
         self.id = "DISABLED"

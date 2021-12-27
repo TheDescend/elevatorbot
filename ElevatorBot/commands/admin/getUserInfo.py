@@ -42,7 +42,7 @@ class UserInfo(BaseScale):
             )
             return
 
-        destiny_profile = DestinyProfile(ctx=ctx, client=ctx.bot, discord_member=discord_user, discord_guild=ctx.guild)
+        destiny_profile = DestinyProfile(ctx=ctx, discord_member=discord_user, discord_guild=ctx.guild)
 
         if destiny_id:
             destiny_id = int(destiny_id)
@@ -62,27 +62,17 @@ class UserInfo(BaseScale):
                 return
 
             profile = await destiny_profile.from_destiny_id(destiny_id=destiny_id)
-            if not profile:
-                return
-
             profiles.append(profile)
 
         # if discord info is given
         elif discord_user:
             profile = await destiny_profile.from_discord_member()
-            if not profile:
-                return
-
             profiles.append(profile)
 
         # if fuzzy name is given
         else:
             clan = DestinyClan(ctx=ctx, discord_guild=ctx.guild)
             clan_members = await clan.search_for_clan_members(search_phrase=fuzzy_name)
-
-            # handle errors
-            if not clan_members:
-                return
 
             # did we find sb?
             if not clan_members.members:
@@ -92,10 +82,6 @@ class UserInfo(BaseScale):
             # loop through the results
             for potential_match in clan_members.members:
                 profile = await destiny_profile.from_destiny_id(destiny_id=potential_match.destiny_id)
-
-                # handle errors
-                if not profile:
-                    return
 
                 profiles.append(profile)
 
@@ -118,16 +104,10 @@ class UserInfo(BaseScale):
 
             account = DestinyAccount(
                 ctx=ctx,
-                client=ctx.bot,
                 discord_member=discord_member,
                 discord_guild=ctx.guild,
             )
             destiny_name = await account.get_destiny_name()
-
-            # error out if need be
-            if not destiny_name:
-                return
-
             embed.add_field(
                 name=f"Option {i + 1}",
                 value=f"Discord - {discord_member.mention} \nDestinyID: `{profile.destiny_id}` \nSystem - `{profile.system}` \nDestiny Name - `{destiny_name.name}`",

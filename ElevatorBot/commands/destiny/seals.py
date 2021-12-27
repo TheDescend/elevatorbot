@@ -15,10 +15,8 @@ class Seals(BaseScale):
     async def _seals(self, ctx: InteractionContext, user: Member = None):
         member = user or ctx.author
 
-        destiny_profile = DestinyAccount(ctx=ctx, client=ctx.bot, discord_member=member, discord_guild=ctx.guild)
+        destiny_profile = DestinyAccount(ctx=ctx, discord_member=member, discord_guild=ctx.guild)
         result = await destiny_profile.get_seal_completion()
-        if not result:
-            return
 
         # format the message nicely
         embed = embed_message(f"{member.display_name}'s Seals")

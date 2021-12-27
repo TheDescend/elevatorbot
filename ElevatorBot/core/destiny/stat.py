@@ -46,14 +46,12 @@ async def get_stat_and_send(
 ):
     """Gets the stat specified in the context and sends the message"""
 
-    account = DestinyAccount(ctx=ctx, discord_guild=ctx.guild, discord_member=member, client=ctx.bot)
+    account = DestinyAccount(ctx=ctx, discord_guild=ctx.guild, discord_member=member)
 
     # check if we need a user stat or a char stat
     if destiny_class:
         # get the users characters
         character_ids = await get_character_ids_from_class(profile=account, destiny_class=destiny_class)
-        if not character_ids:
-            return
 
         # get the stats for each character ID
         stat_value = -1
@@ -61,10 +59,6 @@ async def get_stat_and_send(
             result = await account.get_stat_by_characters(
                 character_id=character_id, stat_name=stat_bungie_name, stat_category=scope.value
             )
-
-            # catch errors
-            if not result:
-                return
 
             # handle the stat calc differently depending on what stat it is
             if stat_bungie_name in ["efficiency", "averageKillDistance", "averageLifespan"]:
@@ -93,11 +87,6 @@ async def get_stat_and_send(
     else:
         # get stats for the user
         result = await account.get_stat(stat_name=stat_bungie_name, stat_category=scope.value)
-
-        # catch errors
-        if not result:
-            return
-
         stat_value = result.value
 
     # format and send the stat message

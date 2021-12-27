@@ -61,7 +61,7 @@ class DestinyActivity(BaseScale):
             activity = activities[activity.lower()]
 
         member = user or ctx.author
-        backend_activities = DestinyActivities(ctx=ctx, client=ctx.bot, discord_member=member, discord_guild=ctx.guild)
+        backend_activities = DestinyActivities(ctx=ctx, discord_member=member, discord_guild=ctx.guild)
 
         # get the stats
         stats = await backend_activities.get_activity_stats(
@@ -72,8 +72,6 @@ class DestinyActivity(BaseScale):
                 end_time=end_time,
             )
         )
-        if not stats:
-            return
 
         # make the data pretty
         description = [

@@ -33,9 +33,6 @@ class PopTimeline(BaseScale):
                 # get the data from the DB
                 result = await SteamPlayers(ctx=ctx).get()
 
-                if not result:
-                    return
-
                 # convert to dataframe
                 dict_entries = [entry.dict() for entry in result.entries]
                 data_frame = DataFrame(data=dict_entries)

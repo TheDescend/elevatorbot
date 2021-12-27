@@ -8,7 +8,6 @@ from dis_snek.models.discord_objects.user import Member
 
 from ElevatorBot.backendNetworking.destiny.roles import DestinyRoles
 from ElevatorBot.commandHelpers.autocomplete import activities_by_id
-
 from ElevatorBot.misc.cache import collectible_cache, triumph_cache
 from ElevatorBot.misc.discordShortcutFunctions import (
     assign_roles_to_member,
@@ -22,24 +21,18 @@ from NetworkingSchemas.destiny.roles import RolesCategoryModel
 class Roles:
     """Class to handle achievement Roles"""
 
-    
     guild: Guild
     member: Member
     ctx: Optional[InteractionContext] = None
 
     def __post_init__(self):
-        self.roles = DestinyRoles(
-            ctx=self.ctx, client=self.client, discord_guild=self.guild, discord_member=self.member
-        )
+        self.roles = DestinyRoles(ctx=self.ctx, discord_guild=self.guild, discord_member=self.member)
 
     async def get_requirements(self, role: Role):
         """Get a roles get_requirements and what user has done"""
 
         # get info what get_requirements the user fulfills and which not and info on the role
         result = await self.roles.get_detail(role)
-
-        if not result:
-            return
 
         role_data = result.role.role_data
         user_data = result.user_role_data
@@ -70,7 +63,7 @@ class Roles:
 
         roles: list[str] = []
         for role_id, user_role in zip(role_data.require_collectibles, user_data.require_collectibles):
-            roles.append(f"{(await self.guild.get_role(role_id)).mention}: {user_role}")
+            roles.append(f"{(await self.guild.get_role(role_id.id)).mention}: {user_role}")
 
         # add the embed fields
         if activities:
@@ -88,9 +81,6 @@ class Roles:
         """Get a members missing roles"""
 
         result = await self.roles.get_missing()
-
-        if not result:
-            return
 
         # do the missing roles display
         embed = embed_message(f"{self.member.display_name}'s Roles")
@@ -133,9 +123,6 @@ class Roles:
         """Get and update a members roles"""
 
         result = await self.roles.get()
-
-        if not result:
-            return
 
         roles_at_start = [role.id for role in self.member.roles]
 

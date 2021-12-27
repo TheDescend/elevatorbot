@@ -15,20 +15,16 @@ class Destiny(BaseScale):
             user = ctx.author
 
         # get destiny info
-        destiny_profile = DestinyProfile(ctx=ctx, client=ctx.bot, discord_member=user, discord_guild=ctx.guild)
+        destiny_profile = DestinyProfile(ctx=ctx, discord_member=user, discord_guild=ctx.guild)
         destiny_info = await destiny_profile.from_discord_member()
-        if not destiny_info:
-            return
 
         heatmap_url = (
             f"https://chrisfried.github.io/secret-scrublandeux/guardian/{destiny_info.system}/{destiny_info.destiny_id}"
         )
-        destiny_account = DestinyAccount(ctx=ctx, client=ctx.bot, discord_member=user, discord_guild=ctx.guild)
+        destiny_account = DestinyAccount(ctx=ctx, discord_member=user, discord_guild=ctx.guild)
 
         # get character infos
         characters = await destiny_account.get_character_info()
-        if not characters:
-            return
 
         seconds_played = {}
         power = {}
@@ -42,43 +38,31 @@ class Destiny(BaseScale):
             result = await destiny_account.get_stat_by_characters(
                 stat_name="secondsPlayed", character_id=character.character_id
             )
-            if not result:
-                return
             seconds_played.update({character.character_id: result.value})
 
             result = await destiny_account.get_stat_by_characters(
                 stat_name="highestLightLevel", character_id=character.character_id
             )
-            if not result:
-                return
             power.update({character.character_id: result.value})
 
             result = await destiny_account.get_stat_by_characters(
                 stat_name="activitiesCleared", character_id=character.character_id
             )
-            if not result:
-                return
             activities_cleared.update({character.character_id: result.value})
 
             result = await destiny_account.get_stat_by_characters(
                 stat_name="kills", character_id=character.character_id
             )
-            if not result:
-                return
             kills.update({character.character_id: result.value})
 
             result = await destiny_account.get_stat_by_characters(
                 stat_name="deaths", character_id=character.character_id
             )
-            if not result:
-                return
             deaths.update({character.character_id: result.value})
 
             result = await destiny_account.get_stat_by_characters(
                 stat_name="efficiency", character_id=character.character_id
             )
-            if not result:
-                return
             efficiency.update({character.character_id: result.value})
 
         embed = embed_message(
@@ -104,8 +88,6 @@ class Destiny(BaseScale):
 
         # get triumph data
         triumphs = await destiny_account.get_triumph_score()
-        if not triumphs:
-            return
         embed.add_field(name="Lifetime Triumph Score", value=f"{triumphs.lifetime_score:,}", inline=True)
         embed.add_field(name="Active Triumph Score", value=f"{triumphs.active_score:,}", inline=True)
         embed.add_field(name="Legacy Triumph Score", value=f"{triumphs.legacy_score:,}", inline=True)
@@ -114,18 +96,12 @@ class Destiny(BaseScale):
         embed.add_field(name="⁣", value=f"__**Seasonal:**__", inline=False)
 
         artifact = await destiny_account.get_artifact_level()
-        if not artifact:
-            return
         embed.add_field(name="Artifact Level", value=f"{artifact.value:,}", inline=True)
         season_pass = await destiny_account.get_season_pass_level()
-        if not season_pass:
-            return
         embed.add_field(name="Season Pass Level", value=f"{season_pass.value:,}", inline=True)
 
         # get seal completion rate
         seals = await destiny_account.get_seal_completion()
-        if not seals:
-            return
 
         embed.add_field(
             name="Seals",

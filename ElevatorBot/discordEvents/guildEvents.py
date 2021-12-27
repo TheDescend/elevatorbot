@@ -28,11 +28,7 @@ async def on_channel_delete(event: ChannelDelete):
     data = await persistent_messages.get()
     if data and data.channel_id == event.channel.id:
         # this is the lfg channel. Delete all the data
-        lfg = DestinyLfgSystem(
-            ctx=None, 
-            #client=event.bot, 
-            discord_guild=None
-        )
+        lfg = DestinyLfgSystem(ctx=None, discord_guild=None)
         result = await lfg.delete_all(client=event.bot, guild_id=event.channel.guild.id)
         if not result:
             raise LookupError
@@ -63,8 +59,8 @@ async def on_guild_join(event: GuildJoin):
     guilds_saved = await elevator_guilds.get()
     if guilds_saved.success:
         guild_list = guilds_saved.result["guilds"]
-    #{'guild_id': 223433090817720320, 'join_date': '2021-12-20T22:32:19.965987+00:00'}
-    guild_id_list = [guild["guild_id"] for guild in guild_list] 
+    # {'guild_id': 223433090817720320, 'join_date': '2021-12-20T22:32:19.965987+00:00'}
+    guild_id_list = [guild["guild_id"] for guild in guild_list]
     guild_id = activated_guild.id
     # this gets called on startup. We don't want that
     if not guild_id in guild_id_list:
@@ -88,7 +84,7 @@ async def on_guild_left(event: GuildLeft):
         raise LookupError
 
     # remove all roles
-    roles = DestinyRoles(ctx=None, client=event.bot, discord_member=None, discord_guild=None)
+    roles = DestinyRoles(ctx=None, discord_member=None, discord_guild=None)
     result = await roles.delete_all(guild_id=event.guild_id)
     if not result:
         raise LookupError
@@ -100,11 +96,7 @@ async def on_guild_left(event: GuildLeft):
         raise LookupError
 
     # remove all lfg stuff
-    lfg = DestinyLfgSystem(
-        ctx=None, 
-        #client=event.bot, 
-        discord_guild=None
-    )
+    lfg = DestinyLfgSystem(ctx=None, discord_guild=None)
     result = await lfg.delete_all(client=event.bot, guild_id=event.guild_id)
     if not result:
         raise LookupError
@@ -114,7 +106,7 @@ async def on_role_delete(event: RoleDelete):
     """Triggers when a role gets deleted"""
 
     # remove the role
-    roles = DestinyRoles(ctx=None, client=event.bot, discord_member=None, discord_guild=None)
+    roles = DestinyRoles(ctx=None, discord_member=None, discord_guild=None)
     result = await roles.delete(guild_id=event.guild_id, role_id=event.role_id)
     if not result:
         raise LookupError

@@ -1,7 +1,6 @@
 from dis_snek.models import InteractionContext, Scale, slash_command
 
 from ElevatorBot.backendNetworking.destiny.profile import DestinyProfile
-
 from ElevatorBot.misc.formating import embed_message
 
 
@@ -16,11 +15,8 @@ class UnRegister(Scale):
     ):
         """Unlink your Destiny 2 account from ElevatorBot"""
 
-        destiny_profile = DestinyProfile(ctx=ctx, client=ctx.bot, discord_member=ctx.author, discord_guild=ctx.guild)
-        result = await destiny_profile.delete()
-
-        if not result:
-            return
+        destiny_profile = DestinyProfile(ctx=ctx, discord_member=ctx.author, discord_guild=ctx.guild)
+        await destiny_profile.delete()
 
         await ctx.send(
             ephemeral=True,

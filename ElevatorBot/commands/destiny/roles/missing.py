@@ -16,7 +16,7 @@ class RoleMissing(BaseScale):
     async def _roles_missing(self, ctx: InteractionContext, user: Member = None):
 
         # get the roles missing and send that
-        roles = Roles(ctx=ctx, client=self.client, guild=ctx.guild, member=user or ctx.author)
+        roles = Roles(ctx=ctx, guild=ctx.guild, member=user or ctx.author)
         await roles.get_missing()
 
 

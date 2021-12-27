@@ -33,7 +33,7 @@ class Time(BaseScale):
         mode = int(mode) if mode else None
 
         member = user or ctx.author
-        account = DestinyAccount(ctx=ctx, discord_guild=ctx.guild, discord_member=member, client=ctx.bot)
+        account = DestinyAccount(ctx=ctx, discord_guild=ctx.guild, discord_member=member)
 
         # get the modes
         # default is total and pve/pve, else its total and specified
@@ -47,7 +47,7 @@ class Time(BaseScale):
             ]
         modes_names = {
             mode_scope: " ".join(
-                [part.capitalize().replace("Pve", "PvE").replace("Pvp", "PvP") for part in mode_scope.name.split["_"]]
+                [part.capitalize().replace("Pve", "PvE").replace("Pvp", "PvP") for part in mode_scope.name.split("_")]
             )
             for mode_scope in modes
         }
@@ -84,8 +84,6 @@ class Time(BaseScale):
                 activity_ids=activity_ids,
                 character_class=destiny_class,
             )
-            if not result:
-                return
 
             # save that info
             if not activity_ids:

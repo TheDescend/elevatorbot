@@ -11,6 +11,7 @@ from dis_snek.models import ComponentContext, InteractionContext
 from dis_snek.models.discord_objects.user import Member
 from pydantic import BaseModel
 
+from ElevatorBot.backendNetworking.errors import BackendException
 from ElevatorBot.backendNetworking.results import BackendResult
 
 
@@ -96,12 +97,17 @@ class BaseBackendConnection:
         return True
 
     async def send_error(self, result: BackendResult):
-        """Send the error message"""
+        """
+        Send the error message
+
+        Raises BackendException if there is an error
+        """
 
         if self.ctx:
             if self.ctx.responded:
                 raise RuntimeError("The context was already responded")
             await result.send_error_message(ctx=self.ctx, hidden=self.hidden)
+        raise BackendException(result.error)
 
     async def _backend_request(
         self,
@@ -161,7 +167,7 @@ class BaseBackendConnection:
 
         return BackendResult(result=result, success=success, error=error)
 
-    async def __backend_handle_errors(self, response: aiohttp.ClientResponse) -> Optional[str]:
+    async def __backend_handle_errors(self, response: aiohttp.ClientResponse) -> str:
         """Handles potential errors. Returns None, None if the error should not be returned to the user and str, str if something should be returned to the user"""
 
         if response.status == 409:

@@ -33,9 +33,7 @@ class RegisteredRole(BaseScale):
         persistent_messages = PersistentMessages(ctx=ctx, guild=ctx.guild, message_name="registered_role")
         persistent_messages.hidden = True
 
-        result = await persistent_messages.upsert(channel_id=role.id)
-        if not result:
-            return
+        await persistent_messages.upsert(channel_id=role.id)
 
         # save in cache
         registered_role_cache.guild_to_role.update({ctx.guild.id: role})
@@ -48,9 +46,7 @@ class RegisteredRole(BaseScale):
         for member in ctx.guild.members:
             # check if member is not pending
             if not member.pending:
-                destiny_profile = DestinyProfile(
-                    ctx=ctx, client=ctx.bot, discord_member=member, discord_guild=ctx.guild
-                )
+                destiny_profile = DestinyProfile(ctx=ctx, discord_member=member, discord_guild=ctx.guild)
                 await destiny_profile.assign_registration_role()
 
 

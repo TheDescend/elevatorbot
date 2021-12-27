@@ -227,13 +227,9 @@ class Rank(BaseScale):
 
         # get the linked clan member
         member = user or ctx.author
-        clan = DestinyClan(client=ctx.bot, discord_guild=ctx.guild, ctx=ctx)
+        clan = DestinyClan(discord_guild=ctx.guild, ctx=ctx)
         clan_info = await clan.get_clan()
-        if not clan_info:
-            return
         clan_members = await clan.get_clan_members()
-        if not clan_members:
-            return
 
         # remove the clan members without a discord id
         discord_members: list[Optional[Member]] = [
@@ -244,22 +240,18 @@ class Rank(BaseScale):
         discord_members = [discord_member for discord_member in discord_members if discord_member]
 
         # gather all results
-        try:
-            results = await asyncio.gather(
-                *[
-                    self.handle_member(
-                        ctx=ctx,
-                        discord_member=discord_member,
-                        leaderboard_name=leaderboard_name,
-                        activity=activity,
-                        weapon=weapon,
-                    )
-                    for discord_member in discord_members
-                ]
-            )
-        except RuntimeError:
-            # handle the raised errors
-            return
+        results = await asyncio.gather(
+            *[
+                self.handle_member(
+                    ctx=ctx,
+                    discord_member=discord_member,
+                    leaderboard_name=leaderboard_name,
+                    activity=activity,
+                    weapon=weapon,
+                )
+                for discord_member in discord_members
+            ]
+        )
 
         # sort the results
         sort_by_ascending = results[0].sort_by_ascending
@@ -336,24 +328,16 @@ class Rank(BaseScale):
         result = RankResult(discord_member=discord_member)
 
         # open connections
-        backend_account = DestinyAccount(
-            ctx=ctx, client=ctx.bot, discord_member=discord_member, discord_guild=ctx.guild
-        )
-        backend_activities = DestinyActivities(
-            ctx=ctx, client=ctx.bot, discord_member=discord_member, discord_guild=ctx.guild
-        )
-        backend_weapons = DestinyWeapons(
-            ctx=ctx, client=ctx.bot, discord_member=discord_member, discord_guild=ctx.guild
-        )
-        backend_roles = DestinyRoles(ctx=ctx, client=ctx.bot, discord_member=discord_member, discord_guild=ctx.guild)
+        backend_account = DestinyAccount(ctx=ctx, discord_member=discord_member, discord_guild=ctx.guild)
+        backend_activities = DestinyActivities(ctx=ctx, discord_member=discord_member, discord_guild=ctx.guild)
+        backend_weapons = DestinyWeapons(ctx=ctx, discord_member=discord_member, discord_guild=ctx.guild)
+        backend_roles = DestinyRoles(ctx=ctx, discord_member=discord_member, discord_guild=ctx.guild)
 
         # handle each leaderboard differently
         match leaderboard_name:
             case "discord_roles":
                 # get the stat
                 roles = await backend_roles.get_missing()
-                if not roles:
-                    raise RuntimeError
 
                 # save the stat
                 missing = len(roles.acquirable)
@@ -373,8 +357,6 @@ class Rank(BaseScale):
             case "basic_total_time":
                 # get the stat
                 stat = await backend_account.get_stat("secondsPlayed")
-                if not stat:
-                    raise RuntimeError
 
                 # save the stat
                 result.sort_value = stat.value
@@ -383,12 +365,7 @@ class Rank(BaseScale):
             case "basic_max_power":
                 # get the stat
                 stat = await backend_account.get_max_power()
-                if not stat:
-                    raise RuntimeError
-                # get the stat
                 artifact = await backend_account.get_artifact_level()
-                if not artifact:
-                    raise RuntimeError
 
                 # save the stat
                 result.sort_value = stat.value + artifact.value
@@ -397,8 +374,6 @@ class Rank(BaseScale):
             case "basic_season_pass":
                 # get the stat
                 season_pass = await backend_account.get_season_pass_level()
-                if not season_pass:
-                    raise RuntimeError
 
                 # save the stat
                 result.sort_value = season_pass.value
@@ -407,8 +382,6 @@ class Rank(BaseScale):
             case "basic_kills":
                 # get the stat
                 stat = await backend_account.get_stat("kills")
-                if not stat:
-                    raise RuntimeError
 
                 # save the stat
                 result.sort_value = stat.value
@@ -417,8 +390,6 @@ class Rank(BaseScale):
             case "basic_melee_kills":
                 # get the stat
                 stat = await backend_account.get_stat("weaponKillsMelee")
-                if not stat:
-                    raise RuntimeError
 
                 # save the stat
                 result.sort_value = stat.value
@@ -427,8 +398,6 @@ class Rank(BaseScale):
             case "basic_super_kills":
                 # get the stat
                 stat = await backend_account.get_stat("weaponKillsSuper")
-                if not stat:
-                    raise RuntimeError
 
                 # save the stat
                 result.sort_value = stat.value
@@ -437,8 +406,6 @@ class Rank(BaseScale):
             case "basic_grenade_kills":
                 # get the stat
                 stat = await backend_account.get_stat("weaponKillsGrenade")
-                if not stat:
-                    raise RuntimeError
 
                 # save the stat
                 result.sort_value = stat.value
@@ -447,8 +414,6 @@ class Rank(BaseScale):
             case "basic_deaths":
                 # get the stat
                 stat = await backend_account.get_stat("deaths")
-                if not stat:
-                    raise RuntimeError
 
                 # save the stat
                 result.sort_value = stat.value
@@ -457,8 +422,6 @@ class Rank(BaseScale):
             case "basic_suicides":
                 # get the stat
                 stat = await backend_account.get_stat("suicides")
-                if not stat:
-                    raise RuntimeError
 
                 # save the stat
                 result.sort_value = stat.value
@@ -467,8 +430,6 @@ class Rank(BaseScale):
             case "basic_orbs":
                 # get the stat
                 stat = await backend_account.get_stat("orbsDropped")
-                if not stat:
-                    raise RuntimeError
 
                 # save the stat
                 result.sort_value = stat.value
@@ -477,8 +438,6 @@ class Rank(BaseScale):
             case "basic_triumphs":
                 # get the stat
                 stat = await backend_account.get_triumph_score()
-                if not stat:
-                    raise RuntimeError
 
                 # save the stat
                 result.sort_value = stat.lifetime_score
@@ -487,8 +446,6 @@ class Rank(BaseScale):
             case "basic_active_triumphs":
                 # get the stat
                 stat = await backend_account.get_triumph_score()
-                if not stat:
-                    raise RuntimeError
 
                 # save the stat
                 result.sort_value = stat.active_score
@@ -497,8 +454,6 @@ class Rank(BaseScale):
             case "basic_legacy_triumphs":
                 # get the stat
                 stat = await backend_account.get_triumph_score()
-                if not stat:
-                    raise RuntimeError
 
                 # save the stat
                 result.sort_value = stat.legacy_score
@@ -507,8 +462,6 @@ class Rank(BaseScale):
             case "basic_enhancement_cores":
                 # get the stat
                 stat = await backend_account.get_consumable_amount(consumable_id=3853748946)
-                if not stat:
-                    raise RuntimeError
 
                 # save the stat
                 result.sort_value = stat.value
@@ -517,8 +470,6 @@ class Rank(BaseScale):
             case "basic_vault_space":
                 # get the stat
                 stat = await backend_account.get_vault_space()
-                if not stat:
-                    raise RuntimeError
 
                 # save the stat
                 result.sort_value = stat.value
@@ -529,8 +480,6 @@ class Rank(BaseScale):
             case "basic_bright_dust":
                 # get the stat
                 stat = await backend_account.get_bright_dust()
-                if not stat:
-                    raise RuntimeError
 
                 # save the stat
                 result.sort_value = stat.value
@@ -539,8 +488,6 @@ class Rank(BaseScale):
             case "basic_legendary_shards":
                 # get the stat
                 stat = await backend_account.get_leg_shards()
-                if not stat:
-                    raise RuntimeError
 
                 # save the stat
                 result.sort_value = stat.value
@@ -549,8 +496,6 @@ class Rank(BaseScale):
             case "basic_raid_banners":
                 # get the stat
                 stat = await backend_account.get_consumable_amount(consumable_id=3282419336)
-                if not stat:
-                    raise RuntimeError
 
                 # save the stat
                 result.sort_value = stat.value
@@ -561,16 +506,11 @@ class Rank(BaseScale):
                 stat = await backend_activities.get_activity_stats(
                     input_model=DestinyActivityInputModel(mode=DestinyActivityModeTypeEnum.FORGE.value)
                 )
-                if not stat:
-                    raise RuntimeError
-
                 afk_stats = await backend_activities.get_activity_stats(
                     input_model=DestinyActivityInputModel(
                         mode=DestinyActivityModeTypeEnum.FORGE.value, need_zero_kills=True
                     )
                 )
-                if not afk_stats:
-                    raise RuntimeError
 
                 # save the stat
                 afk_completions = afk_stats.full_completions + afk_stats.cp_completions
@@ -584,8 +524,6 @@ class Rank(BaseScale):
                         mode=DestinyActivityModeTypeEnum.FORGE.value, need_zero_kills=True
                     )
                 )
-                if not stat:
-                    raise RuntimeError
 
                 # save the stat
                 result.sort_value = stat.full_completions + stat.cp_completions
@@ -594,8 +532,6 @@ class Rank(BaseScale):
             case "basic_catalysts":
                 # get the stat
                 stat = await backend_account.get_catalyst_completion()
-                if not stat:
-                    raise RuntimeError
 
                 # save the stat
                 result.sort_value = stat.completed
@@ -606,8 +542,6 @@ class Rank(BaseScale):
                 stat = await backend_activities.get_activity_stats(
                     input_model=DestinyActivityInputModel(mode=UsableDestinyActivityModeTypeEnum.RAID.value)
                 )
-                if not stat:
-                    raise RuntimeError
 
                 # save the stat
                 result.sort_value = stat.full_completions
@@ -618,8 +552,6 @@ class Rank(BaseScale):
                 stat = await backend_activities.get_activity_stats(
                     input_model=DestinyActivityInputModel(mode=UsableDestinyActivityModeTypeEnum.RAID.value)
                 )
-                if not stat:
-                    raise RuntimeError
 
                 # save the stat
                 result.sort_value = stat.time_spend
@@ -629,8 +561,6 @@ class Rank(BaseScale):
                 # get the stat
                 for raid_name, collectible_id in raid_to_emblem_hash.items():
                     collectible = await backend_account.has_collectible(collectible_id=collectible_id)
-                    if collectible is None:
-                        raise RuntimeError
 
                     if collectible:
                         result.sort_value += 1
@@ -645,8 +575,6 @@ class Rank(BaseScale):
                         activity_ids=activities_grandmaster["Grandmaster: All".lower()].activity_ids
                     )
                 )
-                if not stat:
-                    raise RuntimeError
 
                 # save the stat
                 result.sort_value = stat.full_completions
@@ -659,8 +587,6 @@ class Rank(BaseScale):
                         activity_ids=activities_grandmaster["Grandmaster: All".lower()].activity_ids
                     )
                 )
-                if not stat:
-                    raise RuntimeError
 
                 # save the stat
                 result.sort_value = stat.time_spend
@@ -671,8 +597,6 @@ class Rank(BaseScale):
                 stat = await backend_activities.get_activity_stats(
                     input_model=DestinyActivityInputModel(activity_ids=activity.activity_ids)
                 )
-                if not stat:
-                    raise RuntimeError
 
                 # save the stat
                 result.sort_value = stat.full_completions
@@ -683,8 +607,6 @@ class Rank(BaseScale):
                 stat = await backend_activities.get_activity_stats(
                     input_model=DestinyActivityInputModel(activity_ids=activity.activity_ids)
                 )
-                if not stat:
-                    raise RuntimeError
 
                 # save the stat
                 result.sort_value = stat.cp_completions
@@ -695,8 +617,6 @@ class Rank(BaseScale):
                 stat = await backend_activities.get_activity_stats(
                     input_model=DestinyActivityInputModel(activity_ids=activity.activity_ids)
                 )
-                if not stat:
-                    raise RuntimeError
 
                 # save the stat
                 percent = (stat.precision_kills / stat.kills) * 100 if stat.kills else 0
@@ -708,8 +628,6 @@ class Rank(BaseScale):
                 stat = await backend_activities.get_activity_stats(
                     input_model=DestinyActivityInputModel(activity_ids=activity.activity_ids)
                 )
-                if not stat:
-                    raise RuntimeError
 
                 # save the stat
                 result.sort_value = stat.precision_kills
@@ -720,8 +638,6 @@ class Rank(BaseScale):
                 stat = await backend_activities.get_activity_stats(
                     input_model=DestinyActivityInputModel(activity_ids=activity.activity_ids)
                 )
-                if not stat:
-                    raise RuntimeError
 
                 # save the stat
                 percent = (stat.precision_kills / stat.kills) * 100 if stat.kills else 0
@@ -733,8 +649,6 @@ class Rank(BaseScale):
                 stat = await backend_activities.get_activity_stats(
                     input_model=DestinyActivityInputModel(activity_ids=activity.activity_ids)
                 )
-                if not stat:
-                    raise RuntimeError
 
                 # save the stat
                 result.sort_value = stat.kills
@@ -745,8 +659,6 @@ class Rank(BaseScale):
                 stat = await backend_activities.get_activity_stats(
                     input_model=DestinyActivityInputModel(activity_ids=activity.activity_ids)
                 )
-                if not stat:
-                    raise RuntimeError
 
                 # save the stat
                 result.sort_value = stat.assists
@@ -757,8 +669,6 @@ class Rank(BaseScale):
                 stat = await backend_activities.get_activity_stats(
                     input_model=DestinyActivityInputModel(activity_ids=activity.activity_ids)
                 )
-                if not stat:
-                    raise RuntimeError
 
                 # save the stat
                 result.sort_value = stat.time_spend
@@ -769,8 +679,6 @@ class Rank(BaseScale):
                 stat = await backend_activities.get_activity_stats(
                     input_model=DestinyActivityInputModel(activity_ids=activity.activity_ids)
                 )
-                if not stat:
-                    raise RuntimeError
 
                 # save the stat
                 result.sort_value = stat.fastest
@@ -783,8 +691,6 @@ class Rank(BaseScale):
                 stat = await backend_activities.get_activity_stats(
                     input_model=DestinyActivityInputModel(activity_ids=activity.activity_ids)
                 )
-                if not stat:
-                    raise RuntimeError
 
                 # save the stat
                 result.sort_value = stat.average
@@ -797,8 +703,6 @@ class Rank(BaseScale):
                 stat = await backend_weapons.get_weapon(
                     input_data=DestinyWeaponStatsInputModel(weapon_ids=weapon.reference_ids)
                 )
-                if not stat:
-                    raise RuntimeError
 
                 # save the stat
                 percent = (stat.total_precision_kills / stat.total_kills) * 100 if stat.total_kills else 0
@@ -810,8 +714,6 @@ class Rank(BaseScale):
                 stat = await backend_weapons.get_weapon(
                     input_data=DestinyWeaponStatsInputModel(weapon_ids=weapon.reference_ids)
                 )
-                if not stat:
-                    raise RuntimeError
 
                 # save the stat
                 result.sort_value = stat.total_precision_kills
@@ -822,8 +724,6 @@ class Rank(BaseScale):
                 stat = await backend_weapons.get_weapon(
                     input_data=DestinyWeaponStatsInputModel(weapon_ids=weapon.reference_ids)
                 )
-                if not stat:
-                    raise RuntimeError
 
                 # save the stat
                 percent = (stat.total_precision_kills / stat.total_kills) * 100 if stat.total_kills else 0

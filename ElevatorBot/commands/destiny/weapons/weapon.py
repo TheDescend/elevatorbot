@@ -81,7 +81,7 @@ class WeaponsWeapon(BaseScale):
             activity = activities[activity.lower()]
 
         member = user or ctx.author
-        backend_weapons = DestinyWeapons(ctx=ctx, client=ctx.bot, discord_member=member, discord_guild=ctx.guild)
+        backend_weapons = DestinyWeapons(ctx=ctx, discord_member=member, discord_guild=ctx.guild)
 
         # get the stats
         stats = await backend_weapons.get_weapon(

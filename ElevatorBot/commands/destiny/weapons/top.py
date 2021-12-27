@@ -116,7 +116,7 @@ class WeaponsTop(BaseScale):
             activity = activities[activity.lower()]
 
         member = user or ctx.author
-        backend_weapons = DestinyWeapons(ctx=ctx, client=ctx.bot, discord_member=member, discord_guild=ctx.guild)
+        backend_weapons = DestinyWeapons(ctx=ctx, discord_member=member, discord_guild=ctx.guild)
 
         # get the top weapons
         stats = await backend_weapons.get_top(
@@ -133,9 +133,6 @@ class WeaponsTop(BaseScale):
                 end_time=end_time,
             )
         )
-
-        if not stats:
-            return
 
         # format the message
         embed = embed_message(

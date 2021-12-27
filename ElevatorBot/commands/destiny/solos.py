@@ -16,8 +16,6 @@ class Solos(BaseScale):
 
         # get the solo data
         solos = await account.get_solos()
-        if not solos:
-            return
 
         # start building the return embed
         embed = embed_message(f"{user.display_name}'s Destiny Solos")

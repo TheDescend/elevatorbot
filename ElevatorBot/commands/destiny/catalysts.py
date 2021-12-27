@@ -14,10 +14,8 @@ class Catalysts(BaseScale):
     async def _catalysts(self, ctx: InteractionContext, user: Member = None):
         member = user or ctx.author
 
-        account = DestinyAccount(ctx=ctx, client=ctx.bot, discord_member=member, discord_guild=ctx.guild)
+        account = DestinyAccount(ctx=ctx, discord_member=member, discord_guild=ctx.guild)
         catalysts = await account.get_catalyst_completion()
-        if not catalysts:
-            return
 
         embed = embed_message(f"{member.display_name}'s Weapon Catalysts")
 

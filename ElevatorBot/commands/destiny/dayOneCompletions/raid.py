@@ -33,16 +33,14 @@ class DayOneRaid(BaseScale):
             # check the members separately to make this faster
             if player:
                 result = await player.has_collectible(collectible_id=raid_to_emblem_hash[raid])
-                if result is None:
-                    return
 
-                if result.bool:
+                if result:
                     raid_completions.append(player.discord_member.mention)
 
         raid_completions = []
         await asyncio.gather(
             *[
-                check_member(DestinyAccount(ctx=ctx, client=ctx.bot, discord_member=member, discord_guild=ctx.guild))
+                check_member(DestinyAccount(ctx=ctx, discord_member=member, discord_guild=ctx.guild))
                 for member in ctx.guild.members
             ]
         )

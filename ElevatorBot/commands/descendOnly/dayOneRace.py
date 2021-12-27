@@ -20,6 +20,7 @@ from dis_snek.models import (
 from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
 from ElevatorBot.backendNetworking.destiny.activities import DestinyActivities
 from ElevatorBot.backendNetworking.destiny.clan import DestinyClan
+from ElevatorBot.backendNetworking.errors import BackendException
 from ElevatorBot.commandHelpers.responseTemplates import something_went_wrong
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formating import embed_message, format_timedelta
@@ -121,10 +122,9 @@ class DayOneRace(BaseScale):
             self.finished_encounters_blueprint[encounter] = False
 
         # get clan members
-        clan = DestinyClan(client=ctx.bot, discord_guild=ctx.guild, ctx=ctx)
+        clan = DestinyClan(discord_guild=ctx.guild, ctx=ctx)
         self.clan_members = await clan.get_clan_members()
-        if not self.clan_members:
-            return
+
         for member in self.clan_members.members:
             discord_member = await ctx.guild.get_member(member.discord_id) if member.discord_id else None
             if not discord_member:
@@ -154,9 +154,7 @@ class DayOneRace(BaseScale):
                 # gets all online users. Returns list with tuples (name, destinyID)
                 try:
                     clan_members = await clan.get_clan_members()
-                    if not clan_members:
-                        raise RuntimeError
-                except RuntimeError:
+                except BackendException:
                     await asyncio.sleep(120)
                     continue
 
@@ -206,22 +204,21 @@ class DayOneRace(BaseScale):
             for destiny_id, finished_date in self.finished_raid.items():
                 backend_activities = DestinyActivities(
                     ctx=None,
-                    client=ctx.bot,
                     discord_member=self.destiny_id_translation[destiny_id],
                     discord_guild=ctx.guild,
                 )
 
                 # get the stats. Check 15min in the future from the finish date, since you can get the triumph while will being in the activity
-                user_stats = await backend_activities.get_activity_stats(
-                    input_model=DestinyActivityInputModel(
-                        activity_ids=self.activity_hashes,
-                        end_time=finished_date + datetime.timedelta(minutes=15),
+                try:
+                    user_stats = await backend_activities.get_activity_stats(
+                        input_model=DestinyActivityInputModel(
+                            activity_ids=self.activity_hashes,
+                            end_time=finished_date + datetime.timedelta(minutes=15),
+                        )
                     )
-                )
-
-                if completions:
                     completions.append((destiny_id, user_stats))
-                else:
+
+                except BackendException:
                     failed.append(destiny_id)
 
             sorted_completions = sorted(completions, key=lambda completion: completion[1].time_spend, reverse=False)
@@ -258,13 +255,10 @@ class DayOneRace(BaseScale):
         if member.destiny_id not in self.finished_raid:
             account = DestinyAccount(
                 ctx=None,
-                client=self.client,
                 discord_member=self.destiny_id_translation[member.destiny_id],
                 discord_guild=channel.guild,
             )
             completion = await account.has_triumph(triumph_id=self.activity_triumph)
-            if completion is None:
-                raise RuntimeError
 
             # check if triumph is earned
             if completion:
@@ -288,9 +282,6 @@ class DayOneRace(BaseScale):
             if member.destiny_id not in self.finished_raid:
                 for triumph_id in self.alternative_activity_triumphs:
                     completion = await account.has_triumph(triumph_id=triumph_id)
-                    if completion is None:
-                        raise RuntimeError
-
                     if completion:
                         await self.raid_finished(member=member, channel=channel)
 
@@ -298,9 +289,6 @@ class DayOneRace(BaseScale):
             if member.destiny_id not in self.finished_raid:
                 for metric_id in self.activity_metrics:
                     completion = await account.get_metric(metric_id=metric_id)
-                    if completion is None:
-                        raise RuntimeError
-
                     if completion.value > 0:
                         await self.raid_finished(member=member, channel=channel)
 
@@ -308,9 +296,6 @@ class DayOneRace(BaseScale):
             if member.destiny_id not in self.finished_raid:
                 for collectible_id in self.emblem_hashes:
                     completion = await account.has_collectible(collectible_id=collectible_id)
-                    if completion is None:
-                        raise RuntimeError
-
                     if completion:
                         await self.raid_finished(member=member, channel=channel)
 

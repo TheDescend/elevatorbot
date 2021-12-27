@@ -12,7 +12,7 @@ from NetworkingSchemas.destiny.steamPlayers import DestinySteamPlayersCountModel
 class SteamPlayers(BaseBackendConnection):
     discord_member: Member = dataclasses.field(init=False, default=None)
 
-    async def get(self) -> Optional[DestinySteamPlayersCountModel]:
+    async def get(self) -> DestinySteamPlayersCountModel:
         """Return the steam player count"""
 
         result = await self._backend_request(
@@ -21,4 +21,4 @@ class SteamPlayers(BaseBackendConnection):
         )
 
         # convert to correct pydantic model
-        return DestinySteamPlayersCountModel.parse_obj(result.result) if result else None
+        return DestinySteamPlayersCountModel.parse_obj(result.result)

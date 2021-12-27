@@ -20,8 +20,6 @@ class Overview(BaseScale):
     async def _overview(self, ctx: InteractionContext):
         backend = PersistentMessages(ctx=ctx, guild=ctx.guild, message_name=None)
         result = await backend.get_all()
-        if not result:
-            return
 
         # sort them into a handy dictionary to make lookups by key
         handy_dict: dict[str, PersistentMessage] = {}
@@ -31,7 +29,7 @@ class Overview(BaseScale):
         # format the embed
         embed = embed_message(f"{ctx.guild.name}'s Settings")
 
-        clan = DestinyClan(ctx=None, client=ctx.bot, discord_guild=ctx.guild)
+        clan = DestinyClan(ctx=None, discord_guild=ctx.guild)
         clan_info = await clan.get_clan()
         embed.add_field(name="Linked Clan", value=clan_info.name if clan_info else "Not Set-Up", inline=True)
 
