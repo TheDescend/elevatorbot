@@ -15,8 +15,9 @@
 </h1>
 
 ---
-
-[Invite to discord](# todo url) **|** [Visit the Website](https://elevatorbot.ch/) **|** [View the Docs](# todo url)
+<div align="center">
+    <a href="# todo url">Invite to Discord</a> | <a href="https://elevatorbot.ch/">Visit the Website</a> | <a href="# todo url">View the Documentation</a>
+</div>
 
 ---
 
