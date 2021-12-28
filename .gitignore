@@ -16,20 +16,12 @@ venv/
 /Website/node_modules/
 /Database/
 /DatabaseBackups/
+/redis.conf/
 
 # secret setting files
 **/secrets.py
 **/settings.py
 
 # file types
-**/*.sqlite
 **/*.log
 **/**.sock
-
-package-lock.json
-psql_credentials.py
-config.py
-slashCommandConfig.py
-Website/package-lock.json
-Website/build
-pytest.ini
