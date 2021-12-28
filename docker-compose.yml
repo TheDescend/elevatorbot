@@ -1,8 +1,20 @@
 version: "3.9"
 
 services:
+  redis:
+    image: redis:6.2.6
+    command: ["redis-server", "--maxmemory", "1gb", "--maxmemory-policy", "allkeys-lru"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redis.conf:/redis.conf
+    networks:
+      - redis-network
+    restart:
+      always
+
   postgres:
-    image: postgres:13.5-bullseye
+    image: postgres:14.1
     ports:
       - "${POSTGRES_PORT}:${POSTGRES_PORT}"
     volumes:
@@ -57,11 +69,13 @@ services:
     networks:
       - database-network
       - backend-network
+      - redis-network
     restart:
       unless-stopped
     depends_on:
       - postgres
       - postgresbackups
+      - redis
 
   website:
     build:
@@ -105,11 +119,13 @@ services:
       - backend-network
       - elevator-network
       - website-network
+      - redis-network
     restart:
       unless-stopped
     depends_on:
       - backend
       - website
+      - redis
 
 
 networks:
@@ -117,3 +133,4 @@ networks:
   elevator-network:
   website-network:
   database-network:
+  redis-network:

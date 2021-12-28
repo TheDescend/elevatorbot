@@ -1,7 +1,8 @@
-aiohttp-client-cache==0.5.2
 aiohttp[speedups]==3.8.1
 aiohttp_client_cache==0.5.2
-aiosqlite==0.17.0
+
+# aiohttp_client_cache currently requires this version
+aioredis==1.3.1
 apscheduler==3.8.1
 asyncpg==0.25.0
 fastapi==0.70.1
@@ -17,5 +18,5 @@ python-dateutil==2.8.2
 python-jose[cryptography]>=3.3.0
 python-multipart==0.0.5
 requests==2.26.0
-sqlalchemy==1.4.28
+sqlalchemy==1.4.29
 tzdata==2021.5

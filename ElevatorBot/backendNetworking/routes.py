@@ -1,7 +1,6 @@
 import os
 
 base_route = f"""http://{os.environ.get("BACKEND_HOST")}:{os.environ.get("BACKEND_PORT")}/"""
-destiny_base_route = base_route + "destiny/"
 
 
 # ===========================================================================

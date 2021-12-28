@@ -2,9 +2,11 @@ import asyncio
 import dataclasses
 import logging
 import time
+from datetime import timedelta
 from typing import Optional
 
 import aiohttp
+import aiohttp_client_cache
 import orjson
 from aiohttp import ClientSession, ClientTimeout
 from dis_snek.models import ComponentContext, InteractionContext
@@ -45,6 +47,23 @@ class BackendRateLimiter:
 
 
 backend_limiter = BackendRateLimiter()
+backend_cache = aiohttp_client_cache.RedisBackend(
+    cache_name="elevator",
+    address="redis://redis",
+    allowed_methods=["GET", "POST"],
+    expire_after=0,  # only save selected stuff
+    urls_expire_after={
+        "**/destiny/account": timedelta(minutes=30),
+        "**/destiny/activities/**/last": 0,  # never save last activity
+        "**/destiny/activities/**/get/all": 0,  # never activity ids
+        "**/destiny/activities/**/get/grandmaster": 0,  # never grandmaster ids
+        "**/destiny/activities": timedelta(minutes=30),
+        "**/destiny/items/lore/get/all": 0,  # never save lore ids
+        "**/destiny/roles/*/*/get": timedelta(minutes=30),  # user roles
+        "**/destiny/weapons/**/top": timedelta(minutes=60),  # user top weapons
+        "**/destiny/weapons/**/weapon": timedelta(minutes=60),  # user weapon
+    },
+)
 _no_default = object()
 
 
@@ -93,6 +112,14 @@ class BaseBackendConnection:
         repr=False,
     )
 
+    # redis cache
+    cache: aiohttp_client_cache.RedisBackend = dataclasses.field(
+        default=backend_cache,
+        init=False,
+        compare=False,
+        repr=False,
+    )
+
     def __bool__(self):
         """Bool function to test if this exist. Useful for testing if this class got returned and not BackendResult, can be returned on errors"""
 
@@ -132,8 +159,8 @@ class BaseBackendConnection:
         async with asyncio.Lock():
             await self.limiter.wait_for_token()
 
-            async with ClientSession(
-                timeout=self.timeout, json_serialize=lambda x: orjson.dumps(x).decode()
+            async with aiohttp_client_cache.CachedSession(
+                cache=self.cache, timeout=self.timeout, json_serialize=lambda x: orjson.dumps(x).decode()
             ) as session:
                 async with session.request(
                     method=method,
