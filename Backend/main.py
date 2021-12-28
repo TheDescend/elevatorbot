@@ -18,6 +18,15 @@ from Backend.misc.initBackgroundEvents import register_background_events
 from Backend.misc.initLogging import init_logging
 from NetworkingSchemas.misc.auth import BackendUserModel
 
+try:
+    # install uvloop for faster asyncio (docker only)
+    import uvloop
+
+    print("Installing uvloop...")
+    uvloop.install()
+except ModuleNotFoundError:
+    print("Uvloop not installed, skipping")
+
 app = FastAPI()
 
 # init logging

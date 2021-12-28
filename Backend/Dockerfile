@@ -8,6 +8,7 @@ ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH "${PYTHONPATH}:/app"
 
 # install the requirements
+RUN pip3.10 install uvloop
 COPY ./Backend/requirements.txt /app/Backend/requirements.txt
 RUN pip3.10 install -r /app/Backend/requirements.txt
 

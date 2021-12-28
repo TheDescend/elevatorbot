@@ -74,6 +74,15 @@ if __name__ == "__main__":
     print("----------------------------------------------------------------------------------------\n")
     print("Starting Up...")
 
+    try:
+        # install uvloop for faster asyncio (docker only)
+        import uvloop
+
+        print("Installing uvloop...")
+        uvloop.install()
+    except ModuleNotFoundError:
+        print("Uvloop not installed, skipping")
+
     # enable intents to allow certain events--
     # see https://discord.com/developers/docs/topics/gateway#gateway-intents
     intents = Intents.new(
