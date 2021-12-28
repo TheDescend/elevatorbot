@@ -61,7 +61,6 @@ class DescendCache:
 
     booster_count_channel: GuildVoice = dataclasses.field(init=False, default=None)
     member_count_channel: GuildVoice = dataclasses.field(init=False, default=None)
-    lfg_voice_category: GuildCategory = dataclasses.field(init=False, default=None)
 
     async def get_booster_count(self) -> GuildVoice:
         """Get the booster count channel"""
@@ -96,19 +95,6 @@ class DescendCache:
             self.member_count_channel = await descend_channels.guild.get_channel(result.channel_id)
 
         return self.member_count_channel
-
-    async def get_lfg_voice_category(self, descend_guild: Guild) -> GuildCategory:
-        """Get the member count channel"""
-
-        if not self.lfg_voice_category:
-            # populate it
-
-            if not result:
-                raise LookupError("There is no channel set")
-
-            self.lfg_voice_category = await descend_guild.get_channel(result.channel_id)
-
-        return self.lfg_voice_category
 
     async def init_status_message(self):
         """Cache the message where the status updates are"""
