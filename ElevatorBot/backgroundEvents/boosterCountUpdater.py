@@ -1,5 +1,4 @@
 from ElevatorBot.backgroundEvents.base import BaseEvent
-
 from ElevatorBot.misc.cache import descend_cache
 from ElevatorBot.static.descendOnlyIds import descend_channels
 
@@ -14,7 +13,7 @@ class BoosterCountUpdater(BaseEvent):
     async def run(self, client):
         # get the channel if exists and update that message
         try:
-            channel = await descend_cache.get_booster_count(descend_guild=descend_channels.guild)
+            channel = await descend_cache.get_booster_count()
         except LookupError:
             return
 

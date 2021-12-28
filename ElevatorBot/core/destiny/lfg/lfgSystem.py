@@ -479,60 +479,59 @@ class LfgMessage:
         async with asyncio.Lock():
             # get all lfg ids
             result = await self.backend.get_all()
-            if result:
-                events = result.events
+            events = result.events
 
-                # only continue if there is more than one event
-                if len(events) <= 1:
-                    return
+            # only continue if there is more than one event
+            if len(events) <= 1:
+                return
 
-                # get three lists:
-                # a list with the current message objs (sorted by asc creation date)
-                # a list with the creation_time
-                # and a list with the LfgMessage objs
-                sorted_messages_by_creation_time = []
-                sorted_creation_times_by_creation_time = []
-                lfg_messages = []
-                for event in events:
-                    sorted_messages_by_creation_time.append(await self.channel.fetch_message(event.message_id))
-                    sorted_creation_times_by_creation_time.append(event.creation_time)
-                    lfg_messages.append(
-                        LfgMessage(
-                            backend=self.backend,
-                            client=self.client,
-                            id=event.id,
-                            guild=self.guild,
-                            channel=self.channel,
-                            author_id=event.author_id,
-                            activity=event.activity,
-                            description=event.description,
-                            start_time=event.start_time,
-                            max_joined_members=event.max_joined_members,
-                            message=await self.channel.fetch_message(event.message_id),
-                            creation_time=event.creation_time,
-                            joined_ids=event.joined_members,
-                            backup_ids=event.backup_members,
-                            voice_channel=await self.guild.get_channel(event.voice_channel_id)
-                            if event.voice_channel_id
-                            else None,
-                            voice_category_channel=await self.guild.get_channel(event.voice_category_channel_id)
-                            if event.voice_category_channel_id
-                            else None,
-                        )
+            # get three lists:
+            # a list with the current message objs (sorted by asc creation date)
+            # a list with the creation_time
+            # and a list with the LfgMessage objs
+            sorted_messages_by_creation_time = []
+            sorted_creation_times_by_creation_time = []
+            lfg_messages = []
+            for event in events:
+                sorted_messages_by_creation_time.append(await self.channel.fetch_message(event.message_id))
+                sorted_creation_times_by_creation_time.append(event.creation_time)
+                lfg_messages.append(
+                    LfgMessage(
+                        backend=self.backend,
+                        client=self.client,
+                        id=event.id,
+                        guild=self.guild,
+                        channel=self.channel,
+                        author_id=event.author_id,
+                        activity=event.activity,
+                        description=event.description,
+                        start_time=event.start_time,
+                        max_joined_members=event.max_joined_members,
+                        message=await self.channel.fetch_message(event.message_id),
+                        creation_time=event.creation_time,
+                        joined_ids=event.joined_members,
+                        backup_ids=event.backup_members,
+                        voice_channel=await self.guild.get_channel(event.voice_channel_id)
+                        if event.voice_channel_id
+                        else None,
+                        voice_category_channel=await self.guild.get_channel(event.voice_category_channel_id)
+                        if event.voice_category_channel_id
+                        else None,
                     )
+                )
 
-                # sort the LfgMessages by their start_time
-                sorted_lfg_messages = sorted(lfg_messages, reverse=True)
+            # sort the LfgMessages by their start_time
+            sorted_lfg_messages = sorted(lfg_messages, reverse=True)
 
-                # update the messages with their new message obj
-                for message, creation_time, lfg_message in zip(
-                    sorted_messages_by_creation_time,
-                    sorted_creation_times_by_creation_time,
-                    sorted_lfg_messages,
-                ):
-                    lfg_message.message = message
-                    lfg_message.creation_time = creation_time
-                    await lfg_message.send()
+            # update the messages with their new message obj
+            for message, creation_time, lfg_message in zip(
+                sorted_messages_by_creation_time,
+                sorted_creation_times_by_creation_time,
+                sorted_lfg_messages,
+            ):
+                lfg_message.message = message
+                lfg_message.creation_time = creation_time
+                await lfg_message.send()
 
     async def __get_joined_members_display_names(self) -> list[str]:
         """gets the display name of the joined members"""

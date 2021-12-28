@@ -22,6 +22,7 @@ from ElevatorBot.discordEvents.messageEvents import (
     on_message_delete,
     on_message_update,
 )
+from ElevatorBot.discordEvents.voiceEvents import on_voice_state_update
 
 
 def register_discord_events(client):
@@ -49,5 +50,5 @@ def register_discord_events(client):
     client.add_listener(Listener(func=on_thread_update, event="thread_update"))
     client.add_listener(Listener(func=on_thread_delete, event="thread_delete"))
 
-    # # voice events
-    # client.add_listener(Listener(on_voice_state_update, "voice_state_update"))  # todo currently missing
+    # voice events
+    client.add_listener(Listener(func=on_voice_state_update, event="voice_state_update"))

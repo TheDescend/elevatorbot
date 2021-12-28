@@ -2,6 +2,7 @@ import dataclasses
 import datetime
 from typing import Optional
 
+from dis_snek import GuildCategory
 from dis_snek.models import Guild, GuildVoice, Message, Role, ThreadChannel
 
 from ElevatorBot.backendNetworking.destiny.items import DestinyItems
@@ -60,36 +61,54 @@ class DescendCache:
 
     booster_count_channel: GuildVoice = dataclasses.field(init=False, default=None)
     member_count_channel: GuildVoice = dataclasses.field(init=False, default=None)
+    lfg_voice_category: GuildCategory = dataclasses.field(init=False, default=None)
 
-    async def get_booster_count(self, descend_guild: Guild) -> GuildVoice:
+    async def get_booster_count(self) -> GuildVoice:
         """Get the booster count channel"""
 
         if not self.booster_count_channel:
             # populate it
-            persistent_messages = PersistentMessages(ctx=None, guild=descend_guild, message_name="booster_count")
+            persistent_messages = PersistentMessages(
+                ctx=None, guild=descend_channels.guild, message_name="booster_count"
+            )
             result = await persistent_messages.get()
 
             if not result:
                 raise LookupError("There is no channel set")
 
-            self.booster_count_channel = await descend_guild.get_channel(result.channel_id)
+            self.booster_count_channel = await descend_channels.guild.get_channel(result.channel_id)
 
         return self.booster_count_channel
 
-    async def get_member_count(self, descend_guild: Guild) -> GuildVoice:
+    async def get_member_count(self) -> GuildVoice:
         """Get the member count channel"""
 
         if not self.member_count_channel:
             # populate it
-            persistent_messages = PersistentMessages(ctx=None, guild=descend_guild, message_name="member_count")
+            persistent_messages = PersistentMessages(
+                ctx=None, guild=descend_channels.guild, message_name="member_count"
+            )
             result = await persistent_messages.get()
 
             if not result:
                 raise LookupError("There is no channel set")
 
-            self.member_count_channel = await descend_guild.get_channel(result.channel_id)
+            self.member_count_channel = await descend_channels.guild.get_channel(result.channel_id)
 
         return self.member_count_channel
+
+    async def get_lfg_voice_category(self, descend_guild: Guild) -> GuildCategory:
+        """Get the member count channel"""
+
+        if not self.lfg_voice_category:
+            # populate it
+
+            if not result:
+                raise LookupError("There is no channel set")
+
+            self.lfg_voice_category = await descend_guild.get_channel(result.channel_id)
+
+        return self.lfg_voice_category
 
     async def init_status_message(self):
         """Cache the message where the status updates are"""
