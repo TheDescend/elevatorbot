@@ -225,6 +225,8 @@ class DestinyActivityDefinition(Base):
     direct_activity_mode_type = Column(SmallInteger, nullable=False)
     activity_mode_hashes = Column(ARRAY(BigInteger()), nullable=False)
     activity_mode_types = Column(ARRAY(SmallInteger()), nullable=False)
+    matchmade = Column(Boolean, nullable=False)
+    max_players = Column(ARRAY(SmallInteger()), nullable=False)
 
 
 class DestinyActivityModeDefinition(Base):

@@ -195,6 +195,8 @@ async def insert_dummy_data(db: AsyncSession, client: AsyncClient):
     assert data.direct_activity_mode_type == 4
     assert data.activity_mode_hashes == [2043403989]
     assert data.activity_mode_types == [4]
+    assert data.max_players == 3
+    assert data.matchmade is False
 
     data = await destiny_manifest.get(db=db, table=DestinyActivityTypeDefinition, primary_key=2043403989)
     assert data.description == "Form a fireteam of six and brave the strange and powerful realms of our enemies."

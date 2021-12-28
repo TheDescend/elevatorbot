@@ -88,6 +88,8 @@ class CRUDManifest(CRUDBase):
                 DestinyActivityModel(
                     name=activities[0].name,
                     description=activities[0].description,
+                    matchmade=activities[0].matchmade,
+                    max_players=activities[0].max_players,
                     activity_ids=[activity.reference_id for activity in activities],
                     mode=activities[0].direct_activity_mode_type,
                 )
@@ -134,6 +136,8 @@ class CRUDManifest(CRUDBase):
         all_grandmaster = DestinyActivityModel(
             name="Grandmaster: All",
             description="Grandmaster: All",
+            matchmade=False,
+            max_players=3,
             activity_ids=[],
         )
 
@@ -145,6 +149,8 @@ class CRUDManifest(CRUDBase):
                 DestinyActivityModel(
                     name=f"Grandmaster: {activities[0].description}",
                     description=f"Grandmaster: {activities[0].description}",
+                    matchmade=activities[0].matchmade,
+                    max_players=activities[0].max_players,
                     activity_ids=[activity.reference_id for activity in activities],
                     mode=activities[0].direct_activity_mode_type,
                 )
@@ -186,6 +192,8 @@ class CRUDManifest(CRUDBase):
                         data = DestinyActivityModel(
                             name=activity.name,
                             description=activity.description,
+                            matchmade=activity.matchmade,
+                            max_players=activity.max_players,
                             activity_ids=[activity.reference_id],
                             mode=activity.direct_activity_mode_type,
                         )

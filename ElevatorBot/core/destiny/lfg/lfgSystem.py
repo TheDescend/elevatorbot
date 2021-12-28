@@ -216,7 +216,7 @@ class LfgMessage:
         )
 
         # send message in the channel to populate missing entries
-        await lfg_message.send()
+        lfg_message.message = await lfg_message.send()
 
         # respond to the context
         await ctx.send(

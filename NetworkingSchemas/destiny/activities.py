@@ -18,6 +18,8 @@ class DestinyLowManModel(CustomBaseModel):
 class DestinyActivityModel(CustomBaseModel):
     name: str
     description: str
+    matchmade: bool
+    max_players: int
     activity_ids: list[int]
     mode: Optional[int] = None
 

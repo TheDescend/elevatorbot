@@ -1791,7 +1791,7 @@
                 "isMatchmade": false,
                 "minParty": 1,
                 "maxParty": 3,
-                "maxPlayers": 3,
+                "maxPlayers": 6,
                 "requiresGuardianOath": false
             },
             "isPvP": false,

@@ -11,7 +11,6 @@ from ElevatorBot.commandHelpers.autocomplete import (
     weapons,
     weapons_by_id,
 )
-
 from NetworkingSchemas.destiny.activities import DestinyActivityModel
 
 
@@ -55,6 +54,8 @@ async def load_autocomplete_options(client):
             "Raid: All": DestinyActivityModel(
                 name="Raid: All",
                 description="Raid: All",
+                matchmade=False,
+                max_players=6,
                 activity_ids=raids,
                 mode=DestinyActivityModeTypeEnum.RAID.value,
             )
@@ -67,6 +68,8 @@ async def load_autocomplete_options(client):
             "Dungeon: All": DestinyActivityModel(
                 name="Dungeon: All",
                 description="Dungeon: All",
+                matchmade=False,
+                max_players=3,
                 activity_ids=dungeons,
                 mode=DestinyActivityModeTypeEnum.DUNGEON.value,
             )
