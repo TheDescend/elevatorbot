@@ -7,7 +7,6 @@ ENV PATH /app/Website/node_modules/.bin:$PATH
 ENV CHOKIDAR_USEPOLLING true
 
 # copy over the required files
-COPY ./settings.py /app/settings.py
 COPY ./ElevatorBot/docs /app/ElevatorBot/docs
 COPY ./Website /app/Website
 

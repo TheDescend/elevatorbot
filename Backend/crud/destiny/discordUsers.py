@@ -177,7 +177,12 @@ class CRUDDiscordUser(CRUDBase):
                 triumphs_last_updated=datetime_default,
             )
 
-        return BungieTokenOutput(success=True, errror_message=None), user, discord_id, guild_id
+        return (
+            BungieTokenOutput(success=True, errror_message=None, bungie_name=user.bungie_name),
+            user,
+            discord_id,
+            guild_id,
+        )
 
     async def update(self, db: AsyncSession, to_update: DiscordUsers, **update_kwargs):
         """Updates a profile"""

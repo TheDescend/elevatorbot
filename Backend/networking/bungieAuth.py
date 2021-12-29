@@ -11,7 +11,54 @@ from Backend.crud import discord_users
 from Backend.database.models import DiscordUsers
 from Backend.misc.helperFunctions import get_now_with_tz, localize_datetime
 from Backend.networking.base import NetworkBase
+from NetworkingSchemas.misc.auth import BungieRegistrationInput, BungieTokenInput
 from settings import BUNGIE_APPLICATION_CLIENT_ID, BUNGIE_APPLICATION_CLIENT_SECRET
+
+
+@dataclasses.dataclass
+class BungieRegistration(NetworkBase):
+    route = "https://www.bungie.net/platform/app/oauth/token/"
+    headers = {
+        "content-type": "application/x-www-form-urlencoded",
+        "authorization": f"""Basic {b64encode(f"{BUNGIE_APPLICATION_CLIENT_ID}:{BUNGIE_APPLICATION_CLIENT_SECRET}".encode()).decode()}""",
+    }
+
+    bungie_request: bool = True
+
+    async def get_first_token(self, user_input: BungieRegistrationInput) -> BungieTokenInput:
+        """Returns the first token of the user with their authorization code"""
+
+        data = {
+            "grant_type": "authorization_code",
+            "code": user_input.code,
+        }
+
+        # get the token
+        async with aiohttp.ClientSession() as session:
+            current_time = int(time.time())
+
+            response = await self._request(
+                session=session,
+                method="POST",
+                route=self.route,
+                form_data=data,
+                headers=self.headers,
+            )
+
+            # parse the token data and return it
+            return BungieTokenInput(
+                access_token=response.content["access_token"],
+                token_type=response.content["token_type"],
+                expires_in=localize_datetime(
+                    datetime.datetime.fromtimestamp(current_time + int(response.content["expires_in"]))
+                ),
+                refresh_token=response.content["refresh_token"],
+                refresh_expires_in=localize_datetime(
+                    datetime.datetime.fromtimestamp(current_time + int(response.content["refresh_expires_in"]))
+                ),
+                membership_id=response.content["membership_id"],
+                state=user_input.state,
+            )
 
 
 @dataclasses.dataclass
@@ -22,10 +69,7 @@ class BungieAuth(NetworkBase):
     route = "https://www.bungie.net/platform/app/oauth/token/"
     headers = {
         "content-type": "application/x-www-form-urlencoded",
-        "authorization": "Basic "
-        + b64encode(f"{BUNGIE_APPLICATION_CLIENT_ID}:{BUNGIE_APPLICATION_CLIENT_SECRET}".encode("ascii")).decode(
-            "ascii"
-        ),
+        "authorization": f"""Basic {b64encode(f"{BUNGIE_APPLICATION_CLIENT_ID}:{BUNGIE_APPLICATION_CLIENT_SECRET}".encode()).decode()}""",
     }
 
     bungie_request: bool = True

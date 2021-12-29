@@ -19,6 +19,11 @@ class Token(CustomBaseModel):
     token_type: str
 
 
+class BungieRegistrationInput(CustomBaseModel):
+    code: str
+    state: str
+
+
 class BungieTokenInput(CustomBaseModel):
     access_token: str
     token_type: str
@@ -31,4 +36,5 @@ class BungieTokenInput(CustomBaseModel):
 
 class BungieTokenOutput(CustomBaseModel):
     success: bool
+    bungie_name: Optional[str] = None
     error_message: Optional[str] = None

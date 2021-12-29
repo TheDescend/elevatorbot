@@ -11,8 +11,14 @@ from Backend.core.destiny.activities import DestinyActivities
 from Backend.core.security.auth import ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token
 from Backend.crud import discord_users
 from Backend.dependencies import get_db_session
+from Backend.networking.bungieAuth import BungieRegistration
 from Backend.networking.elevatorApi import ElevatorApi
-from NetworkingSchemas.misc.auth import BungieTokenInput, BungieTokenOutput, Token
+from NetworkingSchemas.misc.auth import (
+    BungieRegistrationInput,
+    BungieTokenInput,
+    BungieTokenOutput,
+    Token,
+)
 
 router = APIRouter(
     prefix="/auth",
@@ -21,11 +27,15 @@ router = APIRouter(
 
 
 @router.post("/bungie", response_model=BungieTokenOutput)  # has test
-async def save_bungie_token(bungie_token: BungieTokenInput, db: AsyncSession = Depends(get_db_session)):
+async def save_bungie_token(bungie_input: BungieRegistrationInput, db: AsyncSession = Depends(get_db_session)):
     """Saves a bungie token"""
 
     # since this is a prerequisite for everything really, the test for this is called in insert_dummy_data()
     # it is not tested directly, since we don't want to update the activities in the background
+
+    # get the initial token from the authentication
+    auth = BungieRegistration()
+    bungie_token = await auth.get_first_token(user_input=bungie_input)
 
     # save in db
     result, user, discord_id, guild_id = await crud.discord_users.insert_profile(

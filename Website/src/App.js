@@ -1,4 +1,5 @@
 import {React, useEffect, useState} from "react"
+import { Async  } from "react-async"
 import {
   BrowserRouter as Router,
   Switch,
@@ -26,18 +27,18 @@ function useQuery() {
   return new URLSearchParams(useLocation().search);
 }
 
-export default function App() {
+export default async function App() {
   return (
     <Router>
-        <RouterFunc/>
+        <Async promiseFn={RouterFunc}/>
     </Router>
   );
 }
 
-function RouterFunc(){
+async function RouterFunc(){
   let query = useQuery()
   let auth_url = "https://discord.com/api/oauth2/authorize?response_type=token&client_id=847935658072604712&state=hi&scope=guilds%20identify"
-  let state = "&state=hi" 
+  let state = "&state=hi"
 
   const [guilds, setGuilds] = useState([])
   const [user, setUser] = useState([])
@@ -52,7 +53,7 @@ function RouterFunc(){
         console.log("loaded user")
       }
   }, [])
-  
+
 
 
   const get_global_user = () => user
@@ -72,7 +73,7 @@ function RouterFunc(){
       localStorage.setItem('user', storage_user);
       console.log("wrote user")
     }
-      
+
   }, [user])
 
   useEffect(() => {
@@ -82,7 +83,7 @@ function RouterFunc(){
       localStorage.setItem('guilds', storage_guilds);
       console.log("wrote guilds")
     }
-      
+
   }, [guilds])
 
   const { hash } = useLocation()
@@ -124,15 +125,15 @@ function RouterFunc(){
                           style={{width:"20px"}}
                           src="https://cdn.icon-icons.com/icons2/2248/PNG/512/crown_icon_135729.png"
                           alt="Owner Icon"
-                      />:null} 
+                      />:null}
                       <Link to={"/guilds/" + item.id}>{item.name}</Link>
                       {item.icon? <img
                           style={{width:"20px"}}
                           src={`https://cdn.discordapp.com/icons/${item.id}/${item.icon}.webp?size=128`}
                           alt="Owner Icon"
-                      />:null} 
+                      />:null}
                       {item.permissions}<br/>
-                      Admin:{(item.permissions&8)>0?"Yes":"No"} 
+                      Admin:{(item.permissions&8)>0?"Yes":"No"}
                   </li>
                   ))}
             </li>
@@ -148,15 +149,15 @@ function RouterFunc(){
               <Users />
             </Route>
             <Route path="/discordlogin">
-              <DiscordLogin 
+              <DiscordLogin
                 auth_params={url_params}
                 userfunctions={[get_global_user, set_global_user]}
                 guildfunctions={[get_global_guilds, set_global_guilds]}
               />
             </Route>
             <Route path="/oauth">
-              <Auth 
-                code={query.get("code")} 
+              <Async promiseFn={Auth}
+                code={query.get("code")}
                 state={query.get("state")}
               />
             </Route>
