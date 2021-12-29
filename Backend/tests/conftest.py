@@ -13,9 +13,17 @@ from Backend.main import app
 from Backend.misc.initLogging import init_logging
 
 
+# need to override the event loop to not close
+@pytest.fixture(scope="session")
+def event_loop():
+    loop = asyncio.new_event_loop()
+    yield loop
+    loop.close()
+
+
 # set up some important variables
 @pytest.fixture(scope="session")
-def setup():
+def setup(event_loop):
     # enable test mode
     is_test_mode(set_test_mode=True)
 
@@ -27,22 +35,9 @@ def setup():
     setup_engine(database_url=TESTING_DATABASE_URL)
 
 
-#  need to override the event loop to not close
-@pytest.fixture(scope="session")
-def event_loop(setup):
-    if sys.platform.startswith("win") and sys.version_info[:2] >= (3, 8):
-        # Avoid "RuntimeError: Event loop is closed" on Windows when tearing down tests
-        # https://github.com/encode/httpx/issues/914
-        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-
-    loop = asyncio.new_event_loop()
-    yield loop
-    loop.close()
-
-
 # init the tables
 @pytest.fixture(scope="session")
-async def init_db_tables(event_loop):
+async def init_db_tables(setup):
     await create_tables(engine=setup_engine())
 
 
