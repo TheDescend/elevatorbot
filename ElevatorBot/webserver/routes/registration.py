@@ -1,7 +1,6 @@
 from aiohttp import web
 from dis_snek.models import User
 
-
 from ElevatorBot.misc.cache import registered_role_cache
 from ElevatorBot.misc.formating import embed_message
 from ElevatorBot.static.emojis import custom_emojis

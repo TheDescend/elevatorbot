@@ -1,5 +1,3 @@
-import datetime
-
 import pytest
 from dummyData.insert import mock_request
 from dummyData.static import *
@@ -9,7 +7,6 @@ from pytest_mock import MockerFixture
 
 from Backend.misc.helperFunctions import get_now_with_tz
 from NetworkingSchemas.destiny.weapons import (
-    DestinyTopWeaponModel,
     DestinyTopWeaponsInputModel,
     DestinyTopWeaponsModel,
     DestinyTopWeaponsStatInputModelEnum,

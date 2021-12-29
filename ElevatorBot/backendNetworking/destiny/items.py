@@ -1,5 +1,4 @@
 import dataclasses
-from typing import Optional
 
 from ElevatorBot.backendNetworking.http import BaseBackendConnection
 from ElevatorBot.backendNetworking.routes import (

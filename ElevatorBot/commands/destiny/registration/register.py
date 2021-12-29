@@ -4,7 +4,6 @@ from dis_snek.models import (
     ButtonStyles,
     ComponentContext,
     InteractionContext,
-    Scale,
     slash_command,
 )
 

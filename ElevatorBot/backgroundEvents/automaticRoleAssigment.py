@@ -2,7 +2,6 @@ import asyncio
 
 from ElevatorBot.backgroundEvents.base import BaseEvent
 from ElevatorBot.core.destiny.roles import Roles
- 
 
 
 class AutomaticRoleAssignment(BaseEvent):

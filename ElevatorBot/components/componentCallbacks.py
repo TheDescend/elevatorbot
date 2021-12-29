@@ -1,4 +1,3 @@
-import concurrent.futures
 from copy import copy
 
 from anyio import to_thread

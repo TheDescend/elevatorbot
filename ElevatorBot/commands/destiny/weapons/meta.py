@@ -30,7 +30,6 @@ from ElevatorBot.commandHelpers.optionTemplates import (
     default_time_option,
     default_weapon_type_option,
 )
-from ElevatorBot.commandHelpers.responseTemplates import something_went_wrong
 from ElevatorBot.commandHelpers.subCommandTemplates import weapons_sub_command
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formating import capitalize_string, embed_message

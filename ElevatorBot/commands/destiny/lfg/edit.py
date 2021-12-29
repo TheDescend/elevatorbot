@@ -1,30 +1,14 @@
-import asyncio
-
-from dis_snek.models import (
-    ActionRow,
-    ComponentContext,
-    InteractionContext,
-    Message,
-    OptionTypes,
-    Select,
-    SelectOption,
-    SlashCommandChoice,
-    slash_command,
-    slash_option,
-)
+from dis_snek.models import InteractionContext, slash_command
 
 from ElevatorBot.commandHelpers.optionTemplates import (
     autocomplete_activity_option,
     lfg_event_id,
 )
-from ElevatorBot.commandHelpers.responseTemplates import respond_timeout
 from ElevatorBot.commandHelpers.subCommandTemplates import lfg_sub_command
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.core.destiny.lfg.lfgSystem import LfgMessage
 from ElevatorBot.misc.discordShortcutFunctions import has_admin_permission
 from ElevatorBot.misc.formating import embed_message
-from ElevatorBot.misc.helperFunctions import parse_string_datetime
-from ElevatorBot.static.timezones import timezones_dict
 
 
 # todo switch start time / timezone / description / max member overwrite to modals (show current max members)

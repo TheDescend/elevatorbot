@@ -1,5 +1,3 @@
-from concurrent.futures import ThreadPoolExecutor
-
 from anyio import to_thread
 from dis_snek import ActionRow, Button, ButtonStyles
 from dis_snek.models import InteractionContext, OptionTypes, slash_command, slash_option

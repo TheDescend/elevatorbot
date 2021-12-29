@@ -1,6 +1,5 @@
 from aiohttp import web
 
-
 from ElevatorBot.misc.discordShortcutFunctions import (
     assign_roles_to_member,
     remove_roles_from_member,

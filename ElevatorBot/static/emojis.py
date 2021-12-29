@@ -1,6 +1,5 @@
-from dis_snek.models import CustomEmoji
 from dis_snek.errors import Forbidden
-
+from dis_snek.models import CustomEmoji
 
 
 class __ElevatorEmojis:
@@ -91,7 +90,6 @@ class __ElevatorEmojis:
                 emojis.extend(await guild.get_all_custom_emojis())
             except Forbidden:
                 continue
-
 
         # loop through found emojis
         for emoji in emojis:

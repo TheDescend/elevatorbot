@@ -2,7 +2,6 @@ import dataclasses
 from typing import Optional
 
 from dis_snek.models import Guild, Member
-from orjson import orjson
 
 from DestinyEnums.enums import UsableDestinyActivityModeTypeEnum
 from ElevatorBot.backendNetworking.http import BaseBackendConnection

@@ -1,7 +1,6 @@
 from aiohttp import web
 
 from ElevatorBot.commandHelpers import autocomplete
-
 from ElevatorBot.startup.initAutocompleteOptions import load_autocomplete_options
 
 

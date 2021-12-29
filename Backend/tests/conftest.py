@@ -1,6 +1,5 @@
 import asyncio
 import os
-import sys
 
 import pytest
 from dummyData.insert import insert_dummy_data

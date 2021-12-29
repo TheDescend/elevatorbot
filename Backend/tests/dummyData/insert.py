@@ -1,4 +1,3 @@
-import asyncio
 import datetime
 import json as json_lib
 import os
@@ -37,7 +36,6 @@ from Backend.misc.cache import cache
 from Backend.misc.helperFunctions import get_now_with_tz, localize_datetime
 from Backend.networking.schemas import WebResponse
 from NetworkingSchemas.destiny.roles import (
-    RequirementActivityModel,
     RequirementIntegerModel,
     RoleDataModel,
     RoleModel,

@@ -5,18 +5,14 @@ from Backend.core.destiny.activities import DestinyActivities
 from Backend.core.destiny.profile import DestinyProfile
 from Backend.core.destiny.roles import UserRoles
 from Backend.crud import crud_roles, discord_users
-from Backend.database.models import Roles
 from Backend.dependencies import get_db_session
 from NetworkingSchemas.basic import EmptyResponseModel
 from NetworkingSchemas.destiny.roles import (
     EarnedRoleModel,
     EarnedRolesModel,
     MissingRolesModel,
-    RequirementActivityModel,
-    RoleDataModel,
     RoleModel,
     RolesModel,
-    TimePeriodModel,
 )
 
 router = APIRouter(

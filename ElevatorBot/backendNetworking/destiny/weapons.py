@@ -2,7 +2,6 @@ import dataclasses
 from typing import Optional
 
 from dis_snek.models import Guild, Member
-from orjson import orjson
 
 from ElevatorBot.backendNetworking.http import BaseBackendConnection
 from ElevatorBot.backendNetworking.routes import (

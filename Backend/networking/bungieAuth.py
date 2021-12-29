@@ -1,9 +1,9 @@
 import dataclasses
 import datetime
 import time
+from base64 import b64encode
 
 import aiohttp
-from base64 import b64encode
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.errors import CustomException
@@ -11,7 +11,7 @@ from Backend.crud import discord_users
 from Backend.database.models import DiscordUsers
 from Backend.misc.helperFunctions import get_now_with_tz, localize_datetime
 from Backend.networking.base import NetworkBase
-from settings import BUNGIE_APPLICATION_CLIENT_SECRET, BUNGIE_APPLICATION_CLIENT_ID
+from settings import BUNGIE_APPLICATION_CLIENT_ID, BUNGIE_APPLICATION_CLIENT_SECRET
 
 
 @dataclasses.dataclass
@@ -22,7 +22,10 @@ class BungieAuth(NetworkBase):
     route = "https://www.bungie.net/platform/app/oauth/token/"
     headers = {
         "content-type": "application/x-www-form-urlencoded",
-        "authorization": "Basic " + b64encode(f"{BUNGIE_APPLICATION_CLIENT_ID}:{BUNGIE_APPLICATION_CLIENT_SECRET}".encode("ascii")).decode("ascii"),
+        "authorization": "Basic "
+        + b64encode(f"{BUNGIE_APPLICATION_CLIENT_ID}:{BUNGIE_APPLICATION_CLIENT_SECRET}".encode("ascii")).decode(
+            "ascii"
+        ),
     }
 
     bungie_request: bool = True

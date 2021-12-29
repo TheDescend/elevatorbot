@@ -1,7 +1,6 @@
 from aiohttp import web
 from dis_snek.errors import NotFound
 
-
 from ElevatorBot.misc.formating import embed_message
 
 

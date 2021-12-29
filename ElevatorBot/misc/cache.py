@@ -2,7 +2,6 @@ import dataclasses
 import datetime
 from typing import Optional
 
-from dis_snek import GuildCategory
 from dis_snek.models import Guild, GuildVoice, Message, Role, ThreadChannel
 
 from ElevatorBot.backendNetworking.destiny.items import DestinyItems

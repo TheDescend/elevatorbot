@@ -7,8 +7,8 @@ from fastapi import Depends, FastAPI, Request
 
 from Backend.core.destiny.manifest import DestinyManifest
 from Backend.core.errors import CustomException, handle_custom_exception
-from Backend.crud import backend_user, versions
-from Backend.database.base import get_async_session, is_test_mode, setup_engine
+from Backend.crud import backend_user
+from Backend.database.base import get_async_session, setup_engine
 from Backend.database.models import BackendUser, create_tables
 from Backend.dependencies import (
     auth_get_user_with_read_perm,

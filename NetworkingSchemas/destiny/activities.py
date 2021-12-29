@@ -1,8 +1,6 @@
 import datetime
 from typing import Optional
 
-from pydantic import BaseModel
-
 from NetworkingSchemas.base import CustomBaseModel
 
 

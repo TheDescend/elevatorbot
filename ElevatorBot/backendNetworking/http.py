@@ -8,10 +8,9 @@ from typing import Optional
 import aiohttp
 import aiohttp_client_cache
 import orjson
-from aiohttp import ClientSession, ClientTimeout
+from aiohttp import ClientTimeout
 from dis_snek.models import ComponentContext, InteractionContext
 from dis_snek.models.discord_objects.user import Member
-from pydantic import BaseModel
 
 from ElevatorBot.backendNetworking.errors import BackendException
 from ElevatorBot.backendNetworking.results import BackendResult

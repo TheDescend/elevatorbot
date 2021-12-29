@@ -1,6 +1,5 @@
 from aiohttp import web
 
-
 from ElevatorBot.webserver.routes.manifestUpdate import manifest_update
 from ElevatorBot.webserver.routes.messages import messages
 from ElevatorBot.webserver.routes.registration import registration
