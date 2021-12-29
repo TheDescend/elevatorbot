@@ -159,8 +159,8 @@ class DestinyManifest:
                     direct_activity_mode_type=direct_activity_mode_type,
                     activity_mode_hashes=activity_mode_hashes,
                     activity_mode_types=activity_mode_types,
-                    matchmade=values.get("matchmaking", "isMatchmade"),
-                    max_players=values.get("matchmaking", "maxParty"),
+                    matchmade=values.get("matchmaking", "isMatchmade") or False,
+                    max_players=values.get("matchmaking", "maxParty") or 0,
                 )
             )
 
