@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.errors import CustomException
 from Backend.crud import discord_users
+from Backend.database.base import is_test_mode
 from Backend.database.models import DiscordUsers
 from Backend.networking.base import NetworkBase
 from Backend.networking.bungieAuth import BungieAuth
@@ -17,7 +18,7 @@ from settings import BUNGIE_APPLICATION_API_KEY
 # low expire time since players don't want to wait an eternity for their stuff to update
 bungie_cache = aiohttp_client_cache.RedisBackend(
     cache_name="backend",
-    address="redis://redis",
+    address="redis://redis" if not is_test_mode() else "redis://localhost",
     allowed_methods=["GET"],
     expire_after=timedelta(minutes=5),
     urls_expire_after={
