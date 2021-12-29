@@ -34,9 +34,11 @@ except ModuleNotFoundError:
 
 app = FastAPI()
 
-# add middleware which logs every request
+
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
+    """Middleware which logs every request"""
+
     # calculate the time needed to handle the request
     start_time = time.time()
     response = await call_next(request)
@@ -54,14 +56,16 @@ async def log_requests(request: Request, call_next):
 
 
 if ENABLE_DEBUG_MODE:
-    # add middleware which does performance testing
+
     @app.middleware("http")
     async def performance_counter(request: Request, call_next):
+        """Middleware which does performance testing"""
+
         # calculate the time needed to handle the request
         start_time = time.perf_counter()
         response = await call_next(request)
         process_time = time.perf_counter() - start_time
-        print(f"`{request.url}` took `{process_time}s`")
+        print(f"Performance Counter: `{request.url}` took `{process_time}s`")
 
         return response
 
