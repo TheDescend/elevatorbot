@@ -21,7 +21,6 @@ FROM nginx:latest
 RUN apt-get update && apt-get upgrade -y
 
 COPY --from=site_compile /app/Website/build /usr/share/nginx/html
-COPY default.conf /etc/nginx/conf.d/default.conf
+COPY ./Website/default.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
-#CMD ["nginx", "-g", "daemon off;"]
