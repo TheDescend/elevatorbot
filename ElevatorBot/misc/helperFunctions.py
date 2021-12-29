@@ -122,7 +122,7 @@ async def log_error(
         await ctx.send(
             embeds=embed_message(
                 "Error",
-                f"Sorry, something went wrong\nThe Error has been logged and will be worked on",
+                "Sorry, something went wrong\nThe Error has been logged and will be worked on",
                 str(error),
             )
         )

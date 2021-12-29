@@ -71,7 +71,7 @@ class ComponentCallbacks:
 
         # send message to user
         embed = embed_message(
-            f"Role Update",
+            "Role Update",
         )
         if added:
             embed.add_field(name="Roles Added", value="\n".join(added), inline=True)
@@ -90,7 +90,7 @@ class ComponentCallbacks:
         new_component.components[0].label = label
 
         if int(label) == 69420:
-            await ctx.send(ephemeral=True, content=f"Sorry, the game has been won and is over!")
+            await ctx.send(ephemeral=True, content="Sorry, the game has been won and is over!")
         else:
             embed = ctx.message.embeds[0]
             embed.description = f"Last used by {ctx.author.mention} {custom_emojis.zoom}"

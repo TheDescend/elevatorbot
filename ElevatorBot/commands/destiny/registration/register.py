@@ -26,7 +26,7 @@ async def send_registration(ctx: InteractionContext | ComponentContext):
         ActionRow(
             Button(
                 style=ButtonStyles.URL,
-                label=f"Registration Link",
+                label="Registration Link",
                 url=f"""https://www.bungie.net/en/oauth/authorize?client_id={BUNGIE_APPLICATION_CLIENT_ID}&response_type=code&state={f"{ctx.author.id}:{ctx.guild.id}:{ctx.channel.id}"}""",
             ),
         ),
@@ -36,8 +36,8 @@ async def send_registration(ctx: InteractionContext | ComponentContext):
         ephemeral=True,
         components=components,
         embeds=embed_message(
-            f"Registration",
-            f"Use the button below to registration with me",
+            "Registration",
+            "Use the button below to registration with me",
             "Please be aware that I will need a while to process your data after you registration for the first time, so I might react very slowly to your first commands.",
         ),
     )

@@ -1,6 +1,7 @@
 import os
 from typing import Optional
 
+import orjson
 from sqlalchemy.engine import Engine
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.ext.declarative import declarative_base
@@ -25,6 +26,9 @@ def setup_engine(database_url: str = DATABASE_URL) -> Engine:
             database_url,
             future=True,
             echo=bool(ENABLE_DEBUG_MODE and not is_test_mode()),
+            json_deserializer=orjson.loads,
+            json_serializer=orjson.dumps,
+            pool_pre_ping=True,
         )
 
     return _ENGINE

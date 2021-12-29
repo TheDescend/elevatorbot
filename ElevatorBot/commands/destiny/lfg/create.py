@@ -70,7 +70,7 @@ class LfgCreate(BaseScale):
 
         await ctx.send(
             embeds=embed_message(
-                f"Success", f"I have created the post, click [here]({lfg_message.message.jump_url}) to view it"
+                "Success", f"I have created the post, click [here]({lfg_message.message.jump_url}) to view it"
             )
         )
 

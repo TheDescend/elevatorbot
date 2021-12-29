@@ -47,7 +47,7 @@ class UserInfo(BaseScale):
         if destiny_id:
             destiny_id = int(destiny_id)
 
-        title = f"Available Info"
+        title = "Available Info"
         profiles = []
 
         # if destiny info is given

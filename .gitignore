@@ -19,7 +19,7 @@ venv/
 /redis.conf/
 
 # secret setting files
-**/secrets.py
+**/secrets.txt
 **/settings.py
 
 # file types

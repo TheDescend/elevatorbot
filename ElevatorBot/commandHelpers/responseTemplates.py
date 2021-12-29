@@ -133,7 +133,7 @@ async def respond_pending(ctx: InteractionContext | ComponentContext) -> bool:
             ephemeral=True,
             embeds=embed_message(
                 "Error",
-                f"Please pass the member screening aka accept the rules and then try again",
+                "Please pass the member screening aka accept the rules and then try again",
             ),
         )
         return True

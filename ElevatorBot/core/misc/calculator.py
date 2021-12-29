@@ -160,7 +160,7 @@ class Calculator:
                 try:
                     embed.description = f"```{eval(embed.description[3:-3])}```"
                 except Exception:
-                    embed.description = f"```Error: Please Try again```"
+                    embed.description = "```Error: Please Try again```"
 
             # check if user pressed c
             elif "c" in text:

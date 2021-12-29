@@ -595,7 +595,7 @@ class LfgMessage:
         else:
             embed.add_field(
                 name="Start Time",
-                value=f"__As Soon As Full__",
+                value="__As Soon As Full__",
                 inline=True,
             )
         embed.add_field(

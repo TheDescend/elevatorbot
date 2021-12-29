@@ -79,7 +79,7 @@ async def handle_setup_command(
         await ctx.send(
             ephemeral=True,
             embeds=embed_message(
-                f"Success",
+                "Success",
                 success_message,
             ),
         )

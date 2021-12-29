@@ -51,12 +51,7 @@ class DefaultDict:
 def convert_kwargs_into_dict(**kwargs) -> dict:
     """Convert kwargs that are not None into a dict"""
 
-    return {
-        key:value 
-        for key,value
-        in kwargs.items()
-        if value is not None
-    }
+    return {key: value for key, value in kwargs.items() if value is not None}
 
 
 def make_progress_bar_text(percentage: float) -> str:

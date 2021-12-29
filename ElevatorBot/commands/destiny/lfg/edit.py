@@ -1,5 +1,6 @@
 from dis_snek.models import InteractionContext, slash_command
 
+from ElevatorBot.commandHelpers.autocomplete import activities
 from ElevatorBot.commandHelpers.optionTemplates import (
     autocomplete_activity_option,
     lfg_event_id,
@@ -49,7 +50,7 @@ class LfgEdit(BaseScale):
 
         await ctx.send(
             embeds=embed_message(
-                f"Success", f"I have edited the post, click [here]({lfg_message.message.jump_url}) to view it"
+                "Success", f"I have edited the post, click [here]({lfg_message.message.jump_url}) to view it"
             ),
             components=[],
         )

@@ -72,7 +72,7 @@ class Destiny(BaseScale):
         )
 
         # add char info fields
-        embed.add_field(name="⁣", value=f"__**Characters:**__", inline=False)
+        embed.add_field(name="⁣", value="__**Characters:**__", inline=False)
         for character in characters.characters:
             character_id = character.character_id
 
@@ -84,7 +84,7 @@ class Destiny(BaseScale):
             )
 
         # add triumph info field
-        embed.add_field(name="⁣", value=f"__**Triumphs:**__", inline=False)
+        embed.add_field(name="⁣", value="__**Triumphs:**__", inline=False)
 
         # get triumph data
         triumphs = await destiny_account.get_triumph_score()
@@ -93,7 +93,7 @@ class Destiny(BaseScale):
         embed.add_field(name="Legacy Triumph Score", value=f"{triumphs.legacy_score:,}", inline=True)
 
         # add seasonal info field
-        embed.add_field(name="⁣", value=f"__**Seasonal:**__", inline=False)
+        embed.add_field(name="⁣", value="__**Seasonal:**__", inline=False)
 
         artifact = await destiny_account.get_artifact_level()
         embed.add_field(name="Artifact Level", value=f"{artifact.value:,}", inline=True)

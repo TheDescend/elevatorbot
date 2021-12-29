@@ -16,19 +16,19 @@ async def test_elevator(client: AsyncClient, mocker: MockerFixture):
 
     # =====================================================================
     # no guild exists yet
-    r = await client.get(f"/elevator/discord_servers/get/all")
+    r = await client.get("/elevator/discord_servers/get/all")
     assert r.status_code == 200
     data = ElevatorGuildsModel.parse_obj(r.json())
     assert data.guilds == []
 
     # =====================================================================
     # add
-    r = await client.post(f"/elevator/discord_servers/add/{dummy_discord_guild_id}")
+    r = await client.post("/elevator/discord_servers/add/{dummy_discord_guild_id}")
     assert r.status_code == 200
 
     # =====================================================================
     # get
-    r = await client.get(f"/elevator/discord_servers/get/all")
+    r = await client.get("/elevator/discord_servers/get/all")
     assert r.status_code == 200
     data = ElevatorGuildsModel.parse_obj(r.json())
     assert data.guilds != []
@@ -38,12 +38,12 @@ async def test_elevator(client: AsyncClient, mocker: MockerFixture):
 
     # =====================================================================
     # delete
-    r = await client.delete(f"/elevator/discord_servers/delete/{dummy_discord_guild_id}")
+    r = await client.delete("/elevator/discord_servers/delete/{dummy_discord_guild_id}")
     assert r.status_code == 200
 
     # =====================================================================
     # no guild exists again
-    r = await client.get(f"/elevator/discord_servers/get/all")
+    r = await client.get("/elevator/discord_servers/get/all")
     assert r.status_code == 200
     data = ElevatorGuildsModel.parse_obj(r.json())
     assert data.guilds == []

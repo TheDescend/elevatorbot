@@ -51,7 +51,7 @@ class Bug(BaseScale):
             ephemeral=True,
             embeds=embed_message(
                 "Success",
-                f"Your message has been forwarded to my developer\nDepending on the clarity of your bug report, you may or may not be contacted by them",
+                "Your message has been forwarded to my developer\nDepending on the clarity of your bug report, you may or may not be contacted by them",
             ),
             components=components[:1],
         )

@@ -20,7 +20,7 @@ from NetworkingSchemas.destiny.weapons import (
 async def test_get_all(client: AsyncClient, mocker: MockerFixture):
     mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
 
-    r = await client.get(f"/destiny/weapons/get/all")
+    r = await client.get("/destiny/weapons/get/all")
     assert r.status_code == 200
     data = DestinyWeaponsModel.parse_obj(r.json())
     assert data.weapons

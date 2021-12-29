@@ -32,7 +32,7 @@ async def test_destiny_name(client: AsyncClient, mocker: MockerFixture):
     data = NameModel.parse_obj(r.json())
     assert data.name == dummy_bungie_name
 
-    r = await client.get(f"/destiny/account/0/0/name")
+    r = await client.get("/destiny/account/0/0/name")
     assert r.status_code == 409
     assert r.json() == {"error": "DiscordIdNotFound"}
 

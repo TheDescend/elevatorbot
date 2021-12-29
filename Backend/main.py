@@ -56,8 +56,8 @@ async def log_requests(request: Request, call_next):
 # add routers
 for root, dirs, files in os.walk("Backend/endpoints"):
     for file in files:
-        if file.endswith(f".py") and not file.startswith("__init__"):
-            file = file.removesuffix(f".py")
+        if file.endswith(".py") and not file.startswith("__init__"):
+            file = file.removesuffix(".py")
             path = os.path.join(root, file).replace("/", ".").replace("\\", ".")
             resolved_path = importlib.util.resolve_name(path, None)
 

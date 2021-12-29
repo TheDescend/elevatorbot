@@ -32,7 +32,7 @@ async def test_get_triumph_name(client: AsyncClient, mocker: MockerFixture):
 async def test_get_all_lore(client: AsyncClient, mocker: MockerFixture):
     mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
 
-    r = await client.get(f"/destiny/items/lore/get/all")
+    r = await client.get("/destiny/items/lore/get/all")
     assert r.status_code == 200
     data = DestinyAllLoreModel.parse_obj(r.json())
     assert data.items

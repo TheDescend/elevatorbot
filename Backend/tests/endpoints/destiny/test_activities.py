@@ -18,7 +18,7 @@ from NetworkingSchemas.destiny.activities import (
 async def test_get_all(client: AsyncClient, mocker: MockerFixture):
     mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
 
-    r = await client.get(f"/destiny/activities/get/all")
+    r = await client.get("/destiny/activities/get/all")
     assert r.status_code == 200
     data = DestinyActivitiesModel.parse_obj(r.json())
     assert data.activities
@@ -132,7 +132,7 @@ async def test_activity(client: AsyncClient, mocker: MockerFixture):
 async def test_get_grandmaster(client: AsyncClient, mocker: MockerFixture):
     mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
 
-    r = await client.get(f"/destiny/activities/get/grandmaster")
+    r = await client.get("/destiny/activities/get/grandmaster")
     assert r.status_code == 200
     data = DestinyActivitiesModel.parse_obj(r.json())
     assert data.activities

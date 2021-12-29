@@ -29,7 +29,7 @@ async def get_secret_key():
     global _SECRET_KEY
 
     if not _SECRET_KEY:
-        secrets_file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "secrets.py")
+        secrets_file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "secrets.txt")
         if os.path.exists(secrets_file_path):
             async with await open_file(secrets_file_path, "r") as file:
                 secret_key = await file.read()

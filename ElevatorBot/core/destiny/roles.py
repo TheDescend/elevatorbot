@@ -84,7 +84,7 @@ class Roles:
 
         # do the missing roles display
         embed = embed_message(f"{self.member.display_name}'s Roles")
-        embed.add_field(name="⁣", value=f"__**Acquirable Roles:**__", inline=False)
+        embed.add_field(name="⁣", value="__**Acquirable Roles:**__", inline=False)
 
         # only do this if there are roles to get
         if result.acquirable:
@@ -105,7 +105,7 @@ class Roles:
             )
 
         # Do the same for the deprecated roles
-        embed.add_field(name="⁣", value=f"__**Deprecated Roles:**__", inline=False)
+        embed.add_field(name="⁣", value="__**Deprecated Roles:**__", inline=False)
         if result.deprecated:
             # sort by category
             by_category = await self.__sort_by_category(result.deprecated)
@@ -153,7 +153,7 @@ class Roles:
                     # todo link to where you can see all the roles
                     embeds=embed_message(
                         "Info",
-                        f"You don't have any roles. \nUse `/roles overview` to see all available roles and then `/roles get_requirements <role>` to view its get_requirements.",
+                        "You don't have any roles. \nUse `/roles overview` to see all available roles and then `/roles get_requirements <role>` to view its get_requirements.",
                     )
                 )
                 return
@@ -180,9 +180,9 @@ class Roles:
                         new_roles[category].append(discord_role.mention)
 
             # construct reply msg
-            embed = embed_message(f"{self.member.display_name}'s New Roles", f"__Previous Roles:__")
+            embed = embed_message(f"{self.member.display_name}'s New Roles", "__Previous Roles:__")
             if not old_roles:
-                embed.add_field(name=f"You didn't have any roles before", value="⁣", inline=True)
+                embed.add_field(name="You didn't have any roles before", value="⁣", inline=True)
 
             for topic in old_roles:
                 roles = []
@@ -190,7 +190,7 @@ class Roles:
                     roles.append(role_name)
                 embed.add_field(name=topic, value="\n".join(old_roles[topic]), inline=True)
 
-            embed.add_field(name="⁣", value=f"__New Roles:__", inline=False)
+            embed.add_field(name="⁣", value="__New Roles:__", inline=False)
             if not new_roles:
                 embed.add_field(name="No new roles have been achieved", value="⁣", inline=True)
 

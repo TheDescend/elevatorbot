@@ -1,6 +1,6 @@
 import dataclasses
 import inspect
-import time
+import time as py_time
 from typing import Optional
 
 
@@ -10,7 +10,7 @@ class InternalWebResponse:
 
     content: Optional[dict] = None
     status: Optional[int] = None
-    time: int = int(time.time())
+    time: int = int(py_time.time())
     success: bool = False
     error: str = None
     error_code: int = None
