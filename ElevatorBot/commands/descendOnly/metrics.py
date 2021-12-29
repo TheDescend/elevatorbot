@@ -2,6 +2,7 @@ import datetime
 
 import dateutil.parser
 import psutil as psutil
+from anyio import open_file
 from dis_snek.models import (
     InteractionContext,
     Timestamp,
@@ -66,11 +67,11 @@ class Metrics(BaseScale):
         members: dict[str, int] = {}
         used: int = 0
         used_last_week: int = 0
-        with open("/Logs/ElevatorBot/commands.log" "r") as f:
+        async with await open_file("/Logs/ElevatorBot/commands.log" "r") as f:
             cutoff_date_last_week = get_now_with_tz() - datetime.timedelta(days=7)
             cutoff_date_last_week_passed = False
 
-            for line in f.readline():
+            async for line in f.readlines():
                 data = line.split(":")[1].split("-")
 
                 # get command info from the logs

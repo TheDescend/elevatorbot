@@ -2,6 +2,8 @@ import asyncio
 import datetime
 from typing import Optional
 
+from anyio import to_process
+from dis_snek import Embed
 from dis_snek.models import (
     Guild,
     InteractionContext,
@@ -35,6 +37,7 @@ from ElevatorBot.misc.formating import capitalize_string, embed_message
 from ElevatorBot.misc.helperFunctions import parse_datetime_options
 from ElevatorBot.static.emojis import custom_emojis
 from NetworkingSchemas.destiny.activities import DestinyActivityModel
+from NetworkingSchemas.destiny.clan import DestinyClanModel
 from NetworkingSchemas.destiny.weapons import (
     DestinyTopWeaponModel,
     DestinyTopWeaponsInputModel,
@@ -79,7 +82,6 @@ class WeaponsMeta(BaseScale):
     ):
         mode = int(mode) if mode else None
 
-        limit = 8
         stat = DestinyTopWeaponsStatInputModelEnum.KILLS
 
         # parse start and end time
@@ -117,61 +119,19 @@ class WeaponsMeta(BaseScale):
             ]
         )
 
-        # loop through the results and combine the weapon stats
-        to_sort = {}
-        for result in results:
-            for entry in result:
-                slot_name = entry[0]
-                slot_entries: list[DestinyTopWeaponModel] = getattr(result, slot_name)
-
-                if slot_name not in to_sort:
-                    to_sort.update({slot_name: {}})
-
-                for item in slot_entries:
-                    if item.weapon_name not in to_sort[slot_name]:
-                        to_sort[slot_name].update({item.weapon_name: item})
-
-                    # add the stats
-                    else:
-                        to_sort[slot_name][item.weapon_name].stat_value += item.stat_value
-
-        # sort that
-        sorted_slot = {}
-        for slot_name, data in to_sort:
-            sorted_data: list[DestinyTopWeaponModel] = sorted(data, key=lambda weapon: weapon.stat_value, reverse=True)
-
-            sorted_slot.update({slot_name: sorted_data[:limit]})
-
         # format the message
-        embed = embed_message(
-            f"{clan_info.name}'s Weapon Meta",
-            f"Date: {Timestamp.fromdatetime(start_time).format(style=TimestampStyles.ShortDateTime)} - {Timestamp.fromdatetime(end_time).format(style=TimestampStyles.ShortDateTime)}",
+        embed = await to_process.run_sync(
+            meta_subprocess,
+            results,
+            start_time,
+            end_time,
+            clan_info,
+            mode,
+            activity,
+            destiny_class,
+            weapon_type,
+            damage_type,
         )
-        if weapon_type:
-            embed.description += f"\nWeapon Type: {getattr(custom_emojis, DestinyWeaponTypeEnum(weapon_type).name.lower())} {capitalize_string(DestinyWeaponTypeEnum(weapon_type).name)}"
-        if damage_type:
-            embed.description += f"\nDamage Type: {getattr(custom_emojis, UsableDestinyDamageTypeEnum(damage_type).name.lower())} {capitalize_string(UsableDestinyDamageTypeEnum(damage_type).name)}"
-
-        # set the footer
-        footer = []
-        if mode:
-            footer.append(f"Mode: {capitalize_string(UsableDestinyActivityModeTypeEnum(mode).name)}")
-        if activity:
-            footer.append(f"Activity: {activity.name}")
-        if destiny_class:
-            footer.append(f"Class: {getattr(custom_emojis, destiny_class.lower())} {destiny_class}")
-        if footer:
-            embed.set_footer(" | ".join(footer))
-
-        # add the fields to the embed
-        for i, (slot_name, data) in enumerate(sorted_slot.items()):
-            field_text = []
-            for item in data:
-                field_text.append(
-                    f"""{i + 1}) {getattr(custom_emojis, item.weapon_type.lower())}{getattr(custom_emojis, item.weapon_damage_type.lower())}{getattr(custom_emojis, item.weapon_ammo_type.lower())} [{item.weapon_name}](https://www.light.gg/db/items/{item.weapon_ids[0]})\n{custom_emojis.enter} {capitalize_string(stat.name)}: {item.stat_value}"""
-                )
-
-            embed.add_field(name=slot_name, value="\n".join(field_text) or "None", inline=True)
 
         await ctx.send(embeds=embed)
 
@@ -209,3 +169,66 @@ class WeaponsMeta(BaseScale):
 
 def setup(client):
     WeaponsMeta(client)
+
+
+def meta_subprocess(
+    results: list[DestinyTopWeaponsModel],
+    start_time: datetime.datetime,
+    end_time: datetime.datetime,
+    clan_info: DestinyClanModel,
+    mode: Optional[int] = None,
+    activity: Optional[DestinyActivityModel] = None,
+    destiny_class: Optional[str] = None,
+    weapon_type: Optional[int] = None,
+    damage_type: Optional[int] = None,
+) -> Embed:
+    """Run in anyio subprocess on another thread since this might be slow"""
+
+    # loop through the results and combine the weapon stats
+    limit = 8
+    to_sort = {}
+    for result in results:
+        for entry in result:
+            slot_name = entry[0]
+            slot_entries: list[DestinyTopWeaponModel] = getattr(result, slot_name)
+
+            if slot_name not in to_sort:
+                to_sort.update({slot_name: {}})
+
+            for item in slot_entries:
+                if item.weapon_name not in to_sort[slot_name]:
+                    to_sort[slot_name].update({item.weapon_name: item})
+
+                # add the stats
+                else:
+                    to_sort[slot_name][item.weapon_name].stat_value += item.stat_value
+
+    # sort that
+    sorted_slot = {}
+    for slot_name, data in to_sort:
+        sorted_data: list[DestinyTopWeaponModel] = sorted(data, key=lambda weapon: weapon.stat_value, reverse=True)
+
+        sorted_slot.update({slot_name: sorted_data[:limit]})
+
+    # format the message
+    embed = embed_message(
+        f"{clan_info.name}'s Weapon Meta",
+        f"Date: {Timestamp.fromdatetime(start_time).format(style=TimestampStyles.ShortDateTime)} - {Timestamp.fromdatetime(end_time).format(style=TimestampStyles.ShortDateTime)}",
+    )
+    if weapon_type:
+        embed.description += f"\nWeapon Type: {getattr(custom_emojis, DestinyWeaponTypeEnum(weapon_type).name.lower())} {capitalize_string(DestinyWeaponTypeEnum(weapon_type).name)}"
+    if damage_type:
+        embed.description += f"\nDamage Type: {getattr(custom_emojis, UsableDestinyDamageTypeEnum(damage_type).name.lower())} {capitalize_string(UsableDestinyDamageTypeEnum(damage_type).name)}"
+
+    # set the footer
+    footer = []
+    if mode:
+        footer.append(f"Mode: {capitalize_string(UsableDestinyActivityModeTypeEnum(mode).name)}")
+    if activity:
+        footer.append(f"Activity: {activity.name}")
+    if destiny_class:
+        footer.append(f"Class: {getattr(custom_emojis, destiny_class.lower())} {destiny_class}")
+    if footer:
+        embed.set_footer(" | ".join(footer))
+
+    return embed

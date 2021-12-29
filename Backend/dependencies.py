@@ -25,7 +25,7 @@ async def get_db_session() -> AsyncSession:
 async def auth_get_user(token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db_session)) -> BackendUser:
     # verify the token
     try:
-        payload = jwt.decode(token, get_secret_key(), algorithms=[ALGORITHM])
+        payload = jwt.decode(token, await get_secret_key(), algorithms=[ALGORITHM])
         user_name: str = payload.get("sub")
         if user_name is None:
             raise CREDENTIALS_EXCEPTION

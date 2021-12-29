@@ -1,7 +1,9 @@
 import concurrent.futures
 from copy import copy
 
+from anyio import to_thread
 from dis_snek.models import ComponentContext
+from github.GithubObject import NotSet
 
 from ElevatorBot.backendNetworking.destiny.clan import DestinyClan
 from ElevatorBot.backendNetworking.github import get_github_repo
@@ -165,15 +167,12 @@ class ComponentCallbacks:
         """Handles when a component with the custom_id 'github' gets interacted with"""
 
         # close the issue
-        def close_issue():
-            issue_id = int(ctx.message.embeds[0].footer.text.split(":")[1].strip())
-            repo = get_github_repo()
-            issue = repo.get_issue(issue_id)
-            issue.edit(state="closed")
+        issue_id = int(ctx.message.embeds[0].footer.text.split(":")[1].strip())
+        repo = get_github_repo()
 
-        # run those in a thread because it is blocking
-        with concurrent.futures.ThreadPoolExecutor() as pool:
-            await ctx.bot.loop.run_in_executor(executor=pool, func=close_issue)
+        # run those in a thread with anyio since they are blocking
+        issue = await to_thread.run_sync(repo.get_issue, issue_id)
+        await to_thread.run_sync(issue.edit, NotSet, NotSet, NotSet, "closed")
 
         # disable the button
         components = copy(ctx.message.components)

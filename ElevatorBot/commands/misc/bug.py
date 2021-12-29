@@ -1,5 +1,6 @@
 from concurrent.futures import ThreadPoolExecutor
 
+from anyio import to_thread
 from dis_snek import ActionRow, Button, ButtonStyles
 from dis_snek.models import InteractionContext, OptionTypes, slash_command, slash_option
 from github.GithubObject import NotSet
@@ -25,17 +26,15 @@ class Bug(BaseScale):
         # upload that to GitHub
         repo = get_github_repo()
         if repo:
-            # run those in a thread because it is blocking
-            with ThreadPoolExecutor() as pool:
-                issue = await ctx.bot.loop.run_in_executor(
-                    pool,
-                    repo.create_issue,
-                    f"Bug Report by Discord User `{ctx.author.username}#{ctx.author.discriminator}`",
-                    message,
-                    NotSet,
-                    NotSet,
-                    get_github_labels(),
-                )
+            # run those in a thread with anyio since they are blocking
+            issue = await to_thread.run_sync(
+                repo.create_issue,
+                f"Bug Report by Discord User `{ctx.author.username}#{ctx.author.discriminator}`",
+                message,
+                NotSet,
+                NotSet,
+                get_github_labels(),
+            )
 
             components = [
                 ActionRow(

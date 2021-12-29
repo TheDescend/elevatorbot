@@ -1,5 +1,6 @@
 from typing import Optional
 
+from anyio import to_thread
 from github import Github
 from github.GithubObject import NotSet
 from github.Label import Label
@@ -23,7 +24,9 @@ def get_github_repo() -> Optional[Repository]:
     if not _REPO:
         if GITHUB_APPLICATION_API_KEY and GITHUB_REPOSITORY_ID:
             github_api = Github(GITHUB_APPLICATION_API_KEY)
-            _REPO = github_api.get_repo(GITHUB_REPOSITORY_ID)
+
+            # run those in a thread with anyio since they are blocking
+            _REPO = await to_thread.run_sync(github_api.get_repo, GITHUB_REPOSITORY_ID)
 
     return _REPO
 
@@ -38,6 +41,9 @@ def get_github_labels() -> Optional[list[Label]]:
         if repo:
             _LABELS = []
             for label_name in GITHUB_ISSUE_LABEL_NAMES:
-                _LABELS.append(repo.get_label(label_name))
+                # run those in a thread with anyio since they are blocking
+                label = await to_thread.run_sync(repo.get_label, label_name)
+
+                _LABELS.append(label)
 
     return _LABELS

@@ -1,3 +1,8 @@
+import datetime
+from typing import Optional
+
+from anyio import to_process
+from dis_snek import Embed
 from dis_snek.models import (
     InteractionContext,
     Member,
@@ -33,10 +38,13 @@ from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formating import capitalize_string, embed_message
 from ElevatorBot.misc.helperFunctions import parse_datetime_options
 from ElevatorBot.static.emojis import custom_emojis
+from NetworkingSchemas.destiny.activities import DestinyActivityModel
 from NetworkingSchemas.destiny.weapons import (
     DestinyTopWeaponModel,
     DestinyTopWeaponsInputModel,
+    DestinyTopWeaponsModel,
     DestinyTopWeaponsStatInputModelEnum,
+    DestinyWeaponModel,
 )
 
 
@@ -135,51 +143,90 @@ class WeaponsTop(BaseScale):
         )
 
         # format the message
-        embed = embed_message(
-            f"{member.display_name}'s Top Weapons",
-            f"Date: {Timestamp.fromdatetime(start_time).format(style=TimestampStyles.ShortDateTime)} - {Timestamp.fromdatetime(end_time).format(style=TimestampStyles.ShortDateTime)}",
+        embed = await to_process.run_sync(
+            top_subprocess,
+            stats,
+            stat,
+            member,
+            limit,
+            start_time,
+            end_time,
+            weapon,
+            mode,
+            activity,
+            destiny_class,
+            weapon_type,
+            damage_type,
         )
-        if weapon_type:
-            embed.description += f"\nWeapon Type: {getattr(custom_emojis, DestinyWeaponTypeEnum(weapon_type).name.lower())} {capitalize_string(DestinyWeaponTypeEnum(weapon_type).name)}"
-        if damage_type:
-            embed.description += f"\nDamage Type: {getattr(custom_emojis, UsableDestinyDamageTypeEnum(damage_type).name.lower())} {capitalize_string(UsableDestinyDamageTypeEnum(damage_type).name)}"
-
-        # set the footer
-        footer = []
-        if mode:
-            footer.append(f"Mode: {capitalize_string(UsableDestinyActivityModeTypeEnum(mode).name)}")
-        if activity:
-            footer.append(f"Activity: {activity.name}")
-        if destiny_class:
-            footer.append(f"Class: {getattr(custom_emojis, destiny_class.lower())} {destiny_class}")
-        if footer:
-            embed.set_footer(" | ".join(footer))
-
-        # add the fields to the embed
-        for entry in stats:
-            slot_name = entry[0]
-            slot_entries: list[DestinyTopWeaponModel] = getattr(stats, slot_name)
-
-            field_text = []
-            for item in slot_entries:
-                # append the ... if the sought weapon is in here
-                if weapon and len(slot_entries) > limit:
-                    if len(field_text) == limit:
-                        field_text.append("...")
-
-                if weapon and weapon.reference_ids[0] in item.weapon_ids:
-                    field_text.append(
-                        f"""**{item.ranking}) {getattr(custom_emojis, item.weapon_type.lower())}{getattr(custom_emojis, item.weapon_damage_type.lower())}{getattr(custom_emojis, item.weapon_ammo_type.lower())} [{item.weapon_name}](https://www.light.gg/db/items/{item.weapon_ids[0]})\n{custom_emojis.enter} {capitalize_string(stat.name)}: {item.stat_value}**"""
-                    )
-                else:
-                    field_text.append(
-                        f"""{item.ranking}) {getattr(custom_emojis, item.weapon_type.lower())}{getattr(custom_emojis, item.weapon_damage_type.lower())}{getattr(custom_emojis, item.weapon_ammo_type.lower())} [{item.weapon_name}](https://www.light.gg/db/items/{item.weapon_ids[0]})\n{custom_emojis.enter} {capitalize_string(stat.name)}: {item.stat_value}"""
-                    )
-
-            embed.add_field(name=slot_name, value="\n".join(field_text) or "None", inline=True)
 
         await ctx.send(embeds=embed)
 
 
 def setup(client):
     WeaponsTop(client)
+
+
+def top_subprocess(
+    stats: DestinyTopWeaponsModel,
+    stat: DestinyTopWeaponsStatInputModelEnum,
+    member: Member,
+    limit: int,
+    start_time: datetime.datetime,
+    end_time: datetime.datetime,
+    weapon: Optional[DestinyWeaponModel] = None,
+    mode: Optional[int] = None,
+    activity: Optional[DestinyActivityModel] = None,
+    destiny_class: Optional[str] = None,
+    weapon_type: Optional[int] = None,
+    damage_type: Optional[int] = None,
+) -> Embed:
+    """Run in anyio subprocess on another thread since this might be slow"""
+
+    embed = embed_message(
+        f"{member.display_name}'s Top Weapons",
+        f"Date: {Timestamp.fromdatetime(start_time).format(style=TimestampStyles.ShortDateTime)} - {Timestamp.fromdatetime(end_time).format(style=TimestampStyles.ShortDateTime)}",
+    )
+    if weapon_type:
+        embed.description += f"\nWeapon Type: {getattr(custom_emojis, DestinyWeaponTypeEnum(weapon_type).name.lower())} {capitalize_string(DestinyWeaponTypeEnum(weapon_type).name)}"
+    if damage_type:
+        embed.description += f"\nDamage Type: {getattr(custom_emojis, UsableDestinyDamageTypeEnum(damage_type).name.lower())} {capitalize_string(UsableDestinyDamageTypeEnum(damage_type).name)}"
+
+    # set the footer
+    footer = []
+    if mode:
+        footer.append(f"Mode: {capitalize_string(UsableDestinyActivityModeTypeEnum(mode).name)}")
+    if activity:
+        footer.append(f"Activity: {activity.name}")
+    if destiny_class:
+        footer.append(f"Class: {getattr(custom_emojis, destiny_class.lower())} {destiny_class}")
+    if footer:
+        embed.set_footer(" | ".join(footer))
+
+    # add the fields to the embed
+    for entry in stats:
+        slot_name = entry[0]
+        slot_entries: list[DestinyTopWeaponModel] = getattr(stats, slot_name)
+
+        field_text = []
+        for item in slot_entries:
+            # append the ... if the sought weapon is in here
+            if weapon and len(slot_entries) > limit:
+                if len(field_text) == limit:
+                    field_text.append("...")
+
+            if weapon and weapon.reference_ids[0] in item.weapon_ids:
+                field_text.append(
+                    f"""**{item.ranking}) {getattr(custom_emojis, item.weapon_type.lower())}{getattr(custom_emojis, item.weapon_damage_type.lower())}
+                    {getattr(custom_emojis, item.weapon_ammo_type.lower())} [{item.weapon_name}](https://www.light.gg/db/items/{item.weapon_ids[0]})\n
+                    {custom_emojis.enter} {capitalize_string(stat.name)}: {item.stat_value}**"""
+                )
+            else:
+                field_text.append(
+                    f"""{item.ranking}) {getattr(custom_emojis, item.weapon_type.lower())}{getattr(custom_emojis, item.weapon_damage_type.lower())}
+                    {getattr(custom_emojis, item.weapon_ammo_type.lower())} [{item.weapon_name}](https://www.light.gg/db/items/{item.weapon_ids[0]})\n
+                    {custom_emojis.enter} {capitalize_string(stat.name)}: {item.stat_value}"""
+                )
+
+        embed.add_field(name=slot_name, value="\n".join(field_text) or "None", inline=True)
+
+    return embed
