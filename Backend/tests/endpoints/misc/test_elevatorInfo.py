@@ -23,7 +23,7 @@ async def test_elevator(client: AsyncClient, mocker: MockerFixture):
 
     # =====================================================================
     # add
-    r = await client.post("/elevator/discord_servers/add/{dummy_discord_guild_id}")
+    r = await client.post(f"/elevator/discord_servers/add/{dummy_discord_guild_id}")
     assert r.status_code == 200
 
     # =====================================================================
