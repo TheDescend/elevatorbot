@@ -38,7 +38,7 @@ async def test_elevator(client: AsyncClient, mocker: MockerFixture):
 
     # =====================================================================
     # delete
-    r = await client.delete("/elevator/discord_servers/delete/{dummy_discord_guild_id}")
+    r = await client.delete(f"/elevator/discord_servers/delete/{dummy_discord_guild_id}")
     assert r.status_code == 200
 
     # =====================================================================

@@ -17,6 +17,11 @@ from Backend.dependencies import (
 from Backend.misc.initBackgroundEvents import register_background_events
 from Backend.misc.initLogging import init_logging
 from NetworkingSchemas.misc.auth import BackendUserModel
+from settings import ENABLE_DEBUG_MODE
+
+# init logging
+init_logging()
+logger = logging.getLogger("requests")
 
 try:
     # install uvloop for faster asyncio (docker only)
@@ -28,11 +33,6 @@ except ModuleNotFoundError:
     print("Uvloop not installed, skipping")
 
 app = FastAPI()
-
-# init logging
-init_logging()
-logger = logging.getLogger("requests")
-
 
 # add middleware which logs every request
 @app.middleware("http")
@@ -53,6 +53,19 @@ async def log_requests(request: Request, call_next):
     return response
 
 
+if ENABLE_DEBUG_MODE:
+    # add middleware which does performance testing
+    @app.middleware("http")
+    async def performance_counter(request: Request, call_next):
+        # calculate the time needed to handle the request
+        start_time = time.perf_counter()
+        response = await call_next(request)
+        process_time = time.perf_counter() - start_time
+        print(f"`{request.url}` took `{process_time}s`")
+
+        return response
+
+
 # add routers
 for root, dirs, files in os.walk("Backend/endpoints"):
     for file in files:
@@ -65,10 +78,8 @@ for root, dirs, files in os.walk("Backend/endpoints"):
             router = setup = getattr(module, "router")
             app.include_router(router)
 
-
 # add exception handlers
 app.add_exception_handler(CustomException, handle_custom_exception)
-
 
 # only allow people with read permissions
 @app.get("/read_perm", response_model=BackendUserModel)

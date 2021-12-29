@@ -1,6 +1,7 @@
 import asyncio
 import dataclasses
 import logging
+import os
 import time
 from datetime import timedelta
 from typing import Optional
@@ -48,7 +49,7 @@ class BackendRateLimiter:
 backend_limiter = BackendRateLimiter()
 backend_cache = aiohttp_client_cache.RedisBackend(
     cache_name="elevator",
-    address="redis://redis",
+    address=f"""redis://{os.environ.get("REDIS_HOST")}""",
     allowed_methods=["GET", "POST"],
     expire_after=0,  # only save selected stuff
     urls_expire_after={

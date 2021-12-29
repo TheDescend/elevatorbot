@@ -66,6 +66,7 @@ services:
       - BACKEND_PORT
       - ELEVATOR_HOST
       - ELEVATOR_PORT
+      - REDIS_HOST
     networks:
       - database-network
       - backend-network
@@ -115,6 +116,7 @@ services:
       - WEBSITE_PORT
       - ELEVATOR_HOST
       - ELEVATOR_PORT
+      - REDIS_HOST
     networks:
       - backend-network
       - elevator-network
