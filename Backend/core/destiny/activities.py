@@ -5,6 +5,7 @@ import logging
 from collections.abc import AsyncGenerator
 from typing import Optional
 
+from anyio import to_process
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.destiny.profile import DestinyProfile
@@ -65,8 +66,6 @@ class DestinyActivities:
     ) -> DestinyLowManModel:
         """Returns low man data"""
 
-        count, flawless_count, not_flawless_count, fastest = 0, 0, 0, None
-
         # get player data
         low_activity_info = await crud_activities.get_activities(
             db=self.db,
@@ -80,16 +79,10 @@ class DestinyActivities:
             disallow_time_periods=disallowed_datetimes,
         )
 
-        # todo asyncio.thread maybe
         # prepare player data
-        for solo in low_activity_info:
-            count += 1
-            if solo.deaths == 0:
-                flawless_count += 1
-            else:
-                not_flawless_count += 1
-            if not fastest or (solo.time_played_seconds < fastest):
-                fastest = datetime.timedelta(seconds=solo.time_played_seconds)
+        count, flawless_count, not_flawless_count, fastest = await to_process.run_sync(
+            get_lowman_count_subprocess, low_activity_info
+        )
 
         return DestinyLowManModel(
             activity_ids=activity_ids,
@@ -433,61 +426,88 @@ class DestinyActivities:
         )
 
         # get output model
-        result = DestinyActivityOutputModel(
-            full_completions=0,
-            cp_completions=0,
-            kills=0,
-            precision_kills=0,
-            deaths=0,
-            assists=0,
-            time_spend=datetime.timedelta(seconds=0),
-            fastest=None,
-            fastest_instance_id=None,
-            average=datetime.timedelta(seconds=0),
-        )
-
-        # save some stats for each activity. needed because a user can participate with multiple characters in an activity
-        # key: instance_id
-        activities_time_played: dict[int, datetime.timedelta] = {}
-        activities_completed: dict[int, bool] = {}
-
-        # loop through all results
-        for activity_stats in data:
-            result.kills += activity_stats.kills
-            result.precision_kills += activity_stats.precision_kills
-            result.deaths += activity_stats.deaths
-            result.assists += activity_stats.assists
-            result.time_spend += datetime.timedelta(seconds=activity_stats.time_played_seconds)
-
-            # register the activity completion (with all chars)
-            if (activity_stats.activity_instance_id not in activities_completed) or (
-                not activities_completed[activity_stats.activity_instance_id] and activity_stats.completed
-            ):
-                activities_completed.update({activity_stats.activity_instance_id: activity_stats.completed})
-
-            # register the activity duration (once, same for all chars)
-            if activity_stats.activity_instance_id not in activities_time_played:
-                activities_time_played.update(
-                    {
-                        activity_stats.activity_instance_id: datetime.timedelta(
-                            seconds=activity_stats.activity_duration_seconds
-                        )
-                    }
-                )
-
-        # get the completion count
-        result.full_completions = sum(activities_completed.values())
-        result.cp_completions = len(activities_completed) - result.full_completions
-
-        # get the fastest / average time
-        activities_completed_time_played: dict[int, datetime.timedelta] = {}
-        for completed_id, completed in activities_completed.items():
-            if completed:
-                activities_completed_time_played.update({completed_id: activities_time_played[completed_id]})
-        result.fastest_instance_id = min(activities_completed_time_played, key=activities_completed_time_played.get)
-        result.fastest = activities_completed_time_played[result.fastest_instance_id]
-        result.average = sum(activities_completed_time_played.values(), datetime.timedelta(seconds=0)) / len(
-            activities_completed_time_played
-        )
+        result = await to_process.run_sync(get_activity_stats_subprocess, data)
 
         return result
+
+
+def get_lowman_count_subprocess(
+    low_activity_info: list[ActivitiesUsers],
+) -> tuple[int, int, int, Optional[datetime.timedelta]]:
+    """Run in anyio subprocess on another thread since this might be slow"""
+
+    count, flawless_count, not_flawless_count, fastest = 0, 0, 0, None
+
+    for solo in low_activity_info:
+        count += 1
+        if solo.deaths == 0:
+            flawless_count += 1
+        else:
+            not_flawless_count += 1
+        if not fastest or (solo.time_played_seconds < fastest.seconds):
+            fastest = datetime.timedelta(seconds=solo.time_played_seconds)
+
+    return count, flawless_count, not_flawless_count, fastest
+
+
+def get_activity_stats_subprocess(data: list[ActivitiesUsers]) -> DestinyActivityOutputModel:
+    """Run in anyio subprocess on another thread since this might be slow"""
+
+    result = DestinyActivityOutputModel(
+        full_completions=0,
+        cp_completions=0,
+        kills=0,
+        precision_kills=0,
+        deaths=0,
+        assists=0,
+        time_spend=datetime.timedelta(seconds=0),
+        fastest=None,
+        fastest_instance_id=None,
+        average=datetime.timedelta(seconds=0),
+    )
+
+    # save some stats for each activity. needed because a user can participate with multiple characters in an activity
+    # key: instance_id
+    activities_time_played: dict[int, datetime.timedelta] = {}
+    activities_completed: dict[int, bool] = {}
+
+    # loop through all results
+    for activity_stats in data:
+        result.kills += activity_stats.kills
+        result.precision_kills += activity_stats.precision_kills
+        result.deaths += activity_stats.deaths
+        result.assists += activity_stats.assists
+        result.time_spend += datetime.timedelta(seconds=activity_stats.time_played_seconds)
+
+        # register the activity completion (with all chars)
+        if (activity_stats.activity_instance_id not in activities_completed) or (
+            not activities_completed[activity_stats.activity_instance_id] and bool(activity_stats.completed)
+        ):
+            activities_completed.update({activity_stats.activity_instance_id: True})
+
+        # register the activity duration (once, same for all chars)
+        if activity_stats.activity_instance_id not in activities_time_played:
+            activities_time_played.update(
+                {
+                    activity_stats.activity_instance_id: datetime.timedelta(
+                        seconds=activity_stats.activity_duration_seconds
+                    )
+                }
+            )
+
+    # get the completion count
+    result.full_completions = sum(activities_completed.values())
+    result.cp_completions = len(activities_completed) - result.full_completions
+
+    # get the fastest / average time
+    activities_completed_time_played: dict[int, datetime.timedelta] = {}
+    for completed_id, completed in activities_completed.items():
+        if completed:
+            activities_completed_time_played.update({completed_id: activities_time_played[completed_id]})
+    result.fastest_instance_id = min(activities_completed_time_played, key=activities_completed_time_played.get)
+    result.fastest = activities_completed_time_played[result.fastest_instance_id]
+    result.average = sum(activities_completed_time_played.values(), datetime.timedelta(seconds=0)) / len(
+        activities_completed_time_played
+    )
+
+    return result

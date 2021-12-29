@@ -1,13 +1,19 @@
 import dataclasses
 import datetime
-from typing import Optional
+from typing import Any, Optional
 
+from anyio import to_process
+from sqlalchemy.engine import Row
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.errors import CustomException
-from Backend.crud import crud_activities, weapons
+from Backend.crud import crud_activities, crud_weapons
 from Backend.crud.destiny.items import destiny_items
-from Backend.database.models import DiscordUsers
+from Backend.database.models import (
+    ActivitiesUsersWeapons,
+    DestinyInventoryItemDefinition,
+    DiscordUsers,
+)
 from Backend.networking.bungieApi import BungieApi
 from DestinyEnums.enums import (
     DestinyAmmunitionTypeEnum,
@@ -105,7 +111,7 @@ class DestinyWeapons:
         A weapon can have multiple ids, due to sunsetting. That's why the arg is a list
         """
 
-        usages = await weapons.get_usage(
+        usages = await crud_weapons.get_usage(
             db=self.db,
             weapon_ids=weapon_ids,
             destiny_id=self.destiny_id,
@@ -117,30 +123,8 @@ class DestinyWeapons:
             end_time=end_time,
         )
 
-        result = DestinyWeaponStatsModel(
-            total_kills=0,
-            total_precision_kills=0,
-            total_activities=0,
-            best_kills=0,
-            best_kills_activity_name="",
-            best_kills_activity_id=0,
-            best_kills_date=datetime.datetime.min,
-        )
-
-        if not usages:
-            raise CustomException("WeaponUnused")
-
         # loop through all the usages and find what we are looking for
-        for usage in usages:
-            result.total_kills += usage.unique_weapon_kills
-            result.total_precision_kills += usage.unique_weapon_precision_kills
-            result.total_activities += 1
-
-            if usage.unique_weapon_kills > result.best_kills:
-                result.best_kills = usage.unique_weapon_kills
-                result.best_kills_activity_name = str(usage.user.activity.reference_id)
-                result.best_kills_activity_id = usage.user.activity.instance_id
-                result.best_kills_date = usage.user.activity.period
+        result = await to_process.run_sync(get_weapon_stats_subprocess, usages)
 
         # change the reference id of the best activity to the actual name
         result.best_kills_activity_name = await crud_activities.get_activity_name(
@@ -184,7 +168,7 @@ class DestinyWeapons:
         for slot in DestinyWeaponSlotEnum:
             # query the db
 
-            top_weapons = await weapons.get_top(
+            top_weapons = await crud_weapons.get_top(
                 db=self.db,
                 slot=slot,
                 stat=stat,
@@ -199,73 +183,124 @@ class DestinyWeapons:
                 end_time=end_time,
             )
 
-            # sort the weapons. This is needed because some weapons are reissued and have multiple ids
-            to_sort = {}
-            for weapon in top_weapons:
-                # get the stat value
-                stat_value = getattr(weapon, stat.name.lower())
-
-                # insert into the sorting thing
-                if weapon.name not in to_sort:
-                    to_sort.update(
-                        {
-                            weapon.name: DestinyTopWeaponModel(
-                                ranking=0,  # temp value
-                                stat_value=stat_value,
-                                weapon_ids=[weapon.weapon_id],
-                                weapon_name=weapon.name,
-                                weapon_type=" ".join(
-                                    part.capitalize()
-                                    for part in DestinyItemSubTypeEnum(weapon.item_sub_type).name.split("_")
-                                ),
-                                weapon_tier=weapon.tier_type_name,
-                                weapon_damage_type=" ".join(
-                                    part.capitalize()
-                                    for part in DestinyDamageTypeEnum(weapon.default_damage_type).name.split("_")
-                                ),
-                                weapon_ammo_type=" ".join(
-                                    part.capitalize()
-                                    for part in DestinyAmmunitionTypeEnum(weapon.ammo_type).name.split("_")
-                                ),
-                            )
-                        }
-                    )
-
-                # append the id and add the stat
-                else:
-                    to_sort[weapon.name].stat_value += stat_value
-                    to_sort[weapon.name].weapon_ids.append(weapon.weapon_id)
-
-            # sort the items
-            sorted_slot: list[DestinyTopWeaponModel] = sorted(
-                to_sort.values(), key=lambda entry: entry.stat_value, reverse=True
+            sorted_slot = await to_process.run_sync(
+                get_top_weapons_subprocess,
+                top_weapons,
+                stat,
+                sought_weapon,
+                slot,
+                how_many_per_slot,
+                include_weapon_with_ids,
             )
-
-            # set the rankings and the limit and include the sought weapon
-            found = sought_weapon.bucket_type_hash == slot.value if sought_weapon else True
-            final_slot = []
-            for i, item in enumerate(sorted_slot):
-                if i < how_many_per_slot:
-                    item.ranking = i + 1
-                    final_slot.append(item)
-
-                    if sought_weapon and include_weapon_with_ids[0] in item.weapon_ids:
-                        found = True
-
-                elif not found:
-                    if sought_weapon and include_weapon_with_ids[0] in item.weapon_ids:
-                        item.ranking = i + 1
-                        final_slot.append(item)
-                        found = True
-
-                else:
-                    break
-
-            # raise an error since the weapon wasn't found
-            if not found:
-                raise CustomException("WeaponUnused")
 
             # update the result
             setattr(result, slot.name.lower(), sorted_slot)
 
         return result
+
+
+def get_weapon_stats_subprocess(usages: list[ActivitiesUsersWeapons]) -> DestinyWeaponStatsModel:
+    """Run in anyio subprocess on another thread since this might be slow"""
+
+    result = DestinyWeaponStatsModel(
+        total_kills=0,
+        total_precision_kills=0,
+        total_activities=0,
+        best_kills=0,
+        best_kills_activity_name="",
+        best_kills_activity_id=0,
+        best_kills_date=datetime.datetime.min,
+    )
+
+    if not usages:
+        raise CustomException("WeaponUnused")
+
+    for usage in usages:
+        result.total_kills += usage.unique_weapon_kills
+        result.total_precision_kills += usage.unique_weapon_precision_kills
+        result.total_activities += 1
+
+        if usage.unique_weapon_kills > result.best_kills:
+            result.best_kills = usage.unique_weapon_kills
+            result.best_kills_activity_name = str(usage.user.activity.reference_id)
+            result.best_kills_activity_id = usage.user.activity.instance_id
+            result.best_kills_date = usage.user.activity.period
+
+    return result
+
+
+def get_top_weapons_subprocess(
+    top_weapons: list[Row],
+    stat: DestinyTopWeaponsStatInputModelEnum,
+    sought_weapon: Optional[DestinyInventoryItemDefinition],
+    slot: Any,
+    how_many_per_slot: Optional[int],
+    include_weapon_with_ids: Optional[list[int]],
+) -> list[DestinyTopWeaponModel]:
+    """Run in anyio subprocess on another thread since this might be slow"""
+
+    # sort the weapons. This is needed because some weapons are reissued and have multiple ids
+    to_sort = {}
+    for weapon in top_weapons:
+        # get the stat value
+        stat_value = getattr(weapon, stat.name.lower())
+
+        # insert into the sorting thing
+        if weapon.name not in to_sort:
+            to_sort.update(
+                {
+                    weapon.name: DestinyTopWeaponModel(
+                        ranking=0,  # temp value
+                        stat_value=stat_value,
+                        weapon_ids=[weapon.weapon_id],
+                        weapon_name=weapon.name,
+                        weapon_type=" ".join(
+                            part.capitalize() for part in DestinyItemSubTypeEnum(weapon.item_sub_type).name.split("_")
+                        ),
+                        weapon_tier=weapon.tier_type_name,
+                        weapon_damage_type=" ".join(
+                            part.capitalize()
+                            for part in DestinyDamageTypeEnum(weapon.default_damage_type).name.split("_")
+                        ),
+                        weapon_ammo_type=" ".join(
+                            part.capitalize() for part in DestinyAmmunitionTypeEnum(weapon.ammo_type).name.split("_")
+                        ),
+                    )
+                }
+            )
+
+        # append the id and add the stat
+        else:
+            to_sort[weapon.name].stat_value += stat_value
+            to_sort[weapon.name].weapon_ids.append(weapon.weapon_id)
+
+    # sort the items
+    sorted_slot: list[DestinyTopWeaponModel] = sorted(
+        to_sort.values(), key=lambda entry: entry.stat_value, reverse=True
+    )
+
+    # set the rankings and the limit and include the sought weapon
+    found = sought_weapon.bucket_type_hash == slot.value if sought_weapon else True
+    final_slot = []
+    for i, item in enumerate(sorted_slot):
+        if i < how_many_per_slot:
+            item.ranking = i + 1
+            final_slot.append(item)
+
+            if sought_weapon and include_weapon_with_ids[0] in item.weapon_ids:
+                found = True
+
+        elif not found:
+            if sought_weapon and include_weapon_with_ids[0] in item.weapon_ids:
+                item.ranking = i + 1
+                final_slot.append(item)
+                found = True
+
+        else:
+            break
+
+    # raise an error since the weapon wasn't found
+    if not found:
+        raise CustomException("WeaponUnused")
+
+    return sorted_slot

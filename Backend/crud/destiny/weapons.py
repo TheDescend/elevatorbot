@@ -177,4 +177,4 @@ class CRUDWeapons(CRUDBase):
         return query
 
 
-weapons = CRUDWeapons(ActivitiesUsersWeapons)
+crud_weapons = CRUDWeapons(ActivitiesUsersWeapons)

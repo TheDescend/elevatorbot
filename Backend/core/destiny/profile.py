@@ -3,6 +3,7 @@ import dataclasses
 import datetime
 from typing import Optional
 
+from anyio import to_process
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.errors import CustomException
@@ -205,7 +206,7 @@ class DestinyProfile:
     async def get_used_vault_space(self) -> int:
         """Gets the current used vault space of the user"""
 
-        buckets = await self.__get_profile_inventory_bucket(DestinyInventoryBucketEnum.VAULT)
+        buckets = await self.__get_inventory_bucket(DestinyInventoryBucketEnum.VAULT)
 
         return len(buckets[DestinyInventoryBucketEnum.VAULT])
 
@@ -222,7 +223,7 @@ class DestinyProfile:
     async def get_consumable_amount(self, consumable_id: int) -> int:
         """Returns the amount of a consumable this user has"""
 
-        buckets = await self.__get_profile_inventory_bucket(
+        buckets = await self.__get_inventory_bucket(
             DestinyInventoryBucketEnum.VAULT, DestinyInventoryBucketEnum.CONSUMABLES
         )
 
@@ -240,52 +241,7 @@ class DestinyProfile:
         char_data = await self.__get_all_inventory_bucket(include_item_level=True)
 
         # look at each character
-        max_power = 0
-        for character in char_data:
-            helmet = 0
-            gauntlet = 0
-            chest = 0
-            leg = 0
-            class_item = 0
-
-            kinetic = 0
-            energy = 0
-            power = 0
-
-            # todo not all items get loaded
-            for bucket, data in char_data[character].items():
-                # save the items light level
-                for item_id, item_data in data.items():
-                    match bucket:
-                        case DestinyInventoryBucketEnum.HELMET:
-                            if item_data["power_level"] > helmet:
-                                helmet = item_data["power_level"]
-                        case DestinyInventoryBucketEnum.GAUNTLETS:
-                            if item_data["power_level"] > gauntlet:
-                                gauntlet = item_data["power_level"]
-                        case DestinyInventoryBucketEnum.CHEST:
-                            if item_data["power_level"] > chest:
-                                chest = item_data["power_level"]
-                        case DestinyInventoryBucketEnum.LEG:
-                            if item_data["power_level"] > leg:
-                                leg = item_data["power_level"]
-                        case DestinyInventoryBucketEnum.CLASS:
-                            if item_data["power_level"] > class_item:
-                                class_item = item_data["power_level"]
-                        case DestinyInventoryBucketEnum.KINETIC:
-                            if item_data["power_level"] > kinetic:
-                                kinetic = item_data["power_level"]
-                        case DestinyInventoryBucketEnum.ENERGY:
-                            if item_data["power_level"] > energy:
-                                energy = item_data["power_level"]
-                        case DestinyInventoryBucketEnum.POWER:
-                            if item_data["power_level"] > power:
-                                power = item_data["power_level"]
-
-            # get the max power
-            char_max_power = (helmet + gauntlet + chest + leg + class_item + kinetic + energy + power) / 8
-            if char_max_power > max_power:
-                max_power = char_max_power
+        max_power = await to_process.run_sync(get_max_power_subprocess, char_data)
 
         return max_power
 
@@ -604,21 +560,7 @@ class DestinyProfile:
         user_records = await self.get_triumphs()
 
         # now calculate the members completions status
-        for topic in user_sc.topics:
-            for sc in topic.seasonal_challenges:
-                record = user_records[str(sc.record_id)]
-
-                # calculate completion rate
-                rate = []
-                for objective in record["objectives"]:
-                    rate.append(
-                        objective["progress"] / objective["completionValue"] if not objective["complete"] else 1
-                    )
-                percentage = sum(rate) / len(rate)
-
-                # make emoji art for completion rate
-                sc.completion_percentage = percentage
-                sc.completion_status = make_progress_bar_text(percentage)
+        user_sc = await to_process.run_sync(get_seasonal_challenges_subprocess, user_sc, user_records)
 
         return user_sc
 
@@ -676,27 +618,9 @@ class DestinyProfile:
 
         result = await self.__get_profile()
 
-        # get profile triumphs
-        triumphs = result["profileRecords"]["data"]["records"]
-        triumphs.update(
-            {
-                "active_score": result["profileRecords"]["data"]["activeScore"],
-                "legacy_score": result["profileRecords"]["data"]["legacyScore"],
-                "lifetime_score": result["profileRecords"]["data"]["lifetimeScore"],
-            }
-        )
+        # combine profile and character ones
+        self._triumphs = await to_process.run_sync(get_triumphs_subprocess, result)
 
-        # get character triumphs
-        character_triumphs = [
-            character_triumphs["records"]
-            for character_id, character_triumphs in result["characterRecords"]["data"].items()
-        ]
-
-        # combine them
-        for triumph in character_triumphs:
-            triumphs.update(triumph)
-
-        self._triumphs = triumphs
         return self._triumphs
 
     async def get_collectibles(self) -> dict:
@@ -704,24 +628,8 @@ class DestinyProfile:
 
         result = await self.__get_profile()
 
-        # get profile triumphs
-        user_collectibles = result["profileCollectibles"]["data"]["collectibles"]
-
-        # get character triumphs
-        character_collectibles = [
-            character_triumphs["collectibles"]
-            for _, character_triumphs in result["characterCollectibles"]["data"].items()
-        ]
-
-        # combine them
-        for character in character_collectibles:
-            # loop through all the collectibles and only update them if the collectible is earned
-            # see https://bungie-net.github.io/multi/schema_Destiny-DestinyCollectibleState.html#schema_Destiny-DestinyCollectibleState
-            for collectible_hash, collectible_state in character.items():
-                if collectible_state["state"] & 1 == 0:
-                    user_collectibles.update({collectible_hash: collectible_state})
-
-        return user_collectibles
+        # combine profile and character ones
+        return await to_process.run_sync(get_collectibles_subprocess, result)
 
     async def get_metrics(self) -> dict:
         """Populate the metrics and then return them"""
@@ -795,69 +703,8 @@ class DestinyProfile:
 
         result = await self.__get_profile()
 
-        items = {}
-
         # only get the items in the correct buckets
-        if buckets != DestinyInventoryBucketEnum.all():
-            for item in result["profileInventory"]["data"]["items"]:
-                for bucket in buckets:
-                    if item["bucketHash"] == bucket.value:
-                        if bucket not in items:
-                            items.update({bucket: {}})
-                        items[bucket].update({item["itemHash"]: item})
-
-        # get all buckets
-        else:
-            for item in result["profileInventory"]["data"]["items"]:
-                if item["bucketHash"] not in items:
-                    items.update({item["bucketHash"]: {}})
-                items[item["bucketHash"]].update({item["itemHash"]: item})
-
-        return items
-
-    async def __get_profile_inventory_bucket(
-        self, *buckets: DestinyInventoryBucketEnum
-    ) -> dict[DestinyInventoryBucketEnum, dict[int, dict]]:
-        """
-        Get all the items from an inventory bucket. Default: All buckets
-
-        Returns:
-        {
-            DestinyInventoryBucketEnum: {
-                item_hash: dict_data,
-                ...
-            },
-            ...
-        }
-        """
-
-        # default is vault
-        if not buckets:
-            buckets = DestinyInventoryBucketEnum.all()
-
-        result = await self.__get_profile()
-
-        items = {}
-
-        # only get the items in the correct buckets
-        for item in result["profileInventory"]["data"]["items"]:
-            for bucket in buckets:
-                if item["bucketHash"] == bucket.value:
-                    item_hash = int(item["itemHash"])
-                    if bucket not in items:
-                        items.update({bucket: {}})
-                    items[bucket].update({item_hash: item})
-                    try:
-                        items[bucket][item_hash].update(
-                            {
-                                "power_level": result["itemComponents"]["instances"]["data"][str(item_hash)][
-                                    "primaryStat"
-                                ]["value"]
-                            }
-                        )
-                    except KeyError:
-                        pass
-                    break
+        items = await to_process.run_sync(get_inventory_bucket_subprocess, result, buckets)
 
         return items
 
@@ -881,6 +728,7 @@ class DestinyProfile:
         }
         """
 
+        # todo how can one subprocess this
         def add_info(result_dict: dict, item: dict, char_id: int):
             """Func to add the items"""
 
@@ -1017,3 +865,149 @@ class DestinyProfile:
             if item["bucketHash"] == bucket.value:
                 value = item["quantity"]
         return value
+
+
+def get_max_power_subprocess(char_data: dict) -> int:
+    """Run in anyio subprocess on another thread since this might be slow"""
+
+    max_power = 0
+    for character in char_data:
+        helmet = 0
+        gauntlet = 0
+        chest = 0
+        leg = 0
+        class_item = 0
+
+        kinetic = 0
+        energy = 0
+        power = 0
+
+        for bucket, data in char_data[character].items():
+            # save the items light level
+            for item_id, item_data in data.items():
+                match bucket:
+                    case DestinyInventoryBucketEnum.HELMET:
+                        if item_data["power_level"] > helmet:
+                            helmet = item_data["power_level"]
+                    case DestinyInventoryBucketEnum.GAUNTLETS:
+                        if item_data["power_level"] > gauntlet:
+                            gauntlet = item_data["power_level"]
+                    case DestinyInventoryBucketEnum.CHEST:
+                        if item_data["power_level"] > chest:
+                            chest = item_data["power_level"]
+                    case DestinyInventoryBucketEnum.LEG:
+                        if item_data["power_level"] > leg:
+                            leg = item_data["power_level"]
+                    case DestinyInventoryBucketEnum.CLASS:
+                        if item_data["power_level"] > class_item:
+                            class_item = item_data["power_level"]
+                    case DestinyInventoryBucketEnum.KINETIC:
+                        if item_data["power_level"] > kinetic:
+                            kinetic = item_data["power_level"]
+                    case DestinyInventoryBucketEnum.ENERGY:
+                        if item_data["power_level"] > energy:
+                            energy = item_data["power_level"]
+                    case DestinyInventoryBucketEnum.POWER:
+                        if item_data["power_level"] > power:
+                            power = item_data["power_level"]
+
+        # get the max power
+        char_max_power = (helmet + gauntlet + chest + leg + class_item + kinetic + energy + power) / 8
+        if char_max_power > max_power:
+            max_power = char_max_power
+
+    return max_power
+
+
+def get_seasonal_challenges_subprocess(user_sc: SeasonalChallengesModel, user_records: dict) -> SeasonalChallengesModel:
+    """Run in anyio subprocess on another thread since this might be slow"""
+
+    for topic in user_sc.topics:
+        for sc in topic.seasonal_challenges:
+            record = user_records[str(sc.record_id)]
+
+            # calculate completion rate
+            rate = []
+            for objective in record["objectives"]:
+                rate.append(objective["progress"] / objective["completionValue"] if not objective["complete"] else 1)
+            percentage = sum(rate) / len(rate)
+
+            # make emoji art for completion rate
+            sc.completion_percentage = percentage
+            sc.completion_status = make_progress_bar_text(percentage)
+
+    return user_sc
+
+
+def get_triumphs_subprocess(result: dict) -> dict:
+    """Run in anyio subprocess on another thread since this might be slow"""
+
+    # get profile triumphs
+    triumphs = result["profileRecords"]["data"]["records"]
+    triumphs.update(
+        {
+            "active_score": result["profileRecords"]["data"]["activeScore"],
+            "legacy_score": result["profileRecords"]["data"]["legacyScore"],
+            "lifetime_score": result["profileRecords"]["data"]["lifetimeScore"],
+        }
+    )
+
+    # get character triumphs
+    character_triumphs = [
+        character_triumphs["records"] for character_id, character_triumphs in result["characterRecords"]["data"].items()
+    ]
+
+    # combine them
+    for triumph in character_triumphs:
+        triumphs.update(triumph)
+
+    return triumphs
+
+
+def get_collectibles_subprocess(result: dict) -> dict:
+    """Run in anyio subprocess on another thread since this might be slow"""
+
+    # get profile triumphs
+    user_collectibles = result["profileCollectibles"]["data"]["collectibles"]
+
+    # get character triumphs
+    character_collectibles = [
+        character_triumphs["collectibles"] for _, character_triumphs in result["characterCollectibles"]["data"].items()
+    ]
+
+    # combine them
+    for character in character_collectibles:
+        # loop through all the collectibles and only update them if the collectible is earned
+        # see https://bungie-net.github.io/multi/schema_Destiny-DestinyCollectibleState.html#schema_Destiny-DestinyCollectibleState
+        for collectible_hash, collectible_state in character.items():
+            if collectible_state["state"] & 1 == 0:
+                user_collectibles.update({collectible_hash: collectible_state})
+
+    return user_collectibles
+
+
+def get_inventory_bucket_subprocess(result: dict, buckets: list[DestinyInventoryBucketEnum]) -> dict:
+    """Run in anyio subprocess on another thread since this might be slow"""
+
+    items = {}
+
+    for item in result["profileInventory"]["data"]["items"]:
+        for bucket in buckets:
+            if item["bucketHash"] == bucket.value:
+                item_hash = int(item["itemHash"])
+                if bucket not in items:
+                    items.update({bucket: {}})
+                items[bucket].update({item_hash: item})
+                try:
+                    items[bucket][item_hash].update(
+                        {
+                            "power_level": result["itemComponents"]["instances"]["data"][str(item_hash)]["primaryStat"][
+                                "value"
+                            ]
+                        }
+                    )
+                except KeyError:
+                    pass
+                break
+
+    return items
