@@ -27,7 +27,7 @@ def setup_engine(database_url: str = DATABASE_URL) -> Engine:
             future=True,
             echo=bool(ENABLE_DEBUG_MODE and not is_test_mode()),
             json_deserializer=orjson.loads,
-            json_serializer=orjson.dumps,
+            json_serializer=lambda x: orjson.dumps(x).decode(),
             pool_pre_ping=True,
         )
 

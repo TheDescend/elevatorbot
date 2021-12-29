@@ -46,8 +46,6 @@ from NetworkingSchemas.destiny.account import (
     SeasonalChallengesRecordModel,
     SeasonalChallengesTopicsModel,
 )
-
-# todo check usage of ALL functions
 from NetworkingSchemas.destiny.clan import DestinyClanModel
 
 
