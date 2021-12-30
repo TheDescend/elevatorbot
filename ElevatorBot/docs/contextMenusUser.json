@@ -1,5 +1,5 @@
 {
-    "0": [
+    "Available Globally": [
         {
             "name": "Get Join Code",
             "description": "Gets the selected users Destiny 2 join code, like `/join Name#1234`"

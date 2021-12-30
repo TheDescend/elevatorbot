@@ -4,6 +4,9 @@ from typing import Optional
 
 from dis_snek.models import CommandTypes, ContextMenu, SlashCommand, SlashCommandOption
 
+from ElevatorBot.misc.formating import capitalize_string
+from settings import COMMAND_GUILD_SCOPE
+
 
 class NoValidatorOption:
     def __init__(self, obj: SlashCommandOption):
@@ -24,7 +27,19 @@ def create_command_docs(client):
 
     # loop through all commands to get global and guild commands
     for scope, command in client.interactions.items():
+        # only show descend and global scope
+        match scope:
+            case 0:
+                scope = "Available Globally"
+            case _ if scope == COMMAND_GUILD_SCOPE[0]:
+                scope = "Only Available in the Descend Server"
+            case _:
+                continue
+
         for resolved_name, data in command.items():
+            # get the topic
+            topic = f"""{capitalize_string(data.scale.extension_name.split(".")[2])}"""
+
             # get the docstring
             docstring = data.scale.__doc__
             options = copy(data.options) if hasattr(data, "options") and data.options else []
@@ -80,23 +95,27 @@ def create_command_docs(client):
                         # this ignores groups and only splits them into base / sub
                         base_name = resolved_name.split(" ")[0]
 
-                        if scope not in sub_commands:
-                            sub_commands.update({scope: []})
+                        if topic not in sub_commands:
+                            sub_commands.update({topic: {}})
+                        if scope not in sub_commands[topic]:
+                            sub_commands[topic].update({scope: []})
 
                         found = False
-                        for entry in sub_commands[scope]:
+                        for entry in sub_commands[topic][scope]:
                             if entry["base_name"] == base_name:
                                 entry["sub_commands"].append(doc)
                                 found = True
                         if not found:
-                            sub_commands[scope].append(
+                            sub_commands[topic][scope].append(
                                 {"base_name": base_name, "base_description": data.description, "sub_commands": [doc]}
                             )
 
                     else:
-                        if scope not in commands:
-                            commands.update({scope: []})
-                        commands[scope].append(doc)
+                        if topic not in commands:
+                            commands.update({topic: {}})
+                        if scope not in commands[topic]:
+                            commands[topic].update({scope: []})
+                        commands[topic][scope].append(doc)
 
     # write those to files
     with open("./ElevatorBot/docs/commands.json", "w+", encoding="utf-8") as file:

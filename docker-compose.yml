@@ -81,11 +81,12 @@ services:
   website:
     build:
       context: ./
-      dockerfile: ./Website/Dockerfile
+      dockerfile: Website/Dockerfile
     ports:
       - "${WEBSITE_PORT}:80"
     volumes:
-      - ./Logs/Website:/app/Logs/Website
+      - ./Logs/Website:/app/Website/logs
+      - ./ELevatorBot/docs:/app/Website/data/docs
     environment:
       - BACKEND_HOST
       - BACKEND_PORT

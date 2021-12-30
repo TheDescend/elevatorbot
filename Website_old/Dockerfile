@@ -1,16 +1,25 @@
-FROM python:3.9
+FROM node:latest AS site_compile
+RUN apt-get update && apt-get upgrade -y
 
-ENV PYTHONUNBUFFERED=1
-ENV PYTHONPATH "${PYTHONPATH}:/app"
+# add `/app/node_modules/.bin` to $PATH
+ENV PATH /app/Website/node_modules/.bin:$PATH
 
+ENV CHOKIDAR_USEPOLLING true
+
+# copy over the required files
+COPY ./ElevatorBot/docs /app/ElevatorBot/docs
+COPY ./Website /app/Website
+
+# instructions in package.json
 WORKDIR /app/Website
+RUN npm install
+RUN npm run build
 
-COPY requirements.txt .
 
-RUN pip3.9 install -r get_requirements.txt
+FROM nginx:latest
+RUN apt-get update && apt-get upgrade -y
 
-COPY . .
+COPY --from=site_compile /app/Website/build /usr/share/nginx/html
+COPY ./Website/default.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
-
-CMD uwsgi oauth.ini

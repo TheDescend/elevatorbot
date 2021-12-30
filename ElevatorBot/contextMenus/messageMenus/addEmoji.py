@@ -5,6 +5,7 @@ from dis_snek.models import CommandTypes, InteractionContext, context_menu
 
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formating import embed_message
+from settings import COMMAND_GUILD_SCOPE
 
 
 class MessageMenuCommands(BaseScale):
@@ -12,8 +13,8 @@ class MessageMenuCommands(BaseScale):
     Add the selected image to the guild as an emoji
     """
 
-    # todo perms -> descend only
-    @context_menu(name="Add Emoji", context_type=CommandTypes.MESSAGE)
+    # todo perms
+    @context_menu(name="Add Emoji", context_type=CommandTypes.MESSAGE, scopes=COMMAND_GUILD_SCOPE)
     async def add_emoji(self, ctx: InteractionContext):
         message = await ctx.channel.get_message(ctx.target_id)
 

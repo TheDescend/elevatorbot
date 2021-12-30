@@ -167,7 +167,7 @@ class ComponentCallbacks:
 
         # close the issue
         issue_id = int(ctx.message.embeds[0].footer.text.split(":")[1].strip())
-        repo = get_github_repo()
+        repo = await get_github_repo()
 
         # run those in a thread with anyio since they are blocking
         issue = await to_thread.run_sync(repo.get_issue, issue_id)

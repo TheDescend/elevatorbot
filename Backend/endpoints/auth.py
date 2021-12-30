@@ -7,7 +7,10 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend import crud
-from Backend.core.destiny.activities import DestinyActivities
+from Backend.core.destiny.activities import (
+    DestinyActivities,
+    update_activities_in_background,
+)
 from Backend.core.security.auth import ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token
 from Backend.crud import discord_users
 from Backend.dependencies import get_db_session
@@ -43,21 +46,20 @@ async def save_bungie_token(bungie_input: BungieRegistrationInput, db: AsyncSess
         bungie_token=bungie_token,
     )
 
-    if result.success:
-        logger = logging.getLogger("registration")
-        logger.info(
-            "User with discord ID '%s' has registered successfully with destiny ID '%s', system '%s', and bungie name '%s'",
-            user.discord_id,
-            user.destiny_id,
-            user.system,
-            user.bungie_name,
-        )
+    logger = logging.getLogger("registration")
+    logger.info(
+        "User with discord ID '%s' has registered successfully with destiny ID '%s', system '%s', and bungie name '%s'",
+        user.discord_id,
+        user.destiny_id,
+        user.system,
+        user.bungie_name,
+    )
 
-        # get users activities in background
-        activities = DestinyActivities(db=db, user=user)
-        asyncio.create_task(activities.update_activity_db())
+    # get users activities in background
+    asyncio.create_task(update_activities_in_background(user=user))
 
-        # send a msg to Elevator and get the mutual guild ids
+    # send a msg to Elevator and get the mutual guild ids
+    try:
         elevator_api = ElevatorApi()
         response = await elevator_api.post(
             route_addition="registration/",
@@ -70,6 +72,10 @@ async def save_bungie_token(bungie_input: BungieRegistrationInput, db: AsyncSess
         await discord_users.add_registration_roles(
             db=db, discord_id=discord_id, guild_ids=response.content["guild_ids"]
         )
+
+    except Exception as e:
+        print(e)
+        pass
 
     return result
 

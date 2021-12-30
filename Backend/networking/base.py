@@ -100,8 +100,12 @@ class NetworkBase:
             params = {}
         route_with_params = f"{route}?{urlencode(params)}"
 
+        # catch the content type "application/octet-stream" which is returned for some routes
+        if "application/octet-stream" in request.headers["Content-Type"]:
+            pass
+
         # make sure the return is a json, sometimes we get a http file for some reason
-        if "application/json" not in request.headers["Content-Type"]:
+        elif "application/json" not in request.headers["Content-Type"]:
             self.logger.error(
                 "'%s': Wrong content type '%s' with reason '%s' for '%s'",
                 request.status,
@@ -140,14 +144,15 @@ class NetworkBase:
             self.logger.error("'%s': Payload error, retrying for '%s'", request.status, route_with_params)
             return
         except aiohttp.ContentTypeError:
-            self.logger.error("'%s': Content type error, retrying for '%s'", request.status, route_with_params)
-            return
+            response = InternalWebResponse(
+                status=request.status,
+            )
 
         # if response is ok return it
         if response.status == 200:
             response.success = True
 
-            # remove the leading "Reponse" from the request (if exists)
+            # remove the leading "Response" from the request (if exists)
             if "Response" in response.content:
                 response.content = response.content["Response"]
 
@@ -166,16 +171,16 @@ class NetworkBase:
         route_with_params = f"{route}?{urlencode(params)}"
 
         match (response.status, response.error):
-            case (400, error):
-                # generic bad request, such as wrong format
+            case (401, _) | (_, "invalid_grant" | "AuthorizationCodeInvalid"):
+                # unauthorized
                 self.logger.error(
-                    "'%s - %s': Generic bad request for '%s' - '%s'",
+                    "'%s - %s': Unauthorized request for '%s' - '%s'",
                     response.status,
-                    error,
+                    response.error,
                     route_with_params,
                     response,
                 )
-                raise CustomException("BungieDed")
+                raise CustomException("BungieUnauthorized")
 
             case (404, error):
                 # not found
@@ -188,17 +193,6 @@ class NetworkBase:
                 )
                 raise CustomException("BungieBadRequest")
 
-            case (503, error):
-                # bungie is ded
-                self.logger.error(
-                    "'%s - %s': Server is overloaded for '%s' - '%s'",
-                    response.status,
-                    error,
-                    route_with_params,
-                    response,
-                )
-                await asyncio.sleep(10)
-
             case (429, error):
                 # rate limited
                 self.logger.warning(
@@ -209,6 +203,28 @@ class NetworkBase:
                     response,
                 )
                 await asyncio.sleep(2)
+
+            case (400, error):
+                # generic bad request, such as wrong format
+                self.logger.error(
+                    "'%s - %s': Generic bad request for '%s' - '%s'",
+                    response.status,
+                    error,
+                    route_with_params,
+                    response,
+                )
+                raise CustomException("BungieDed")
+
+            case (503, error):
+                # bungie is ded
+                self.logger.error(
+                    "'%s - %s': Server is overloaded for '%s' - '%s'",
+                    response.status,
+                    error,
+                    route_with_params,
+                    response,
+                )
+                await asyncio.sleep(10)
 
             case (status, "PerEndpointRequestThrottleExceeded" | "DestinyDirectBabelClientTimeout"):
                 # we we are getting throttled

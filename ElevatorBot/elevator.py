@@ -6,13 +6,13 @@ from dis_snek import AutoDefer, logger_name
 from dis_snek.models import listen
 from dis_snek.models.enums import Intents
 
-from ElevatorBot.discordEvents.base import register_discord_events
-from ElevatorBot.discordEvents.errorEvents import CustomErrorSnake
+from ElevatorBot.discordEvents.base import ElevatorSnake
 from ElevatorBot.misc.status import update_discord_bot_status
 from ElevatorBot.misc.veryMisc import yield_files_in_folder
 from ElevatorBot.startup.initAutocompleteOptions import load_autocomplete_options
 from ElevatorBot.startup.initBackgroundEvents import register_background_events
 from ElevatorBot.startup.initComponentCallbacks import add_component_callbacks
+from ElevatorBot.startup.initDiscordEvents import register_discord_events
 from ElevatorBot.startup.initDocs import create_command_docs
 from ElevatorBot.startup.initLogging import init_logging
 from ElevatorBot.static.descendOnlyIds import descend_channels
@@ -21,7 +21,7 @@ from ElevatorBot.webserver.server import run_webserver
 from settings import DISCORD_APPLICATION_API_KEY, ENABLE_DEBUG_MODE, SYNC_COMMANDS
 
 
-class ElevatorSnake(CustomErrorSnake):
+class Elevator(ElevatorSnake):
     # register the scheduler for easier access
     scheduler = AsyncIOScheduler(timezone="UTC")
 
@@ -94,7 +94,7 @@ if __name__ == "__main__":
     )
 
     # actually get the bot obj
-    client = ElevatorSnake(
+    client = Elevator(
         intents=intents,
         sync_interactions=SYNC_COMMANDS,
         delete_unused_application_cmds=not ENABLE_DEBUG_MODE,

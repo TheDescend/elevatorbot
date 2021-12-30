@@ -13,10 +13,10 @@ from rename_to_settings import (
 )
 
 _REPO: Optional[Repository] = None
-_LABELS: list[Label] | NotSet = NotSet
+_LABELS: Optional[list[Label]] = None
 
 
-def get_github_repo() -> Optional[Repository]:
+async def get_github_repo() -> Optional[Repository]:
     """Returns the GitHub api repo object"""
 
     global _REPO
@@ -31,13 +31,13 @@ def get_github_repo() -> Optional[Repository]:
     return _REPO
 
 
-def get_github_labels() -> Optional[list[Label]]:
+async def get_github_labels() -> Optional[list[Label]]:
     """Returns the GitHub labels that should be used on the issue"""
 
     global _LABELS
 
-    if _LABELS == NotSet and GITHUB_ISSUE_LABEL_NAMES:
-        repo = get_github_repo()
+    if not _LABELS and GITHUB_ISSUE_LABEL_NAMES:
+        repo = await get_github_repo()
         if repo:
             _LABELS = []
             for label_name in GITHUB_ISSUE_LABEL_NAMES:

@@ -11,9 +11,18 @@
 env/
 venv/
 .pytest_cache/
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
 # paths
-/Website/node_modules/
+/Website*/node_modules/
+/Website*/coverage
+/Website*/.next/
+/Website*/out/
+/Website*/data/docs
+/Website*/public/images/logo.png
 /Database/
 /DatabaseBackups/
 /redis.conf/
@@ -25,3 +34,5 @@ venv/
 # file types
 **/*.log
 **/**.sock
+**/**.pnp
+**/**.pnp.js

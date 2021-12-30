@@ -1,676 +1,597 @@
 {
-    "0": [
-        {
-            "name": "user_info",
-            "description": "Gets collected info for the specified user. Exactly one option needs to be filled out",
-            "options": [
-                {
-                    "name": "discord_user",
-                    "description": "Look up a discord user",
-                    "required": false,
-                    "autocomplete": false
-                },
-                {
-                    "name": "destiny_id",
-                    "description": "Look up a destinyID",
-                    "required": false,
-                    "autocomplete": false
-                },
-                {
-                    "name": "fuzzy_name",
-                    "description": "If you know how the user is called",
-                    "required": false,
-                    "autocomplete": false
-                }
-            ]
-        },
-        {
-            "name": "activity",
-            "description": "Display stats for Destiny 2 activities",
-            "options": [
-                {
-                    "name": "activity",
-                    "description": "Chose the activity you want to see the stats for",
-                    "required": true,
-                    "autocomplete": true
-                },
-                {
-                    "name": "destiny_class",
-                    "description": "Restrict the class. Default: All classes",
-                    "required": false,
-                    "autocomplete": false,
-                    "choices": [
-                        "Warlock",
-                        "Hunter",
-                        "Titan"
-                    ]
-                },
-                {
-                    "name": "expansion",
-                    "description": "Restrict the expansion. Default: All expansions",
-                    "required": false,
-                    "autocomplete": false,
-                    "choices": [
-                        "D2 Vanilla",
-                        "Forsaken",
-                        "Shadowkeep",
-                        "Beyond Light",
-                        "Witch Queen"
-                    ]
-                },
-                {
-                    "name": "season",
-                    "description": "Restrict the season. Default: All seasons",
-                    "required": false,
-                    "autocomplete": false,
-                    "choices": [
-                        "D2 Vanilla",
-                        "Curse of Osiris",
-                        "Warmind",
-                        "Forsaken",
-                        "Season of the Forge",
-                        "Season of the Drifter",
-                        "Season of Opulence",
-                        "Shadowkeep",
-                        "Season of Dawn",
-                        "Season of the Worthy",
-                        "Season of Arrivals",
-                        "Beyond Light",
-                        "Season of the Chosen",
-                        "Season of the Splicer",
-                        "Season of the Lost",
-                        "Witch Queen"
-                    ]
-                },
-                {
-                    "name": "start_time",
-                    "description": "Format: `DD/MM/YY` - Input the **earliest** date you want the weapon stats for. Default: Big Bang",
-                    "required": false,
-                    "autocomplete": false
-                },
-                {
-                    "name": "end_time",
-                    "description": "Format: `DD/MM/YY` - Input the **latest** date you want the weapon stats for. Default: Now",
-                    "required": false,
-                    "autocomplete": false
-                },
-                {
-                    "name": "user",
-                    "description": "The user you want to look up",
-                    "required": false,
-                    "autocomplete": false
-                }
-            ]
-        },
-        {
-            "name": "catalysts",
-            "description": "Shows you Destiny 2 exotic weapon catalysts and their completion status",
-            "options": [
-                {
-                    "name": "user",
-                    "description": "The user you want to look up",
-                    "required": false,
-                    "autocomplete": false
-                }
-            ]
-        },
-        {
-            "name": "destiny",
-            "description": "Gives you an overview of your Destiny 2 stats",
-            "options": [
-                {
-                    "name": "user",
-                    "description": "The user you want to look up",
-                    "required": false,
-                    "autocomplete": false
-                }
-            ]
-        },
-        {
-            "name": "id",
-            "description": "Get a users Bungie Name. It can be used to join people in Destiny 2 without adding them as a friend",
-            "options": [
-                {
-                    "name": "user",
-                    "description": "The user you want to look up",
-                    "required": false,
-                    "autocomplete": false
-                }
-            ]
-        },
-        {
-            "name": "last",
-            "description": "Stats for the last Destiny 2 activity you played",
-            "options": [
-                {
-                    "name": "mode",
-                    "description": "Restrict the game mode. Default: All modes",
-                    "required": false,
-                    "autocomplete": false,
-                    "choices": [
-                        "All",
-                        "Raid",
-                        "Dungeon",
-                        "Story",
-                        "Strike",
-                        "Nightfall",
-                        "Patrol",
-                        "Gambit",
-                        "All Pve",
-                        "Iron Banner",
-                        "Trials Of Osiris",
-                        "Private Matches",
-                        "All Pvp"
-                    ]
-                },
-                {
-                    "name": "activity",
-                    "description": "Restrict the activity. Overwrites `mode`. Default: All activities",
-                    "required": false,
-                    "autocomplete": true
-                },
-                {
-                    "name": "destiny_class",
-                    "description": "Restrict the class. Default: All classes",
-                    "required": false,
-                    "autocomplete": false,
-                    "choices": [
-                        "Warlock",
-                        "Hunter",
-                        "Titan"
-                    ]
-                },
-                {
-                    "name": "user",
-                    "description": "The user you want to look up",
-                    "required": false,
-                    "autocomplete": false
-                }
-            ]
-        },
-        {
-            "name": "lore",
-            "description": "Shows you Destiny 2 lore",
-            "options": [
-                {
-                    "name": "name",
-                    "description": "The name of item / card having the lore",
-                    "required": true,
-                    "autocomplete": true
-                }
-            ]
-        },
-        {
-            "name": "pop_timeline",
-            "description": "Shows you the Destiny 2 steam maximum population timeline",
-            "options": []
-        },
-        {
-            "name": "rank",
-            "description": "Display Destiny 2 leaderboards for the linked clan. Pick **only** one leaderboard from all options",
-            "options": [
-                {
-                    "name": "discord_leaderboards",
-                    "description": "Leaderboards concerning this discord server",
-                    "required": false,
-                    "autocomplete": false,
-                    "choices": [
-                        "Roles Earned on this Discord Server",
-                        "Join-Date of this Discord Server"
-                    ]
-                },
-                {
-                    "name": "basic_leaderboards",
-                    "description": "Leaderboards concerning basic Destiny 2 stats",
-                    "required": false,
-                    "autocomplete": false,
-                    "choices": [
-                        "Total Playtime",
-                        "Maximum Power Level",
-                        "Maximum Season Pass Level",
-                        "Kills",
-                        "Kills with: Melee",
-                        "Kills with: Super",
-                        "Kills with: Grenade",
-                        "Deaths",
-                        "Suicides",
-                        "Orbs of Power Generated",
-                        "Triumph Score",
-                        "Active Triumph Score",
-                        "Legacy Triumph Score",
-                        "Enhancement Cores",
-                        "Vault Space Used",
-                        "Bright Dust Owned",
-                        "Legendary Shards Owned",
-                        "Raid Banners Owned",
-                        "Forges Done",
-                        "AFK Forges Done",
-                        "Weapon Catalysts Completed"
-                    ]
-                },
-                {
-                    "name": "endgame_leaderboards",
-                    "description": "Leaderboards concerning stats in Destiny 2 endgame activities",
-                    "required": false,
-                    "autocomplete": false,
-                    "choices": [
-                        "Raids Completed",
-                        "Raid Playtime",
-                        "Raids Completed on Day One",
-                        "Grandmaster Nightfalls Completed",
-                        "Grandmaster Nightfalls Playtime"
-                    ]
-                },
-                {
-                    "name": "activity_leaderboards",
-                    "description": "Leaderboards concerning stats in Destiny 2 activities. Input the sought activity in `activity`",
-                    "required": false,
-                    "autocomplete": false,
-                    "choices": [
-                        "Full Activity Completions",
-                        "CP Activity Completions",
-                        "Activity Kills",
-                        "Activity Precision Kills",
-                        "Activity % Precision Kills",
-                        "Activity Deaths",
-                        "Activity Assists",
-                        "Activity Playtime",
-                        "Fastest Activity Completion Time",
-                        "Average Activity Completion Time"
-                    ]
-                },
-                {
-                    "name": "weapon_leaderboards",
-                    "description": "Leaderboards concerning Destiny 2 weapon stats. Input the sought weapon in `weapon`",
-                    "required": false,
-                    "autocomplete": false,
-                    "choices": [
-                        "Weapon Kills",
-                        "Weapon Precision Kills",
-                        "Weapon % Precision Kills"
-                    ]
-                },
-                {
-                    "name": "activity",
-                    "description": "If are looking for a `activity_leaderboards`, please select the activity",
-                    "required": false,
-                    "autocomplete": true
-                },
-                {
-                    "name": "weapon",
-                    "description": "If are looking for a `weapon_leaderboards`, please select the weapon",
-                    "required": false,
-                    "autocomplete": true
-                },
-                {
-                    "name": "reverse",
-                    "description": "If you want to reverse the sorting: Default: False",
-                    "required": false,
-                    "autocomplete": false
-                },
-                {
-                    "name": "user",
-                    "description": "The user you want to look up",
-                    "required": false,
-                    "autocomplete": false
-                }
-            ]
-        },
-        {
-            "name": "seals",
-            "description": "View all Destiny 2 seals and your completion status",
-            "options": [
-                {
-                    "name": "user",
-                    "description": "The user you want to look up",
-                    "required": false,
-                    "autocomplete": false
-                }
-            ]
-        },
-        {
-            "name": "challenges",
-            "description": "Shows you the current Destiny 2 seasonal challenges and your completion status",
-            "options": [
-                {
-                    "name": "user",
-                    "description": "The user you want to look up",
-                    "required": false,
-                    "autocomplete": false
-                }
-            ]
-        },
-        {
-            "name": "solos",
-            "description": "Shows you an overview of your notable Destiny 2 solo activity completions",
-            "options": [
-                {
-                    "name": "user",
-                    "description": "The user you want to look up",
-                    "required": false,
-                    "autocomplete": false
-                }
-            ]
-        },
-        {
-            "name": "time",
-            "description": "Shows you your Destiny 2 playtime split up by season",
-            "options": [
-                {
-                    "name": "mode",
-                    "description": "Restrict the game mode. Default: All modes",
-                    "required": false,
-                    "autocomplete": false,
-                    "choices": [
-                        "All",
-                        "Raid",
-                        "Dungeon",
-                        "Story",
-                        "Strike",
-                        "Nightfall",
-                        "Patrol",
-                        "Gambit",
-                        "All Pve",
-                        "Iron Banner",
-                        "Trials Of Osiris",
-                        "Private Matches",
-                        "All Pvp"
-                    ]
-                },
-                {
-                    "name": "activity",
-                    "description": "Restrict the activity. Overwrites `mode`. Default: All activities",
-                    "required": false,
-                    "autocomplete": true
-                },
-                {
-                    "name": "destiny_class",
-                    "description": "Restrict the class. Default: All classes",
-                    "required": false,
-                    "autocomplete": false,
-                    "choices": [
-                        "Warlock",
-                        "Hunter",
-                        "Titan"
-                    ]
-                },
-                {
-                    "name": "user",
-                    "description": "The user you want to look up",
-                    "required": false,
-                    "autocomplete": false
-                }
-            ]
-        },
-        {
-            "name": "website",
-            "description": "Gets your personalised link to curated Destiny 2 stat websites",
-            "options": [
-                {
-                    "name": "website",
-                    "description": "The website you want a personalised link for",
-                    "required": true,
-                    "autocomplete": false,
-                    "choices": [
-                        "Braytech",
-                        "D2 Checklist",
-                        "Destiny Tracker",
-                        "Dungeon Report",
-                        "Grandmaster Report",
-                        "Nightfall Report",
-                        "Strike Report",
-                        "Raid Report",
-                        "Solo Report",
-                        "Expunge Report",
-                        "Trials Report",
-                        "Triumph Report",
-                        "Wasted on Destiny",
-                        "Crucible Report"
-                    ]
-                },
-                {
-                    "name": "user",
-                    "description": "The user you want to look up",
-                    "required": false,
-                    "autocomplete": false
-                }
-            ]
-        },
-        {
-            "name": "register",
-            "description": "Link your Destiny 2 account with ElevatorBot",
-            "options": []
-        },
-        {
-            "name": "unregister",
-            "description": "Unlink your Destiny 2 account from ElevatorBot",
-            "options": []
-        },
-        {
-            "name": "boosters",
-            "description": "Prints all premium subscribers (boosters) of this discord server",
-            "options": []
-        },
-        {
-            "name": "bubble_wrap",
-            "description": "This 100% recreates the happy feeling of popping bubble wrap",
-            "options": []
-        },
-        {
-            "name": "bug",
-            "description": "Use this if you want to report any bugs to the developer",
-            "options": [
-                {
-                    "name": "message",
-                    "description": "Please describe the bug you have noticed",
-                    "required": true,
-                    "autocomplete": false
-                }
-            ]
-        },
-        {
-            "name": "calculator",
-            "description": "Summons a handy calculator",
-            "options": []
-        },
-        {
-            "name": "discord_join_date",
-            "description": "Check your join date of the discord server where you execute the command",
-            "options": [
-                {
-                    "name": "user",
-                    "description": "The user you want to look up",
-                    "required": false,
-                    "autocomplete": false
-                }
-            ]
-        },
-        {
-            "name": "funfact",
-            "description": "Get a fun fact, which most of the time is even pretty interesting",
-            "options": []
-        }
-    ],
-    "280456587464933376": [
-        {
-            "name": "get_api_key",
-            "description": "Get your own Destiny 2 oauth api key",
-            "options": []
-        },
-        {
-            "name": "day_one_raid_race",
-            "description": "Starts the Day One raid completion announcer",
-            "options": []
-        },
-        {
-            "name": "giveaway",
-            "description": "Creates a giveaway",
-            "options": []
-        },
-        {
-            "name": "metrics",
-            "description": "Shows interesting ElevatorBot metrics",
-            "options": []
-        },
-        {
-            "name": "mute",
-            "description": "Mutes the specified user",
-            "options": [
-                {
-                    "name": "user",
-                    "description": "Which user to mute",
-                    "required": true,
-                    "autocomplete": false
-                },
-                {
-                    "name": "muted_type",
-                    "description": "How should the user be muted",
-                    "required": true,
-                    "autocomplete": false,
-                    "choices": [
-                        "Muted",
-                        "Muted - No Nickname"
-                    ]
-                },
-                {
-                    "name": "hours",
-                    "description": "How many hours to mute the user for",
-                    "required": true,
-                    "autocomplete": false
-                },
-                {
-                    "name": "reason",
-                    "description": "Whats the reason for the mute",
-                    "required": true,
-                    "autocomplete": false
-                }
-            ]
-        },
-        {
-            "name": "mute_me",
-            "description": "I wonder what this does...",
-            "options": [
-                {
-                    "name": "user",
-                    "description": "The user you want to look up",
-                    "required": false,
-                    "autocomplete": false
-                }
-            ]
-        },
-        {
-            "name": "socialist",
-            "description": "Spams `#socialist` \ud83d\ude43",
-            "options": []
-        },
-        {
-            "name": "warning",
-            "description": "Warns the specified user",
-            "options": [
-                {
-                    "name": "user",
-                    "description": "Which user to warn",
-                    "required": true,
-                    "autocomplete": false
-                },
-                {
-                    "name": "reason",
-                    "description": "Whats the reason for the warning",
-                    "required": true,
-                    "autocomplete": false
-                }
-            ]
-        }
-    ],
-    "556418279015448596": [
-        {
-            "name": "get_api_key",
-            "description": "Get your own Destiny 2 oauth api key",
-            "options": []
-        },
-        {
-            "name": "day_one_raid_race",
-            "description": "Starts the Day One raid completion announcer",
-            "options": []
-        },
-        {
-            "name": "giveaway",
-            "description": "Creates a giveaway",
-            "options": []
-        },
-        {
-            "name": "metrics",
-            "description": "Shows interesting ElevatorBot metrics",
-            "options": []
-        },
-        {
-            "name": "mute",
-            "description": "Mutes the specified user",
-            "options": [
-                {
-                    "name": "user",
-                    "description": "Which user to mute",
-                    "required": true,
-                    "autocomplete": false
-                },
-                {
-                    "name": "muted_type",
-                    "description": "How should the user be muted",
-                    "required": true,
-                    "autocomplete": false,
-                    "choices": [
-                        "Muted",
-                        "Muted - No Nickname"
-                    ]
-                },
-                {
-                    "name": "hours",
-                    "description": "How many hours to mute the user for",
-                    "required": true,
-                    "autocomplete": false
-                },
-                {
-                    "name": "reason",
-                    "description": "Whats the reason for the mute",
-                    "required": true,
-                    "autocomplete": false
-                }
-            ]
-        },
-        {
-            "name": "mute_me",
-            "description": "I wonder what this does...",
-            "options": [
-                {
-                    "name": "user",
-                    "description": "The user you want to look up",
-                    "required": false,
-                    "autocomplete": false
-                }
-            ]
-        },
-        {
-            "name": "socialist",
-            "description": "Spams `#socialist` \ud83d\ude43",
-            "options": []
-        },
-        {
-            "name": "warning",
-            "description": "Warns the specified user",
-            "options": [
-                {
-                    "name": "user",
-                    "description": "Which user to warn",
-                    "required": true,
-                    "autocomplete": false
-                },
-                {
-                    "name": "reason",
-                    "description": "Whats the reason for the warning",
-                    "required": true,
-                    "autocomplete": false
-                }
-            ]
-        }
-    ]
+    "Admin": {
+        "Available Globally": [
+            {
+                "name": "user_info",
+                "description": "Gets collected info for the specified user. Exactly one option needs to be filled out",
+                "options": [
+                    {
+                        "name": "discord_user",
+                        "description": "Look up a discord user",
+                        "required": false,
+                        "autocomplete": false
+                    },
+                    {
+                        "name": "destiny_id",
+                        "description": "Look up a destinyID",
+                        "required": false,
+                        "autocomplete": false
+                    },
+                    {
+                        "name": "fuzzy_name",
+                        "description": "If you know how the user is called",
+                        "required": false,
+                        "autocomplete": false
+                    }
+                ]
+            }
+        ]
+    },
+    "Destiny": {
+        "Available Globally": [
+            {
+                "name": "activity",
+                "description": "Display stats for Destiny 2 activities",
+                "options": [
+                    {
+                        "name": "activity",
+                        "description": "Chose the activity you want to see the stats for",
+                        "required": true,
+                        "autocomplete": true
+                    },
+                    {
+                        "name": "destiny_class",
+                        "description": "Restrict the class. Default: All classes",
+                        "required": false,
+                        "autocomplete": false,
+                        "choices": [
+                            "Warlock",
+                            "Hunter",
+                            "Titan"
+                        ]
+                    },
+                    {
+                        "name": "expansion",
+                        "description": "Restrict the expansion. Default: All expansions",
+                        "required": false,
+                        "autocomplete": false,
+                        "choices": [
+                            "D2 Vanilla",
+                            "Forsaken",
+                            "Shadowkeep",
+                            "Beyond Light",
+                            "Witch Queen"
+                        ]
+                    },
+                    {
+                        "name": "season",
+                        "description": "Restrict the season. Default: All seasons",
+                        "required": false,
+                        "autocomplete": false,
+                        "choices": [
+                            "D2 Vanilla",
+                            "Curse of Osiris",
+                            "Warmind",
+                            "Forsaken",
+                            "Season of the Forge",
+                            "Season of the Drifter",
+                            "Season of Opulence",
+                            "Shadowkeep",
+                            "Season of Dawn",
+                            "Season of the Worthy",
+                            "Season of Arrivals",
+                            "Beyond Light",
+                            "Season of the Chosen",
+                            "Season of the Splicer",
+                            "Season of the Lost",
+                            "Witch Queen"
+                        ]
+                    },
+                    {
+                        "name": "start_time",
+                        "description": "Format: `DD/MM/YY` - Input the **earliest** date you want the weapon stats for. Default: Big Bang",
+                        "required": false,
+                        "autocomplete": false
+                    },
+                    {
+                        "name": "end_time",
+                        "description": "Format: `DD/MM/YY` - Input the **latest** date you want the weapon stats for. Default: Now",
+                        "required": false,
+                        "autocomplete": false
+                    },
+                    {
+                        "name": "user",
+                        "description": "The user you want to look up",
+                        "required": false,
+                        "autocomplete": false
+                    }
+                ]
+            },
+            {
+                "name": "catalysts",
+                "description": "Shows you Destiny 2 exotic weapon catalysts and their completion status",
+                "options": [
+                    {
+                        "name": "user",
+                        "description": "The user you want to look up",
+                        "required": false,
+                        "autocomplete": false
+                    }
+                ]
+            },
+            {
+                "name": "destiny",
+                "description": "Gives you an overview of your Destiny 2 stats",
+                "options": [
+                    {
+                        "name": "user",
+                        "description": "The user you want to look up",
+                        "required": false,
+                        "autocomplete": false
+                    }
+                ]
+            },
+            {
+                "name": "id",
+                "description": "Get a users Bungie Name. It can be used to join people in Destiny 2 without adding them as a friend",
+                "options": [
+                    {
+                        "name": "user",
+                        "description": "The user you want to look up",
+                        "required": false,
+                        "autocomplete": false
+                    }
+                ]
+            },
+            {
+                "name": "last",
+                "description": "Stats for the last Destiny 2 activity you played",
+                "options": [
+                    {
+                        "name": "mode",
+                        "description": "Restrict the game mode. Default: All modes",
+                        "required": false,
+                        "autocomplete": false,
+                        "choices": [
+                            "All",
+                            "Raid",
+                            "Dungeon",
+                            "Story",
+                            "Strike",
+                            "Nightfall",
+                            "Patrol",
+                            "Gambit",
+                            "All Pve",
+                            "Iron Banner",
+                            "Trials Of Osiris",
+                            "Private Matches",
+                            "All Pvp"
+                        ]
+                    },
+                    {
+                        "name": "activity",
+                        "description": "Restrict the activity. Overwrites `mode`. Default: All activities",
+                        "required": false,
+                        "autocomplete": true
+                    },
+                    {
+                        "name": "destiny_class",
+                        "description": "Restrict the class. Default: All classes",
+                        "required": false,
+                        "autocomplete": false,
+                        "choices": [
+                            "Warlock",
+                            "Hunter",
+                            "Titan"
+                        ]
+                    },
+                    {
+                        "name": "user",
+                        "description": "The user you want to look up",
+                        "required": false,
+                        "autocomplete": false
+                    }
+                ]
+            },
+            {
+                "name": "lore",
+                "description": "Shows you Destiny 2 lore",
+                "options": [
+                    {
+                        "name": "name",
+                        "description": "The name of item / card having the lore",
+                        "required": true,
+                        "autocomplete": true
+                    }
+                ]
+            },
+            {
+                "name": "pop_timeline",
+                "description": "Shows you the Destiny 2 steam maximum population timeline",
+                "options": []
+            },
+            {
+                "name": "rank",
+                "description": "Display Destiny 2 leaderboards for the linked clan. Pick **only** one leaderboard from all options",
+                "options": [
+                    {
+                        "name": "discord_leaderboards",
+                        "description": "Leaderboards concerning this discord server",
+                        "required": false,
+                        "autocomplete": false,
+                        "choices": [
+                            "Roles Earned on this Discord Server",
+                            "Join-Date of this Discord Server"
+                        ]
+                    },
+                    {
+                        "name": "basic_leaderboards",
+                        "description": "Leaderboards concerning basic Destiny 2 stats",
+                        "required": false,
+                        "autocomplete": false,
+                        "choices": [
+                            "Total Playtime",
+                            "Maximum Power Level",
+                            "Maximum Season Pass Level",
+                            "Kills",
+                            "Kills with: Melee",
+                            "Kills with: Super",
+                            "Kills with: Grenade",
+                            "Deaths",
+                            "Suicides",
+                            "Orbs of Power Generated",
+                            "Triumph Score",
+                            "Active Triumph Score",
+                            "Legacy Triumph Score",
+                            "Enhancement Cores",
+                            "Vault Space Used",
+                            "Bright Dust Owned",
+                            "Legendary Shards Owned",
+                            "Raid Banners Owned",
+                            "Forges Done",
+                            "AFK Forges Done",
+                            "Weapon Catalysts Completed"
+                        ]
+                    },
+                    {
+                        "name": "endgame_leaderboards",
+                        "description": "Leaderboards concerning stats in Destiny 2 endgame activities",
+                        "required": false,
+                        "autocomplete": false,
+                        "choices": [
+                            "Raids Completed",
+                            "Raid Playtime",
+                            "Raids Completed on Day One",
+                            "Grandmaster Nightfalls Completed",
+                            "Grandmaster Nightfalls Playtime"
+                        ]
+                    },
+                    {
+                        "name": "activity_leaderboards",
+                        "description": "Leaderboards concerning stats in Destiny 2 activities. Input the sought activity in `activity`",
+                        "required": false,
+                        "autocomplete": false,
+                        "choices": [
+                            "Full Activity Completions",
+                            "CP Activity Completions",
+                            "Activity Kills",
+                            "Activity Precision Kills",
+                            "Activity % Precision Kills",
+                            "Activity Deaths",
+                            "Activity Assists",
+                            "Activity Playtime",
+                            "Fastest Activity Completion Time",
+                            "Average Activity Completion Time"
+                        ]
+                    },
+                    {
+                        "name": "weapon_leaderboards",
+                        "description": "Leaderboards concerning Destiny 2 weapon stats. Input the sought weapon in `weapon`",
+                        "required": false,
+                        "autocomplete": false,
+                        "choices": [
+                            "Weapon Kills",
+                            "Weapon Precision Kills",
+                            "Weapon % Precision Kills"
+                        ]
+                    },
+                    {
+                        "name": "activity",
+                        "description": "If are looking for a `activity_leaderboards`, please select the activity",
+                        "required": false,
+                        "autocomplete": true
+                    },
+                    {
+                        "name": "weapon",
+                        "description": "If are looking for a `weapon_leaderboards`, please select the weapon",
+                        "required": false,
+                        "autocomplete": true
+                    },
+                    {
+                        "name": "reverse",
+                        "description": "If you want to reverse the sorting: Default: False",
+                        "required": false,
+                        "autocomplete": false
+                    },
+                    {
+                        "name": "user",
+                        "description": "The user you want to look up",
+                        "required": false,
+                        "autocomplete": false
+                    }
+                ]
+            },
+            {
+                "name": "seals",
+                "description": "View all Destiny 2 seals and your completion status",
+                "options": [
+                    {
+                        "name": "user",
+                        "description": "The user you want to look up",
+                        "required": false,
+                        "autocomplete": false
+                    }
+                ]
+            },
+            {
+                "name": "challenges",
+                "description": "Shows you the current Destiny 2 seasonal challenges and your completion status",
+                "options": [
+                    {
+                        "name": "user",
+                        "description": "The user you want to look up",
+                        "required": false,
+                        "autocomplete": false
+                    }
+                ]
+            },
+            {
+                "name": "solos",
+                "description": "Shows you an overview of your notable Destiny 2 solo activity completions",
+                "options": [
+                    {
+                        "name": "user",
+                        "description": "The user you want to look up",
+                        "required": false,
+                        "autocomplete": false
+                    }
+                ]
+            },
+            {
+                "name": "time",
+                "description": "Shows you your Destiny 2 playtime split up by season",
+                "options": [
+                    {
+                        "name": "mode",
+                        "description": "Restrict the game mode. Default: All modes",
+                        "required": false,
+                        "autocomplete": false,
+                        "choices": [
+                            "All",
+                            "Raid",
+                            "Dungeon",
+                            "Story",
+                            "Strike",
+                            "Nightfall",
+                            "Patrol",
+                            "Gambit",
+                            "All Pve",
+                            "Iron Banner",
+                            "Trials Of Osiris",
+                            "Private Matches",
+                            "All Pvp"
+                        ]
+                    },
+                    {
+                        "name": "activity",
+                        "description": "Restrict the activity. Overwrites `mode`. Default: All activities",
+                        "required": false,
+                        "autocomplete": true
+                    },
+                    {
+                        "name": "destiny_class",
+                        "description": "Restrict the class. Default: All classes",
+                        "required": false,
+                        "autocomplete": false,
+                        "choices": [
+                            "Warlock",
+                            "Hunter",
+                            "Titan"
+                        ]
+                    },
+                    {
+                        "name": "user",
+                        "description": "The user you want to look up",
+                        "required": false,
+                        "autocomplete": false
+                    }
+                ]
+            },
+            {
+                "name": "website",
+                "description": "Gets your personalised link to curated Destiny 2 stat websites",
+                "options": [
+                    {
+                        "name": "website",
+                        "description": "The website you want a personalised link for",
+                        "required": true,
+                        "autocomplete": false,
+                        "choices": [
+                            "Braytech",
+                            "D2 Checklist",
+                            "Destiny Tracker",
+                            "Dungeon Report",
+                            "Grandmaster Report",
+                            "Nightfall Report",
+                            "Strike Report",
+                            "Raid Report",
+                            "Solo Report",
+                            "Expunge Report",
+                            "Trials Report",
+                            "Triumph Report",
+                            "Wasted on Destiny",
+                            "Crucible Report"
+                        ]
+                    },
+                    {
+                        "name": "user",
+                        "description": "The user you want to look up",
+                        "required": false,
+                        "autocomplete": false
+                    }
+                ]
+            },
+            {
+                "name": "register",
+                "description": "Link your Destiny 2 account with ElevatorBot",
+                "options": []
+            },
+            {
+                "name": "unregister",
+                "description": "Unlink your Destiny 2 account from ElevatorBot",
+                "options": []
+            }
+        ],
+        "Only Available in the Descend Server": [
+            {
+                "name": "day_one_raid_race",
+                "description": "Starts the Day One raid completion announcer",
+                "options": []
+            }
+        ]
+    },
+    "Miscellaneous": {
+        "Available Globally": [
+            {
+                "name": "boosters",
+                "description": "Prints all premium subscribers (boosters) of this discord server",
+                "options": []
+            },
+            {
+                "name": "bubble_wrap",
+                "description": "This 100% recreates the happy feeling of popping bubble wrap",
+                "options": []
+            },
+            {
+                "name": "bug",
+                "description": "Use this if you want to report any bugs to the developer",
+                "options": [
+                    {
+                        "name": "message",
+                        "description": "Please describe **in detail** the bug you have noticed",
+                        "required": true,
+                        "autocomplete": false
+                    }
+                ]
+            },
+            {
+                "name": "calculator",
+                "description": "Summons a handy calculator",
+                "options": []
+            },
+            {
+                "name": "discord_join_date",
+                "description": "Check your join date of the discord server where you execute the command",
+                "options": [
+                    {
+                        "name": "user",
+                        "description": "The user you want to look up",
+                        "required": false,
+                        "autocomplete": false
+                    }
+                ]
+            },
+            {
+                "name": "funfact",
+                "description": "Get a fun fact, which most of the time is even pretty interesting",
+                "options": []
+            }
+        ],
+        "Only Available in the Descend Server": [
+            {
+                "name": "get_api_key",
+                "description": "Get your own Destiny 2 oauth api key",
+                "options": []
+            },
+            {
+                "name": "giveaway",
+                "description": "Creates a giveaway",
+                "options": []
+            },
+            {
+                "name": "metrics",
+                "description": "Shows interesting ElevatorBot metrics",
+                "options": []
+            },
+            {
+                "name": "mute",
+                "description": "Mutes the specified user",
+                "options": [
+                    {
+                        "name": "user",
+                        "description": "Which user to mute",
+                        "required": true,
+                        "autocomplete": false
+                    },
+                    {
+                        "name": "muted_type",
+                        "description": "How should the user be muted",
+                        "required": true,
+                        "autocomplete": false,
+                        "choices": [
+                            "Muted",
+                            "Muted - No Nickname"
+                        ]
+                    },
+                    {
+                        "name": "hours",
+                        "description": "How many hours to mute the user for",
+                        "required": true,
+                        "autocomplete": false
+                    },
+                    {
+                        "name": "reason",
+                        "description": "Whats the reason for the mute",
+                        "required": true,
+                        "autocomplete": false
+                    }
+                ]
+            },
+            {
+                "name": "mute_me",
+                "description": "I wonder what this does...",
+                "options": [
+                    {
+                        "name": "user",
+                        "description": "The user you want to look up",
+                        "required": false,
+                        "autocomplete": false
+                    }
+                ]
+            },
+            {
+                "name": "socialist",
+                "description": "Spams `#socialist` \ud83d\ude43",
+                "options": []
+            },
+            {
+                "name": "warning",
+                "description": "Warns the specified user",
+                "options": [
+                    {
+                        "name": "user",
+                        "description": "Which user to warn",
+                        "required": true,
+                        "autocomplete": false
+                    },
+                    {
+                        "name": "reason",
+                        "description": "Whats the reason for the warning",
+                        "required": true,
+                        "autocomplete": false
+                    }
+                ]
+            }
+        ]
+    }
 }

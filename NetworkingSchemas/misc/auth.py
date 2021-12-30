@@ -35,6 +35,4 @@ class BungieTokenInput(CustomBaseModel):
 
 
 class BungieTokenOutput(CustomBaseModel):
-    success: bool
-    bungie_name: Optional[str] = None
-    error_message: Optional[str] = None
+    bungie_name: str

@@ -73,7 +73,7 @@ def register_background_events() -> int:
 
     backgroundEvents.scheduler.add_listener(event_error, EVENT_JOB_ERROR)
 
-    # loop through the subclasses of BaseEvent to get all events. The events get imported through misc.__init__
+    # loop through the subclasses of BaseEvent to get all events. The events get imported through __init__
     for BackgroundEvent in backgroundEvents.BaseEvent.__subclasses__():
         event = BackgroundEvent()
 

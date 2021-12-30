@@ -49,13 +49,9 @@ class BungieRegistration(NetworkBase):
             return BungieTokenInput(
                 access_token=response.content["access_token"],
                 token_type=response.content["token_type"],
-                expires_in=localize_datetime(
-                    datetime.datetime.fromtimestamp(current_time + int(response.content["expires_in"]))
-                ),
+                expires_in=int(response.content["expires_in"]),
                 refresh_token=response.content["refresh_token"],
-                refresh_expires_in=localize_datetime(
-                    datetime.datetime.fromtimestamp(current_time + int(response.content["refresh_expires_in"]))
-                ),
+                refresh_expires_in=int(response.content["refresh_expires_in"]),
                 membership_id=response.content["membership_id"],
                 state=user_input.state,
             )

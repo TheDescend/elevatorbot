@@ -1,0 +1,67 @@
+html {
+  height: 100%;
+}
+
+body {
+  height: 100%;
+  margin: 0;
+  font-family: Ubuntu;
+  background: linear-gradient(#b3ffab, #67fffc);
+}
+
+.header {
+  height: 30px;
+  display: flex;
+  align-items: center;
+  background: linear-gradient(#444444, #333333);
+  color: #bbbbbb;
+}
+
+.headerContent {
+  display: flex;
+  width:100%;
+  margin-left: 10px;
+  color: white;
+}
+
+.page {
+  display: flex;
+  height: calc( 100vh - 30px);
+  /* calculate the height. Header is 30px */
+}
+
+.sideBar {
+  width: 100px;
+  background: red;
+}
+
+.content {
+  background: blue;
+  flex: 1 0 auto;
+  /* enable grow, disable shrink */
+}
+
+div.headerContent nav {
+  width: 100%;
+  display: flex;
+
+  justify-content:space-between;
+}
+
+.left-header {
+  width: 40%;
+  justify-content:flex-start;
+}
+
+.left-header a{
+  margin-right: 20px;
+}
+
+.right-header {
+  align-self: flex-end;
+  margin-right:10px;
+}
+
+a:visited {
+  color:white;
+}

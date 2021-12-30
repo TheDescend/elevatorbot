@@ -1,5 +1,6 @@
 import datetime
 import time
+import urllib.parse
 from typing import Optional
 
 import aiohttp
@@ -62,6 +63,9 @@ class CRUDDiscordUser(CRUDBase):
         # get current time
         current_time = int(time.time())
 
+        # make sure the state is not url encoded
+        bungie_token.state = urllib.parse.unquote(bungie_token.state)
+
         # split the state
         (discord_id, guild_id, channel_id) = bungie_token.state.split(":")
         discord_id, guild_id, channel_id, = (
@@ -98,21 +102,11 @@ class CRUDDiscordUser(CRUDBase):
 
         # that should find a system 100% of the time, extra check here to be sure
         if not system:
-            return (
-                BungieTokenOutput(success=False, errror_message="Could not find what platform you are on"),
-                None,
-                discord_id,
-                guild_id,
-            )
+            raise CustomException("ProgrammingError")
 
         # if they have no destiny profile
         if not destiny_id:
-            return (
-                BungieTokenOutput(success=False, errror_message="You do not seem to have a destiny account"),
-                None,
-                discord_id,
-                guild_id,
-            )
+            raise CustomException("BungieNoDestinyId")
 
         # look if that destiny_id is already in the db
         try:
@@ -178,7 +172,7 @@ class CRUDDiscordUser(CRUDBase):
             )
 
         return (
-            BungieTokenOutput(success=True, errror_message=None, bungie_name=user.bungie_name),
+            BungieTokenOutput(bungie_name=user.bungie_name),
             user,
             discord_id,
             guild_id,

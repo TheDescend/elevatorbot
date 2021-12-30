@@ -431,6 +431,13 @@ class DestinyActivities:
         return result
 
 
+async def update_activities_in_background(user: DiscordUsers):
+    """Gets called when a user first registers and updates their activities in the background"""
+    async with get_async_session().begin() as db:
+        activities = DestinyActivities(db=db, user=user)
+        await activities.update_activity_db()
+
+
 def get_lowman_count_subprocess(
     low_activity_info: list[ActivitiesUsers],
 ) -> tuple[int, int, int, Optional[datetime.timedelta]]:
