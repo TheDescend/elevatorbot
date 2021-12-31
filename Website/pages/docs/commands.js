@@ -1,7 +1,6 @@
 import {getCommandJson} from '../../lib/commands'
 import Layout from "../../components/layout";
-import utilStyles from '../../styles/utils.module.css'
-import Command from '../../components/Commands'
+import Command from '../../components/commands'
 
 
 export async function getStaticProps() {
