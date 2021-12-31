@@ -160,7 +160,7 @@ class CRUDManifest(CRUDBase):
         result.insert(0, all_grandmaster)
         return result
 
-    async def get_challenging_solo_activities(self, db: AsyncSession) -> list[DestinyActivityModel]:
+    async def get_challenging_solo_activities(self, db: AsyncSession) -> dict[str, list[DestinyActivityModel]]:
         """Get activities that are difficult to solo"""
 
         async with asyncio.Lock():

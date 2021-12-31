@@ -6,6 +6,7 @@ from io import BytesIO
 from typing import Optional
 
 import aiohttp
+from anyio import create_task_group
 from dis_snek.models import (
     File,
     GuildText,
@@ -168,7 +169,9 @@ class DayOneRace(BaseScale):
                         online.append(member)
 
                 # loops through all online users and check for completions
-                await asyncio.gather(*[self.look_for_completion(member, channel) for member in online])
+                async with create_task_group() as tg:
+                    for member in online:
+                        tg.start_soon(self.look_for_completion, member, channel)
 
                 # update leaderboard message
                 await self.update_leaderboard()

@@ -5,7 +5,7 @@ import logging
 from collections.abc import AsyncGenerator
 from typing import Optional
 
-from anyio import to_process
+from anyio import create_task_group, to_process
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.destiny.profile import DestinyProfile
@@ -66,8 +66,9 @@ class DestinyActivities:
         disallowed_datetimes: Optional[list[TimePeriodModel]] = None,
         score_threshold: Optional[int] = None,
         min_kills_per_minute: Optional[float] = None,
+        results: list[DestinyLowManModel] = None,
     ) -> DestinyLowManModel:
-        """Returns low man data"""
+        """Returns low man data. If results gets passed, the result gets added to that list too"""
 
         # get player data
         low_activity_info = await crud_activities.get_activities(
@@ -86,14 +87,17 @@ class DestinyActivities:
         count, flawless_count, not_flawless_count, fastest = await to_process.run_sync(
             get_lowman_count_subprocess, low_activity_info
         )
-
-        return DestinyLowManModel(
+        result = DestinyLowManModel(
             activity_ids=activity_ids,
             count=count,
             flawless_count=flawless_count,
             not_flawless_count=not_flawless_count,
             fastest=fastest,
         )
+
+        if results is not None:
+            results.append(result)
+        return result
 
     async def get_activity_history(
         self,
@@ -265,11 +269,12 @@ class DestinyActivities:
     async def update_activity_db(self, entry_time: Optional[datetime.datetime] = None):
         """Gets this user's not-saved history and saves it in the db"""
 
-        async def handle(i: int, t: datetime.datetime) -> Optional[list[int, datetime.datetime, dict]]:
+        async def handle(results: list, i: int, t: datetime.datetime):
             """Get pgcr"""
 
             try:
                 pgcr = await self.get_pgcr(i)
+                results.append((i, t, pgcr.content))
 
             except CustomException:
                 logger.warning("Failed getting pgcr <%s>", i)
@@ -280,24 +285,20 @@ class DestinyActivities:
                 # looks like it failed, lets try again later
                 await crud_activities_fail_to_get.insert(db=self.db, instance_id=i, period=t)
 
-                return
-            return [i, t, pgcr.content]
-
         async def input_data(gather_instance_ids: list[int], gather_activity_times: list[datetime.datetime]):
             """Gather all pgcr and insert them"""
 
-            results = await asyncio.gather(*[handle(i, t) for i, t in zip(gather_instance_ids, gather_activity_times)])
+            # get the data with anyio tasks
+            results: list[tuple] = []
+            async with create_task_group() as tg:
+                for i, t in zip(gather_instance_ids, gather_activity_times):
+                    tg.start_soon(handle, results, i, t)
 
             # do this with a separate DB session, do make smaller commits
             async with get_async_session().begin() as session:
-                for result in results:
-                    if result:
-                        i = result[0]
-                        t = result[1]
-                        pgcr = result[2]
-
-                        # insert information to DB
-                        await crud_activities.insert(db=session, instance_id=i, activity_time=t, pgcr=pgcr)
+                for i, t, pgcr in results:
+                    # insert information to DB
+                    await crud_activities.insert(db=session, instance_id=i, activity_time=t, pgcr=pgcr)
 
         # get the logger
         logger = logging.getLogger("updateActivityDb")
@@ -322,7 +323,7 @@ class DestinyActivities:
             if activity_time > entry_time:
                 entry_time = activity_time
 
-            # needs to be same from gathers
+            # needs to be same for anyio tasks
             async with asyncio.Lock():
                 # check if info is already in DB, skip if so. query the cache first
                 if instance_id in cache.saved_pgcrs:
@@ -336,7 +337,7 @@ class DestinyActivities:
                 if await crud_activities.get(db=self.db, instance_id=instance_id) is not None:
                     continue
 
-            # add to gather list
+            # add to task list
             instance_ids.append(instance_id)
             activity_times.append(activity_time)
 
@@ -347,7 +348,7 @@ class DestinyActivities:
                 # get and input the data
                 await input_data(instance_ids, activity_times)
 
-                # reset gather list and restart
+                # reset task list and restart
                 instance_ids = []
                 activity_times = []
 
@@ -384,39 +385,45 @@ class DestinyActivities:
     async def get_solos(self) -> DestinyLowMansByCategoryModel:
         """Return the destiny solos"""
 
-        interesting_solos = await destiny_manifest.get_challenging_solo_activities(db=self.db)
-        solos_by_categories = DestinyLowMansByCategoryModel()
+        async def get_by_topic(t_category: str, t_activities: list[DestinyActivityModel]):
+            """Get the activities by topic"""
 
-        async def gather_by_topic(category: str, activities: list[DestinyActivityModel]):
-            """Gather the activities by topic"""
-
-            # get the results for this in a gather (keeps order)
+            # get the activities in anyio tasks
             # allow cp runs for raids
-            results = await asyncio.gather(
-                *[
-                    self.get_lowman_count(
-                        activity_ids=activity.activity_ids,
-                        max_player_count=1,
-                        no_checkpoints=activity.mode != UsableDestinyActivityModeTypeEnum.RAID.value,
+            results: list[DestinyLowManModel] = []
+            async with create_task_group() as tg2:
+                for activity in t_activities:
+                    tg2.start_soon(
+                        self.get_lowman_count,
+                        activity.activity_ids,
+                        1,
+                        False,
+                        activity.mode != UsableDestinyActivityModeTypeEnum.RAID.value,
+                        None,
+                        None,
+                        None,
+                        results,
                     )
-                    for activity in activities
-                ]
-            )
+            solos = DestinyLowMansModel(category=t_category)
 
             # loop through the results
-            solos = DestinyLowMansModel(category=category)
-            for result, activity in zip(results, activities):
-                solos.solos.append(DestinyUpdatedLowManModel(activity_name=activity.name, **result.dict()))
+            # first loop through the activities since we want them ordered
+            # a bit inefficient but fine really
+            for t_activity in t_activities:
+                for result in results:
+                    if t_activity.activity_ids == result.activity_ids:
+                        solos.solos.append(DestinyUpdatedLowManModel(activity_name=t_activity.name, **result.dict()))
+                        break
 
             solos_by_categories.categories.append(solos)
 
-        # get the results for all categories
-        await asyncio.gather(
-            *[
-                gather_by_topic(category=category, activities=activities)
-                for category, activities in interesting_solos.items()
-            ]
-        )
+        interesting_solos = await destiny_manifest.get_challenging_solo_activities(db=self.db)
+
+        # get the results for all categories in anyio tasks
+        solos_by_categories = DestinyLowMansByCategoryModel()
+        async with create_task_group() as tg1:
+            for category, activities in interesting_solos.items():
+                tg1.start_soon(get_by_topic, category, activities)
 
         return solos_by_categories
 

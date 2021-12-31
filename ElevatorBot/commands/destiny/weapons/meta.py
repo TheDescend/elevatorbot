@@ -1,8 +1,7 @@
-import asyncio
 import datetime
 from typing import Optional
 
-from anyio import to_process
+from anyio import create_task_group, to_process
 from dis_snek import Embed
 from dis_snek.models import (
     Guild,
@@ -99,24 +98,24 @@ class WeaponsMeta(BaseScale):
         if activity:
             activity = activities[activity.lower()]
 
-        # gather the clan members
-        results = await asyncio.gather(
-            *[
-                self.handle_clan_member(
-                    stat=stat,
-                    guild=ctx.guild,
-                    discord_id=clan_member.discord_id,
-                    start_time=start_time,
-                    end_time=end_time,
-                    mode=mode,
-                    activity=activity,
-                    destiny_class=destiny_class,
-                    weapon_type=weapon_type,
-                    damage_type=damage_type,
+        # get the clan members in anyio tasks
+        results: list[DestinyTopWeaponsModel] = []
+        async with create_task_group() as tg:
+            for clan_member in clan_members.members:
+                tg.start_soon(
+                    self.handle_clan_member,
+                    results,
+                    stat,
+                    clan_member.discord_id,
+                    ctx.guild,
+                    start_time,
+                    end_time,
+                    mode,
+                    activity,
+                    destiny_class,
+                    weapon_type,
+                    damage_type,
                 )
-                for clan_member in clan_members.members
-            ]
-        )
 
         # format the message
         embed = await to_process.run_sync(
@@ -136,6 +135,7 @@ class WeaponsMeta(BaseScale):
 
     @staticmethod
     async def handle_clan_member(
+        results: list,
         stat: DestinyTopWeaponsStatInputModelEnum,
         discord_id: int,
         guild: Guild,
@@ -146,12 +146,12 @@ class WeaponsMeta(BaseScale):
         destiny_class: str = None,
         weapon_type: int = None,
         damage_type: int = None,
-    ) -> DestinyTopWeaponsModel:
+    ):
         """Gather all clan members. Return None if something fails"""
 
         # get the top weapons for the user
         backend_weapons = DestinyWeapons(ctx=None, discord_member=None, discord_guild=guild)
-        return await backend_weapons.get_top(
+        result = await backend_weapons.get_top(
             discord_id=discord_id,
             input_data=DestinyTopWeaponsInputModel(
                 stat=stat,
@@ -164,6 +164,8 @@ class WeaponsMeta(BaseScale):
                 end_time=end_time,
             ),
         )
+
+        results.append(result)
 
 
 def setup(client):

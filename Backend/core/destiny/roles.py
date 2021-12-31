@@ -2,6 +2,7 @@ import asyncio
 import dataclasses
 from typing import Optional
 
+from anyio import create_task_group
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.destiny.profile import DestinyProfile
@@ -69,15 +70,12 @@ class UserRoles:
         guild_roles = await self.crud_roles.get_guild_roles(db=self.db, guild_id=guild_id)
         user_roles = EarnedRolesModel()
 
-        # gather the results for faster responses
-        await asyncio.gather(
-            *[
-                self._has_role(role=role, called_with_asyncio_gather=True, i_only_need_the_bool=True)
-                for role in guild_roles
-            ]
-        )
+        # get them in anyio tasks
+        async with create_task_group() as tg:
+            for role in guild_roles:
+                tg.start_soon(self._has_role, role, True, True)
 
-        # loop through the roles now that the gather is done and categorise them
+        # loop through the roles now that the tasks are done and categorise them
         for role in guild_roles:
             category = str(role.role_data.category)
             model = RolesCategoryModel(category=category, discord_role_id=role.role_id)
@@ -115,14 +113,14 @@ class UserRoles:
         """
 
         worthy, data = await self._has_role(
-            role=role, called_with_asyncio_gather=False, i_only_need_the_bool=i_only_need_the_bool
+            role=role, called_with_task_group=False, i_only_need_the_bool=i_only_need_the_bool
         )
         return EarnedRoleModel(earned=worthy, role=role, user_role_data=data)
 
     async def _has_role(
-        self, role: RoleModel, called_with_asyncio_gather: bool, i_only_need_the_bool: bool
+        self, role: RoleModel, called_with_task_group: bool, i_only_need_the_bool: bool
     ) -> tuple[RoleEnum, Optional[RoleDataUserModel]]:
-        """Check the role. Can be asyncio.gather()'d"""
+        """Check the role. Can be used in anyio task groups"""
 
         # check if it is set as acquirable
         if not role.role_data.acquirable:
@@ -132,20 +130,21 @@ class UserRoles:
         if role.role_id in self._cache_worthy:
             return self._cache_worthy[role.role_id], self._cache_worthy_info[role.role_id]
 
-        # gather all get_requirements
+        # get all get_requirements in anyio tasks
         self._cache_worthy_info[role.role_id] = {}
         try:
-            results = await asyncio.gather(
-                *[
-                    self._check_requirements(
-                        role=role,
-                        requirement_name=requirement_name,
-                        i_only_need_the_bool=i_only_need_the_bool,
-                        called_with_asyncio_gather=called_with_asyncio_gather,
+            results: list[RoleEnum] = []
+            async with create_task_group() as tg:
+                for requirement_name, _ in role.role_data:
+                    tg.start_soon(
+                        self._check_requirements,
+                        results,
+                        role,
+                        requirement_name,
+                        i_only_need_the_bool,
+                        called_with_task_group,
                     )
-                    for requirement_name, _ in role.role_data
-                ]
-            )
+
         except RoleNotEarnedException as e:
             self._cache_worthy[role.role_id] = RoleEnum.NOT_EARNED
             return self._cache_worthy[role.role_id], RoleDataUserModel.parse_obj(self._cache_worthy_info[e.role_id])
@@ -165,12 +164,13 @@ class UserRoles:
 
     async def _check_requirements(
         self,
+        results: list[RoleEnum],
         role: RoleModel,
         requirement_name: str,
         i_only_need_the_bool: bool,
-        called_with_asyncio_gather: bool,
-    ) -> RoleEnum:
-        """Check the get_requirements. Can be asyncio.gather()'d"""
+        called_with_task_group: bool,
+    ):
+        """Check the get_requirements. Can be used in task groups"""
 
         worthy = RoleEnum.EARNED
 
@@ -274,10 +274,10 @@ class UserRoles:
                 # loop through the role_ids
                 for requirement_role in role.role_data.require_role_ids:
                     # alright so this is a bit more convoluted
-                    # simply calling this function again would lead to double checking / race conditions when checking all roles (because of .gather())
+                    # simply calling this function again would lead to double-checking / race conditions when checking all roles (because of task groups)
                     # but just waiting would not work too, since a single role can get checked too
-                    # so we are waiting if called with gather, and looking ourselves if not
-                    if called_with_asyncio_gather:
+                    # so, we are waiting if called with tasks groups, and looking ourselves if not
+                    if called_with_task_group:
                         # 5 minutes wait time
                         waited_for = 0
                         while waited_for < 300:
@@ -309,7 +309,7 @@ class UserRoles:
                     else:
                         sub_role: Roles = await crud_roles.get_role(db=self.db, role_id=requirement_role.id)
                         sub_role_worthy, _ = await self._has_role(
-                            role=sub_role, called_with_asyncio_gather=False, i_only_need_the_bool=i_only_need_the_bool
+                            role=sub_role, called_with_task_group=False, i_only_need_the_bool=i_only_need_the_bool
                         )
 
                         if (
@@ -339,16 +339,16 @@ class UserRoles:
 
             case "replaced_by_role_id":
                 # only need to check this sometimes
-                if role.role_data.replaced_by_role_id and not called_with_asyncio_gather:
+                if role.role_data.replaced_by_role_id and not called_with_task_group:
                     # check the higher role
                     higher_role: Roles = await crud_roles.get_role(
                         db=self.db, role_id=role.role_data.replaced_by_role_id
                     )
                     higher_role_worthy, _ = await self._has_role(
-                        role=higher_role, called_with_asyncio_gather=False, i_only_need_the_bool=i_only_need_the_bool
+                        role=higher_role, called_with_task_group=False, i_only_need_the_bool=i_only_need_the_bool
                     )
 
                     if higher_role_worthy == RoleEnum.EARNED:
                         worthy = RoleEnum.EARNED_BUT_REPLACED_BY_HIGHER_ROLE
 
-        return worthy
+        results.append(worthy)

@@ -23,7 +23,7 @@ class TokenUpdater(BaseEvent):
             all_users = await discord_users.get_all_name(db=db)
 
             # loop through all users
-            # no need to gather. this can take time, its fine
+            # no need to task group this. this can take time, it's fine
             for user in all_users:
                 if user.token:
                     auth = BungieAuth(db=db, user=user)

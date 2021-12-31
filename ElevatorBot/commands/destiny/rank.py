@@ -2,6 +2,7 @@ import asyncio
 import dataclasses
 from typing import Optional
 
+from anyio import create_task_group
 from dis_snek.models import (
     InteractionContext,
     Member,
@@ -239,19 +240,11 @@ class Rank(BaseScale):
         ]
         discord_members = [discord_member for discord_member in discord_members if discord_member]
 
-        # gather all results
-        results = await asyncio.gather(
-            *[
-                self.handle_member(
-                    ctx=ctx,
-                    discord_member=discord_member,
-                    leaderboard_name=leaderboard_name,
-                    activity=activity,
-                    weapon=weapon,
-                )
-                for discord_member in discord_members
-            ]
-        )
+        # get all results in anyio tasks
+        results: list[RankResult] = []
+        async with create_task_group() as tg:
+            for discord_member in discord_members:
+                tg.start_soon(self.handle_member, results, ctx, discord_member, leaderboard_name, activity, weapon)
 
         # sort the results
         sort_by_ascending = results[0].sort_by_ascending
@@ -314,12 +307,13 @@ class Rank(BaseScale):
 
     @staticmethod
     async def handle_member(
+        results: list[RankResult],
         ctx: InteractionContext,
         discord_member: Member,
         leaderboard_name: str,
         activity: Optional[DestinyActivityModel] = None,
         weapon: Optional[DestinyWeaponModel] = None,
-    ) -> RankResult:
+    ):
         """
         Gather all clan members. Faster that way :)
         Raises RuntimeError if something went wrong
@@ -730,7 +724,7 @@ class Rank(BaseScale):
                 result.sort_value = percent
                 result.display_text = f"% Precision Kills: {round(percent, 2)}"
 
-        return result
+        results.append(result)
 
 
 def setup(client):

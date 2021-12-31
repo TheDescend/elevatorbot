@@ -1,5 +1,6 @@
 import asyncio
 
+from anyio import create_task_group
 from dis_snek.models import (
     InteractionContext,
     OptionTypes,
@@ -38,12 +39,9 @@ class DayOneRaid(BaseScale):
                     raid_completions.append(player.discord_member.mention)
 
         raid_completions = []
-        await asyncio.gather(
-            *[
-                check_member(DestinyAccount(ctx=ctx, discord_member=member, discord_guild=ctx.guild))
-                for member in ctx.guild.members
-            ]
-        )
+        async with create_task_group() as tg:
+            for member in ctx.guild.members:
+                tg.start_soon(check_member, DestinyAccount(ctx=ctx, discord_member=member, discord_guild=ctx.guild))
 
         embed = embed_message(f"{raid} - Day One Completions")
 
