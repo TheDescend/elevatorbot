@@ -32,7 +32,7 @@ async def get_all(guild_id: int, db: AsyncSession = Depends(get_db_session)):
 async def get_user_all(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Get all roles for a user in their guild"""
 
-    user = await discord_users.get_profile_from_discord_id(db, discord_id)
+    user = await discord_users.get_profile_from_discord_id(discord_id)
     profile = DestinyProfile(db=db, user=user)
     user_roles = UserRoles(db=db, user=profile)
 
@@ -47,7 +47,7 @@ async def get_user_all(guild_id: int, discord_id: int, db: AsyncSession = Depend
 async def get_user_missing(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Get the missing roles for a user in a guild"""
 
-    user = await discord_users.get_profile_from_discord_id(db, discord_id)
+    user = await discord_users.get_profile_from_discord_id(discord_id)
     profile = DestinyProfile(db=db, user=user)
     user_roles = UserRoles(db=db, user=profile)
 
@@ -62,7 +62,7 @@ async def get_user_missing(guild_id: int, discord_id: int, db: AsyncSession = De
 async def get_user_role(guild_id: int, role_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Get completion info for a role for a user"""
 
-    user = await discord_users.get_profile_from_discord_id(db, discord_id)
+    user = await discord_users.get_profile_from_discord_id(discord_id)
     profile = DestinyProfile(db=db, user=user)
     user_roles = UserRoles(db=db, user=profile)
 

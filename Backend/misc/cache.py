@@ -52,8 +52,8 @@ class Cache:
         init=False, default_factory=dict
     )
 
-    # Interesting Solos  - Key: activity_name
-    interesting_solos: list[DestinyActivityModel] = dataclasses.field(init=False, default_factory=list)
+    # Interesting Solos - Key: activity_category
+    interesting_solos: dict[str, list[DestinyActivityModel]] = dataclasses.field(init=False, default_factory=dict)
 
     def reset(self):
         """Reset the caches after a manifest update"""
@@ -63,7 +63,7 @@ class Cache:
         self.items = {}
         self.catalysts = []
         self.seals = {}
-        self.interesting_solos = []
+        self.interesting_solos = {}
 
 
 cache = Cache()

@@ -120,8 +120,8 @@ async def invite(
     link = await destiny_clan_links.get_link(db=db, discord_guild_id=guild_id)
 
     # get the data for the users
-    clan_admin_user = await discord_users.get_profile_from_discord_id(db=db, discord_id=link.linked_by_discord_id)
-    to_invite_user = await discord_users.get_profile_from_discord_id(db=db, discord_id=discord_id)
+    clan_admin_user = await discord_users.get_profile_from_discord_id(discord_id=link.linked_by_discord_id)
+    to_invite_user = await discord_users.get_profile_from_discord_id(discord_id=discord_id)
 
     # invite to the clan
     clan = DestinyClan(db=db, user=clan_admin_user, guild_id=guild_id)
@@ -142,8 +142,8 @@ async def kick(
     link = await destiny_clan_links.get_link(db=db, discord_guild_id=guild_id)
 
     # get the data for the users
-    clan_admin_user = await discord_users.get_profile_from_discord_id(db=db, discord_id=link.linked_by_discord_id)
-    to_kick_user = await discord_users.get_profile_from_discord_id(db=db, discord_id=discord_id)
+    clan_admin_user = await discord_users.get_profile_from_discord_id(discord_id=link.linked_by_discord_id)
+    to_kick_user = await discord_users.get_profile_from_discord_id(discord_id=discord_id)
 
     # kick from clan
     clan = DestinyClan(db=db, guild_id=guild_id, user=clan_admin_user)

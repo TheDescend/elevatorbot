@@ -31,7 +31,7 @@ async def last(
 ):
     """Return information about the last completed activity"""
 
-    user = await discord_users.get_profile_from_discord_id(db, discord_id)
+    user = await discord_users.get_profile_from_discord_id(discord_id)
 
     # update the users db entries
     activities = DestinyActivities(db=db, user=user)
@@ -54,7 +54,7 @@ async def activity(
 ):
     """Return information about the user their stats in the supplied activity ids"""
 
-    user = await discord_users.get_profile_from_discord_id(db, discord_id)
+    user = await discord_users.get_profile_from_discord_id(discord_id)
 
     # update the user's db entries
     activities = DestinyActivities(db=db, user=user)

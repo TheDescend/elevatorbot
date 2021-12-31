@@ -33,6 +33,7 @@ from NetworkingSchemas.destiny.account import (
     BoolModelRecord,
     DestinyCatalystsModel,
     DestinyCharactersModel,
+    DestinyLowMansByCategoryModel,
     DestinyLowMansModel,
     DestinySealsModel,
     DestinyStatInputModel,
@@ -59,7 +60,7 @@ class DestinyAccount(BaseBackendConnection):
         # convert to correct pydantic model
         return NameModel.parse_obj(result.result)
 
-    async def get_solos(self) -> DestinyLowMansModel:
+    async def get_solos(self) -> DestinyLowMansByCategoryModel:
         """Return the solos the user has done"""
 
         result = await self._backend_request(
@@ -68,7 +69,7 @@ class DestinyAccount(BaseBackendConnection):
         )
 
         # convert to correct pydantic model
-        return DestinyLowMansModel.parse_obj(result.result)
+        return DestinyLowMansByCategoryModel.parse_obj(result.result)
 
     async def get_time(
         self,

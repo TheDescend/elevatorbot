@@ -23,13 +23,16 @@ from Backend.misc.helperFunctions import get_datetime_from_bungie_entry, get_now
 from Backend.networking.bungieApi import BungieApi
 from Backend.networking.bungieRoutes import activities_route, pgcr_route
 from Backend.networking.schemas import WebResponse
+from DestinyEnums.enums import UsableDestinyActivityModeTypeEnum
 from NetworkingSchemas.destiny.account import (
+    DestinyLowMansByCategoryModel,
     DestinyLowMansModel,
     DestinyUpdatedLowManModel,
 )
 from NetworkingSchemas.destiny.activities import (
     DestinyActivityDetailsModel,
     DestinyActivityDetailsUsersModel,
+    DestinyActivityModel,
     DestinyActivityOutputModel,
     DestinyLowManModel,
 )
@@ -378,25 +381,44 @@ class DestinyActivities:
 
         return self._full_character_list
 
-    async def get_solos(self) -> DestinyLowMansModel:
+    async def get_solos(self) -> DestinyLowMansByCategoryModel:
         """Return the destiny solos"""
 
         interesting_solos = await destiny_manifest.get_challenging_solo_activities(db=self.db)
+        solos_by_categories = DestinyLowMansByCategoryModel()
 
-        # get the results for this in a gather (keeps order)
-        results = await asyncio.gather(
+        async def gather_by_topic(category: str, activities: list[DestinyActivityModel]):
+            """Gather the activities by topic"""
+
+            # get the results for this in a gather (keeps order)
+            # allow cp runs for raids
+            results = await asyncio.gather(
+                *[
+                    self.get_lowman_count(
+                        activity_ids=activity.activity_ids,
+                        max_player_count=1,
+                        no_checkpoints=activity.mode != UsableDestinyActivityModeTypeEnum.RAID.value,
+                    )
+                    for activity in activities
+                ]
+            )
+
+            # loop through the results
+            solos = DestinyLowMansModel(category=category)
+            for result, activity in zip(results, activities):
+                solos.solos.append(DestinyUpdatedLowManModel(activity_name=activity.name, **result.dict()))
+
+            solos_by_categories.categories.append(solos)
+
+        # get the results for all categories
+        await asyncio.gather(
             *[
-                self.get_lowman_count(activity_ids=activity.activity_ids, max_player_count=1)
-                for activity in interesting_solos
+                gather_by_topic(category=category, activities=activities)
+                for category, activities in interesting_solos.items()
             ]
         )
-        solos = DestinyLowMansModel()
 
-        # loop through the results
-        for result, activity in zip(results, interesting_solos):
-            solos.solos.append(DestinyUpdatedLowManModel(activity_name=activity.name, **result.dict()))
-
-        return solos
+        return solos_by_categories
 
     async def get_activity_stats(
         self,

@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from Backend.core.errors import CustomException
 from Backend.crud.base import CRUDBase
 from Backend.crud.misc.persistentMessages import persistent_messages
+from Backend.database.base import get_async_session
 from Backend.database.models import DiscordUsers
 from Backend.misc.cache import cache
 from Backend.misc.helperFunctions import get_now_with_tz, localize_datetime
@@ -21,14 +22,15 @@ from settings import BUNGIE_APPLICATION_API_KEY
 class CRUDDiscordUser(CRUDBase):
     cache = cache
 
-    async def get_profile_from_discord_id(self, db: AsyncSession, discord_id: int) -> DiscordUsers:
+    async def get_profile_from_discord_id(self, discord_id: int) -> DiscordUsers:
         """Return the profile information"""
 
         # check if exists in cache
         if discord_id in self.cache.discord_users:
             return self.cache.discord_users[discord_id]
 
-        profile: Optional[DiscordUsers] = await self._get_with_key(db, discord_id)
+        async with get_async_session().begin() as db:
+            profile: Optional[DiscordUsers] = await self._get_with_key(db, discord_id)
 
         # make sure the user exists
         if not profile:

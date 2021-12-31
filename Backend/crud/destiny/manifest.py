@@ -1,7 +1,8 @@
+import asyncio
 import dataclasses
 from typing import Any, Optional, TypeVar
 
-from sqlalchemy import or_, select
+from sqlalchemy import not_, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.crud.base import CRUDBase
@@ -162,52 +163,83 @@ class CRUDManifest(CRUDBase):
     async def get_challenging_solo_activities(self, db: AsyncSession) -> list[DestinyActivityModel]:
         """Get activities that are difficult to solo"""
 
-        # check cache
-        if not cache.interesting_solos:
-            interesting_solos = [
-                "Shattered Throne",
-                "Pit of Heresy",
-                "Prophecy",
-                "Harbinger",
-                "Presage",
-                "Master Presage",
-                "The Whisper",
-                "Zero Hour",
-                "Grandmaster Nightfalls",
-                "Grasp of Avarice",
-            ]
+        async with asyncio.Lock():
+            # check cache
+            if not cache.interesting_solos:
+                # key is the topic, then the activity display name
+                # the value is a list with list[0] being what string the activity name has to include list[1] and what to exclude
+                interesting_solos = {
+                    "Dungeons": {
+                        "Shattered Throne": ["Shattered Throne", None],
+                        "Pit of Heresy": ["Pit of Heresy", None],
+                        "Prophecy": ["Prophecy", None],
+                        "Grasp of Avarice: Normal": ["Grasp of Avarice: Legend", None],
+                        "Grasp of Avarice: Master": ["Grasp of Avarice: Master", None],
+                    },
+                    "Raids": {
+                        "Eater of Worlds": ["Eater of Worlds", None],
+                        "Vault of Glass": ["Vault of Glass", None],
+                    },
+                    "Story Missions": {
+                        "The Whisper: Normal": ["The Whisper", "Heroic"],
+                        "The Whisper: Master": ["The Whisper (Heroic)", None],
+                        "Zero Hour: Normal": ["Zero Hour", "Heroic"],
+                        "Zero Hour: Master": ["Zero Hour (Heroic)", None],
+                        "Harbinger": ["Harbinger", None],
+                        "Presage: Normal": ["Presage: Normal", None],
+                        "Presage: Master": ["Presage: Master", None],
+                    },
+                    "Miscellaneous": {"Grandmaster Nightfalls": "grandmaster_nf"},
+                }
 
-            # loop through each of the entries
-            for activity_name in interesting_solos:
-                query = select(DestinyActivityDefinition)
-                query = query.filter(DestinyActivityDefinition.name.contains(activity_name))
+                # loop through each of the entries
+                for category, items in interesting_solos.items():
+                    if category not in cache.interesting_solos:
+                        cache.interesting_solos[category] = []
 
-                db_results = await self._execute_query(db=db, query=query)
-                db_result: list[DestinyActivityDefinition] = db_results.scalars().all()
+                    for activity_name, search_data in items.items():
+                        # special handling for grandmasters
+                        if search_data == "grandmaster_nf":
+                            gms = await self.get_grandmaster_nfs(db=db)
 
-                # loop through all activities and save them by name
-                data = None
-                for activity in db_result:
-                    if not data:
-                        data = DestinyActivityModel(
-                            name=activity.name,
-                            description=activity.description,
-                            matchmade=activity.matchmade,
-                            max_players=activity.max_players,
-                            activity_ids=[activity.reference_id],
-                            mode=activity.direct_activity_mode_type,
-                        )
-                    else:
-                        data.activity_ids.append(activity.reference_id)
+                            # all gms is the first index there
+                            data = gms[0]
+                            data.name = activity_name
 
-                # check that we got some
-                if not is_test_mode():
-                    assert data
+                        else:
+                            query = select(DestinyActivityDefinition)
+                            query = query.filter(DestinyActivityDefinition.name.contains(search_data[0]))
 
-                if data:
-                    cache.interesting_solos.append(data)
+                            # do we want to exclude a search string
+                            if search_data[1]:
+                                query = query.filter(not_(DestinyActivityDefinition.name.contains(search_data[1])))
 
-        return cache.interesting_solos
+                            db_results = await self._execute_query(db=db, query=query)
+                            db_result: list[DestinyActivityDefinition] = db_results.scalars().all()
+
+                            # loop through all activities and save them by name
+                            data = None
+                            for activity in db_result:
+                                if not data:
+                                    data = DestinyActivityModel(
+                                        name=activity_name,
+                                        description=activity.description,
+                                        matchmade=activity.matchmade,
+                                        max_players=activity.max_players,
+                                        activity_ids=[activity.reference_id],
+                                        mode=activity.direct_activity_mode_type,
+                                    )
+                                else:
+                                    data.activity_ids.append(activity.reference_id)
+
+                        # check that we got some
+                        if not is_test_mode():
+                            assert data is not None
+
+                        if data:
+                            cache.interesting_solos[category].append(data)
+
+            return cache.interesting_solos
 
     async def get_current_season_pass(self, db: AsyncSession) -> DestinySeasonPassDefinition:
         """Get the current season pass from the DB"""

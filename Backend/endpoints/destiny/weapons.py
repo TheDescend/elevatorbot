@@ -36,7 +36,7 @@ async def get_top(
 ):
     """Get the users top weapons"""
 
-    user = await discord_users.get_profile_from_discord_id(db, discord_id)
+    user = await discord_users.get_profile_from_discord_id(discord_id)
     weapons = DestinyWeapons(db=db, user=user)
     return await weapons.get_top_weapons(
         stat=input_model.stat,
@@ -62,7 +62,7 @@ async def get_weapon(
 ):
     """Get the users stats for the specified weapon"""
 
-    user = await discord_users.get_profile_from_discord_id(db, discord_id)
+    user = await discord_users.get_profile_from_discord_id(discord_id)
     weapons = DestinyWeapons(db=db, user=user)
     return await weapons.get_weapon_stats(
         weapon_ids=input_model.weapon_ids,

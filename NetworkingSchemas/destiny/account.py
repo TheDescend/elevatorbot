@@ -56,6 +56,11 @@ class DestinyUpdatedLowManModel(DestinyLowManModel):
 
 class DestinyLowMansModel(CustomBaseModel):
     solos: list[DestinyUpdatedLowManModel] = []
+    category: Optional[str] = None
+
+
+class DestinyLowMansByCategoryModel(CustomBaseModel):
+    categories: list[DestinyLowMansModel] = []
 
 
 class SeasonalChallengesRecordModel(CustomBaseModel):
