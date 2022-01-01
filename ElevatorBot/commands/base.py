@@ -66,13 +66,15 @@ class BaseScale(RegisteredScale):
             return True
 
         # get the registration role
-        registration_role = await registered_role_cache.get(guild=ctx.guild)
+        try:
+            registration_role = await registered_role_cache.get(guild=ctx.guild)
+        except BackendException:
+            registration_role = None
 
         # check in cache if the user is registered
         if await registered_role_cache.is_not_registered(ctx.author.id):
             result = DestinyHasTokenModel(token=False)
         else:
-            # todo test
             try:
                 # check their status with the backend
                 result = await DestinyProfile(ctx=None, discord_member=ctx.author, discord_guild=ctx.guild).has_token()
