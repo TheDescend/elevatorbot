@@ -26,6 +26,7 @@ def init_logging() -> None:
 
     # Initialize logging for incoming requests
     make_logger("requests")
+    make_logger("exceptions")
 
     # Initialize logging for external api requests
     make_logger("bungieApi")

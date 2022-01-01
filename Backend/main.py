@@ -2,6 +2,7 @@ import importlib.util
 import logging
 import os
 import time
+import traceback
 
 from fastapi import Depends, FastAPI, Request
 
@@ -52,19 +53,34 @@ async def log_requests(request: Request, call_next):
 
     # calculate the time needed to handle the request
     start_time = time.time()
-    response = await call_next(request)
-    process_time = round(time.time() - start_time, 2)
+    try:
+        response = await call_next(request)
+    except Exception as error:
+        # log that
+        print(error)
+        logger = logging.getLogger("exceptions")
+        logger.exception(
+            "'%s' for '%s' - Error '%s' - Traceback: \n'%s'",
+            request.method,
+            request.url,
+            error,
+            "".join(traceback.format_tb(error.__traceback__)),
+        )
+        raise error
 
-    # log that
-    logger = logging.getLogger("requests")
-    logger.info(
-        "'%s' completed in '%s' seconds for '%s'",
-        request.method,
-        process_time,
-        request.url,
-    )
+    else:
+        process_time = round(time.time() - start_time, 2)
 
-    return response
+        # log that
+        logger = logging.getLogger("requests")
+        logger.info(
+            "'%s' completed in '%s' seconds for '%s'",
+            request.method,
+            process_time,
+            request.url,
+        )
+
+        return response
 
 
 if ENABLE_DEBUG_MODE:

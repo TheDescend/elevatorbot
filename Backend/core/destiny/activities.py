@@ -2,6 +2,7 @@ import asyncio
 import dataclasses
 import datetime
 import logging
+import traceback
 from collections.abc import AsyncGenerator
 from typing import Optional
 
@@ -303,65 +304,77 @@ class DestinyActivities:
         # get the logger
         logger = logging.getLogger("updateActivityDb")
 
-        # get the entry time
-        if not entry_time:
-            entry_time = self.user.activities_last_updated
+        try:
+            # get the entry time
+            if not entry_time:
+                entry_time = self.user.activities_last_updated
 
-        logger.info("Starting activity DB update for destinyID <%s>", self.destiny_id)
+            logger.info("Starting activity DB update for destinyID '%s'", self.destiny_id)
 
-        # loop through all activities
-        instance_ids = []
-        activity_times = []
-        success = False
-        async for activity in self.get_activity_history(mode=0, earliest_allowed_datetime=entry_time):
-            success = True
+            # loop through all activities
+            instance_ids = []
+            activity_times = []
+            success = False
+            async for activity in self.get_activity_history(mode=0, earliest_allowed_datetime=entry_time):
+                success = True
 
-            instance_id = int(activity["activityDetails"]["instanceId"])
-            activity_time: datetime.datetime = activity["period"]
+                instance_id = int(activity["activityDetails"]["instanceId"])
+                activity_time: datetime.datetime = activity["period"]
 
-            # update with the newest entry timestamp
-            if activity_time > entry_time:
-                entry_time = activity_time
+                # update with the newest entry timestamp
+                if activity_time > entry_time:
+                    entry_time = activity_time
 
-            # needs to be same for anyio tasks
-            async with asyncio.Lock():
-                # check if info is already in DB, skip if so. query the cache first
-                if instance_id in cache.saved_pgcrs:
+                # needs to be same for anyio tasks
+                async with asyncio.Lock():
+                    # check if info is already in DB, skip if so. query the cache first
+                    if instance_id in cache.saved_pgcrs:
+                        continue
+
+                    # add the instance_id to the cache to prevent other users with the same instance to double check this
+                    # will get removed again if something fails
+                    cache.saved_pgcrs.add(instance_id)
+
+                    # check if the cache is maybe just wrong
+                    if await crud_activities.get(db=self.db, instance_id=instance_id) is not None:
+                        continue
+
+                # add to task list
+                instance_ids.append(instance_id)
+                activity_times.append(activity_time)
+
+                # gather once list is big enough
+                if len(instance_ids) < 50:
                     continue
+                else:
+                    # get and input the data
+                    await input_data(instance_ids, activity_times)
 
-                # add the instance_id to the cache to prevent other users with the same instance to double check this
-                # will get removed again if something fails
-                cache.saved_pgcrs.add(instance_id)
+                    # reset task list and restart
+                    instance_ids = []
+                    activity_times = []
 
-                # check if the cache is maybe just wrong
-                if await crud_activities.get(db=self.db, instance_id=instance_id) is not None:
-                    continue
-
-            # add to task list
-            instance_ids.append(instance_id)
-            activity_times.append(activity_time)
-
-            # gather once list is big enough
-            if len(instance_ids) < 50:
-                continue
-            else:
+            # one last time to clean out the extras after the code is done
+            if instance_ids:
                 # get and input the data
                 await input_data(instance_ids, activity_times)
 
-                # reset task list and restart
-                instance_ids = []
-                activity_times = []
+            # update them with the newest entry timestamp
+            if success:
+                await discord_users.update(db=self.db, to_update=self.user, activities_last_updated=entry_time)
 
-        # one last time to clean out the extras after the code is done
-        if instance_ids:
-            # get and input the data
-            await input_data(instance_ids, activity_times)
+            logger.info("Done with activity DB update for destinyID '%s'", self.destiny_id)
 
-        # update them with the newest entry timestamp
-        if success:
-            await discord_users.update(db=self.db, to_update=self.user, activities_last_updated=entry_time)
-
-        logger.info("Done with activity DB update for destinyID <%s>", self.destiny_id)
+        except Exception as error:
+            # log that
+            print(error)
+            logger.error(
+                "Activity DB update for destinyID '%s' - Error '%s' - Traceback: \n'%s'",
+                self.destiny_id,
+                error,
+                "".join(traceback.format_tb(error.__traceback__)),
+            )
+            raise error
 
     async def __get_full_character_list(self) -> list[dict]:
         """Get all character ids (including deleted characters)"""
