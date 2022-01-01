@@ -18,14 +18,15 @@ class Solos(BaseScale):
     )
     @default_user_option()
     async def solos(self, ctx: InteractionContext, user: Member = None):
-        account = DestinyAccount(ctx=ctx, discord_member=user, discord_guild=ctx.guild)
+        member = user or ctx.author
+        account = DestinyAccount(ctx=ctx, discord_member=member, discord_guild=ctx.guild)
 
         # get the solo data
         solos = await account.get_solos()
         data = {solo.category: solo.solos for solo in solos.categories}
 
         # display the data using the first category as a key
-        await self.display_solo_page(ctx=ctx, member=user or ctx.author, data=data, key=list(data)[0])
+        await self.display_solo_page(ctx=ctx, member=member, data=data, key=list(data)[0])
 
     async def display_solo_page(
         self,
