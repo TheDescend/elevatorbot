@@ -193,7 +193,7 @@ class CRUDActivities(CRUDBase):
             query = query.filter(Activities.starting_phase_index == 0)
 
         # limit max users to player_count
-        if maximum_allowed_players:
+        if maximum_allowed_players is not None:
             query = query.having(func.count(distinct(ActivitiesUsers.destiny_id)) <= maximum_allowed_players)
 
         # team flawless required?

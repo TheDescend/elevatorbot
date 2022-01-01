@@ -91,7 +91,7 @@ async def insert_dummy_data(db: AsyncSession, client: AsyncClient):
         state=f"{dummy_discord_id}:{dummy_discord_guild_id}:{dummy_discord_channel_id}",
     )
     result, user, discord_id, guild_id = await discord_users.insert_profile(db=db, bungie_token=token_data)
-    assert result.success is True
+    assert result.bungie_name == dummy_bungie_name
     assert user.destiny_id == dummy_destiny_id
     assert discord_id == dummy_discord_id
     assert guild_id == dummy_discord_guild_id

@@ -2,13 +2,13 @@ from fastapi import Depends, HTTPException
 from jose import JWTError, jwt
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from Backend import crud
 from Backend.core.security.auth import (
     ALGORITHM,
     CREDENTIALS_EXCEPTION,
     get_secret_key,
     oauth2_scheme,
 )
+from Backend.crud import backend_user
 from Backend.database.base import get_async_session
 from Backend.database.models import BackendUser
 
@@ -31,7 +31,7 @@ async def auth_get_user(token: str = Depends(oauth2_scheme), db: AsyncSession = 
         raise CREDENTIALS_EXCEPTION
 
     # get the user
-    user = await crud.backend_user._get_with_key(db, user_name)
+    user = await backend_user._get_with_key(db, user_name)
 
     # verify that the user is OK
     if user is None:

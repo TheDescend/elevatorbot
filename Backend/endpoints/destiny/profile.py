@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from Backend import crud
 from Backend.crud import discord_users
 from Backend.dependencies import get_db_session
 from NetworkingSchemas.basic import EmptyResponseModel
@@ -17,7 +16,7 @@ router = APIRouter(
 async def discord_get(discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Return a users profile"""
 
-    profile = await crud.discord_users.get_profile_from_discord_id(db, discord_id)
+    profile = await discord_users.get_profile_from_discord_id(discord_id)
     return DestinyProfileModel.from_orm(profile)
 
 
@@ -25,7 +24,7 @@ async def discord_get(discord_id: int, db: AsyncSession = Depends(get_db_session
 async def discord_has_token(discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Return if a user has a valid token"""
 
-    profile = await crud.discord_users.get_profile_from_discord_id(db, discord_id)
+    profile = await discord_users.get_profile_from_discord_id(discord_id)
     if not profile:
         return DestinyHasTokenModel(token=False, value=None)
     no_token = await discord_users.token_is_expired(db=db, user=profile)
@@ -46,7 +45,7 @@ async def discord_registration_role(guild_id: int, discord_id: int, db: AsyncSes
 async def destiny_get(destiny_id: int, db: AsyncSession = Depends(get_db_session)):
     """Return a users profile"""
 
-    profile = await crud.discord_users.get_profile_from_destiny_id(db, destiny_id)
+    profile = await discord_users.get_profile_from_destiny_id(db, destiny_id)
     return DestinyProfileModel.from_orm(profile)
 
 
@@ -54,5 +53,5 @@ async def destiny_get(destiny_id: int, db: AsyncSession = Depends(get_db_session
 async def discord_delete(discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Delete a users profile"""
 
-    await crud.discord_users.delete_profile(db, discord_id)
+    await discord_users.delete_profile(db, discord_id)
     return EmptyResponseModel()

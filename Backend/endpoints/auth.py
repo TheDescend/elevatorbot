@@ -6,11 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from Backend import crud
-from Backend.core.destiny.activities import (
-    DestinyActivities,
-    update_activities_in_background,
-)
+from Backend.core.destiny.activities import update_activities_in_background
 from Backend.core.security.auth import ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token
 from Backend.crud import discord_users
 from Backend.dependencies import get_db_session
@@ -18,7 +14,6 @@ from Backend.networking.bungieAuth import BungieRegistration
 from Backend.networking.elevatorApi import ElevatorApi
 from NetworkingSchemas.misc.auth import (
     BungieRegistrationInput,
-    BungieTokenInput,
     BungieTokenOutput,
     Token,
 )
@@ -41,10 +36,7 @@ async def save_bungie_token(bungie_input: BungieRegistrationInput, db: AsyncSess
     bungie_token = await auth.get_first_token(user_input=bungie_input)
 
     # save in db
-    result, user, discord_id, guild_id = await crud.discord_users.insert_profile(
-        db=db,
-        bungie_token=bungie_token,
-    )
+    result, user, discord_id, guild_id = await discord_users.insert_profile(db=db, bungie_token=bungie_token)
 
     logger = logging.getLogger("registration")
     logger.info(
@@ -87,7 +79,7 @@ async def login_for_access_token(
 ):
     """Generate and return a token"""
 
-    user = await crud.backend_user.authenticate(db=db, user_name=form_data.username, password=form_data.password)
+    user = await backend_user.authenticate(db=db, user_name=form_data.username, password=form_data.password)
 
     # check if OK
     if user:

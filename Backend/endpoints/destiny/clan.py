@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from Backend import crud
 from Backend.core.destiny.clan import DestinyClan
 from Backend.core.destiny.profile import DestinyProfile
 from Backend.core.errors import CustomException
@@ -71,7 +70,7 @@ async def link_clan(
 ):
     """Links the discord guild to the destiny clan"""
 
-    user = await crud.discord_users.get_profile_from_discord_id(db, discord_id)
+    user = await discord_users.get_profile_from_discord_id(discord_id)
     profile = DestinyProfile(db=db, user=user)
     user_clan = await profile.get_clan()
 
@@ -80,9 +79,7 @@ async def link_clan(
     if not await clan.is_clan_admin(clan_id=user_clan.id):
         raise CustomException("ClanNoPermissions")
 
-    await crud.destiny_clan_links.link(
-        db=db, discord_id=discord_id, discord_guild_id=guild_id, destiny_clan_id=user_clan.id
-    )
+    await destiny_clan_links.link(db=db, discord_id=discord_id, discord_guild_id=guild_id, destiny_clan_id=user_clan.id)
 
     return DestinyClanLink(success=True, clan_name=user_clan.name)
 
@@ -95,12 +92,12 @@ async def unlink_clan(
 ):
     """Unlinks the discord guild from the destiny clan"""
 
-    profile = await crud.discord_users.get_profile_from_discord_id(db, discord_id)
+    profile = await discord_users.get_profile_from_discord_id(discord_id)
     clan = DestinyClan(db=db, user=profile, guild_id=guild_id)
 
     linked_clan = await clan.get_clan()
 
-    await crud.destiny_clan_links.unlink(
+    await destiny_clan_links.unlink(
         db=db,
         discord_guild_id=guild_id,
     )
