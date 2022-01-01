@@ -3,7 +3,7 @@ import dataclasses
 import datetime
 from typing import Optional
 
-from anyio import to_process
+from anyio import to_thread
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.errors import CustomException
@@ -239,7 +239,7 @@ class DestinyProfile:
         char_data = await self.__get_all_inventory_bucket(include_item_level=True)
 
         # look at each character
-        max_power = await to_process.run_sync(get_max_power_subprocess, char_data)
+        max_power = await to_thread.run_sync(get_max_power_subprocess, char_data)
 
         return max_power
 
@@ -558,7 +558,7 @@ class DestinyProfile:
         user_records = await self.get_triumphs()
 
         # now calculate the members completions status
-        user_sc = await to_process.run_sync(get_seasonal_challenges_subprocess, user_sc, user_records)
+        user_sc = await to_thread.run_sync(get_seasonal_challenges_subprocess, user_sc, user_records)
 
         return user_sc
 
@@ -617,7 +617,7 @@ class DestinyProfile:
         result = await self.__get_profile()
 
         # combine profile and character ones
-        self._triumphs = await to_process.run_sync(get_triumphs_subprocess, result)
+        self._triumphs = await to_thread.run_sync(get_triumphs_subprocess, result)
 
         return self._triumphs
 
@@ -627,7 +627,7 @@ class DestinyProfile:
         result = await self.__get_profile()
 
         # combine profile and character ones
-        return await to_process.run_sync(get_collectibles_subprocess, result)
+        return await to_thread.run_sync(get_collectibles_subprocess, result)
 
     async def get_metrics(self) -> dict:
         """Populate the metrics and then return them"""
@@ -702,7 +702,7 @@ class DestinyProfile:
         result = await self.__get_profile()
 
         # only get the items in the correct buckets
-        items = await to_process.run_sync(get_inventory_bucket_subprocess, result, buckets)
+        items = await to_thread.run_sync(get_inventory_bucket_subprocess, result, buckets)
 
         return items
 

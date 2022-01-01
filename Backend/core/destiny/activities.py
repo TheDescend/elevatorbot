@@ -5,7 +5,7 @@ import logging
 from collections.abc import AsyncGenerator
 from typing import Optional
 
-from anyio import create_task_group, to_process
+from anyio import create_task_group, to_thread
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.destiny.profile import DestinyProfile
@@ -84,7 +84,7 @@ class DestinyActivities:
         )
 
         # prepare player data
-        count, flawless_count, not_flawless_count, fastest = await to_process.run_sync(
+        count, flawless_count, not_flawless_count, fastest = await to_thread.run_sync(
             get_lowman_count_subprocess, low_activity_info
         )
         result = DestinyLowManModel(
@@ -455,7 +455,7 @@ class DestinyActivities:
         )
 
         # get output model
-        result = await to_process.run_sync(get_activity_stats_subprocess, data)
+        result = await to_thread.run_sync(get_activity_stats_subprocess, data)
 
         return result
 
@@ -467,6 +467,7 @@ async def update_activities_in_background(user: DiscordUsers):
         await activities.update_activity_db()
 
 
+# todo those are running in to_thread.run_sync instead of subprocesses since they didnt work for whatever reason. subprocesses would be faster
 def get_lowman_count_subprocess(
     low_activity_info: list[ActivitiesUsers],
 ) -> tuple[int, int, int, Optional[datetime.timedelta]]:

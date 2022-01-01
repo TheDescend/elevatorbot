@@ -2,7 +2,7 @@ import dataclasses
 import datetime
 from typing import Any, Optional
 
-from anyio import to_process
+from anyio import to_thread
 from sqlalchemy.engine import Row
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -124,7 +124,7 @@ class DestinyWeapons:
         )
 
         # loop through all the usages and find what we are looking for
-        result = await to_process.run_sync(get_weapon_stats_subprocess, usages)
+        result = await to_thread.run_sync(get_weapon_stats_subprocess, usages)
 
         # change the reference id of the best activity to the actual name
         result.best_kills_activity_name = await crud_activities.get_activity_name(
@@ -183,7 +183,7 @@ class DestinyWeapons:
                 end_time=end_time,
             )
 
-            sorted_slot = await to_process.run_sync(
+            sorted_slot = await to_thread.run_sync(
                 get_top_weapons_subprocess,
                 top_weapons,
                 stat,

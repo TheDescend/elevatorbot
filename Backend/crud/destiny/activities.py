@@ -4,7 +4,7 @@ from typing import Optional
 
 from sqlalchemy import distinct, func, not_, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import aliased, joinedload
 
 from Backend.core.errors import CustomException
 from Backend.crud.base import CRUDBase
@@ -192,10 +192,6 @@ class CRUDActivities(CRUDBase):
         if no_checkpoints:
             query = query.filter(Activities.starting_phase_index == 0)
 
-        # limit max users to player_count
-        if maximum_allowed_players is not None:
-            query = query.having(func.count(distinct(ActivitiesUsers.destiny_id)) <= maximum_allowed_players)
-
         # team flawless required?
         if require_team_flawless:
             query = query.having(func.count(distinct(ActivitiesUsers.deaths)) == 0)
@@ -248,6 +244,16 @@ class CRUDActivities(CRUDBase):
         if disallow_time_periods:
             for time in disallow_time_periods:
                 query = query.filter(not_(Activities.period.between(time.start_time, time.end_time)))
+
+        # limit max users to player_count
+        if maximum_allowed_players is not None:
+            subquery = select(Activities.instance_id)
+            subquery = subquery.join(ActivitiesUsers)
+            subquery = subquery.group_by(Activities.instance_id)
+
+            subquery = subquery.having(func.count(distinct(ActivitiesUsers.destiny_id)) <= maximum_allowed_players)
+
+            query = query.filter(Activities.instance_id.in_(subquery))
 
         result = await self._execute_query(db=db, query=query)
         return result.scalars().fetchall()

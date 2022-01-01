@@ -3,6 +3,7 @@ import logging
 import os
 import time
 
+import uvicorn
 from fastapi import Depends, FastAPI, Request
 
 from Backend.core.destiny.manifest import DestinyManifest
@@ -19,9 +20,11 @@ from Backend.misc.initLogging import init_logging
 from NetworkingSchemas.misc.auth import BackendUserModel
 from settings import ENABLE_DEBUG_MODE
 
+app = FastAPI()
+
+
 # init logging
 init_logging()
-logger = logging.getLogger("requests")
 
 try:
     # install uvloop for faster asyncio (docker only)
@@ -32,7 +35,16 @@ try:
 except ModuleNotFoundError:
     print("Uvloop not installed, skipping")
 
-app = FastAPI()
+# only allow people with read permissions
+@app.get("/read_perm", response_model=BackendUserModel)
+async def read_perm(user: BackendUser = Depends(auth_get_user_with_read_perm)):
+    return BackendUserModel.from_orm(user)
+
+
+# only allow people with write permissions
+@app.get("/write_perm", response_model=BackendUserModel)
+async def write_perm(user: BackendUser = Depends(auth_get_user_with_write_perm)):
+    return BackendUserModel.from_orm(user)
 
 
 @app.middleware("http")
@@ -45,6 +57,7 @@ async def log_requests(request: Request, call_next):
     process_time = round(time.time() - start_time, 2)
 
     # log that
+    logger = logging.getLogger("requests")
     logger.info(
         "'%s' completed in '%s' seconds for '%s'",
         request.method,
@@ -84,17 +97,6 @@ for root, dirs, files in os.walk("Backend/endpoints"):
 
 # add exception handlers
 app.add_exception_handler(CustomException, handle_custom_exception)
-
-# only allow people with read permissions
-@app.get("/read_perm", response_model=BackendUserModel)
-async def read_perm(user: BackendUser = Depends(auth_get_user_with_read_perm)):
-    return BackendUserModel.from_orm(user)
-
-
-# only allow people with write permissions
-@app.get("/write_perm", response_model=BackendUserModel)
-async def write_perm(user: BackendUser = Depends(auth_get_user_with_write_perm)):
-    return BackendUserModel.from_orm(user)
 
 
 @app.on_event("startup")

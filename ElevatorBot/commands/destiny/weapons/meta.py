@@ -1,7 +1,7 @@
 import datetime
 from typing import Optional
 
-from anyio import create_task_group, to_process
+from anyio import create_task_group, to_thread
 from dis_snek import Embed
 from dis_snek.models import (
     Guild,
@@ -118,7 +118,7 @@ class WeaponsMeta(BaseScale):
                 )
 
         # format the message
-        embed = await to_process.run_sync(
+        embed = await to_thread.run_sync(
             meta_subprocess,
             results,
             start_time,

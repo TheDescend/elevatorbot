@@ -1,7 +1,7 @@
 import datetime
 from typing import Optional
 
-from anyio import to_process
+from anyio import to_thread
 from dis_snek import Embed
 from dis_snek.models import (
     InteractionContext,
@@ -143,7 +143,7 @@ class WeaponsTop(BaseScale):
         )
 
         # format the message
-        embed = await to_process.run_sync(
+        embed = await to_thread.run_sync(
             top_subprocess,
             stats,
             stat,
