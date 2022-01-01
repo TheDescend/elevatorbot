@@ -76,6 +76,7 @@ class NetworkBase:
                         return WebResponse.from_dict(response.__dict__)
 
             except (asyncio.exceptions.TimeoutError, ConnectionResetError):
+                params = {} if params is None else params
                 self.logger.error("Timeout error for '%s'", f"{route}?{urlencode(params)}")
                 await asyncio.sleep(random.randrange(2, 6))
                 continue
