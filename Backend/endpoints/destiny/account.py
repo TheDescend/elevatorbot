@@ -69,7 +69,6 @@ async def metric(guild_id: int, discord_id: int, metric_id: int, db: AsyncSessio
     return ValueModel(value=value)
 
 
-# todo this is really slow for some reason (check logs)
 @router.get("/solos", response_model=DestinyLowMansByCategoryModel)  # has test
 async def destiny_solos(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Return the destiny solos"""

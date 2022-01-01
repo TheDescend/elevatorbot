@@ -42,10 +42,10 @@ class Solos(BaseScale):
         relevant_solos = data[key]
 
         # start building the return embed
-        embed = embed_message(f"{member.display_name}'s Destiny Solos")
+        embed = embed_message(f"{member.display_name}'s Solos - {key}")
 
         # add the fields
-        for solo_data in relevant_solos.solos:
+        for solo_data in relevant_solos:
             embed.add_field(
                 name=solo_data.activity_name,
                 value=f"""Solo Completions: **{solo_data.count}**\nSolo Flawless Count: **{solo_data.flawless_count}**\nFastest Solo: **{solo_data.fastest}**""",
@@ -53,7 +53,7 @@ class Solos(BaseScale):
             )
 
         # add a pity description
-        if not relevant_solos.solos:
+        if not relevant_solos:
             embed.description = "You do not seem to have any notable solo completions"
 
         # send or edit message

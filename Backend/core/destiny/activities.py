@@ -404,18 +404,21 @@ class DestinyActivities:
                         None,
                         results,
                     )
-            solos = DestinyLowMansModel(category=t_category)
 
             # loop through the results
             # first loop through the activities since we want them ordered
             # a bit inefficient but fine really
+            solos: list[DestinyUpdatedLowManModel] = []
             for t_activity in t_activities:
                 for result in results:
                     if t_activity.activity_ids == result.activity_ids:
-                        solos.solos.append(DestinyUpdatedLowManModel(activity_name=t_activity.name, **result.dict()))
+                        solos.append(DestinyUpdatedLowManModel(activity_name=t_activity.name, **result.dict()))
                         break
 
-            solos_by_categories.categories.append(solos)
+            # get the correct category and append there
+            for entry in solos_by_categories.categories:
+                if entry.category == t_category:
+                    entry.solos = solos
 
         interesting_solos = await destiny_manifest.get_challenging_solo_activities(db=self.db)
 
@@ -423,6 +426,7 @@ class DestinyActivities:
         solos_by_categories = DestinyLowMansByCategoryModel()
         async with create_task_group() as tg1:
             for category, activities in interesting_solos.items():
+                solos_by_categories.categories.append(DestinyLowMansModel(category=category))
                 tg1.start_soon(get_by_topic, category, activities)
 
         return solos_by_categories
