@@ -37,10 +37,11 @@ class Elevator(ElevatorSnake):
         await register_background_events(client)
 
         print("Launching the Status Changer...")
-        asyncio.create_task(update_discord_bot_status(client))
+        # its **important** that this has a reference - https://docs.python.org/3/library/asyncio-task.html#asyncio.create_task
+        task = asyncio.create_task(update_discord_bot_status(client))
 
         print("Start Webserver...")
-        asyncio.create_task(run_webserver(client=client))
+        task2 = asyncio.create_task(run_webserver(client=client))
 
         print("Loading Custom Emoji...")
         await custom_emojis.init_emojis(client)

@@ -2,13 +2,13 @@ import asyncio
 import logging
 from datetime import timedelta
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.destiny.activities import update_activities_in_background
 from Backend.core.security.auth import ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token
-from Backend.crud import discord_users
+from Backend.crud import backend_user, discord_users
 from Backend.dependencies import get_db_session
 from Backend.networking.bungieAuth import BungieRegistration
 from Backend.networking.elevatorApi import ElevatorApi
@@ -25,7 +25,9 @@ router = APIRouter(
 
 
 @router.post("/bungie", response_model=BungieTokenOutput)  # has test
-async def save_bungie_token(bungie_input: BungieRegistrationInput, db: AsyncSession = Depends(get_db_session)):
+async def save_bungie_token(
+    bungie_input: BungieRegistrationInput, background_tasks: BackgroundTasks, db: AsyncSession = Depends(get_db_session)
+):
     """Saves a bungie token"""
 
     # since this is a prerequisite for everything really, the test for this is called in insert_dummy_data()
@@ -48,7 +50,7 @@ async def save_bungie_token(bungie_input: BungieRegistrationInput, db: AsyncSess
     )
 
     # get users activities in background
-    asyncio.create_task(update_activities_in_background(user=user))
+    background_tasks.add_task(update_activities_in_background, user)
 
     # send a msg to Elevator and get the mutual guild ids
     try:
