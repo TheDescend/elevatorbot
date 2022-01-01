@@ -3,7 +3,6 @@ import logging
 import os
 import time
 
-import uvicorn
 from fastapi import Depends, FastAPI, Request
 
 from Backend.core.destiny.manifest import DestinyManifest
