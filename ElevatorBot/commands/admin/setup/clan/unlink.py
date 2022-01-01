@@ -21,7 +21,7 @@ class ClanUnlink(BaseScale):
         sub_cmd_name="unlink",
         sub_cmd_description="Unlink the current Destiny 2 clan with this server",
     )
-    async def _unlink(
+    async def unlink(
         self,
         ctx: InteractionContext,
     ):

@@ -40,7 +40,7 @@ class Status(BaseScale):
         required=False,
         opt_type=OptionTypes.STRING,
     )
-    async def _status(self, ctx: InteractionContext, channel: GuildChannel, message_id: str = None):
+    async def status(self, ctx: InteractionContext, channel: GuildChannel, message_id: str = None):
         message_name = "status"
         embed = embed_message("Status: Last valid...")
         embed.set_footer("Updated")

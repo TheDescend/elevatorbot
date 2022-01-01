@@ -43,7 +43,7 @@ class ClanJoin(BaseScale):
         required=False,
         opt_type=OptionTypes.STRING,
     )
-    async def _join(self, ctx: InteractionContext, channel: GuildChannel, message_id: str = None):
+    async def join(self, ctx: InteractionContext, channel: GuildChannel, message_id: str = None):
         message_name = "clan_join_request"
         components = [
             ActionRow(

@@ -15,7 +15,7 @@ class DayOneUser(BaseScale):
         sub_cmd_description="Look up the Day One raid completions",
     )
     @default_user_option()
-    async def _day1_user(self, ctx: InteractionContext, user: Member = None):
+    async def user(self, ctx: InteractionContext, user: Member = None):
         member = user or ctx.author
 
         embed = embed_message(f"{member.display_name}'s Day One Completions")

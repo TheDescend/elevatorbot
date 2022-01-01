@@ -38,7 +38,7 @@ class Registration(BaseScale):
         required=False,
         opt_type=OptionTypes.STRING,
     )
-    async def _registration(self, ctx: InteractionContext, channel: GuildChannel, message_id: Optional[str] = None):
+    async def registration(self, ctx: InteractionContext, channel: GuildChannel, message_id: Optional[str] = None):
         message_name = "registration"
         components = [
             ActionRow(

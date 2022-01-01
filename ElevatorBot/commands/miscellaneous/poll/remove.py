@@ -20,7 +20,7 @@ class PollRemove(BaseScale):
         opt_type=OptionTypes.STRING,
         required=True,
     )
-    async def _poll_remove(self, ctx: InteractionContext, poll_id: int, option: str):
+    async def remove(self, ctx: InteractionContext, poll_id: int, option: str):
         poll = await Poll.from_poll_id(poll_id=poll_id, ctx=ctx)
 
         if poll:

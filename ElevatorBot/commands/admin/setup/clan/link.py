@@ -21,7 +21,7 @@ class ClanLink(BaseScale):
         sub_cmd_name="link",
         sub_cmd_description="Links your own Destiny 2 clan with this discord",
     )
-    async def _link(self, ctx: InteractionContext):
+    async def link(self, ctx: InteractionContext):
 
         clan = DestinyClan(ctx=ctx, discord_guild=ctx.guild)
         result = await clan.link(linked_by=ctx.author)

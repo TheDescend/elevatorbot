@@ -1,6 +1,9 @@
 from dis_snek.models import InteractionContext, OptionTypes, slash_command, slash_option
 
-from ElevatorBot.commandHelpers.autocomplete import activities
+from ElevatorBot.commandHelpers.autocomplete import (
+    activities,
+    autocomplete_send_activity_name,
+)
 from ElevatorBot.commandHelpers.optionTemplates import (
     autocomplete_activity_option,
     default_time_option,
@@ -41,7 +44,7 @@ class LfgCreate(BaseScale):
         min_value=1,
         max_value=50,
     )
-    async def _create(
+    async def create(
         self, ctx: InteractionContext, activity: str, start_time: str, timezone: str, overwrite_max_members: int = None
     ):
         # get the actual activity
@@ -76,4 +79,7 @@ class LfgCreate(BaseScale):
 
 
 def setup(client):
-    LfgCreate(client)
+    command = LfgCreate(client)
+
+    # register the autocomplete callback
+    command.create.autocomplete("activity")(autocomplete_send_activity_name)

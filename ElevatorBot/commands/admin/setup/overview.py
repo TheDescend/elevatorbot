@@ -17,7 +17,7 @@ class Overview(BaseScale):
         sub_cmd_name="overview",
         sub_cmd_description="Gives you an overview over my setting for this server",
     )
-    async def _overview(self, ctx: InteractionContext):
+    async def overview(self, ctx: InteractionContext):
         backend = PersistentMessages(ctx=ctx, guild=ctx.guild, message_name=None)
         result = await backend.get_all()
 

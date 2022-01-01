@@ -1,6 +1,9 @@
 from dis_snek.models import InteractionContext, slash_command
 
-from ElevatorBot.commandHelpers.autocomplete import activities
+from ElevatorBot.commandHelpers.autocomplete import (
+    activities,
+    autocomplete_send_activity_name,
+)
 from ElevatorBot.commandHelpers.optionTemplates import (
     autocomplete_activity_option,
     lfg_event_id,
@@ -21,7 +24,7 @@ class LfgEdit(BaseScale):
     )
     @lfg_event_id()
     @autocomplete_activity_option(description="Use this is you want to edit the name of the activity", required=False)
-    async def _edit(self, ctx: InteractionContext, lfg_id: int, activity: str):
+    async def edit(self, ctx: InteractionContext, lfg_id: int, activity: str):
         await ctx.send("Requires modal")
         return
 
@@ -57,4 +60,7 @@ class LfgEdit(BaseScale):
 
 
 def setup(client):
-    LfgEdit(client)
+    command = LfgEdit(client)
+
+    # register the autocomplete callback
+    command.edit.autocomplete("activity")(autocomplete_send_activity_name)

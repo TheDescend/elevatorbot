@@ -19,7 +19,7 @@ from ElevatorBot.static.destinyDates import (
 
 class PopTimeline(BaseScale):
     @slash_command(name="pop_timeline", description="Shows you the Destiny 2 steam maximum population timeline")
-    async def _pop_timeline(self, ctx: InteractionContext):
+    async def pop_timeline(self, ctx: InteractionContext):
         async with asyncio.Lock():
             embed = embed_message("Maximum Destiny 2 Steam Player Count")
 

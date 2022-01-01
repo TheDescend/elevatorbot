@@ -10,7 +10,7 @@ class DiscordJoinDate(BaseScale):
 
     @slash_command(name="discord_join_date", description="Check when you joined this discord server")
     @default_user_option()
-    async def _discord_join_date(self, ctx: InteractionContext, user: Member):
+    async def discord_join_date(self, ctx: InteractionContext, user: Member):
         member = user or ctx.author
 
         await ctx.send(

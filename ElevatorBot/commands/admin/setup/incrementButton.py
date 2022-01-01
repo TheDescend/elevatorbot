@@ -37,7 +37,7 @@ class IncrementButton(BaseScale):
         required=False,
         opt_type=OptionTypes.STRING,
     )
-    async def _increment_button(self, ctx: InteractionContext, channel: GuildChannel, message_id: str = None):
+    async def increment_button(self, ctx: InteractionContext, channel: GuildChannel, message_id: str = None):
         message_name = "increment_button"
         components = [
             ActionRow(

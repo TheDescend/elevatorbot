@@ -17,7 +17,7 @@ class Solos(BaseScale):
         name="solos", description="Shows you an overview of your notable Destiny 2 solo activity completions"
     )
     @default_user_option()
-    async def _solos(self, ctx: InteractionContext, user: Member = None):
+    async def solos(self, ctx: InteractionContext, user: Member = None):
         account = DestinyAccount(ctx=ctx, discord_member=user, discord_guild=ctx.guild)
 
         # get the solo data

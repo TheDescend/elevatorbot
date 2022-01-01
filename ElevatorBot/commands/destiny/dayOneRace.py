@@ -100,7 +100,7 @@ class DayOneRace(BaseScale):
     @slash_command(
         name="day_one_raid_race", description="Starts the Day One raid completion announcer", scopes=COMMAND_GUILD_SCOPE
     )
-    async def _day_one_raid_race(self, ctx: InteractionContext):
+    async def day_one_raid_race(self, ctx: InteractionContext):
         self.__init__(client=ctx.bot)
 
         channel = ctx.channel

@@ -11,7 +11,7 @@ class RoleGet(BaseScale):
         sub_cmd_name="get",
         sub_cmd_description="Assigns you all the Destiny 2 achievement roles you have earned",
     )
-    async def _roles_get(self, ctx: InteractionContext):
+    async def get(self, ctx: InteractionContext):
         # get new roles and update the member
         roles = Roles(ctx=ctx, guild=ctx.guild, member=ctx.author)
         await roles.update()

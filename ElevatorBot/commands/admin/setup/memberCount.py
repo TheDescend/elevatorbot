@@ -34,7 +34,7 @@ class MemberCount(BaseScale):
         opt_type=OptionTypes.CHANNEL,
         channel_types=[ChannelTypes.GUILD_VOICE],
     )
-    async def _member_count(self, ctx: InteractionContext, channel: GuildChannel):
+    async def member_count(self, ctx: InteractionContext, channel: GuildChannel):
         message_name = "member_count"
         success_message = f"The current member count will stay updated in {channel.mention}"
         await handle_setup_command(

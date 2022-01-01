@@ -28,7 +28,7 @@ class RegisteredRole(BaseScale):
         required=True,
         opt_type=OptionTypes.ROLE,
     )
-    async def _registered_role(self, ctx: InteractionContext, role: Role):
+    async def registered_role(self, ctx: InteractionContext, role: Role):
         # cheat a bit and register the role as a persistent message
         persistent_messages = PersistentMessages(ctx=ctx, guild=ctx.guild, message_name="registered_role")
         persistent_messages.hidden = True

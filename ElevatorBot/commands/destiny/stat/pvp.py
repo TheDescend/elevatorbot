@@ -20,7 +20,7 @@ class StatPvP(BaseScale):
     @default_stat_option()
     @default_class_option()
     @default_user_option()
-    async def _pvp(self, ctx: InteractionContext, name: str, destiny_class: str = None, user: Member = None):
+    async def pvp(self, ctx: InteractionContext, name: str, destiny_class: str = None, user: Member = None):
         member = user or ctx.author
         await get_stat_and_send(
             ctx=ctx,

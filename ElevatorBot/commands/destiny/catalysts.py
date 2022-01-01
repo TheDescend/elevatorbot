@@ -11,7 +11,7 @@ class Catalysts(BaseScale):
         name="catalysts", description="Shows you Destiny 2 exotic weapon catalysts and their completion status"
     )
     @default_user_option()
-    async def _catalysts(self, ctx: InteractionContext, user: Member = None):
+    async def catalysts(self, ctx: InteractionContext, user: Member = None):
         member = user or ctx.author
 
         account = DestinyAccount(ctx=ctx, discord_member=member, discord_guild=ctx.guild)

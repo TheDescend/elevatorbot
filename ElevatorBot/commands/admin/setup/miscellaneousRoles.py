@@ -83,7 +83,7 @@ class MiscellaneousRoles(BaseScale):
         required=False,
         opt_type=OptionTypes.STRING,
     )
-    async def _misc_roles(self, ctx: InteractionContext, channel: GuildChannel, message_id: str = None):
+    async def miscellaneous_roles(self, ctx: InteractionContext, channel: GuildChannel, message_id: str = None):
         message_name = "other_game_roles"
         components = [
             ActionRow(

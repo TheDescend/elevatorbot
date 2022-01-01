@@ -12,7 +12,7 @@ class Socialist(BaseScale):
 
     # todo perms
     @slash_command(name="socialist", description="Spams `#socialist` 🙃", scopes=COMMAND_GUILD_SCOPE)
-    async def _socialist(self, ctx: InteractionContext):
+    async def socialist(self, ctx: InteractionContext):
         """Spams #socialist"""
 
         await ctx.send("No 🙃")

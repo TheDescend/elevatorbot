@@ -29,7 +29,7 @@ class DayOneRaid(BaseScale):
         opt_type=OptionTypes.STRING,
         choices=[SlashCommandChoice(name=raid, value=raid) for raid in raid_to_emblem_hash],
     )
-    async def _day1_raid(self, ctx: InteractionContext, raid: str):
+    async def raid(self, ctx: InteractionContext, raid: str):
         async def check_member(player: DestinyAccount):
             # check the members separately to make this faster
             if player:

@@ -15,7 +15,7 @@ from ElevatorBot.misc.formating import embed_message
 
 class BubbleWrap(BaseScale):
     @slash_command(name="bubble_wrap", description="This 100% recreates the happy feeling of popping bubble wrap")
-    async def _bubble_wrap(self, ctx: InteractionContext):
+    async def bubble_wrap(self, ctx: InteractionContext):
         components = [
             ActionRow(
                 *[

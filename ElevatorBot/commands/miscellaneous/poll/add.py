@@ -20,7 +20,7 @@ class PollAdd(BaseScale):
         opt_type=OptionTypes.STRING,
         required=True,
     )
-    async def _poll_add(self, ctx: InteractionContext, poll_id: int, option: str):
+    async def add(self, ctx: InteractionContext, poll_id: int, option: str):
         poll = await Poll.from_poll_id(poll_id=poll_id, ctx=ctx)
 
         if poll:

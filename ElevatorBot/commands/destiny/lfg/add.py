@@ -20,7 +20,7 @@ class LfgAdd(BaseScale):
     )
     @lfg_event_id()
     @default_user_option(description="The user you want to add", required=True)
-    async def _add(self, ctx: InteractionContext, lfg_id: int, user: Member):
+    async def add(self, ctx: InteractionContext, lfg_id: int, user: Member):
         # get the message obj
         lfg_message = await LfgMessage.from_lfg_id(ctx=ctx, lfg_id=lfg_id, client=ctx.bot, guild=ctx.guild)
 

@@ -43,7 +43,7 @@ class Website(BaseScale):
         ],
     )
     @default_user_option()
-    async def _website(self, ctx: InteractionContext, website: str, user: Member = None):
+    async def website(self, ctx: InteractionContext, website: str, user: Member = None):
         if not user:
             user = ctx.author
 

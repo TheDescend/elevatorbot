@@ -15,7 +15,7 @@ class LfgDelete(BaseScale):
         sub_cmd_description="When you fucked up and need to delete an event",
     )
     @lfg_event_id()
-    async def _delete(self, ctx: InteractionContext, lfg_id: int):
+    async def delete(self, ctx: InteractionContext, lfg_id: int):
         # get the message obj
         lfg_message = await LfgMessage.from_lfg_id(ctx=ctx, lfg_id=lfg_id, client=ctx.bot, guild=ctx.guild)
 

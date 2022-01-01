@@ -25,7 +25,7 @@ class UserInfo(BaseScale):
     @slash_option(
         name="fuzzy_name", description="If you know how the user is called", required=False, opt_type=OptionTypes.STRING
     )
-    async def _user_info(
+    async def user_info(
         self, ctx: InteractionContext, discord_user: Member = None, destiny_id: str = None, fuzzy_name: str = None
     ):
         # make sure exactly one arg was chosen

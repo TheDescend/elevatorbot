@@ -28,6 +28,8 @@ from ElevatorBot.backendNetworking.destiny.weapons import DestinyWeapons
 from ElevatorBot.commandHelpers.autocomplete import (
     activities,
     activities_grandmaster,
+    autocomplete_send_activity_name,
+    autocomplete_send_weapon_name,
     weapons,
 )
 from ElevatorBot.commandHelpers.optionTemplates import (
@@ -163,7 +165,7 @@ class Rank(BaseScale):
         required=False,
     )
     @default_user_option()
-    async def _rank(
+    async def rank(
         self,
         ctx: InteractionContext,
         discord_leaderboards: str = None,
@@ -728,4 +730,8 @@ class Rank(BaseScale):
 
 
 def setup(client):
-    Rank(client)
+    command = Rank(client)
+
+    # register the autocomplete callback
+    command.rank.autocomplete("weapon")(autocomplete_send_weapon_name)
+    command.rank.autocomplete("activity")(autocomplete_send_activity_name)

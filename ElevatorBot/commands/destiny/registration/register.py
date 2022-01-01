@@ -14,7 +14,7 @@ from settings import BUNGIE_APPLICATION_CLIENT_ID
 
 class Register(RegisteredScale):
     @slash_command(name="register", description="Link your Destiny 2 account with ElevatorBot")
-    async def _register(self, ctx: InteractionContext):
+    async def register(self, ctx: InteractionContext):
         await send_registration(ctx)
 
 

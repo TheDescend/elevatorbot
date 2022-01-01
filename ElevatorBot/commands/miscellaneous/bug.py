@@ -17,7 +17,7 @@ class Bug(BaseScale):
         opt_type=OptionTypes.STRING,
         required=True,
     )
-    async def _bug(self, ctx: InteractionContext, message: str):
+    async def bug(self, ctx: InteractionContext, message: str):
         components = None
         embed = embed_message("Bug Report", f"{message}\n⁣\n- by {ctx.author.mention}")
 

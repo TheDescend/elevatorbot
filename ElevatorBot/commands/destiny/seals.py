@@ -12,7 +12,7 @@ class Seals(BaseScale):
         description="View all Destiny 2 seals and your completion status",
     )
     @default_user_option()
-    async def _seals(self, ctx: InteractionContext, user: Member = None):
+    async def seals(self, ctx: InteractionContext, user: Member = None):
         member = user or ctx.author
 
         destiny_profile = DestinyAccount(ctx=ctx, discord_member=member, discord_guild=ctx.guild)

@@ -13,7 +13,12 @@ from DestinyEnums.enums import (
     UsableDestinyDamageTypeEnum,
 )
 from ElevatorBot.backendNetworking.destiny.weapons import DestinyWeapons
-from ElevatorBot.commandHelpers.autocomplete import activities, weapons
+from ElevatorBot.commandHelpers.autocomplete import (
+    activities,
+    autocomplete_send_activity_name,
+    autocomplete_send_weapon_name,
+    weapons,
+)
 from ElevatorBot.commandHelpers.optionTemplates import (
     autocomplete_activity_option,
     autocomplete_weapon_option,
@@ -53,7 +58,7 @@ class WeaponsWeapon(BaseScale):
         description="Format: `DD/MM/YY` - Input the **latest** date you want the weapon stats for. Default: Now",
     )
     @default_user_option()
-    async def _weapon(
+    async def weapon(
         self,
         ctx: InteractionContext,
         weapon: str,
@@ -144,4 +149,8 @@ class WeaponsWeapon(BaseScale):
 
 
 def setup(client):
-    WeaponsWeapon(client)
+    command = WeaponsWeapon(client)
+
+    # register the autocomplete callback
+    command.weapon.autocomplete("weapon")(autocomplete_send_weapon_name)
+    command.weapon.autocomplete("activity")(autocomplete_send_activity_name)

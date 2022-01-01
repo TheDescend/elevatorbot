@@ -25,7 +25,7 @@ from version import __version__
 
 class Metrics(BaseScale):
     @slash_command(name="metrics", description="Shows interesting ElevatorBot metrics", scopes=COMMAND_GUILD_SCOPE)
-    async def _metrics(self, ctx: InteractionContext):
+    async def metrics(self, ctx: InteractionContext):
         embed = embed_message("ElevatorBot Metrics")
 
         # version

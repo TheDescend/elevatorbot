@@ -9,7 +9,7 @@ class UnRegister(Scale):
         self.client = client
 
     @slash_command(name="unregister", description="Unlink your Destiny 2 account from ElevatorBot")
-    async def _unregister(
+    async def unregister(
         self,
         ctx: InteractionContext,
     ):

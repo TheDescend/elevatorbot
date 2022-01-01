@@ -14,7 +14,7 @@ class PollDelete(BaseScale):
     @slash_option(
         name="poll_id", description="The ID of the poll", opt_type=OptionTypes.INTEGER, required=True, min_value=0
     )
-    async def _poll_delete(self, ctx: InteractionContext, poll_id: int):
+    async def delete(self, ctx: InteractionContext, poll_id: int):
         poll = await Poll.from_poll_id(poll_id=poll_id, ctx=ctx)
 
         if poll:

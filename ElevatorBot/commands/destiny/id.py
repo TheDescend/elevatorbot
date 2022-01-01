@@ -16,7 +16,7 @@ class IdGet(BaseScale):
         description="Get a users Bungie Name. It can be used to join people in Destiny 2",
     )
     @default_user_option()
-    async def _id(self, ctx: InteractionContext, user: Member = None):
+    async def id(self, ctx: InteractionContext, user: Member = None):
         member = user or ctx.author
 
         destiny_profile = DestinyAccount(ctx=ctx, discord_member=member, discord_guild=ctx.guild)

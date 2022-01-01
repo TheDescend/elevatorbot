@@ -13,7 +13,7 @@ class RoleMissing(BaseScale):
         sub_cmd_description="Shows you what Destiny 2 achievement roles you can still achieve",
     )
     @default_user_option()
-    async def _roles_missing(self, ctx: InteractionContext, user: Member = None):
+    async def missing(self, ctx: InteractionContext, user: Member = None):
 
         # get the roles missing and send that
         roles = Roles(ctx=ctx, guild=ctx.guild, member=user or ctx.author)

@@ -24,7 +24,7 @@ class PollCreate(BaseScale):
         opt_type=OptionTypes.STRING,
         required=True,
     )
-    async def _poll_create(self, ctx: InteractionContext, name: str, description: str):
+    async def create(self, ctx: InteractionContext, name: str, description: str):
         # todo allow images here
 
         poll = Poll(

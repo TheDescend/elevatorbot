@@ -32,7 +32,7 @@ class BungieRssFeed(BaseScale):
         required=False,
         opt_type=OptionTypes.STRING,
     )
-    async def _bungie_rss_feed(self, ctx: InteractionContext, channel: GuildChannel, message_id: str = None):
+    async def bungie_feed(self, ctx: InteractionContext, channel: GuildChannel, message_id: str = None):
         success_message = f"Future Bungie Updates will be posted in {channel.mention}"
         await handle_setup_command(
             ctx=ctx,

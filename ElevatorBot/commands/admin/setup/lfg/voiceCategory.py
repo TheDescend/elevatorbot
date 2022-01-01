@@ -34,7 +34,7 @@ class LfgVoiceCategory(BaseScale):
         opt_type=OptionTypes.CHANNEL,
         channel_types=[ChannelTypes.GUILD_CATEGORY],
     )
-    async def _voice_category(self, ctx: InteractionContext, channel: GuildChannel):
+    async def voice_category(self, ctx: InteractionContext, channel: GuildChannel):
         success_message = f"Future LFG posts will have a voice channel created in {channel.mention}"
         await handle_setup_command(
             ctx=ctx,

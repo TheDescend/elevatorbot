@@ -19,7 +19,7 @@ from settings import COMMAND_GUILD_SCOPE
 # =============
 
 
-class Warning(BaseScale):
+class ModWarning(BaseScale):
 
     # todo perm
     @slash_command(name="warning", description="Warns the specified user", scopes=COMMAND_GUILD_SCOPE)
@@ -30,7 +30,7 @@ class Warning(BaseScale):
         required=True,
         opt_type=OptionTypes.STRING,
     )
-    async def _warning(self, ctx: InteractionContext, user: Member, reason: str):
+    async def warning(self, ctx: InteractionContext, user: Member, reason: str):
         backend = Moderation(discord_member=user, discord_guild=ctx.guild, ctx=ctx)
         # get past warnings
         past_warnings = await backend.get_warnings()
@@ -60,4 +60,4 @@ class Warning(BaseScale):
 
 
 def setup(client):
-    Warning(client)
+    ModWarning(client)

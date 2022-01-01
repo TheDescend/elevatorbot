@@ -19,7 +19,7 @@ from settings import COMMAND_GUILD_SCOPE
 class MuteMe(BaseScale):
     @slash_command(name="mute_me", description="I wonder what this does...", scopes=COMMAND_GUILD_SCOPE)
     @default_user_option()
-    async def _mute_me(self, ctx: InteractionContext, user: Member = None):
+    async def mute_me(self, ctx: InteractionContext, user: Member = None):
 
         # no mentioning others here smiley face
         if user:

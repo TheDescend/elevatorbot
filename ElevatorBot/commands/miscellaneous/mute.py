@@ -55,7 +55,7 @@ class Mute(BaseScale):
         required=True,
         opt_type=OptionTypes.STRING,
     )
-    async def _mute(self, ctx: InteractionContext, user: Member, muted_type: str, hours: int, reason: str):
+    async def mute(self, ctx: InteractionContext, user: Member, muted_type: str, hours: int, reason: str):
         muted_type = int(muted_type)
         unmute_date = get_now_with_tz() + datetime.timedelta(hours=hours)
 

@@ -33,7 +33,7 @@ class LfgChannel(BaseScale):
         opt_type=OptionTypes.CHANNEL,
         channel_types=[ChannelTypes.GUILD_TEXT],
     )
-    async def _channel(self, ctx: InteractionContext, channel: GuildChannel):
+    async def channel(self, ctx: InteractionContext, channel: GuildChannel):
         embed = embed_message(
             "How to make an LFG post",
             f"""

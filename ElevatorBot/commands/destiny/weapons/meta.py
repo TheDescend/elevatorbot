@@ -18,7 +18,10 @@ from DestinyEnums.enums import (
 )
 from ElevatorBot.backendNetworking.destiny.clan import DestinyClan
 from ElevatorBot.backendNetworking.destiny.weapons import DestinyWeapons
-from ElevatorBot.commandHelpers.autocomplete import activities
+from ElevatorBot.commandHelpers.autocomplete import (
+    activities,
+    autocomplete_send_activity_name,
+)
 from ElevatorBot.commandHelpers.optionTemplates import (
     autocomplete_activity_option,
     default_class_option,
@@ -65,7 +68,7 @@ class WeaponsMeta(BaseScale):
         name="end_time",
         description="Format: `DD/MM/YY` - Input the **latest** date you want the weapon stats for. Default: Now",
     )
-    async def _meta(
+    async def meta(
         self,
         ctx: InteractionContext,
         mode: str = None,
@@ -169,7 +172,10 @@ class WeaponsMeta(BaseScale):
 
 
 def setup(client):
-    WeaponsMeta(client)
+    command = WeaponsMeta(client)
+
+    # register the autocomplete callback
+    command.meta.autocomplete("activity")(autocomplete_send_activity_name)
 
 
 def meta_subprocess(

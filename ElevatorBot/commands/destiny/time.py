@@ -2,7 +2,10 @@ from dis_snek.models import InteractionContext, Member, slash_command
 
 from DestinyEnums.enums import UsableDestinyActivityModeTypeEnum
 from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
-from ElevatorBot.commandHelpers.autocomplete import activities
+from ElevatorBot.commandHelpers.autocomplete import (
+    activities,
+    autocomplete_send_activity_name,
+)
 from ElevatorBot.commandHelpers.optionTemplates import (
     autocomplete_activity_option,
     default_class_option,
@@ -22,7 +25,7 @@ class Time(BaseScale):
     @autocomplete_activity_option()
     @default_class_option()
     @default_user_option()
-    async def _time(
+    async def time(
         self,
         ctx: InteractionContext,
         destiny_class: str = None,
@@ -150,4 +153,7 @@ class Time(BaseScale):
 
 
 def setup(client):
-    Time(client)
+    command = Time(client)
+
+    # register the autocomplete callback
+    command.time.autocomplete("activity")(autocomplete_send_activity_name)

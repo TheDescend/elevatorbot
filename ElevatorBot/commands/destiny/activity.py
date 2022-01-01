@@ -7,7 +7,10 @@ from dis_snek.models import (
 )
 
 from ElevatorBot.backendNetworking.destiny.activities import DestinyActivities
-from ElevatorBot.commandHelpers.autocomplete import activities
+from ElevatorBot.commandHelpers.autocomplete import (
+    activities,
+    autocomplete_send_activity_name,
+)
 from ElevatorBot.commandHelpers.optionTemplates import (
     autocomplete_activity_option,
     default_class_option,
@@ -38,7 +41,7 @@ class DestinyActivity(BaseScale):
         description="Format: `DD/MM/YY` - Input the **latest** date you want the weapon stats for. Default: Now",
     )
     @default_user_option()
-    async def _activity(
+    async def activity(
         self,
         ctx: InteractionContext,
         activity: str,
@@ -108,4 +111,7 @@ class DestinyActivity(BaseScale):
 
 
 def setup(client):
-    DestinyActivity(client)
+    command = DestinyActivity(client)
+
+    # register the autocomplete callback
+    command.activity.autocomplete("activity")(autocomplete_send_activity_name)

@@ -17,7 +17,7 @@ class LfgJoined(BaseScale):
         sub_cmd_name="joined",
         sub_cmd_description="Shows you an overview of all LFG events you have joined",
     )
-    async def _joined(self, ctx: InteractionContext):
+    async def joined(self, ctx: InteractionContext):
         # get all the lfg events the user joined
         backend = DestinyLfgSystem(ctx=ctx, discord_guild=ctx.guild)
         result = await backend.user_get_all(discord_member=ctx.author)

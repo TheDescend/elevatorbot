@@ -24,7 +24,7 @@ class SeasonalChallenges(BaseScale):
         name="challenges", description="Shows you the current Destiny 2 seasonal challenges and your completion status"
     )
     @default_user_option()
-    async def _challenges(
+    async def challenges(
         self,
         ctx: InteractionContext,
         user: Member = None,

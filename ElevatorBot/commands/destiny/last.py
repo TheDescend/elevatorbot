@@ -2,7 +2,11 @@ from dis_snek.models import InteractionContext, Member, slash_command
 
 from DestinyEnums.enums import UsableDestinyActivityModeTypeEnum
 from ElevatorBot.backendNetworking.destiny.activities import DestinyActivities
-from ElevatorBot.commandHelpers.autocomplete import activities, activities_by_id
+from ElevatorBot.commandHelpers.autocomplete import (
+    activities,
+    activities_by_id,
+    autocomplete_send_activity_name,
+)
 from ElevatorBot.commandHelpers.optionTemplates import (
     autocomplete_activity_option,
     default_class_option,
@@ -20,7 +24,7 @@ class Last(BaseScale):
     @autocomplete_activity_option()
     @default_class_option()
     @default_user_option()
-    async def _last(
+    async def last(
         self,
         ctx: InteractionContext,
         mode: str = None,
@@ -89,4 +93,7 @@ class Last(BaseScale):
 
 
 def setup(client):
-    Last(client)
+    command = Last(client)
+
+    # register the autocomplete callback
+    command.last.autocomplete("activity")(autocomplete_send_activity_name)
