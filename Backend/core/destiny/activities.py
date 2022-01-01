@@ -277,8 +277,16 @@ class DestinyActivities:
                 pgcr = await self.get_pgcr(i)
                 results.append((i, t, pgcr.content))
 
-            except CustomException:
-                logger.warning("Failed getting pgcr <%s>", i)
+            except Exception as e:
+                logger.error("Failed getting pgcr <%s>", i)
+                # log that
+                print(error)
+                logger.error(
+                    "Failed getting pgcr '%s' - Error '%s' - Traceback: \n'%s'",
+                    i,
+                    e,
+                    "".join(traceback.format_tb(e.__traceback__)),
+                )
 
                 # remove the instance_id from the cache
                 cache.saved_pgcrs.remove(i)

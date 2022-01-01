@@ -6,6 +6,7 @@ from urllib.parse import urlencode
 
 import aiohttp
 import aiohttp_client_cache
+from aiohttp import ServerDisconnectedError
 from orjson import orjson
 
 from Backend.core.errors import CustomException
@@ -14,6 +15,7 @@ from Backend.networking.schemas import InternalWebResponse, WebResponse
 
 # the limiter object which to not get rate-limited by bungie. One obj for ever instance!
 bungie_limiter = BungieRateLimiter()
+semaphore = asyncio.Semaphore(200)
 
 
 class NetworkBase:
@@ -24,6 +26,9 @@ class NetworkBase:
 
     # get limiter
     limiter = bungie_limiter
+
+    # get semaphore
+    semaphore = semaphore
 
     # how many times to retry a request
     max_web_request_tries = 10
@@ -49,36 +54,42 @@ class NetworkBase:
             async with asyncio.Lock():
                 await bungie_limiter.wait_for_token()
 
-        # abort after max_web_request_tries tries
-        for _ in range(self.max_web_request_tries):
-            try:
-                async with session.request(
-                    method=method,
-                    url=route,
-                    headers=headers,
-                    params=params,
-                    json=json,
-                    data=form_data,
-                    allow_redirects=allow_redirects,
-                ) as request:
-                    response = await self.__handle_request_data(
-                        request=request,
+        # do not open 250 requests at once
+        async with self.semaphore:
+            # abort after max_web_request_tries tries
+            for _ in range(self.max_web_request_tries):
+                try:
+                    async with session.request(
+                        method=method,
+                        url=route,
+                        headers=headers,
                         params=params,
-                        route=route,
+                        json=json,
+                        data=form_data,
+                        allow_redirects=allow_redirects,
+                    ) as request:
+                        response = await self.__handle_request_data(
+                            request=request,
+                            params=params,
+                            route=route,
+                        )
+
+                        # try again
+                        if response is None:
+                            continue
+
+                        # return response
+                        else:
+                            return WebResponse.from_dict(response.__dict__)
+
+                except (asyncio.exceptions.TimeoutError, ConnectionResetError, ServerDisconnectedError) as error:
+                    self.logger.error(
+                        "Timeout error ('%s') for '%s'. Retrying...",
+                        error,
+                        f"{route}?{urlencode({} if params is None else params)}",
                     )
-
-                    # try again
-                    if response is None:
-                        continue
-
-                    # return response
-                    else:
-                        return WebResponse.from_dict(response.__dict__)
-
-            except (asyncio.exceptions.TimeoutError, ConnectionResetError):
-                self.logger.error("Timeout error for '%s'", f"{route}?{urlencode({} if params is None else params)}")
-                await asyncio.sleep(random.randrange(2, 6))
-                continue
+                    await asyncio.sleep(random.randrange(2, 6))
+                    continue
 
         # return that it failed
         self.logger.error(
