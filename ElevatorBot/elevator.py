@@ -98,6 +98,7 @@ if __name__ == "__main__":
         intents=intents,
         sync_interactions=SYNC_COMMANDS,
         delete_unused_application_cmds=not ENABLE_DEBUG_MODE,
+        asyncio_debug=ENABLE_DEBUG_MODE,
         fetch_members=True,
         auto_defer=AutoDefer(enabled=True),
     )

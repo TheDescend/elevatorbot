@@ -61,6 +61,10 @@ class BaseScale(RegisteredScale):
         Checks if the command invoker is registered
         """
 
+        # this gets handled by the DM check
+        if not ctx.guild:
+            return True
+
         # get the registration role
         registration_role = await registered_role_cache.get(guild=ctx.guild)
 

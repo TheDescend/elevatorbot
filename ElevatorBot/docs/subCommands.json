@@ -378,7 +378,7 @@
                         ]
                     },
                     {
-                        "name": "get_requirements",
+                        "name": "requirements",
                         "description": "Various commands concerning Destiny 2 achievement discord roles",
                         "options": [
                             {

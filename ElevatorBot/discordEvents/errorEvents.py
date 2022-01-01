@@ -1,7 +1,7 @@
 import logging
 import traceback
 
-from dis_snek import Snake
+from dis_snek import CommandCheckFailure, Snake
 from dis_snek.models import ComponentContext, InteractionContext
 
 from ElevatorBot.backendNetworking.errors import BackendException
@@ -33,16 +33,17 @@ class CustomErrorSnake(Snake):
     async def on_command(self, ctx: InteractionContext):
         """Gets triggered after a slash command is run"""
 
-        # log the command
-        self.logger_commands.info(
-            f"InteractionID '{ctx.interaction_id}' - CommandName '/{ctx.invoked_name}' - Kwargs '{ctx.kwargs}' - DiscordName '{ctx.author.username}' - DiscordID '{ctx.author.id}' - GuildID '{ctx.guild.id}' - ChannelID '{ctx.channel.id}'"
-        )
+        if ctx.guild:
+            # log the command
+            self.logger_commands.info(
+                f"InteractionID '{ctx.interaction_id}' - CommandName '/{ctx.invoked_name}' - Kwargs '{ctx.kwargs}' - DiscordName '{ctx.author.username}' - DiscordID '{ctx.author.id}' - GuildID '{ctx.guild.id}' - ChannelID '{ctx.channel.id}'"
+            )
 
     async def on_command_error(self, ctx: InteractionContext, error: Exception, *args, **kwargs):
         """Gets triggered on slash command errors"""
 
-        # ignore BackendException errors since they are intended
-        if not isinstance(error, BackendException):
+        # ignore some errors since they are intended
+        if not isinstance(error, BackendException | CommandCheckFailure):
             await log_error(ctx=ctx, error=error, logger=self.logger_commands_exceptions)
 
     async def on_component(self, ctx: InteractionContext):
