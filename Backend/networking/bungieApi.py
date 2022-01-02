@@ -66,18 +66,28 @@ class BungieApi(NetworkBase):
             self.auth_headers = headers
             self.bungie_request = False
 
-    async def get(self, route: str, params: dict = None, use_cache: bool = True) -> WebResponse:
+    async def get(
+        self, route: str, params: dict = None, use_cache: bool = True, with_token: bool = False
+    ) -> WebResponse:
         """Grabs JSON from the specified URL (no oauth)"""
 
         # check if the user has a private profile, if so we use oauth
         if self.user:
             if self.user.private_profile:
-                # then we use get_with_token()
-                return await self.get_with_token(route=route, params=params, use_cache=use_cache)
+                # then we use a token
+                with_token = True
+
+        # use a token if we need to
+        no_jar = None
+        if with_token:
+            await self.__set_auth_headers()
+
+            # ignore cookies
+            no_jar = aiohttp.DummyCookieJar()
 
         try:
             async with aiohttp_client_cache.CachedSession(
-                cache=self.cache, json_serialize=lambda x: orjson.dumps(x).decode()
+                cache=self.cache, json_serialize=lambda x: orjson.dumps(x).decode(), cookie_jar=no_jar
             ) as session:
                 # use cache for the responses
                 if use_cache:
@@ -106,42 +116,11 @@ class BungieApi(NetworkBase):
                 await discord_users.update(db=self.db, to_update=self.user, has_private_profile=True)
 
                 # then call the same endpoint again, this time with a token
-                return await self.get_with_token(route=route, params=params, use_cache=use_cache)
+                return await self.get(route=route, params=params, use_cache=use_cache, with_token=True)
 
             else:
-                # otherwise raise error again
+                # otherwise, raise error again
                 raise exc
-
-    async def get_with_token(self, route: str, params: dict = None, use_cache: bool = True) -> WebResponse:
-        """Grabs JSON from the specified URL (oauth)"""
-
-        # set the auth headers to a working token
-        await self.__set_auth_headers()
-
-        # ignore cookies
-        no_jar = aiohttp.DummyCookieJar()
-
-        async with aiohttp_client_cache.CachedSession(cache=self.cache, cookie_jar=no_jar) as session:
-            # use cache for the responses
-            if use_cache:
-                return await self._request(
-                    session=session,
-                    method="GET",
-                    route=route,
-                    headers=self.auth_headers,
-                    params=params,
-                )
-
-            # do not use cache
-            else:
-                async with session.disabled():
-                    return await self._request(
-                        session=session,
-                        method="GET",
-                        route=route,
-                        headers=self.auth_headers,
-                        params=params,
-                    )
 
     async def post(self, route: str, json: dict = None, params: dict = None) -> WebResponse:
         """Post data to bungie. self.discord_id must have the authentication for the action"""

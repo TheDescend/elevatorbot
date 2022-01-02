@@ -238,7 +238,7 @@ class NetworkBase:
                 await asyncio.sleep(10)
 
             case (status, "PerEndpointRequestThrottleExceeded" | "DestinyDirectBabelClientTimeout"):
-                # we we are getting throttled
+                # we are getting throttled (should never be called in theory)
                 self.logger.warning(
                     "'%s - %s': Getting throttled for '%s' - '%s'",
                     status,
@@ -249,7 +249,9 @@ class NetworkBase:
 
                 throttle_seconds = response.content["ErrorStatus"]["ThrottleSeconds"]
 
-                await asyncio.sleep(throttle_seconds + random.randrange(1, 3))
+                # reset the ratelimit giver
+                self.limiter.tokens = 0
+                await asyncio.sleep(throttle_seconds)
 
             case (status, "GroupMembershipNotFound"):
                 # if user doesn't have that item

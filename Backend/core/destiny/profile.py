@@ -840,7 +840,7 @@ class DestinyProfile:
         params = {"components": ",".join(map(str, components))}
 
         # need to call this with a token, since this data is sensitive
-        response = await self.api.get_with_token(route=route, params=params)
+        response = await self.api.get(route=route, params=params, with_token=True)
 
         # get bungie name
         bungie_name = f"""{response.content["profile"]["data"]["userInfo"]["bungieGlobalDisplayName"]}#{response.content["profile"]["data"]["userInfo"]["bungieGlobalDisplayNameCode"]}"""
