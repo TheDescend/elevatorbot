@@ -13,6 +13,7 @@ from NetworkingSchemas.destiny.account import (
     BoolModelRecord,
     DestinyCatalystsModel,
     DestinyCharactersModel,
+    DestinyLowMansByCategoryModel,
     DestinyLowMansModel,
     DestinySealsModel,
     DestinyStatInputModel,
@@ -98,14 +99,16 @@ async def test_destiny_solos(client: AsyncClient, mocker: MockerFixture):
 
     r = await client.get(f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/solos")
     assert r.status_code == 200
-    data = DestinyLowMansModel.parse_obj(r.json())
-    assert data.solos
-    assert data.solos[0].activity_name == dummy_activity_name
-    assert data.solos[0].activity_ids == [1337]
-    assert data.solos[0].count == 1
-    assert data.solos[0].flawless_count == 0
-    assert data.solos[0].not_flawless_count == 1
-    assert data.solos[0].fastest.seconds == 557
+    data = DestinyLowMansByCategoryModel.parse_obj(r.json())
+    assert data.categories
+    assert data.categories[0].category == "Dungeons"
+    assert data.categories[0].solos
+    assert data.categories[0].solos[0].activity_name == dummy_activity_name
+    assert data.categories[0].solos[0].activity_ids == [1337]
+    assert data.categories[0].solos[0].count == 1
+    assert data.categories[0].solos[0].flawless_count == 0
+    assert data.categories[0].solos[0].not_flawless_count == 1
+    assert data.categories[0].solos[0].fastest.seconds == 557
 
 
 @pytest.mark.asyncio

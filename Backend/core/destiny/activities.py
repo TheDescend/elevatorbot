@@ -314,7 +314,7 @@ class DestinyActivities:
 
         try:
             # save the start time, so we can update the user afterwards
-            start_time = get_now_with_tz()
+            start_time = None
 
             # get the entry time
             if not entry_time:
@@ -325,16 +325,14 @@ class DestinyActivities:
             # loop through all activities
             instance_ids = []
             activity_times = []
-            success = False
             async for activity in self.get_activity_history(mode=0, earliest_allowed_datetime=entry_time):
-                success = True
-
                 instance_id = int(activity["activityDetails"]["instanceId"])
                 activity_time: datetime.datetime = activity["period"]
 
-                # update with the newest entry timestamp
-                if activity_time > entry_time:
-                    entry_time = activity_time
+                # todo test
+                # save the youngest start time
+                if (not start_time) or (activity_time > start_time):
+                    start_time = activity_time
 
                 # needs to be same for anyio tasks
                 async with asyncio.Lock():
@@ -371,7 +369,7 @@ class DestinyActivities:
                 await input_data(instance_ids, activity_times)
 
             # update them with the newest entry timestamp
-            if success:
+            if start_time:
                 await discord_users.update(db=self.db, to_update=self.user, activities_last_updated=start_time)
 
             logger.info("Done with activity DB update for destinyID '%s'", self.destiny_id)
