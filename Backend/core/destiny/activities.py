@@ -280,7 +280,7 @@ class DestinyActivities:
             except Exception as e:
                 logger.error("Failed getting pgcr <%s>", i)
                 # log that
-                print(error)
+                print(e)
                 logger.error(
                     "Failed getting pgcr '%s' - Error '%s' - Traceback: \n'%s'",
                     i,
