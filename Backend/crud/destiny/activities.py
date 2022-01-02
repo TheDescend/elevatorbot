@@ -279,6 +279,7 @@ class CRUDActivities(CRUDBase):
         if activity_ids:
             query = query.filter(Activities.director_activity_hash.in_(activity_ids))
 
+        query = query.join(ActivitiesUsers)
         query = query.options(joinedload(Activities.users))
         query = query.group_by(Activities.instance_id)
         query = query.group_by(ActivitiesUsers.id)

@@ -40,6 +40,8 @@ class CRUDWeapons(CRUDBase):
         query = select(ActivitiesUsersWeapons)
 
         # join the relationships
+        query = query.join(ActivitiesUsers)
+        query = query.join(Activities)
         query = query.options(joinedload(ActivitiesUsersWeapons.user).joinedload(ActivitiesUsers.activity))
 
         # filter by weapon ids
