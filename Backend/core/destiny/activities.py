@@ -329,7 +329,6 @@ class DestinyActivities:
                 instance_id = int(activity["activityDetails"]["instanceId"])
                 activity_time: datetime.datetime = activity["period"]
 
-                # todo test
                 # save the youngest start time
                 if (not start_time) or (activity_time > start_time):
                     start_time = activity_time

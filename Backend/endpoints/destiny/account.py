@@ -76,6 +76,9 @@ async def destiny_solos(guild_id: int, discord_id: int, db: AsyncSession = Depen
     user = await discord_users.get_profile_from_discord_id(discord_id)
     activities = DestinyActivities(db=db, user=user)
 
+    # update the user's db entries
+    await activities.update_activity_db()
+
     # get the solo data
     return await activities.get_solos()
 
@@ -136,6 +139,11 @@ async def time(
     """
 
     user = await discord_users.get_profile_from_discord_id(discord_id)
+
+    # update the user's db entries
+    activities = DestinyActivities(db=db, user=user)
+    await activities.update_activity_db()
+
     profile = DestinyProfile(db=db, user=user)
 
     entries = []
