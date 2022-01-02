@@ -135,6 +135,10 @@ class DestinyActivities:
             br = False
             page = -1
             while True:
+                # break once threshold is reached
+                if br:
+                    break
+
                 page += 1
 
                 params = {
@@ -142,10 +146,6 @@ class DestinyActivities:
                     "count": 250,
                     "page": page,
                 }
-
-                # break once threshold is reached
-                if br:
-                    break
 
                 # get activities
                 rep = await self.api.get(route=route, params=params)
@@ -313,6 +313,9 @@ class DestinyActivities:
         logger = logging.getLogger("updateActivityDb")
 
         try:
+            # save the start time, so we can update the user afterwards
+            start_time = get_now_with_tz()
+
             # get the entry time
             if not entry_time:
                 entry_time = self.user.activities_last_updated
@@ -369,7 +372,7 @@ class DestinyActivities:
 
             # update them with the newest entry timestamp
             if success:
-                await discord_users.update(db=self.db, to_update=self.user, activities_last_updated=entry_time)
+                await discord_users.update(db=self.db, to_update=self.user, activities_last_updated=start_time)
 
             logger.info("Done with activity DB update for destinyID '%s'", self.destiny_id)
 

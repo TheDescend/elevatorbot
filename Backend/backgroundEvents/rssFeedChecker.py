@@ -54,11 +54,12 @@ class RssFeedChecker(BaseEvent):
                     )
 
                     # remove db entry if channel doesnt exist
-                    if not result.content["success"]:
-                        for error_guild in result.content["guilds"]:
-                            await persistent_messages.delete(
-                                db=db, message_name="rss", guild_id=error_guild["guild_id"]
-                            )
+                    if result:
+                        if not result.content["success"]:
+                            for error_guild in result.content["guilds"]:
+                                await persistent_messages.delete(
+                                    db=db, message_name="rss", guild_id=error_guild["guild_id"]
+                                )
 
                     # save item in DB
                     await rss_feed.insert(db=db, item_id=item["id"])

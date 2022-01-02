@@ -183,10 +183,10 @@ class CRUDDiscordUser(CRUDBase):
     async def update(self, db: AsyncSession, to_update: DiscordUsers, **update_kwargs):
         """Updates a profile"""
 
-        await self._update(db=db, to_update=to_update, **update_kwargs)
+        updated: DiscordUsers = await self._update(db=db, to_update=to_update, **update_kwargs)
 
         # update the cache
-        self.cache.discord_users.update({to_update.discord_id: to_update})
+        self.cache.discord_users.update({to_update.discord_id: updated})
 
     async def invalidate_token(self, db: AsyncSession, user: DiscordUsers):
         """Invalidates a token by setting it to None"""

@@ -53,23 +53,20 @@ async def save_bungie_token(
     background_tasks.add_task(update_activities_in_background, user)
 
     # send a msg to Elevator and get the mutual guild ids
-    try:
-        elevator_api = ElevatorApi()
-        response = await elevator_api.post(
-            route_addition="registration/",
-            json={
-                "discord_id": discord_id,
-            },
-        )
+    elevator_api = ElevatorApi()
+    response = await elevator_api.post(
+        route_addition="registration/",
+        json={
+            "discord_id": discord_id,
+        },
+    )
 
+    # see if we could connect
+    if response is not None:
         # assign the role in all guilds
         await discord_users.add_registration_roles(
             db=db, discord_id=discord_id, guild_ids=response.content["guild_ids"]
         )
-
-    except Exception as e:
-        print(e)
-        pass
 
     return result
 

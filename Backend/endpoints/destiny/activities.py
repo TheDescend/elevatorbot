@@ -33,7 +33,7 @@ async def last(
 
     user = await discord_users.get_profile_from_discord_id(discord_id)
 
-    # update the users db entries
+    # update the user's db entries
     activities = DestinyActivities(db=db, user=user)
     await activities.update_activity_db()
 

@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm.attributes import flag_modified
 from sqlalchemy.sql import Select
 
-from Backend.database.base import Base
+from Backend.database.base import Base, get_async_session
 
 ModelType = TypeVar("ModelType", bound=Base)
 
@@ -91,7 +91,7 @@ class CRUDBase:
         await db.flush()
 
     @staticmethod
-    async def _update(db: AsyncSession, to_update: ModelType, **update_kwargs) -> None:
+    async def _update(db: AsyncSession, to_update: ModelType, **update_kwargs) -> ModelType:
         """Update a initiated ModelType in the database"""
 
         for key, value in update_kwargs.items():
@@ -101,7 +101,18 @@ class CRUDBase:
             # otherwise they might not get updated
             flag_modified(to_update, key)
 
-        await db.flush()
+        # test if the obj is detached, then we need to renew it briefly
+        state = inspect(to_update)
+        if state.detached:
+            async with get_async_session().begin() as new_db:
+                # merge the obj, since updating does not work with detached objs
+                new_obj = await new_db.merge(to_update)
+            return new_obj
+
+        # only flush if it was not detached
+        else:
+            await db.flush()
+            return to_update
 
     async def _delete(
         self, db: AsyncSession, primary_key: Optional[Any] = None, obj: Optional[ModelType] = None
