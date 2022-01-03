@@ -1,4 +1,5 @@
 import asyncio
+from copy import copy
 from typing import Optional
 
 from dis_snek import ActionRow, Button, ButtonStyles, ComponentContext, Message
@@ -8,7 +9,7 @@ from dis_snek.models.events import Component
 from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
 from ElevatorBot.commands.base import BaseScale
-from ElevatorBot.misc.formating import embed_message
+from ElevatorBot.misc.formating import embed_message, format_timedelta
 from NetworkingSchemas.destiny.account import DestinyLowMansModel
 
 
@@ -48,7 +49,7 @@ class Solos(BaseScale):
         for solo_data in relevant_solos:
             embed.add_field(
                 name=solo_data.activity_name,
-                value=f"""Solo Completions: **{solo_data.count}**\nSolo Flawless Count: **{solo_data.flawless_count}**\nFastest Solo: **{solo_data.fastest}**""",
+                value=f"""Solo Completions: **{solo_data.count}**\nSolo Flawless Count: **{solo_data.flawless_count}**\nFastest Solo: **{format_timedelta(solo_data.fastest)}**""",
                 inline=True,
             )
 
@@ -87,7 +88,11 @@ class Solos(BaseScale):
             )
         except asyncio.TimeoutError:
             # disable all buttons
-            await button_ctx.edit_origin(components=None)
+            new_components = copy(message.components)
+            for button in new_components[0].components:
+                button.disabled = True
+
+            await message.edit(components=new_components)
             return
         else:
             # display the new data

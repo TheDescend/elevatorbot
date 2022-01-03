@@ -403,6 +403,7 @@ class DestinyActivities:
 
         return self._full_character_list
 
+    # todo gms dont work
     async def get_solos(self) -> DestinyLowMansByCategoryModel:
         """Return the destiny solos"""
 
