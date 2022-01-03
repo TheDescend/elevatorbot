@@ -21,6 +21,7 @@ venv/
 /Website*/coverage
 /Website*/.next/
 /Website*/out/
+/Website*/logs/
 /Website*/data/docs
 /Website*/public/images/logo.png
 /Database/

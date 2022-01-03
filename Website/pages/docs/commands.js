@@ -17,17 +17,17 @@ export default function Commands({allCommandData, allSubCommandData}) {
 
     const commands = Object.keys(allCommandData).map((topic) => {
         return (
-            <li className={utilStyles.listItem} key={topic}>
+            <li key={topic}>
                 {topic}
-                <ul className={utilStyles.list}>
+                <ul>
                     {
                         Object.keys(allCommandData[topic]).map((scope) => {
                             const commandList = allCommandData[topic][scope]
 
                             return (
-                                <li className={utilStyles.listItem} key={scope}>
+                                <li key={scope}>
                                     {scope}
-                                    <ul className={utilStyles.list}>
+                                    <ul>
                                         {
                                             commandList.map((command) => {
                                                 return (
@@ -52,8 +52,8 @@ export default function Commands({allCommandData, allSubCommandData}) {
     return (
         <Layout>
             <h1>Commands</h1>
-            <section className={`${utilStyles.headingMd} ${utilStyles.padding1px}`}>
-                <ul className={utilStyles.list}>
+            <section>
+                <ul>
                     {commands}
                 </ul>
             </section>

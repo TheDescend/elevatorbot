@@ -5,7 +5,7 @@ services:
     image: redis:6.2.6
     command: ["redis-server", "--maxmemory", "1gb", "--maxmemory-policy", "allkeys-lru"]
     ports:
-      - "6379:6379"
+      - "${REDIS_PORT}:${REDIS_PORT}"
     volumes:
       - ./redis.conf:/redis.conf
     networks:
@@ -53,7 +53,7 @@ services:
       context: ./
       dockerfile: ./Backend/Dockerfile
     ports:
-      - "${BACKEND_PORT}:8000"
+      - "${BACKEND_PORT}:${BACKEND_PORT}"
     volumes:
       - ./logs/Backend:/app/Logs/Backend
     environment:
@@ -67,6 +67,7 @@ services:
       - ELEVATOR_HOST
       - ELEVATOR_PORT
       - REDIS_HOST
+      - REDIS_PORT
     networks:
       - database-network
       - backend-network
@@ -83,7 +84,7 @@ services:
       context: ./
       dockerfile: Website/Dockerfile
     ports:
-      - "${WEBSITE_PORT}:80"
+      - "${WEBSITE_PORT}:${WEBSITE_PORT}"
     volumes:
       - ./Logs/Website:/app/Website/logs
       - ./ELevatorBot/docs:/app/Website/data/docs
@@ -107,7 +108,7 @@ services:
       context: ./
       dockerfile: ./ElevatorBot/Dockerfile
     ports:
-      - "${ELEVATOR_PORT}:8080"
+      - "${ELEVATOR_PORT}:${ELEVATOR_PORT}"
     volumes:
       - ./Logs/ElevatorBot:/app/Logs/ElevatorBot
     environment:
@@ -118,6 +119,7 @@ services:
       - ELEVATOR_HOST
       - ELEVATOR_PORT
       - REDIS_HOST
+      - REDIS_PORT
     networks:
       - backend-network
       - elevator-network
@@ -127,7 +129,6 @@ services:
       unless-stopped
     depends_on:
       - backend
-      - website
       - redis
 
 

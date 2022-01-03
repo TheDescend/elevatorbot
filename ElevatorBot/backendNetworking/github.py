@@ -6,7 +6,7 @@ from github.GithubObject import NotSet
 from github.Label import Label
 from github.Repository import Repository
 
-from rename_to_settings import (
+from settings import (
     GITHUB_APPLICATION_API_KEY,
     GITHUB_ISSUE_LABEL_NAMES,
     GITHUB_REPOSITORY_ID,

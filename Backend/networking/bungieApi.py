@@ -19,7 +19,7 @@ from settings import BUNGIE_APPLICATION_API_KEY
 # low expire time since players don't want to wait an eternity for their stuff to update
 bungie_cache = aiohttp_client_cache.RedisBackend(
     cache_name="backend",
-    address=f"""redis://{os.environ.get("REDIS_HOST")}""",
+    address=f"""redis://{os.environ.get("REDIS_HOST")}:{os.environ.get("REDIS_PORT")}""",
     allowed_methods=["GET"],
     expire_after=timedelta(minutes=5),
     urls_expire_after={
