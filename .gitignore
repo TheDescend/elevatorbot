@@ -23,7 +23,7 @@ venv/
 /Website*/out/
 /Website*/logs/
 /Website*/data/docs
-/Website*/public/images/logo.png
+/Website*/public/images/logo*.png
 /Database/
 /DatabaseBackups/
 /redis.conf/
