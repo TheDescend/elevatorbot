@@ -22,7 +22,7 @@ async def on_member_add(event: MemberAdd):
     if not event.member.bot:
         # descend only stuff
         if event.member.guild == descend_channels.guild:
-            # inform the user that they should registration with the bot
+            # inform the user that they should register with the bot
             await event.member.send(
                 embeds=embed_message(
                     f"{custom_emojis.descend_logo} Welcome to Descend {event.member.name}! {custom_emojis.descend_logo}",

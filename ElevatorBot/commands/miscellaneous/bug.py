@@ -28,7 +28,7 @@ class Bug(BaseScale):
             issue = await to_thread.run_sync(
                 repo.create_issue,
                 f"Bug Report by Discord User `{ctx.author.username}#{ctx.author.discriminator}`",
-                message,
+                f"{message}\n⁣\n_This action was performed automatically by a bot_",
                 NotSet,
                 NotSet,
                 await get_github_labels(),
