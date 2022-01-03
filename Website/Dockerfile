@@ -13,6 +13,7 @@ FROM node:alpine AS builder
 
 # copy the logo
 COPY ./logo.png /app/Website/public/images/logo.png
+COPY ./logo_small.png /app/Website/public/images/logo_small.png
 
 # copy everything else
 COPY ./Website /app/Website
