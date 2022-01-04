@@ -99,7 +99,7 @@ class DestinyActivity(BaseScale):
             embed.add_field(name="Average Time", value=format_timedelta(stats.average.seconds), inline=True)
             embed.add_field(
                 name="Fastest Time",
-                value=f"[{format_timedelta(stats.fastest.seconds)}[(https://www.bungie.net/en/PGCR/{stats.fastest_instance_id})",
+                value=f"[{format_timedelta(stats.fastest.seconds)}](https://www.bungie.net/en/PGCR/{stats.fastest_instance_id})",
                 inline=True,
             )
         percent = (stats.precision_kills / stats.kills) * 100 if stats.kills else 0
