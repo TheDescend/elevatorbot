@@ -116,7 +116,7 @@ class WeaponsTop(BaseScale):
         )
 
         # parse start and end time
-        start_time, end_time = parse_datetime_options(
+        start_time, end_time = await parse_datetime_options(
             ctx=ctx, expansion=expansion, season=season, start_time=start_time, end_time=end_time
         )
         if not start_time:
