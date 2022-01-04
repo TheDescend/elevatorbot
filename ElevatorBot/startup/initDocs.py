@@ -37,6 +37,10 @@ def create_command_docs(client):
                 continue
 
         for resolved_name, data in command.items():
+            # ignore the reload command
+            if resolved_name == "reload":
+                continue
+
             # get the topic
             topic = f"""{capitalize_string(data.scale.extension_name.split(".")[2])}"""
 

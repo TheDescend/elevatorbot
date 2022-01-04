@@ -2,9 +2,16 @@ import asyncio
 import logging
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from dis_snek import AutoDefer, logger_name
+from dis_snek import (
+    AutoDefer,
+    ExtensionNotFound,
+    InteractionContext,
+    Snake,
+    logger_name,
+    slash_command,
+)
 from dis_snek.models import listen
-from dis_snek.models.enums import Intents
+from dis_snek.models.enums import Intents, Permissions
 
 from ElevatorBot.discordEvents.base import ElevatorSnake
 from ElevatorBot.misc.status import update_discord_bot_status
@@ -18,7 +25,12 @@ from ElevatorBot.startup.initLogging import init_logging
 from ElevatorBot.static.descendOnlyIds import descend_channels
 from ElevatorBot.static.emojis import custom_emojis
 from ElevatorBot.webserver.server import run_webserver
-from settings import DISCORD_APPLICATION_API_KEY, ENABLE_DEBUG_MODE, SYNC_COMMANDS
+from settings import (
+    COMMAND_GUILD_SCOPE,
+    DISCORD_APPLICATION_API_KEY,
+    ENABLE_DEBUG_MODE,
+    SYNC_COMMANDS,
+)
 
 
 class Elevator(ElevatorSnake):
@@ -54,6 +66,36 @@ class Elevator(ElevatorSnake):
 
         print("Startup Finished!\n")
         print("--------------------------\n")
+
+
+def load_commands(client: Snake) -> int:
+    """Load all commands scales. Returns number of local commands"""
+
+    # load commands
+    print("Loading Commands...")
+    for path in yield_files_in_folder("ElevatorBot/commands", "py"):
+        # todo remove those once discord increases their stupid character limit (Currently 6145 chars)
+        if "weapons.meta" not in path and "weapons.top" not in path:
+            client.reload_extension(path)
+
+    global_commands = len(client.interactions[0])
+    print(f"< {global_commands} > Global Commands Loaded")
+
+    local = 0
+    for k, v in client.interactions.items():
+        if k != 0:
+            local += len(v)
+    print(f"< {local} > Local Commands Loaded")
+
+    # load context menus
+    print("Loading Context Menus...")
+    for path in yield_files_in_folder("ElevatorBot/contextMenus", "py"):
+        client.reload_extension(path)
+
+    global_context_menus = len(client.interactions[0])
+    print(f"< {global_context_menus - global_commands} > Global Context Menus Loaded")
+
+    return local
 
 
 if __name__ == "__main__":
@@ -118,35 +160,24 @@ if __name__ == "__main__":
     print("Loading Autocomplete Options...")
     asyncio.run(load_autocomplete_options(client))
 
-    # load commands
-    print("Loading Commands...")
-    for path in yield_files_in_folder("ElevatorBot/commands", "py"):
-        # todo remove those once discord increases their stupid character limit (Currently 6145 chars)
-        if "weapons.meta" not in path and "weapons.top" not in path:
-            client.load_extension(path)
-
-    global_commands = len(client.interactions[0])
-    print(f"< {global_commands} > Global Commands Loaded")
-
-    local_commands = 0
-    for key, value in client.interactions.items():
-        if key != 0:
-            local_commands += len(value)
-    print(f"< {local_commands} > Local Commands Loaded")
-
-    # load context menus
-    print("Loading Context Menus...")
-    for path in yield_files_in_folder("ElevatorBot/contextMenus", "py"):
-        client.load_extension(path)
-
-    global_context_menus = len(client.interactions[0])
-    print(f"< {global_context_menus - global_commands} > Global Context Menus Loaded")
+    local_commands = load_commands(client=client)
 
     local_context_menus = 0
     for key, value in client.interactions.items():
         if key != 0:
             local_context_menus += len(value)
     print(f"< {local_context_menus - local_commands} > Local Context Menus Loaded")
+
+    # load the reload command if debug mode is on
+    if ENABLE_DEBUG_MODE:
+
+        @slash_command(name="reload", description="Reload all scales", scopes=COMMAND_GUILD_SCOPE)
+        async def my_command_function(ctx: InteractionContext):
+            if not ctx.author.has_permission(Permissions.ADMINISTRATOR):
+                await ctx.send("Admin Only")
+                return
+            load_commands(client=ctx.bot)
+            await ctx.send("Reload successful!")
 
     # run the bot
     client.start(DISCORD_APPLICATION_API_KEY)
