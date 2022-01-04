@@ -87,7 +87,7 @@ class CRUDManifest(CRUDBase):
         for activities in data.values():
             result.append(
                 DestinyActivityModel(
-                    name=activities[0].name,
+                    name=activities[0].name or "Unknown",
                     description=activities[0].description,
                     matchmade=activities[0].matchmade,
                     max_players=activities[0].max_players,
