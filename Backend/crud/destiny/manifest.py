@@ -145,7 +145,7 @@ class CRUDManifest(CRUDBase):
         # format them correctly
         result = []
         for activities in data.values():
-            all_grandmaster.activity_ids.append(activities[0].reference_id)
+            all_grandmaster.activity_ids.extend(activity.reference_id for activity in activities)
             result.append(
                 DestinyActivityModel(
                     name=f"Grandmaster: {activities[0].description}",
