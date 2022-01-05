@@ -62,7 +62,7 @@ class DestinyActivities(BaseBackendConnection):
                 guild_id=self.discord_guild.id, discord_id=self.discord_member.id
             ),
             data=DestinyLastInputModel(
-                completed=completed, activity_ids=activity_ids, mode=mode, character_class=character_class
+                completed=completed, activity_ids=activity_ids, mode=mode.value, character_class=character_class
             ),
         )
 

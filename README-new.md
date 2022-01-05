@@ -5,11 +5,13 @@
 [![Discord](https://img.shields.io/discord/669293365900214293?color=%235865F2&label=Descend%20Discord&logo=discord&logoColor=%235865F2)](https://discord.gg/descend)
 [![Website](https://img.shields.io/badge/Website-elevatorbot.ch-0f80c0?logo=react)](https://elevatorbot.ch/)
 
-
 <p align="center">
-  <img src="https://raw.githubusercontent.com/LukasSchmid97/elevatorbot/master/logo.png" alt="ElevatorBot Logo">
+    <img src="https://raw.githubusercontent.com/LukasSchmid97/elevatorbot/master/logo.png" alt="ElevatorBot Logo">
 </p>
+
+
 <h1 align="center">
+    <hr>
     ElevatorBot
 </h1>
 
@@ -42,7 +44,7 @@ If you have any question and don't know where to start, don't hesitate to contac
 ## Self-Hosting Guide
 Everyone can host this bot for themselves. To set him up, follow this quick installation guide.
 
-Note: It is recommended to simply invite the official discord bot
+Note: It is recommended to simply invite the official discord bot.
 
 1) Download and extract the [latest release](https://github.com/LukasSchmid97/elevatorbot/releases)
 2) Install `docker`
@@ -50,3 +52,8 @@ Note: It is recommended to simply invite the official discord bot
 4) Rename `rename_to_settings.py` to `settings.py`
 5) Fill out `settings.py`
 6) Run `docker-compose up --build`
+
+*Optional:*
+ElevatorBot sometimes uses discord emojis.
+Since you are not in the server where the emojis are from, these will display as IDs for you.
+If you want to change that, you need to change the IDs in `/ElevatorBot/static/emojis.py`.

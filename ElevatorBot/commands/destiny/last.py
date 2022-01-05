@@ -52,8 +52,7 @@ class Last(BaseScale):
         # prepare embed
         embed = embed_message(
             f"{member.display_name}'s Last Activity",
-            f"""**{activities_by_id[result.reference_id]}{(' - ' + str(result.score) + ' Points') if result.score > 0 else ""} - {format_timedelta(result.activity_duration_seconds)}**""",
-            f"""InstanceID: {result.instance_id}""",
+            f"""**{activities_by_id[result.reference_id].name}{(' - ' + str(result.score) + ' Points') if result.score > 0 else ""} - [{format_timedelta(result.activity_duration_seconds)}](https://www.bungie.net/en/PGCR/{result.instance_id})**""",
         )
         embed.timestamp = result.period
 
@@ -84,7 +83,7 @@ class Last(BaseScale):
             ]
 
             embed.add_field(
-                name=f"""{getattr(custom_emojis, player.character_class)} {player.bungie_name} {custom_emojis.light_level_icon} {player.light_level}""",
+                name=f"""{getattr(custom_emojis, player.character_class.lower())} {player.bungie_name} {custom_emojis.light_level_icon} {player.light_level}""",
                 value="\n".join(player_data),
                 inline=True,
             )
