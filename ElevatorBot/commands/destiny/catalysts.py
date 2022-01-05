@@ -8,6 +8,7 @@ from dis_snek.models.events import Component
 
 from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
+from ElevatorBot.commandHelpers.paginator import paginate
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formating import embed_message, format_progress
 from NetworkingSchemas.destiny.account import (
@@ -28,13 +29,13 @@ class Catalysts(BaseScale):
         catalysts = await account.get_catalyst_completion()
 
         # display the data using the first category as a key
-        await self.display_catalyst_page(ctx=ctx, member=member, catalysts=catalysts, key=list(catalysts.dict())[0])
+        await self.display_catalyst_page(ctx=ctx, member=member, data=catalysts, key=list(catalysts.dict())[0])
 
     async def display_catalyst_page(
         self,
         ctx: InteractionContext,
         member: Member,
-        catalysts: DestinyCatalystsModel,
+        data: DestinyCatalystsModel,
         key: str,
         button_ctx: Optional[ComponentContext] = None,
         message: Optional[Message] = None,
@@ -43,7 +44,7 @@ class Catalysts(BaseScale):
 
         # sort the catalysts by len
         sorted_catalyst = sorted(
-            getattr(catalysts, key.lower()), key=lambda catalyst: catalyst.completion_percentage, reverse=True
+            getattr(data, key.lower()), key=lambda catalyst: catalyst.completion_percentage, reverse=True
         )
 
         # format the message
@@ -61,54 +62,19 @@ class Catalysts(BaseScale):
             ),
         )
 
-        # send or edit message
-        if not button_ctx:
-            components = [
-                ActionRow(
-                    *[
-                        Button(
-                            custom_id=f"catalysts|{category.capitalize()}",
-                            style=ButtonStyles.GREEN,
-                            label=category.capitalize(),
-                        )
-                        for category, data in catalysts.dict().items()
-                        if isinstance(data, list)
-                    ]
-                ),
-            ]
-
-            message = await ctx.send(embeds=embed, components=components)
-        else:
-            await button_ctx.edit_origin(embeds=embed)
-
-        # wait for a button press for 60s
-        def check(component_check: Component):
-            return component_check.context.author == ctx.author
-
-        try:
-            component = await ctx.bot.wait_for_component(
-                messages=message,
-                timeout=60,
-                check=check,
-            )
-        except asyncio.TimeoutError:
-            # disable all buttons
-            new_components = copy(message.components)
-            for button in new_components[0].components:
-                button.disabled = True
-
-            await message.edit(components=new_components)
-            return
-        else:
-            # display the new data
-            await self.display_catalyst_page(
-                ctx=ctx,
-                member=member,
-                catalysts=catalysts,
-                key=component.context.custom_id.split("|")[1],
-                button_ctx=component.context,
-                message=message,
-            )
+        # todo fix
+        # paginate that
+        await paginate(
+            ctx=ctx,
+            member=member,
+            embed=embed,
+            current_category=key,
+            categories=[category.capitalize() for category, data in data.dict().items() if isinstance(data, list)],
+            callback=self.display_catalyst_page,
+            callback_data=data,
+            button_ctx=button_ctx,
+            message=message,
+        )
 
 
 def setup(client):

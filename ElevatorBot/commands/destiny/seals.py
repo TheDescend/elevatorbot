@@ -18,6 +18,7 @@ class Seals(BaseScale):
         destiny_profile = DestinyAccount(ctx=ctx, discord_member=member, discord_guild=ctx.guild)
         result = await destiny_profile.get_seal_completion()
 
+        # todo paginator
         # format the message nicely
         embed = embed_message(f"{member.display_name}'s Seals")
         embed.add_field(

@@ -8,6 +8,7 @@ from dis_snek.models.events import Component
 
 from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
+from ElevatorBot.commandHelpers.paginator import paginate
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formating import embed_message, format_timedelta
 from NetworkingSchemas.destiny.account import DestinyLowMansModel
@@ -57,53 +58,18 @@ class Solos(BaseScale):
         if not relevant_solos:
             embed.description = "You do not seem to have any notable solo completions"
 
-        # send or edit message
-        if not button_ctx:
-            components = [
-                ActionRow(
-                    *[
-                        Button(
-                            custom_id=f"solos|{category}",
-                            style=ButtonStyles.GREEN,
-                            label=category,
-                        )
-                        for category in data
-                    ]
-                ),
-            ]
-
-            message = await ctx.send(embeds=embed, components=components)
-        else:
-            await button_ctx.edit_origin(embeds=embed)
-
-        # wait for a button press for 60s
-        def check(component_check: Component):
-            return component_check.context.author == ctx.author
-
-        try:
-            component = await ctx.bot.wait_for_component(
-                messages=message,
-                timeout=60,
-                check=check,
-            )
-        except asyncio.TimeoutError:
-            # disable all buttons
-            new_components = copy(message.components)
-            for button in new_components[0].components:
-                button.disabled = True
-
-            await message.edit(components=new_components)
-            return
-        else:
-            # display the new data
-            await self.display_solo_page(
-                ctx=ctx,
-                member=member,
-                data=data,
-                key=component.context.custom_id.split("|")[1],
-                button_ctx=component.context,
-                message=message,
-            )
+        # paginate that
+        await paginate(
+            ctx=ctx,
+            member=member,
+            embed=embed,
+            current_category=key,
+            categories=list(data),
+            callback=self.display_solo_page,
+            callback_data=data,
+            button_ctx=button_ctx,
+            message=message,
+        )
 
 
 def setup(client):

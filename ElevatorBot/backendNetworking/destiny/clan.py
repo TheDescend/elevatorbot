@@ -26,7 +26,7 @@ class DestinyClan(BaseBackendConnection):
 
     discord_guild: Guild
 
-    discord_member: Member = dataclasses.field(init=False)
+    discord_member: Member = dataclasses.field(init=False, default=None)
 
     async def get_clan(self) -> DestinyClanModel:
         """Return the linked destiny clan"""
