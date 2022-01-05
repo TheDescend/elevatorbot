@@ -27,6 +27,16 @@ def capitalize_string(s: str) -> str:
     return " ".join([part.capitalize() for part in split])
 
 
+def un_capitalize_string(s: str) -> str:
+    """Un-capitalise all parts of a string and divide them by "_" """
+
+    split = []
+    for part in s.split(" "):
+        split.extend(part.split())
+
+    return "_".join([part.lower() for part in split])
+
+
 def split_into_chucks_of_max_2000_characters(
     text_str: Optional[str] = None, text_list: Optional[list[Any]] = None
 ) -> list[str]:

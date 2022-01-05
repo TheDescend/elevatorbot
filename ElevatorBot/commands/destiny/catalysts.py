@@ -29,7 +29,9 @@ class Catalysts(BaseScale):
         catalysts = await account.get_catalyst_completion()
 
         # display the data using the first category as a key
-        await self.display_catalyst_page(ctx=ctx, member=member, data=catalysts, key=list(catalysts.dict())[0])
+        await self.display_catalyst_page(
+            ctx=ctx, member=member, data=catalysts, key=list(catalysts.dict())[0].capitalize()
+        )
 
     async def display_catalyst_page(
         self,
@@ -62,7 +64,6 @@ class Catalysts(BaseScale):
             ),
         )
 
-        # todo fix
         # paginate that
         await paginate(
             ctx=ctx,
