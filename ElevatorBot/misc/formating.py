@@ -67,7 +67,7 @@ def format_timedelta(seconds: Optional[float | datetime.timedelta]) -> str:
     hours = int(seconds / (60 * 60))
     minutes = int(seconds % (60 * 60) / 60)
 
-    return f"{hours}h {minutes}m"
+    return f"{hours:,}h {minutes:,}m"
 
 
 def format_progress(name: str, completion_status: str, completion_percentage: float) -> str:
