@@ -28,7 +28,7 @@ class BaseEvent:
         elif self.scheduler_type == "date":
             # date
             # https://apscheduler.readthedocs.io/en/stable/modules/triggers/date.html
-            self.run_date = kwargs["run_date"]  # datetime(2000, 2, 20, 19, 30, 50)
+            self.run_date = kwargs["run_date"]
 
     async def call(self):
         """Run the post event functions"""

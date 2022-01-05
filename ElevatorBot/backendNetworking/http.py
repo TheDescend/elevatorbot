@@ -199,19 +199,25 @@ class BaseBackendConnection:
     async def __backend_handle_errors(self, response: aiohttp.ClientResponse) -> Optional[str]:
         """Handles potential errors. Returns None if the error should not be returned to the user and str, str if something should be returned to the user"""
 
-        if response.status == 409:
-            # this means the errors isn't really an error and we want to return info to the user
-            self.logger.info("%s: '%s' - '%s'", response.status, response.method, response.url)
-            error_json = await response.json(loads=orjson.loads)
-            return error_json["error"]
+        match response.status:
+            case 409:
+                # this means the errors isn't really an error, and we want to return info to the user
+                self.logger.info("%s: '%s' - '%s'", response.status, response.method, response.url)
+                error_json = await response.json(loads=orjson.loads)
+                return error_json["error"]
 
-        else:
-            # if we dont know anything, just log it with the error
-            self.logger.error(
-                "%s: '%s' - '%s' - '%s'",
-                response.status,
-                response.method,
-                response.url,
-                await response.json(loads=orjson.loads),
-            )
-            return None
+            case 500:
+                # internal server error
+                self.logger.info("%s: '%s' - '%s'", response.status, response.method, response.url)
+                return "ProgrammingError"
+
+            case _:
+                # if we don't know anything, just log it with the error
+                self.logger.error(
+                    "%s: '%s' - '%s' - '%s'",
+                    response.status,
+                    response.method,
+                    response.url,
+                    await response.json(loads=orjson.loads),
+                )
+                return None

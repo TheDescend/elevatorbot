@@ -25,4 +25,4 @@ async def get(db: AsyncSession = Depends(get_db_session)):
     for entry in result:
         data.entries.append(DestinySteamPlayerCountModel.from_orm(entry))
 
-    return result
+    return data

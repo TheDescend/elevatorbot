@@ -12,7 +12,11 @@ from Backend.crud.misc.persistentMessages import persistent_messages
 from Backend.database.base import get_async_session
 from Backend.database.models import DiscordUsers
 from Backend.misc.cache import cache
-from Backend.misc.helperFunctions import get_now_with_tz, localize_datetime
+from Backend.misc.helperFunctions import (
+    get_min_with_tz,
+    get_now_with_tz,
+    localize_datetime,
+)
 from Backend.networking.base import NetworkBase
 from Backend.networking.elevatorApi import ElevatorApi
 from NetworkingSchemas.misc.auth import BungieTokenInput, BungieTokenOutput
@@ -155,7 +159,7 @@ class CRUDDiscordUser(CRUDBase):
 
         else:
             # now we call the update function instead of the insert function
-            datetime_default = datetime.datetime(2000, 1, 1, tzinfo=datetime.timezone.utc)
+            datetime_default = get_min_with_tz()
             await self.update(
                 db=db,
                 to_update=user,

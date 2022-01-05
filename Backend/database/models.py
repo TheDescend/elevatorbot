@@ -20,7 +20,7 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.orm import relationship
 
 from Backend.database.base import Base, is_test_mode
-from Backend.misc.helperFunctions import get_now_with_tz
+from Backend.misc.helperFunctions import get_min_with_tz, get_now_with_tz
 
 """ All table models are in here, allowing for easy generation """
 
@@ -163,15 +163,9 @@ class DiscordUsers(Base):
     signup_date = Column(DateTime(timezone=True), nullable=False)
     signup_server_id = Column(BigInteger, nullable=False)
 
-    activities_last_updated = Column(
-        DateTime(timezone=True), nullable=False, default=datetime.datetime(2000, 1, 1, tzinfo=datetime.timezone.utc)
-    )
-    collectibles_last_updated = Column(
-        DateTime(timezone=True), nullable=False, default=datetime.datetime(2000, 1, 1, tzinfo=datetime.timezone.utc)
-    )
-    triumphs_last_updated = Column(
-        DateTime(timezone=True), nullable=False, default=datetime.datetime(2000, 1, 1, tzinfo=datetime.timezone.utc)
-    )
+    activities_last_updated = Column(DateTime(timezone=True), nullable=False, default=get_min_with_tz())
+    collectibles_last_updated = Column(DateTime(timezone=True), nullable=False, default=get_min_with_tz())
+    triumphs_last_updated = Column(DateTime(timezone=True), nullable=False, default=get_min_with_tz())
 
 
 class DestinyClanLinks(Base):

@@ -13,7 +13,7 @@ error_codes_and_responses = {
     "BungieClanTargetDisallowsInvites": "{discord_member.mention} is not allowing clan invites \nPlease change your [privacy settings](https://www.bungie.net/en/Profile/Settings/)",
     "BungieGroupMembershipNotFound": "{discord_member.mention} is not in the clan and can thus not be removed \nI felt like adding them just to remove them was going too far",
     "UnknownError": "I got an unknown error while handling your request \nPlease contact a developer",
-    "ProgrammingError": "The impossible happened. I was programmed correctly :( \nPlease contact a developer",
+    "ProgrammingError": "The impossible happened... I was programmed incorrectly :( \nPlease contact a developer",
     "NoClanLink": "This guild does not have a linked clan\nPlease have an admin run `/setup clan link` to set this up",
     "NoClan": "The linked clan could not be found. Either bungie is having problems, or the clan link is broken\nPlease consider having an admin run `/setup clan link` again",
     "UserNoClan": "{discord_member.mention} is not in any clan",
