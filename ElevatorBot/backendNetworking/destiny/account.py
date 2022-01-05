@@ -308,6 +308,7 @@ class DestinyAccount(BaseBackendConnection):
         # convert to correct pydantic model
         return DestinyCatalystsModel.parse_obj(result.result)
 
+    # todo doesnt work properly
     async def get_seal_completion(self) -> DestinySealsModel:
         """Gets all seals and the users completion status"""
 

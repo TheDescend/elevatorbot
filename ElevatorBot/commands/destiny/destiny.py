@@ -76,7 +76,7 @@ class Destiny(BaseScale):
         for character in characters.characters:
             character_id = character.character_id
 
-            text = f"""Playtime: {format_timedelta(seconds=seconds_played[character_id])} \n⁣\nPower: {power[character_id]:,} \nActivities: {activities_cleared[character_id]:,} \nKills: {kills[character_id]:,} \nDeaths: {deaths[character_id]:,} \nEfficiency: {round(efficiency[character_id], 2)}"""
+            text = f"""Playtime: {format_timedelta(seconds=seconds_played[character_id])} \n⁣\nPower: {int(power[character_id]):,} \nActivities: {int(activities_cleared[character_id]):,} \nKills: {int(kills[character_id]):,} \nDeaths: {int(deaths[character_id]):,} \nEfficiency: {round(efficiency[character_id], 2)}"""
             embed.add_field(
                 name=f"""{character.character_class} ({character.character_race} / {character.character_gender})""",
                 value=text,
@@ -96,9 +96,9 @@ class Destiny(BaseScale):
         embed.add_field(name="⁣", value="__**Seasonal:**__", inline=False)
 
         artifact = await destiny_account.get_artifact_level()
-        embed.add_field(name="Artifact Level", value=f"{artifact.value:,}", inline=True)
+        embed.add_field(name="Artifact Level", value=f"{int(artifact.value):,}", inline=True)
         season_pass = await destiny_account.get_season_pass_level()
-        embed.add_field(name="Season Pass Level", value=f"{season_pass.value:,}", inline=True)
+        embed.add_field(name="Season Pass Level", value=f"{int(season_pass.value):,}", inline=True)
 
         # get seal completion rate
         seals = await destiny_account.get_seal_completion()
