@@ -18,7 +18,7 @@ class FunFact(BaseScale):
                 else:
                     text = "Offline servers make it difficult to get fun facts :("
 
-                await ctx.send(embeds=embed_message("Did you know?", text.replace("`", "'")))
+                await ctx.send(embeds=embed_message("Did You Know?", text.replace("`", "'")))
 
 
 def setup(client):
