@@ -1,5 +1,6 @@
 import asyncio
 
+from dis_snek import Message
 from dis_snek.models import (
     ActionRow,
     Button,
@@ -20,6 +21,7 @@ class BubbleWrap(BaseScale):
             ActionRow(
                 *[
                     Button(
+                        label="⁣",
                         custom_id=f"{j}|{i}",
                         style=ButtonStyles.GREEN,
                     )
@@ -31,9 +33,15 @@ class BubbleWrap(BaseScale):
 
         message = await ctx.send(embeds=embed_message("Pop It Like You Mean It"), components=components)
 
+        # wait for pops
+        await self.wait_for_pops(components=components, message=message)
+
+    async def wait_for_pops(self, components: list[ActionRow], message: Message):
+        """Wait for people to pop the bubble wrap"""
+
         # pop them
         try:
-            component: Component = await ctx.bot.wait_for_component(components=components, timeout=60)
+            component: Component = await self.bot.wait_for_component(components=components, timeout=60)
         except asyncio.TimeoutError:
             # disable all buttons
             for row in components:
@@ -45,9 +53,12 @@ class BubbleWrap(BaseScale):
             j, i = component.context.custom_id.split("|")
             obj = components[int(j)].components[int(i)]
             obj.disabled = True
-            obj.label = "_pop_"
+            obj.label = "pop"
 
             await component.context.edit_origin(components=components)
+
+            # wait again
+            await self.wait_for_pops(components=components, message=message)
 
 
 def setup(client):
