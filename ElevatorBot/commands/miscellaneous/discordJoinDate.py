@@ -10,12 +10,13 @@ class DiscordJoinDate(BaseScale):
 
     @slash_command(name="discord_join_date", description="Check when you joined this discord server")
     @default_user_option()
-    async def discord_join_date(self, ctx: InteractionContext, user: Member):
+    async def discord_join_date(self, ctx: InteractionContext, user: Member = None):
         member = user or ctx.author
 
         await ctx.send(
             embeds=embed_message(
-                f"{user.display_name}'s Discord Join Date", member.joined_at.format(style=TimestampStyles.ShortDateTime)
+                f"{member.display_name}'s Discord Join Date",
+                member.joined_at.format(style=TimestampStyles.ShortDateTime),
             )
         )
 
