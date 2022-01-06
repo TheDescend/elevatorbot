@@ -199,9 +199,7 @@ class Calculator:
 
     # checks that the button press author is the same as the message command invoker and that the message matches
     def check_author_and_message(self, component: Component):
-        return (component.context.author == self.ctx.author) and (
-            self.ctx.message.id == component.context.origin_message.id
-        )
+        return (component.context.author == self.ctx.author) and (self.message == component.context.message)
 
     # wait for button press look
     async def wait_for_button_press(self):
