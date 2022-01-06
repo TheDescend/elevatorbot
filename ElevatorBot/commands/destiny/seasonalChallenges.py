@@ -70,7 +70,7 @@ class SeasonalChallenges(BaseScale):
         member: Member,
         week: str,
         seasonal_challenges: list[SeasonalChallengesTopicsModel],
-        select: list[ActionRow] = None,
+        select: list[ActionRow],
         interaction_ctx: InteractionContext = None,
         select_ctx: ComponentContext = None,
         message: Message = None,
