@@ -10,6 +10,7 @@ from dis_snek.models import (
 )
 
 from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
+from ElevatorBot.backendNetworking.errors import BackendException
 from ElevatorBot.commandHelpers.subCommandTemplates import day1completions_sub_command
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formating import embed_message
@@ -33,15 +34,20 @@ class DayOneRaid(BaseScale):
         async def check_member(player: DestinyAccount):
             # check the members separately to make this faster
             if player:
-                result = await player.has_collectible(collectible_id=raid_to_emblem_hash[raid])
-
-                if result:
-                    raid_completions.append(player.discord_member.mention)
+                try:
+                    result = await player.has_collectible(collectible_id=raid_to_emblem_hash[raid])
+                    if result:
+                        raid_completions.append(player.discord_member.mention)
+                except BackendException as e:
+                    if e.error == "DiscordIdNotFound":
+                        pass
+                    else:
+                        raise e
 
         raid_completions = []
         async with create_task_group() as tg:
             for member in ctx.guild.members:
-                tg.start_soon(check_member, DestinyAccount(ctx=ctx, discord_member=member, discord_guild=ctx.guild))
+                tg.start_soon(check_member, DestinyAccount(discord_member=member, discord_guild=ctx.guild, ctx=None))
 
         embed = embed_message(f"{raid} - Day One Completions")
 
