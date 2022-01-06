@@ -140,7 +140,7 @@ class Time(BaseScale):
         # loop through the results and add embed fields
         for season, season_values in data.items():
             # only append season info if they actually played that season
-            if season_values[list[modes_names.values()][0]] == 0:
+            if season_values[list(modes_names.values())[0]] == 0:
                 continue
 
             embed.add_field(

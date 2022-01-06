@@ -4,7 +4,7 @@ import datetime
 from dateutil import parser
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(unsafe_hash=True)
 class _Date:
     _start: datetime.datetime | str
     name: str
