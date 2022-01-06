@@ -140,8 +140,7 @@ class Calculator:
     def disable_buttons(self):
         for row in self.buttons:
             for button in row.components:
-                button_update = {"disabled": True}
-                button.update(button_update)
+                button.disabled = True
 
     async def send_message(
         self,
