@@ -28,7 +28,7 @@ class StatEverything(BaseScale):
             destiny_class=destiny_class,
             stat_vanity_name=name,
             stat_bungie_name=stat_translation[name],
-            scope=StatScope.EVERYTHING,
+            scope=StatScope.Everything,
         )
 
 

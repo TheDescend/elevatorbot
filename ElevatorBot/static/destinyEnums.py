@@ -2,9 +2,9 @@ from enum import Enum
 
 
 class StatScope(Enum):
-    EVERYTHING = "allTime"
-    PVE = "allPvE"
-    PVP = "allPvP"
+    Everything = "allTime"
+    PvE = "allPvE"
+    PvP = "allPvP"
 
 
 class ModeScope(Enum):

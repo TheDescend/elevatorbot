@@ -92,7 +92,7 @@ async def get_stat_and_send(
     # format and send the stat message
     await ctx.send(
         embeds=embed_message(
-            f"{member.display_name}'s Stat Info",
-            f"Your `{stat_vanity_name}` stat is currently at **{stat_value:,}**",
+            f"{member.display_name}'s Stat Info - {scope.name}",
+            f"Your `{stat_vanity_name}` stat is currently at **{int(stat_value) if stat_value.is_integer() else round(stat_value, 2):,}**",
         )
     )
