@@ -26,7 +26,7 @@ from version import __version__
 class Metrics(BaseScale):
     @slash_command(name="metrics", description="Shows interesting ElevatorBot metrics", scopes=COMMAND_GUILD_SCOPE)
     async def metrics(self, ctx: InteractionContext):
-        embed = embed_message("ElevatorBot Metrics")
+        embed = embed_message(f"{ctx.guild.me.display_name} Metrics")
 
         # version
         embed.add_field(name="Version", value=f"ElevatorBot@{__version__}", inline=True)
@@ -39,44 +39,52 @@ class Metrics(BaseScale):
             inline=True,
         )
 
+        # empty embed for better formatting
+        embed.add_field(name="⁣", value="⁣", inline=False)
+
         # cpu usage
         embed.add_field(
-            name="CPU Usage", value=f"{psutil.cpu_count} cores - {round(psutil.cpu_percent() * 100, 2)}%", inline=True
+            name="CPU Usage",
+            value=f"{psutil.cpu_count()} cores - {round(psutil.cpu_percent(interval=None), 2)}%",
+            inline=True,
         )
-
-        # guilds
-        embed.add_field(name="Guilds", value=f"{len(ctx.bot.guilds):,}", inline=False)
-
-        # commands
-        global_commands = 0
-        descend_commands = 0
-        for scope, command in ctx.bot.interactions.items():
-            if scope == "0":
-                global_commands += 1
-            else:
-                descend_commands += 1
-        embed.add_field(name="Global Commands", value=f"{global_commands:,}", inline=True)
-        embed.add_field(name="Descend Commands", value=f"{descend_commands:,}", inline=True)
 
         # ram usage
         memory = psutil.virtual_memory()
         embed.add_field(
             name="RAM Usage",
-            value=f"{bytes2human(memory.used)} / {bytes2human(memory.total)} - {round(memory.percent * 100, 2)}%",
+            value=f"{bytes2human(memory.used)} / {bytes2human(memory.total)} - {round(memory.percent, 2)}%",
             inline=True,
         )
+
+        # empty embed for better formatting
+        embed.add_field(name="⁣", value="⁣", inline=False)
+
+        # guilds
+        embed.add_field(name="Guilds", value=f"{len(ctx.bot.guilds):,}", inline=True)
+
+        # commands
+        global_commands = 0
+        descend_commands = 0
+        for scope, commands in ctx.bot.interactions.items():
+            if scope == 0:
+                global_commands = len(commands)
+            else:
+                descend_commands = len(commands)
+        embed.add_field(name="Global Commands", value=f"{global_commands:,}", inline=True)
+        embed.add_field(name="Descend Commands", value=f"{descend_commands:,}", inline=True)
 
         # command usage
         commands: dict[str, list[int, int]] = {}
         members: dict[str, int] = {}
         used: int = 0
         used_last_week: int = 0
-        async with await open_file("/Logs/ElevatorBot/commands.log" "r") as f:
+        async with await open_file("./Logs/ElevatorBot/commands.log", "r") as f:
             cutoff_date_last_week = get_now_with_tz() - datetime.timedelta(days=7)
             cutoff_date_last_week_passed = False
 
-            async for line in f.readlines():
-                data = line.split(":")[1].split("-")
+            async for line in f:
+                data = line.split("||")[2].split("-")
 
                 # get command info from the logs
                 name = "Missing"
@@ -103,21 +111,24 @@ class Metrics(BaseScale):
 
                 # general usage statistics
                 used += 1
-                date_str = line.split(":")[0].split("-")[0].strip()
+                date_str = line.split("||")[0].strip()
                 date = dateutil.parser.parse(date_str)
                 if (not cutoff_date_last_week_passed) and (date > cutoff_date_last_week):
                     used_last_week += 1
                 elif not cutoff_date_last_week_passed:
                     cutoff_date_last_week_passed = True
 
-        embed.add_field(name="Total Command Usage", value=f"{used:,}", inline=False)
+        embed.add_field(name="Total Command Usage", value=f"{used:,}", inline=True)
         embed.add_field(name="Command Usage Last Week", value=f"{used_last_week:,}", inline=True)
+
+        # empty embed for better formatting
+        embed.add_field(name="⁣", value="⁣", inline=False)
 
         sorted_commands_usage = [
             f"`{k}` - {v[0]:,} Uses ({v[1]:,} Descend)"
             for k, v in sorted(commands.items(), key=lambda item: item[1][0], reverse=True)
         ][:55]
-        embed.add_field(name="Top 5 Commands", value="\n".join(sorted_commands_usage), inline=False)
+        embed.add_field(name="Top 5 Commands", value="\n".join(sorted_commands_usage), inline=True)
 
         sorted_commands_usage_descend = [
             f"`{k}` - {v[0]:,} Uses ({v[1]:,} Descend)"
@@ -126,9 +137,9 @@ class Metrics(BaseScale):
         embed.add_field(name="Top 5 Descend Commands", value="\n".join(sorted_commands_usage_descend), inline=True)
 
         sorted_members = [
-            f"{k} - {v} Commands" for k, v in sorted(commands.items(), key=lambda item: item[1][1], reverse=True)
+            f"{k} - {v} Commands" for k, v in sorted(members.items(), key=lambda member: member, reverse=True)
         ][:5]
-        embed.add_field(name="Top 5 Members", value="\n".join(sorted_members), inline=True)
+        embed.add_field(name="Top 5 Members", value="\n".join(sorted_members), inline=False)
 
         await ctx.send(embeds=embed)
 

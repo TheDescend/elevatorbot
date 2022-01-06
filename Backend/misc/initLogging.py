@@ -1,5 +1,6 @@
 import logging
 import os
+import time
 from typing import Optional
 
 
@@ -22,7 +23,8 @@ def init_logging() -> None:
         logger.addHandler(file_handler)
 
     # Initialize formatter
-    formatter = logging.Formatter("%(asctime)s - %(levelname)s : %(message)s")
+    formatter = logging.Formatter("%(asctime)s UTC || %(levelname)s || %(message)s")
+    formatter.converter = time.gmtime
 
     # Initialize logging for incoming requests
     make_logger("requests")
