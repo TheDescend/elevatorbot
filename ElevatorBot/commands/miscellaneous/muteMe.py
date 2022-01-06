@@ -4,6 +4,7 @@ import io
 import random
 
 import aiohttp
+from dis_snek import File
 from dis_snek.models import InteractionContext, Member, slash_command
 
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
@@ -43,7 +44,8 @@ class MuteMe(BaseScale):
                 ) as resp:
                     if resp.status == 200:
                         data = io.BytesIO(await resp.read())
-                        await ctx.author.send(file=data)
+                        image = File(file_name="congratulations.png", file=data)
+                        await ctx.author.send(file=image)
 
             await ctx.author.send(f"You won the jackpot! That's a timeout of **{timeout} minutes** for you, enjoy!")
         else:
