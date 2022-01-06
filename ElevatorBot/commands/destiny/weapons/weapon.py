@@ -103,9 +103,9 @@ class WeaponsWeapon(BaseScale):
         # format them nicely
         description = [
             f"Weapon: [{weapon.name}](https://www.light.gg/db/items/{weapon.reference_ids[0]})",
-            f"Weapon Type: {getattr(custom_emojis, getattr(DestinyWeaponTypeEnum, weapon.weapon_type.upper()).name.lower())} {weapon.weapon_type}",
-            f"Damage Type: {getattr(custom_emojis, getattr(UsableDestinyDamageTypeEnum, weapon.damage_type.upper()).name.lower())} {weapon.damage_type}",
-            f"Ammo Type: {getattr(custom_emojis, getattr(UsableDestinyAmmunitionTypeEnum, weapon.ammo_type.upper()).name.lower())} {weapon.ammo_type}",
+            f"""Weapon Type: {getattr(custom_emojis, getattr(DestinyWeaponTypeEnum, "_".join(weapon.weapon_type.upper().split())).name.lower())} {weapon.weapon_type}""",
+            f"""Damage Type: {getattr(custom_emojis, getattr(UsableDestinyDamageTypeEnum, "_".join(weapon.damage_type.upper().split())).name.lower())} {weapon.damage_type}""",
+            f"""Ammo Type: {getattr(custom_emojis, getattr(UsableDestinyAmmunitionTypeEnum, "_".join(weapon.ammo_type.upper().split())).name.lower())} {weapon.ammo_type}""",
             "⁣",
             f"Date: {Timestamp.fromdatetime(start_time).format(style=TimestampStyles.ShortDateTime)} - {Timestamp.fromdatetime(end_time).format(style=TimestampStyles.ShortDateTime)}",
         ]
@@ -123,7 +123,7 @@ class WeaponsWeapon(BaseScale):
             embed.set_footer(" | ".join(footer))
 
         # add the fields
-        embed.add_field(name="Total Kills", value=f"**{stats.total_kills:,}**", inline=True)
+        embed.add_field(name="Total Kills", value=f"**{custom_emojis.enter} {stats.total_kills:,}**", inline=True)
         embed.add_field(
             name="Total Precision Kills",
             value=f"{custom_emojis.enter} **{stats.total_precision_kills:,}**",
@@ -137,7 +137,7 @@ class WeaponsWeapon(BaseScale):
         )
         embed.add_field(
             name="Average Kills",
-            value=f"{custom_emojis.enter} {custom_emojis.enter} **{round((stats.total_kills / stats.total_activities), 2)}**\nIn `{stats.total_activities}` activities",
+            value=f"{custom_emojis.enter} **{round((stats.total_kills / stats.total_activities), 2)}**\nIn `{stats.total_activities}` activities",
             inline=True,
         )
         embed.add_field(
