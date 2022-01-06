@@ -121,6 +121,7 @@ class SeasonalChallenges(BaseScale):
                 seasonal_challenges=seasonal_challenges,
                 select_ctx=select_ctx,
                 message=message,
+                select=select,
             )
 
 
