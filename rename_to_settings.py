@@ -7,6 +7,7 @@ from typing import Optional
 COMMAND_GUILD_SCOPE: list[int] = []
 
 # This setting enables additional console log and print statements
+# Also removes some optimisation like caching
 # It is **highly** recommended setting this to False in production
 # Default: False
 ENABLE_DEBUG_MODE: bool = False

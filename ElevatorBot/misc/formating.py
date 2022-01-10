@@ -3,13 +3,17 @@ from typing import Any, Optional
 
 from dis_snek.models import Colour, Embed
 
+from ElevatorBot.static.emojis import custom_emojis
+
 
 def embed_message(
     title: Optional[str] = None, description: Optional[str] = None, footer: Optional[str] = None
 ) -> Embed:
     """Takes title description and footer and returns an discord.Embed"""
 
-    assert title or description or footer, "Need to input either title or description or footer"
+    assert (
+        title is not None or description is not None or footer is not None
+    ), "Need to input either title or description or footer"
 
     embed = Embed(title=title, description=description, color=Colour.from_hex("#7fc2c7"))
     if footer:
@@ -81,6 +85,19 @@ def format_timedelta(seconds: Optional[float | datetime.timedelta]) -> str:
 
 
 def format_progress(name: str, completion_status: str, completion_percentage: float) -> str:
-    """Returns a formatted message that is displayed whenever a command wants to display a progress message"""
+    """Returns a formatted message that is displayed whenever a command wants to display progress message"""
 
-    return f"{name}   |   {completion_status}  {int(completion_percentage * 100)}%"
+    replacements = {
+        "A": str(custom_emojis.progress_zero),
+        "B": str(custom_emojis.progress_zero_edge),
+        "C": str(custom_emojis.progress_one_quarter),
+        "D": str(custom_emojis.progress_two_quarter),
+        "E": str(custom_emojis.progress_three_quarter),
+        "F": str(custom_emojis.progress_four_quarter),
+    }
+
+    # replace the temp progress bar letters
+    for to_replace, replace_with in replacements.items():
+        completion_status = completion_status.replace(to_replace, replace_with)
+
+    return f"""{completion_status} `{int(completion_percentage * 100):>3}%` **||** {name}"""

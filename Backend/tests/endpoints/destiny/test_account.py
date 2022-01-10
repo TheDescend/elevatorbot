@@ -377,11 +377,11 @@ async def test_get_catalyst_completion(client: AsyncClient, mocker: MockerFixtur
     assert data.power[0].name == "Tractor Cannon Catalyst"
     assert data.power[0].complete is True
     assert data.power[0].completion_percentage == 1
-    assert data.power[0].completion_status == "▓▓▓▓▓▓▓▓▓▓"
+    assert data.power[0].completion_status == "FF"
     assert data.power[1].name == "Acrius Catalyst"
     assert data.power[1].complete is False
     assert data.power[1].completion_percentage == 0.75
-    assert data.power[1].completion_status == "▓▓▓▓▓▓▓▓░░"
+    assert data.power[1].completion_status == "FD"
 
 
 @pytest.mark.asyncio

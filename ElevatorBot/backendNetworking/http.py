@@ -18,6 +18,7 @@ from ElevatorBot.backendNetworking.results import BackendResult
 
 # the limiter object to not overload the backend
 from NetworkingSchemas.base import CustomBaseModel
+from settings import ENABLE_DEBUG_MODE
 
 
 class BackendRateLimiter:
@@ -62,7 +63,9 @@ backend_cache = aiohttp_client_cache.RedisBackend(
         "**/destiny/roles/*/*/get": timedelta(minutes=30),  # user roles
         "**/destiny/weapons/**/top": timedelta(minutes=60),  # user top weapons
         "**/destiny/weapons/**/weapon": timedelta(minutes=60),  # user weapon
-    },
+    }
+    if not ENABLE_DEBUG_MODE
+    else {},
 )
 _no_default = object()
 

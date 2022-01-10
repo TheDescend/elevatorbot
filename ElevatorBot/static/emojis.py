@@ -71,9 +71,15 @@ class __ElevatorEmojis:
         self.backup: CustomEmoji | int = 850000522107027466
 
         self.zoom: CustomEmoji | int = 906503515642425396
-        self.ping_sock: CustomEmoji | int = 586436224013565992
+        self.ping_sock: CustomEmoji | int = 930133969264054302
 
         # Descend [Test 01]
+        self.progress_four_quarter: CustomEmoji | int = 930110935803252806
+        self.progress_three_quarter: CustomEmoji | int = 930146155466223646
+        self.progress_two_quarter: CustomEmoji | int = 930110935849402448
+        self.progress_one_quarter: CustomEmoji | int = 930146155340369951
+        self.progress_zero_edge: CustomEmoji | int = 930110935887138836
+        self.progress_zero: CustomEmoji | int = 930110935887138837
 
         # Descend [Test 02]
         self.thumps_up: CustomEmoji | int = 754946723612196975

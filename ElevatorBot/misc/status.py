@@ -15,24 +15,23 @@ async def update_discord_bot_status(client):
     """Update the Bots status in an endless loop"""
 
     status_messages = [
-        "Type '/' to see available commands",
-        "Type '/register' to register your Destiny 2 account",
-        "If you encounter a bug, please use '/bug'",
-        "Also visit my improved website: 'elevatorbot.ch'",
-        "Use the button above to invite me to your own server",
+        f"Version: ElevatorBot@{__version__}",
+        "Type `/` to see available commands",
+        "Type `/register` to register your Destiny 2 account",
+        "If you encounter a bug, please use `/bug`",
+        "Also visit my website: `elevatorbot.ch`",
         "↓ Psst! Did you know this person stinks",
         f"Witch Queen releases in {Timestamp.fromtimestamp(1645552800).format(style=TimestampStyles.RelativeTime)}",
-        f"Version: ElevatorBot@{__version__}",
-        "To invite me to your own server, click on my user",
+        "To invite me to your own server, click on my profile",
         "I can win the hard mode TicTacToe, can you?",
         "Presenting: Extra context! Right click a message or a user and be amazed",
-        "I have been successfully snekified",
+        "What is dis? I have been snekified",
         "Now using Descend™ green",
-        "Join the Descend discord: 'discord.gg/descend'",
+        "Join the Descend discord: `discord.gg/descend`",
     ]
 
     for element in itertools.cycle(status_messages):
-        await client.change_presence(activity=Activity.create(name=f"{custom_emojis.elevator_logo} {element}"))
+        await client.change_presence(activity=Activity.create(name=element))
         await asyncio.sleep(30)
 
 
