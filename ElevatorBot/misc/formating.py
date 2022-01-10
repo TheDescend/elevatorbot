@@ -9,7 +9,7 @@ from ElevatorBot.static.emojis import custom_emojis
 def embed_message(
     title: Optional[str] = None, description: Optional[str] = None, footer: Optional[str] = None
 ) -> Embed:
-    """Takes title description and footer and returns an discord.Embed"""
+    """Takes title description and footer and returns an Embed"""
 
     assert (
         title is not None or description is not None or footer is not None

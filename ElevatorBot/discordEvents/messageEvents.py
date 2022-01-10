@@ -243,7 +243,7 @@ async def on_message_create(event: MessageCreate, edit_mode: bool = False):
                 # be annoyed if getting pinged
                 async for member in message.mention_users:
                     if member == event.bot.user:
-                        await message.add_reaction(custom_emojis.ping_sock)
+                        await message.add_reaction(custom_emojis.ping)
                         break
 
             # =========================================================================

@@ -6,19 +6,7 @@ class __ElevatorEmojis:
     """To add an emoji add it to the class variables"""
 
     def __init__(self):
-        # Descend Font
-        self.tile_left: CustomEmoji | int = 768906489309822987
-        self.tile_mid: CustomEmoji | int = 768906489103384657
-        self.tile_right: CustomEmoji | int = 768906489729122344
-
-        self.yes: CustomEmoji | int = 768908985557844028
-        self.question: CustomEmoji | int = 768906489686655016
-        self.enter: CustomEmoji | int = 768906489103384688
-        self.circle: CustomEmoji | int = 768906489464619008
-
-        self.destiny: CustomEmoji | int = 768906489472876574
-        self.descend_logo: CustomEmoji | int = 768907515193720874
-        self.elevator_logo: CustomEmoji | int = 768907515386921020
+        # DESCEND [BL]
 
         self.kinetic: CustomEmoji | int = 906180170875031562
         self.stasis: CustomEmoji | int = 897797463799369769
@@ -51,7 +39,36 @@ class __ElevatorEmojis:
         self.special: CustomEmoji | int = 906180170858250260
         self.heavy: CustomEmoji | int = 906180170451410985
 
-        # Emote Server
+        # DESCEND [WQ]
+        self.tile_left: CustomEmoji | int = 930155671960313946
+        self.tile_mid: CustomEmoji | int = 930155672048377906
+        self.tile_right: CustomEmoji | int = 930155672006459502
+        self.enter: CustomEmoji | int = 930155672123883540
+        self.circle: CustomEmoji | int = 930155671947735090
+        self.question: CustomEmoji | int = 930155672052580372
+        self.settings: CustomEmoji | int = 930155672014843904
+
+        self.yes: CustomEmoji | int = 930155671930962001
+        self.no: CustomEmoji | int = 930155672014819388
+        self.thumps_up: CustomEmoji | int = 930155671784128584
+        self.thumps_down: CustomEmoji | int = 930155671989657600
+
+        self.discord: CustomEmoji | int = 930155671649918987
+        self.descend_logo: CustomEmoji | int = 930153190274531368
+        self.elevator_logo: CustomEmoji | int = 930155671784128583
+        self.ping: CustomEmoji | int = 930167151908765696
+
+        self.destiny: CustomEmoji | int = 930155672006430750
+        self.raid: CustomEmoji | int = 622050515194347552
+
+        self.progress_four_quarter: CustomEmoji | int = 930110935803252806
+        self.progress_three_quarter: CustomEmoji | int = 930146155466223646
+        self.progress_two_quarter: CustomEmoji | int = 930110935849402448
+        self.progress_one_quarter: CustomEmoji | int = 930146155340369951
+        self.progress_zero_edge: CustomEmoji | int = 930110935887138836
+        self.progress_zero: CustomEmoji | int = 930110935887138837
+
+        # DESCEND [Other]
         self.among_us: CustomEmoji | int = 905844106914332682
         self.barotrauma: CustomEmoji | int = 905846654316445758
         self.gta: CustomEmoji | int = 905847049059197009
@@ -64,26 +81,13 @@ class __ElevatorEmojis:
         self.warlock: CustomEmoji | int = 830747907488612402
         self.hunter: CustomEmoji | int = 830747907829006346
         self.titan: CustomEmoji | int = 830747907576823808
-        self.light_level_icon: CustomEmoji | int = 830750430816108564
+        self.light_level: CustomEmoji | int = 830750430816108564
 
         self.join: CustomEmoji | int = 850000522101391400
         self.leave: CustomEmoji | int = 850000522048045106
         self.backup: CustomEmoji | int = 850000522107027466
 
         self.zoom: CustomEmoji | int = 906503515642425396
-        self.ping_sock: CustomEmoji | int = 930133969264054302
-
-        # Descend [Test 01]
-        self.progress_four_quarter: CustomEmoji | int = 930110935803252806
-        self.progress_three_quarter: CustomEmoji | int = 930146155466223646
-        self.progress_two_quarter: CustomEmoji | int = 930110935849402448
-        self.progress_one_quarter: CustomEmoji | int = 930146155340369951
-        self.progress_zero_edge: CustomEmoji | int = 930110935887138836
-        self.progress_zero: CustomEmoji | int = 930110935887138837
-
-        # Descend [Test 02]
-        self.thumps_up: CustomEmoji | int = 754946723612196975
-        self.thumps_down: CustomEmoji | int = 754946723503276124
 
     async def init_emojis(self, client):
         """Runs on startup to get the emojis we use"""

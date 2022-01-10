@@ -1,13 +1,25 @@
 {
-    "Temp": {
-        "Only Available in the Descend Server": [
+    "Admin": {
+        "Available Globally": [
             {
-                "name": "emojis",
-                "description": "No Description Set",
+                "name": "user_info",
+                "description": "Gets collected info for the specified user. Exactly one option needs to be filled out",
                 "options": [
                     {
-                        "name": "user",
-                        "description": "The user you want to look up",
+                        "name": "discord_user",
+                        "description": "Look up a discord user",
+                        "required": false,
+                        "autocomplete": false
+                    },
+                    {
+                        "name": "destiny_id",
+                        "description": "Look up a destinyID",
+                        "required": false,
+                        "autocomplete": false
+                    },
+                    {
+                        "name": "fuzzy_name",
+                        "description": "If you know how the user is called",
                         "required": false,
                         "autocomplete": false
                     }
@@ -16,13 +28,6 @@
         ]
     },
     "Destiny": {
-        "Only Available in the Descend Server": [
-            {
-                "name": "day_one_raid_race",
-                "description": "Starts the Day One raid completion announcer",
-                "options": []
-            }
-        ],
         "Available Globally": [
             {
                 "name": "activity",
@@ -446,9 +451,62 @@
                 "description": "Unlink your Destiny 2 account from ElevatorBot",
                 "options": []
             }
+        ],
+        "Only Available in the Descend Server": [
+            {
+                "name": "day_one_raid_race",
+                "description": "Starts the Day One raid completion announcer",
+                "options": []
+            }
         ]
     },
     "Miscellaneous": {
+        "Available Globally": [
+            {
+                "name": "boosters",
+                "description": "Prints all premium subscribers (boosters) of this discord server",
+                "options": []
+            },
+            {
+                "name": "bubble_wrap",
+                "description": "This 100% recreates the happy feeling of popping bubble wrap",
+                "options": []
+            },
+            {
+                "name": "bug",
+                "description": "Use this if you want to report any bugs to the developer",
+                "options": [
+                    {
+                        "name": "message",
+                        "description": "Please describe **in detail** the bug you have noticed",
+                        "required": true,
+                        "autocomplete": false
+                    }
+                ]
+            },
+            {
+                "name": "calculator",
+                "description": "Summons a handy calculator",
+                "options": []
+            },
+            {
+                "name": "discord_join_date",
+                "description": "Check your join date of the discord server where you execute the command",
+                "options": [
+                    {
+                        "name": "user",
+                        "description": "The user you want to look up",
+                        "required": false,
+                        "autocomplete": false
+                    }
+                ]
+            },
+            {
+                "name": "funfact",
+                "description": "Get a fun fact, which most of the time is even pretty interesting",
+                "options": []
+            }
+        ],
         "Only Available in the Descend Server": [
             {
                 "name": "api_key",
@@ -530,80 +588,6 @@
                         "name": "reason",
                         "description": "Whats the reason for the warning",
                         "required": true,
-                        "autocomplete": false
-                    }
-                ]
-            }
-        ],
-        "Available Globally": [
-            {
-                "name": "boosters",
-                "description": "Prints all premium subscribers (boosters) of this discord server",
-                "options": []
-            },
-            {
-                "name": "bubble_wrap",
-                "description": "This 100% recreates the happy feeling of popping bubble wrap",
-                "options": []
-            },
-            {
-                "name": "bug",
-                "description": "Use this if you want to report any bugs to the developer",
-                "options": [
-                    {
-                        "name": "message",
-                        "description": "Please describe **in detail** the bug you have noticed",
-                        "required": true,
-                        "autocomplete": false
-                    }
-                ]
-            },
-            {
-                "name": "calculator",
-                "description": "Summons a handy calculator",
-                "options": []
-            },
-            {
-                "name": "discord_join_date",
-                "description": "Check your join date of the discord server where you execute the command",
-                "options": [
-                    {
-                        "name": "user",
-                        "description": "The user you want to look up",
-                        "required": false,
-                        "autocomplete": false
-                    }
-                ]
-            },
-            {
-                "name": "funfact",
-                "description": "Get a fun fact, which most of the time is even pretty interesting",
-                "options": []
-            }
-        ]
-    },
-    "Admin": {
-        "Available Globally": [
-            {
-                "name": "user_info",
-                "description": "Gets collected info for the specified user. Exactly one option needs to be filled out",
-                "options": [
-                    {
-                        "name": "discord_user",
-                        "description": "Look up a discord user",
-                        "required": false,
-                        "autocomplete": false
-                    },
-                    {
-                        "name": "destiny_id",
-                        "description": "Look up a destinyID",
-                        "required": false,
-                        "autocomplete": false
-                    },
-                    {
-                        "name": "fuzzy_name",
-                        "description": "If you know how the user is called",
-                        "required": false,
                         "autocomplete": false
                     }
                 ]

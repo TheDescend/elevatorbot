@@ -83,7 +83,7 @@ class Last(BaseScale):
             ]
 
             embed.add_field(
-                name=f"""{getattr(custom_emojis, player.character_class.lower())} {player.bungie_name} {custom_emojis.light_level_icon} {player.light_level}""",
+                name=f"""{getattr(custom_emojis, player.character_class.lower())} {player.bungie_name} {custom_emojis.light_level} {player.light_level}""",
                 value="\n".join(player_data),
                 inline=True,
             )
