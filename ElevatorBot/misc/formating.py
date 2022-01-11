@@ -84,8 +84,8 @@ def format_timedelta(seconds: Optional[float | datetime.timedelta]) -> str:
     return f"{hours:,}h {minutes:,}m"
 
 
-def format_progress(name: str, completion_status: str, completion_percentage: float) -> str:
-    """Returns a formatted message that is displayed whenever a command wants to display progress message"""
+def replace_progress_formatting(completion_status: str) -> str:
+    """Replace the letter with emojis"""
 
     replacements = {
         "A": str(custom_emojis.progress_zero),
@@ -99,5 +99,13 @@ def format_progress(name: str, completion_status: str, completion_percentage: fl
     # replace the temp progress bar letters
     for to_replace, replace_with in replacements.items():
         completion_status = completion_status.replace(to_replace, replace_with)
+
+    return completion_status
+
+
+def format_progress(name: str, completion_status: str, completion_percentage: float) -> str:
+    """Returns a formatted message that is displayed whenever a command wants to display progress message"""
+
+    completion_status = replace_progress_formatting(completion_status)
 
     return f"""{completion_status} `{int(completion_percentage * 100):>3}%` **||** {name}"""

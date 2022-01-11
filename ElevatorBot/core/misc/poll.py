@@ -17,8 +17,9 @@ from dis_snek.models import (
 from ElevatorBot.backendNetworking.errors import BackendException
 from ElevatorBot.backendNetworking.misc.polls import BackendPolls
 from ElevatorBot.misc.discordShortcutFunctions import has_admin_permission
-from ElevatorBot.misc.formating import embed_message
+from ElevatorBot.misc.formating import embed_message, replace_progress_formatting
 from Shared.NetworkingSchemas.misc.polls import PollChoice, PollSchema
+from Shared.functions.formatting import make_progress_bar_text
 
 
 @dataclasses.dataclass()
@@ -240,24 +241,13 @@ class Poll:
         # add choices
         for choice in self.choices:
             option_users_count = len(choice.discord_ids)
+            percentage = option_users_count / total_users_count
 
-            # number of text elements
-            n = 10
-
-            # get value text
-            text = ""
-            try:
-                progress = option_users_count / total_users_count
-            except ZeroDivisionError:
-                progress = 0
-            for i in range(int(progress * n)):
-                text += "▓"
-            for i in range(n - int(progress * n)):
-                text += "░"
+            text = make_progress_bar_text(percentage=percentage, bar_length=10)
 
             embed.add_field(
                 name=choice.name,
-                value=f"{text} {int(progress * 100)}%",
+                value=f"{replace_progress_formatting(text)} {int(percentage * 100)}%",
                 inline=False,
             )
 
