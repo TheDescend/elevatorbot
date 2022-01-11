@@ -75,7 +75,7 @@ def load_commands(client: Snake) -> int:
     print("Loading Commands...")
     for path in yield_files_in_folder("ElevatorBot/commands", "py"):
         # todo remove those once discord increases their stupid character limit (Currently 6145 chars)
-        if "weapons.meta" not in path and "weapons.top" not in path:
+        if "weapons.meta" not in path and "weapons.top" not in path and "rank.clan" not in path:
             client.reload_extension(path)
 
     global_commands = len(client.interactions[0])

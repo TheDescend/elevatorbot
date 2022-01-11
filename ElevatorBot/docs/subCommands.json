@@ -357,6 +357,123 @@
                 ]
             },
             {
+                "base_name": "rank",
+                "base_description": "Display Destiny 2 leaderboards. Pick **only** one leaderboard from all options",
+                "sub_commands": [
+                    {
+                        "name": "server",
+                        "description": "Display Destiny 2 leaderboards. Pick **only** one leaderboard from all options",
+                        "options": [
+                            {
+                                "name": "discord_leaderboards",
+                                "description": "Leaderboards concerning this discord server",
+                                "required": false,
+                                "autocomplete": false,
+                                "choices": [
+                                    "Roles Earned on this Discord Server",
+                                    "Join-Date of this Discord Server"
+                                ]
+                            },
+                            {
+                                "name": "basic_leaderboards",
+                                "description": "Leaderboards concerning basic Destiny 2 stats",
+                                "required": false,
+                                "autocomplete": false,
+                                "choices": [
+                                    "Total Playtime",
+                                    "Maximum Power Level",
+                                    "Maximum Season Pass Level",
+                                    "Kills",
+                                    "Kills with: Melee",
+                                    "Kills with: Super",
+                                    "Kills with: Grenade",
+                                    "Deaths",
+                                    "Suicides",
+                                    "Orbs of Power Generated",
+                                    "Triumph Score",
+                                    "Active Triumph Score",
+                                    "Legacy Triumph Score",
+                                    "Enhancement Cores",
+                                    "Vault Space Used",
+                                    "Bright Dust Owned",
+                                    "Legendary Shards Owned",
+                                    "Raid Banners Owned",
+                                    "Forges Done",
+                                    "AFK Forges Done",
+                                    "Weapon Catalysts Completed"
+                                ]
+                            },
+                            {
+                                "name": "endgame_leaderboards",
+                                "description": "Leaderboards concerning stats in Destiny 2 endgame activities",
+                                "required": false,
+                                "autocomplete": false,
+                                "choices": [
+                                    "Raids Completed",
+                                    "Raid Playtime",
+                                    "Raids Completed on Day One",
+                                    "Grandmaster Nightfalls Completed",
+                                    "Grandmaster Nightfalls Playtime"
+                                ]
+                            },
+                            {
+                                "name": "activity_leaderboards",
+                                "description": "Leaderboards concerning stats in Destiny 2 activities. Input the sought activity in `activity`",
+                                "required": false,
+                                "autocomplete": false,
+                                "choices": [
+                                    "Full Activity Completions",
+                                    "CP Activity Completions",
+                                    "Activity Kills",
+                                    "Activity Precision Kills",
+                                    "Activity % Precision Kills",
+                                    "Activity Deaths",
+                                    "Activity Assists",
+                                    "Activity Playtime",
+                                    "Fastest Activity Completion Time",
+                                    "Average Activity Completion Time"
+                                ]
+                            },
+                            {
+                                "name": "weapon_leaderboards",
+                                "description": "Leaderboards concerning Destiny 2 weapon stats. Input the sought weapon in `weapon`",
+                                "required": false,
+                                "autocomplete": false,
+                                "choices": [
+                                    "Weapon Kills",
+                                    "Weapon Precision Kills",
+                                    "Weapon % Precision Kills"
+                                ]
+                            },
+                            {
+                                "name": "activity",
+                                "description": "If are looking for a `activity_leaderboards`, please select the activity",
+                                "required": false,
+                                "autocomplete": true
+                            },
+                            {
+                                "name": "weapon",
+                                "description": "If are looking for a `weapon_leaderboards`, please select the weapon",
+                                "required": false,
+                                "autocomplete": true
+                            },
+                            {
+                                "name": "reverse",
+                                "description": "If you want to reverse the sorting: Default: False",
+                                "required": false,
+                                "autocomplete": false
+                            },
+                            {
+                                "name": "user",
+                                "description": "The user you want to look up",
+                                "required": false,
+                                "autocomplete": false
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
                 "base_name": "roles",
                 "base_description": "Various commands concerning Destiny 2 achievement discord roles",
                 "sub_commands": [

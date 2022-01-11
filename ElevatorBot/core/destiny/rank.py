@@ -1,17 +1,8 @@
-import asyncio
 import dataclasses
 from typing import Optional
 
 from anyio import create_task_group
-from dis_snek.models import (
-    InteractionContext,
-    Member,
-    OptionTypes,
-    SlashCommandChoice,
-    TimestampStyles,
-    slash_command,
-    slash_option,
-)
+from dis_snek.models import InteractionContext, Member, TimestampStyles
 
 from DestinyEnums.enums import (
     DestinyActivityModeTypeEnum,
@@ -28,16 +19,8 @@ from ElevatorBot.backendNetworking.destiny.weapons import DestinyWeapons
 from ElevatorBot.commandHelpers.autocomplete import (
     activities,
     activities_grandmaster,
-    autocomplete_send_activity_name,
-    autocomplete_send_weapon_name,
     weapons,
 )
-from ElevatorBot.commandHelpers.optionTemplates import (
-    autocomplete_activity_option,
-    autocomplete_weapon_option,
-    default_user_option,
-)
-from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formating import embed_message, format_timedelta
 from ElevatorBot.static.destinyActivities import raid_to_emblem_hash
 from ElevatorBot.static.emojis import custom_emojis
@@ -59,125 +42,29 @@ class RankResult:
     sort_by_ascending: bool = dataclasses.field(init=False, default=False)
 
 
-class Rank(BaseScale):
-    discord_leaderboards = {
-        "discord_roles": "Roles Earned on this Discord Server",
-        "discord_join_date": "Join-Date of this Discord Server",
-    }
-    basic_leaderboards = {
-        "basic_total_time": "Total Playtime",
-        "basic_max_power": "Maximum Power Level",
-        "basic_season_pass": "Maximum Season Pass Level",
-        "basic_kills": "Kills",
-        "basic_melee_kills": "Kills with: Melee",
-        "basic_super_kills": "Kills with: Super",
-        "basic_grenade_kills": "Kills with: Grenade",
-        "basic_deaths": "Deaths",
-        "basic_suicides": "Suicides",
-        "basic_orbs": "Orbs of Power Generated",
-        "basic_triumphs": "Triumph Score",
-        "basic_active_triumphs": "Active Triumph Score",
-        "basic_legacy_triumphs": "Legacy Triumph Score",
-        "basic_enhancement_cores": "Enhancement Cores",
-        "basic_vault_space": "Vault Space Used",
-        "basic_bright_dust": "Bright Dust Owned",
-        "basic_legendary_shards": "Legendary Shards Owned",
-        "basic_raid_banners": "Raid Banners Owned",
-        "basic_forges": "Forges Done",
-        "basic_afk_forges": "AFK Forges Done",
-        "basic_catalysts": "Weapon Catalysts Completed",
-    }
-    endgame_leaderboards = {
-        "endgame_raids": "Raids Completed",
-        "endgame_raid_time": "Raid Playtime",
-        "endgame_day_one_raids": "Raids Completed on Day One",
-        "endgame_gms": "Grandmaster Nightfalls Completed",
-        "endgame_gm_time": "Grandmaster Nightfalls Playtime",
-    }
-    activity_leaderboards = {
-        "activity_full_completions": "Full Activity Completions",
-        "activity_cp_completions": "CP Activity Completions",
-        "activity_kills": "Activity Kills",
-        "activity_precision_kills": "Activity Precision Kills",
-        "activity_percent_precision_kills": "Activity % Precision Kills",
-        "activity_deaths": "Activity Deaths",
-        "activity_assists": "Activity Assists",
-        "activity_time_spend": "Activity Playtime",
-        "activity_fastest": "Fastest Activity Completion Time",
-        "activity_average": "Average Activity Completion Time",
-    }
-    weapon_leaderboards = {
-        "weapon_kills": "Weapon Kills",
-        "weapon_precision_kills": "Weapon Precision Kills",
-        "weapon_precision_kills_percent": "Weapon % Precision Kills",
-    }
-    all_leaderboards = (
-        discord_leaderboards | basic_leaderboards | endgame_leaderboards | activity_leaderboards | weapon_leaderboards
-    )
+@dataclasses.dataclass
+class RankCommandHandler:
+    clan_mode: bool
+    all_leaderboards: dict
 
-    @slash_command(
-        name="rank",
-        description="Display Destiny 2 leaderboards for the linked clan. Pick **only** one leaderboard from all options",
-    )
-    @slash_option(
-        name="discord_leaderboards",
-        description="Leaderboards concerning this discord server",
-        opt_type=OptionTypes.STRING,
-        required=False,
-        choices=[SlashCommandChoice(name=name, value=value) for value, name in discord_leaderboards.items()],
-    )
-    @slash_option(
-        name="basic_leaderboards",
-        description="Leaderboards concerning basic Destiny 2 stats",
-        opt_type=OptionTypes.STRING,
-        required=False,
-        choices=[SlashCommandChoice(name=name, value=value) for value, name in basic_leaderboards.items()],
-    )
-    @slash_option(
-        name="endgame_leaderboards",
-        description="Leaderboards concerning stats in Destiny 2 endgame activities",
-        opt_type=OptionTypes.STRING,
-        required=False,
-        choices=[SlashCommandChoice(name=name, value=value) for value, name in endgame_leaderboards.items()],
-    )
-    @slash_option(
-        name="activity_leaderboards",
-        description="Leaderboards concerning stats in Destiny 2 activities. Input the sought activity in `activity`",
-        opt_type=OptionTypes.STRING,
-        required=False,
-        choices=[SlashCommandChoice(name=name, value=value) for value, name in activity_leaderboards.items()],
-    )
-    @slash_option(
-        name="weapon_leaderboards",
-        description="Leaderboards concerning Destiny 2 weapon stats. Input the sought weapon in `weapon`",
-        opt_type=OptionTypes.STRING,
-        required=False,
-        choices=[SlashCommandChoice(name=name, value=value) for value, name in weapon_leaderboards.items()],
-    )
-    @autocomplete_activity_option(
-        description="If are looking for a `activity_leaderboards`, please select the activity"
-    )
-    @autocomplete_weapon_option(description="If are looking for a `weapon_leaderboards`, please select the weapon")
-    @slash_option(
-        name="reverse",
-        description="If you want to reverse the sorting: Default: False",
-        opt_type=OptionTypes.BOOLEAN,
-        required=False,
-    )
-    @default_user_option()
-    async def rank(
+    async def handle(
         self,
         ctx: InteractionContext,
-        discord_leaderboards: str = None,
-        basic_leaderboards: str = None,
-        endgame_leaderboards: str = None,
-        activity_leaderboards: str = None,
-        weapon_leaderboards: str = None,
-        activity: str = None,
-        weapon: str = None,
+        discord_leaderboards: Optional[str] = None,
+        basic_leaderboards: Optional[str] = None,
+        endgame_leaderboards: Optional[str] = None,
+        activity_leaderboards: Optional[str] = None,
+        weapon_leaderboards: Optional[str] = None,
+        activity: Optional[str] = None,
+        weapon: Optional[str] = None,
         reverse: bool = False,
-        user: Member = None,
+        user: Optional[Member] = None,
     ):
+        """
+        Handle both rank commands
+        self.clan_mode defines who gets looked at
+        """
+
         limit = 10
 
         # make sure exactly one leaderboard was input
@@ -207,7 +94,8 @@ class Rank(BaseScale):
             if not activity:
                 embed = embed_message(
                     "Error",
-                    "You selected an activity leaderboard, but did not supply your sought activity\nPlease try again and input the activity with the `activity` option",
+                    "You selected an activity leaderboard, but did not supply your sought activity\nPlease try again and input the activity with the "
+                    "`activity` option",
                 )
                 await ctx.send(embeds=embed, ephemeral=True)
                 return
@@ -220,7 +108,8 @@ class Rank(BaseScale):
             if not weapon:
                 embed = embed_message(
                     "Error",
-                    "You selected a weapon leaderboard, but did not supply your sought weapon\nPlease try again and input the weapon with the `weapon` option",
+                    "You selected a weapon leaderboard, but did not supply your sought weapon\nPlease try again and input the weapon with the `weapon` "
+                    "option",
                 )
                 await ctx.send(embeds=embed, ephemeral=True)
                 return
@@ -246,7 +135,7 @@ class Rank(BaseScale):
         results: list[RankResult] = []
         async with create_task_group() as tg:
             for discord_member in discord_members:
-                tg.start_soon(self.handle_member, results, ctx, discord_member, leaderboard_name, activity, weapon)
+                tg.start_soon(self._handle_member, results, ctx, discord_member, leaderboard_name, activity, weapon)
 
         # sort the results
         sort_by_ascending = results[0].sort_by_ascending
@@ -267,8 +156,10 @@ class Rank(BaseScale):
                 [
                     f"Weapon: [{weapon.name}](https://www.light.gg/db/items/{weapon.reference_ids[0]})",
                     f"Weapon Type: {getattr(custom_emojis, getattr(DestinyWeaponTypeEnum, weapon.weapon_type.upper()).name.lower())} {weapon.weapon_type}",
-                    f"Damage Type: {getattr(custom_emojis, getattr(UsableDestinyDamageTypeEnum, weapon.damage_type.upper()).name.lower())} {weapon.damage_type}",
-                    f"Ammo Type: {getattr(custom_emojis, getattr(UsableDestinyAmmunitionTypeEnum, weapon.ammo_type.upper()).name.lower())} {weapon.ammo_type}",
+                    f"Damage Type: {getattr(custom_emojis, getattr(UsableDestinyDamageTypeEnum, weapon.damage_type.upper()).name.lower())} "
+                    f"{weapon.damage_type}",
+                    f"Ammo Type: {getattr(custom_emojis, getattr(UsableDestinyAmmunitionTypeEnum, weapon.ammo_type.upper()).name.lower())} "
+                    f"{weapon.ammo_type}",
                     "⁣",
                 ]
             )
@@ -308,7 +199,7 @@ class Rank(BaseScale):
         await ctx.send(embeds=embed)
 
     @staticmethod
-    async def handle_member(
+    async def _handle_member(
         results: list[RankResult],
         ctx: InteractionContext,
         discord_member: Member,
@@ -727,11 +618,3 @@ class Rank(BaseScale):
                 result.display_text = f"% Precision Kills: {round(percent, 2)}"
 
         results.append(result)
-
-
-def setup(client):
-    command = Rank(client)
-
-    # register the autocomplete callback
-    command.rank.autocomplete("weapon")(autocomplete_send_weapon_name)
-    command.rank.autocomplete("activity")(autocomplete_send_activity_name)
