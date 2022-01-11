@@ -84,10 +84,11 @@ class Roles:
 
         # do the missing roles display
         embed = embed_message(f"{self.member.display_name}'s Roles")
-        embed.add_field(name="⁣", value="__**Acquirable Roles:**__", inline=False)
 
         # only do this if there are roles to get
         if result.acquirable:
+            embed.add_field(name="⁣", value="__**Acquirable Roles:**__", inline=False)
+
             # sort by category
             by_category = await self.__sort_by_category(result.acquirable)
 
@@ -98,15 +99,12 @@ class Roles:
                     inline=True,
                 )
         else:
-            embed.add_field(
-                name="Wow, you got every single role. Congrats!",
-                value="⁣",
-                inline=False,
-            )
+            embed.description = "Wow, you got every single role. Congrats!"
 
         # Do the same for the deprecated roles
-        embed.add_field(name="⁣", value="__**Deprecated Roles:**__", inline=False)
         if result.deprecated:
+            embed.add_field(name="⁣", value="__**Deprecated Roles:**__", inline=False)
+
             # sort by category
             by_category = await self.__sort_by_category(result.deprecated)
 
@@ -153,7 +151,7 @@ class Roles:
                     # todo link to where you can see all the roles
                     embeds=embed_message(
                         "Info",
-                        "You don't have any roles. \nUse `/roles overview` to see all available roles and then `/roles get_requirements <role>` to view its get_requirements.",
+                        "You don't have any roles. \nUse `/roles missing` to see available roles and then `/roles requirements <role>` to view its requirements.",
                     )
                 )
                 return
