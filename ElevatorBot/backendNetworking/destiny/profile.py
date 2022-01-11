@@ -16,6 +16,7 @@ from ElevatorBot.backendNetworking.routes import (
     destiny_profile_has_token_route,
     destiny_profile_registration_role_route,
 )
+from ElevatorBot.misc.cache import registered_role_cache
 from ElevatorBot.misc.formating import embed_message
 from NetworkingSchemas.destiny.profile import DestinyHasTokenModel, DestinyProfileModel
 
@@ -62,6 +63,24 @@ class DestinyProfile(BaseBackendConnection):
 
         # convert to correct pydantic model
         return DestinyProfileModel.parse_obj(result.result)
+
+    async def is_registered(self) -> bool:
+        """Checks if the user is registered"""
+
+        # check in cache if the user is registered
+        if await registered_role_cache.is_not_registered(self.discord_member.id):
+            result = DestinyHasTokenModel(token=False)
+        else:
+            try:
+                # check their status with the backend
+                result = await self.has_token()
+            except BackendException:
+                return False
+
+        if not result.token:
+            registered_role_cache.not_registered_users.append(self.discord_member.id)
+
+        return result.token
 
     async def has_token(self) -> DestinyHasTokenModel:
         """Does the user have a working token"""

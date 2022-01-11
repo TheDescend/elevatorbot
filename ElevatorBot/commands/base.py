@@ -71,19 +71,8 @@ class BaseScale(RegisteredScale):
         except BackendException:
             registration_role = None
 
-        # check in cache if the user is registered
-        if await registered_role_cache.is_not_registered(ctx.author.id):
-            result = DestinyHasTokenModel(token=False)
-        else:
-            try:
-                # check their status with the backend
-                result = await DestinyProfile(ctx=None, discord_member=ctx.author, discord_guild=ctx.guild).has_token()
-            except BackendException:
-                return False
-
-        if not result.token:
-            registered_role_cache.not_registered_users.append(ctx.author.id)
-
+        profile = DestinyProfile(ctx=None, discord_member=ctx.author, discord_guild=ctx.guild)
+        if not (result := await profile.is_registered()):
             # send error message
             await ctx.send(
                 embeds=embed_message(
@@ -102,4 +91,4 @@ class BaseScale(RegisteredScale):
             if registration_role and registration_role not in ctx.author.roles:
                 await ctx.author.add_role(role=registration_role, reason="Successful registration")
 
-        return result.token
+        return result

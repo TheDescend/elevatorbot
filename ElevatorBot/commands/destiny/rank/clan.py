@@ -22,6 +22,8 @@ from ElevatorBot.core.destiny.rank import RankCommandHandler
 
 
 class RankClan(BaseScale):
+    clan_mode = True
+
     discord_leaderboards = {
         "discord_roles": "Roles Earned on this Discord Server",
         "discord_join_date": "Join-Date of this Discord Server",
@@ -142,7 +144,7 @@ class RankClan(BaseScale):
         reverse: bool = False,
         user: Member = None,
     ):
-        handler = RankCommandHandler(clan_mode=True, all_leaderboards=self.all_leaderboards)
+        handler = RankCommandHandler(clan_mode=self.clan_mode, all_leaderboards=self.all_leaderboards)
         await handler.handle(
             ctx=ctx,
             discord_leaderboards=discord_leaderboards,

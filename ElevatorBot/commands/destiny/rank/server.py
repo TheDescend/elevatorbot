@@ -13,6 +13,8 @@ from ElevatorBot.commands.destiny.rank.clan import RankClan
 
 # inherit the rank command, just change the sub command name
 class RankServer(RankClan):
+    clan_mode = False
+
     def __new__(cls, bot: Snake, *args, **kwargs):
         # copy the command
         cls.rank = copy.copy(cls.rank)

@@ -14,6 +14,7 @@ from DestinyEnums.enums import (
 from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
 from ElevatorBot.backendNetworking.destiny.activities import DestinyActivities
 from ElevatorBot.backendNetworking.destiny.clan import DestinyClan
+from ElevatorBot.backendNetworking.destiny.profile import DestinyProfile
 from ElevatorBot.backendNetworking.destiny.roles import DestinyRoles
 from ElevatorBot.backendNetworking.destiny.weapons import DestinyWeapons
 from ElevatorBot.commandHelpers.autocomplete import (
@@ -117,19 +118,37 @@ class RankCommandHandler:
             # get the actual weapon
             weapon: DestinyWeaponModel = weapons[weapon.lower()]
 
-        # get the linked clan member
         member = user or ctx.author
-        clan = DestinyClan(discord_guild=ctx.guild, ctx=ctx)
-        clan_info = await clan.get_clan()
-        clan_members = await clan.get_clan_members()
 
-        # remove the clan members without a discord id
-        discord_members: list[Optional[Member]] = [
-            await ctx.guild.get_member(clan_member.discord_id)
-            for clan_member in clan_members.members
-            if clan_member.discord_id
-        ]
-        discord_members = [discord_member for discord_member in discord_members if discord_member]
+        # get the members to gather
+        # how this is done depends on if only the clan should be looked at
+        clan_info = None
+        discord_members: list[Member]
+        if self.clan_mode:
+            # get the linked clan member
+            clan = DestinyClan(discord_guild=ctx.guild, ctx=ctx)
+            clan_info = await clan.get_clan()
+            clan_members = await clan.get_clan_members()
+
+            # remove the clan members without a discord id
+            clan_discord_members: list[Optional[Member]] = [
+                await ctx.guild.get_member(clan_member.discord_id)
+                for clan_member in clan_members.members
+                if clan_member.discord_id
+            ]
+            discord_members = [discord_member for discord_member in clan_discord_members if discord_member]
+
+            # make sure the member is in there
+            if member not in discord_members:
+                discord_members.append(member)
+
+        else:
+            # get all server members with a registration
+            discord_members = [
+                server_member
+                for server_member in ctx.guild.members
+                if await DestinyProfile(ctx=None, discord_member=server_member, discord_guild=ctx.guild).is_registered()
+            ]
 
         # get all results in anyio tasks
         results: list[RankResult] = []
@@ -146,7 +165,9 @@ class RankCommandHandler:
         )
 
         # make the data pretty
-        embed = embed_message(f"{clan_info.name}'s Top Members - {self.all_leaderboards[leaderboard_name]}")
+        embed = embed_message(
+            f"{clan_info.name if clan_info else ctx.guild.name}'s Top Members - {self.all_leaderboards[leaderboard_name]}"
+        )
 
         description = []
         if activity:
