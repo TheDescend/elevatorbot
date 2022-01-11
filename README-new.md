@@ -1,13 +1,13 @@
-[![Release](https://img.shields.io/github/v/release/LukasSchmid97/elevatorbot?label=Version&logo=github)](https://github.com/LukasSchmid97/elevatorbot/releases)
+[![Release](https://img.shields.io/github/v/release/TheDescend/elevatorbot?label=Version&logo=github)](https://github.com/TheDescend/elevatorbot/releases)
 ![Python](https://img.shields.io/badge/Python-3.10+-1081c1?logo=python)
-[![Black Formatted](https://img.shields.io/github/workflow/status/LukasSchmid97/elevatorbot/Black%20Formating/master?label=Black%20Formatting&logo=github)](https://github.com/LukasSchmid97/elevatorbot/actions/workflows/Backend_pytest.yml)
-[![Backend Test](https://img.shields.io/github/workflow/status/LukasSchmid97/elevatorbot/Test%20Backend/master?label=Backend%20Tests&logo=github)](https://github.com/LukasSchmid97/elevatorbot/actions/workflows/Backend_pytest.yml)
-[![Pre-Commit](https://results.pre-commit.ci/badge/github/LukasSchmid97/elevatorbot/master.svg)](https://results.pre-commit.ci/latest/github/LukasSchmid97/elevatorbot/master)
+[![Black Formatted](https://img.shields.io/github/workflow/status/TheDescend/elevatorbot/Black%20Formating/master?label=Black%20Formatting&logo=github)](https://github.com/TheDescend/elevatorbot/actions/workflows/Backend_pytest.yml)
+[![Backend Test](https://img.shields.io/github/workflow/status/TheDescend/elevatorbot/Test%20Backend/master?label=Backend%20Tests&logo=github)](https://github.com/TheDescend/elevatorbot/actions/workflows/Backend_pytest.yml)
+[![Pre-Commit](https://results.pre-commit.ci/badge/github/TheDescend/elevatorbot/master.svg)](https://results.pre-commit.ci/latest/github/TheDescend/elevatorbot/master)
 [![Discord](https://img.shields.io/discord/669293365900214293?color=%235865F2&label=Descend%20Discord&logo=discord&logoColor=%235865F2)](https://discord.gg/descend)
 [![Website](https://img.shields.io/badge/Website-elevatorbot.ch-0f80c0?logo=react)](https://elevatorbot.ch/)
 
 <p align="center">
-    <img src="https://raw.githubusercontent.com/LukasSchmid97/elevatorbot/master/logo.png" alt="ElevatorBot Logo">
+    <img src="https://raw.githubusercontent.com/TheDescend/elevatorbot/master/logo.png" alt="ElevatorBot Logo">
 </p>
 
 
@@ -47,7 +47,7 @@ Everyone can host this bot for themselves. To set him up, follow this quick inst
 
 Note: It is recommended to simply invite the official discord bot.
 
-1) Download and extract the [latest release](https://github.com/LukasSchmid97/elevatorbot/releases)
+1) Download and extract the [latest release](https://github.com/TheDescend/elevatorbot/releases)
 2) Install `docker`
 3) Install `docker-compose`
 4) Rename `rename_to_settings.py` to `settings.py`
