@@ -5,13 +5,12 @@ from Backend.core.destiny.activities import DestinyActivities
 from Backend.core.destiny.profile import DestinyProfile
 from Backend.crud import discord_users
 from Backend.dependencies import get_db_session
-from NetworkingSchemas.basic import BoolModel, NameModel, ValueModel
-from NetworkingSchemas.destiny.account import (
+from Shared.NetworkingSchemas import BoolModel, NameModel, ValueModel
+from Shared.NetworkingSchemas.destiny import (
     BoolModelRecord,
     DestinyCatalystsModel,
     DestinyCharactersModel,
     DestinyLowMansByCategoryModel,
-    DestinyLowMansModel,
     DestinySealsModel,
     DestinyStatInputModel,
     DestinyTimeInputModel,

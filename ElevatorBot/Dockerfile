@@ -15,8 +15,7 @@ RUN pip3.10 install -r /app/ElevatorBot/requirements.txt
 # copy over the required files
 COPY ./version.py /app/version.py
 COPY ./settings.py /app/settings.py
-COPY ./DestinyEnums /app/DestinyEnums
-COPY ./NetworkingSchemas /app/NetworkingSchemas
+COPY ./Shared /app/Shared
 COPY ./ElevatorBot /app/ElevatorBot
 
 # start elevator

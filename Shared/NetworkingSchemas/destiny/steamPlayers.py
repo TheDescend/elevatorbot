@@ -1,6 +1,6 @@
 import datetime
 
-from NetworkingSchemas.base import CustomBaseModel
+from Shared.NetworkingSchemas.base import CustomBaseModel
 
 
 class DestinySteamPlayerCountModel(CustomBaseModel):

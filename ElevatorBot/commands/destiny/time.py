@@ -1,6 +1,5 @@
 from dis_snek.models import InteractionContext, Member, slash_command
 
-from DestinyEnums.enums import UsableDestinyActivityModeTypeEnum
 from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
 from ElevatorBot.commandHelpers.autocomplete import (
     activities,
@@ -14,9 +13,10 @@ from ElevatorBot.commandHelpers.optionTemplates import (
 )
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formating import embed_message, format_timedelta
-from ElevatorBot.misc.helperFunctions import get_now_with_tz
 from ElevatorBot.static.destinyDates import season_and_expansion_dates
 from ElevatorBot.static.emojis import custom_emojis
+from Shared.DestinyEnums.enums import UsableDestinyActivityModeTypeEnum
+from Shared.functions.helperFunctions import get_now_with_tz
 
 
 class Time(BaseScale):

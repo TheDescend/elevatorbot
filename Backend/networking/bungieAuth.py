@@ -9,10 +9,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from Backend.core.errors import CustomException
 from Backend.crud import discord_users
 from Backend.database.models import DiscordUsers
-from Backend.misc.helperFunctions import get_now_with_tz, localize_datetime
 from Backend.networking.base import NetworkBase
-from NetworkingSchemas.misc.auth import BungieRegistrationInput, BungieTokenInput
 from settings import BUNGIE_APPLICATION_CLIENT_ID, BUNGIE_APPLICATION_CLIENT_SECRET
+from Shared.functions.helperFunctions import get_now_with_tz, localize_datetime
+from Shared.NetworkingSchemas.misc.auth import BungieRegistrationInput, BungieTokenInput
 
 
 @dataclasses.dataclass

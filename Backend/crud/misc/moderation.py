@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.crud.base import CRUDBase
 from Backend.database.models import ModerationLog
-from Backend.misc.helperFunctions import get_now_with_tz
+from Shared.functions.helperFunctions import get_now_with_tz
 
 
 class ModerationTypes(Enum):

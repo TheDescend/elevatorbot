@@ -5,8 +5,8 @@ from Backend.core.destiny.activities import DestinyActivities
 from Backend.core.destiny.weapons import DestinyWeapons
 from Backend.crud import discord_users
 from Backend.dependencies import get_db_session
-from DestinyEnums.enums import DestinyDamageTypeEnum, DestinyItemSubTypeEnum
-from NetworkingSchemas.destiny.weapons import (
+from Shared.DestinyEnums.enums import DestinyDamageTypeEnum, DestinyItemSubTypeEnum
+from Shared.NetworkingSchemas.destiny import (
     DestinyTopWeaponsInputModel,
     DestinyTopWeaponsModel,
     DestinyWeaponsModel,

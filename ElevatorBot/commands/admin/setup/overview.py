@@ -6,7 +6,7 @@ from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.core.misc.persistentMessages import PersistentMessages
 from ElevatorBot.misc.formating import embed_message
 from ElevatorBot.static.descendOnlyIds import descend_channels
-from NetworkingSchemas.misc.persistentMessages import PersistentMessage
+from Shared.NetworkingSchemas.misc.persistentMessages import PersistentMessage
 
 
 class Overview(BaseScale):

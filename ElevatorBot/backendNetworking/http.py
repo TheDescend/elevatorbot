@@ -15,10 +15,10 @@ from dis_snek.models.discord_objects.user import Member
 
 from ElevatorBot.backendNetworking.errors import BackendException
 from ElevatorBot.backendNetworking.results import BackendResult
+from settings import ENABLE_DEBUG_MODE
 
 # the limiter object to not overload the backend
-from NetworkingSchemas.base import CustomBaseModel
-from settings import ENABLE_DEBUG_MODE
+from Shared.NetworkingSchemas.base import CustomBaseModel
 
 
 class BackendRateLimiter:

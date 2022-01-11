@@ -5,8 +5,8 @@ from httpx import AsyncClient
 from orjson import orjson
 from pytest_mock import MockerFixture
 
-from Backend.misc.helperFunctions import get_now_with_tz
-from NetworkingSchemas.misc.moderation import (
+from Shared.functions.helperFunctions import get_now_with_tz
+from Shared.NetworkingSchemas.misc.moderation import (
     ModerationAddModel,
     ModerationModel,
     ModerationsModel,

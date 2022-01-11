@@ -20,8 +20,8 @@ from ElevatorBot.misc.discordShortcutFunctions import (
     remove_roles_from_member,
 )
 from ElevatorBot.misc.formating import embed_message
-from ElevatorBot.misc.helperFunctions import get_now_with_tz
 from settings import COMMAND_GUILD_SCOPE, DESCEND_ROLE_NO_NICKNAME_ID
+from Shared.functions.helperFunctions import get_now_with_tz
 
 # =============
 # Descend Only!

@@ -7,10 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from Backend.core.errors import CustomException
 from Backend.crud import destiny_clan_links, discord_users
 from Backend.database.models import DiscordUsers
-from Backend.misc.helperFunctions import (
-    get_datetime_from_bungie_entry,
-    localize_datetime,
-)
+from Backend.misc.helperFunctions import get_datetime_from_bungie_entry
 from Backend.networking.bungieApi import BungieApi
 from Backend.networking.bungieRoutes import (
     clan_admins_route,
@@ -19,7 +16,11 @@ from Backend.networking.bungieRoutes import (
     clan_kick_route,
     clan_members_route,
 )
-from NetworkingSchemas.destiny.clan import DestinyClanMemberModel, DestinyClanModel
+from Shared.functions.helperFunctions import localize_datetime
+from Shared.NetworkingSchemas.destiny.clan import (
+    DestinyClanMemberModel,
+    DestinyClanModel,
+)
 
 
 @dataclasses.dataclass

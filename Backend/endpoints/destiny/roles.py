@@ -6,8 +6,8 @@ from Backend.core.destiny.profile import DestinyProfile
 from Backend.core.destiny.roles import UserRoles
 from Backend.crud import crud_roles, discord_users
 from Backend.dependencies import get_db_session
-from NetworkingSchemas.basic import EmptyResponseModel
-from NetworkingSchemas.destiny.roles import (
+from Shared.NetworkingSchemas import EmptyResponseModel
+from Shared.NetworkingSchemas.destiny.roles import (
     EarnedRoleModel,
     EarnedRolesModel,
     MissingRolesModel,

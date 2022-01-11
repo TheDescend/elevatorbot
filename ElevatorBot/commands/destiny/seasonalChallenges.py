@@ -16,7 +16,7 @@ from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formating import embed_message, format_progress
-from NetworkingSchemas.destiny.account import SeasonalChallengesTopicsModel
+from Shared.NetworkingSchemas.destiny import SeasonalChallengesTopicsModel
 
 
 class SeasonalChallenges(BaseScale):

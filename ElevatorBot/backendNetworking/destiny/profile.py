@@ -18,7 +18,10 @@ from ElevatorBot.backendNetworking.routes import (
 )
 from ElevatorBot.misc.cache import registered_role_cache
 from ElevatorBot.misc.formating import embed_message
-from NetworkingSchemas.destiny.profile import DestinyHasTokenModel, DestinyProfileModel
+from Shared.NetworkingSchemas.destiny.profile import (
+    DestinyHasTokenModel,
+    DestinyProfileModel,
+)
 
 
 @dataclasses.dataclass

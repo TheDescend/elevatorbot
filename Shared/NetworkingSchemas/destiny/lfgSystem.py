@@ -1,7 +1,7 @@
 import datetime
 from typing import Optional
 
-from NetworkingSchemas.base import CustomBaseModel
+from Shared.NetworkingSchemas.base import CustomBaseModel
 
 
 class LfgOutputModel(CustomBaseModel):

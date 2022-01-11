@@ -23,7 +23,7 @@ from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formating import embed_message, format_timedelta
 from ElevatorBot.misc.helperFunctions import parse_datetime_options
 from ElevatorBot.static.emojis import custom_emojis
-from NetworkingSchemas.destiny.activities import DestinyActivityInputModel
+from Shared.NetworkingSchemas.destiny import DestinyActivityInputModel
 
 
 class DestinyActivity(BaseScale):

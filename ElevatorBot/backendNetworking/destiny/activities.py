@@ -3,7 +3,6 @@ from typing import Optional
 
 from dis_snek.models import Guild, Member
 
-from DestinyEnums.enums import UsableDestinyActivityModeTypeEnum
 from ElevatorBot.backendNetworking.http import BaseBackendConnection
 from ElevatorBot.backendNetworking.routes import (
     destiny_activities_activity_route,
@@ -11,7 +10,8 @@ from ElevatorBot.backendNetworking.routes import (
     destiny_activities_get_grandmaster_route,
     destiny_activities_last_route,
 )
-from NetworkingSchemas.destiny.activities import (
+from Shared.DestinyEnums.enums import UsableDestinyActivityModeTypeEnum
+from Shared.NetworkingSchemas.destiny import (
     DestinyActivitiesModel,
     DestinyActivityDetailsModel,
     DestinyActivityInputModel,

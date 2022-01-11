@@ -4,12 +4,12 @@ from dummyData.static import *
 from httpx import AsyncClient
 from pytest_mock import MockerFixture
 
-from NetworkingSchemas.destiny.clan import (
+from Shared.NetworkingSchemas.destiny.clan import (
     DestinyClanLink,
     DestinyClanMembersModel,
     DestinyClanModel,
 )
-from NetworkingSchemas.destiny.profile import DestinyProfileModel
+from Shared.NetworkingSchemas.destiny.profile import DestinyProfileModel
 
 
 @pytest.mark.asyncio

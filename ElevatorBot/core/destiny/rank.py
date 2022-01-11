@@ -4,13 +4,6 @@ from typing import Optional
 from anyio import create_task_group
 from dis_snek.models import InteractionContext, Member, TimestampStyles
 
-from DestinyEnums.enums import (
-    DestinyActivityModeTypeEnum,
-    DestinyWeaponTypeEnum,
-    UsableDestinyActivityModeTypeEnum,
-    UsableDestinyAmmunitionTypeEnum,
-    UsableDestinyDamageTypeEnum,
-)
 from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
 from ElevatorBot.backendNetworking.destiny.activities import DestinyActivities
 from ElevatorBot.backendNetworking.destiny.clan import DestinyClan
@@ -25,11 +18,16 @@ from ElevatorBot.commandHelpers.autocomplete import (
 from ElevatorBot.misc.formating import embed_message, format_timedelta
 from ElevatorBot.static.destinyActivities import raid_to_emblem_hash
 from ElevatorBot.static.emojis import custom_emojis
-from NetworkingSchemas.destiny.activities import (
+from Shared.DestinyEnums.enums import (
+    DestinyActivityModeTypeEnum,
+    DestinyWeaponTypeEnum,
+    UsableDestinyActivityModeTypeEnum,
+    UsableDestinyAmmunitionTypeEnum,
+    UsableDestinyDamageTypeEnum,
+)
+from Shared.NetworkingSchemas.destiny import (
     DestinyActivityInputModel,
     DestinyActivityModel,
-)
-from NetworkingSchemas.destiny.weapons import (
     DestinyWeaponModel,
     DestinyWeaponStatsInputModel,
 )

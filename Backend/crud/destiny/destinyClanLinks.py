@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from Backend.core.errors import CustomException
 from Backend.crud.base import CRUDBase
 from Backend.database.models import DestinyClanLinks
-from Backend.misc.helperFunctions import get_now_with_tz
+from Shared.functions.helperFunctions import get_now_with_tz
 
 
 class CRUDDestinyClanLinks(CRUDBase):

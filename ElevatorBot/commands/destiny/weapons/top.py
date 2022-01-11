@@ -14,11 +14,6 @@ from dis_snek.models import (
     slash_option,
 )
 
-from DestinyEnums.enums import (
-    DestinyWeaponTypeEnum,
-    UsableDestinyActivityModeTypeEnum,
-    UsableDestinyDamageTypeEnum,
-)
 from ElevatorBot.backendNetworking.destiny.weapons import DestinyWeapons
 from ElevatorBot.commandHelpers.autocomplete import (
     activities,
@@ -43,8 +38,13 @@ from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formating import capitalize_string, embed_message
 from ElevatorBot.misc.helperFunctions import parse_datetime_options
 from ElevatorBot.static.emojis import custom_emojis
-from NetworkingSchemas.destiny.activities import DestinyActivityModel
-from NetworkingSchemas.destiny.weapons import (
+from Shared.DestinyEnums.enums import (
+    DestinyWeaponTypeEnum,
+    UsableDestinyActivityModeTypeEnum,
+    UsableDestinyDamageTypeEnum,
+)
+from Shared.NetworkingSchemas.destiny import (
+    DestinyActivityModel,
     DestinyTopWeaponModel,
     DestinyTopWeaponsInputModel,
     DestinyTopWeaponsModel,

@@ -6,12 +6,12 @@ from Backend.core.destiny.profile import DestinyProfile
 from Backend.core.errors import CustomException
 from Backend.crud import destiny_clan_links, discord_users
 from Backend.dependencies import get_db_session
-from NetworkingSchemas.destiny.clan import (
+from Shared.NetworkingSchemas.destiny.clan import (
     DestinyClanLink,
     DestinyClanMembersModel,
     DestinyClanModel,
 )
-from NetworkingSchemas.destiny.profile import DestinyProfileModel
+from Shared.NetworkingSchemas.destiny.profile import DestinyProfileModel
 
 router = APIRouter(
     prefix="/destiny/clan/{guild_id}",

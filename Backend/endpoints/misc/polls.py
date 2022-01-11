@@ -3,8 +3,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.crud import polls
 from Backend.dependencies import get_db_session
-from NetworkingSchemas.basic import EmptyResponseModel
-from NetworkingSchemas.misc.polls import (
+from Shared.NetworkingSchemas import EmptyResponseModel
+from Shared.NetworkingSchemas.misc.polls import (
     PollChoice,
     PollInsertSchema,
     PollSchema,

@@ -1,4 +1,3 @@
-from DestinyEnums.enums import DestinyActivityModeTypeEnum
 from ElevatorBot.backendNetworking.destiny.activities import DestinyActivities
 from ElevatorBot.backendNetworking.destiny.items import DestinyItems
 from ElevatorBot.backendNetworking.destiny.weapons import DestinyWeapons
@@ -11,7 +10,8 @@ from ElevatorBot.commandHelpers.autocomplete import (
     weapons,
     weapons_by_id,
 )
-from NetworkingSchemas.destiny.activities import DestinyActivityModel
+from Shared.DestinyEnums.enums import DestinyActivityModeTypeEnum
+from Shared.NetworkingSchemas.destiny import DestinyActivityModel
 
 
 async def load_autocomplete_options(client):

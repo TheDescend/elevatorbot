@@ -1,4 +1,3 @@
-import asyncio
 import logging
 from datetime import timedelta
 
@@ -12,7 +11,7 @@ from Backend.crud import backend_user, discord_users
 from Backend.dependencies import get_db_session
 from Backend.networking.bungieAuth import BungieRegistration
 from Backend.networking.elevatorApi import ElevatorApi
-from NetworkingSchemas.misc.auth import (
+from Shared.NetworkingSchemas.misc.auth import (
     BungieRegistrationInput,
     BungieTokenOutput,
     Token,

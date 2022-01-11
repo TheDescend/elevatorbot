@@ -16,7 +16,7 @@ from ElevatorBot.backendNetworking.routes import (
 )
 from ElevatorBot.core.destiny.lfg.scheduledEvents import delete_lfg_scheduled_events
 from ElevatorBot.discordEvents.base import ElevatorSnake
-from NetworkingSchemas.destiny.lfgSystem import (
+from Shared.NetworkingSchemas.destiny.lfgSystem import (
     AllLfgDeleteOutputModel,
     AllLfgOutputModel,
     LfgCreateInputModel,

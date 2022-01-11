@@ -8,13 +8,12 @@ from orjson import orjson
 from pytest_mock import MockerFixture
 
 from Backend.misc.cache import cache
-from NetworkingSchemas.basic import BoolModel, NameModel, ValueModel
-from NetworkingSchemas.destiny.account import (
+from Shared.NetworkingSchemas import BoolModel, NameModel, ValueModel
+from Shared.NetworkingSchemas.destiny import (
     BoolModelRecord,
     DestinyCatalystsModel,
     DestinyCharactersModel,
     DestinyLowMansByCategoryModel,
-    DestinyLowMansModel,
     DestinySealsModel,
     DestinyStatInputModel,
     DestinyTimeInputModel,

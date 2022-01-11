@@ -14,10 +14,11 @@ from dis_snek.models import (
     SelectOption,
 )
 
+from ElevatorBot.backendNetworking.errors import BackendException
 from ElevatorBot.backendNetworking.misc.polls import BackendPolls
 from ElevatorBot.misc.discordShortcutFunctions import has_admin_permission
 from ElevatorBot.misc.formating import embed_message
-from NetworkingSchemas.misc.polls import PollChoice, PollSchema
+from Shared.NetworkingSchemas.misc.polls import PollChoice, PollSchema
 
 
 @dataclasses.dataclass()
@@ -66,9 +67,16 @@ class Poll:
         """Create the obj from the PollSchema data"""
 
         guild = await client.get_guild(data.guild_id)
-        channel = await guild.get_channel(data.channel_id)
+        channel = guild.get_channel(data.channel_id)
         author = await client.get_member(data.author_id, guild.id)
         message = await channel.get_message(data.message_id)
+
+        # make sure the choices match
+        if len(message.embeds[0].fields) != len(data.choices):
+            choice_names = [choice.name for choice in data.choices]
+            for choice in message.embeds[0].fields:
+                if choice.name not in choice_names:
+                    data.choices.append(PollChoice(name=choice.name, discord_ids=[]))
 
         backend = BackendPolls(ctx=None, discord_member=author, guild=guild)
 
@@ -117,9 +125,22 @@ class Poll:
         if not await self._check_permission(ctx=ctx):
             return
 
-        result = await self.backend.remove_option(poll_id=self.id, choice_name=option)
+        try:
+            result = await self.backend.remove_option(poll_id=self.id, choice_name=option)
+            new_poll = await Poll.from_pydantic_model(client=ctx.bot, data=result)
+        except BackendException as e:
+            # if the delete-call failed, check if the option maybe only exists locally
+            choice_names = [choice.name for choice in self.choices]
+            if option not in choice_names:
+                raise e
 
-        new_poll = await Poll.from_pydantic_model(client=ctx.bot, data=result)
+            self.choices = [choice for choice in self.choices if choice.name != option]
+
+            # run the post init again to update select
+            self.__post_init__()
+
+            new_poll = self
+
         await new_poll.send(ctx=ctx)
 
     async def delete(self, ctx: InteractionContext):
@@ -130,6 +151,11 @@ class Poll:
 
         await self.backend.delete(poll_id=self.id)
         await self.message.delete()
+
+        await ctx.send(
+            ephemeral=True,
+            embeds=embed_message("Success", "The poll has been deleted"),
+        )
 
     async def _check_permission(self, ctx: InteractionContext) -> bool:
         """Checks permissions from the author"""
@@ -146,7 +172,7 @@ class Poll:
 
         return True
 
-    async def send(self, ctx: Optional[InteractionContext | ComponentContext] = None):
+    async def send(self, ctx: Optional[InteractionContext | ComponentContext] = None, user_input: bool = False):
         """Send the poll message"""
 
         if not self.id:
@@ -156,31 +182,28 @@ class Poll:
             )
             await self._dump_to_db()
 
+        # put the actual content in
         embed = self._get_embed()
 
-        if ctx:
-            if isinstance(ctx, ComponentContext):
-                await ctx.edit_origin(
-                    embeds=embed,
-                    components=self.select,
-                )
-
-                await ctx.send(
-                    ephemeral=True,
-                    embeds=embed_message("Success", "Your poll was edited"),
-                )
-        else:
-            await self.message.edit(
+        # user input can end quicker
+        if user_input:
+            await ctx.edit_origin(
                 embeds=embed,
                 components=self.select,
             )
+            return
 
+        await self.message.edit(
+            embeds=embed,
+            components=self.select,
+        )
+
+        # respond to the context
         if ctx:
-            if not isinstance(ctx, ComponentContext):
-                await ctx.send(
-                    ephemeral=True,
-                    embeds=embed_message("Success", "Your poll was edited"),
-                )
+            await ctx.send(
+                ephemeral=True,
+                embeds=embed_message("Success", f"Check your poll [here]({self.message.jump_url})"),
+            )
 
     async def disable(self, ctx: InteractionContext):
         """Disable the poll and delete it from the DB"""

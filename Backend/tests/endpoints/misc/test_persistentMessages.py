@@ -5,7 +5,7 @@ from httpx import AsyncClient
 from orjson import orjson
 from pytest_mock import MockerFixture
 
-from NetworkingSchemas.misc.persistentMessages import (
+from Shared.NetworkingSchemas.misc.persistentMessages import (
     PersistentMessage,
     PersistentMessageDeleteInput,
     PersistentMessages,

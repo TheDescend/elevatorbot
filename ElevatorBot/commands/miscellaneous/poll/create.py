@@ -35,7 +35,7 @@ class PollCreate(BaseScale):
             channel=ctx.channel,
             author=ctx.author,
         )
-        await poll.send()
+        await poll.send(ctx=ctx)
 
 
 def setup(client):

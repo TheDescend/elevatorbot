@@ -33,16 +33,16 @@ from Backend.database.models import (
     DiscordUsers,
 )
 from Backend.misc.cache import cache
-from Backend.misc.helperFunctions import get_now_with_tz, localize_datetime
 from Backend.networking.schemas import WebResponse
-from NetworkingSchemas.destiny.roles import (
+from Shared.functions.helperFunctions import get_now_with_tz, localize_datetime
+from Shared.NetworkingSchemas.destiny.roles import (
     RequirementIntegerModel,
     RoleDataModel,
     RoleModel,
     RolesModel,
 )
-from NetworkingSchemas.misc.auth import BungieTokenInput
-from NetworkingSchemas.misc.persistentMessages import (
+from Shared.NetworkingSchemas.misc.auth import BungieTokenInput
+from Shared.NetworkingSchemas.misc.persistentMessages import (
     PersistentMessage,
     PersistentMessages,
     PersistentMessageUpsert,

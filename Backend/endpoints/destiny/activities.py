@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from Backend.core.destiny.activities import DestinyActivities
 from Backend.crud import destiny_manifest, discord_users
 from Backend.dependencies import get_db_session
-from NetworkingSchemas.destiny.activities import (
+from Shared.NetworkingSchemas.destiny import (
     DestinyActivitiesModel,
     DestinyActivityDetailsModel,
     DestinyActivityInputModel,

@@ -15,9 +15,8 @@ from Backend.database.models import (
     Versions,
 )
 from Backend.misc.cache import cache
-from DestinyEnums.enums import UsableDestinyActivityModeTypeEnum
-from NetworkingSchemas.destiny.activities import DestinyActivityModel
-from NetworkingSchemas.destiny.items import DestinyLoreModel
+from Shared.DestinyEnums.enums import UsableDestinyActivityModeTypeEnum
+from Shared.NetworkingSchemas.destiny import DestinyActivityModel, DestinyLoreModel
 
 ModelType = TypeVar("ModelType", bound=Base)
 

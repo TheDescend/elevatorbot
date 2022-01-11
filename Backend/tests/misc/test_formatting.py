@@ -1,4 +1,4 @@
-from Backend.misc.helperFunctions import make_progress_bar_text
+from Shared.functions.formatting import make_progress_bar_text
 
 
 def test_make_progress_bar_text():

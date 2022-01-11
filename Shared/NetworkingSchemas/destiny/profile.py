@@ -1,6 +1,6 @@
 from typing import Optional
 
-from NetworkingSchemas.base import CustomBaseModel
+from Shared.NetworkingSchemas.base import CustomBaseModel
 
 
 class DestinyProfileModel(CustomBaseModel):

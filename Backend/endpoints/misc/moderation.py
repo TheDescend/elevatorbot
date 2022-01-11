@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from Backend.crud import moderation
 from Backend.crud.misc.moderation import ModerationTypes
 from Backend.dependencies import get_db_session
-from NetworkingSchemas.misc.moderation import (
+from Shared.NetworkingSchemas.misc.moderation import (
     ModerationAddModel,
     ModerationModel,
     ModerationsModel,

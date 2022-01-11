@@ -28,14 +28,14 @@ class ComponentCallbacks:
         backend.hidden = True
 
         # get the id from the embed
-        poll_id = int(ctx.message.embeds[0].footer.text.split("|")[1].removeprefix("  ID: "))
+        poll_id = int(ctx.message.embeds[0].footer.text["text"].split("|")[1].removeprefix("  ID: "))
 
         # inform the db that sb voted
         result = await backend.user_input(poll_id=poll_id, choice_name=ctx.values[0])
 
         # create a poll obj from that data
         poll_obj = await Poll.from_pydantic_model(client=ctx.bot, data=result)
-        await poll_obj.send(ctx)
+        await poll_obj.send(ctx, user_input=True)
 
     @staticmethod
     async def registration(ctx: ComponentContext):

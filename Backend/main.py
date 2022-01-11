@@ -17,8 +17,8 @@ from Backend.dependencies import (
 )
 from Backend.misc.initBackgroundEvents import register_background_events
 from Backend.misc.initLogging import init_logging
-from NetworkingSchemas.misc.auth import BackendUserModel
 from settings import ENABLE_DEBUG_MODE
+from Shared.NetworkingSchemas.misc.auth import BackendUserModel
 
 app = FastAPI()
 
@@ -34,6 +34,7 @@ try:
     uvloop.install()
 except ModuleNotFoundError:
     print("Uvloop not installed, skipping")
+
 
 # only allow people with read permissions
 @app.get("/read_perm", response_model=BackendUserModel)

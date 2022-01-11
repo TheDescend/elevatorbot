@@ -1,20 +1,14 @@
-import asyncio
-from copy import copy
 from typing import Optional
 
-from dis_snek import ActionRow, Button, ButtonStyles, ComponentContext, Message
+from dis_snek import ComponentContext, Message
 from dis_snek.models import InteractionContext, Member, slash_command
-from dis_snek.models.events import Component
 
 from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
 from ElevatorBot.commandHelpers.paginator import paginate
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formating import embed_message, format_progress
-from NetworkingSchemas.destiny.account import (
-    DestinyCatalystModel,
-    DestinyCatalystsModel,
-)
+from Shared.NetworkingSchemas.destiny import DestinyCatalystsModel
 
 
 class Catalysts(BaseScale):

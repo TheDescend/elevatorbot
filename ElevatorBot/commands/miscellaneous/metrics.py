@@ -13,9 +13,9 @@ from psutil._common import bytes2human
 
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formating import embed_message
-from ElevatorBot.misc.helperFunctions import get_now_with_tz
 from ElevatorBot.static.descendOnlyIds import descend_channels
 from settings import COMMAND_GUILD_SCOPE
+from Shared.functions.helperFunctions import get_now_with_tz
 from version import __version__
 
 # =============

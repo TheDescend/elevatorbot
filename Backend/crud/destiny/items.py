@@ -12,7 +12,7 @@ from Backend.database.models import (
     DestinyRecordDefinition,
 )
 from Backend.misc.cache import cache
-from DestinyEnums.enums import DestinyPresentationNodesEnum
+from Shared.DestinyEnums.enums import DestinyPresentationNodesEnum
 
 
 class CRUDDestinyItems(CRUDBase):

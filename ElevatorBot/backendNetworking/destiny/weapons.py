@@ -9,7 +9,7 @@ from ElevatorBot.backendNetworking.routes import (
     destiny_weapons_get_top_route,
     destiny_weapons_get_weapon_route,
 )
-from NetworkingSchemas.destiny.weapons import (
+from Shared.NetworkingSchemas.destiny import (
     DestinyTopWeaponsInputModel,
     DestinyTopWeaponsModel,
     DestinyWeaponsModel,

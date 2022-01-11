@@ -6,8 +6,8 @@ from dis_snek.models import Guild, GuildVoice, Message, Role, ThreadChannel
 
 from ElevatorBot.backendNetworking.destiny.items import DestinyItems
 from ElevatorBot.core.misc.persistentMessages import PersistentMessages
-from ElevatorBot.misc.helperFunctions import get_min_with_tz, get_now_with_tz
 from ElevatorBot.static.descendOnlyIds import descend_channels
+from Shared.functions.helperFunctions import get_min_with_tz, get_now_with_tz
 
 
 @dataclasses.dataclass

@@ -1,8 +1,9 @@
 import datetime
 import logging
+import os
 import traceback
 import zoneinfo
-from typing import Optional
+from typing import Generator, Optional
 
 from dateutil.parser import ParserError, parse
 from dis_snek.models import ComponentContext, InteractionContext
@@ -14,24 +15,7 @@ from ElevatorBot.commandHelpers.responseTemplates import (
 )
 from ElevatorBot.misc.formating import embed_message
 from ElevatorBot.static.emojis import custom_emojis
-
-
-def get_now_with_tz() -> datetime.datetime:
-    """Returns the current datetime (timezone aware)"""
-
-    return datetime.datetime.now(tz=datetime.timezone.utc)
-
-
-def get_min_with_tz() -> datetime.datetime:
-    """Returns the minimum datetime (timezone aware)"""
-
-    return datetime.datetime(year=2000, month=1, day=1, tzinfo=datetime.timezone.utc)
-
-
-def localize_datetime(obj: datetime.datetime) -> datetime.datetime:
-    """Returns a timezone aware object, localized to the system timezone"""
-
-    return obj.astimezone()
+from Shared.functions.helperFunctions import get_min_with_tz, get_now_with_tz
 
 
 async def parse_string_datetime(
@@ -157,3 +141,14 @@ async def get_character_ids_from_class(profile: DestinyAccount, destiny_class: s
             character_ids.append(character.character_id)
 
     return character_ids if character_ids else None
+
+
+def yield_files_in_folder(folder: str, extension: str) -> Generator:
+    """Yields all paths of all files with the correct extension in the specified folder"""
+
+    for root, dirs, files in os.walk(folder):
+        for file in files:
+            if file.endswith(f".{extension}") and not file.startswith("__init__") and not file.startswith("base"):
+                file = file.removesuffix(f".{extension}")
+                path = os.path.join(root, file)
+                yield path.replace("/", ".").replace("\\", ".")

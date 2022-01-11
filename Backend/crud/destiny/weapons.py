@@ -14,12 +14,12 @@ from Backend.database.models import (
     ActivitiesUsersWeapons,
     DestinyInventoryItemDefinition,
 )
-from DestinyEnums.enums import (
+from Shared.DestinyEnums.enums import (
     DestinyDamageTypeEnum,
     DestinyItemSubTypeEnum,
     DestinyWeaponSlotEnum,
 )
-from NetworkingSchemas.destiny.weapons import DestinyTopWeaponsStatInputModelEnum
+from Shared.NetworkingSchemas.destiny import DestinyTopWeaponsStatInputModelEnum
 
 
 class CRUDWeapons(CRUDBase):

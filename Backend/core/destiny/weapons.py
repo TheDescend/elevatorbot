@@ -15,13 +15,13 @@ from Backend.database.models import (
     DiscordUsers,
 )
 from Backend.networking.bungieApi import BungieApi
-from DestinyEnums.enums import (
+from Shared.DestinyEnums.enums import (
     DestinyAmmunitionTypeEnum,
     DestinyDamageTypeEnum,
     DestinyItemSubTypeEnum,
     DestinyWeaponSlotEnum,
 )
-from NetworkingSchemas.destiny.weapons import (
+from Shared.NetworkingSchemas.destiny import (
     DestinyTopWeaponModel,
     DestinyTopWeaponsModel,
     DestinyTopWeaponsStatInputModelEnum,

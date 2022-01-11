@@ -10,7 +10,7 @@ from jose import jwt
 from passlib.context import CryptContext
 
 # defining algorithms
-from Backend.misc.helperFunctions import get_now_with_tz
+from Shared.functions.helperFunctions import get_now_with_tz
 
 _SECRET_KEY = None
 ALGORITHM = "HS256"

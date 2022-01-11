@@ -14,8 +14,7 @@ RUN pip3.10 install -r /app/Backend/requirements.txt
 
 # copy over the required files
 COPY ./settings.py /app/settings.py
-COPY ./DestinyEnums /app/DestinyEnums
-COPY ./NetworkingSchemas /app/NetworkingSchemas
+COPY ./Shared /app/Shared
 COPY ./Backend /app/Backend
 
 # start the backend

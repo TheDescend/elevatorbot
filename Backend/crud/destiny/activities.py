@@ -4,7 +4,7 @@ from typing import Optional
 
 from sqlalchemy import distinct, func, not_, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import aliased, joinedload
+from sqlalchemy.orm import joinedload
 
 from Backend.core.errors import CustomException
 from Backend.crud.base import CRUDBase
@@ -15,7 +15,7 @@ from Backend.database.models import (
     ActivitiesUsersWeapons,
     DestinyActivityDefinition,
 )
-from NetworkingSchemas.destiny.roles import TimePeriodModel
+from Shared.NetworkingSchemas.destiny.roles import TimePeriodModel
 
 
 class CRUDActivitiesFailToGet(CRUDBase):

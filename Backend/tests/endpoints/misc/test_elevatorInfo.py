@@ -4,8 +4,8 @@ from dummyData.static import *
 from httpx import AsyncClient
 from pytest_mock import MockerFixture
 
-from Backend.misc.helperFunctions import get_now_with_tz
-from NetworkingSchemas.misc.elevatorInfo import ElevatorGuildsModel
+from Shared.functions.helperFunctions import get_now_with_tz
+from Shared.NetworkingSchemas import ElevatorGuildsModel
 
 
 @pytest.mark.asyncio

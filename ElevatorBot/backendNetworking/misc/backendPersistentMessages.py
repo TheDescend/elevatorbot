@@ -12,7 +12,7 @@ from ElevatorBot.backendNetworking.routes import (
     persistent_messages_get_route,
     persistent_messages_upsert_route,
 )
-from NetworkingSchemas.misc.persistentMessages import (
+from Shared.NetworkingSchemas.misc.persistentMessages import (
     PersistentMessage,
     PersistentMessageDeleteInput,
     PersistentMessages,

@@ -35,9 +35,9 @@ from ElevatorBot.backendNetworking.destiny.lfgSystem import DestinyLfgSystem
 from ElevatorBot.core.destiny.lfg.scheduledEvents import delete_lfg_scheduled_events
 from ElevatorBot.discordEvents.base import ElevatorSnake
 from ElevatorBot.misc.formating import embed_message
-from ElevatorBot.misc.helperFunctions import get_now_with_tz
 from ElevatorBot.static.emojis import custom_emojis
-from NetworkingSchemas.destiny.lfgSystem import (
+from Shared.functions.helperFunctions import get_now_with_tz
+from Shared.NetworkingSchemas.destiny.lfgSystem import (
     LfgCreateInputModel,
     LfgOutputModel,
     LfgUpdateInputModel,

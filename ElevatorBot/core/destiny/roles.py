@@ -14,7 +14,7 @@ from ElevatorBot.misc.discordShortcutFunctions import (
     remove_roles_from_member,
 )
 from ElevatorBot.misc.formating import embed_message
-from NetworkingSchemas.destiny.roles import RolesCategoryModel
+from Shared.NetworkingSchemas.destiny.roles import RolesCategoryModel
 
 
 @dataclasses.dataclass()

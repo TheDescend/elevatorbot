@@ -4,9 +4,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from Backend.crud import lfg
 from Backend.database.models import LfgMessage
 from Backend.dependencies import get_db_session
-from Backend.misc.helperFunctions import get_now_with_tz
-from NetworkingSchemas.basic import EmptyResponseModel
-from NetworkingSchemas.destiny.lfgSystem import (
+from Shared.functions.helperFunctions import get_now_with_tz
+from Shared.NetworkingSchemas import EmptyResponseModel
+from Shared.NetworkingSchemas.destiny.lfgSystem import (
     AllLfgDeleteOutputModel,
     AllLfgOutputModel,
     LfgCreateInputModel,

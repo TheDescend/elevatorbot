@@ -9,8 +9,8 @@ from dis_snek.models import InteractionContext, Member, slash_command
 
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
 from ElevatorBot.commands.base import BaseScale
-from ElevatorBot.misc.helperFunctions import get_now_with_tz
 from settings import COMMAND_GUILD_SCOPE
+from Shared.functions.helperFunctions import get_now_with_tz
 
 # =============
 # Descend Only!

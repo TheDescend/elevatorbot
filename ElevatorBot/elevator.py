@@ -14,8 +14,8 @@ from dis_snek.models import listen
 from dis_snek.models.enums import Intents, Permissions
 
 from ElevatorBot.discordEvents.base import ElevatorSnake
+from ElevatorBot.misc.helperFunctions import yield_files_in_folder
 from ElevatorBot.misc.status import update_discord_bot_status
-from ElevatorBot.misc.veryMisc import yield_files_in_folder
 from ElevatorBot.startup.initAutocompleteOptions import load_autocomplete_options
 from ElevatorBot.startup.initBackgroundEvents import register_background_events
 from ElevatorBot.startup.initComponentCallbacks import add_component_callbacks

@@ -20,7 +20,7 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.orm import relationship
 
 from Backend.database.base import Base, is_test_mode
-from Backend.misc.helperFunctions import get_min_with_tz, get_now_with_tz
+from Shared.functions.helperFunctions import get_min_with_tz, get_now_with_tz
 
 """ All table models are in here, allowing for easy generation """
 

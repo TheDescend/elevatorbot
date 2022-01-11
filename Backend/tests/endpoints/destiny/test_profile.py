@@ -5,7 +5,10 @@ from httpx import AsyncClient
 from pytest_mock import MockerFixture
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from NetworkingSchemas.destiny.profile import DestinyHasTokenModel, DestinyProfileModel
+from Shared.NetworkingSchemas.destiny.profile import (
+    DestinyHasTokenModel,
+    DestinyProfileModel,
+)
 
 
 @pytest.mark.asyncio
