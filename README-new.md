@@ -2,6 +2,7 @@
 ![Python](https://img.shields.io/badge/Python-3.10+-1081c1?logo=python)
 [![Black Formatted](https://img.shields.io/github/workflow/status/LukasSchmid97/elevatorbot/Black%20Formating/master?label=Black%20Formatting&logo=github)](https://github.com/LukasSchmid97/elevatorbot/actions/workflows/Backend_pytest.yml)
 [![Backend Test](https://img.shields.io/github/workflow/status/LukasSchmid97/elevatorbot/Test%20Backend/master?label=Backend%20Tests&logo=github)](https://github.com/LukasSchmid97/elevatorbot/actions/workflows/Backend_pytest.yml)
+[![Pre-Commit](https://results.pre-commit.ci/badge/github/LukasSchmid97/elevatorbot/master.svg)](https://results.pre-commit.ci/latest/github/LukasSchmid97/elevatorbot/master)
 [![Discord](https://img.shields.io/discord/669293365900214293?color=%235865F2&label=Descend%20Discord&logo=discord&logoColor=%235865F2)](https://discord.gg/descend)
 [![Website](https://img.shields.io/badge/Website-elevatorbot.ch-0f80c0?logo=react)](https://elevatorbot.ch/)
 
