@@ -3,6 +3,7 @@ import dataclasses
 import random
 from typing import Optional
 
+from anyio import to_process, to_thread
 from dis_snek.models import ActionRow, Button, ButtonStyles, ComponentContext, InteractionContext, Member, Message
 from dis_snek.models.events import Component
 
@@ -130,7 +131,7 @@ class TicTacToeGame:
     def check_author_and_message(self, component: Component):
         # versus mode
         if self.versus:
-            check = self.ctx.message.id == component.context.origin_message.id
+            check = self.message.id == component.context.message.id
             if self.player_turn:
                 check = check and (component.context.author == self.player_turn)
             elif self.player1:
@@ -138,9 +139,7 @@ class TicTacToeGame:
 
         # ai mode
         else:
-            check = (component.context.author == self.ctx.author) and (
-                self.ctx.message.id == component.context.origin_message.id
-            )
+            check = (component.context.author == self.ctx.author) and (self.message.id == component.context.message.id)
 
         return check
 
@@ -148,11 +147,10 @@ class TicTacToeGame:
     async def make_move(self, x: int, y: int, symbol: str, button_ctx: Optional[ComponentContext] = None) -> bool:
         if self.is_valid(x, y):
             self.current_state[x][y] = symbol
-            button_update = {
-                "style": ButtonStyles.GREEN if symbol == self.player_symbol else ButtonStyles.RED,
-                "label": symbol,
-            }
-            self.buttons[x].components[y].update(button_update)
+            self.buttons[x].components[y].style = (
+                ButtonStyles.GREEN if symbol == self.player_symbol else ButtonStyles.RED
+            )
+            self.buttons[x].components[y].label = symbol
 
             # either enable or disable the buttons, depending on who plays next
             kwargs = {
@@ -176,7 +174,8 @@ class TicTacToeGame:
             empty_cell = random.choice(self.get_empty())
             x, y = empty_cell[0], empty_cell[1]
         else:
-            best_move = self.minimax(self.current_state, is_maximizing=True)
+            # run the minimax in a thread since it is a lot of calculation
+            best_move = await to_thread.run_sync(self.minimax, self.current_state, True)
             x, y = best_move[0], best_move[1]
 
         await self.make_move(x, y, self.ai_symbol)
@@ -304,16 +303,14 @@ class TicTacToeGame:
     def disable_buttons(self):
         for row in self.buttons:
             for button in row.components:
-                button_update = {"disabled": True}
-                button.update(button_update)
+                button.disabled = True
 
     # set grey buttons to be enabled
     def enable_buttons(self):
         for row in self.buttons:
             for button in row.components:
-                if button["style"] == ButtonStyles.GREY:
-                    button_update = {"disabled": False}
-                    button.update(button_update)
+                if button.style == ButtonStyles.GREY:
+                    button.disabled = False
 
     # update the user message
     async def send_message(
