@@ -26,7 +26,7 @@ class ComponentCallbacks:
         backend.hidden = True
 
         # get the id from the embed
-        poll_id = int(ctx.message.embeds[0].footer.text["text"].split("|")[1].removeprefix("  ID: "))
+        poll_id = int(ctx.message.embeds[0].footer.text.split("|")[1].removeprefix("  ID: "))
 
         # inform the db that sb voted
         result = await backend.user_input(poll_id=poll_id, choice_name=ctx.values[0])
@@ -164,7 +164,7 @@ class ComponentCallbacks:
         """Handles when a component with the custom_id 'github' gets interacted with"""
 
         # close the issue
-        issue_id = int(ctx.message.embeds[0].footer.text["text"].split(":")[1].strip())
+        issue_id = int(ctx.message.embeds[0].footer.text.split(":")[1].strip())
         repo = await get_github_repo()
 
         # run those in a thread with anyio since they are blocking
