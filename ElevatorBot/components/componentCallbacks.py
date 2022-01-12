@@ -6,6 +6,7 @@ from github.GithubObject import NotSet
 
 from ElevatorBot.backendNetworking.destiny.clan import DestinyClan
 from ElevatorBot.backendNetworking.github import get_github_repo
+from ElevatorBot.backendNetworking.misc.giveaway import BackendGiveaway
 from ElevatorBot.backendNetworking.misc.polls import BackendPolls
 from ElevatorBot.commands.destiny.registration.register import send_registration
 from ElevatorBot.core.destiny.lfg.lfgSystem import LfgMessage
@@ -163,7 +164,7 @@ class ComponentCallbacks:
         """Handles when a component with the custom_id 'github' gets interacted with"""
 
         # close the issue
-        issue_id = int(ctx.message.embeds[0].footer.text.split(":")[1].strip())
+        issue_id = int(ctx.message.embeds[0].footer.text["text"].split(":")[1].strip())
         repo = await get_github_repo()
 
         # run those in a thread with anyio since they are blocking
@@ -174,3 +175,25 @@ class ComponentCallbacks:
         components = copy(ctx.message.components)
         components[1].components[0].disabled = True
         await ctx.edit_origin(components=components)
+
+    @staticmethod
+    async def giveaway(ctx: ComponentContext):
+        """Handles when a component with the custom_id 'giveaway' gets interacted with"""
+
+        giveaway = BackendGiveaway(
+            ctx=ctx, discord_guild=ctx.guild, discord_member=ctx.author, message_id=ctx.message.id
+        )
+        giveaway.hidden = True
+        data = await giveaway.insert()
+
+        # edit the message
+        ctx.message.embeds[0].footer.text = f"Joined: {len(data.discord_ids)}"
+        await ctx.message.edit(embeds=ctx.message.embeds[0])
+
+        await ctx.send(
+            ephemeral=True,
+            embeds=embed_message(
+                "Success",
+                "You have joined the giveaway",
+            ),
+        )

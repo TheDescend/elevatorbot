@@ -30,4 +30,6 @@ error_codes_and_responses = {
     "WeaponDamageTypeMismatch": "This weapon does not have the specified damage type",
     "PersistentMessageNotExist": "This persistent message does not exist",
     "RoleNotExist": "This role is not achievable through me",
+    "NoGiveaway": "This is not a giveaway I am hosting",
+    "AlreadyInGiveaway": "I could never forget you, do not worry <3\nYou already entered the giveaway in the past",
 }

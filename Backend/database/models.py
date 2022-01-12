@@ -361,13 +361,6 @@ class LfgMessage(Base):
     voice_channel_id = Column(BigInteger, nullable=True)
 
 
-class LfgUser(Base):
-    __tablename__ = "lfgUsers"
-
-    user_id = Column(BigInteger, nullable=False, primary_key=True)
-    blacklisted_members = Column(ARRAY(BigInteger()), nullable=False)
-
-
 ################################################################
 # Misc
 
@@ -421,6 +414,15 @@ class ModerationLog(Base):
     duration_in_seconds = Column(BigInteger, nullable=True)
     reason = Column(Text, nullable=False)
     date = Column(DateTime(True), nullable=False)
+
+
+class Giveaway(Base):
+    __tablename__ = "giveaway"
+
+    message_id = Column(BigInteger, nullable=False, primary_key=True)
+    author_id = Column(BigInteger, nullable=False)
+    guild_id = Column(BigInteger, nullable=False)
+    discord_ids = Column(ARRAY(BigInteger()), nullable=False, default=[])
 
 
 # insert all tables

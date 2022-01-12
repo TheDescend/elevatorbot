@@ -123,3 +123,10 @@ polls_delete_option_route = polls_route + "{discord_id}/{poll_id}/delete_option/
 polls_user_input_route = polls_route + "{discord_id}/{poll_id}/user_input/"  # POST
 polls_delete_route = polls_route + "{discord_id}/{poll_id}/delete"  # DELETE
 polls_delete_all_route = polls_route + "delete/all{"  # DELETE
+
+# giveaway
+giveaway_route = base_route + "giveaway/{guild_id}/{discord_id}/{giveaway_id}/"
+giveaway_get = giveaway_route + "get/"  # GET
+giveaway_create = giveaway_route + "create/"  # POST
+giveaway_insert = giveaway_route + "insert/"  # POST
+giveaway_remove = giveaway_route + "remove/"  # POST

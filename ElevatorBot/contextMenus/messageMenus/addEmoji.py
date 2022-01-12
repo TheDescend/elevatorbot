@@ -7,6 +7,10 @@ from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formating import embed_message
 from settings import COMMAND_GUILD_SCOPE
 
+# =============
+# Descend Only!
+# =============
+
 
 class MessageMenuCommands(BaseScale):
     """
