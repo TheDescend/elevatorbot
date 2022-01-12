@@ -144,6 +144,7 @@ class ComponentCallbacks:
 
         # invite them to the clan
         clan = DestinyClan(ctx=ctx, discord_guild=ctx.guild)
+        clan.hidden = True
         result = await clan.invite_to_clan(to_invite=ctx.author)
 
         # send a message in descend if that's the guild

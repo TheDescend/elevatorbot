@@ -97,7 +97,7 @@ class LfgMessage:
     @classmethod
     async def from_lfg_output_model(
         cls, client, model: LfgOutputModel, backend: DestinyLfgSystem, guild: Optional[Guild] = None
-    ) -> LfgMessage:
+    ) -> Optional[LfgMessage]:
         """Parse the info from the pydantic model"""
 
         if not guild:
@@ -106,8 +106,14 @@ class LfgMessage:
                 raise ValueError
 
         # fill class info
-        channel: GuildText = await guild.get_channel(model.channel_id)
+        channel: GuildText = await client.get_channel(model.channel_id)
         start_time: datetime.datetime = model.start_time
+
+        # make sure the message exists
+        message = await channel.get_message(model.message_id) if model.message_id else None
+        if not message:
+            await backend.delete(discord_member_id=model.author_id, lfg_id=model.id)
+            return
 
         lfg_message = cls(
             backend=backend,
@@ -120,12 +126,12 @@ class LfgMessage:
             description=model.description,
             start_time=start_time if start_time != asap_start_time else "asap",
             max_joined_members=model.max_joined_members,
-            message=await channel.get_message(model.message_id),
+            message=message,
             creation_time=model.creation_time,
             joined_ids=model.joined_members,
             backup_ids=model.backup_members,
-            voice_channel=await guild.get_channel(model.voice_channel_id) if model.voice_channel_id else None,
-            voice_category_channel=await guild.get_channel(model.voice_category_channel_id)
+            voice_channel=await client.get_channel(model.voice_channel_id) if model.voice_channel_id else None,
+            voice_category_channel=await client.get_channel(model.voice_category_channel_id)
             if model.voice_category_channel_id
             else None,
         )
@@ -200,13 +206,13 @@ class LfgMessage:
             client=ctx.bot,
             id=result.id,
             guild=ctx.guild,
-            channel=await ctx.guild.get_channel(result.channel_id),
+            channel=await ctx.bot.get_channel(result.channel_id),
             author_id=ctx.author.id,
             activity=activity,
             description=description,
             start_time=start_time,
             max_joined_members=max_joined_members,
-            voice_category_channel=await ctx.guild.get_channel(result.voice_category_channel_id)
+            voice_category_channel=await ctx.bot.get_channel(result.voice_category_channel_id)
             if result.voice_category_channel_id
             else None,
         )
@@ -507,10 +513,10 @@ class LfgMessage:
                         creation_time=event.creation_time,
                         joined_ids=event.joined_members,
                         backup_ids=event.backup_members,
-                        voice_channel=await self.guild.get_channel(event.voice_channel_id)
+                        voice_channel=await self.client.get_channel(event.voice_channel_id)
                         if event.voice_channel_id
                         else None,
-                        voice_category_channel=await self.guild.get_channel(event.voice_category_channel_id)
+                        voice_category_channel=await self.client.get_channel(event.voice_category_channel_id)
                         if event.voice_category_channel_id
                         else None,
                     )
@@ -562,6 +568,7 @@ class LfgMessage:
 
         data = io.StringIO(str(calendar))
 
+        # todo settings.py
         # send this in the spam channel in one of the test servers
         spam_server: GuildText = await self.client.get_channel(761278600103723018)
         file_message = await spam_server.send(file=File(file=data, file_name=f"lfg_event_{self.id}.ics"))

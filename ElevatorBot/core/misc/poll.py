@@ -68,7 +68,7 @@ class Poll:
         """Create the obj from the PollSchema data"""
 
         guild = await client.get_guild(data.guild_id)
-        channel = guild.get_channel(data.channel_id)
+        channel = await client.get_channel(data.channel_id)
         author = await client.get_member(data.author_id, guild.id)
         message = await channel.get_message(data.message_id)
 

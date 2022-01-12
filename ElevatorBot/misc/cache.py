@@ -74,7 +74,7 @@ class DescendCache:
             if not result:
                 raise LookupError("There is no channel set")
 
-            self.booster_count_channel = await descend_channels.guild.get_channel(result.channel_id)
+            self.booster_count_channel = await descend_channels.guild.fetch_channel(result.channel_id)
 
         return self.booster_count_channel
 
@@ -91,7 +91,7 @@ class DescendCache:
             if not result:
                 raise LookupError("There is no channel set")
 
-            self.member_count_channel = await descend_channels.guild.get_channel(result.channel_id)
+            self.member_count_channel = await descend_channels.guild.fetch_channel(result.channel_id)
 
         return self.member_count_channel
 
@@ -104,7 +104,7 @@ class DescendCache:
             # when we have not set a message yet
             return
 
-        channel = await descend_channels.guild.get_channel(result.channel_id)
+        channel = await descend_channels.guild.fetch_channel(result.channel_id)
         self.status_message = await channel.get_message(result.message_id)
 
 

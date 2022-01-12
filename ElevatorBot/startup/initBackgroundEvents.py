@@ -129,6 +129,7 @@ async def register_background_events(client):
                 )
 
                 # add the event
-                await lfg_event.schedule_event()
+                if lfg_event:
+                    await lfg_event.schedule_event()
 
     print(f"< {len(client.scheduler.get_jobs()) - len(jobs)} > LFG Events Loaded")

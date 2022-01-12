@@ -110,7 +110,7 @@ class DayOneRace(BaseScale):
                     )
                     await channel.send(file=File(file=data, file_name="raid_image.png"))
 
-        self.leaderboard_channel = await ctx.guild.get_channel(self.leaderboard_channel)
+        self.leaderboard_channel = await ctx.bot.get_channel(self.leaderboard_channel)
         if not self.leaderboard_channel:
             await something_went_wrong(ctx=ctx)
             return

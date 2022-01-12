@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from Backend.core.errors import CustomException
 from Backend.crud import lfg
 from Backend.database.models import LfgMessage
 from Backend.dependencies import get_db_session

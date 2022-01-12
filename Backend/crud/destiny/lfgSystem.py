@@ -14,8 +14,8 @@ from Shared.NetworkingSchemas.destiny.lfgSystem import AllLfgDeleteOutputModel, 
 
 class CRUDLfgMessages(CRUDBase):
     @staticmethod
-    async def get_channel_id(db: AsyncSession, guild_id: int) -> Optional[int]:
-        """Return the guild's lfg channel id if set"""
+    async def get_channel_id(db: AsyncSession, guild_id: int) -> int:
+        """Return the guild's lfg channel id"""
 
         # check cache:
         async with asyncio.Lock():
@@ -32,6 +32,8 @@ class CRUDLfgMessages(CRUDBase):
                         raise e
 
             result = cache.persistent_messages[cache_key]
+            if not result:
+                raise CustomException("NoLfgChannelForGuild")
             return result.channel_id if result else None
 
     @staticmethod

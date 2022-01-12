@@ -33,7 +33,7 @@ class __DescendChannels:
         # loop through all class attributes and fill out the channel objs
         for attr, value in self.__dict__.items():
             # get the channel
-            channel = await self.guild.get_channel(value)
+            channel = await self.guild.fetch_channel(value)
             setattr(self, attr, channel)
         return True
 
