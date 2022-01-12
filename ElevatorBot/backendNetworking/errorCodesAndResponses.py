@@ -31,5 +31,5 @@ error_codes_and_responses = {
     "PersistentMessageNotExist": "This persistent message does not exist",
     "RoleNotExist": "This role is not achievable through me",
     "NoGiveaway": "This is not a giveaway I am hosting",
-    "AlreadyInGiveaway": "I could never forget you, do not worry <3\nYou already entered the giveaway in the past",
+    "AlreadyInGiveaway": "I would never forget you, do not worry <3\nYou have already entered the giveaway",
 }

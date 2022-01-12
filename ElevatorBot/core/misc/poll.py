@@ -241,13 +241,13 @@ class Poll:
         # add choices
         for choice in self.choices:
             option_users_count = len(choice.discord_ids)
-            percentage = option_users_count / total_users_count
+            percentage = option_users_count / total_users_count if total_users_count else 0
 
             text = make_progress_bar_text(percentage=percentage, bar_length=10)
 
             embed.add_field(
                 name=choice.name,
-                value=f"{replace_progress_formatting(text)} {int(percentage * 100)}%",
+                value=f"{replace_progress_formatting(text)}   {int(percentage * 100)}%",
                 inline=False,
             )
 

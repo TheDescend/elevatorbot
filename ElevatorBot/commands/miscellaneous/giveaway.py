@@ -37,7 +37,7 @@ class Giveaway(BaseScale):
             )
         ]
         message = await ctx.channel.send(
-            embeds=embed_message(f"Giveaway From {member.display_name}", description, "Joined: 0"),
+            embeds=embed_message(f"Giveaway from {member.display_name}", description, "Joined: 0"),
             components=components,
         )
 

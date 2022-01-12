@@ -405,7 +405,20 @@
             {
                 "name": "giveaway",
                 "description": "Creates a giveaway",
-                "options": []
+                "options": [
+                    {
+                        "name": "description",
+                        "description": "Input details about the giveaway",
+                        "required": true,
+                        "autocomplete": false
+                    },
+                    {
+                        "name": "host",
+                        "description": "The user which is hosting the giveaway if it is not you",
+                        "required": false,
+                        "autocomplete": false
+                    }
+                ]
             },
             {
                 "name": "metrics",
