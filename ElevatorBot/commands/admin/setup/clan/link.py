@@ -1,10 +1,7 @@
 from dis_snek.models import InteractionContext, slash_command
 
 from ElevatorBot.backendNetworking.destiny.clan import DestinyClan
-from ElevatorBot.commandHelpers.subCommandTemplates import (
-    setup_sub_command,
-    setup_sub_command_clan_group,
-)
+from ElevatorBot.commandHelpers.subCommandTemplates import setup_sub_command, setup_sub_command_clan_group
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formating import embed_message
 

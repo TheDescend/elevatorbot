@@ -10,10 +10,7 @@ from dis_snek.models import (
     slash_option,
 )
 
-from ElevatorBot.commandHelpers.subCommandTemplates import (
-    setup_sub_command,
-    setup_sub_command_clan_group,
-)
+from ElevatorBot.commandHelpers.subCommandTemplates import setup_sub_command, setup_sub_command_clan_group
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.core.misc.persistentMessages import handle_setup_command
 

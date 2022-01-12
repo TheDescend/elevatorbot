@@ -17,10 +17,7 @@ from Backend.networking.bungieRoutes import (
     clan_members_route,
 )
 from Shared.functions.helperFunctions import localize_datetime
-from Shared.NetworkingSchemas.destiny.clan import (
-    DestinyClanMemberModel,
-    DestinyClanModel,
-)
+from Shared.NetworkingSchemas.destiny.clan import DestinyClanMemberModel, DestinyClanModel
 
 
 @dataclasses.dataclass

@@ -13,12 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from Backend.core.destiny.activities import DestinyActivities
 from Backend.core.destiny.manifest import DestinyManifest
 from Backend.core.destiny.profile import DestinyProfile
-from Backend.crud import (
-    crud_activities,
-    crud_activities_fail_to_get,
-    destiny_manifest,
-    discord_users,
-)
+from Backend.crud import crud_activities, crud_activities_fail_to_get, destiny_manifest, discord_users
 from Backend.database.models import (
     DestinyActivityDefinition,
     DestinyActivityModeDefinition,
@@ -35,12 +30,7 @@ from Backend.database.models import (
 from Backend.misc.cache import cache
 from Backend.networking.schemas import WebResponse
 from Shared.functions.helperFunctions import get_now_with_tz, localize_datetime
-from Shared.NetworkingSchemas.destiny.roles import (
-    RequirementIntegerModel,
-    RoleDataModel,
-    RoleModel,
-    RolesModel,
-)
+from Shared.NetworkingSchemas.destiny.roles import RequirementIntegerModel, RoleDataModel, RoleModel, RolesModel
 from Shared.NetworkingSchemas.misc.auth import BungieTokenInput
 from Shared.NetworkingSchemas.misc.persistentMessages import (
     PersistentMessage,

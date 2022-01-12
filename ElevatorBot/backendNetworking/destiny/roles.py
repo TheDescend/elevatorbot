@@ -13,11 +13,7 @@ from ElevatorBot.backendNetworking.routes import (
     destiny_role_get_user_route,
 )
 from ElevatorBot.misc.cache import registered_role_cache
-from Shared.NetworkingSchemas.destiny.roles import (
-    EarnedRoleModel,
-    EarnedRolesModel,
-    MissingRolesModel,
-)
+from Shared.NetworkingSchemas.destiny.roles import EarnedRoleModel, EarnedRolesModel, MissingRolesModel
 
 
 @dataclasses.dataclass

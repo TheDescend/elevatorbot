@@ -9,10 +9,7 @@ from Backend.database.models import (
     DiscordUsers,
     PersistentMessage,
 )
-from Shared.NetworkingSchemas.destiny import (
-    DestinyActivityModel,
-    SeasonalChallengesModel,
-)
+from Shared.NetworkingSchemas.destiny import DestinyActivityModel, SeasonalChallengesModel
 from Shared.NetworkingSchemas.destiny.roles import RoleModel
 
 

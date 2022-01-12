@@ -3,10 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.crud import d2_steam_players
 from Backend.dependencies import get_db_session
-from Shared.NetworkingSchemas.destiny import (
-    DestinySteamPlayerCountModel,
-    DestinySteamPlayersCountModel,
-)
+from Shared.NetworkingSchemas.destiny import DestinySteamPlayerCountModel, DestinySteamPlayersCountModel
 
 router = APIRouter(
     prefix="/destiny/steam_players",

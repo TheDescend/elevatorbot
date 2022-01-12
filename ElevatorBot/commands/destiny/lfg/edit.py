@@ -1,13 +1,7 @@
 from dis_snek.models import InteractionContext, slash_command
 
-from ElevatorBot.commandHelpers.autocomplete import (
-    activities,
-    autocomplete_send_activity_name,
-)
-from ElevatorBot.commandHelpers.optionTemplates import (
-    autocomplete_activity_option,
-    lfg_event_id,
-)
+from ElevatorBot.commandHelpers.autocomplete import activities, autocomplete_send_activity_name
+from ElevatorBot.commandHelpers.optionTemplates import autocomplete_activity_option, lfg_event_id
 from ElevatorBot.commandHelpers.subCommandTemplates import lfg_sub_command
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.core.destiny.lfg.lfgSystem import LfgMessage

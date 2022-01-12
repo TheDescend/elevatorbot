@@ -3,9 +3,7 @@ from typing import Optional
 from dis_snek import SnakeBotUser
 from dis_snek.models import ComponentContext, InteractionContext, Member, Message
 
-from ElevatorBot.backendNetworking.errorCodesAndResponses import (
-    error_codes_and_responses,
-)
+from ElevatorBot.backendNetworking.errorCodesAndResponses import error_codes_and_responses
 from ElevatorBot.misc.formating import embed_message
 
 

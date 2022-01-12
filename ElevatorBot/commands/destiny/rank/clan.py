@@ -1,17 +1,7 @@
 from dis_snek import Snake
-from dis_snek.models import (
-    InteractionContext,
-    Member,
-    OptionTypes,
-    SlashCommandChoice,
-    slash_command,
-    slash_option,
-)
+from dis_snek.models import InteractionContext, Member, OptionTypes, SlashCommandChoice, slash_command, slash_option
 
-from ElevatorBot.commandHelpers.autocomplete import (
-    autocomplete_send_activity_name,
-    autocomplete_send_weapon_name,
-)
+from ElevatorBot.commandHelpers.autocomplete import autocomplete_send_activity_name, autocomplete_send_weapon_name
 from ElevatorBot.commandHelpers.optionTemplates import (
     autocomplete_activity_option,
     autocomplete_weapon_option,

@@ -4,9 +4,7 @@ import dataclasses
 
 from dis_snek.models import Guild, Member
 
-from ElevatorBot.backendNetworking.errorCodesAndResponses import (
-    error_codes_and_responses,
-)
+from ElevatorBot.backendNetworking.errorCodesAndResponses import error_codes_and_responses
 from ElevatorBot.backendNetworking.errors import BackendException
 from ElevatorBot.backendNetworking.http import BaseBackendConnection
 from ElevatorBot.backendNetworking.routes import (
@@ -18,10 +16,7 @@ from ElevatorBot.backendNetworking.routes import (
 )
 from ElevatorBot.misc.cache import registered_role_cache
 from ElevatorBot.misc.formating import embed_message
-from Shared.NetworkingSchemas.destiny.profile import (
-    DestinyHasTokenModel,
-    DestinyProfileModel,
-)
+from Shared.NetworkingSchemas.destiny.profile import DestinyHasTokenModel, DestinyProfileModel
 
 
 @dataclasses.dataclass

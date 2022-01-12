@@ -11,10 +11,7 @@ from Backend.core.errors import CustomException, handle_custom_exception
 from Backend.crud import backend_user
 from Backend.database.base import get_async_session, setup_engine
 from Backend.database.models import BackendUser, create_tables
-from Backend.dependencies import (
-    auth_get_user_with_read_perm,
-    auth_get_user_with_write_perm,
-)
+from Backend.dependencies import auth_get_user_with_read_perm, auth_get_user_with_write_perm
 from Backend.misc.initBackgroundEvents import register_background_events
 from Backend.misc.initLogging import init_logging
 from settings import ENABLE_DEBUG_MODE

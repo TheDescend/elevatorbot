@@ -2,14 +2,7 @@ import asyncio
 import logging
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from dis_snek import (
-    AutoDefer,
-    ExtensionNotFound,
-    InteractionContext,
-    Snake,
-    logger_name,
-    slash_command,
-)
+from dis_snek import AutoDefer, ExtensionNotFound, InteractionContext, Snake, logger_name, slash_command
 from dis_snek.models import listen
 from dis_snek.models.enums import Intents, Permissions
 
@@ -25,12 +18,7 @@ from ElevatorBot.startup.initLogging import init_logging
 from ElevatorBot.static.descendOnlyIds import descend_channels
 from ElevatorBot.static.emojis import custom_emojis
 from ElevatorBot.webserver.server import run_webserver
-from settings import (
-    COMMAND_GUILD_SCOPE,
-    DISCORD_APPLICATION_API_KEY,
-    ENABLE_DEBUG_MODE,
-    SYNC_COMMANDS,
-)
+from settings import COMMAND_GUILD_SCOPE, DISCORD_APPLICATION_API_KEY, ENABLE_DEBUG_MODE, SYNC_COMMANDS
 
 
 class Elevator(ElevatorSnake):

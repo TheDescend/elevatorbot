@@ -9,11 +9,7 @@ from Backend.crud.base import CRUDBase
 from Backend.crud.misc.persistentMessages import persistent_messages
 from Backend.database.models import LfgMessage
 from Backend.misc.cache import cache
-from Shared.NetworkingSchemas.destiny.lfgSystem import (
-    AllLfgDeleteOutputModel,
-    LfgOutputModel,
-    UserAllLfgOutputModel,
-)
+from Shared.NetworkingSchemas.destiny.lfgSystem import AllLfgDeleteOutputModel, LfgOutputModel, UserAllLfgOutputModel
 
 
 class CRUDLfgMessages(CRUDBase):

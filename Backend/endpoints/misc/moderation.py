@@ -4,11 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from Backend.crud import moderation
 from Backend.crud.misc.moderation import ModerationTypes
 from Backend.dependencies import get_db_session
-from Shared.NetworkingSchemas.misc.moderation import (
-    ModerationAddModel,
-    ModerationModel,
-    ModerationsModel,
-)
+from Shared.NetworkingSchemas.misc.moderation import ModerationAddModel, ModerationModel, ModerationsModel
 
 router = APIRouter(
     prefix="/moderation/{guild_id}/{discord_id}",

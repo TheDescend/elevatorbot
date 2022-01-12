@@ -1,11 +1,4 @@
-from dis_snek.models import (
-    ChannelTypes,
-    GuildChannel,
-    InteractionContext,
-    OptionTypes,
-    slash_command,
-    slash_option,
-)
+from dis_snek.models import ChannelTypes, GuildChannel, InteractionContext, OptionTypes, slash_command, slash_option
 
 from ElevatorBot.commandHelpers.subCommandTemplates import descend_setup_sub_command
 from ElevatorBot.commands.base import BaseScale

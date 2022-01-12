@@ -23,4 +23,3 @@ repos:
   rev: 5.10.1
   hooks:
       - id: isort
-        args: ["--filter-files"]

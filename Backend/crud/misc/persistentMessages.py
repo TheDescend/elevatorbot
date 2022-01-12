@@ -7,9 +7,7 @@ from Backend.crud.base import CRUDBase
 from Backend.database.models import PersistentMessage
 from Backend.misc.cache import cache
 from Backend.misc.helperFunctions import convert_kwargs_into_dict
-from Shared.NetworkingSchemas.misc.persistentMessages import (
-    PersistentMessageDeleteInput,
-)
+from Shared.NetworkingSchemas.misc.persistentMessages import PersistentMessageDeleteInput
 
 
 class CRUDPersistentMessages(CRUDBase):

@@ -1,16 +1,6 @@
-from dis_snek.models import (
-    ChannelTypes,
-    GuildChannel,
-    InteractionContext,
-    OptionTypes,
-    slash_command,
-    slash_option,
-)
+from dis_snek.models import ChannelTypes, GuildChannel, InteractionContext, OptionTypes, slash_command, slash_option
 
-from ElevatorBot.commandHelpers.subCommandTemplates import (
-    setup_sub_command,
-    setup_sub_command_lfg_group,
-)
+from ElevatorBot.commandHelpers.subCommandTemplates import setup_sub_command, setup_sub_command_lfg_group
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.core.misc.persistentMessages import handle_setup_command
 from ElevatorBot.misc.formating import embed_message

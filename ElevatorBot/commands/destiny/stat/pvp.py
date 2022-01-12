@@ -1,10 +1,6 @@
 from dis_snek.models import InteractionContext, Member, slash_command
 
-from ElevatorBot.commandHelpers.optionTemplates import (
-    default_class_option,
-    default_stat_option,
-    default_user_option,
-)
+from ElevatorBot.commandHelpers.optionTemplates import default_class_option, default_stat_option, default_user_option
 from ElevatorBot.commandHelpers.subCommandTemplates import stat_sub_command
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.core.destiny.stat import get_stat_and_send, stat_translation

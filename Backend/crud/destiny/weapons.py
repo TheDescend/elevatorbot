@@ -8,17 +8,8 @@ from sqlalchemy.orm import joinedload
 from sqlalchemy.sql import Select
 
 from Backend.crud.base import CRUDBase
-from Backend.database.models import (
-    Activities,
-    ActivitiesUsers,
-    ActivitiesUsersWeapons,
-    DestinyInventoryItemDefinition,
-)
-from Shared.DestinyEnums.enums import (
-    DestinyDamageTypeEnum,
-    DestinyItemSubTypeEnum,
-    DestinyWeaponSlotEnum,
-)
+from Backend.database.models import Activities, ActivitiesUsers, ActivitiesUsersWeapons, DestinyInventoryItemDefinition
+from Shared.DestinyEnums.enums import DestinyDamageTypeEnum, DestinyItemSubTypeEnum, DestinyWeaponSlotEnum
 from Shared.NetworkingSchemas.destiny import DestinyTopWeaponsStatInputModelEnum
 
 

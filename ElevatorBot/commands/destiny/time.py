@@ -1,10 +1,7 @@
 from dis_snek.models import InteractionContext, Member, slash_command
 
 from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
-from ElevatorBot.commandHelpers.autocomplete import (
-    activities,
-    autocomplete_send_activity_name,
-)
+from ElevatorBot.commandHelpers.autocomplete import activities, autocomplete_send_activity_name
 from ElevatorBot.commandHelpers.optionTemplates import (
     autocomplete_activity_option,
     default_class_option,

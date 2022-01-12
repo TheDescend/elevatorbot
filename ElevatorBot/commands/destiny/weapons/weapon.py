@@ -1,10 +1,4 @@
-from dis_snek.models import (
-    InteractionContext,
-    Member,
-    Timestamp,
-    TimestampStyles,
-    slash_command,
-)
+from dis_snek.models import InteractionContext, Member, Timestamp, TimestampStyles, slash_command
 
 from ElevatorBot.backendNetworking.destiny.weapons import DestinyWeapons
 from ElevatorBot.commandHelpers.autocomplete import (

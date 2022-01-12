@@ -2,12 +2,7 @@ from fastapi import Depends, HTTPException
 from jose import JWTError, jwt
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from Backend.core.security.auth import (
-    ALGORITHM,
-    CREDENTIALS_EXCEPTION,
-    get_secret_key,
-    oauth2_scheme,
-)
+from Backend.core.security.auth import ALGORITHM, CREDENTIALS_EXCEPTION, get_secret_key, oauth2_scheme
 from Backend.crud import backend_user
 from Backend.database.base import get_async_session
 from Backend.database.models import BackendUser

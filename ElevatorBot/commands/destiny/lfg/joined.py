@@ -1,9 +1,4 @@
-from dis_snek.models import (
-    InteractionContext,
-    Timestamp,
-    TimestampStyles,
-    slash_command,
-)
+from dis_snek.models import InteractionContext, Timestamp, TimestampStyles, slash_command
 
 from ElevatorBot.backendNetworking.destiny.lfgSystem import DestinyLfgSystem
 from ElevatorBot.commandHelpers.subCommandTemplates import lfg_sub_command

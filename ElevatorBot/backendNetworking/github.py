@@ -6,11 +6,7 @@ from github.GithubObject import NotSet
 from github.Label import Label
 from github.Repository import Repository
 
-from settings import (
-    GITHUB_APPLICATION_API_KEY,
-    GITHUB_ISSUE_LABEL_NAMES,
-    GITHUB_REPOSITORY_ID,
-)
+from settings import GITHUB_APPLICATION_API_KEY, GITHUB_ISSUE_LABEL_NAMES, GITHUB_REPOSITORY_ID
 
 _REPO: Optional[Repository] = None
 _LABELS: Optional[list[Label]] = None

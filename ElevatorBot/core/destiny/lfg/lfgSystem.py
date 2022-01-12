@@ -37,11 +37,7 @@ from ElevatorBot.discordEvents.base import ElevatorSnake
 from ElevatorBot.misc.formating import embed_message
 from ElevatorBot.static.emojis import custom_emojis
 from Shared.functions.helperFunctions import get_now_with_tz
-from Shared.NetworkingSchemas.destiny.lfgSystem import (
-    LfgCreateInputModel,
-    LfgOutputModel,
-    LfgUpdateInputModel,
-)
+from Shared.NetworkingSchemas.destiny.lfgSystem import LfgCreateInputModel, LfgOutputModel, LfgUpdateInputModel
 
 asap_start_time = datetime.datetime(year=1997, month=6, day=11, tzinfo=datetime.timezone.utc)
 

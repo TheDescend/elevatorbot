@@ -13,11 +13,7 @@ from ElevatorBot.backendNetworking.routes import (
     destiny_clan_search_members_route,
     destiny_clan_unlink_route,
 )
-from Shared.NetworkingSchemas.destiny.clan import (
-    DestinyClanLink,
-    DestinyClanMembersModel,
-    DestinyClanModel,
-)
+from Shared.NetworkingSchemas.destiny.clan import DestinyClanLink, DestinyClanMembersModel, DestinyClanModel
 from Shared.NetworkingSchemas.destiny.profile import DestinyProfileModel
 
 

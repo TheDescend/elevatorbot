@@ -1,9 +1,6 @@
 from dis_snek.models import InteractionContext, OptionTypes, slash_command, slash_option
 
-from ElevatorBot.commandHelpers.autocomplete import (
-    activities,
-    autocomplete_send_activity_name,
-)
+from ElevatorBot.commandHelpers.autocomplete import activities, autocomplete_send_activity_name
 from ElevatorBot.commandHelpers.optionTemplates import (
     autocomplete_activity_option,
     default_time_option,

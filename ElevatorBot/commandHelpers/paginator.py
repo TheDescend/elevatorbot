@@ -2,16 +2,7 @@ import asyncio
 from copy import copy
 from typing import Any, Callable, Coroutine, Optional
 
-from dis_snek import (
-    ActionRow,
-    Button,
-    ButtonStyles,
-    ComponentContext,
-    Embed,
-    InteractionContext,
-    Member,
-    Message,
-)
+from dis_snek import ActionRow, Button, ButtonStyles, ComponentContext, Embed, InteractionContext, Member, Message
 from dis_snek.models.events import Component
 
 

@@ -15,11 +15,7 @@ from Backend.misc.cache import cache
 from Backend.networking.base import NetworkBase
 from Backend.networking.elevatorApi import ElevatorApi
 from settings import BUNGIE_APPLICATION_API_KEY
-from Shared.functions.helperFunctions import (
-    get_min_with_tz,
-    get_now_with_tz,
-    localize_datetime,
-)
+from Shared.functions.helperFunctions import get_min_with_tz, get_now_with_tz, localize_datetime
 from Shared.NetworkingSchemas.misc.auth import BungieTokenInput, BungieTokenOutput
 
 

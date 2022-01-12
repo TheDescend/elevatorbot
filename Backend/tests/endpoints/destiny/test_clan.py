@@ -4,11 +4,7 @@ from dummyData.static import *
 from httpx import AsyncClient
 from pytest_mock import MockerFixture
 
-from Shared.NetworkingSchemas.destiny.clan import (
-    DestinyClanLink,
-    DestinyClanMembersModel,
-    DestinyClanModel,
-)
+from Shared.NetworkingSchemas.destiny.clan import DestinyClanLink, DestinyClanMembersModel, DestinyClanModel
 from Shared.NetworkingSchemas.destiny.profile import DestinyProfileModel
 
 

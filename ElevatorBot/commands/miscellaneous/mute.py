@@ -15,10 +15,7 @@ from dis_snek.models import (
 from ElevatorBot.backendNetworking.misc.moderation import Moderation
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
 from ElevatorBot.commands.base import BaseScale
-from ElevatorBot.misc.discordShortcutFunctions import (
-    assign_roles_to_member,
-    remove_roles_from_member,
-)
+from ElevatorBot.misc.discordShortcutFunctions import assign_roles_to_member, remove_roles_from_member
 from ElevatorBot.misc.formating import embed_message
 from settings import COMMAND_GUILD_SCOPE, DESCEND_ROLE_NO_NICKNAME_ID
 from Shared.functions.helperFunctions import get_now_with_tz

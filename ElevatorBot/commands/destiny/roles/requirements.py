@@ -1,11 +1,4 @@
-from dis_snek.models import (
-    InteractionContext,
-    Member,
-    OptionTypes,
-    Role,
-    slash_command,
-    slash_option,
-)
+from dis_snek.models import InteractionContext, Member, OptionTypes, Role, slash_command, slash_option
 
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
 from ElevatorBot.commandHelpers.subCommandTemplates import roles_sub_command

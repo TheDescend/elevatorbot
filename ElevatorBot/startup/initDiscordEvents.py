@@ -13,16 +13,8 @@ from ElevatorBot.discordEvents.guildEvents import (
     on_thread_delete,
     on_thread_update,
 )
-from ElevatorBot.discordEvents.memberEvents import (
-    on_member_add,
-    on_member_remove,
-    on_member_update,
-)
-from ElevatorBot.discordEvents.messageEvents import (
-    on_message_create,
-    on_message_delete,
-    on_message_update,
-)
+from ElevatorBot.discordEvents.memberEvents import on_member_add, on_member_remove, on_member_update
+from ElevatorBot.discordEvents.messageEvents import on_message_create, on_message_delete, on_message_update
 from ElevatorBot.discordEvents.voiceEvents import on_voice_state_update
 
 

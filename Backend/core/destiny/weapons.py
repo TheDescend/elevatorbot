@@ -9,11 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from Backend.core.errors import CustomException
 from Backend.crud import crud_activities, crud_weapons
 from Backend.crud.destiny.items import destiny_items
-from Backend.database.models import (
-    ActivitiesUsersWeapons,
-    DestinyInventoryItemDefinition,
-    DiscordUsers,
-)
+from Backend.database.models import ActivitiesUsersWeapons, DestinyInventoryItemDefinition, DiscordUsers
 from Backend.networking.bungieApi import BungieApi
 from Shared.DestinyEnums.enums import (
     DestinyAmmunitionTypeEnum,
