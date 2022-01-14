@@ -1,7 +1,7 @@
 import logging
 import traceback
 
-from dis_snek import CommandCheckFailure, Snake
+from dis_snek import CommandCheckFailure, HTTPException, Snake
 from dis_snek.models import ComponentContext, InteractionContext
 
 from ElevatorBot.backendNetworking.errors import BackendException
@@ -19,8 +19,20 @@ class CustomErrorSnake(Snake):
     logger_events = logging.getLogger("discordEvents")
     logger_exceptions = logging.getLogger("commandsExceptions")
 
+    def _parse_dis_snek_error(self, error: Exception):
+        """Parses dis-snek error messages and logs that"""
+
+        if isinstance(error, HTTPException):
+            # HTTPException's are of 3 known formats, we can parse them for human-readable errors
+            errors = error.search_for_message(error.errors)
+            formatted = f"HTTPException: {error.status}|{error.response.reason}: " + "\n".join(errors)
+            self.logger_exceptions.error(formatted)
+            print(formatted)
+
     async def on_error(self, source: str, error: Exception, *args, **kwargs):
         """Gets triggered after an error occurs (not in commands / components)"""
+
+        self._parse_dis_snek_error(error=error)
 
         # log the error
         self.logger_exceptions.exception(
@@ -42,6 +54,8 @@ class CustomErrorSnake(Snake):
     async def on_command_error(self, ctx: InteractionContext, error: Exception, *args, **kwargs):
         """Gets triggered on slash command errors"""
 
+        self._parse_dis_snek_error(error=error)
+
         # ignore some errors since they are intended
         if not isinstance(error, BackendException | CommandCheckFailure):
             await log_error(ctx=ctx, error=error, logger=self.logger_commands_exceptions)
@@ -56,6 +70,8 @@ class CustomErrorSnake(Snake):
 
     async def on_component_error(self, ctx: ComponentContext, error: Exception, *args, **kwargs):
         """Gets triggered on component callback errors"""
+
+        self._parse_dis_snek_error(error=error)
 
         # ignore BackendException errors since they are intended
         if not isinstance(error, BackendException):

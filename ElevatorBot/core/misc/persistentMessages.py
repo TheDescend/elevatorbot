@@ -53,15 +53,6 @@ async def handle_setup_command(
     connection = PersistentMessages(ctx=ctx, guild=ctx.guild, message_name=message_name)
     connection.hidden = True
 
-    # get the old message if that exists and delete it
-    old = await connection.get()
-    if old.message_id:
-        old_channel = await ctx.bot.get_channel(old.channel_id)
-        if old_channel:
-            old_message = await old_channel.get_message(old.message_id)
-            if old_message:
-                await old_message.delete()
-
     # send the message
     if send_message:
         if message:
