@@ -177,6 +177,7 @@ class CRUDManifest(CRUDBase):
                     },
                     "Raids": {
                         "Eater of Worlds": ["Eater of Worlds", None],
+                        "Last Wish": ["Last Wish", None],
                         "Vault of Glass": ["Vault of Glass", None],
                     },
                     "Story Missions": {
