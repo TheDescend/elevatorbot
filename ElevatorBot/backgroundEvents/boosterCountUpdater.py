@@ -20,6 +20,6 @@ class BoosterCountUpdater(BaseEvent):
 
         # update the name
         await channel.edit(
-            name=f"𝖡𝗈𝗈𝗌𝗍𝖾𝗋𝗌｜{descend_channels.guild.premium_subscription_count}",
+            name=f"Boosters｜{descend_channels.guild.premium_subscription_count}",
             reason="Booster Count Update",
         )

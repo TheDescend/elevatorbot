@@ -1,3 +1,4 @@
+from dis_snek import GuildCategory
 from dis_snek.models import ChannelTypes, GuildChannel, InteractionContext, OptionTypes, slash_command, slash_option
 
 from ElevatorBot.commandHelpers.subCommandTemplates import descend_setup_sub_command
@@ -21,13 +22,20 @@ class BoosterCount(BaseScale):
         scopes=COMMAND_GUILD_SCOPE,
     )
     @slash_option(
-        name="channel",
+        name="category",
         description="The voice channel where the message should be displayed",
         required=True,
         opt_type=OptionTypes.CHANNEL,
-        channel_types=[ChannelTypes.GUILD_VOICE],
+        channel_types=[ChannelTypes.GUILD_CATEGORY],
     )
-    async def booster_count(self, ctx: InteractionContext, channel: GuildChannel):
+    async def booster_count(self, ctx: InteractionContext, category: GuildCategory):
+        # create the channel
+        channel = await ctx.guild.create_voice_channel(
+            name=f"Boosters｜{ctx.guild.premium_subscription_count}",
+            category=category,
+            reason="Booster Count Update",
+        )
+
         message_name = "booster_count"
         success_message = f"The current booster count will stay updated in {channel.mention}"
         await handle_setup_command(

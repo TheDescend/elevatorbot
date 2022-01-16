@@ -31,7 +31,7 @@ class Overview(BaseScale):
 
         clan = DestinyClan(ctx=None, discord_guild=ctx.guild)
         clan_info = await clan.get_clan()
-        embed.add_field(name="Linked Clan", value=clan_info.name if clan_info else "Not Set-Up", inline=True)
+        embed.add_field(name="Linked Clan", value=f"`{clan_info.name}`" if clan_info else "Not Set-Up", inline=True)
 
         obj = handy_dict["clan_join_request"] if "clan_join_request" in handy_dict else None
         embed.add_field(

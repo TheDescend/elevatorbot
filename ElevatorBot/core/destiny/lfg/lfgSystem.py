@@ -42,6 +42,7 @@ from Shared.NetworkingSchemas.destiny.lfgSystem import LfgCreateInputModel, LfgO
 asap_start_time = datetime.datetime(year=1997, month=6, day=11, tzinfo=datetime.timezone.utc)
 
 
+# todo fullness indicator with emojis
 @dataclasses.dataclass()
 class LfgMessage:
     """Class to hold an LFG message"""

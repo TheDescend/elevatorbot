@@ -23,11 +23,19 @@ class CustomErrorSnake(Snake):
         """Parses dis-snek error messages and logs that"""
 
         if isinstance(error, HTTPException):
-            # HTTPException's are of 3 known formats, we can parse them for human-readable errors
-            errors = error.search_for_message(error.errors)
-            formatted = f"HTTPException: {error.status}|{error.response.reason}: " + "\n".join(errors)
-            self.logger_exceptions.error(formatted)
-            print(formatted)
+            if error.errors:
+                # HTTPException's are of 3 known formats, we can parse them for human-readable errors
+                try:
+                    errors = error.search_for_message(error.errors)
+                    formatted = f"HTTPException: {error.status}|{error.response.reason}: " + "\n".join(errors)
+                    self.logger_exceptions.error(formatted)
+                    print(formatted)
+                except TypeError as e:
+                    print("Parsing Failed, errors are:")
+                    formatted = f"HTTPException: {error.status}|{error.response.reason}: {str(error.errors)}"
+                    self.logger_exceptions.error(formatted)
+                    print(formatted)
+                    pass
 
     async def on_error(self, source: str, error: Exception, *args, **kwargs):
         """Gets triggered after an error occurs (not in commands / components)"""

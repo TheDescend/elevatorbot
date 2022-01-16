@@ -1,3 +1,5 @@
+from typing import Optional
+
 from dis_snek.models import (
     ActionRow,
     ChannelTypes,
@@ -23,45 +25,51 @@ from settings import COMMAND_GUILD_SCOPE
 
 
 class MiscellaneousRoles(BaseScale):
-    # todo settings.py
-    other_games: dict = {
-        "Among Us": {
-            "emoji": custom_emojis.among_us,
-            "role_id": 750409552075423753,
-        },
-        "Barotrauma": {
-            "emoji": custom_emojis.barotrauma,
-            "role_id": 738438622553964636,
-        },
-        "Escape from Tarkov": {
-            "emoji": custom_emojis.eft,
-            "role_id": 800862253279608854,
-        },
-        "GTA V": {
-            "emoji": custom_emojis.gta,
-            "role_id": 709120893728718910,
-        },
-        "League of Legends": {
-            "emoji": custom_emojis.lol,
-            "role_id": 756076447881363486,
-        },
-        "Minecraft": {
-            "emoji": custom_emojis.minecraft,
-            "role_id": 860099222769631242,
-        },
-        "New World": {
-            "emoji": custom_emojis.new_world,
-            "role_id": 900639721619853322,
-        },
-        "Varlorant": {
-            "emoji": custom_emojis.valorant,
-            "role_id": 709378171832893572,
-        },
-        "Formula 1": {
-            "emoji": "🐎",
-            "role_id": 913416199856062485,
-        },
-    }
+    _MISC_ROLES: Optional[dict[str, dict]] = None
+
+    def get_misc_roles(self) -> dict[str, dict]:
+        """Init or get the other games roles"""
+
+        if not self._MISC_ROLES:
+            self._MISC_ROLES = {
+                "Among Us": {
+                    "emoji": custom_emojis.among_us,
+                    "role_id": 750409552075423753,
+                },
+                "Barotrauma": {
+                    "emoji": custom_emojis.barotrauma,
+                    "role_id": 738438622553964636,
+                },
+                "Escape from Tarkov": {
+                    "emoji": custom_emojis.eft,
+                    "role_id": 800862253279608854,
+                },
+                "GTA V": {
+                    "emoji": custom_emojis.gta,
+                    "role_id": 709120893728718910,
+                },
+                "League of Legends": {
+                    "emoji": custom_emojis.lol,
+                    "role_id": 756076447881363486,
+                },
+                "Minecraft": {
+                    "emoji": custom_emojis.minecraft,
+                    "role_id": 860099222769631242,
+                },
+                "New World": {
+                    "emoji": custom_emojis.new_world,
+                    "role_id": 900639721619853322,
+                },
+                "Varlorant": {
+                    "emoji": custom_emojis.valorant,
+                    "role_id": 709378171832893572,
+                },
+                "Formula 1": {
+                    "emoji": "🐎",
+                    "role_id": 913416199856062485,
+                },
+            }
+        return self._MISC_ROLES
 
     # todo perms
     @slash_command(
@@ -93,11 +101,11 @@ class MiscellaneousRoles(BaseScale):
                         SelectOption(
                             emoji=game_values["emoji"], label=game_name, value=f"{game_name}|{game_values['role_id']}"
                         )
-                        for game_name, game_values in self.other_games.items()
+                        for game_name, game_values in self.get_misc_roles().items()
                     ],
                     placeholder="Select role here",
                     min_values=1,
-                    max_values=len(self.other_games),
+                    max_values=len(self.get_misc_roles()),
                 ),
             ),
         ]

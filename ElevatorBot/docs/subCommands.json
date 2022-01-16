@@ -141,7 +141,7 @@
                         "description": "Use these commands to setup ElevatorBot on this server",
                         "options": [
                             {
-                                "name": "channel",
+                                "name": "category",
                                 "description": "The voice channel where the message should be displayed",
                                 "required": true,
                                 "autocomplete": false
@@ -153,7 +153,7 @@
                         "description": "Use these commands to setup ElevatorBot on this server",
                         "options": [
                             {
-                                "name": "channel",
+                                "name": "category",
                                 "description": "The voice channel where the message should be displayed",
                                 "required": true,
                                 "autocomplete": false

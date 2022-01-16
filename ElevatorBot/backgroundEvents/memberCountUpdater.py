@@ -20,6 +20,6 @@ class MemberCountUpdater(BaseEvent):
 
         # update the name
         await channel.edit(
-            name=f"𝖬𝖾𝗆𝖻𝖾𝗋𝗌｜{descend_channels.guild.member_count}",
+            name=f"Members｜{descend_channels.guild.member_count}",
             reason="Member Count Update",
         )

@@ -12,6 +12,7 @@ error_codes_and_responses = {
     "BungieDestinyPrivacyRestriction": "{discord_member.mention} has a private profile \nPlease change your [privacy settings](https://www.bungie.net/en/Profile/Settings/)",
     "BungieClanTargetDisallowsInvites": "{discord_member.mention} is not allowing clan invites \nPlease change your [privacy settings](https://www.bungie.net/en/Profile/Settings/)",
     "BungieGroupMembershipNotFound": "{discord_member.mention} is not in the clan and can thus not be removed \nI felt like adding them just to remove them was going too far",
+    "BungieClanInviteAlreadyMember": "{discord_member.mention} is already in the clan",
     "UnknownError": "I got an unknown error while handling your request \nPlease contact a developer",
     "ProgrammingError": "The impossible happened... I was programmed incorrectly :( \nPlease contact a developer",
     "NoClanLink": "This guild does not have a linked clan\nPlease have an admin run `/setup clan link` to set this up",

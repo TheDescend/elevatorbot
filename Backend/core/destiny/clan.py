@@ -137,8 +137,6 @@ class DestinyClan:
 
         welcome_message = {"message": f"Welcome to {clan.name}"}
 
-        # todo error out if already in clan. that should return a nice error by the api
-
         await self.api.post(route=route, json=welcome_message)
 
     async def remove_from_clan(

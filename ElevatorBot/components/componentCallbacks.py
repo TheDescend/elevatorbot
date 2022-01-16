@@ -98,6 +98,7 @@ class ComponentCallbacks:
     @staticmethod
     async def lfg_join(ctx: ComponentContext):
         """Handles when a component with the custom_id 'lfg_join' gets interacted with"""
+
         lfg_message = await LfgMessage.from_component_button(ctx=ctx)
         result = await lfg_message.add_joined(member=ctx.author, ctx=ctx)
 
@@ -142,8 +143,11 @@ class ComponentCallbacks:
     async def clan_join_request(ctx: ComponentContext):
         """Handles when a component with the custom_id 'clan_join_request' gets interacted with"""
 
+        await ctx.defer()
+
         # invite them to the clan
         clan = DestinyClan(ctx=ctx, discord_guild=ctx.guild)
+        clan.discord_member = ctx.author
         clan.hidden = True
         result = await clan.invite_to_clan(to_invite=ctx.author)
 
@@ -163,6 +167,8 @@ class ComponentCallbacks:
     @staticmethod
     async def github(ctx: ComponentContext):
         """Handles when a component with the custom_id 'github' gets interacted with"""
+
+        await ctx.defer(edit_origin=True)
 
         # close the issue
         issue_id = int(ctx.message.embeds[0].footer.text.split(":")[1].strip())

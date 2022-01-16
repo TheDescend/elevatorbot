@@ -1,6 +1,7 @@
 from dis_snek.errors import Forbidden
 from dis_snek.models import Guild, GuildText
 
+from ElevatorBot.discordEvents.base import ElevatorSnake
 from settings import (
     DESCEND_CHANNEL_ADMIN_ID,
     DESCEND_CHANNEL_BOT_DEV_ID,
@@ -20,7 +21,7 @@ class __DescendChannels:
     community_roles_channel: GuildText | int | None = DESCEND_CHANNEL_COMMUNITY_ROLES_ID
     join_log_channel: GuildText | int | None = DESCEND_CHANNEL_JOIN_LOG_ID
 
-    async def init_channels(self, client):
+    async def init_channels(self, client: ElevatorSnake):
         """Runs on startup to get the channels we use"""
         try:
             self.guild = await client.get_guild(self.guild)
@@ -32,9 +33,10 @@ class __DescendChannels:
 
         # loop through all class attributes and fill out the channel objs
         for attr, value in self.__dict__.items():
-            # get the channel
-            channel = await self.guild.fetch_channel(value)
-            setattr(self, attr, channel)
+            if attr != "guild":
+                # get the channel
+                channel = await client.get_channel(value)
+                setattr(self, attr, channel)
         return True
 
 

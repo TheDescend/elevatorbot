@@ -36,8 +36,11 @@ async def on_channel_delete(event: ChannelDelete):
         pass
 
     # delete all persistent messages in that channel
-    persistent_messages = PersistentMessages(ctx=None, guild=None, message_name=None)
-    await persistent_messages.delete(channel_id=event.channel.id)
+    persistent_messages = PersistentMessages(ctx=None, guild=event.channel.guild, message_name=None)
+    try:
+        await persistent_messages.delete(channel_id=event.channel.id)
+    except BackendException:
+        raise LookupError
 
 
 async def on_channel_create(event: ChannelCreate):

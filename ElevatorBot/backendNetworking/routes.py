@@ -112,7 +112,7 @@ persistent_messages_route = base_route + "persistentMessages/{guild_id}/"
 persistent_messages_get_route = persistent_messages_route + "get/{message_name}/"  # GET
 persistent_messages_get_all_route = persistent_messages_route + "get/all/"  # GET
 persistent_messages_upsert_route = persistent_messages_route + "upsert/{message_name}/"  # POST
-persistent_messages_delete_route = persistent_messages_route + "delete/{message_name}/"  # POST
+persistent_messages_delete_route = persistent_messages_route + "delete/"  # POST
 persistent_messages_delete_all_route = persistent_messages_route + "delete/all/"  # DELETE
 
 # polls

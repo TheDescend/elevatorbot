@@ -136,6 +136,7 @@ class NetworkBase:
                 request.reason,
                 route_with_params,
             )
+            print(f"""Bungie return Content-Type: {request.headers["Content-Type"]}""")
             if request.status == 200:
                 self.logger.error("Wrong content type returned text: '%s'", await request.text())
             await asyncio.sleep(3)
@@ -265,8 +266,19 @@ class NetworkBase:
                 self.limiter.tokens = 0
                 await asyncio.sleep(throttle_seconds)
 
+            case (status, "ClanInviteAlreadyMember"):
+                # if user is in clan
+                self.logger.error(
+                    "'%s - %s': User is already in clan '%s' - '%s'",
+                    status,
+                    response.error,
+                    route_with_params,
+                    response,
+                )
+                raise CustomException("BungieClanInviteAlreadyMember")
+
             case (status, "GroupMembershipNotFound"):
-                # if user doesn't have that item
+                # if user isn't in clan
                 self.logger.error(
                     "'%s - %s': User is not in clan '%s' - '%s'",
                     status,
