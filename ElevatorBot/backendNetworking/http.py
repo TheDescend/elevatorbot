@@ -176,7 +176,9 @@ class BaseBackendConnection:
                     # if an error occurred, already do the basic formatting
                     if not result:
                         if self.discord_member:
-                            result.error_message = {"discord_member": self.discord_member, **error_message_kwargs}
+                            result.error_message = {"discord_member": self.discord_member}
+                        if error_message_kwargs:
+                            result.error_message = error_message_kwargs
                         await self.send_error(result)
 
                     return result

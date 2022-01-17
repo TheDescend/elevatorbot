@@ -721,7 +721,6 @@ class DestinyProfile:
         }
         """
 
-        # todo how can one subprocess this
         def add_info(result_dict: dict, item: dict, char_id: int):
             """Func to add the items"""
 
@@ -767,13 +766,13 @@ class DestinyProfile:
                 items.update({character_id: {}})
 
             for inv_item in character_data["items"]:
-                add_info(items, inv_item, character_id)
+                await to_thread.run_sync(add_info, items, inv_item, character_id)
 
         # get character equipped
         for character_id, character_data in result["characterEquipment"]["data"].items():
             character_id = int(character_id)
             for inv_item in character_data["items"]:
-                add_info(items, inv_item, character_id)
+                await to_thread.run_sync(add_info, items, inv_item, character_id)
 
         # get stuff in vault that is character specific
         for profile_data in result["profileInventory"]["data"]["items"]:
@@ -791,7 +790,7 @@ class DestinyProfile:
                     # add the data to each character
                     actual_character_ids = character_ids[definition.class_type]
                     for actual_character_id in actual_character_ids:
-                        add_info(items, profile_data, actual_character_id)
+                        await to_thread.run_sync(add_info, items, profile_data, actual_character_id)
 
         return items
 

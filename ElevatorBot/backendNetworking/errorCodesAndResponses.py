@@ -1,8 +1,8 @@
 error_codes_and_responses = {
-    "DestinyIdNotFound": "I don't possess information for the user with the DestinyID `{destiny_id}` \nPlease `/registration` to use my commands",
-    "DiscordIdNotFound": "I don't possess information for {discord_member.mention} \nPlease `/registration` to use my commands",
+    "DestinyIdNotFound": "I don't possess information for the user with the DestinyID `{destiny_id}` \nPlease `/register` to use my commands",
+    "DiscordIdNotFound": "I don't possess information for {discord_member.mention} \nPlease `/register` to use my commands",
     "CharacterIdNotFound": "{discord_member.mention} does not have a character with that ID",
-    "NoToken": "{discord_member.mention} registration is outdated \nPlease `/registration` again",
+    "NoToken": "{discord_member.mention} registration is outdated \nPlease `/register` again",
     "BungieUnauthorized": "The request was not authorized correctly",
     "BungieDed": "The Bungie API is down at the moment \nPlease try again later",
     "BungieNoDestinyId": "You do not seem to have a Destiny 2 account",
