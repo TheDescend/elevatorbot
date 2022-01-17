@@ -4,8 +4,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from Backend.crud import elevator_servers
 from Backend.crud.misc.giveaway import crud_giveaway
 from Backend.dependencies import get_db_session
-from Shared.NetworkingSchemas import ElevatorGuildModel, ElevatorGuildsModel, EmptyResponseModel
-from Shared.NetworkingSchemas.misc.giveaway import GiveawayModel
+from Shared.networkingSchemas import ElevatorGuildModel, ElevatorGuildsModel, EmptyResponseModel
+from Shared.networkingSchemas.misc.giveaway import GiveawayModel
 
 router = APIRouter(
     prefix="/giveaway/{guild_id}/{discord_id}/{giveaway_id}",

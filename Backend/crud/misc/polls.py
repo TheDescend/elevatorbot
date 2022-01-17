@@ -7,7 +7,7 @@ from Backend.core.errors import CustomException
 from Backend.crud.base import CRUDBase
 from Backend.database.models import Poll
 from Backend.misc.helperFunctions import convert_kwargs_into_dict
-from Shared.NetworkingSchemas.misc.polls import PollChoice
+from Shared.networkingSchemas.misc.polls import PollChoice
 
 
 class CRUDPolls(CRUDBase):

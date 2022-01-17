@@ -27,9 +27,9 @@ from ElevatorBot.backendNetworking.routes import (
     destiny_account_triumph_score_route,
     destiny_account_vault_space_route,
 )
-from Shared.DestinyEnums.enums import UsableDestinyActivityModeTypeEnum
-from Shared.NetworkingSchemas import BoolModel, NameModel, ValueModel
-from Shared.NetworkingSchemas.destiny import (
+from Shared.enums.destiny import UsableDestinyActivityModeTypeEnum
+from Shared.networkingSchemas import BoolModel, NameModel, ValueModel
+from Shared.networkingSchemas.destiny import (
     BoolModelRecord,
     DestinyCatalystsModel,
     DestinyCharactersModel,

@@ -4,7 +4,7 @@ from dis_snek.models import Guild, Member
 
 from ElevatorBot.backendNetworking.http import BaseBackendConnection
 from ElevatorBot.backendNetworking.routes import moderation_mute, moderation_warning
-from Shared.NetworkingSchemas.misc.moderation import ModerationAddModel, ModerationModel, ModerationsModel
+from Shared.networkingSchemas.misc.moderation import ModerationAddModel, ModerationModel, ModerationsModel
 
 
 @dataclasses.dataclass

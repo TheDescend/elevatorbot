@@ -5,7 +5,7 @@ from httpx import AsyncClient
 from pytest_mock import MockerFixture
 
 from Shared.functions.helperFunctions import get_now_with_tz
-from Shared.NetworkingSchemas import ElevatorGuildsModel
+from Shared.networkingSchemas import ElevatorGuildsModel
 
 
 @pytest.mark.asyncio

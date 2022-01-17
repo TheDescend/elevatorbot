@@ -1,7 +1,7 @@
 from dis_snek.models import ActionRow, Button, ButtonStyles, ComponentContext, InteractionContext, slash_command
 
 from ElevatorBot.commands.base import RegisteredScale
-from ElevatorBot.misc.formating import embed_message
+from ElevatorBot.misc.formatting import embed_message
 from settings import BUNGIE_APPLICATION_CLIENT_ID
 
 

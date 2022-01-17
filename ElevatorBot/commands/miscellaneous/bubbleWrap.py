@@ -5,7 +5,7 @@ from dis_snek.models import ActionRow, Button, ButtonStyles, InteractionContext,
 from dis_snek.models.events import Component
 
 from ElevatorBot.commands.base import BaseScale
-from ElevatorBot.misc.formating import embed_message
+from ElevatorBot.misc.formatting import embed_message
 
 
 class BubbleWrap(BaseScale):

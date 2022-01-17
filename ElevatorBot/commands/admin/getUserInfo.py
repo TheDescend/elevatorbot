@@ -4,7 +4,7 @@ from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
 from ElevatorBot.backendNetworking.destiny.clan import DestinyClan
 from ElevatorBot.backendNetworking.destiny.profile import DestinyProfile
 from ElevatorBot.commands.base import BaseScale
-from ElevatorBot.misc.formating import embed_message
+from ElevatorBot.misc.formatting import embed_message
 
 
 class UserInfo(BaseScale):

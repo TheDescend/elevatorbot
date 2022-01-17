@@ -10,8 +10,8 @@ from ElevatorBot.commandHelpers.autocomplete import (
     weapons,
     weapons_by_id,
 )
-from Shared.DestinyEnums.enums import DestinyActivityModeTypeEnum
-from Shared.NetworkingSchemas.destiny import DestinyActivityModel
+from Shared.enums.destiny import DestinyActivityModeTypeEnum
+from Shared.networkingSchemas.destiny import DestinyActivityModel
 
 
 async def load_autocomplete_options(client):

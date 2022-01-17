@@ -11,17 +11,17 @@ from ElevatorBot.backendNetworking.destiny.profile import DestinyProfile
 from ElevatorBot.backendNetworking.destiny.roles import DestinyRoles
 from ElevatorBot.backendNetworking.destiny.weapons import DestinyWeapons
 from ElevatorBot.commandHelpers.autocomplete import activities, activities_grandmaster, weapons
-from ElevatorBot.misc.formating import embed_message, format_timedelta
+from ElevatorBot.misc.formatting import embed_message, format_timedelta
 from ElevatorBot.static.destinyActivities import raid_to_emblem_hash
 from ElevatorBot.static.emojis import custom_emojis
-from Shared.DestinyEnums.enums import (
+from Shared.enums.destiny import (
     DestinyActivityModeTypeEnum,
     DestinyWeaponTypeEnum,
     UsableDestinyActivityModeTypeEnum,
     UsableDestinyAmmunitionTypeEnum,
     UsableDestinyDamageTypeEnum,
 )
-from Shared.NetworkingSchemas.destiny import (
+from Shared.networkingSchemas.destiny import (
     DestinyActivityInputModel,
     DestinyActivityModel,
     DestinyWeaponModel,

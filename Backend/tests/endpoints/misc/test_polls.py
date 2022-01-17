@@ -5,7 +5,7 @@ from httpx import AsyncClient
 from orjson import orjson
 from pytest_mock import MockerFixture
 
-from Shared.NetworkingSchemas.misc.polls import PollInsertSchema, PollSchema, PollUserInputSchema
+from Shared.networkingSchemas.misc.polls import PollInsertSchema, PollSchema, PollUserInputSchema
 
 
 @pytest.mark.asyncio

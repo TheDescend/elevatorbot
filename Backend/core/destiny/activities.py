@@ -19,9 +19,9 @@ from Backend.misc.helperFunctions import get_datetime_from_bungie_entry
 from Backend.networking.bungieApi import BungieApi
 from Backend.networking.bungieRoutes import activities_route, pgcr_route
 from Backend.networking.schemas import WebResponse
-from Shared.DestinyEnums.enums import UsableDestinyActivityModeTypeEnum
+from Shared.enums.destiny import UsableDestinyActivityModeTypeEnum
 from Shared.functions.helperFunctions import get_now_with_tz
-from Shared.NetworkingSchemas.destiny import (
+from Shared.networkingSchemas.destiny import (
     DestinyActivityDetailsModel,
     DestinyActivityDetailsUsersModel,
     DestinyActivityModel,
@@ -31,7 +31,7 @@ from Shared.NetworkingSchemas.destiny import (
     DestinyLowMansModel,
     DestinyUpdatedLowManModel,
 )
-from Shared.NetworkingSchemas.destiny.roles import TimePeriodModel
+from Shared.networkingSchemas.destiny.roles import TimePeriodModel
 
 
 @dataclasses.dataclass

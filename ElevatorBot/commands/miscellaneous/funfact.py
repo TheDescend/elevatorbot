@@ -2,7 +2,7 @@ import aiohttp
 from dis_snek.models import InteractionContext, slash_command
 
 from ElevatorBot.commands.base import BaseScale
-from ElevatorBot.misc.formating import embed_message
+from ElevatorBot.misc.formatting import embed_message
 
 
 class FunFact(BaseScale):

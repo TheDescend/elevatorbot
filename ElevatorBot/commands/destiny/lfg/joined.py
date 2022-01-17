@@ -3,7 +3,7 @@ from dis_snek.models import InteractionContext, Timestamp, TimestampStyles, slas
 from ElevatorBot.backendNetworking.destiny.lfgSystem import DestinyLfgSystem
 from ElevatorBot.commandHelpers.subCommandTemplates import lfg_sub_command
 from ElevatorBot.commands.base import BaseScale
-from ElevatorBot.misc.formating import embed_message
+from ElevatorBot.misc.formatting import embed_message
 
 
 class LfgJoined(BaseScale):

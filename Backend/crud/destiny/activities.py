@@ -15,7 +15,7 @@ from Backend.database.models import (
     ActivitiesUsersWeapons,
     DestinyActivityDefinition,
 )
-from Shared.NetworkingSchemas.destiny.roles import TimePeriodModel
+from Shared.networkingSchemas.destiny.roles import TimePeriodModel
 
 
 class CRUDActivitiesFailToGet(CRUDBase):

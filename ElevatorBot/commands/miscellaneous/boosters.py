@@ -1,7 +1,7 @@
 from dis_snek.models import InteractionContext, Member, TimestampStyles, slash_command
 
 from ElevatorBot.commands.base import BaseScale
-from ElevatorBot.misc.formating import embed_message
+from ElevatorBot.misc.formatting import embed_message
 
 
 class Boosters(BaseScale):

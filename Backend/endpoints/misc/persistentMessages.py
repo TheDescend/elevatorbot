@@ -3,8 +3,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.crud import persistent_messages
 from Backend.dependencies import get_db_session
-from Shared.NetworkingSchemas import EmptyResponseModel
-from Shared.NetworkingSchemas.misc.persistentMessages import (
+from Shared.networkingSchemas import EmptyResponseModel
+from Shared.networkingSchemas.misc.persistentMessages import (
     PersistentMessage,
     PersistentMessageDeleteInput,
     PersistentMessages,

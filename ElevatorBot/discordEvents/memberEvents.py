@@ -10,7 +10,7 @@ from ElevatorBot.backendNetworking.errors import BackendException
 from ElevatorBot.core.destiny.lfg.lfgSystem import LfgMessage
 from ElevatorBot.core.destiny.roles import Roles
 from ElevatorBot.misc.discordShortcutFunctions import assign_roles_to_member
-from ElevatorBot.misc.formating import embed_message
+from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.static.descendOnlyIds import descend_channels
 from ElevatorBot.static.emojis import custom_emojis
 from settings import DESCEND_ROLE_FILLER_IDS, DESCEND_ROLE_NO_NICKNAME_ID

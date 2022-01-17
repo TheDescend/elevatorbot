@@ -7,7 +7,7 @@ from anyio import to_process, to_thread
 from dis_snek.models import ActionRow, Button, ButtonStyles, ComponentContext, InteractionContext, Member, Message
 from dis_snek.models.events import Component
 
-from ElevatorBot.misc.formating import embed_message
+from ElevatorBot.misc.formatting import embed_message
 
 
 @dataclasses.dataclass()

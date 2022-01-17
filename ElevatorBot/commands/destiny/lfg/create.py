@@ -9,7 +9,7 @@ from ElevatorBot.commandHelpers.optionTemplates import (
 from ElevatorBot.commandHelpers.subCommandTemplates import lfg_sub_command
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.core.destiny.lfg.lfgSystem import LfgMessage
-from ElevatorBot.misc.formating import embed_message
+from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.misc.helperFunctions import parse_string_datetime
 
 
@@ -60,18 +60,12 @@ class LfgCreate(BaseScale):
             max_joined_members = overwrite_max_members
 
         # create lfg message
-        lfg_message = await LfgMessage.create(
+        await LfgMessage.create(
             ctx=ctx,
             activity=activity.name,
             description=description,
             start_time=start_time,
             max_joined_members=max_joined_members,
-        )
-
-        await ctx.send(
-            embeds=embed_message(
-                "Success", f"I have created the post, click [here]({lfg_message.message.jump_url}) to view it"
-            )
         )
 
 

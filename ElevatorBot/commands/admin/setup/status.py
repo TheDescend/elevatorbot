@@ -4,7 +4,7 @@ from ElevatorBot.commandHelpers.subCommandTemplates import descend_setup_sub_com
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.core.misc.persistentMessages import handle_setup_command
 from ElevatorBot.misc.cache import descend_cache
-from ElevatorBot.misc.formating import embed_message
+from ElevatorBot.misc.formatting import embed_message
 from settings import COMMAND_GUILD_SCOPE
 
 # =============

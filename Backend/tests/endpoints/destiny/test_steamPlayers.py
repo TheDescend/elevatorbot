@@ -3,7 +3,7 @@ from dummyData.insert import mock_request
 from httpx import AsyncClient
 from pytest_mock import MockerFixture
 
-from Shared.NetworkingSchemas.destiny import DestinySteamPlayersCountModel
+from Shared.networkingSchemas.destiny import DestinySteamPlayersCountModel
 
 
 @pytest.mark.asyncio

@@ -9,7 +9,7 @@ from pandas import DataFrame
 from ElevatorBot.backendNetworking.destiny.steamPlayers import SteamPlayers
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.cache import pop_timeline_cache
-from ElevatorBot.misc.formating import embed_message
+from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.static.destinyDates import (
     other_important_dates_part_1,
     other_important_dates_part_2,

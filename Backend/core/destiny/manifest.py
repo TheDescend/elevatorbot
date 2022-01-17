@@ -145,11 +145,13 @@ class DestinyManifest:
                 direct_activity_mode_hash = activity_type_hash
                 activity_mode_hashes = [activity_type_hash]
 
+            pgcr_image_url = values.get("pgcrImage")
             to_insert.append(
                 DestinyActivityDefinition(
                     reference_id=int(reference_id),
                     description=values.get("displayProperties", "description"),
                     name=values.get("displayProperties", "name"),
+                    pgcr_image_url=f"https://www.bungie.net/{pgcr_image_url}" if pgcr_image_url else None,
                     activity_light_level=values.get("activityLightLevel"),
                     destination_hash=values.get("destinationHash"),
                     place_hash=values.get("placeHash"),

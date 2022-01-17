@@ -7,7 +7,7 @@ from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
 from ElevatorBot.backendNetworking.errors import BackendException
 from ElevatorBot.commandHelpers.subCommandTemplates import day1completions_sub_command
 from ElevatorBot.commands.base import BaseScale
-from ElevatorBot.misc.formating import embed_message
+from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.static.destinyActivities import raid_to_emblem_hash
 
 

@@ -3,7 +3,7 @@ from typing import Optional
 from dis_snek.models import InteractionContext, Member
 
 from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
-from ElevatorBot.misc.formating import embed_message
+from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.misc.helperFunctions import get_character_ids_from_class
 from ElevatorBot.static.destinyEnums import StatScope
 

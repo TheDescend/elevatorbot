@@ -4,7 +4,7 @@ from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
 from ElevatorBot.backendNetworking.destiny.profile import DestinyProfile
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
 from ElevatorBot.commands.base import BaseScale
-from ElevatorBot.misc.formating import embed_message, format_timedelta
+from ElevatorBot.misc.formatting import embed_message, format_timedelta
 
 
 class Destiny(BaseScale):

@@ -4,8 +4,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from Backend.crud import destiny_manifest
 from Backend.crud.destiny.items import destiny_items
 from Backend.dependencies import get_db_session
-from Shared.NetworkingSchemas import NameModel
-from Shared.NetworkingSchemas.destiny import DestinyAllLoreModel
+from Shared.networkingSchemas import NameModel
+from Shared.networkingSchemas.destiny import DestinyAllLoreModel
 
 router = APIRouter(
     prefix="/destiny/items",

@@ -1,4 +1,4 @@
-from Shared.NetworkingSchemas import CustomBaseModel
+from Shared.networkingSchemas import CustomBaseModel
 
 
 class GiveawayModel(CustomBaseModel):

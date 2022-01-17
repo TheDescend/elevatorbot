@@ -5,7 +5,7 @@ from github.GithubObject import NotSet
 
 from ElevatorBot.backendNetworking.github import get_github_labels, get_github_repo
 from ElevatorBot.commands.base import BaseScale
-from ElevatorBot.misc.formating import embed_message
+from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.static.descendOnlyIds import descend_channels
 
 

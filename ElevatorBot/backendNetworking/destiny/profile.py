@@ -15,8 +15,8 @@ from ElevatorBot.backendNetworking.routes import (
     destiny_profile_registration_role_route,
 )
 from ElevatorBot.misc.cache import registered_role_cache
-from ElevatorBot.misc.formating import embed_message
-from Shared.NetworkingSchemas.destiny.profile import DestinyHasTokenModel, DestinyProfileModel
+from ElevatorBot.misc.formatting import embed_message
+from Shared.networkingSchemas.destiny.profile import DestinyHasTokenModel, DestinyProfileModel
 
 
 @dataclasses.dataclass

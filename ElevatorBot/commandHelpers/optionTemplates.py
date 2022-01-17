@@ -3,14 +3,10 @@ from typing import Any
 from dis_snek.models import OptionTypes, SlashCommandChoice, slash_option
 
 from ElevatorBot.core.destiny.stat import stat_translation
-from ElevatorBot.misc.formating import capitalize_string
+from ElevatorBot.misc.formatting import capitalize_string
 from ElevatorBot.static.destinyDates import expansion_dates, season_and_expansion_dates
 from ElevatorBot.static.timezones import timezones_dict
-from Shared.DestinyEnums.enums import (
-    DestinyWeaponTypeEnum,
-    UsableDestinyActivityModeTypeEnum,
-    UsableDestinyDamageTypeEnum,
-)
+from Shared.enums.destiny import DestinyWeaponTypeEnum, UsableDestinyActivityModeTypeEnum, UsableDestinyDamageTypeEnum
 
 
 def get_timezone_choices() -> list[SlashCommandChoice]:

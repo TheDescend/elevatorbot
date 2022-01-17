@@ -5,7 +5,7 @@ from typing import Optional
 from dis_snek.models import ActionRow, Button, ButtonStyles, ComponentContext, InteractionContext, Message
 from dis_snek.models.events import Component
 
-from ElevatorBot.misc.formating import embed_message
+from ElevatorBot.misc.formatting import embed_message
 
 
 @dataclasses.dataclass()

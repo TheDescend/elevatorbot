@@ -10,8 +10,8 @@ from ElevatorBot.backendNetworking.destiny.roles import DestinyRoles
 from ElevatorBot.commandHelpers.autocomplete import activities_by_id
 from ElevatorBot.misc.cache import collectible_cache, triumph_cache
 from ElevatorBot.misc.discordShortcutFunctions import assign_roles_to_member, remove_roles_from_member
-from ElevatorBot.misc.formating import embed_message
-from Shared.NetworkingSchemas.destiny.roles import RolesCategoryModel
+from ElevatorBot.misc.formatting import embed_message
+from Shared.networkingSchemas.destiny.roles import RolesCategoryModel
 
 
 @dataclasses.dataclass()

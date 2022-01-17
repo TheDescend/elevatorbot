@@ -24,13 +24,13 @@ from ElevatorBot.backendNetworking.destiny.clan import DestinyClan
 from ElevatorBot.backendNetworking.errors import BackendException
 from ElevatorBot.commandHelpers.responseTemplates import something_went_wrong
 from ElevatorBot.commands.base import BaseScale
-from ElevatorBot.misc.formating import embed_message, format_timedelta
+from ElevatorBot.misc.formatting import embed_message, format_timedelta
 from ElevatorBot.static.descendOnlyIds import descend_channels
 from ElevatorBot.static.emojis import custom_emojis
 from settings import COMMAND_GUILD_SCOPE
 from Shared.functions.helperFunctions import get_now_with_tz
-from Shared.NetworkingSchemas.destiny import DestinyActivityInputModel, DestinyActivityOutputModel
-from Shared.NetworkingSchemas.destiny.clan import DestinyClanMemberModel, DestinyClanMembersModel
+from Shared.networkingSchemas.destiny import DestinyActivityInputModel, DestinyActivityOutputModel
+from Shared.networkingSchemas.destiny.clan import DestinyClanMemberModel, DestinyClanMembersModel
 
 # =============
 # Descend Only!

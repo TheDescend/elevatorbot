@@ -11,7 +11,7 @@ from Backend.crud import backend_user, discord_users
 from Backend.dependencies import get_db_session
 from Backend.networking.bungieAuth import BungieRegistration
 from Backend.networking.elevatorApi import ElevatorApi
-from Shared.NetworkingSchemas.misc.auth import BungieRegistrationInput, BungieTokenOutput, Token
+from Shared.networkingSchemas.misc.auth import BungieRegistrationInput, BungieTokenOutput, Token
 
 router = APIRouter(
     prefix="/auth",

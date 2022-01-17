@@ -15,8 +15,8 @@ from Backend.database.models import (
     Versions,
 )
 from Backend.misc.cache import cache
-from Shared.DestinyEnums.enums import UsableDestinyActivityModeTypeEnum
-from Shared.NetworkingSchemas.destiny import DestinyActivityModel, DestinyLoreModel
+from Shared.enums.destiny import UsableDestinyActivityModeTypeEnum
+from Shared.networkingSchemas.destiny import DestinyActivityModel, DestinyLoreModel
 
 ModelType = TypeVar("ModelType", bound=Base)
 
@@ -92,6 +92,7 @@ class CRUDManifest(CRUDBase):
                     max_players=activities[0].max_players,
                     activity_ids=[activity.reference_id for activity in activities],
                     mode=activities[0].direct_activity_mode_type,
+                    image_url=activities[0].pgcr_image_url,
                 )
             )
 
@@ -153,6 +154,7 @@ class CRUDManifest(CRUDBase):
                     max_players=activities[0].max_players,
                     activity_ids=[activity.reference_id for activity in activities],
                     mode=activities[0].direct_activity_mode_type,
+                    image_url=activities[0].pgcr_image_url,
                 )
             )
 
@@ -228,6 +230,7 @@ class CRUDManifest(CRUDBase):
                                         max_players=activity.max_players,
                                         activity_ids=[activity.reference_id],
                                         mode=activity.direct_activity_mode_type,
+                                        image_url=activity.pgcr_image_url,
                                     )
                                 else:
                                     data.activity_ids.append(activity.reference_id)

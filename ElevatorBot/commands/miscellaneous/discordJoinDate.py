@@ -2,7 +2,7 @@ from dis_snek.models import InteractionContext, Member, TimestampStyles, slash_c
 
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
 from ElevatorBot.commands.base import BaseScale
-from ElevatorBot.misc.formating import embed_message
+from ElevatorBot.misc.formatting import embed_message
 
 
 class DiscordJoinDate(BaseScale):

@@ -4,7 +4,7 @@ from typing import Optional
 from dis_snek.models import Embed, InteractionContext
 
 from ElevatorBot.backendNetworking.errorCodesAndResponses import error_codes_and_responses
-from ElevatorBot.misc.formating import embed_message
+from ElevatorBot.misc.formatting import embed_message
 
 
 @dataclasses.dataclass()

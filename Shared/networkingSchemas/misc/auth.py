@@ -1,4 +1,4 @@
-from Shared.NetworkingSchemas.base import CustomBaseModel
+from Shared.networkingSchemas.base import CustomBaseModel
 
 
 class BackendUserModel(CustomBaseModel):

@@ -35,15 +35,11 @@ from ElevatorBot.commandHelpers.optionTemplates import (
 )
 from ElevatorBot.commandHelpers.subCommandTemplates import weapons_sub_command
 from ElevatorBot.commands.base import BaseScale
-from ElevatorBot.misc.formating import capitalize_string, embed_message
+from ElevatorBot.misc.formatting import capitalize_string, embed_message
 from ElevatorBot.misc.helperFunctions import parse_datetime_options
 from ElevatorBot.static.emojis import custom_emojis
-from Shared.DestinyEnums.enums import (
-    DestinyWeaponTypeEnum,
-    UsableDestinyActivityModeTypeEnum,
-    UsableDestinyDamageTypeEnum,
-)
-from Shared.NetworkingSchemas.destiny import (
+from Shared.enums.destiny import DestinyWeaponTypeEnum, UsableDestinyActivityModeTypeEnum, UsableDestinyDamageTypeEnum
+from Shared.networkingSchemas.destiny import (
     DestinyActivityModel,
     DestinyTopWeaponModel,
     DestinyTopWeaponsInputModel,

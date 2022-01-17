@@ -6,8 +6,8 @@ from ElevatorBot.backendNetworking.routes import (
     destiny_get_all_lore_route,
     destiny_triumph_name_route,
 )
-from Shared.NetworkingSchemas import NameModel
-from Shared.NetworkingSchemas.destiny import DestinyAllLoreModel
+from Shared.networkingSchemas import NameModel
+from Shared.networkingSchemas.destiny import DestinyAllLoreModel
 
 
 @dataclasses.dataclass

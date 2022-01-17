@@ -9,9 +9,9 @@ from ElevatorBot.commandHelpers.optionTemplates import (
     default_user_option,
 )
 from ElevatorBot.commands.base import BaseScale
-from ElevatorBot.misc.formating import embed_message, format_timedelta
+from ElevatorBot.misc.formatting import embed_message, format_timedelta
 from ElevatorBot.static.emojis import custom_emojis
-from Shared.DestinyEnums.enums import UsableDestinyActivityModeTypeEnum
+from Shared.enums.destiny import UsableDestinyActivityModeTypeEnum
 
 
 class Last(BaseScale):

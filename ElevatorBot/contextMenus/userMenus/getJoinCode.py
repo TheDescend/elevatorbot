@@ -2,7 +2,7 @@ from dis_snek.models import CommandTypes, InteractionContext, context_menu
 
 from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
 from ElevatorBot.commands.base import BaseScale
-from ElevatorBot.misc.formating import embed_message
+from ElevatorBot.misc.formatting import embed_message
 
 
 class UserMenuCommands(BaseScale):

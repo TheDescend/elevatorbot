@@ -17,9 +17,9 @@ from dis_snek.models import (
 from ElevatorBot.backendNetworking.errors import BackendException
 from ElevatorBot.backendNetworking.misc.polls import BackendPolls
 from ElevatorBot.misc.discordShortcutFunctions import has_admin_permission
-from ElevatorBot.misc.formating import embed_message, replace_progress_formatting
+from ElevatorBot.misc.formatting import embed_message, replace_progress_formatting
 from Shared.functions.formatting import make_progress_bar_text
-from Shared.NetworkingSchemas.misc.polls import PollChoice, PollSchema
+from Shared.networkingSchemas.misc.polls import PollChoice, PollSchema
 
 
 @dataclasses.dataclass()

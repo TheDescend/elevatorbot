@@ -30,9 +30,9 @@ from Backend.database.models import (
 from Backend.misc.cache import cache
 from Backend.networking.schemas import WebResponse
 from Shared.functions.helperFunctions import get_now_with_tz, localize_datetime
-from Shared.NetworkingSchemas.destiny.roles import RequirementIntegerModel, RoleDataModel, RoleModel, RolesModel
-from Shared.NetworkingSchemas.misc.auth import BungieTokenInput
-from Shared.NetworkingSchemas.misc.persistentMessages import (
+from Shared.networkingSchemas.destiny.roles import RequirementIntegerModel, RoleDataModel, RoleModel, RolesModel
+from Shared.networkingSchemas.misc.auth import BungieTokenInput
+from Shared.networkingSchemas.misc.persistentMessages import (
     PersistentMessage,
     PersistentMessages,
     PersistentMessageUpsert,

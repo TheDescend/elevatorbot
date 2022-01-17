@@ -4,8 +4,8 @@ from dummyData.static import *
 from httpx import AsyncClient
 from pytest_mock import MockerFixture
 
-from Shared.NetworkingSchemas import NameModel
-from Shared.NetworkingSchemas.destiny import DestinyAllLoreModel
+from Shared.networkingSchemas import NameModel
+from Shared.networkingSchemas.destiny import DestinyAllLoreModel
 
 
 @pytest.mark.asyncio

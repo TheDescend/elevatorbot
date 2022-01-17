@@ -22,11 +22,11 @@ from Backend.misc.cache import cache
 from Backend.misc.helperFunctions import get_datetime_from_bungie_entry
 from Backend.networking.bungieApi import BungieApi
 from Backend.networking.bungieRoutes import clan_user_route, profile_route, stat_route
-from Shared.DestinyEnums.enums import DestinyInventoryBucketEnum, DestinyPresentationNodeWeaponSlotEnum
+from Shared.enums.destiny import DestinyInventoryBucketEnum, DestinyPresentationNodeWeaponSlotEnum
 from Shared.functions.formatting import make_progress_bar_text
 from Shared.functions.helperFunctions import get_now_with_tz
-from Shared.NetworkingSchemas import ValueModel
-from Shared.NetworkingSchemas.destiny import (
+from Shared.networkingSchemas import ValueModel
+from Shared.networkingSchemas.destiny import (
     BoolModelObjective,
     BoolModelRecord,
     DestinyCatalystModel,
@@ -41,7 +41,7 @@ from Shared.NetworkingSchemas.destiny import (
     SeasonalChallengesRecordModel,
     SeasonalChallengesTopicsModel,
 )
-from Shared.NetworkingSchemas.destiny.clan import DestinyClanModel
+from Shared.networkingSchemas.destiny.clan import DestinyClanModel
 
 
 @dataclasses.dataclass

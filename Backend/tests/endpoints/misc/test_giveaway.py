@@ -4,7 +4,7 @@ from dummyData.static import *
 from httpx import AsyncClient
 from pytest_mock import MockerFixture
 
-from Shared.NetworkingSchemas.misc.giveaway import GiveawayModel
+from Shared.networkingSchemas.misc.giveaway import GiveawayModel
 
 
 @pytest.mark.asyncio

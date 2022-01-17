@@ -4,9 +4,9 @@ from ElevatorBot.backendNetworking.destiny.clan import DestinyClan
 from ElevatorBot.commandHelpers.subCommandTemplates import setup_sub_command
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.core.misc.persistentMessages import PersistentMessages
-from ElevatorBot.misc.formating import embed_message
+from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.static.descendOnlyIds import descend_channels
-from Shared.NetworkingSchemas.misc.persistentMessages import PersistentMessage
+from Shared.networkingSchemas.misc.persistentMessages import PersistentMessage
 
 
 class Overview(BaseScale):

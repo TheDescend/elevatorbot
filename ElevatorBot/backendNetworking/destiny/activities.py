@@ -10,8 +10,8 @@ from ElevatorBot.backendNetworking.routes import (
     destiny_activities_get_grandmaster_route,
     destiny_activities_last_route,
 )
-from Shared.DestinyEnums.enums import UsableDestinyActivityModeTypeEnum
-from Shared.NetworkingSchemas.destiny import (
+from Shared.enums.destiny import UsableDestinyActivityModeTypeEnum
+from Shared.networkingSchemas.destiny import (
     DestinyActivitiesModel,
     DestinyActivityDetailsModel,
     DestinyActivityInputModel,

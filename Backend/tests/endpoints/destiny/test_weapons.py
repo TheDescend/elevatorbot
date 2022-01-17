@@ -6,7 +6,7 @@ from orjson import orjson
 from pytest_mock import MockerFixture
 
 from Shared.functions.helperFunctions import get_now_with_tz
-from Shared.NetworkingSchemas.destiny import (
+from Shared.networkingSchemas.destiny import (
     DestinyTopWeaponsInputModel,
     DestinyTopWeaponsModel,
     DestinyTopWeaponsStatInputModelEnum,

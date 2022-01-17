@@ -10,7 +10,7 @@ from Backend.core.errors import CustomException
 from Backend.crud import crud_activities
 from Backend.crud.destiny.roles import CRUDRoles, crud_roles
 from Backend.database.models import Roles
-from Shared.NetworkingSchemas.destiny.roles import (
+from Shared.networkingSchemas.destiny.roles import (
     EarnedRoleModel,
     EarnedRolesModel,
     MissingRolesModel,

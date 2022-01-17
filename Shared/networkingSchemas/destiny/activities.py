@@ -1,7 +1,7 @@
 import datetime
 from typing import Optional
 
-from Shared.NetworkingSchemas.base import CustomBaseModel
+from Shared.networkingSchemas.base import CustomBaseModel
 
 
 class DestinyLowManModel(CustomBaseModel):
@@ -20,6 +20,7 @@ class DestinyActivityModel(CustomBaseModel):
     max_players: int
     activity_ids: list[int]
     mode: Optional[int] = None
+    image_url: Optional[str] = None
 
 
 class DestinyActivitiesModel(CustomBaseModel):

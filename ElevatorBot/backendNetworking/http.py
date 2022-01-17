@@ -18,7 +18,7 @@ from ElevatorBot.backendNetworking.results import BackendResult
 from settings import ENABLE_DEBUG_MODE
 
 # the limiter object to not overload the backend
-from Shared.NetworkingSchemas.base import CustomBaseModel
+from Shared.networkingSchemas.base import CustomBaseModel
 
 
 class BackendRateLimiter:

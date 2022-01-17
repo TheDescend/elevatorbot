@@ -9,10 +9,10 @@ from ElevatorBot.commandHelpers.optionTemplates import (
     default_user_option,
 )
 from ElevatorBot.commands.base import BaseScale
-from ElevatorBot.misc.formating import embed_message, format_timedelta
+from ElevatorBot.misc.formatting import embed_message, format_timedelta
 from ElevatorBot.static.destinyDates import season_and_expansion_dates
 from ElevatorBot.static.emojis import custom_emojis
-from Shared.DestinyEnums.enums import UsableDestinyActivityModeTypeEnum
+from Shared.enums.destiny import UsableDestinyActivityModeTypeEnum
 from Shared.functions.helperFunctions import get_now_with_tz
 
 

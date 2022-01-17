@@ -11,8 +11,8 @@ from ElevatorBot.backendNetworking.routes import (
     moderation_mute,
     moderation_warning,
 )
-from Shared.NetworkingSchemas.misc.giveaway import GiveawayModel
-from Shared.NetworkingSchemas.misc.moderation import ModerationAddModel, ModerationModel, ModerationsModel
+from Shared.networkingSchemas.misc.giveaway import GiveawayModel
+from Shared.networkingSchemas.misc.moderation import ModerationAddModel, ModerationModel, ModerationsModel
 
 
 @dataclasses.dataclass

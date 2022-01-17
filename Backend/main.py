@@ -15,7 +15,7 @@ from Backend.dependencies import auth_get_user_with_read_perm, auth_get_user_wit
 from Backend.misc.initBackgroundEvents import register_background_events
 from Backend.misc.initLogging import init_logging
 from settings import ENABLE_DEBUG_MODE
-from Shared.NetworkingSchemas.misc.auth import BackendUserModel
+from Shared.networkingSchemas.misc.auth import BackendUserModel
 
 app = FastAPI()
 

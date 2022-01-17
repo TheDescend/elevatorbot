@@ -5,7 +5,7 @@ from dis_snek.models import Guild, Member
 
 from ElevatorBot.backendNetworking.http import BaseBackendConnection
 from ElevatorBot.backendNetworking.routes import elevator_servers_add, elevator_servers_delete, elevator_servers_get
-from Shared.NetworkingSchemas import ElevatorGuildsModel
+from Shared.networkingSchemas import ElevatorGuildsModel
 
 
 @dataclasses.dataclass

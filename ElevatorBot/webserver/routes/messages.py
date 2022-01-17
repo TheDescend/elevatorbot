@@ -1,7 +1,7 @@
 from aiohttp import web
 from dis_snek.errors import NotFound
 
-from ElevatorBot.misc.formating import embed_message
+from ElevatorBot.misc.formatting import embed_message
 
 
 async def messages(request: web.Request):

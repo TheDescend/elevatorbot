@@ -6,7 +6,7 @@ from orjson import orjson
 from pytest_mock import MockerFixture
 
 from Shared.functions.helperFunctions import get_now_with_tz
-from Shared.NetworkingSchemas.misc.moderation import ModerationAddModel, ModerationModel, ModerationsModel
+from Shared.networkingSchemas.misc.moderation import ModerationAddModel, ModerationModel, ModerationsModel
 
 
 @pytest.mark.asyncio

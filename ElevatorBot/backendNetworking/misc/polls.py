@@ -12,7 +12,7 @@ from ElevatorBot.backendNetworking.routes import (
     polls_insert_route,
     polls_user_input_route,
 )
-from Shared.NetworkingSchemas.misc.polls import PollInsertSchema, PollSchema, PollUserInputSchema
+from Shared.networkingSchemas.misc.polls import PollInsertSchema, PollSchema, PollUserInputSchema
 
 
 @dataclasses.dataclass()

@@ -5,7 +5,7 @@ from ElevatorBot.backendNetworking.destiny.profile import DestinyProfile
 from ElevatorBot.backendNetworking.errors import BackendException
 from ElevatorBot.commandHelpers.responseTemplates import respond_pending
 from ElevatorBot.misc.cache import registered_role_cache
-from ElevatorBot.misc.formating import embed_message
+from ElevatorBot.misc.formatting import embed_message
 
 
 class RegisteredScale(Scale):

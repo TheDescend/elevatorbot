@@ -1,7 +1,7 @@
 from dis_snek.models import InteractionContext, Scale, slash_command
 
 from ElevatorBot.backendNetworking.destiny.profile import DestinyProfile
-from ElevatorBot.misc.formating import embed_message
+from ElevatorBot.misc.formatting import embed_message
 
 
 class UnRegister(Scale):
@@ -19,11 +19,11 @@ class UnRegister(Scale):
         await destiny_profile.delete()
 
         await ctx.send(
-            ephemeral=True,
             embeds=embed_message(
                 "See Ya",
                 "There was a flash and suddenly I do not remember anything about you anymore",
             ),
+            ephemeral=True,
         )
 
 

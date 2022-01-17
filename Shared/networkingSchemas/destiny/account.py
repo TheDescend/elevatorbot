@@ -1,9 +1,9 @@
 import datetime
 from typing import Optional
 
-from Shared.NetworkingSchemas.base import CustomBaseModel
-from Shared.NetworkingSchemas.basic import BoolModel
-from Shared.NetworkingSchemas.destiny.activities import DestinyLowManModel
+from Shared.networkingSchemas.base import CustomBaseModel
+from Shared.networkingSchemas.basic import BoolModel
+from Shared.networkingSchemas.destiny.activities import DestinyLowManModel
 
 
 class BoolModelObjective(CustomBaseModel):

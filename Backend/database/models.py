@@ -210,6 +210,7 @@ class DestinyActivityDefinition(Base):
     reference_id = Column(BigInteger, nullable=False, primary_key=True)
     description = Column(Text, nullable=False)
     name = Column(Text, nullable=False)
+    pgcr_image_url = Column(Text, nullable=True)
     activity_light_level = Column(Integer, nullable=False)
     destination_hash = Column(BigInteger, nullable=False)
     place_hash = Column(BigInteger, nullable=False)

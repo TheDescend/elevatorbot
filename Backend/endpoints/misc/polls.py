@@ -3,8 +3,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.crud import polls
 from Backend.dependencies import get_db_session
-from Shared.NetworkingSchemas import EmptyResponseModel
-from Shared.NetworkingSchemas.misc.polls import PollChoice, PollInsertSchema, PollSchema, PollUserInputSchema
+from Shared.networkingSchemas import EmptyResponseModel
+from Shared.networkingSchemas.misc.polls import PollChoice, PollInsertSchema, PollSchema, PollUserInputSchema
 
 router = APIRouter(
     prefix="/polls/{guild_id}",

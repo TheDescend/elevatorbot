@@ -1,7 +1,7 @@
 from dis_snek.models import AutocompleteContext
 from rapidfuzz import fuzz, process
 
-from Shared.NetworkingSchemas.destiny import DestinyActivityModel, DestinyLoreModel, DestinyWeaponModel
+from Shared.networkingSchemas.destiny import DestinyActivityModel, DestinyLoreModel, DestinyWeaponModel
 
 # all activities are in here at runtime
 activities_grandmaster: dict[str, DestinyActivityModel] = {}

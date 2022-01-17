@@ -4,7 +4,7 @@ from Backend.core.errors import CustomException
 from Backend.crud.base import CRUDBase
 from Backend.database.models import Roles
 from Backend.misc.cache import cache
-from Shared.NetworkingSchemas.destiny.roles import RoleDataModel, RoleModel
+from Shared.networkingSchemas.destiny.roles import RoleDataModel, RoleModel
 
 
 class CRUDRoles(CRUDBase):

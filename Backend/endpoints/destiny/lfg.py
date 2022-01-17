@@ -6,8 +6,8 @@ from Backend.crud import lfg
 from Backend.database.models import LfgMessage
 from Backend.dependencies import get_db_session
 from Shared.functions.helperFunctions import get_now_with_tz
-from Shared.NetworkingSchemas import EmptyResponseModel
-from Shared.NetworkingSchemas.destiny.lfgSystem import (
+from Shared.networkingSchemas import EmptyResponseModel
+from Shared.networkingSchemas.destiny.lfgSystem import (
     AllLfgDeleteOutputModel,
     AllLfgOutputModel,
     LfgCreateInputModel,

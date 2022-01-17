@@ -4,7 +4,7 @@ from dis_snek.models import AutoArchiveDuration, ChannelTypes, ThreadList
 from dis_snek.models.events import MessageCreate, MessageDelete, MessageUpdate
 
 from ElevatorBot.misc.cache import reply_cache
-from ElevatorBot.misc.formating import embed_message
+from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.static.descendOnlyIds import descend_channels
 from ElevatorBot.static.emojis import custom_emojis
 from settings import COMMAND_GUILD_SCOPE

@@ -7,7 +7,7 @@ from dis_snek.models import ActionRow, Embed, GuildChannel, InteractionContext, 
 from ElevatorBot.backendNetworking.errors import BackendException
 from ElevatorBot.backendNetworking.misc.backendPersistentMessages import BackendPersistentMessages
 from ElevatorBot.commandHelpers.responseTemplates import respond_wrong_author
-from ElevatorBot.misc.formating import embed_message
+from ElevatorBot.misc.formatting import embed_message
 
 
 @dataclasses.dataclass()

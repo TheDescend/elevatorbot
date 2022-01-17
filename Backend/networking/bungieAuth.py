@@ -12,7 +12,7 @@ from Backend.database.models import DiscordUsers
 from Backend.networking.base import NetworkBase
 from settings import BUNGIE_APPLICATION_CLIENT_ID, BUNGIE_APPLICATION_CLIENT_SECRET
 from Shared.functions.helperFunctions import get_now_with_tz, localize_datetime
-from Shared.NetworkingSchemas.misc.auth import BungieRegistrationInput, BungieTokenInput
+from Shared.networkingSchemas.misc.auth import BungieRegistrationInput, BungieTokenInput
 
 
 @dataclasses.dataclass

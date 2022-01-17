@@ -4,7 +4,7 @@ from typing import Optional
 
 from dis_snek.models import CommandTypes, ContextMenu, SlashCommand, SlashCommandOption
 
-from ElevatorBot.misc.formating import capitalize_string
+from ElevatorBot.misc.formatting import capitalize_string
 from settings import COMMAND_GUILD_SCOPE
 
 

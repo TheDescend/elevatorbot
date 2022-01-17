@@ -1,6 +1,6 @@
 from typing import Optional
 
-from Shared.NetworkingSchemas.base import CustomBaseModel
+from Shared.networkingSchemas.base import CustomBaseModel
 
 
 class PollChoice(CustomBaseModel):

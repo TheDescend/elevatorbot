@@ -11,10 +11,10 @@ from ElevatorBot.commandHelpers.optionTemplates import (
     default_user_option,
 )
 from ElevatorBot.commands.base import BaseScale
-from ElevatorBot.misc.formating import embed_message, format_timedelta
+from ElevatorBot.misc.formatting import embed_message, format_timedelta
 from ElevatorBot.misc.helperFunctions import parse_datetime_options
 from ElevatorBot.static.emojis import custom_emojis
-from Shared.NetworkingSchemas.destiny import DestinyActivityInputModel
+from Shared.networkingSchemas.destiny import DestinyActivityInputModel
 
 
 class DestinyActivity(BaseScale):

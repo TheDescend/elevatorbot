@@ -15,8 +15,8 @@ from dis_snek.models.events import Component
 from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
 from ElevatorBot.commands.base import BaseScale
-from ElevatorBot.misc.formating import embed_message, format_progress
-from Shared.NetworkingSchemas.destiny import SeasonalChallengesTopicsModel
+from ElevatorBot.misc.formatting import embed_message, format_progress
+from Shared.networkingSchemas.destiny import SeasonalChallengesTopicsModel
 
 
 class SeasonalChallenges(BaseScale):

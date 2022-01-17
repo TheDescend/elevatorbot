@@ -5,7 +5,7 @@ from httpx import AsyncClient
 from orjson import orjson
 from pytest_mock import MockerFixture
 
-from Shared.NetworkingSchemas.destiny import (
+from Shared.networkingSchemas.destiny import (
     DestinyActivitiesModel,
     DestinyActivityDetailsModel,
     DestinyActivityInputModel,

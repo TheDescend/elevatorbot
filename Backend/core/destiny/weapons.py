@@ -11,13 +11,13 @@ from Backend.crud import crud_activities, crud_weapons
 from Backend.crud.destiny.items import destiny_items
 from Backend.database.models import ActivitiesUsersWeapons, DestinyInventoryItemDefinition, DiscordUsers
 from Backend.networking.bungieApi import BungieApi
-from Shared.DestinyEnums.enums import (
+from Shared.enums.destiny import (
     DestinyAmmunitionTypeEnum,
     DestinyDamageTypeEnum,
     DestinyItemSubTypeEnum,
     DestinyWeaponSlotEnum,
 )
-from Shared.NetworkingSchemas.destiny import (
+from Shared.networkingSchemas.destiny import (
     DestinyTopWeaponModel,
     DestinyTopWeaponsModel,
     DestinyTopWeaponsStatInputModelEnum,

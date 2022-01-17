@@ -8,7 +8,7 @@ from orjson import orjson
 from pytest_mock import MockerFixture
 
 from Shared.functions.helperFunctions import get_now_with_tz
-from Shared.NetworkingSchemas.destiny.lfgSystem import (
+from Shared.networkingSchemas.destiny.lfgSystem import (
     AllLfgDeleteOutputModel,
     AllLfgOutputModel,
     LfgCreateInputModel,
