@@ -19,7 +19,8 @@ class Boosters(BaseScale):
                     f"{member.mention} since {member.premium_since.format(TimestampStyles.ShortDateTime)}"
                     for member in sorted_premium_subscribers
                 ]
-            ),
+            )
+            or "No one is currently boosting this server",
         )
 
         await ctx.send(embeds=embed)
