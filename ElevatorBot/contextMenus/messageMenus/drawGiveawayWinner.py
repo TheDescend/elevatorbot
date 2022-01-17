@@ -65,7 +65,7 @@ class GiveawayWinners(BaseScale):
         await ctx.send(
             embeds=embed_message(
                 "🎉 Giveaway Winner 🎉",
-                f"{drawn_member} won the [giveaway]({message.jump_url}). Congratulations!",
+                f"{drawn_member.mention} won the [giveaway]({message.jump_url}). Congratulations!",
             ),
         )
 
