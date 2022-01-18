@@ -11,6 +11,7 @@ class DestinyLowManModel(CustomBaseModel):
     not_flawless_count: int
 
     fastest: Optional[datetime.timedelta] = None
+    fastest_instance_id: Optional[int] = None
 
 
 class DestinyActivityModel(CustomBaseModel):

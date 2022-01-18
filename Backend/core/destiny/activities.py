@@ -79,7 +79,7 @@ class DestinyActivities:
         )
 
         # prepare player data
-        count, flawless_count, not_flawless_count, fastest = await to_thread.run_sync(
+        count, flawless_count, not_flawless_count, fastest, fastest_instance_id = await to_thread.run_sync(
             get_lowman_count_subprocess, low_activity_info
         )
         result = DestinyLowManModel(
@@ -88,6 +88,7 @@ class DestinyActivities:
             flawless_count=flawless_count,
             not_flawless_count=not_flawless_count,
             fastest=fastest,
+            fastest_instance_id=fastest_instance_id,
         )
 
         if results is not None:
@@ -490,10 +491,10 @@ async def update_activities_in_background(user: DiscordUsers):
 # todo those are running in to_thread.run_sync instead of subprocesses since they didnt work for whatever reason. subprocesses would be faster
 def get_lowman_count_subprocess(
     low_activity_info: list[ActivitiesUsers],
-) -> tuple[int, int, int, Optional[datetime.timedelta]]:
+) -> tuple[int, int, int, Optional[datetime.timedelta], Optional[int]]:
     """Run in anyio subprocess on another thread since this might be slow"""
 
-    count, flawless_count, not_flawless_count, fastest = 0, 0, 0, None
+    count, flawless_count, not_flawless_count, fastest, fastest_instance_id = 0, 0, 0, None, None
 
     for solo in low_activity_info:
         count += 1
@@ -503,8 +504,9 @@ def get_lowman_count_subprocess(
             not_flawless_count += 1
         if not fastest or (solo.time_played_seconds < fastest.seconds):
             fastest = datetime.timedelta(seconds=solo.time_played_seconds)
+            fastest_instance_id = solo.activity_instance_id
 
-    return count, flawless_count, not_flawless_count, fastest
+    return count, flawless_count, not_flawless_count, fastest, fastest_instance_id
 
 
 def get_activity_stats_subprocess(data: list[ActivitiesUsers]) -> DestinyActivityOutputModel:

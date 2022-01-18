@@ -29,6 +29,9 @@ def setup_engine(database_url: str = DATABASE_URL) -> Engine:
             json_deserializer=orjson.loads,
             json_serializer=lambda x: orjson.dumps(x).decode(),
             pool_pre_ping=True,
+            pool_size=50,
+            max_overflow=200,
+            pool_timeout=60,
         )
 
     return _ENGINE

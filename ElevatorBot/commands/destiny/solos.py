@@ -8,7 +8,7 @@ from ElevatorBot.commandHelpers.optionTemplates import default_user_option
 from ElevatorBot.commandHelpers.paginator import paginate
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formatting import embed_message, format_timedelta
-from Shared.networkingSchemas.destiny import DestinyLowMansModel
+from Shared.networkingSchemas import DestinyUpdatedLowManModel
 
 
 class Solos(BaseScale):
@@ -31,7 +31,7 @@ class Solos(BaseScale):
         self,
         ctx: InteractionContext,
         member: Member,
-        data: dict[str:DestinyLowMansModel],
+        data: dict[str, list[DestinyUpdatedLowManModel]],
         key: str,
         button_ctx: Optional[ComponentContext] = None,
         message: Optional[Message] = None,
@@ -47,7 +47,7 @@ class Solos(BaseScale):
         for solo_data in relevant_solos:
             embed.add_field(
                 name=solo_data.activity_name,
-                value=f"""Solo Completions: **{solo_data.count}**\nSolo Flawless Count: **{solo_data.flawless_count}**\nFastest Solo: **{format_timedelta(solo_data.fastest)}**""",
+                value=f"""Solo Completions: **{solo_data.count}**\nSolo Flawless Count: **{solo_data.flawless_count}**\nFastest Solo: {f"[{format_timedelta(solo_data.fastest)}](https://www.bungie.net/en/PGCR/{solo_data.fastest_instance_id})" if solo_data.fastest else "None"}""",
                 inline=True,
             )
 
