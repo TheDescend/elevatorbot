@@ -195,6 +195,9 @@ class NetworkBase:
         route_with_params = f"{route}?{urlencode(params)}"
 
         match (response.status, response.error):
+            case (_, "SystemDisabled"):
+                raise CustomException("BungieDed")
+
             case (401, _) | (_, "invalid_grant" | "AuthorizationCodeInvalid"):
                 # unauthorized
                 self.logger.error(
@@ -240,7 +243,6 @@ class NetworkBase:
                 raise CustomException("BungieDed")
 
             case (503, error):
-                # bungie is ded
                 self.logger.error(
                     "'%s - %s': Server is overloaded for '%s' - '%s'",
                     response.status,
