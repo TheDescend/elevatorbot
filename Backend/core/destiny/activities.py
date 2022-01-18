@@ -320,42 +320,50 @@ class DestinyActivities:
             # loop through all activities
             instance_ids = []
             activity_times = []
-            async for activity in self.get_activity_history(mode=0, earliest_allowed_datetime=entry_time):
-                instance_id = int(activity["activityDetails"]["instanceId"])
-                activity_time: datetime.datetime = activity["period"]
 
-                # save the youngest start time
-                if (not start_time) or (activity_time > start_time):
-                    start_time = activity_time
+            try:
+                async for activity in self.get_activity_history(mode=0, earliest_allowed_datetime=entry_time):
+                    instance_id = int(activity["activityDetails"]["instanceId"])
+                    activity_time: datetime.datetime = activity["period"]
 
-                # needs to be same for anyio tasks
-                async with asyncio.Lock():
-                    # check if info is already in DB, skip if so. query the cache first
-                    if instance_id in cache.saved_pgcrs:
+                    # save the youngest start time
+                    if (not start_time) or (activity_time > start_time):
+                        start_time = activity_time
+
+                    # needs to be same for anyio tasks
+                    async with asyncio.Lock():
+                        # check if info is already in DB, skip if so. query the cache first
+                        if instance_id in cache.saved_pgcrs:
+                            continue
+
+                        # add the instance_id to the cache to prevent other users with the same instance to double check this
+                        # will get removed again if something fails
+                        cache.saved_pgcrs.add(instance_id)
+
+                        # check if the cache is maybe just wrong
+                        if await crud_activities.get(db=self.db, instance_id=instance_id) is not None:
+                            continue
+
+                    # add to task list
+                    instance_ids.append(instance_id)
+                    activity_times.append(activity_time)
+
+                    # gather once list is big enough
+                    if len(instance_ids) < 50:
                         continue
+                    else:
+                        # get and input the data
+                        await input_data(instance_ids, activity_times)
 
-                    # add the instance_id to the cache to prevent other users with the same instance to double check this
-                    # will get removed again if something fails
-                    cache.saved_pgcrs.add(instance_id)
+                        # reset task list and restart
+                        instance_ids = []
+                        activity_times = []
 
-                    # check if the cache is maybe just wrong
-                    if await crud_activities.get(db=self.db, instance_id=instance_id) is not None:
-                        continue
-
-                # add to task list
-                instance_ids.append(instance_id)
-                activity_times.append(activity_time)
-
-                # gather once list is big enough
-                if len(instance_ids) < 50:
-                    continue
-                else:
-                    # get and input the data
-                    await input_data(instance_ids, activity_times)
-
-                    # reset task list and restart
-                    instance_ids = []
-                    activity_times = []
+            except CustomException as e:
+                # catch when bungie is down and ignore it
+                if e.error == "BungieDed":
+                    return
+                raise e
 
             # one last time to clean out the extras after the code is done
             if instance_ids:
