@@ -1,3 +1,4 @@
+from ElevatorBot.backendNetworking.errors import BackendException
 from ElevatorBot.backgroundEvents.base import BaseEvent
 from ElevatorBot.discordEvents.base import ElevatorSnake
 from ElevatorBot.misc.cache import descend_cache
@@ -15,7 +16,7 @@ class MemberCountUpdater(BaseEvent):
         # get the channel if exists and update that message
         try:
             channel = await descend_cache.get_member_count()
-        except LookupError:
+        except BackendException:
             return
 
         # update the name

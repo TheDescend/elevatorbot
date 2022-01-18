@@ -35,9 +35,7 @@ class Roles:
         user_data = result.user_role_data
 
         # construct reply msg
-        embed = embed_message(
-            f"{self.member.display_name}'s '{role.name}' Eligibility", f"**Status: {result.earned.value}**"
-        )
+        embed = embed_message(f"'{role.name}' Eligibility", f"**Status: {result.earned.value}**", member=self.member)
 
         # loop through the requirements and their statuses
         activities: list[str] = []
@@ -80,7 +78,7 @@ class Roles:
         result = await self.roles.get_missing()
 
         # do the missing roles display
-        embed = embed_message(f"{self.member.display_name}'s Roles")
+        embed = embed_message("Roles", member=self.member)
 
         # only do this if there are roles to get
         if result.acquirable:
@@ -147,8 +145,9 @@ class Roles:
                 await self.ctx.send(
                     # todo link to where you can see all the roles
                     embeds=embed_message(
-                        "Info",
-                        "You don't have any roles. \nUse `/roles missing` to see available roles and then `/roles requirements <role>` to view its requirements.",
+                        "Roles",
+                        "You don't have any roles. \nUse `/roles missing` to see available roles and then `/roles requirements <role>` to view its requirements",
+                        member=self.member,
                     )
                 )
                 return
@@ -175,7 +174,7 @@ class Roles:
                         new_roles[category].append(discord_role.mention)
 
             # construct reply msg
-            embed = embed_message(f"{self.member.display_name}'s New Roles", "__Previous Roles:__")
+            embed = embed_message("Roles", "__Previous Roles:__", member=self.member)
             if not old_roles:
                 embed.add_field(name="You didn't have any roles before", value="⁣", inline=True)
 

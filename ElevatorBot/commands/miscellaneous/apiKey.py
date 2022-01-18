@@ -17,7 +17,7 @@ class ApiKey(BaseScale):
     async def api_key(self, ctx: InteractionContext):
         token = await DestinyProfile(ctx=ctx, discord_member=ctx.author, discord_guild=ctx.guild).has_token()
 
-        await ctx.send(embeds=embed_message("Your Token", f"`Bearer {token.value}`"), ephemeral=True)
+        await ctx.send(embeds=embed_message("Token", f"`Bearer {token.value}`", member=ctx.author), ephemeral=True)
 
 
 def setup(client):

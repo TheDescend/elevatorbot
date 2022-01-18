@@ -68,9 +68,7 @@ class ComponentCallbacks:
                 removed.append(role_name)
 
         # send message to user
-        embed = embed_message(
-            "Role Update",
-        )
+        embed = embed_message("Role Update", member=ctx.author)
         if added:
             embed.add_field(name="Roles Added", value="\n".join(added), inline=True)
         if removed:
@@ -161,7 +159,7 @@ class ComponentCallbacks:
             await descend_channels.bot_dev_channel.send(embeds=embed)
 
         # inform user if invite was send
-        embed = embed_message("Clan Application", "Check your game, I sent you a clan application")
+        embed = embed_message("Clan Application", "Check your game, I sent you a clan application", member=ctx.author)
         await ctx.send(ephemeral=True, embeds=embed)
 
     @staticmethod

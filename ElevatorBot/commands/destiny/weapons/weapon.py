@@ -103,7 +103,7 @@ class WeaponsWeapon(BaseScale):
             "⁣",
             f"Date: {Timestamp.fromdatetime(start_time).format(style=TimestampStyles.ShortDateTime)} - {Timestamp.fromdatetime(end_time).format(style=TimestampStyles.ShortDateTime)}",
         ]
-        embed = embed_message(f"{member.display_name}'s Weapon Stats", "\n".join(description))
+        embed = embed_message("Weapon Stats", "\n".join(description), member=member)
 
         # set the footer
         footer = []

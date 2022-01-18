@@ -18,7 +18,7 @@ class DayOneUser(BaseScale):
     async def user(self, ctx: InteractionContext, user: Member = None):
         member = user or ctx.author
 
-        embed = embed_message(f"{member.display_name}'s Day One Completions")
+        embed = embed_message("Day One Completions", member=member)
 
         # check this members raid completions
         raid_completions = []

@@ -188,8 +188,9 @@ def top_subprocess(
     """Run in anyio subprocess on another thread since this might be slow"""
 
     embed = embed_message(
-        f"{member.display_name}'s Top Weapons",
+        f"Top Weapons",
         f"Date: {Timestamp.fromdatetime(start_time).format(style=TimestampStyles.ShortDateTime)} - {Timestamp.fromdatetime(end_time).format(style=TimestampStyles.ShortDateTime)}",
+        member=member,
     )
     if weapon_type:
         embed.description += f"\nWeapon Type: {getattr(custom_emojis, DestinyWeaponTypeEnum(weapon_type).name.lower())} {capitalize_string(DestinyWeaponTypeEnum(weapon_type).name)}"

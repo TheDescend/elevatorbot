@@ -49,7 +49,7 @@ class Seals(BaseScale):
 
         # format the message nicely
         embed = embed_message(
-            f"{member.display_name}'s {key} Seals",
+            f"{key} Seals",
             "\n".join(
                 [
                     format_progress(
@@ -60,6 +60,7 @@ class Seals(BaseScale):
                     for seal in sorted_seals
                 ]
             ),
+            member=member,
         )
 
         # paginate that

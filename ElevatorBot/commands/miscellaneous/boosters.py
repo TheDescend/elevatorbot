@@ -13,7 +13,7 @@ class Boosters(BaseScale):
         )
 
         embed = embed_message(
-            f"{ctx.guild.name} Nitro Boosters",
+            "Nitro Boosters",
             ",\n".join(
                 [
                     f"{member.mention} since {member.premium_since.format(TimestampStyles.ShortDateTime)}"
@@ -21,6 +21,7 @@ class Boosters(BaseScale):
                 ]
             )
             or "No one is currently boosting this server",
+            guild=ctx.guild,
         )
 
         await ctx.send(embeds=embed)

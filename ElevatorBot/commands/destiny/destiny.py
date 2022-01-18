@@ -11,17 +11,16 @@ class Destiny(BaseScale):
     @slash_command(name="destiny", description="Gives you an overview of your Destiny 2 stats")
     @default_user_option()
     async def destiny(self, ctx: InteractionContext, user: Member = None):
-        if not user:
-            user = ctx.author
+        member = user or ctx.author
 
         # get destiny info
-        destiny_profile = DestinyProfile(ctx=ctx, discord_member=user, discord_guild=ctx.guild)
+        destiny_profile = DestinyProfile(ctx=ctx, discord_member=member, discord_guild=ctx.guild)
         destiny_info = await destiny_profile.from_discord_member()
 
         heatmap_url = (
             f"https://chrisfried.github.io/secret-scrublandeux/guardian/{destiny_info.system}/{destiny_info.destiny_id}"
         )
-        destiny_account = DestinyAccount(ctx=ctx, discord_member=user, discord_guild=ctx.guild)
+        destiny_account = DestinyAccount(ctx=ctx, discord_member=member, discord_guild=ctx.guild)
 
         # get character infos
         characters = await destiny_account.get_character_info()
@@ -66,9 +65,10 @@ class Destiny(BaseScale):
             efficiency.update({character.character_id: result.value})
 
         embed = embed_message(
-            f"{user.display_name}'s Destiny Stats",
+            "Destiny Stats",
             f"**Total Playtime:** {format_timedelta(seconds=sum(seconds_played.values()))} \n[Click to see your heatmap]({heatmap_url})",
             "For info on achievable discord roles, type: /roles missing",
+            member=member,
         )
 
         # add char info fields

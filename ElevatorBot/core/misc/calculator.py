@@ -142,7 +142,7 @@ class Calculator:
         button_ctx: Optional[ComponentContext] = None,
     ):
         if not self.message:
-            embed = embed_message(f"{self.ctx.author.display_name}'s Calculator", f"```{text}```")
+            embed = embed_message("Calculator", f"```{text}```", member=self.ctx.author)
             self.message = await self.ctx.send(components=self.buttons, embeds=embed)
         else:
             embed = self.message.embeds[0]
@@ -178,9 +178,7 @@ class Calculator:
 
             if timeout:
                 embed = embed_message(
-                    f"{self.ctx.author.display_name}'s Calculator",
-                    embed.description,
-                    "This calculator is now disabled",
+                    "Calculator", embed.description, "This calculator is now disabled", member=self.ctx.author
                 )
                 self.disable_buttons()
 

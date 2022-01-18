@@ -27,7 +27,7 @@ class Overview(BaseScale):
             handy_dict.update({message.message_name: message})
 
         # format the embed
-        embed = embed_message(f"{ctx.guild.name}'s Settings")
+        embed = embed_message("Settings", guild=ctx.guild)
 
         clan = DestinyClan(ctx=None, discord_guild=ctx.guild)
         clan_info = await clan.get_clan()

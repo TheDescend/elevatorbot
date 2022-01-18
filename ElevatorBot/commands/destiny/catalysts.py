@@ -45,7 +45,7 @@ class Catalysts(BaseScale):
 
         # format the message
         embed = embed_message(
-            f"{member.display_name}'s {key} Weapon Catalysts",
+            f"{key} Weapon Catalysts",
             "\n".join(
                 [
                     format_progress(
@@ -56,6 +56,7 @@ class Catalysts(BaseScale):
                     for catalyst in sorted_catalyst
                 ]
             ),
+            member=member,
         )
 
         # paginate that

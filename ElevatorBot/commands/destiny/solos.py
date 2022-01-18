@@ -41,7 +41,7 @@ class Solos(BaseScale):
         relevant_solos = data[key]
 
         # start building the return embed
-        embed = embed_message(f"{member.display_name}'s Solos - {key}")
+        embed = embed_message(f"Solos - {key}", member=member)
 
         # add the fields
         for solo_data in relevant_solos:

@@ -78,7 +78,7 @@ class SeasonalChallenges(BaseScale):
         """this is a recursive command. send the info to the user"""
 
         # get the embed
-        embed = embed_message(f"{member.display_name}'s Seasonal Challenges - {week}")
+        embed = embed_message(f"Seasonal Challenges - {week}", member=member)
 
         # loop through the records and add them to the embed
         for topic in seasonal_challenges:

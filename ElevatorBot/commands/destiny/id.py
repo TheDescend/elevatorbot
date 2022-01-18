@@ -26,10 +26,7 @@ class IdGet(BaseScale):
             return
         else:
             await ctx.send(
-                embeds=embed_message(
-                    f"{member.display_name}'s Join Code",
-                    f"`/join {result.name}`",
-                ),
+                embeds=embed_message(f"Join Code", f"`/join {result.name}`", member=member),
             )
 
 

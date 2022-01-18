@@ -19,8 +19,9 @@ class LfgJoined(BaseScale):
         result = await backend.user_get_all(discord_member=ctx.author)
 
         embed = embed_message(
-            f"{ctx.author.display_name}'s LFG Events",
+            "LFG Events",
             None if result.joined or result.backup else "You have not currently joined any LFG events",
+            member=ctx.author,
         )
 
         if result.joined:

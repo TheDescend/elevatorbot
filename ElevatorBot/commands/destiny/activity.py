@@ -73,7 +73,7 @@ class DestinyActivity(BaseScale):
             f"Date: {Timestamp.fromdatetime(start_time).format(style=TimestampStyles.ShortDateTime)} - {Timestamp.fromdatetime(end_time).format(style=TimestampStyles.ShortDateTime)}",
         ]
 
-        embed = embed_message(f"{member.display_name}'s Activity Stats", "\n".join(description))
+        embed = embed_message("Activity Stats", "\n".join(description), member=member)
 
         # set the footer
         footer = []

@@ -19,7 +19,7 @@ class Bug(BaseScale):
     )
     async def bug(self, ctx: InteractionContext, message: str):
         components = None
-        embed = embed_message("Bug Report", f"{message}\n⁣\n- by {ctx.author.mention}")
+        embed = embed_message("Bug Report", f"{message}\n⁣\n- by {ctx.author.mention}", member=ctx.author)
 
         # upload that to GitHub
         repo = await get_github_repo()

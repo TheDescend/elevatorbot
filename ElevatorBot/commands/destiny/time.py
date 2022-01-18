@@ -123,8 +123,9 @@ class Time(BaseScale):
 
         # prepare the embed
         embed = embed_message(
-            f"{member.display_name}'s Time Played",
+            "Time Played",
             "\n".join([f"**{name}**: {format_timedelta(value)}" for name, value in total.items()]),
+            member=member,
         )
 
         # set footer
