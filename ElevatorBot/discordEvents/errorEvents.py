@@ -17,7 +17,7 @@ class CustomErrorSnake(Snake):
     logger_components_exceptions = logging.getLogger("componentsExceptions")
 
     logger_events = logging.getLogger("discordEvents")
-    logger_exceptions = logging.getLogger("commandsExceptions")
+    logger_exceptions = logging.getLogger("generalExceptions")
 
     def _parse_dis_snek_error(self, error: Exception):
         """Parses dis-snek error messages and logs that"""

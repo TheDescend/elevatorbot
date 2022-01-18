@@ -36,12 +36,12 @@ class LfgAdd(BaseScale):
         if await lfg_message.add_joined(user, force_into_joined=True):
             embed = embed_message(
                 "Success",
-                f"{user.display_name} has been added to the LFG post with the id `{lfg_id}`",
+                f"{user.mention} has been added to the LFG post with the id `{lfg_id}`",
             )
         else:
             embed = embed_message(
                 "Error",
-                f"{user.display_name} could not be added to the LFG post with the id `{lfg_id}`, because they are already in it or they are blacklisted by the creator",
+                f"{user.mention} could not be added to the LFG post with the id `{lfg_id}` because they are already in it",
             )
 
         await ctx.send(ephemeral=True, embeds=embed)

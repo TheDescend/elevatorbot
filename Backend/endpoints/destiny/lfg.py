@@ -56,7 +56,7 @@ async def get(guild_id: int, lfg_id: int, db: AsyncSession = Depends(get_db_sess
 async def user_get_all(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Gets the lfg infos belonging to the discord_id"""
 
-    return await lfg.get_user(db=db, discord_id=discord_id, guild_id=guild_id)
+    return await lfg.get_user(db=db, discord_id=discord_id)
 
 
 @router.post("/{discord_id}/update/{lfg_id}", response_model=LfgOutputModel)  # has test

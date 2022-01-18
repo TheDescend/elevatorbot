@@ -164,11 +164,10 @@ class LfgMessage:
         """
 
         backend = DestinyLfgSystem(ctx=ctx, discord_guild=guild)
+        backend.hidden = True
 
         # get the message by the id
         result = await backend.get(lfg_id=lfg_id)
-        if not result:
-            return
 
         return await LfgMessage.from_lfg_output_model(client=client, model=result, backend=backend, guild=guild)
 
