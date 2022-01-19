@@ -89,6 +89,10 @@ class __ElevatorEmojis:
 
         self.zoom: CustomEmoji | int = 906503515642425396
 
+        self.first_place: CustomEmoji | int = 933410347111551056
+        self.second_place: CustomEmoji | int = 933410347195445268
+        self.third_place: CustomEmoji | int = 933410347287724072
+
     async def init_emojis(self, client):
         """Runs on startup to get the emojis we use"""
 

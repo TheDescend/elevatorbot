@@ -11,7 +11,7 @@ from ElevatorBot.backendNetworking.destiny.profile import DestinyProfile
 from ElevatorBot.backendNetworking.destiny.roles import DestinyRoles
 from ElevatorBot.backendNetworking.destiny.weapons import DestinyWeapons
 from ElevatorBot.commandHelpers.autocomplete import activities, activities_grandmaster, weapons
-from ElevatorBot.misc.formatting import embed_message, format_timedelta
+from ElevatorBot.misc.formatting import embed_message, format_timedelta, get_emoji_from_rank
 from ElevatorBot.static.destinyActivities import raid_to_emblem_hash
 from ElevatorBot.static.emojis import custom_emojis
 from Shared.enums.destiny import (
@@ -183,24 +183,27 @@ class RankCommandHandler:
 
         # add the rankings
         found = False
-        for i, result in enumerate(sorted_results):
-            if i < limit:
+        for i, result in enumerate(sorted_results, start=1):
+            # use the special emojis
+            emoji = get_emoji_from_rank(i)
+
+            if i <= limit:
                 if result.discord_member == member:
                     found = True
                     description.append(
-                        f"**{i + 1}) {result.discord_member.mention}\n{custom_emojis.enter} {result.display_text}**"
+                        f"**{emoji} {result.discord_member.mention}\n{custom_emojis.enter} {result.display_text}**"
                     )
 
                 else:
                     description.append(
-                        f"{i + 1}) {result.discord_member.mention}\n{custom_emojis.enter} {result.display_text}"
+                        f"{emoji} {result.discord_member.mention}\n{custom_emojis.enter} {result.display_text}"
                     )
 
             elif not found:
                 if result.discord_member == member:
                     description.append("...")
                     description.append(
-                        f"{i + 1}) {result.discord_member.mention}\n{custom_emojis.enter} {result.display_text}"
+                        f"{emoji} {result.discord_member.mention}\n{custom_emojis.enter} {result.display_text}"
                     )
                     break
 

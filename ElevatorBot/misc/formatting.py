@@ -122,3 +122,19 @@ def format_progress(name: str, completion_status: str, completion_percentage: fl
     completion_status = replace_progress_formatting(completion_status)
 
     return f"""{completion_status} `{int(completion_percentage * 100):>3}%` **||** {name}"""
+
+
+def get_emoji_from_rank(rank: int) -> str:
+    """Convert the rank to the rank emoji if applicable"""
+
+    match rank:
+        case 1:
+            emoji = str(custom_emojis.first_place)
+        case 2:
+            emoji = str(custom_emojis.second_place)
+        case 3:
+            emoji = str(custom_emojis.third_place)
+        case _:
+            emoji = f"{rank})"
+
+    return emoji

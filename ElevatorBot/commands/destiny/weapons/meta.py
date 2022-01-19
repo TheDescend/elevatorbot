@@ -225,4 +225,7 @@ def meta_subprocess(
     if footer:
         embed.set_footer(" | ".join(footer))
 
+    # todo actually display the data
+    # todo use the emojis from rank
+
     return embed

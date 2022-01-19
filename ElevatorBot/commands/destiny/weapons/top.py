@@ -35,7 +35,7 @@ from ElevatorBot.commandHelpers.optionTemplates import (
 )
 from ElevatorBot.commandHelpers.subCommandTemplates import weapons_sub_command
 from ElevatorBot.commands.base import BaseScale
-from ElevatorBot.misc.formatting import capitalize_string, embed_message
+from ElevatorBot.misc.formatting import capitalize_string, embed_message, get_emoji_from_rank
 from ElevatorBot.misc.helperFunctions import parse_datetime_options
 from ElevatorBot.static.emojis import custom_emojis
 from Shared.enums.destiny import DestinyWeaponTypeEnum, UsableDestinyActivityModeTypeEnum, UsableDestinyDamageTypeEnum
@@ -215,6 +215,9 @@ def top_subprocess(
 
         field_text = []
         for item in slot_entries:
+            # use the special emojis
+            emoji = get_emoji_from_rank(item.ranking)
+
             # append the ... if the sought weapon is in here
             if weapon and len(slot_entries) > limit:
                 if len(field_text) == limit:
@@ -222,13 +225,13 @@ def top_subprocess(
 
             if weapon and weapon.reference_ids[0] in item.weapon_ids:
                 field_text.append(
-                    f"""**{item.ranking}) {getattr(custom_emojis, item.weapon_type.lower())}{getattr(custom_emojis, item.weapon_damage_type.lower())}
+                    f"""**{emoji} {getattr(custom_emojis, item.weapon_type.lower())}{getattr(custom_emojis, item.weapon_damage_type.lower())}
                     {getattr(custom_emojis, item.weapon_ammo_type.lower())} [{item.weapon_name}](https://www.light.gg/db/items/{item.weapon_ids[0]})\n
                     {custom_emojis.enter} {capitalize_string(stat.name)}: {item.stat_value}**"""
                 )
             else:
                 field_text.append(
-                    f"""{item.ranking}) {getattr(custom_emojis, item.weapon_type.lower())}{getattr(custom_emojis, item.weapon_damage_type.lower())}
+                    f"""{emoji} {getattr(custom_emojis, item.weapon_type.lower())}{getattr(custom_emojis, item.weapon_damage_type.lower())}
                     {getattr(custom_emojis, item.weapon_ammo_type.lower())} [{item.weapon_name}](https://www.light.gg/db/items/{item.weapon_ids[0]})\n
                     {custom_emojis.enter} {capitalize_string(stat.name)}: {item.stat_value}"""
                 )
