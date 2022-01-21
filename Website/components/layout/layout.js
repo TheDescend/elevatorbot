@@ -23,10 +23,9 @@ export default function Layout({children}) {
             </Head>
             <main className="grid grid-cols-6 grid-rows-1 gap-6 bg-descend">
                 <Sidebar/>
-                <div className="col-span-5 flex flex-col mr-6">
+                <div className="flex flex-col overflow-auto scroll-smooth col-span-5 mr-6 h-screen">
                     <Content children={children}/>
                     <Footer/>
-
                 </div>
             </main>
         </div>
