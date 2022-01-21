@@ -1,17 +1,7 @@
-import logo from "../../public/images/logo.png"
-
 export default function Sidebar() {
     return (
-        <header className="top-0 left-0 bg-gray-900 text-white h-screen sticky">
-            <div className="grid grid-cols-1 grid-flow-row p-4 pt-8 gap-4">
-                <Link href="/" passHref>
-                    <a className="mb-12">
-                        <Image
-                            src={logo}
-                            alt="ElevatorBotLogo"
-                        />
-                    </a>
-                </Link>
+        <div className="bg-gray-300 dark:bg-gray-900">
+            <div className="grid grid-cols-1 p-4 pt-8 gap-4 left-0 text-white  ">
                 <p className="">
                     test
                 </p>
@@ -19,9 +9,6 @@ export default function Sidebar() {
                     test2
                 </p>
             </div>
-        </header>
+        </div>
     )
 }
-
-import Image from "next/image";
-import Link from "next/link";

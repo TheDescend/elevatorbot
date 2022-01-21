@@ -2,6 +2,7 @@ import Head from 'next/head'
 import Footer from "./footer";
 import Sidebar from "./sidebar";
 import Content from "./content";
+import Header from "./header";
 
 
 export default function Layout({children}) {
@@ -21,11 +22,14 @@ export default function Layout({children}) {
                     content="initial-scale=1.0, width=device-width"
                 />
             </Head>
-            <main className="grid grid-cols-6 grid-rows-1 gap-6 bg-descend">
-                <Sidebar/>
-                <div className="flex flex-col overflow-auto scroll-smooth col-span-5 mr-6 h-screen">
-                    <Content children={children}/>
-                    <Footer/>
+            <main className="flex flex-col h-screen overflow-hidden bg-descend ">
+                <Header/>
+                <div className="grid grid-cols-8 gap-x-4 ">
+                    <Sidebar/>
+                    <div className="flex-grow col-span-7 flex flex-col overflow-auto scroll-smooth h-screen divide-descend divide-y-2">
+                        <Content children={children}/>
+                        <Footer/>
+                    </div>
                 </div>
             </main>
         </div>

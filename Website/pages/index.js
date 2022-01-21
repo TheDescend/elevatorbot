@@ -8,18 +8,29 @@ export default function Home() {
         <div>
             <Title title={"Home"}/>
             <Description>
-                <h1 className="title">
-                    Read{' '}
-                    <Link href="/training/training">
-                        <a>this page!</a>
-                    </Link>
-                </h1>
                 <div>
                     <p>[Your Self Introduction]</p>
-                    <p className="font-extrabold text-green-600">
+                    <p>
                         (This is a sample website - you’ll be building a site like this on{' '}
                         <a href="https://nextjs.org/learn">our Next.js tutorial</a>.)
                     </p>
+                    <p>
+                        (This is a sample website - you’ll be building a site like this on{' '}
+                        <a href="https://nextjs.org/learnasdasd">our Next.js tutorial</a>.)
+                    </p>
+
+                    <p className="m-16">our Next.js tutorial</p>
+                    <p className="m-16">our Next.js tutorial</p>
+                    <p className="m-16">our Next.js tutorial</p>
+                    <p className="m-16">our Next.js tutorial</p>
+                    <p className="m-16">our Next.js tutorial</p>
+                    <p className="m-16">our Next.js tutorial</p>
+                    <p className="m-16">our Next.js tutorial</p>
+                    <p className="m-16">our Next.js tutorial</p>
+                    <p className="m-16">our Next.js tutorial</p>
+                    <p className="m-16">our Next.js tutorial</p>
+                    <p className="m-16">our Next.js tutorial</p>
+
 
                 </div>
             </Description>
