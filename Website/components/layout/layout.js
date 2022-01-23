@@ -22,13 +22,15 @@ export default function Layout({children}) {
                     content="initial-scale=1.0, width=device-width"
                 />
             </Head>
-            <main className="flex flex-col h-screen overflow-hidden bg-descend ">
+            <main className="flex flex-col h-screen bg-descend">
                 <Header/>
-                <div className="grid grid-cols-8 gap-x-4 ">
+                <div className="flex-grow flex h-full overflow-y-hidden">
                     <Sidebar/>
-                    <div className="flex-grow col-span-7 flex flex-col overflow-auto scroll-smooth h-screen divide-descend divide-y-2">
-                        <Content children={children}/>
-                        <Footer/>
+                    <div className="flex-grow h-full">
+                        <div className="flex flex-col overflow-y-auto scroll-smooth divide-descend divide-y-2 h-full">
+                            <Content children={children}/>
+                            <Footer/>
+                        </div>
                     </div>
                 </div>
             </main>
