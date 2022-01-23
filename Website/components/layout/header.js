@@ -2,12 +2,15 @@ import {FiLogIn} from 'react-icons/fi';
 import Link from "next/link";
 import DarkModeToggle from "./darkMode";
 import {useState} from "react";
-import {HiMoon, HiOutlineMenu, HiSun} from "react-icons/hi";
+import {HiMoon, HiOutlineMenu, HiPlus, HiSun} from "react-icons/hi";
 import {useTheme} from "next-themes";
 import {SideBarItems} from "../../data/sideBarItems";
+import GlowingButton from "../glowingButton";
 
 
 const loginPath = "/"
+const inviteUrl = "some.url/here"
+
 
 export default function Header() {
     const [active, setActive] = useState(false);
@@ -29,17 +32,32 @@ export default function Header() {
                     </a>
                 </Link>
             </HeaderItemVisible>
-            <div className="flex flex-row">
+            <div className="flex flex-row gap-4">
                 <HeaderItemHidden>
                     <DarkModeToggle/>
                 </HeaderItemHidden>
                 <HeaderItemHidden>
+                    <GlowingButton>
+                        <a
+                            className="hover:text-descend flex flex-col relative w-32 h-10"
+                            href={inviteUrl}
+                        >
+                            <HiPlus className="object-contain h-4 w-4 absolute inset-x-0 top-1 left-[56px]"/>
+                            <p className="pl absolute inset-x-0 bottom-1 text-center">
+                                Invite To Server
+                            </p>
+                        </a>
+                    </GlowingButton>
+                </HeaderItemHidden>
+                <HeaderItemHidden>
                     <Link href={loginPath} passHref>
-                        <a className="flex items-center border-2 rounded-md border-descend pl-2 pr-2 shadow-inner shadow-descend/40 hover:shadow-descend hover:text-descend">
-                            <div className="pr-2">
-                                Login
-                            </div>
-                            <FiLogIn className="object-contain h-10 w-8 "/>
+                        <a className="">
+                            <GlowingButton>
+                                <p className="pr-2">
+                                    Login
+                                </p>
+                                <FiLogIn className="object-contain h-10 w-8 "/>
+                            </GlowingButton>
                         </a>
                     </Link>
                 </HeaderItemHidden>
@@ -65,24 +83,39 @@ export default function Header() {
                             }}
                         >
                             <div className="flex flex-row items-center">
-                                {theme === "light" ? (
-                                    <HiMoon className="object-contain"/>
-                                ) : (
-                                    <HiSun className="object-contain"/>
-                                )}
-                                <p className="ml-1 font-bold">
+                                <p className="mx-2 font-bold hover:underline underline-offset-2">
                                     {theme === "light" ? (
                                         "Switch To Dark Mode"
                                     ) : (
                                         "Switch To Light Mode"
                                     )}
                                 </p>
+                                {theme === "light" ? (
+                                    <HiMoon className="object-contain"/>
+                                ) : (
+                                    <HiSun className="object-contain"/>
+                                )}
                             </div>
                         </button>
                     </div>
-                    <div className="text-right block p-2 hover:text-descend">
+                    <div className="block p-2 hover:text-descend hover:underline underline-offset-2">
                         <Link href={loginPath} passHref>
-                            Login With Discord
+                            <a className="flex flex-row items-center place-content-end">
+                                <p className="mx-2 font-bold">
+                                    Login With Discord
+                                </p>
+                                <FiLogIn className="object-contain"/>
+                            </a>
+                        </Link>
+                    </div>
+                    <div className="block p-2 hover:text-descend hover:underline underline-offset-2">
+                        <Link href={inviteUrl} passHref>
+                            <a className="flex flex-row items-center place-content-end">
+                                <p className="mx-2 font-bold">
+                                    Invite To Discord Server
+                                </p>
+                                <HiPlus className="object-contain"/>
+                            </a>
                         </Link>
                     </div>
                 </div>
@@ -90,7 +123,7 @@ export default function Header() {
                     {
                         Object.keys(SideBarItems).map((name) => {
                             return (
-                                <div className="text-right block p-2 hover:text-descend">
+                                <div className="text-right block p-2 hover:text-descend hover:underline underline-offset-2">
                                     <Link href={SideBarItems[name]} passHref>
                                         {name}
                                     </Link>

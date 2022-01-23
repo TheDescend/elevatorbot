@@ -7,7 +7,7 @@ export default function DarkModeToggle() {
     const {theme, setTheme} = useTheme()
 
     return (
-        <div className="flex-grow flex flex-row place-content-end mr-8">
+        <div className="flex-grow flex flex-row place-content-end">
             <button
                 aria-label="Toggle Dark Mode"
                 type="button"
@@ -19,17 +19,17 @@ export default function DarkModeToggle() {
                 <div className="flex flex-row items-center">
                 <span className="invisible w-0 group-hover:visible group-hover:w-auto pr-0 group-hover:pr-2 font-bold">
                    {theme === "light" ? (
-                    "Dark Mode"
-                ) : (
-                    "Light Mode"
-                )}
+                       "Dark Mode"
+                   ) : (
+                       "Light Mode"
+                   )}
                 </span>
-                {theme === "light" ? (
-                    <HiMoon className="object-contain h-10 w-8 "/>
-                ) : (
-                    <HiSun className="object-contain h-10 w-8 "/>
-                )}
-                    </div>
+                    {theme === "light" ? (
+                        <HiMoon className="object-contain h-10 w-8 "/>
+                    ) : (
+                        <HiSun className="object-contain h-10 w-8 "/>
+                    )}
+                </div>
             </button>
 
         </div>

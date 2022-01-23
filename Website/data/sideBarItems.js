@@ -1,5 +1,6 @@
 export const SideBarItems = {
-    "Example1": "/link1",
-    "Example2": "/link2",
-    "Example3": "/link3",
+    "FAQ": "/link1",
+    "Register": "/link1",
+    "Documentation": "/link1",
+    "Your Servers": "/link2",
 }
