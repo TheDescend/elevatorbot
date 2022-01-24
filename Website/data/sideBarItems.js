@@ -1,6 +1,22 @@
 export const SideBarItems = {
-    "FAQ": "/link1",
-    "Register": "/link1",
-    "Documentation": "/link1",
-    "Your Servers": "/link2",
+    "FAQ": {
+        "is_link": true,
+        "link": "/"
+    },
+    "Register": {
+        "is_link": true,
+        "link": "/privacy"
+    },
+    "Your Servers": {
+        "is_link": true,
+        "link": "/link1"
+    },
+    "Documentation": {
+        "is_link": false,
+        "children": {
+            "Commands": "/link1",
+            "Context Menus": "/link1",
+        }
+    },
+
 }

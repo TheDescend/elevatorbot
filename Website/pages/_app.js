@@ -5,7 +5,7 @@ import Layout from "../components/layout/layout";
 export default function App({Component, pageProps}) {
     return (
         <ThemeProvider forcedTheme={Component.theme || undefined} attribute="class" disableTransitionOnChange={true}
-                       defaultTheme="system">
+                       defaultTheme="dark">
                 <Component {...pageProps} />
         </ThemeProvider>
     )

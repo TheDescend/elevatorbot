@@ -40,7 +40,7 @@ export default function Header() {
                     <GlowingButton>
                         <a
                             className="hover:text-descend flex flex-col relative w-32 h-10"
-                            href={inviteUrl}
+                            target="_blank" rel="noopener noreferrer" href={inviteUrl}
                         >
                             <HiPlus className="object-contain h-4 w-4 absolute inset-x-0 top-1 left-[56px]"/>
                             <p className="pl absolute inset-x-0 bottom-1 text-center">
@@ -109,28 +109,42 @@ export default function Header() {
                         </Link>
                     </div>
                     <div className="block p-2 hover:text-descend hover:underline underline-offset-2">
-                        <Link href={inviteUrl} passHref>
-                            <a className="flex flex-row items-center place-content-end">
-                                <p className="mx-2 font-bold">
-                                    Invite To Discord Server
-                                </p>
-                                <HiPlus className="object-contain"/>
-                            </a>
-                        </Link>
+                        <a
+                            target="_blank" rel="noopener noreferrer" href={inviteUrl}
+                            className="flex flex-row items-center place-content-end"
+                        >
+                            <p className="mx-2 font-bold">
+                                Invite To Discord Server
+                            </p>
+                            <HiPlus className="object-contain"/>
+                        </a>
                     </div>
                 </div>
                 <div>
                     {
                         Object.keys(SideBarItems).map((name) => {
-                            return (
-                                <div className="text-right block p-2 hover:text-descend hover:underline underline-offset-2">
+                            if (SideBarItems[name]["is_link"]) {
+                                return (
                                     <Link href={SideBarItems[name]} passHref>
-                                        {name}
+                                        <a className="text-right block p-2 hover:text-descend hover:underline underline-offset-2">
+                                            {name}
+                                        </a>
                                     </Link>
-                                </div>
-                            )
+                                )
+                            } else {
+                                return Object.keys(SideBarItems[name]["children"]).map((child_name) => {
+                                    return (
+                                        <Link href={SideBarItems[name]["children"][child_name]} passHref>
+                                            <a className="text-right block p-2 hover:text-descend hover:underline underline-offset-2">
+                                                {name} | {child_name}
+                                            </a>
+                                        </Link>
+                                    )
+                                })
+                            }
                         })
                     }
+
                 </div>
             </div>
         </nav>
