@@ -1,6 +1,6 @@
 import asyncio
 
-from dis_snek.models import (
+from dis_snek import (
     ActionRow,
     ComponentContext,
     InteractionContext,
@@ -10,7 +10,7 @@ from dis_snek.models import (
     SelectOption,
     slash_command,
 )
-from dis_snek.models.events import Component
+from dis_snek.api.events import Component
 
 from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option

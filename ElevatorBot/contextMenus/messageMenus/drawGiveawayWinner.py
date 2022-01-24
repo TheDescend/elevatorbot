@@ -1,8 +1,6 @@
-import io
 import random
 
-import aiohttp
-from dis_snek.models import CommandTypes, InteractionContext, context_menu
+from dis_snek import CommandTypes, InteractionContext, context_menu
 
 from ElevatorBot.backendNetworking.misc.giveaway import BackendGiveaway
 from ElevatorBot.commands.base import BaseScale

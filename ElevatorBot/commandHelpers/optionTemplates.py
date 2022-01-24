@@ -1,6 +1,6 @@
 from typing import Any
 
-from dis_snek.models import OptionTypes, SlashCommandChoice, slash_option
+from dis_snek import OptionTypes, SlashCommandChoice, slash_option
 
 from ElevatorBot.core.destiny.stat import stat_translation
 from ElevatorBot.misc.formatting import capitalize_string

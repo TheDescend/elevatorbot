@@ -2,7 +2,7 @@ import dataclasses
 import datetime
 from typing import Optional
 
-from dis_snek.models import Guild, GuildVoice, Message, Role, ThreadChannel
+from dis_snek import Guild, GuildVoice, Message, Role, ThreadChannel
 
 from ElevatorBot.backendNetworking.destiny.items import DestinyItems
 from ElevatorBot.core.misc.persistentMessages import PersistentMessages

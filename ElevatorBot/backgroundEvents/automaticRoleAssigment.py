@@ -1,5 +1,3 @@
-import asyncio
-
 from anyio import create_task_group
 
 from ElevatorBot.backgroundEvents.base import BaseEvent

@@ -2,9 +2,7 @@ import asyncio
 import logging
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from dis_snek import AutoDefer, ExtensionNotFound, InteractionContext, Snake, logger_name, slash_command
-from dis_snek.models import listen
-from dis_snek.models.enums import Intents, Permissions
+from dis_snek import AutoDefer, Intents, InteractionContext, Permissions, Snake, listen, logger_name, slash_command
 
 from ElevatorBot.discordEvents.base import ElevatorSnake
 from ElevatorBot.misc.helperFunctions import yield_files_in_folder

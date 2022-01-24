@@ -3,15 +3,15 @@ aiohttp_client_cache==0.5.2
 
 # aiohttp_client_cache currently requires this version
 aioredis==1.3.1
-anyio==3.4.0
+anyio==3.5.0
 apscheduler==3.8.1
-dis-snek==4.4.0
+dis-snek==5.0.0
 ics==0.7
 matplotlib==3.5.1
-orjson==3.6.5
-pandas==1.3.5
+orjson==3.6.6
+pandas==1.4.0
 psutil==5.9.0
-pydantic==1.8.2
+pydantic==1.9.0
 PyGithub==1.55
 python-dateutil==2.8.2
 rapidfuzz==1.9.1

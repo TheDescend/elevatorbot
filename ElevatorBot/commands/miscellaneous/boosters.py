@@ -1,4 +1,4 @@
-from dis_snek.models import InteractionContext, Member, TimestampStyles, slash_command
+from dis_snek import InteractionContext, Member, TimestampStyles, slash_command
 
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formatting import embed_message

@@ -1,7 +1,7 @@
 from copy import copy
 
 from anyio import to_thread
-from dis_snek.models import ComponentContext
+from dis_snek import ComponentContext
 from github.GithubObject import NotSet
 
 from ElevatorBot.backendNetworking.destiny.clan import DestinyClan

@@ -2,7 +2,6 @@ from typing import Optional
 
 from anyio import to_thread
 from github import Github
-from github.GithubObject import NotSet
 from github.Label import Label
 from github.Repository import Repository
 

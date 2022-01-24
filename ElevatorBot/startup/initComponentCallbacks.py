@@ -1,4 +1,4 @@
-from dis_snek.models import ComponentCommand
+from dis_snek import ComponentCommand
 
 from ElevatorBot.components.checks import check_pending
 from ElevatorBot.components.componentCallbacks import ComponentCallbacks

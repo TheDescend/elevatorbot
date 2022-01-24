@@ -1,7 +1,5 @@
-import React, {useState, useEffect} from "react"
-import { Redirect } from "react-router"
-
-import UserProfile from "./UserProfile"
+import React, {useEffect, useState} from "react"
+import {Redirect} from "react-router"
 
 function DiscordLogin({auth_params, userfunctions, guildfunctions}){
     console.log('DiscordLogin')

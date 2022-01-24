@@ -1,4 +1,4 @@
-from dis_snek.models import ActionRow, Button, ButtonStyles, ComponentContext, InteractionContext, slash_command
+from dis_snek import ActionRow, Button, ButtonStyles, ComponentContext, InteractionContext, slash_command
 
 from ElevatorBot.commands.base import RegisteredScale
 from ElevatorBot.misc.formatting import embed_message

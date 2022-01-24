@@ -1,6 +1,6 @@
 from typing import Optional
 
-from dis_snek.models import InteractionContext, Member, Permissions
+from dis_snek import InteractionContext, Member, Permissions
 
 from ElevatorBot.misc.formatting import embed_message
 

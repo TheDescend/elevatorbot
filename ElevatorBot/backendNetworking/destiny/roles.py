@@ -1,8 +1,7 @@
 import dataclasses
 from typing import Optional
 
-from dis_snek.models.discord_objects.guild import Guild
-from dis_snek.models.discord_objects.role import Role
+from dis_snek import Guild, Role
 
 from ElevatorBot.backendNetworking.http import BaseBackendConnection
 from ElevatorBot.backendNetworking.routes import (

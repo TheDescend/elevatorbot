@@ -1,7 +1,7 @@
 import asyncio
 import datetime
 
-from dis_snek.models import (
+from dis_snek import (
     InteractionContext,
     Member,
     OptionTypes,

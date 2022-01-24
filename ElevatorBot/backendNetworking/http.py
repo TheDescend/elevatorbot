@@ -10,8 +10,7 @@ import aiohttp
 import aiohttp_client_cache
 import orjson
 from aiohttp import ClientTimeout
-from dis_snek.models import ComponentContext, InteractionContext
-from dis_snek.models.discord_objects.user import Member
+from dis_snek import ComponentContext, InteractionContext, Member
 
 from ElevatorBot.backendNetworking.errors import BackendException
 from ElevatorBot.backendNetworking.results import BackendResult

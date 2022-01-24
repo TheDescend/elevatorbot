@@ -1,4 +1,4 @@
-from dis_snek.models import InteractionContext, Member, OptionTypes, slash_command, slash_option
+from dis_snek import InteractionContext, Member, OptionTypes, slash_command, slash_option
 
 from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
 from ElevatorBot.backendNetworking.destiny.clan import DestinyClan

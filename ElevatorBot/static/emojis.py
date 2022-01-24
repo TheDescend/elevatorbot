@@ -1,5 +1,5 @@
-from dis_snek.errors import Forbidden
-from dis_snek.models import CustomEmoji
+from dis_snek import CustomEmoji
+from dis_snek.client.errors import Forbidden
 
 
 class __ElevatorEmojis:

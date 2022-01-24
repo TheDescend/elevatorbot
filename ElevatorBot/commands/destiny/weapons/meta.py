@@ -2,8 +2,7 @@ import datetime
 from typing import Optional
 
 from anyio import create_task_group, to_thread
-from dis_snek import Embed
-from dis_snek.models import Guild, InteractionContext, Timestamp, TimestampStyles, slash_command
+from dis_snek import Embed, Guild, InteractionContext, Timestamp, TimestampStyles, slash_command
 
 from ElevatorBot.backendNetworking.destiny.clan import DestinyClan
 from ElevatorBot.backendNetworking.destiny.weapons import DestinyWeapons

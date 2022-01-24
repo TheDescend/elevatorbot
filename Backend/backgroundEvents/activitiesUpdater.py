@@ -1,5 +1,3 @@
-import asyncio
-
 from anyio import create_task_group
 
 from Backend.backgroundEvents.base import BaseEvent

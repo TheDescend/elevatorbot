@@ -1,5 +1,4 @@
-from dis_snek import Snake
-from dis_snek.models import InteractionContext, Scale
+from dis_snek import InteractionContext, Scale, Snake
 
 from ElevatorBot.backendNetworking.destiny.profile import DestinyProfile
 from ElevatorBot.backendNetworking.errors import BackendException

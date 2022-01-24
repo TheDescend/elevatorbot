@@ -1,4 +1,4 @@
-from dis_snek.models.events import (
+from dis_snek.api.events import (
     ChannelCreate,
     ChannelDelete,
     ChannelUpdate,

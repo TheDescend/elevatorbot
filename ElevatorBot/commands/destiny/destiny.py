@@ -1,4 +1,4 @@
-from dis_snek.models import InteractionContext, Member, slash_command
+from dis_snek import InteractionContext, Member, slash_command
 
 from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
 from ElevatorBot.backendNetworking.destiny.profile import DestinyProfile

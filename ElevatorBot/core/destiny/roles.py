@@ -1,10 +1,7 @@
 import dataclasses
 from typing import Optional
 
-from dis_snek.models import Role
-from dis_snek.models.context import InteractionContext
-from dis_snek.models.discord_objects.guild import Guild
-from dis_snek.models.discord_objects.user import Member
+from dis_snek import Guild, InteractionContext, Member, Role
 
 from ElevatorBot.backendNetworking.destiny.roles import DestinyRoles
 from ElevatorBot.commandHelpers.autocomplete import activities_by_id

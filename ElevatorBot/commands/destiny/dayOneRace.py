@@ -7,16 +7,7 @@ from typing import Optional
 
 import aiohttp
 from anyio import create_task_group
-from dis_snek.models import (
-    File,
-    GuildText,
-    InteractionContext,
-    Member,
-    Message,
-    Timestamp,
-    TimestampStyles,
-    slash_command,
-)
+from dis_snek import File, GuildText, InteractionContext, Member, Message, Timestamp, TimestampStyles, slash_command
 
 from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
 from ElevatorBot.backendNetworking.destiny.activities import DestinyActivities

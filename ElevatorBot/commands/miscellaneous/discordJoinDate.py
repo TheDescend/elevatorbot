@@ -1,4 +1,4 @@
-from dis_snek.models import InteractionContext, Member, TimestampStyles, slash_command
+from dis_snek import InteractionContext, Member, TimestampStyles, slash_command
 
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
 from ElevatorBot.commands.base import BaseScale

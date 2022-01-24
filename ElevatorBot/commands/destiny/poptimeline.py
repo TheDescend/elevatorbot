@@ -3,7 +3,7 @@ import datetime
 from io import BytesIO
 
 import matplotlib.pyplot as plt
-from dis_snek.models import File, InteractionContext, slash_command
+from dis_snek import File, InteractionContext, slash_command
 from pandas import DataFrame
 
 from ElevatorBot.backendNetworking.destiny.steamPlayers import SteamPlayers

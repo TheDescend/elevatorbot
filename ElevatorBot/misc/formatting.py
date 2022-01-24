@@ -1,8 +1,7 @@
 import datetime
 from typing import Any, Optional
 
-from dis_snek import Guild, Member
-from dis_snek.models import Colour, Embed
+from dis_snek import Colour, Embed, Guild, Member
 
 from ElevatorBot.static.emojis import custom_emojis
 

@@ -1,8 +1,7 @@
 import logging
 import traceback
 
-from dis_snek import CommandCheckFailure, HTTPException, Snake
-from dis_snek.models import ComponentContext, InteractionContext
+from dis_snek import CommandCheckFailure, ComponentContext, HTTPException, InteractionContext, Snake
 
 from ElevatorBot.backendNetworking.errors import BackendException
 from ElevatorBot.misc.helperFunctions import log_error

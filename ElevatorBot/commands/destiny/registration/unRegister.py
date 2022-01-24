@@ -1,4 +1,4 @@
-from dis_snek.models import InteractionContext, Scale, slash_command
+from dis_snek import InteractionContext, Scale, slash_command
 
 from ElevatorBot.backendNetworking.destiny.profile import DestinyProfile
 from ElevatorBot.misc.formatting import embed_message

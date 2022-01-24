@@ -1,15 +1,6 @@
 import {React, useEffect, useState} from "react"
-import { Async  } from "react-async"
-import {
-  BrowserRouter as Router,
-  Switch,
-  Route,
-  Link,
-  useLocation,
-  useParams
-} from "react-router-dom"
-import Button from 'react-bootstrap/Button'
-import Collapse from 'react-bootstrap/Collapse'
+import {Async} from "react-async"
+import {BrowserRouter as Router, Link, Route, Switch, useLocation} from "react-router-dom"
 
 import Auth from "./modules/Auth"
 import DiscordLogin from "./modules/DiscordLogin"
@@ -20,7 +11,6 @@ import UserInfo from "./modules/UserInfo"
 import GuildInfo from "./modules/UserInfo"
 
 import './App.css';
-
 
 
 function useQuery() {

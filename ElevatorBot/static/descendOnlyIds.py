@@ -1,5 +1,5 @@
-from dis_snek.errors import Forbidden
-from dis_snek.models import Guild, GuildText
+from dis_snek import Guild, GuildText
+from dis_snek.client.errors import Forbidden
 
 from ElevatorBot.discordEvents.base import ElevatorSnake
 from settings import (

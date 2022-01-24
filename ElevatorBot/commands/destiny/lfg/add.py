@@ -1,4 +1,4 @@
-from dis_snek.models import InteractionContext, Member, slash_command
+from dis_snek import InteractionContext, Member, slash_command
 
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option, lfg_event_id
 from ElevatorBot.commandHelpers.subCommandTemplates import lfg_sub_command

@@ -1,4 +1,4 @@
-from dis_snek.models import InteractionContext, OptionTypes, slash_command, slash_option
+from dis_snek import InteractionContext, OptionTypes, slash_command, slash_option
 
 from ElevatorBot.commandHelpers.subCommandTemplates import tictactoe_sub_command
 from ElevatorBot.commands.base import BaseScale

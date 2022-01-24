@@ -1,4 +1,4 @@
-from dis_snek.models import AutocompleteContext
+from dis_snek import AutocompleteContext
 from rapidfuzz import fuzz, process
 
 from Shared.networkingSchemas.destiny import DestinyActivityModel, DestinyLoreModel, DestinyWeaponModel

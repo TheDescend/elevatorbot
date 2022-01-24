@@ -1,4 +1,4 @@
-from dis_snek.models import InteractionContext, slash_command
+from dis_snek import InteractionContext, slash_command
 
 from ElevatorBot.commandHelpers.autocomplete import autocomplete_send_lore_name, lore
 from ElevatorBot.commandHelpers.optionTemplates import autocomplete_lore_option

@@ -2,7 +2,7 @@ import dataclasses
 from typing import Optional
 
 from anyio import create_task_group
-from dis_snek.models import InteractionContext, Member, TimestampStyles
+from dis_snek import InteractionContext, Member, TimestampStyles
 
 from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
 from ElevatorBot.backendNetworking.destiny.activities import DestinyActivities

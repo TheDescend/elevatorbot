@@ -6,7 +6,7 @@ import zoneinfo
 from typing import Generator, Optional
 
 from dateutil.parser import ParserError, parse
-from dis_snek.models import ComponentContext, InteractionContext
+from dis_snek import ComponentContext, InteractionContext
 
 from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
 from ElevatorBot.commandHelpers.responseTemplates import respond_invalid_time_input, respond_time_input_in_past

@@ -1,7 +1,7 @@
 import dataclasses
 from typing import Optional
 
-from dis_snek.models import (
+from dis_snek import (
     ActionRow,
     ComponentContext,
     Embed,

@@ -2,8 +2,8 @@ import datetime
 from typing import Optional
 
 from anyio import to_thread
-from dis_snek import Embed
-from dis_snek.models import (
+from dis_snek import (
+    Embed,
     InteractionContext,
     Member,
     OptionTypes,

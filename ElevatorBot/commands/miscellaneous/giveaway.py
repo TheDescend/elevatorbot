@@ -1,5 +1,13 @@
-from dis_snek import ActionRow, Button, ButtonStyles, Member, OptionTypes, slash_option
-from dis_snek.models import InteractionContext, slash_command
+from dis_snek import (
+    ActionRow,
+    Button,
+    ButtonStyles,
+    InteractionContext,
+    Member,
+    OptionTypes,
+    slash_command,
+    slash_option,
+)
 
 from ElevatorBot.backendNetworking.misc.giveaway import BackendGiveaway
 from ElevatorBot.commands.base import BaseScale

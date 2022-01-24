@@ -7,15 +7,12 @@ import io
 from typing import Optional
 
 from apscheduler.jobstores.base import JobLookupError
-from dis_snek import Snake
-from dis_snek.errors import Forbidden, NotFound
-from dis_snek.models import (
+from dis_snek import (
     ActionRow,
     Button,
     ButtonStyles,
     ComponentContext,
     Embed,
-    EmbedAttachment,
     File,
     Guild,
     GuildCategory,
@@ -24,12 +21,15 @@ from dis_snek.models import (
     InteractionContext,
     Member,
     Message,
+    NotFound,
     OverwriteTypes,
     PermissionOverwrite,
     Permissions,
+    Snake,
     Timestamp,
     TimestampStyles,
 )
+from dis_snek.client.errors import Forbidden
 from ics import Calendar, Event
 
 from ElevatorBot.backendNetworking.destiny.lfgSystem import DestinyLfgSystem

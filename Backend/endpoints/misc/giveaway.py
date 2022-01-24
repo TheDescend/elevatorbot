@@ -1,10 +1,9 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from Backend.crud import elevator_servers
 from Backend.crud.misc.giveaway import crud_giveaway
 from Backend.dependencies import get_db_session
-from Shared.networkingSchemas import ElevatorGuildModel, ElevatorGuildsModel, EmptyResponseModel
+from Shared.networkingSchemas import EmptyResponseModel
 from Shared.networkingSchemas.misc.giveaway import GiveawayModel
 
 router = APIRouter(

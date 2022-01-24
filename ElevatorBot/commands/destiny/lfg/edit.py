@@ -1,4 +1,4 @@
-from dis_snek.models import InteractionContext, slash_command
+from dis_snek import InteractionContext, slash_command
 
 from ElevatorBot.commandHelpers.autocomplete import activities, autocomplete_send_activity_name
 from ElevatorBot.commandHelpers.optionTemplates import autocomplete_activity_option, lfg_event_id

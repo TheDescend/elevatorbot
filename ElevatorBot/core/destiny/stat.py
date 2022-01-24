@@ -1,6 +1,6 @@
 from typing import Optional
 
-from dis_snek.models import InteractionContext, Member
+from dis_snek import InteractionContext, Member
 
 from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
 from ElevatorBot.misc.formatting import embed_message

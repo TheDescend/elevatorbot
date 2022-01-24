@@ -1,7 +1,7 @@
 import dataclasses
 from typing import Optional
 
-from dis_snek.models import Embed, InteractionContext
+from dis_snek import Embed, InteractionContext
 
 from ElevatorBot.backendNetworking.errorCodesAndResponses import error_codes_and_responses
 from ElevatorBot.misc.formatting import embed_message

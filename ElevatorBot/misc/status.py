@@ -3,10 +3,9 @@ import itertools
 import re
 from copy import copy
 
-from dis_snek.models import Activity, Timestamp, TimestampStyles
+from dis_snek import Activity, Timestamp, TimestampStyles
 
 from ElevatorBot.misc.cache import descend_cache
-from ElevatorBot.static.emojis import custom_emojis
 from Shared.functions.helperFunctions import get_now_with_tz
 from version import __version__
 

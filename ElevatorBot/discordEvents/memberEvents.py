@@ -1,7 +1,7 @@
 import asyncio
 
-from dis_snek.models import ActionRow, Button, ButtonStyles, Member
-from dis_snek.models.events import Component, MemberAdd, MemberRemove, MemberUpdate
+from dis_snek import ActionRow, Button, ButtonStyles, Member
+from dis_snek.api.events import Component, MemberAdd, MemberRemove, MemberUpdate
 
 from ElevatorBot.backendNetworking.destiny.clan import DestinyClan
 from ElevatorBot.backendNetworking.destiny.lfgSystem import DestinyLfgSystem

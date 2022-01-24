@@ -1,7 +1,7 @@
 import random
 
-from dis_snek.models import AutoArchiveDuration, ChannelTypes, ThreadList
-from dis_snek.models.events import MessageCreate, MessageDelete, MessageUpdate
+from dis_snek import AutoArchiveDuration, ChannelTypes, ThreadList
+from dis_snek.api.events import MessageCreate, MessageDelete, MessageUpdate
 
 from ElevatorBot.misc.cache import reply_cache
 from ElevatorBot.misc.formatting import embed_message

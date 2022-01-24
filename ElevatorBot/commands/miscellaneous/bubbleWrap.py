@@ -1,8 +1,7 @@
 import asyncio
 
-from dis_snek import Message
-from dis_snek.models import ActionRow, Button, ButtonStyles, InteractionContext, slash_command
-from dis_snek.models.events import Component
+from dis_snek import ActionRow, Button, ButtonStyles, InteractionContext, Message, slash_command
+from dis_snek.api.events import Component
 
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formatting import embed_message

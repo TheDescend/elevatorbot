@@ -1,4 +1,4 @@
-from dis_snek.models import InteractionContext, OptionTypes, slash_command, slash_option
+from dis_snek import InteractionContext, OptionTypes, slash_command, slash_option
 
 from ElevatorBot.commandHelpers.autocomplete import activities, autocomplete_send_activity_name
 from ElevatorBot.commandHelpers.optionTemplates import (
@@ -9,7 +9,6 @@ from ElevatorBot.commandHelpers.optionTemplates import (
 from ElevatorBot.commandHelpers.subCommandTemplates import lfg_sub_command
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.core.destiny.lfg.lfgSystem import LfgMessage
-from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.misc.helperFunctions import parse_string_datetime
 
 

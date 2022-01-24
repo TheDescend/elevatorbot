@@ -1,4 +1,4 @@
-from dis_snek.models import InteractionContext, OptionTypes, Role, slash_command, slash_option
+from dis_snek import InteractionContext, OptionTypes, Role, slash_command, slash_option
 
 from ElevatorBot.backendNetworking.destiny.profile import DestinyProfile
 from ElevatorBot.commandHelpers.subCommandTemplates import setup_sub_command

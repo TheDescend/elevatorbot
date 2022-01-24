@@ -1,6 +1,5 @@
 from anyio import to_thread
-from dis_snek import ActionRow, Button, ButtonStyles
-from dis_snek.models import InteractionContext, OptionTypes, slash_command, slash_option
+from dis_snek import ActionRow, Button, ButtonStyles, InteractionContext, OptionTypes, slash_command, slash_option
 from github.GithubObject import NotSet
 
 from ElevatorBot.backendNetworking.github import get_github_labels, get_github_repo

@@ -1,10 +1,8 @@
 import copy
-import types
 
 from dis_snek import Snake
 
 from ElevatorBot.commandHelpers.autocomplete import autocomplete_send_activity_name, autocomplete_send_weapon_name
-from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.commands.destiny.rank.clan import RankClan
 
 

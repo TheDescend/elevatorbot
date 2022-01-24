@@ -1,7 +1,5 @@
-import asyncio
-
 from anyio import create_task_group
-from dis_snek.models import InteractionContext, OptionTypes, SlashCommandChoice, slash_command, slash_option
+from dis_snek import InteractionContext, OptionTypes, SlashCommandChoice, slash_command, slash_option
 
 from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
 from ElevatorBot.backendNetworking.errors import BackendException

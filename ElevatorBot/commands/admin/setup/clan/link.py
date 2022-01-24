@@ -1,4 +1,4 @@
-from dis_snek.models import InteractionContext, slash_command
+from dis_snek import InteractionContext, slash_command
 
 from ElevatorBot.backendNetworking.destiny.clan import DestinyClan
 from ElevatorBot.commandHelpers.subCommandTemplates import setup_sub_command, setup_sub_command_clan_group

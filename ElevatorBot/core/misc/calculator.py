@@ -2,8 +2,8 @@ import asyncio
 import dataclasses
 from typing import Optional
 
-from dis_snek.models import ActionRow, Button, ButtonStyles, ComponentContext, InteractionContext, Message
-from dis_snek.models.events import Component
+from dis_snek import ActionRow, Button, ButtonStyles, ComponentContext, InteractionContext, Message
+from dis_snek.api.events import Component
 
 from ElevatorBot.misc.formatting import embed_message
 

@@ -1,12 +1,4 @@
-from dis_snek.models import (
-    InteractionContext,
-    Member,
-    OptionTypes,
-    Timestamp,
-    TimestampStyles,
-    slash_command,
-    slash_option,
-)
+from dis_snek import InteractionContext, Member, OptionTypes, Timestamp, TimestampStyles, slash_command, slash_option
 
 from ElevatorBot.backendNetworking.misc.moderation import Moderation
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option

@@ -1,4 +1,4 @@
-from dis_snek.models import InteractionContext, slash_command
+from dis_snek import InteractionContext, slash_command
 
 from ElevatorBot.commandHelpers.subCommandTemplates import tictactoe_sub_command
 from ElevatorBot.commands.base import BaseScale

@@ -1,4 +1,4 @@
-from dis_snek.models import ComponentContext
+from dis_snek import ComponentContext
 
 from ElevatorBot.commandHelpers.responseTemplates import respond_pending
 

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import dataclasses
 
-from dis_snek.models import Guild, Member
+from dis_snek import Guild, Member
 
 from ElevatorBot.backendNetworking.errorCodesAndResponses import error_codes_and_responses
 from ElevatorBot.backendNetworking.errors import BackendException

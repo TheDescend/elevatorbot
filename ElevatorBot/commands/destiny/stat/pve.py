@@ -1,4 +1,4 @@
-from dis_snek.models import InteractionContext, Member, slash_command
+from dis_snek import InteractionContext, Member, slash_command
 
 from ElevatorBot.commandHelpers.optionTemplates import default_class_option, default_stat_option, default_user_option
 from ElevatorBot.commandHelpers.subCommandTemplates import stat_sub_command

@@ -1,8 +1,7 @@
 import dataclasses
 from typing import Optional
 
-from dis_snek.errors import NotFound
-from dis_snek.models import ActionRow, Embed, GuildChannel, InteractionContext, Message
+from dis_snek import ActionRow, Embed, GuildChannel, InteractionContext, Message, NotFound
 
 from ElevatorBot.backendNetworking.errors import BackendException
 from ElevatorBot.backendNetworking.misc.backendPersistentMessages import BackendPersistentMessages
