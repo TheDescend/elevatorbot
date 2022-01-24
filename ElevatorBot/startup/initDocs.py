@@ -17,6 +17,8 @@ class NoValidatorOption:
         self.choices = obj.choices
 
 
+# todo get rid of subcommands and save them in the commands.json (name=f"{base_command}{sub_command}")
+# todo override `` with <code></code>
 def create_command_docs(client):
     """Create user documentation for commands and context menus in ./ElevatorBot/docs"""
 
@@ -77,8 +79,9 @@ def create_command_docs(client):
                     doc = {
                         "name": name,
                         "description": docstring or data.description,
-                        "options": [],
                     }
+                    if options:
+                        doc.update({"options": []})
 
                     for option in options:
                         option_dict = {

@@ -1,6 +1,8 @@
 import {getCommandJson} from '../../lib/commands'
 import Layout from "../../components/layout/layout";
 import Command from '../../components/commands'
+import Title from "../../components/content/title";
+import Description from "../../components/content/description";
 
 
 export async function getStaticProps() {
@@ -13,50 +15,63 @@ export async function getStaticProps() {
     }
 }
 
+// todo add permissions here (sth like the optional thingy)
 export default function Commands({allCommandData, allSubCommandData}) {
+    const gridStyle = "grid grid-flow-row gap-2 pl-2 pt-2"
+    const gridItemStyle = "p-2 rounded "
+
+    const gridBackground1 = "bg-gradient-to-r dark:from-slate-800 dark:to-slate-900"
+    const gridBackground2 = "bg-gradient-to-r dark:from-slate-700 dark:to-slate-800"
 
     const commands = Object.keys(allCommandData).map((topic) => {
         return (
-            <li key={topic}>
-                {topic}
-                <ul>
+            <details className={`${gridItemStyle} ${gridBackground1} marker:text-descend`}>
+                <summary>
+                    {topic} Commands
+                </summary>
+                <div className={`${gridStyle}`}>
                     {
                         Object.keys(allCommandData[topic]).map((scope) => {
                             const commandList = allCommandData[topic][scope]
 
                             return (
-                                <li key={scope}>
-                                    {scope}
-                                    <ul>
+                                <details className={`${gridItemStyle} ${gridBackground2}`}>
+                                    <summary>
+                                        {scope}
+                                    </summary>
+
+                                    <div className={`${gridStyle}`}>
                                         {
                                             commandList.map((command) => {
                                                 return (
                                                     <Command
-                                                        name={command.name}
-                                                        description={command.description}
+                                                        command={command}
+                                                        gridStyle={gridStyle}
+                                                        gridItemStyle={gridItemStyle}
+                                                        gridBackground1={gridBackground1}
+                                                        gridBackground2={gridBackground2}
                                                     />
                                                 )
                                             })
                                         }
-                                    </ul>
-                                    <br/>
-                                </li>
+                                    </div>
+                                </details>
                             )
                         })
                     }
-                </ul>
-            </li>
+                </div>
+            </details>
         )
     })
 
     return (
         <Layout>
-            <h1>Commands</h1>
-            <section>
-                <ul>
+            <Title title="Commands"/>
+            <Description>
+                <div className={`${gridStyle} gap-6`}>
                     {commands}
-                </ul>
-            </section>
+                </div>
+            </Description>
         </Layout>
     )
 }
