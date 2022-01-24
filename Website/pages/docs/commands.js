@@ -1,22 +1,21 @@
 import {getCommandJson} from '../../lib/commands'
 import Layout from "../../components/layout/layout";
-import Command from '../../components/commands'
+import ParseCommand from '../../components/commands'
 import Title from "../../components/content/title";
 import Description from "../../components/content/description";
 
 
 export async function getStaticProps() {
     const allCommandData = getCommandJson("commands.json")
-    const allSubCommandData = getCommandJson("subCommands.json")
     return {
         props: {
-            allCommandData, allSubCommandData
+            allCommandData
         }
     }
 }
 
 // todo add permissions here (sth like the optional thingy)
-export default function Commands({allCommandData, allSubCommandData}) {
+export default function Commands({allCommandData}) {
     const gridStyle = "grid grid-flow-row gap-2 pl-2 pt-2"
     const gridItemStyle = "p-2 rounded "
 
@@ -27,7 +26,7 @@ export default function Commands({allCommandData, allSubCommandData}) {
         return (
             <details className={`${gridItemStyle} ${gridBackground1} marker:text-descend`}>
                 <summary>
-                    {topic} Commands
+                    {topic}
                 </summary>
                 <div className={`${gridStyle}`}>
                     {
@@ -44,7 +43,7 @@ export default function Commands({allCommandData, allSubCommandData}) {
                                         {
                                             commandList.map((command) => {
                                                 return (
-                                                    <Command
+                                                    <ParseCommand
                                                         command={command}
                                                         gridStyle={gridStyle}
                                                         gridItemStyle={gridItemStyle}

@@ -3,7 +3,7 @@ import copy
 from dis_snek import Snake
 
 from ElevatorBot.commandHelpers.autocomplete import autocomplete_send_activity_name, autocomplete_send_weapon_name
-from ElevatorBot.commands.destiny.rank.clan import RankClan
+from ElevatorBot.commands.a_destiny.rank.clan import RankClan
 
 
 # inherit the rank command, just change the sub command name

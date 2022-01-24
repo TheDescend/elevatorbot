@@ -8,7 +8,7 @@ from ElevatorBot.backendNetworking.destiny.clan import DestinyClan
 from ElevatorBot.backendNetworking.github import get_github_repo
 from ElevatorBot.backendNetworking.misc.giveaway import BackendGiveaway
 from ElevatorBot.backendNetworking.misc.polls import BackendPolls
-from ElevatorBot.commands.destiny.registration.register import send_registration
+from ElevatorBot.commands.a_destiny.registration.register import send_registration
 from ElevatorBot.core.destiny.lfg.lfgSystem import LfgMessage
 from ElevatorBot.core.misc.poll import Poll
 from ElevatorBot.misc.discordShortcutFunctions import assign_roles_to_member, remove_roles_from_member

@@ -1,6 +1,4 @@
-
-
-export default function Command({command, gridStyle, gridItemStyle, gridBackground1, gridBackground2}) {
+function Command({command, gridStyle, gridItemStyle, gridBackground1, gridBackground2}) {
     return (
         <details className={`${gridItemStyle} ${gridBackground1}`}>
             <summary>
@@ -26,7 +24,8 @@ export default function Command({command, gridStyle, gridItemStyle, gridBackgrou
                                                 <code className="text-center">
                                                     {option.name}
                                                 </code>
-                                                <span className={`${option.required ? '' : 'italic'} self-center text-xs text-descend pl-2`}>
+                                                <span
+                                                    className={`${option.required ? '' : 'italic'} self-center text-xs text-descend pl-2`}>
                                                     {option.required ? '' : 'optional'}
                                                 </span>
                                             </summary>
@@ -65,4 +64,47 @@ export default function Command({command, gridStyle, gridItemStyle, gridBackgrou
             </div>
         </details>
     )
+}
+
+
+export default function ParseCommand({command, gridStyle, gridItemStyle, gridBackground1, gridBackground2}) {
+    if ("name" in command) {
+        return (
+            <Command
+                command={command}
+                gridStyle={gridStyle}
+                gridItemStyle={gridItemStyle}
+                gridBackground1={gridBackground1}
+                gridBackground2={gridBackground2}
+            />
+        )
+    } else {
+        return (
+            <details className={`${gridItemStyle} ${gridBackground1}`}>
+                <summary>
+                    {command["base_name"]}
+                </summary>
+
+                <div className={`${gridStyle}`}>
+                    <p>
+                        {command["base_description"]}
+                    </p>
+                    {
+                        command["sub_commands"].map((subCommand) => {
+                            return (
+                                <Command
+                                    command={subCommand}
+                                    gridStyle={gridStyle}
+                                    gridItemStyle={gridItemStyle}
+                                    gridBackground1={gridBackground2}
+                                    gridBackground2={gridBackground1}
+                                />
+                            )
+                        })
+                    }
+                </div>
+            </details>
+        )
+    }
+
 }

@@ -1,34 +1,601 @@
 {
-    "Admin": {
+    "Destiny Commands": {
         "Available Globally": [
             {
-                "name": "user_info",
-                "description": "Gets collected info for the specified user. Exactly one option needs to be filled out",
-                "options": [
+                "base_name": "Day One Commands",
+                "base_description": "Everything concerning Destiny 2 Day One raid completions",
+                "sub_commands": [
                     {
-                        "name": "discord_user",
-                        "description": "Look up a discord user",
-                        "required": false,
-                        "autocomplete": false
+                        "name": "day_one raid",
+                        "description": "Get the users with a Day One raid completion of the specified raid",
+                        "options": [
+                            {
+                                "name": "raid",
+                                "description": "The name of the raid",
+                                "required": true,
+                                "autocomplete": false,
+                                "choices": [
+                                    "Last Wish",
+                                    "Scourge of the Past",
+                                    "Crown of Sorrows",
+                                    "Garden of Salvation",
+                                    "Deep Stone Crypt",
+                                    "Vault of Glass"
+                                ]
+                            }
+                        ]
                     },
                     {
-                        "name": "destiny_id",
-                        "description": "Look up a destinyID",
-                        "required": false,
-                        "autocomplete": false
-                    },
-                    {
-                        "name": "fuzzy_name",
-                        "description": "If you know how the user is called",
-                        "required": false,
-                        "autocomplete": false
+                        "name": "day_one user",
+                        "description": "Look up the Day One raid completions",
+                        "options": [
+                            {
+                                "name": "user",
+                                "description": "The user you want to look up",
+                                "required": false,
+                                "autocomplete": false
+                            }
+                        ]
                     }
                 ]
-            }
-        ]
-    },
-    "Destiny": {
-        "Available Globally": [
+            },
+            {
+                "base_name": "Lfg Commands",
+                "base_description": "Everything concerning my awesome Destiny 2 LFG system",
+                "sub_commands": [
+                    {
+                        "name": "lfg add",
+                        "description": "This adds people into the main roster of an LFG event, even if is full",
+                        "options": [
+                            {
+                                "name": "lfg_id",
+                                "description": "The lfg event ID",
+                                "required": true,
+                                "autocomplete": false
+                            },
+                            {
+                                "name": "user",
+                                "description": "The user you want to add",
+                                "required": true,
+                                "autocomplete": false
+                            }
+                        ]
+                    },
+                    {
+                        "name": "lfg create",
+                        "description": "Creates an LFG event",
+                        "options": [
+                            {
+                                "name": "activity",
+                                "description": "The name of the activity",
+                                "required": true,
+                                "autocomplete": true
+                            },
+                            {
+                                "name": "start_time",
+                                "description": "Format: HH:MM DD/MM - When the event is supposed to start. asap to start as soon as it fills up",
+                                "required": true,
+                                "autocomplete": false
+                            },
+                            {
+                                "name": "timezone",
+                                "description": "What timezone you are in",
+                                "required": true,
+                                "autocomplete": false,
+                                "choices": [
+                                    "GMT / UTC",
+                                    "Central Europe",
+                                    "Eastern Europe",
+                                    "Moscow / Turkey",
+                                    "Central US",
+                                    "Eastern US",
+                                    "Pacific US"
+                                ]
+                            },
+                            {
+                                "name": "overwrite_max_members",
+                                "description": "You can overwrite the maximum number of people that can join your event",
+                                "required": false,
+                                "autocomplete": false
+                            }
+                        ]
+                    },
+                    {
+                        "name": "lfg delete",
+                        "description": "When you fucked up and need to delete an event",
+                        "options": [
+                            {
+                                "name": "lfg_id",
+                                "description": "The lfg event ID",
+                                "required": true,
+                                "autocomplete": false
+                            }
+                        ]
+                    },
+                    {
+                        "name": "lfg edit",
+                        "description": "When you fucked up and need to edit an event",
+                        "options": [
+                            {
+                                "name": "lfg_id",
+                                "description": "The lfg event ID",
+                                "required": true,
+                                "autocomplete": false
+                            },
+                            {
+                                "name": "activity",
+                                "description": "Use this is you want to edit the name of the activity",
+                                "required": false,
+                                "autocomplete": true
+                            }
+                        ]
+                    },
+                    {
+                        "name": "lfg joined",
+                        "description": "Shows you an overview of all LFG events you have joined"
+                    },
+                    {
+                        "name": "lfg kick",
+                        "description": "Kick a user from an lfg event",
+                        "options": [
+                            {
+                                "name": "lfg_id",
+                                "description": "The lfg event ID",
+                                "required": true,
+                                "autocomplete": false
+                            },
+                            {
+                                "name": "user",
+                                "description": "The user you want to kick",
+                                "required": true,
+                                "autocomplete": false
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "base_name": "Rank Commands",
+                "base_description": "Display Destiny 2 leaderboards. Pick **only** one leaderboard from all options",
+                "sub_commands": [
+                    {
+                        "name": "rank server",
+                        "description": "Show all server members on the leaderboard",
+                        "options": [
+                            {
+                                "name": "discord_leaderboards",
+                                "description": "Leaderboards concerning this discord server",
+                                "required": false,
+                                "autocomplete": false,
+                                "choices": [
+                                    "Roles Earned on this Discord Server",
+                                    "Join-Date of this Discord Server"
+                                ]
+                            },
+                            {
+                                "name": "basic_leaderboards",
+                                "description": "Leaderboards concerning basic Destiny 2 stats",
+                                "required": false,
+                                "autocomplete": false,
+                                "choices": [
+                                    "Total Playtime",
+                                    "Maximum Power Level",
+                                    "Maximum Season Pass Level",
+                                    "Kills",
+                                    "Kills with: Melee",
+                                    "Kills with: Super",
+                                    "Kills with: Grenade",
+                                    "Deaths",
+                                    "Suicides",
+                                    "Orbs of Power Generated",
+                                    "Triumph Score",
+                                    "Active Triumph Score",
+                                    "Legacy Triumph Score",
+                                    "Enhancement Cores",
+                                    "Vault Space Used",
+                                    "Bright Dust Owned",
+                                    "Legendary Shards Owned",
+                                    "Raid Banners Owned",
+                                    "Forges Done",
+                                    "AFK Forges Done",
+                                    "Weapon Catalysts Completed"
+                                ]
+                            },
+                            {
+                                "name": "endgame_leaderboards",
+                                "description": "Leaderboards concerning stats in Destiny 2 endgame activities",
+                                "required": false,
+                                "autocomplete": false,
+                                "choices": [
+                                    "Raids Completed",
+                                    "Raid Playtime",
+                                    "Raids Completed on Day One",
+                                    "Grandmaster Nightfalls Completed",
+                                    "Grandmaster Nightfalls Playtime"
+                                ]
+                            },
+                            {
+                                "name": "activity_leaderboards",
+                                "description": "Leaderboards concerning stats in Destiny 2 activities. Input the sought activity in activity",
+                                "required": false,
+                                "autocomplete": false,
+                                "choices": [
+                                    "Full Activity Completions",
+                                    "CP Activity Completions",
+                                    "Activity Kills",
+                                    "Activity Precision Kills",
+                                    "Activity % Precision Kills",
+                                    "Activity Deaths",
+                                    "Activity Assists",
+                                    "Activity Playtime",
+                                    "Fastest Activity Completion Time",
+                                    "Average Activity Completion Time"
+                                ]
+                            },
+                            {
+                                "name": "weapon_leaderboards",
+                                "description": "Leaderboards concerning Destiny 2 weapon stats. Input the sought weapon in weapon",
+                                "required": false,
+                                "autocomplete": false,
+                                "choices": [
+                                    "Weapon Kills",
+                                    "Weapon Precision Kills",
+                                    "Weapon % Precision Kills"
+                                ]
+                            },
+                            {
+                                "name": "activity",
+                                "description": "If are looking for a activity_leaderboards, please select the activity",
+                                "required": false,
+                                "autocomplete": true
+                            },
+                            {
+                                "name": "weapon",
+                                "description": "If are looking for a weapon_leaderboards, please select the weapon",
+                                "required": false,
+                                "autocomplete": true
+                            },
+                            {
+                                "name": "reverse",
+                                "description": "If you want to reverse the sorting: Default: False",
+                                "required": false,
+                                "autocomplete": false
+                            },
+                            {
+                                "name": "user",
+                                "description": "The user you want to look up",
+                                "required": false,
+                                "autocomplete": false
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "base_name": "Roles Commands",
+                "base_description": "Various commands concerning Destiny 2 achievement discord roles",
+                "sub_commands": [
+                    {
+                        "name": "roles get",
+                        "description": "Assigns you all the Destiny 2 achievement roles you have earned"
+                    },
+                    {
+                        "name": "roles missing",
+                        "description": "Shows you what Destiny 2 achievement roles you can still achieve",
+                        "options": [
+                            {
+                                "name": "user",
+                                "description": "The user you want to look up",
+                                "required": false,
+                                "autocomplete": false
+                            }
+                        ]
+                    },
+                    {
+                        "name": "roles requirements",
+                        "description": "Shows you what you still need to do to get the specified Destiny 2 achievement role",
+                        "options": [
+                            {
+                                "name": "role",
+                                "description": "The role you want to look up",
+                                "required": true,
+                                "autocomplete": false
+                            },
+                            {
+                                "name": "user",
+                                "description": "The user you want to look up",
+                                "required": false,
+                                "autocomplete": false
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "base_name": "Stat Commands",
+                "base_description": "Shows you various Destiny 2 stats",
+                "sub_commands": [
+                    {
+                        "name": "stat everything",
+                        "description": "Displays the specified stat for all activities",
+                        "options": [
+                            {
+                                "name": "name",
+                                "description": "The name of the leaderboard you want to see",
+                                "required": true,
+                                "autocomplete": false,
+                                "choices": [
+                                    "Kills",
+                                    "Precision Kills",
+                                    "Assists",
+                                    "Deaths",
+                                    "Suicides",
+                                    "KDA",
+                                    "Longest Kill Distance",
+                                    "Average Kill Distance",
+                                    "Total Kill Distance",
+                                    "Longest Kill Spree",
+                                    "Average Lifespan",
+                                    "Resurrections Given",
+                                    "Resurrections Received",
+                                    "Number of Players Played With",
+                                    "Longest Single Life (in seconds)",
+                                    "Orbs of Power Dropped",
+                                    "Orbs of Power Gathered",
+                                    "Time Played (in seconds)",
+                                    "Activities Cleared",
+                                    "Public Events Completed",
+                                    "Heroic Public Events Completed",
+                                    "Kills with: Super",
+                                    "Kills with: Melee",
+                                    "Kills with: Grenade",
+                                    "Kills with: Ability"
+                                ]
+                            },
+                            {
+                                "name": "destiny_class",
+                                "description": "Restrict the class. Default: All classes",
+                                "required": false,
+                                "autocomplete": false,
+                                "choices": [
+                                    "Warlock",
+                                    "Hunter",
+                                    "Titan"
+                                ]
+                            },
+                            {
+                                "name": "user",
+                                "description": "The user you want to look up",
+                                "required": false,
+                                "autocomplete": false
+                            }
+                        ]
+                    },
+                    {
+                        "name": "stat pve",
+                        "description": "Displays the specified stat for all PvE activities",
+                        "options": [
+                            {
+                                "name": "name",
+                                "description": "The name of the leaderboard you want to see",
+                                "required": true,
+                                "autocomplete": false,
+                                "choices": [
+                                    "Kills",
+                                    "Precision Kills",
+                                    "Assists",
+                                    "Deaths",
+                                    "Suicides",
+                                    "KDA",
+                                    "Longest Kill Distance",
+                                    "Average Kill Distance",
+                                    "Total Kill Distance",
+                                    "Longest Kill Spree",
+                                    "Average Lifespan",
+                                    "Resurrections Given",
+                                    "Resurrections Received",
+                                    "Number of Players Played With",
+                                    "Longest Single Life (in seconds)",
+                                    "Orbs of Power Dropped",
+                                    "Orbs of Power Gathered",
+                                    "Time Played (in seconds)",
+                                    "Activities Cleared",
+                                    "Public Events Completed",
+                                    "Heroic Public Events Completed",
+                                    "Kills with: Super",
+                                    "Kills with: Melee",
+                                    "Kills with: Grenade",
+                                    "Kills with: Ability"
+                                ]
+                            },
+                            {
+                                "name": "destiny_class",
+                                "description": "Restrict the class. Default: All classes",
+                                "required": false,
+                                "autocomplete": false,
+                                "choices": [
+                                    "Warlock",
+                                    "Hunter",
+                                    "Titan"
+                                ]
+                            },
+                            {
+                                "name": "user",
+                                "description": "The user you want to look up",
+                                "required": false,
+                                "autocomplete": false
+                            }
+                        ]
+                    },
+                    {
+                        "name": "stat pvp",
+                        "description": "Displays the specified stat for all PvP activities",
+                        "options": [
+                            {
+                                "name": "name",
+                                "description": "The name of the leaderboard you want to see",
+                                "required": true,
+                                "autocomplete": false,
+                                "choices": [
+                                    "Kills",
+                                    "Precision Kills",
+                                    "Assists",
+                                    "Deaths",
+                                    "Suicides",
+                                    "KDA",
+                                    "Longest Kill Distance",
+                                    "Average Kill Distance",
+                                    "Total Kill Distance",
+                                    "Longest Kill Spree",
+                                    "Average Lifespan",
+                                    "Resurrections Given",
+                                    "Resurrections Received",
+                                    "Number of Players Played With",
+                                    "Longest Single Life (in seconds)",
+                                    "Orbs of Power Dropped",
+                                    "Orbs of Power Gathered",
+                                    "Time Played (in seconds)",
+                                    "Activities Cleared",
+                                    "Public Events Completed",
+                                    "Heroic Public Events Completed",
+                                    "Kills with: Super",
+                                    "Kills with: Melee",
+                                    "Kills with: Grenade",
+                                    "Kills with: Ability"
+                                ]
+                            },
+                            {
+                                "name": "destiny_class",
+                                "description": "Restrict the class. Default: All classes",
+                                "required": false,
+                                "autocomplete": false,
+                                "choices": [
+                                    "Warlock",
+                                    "Hunter",
+                                    "Titan"
+                                ]
+                            },
+                            {
+                                "name": "user",
+                                "description": "The user you want to look up",
+                                "required": false,
+                                "autocomplete": false
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "base_name": "Weapons Commands",
+                "base_description": "Everything concerning Destiny 2 weapons and their usage",
+                "sub_commands": [
+                    {
+                        "name": "weapons weapon",
+                        "description": "Shows Destiny 2 weapon stats for the specified weapon",
+                        "options": [
+                            {
+                                "name": "weapon",
+                                "description": "The weapon you want to look up",
+                                "required": true,
+                                "autocomplete": true
+                            },
+                            {
+                                "name": "mode",
+                                "description": "Restrict the game mode. Default: All modes",
+                                "required": false,
+                                "autocomplete": false,
+                                "choices": [
+                                    "All",
+                                    "Raid",
+                                    "Dungeon",
+                                    "Story",
+                                    "Strike",
+                                    "Nightfall",
+                                    "Patrol",
+                                    "Gambit",
+                                    "All Pve",
+                                    "Iron Banner",
+                                    "Trials Of Osiris",
+                                    "Private Matches",
+                                    "All Pvp"
+                                ]
+                            },
+                            {
+                                "name": "activity",
+                                "description": "Restrict the activity. Overwrites mode. Default: All activities",
+                                "required": false,
+                                "autocomplete": true
+                            },
+                            {
+                                "name": "destiny_class",
+                                "description": "Restrict the class. Default: All classes",
+                                "required": false,
+                                "autocomplete": false,
+                                "choices": [
+                                    "Warlock",
+                                    "Hunter",
+                                    "Titan"
+                                ]
+                            },
+                            {
+                                "name": "expansion",
+                                "description": "Restrict the expansion. Default: All expansions",
+                                "required": false,
+                                "autocomplete": false,
+                                "choices": [
+                                    "D2 Vanilla",
+                                    "Forsaken",
+                                    "Shadowkeep",
+                                    "Beyond Light",
+                                    "Witch Queen"
+                                ]
+                            },
+                            {
+                                "name": "season",
+                                "description": "Restrict the season. Default: All seasons",
+                                "required": false,
+                                "autocomplete": false,
+                                "choices": [
+                                    "D2 Vanilla",
+                                    "Curse of Osiris",
+                                    "Warmind",
+                                    "Forsaken",
+                                    "Season of the Forge",
+                                    "Season of the Drifter",
+                                    "Season of Opulence",
+                                    "Shadowkeep",
+                                    "Season of Dawn",
+                                    "Season of the Worthy",
+                                    "Season of Arrivals",
+                                    "Beyond Light",
+                                    "Season of the Chosen",
+                                    "Season of the Splicer",
+                                    "Season of the Lost",
+                                    "Witch Queen"
+                                ]
+                            },
+                            {
+                                "name": "start_time",
+                                "description": "Format: DD/MM/YY - Input the **earliest** date you want the weapon stats for. Default: Big Bang",
+                                "required": false,
+                                "autocomplete": false
+                            },
+                            {
+                                "name": "end_time",
+                                "description": "Format: DD/MM/YY - Input the **latest** date you want the weapon stats for. Default: Now",
+                                "required": false,
+                                "autocomplete": false
+                            },
+                            {
+                                "name": "user",
+                                "description": "The user you want to look up",
+                                "required": false,
+                                "autocomplete": false
+                            }
+                        ]
+                    }
+                ]
+            },
             {
                 "name": "activity",
                 "description": "Display stats for Destiny 2 activities",
@@ -89,13 +656,13 @@
                     },
                     {
                         "name": "start_time",
-                        "description": "Format: `DD/MM/YY` - Input the **earliest** date you want the weapon stats for. Default: Big Bang",
+                        "description": "Format: DD/MM/YY - Input the **earliest** date you want the weapon stats for. Default: Big Bang",
                         "required": false,
                         "autocomplete": false
                     },
                     {
                         "name": "end_time",
-                        "description": "Format: `DD/MM/YY` - Input the **latest** date you want the weapon stats for. Default: Now",
+                        "description": "Format: DD/MM/YY - Input the **latest** date you want the weapon stats for. Default: Now",
                         "required": false,
                         "autocomplete": false
                     },
@@ -110,6 +677,18 @@
             {
                 "name": "catalysts",
                 "description": "Shows you Destiny 2 exotic weapon catalysts and their completion status",
+                "options": [
+                    {
+                        "name": "user",
+                        "description": "The user you want to look up",
+                        "required": false,
+                        "autocomplete": false
+                    }
+                ]
+            },
+            {
+                "name": "challenges",
+                "description": "Shows you the current Destiny 2 seasonal challenges and your completion status",
                 "options": [
                     {
                         "name": "user",
@@ -170,7 +749,7 @@
                     },
                     {
                         "name": "activity",
-                        "description": "Restrict the activity. Overwrites `mode`. Default: All activities",
+                        "description": "Restrict the activity. Overwrites mode. Default: All activities",
                         "required": false,
                         "autocomplete": true
                     },
@@ -207,24 +786,15 @@
             },
             {
                 "name": "pop_timeline",
-                "description": "Shows you the Destiny 2 steam maximum population timeline",
-                "options": []
+                "description": "Shows you the Destiny 2 steam maximum population timeline"
+            },
+            {
+                "name": "register",
+                "description": "Link your Destiny 2 account with ElevatorBot"
             },
             {
                 "name": "seals",
                 "description": "View all Destiny 2 seals and your completion status",
-                "options": [
-                    {
-                        "name": "user",
-                        "description": "The user you want to look up",
-                        "required": false,
-                        "autocomplete": false
-                    }
-                ]
-            },
-            {
-                "name": "challenges",
-                "description": "Shows you the current Destiny 2 seasonal challenges and your completion status",
                 "options": [
                     {
                         "name": "user",
@@ -273,7 +843,7 @@
                     },
                     {
                         "name": "activity",
-                        "description": "Restrict the activity. Overwrites `mode`. Default: All activities",
+                        "description": "Restrict the activity. Overwrites mode. Default: All activities",
                         "required": false,
                         "autocomplete": true
                     },
@@ -295,6 +865,10 @@
                         "autocomplete": false
                     }
                 ]
+            },
+            {
+                "name": "unregister",
+                "description": "Unlink your Destiny 2 account from ElevatorBot"
             },
             {
                 "name": "website",
@@ -329,37 +903,130 @@
                         "autocomplete": false
                     }
                 ]
-            },
-            {
-                "name": "register",
-                "description": "Link your Destiny 2 account with ElevatorBot",
-                "options": []
-            },
-            {
-                "name": "unregister",
-                "description": "Unlink your Destiny 2 account from ElevatorBot",
-                "options": []
             }
         ],
         "Only Available in the Descend Server": [
             {
                 "name": "day_one_raid_race",
-                "description": "Starts the Day One raid completion announcer",
-                "options": []
+                "description": "Starts the Day One raid completion announcer"
             }
         ]
     },
-    "Miscellaneous": {
+    "Miscellaneous Commands": {
         "Available Globally": [
             {
+                "base_name": "Poll Commands",
+                "base_description": "Making polls easy",
+                "sub_commands": [
+                    {
+                        "name": "poll add",
+                        "description": "Add an option to an existing poll",
+                        "options": [
+                            {
+                                "name": "poll_id",
+                                "description": "The ID of the poll",
+                                "required": true,
+                                "autocomplete": false
+                            },
+                            {
+                                "name": "option",
+                                "description": "The name the option should have",
+                                "required": true,
+                                "autocomplete": false
+                            }
+                        ]
+                    },
+                    {
+                        "name": "poll create",
+                        "description": "Create a new poll",
+                        "options": [
+                            {
+                                "name": "name",
+                                "description": "The name the poll should have",
+                                "required": true,
+                                "autocomplete": false
+                            },
+                            {
+                                "name": "description",
+                                "description": "The description the poll should have",
+                                "required": true,
+                                "autocomplete": false
+                            }
+                        ]
+                    },
+                    {
+                        "name": "poll delete",
+                        "description": "Delete an existing poll",
+                        "options": [
+                            {
+                                "name": "poll_id",
+                                "description": "The ID of the poll",
+                                "required": true,
+                                "autocomplete": false
+                            }
+                        ]
+                    },
+                    {
+                        "name": "poll disable",
+                        "description": "Disable an existing poll",
+                        "options": [
+                            {
+                                "name": "poll_id",
+                                "description": "The ID of the poll",
+                                "required": true,
+                                "autocomplete": false
+                            }
+                        ]
+                    },
+                    {
+                        "name": "poll remove",
+                        "description": "Remove an existing option from an existing poll",
+                        "options": [
+                            {
+                                "name": "poll_id",
+                                "description": "The ID of the poll",
+                                "required": true,
+                                "autocomplete": false
+                            },
+                            {
+                                "name": "option",
+                                "description": "The name the option should have",
+                                "required": true,
+                                "autocomplete": false
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "base_name": "Tictactoe Commands",
+                "base_description": "You know and love it - TicTacToe",
+                "sub_commands": [
+                    {
+                        "name": "tictactoe computer",
+                        "description": "Try to beat me in a tic tac toe game",
+                        "options": [
+                            {
+                                "name": "easy_mode",
+                                "description": "Set this to true if you are too weak for the normal mode",
+                                "required": false,
+                                "autocomplete": false
+                            }
+                        ]
+                    },
+                    {
+                        "name": "tictactoe versus",
+                        "description": "Play against other humans"
+                    }
+                ]
+            },
+            {
                 "name": "boosters",
-                "description": "Prints all premium subscribers (boosters) of this discord server",
-                "options": []
+                "description": "Prints all premium subscribers (boosters) of this discord server"
             },
             {
                 "name": "bubble_wrap",
-                "description": "This 100% recreates the happy feeling of popping bubble wrap",
-                "options": []
+                "description": "This 100% recreates the happy feeling of popping bubble wrap"
             },
             {
                 "name": "bug",
@@ -375,8 +1042,7 @@
             },
             {
                 "name": "calculator",
-                "description": "Summons a handy calculator",
-                "options": []
+                "description": "Summons a handy calculator"
             },
             {
                 "name": "discord_join_date",
@@ -392,15 +1058,13 @@
             },
             {
                 "name": "funfact",
-                "description": "Get a fun fact, which most of the time is even pretty interesting",
-                "options": []
+                "description": "Get a fun fact, which most of the time is even pretty interesting"
             }
         ],
         "Only Available in the Descend Server": [
             {
                 "name": "api_key",
-                "description": "Get your own Destiny 2 oauth api key",
-                "options": []
+                "description": "Get your own Destiny 2 oauth api key"
             },
             {
                 "name": "giveaway",
@@ -422,8 +1086,7 @@
             },
             {
                 "name": "metrics",
-                "description": "Shows interesting ElevatorBot metrics",
-                "options": []
+                "description": "Shows interesting ElevatorBot metrics"
             },
             {
                 "name": "mute",
@@ -473,8 +1136,7 @@
             },
             {
                 "name": "socialist",
-                "description": "Spams `#socialist` \ud83d\ude43",
-                "options": []
+                "description": "Spams #socialist \ud83d\ude43"
             },
             {
                 "name": "warning",
@@ -491,6 +1153,228 @@
                         "description": "Whats the reason for the warning",
                         "required": true,
                         "autocomplete": false
+                    }
+                ]
+            }
+        ]
+    },
+    "Admin Commands": {
+        "Available Globally": [
+            {
+                "base_name": "Setup Commands",
+                "base_description": "Use these commands to setup ElevatorBot on this server",
+                "sub_commands": [
+                    {
+                        "name": "setup bungie_feed",
+                        "description": "Designate a channel where bungie articles get posted",
+                        "options": [
+                            {
+                                "name": "channel",
+                                "description": "The text channel where the messages should be displayed",
+                                "required": true,
+                                "autocomplete": false
+                            },
+                            {
+                                "name": "message_id",
+                                "description": "You can input a message ID (needs to be from me and selected channel) to have me edit that message",
+                                "required": false,
+                                "autocomplete": false
+                            }
+                        ]
+                    },
+                    {
+                        "name": "setup clan join",
+                        "description": "Designate a channel where players can join your Destiny 2 clan by pressing a button. They will receive an invite by the person which used /setup clan link",
+                        "options": [
+                            {
+                                "name": "channel",
+                                "description": "The text channel where the message should be displayed",
+                                "required": true,
+                                "autocomplete": false
+                            },
+                            {
+                                "name": "message_id",
+                                "description": "You can input a message ID (needs to be from me and selected channel) to have me edit that message",
+                                "required": false,
+                                "autocomplete": false
+                            }
+                        ]
+                    },
+                    {
+                        "name": "setup clan link",
+                        "description": "Links your own Destiny 2 clan with the discord server this was executed in"
+                    },
+                    {
+                        "name": "setup clan unlink",
+                        "description": "Unlinks the current Destiny 2 clan and the discord server this was executed in"
+                    },
+                    {
+                        "name": "setup increment_button",
+                        "description": "Creates a button that users can click and increment. Whoever gets the 69420 click wins",
+                        "options": [
+                            {
+                                "name": "channel",
+                                "description": "The text channel where the message should be displayed",
+                                "required": true,
+                                "autocomplete": false
+                            },
+                            {
+                                "name": "message_id",
+                                "description": "You can input a message ID (needs to be from me and selected channel) to have me edit that message",
+                                "required": false,
+                                "autocomplete": false
+                            }
+                        ]
+                    },
+                    {
+                        "name": "setup lfg channel",
+                        "description": "Designate a channel where my LFG events get posted",
+                        "options": [
+                            {
+                                "name": "channel",
+                                "description": "The text channel where the message should be displayed",
+                                "required": true,
+                                "autocomplete": false
+                            }
+                        ]
+                    },
+                    {
+                        "name": "setup lfg voice_category",
+                        "description": "Designate a category channel under which my LFG voice channels get created. If you want me to automatically create voice channels for each LFG event, use this to set it up",
+                        "options": [
+                            {
+                                "name": "channel",
+                                "description": "The category channel where the voice channels should be anchored",
+                                "required": true,
+                                "autocomplete": false
+                            }
+                        ]
+                    },
+                    {
+                        "name": "setup overview",
+                        "description": "Gives you an overview over my setting for this server"
+                    },
+                    {
+                        "name": "setup registered_role",
+                        "description": "Designate the role that is given to people that /register with me",
+                        "options": [
+                            {
+                                "name": "role",
+                                "description": "The role to link",
+                                "required": true,
+                                "autocomplete": false
+                            }
+                        ]
+                    },
+                    {
+                        "name": "setup registration",
+                        "description": "Designate a channel in which user can register with me by pressing a button",
+                        "options": [
+                            {
+                                "name": "channel",
+                                "description": "The text channel where the message should be displayed",
+                                "required": true,
+                                "autocomplete": false
+                            },
+                            {
+                                "name": "message_id",
+                                "description": "You can input a message ID (needs to be from me and selected channel) to have me edit that message",
+                                "required": false,
+                                "autocomplete": false
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "name": "user_info",
+                "description": "Gets collected info for the specified user. Exactly one option needs to be filled out",
+                "options": [
+                    {
+                        "name": "discord_user",
+                        "description": "Look up a discord user",
+                        "required": false,
+                        "autocomplete": false
+                    },
+                    {
+                        "name": "destiny_id",
+                        "description": "Look up a destinyID",
+                        "required": false,
+                        "autocomplete": false
+                    },
+                    {
+                        "name": "fuzzy_name",
+                        "description": "If you know how the user is called",
+                        "required": false,
+                        "autocomplete": false
+                    }
+                ]
+            }
+        ],
+        "Only Available in the Descend Server": [
+            {
+                "base_name": "Descend Setup Commands",
+                "base_description": "Use these commands to setup ElevatorBot on this server",
+                "sub_commands": [
+                    {
+                        "name": "descend_setup booster_count",
+                        "description": "Designate a voice channel that will always show the current booster count",
+                        "options": [
+                            {
+                                "name": "category",
+                                "description": "The voice channel where the message should be displayed",
+                                "required": true,
+                                "autocomplete": false
+                            }
+                        ]
+                    },
+                    {
+                        "name": "descend_setup member_count",
+                        "description": "Designate a voice channel that will always show the current member count",
+                        "options": [
+                            {
+                                "name": "category",
+                                "description": "The voice channel where the message should be displayed",
+                                "required": true,
+                                "autocomplete": false
+                            }
+                        ]
+                    },
+                    {
+                        "name": "descend_setup miscellaneous_roles",
+                        "description": "Designate a channel in which user can assign themselves miscellaneous roles",
+                        "options": [
+                            {
+                                "name": "channel",
+                                "description": "The text channel where the message should be displayed",
+                                "required": true,
+                                "autocomplete": false
+                            },
+                            {
+                                "name": "message_id",
+                                "description": "You can input a message ID (needs to be from me and selected channel) to have me edit that message",
+                                "required": false,
+                                "autocomplete": false
+                            }
+                        ]
+                    },
+                    {
+                        "name": "descend_setup status",
+                        "description": "Designate a channel in which status messages get posted and updated",
+                        "options": [
+                            {
+                                "name": "channel",
+                                "description": "The text channel where the message should be displayed",
+                                "required": true,
+                                "autocomplete": false
+                            },
+                            {
+                                "name": "message_id",
+                                "description": "You can input a message ID (needs to be from me and selected channel) to have me edit that message",
+                                "required": false,
+                                "autocomplete": false
+                            }
+                        ]
                     }
                 ]
             }

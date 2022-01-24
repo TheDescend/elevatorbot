@@ -21,7 +21,7 @@ class BungieRssFeed(BaseScale):
     )
     @slash_option(
         name="message_id",
-        description="-",
+        description="You can input a message ID (needs to be from me and selected channel) to have me edit that message",
         required=False,
         opt_type=OptionTypes.STRING,
     )

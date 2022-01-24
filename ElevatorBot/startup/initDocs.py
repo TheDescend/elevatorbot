@@ -17,13 +17,10 @@ class NoValidatorOption:
         self.choices = obj.choices
 
 
-# todo get rid of subcommands and save them in the commands.json (name=f"{base_command}{sub_command}")
-# todo override `` with <code></code>
 def create_command_docs(client):
     """Create user documentation for commands and context menus in ./ElevatorBot/docs"""
 
     commands = {}
-    sub_commands = {}
     context_menus_user = {}
     context_menus_message = {}
 
@@ -43,15 +40,14 @@ def create_command_docs(client):
             if resolved_name == "reload":
                 continue
 
-            # get the topic
-            topic = f"""{capitalize_string(data.scale.extension_name.split(".")[2])}"""
+            # get the topic. The folder names are starting with numbers to define the order for this
+            topic = f"""{capitalize_string(data.scale.extension_name.split(".")[2][2:])} Commands"""
 
             # get the docstring
             docstring = data.scale.__doc__
             options = copy(data.options) if hasattr(data, "options") and data.options else []
             # todo
             permissions = copy(data.permissions)
-
             docstring, options = overwrite_options_text(options=options, docstring=docstring)
 
             # check what type of interaction this is
@@ -59,7 +55,7 @@ def create_command_docs(client):
                 case ContextMenu():
                     doc = {
                         "name": resolved_name,
-                        "description": str(docstring),
+                        "description": convert_markdown(str(docstring)),
                     }
 
                     match data.type:
@@ -74,11 +70,12 @@ def create_command_docs(client):
                             context_menus_message[scope].append(doc)
 
                 case SlashCommand():
-                    name = " ".join(resolved_name.split()[1:]) if data.is_subcommand else resolved_name
+                    # get the actual description
+                    actual_description = data.sub_cmd_description if data.sub_cmd_name else data.description
 
                     doc = {
-                        "name": name,
-                        "description": docstring or data.description,
+                        "name": resolved_name,
+                        "description": convert_markdown(docstring or actual_description),
                     }
                     if options:
                         doc.update({"options": []})
@@ -86,7 +83,7 @@ def create_command_docs(client):
                     for option in options:
                         option_dict = {
                             "name": option.name,
-                            "description": option.description,
+                            "description": convert_markdown(option.description),
                             "required": option.required,
                             "autocomplete": option.autocomplete,
                         }
@@ -98,37 +95,64 @@ def create_command_docs(client):
 
                         doc["options"].append(option_dict)
 
+                    if topic not in commands:
+                        commands.update({topic: {}})
+                    if scope not in commands[topic]:
+                        commands[topic].update({scope: []})
+
                     if data.is_subcommand:
                         # this ignores groups and only splits them into base / sub
-                        base_name = resolved_name.split(" ")[0]
-
-                        if topic not in sub_commands:
-                            sub_commands.update({topic: {}})
-                        if scope not in sub_commands[topic]:
-                            sub_commands[topic].update({scope: []})
+                        base_name = (
+                            " ".join([part.capitalize() for part in resolved_name.split(" ")[0].split("_")])
+                            + " Commands"
+                        )
 
                         found = False
-                        for entry in sub_commands[topic][scope]:
-                            if entry["base_name"] == base_name:
+                        for entry in commands[topic][scope]:
+                            if "base_name" in entry and entry["base_name"] == base_name:
                                 entry["sub_commands"].append(doc)
                                 found = True
                         if not found:
-                            sub_commands[topic][scope].append(
-                                {"base_name": base_name, "base_description": data.description, "sub_commands": [doc]}
+                            commands[topic][scope].append(
+                                {
+                                    "base_name": base_name,
+                                    "base_description": convert_markdown(data.description),
+                                    "sub_commands": [doc],
+                                }
                             )
 
                     else:
-                        if topic not in commands:
-                            commands.update({topic: {}})
-                        if scope not in commands[topic]:
-                            commands[topic].update({scope: []})
                         commands[topic][scope].append(doc)
+
+    # sort the commands
+    # sub commands first, then normal commands
+    # everything alphabetical
+    for topic in commands:
+        for scope, c in commands[topic].items():
+            temp_s = []
+            temp_c = []
+            for command in c:
+                if "name" in command:
+                    temp_c.append(command)
+                else:
+                    temp_s.append(command)
+
+            # first sort the subcommands internally
+            for base_command in temp_s:
+                base_command["sub_commands"] = sorted(
+                    base_command["sub_commands"], key=lambda item: item["name"], reverse=False
+                )
+
+            # sort them
+            temp_c = sorted(temp_c, key=lambda item: item["name"], reverse=False)
+            temp_s = sorted(temp_s, key=lambda item: item["base_name"], reverse=False)
+
+            # overwrite the old data
+            commands[topic][scope] = temp_s + temp_c
 
     # write those to files
     with open("./ElevatorBot/docs/commands.json", "w+", encoding="utf-8") as file:
         json.dump(commands, file, indent=4)
-    with open("./ElevatorBot/docs/subCommands.json", "w+", encoding="utf-8") as file:
-        json.dump(sub_commands, file, indent=4)
     with open("./ElevatorBot/docs/contextMenusUser.json", "w+", encoding="utf-8") as file:
         json.dump(context_menus_user, file, indent=4)
     with open("./ElevatorBot/docs/contextMenusMessage.json", "w+", encoding="utf-8") as file:
@@ -163,3 +187,9 @@ def overwrite_options_text(
 
         return docstring.replace("\n", "").strip(), new_options or options
     return None, options
+
+
+def convert_markdown(text: str) -> str:
+    """Removes the markdown tags"""
+
+    return text.replace("`", "")
