@@ -1,11 +1,11 @@
-import Link from 'next/link'
 import Title from "../components/content/title";
 import Description from "../components/content/description";
+import Layout from "../components/layout/layout";
 
 
 export default function Home() {
     return (
-        <div>
+        <Layout>
             <Title title={"Home"}/>
             <Description>
                 <div>
@@ -34,6 +34,6 @@ export default function Home() {
 
                 </div>
             </Description>
-        </div>
+        </Layout>
     )
 }

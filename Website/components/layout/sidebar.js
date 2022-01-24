@@ -4,7 +4,7 @@ import {SideBarItems} from "../../data/sideBarItems";
 
 export default function Sidebar() {
     return (
-        <div className="bg-gray-500 dark:bg-gray-900 mr-4 hidden md:grid grid-cols-1">
+        <div className="bg-gray-500 dark:bg-gray-900 mr-4 hidden md:grid grid-cols-1 w-[350px]">
             <div className="p-6 pl-4 pr-8 gap-4 text-white">
                 {
                     Object.keys(SideBarItems).map((name) => {

@@ -26,7 +26,7 @@ export default function Layout({children}) {
                 <Header/>
                 <div className="flex-grow flex h-full overflow-y-hidden">
                     <Sidebar/>
-                    <div className="flex-grow h-full">
+                    <div className="flex-grow h-full w-full">
                         <div className="flex flex-col overflow-y-auto scroll-smooth divide-descend divide-y-2 h-full">
                             <Content children={children}/>
                             <Footer/>

@@ -1,15 +1,24 @@
-import Image from "next/image";
 import Link from "next/link";
 
 export default function Footer() {
     return (
         <footer className="
-            p-4 pt-12 pb-6
-            bg-gray-500 dark:bg-gray-900 text-center text-gray-900 dark:text-gray-300 font-bold
+            p-2 pt-6
+            bg-gray-500 dark:bg-gray-900 text-center text-white dark:text-gray-400 font-bold text-sm
         ">
-            <p>
-                This is a footer
-            </p>
+            <div className="flex flex-col space-y-4">
+                <div className="flex flex-row justify-center space-x-12">
+                    <Link href="/privacy" passHref>
+                        Privacy Policy
+                    </Link>
+                    <a target="_blank" rel="noopener noreferrer" href="https://github.com/LukasSchmid97/elevatorbot">
+                        GitHub
+                    </a>
+                </div>
+                <p className="text-xs text-right text-gray-400 dark:text-gray-500">
+                    © 2022 Kigstn
+                </p>
+            </div>
         </footer>
     )
 }
