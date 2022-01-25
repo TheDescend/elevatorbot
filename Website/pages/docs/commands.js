@@ -24,42 +24,45 @@ export default function Commands({allCommandData}) {
 
     const commands = Object.keys(allCommandData).map((topic) => {
         return (
-            <details className={`${gridItemStyle} ${gridBackground1} marker:text-descend`}>
-                <summary>
-                    {topic}
-                </summary>
-                <div className={`${gridStyle}`}>
-                    {
-                        Object.keys(allCommandData[topic]).map((scope) => {
-                            const commandList = allCommandData[topic][scope]
+            <div className="relative group">
+                <div className="absolute -inset-0.5 bg-descend blur opacity-50 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-tilt"/>
+                <details className={`relative ${gridItemStyle} ${gridBackground1} marker:text-descend`}>
+                    <summary>
+                        {topic}
+                    </summary>
+                    <div className={`${gridStyle}`}>
+                        {
+                            Object.keys(allCommandData[topic]).map((scope) => {
+                                const commandList = allCommandData[topic][scope]
 
-                            return (
-                                <details className={`${gridItemStyle} ${gridBackground2}`}>
-                                    <summary>
-                                        {scope}
-                                    </summary>
+                                return (
+                                    <details className={`${gridItemStyle} ${gridBackground2}`}>
+                                        <summary>
+                                            {scope}
+                                        </summary>
 
-                                    <div className={`${gridStyle}`}>
-                                        {
-                                            commandList.map((command) => {
-                                                return (
-                                                    <ParseCommand
-                                                        command={command}
-                                                        gridStyle={gridStyle}
-                                                        gridItemStyle={gridItemStyle}
-                                                        gridBackground1={gridBackground1}
-                                                        gridBackground2={gridBackground2}
-                                                    />
-                                                )
-                                            })
-                                        }
-                                    </div>
-                                </details>
-                            )
-                        })
-                    }
-                </div>
-            </details>
+                                        <div className={`${gridStyle}`}>
+                                            {
+                                                commandList.map((command) => {
+                                                    return (
+                                                        <ParseCommand
+                                                            command={command}
+                                                            gridStyle={gridStyle}
+                                                            gridItemStyle={gridItemStyle}
+                                                            gridBackground1={gridBackground1}
+                                                            gridBackground2={gridBackground2}
+                                                        />
+                                                    )
+                                                })
+                                            }
+                                        </div>
+                                    </details>
+                                )
+                            })
+                        }
+                    </div>
+                </details>
+            </div>
         )
     })
 
