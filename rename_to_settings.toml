@@ -23,9 +23,11 @@ ADMIN_PASSWORD = "admin"                # str
 # The discord bot token to launch the bot
 DISCORD_APPLICATION_API_KEY = ""        # str
 
-# The client id of your discord web application
+# The client id and secret of your discord web application
 # This is used to authenticate the restriced sections on the website
 DISCORD_CLIENT_ID = ""                  # str
+DISCORD_CLIENT_SECRET = ""              # str
+WEBSITE_URL = "https://elevatorbot.ch"  # str
 
 # Your own bungie token, and you bungie secret data. Needed to access bungies api
 BUNGIE_APPLICATION_API_KEY= ""          # str

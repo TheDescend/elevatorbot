@@ -8,9 +8,8 @@ import {SideBarItems} from "../../data/sideBarItems";
 import GlowingButton from "../glowingButton";
 
 
-const loginPath = "/"
+const loginPath = "/auth/discord"
 const inviteUrl = "some.url/here"
-
 
 export default function Header() {
     const [active, setActive] = useState(false);

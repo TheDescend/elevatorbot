@@ -19,7 +19,7 @@ export default function Privacy() {
                         If you want to delete your data, use the <code>/unregister</code> command on discord. You can also contact us on either discord or github.
                     </p>
                     <p>
-                        This site does not use cookies, does not sell any data. Refreshing, right? Tbh, we couldn't even sell your data, since we don't collect any.
+                        This site uses a cookie to remember your discord authentication, if you did that. The cookie is solely used for that. We have no interest in tracking you and nor do we want to sell your data. Refreshing, right? To be honest, we couldn't even sell your data, since we don't collect any.
                     </p>
 
                 </div>

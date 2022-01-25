@@ -11,6 +11,9 @@ RUN yarn install --frozen-lockfile
 # Rebuild the source code only when needed
 FROM node:alpine AS builder
 
+# copy the settings
+COPY ./settings.toml /app/Website/settings.toml
+
 # copy the logo
 COPY ./logo.png /app/Website/public/images/logo.png
 COPY ./logo_small.png /app/Website/public/images/logo_small.png

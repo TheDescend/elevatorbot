@@ -44,7 +44,7 @@ function Command({command, gridStyle, gridItemStyle, gridBackground1, gridBackgr
                                                             {
                                                                 option["choices"].map((choices) => {
                                                                     return (
-                                                                        <li className="ml-4">
+                                                                        <li className="ml-4" key={choices}>
                                                                             {choices}
                                                                         </li>
                                                                     )
