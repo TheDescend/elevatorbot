@@ -21,8 +21,7 @@ def create_command_docs(client):
     """Create user documentation for commands and context menus in ./ElevatorBot/docs"""
 
     commands = {}
-    context_menus_user = {}
-    context_menus_message = {}
+    context_menus = {}
 
     # loop through all commands to get global and guild commands
     for scope, command in client.interactions.items():
@@ -39,9 +38,6 @@ def create_command_docs(client):
             # ignore the reload command
             if resolved_name == "reload":
                 continue
-
-            # get the topic. The folder names are starting with numbers to define the order for this
-            topic = f"""{capitalize_string(data.scale.extension_name.split(".")[2][2:])} Commands"""
 
             # get the docstring
             docstring = data.scale.__doc__
@@ -60,16 +56,20 @@ def create_command_docs(client):
 
                     match data.type:
                         case CommandTypes.USER:
-                            if scope not in context_menus_user:
-                                context_menus_user.update({scope: []})
-                            context_menus_user[scope].append(doc)
+                            topic = "User Context Menus"
+                        case _:
+                            topic = "Message Context Menus"
 
-                        case CommandTypes.MESSAGE:
-                            if scope not in context_menus_message:
-                                context_menus_message.update({scope: []})
-                            context_menus_message[scope].append(doc)
+                    if topic not in context_menus:
+                        context_menus.update({topic: {}})
+                    if scope not in context_menus[topic]:
+                        context_menus[topic].update({scope: []})
+                    context_menus[topic][scope].append(doc)
 
                 case SlashCommand():
+                    # get the topic. The folder names are starting with numbers to define the order for this
+                    topic = f"""{capitalize_string(data.scale.extension_name.split(".")[2][2:])} Commands"""
+
                     # get the actual description
                     actual_description = data.sub_cmd_description if data.sub_cmd_name else data.description
 
@@ -153,10 +153,8 @@ def create_command_docs(client):
     # write those to files
     with open("./ElevatorBot/docs/commands.json", "w+", encoding="utf-8") as file:
         json.dump(commands, file, indent=4)
-    with open("./ElevatorBot/docs/contextMenusUser.json", "w+", encoding="utf-8") as file:
-        json.dump(context_menus_user, file, indent=4)
-    with open("./ElevatorBot/docs/contextMenusMessage.json", "w+", encoding="utf-8") as file:
-        json.dump(context_menus_message, file, indent=4)
+    with open("./ElevatorBot/docs/contextMenus.json", "w+", encoding="utf-8") as file:
+        json.dump(context_menus, file, indent=4)
 
 
 def overwrite_options_text(

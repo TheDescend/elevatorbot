@@ -15,7 +15,7 @@ export const SideBarItems = {
         "is_link": false,
         "children": {
             "Commands": "/docs/commands",
-            "Context Menus": "/link1",
+            "Context Menus": "/docs/contextMenus",
         }
     },
 
