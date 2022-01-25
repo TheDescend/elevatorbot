@@ -3,13 +3,13 @@ export const SideBarItems = {
         "is_link": true,
         "link": "/"
     },
-    "Register": {
+    "Guides": {
         "is_link": true,
-        "link": "/privacy"
+        "link": "/"
     },
     "Your Servers": {
         "is_link": true,
-        "link": "/link1"
+        "link": "/"
     },
     "Documentation": {
         "is_link": false,

@@ -1,5 +1,8 @@
 import request from "../../lib/http";
 import Error from 'next/error'
+import Layout from "../../components/layout/layout";
+import Title from "../../components/content/title";
+import Description from "../../components/content/description";
 
 export async function getServerSideProps(context) {
     if (!(context.query.code && context.query.state)) {
@@ -31,8 +34,17 @@ export default function BungieRegistration({status_code, content}) {
     if (status_code !== 200) {
     return <Error statusCode={status_code} title={content}/>
   }
-
     return (
-        <h1>Successfully registered with the Bungie Name "{content.bungie_name}"</h1>
+        <Layout>
+            <Title title="Successful Registration"/>
+            <Description>
+                <p>
+                    Successfully linked your discord account to destiny user <code>{content["bungie_name"]}</code>.
+                </p>
+                <p>
+                    Come say hi in discord, there may or may not be cake.
+                </p>
+            </Description>
+        </Layout>
     )
 }
