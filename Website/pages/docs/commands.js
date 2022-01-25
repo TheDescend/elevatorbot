@@ -3,6 +3,7 @@ import Layout from "../../components/layout/layout";
 import ParseCommand from '../../components/commands'
 import Title from "../../components/content/title";
 import Description from "../../components/content/description";
+import GlowingContainer from "../../components/glowingContainer";
 
 
 export async function getStaticProps() {
@@ -24,8 +25,7 @@ export default function Commands({allCommandData}) {
 
     const commands = Object.keys(allCommandData).map((topic) => {
         return (
-            <div className="relative group">
-                <div className="absolute -inset-0.5 bg-descend blur opacity-50 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-tilt"/>
+            <GlowingContainer>
                 <details className={`relative ${gridItemStyle} ${gridBackground1} marker:text-descend`}>
                     <summary>
                         {topic}
@@ -62,7 +62,7 @@ export default function Commands({allCommandData}) {
                         }
                     </div>
                 </details>
-            </div>
+            </GlowingContainer>
         )
     })
 

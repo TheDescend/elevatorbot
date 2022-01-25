@@ -5,6 +5,7 @@ import Description from "../../components/content/description";
 import contextMenuGuide from "../../public/images/docs/contextMenuGuide.png"
 
 import Image from "next/image";
+import GlowingContainer from "../../components/glowingContainer";
 
 
 export async function getStaticProps() {
@@ -27,8 +28,7 @@ export default function ContextMenus({allContextMenus}) {
 
     const commands = Object.keys(allContextMenus).map((topic) => {
         return (
-            <div className="relative group">
-                <div className="absolute -inset-0.5 bg-descend blur opacity-50 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-tilt"/>
+            <GlowingContainer>
                 <details className={`relative ${gridItemStyle} ${gridBackground1} marker:text-descend`}>
                     <summary>
                         {topic}
@@ -70,21 +70,21 @@ export default function ContextMenus({allContextMenus}) {
                         }
                     </div>
                 </details>
-            </div>
+            </GlowingContainer>
         )
     })
 
     return (
         <Layout>
-            <Title title="Commands"/>
+            <Title title="Context Menus"/>
             <Description>
-                <div className="flex flex-row gap-x-8 prose-img:rounded-none">
+                <div className="flex flex-row gap-x-8">
                     <div className="max-w-lg">
                         To use context menus, you need to right click your target and click on <code>Apps</code>, as can
                         be seen in the picture.
                         You will then see all available commands for your target.
                     </div>
-                    <div className="min-w-[200px] w-[200px]">
+                    <div className="min-w-[200px] w-[200px] not-prose">
                         <Image
                             src={contextMenuGuide}
                             alt="ContextMenuGuide"
