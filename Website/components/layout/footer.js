@@ -4,7 +4,7 @@ export default function Footer() {
     return (
         <footer className="
             p-2 pt-6
-            bg-gray-500 dark:bg-gray-900 text-center text-white dark:text-gray-400 font-bold text-sm
+            bg-gray-400 dark:bg-gray-800 text-center text-white dark:text-gray-400 font-bold text-sm
         ">
             <div className="flex flex-col space-y-4">
                 <div className="flex flex-row justify-center space-x-12">
