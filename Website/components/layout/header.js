@@ -21,133 +21,136 @@ export default function Header() {
     };
 
     return (
-        <nav className="
-            col-span-full flex flex-wrap justify-between space-x-4 p-2 mb-4
+        <div className="flex flex-col">
+            <nav className="
+            col-span-full flex flex-wrap justify-between space-x-4 p-2
             text-white bg-gray-500 dark:bg-gray-900 font-bold
             ">
-            <HeaderItemVisible>
-                <Link href="/" passHref>
-                    <a className="hover:scale-105">
-                        <img className="object-contain h-12" src="/images/logo.png" alt="ElevatorBotLogo"/>
-                    </a>
-                </Link>
-            </HeaderItemVisible>
-            <div className="flex flex-row gap-4">
-                <HeaderItemHidden>
-                    <DarkModeToggle/>
-                </HeaderItemHidden>
-                <HeaderItemHidden>
-                    <GlowingButton>
-                        <a
-                            className="hover:text-descend flex flex-col relative w-32 h-10"
-                            target="_blank" rel="noopener noreferrer" href={inviteUrl}
-                        >
-                            <HiPlus className="object-contain h-4 w-4 absolute inset-x-0 top-1 left-[56px]"/>
-                            <p className="pl absolute inset-x-0 bottom-1 text-center">
-                                Invite To Server
-                            </p>
-                        </a>
-                    </GlowingButton>
-                </HeaderItemHidden>
-                <HeaderItemHidden>
-                    <Link href={loginPath} passHref>
-                        <a className="">
-                            <GlowingButton>
-                                <p className="pr-2">
-                                    Login
-                                </p>
-                                <FiLogIn className="object-contain h-10 w-8 "/>
-                            </GlowingButton>
+                <HeaderItemVisible>
+                    <Link href="/" passHref>
+                        <a className="hover:scale-105">
+                            <img className="object-contain h-12" src="/images/logo.png" alt="ElevatorBotLogo"/>
                         </a>
                     </Link>
-                </HeaderItemHidden>
-            </div>
-            <div className="flex items-center pl-2 pr-2 hover:text-descend md:hidden">
-                <button
-                    className={`${!active ? '' : 'text-descend'}`}
-                    onClick={handleClick}
-                >
-                    <HiOutlineMenu className="object-contain w-8 h-8"/>
-                </button>
-            </div>
-            <div
-                className={`${active ? '' : 'hidden'} w-full block flex-grow md:hidden divide-y divide-descend font-bold`}
-            >
-                <div>
-                    <div className="text-right block p-2 group hover:text-descend">
-                        <button
-                            aria-label="Toggle Dark Mode"
-                            type="button"
-                            onClick={() => {
-                                setTheme(theme === 'light' ? 'dark' : 'light')
-                            }}
-                        >
-                            <div className="flex flex-row items-center">
-                                <p className="mx-2 font-bold hover:underline underline-offset-2">
-                                    {theme === "light" ? (
-                                        "Switch To Dark Mode"
-                                    ) : (
-                                        "Switch To Light Mode"
-                                    )}
+                </HeaderItemVisible>
+                <div className="flex flex-row gap-4">
+                    <HeaderItemHidden>
+                        <DarkModeToggle/>
+                    </HeaderItemHidden>
+                    <HeaderItemHidden>
+                        <GlowingButton>
+                            <a
+                                className="hover:text-descend flex flex-col relative w-32 h-10"
+                                target="_blank" rel="noopener noreferrer" href={inviteUrl}
+                            >
+                                <HiPlus className="object-contain h-4 w-4 absolute inset-x-0 top-1 left-[56px]"/>
+                                <p className="pl absolute inset-x-0 bottom-1 text-center">
+                                    Invite To Server
                                 </p>
-                                {theme === "light" ? (
-                                    <HiMoon className="object-contain"/>
-                                ) : (
-                                    <HiSun className="object-contain"/>
-                                )}
-                            </div>
-                        </button>
-                    </div>
-                    <div className="block p-2 hover:text-descend hover:underline underline-offset-2">
+                            </a>
+                        </GlowingButton>
+                    </HeaderItemHidden>
+                    <HeaderItemHidden>
                         <Link href={loginPath} passHref>
-                            <a className="flex flex-row items-center place-content-end">
-                                <p className="mx-2 font-bold">
-                                    Login With Discord
-                                </p>
-                                <FiLogIn className="object-contain"/>
+                            <a className="">
+                                <GlowingButton>
+                                    <p className="pr-2">
+                                        Login
+                                    </p>
+                                    <FiLogIn className="object-contain h-10 w-8 "/>
+                                </GlowingButton>
                             </a>
                         </Link>
-                    </div>
-                    <div className="block p-2 hover:text-descend hover:underline underline-offset-2">
-                        <a
-                            target="_blank" rel="noopener noreferrer" href={inviteUrl}
-                            className="flex flex-row items-center place-content-end"
-                        >
-                            <p className="mx-2 font-bold">
-                                Invite To Discord Server
-                            </p>
-                            <HiPlus className="object-contain"/>
-                        </a>
-                    </div>
+                    </HeaderItemHidden>
                 </div>
-                <div>
-                    {
-                        Object.keys(SideBarItems).map((name) => {
-                            if (SideBarItems[name]["is_link"]) {
-                                return (
-                                    <Link href={SideBarItems[name]} passHref>
-                                        <a className="text-right block p-2 hover:text-descend hover:underline underline-offset-2">
-                                            {name}
-                                        </a>
-                                    </Link>
-                                )
-                            } else {
-                                return Object.keys(SideBarItems[name]["children"]).map((child_name) => {
+                <div className="flex items-center pl-2 pr-2 hover:text-descend md:hidden">
+                    <button
+                        className={`${!active ? '' : 'text-descend'}`}
+                        onClick={handleClick}
+                    >
+                        <HiOutlineMenu className="object-contain w-8 h-8"/>
+                    </button>
+                </div>
+                <div
+                    className={`${active ? '' : 'hidden'} w-full block flex-grow md:hidden divide-y divide-descend font-bold`}
+                >
+                    <div>
+                        <div className="text-right block p-2 group hover:text-descend">
+                            <button
+                                aria-label="Toggle Dark Mode"
+                                type="button"
+                                onClick={() => {
+                                    setTheme(theme === 'light' ? 'dark' : 'light')
+                                }}
+                            >
+                                <div className="flex flex-row items-center">
+                                    <p className="mx-2 font-bold hover:underline underline-offset-2">
+                                        {theme === "light" ? (
+                                            "Switch To Dark Mode"
+                                        ) : (
+                                            "Switch To Light Mode"
+                                        )}
+                                    </p>
+                                    {theme === "light" ? (
+                                        <HiMoon className="object-contain"/>
+                                    ) : (
+                                        <HiSun className="object-contain"/>
+                                    )}
+                                </div>
+                            </button>
+                        </div>
+                        <div className="block p-2 hover:text-descend hover:underline underline-offset-2">
+                            <Link href={loginPath} passHref>
+                                <a className="flex flex-row items-center place-content-end">
+                                    <p className="mx-2 font-bold">
+                                        Login With Discord
+                                    </p>
+                                    <FiLogIn className="object-contain"/>
+                                </a>
+                            </Link>
+                        </div>
+                        <div className="block p-2 hover:text-descend hover:underline underline-offset-2">
+                            <a
+                                target="_blank" rel="noopener noreferrer" href={inviteUrl}
+                                className="flex flex-row items-center place-content-end"
+                            >
+                                <p className="mx-2 font-bold">
+                                    Invite To Discord Server
+                                </p>
+                                <HiPlus className="object-contain"/>
+                            </a>
+                        </div>
+                    </div>
+                    <div>
+                        {
+                            Object.keys(SideBarItems).map((name) => {
+                                if (SideBarItems[name]["is_link"]) {
                                     return (
-                                        <Link href={SideBarItems[name]["children"][child_name]} passHref>
+                                        <Link href={SideBarItems[name]} passHref>
                                             <a className="text-right block p-2 hover:text-descend hover:underline underline-offset-2">
-                                                {name} | {child_name}
+                                                {name}
                                             </a>
                                         </Link>
                                     )
-                                })
-                            }
-                        })
-                    }
+                                } else {
+                                    return Object.keys(SideBarItems[name]["children"]).map((child_name) => {
+                                        return (
+                                            <Link href={SideBarItems[name]["children"][child_name]} passHref>
+                                                <a className="text-right block p-2 hover:text-descend hover:underline underline-offset-2">
+                                                    {name} | {child_name}
+                                                </a>
+                                            </Link>
+                                        )
+                                    })
+                                }
+                            })
+                        }
 
+                    </div>
                 </div>
-            </div>
-        </nav>
+            </nav>
+            <div className="bg-descend h-4 blur-sm"/>
+        </div>
     )
 }
 
