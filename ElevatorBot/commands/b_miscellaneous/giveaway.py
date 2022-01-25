@@ -12,7 +12,7 @@ from dis_snek import (
 from ElevatorBot.backendNetworking.misc.giveaway import BackendGiveaway
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formatting import embed_message
-from settings import COMMAND_GUILD_SCOPE
+from Shared.functions.readSettingsFile import get_setting
 
 # =============
 # Descend Only!
@@ -21,7 +21,7 @@ from settings import COMMAND_GUILD_SCOPE
 
 class Giveaway(BaseScale):
     # todo perm
-    @slash_command(name="giveaway", description="Creates a giveaway", scopes=COMMAND_GUILD_SCOPE)
+    @slash_command(name="giveaway", description="Creates a giveaway", scopes=get_setting("COMMAND_GUILD_SCOPE"))
     @slash_option(
         name="description", description="Input details about the giveaway", opt_type=OptionTypes.STRING, required=True
     )

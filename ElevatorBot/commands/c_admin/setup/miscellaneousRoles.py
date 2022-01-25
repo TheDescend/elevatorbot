@@ -17,7 +17,7 @@ from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.core.misc.persistentMessages import handle_setup_command
 from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.static.emojis import custom_emojis
-from settings import COMMAND_GUILD_SCOPE
+from Shared.functions.readSettingsFile import get_setting
 
 # =============
 # Descend Only!
@@ -76,7 +76,7 @@ class MiscellaneousRoles(BaseScale):
         **descend_setup_sub_command,
         sub_cmd_name="miscellaneous_roles",
         sub_cmd_description="Designate a channel in which user can assign themselves miscellaneous roles",
-        scopes=COMMAND_GUILD_SCOPE,
+        scopes=get_setting("COMMAND_GUILD_SCOPE"),
     )
     @slash_option(
         name="channel",

@@ -1,7 +1,7 @@
 from dis_snek import InteractionContext, slash_command
 
 from ElevatorBot.commands.base import BaseScale
-from settings import COMMAND_GUILD_SCOPE
+from Shared.functions.readSettingsFile import get_setting
 
 # =============
 # Descend Only!
@@ -11,7 +11,7 @@ from settings import COMMAND_GUILD_SCOPE
 class Socialist(BaseScale):
 
     # todo perms
-    @slash_command(name="socialist", description="Spams `#socialist` 🙃", scopes=COMMAND_GUILD_SCOPE)
+    @slash_command(name="socialist", description="Spams `#socialist` 🙃", scopes=get_setting("COMMAND_GUILD_SCOPE"))
     async def socialist(self, ctx: InteractionContext):
         """Spams #socialist"""
 

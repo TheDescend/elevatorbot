@@ -4,7 +4,7 @@ from ElevatorBot.commandHelpers.subCommandTemplates import descend_setup_sub_com
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.core.misc.persistentMessages import handle_setup_command
 from ElevatorBot.misc.cache import descend_cache
-from settings import COMMAND_GUILD_SCOPE
+from Shared.functions.readSettingsFile import get_setting
 
 # =============
 # Descend Only!
@@ -18,7 +18,7 @@ class MemberCount(BaseScale):
         **descend_setup_sub_command,
         sub_cmd_name="member_count",
         sub_cmd_description="Designate a voice channel that will always show the current member count",
-        scopes=COMMAND_GUILD_SCOPE,
+        scopes=get_setting("COMMAND_GUILD_SCOPE"),
     )
     @slash_option(
         name="category",

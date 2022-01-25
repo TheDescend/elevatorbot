@@ -4,7 +4,7 @@ from ElevatorBot.backendNetworking.misc.moderation import Moderation
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formatting import embed_message
-from settings import COMMAND_GUILD_SCOPE
+from Shared.functions.readSettingsFile import get_setting
 
 # =============
 # Descend Only!
@@ -14,7 +14,7 @@ from settings import COMMAND_GUILD_SCOPE
 class ModWarning(BaseScale):
 
     # todo perm
-    @slash_command(name="warning", description="Warns the specified user", scopes=COMMAND_GUILD_SCOPE)
+    @slash_command(name="warning", description="Warns the specified user", scopes=get_setting("COMMAND_GUILD_SCOPE"))
     @default_user_option(description="Which user to warn", required=True)
     @slash_option(
         name="reason",

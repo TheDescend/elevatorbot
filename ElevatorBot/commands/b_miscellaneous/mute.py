@@ -17,20 +17,21 @@ from ElevatorBot.commandHelpers.optionTemplates import default_user_option
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.discordShortcutFunctions import assign_roles_to_member, remove_roles_from_member
 from ElevatorBot.misc.formatting import embed_message
-from settings import COMMAND_GUILD_SCOPE, DESCEND_ROLE_NO_NICKNAME_ID
 from Shared.functions.helperFunctions import get_now_with_tz
+from Shared.functions.readSettingsFile import get_setting
 
 # =============
 # Descend Only!
 # =============
 
-muted_ids = {0: "Muted", DESCEND_ROLE_NO_NICKNAME_ID: "Muted - No Nickname"}
+
+muted_ids = {0: "Muted", get_setting("DESCEND_ROLE_NO_NICKNAME_ID"): "Muted - No Nickname"}
 
 
 class Mute(BaseScale):
 
     # todo perm
-    @slash_command(name="mute", description="Mutes the specified user", scopes=COMMAND_GUILD_SCOPE)
+    @slash_command(name="mute", description="Mutes the specified user", scopes=get_setting("COMMAND_GUILD_SCOPE"))
     @default_user_option(description="Which user to mute", required=True)
     @slash_option(
         name="muted_type",

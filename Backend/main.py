@@ -14,7 +14,7 @@ from Backend.database.models import BackendUser, create_tables
 from Backend.dependencies import auth_get_user_with_read_perm, auth_get_user_with_write_perm
 from Backend.misc.initBackgroundEvents import register_background_events
 from Backend.misc.initLogging import init_logging
-from settings import ENABLE_DEBUG_MODE
+from Shared.functions.readSettingsFile import get_setting
 from Shared.networkingSchemas.misc.auth import BackendUserModel
 
 app = FastAPI()
@@ -81,7 +81,7 @@ async def log_requests(request: Request, call_next):
         return response
 
 
-if ENABLE_DEBUG_MODE:
+if get_setting("ENABLE_DEBUG_MODE"):
 
     @app.middleware("http")
     async def performance_counter(request: Request, call_next):

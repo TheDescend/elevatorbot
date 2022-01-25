@@ -13,7 +13,7 @@ COPY ./Backend/requirements.txt /app/Backend/requirements.txt
 RUN pip3.10 install -r /app/Backend/requirements.txt
 
 # copy over the required files
-COPY ./settings.py /app/settings.py
+COPY ./settings.toml /app/settings.toml
 COPY ./Shared /app/Shared
 COPY ./Backend /app/Backend
 

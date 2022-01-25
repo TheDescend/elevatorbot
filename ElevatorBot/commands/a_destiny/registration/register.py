@@ -2,7 +2,7 @@ from dis_snek import ActionRow, Button, ButtonStyles, ComponentContext, Interact
 
 from ElevatorBot.commands.base import RegisteredScale
 from ElevatorBot.misc.formatting import embed_message
-from settings import BUNGIE_APPLICATION_CLIENT_ID
+from Shared.functions.readSettingsFile import get_setting
 
 
 class Register(RegisteredScale):
@@ -20,7 +20,7 @@ async def send_registration(ctx: InteractionContext | ComponentContext):
             Button(
                 style=ButtonStyles.URL,
                 label="Registration Link",
-                url=f"""https://www.bungie.net/en/oauth/authorize?client_id={BUNGIE_APPLICATION_CLIENT_ID}&response_type=code&state={f"{ctx.author.id}:{ctx.guild.id}:{ctx.channel.id}"}""",
+                url=f"""https://www.bungie.net/en/oauth/authorize?client_id={get_setting("BUNGIE_APPLICATION_CLIENT_ID")}&response_type=code&state={f"{ctx.author.id}:{ctx.guild.id}:{ctx.channel.id}"}""",
             ),
         ),
     ]

@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-from settings import ENABLE_DEBUG_MODE
+from Shared.functions.readSettingsFile import get_setting
 
 DATABASE_URL = f"""postgresql+asyncpg://{os.environ.get("POSTGRES_USER")}:{os.environ.get("POSTGRES_PASSWORD")}@{os.environ.get("POSTGRES_HOST")}:{os.environ.get("POSTGRES_PORT")}/{os.environ.get("POSTGRES_DB")}"""
 _ENGINE = None
@@ -25,7 +25,7 @@ def setup_engine(database_url: str = DATABASE_URL) -> Engine:
         _ENGINE = create_async_engine(
             database_url,
             future=True,
-            echo=bool(ENABLE_DEBUG_MODE and not is_test_mode()),
+            echo=bool(get_setting("ENABLE_DEBUG_MODE") and not is_test_mode()),
             json_deserializer=orjson.loads,
             json_serializer=lambda x: orjson.dumps(x).decode(),
             pool_pre_ping=True,

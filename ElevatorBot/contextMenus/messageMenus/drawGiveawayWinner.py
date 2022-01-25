@@ -5,7 +5,7 @@ from dis_snek import CommandTypes, InteractionContext, context_menu
 from ElevatorBot.backendNetworking.misc.giveaway import BackendGiveaway
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formatting import embed_message
-from settings import COMMAND_GUILD_SCOPE
+from Shared.functions.readSettingsFile import get_setting
 
 # =============
 # Descend Only!
@@ -18,7 +18,9 @@ class GiveawayWinners(BaseScale):
     """
 
     # todo perms
-    @context_menu(name="Draw Giveaway Winner", context_type=CommandTypes.MESSAGE, scopes=COMMAND_GUILD_SCOPE)
+    @context_menu(
+        name="Draw Giveaway Winner", context_type=CommandTypes.MESSAGE, scopes=get_setting("COMMAND_GUILD_SCOPE")
+    )
     async def draw_winner(self, ctx: InteractionContext):
         message = await ctx.channel.get_message(ctx.target_id)
 

@@ -13,7 +13,7 @@ from ElevatorBot.misc.discordShortcutFunctions import assign_roles_to_member
 from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.static.descendOnlyIds import descend_channels
 from ElevatorBot.static.emojis import custom_emojis
-from settings import DESCEND_ROLE_FILLER_IDS, DESCEND_ROLE_NO_NICKNAME_ID
+from Shared.functions.readSettingsFile import get_setting
 
 
 async def on_member_add(event: MemberAdd):
@@ -145,7 +145,7 @@ async def on_member_update(event: MemberUpdate):
         if event.after.guild == descend_channels.guild:
             # change nickname back if it is not None
             if (not event.before.nickname) and event.after.nickname:
-                if DESCEND_ROLE_NO_NICKNAME_ID in [role.id for role in event.after.roles]:
+                if get_setting("DESCEND_ROLE_NO_NICKNAME_ID") in [role.id for role in event.after.roles]:
                     await event.after.edit_nickname("")
 
 
@@ -157,7 +157,9 @@ async def _assign_roles_on_join(member: Member):
 
     # add filler roles for descend
     if member.guild == descend_channels.guild:
-        await assign_roles_to_member(member=member, *DESCEND_ROLE_FILLER_IDS, reason="Destiny 2 Filler Roles")
+        await assign_roles_to_member(
+            member=member, *get_setting("DESCEND_ROLE_FILLER_IDS"), reason="Destiny 2 Filler Roles"
+        )
 
     # assign their roles
     await Roles(guild=member.guild, member=member, ctx=None).update()

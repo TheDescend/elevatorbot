@@ -5,7 +5,7 @@ from typing import Optional
 from dis_snek import CommandTypes, ContextMenu, SlashCommand, SlashCommandOption
 
 from ElevatorBot.misc.formatting import capitalize_string
-from settings import COMMAND_GUILD_SCOPE
+from Shared.functions.readSettingsFile import get_setting
 
 
 class NoValidatorOption:
@@ -29,7 +29,7 @@ def create_command_docs(client):
         match scope:
             case 0:
                 scope = "Available Globally"
-            case _ if scope == COMMAND_GUILD_SCOPE[0]:
+            case _ if scope == get_setting("COMMAND_GUILD_SCOPE")[0]:
                 scope = "Only Available in the Descend Server"
             case _:
                 continue

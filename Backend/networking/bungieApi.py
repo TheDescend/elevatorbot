@@ -12,10 +12,11 @@ from Backend.database.models import DiscordUsers
 from Backend.networking.base import NetworkBase
 from Backend.networking.bungieAuth import BungieAuth
 from Backend.networking.schemas import WebResponse
-from settings import BUNGIE_APPLICATION_API_KEY
 
 # the cache object
 # low expire time since players don't want to wait an eternity for their stuff to update
+from Shared.functions.readSettingsFile import get_setting
+
 bungie_cache = aiohttp_client_cache.RedisBackend(
     cache_name="backend",
     address=f"""redis://{os.environ.get("REDIS_HOST")}:{os.environ.get("REDIS_PORT")}""",
@@ -32,14 +33,15 @@ bungie_cache = aiohttp_client_cache.RedisBackend(
         "**/GroupV2": timedelta(days=1),  # all clan stuff
     },
 )
+headers = {"X-API-Key": get_setting("BUNGIE_APPLICATION_API_KEY"), "Accept": "application/json"}
 
 
 class BungieApi(NetworkBase):
     """Handles all networking to any API. To call an api that is not bungies, change the headers"""
 
     # base bungie headers
-    normal_headers = {"X-API-Key": BUNGIE_APPLICATION_API_KEY, "Accept": "application/json"}
-    auth_headers = normal_headers.copy()
+    normal_headers = headers.copy()
+    auth_headers = headers.copy()
 
     # redis cache
     cache = bungie_cache

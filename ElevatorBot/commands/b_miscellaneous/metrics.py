@@ -9,8 +9,8 @@ from psutil._common import bytes2human
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.static.descendOnlyIds import descend_channels
-from settings import COMMAND_GUILD_SCOPE
 from Shared.functions.helperFunctions import get_now_with_tz
+from Shared.functions.readSettingsFile import get_setting
 from version import __version__
 
 # =============
@@ -19,7 +19,9 @@ from version import __version__
 
 
 class Metrics(BaseScale):
-    @slash_command(name="metrics", description="Shows interesting ElevatorBot metrics", scopes=COMMAND_GUILD_SCOPE)
+    @slash_command(
+        name="metrics", description="Shows interesting ElevatorBot metrics", scopes=get_setting("COMMAND_GUILD_SCOPE")
+    )
     async def metrics(self, ctx: InteractionContext):
         embed = embed_message("Metrics", member=ctx.guild.me)
 

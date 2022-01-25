@@ -16,7 +16,7 @@ from ElevatorBot.startup.initLogging import init_logging
 from ElevatorBot.static.descendOnlyIds import descend_channels
 from ElevatorBot.static.emojis import custom_emojis
 from ElevatorBot.webserver.server import run_webserver
-from settings import COMMAND_GUILD_SCOPE, DISCORD_APPLICATION_API_KEY, ENABLE_DEBUG_MODE, SYNC_COMMANDS
+from Shared.functions.readSettingsFile import get_setting
 
 
 class Elevator(ElevatorSnake):
@@ -125,14 +125,14 @@ if __name__ == "__main__":
     # actually get the bot obj
     client = Elevator(
         intents=intents,
-        sync_interactions=SYNC_COMMANDS,
-        delete_unused_application_cmds=not ENABLE_DEBUG_MODE,
-        asyncio_debug=ENABLE_DEBUG_MODE,
+        sync_interactions=get_setting("SYNC_COMMANDS"),
+        delete_unused_application_cmds=not get_setting("ENABLE_DEBUG_MODE"),
+        asyncio_debug=get_setting("ENABLE_DEBUG_MODE"),
         fetch_members=True,
         auto_defer=AutoDefer(enabled=True),
     )
 
-    if ENABLE_DEBUG_MODE:
+    if get_setting("ENABLE_DEBUG_MODE"):
         print("Setting Up Snek Logging...")
         cls_log = logging.getLogger(logger_name)
         cls_log.setLevel(logging.DEBUG)
@@ -155,9 +155,9 @@ if __name__ == "__main__":
     print(f"< {local_context_menus - local_commands} > Local Context Menus Loaded")
 
     # load the reload command if debug mode is on
-    if ENABLE_DEBUG_MODE:
+    if get_setting("ENABLE_DEBUG_MODE"):
 
-        @slash_command(name="reload", description="Reload all scales", scopes=COMMAND_GUILD_SCOPE)
+        @slash_command(name="reload", description="Reload all scales", scopes=get_setting("COMMAND_GUILD_SCOPE"))
         async def my_command_function(ctx: InteractionContext):
             if not ctx.author.has_permission(Permissions.ADMINISTRATOR):
                 await ctx.send("Admin Only")
@@ -166,4 +166,4 @@ if __name__ == "__main__":
             await ctx.send("Reload successful!")
 
     # run the bot
-    client.start(DISCORD_APPLICATION_API_KEY)
+    client.start(get_setting("DISCORD_APPLICATION_API_KEY"))

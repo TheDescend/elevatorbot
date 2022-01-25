@@ -50,8 +50,8 @@ Note: It is recommended to simply invite the official discord bot.
 1) Download and extract the [latest release](https://github.com/TheDescend/elevatorbot/releases)
 2) Install `docker`
 3) Install `docker-compose`
-4) Rename `rename_to_settings.py` to `settings.py`
-5) Fill out `settings.py`
+4) Rename `rename_to_settings.toml` to `settings.toml`
+5) Fill out `settings.toml`
 6) Run `docker-compose up --build`
 
 *Optional:*

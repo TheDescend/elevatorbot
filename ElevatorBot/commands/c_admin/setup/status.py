@@ -5,7 +5,7 @@ from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.core.misc.persistentMessages import handle_setup_command
 from ElevatorBot.misc.cache import descend_cache
 from ElevatorBot.misc.formatting import embed_message
-from settings import COMMAND_GUILD_SCOPE
+from Shared.functions.readSettingsFile import get_setting
 
 # =============
 # Descend Only!
@@ -18,7 +18,7 @@ class Status(BaseScale):
         **descend_setup_sub_command,
         sub_cmd_name="status",
         sub_cmd_description="Designate a channel in which status messages get posted and updated",
-        scopes=COMMAND_GUILD_SCOPE,
+        scopes=get_setting("COMMAND_GUILD_SCOPE"),
     )
     @slash_option(
         name="channel",

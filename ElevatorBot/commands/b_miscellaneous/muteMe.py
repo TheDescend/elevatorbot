@@ -8,8 +8,8 @@ from dis_snek import File, InteractionContext, Member, slash_command
 
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
 from ElevatorBot.commands.base import BaseScale
-from settings import COMMAND_GUILD_SCOPE
 from Shared.functions.helperFunctions import get_now_with_tz
+from Shared.functions.readSettingsFile import get_setting
 
 # =============
 # Descend Only!
@@ -17,7 +17,7 @@ from Shared.functions.helperFunctions import get_now_with_tz
 
 
 class MuteMe(BaseScale):
-    @slash_command(name="mute_me", description="I wonder what this does...", scopes=COMMAND_GUILD_SCOPE)
+    @slash_command(name="mute_me", description="I wonder what this does...", scopes=get_setting("COMMAND_GUILD_SCOPE"))
     @default_user_option()
     async def mute_me(self, ctx: InteractionContext, user: Member = None):
 

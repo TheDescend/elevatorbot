@@ -20,4 +20,5 @@ python-jose[cryptography]>=3.3.0
 python-multipart==0.0.5
 requests==2.27.1
 sqlalchemy==1.4.31
+toml==0.10.2
 tzdata==2021.5

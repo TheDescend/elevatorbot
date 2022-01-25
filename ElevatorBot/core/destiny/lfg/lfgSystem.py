@@ -598,7 +598,7 @@ class LfgMessage:
 
         data = io.StringIO(str(calendar))
 
-        # todo settings.py
+        # todo settings.toml
         # send this in the spam channel in one of the test servers
         spam_server: GuildText = await self.client.get_channel(761278600103723018)
         file_message = await spam_server.send(file=File(file=data, file_name=f"lfg_event_{self.id}.ics"))

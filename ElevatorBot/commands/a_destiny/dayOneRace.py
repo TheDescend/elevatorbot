@@ -18,8 +18,8 @@ from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formatting import embed_message, format_timedelta
 from ElevatorBot.static.descendOnlyIds import descend_channels
 from ElevatorBot.static.emojis import custom_emojis
-from settings import COMMAND_GUILD_SCOPE
 from Shared.functions.helperFunctions import get_now_with_tz
+from Shared.functions.readSettingsFile import get_setting
 from Shared.networkingSchemas.destiny import DestinyActivityInputModel, DestinyActivityOutputModel
 from Shared.networkingSchemas.destiny.clan import DestinyClanMemberModel, DestinyClanMembersModel
 
@@ -83,7 +83,9 @@ class DayOneRace(BaseScale):
 
     # todo perms
     @slash_command(
-        name="day_one_raid_race", description="Starts the Day One raid completion announcer", scopes=COMMAND_GUILD_SCOPE
+        name="day_one_raid_race",
+        description="Starts the Day One raid completion announcer",
+        scopes=get_setting("COMMAND_GUILD_SCOPE"),
     )
     async def day_one_raid_race(self, ctx: InteractionContext):
         self.__init__(client=ctx.bot)

@@ -5,7 +5,7 @@ from dis_snek import CommandTypes, InteractionContext, context_menu
 
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formatting import embed_message
-from settings import COMMAND_GUILD_SCOPE
+from Shared.functions.readSettingsFile import get_setting
 
 # =============
 # Descend Only!
@@ -18,7 +18,7 @@ class MessageMenuCommands(BaseScale):
     """
 
     # todo perms
-    @context_menu(name="Add Emoji", context_type=CommandTypes.MESSAGE, scopes=COMMAND_GUILD_SCOPE)
+    @context_menu(name="Add Emoji", context_type=CommandTypes.MESSAGE, scopes=get_setting("COMMAND_GUILD_SCOPE"))
     async def add_emoji(self, ctx: InteractionContext):
         message = await ctx.channel.get_message(ctx.target_id)
 

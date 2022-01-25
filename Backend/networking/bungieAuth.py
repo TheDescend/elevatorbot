@@ -10,18 +10,20 @@ from Backend.core.errors import CustomException
 from Backend.crud import discord_users
 from Backend.database.models import DiscordUsers
 from Backend.networking.base import NetworkBase
-from settings import BUNGIE_APPLICATION_CLIENT_ID, BUNGIE_APPLICATION_CLIENT_SECRET
 from Shared.functions.helperFunctions import get_now_with_tz, localize_datetime
+from Shared.functions.readSettingsFile import get_setting
 from Shared.networkingSchemas.misc.auth import BungieRegistrationInput, BungieTokenInput
+
+base_headers = headers = {
+    "content-type": "application/x-www-form-urlencoded",
+    "authorization": f"""Basic {b64encode(f"{get_setting('BUNGIE_APPLICATION_CLIENT_ID')}:{get_setting('BUNGIE_APPLICATION_CLIENT_SECRET')}".encode()).decode()}""",
+}
 
 
 @dataclasses.dataclass
 class BungieRegistration(NetworkBase):
     route = "https://www.bungie.net/platform/app/oauth/token/"
-    headers = {
-        "content-type": "application/x-www-form-urlencoded",
-        "authorization": f"""Basic {b64encode(f"{BUNGIE_APPLICATION_CLIENT_ID}:{BUNGIE_APPLICATION_CLIENT_SECRET}".encode()).decode()}""",
-    }
+    headers = base_headers
 
     bungie_request: bool = True
 
@@ -63,10 +65,7 @@ class BungieAuth(NetworkBase):
     user: DiscordUsers
 
     route = "https://www.bungie.net/platform/app/oauth/token/"
-    headers = {
-        "content-type": "application/x-www-form-urlencoded",
-        "authorization": f"""Basic {b64encode(f"{BUNGIE_APPLICATION_CLIENT_ID}:{BUNGIE_APPLICATION_CLIENT_SECRET}".encode()).decode()}""",
-    }
+    headers = base_headers
 
     bungie_request: bool = True
 
