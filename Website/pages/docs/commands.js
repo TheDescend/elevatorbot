@@ -3,7 +3,8 @@ import Layout from "../../components/layout/layout";
 import ParseCommand from '../../components/commands'
 import Title from "../../components/content/title";
 import Description from "../../components/content/description";
-import GlowingContainer from "../../components/glowingContainer";
+import GlowingContainer from "../../components/styling/glowingContainer";
+import ContentContainer from "../../components/styling/container";
 
 
 export async function getStaticProps() {
@@ -26,42 +27,44 @@ export default function Commands({allCommandData}) {
     const commands = Object.keys(allCommandData).map((topic) => {
         return (
             <GlowingContainer>
-                <details className={`relative ${gridItemStyle} ${gridBackground1} marker:text-descend`}>
-                    <summary>
-                        {topic}
-                    </summary>
-                    <div className={`${gridStyle}`}>
-                        {
-                            Object.keys(allCommandData[topic]).map((scope) => {
-                                const commandList = allCommandData[topic][scope]
+                <ContentContainer otherStyle={false}>
+                    <details className={`relative marker:text-descend`}>
+                        <summary>
+                            {topic}
+                        </summary>
+                        <div className={`${gridStyle}`}>
+                            {
+                                Object.keys(allCommandData[topic]).map((scope) => {
+                                    const commandList = allCommandData[topic][scope]
 
-                                return (
-                                    <details className={`${gridItemStyle} ${gridBackground2}`}>
-                                        <summary>
-                                            {scope}
-                                        </summary>
+                                    return (
+                                        <ContentContainer otherStyle={true}>
+                                            <details>
+                                                <summary>
+                                                    {scope}
+                                                </summary>
 
-                                        <div className={`${gridStyle}`}>
-                                            {
-                                                commandList.map((command) => {
-                                                    return (
-                                                        <ParseCommand
-                                                            command={command}
-                                                            gridStyle={gridStyle}
-                                                            gridItemStyle={gridItemStyle}
-                                                            gridBackground1={gridBackground1}
-                                                            gridBackground2={gridBackground2}
-                                                        />
-                                                    )
-                                                })
-                                            }
-                                        </div>
-                                    </details>
-                                )
-                            })
-                        }
-                    </div>
-                </details>
+                                                <div className={`${gridStyle}`}>
+                                                    {
+                                                        commandList.map((command) => {
+                                                            return (
+                                                                <ParseCommand
+                                                                    command={command}
+                                                                    gridStyle={gridStyle}
+                                                                    otherStyleFirst={false}
+                                                                />
+                                                            )
+                                                        })
+                                                    }
+                                                </div>
+                                            </details>
+                                        </ContentContainer>
+                                    )
+                                })
+                            }
+                        </div>
+                    </details>
+                </ContentContainer>
             </GlowingContainer>
         )
     })

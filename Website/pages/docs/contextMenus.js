@@ -5,7 +5,8 @@ import Description from "../../components/content/description";
 import contextMenuGuide from "../../public/images/docs/contextMenuGuide.png"
 
 import Image from "next/image";
-import GlowingContainer from "../../components/glowingContainer";
+import GlowingContainer from "../../components/styling/glowingContainer";
+import ContentContainer from "../../components/styling/container";
 
 
 export async function getStaticProps() {
@@ -29,47 +30,53 @@ export default function ContextMenus({allContextMenus}) {
     const commands = Object.keys(allContextMenus).map((topic) => {
         return (
             <GlowingContainer>
-                <details className={`relative ${gridItemStyle} ${gridBackground1} marker:text-descend`}>
-                    <summary>
-                        {topic}
-                    </summary>
-                    <div className={`${gridStyle}`}>
-                        {
-                            Object.keys(allContextMenus[topic]).map((scope) => {
-                                const commandList = allContextMenus[topic][scope]
+                <ContentContainer otherStyle={false}>
+                    <details className={`relative marker:text-descend`}>
+                        <summary>
+                            {topic}
+                        </summary>
+                        <div className={`${gridStyle}`}>
+                            {
+                                Object.keys(allContextMenus[topic]).map((scope) => {
+                                    const commandList = allContextMenus[topic][scope]
 
-                                return (
-                                    <details className={`${gridItemStyle} ${gridBackground2}`}>
-                                        <summary>
-                                            {scope}
-                                        </summary>
+                                    return (
+                                        <ContentContainer otherStyle={true}>
+                                            <details>
+                                                <summary>
+                                                    {scope}
+                                                </summary>
 
-                                        <div className={`${gridStyle}`}>
-                                            {
-                                                commandList.map((command) => {
-                                                    return (
-                                                        <details className={`${gridItemStyle} ${gridBackground1}`}>
-                                                            <summary>
-                                                                <code className="text-center">
-                                                                    {command.name}
-                                                                </code>
-                                                            </summary>
-                                                            <div className={`${gridStyle}`}>
-                                                                <p>
-                                                                    {command.description}
-                                                                </p>
-                                                            </div>
-                                                        </details>
-                                                    )
-                                                })
-                                            }
-                                        </div>
-                                    </details>
-                                )
-                            })
-                        }
-                    </div>
-                </details>
+                                                <div className={`${gridStyle}`}>
+                                                    {
+                                                        commandList.map((command) => {
+                                                            return (
+                                                                <ContentContainer otherStyle={false}>
+                                                                    <details>
+                                                                        <summary>
+                                                                            <code className="text-center">
+                                                                                {command.name}
+                                                                            </code>
+                                                                        </summary>
+                                                                        <div className={`${gridStyle}`}>
+                                                                            <p>
+                                                                                {command.description}
+                                                                            </p>
+                                                                        </div>
+                                                                    </details>
+                                                                </ContentContainer>
+                                                            )
+                                                        })
+                                                    }
+                                                </div>
+                                            </details>
+                                        </ContentContainer>
+                                    )
+                                })
+                            }
+                        </div>
+                    </details>
+                </ContentContainer>
             </GlowingContainer>
         )
     })

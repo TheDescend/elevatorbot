@@ -6,7 +6,7 @@ import {HiMoon, HiOutlineMenu, HiPlus, HiSun} from "react-icons/hi";
 import {FaDiscord} from 'react-icons/fa';
 import {useTheme} from "next-themes";
 import {SideBarItems} from "../../data/sideBarItems";
-import GlowingButton from "../glowingButton";
+import GlowingButton from "../styling/glowingButton";
 import SignInButton from "../auth/signInButton";
 import {useSession} from "next-auth/react";
 import SignOutButton from "../auth/signOutButton";

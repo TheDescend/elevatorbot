@@ -3,7 +3,7 @@ import Layout from "../layout/layout";
 import Title from "../content/title";
 import Description from "../content/description";
 import SignInButton from "./signInButton";
-import GlowingButton from "../glowingButton";
+import GlowingButton from "../styling/glowingButton";
 import {FaDiscord} from "react-icons/fa";
 
 export default function AccessDenied() {

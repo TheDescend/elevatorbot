@@ -7,7 +7,7 @@ export default NextAuth({
         DiscordProvider({
             clientId: getSetting("DISCORD_CLIENT_ID"),
             clientSecret: getSetting("DISCORD_CLIENT_SECRET"),
-            authorization: "https://discord.com/api/oauth2/authorize?scope=guilds+guilds.members.read+identify",
+            authorization: "https://discord.com/api/oauth2/authorize?scope=guilds+identify",
         })
     ],
     secret: getSecret(),

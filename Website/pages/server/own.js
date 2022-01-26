@@ -4,11 +4,14 @@ import Layout from "../../components/layout/layout";
 import AccessDenied from "../../components/auth/accessDenied";
 import {discord_fetcher, getAccessToken} from "../../lib/http";
 import useSWR from "swr";
-import {ImSpinner2} from "react-icons/im";
 import Title from "../../components/content/title";
 import Loading from "../../components/auth/loading";
 import LoadingFailed from "../../components/auth/loadingFailed";
 import Description from "../../components/content/description";
+import Link from "next/link";
+import GlowingContainer from "../../components/styling/glowingContainer";
+import ContentContainer from "../../components/styling/container";
+import {HiReply} from 'react-icons/hi';
 
 
 export default function OwnServers({token}) {
@@ -26,21 +29,32 @@ export default function OwnServers({token}) {
     if (error) return <LoadingFailed/>
     if (!data) return <Loading/>
 
-        return (
+    return (
         <Layout>
             <Title>
                 Your Servers
             </Title>
             <Description>
-                {
-                 Object.keys(data).map((key) => {
-                    return (
-                        <p>
-                            {key}
-                        </p>
-                    )
-                })
-            }
+                <div className="grid grid-flow-row gap-6 pl-2 pt-2">
+                    {
+                        data.map((guild) => {
+                            return (
+                                <GlowingContainer>
+                                    <ContentContainer>
+                                        <Link href={`/server/${guild["id"]}`} passHref>
+                                            <a className="flex flex-row items-center gap-2">
+                                                <HiReply className="object-contain rotate-180"/>
+                                                <p className="group-hover:text-descend">
+                                                    {guild["name"]}
+                                                </p>
+                                            </a>
+                                        </Link>
+                                    </ContentContainer>
+                                </GlowingContainer>
+                            )
+                        })
+                    }
+                </div>
             </Description>
         </Layout>
     )
