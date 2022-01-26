@@ -1,20 +1,23 @@
 import React from 'react'
-import { useSession } from 'next-auth/react'
+import {useSession} from 'next-auth/react'
 import Layout from "../components/layout/layout";
-import AccessDenied from "../components/accessDenied";
+import AccessDenied from "../components/auth/accessDenied";
 
+// todo delete
+export default function Page() {
+    // check if logged in client side
+    const { data: session, status } = useSession()
 
-export default function Page () {
-  const { data: session } = useSession()
+    // If no session exists, display access denied message
+    if (status !== "authenticated") {
+        return <AccessDenied/>
+    }
 
-  // If no session exists, display access denied message
-  if (!session) { return  <AccessDenied/> }
-
-  // If session exists, display content
-  return (
-    <Layout>
-      <h1>Protected Page</h1>
-      <p><strong>Welcome {session.user.name}</strong></p>
-    </Layout>
-  )
+    // If session exists, display content
+    return (
+        <Layout>
+            <h1>Protected Page</h1>
+            <p><strong>Welcome {session.user.name}</strong></p>
+        </Layout>
+    )
 }

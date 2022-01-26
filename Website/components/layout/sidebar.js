@@ -5,9 +5,9 @@ import {SideBarItems} from "../../data/sideBarItems";
 
 export default function Sidebar() {
     return (
-        <div className="hidden md:flex flex-row w-[350px]">
-            <div className="flex-grow bg-gradient-to-t from-gray-400 to-gray-500 dark:from-gray-800 dark:to-gray-900 grid grid-cols-1">
-                <div className="p-6 pl-4 pr-8 text-white flex flex-col gap-2">
+        <div className="hidden big:flex flex-row w-[350px]">
+            <div className="flex-grow bg-gradient-to-t from-gray-200 to-gray-300 dark:from-gray-800 dark:to-gray-900 grid grid-cols-1">
+                <div className="p-6 pl-4 pr-8 text-gray-900 dark:text-white flex flex-col gap-2">
                     {
                         Object.keys(SideBarItems).map((name) => {
                             if (SideBarItems[name]["is_link"]) {

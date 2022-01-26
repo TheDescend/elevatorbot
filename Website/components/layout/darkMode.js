@@ -7,7 +7,7 @@ export default function DarkModeToggle() {
     const {theme, setTheme} = useTheme()
 
     return (
-        <div className="flex-grow flex flex-row place-content-end">
+        <div className="flex-grow flex flex-row place-content-end w-[144px] h-[48px] items-center">
             <button
                 aria-label="Toggle Dark Mode"
                 type="button"

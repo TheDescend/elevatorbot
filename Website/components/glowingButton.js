@@ -1,6 +1,6 @@
 export default function GlowingButton({children}) {
     return (
-        <div className="grid gap-8 items-start justify-center">
+        <div className="grid gap-8 items-start items-center">
             <div className="relative group">
                 <div
                     className="absolute -inset-0.5 bg-white group-hover:bg-descend rounded-lg blur opacity-30 group-hover:opacity-80 transition duration-1000 group-hover:duration-200 animate-tilt "

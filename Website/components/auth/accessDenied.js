@@ -1,7 +1,7 @@
 import {signIn} from 'next-auth/react'
-import Layout from "./layout/layout";
-import Title from "./content/title";
-import Description from "./content/description";
+import Layout from "../layout/layout";
+import Title from "../content/title";
+import Description from "../content/description";
 
 export default function AccessDenied() {
     return (

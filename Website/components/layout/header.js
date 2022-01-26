@@ -1,17 +1,25 @@
-import {FiLogIn} from 'react-icons/fi';
+import {FiLogIn, FiLogOut} from 'react-icons/fi';
 import Link from "next/link";
 import DarkModeToggle from "./darkMode";
 import {useState} from "react";
 import {HiMoon, HiOutlineMenu, HiPlus, HiSun} from "react-icons/hi";
+import {FaDiscord} from 'react-icons/fa';
 import {useTheme} from "next-themes";
 import {SideBarItems} from "../../data/sideBarItems";
 import GlowingButton from "../glowingButton";
+import SignInButton from "../auth/signInButton";
+import {useSession} from "next-auth/react";
+import SignOutButton from "../auth/signOutButton";
+import Image from "next/image";
 
 
 const loginPath = "/auth/discord"
 const inviteUrl = "some.url/here"
 
 export default function Header() {
+    // check if logged in client side
+    const {data: session, status} = useSession()
+
     const [active, setActive] = useState(false);
     const {theme, setTheme} = useTheme()
 
@@ -32,37 +40,63 @@ export default function Header() {
                         </a>
                     </Link>
                 </HeaderItemVisible>
-                <div className="flex flex-row gap-4">
-                    <HeaderItemHidden>
+                {status === "authenticated" &&
+                    <div className="flex flex-row items-center gap-x-1 relative">
+                        <Image
+                            src={session.user.image}
+                            alt="DiscordAvatar"
+                            layout="fixed"
+                            width={"30px"}
+                            height={"30px"}
+                            className="[clip-path:circle()]"
+                        />
+                        <p className="text-descend">
+                            {session.user.name}
+                        </p>
+
+                    </div>
+                }
+                <HeaderItemHidden>
+                    <div className="flex flex-row gap-4">
                         <DarkModeToggle/>
-                    </HeaderItemHidden>
-                    <HeaderItemHidden>
                         <GlowingButton>
                             <a
                                 className="hover:text-descend flex flex-col relative w-32 h-10"
                                 target="_blank" rel="noopener noreferrer" href={inviteUrl}
                             >
                                 <HiPlus className="object-contain h-4 w-4 absolute inset-x-0 top-1 left-[56px]"/>
-                                <p className="pl absolute inset-x-0 bottom-1 text-center">
+                                <p className="pl absolute inset-x-0 bottom-1 text-center font-bold">
                                     Invite To Server
                                 </p>
                             </a>
                         </GlowingButton>
-                    </HeaderItemHidden>
-                    <HeaderItemHidden>
-                        <Link href={loginPath} passHref>
-                            <a className="">
-                                <GlowingButton>
-                                    <p className="pr-2">
-                                        Login
-                                    </p>
-                                    <FiLogIn className="object-contain h-10 w-8 "/>
-                                </GlowingButton>
-                            </a>
-                        </Link>
-                    </HeaderItemHidden>
-                </div>
-                <div className="flex items-center pl-2 pr-2 hover:text-descend md:hidden">
+                        <GlowingButton>
+                            {status !== "authenticated" ?
+                                <SignInButton>
+                                    <div className="flex flex-row">
+                                        <div className="relative w-12">
+                                            <FaDiscord className="object-contain absolute inset-x-0 top-1 left-[16px]"/>
+                                            <p className="absolute text-center bottom-1 font-bold inset-x-0">
+                                                Login
+                                            </p>
+                                        </div>
+                                        <FiLogIn className="object-contain h-10 w-8 "/>
+                                    </div>
+                                </SignInButton>
+                                :
+                                <SignOutButton>
+                                    <div className="flex flex-row items-center">
+                                        <p className="pr-2 font-bold">
+                                            Logout
+                                        </p>
+                                        <FiLogOut className="object-contain h-10 w-8"/>
+                                    </div>
+                                </SignOutButton>
+                            }
+                        </GlowingButton>
+                    </div>
+                </HeaderItemHidden>
+                <div className="flex items-center pl-2 pr-2 hover:text-descend big:hidden">
                     <button
                         className={`${!active ? '' : 'text-descend'}`}
                         onClick={handleClick}
@@ -71,7 +105,7 @@ export default function Header() {
                     </button>
                 </div>
                 <div
-                    className={`${active ? '' : 'hidden'} w-full block flex-grow md:hidden divide-y divide-descend font-bold`}
+                    className={`${active ? '' : 'hidden'} w-full block flex-grow big:hidden divide-y divide-descend font-bold`}
                 >
                     <div>
                         <div className="text-right block p-2 group hover:text-descend">
@@ -98,15 +132,26 @@ export default function Header() {
                                 </div>
                             </button>
                         </div>
-                        <div className="block p-2 hover:text-descend hover:underline underline-offset-2">
-                            <Link href={loginPath} passHref>
-                                <a className="flex flex-row items-center place-content-end">
-                                    <p className="mx-2 font-bold">
-                                        Login With Discord
-                                    </p>
-                                    <FiLogIn className="object-contain"/>
-                                </a>
-                            </Link>
+                        <div className="text-right block p-2 hover:text-descend hover:underline underline-offset-2 ">
+                            {status !== "authenticated" ?
+                                <SignInButton>
+                                    <div className="flex flex-row items-center">
+                                        <p className="mx-2 font-bold">
+                                            Login With Discord
+                                        </p>
+                                        <FiLogIn className="object-contain"/>
+                                    </div>
+                                </SignInButton>
+                                :
+                                <SignOutButton>
+                                    <div className="flex flex-row items-center">
+                                        <p className="mx-2 font-bold">
+                                            Logout
+                                        </p>
+                                        <FiLogOut className="object-contain"/>
+                                    </div>
+                                </SignOutButton>
+                            }
                         </div>
                         <div className="block p-2 hover:text-descend hover:underline underline-offset-2">
                             <a
@@ -163,7 +208,7 @@ function HeaderItemVisible({children}) {
 
 function HeaderItemHidden({children}) {
     return (
-        <div className="hidden md:flex items-center space-x-1">
+        <div className="hidden big:flex items-center space-x-1">
             {children}
         </div>
     )

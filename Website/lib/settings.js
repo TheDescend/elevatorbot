@@ -10,8 +10,6 @@ let settings = fs.readFileSync(fullPath, 'utf8')
 settings = toml.parse(settings)
 
 export function getSetting(key) {
-    console.log(key, settings[key])
-
     return settings[key]
 }
 
@@ -24,7 +22,6 @@ export function getSecret() {
             process.env.NEXTAUTH_URL = getSetting("WEBSITE_URL")
         }
     }
-
 
     if (secret === null) {
         const secretPath = path.join(process.cwd(), "secrets.txt")

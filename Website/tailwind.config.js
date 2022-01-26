@@ -9,7 +9,11 @@ module.exports = {
             colors: {
                 "descend": "#71b093",
             },
+                    screens: {
+            "big": "840px",
         },
+        },
+
     },
     plugins: [
         require('@tailwindcss/typography'),
