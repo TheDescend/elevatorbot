@@ -6,7 +6,9 @@ import Layout from "../components/layout/layout";
 export default function Home() {
     return (
         <Layout>
-            <Title title={"Home"}/>
+            <Title>
+                Home
+            </Title>
             <Description>
                 <div>
                     <p>[Your Self Introduction]</p>

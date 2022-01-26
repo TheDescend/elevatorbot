@@ -9,7 +9,7 @@ export const SideBarItems = {
     },
     "Your Servers": {
         "is_link": true,
-        "link": "/"
+        "link": "/server/own"
     },
     "Documentation": {
         "is_link": false,

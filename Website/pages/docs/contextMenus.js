@@ -76,7 +76,9 @@ export default function ContextMenus({allContextMenus}) {
 
     return (
         <Layout>
-            <Title title="Context Menus"/>
+            <Title>
+                Context Menus
+            </Title>
             <Description>
                 <div className="flex flex-row gap-x-8">
                     <div className="max-w-lg">

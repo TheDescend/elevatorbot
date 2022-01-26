@@ -6,7 +6,9 @@ import Layout from "../components/layout/layout";
 export default function Privacy() {
     return (
         <Layout>
-            <Title title={"Privacy Policy"}/>
+            <Title>
+                Privacy Policy
+            </Title>
             <Description>
                 <div>
                     <span className="text-descend">

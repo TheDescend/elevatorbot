@@ -36,7 +36,9 @@ export default function BungieRegistration({status_code, content}) {
   }
     return (
         <Layout>
-            <Title title="Successful Registration"/>
+            <Title>
+                Successful Registration
+            </Title>
             <Description>
                 <p>
                     Successfully linked your discord account to destiny user <code>{content["bungie_name"]}</code>.

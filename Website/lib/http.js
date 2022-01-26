@@ -1,10 +1,32 @@
-export default async function request(method, path, body=null ) {
+import {getSession} from "next-auth/react";
+
+export const discord_fetcher = (url, token) => fetch(
+    "https://discord.com/api/v9" + url,
+    {
+        method: "GET",
+        headers: {
+            "Authorization": "Bearer " + token
+        }
+    }
+).then(res => res.json())
+
+export const getAccessToken = async (session) => {
+  if (session) {
+      return session.accessToken
+  } else {
+      return null
+  }
+
+};
+
+
+export default async function request(method, path, body = null) {
     const backend_host = process.env.BACKEND_HOST
     const backend_port = process.env.BACKEND_PORT
     const url = `http://${backend_host}:${backend_port}${path}`
     const headers = {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json'
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
     }
 
     let response

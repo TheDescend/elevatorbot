@@ -68,7 +68,9 @@ export default function Commands({allCommandData}) {
 
     return (
         <Layout>
-            <Title title="Commands"/>
+            <Title>
+                Commands
+            </Title>
             <Description>
                 <div className={`${gridStyle} gap-6`}>
                     {commands}

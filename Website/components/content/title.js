@@ -1,7 +1,7 @@
-export default function Title({title}) {
+export default function Title({children}) {
     return (
         <h1 className="pb-6">
-            {title}
+            {children}
         </h1>
     )
 }
