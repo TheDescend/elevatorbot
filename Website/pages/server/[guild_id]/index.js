@@ -7,7 +7,6 @@ import AccessDenied from "../../../components/auth/accessDenied";
 import useSWR from "swr";
 import LoadingFailed from "../../../components/auth/loadingFailed";
 import Loading from "../../../components/auth/loading";
-import {useRouter} from 'next/router'
 import {hasDiscordPermission} from "../../../lib/discordPermission";
 import GlowingContainer from "../../../components/styling/glowingContainer";
 import ContentContainer from "../../../components/styling/container";
@@ -15,10 +14,7 @@ import Link from "next/link";
 import {HiReply} from "react-icons/hi";
 import React from "react";
 
-export default function ServerPage({token}) {
-    const router = useRouter()
-    const {guild_id} = router.query
-
+export default function ServerPage({token, guild_id}) {
     // check if logged in client side
     const {data: session} = useSession()
 
@@ -38,7 +34,6 @@ export default function ServerPage({token}) {
     data.forEach(function (item, index) {
         if (item.id === guild_id) {
             guild = item
-            console.log(item)
         }
     })
     if (guild === null) return <LoadingFailed/>
@@ -80,11 +75,13 @@ export default function ServerPage({token}) {
 
 export async function getServerSideProps(context) {
     const session = await getSession(context)
+    const {guild_id} = context.query
 
     return {
         props: {
             token: await getAccessToken(session),
             session: session,
+            guild_id: guild_id,
         },
     }
 }

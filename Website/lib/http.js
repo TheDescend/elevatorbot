@@ -1,5 +1,5 @@
-import {getSession} from "next-auth/react";
 import JSONbig from "json-bigint";
+
 
 export const discord_fetcher = (url, token) => fetch(
     "https://discord.com/api/v9" + url,
@@ -10,6 +10,7 @@ export const discord_fetcher = (url, token) => fetch(
         }
     }
 ).then(res => res.json())
+
 
 export const getAccessToken = async (session) => {
   if (session) {

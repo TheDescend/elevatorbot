@@ -3,17 +3,19 @@ import fs from 'fs'
 import toml from 'toml'
 import crypto from 'crypto'
 
-const fullPath = path.join(process.cwd(), "settings.toml")
-global.settings = fs.readFileSync(fullPath, 'utf8')
-
-// parse them
-global.settings = toml.parse(settings)
 
 export function getSetting(key) {
+    if (!("setting" in global)) {
+        const fullPath = path.join(process.cwd(), "settings.toml")
+        global.settings = fs.readFileSync(fullPath, 'utf8')
+
+        // parse them
+        global.settings = toml.parse(settings)
+    }
+
     return global.settings[key]
 }
 
-global.secret = null
 
 export function getSecret() {
     // also set the NEXTAUTH_URL env var
@@ -23,17 +25,22 @@ export function getSecret() {
         }
     }
 
-    if (global.secret === null) {
+    const key = `secret`
+
+    let value = global.customCache.get(key)
+
+    if (!value) {
         const secretPath = path.join(process.cwd(), "secrets.txt")
 
         try {
             // read the secret file
-            global.secret = fs.readFileSync(secretPath, 'utf8')
+            value = fs.readFileSync(secretPath, 'utf8')
         } catch (error) {
             // generate a secret
-            global.secret = crypto.randomBytes(64).toString('hex')
-            fs.writeFileSync(secretPath, global.secret)
+            value = crypto.randomBytes(64).toString('hex')
+            fs.writeFileSync(secretPath, value)
         }
+        global.customCache.set(key, value, 0)
     }
-    return global.secret
+    return value
 }

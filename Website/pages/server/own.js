@@ -15,6 +15,7 @@ import {HiReply} from 'react-icons/hi';
 import GlowingButton from "../../components/styling/glowingButton";
 import {hasDiscordPermission} from "../../lib/discordPermission";
 
+
 // todo only show servers where elevator is on Incremental Static Regeneration (ISR)
 export default function OwnServers({token, elevatorServers}) {
     // check if logged in client side
@@ -32,9 +33,6 @@ export default function OwnServers({token, elevatorServers}) {
 
     if (error) return <LoadingFailed/>
     if (!data) return <Loading/>
-
-    console.log(data)
-    console.log(elevatorServers)
 
     return (
         <Layout>
@@ -110,14 +108,12 @@ export async function getServerSideProps(context) {
 }
 
 
-global.elevatorCache = {
-    "date": new Date("2001"),
-    "servers": null
-}
-
 async function getElevatorServers() {
-    if (new Date(elevatorCache.date.getTime() + 10 * 60000) < new Date()) {
-        console.log("Updating...")
+    const key = `elevatorGuilds`
+
+    let value = global.customCache.get(key)
+
+    if (!value){
         const data = await request(
             "GET",
             "/elevator/discord_servers/get/all"
@@ -127,9 +123,10 @@ async function getElevatorServers() {
         data.content.guilds.forEach(function (item, index) {
             guildIds.push(item.guild_id.toString())
         })
-        global.elevatorCache.servers = guildIds
-        global.elevatorCache.date = new Date()
+
+        value = guildIds
+        global.customCache.set(key, value, 600)
     }
 
-    return global.elevatorCache.servers
+    return value
 }
