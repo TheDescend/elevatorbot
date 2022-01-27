@@ -4,16 +4,16 @@ import toml from 'toml'
 import crypto from 'crypto'
 
 const fullPath = path.join(process.cwd(), "settings.toml")
-let settings = fs.readFileSync(fullPath, 'utf8')
+global.settings = fs.readFileSync(fullPath, 'utf8')
 
 // parse them
-settings = toml.parse(settings)
+global.settings = toml.parse(settings)
 
 export function getSetting(key) {
-    return settings[key]
+    return global.settings[key]
 }
 
-let secret = null
+global.secret = null
 
 export function getSecret() {
     // also set the NEXTAUTH_URL env var
@@ -23,17 +23,17 @@ export function getSecret() {
         }
     }
 
-    if (secret === null) {
+    if (global.secret === null) {
         const secretPath = path.join(process.cwd(), "secrets.txt")
 
         try {
             // read the secret file
-            secret = fs.readFileSync(secretPath, 'utf8')
+            global.secret = fs.readFileSync(secretPath, 'utf8')
         } catch (error) {
             // generate a secret
-            secret = crypto.randomBytes(64).toString('hex')
-            fs.writeFileSync(secretPath, secret)
+            global.secret = crypto.randomBytes(64).toString('hex')
+            fs.writeFileSync(secretPath, global.secret)
         }
     }
-    return secret
+    return global.secret
 }

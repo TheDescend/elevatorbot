@@ -3,10 +3,11 @@ import {useRouter} from 'next/router'
 import {HiChevronRight} from "react-icons/hi";
 import {SideBarItems} from "../../data/sideBarItems";
 
-export default function Sidebar() {
+export default function Sidebar({server = null}) {
     return (
         <div className="hidden big:flex flex-row w-[350px]">
-            <div className="flex-grow bg-gradient-to-t from-gray-200 to-gray-300 dark:from-gray-800 dark:to-gray-900 grid grid-cols-1">
+            <div
+                className="flex-grow bg-gradient-to-t from-gray-200 to-gray-300 dark:from-gray-800 dark:to-gray-900 grid grid-cols-1">
                 <div className="p-6 pl-4 pr-8 text-gray-900 dark:text-white flex flex-col gap-2">
                     {
                         Object.keys(SideBarItems).map((name) => {
@@ -24,7 +25,7 @@ export default function Sidebar() {
                                 )
                             } else {
                                 return (
-                                    <div className="block py-4">
+                                    <div className="block pt-4">
                                         <p className="pb-2 pl-2 font-bold">
                                             {name}
                                         </p>
@@ -49,6 +50,23 @@ export default function Sidebar() {
                                 )
                             }
                         })
+                    }
+                    {server &&
+                        <div className="block pt-4">
+                            <p className="pb-2 pl-2 font-bold">
+                                {server.name}
+                            </p>
+                            <div className="grid grid-flow-row gap-2 pl-4">
+                                <Link href={`/server/${server["id"]}/roles`} passHref>
+                                    <a className={`block hover:text-descend flex flex-row group hover:scale-105 ${markActiveLink(`/server/${server["id"]}/roles`)}`}>
+                                        <HiChevronRight className="object-contain h-7 w-7"/>
+                                        <p className="group-hover:underline underline-offset-2">
+                                            Roles
+                                        </p>
+                                    </a>
+                                </Link>
+                            </div>
+                        </div>
                     }
                 </div>
             </div>

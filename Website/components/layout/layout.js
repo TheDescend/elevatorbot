@@ -5,7 +5,7 @@ import Content from "./content";
 import Header from "./header";
 
 
-export default function Layout({children}) {
+export default function Layout({children, server = null}) {
     return (
         <div>
             <Head>
@@ -25,7 +25,7 @@ export default function Layout({children}) {
             <main className="flex flex-col h-screen bg-descend">
                 <Header/>
                 <div className="flex-grow flex h-full overflow-y-hidden">
-                    <Sidebar/>
+                    <Sidebar server={server}/>
                     <div className="flex-grow h-full w-full">
                         <div className="flex flex-col overflow-y-auto scroll-smooth divide-descend divide-y-2 h-full">
                             <Content children={children}/>

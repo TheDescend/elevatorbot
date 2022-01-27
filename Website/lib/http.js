@@ -1,4 +1,5 @@
 import {getSession} from "next-auth/react";
+import JSONbig from "json-bigint";
 
 export const discord_fetcher = (url, token) => fetch(
     "https://discord.com/api/v9" + url,
@@ -49,7 +50,9 @@ export default async function request(method, path, body = null) {
         )
     }
 
-    const result = await response.json()
+    const resultText = await response.text()
+    const result = JSONbig.parse(resultText)
+
     if (response.status === 409) {
         return {
             "status_code": response.status,

@@ -1,4 +1,5 @@
 import {getSession} from "next-auth/react";
+import {getAccessToken} from "../../../lib/http";
 
 export default function Profile() {
   // const { data, error } = useSWR('/api/user', fetcher)
@@ -13,13 +14,12 @@ export default function Profile() {
 
 
 export async function getServerSideProps(context) {
-    // this makes sure that the user is logged in server side and not client side, which is important for those function
-    const {req} = context;
-    const session = await getSession({req});
+    const session = await getSession(context)
 
     return {
         props: {
+            token: await getAccessToken(session),
             session: session,
         },
-    };
+    }
 }

@@ -30,9 +30,10 @@ function Command({command, gridStyle, otherStyleFirst}) {
                                                                 {option.name}
                                                             </code>
                                                             <span
-                                                                className={`${option.required ? '' : 'italic'} self-center text-xs text-descend pl-2`}>
-                                                    {option.required ? '' : 'optional'}
-                                                </span>
+                                                                className={`${option.required ? '' : 'italic'} self-center text-xs text-descend pl-2`}
+                                                            >
+                                                                {option.required ? '' : 'optional'}
+                                                            </span>
                                                         </summary>
                                                         <div className={`${gridStyle}`}>
                                                             <div>
