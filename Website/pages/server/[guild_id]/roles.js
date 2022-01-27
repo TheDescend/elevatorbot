@@ -10,12 +10,11 @@ import Title from "../../../components/content/title";
 import Description from "../../../components/content/description";
 import GlowingContainer from "../../../components/styling/glowingContainer";
 import ContentContainer from "../../../components/styling/container";
-import Link from "next/link";
-import {HiReply} from "react-icons/hi";
 import React from "react";
+import RoleForm from "../../../components/roleForm";
 
 
-export default function ServerRolePage({token, guild_id, roles}) {
+export default function ServerRolePage({token, guild_id, discordRoles, guildRoles}) {
     // check if logged in client side
     const {data: session} = useSession()
 
@@ -43,7 +42,22 @@ export default function ServerRolePage({token, guild_id, roles}) {
     const adminPerms = hasDiscordPermission(guild)
 
     // check roles
-    if (roles === null) return <LoadingFailed/>
+    if (discordRoles === null) return <LoadingFailed/>
+
+    // todo temp
+    guildRoles = [{
+        "role_name": "test",
+        "role_data": {
+            "category": "Destiny Roles",
+            "deprecated": false,
+            "acquirable": true,
+            "require_activity_completions": [],
+            "require_collectibles": [],
+            "require_records": [],
+            "require_role_ids": [],
+            "replaced_by_role_id": 12345
+        }
+    }]
 
     return (
         <Layout server={guild}>
@@ -52,7 +66,7 @@ export default function ServerRolePage({token, guild_id, roles}) {
                     <div className="flex flex-row justify-between">
                         {guild.name}'s Roles
                         <span className="text-xs text-descend pr-2 align-top">
-                            Discord roles and their names can take up to 30 minutes to update on this page
+                            Changes done on discord can take up to 30 to synchronise
                         </span>
                     </div>
                     {adminPerms &&
@@ -64,12 +78,22 @@ export default function ServerRolePage({token, guild_id, roles}) {
             </Title>
             <Description>
                 <div className="grid grid-flow-row gap-6 pl-2 pt-2">
-                    {Array.isArray(roles) &&
-                        roles.map((role) => {
+                    {guildRoles &&
+                        guildRoles.map((role) => {
                             return (
-                                <p>
-                                    {role.name}
-                                </p>
+                                <GlowingContainer>
+                                    <ContentContainer>
+                                        <details className="marker:text-descend group">
+                                            <summary className="group-open:text-descend">
+                                                {role.name}
+                                            </summary>
+                                            <RoleForm
+                                                role={role}
+                                                adminPerms={adminPerms}
+                                            />
+                                        </details>
+                                    </ContentContainer>
+                                </GlowingContainer>
                             )
                         })
                     }
@@ -78,19 +102,23 @@ export default function ServerRolePage({token, guild_id, roles}) {
         </Layout>
     )
 }
+
 export async function getServerSideProps(context) {
     const session = await getSession(context)
     const {guild_id} = context.query
 
     const discord = require('../../../lib/discord');
-    const roles = await discord.getRoles(guild_id)
+    const discordRoles = await discord.getRoles(guild_id)
+
+    const guildRoles = null
 
     return {
         props: {
             token: await getAccessToken(session),
             session: session,
             guild_id: guild_id,
-            roles: roles,
+            discordRoles: discordRoles,
+            guildRoles: guildRoles
         },
     }
 }

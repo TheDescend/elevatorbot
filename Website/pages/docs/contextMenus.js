@@ -22,10 +22,6 @@ export async function getStaticProps() {
 // todo add permissions here
 export default function ContextMenus({allContextMenus}) {
     const gridStyle = "grid grid-flow-row gap-2 pl-2 pt-2"
-    const gridItemStyle = "p-2 rounded "
-
-    const gridBackground1 = "bg-gradient-to-r from-gray-300 to-gray-400 dark:from-slate-800 dark:to-slate-900"
-    const gridBackground2 = "bg-gradient-to-r from-gray-400 to-gray-500 dark:from-slate-700 dark:to-slate-800"
 
     const commands = Object.keys(allContextMenus).map((topic) => {
         return (
