@@ -14,6 +14,7 @@ import React from "react";
 import RoleForm from "../../../components/roleForm";
 
 
+
 export default function ServerRolePage({token, guild_id, discordRoles, guildRoles}) {
     // check if logged in client side
     const {data: session} = useSession()
@@ -51,8 +52,7 @@ export default function ServerRolePage({token, guild_id, discordRoles, guildRole
             "category": "Destiny Roles",
             "deprecated": false,
             "acquirable": true,
-            "require_activity_completions": [
-            ],
+            "require_activity_completions": [],
             "require_collectibles": [],
             "require_records": [],
             "require_role_ids": [],
@@ -74,7 +74,7 @@ export default function ServerRolePage({token, guild_id, discordRoles, guildRole
                         </span>
                     }
                     <span className="text-xs text-descend mt-8 border-t w-fit border-descend">
-                            Changes done on discord can take up to 30 to synchronise
+                            Changes done on discord can take up to 30 mins to synchronise
                         </span>
                 </div>
             </Title>

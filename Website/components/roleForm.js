@@ -1,7 +1,13 @@
 import GlowingButton from "./styling/glowingButton";
+import ContentContainer from "./styling/container";
+import {useState} from "react";
+import {FiPlusCircle} from "react-icons/fi";
+import {HiMoon} from "react-icons/hi";
+
 
 export default function RoleForm({role, adminPerms}) {
     const registerRole = async event => {
+        console.log("getting executed...")
         event.preventDefault()
 
         // https://nextjs.org/blog/forms
@@ -22,11 +28,15 @@ export default function RoleForm({role, adminPerms}) {
     const discordRole = "asd"
     const replacementDiscordRole = role["role_data"]["replaced_by_role_id"]
 
+    // todo delete
+    // todo edit
+    // todo create
+
     const divFormatting = ""
-    const pFormatting = ""
+    const summaryFormatting = ""
     const labelFormatting = "px-1"
 
-    const _InputFormatting = "dark:bg-gray-900 rounded-lg border-none text-descend"
+    const _InputFormatting = "dark:bg-gray-900 rounded-lg border-none text-descend placeholder:italic"
     const textInputFormatting = `${_InputFormatting} focus:ring-2 focus:ring-descend invalid:text-red-700 required:ring-2 required:ring-red-700 valid:ring-0 mt-1`
     const checkboxInputFormatting = `${_InputFormatting} checked:ring-2 ring-descend`
 
@@ -34,6 +44,57 @@ export default function RoleForm({role, adminPerms}) {
     const textInputDivFormatting = `${_InputDivFormatting} flex-col justify-between`
     const checkboxInputDivFormatting = `${_InputDivFormatting} flex-row justify-between items-center`
 
+    const [activities, updateActivities] = useState(role["role_data"]["require_activity_completions"])
+    const [collectibles, updateCollectibles] = useState(role["role_data"]["require_collectibles"])
+    const [records, updateRecords] = useState(role["role_data"]["require_records"])
+    const [reqRoles, updateReqRoles] = useState(role["role_data"]["require_role_ids"])
+
+    function handleUpdate(key) {
+        let data
+
+        switch (key) {
+            case "require_activity_completions":
+                data = {
+                    "allowed_activity_hashes": [],
+                    "count": 1,
+                    "allow_checkpoints": false,
+                    "require_team_flawless": false,
+                    "require_individual_flawless": false,
+                    "require_score": null,
+                    "require_kills": null,
+                    "require_kills_per_minute": null,
+                    "require_kda": null,
+                    "require_kd": null,
+                    "maximum_allowed_players": 6,
+                    "allow_time_periods": [],
+                    "disallow_time_periods": [],
+                    "inverse": false,
+                }
+                updateActivities([...activities, data])
+                return
+
+            // the others all use the same format
+            default:
+                data = {
+                    "id": null,
+                    "inverse": false,
+                }
+
+                switch (key) {
+                    case "require_collectibles":
+                        updateCollectibles([...collectibles, data])
+                        return
+
+                    case "require_records":
+                        updateRecords([...records, data])
+                        return
+
+                    default:
+                        updateReqRoles([...reqRoles, data])
+                        return
+                }
+        }
+    }
 
     return (
         <form onSubmit={registerRole} className="p-2">
@@ -96,39 +157,110 @@ export default function RoleForm({role, adminPerms}) {
                     </div>
                 </div>
 
-                <div>
-                    <div className={divFormatting}>
-                        <p className={pFormatting}>
-                            Required Activities
-                        </p>
-                        <HandleActivities data={role["role_data"]["require_activity_completions"]}/>
-                    </div>
-                    <div className={divFormatting}>
-                        <p className={pFormatting}>
-                            Required Collectibles
-                        </p>
-                        <HandleCollectibles data={role["role_data"]["require_collectibles"]}/>
-                    </div>
-                    <div className={divFormatting}>
-                        <p className={pFormatting}>
-                            Required Triumphs
-                        </p>
-                        <HandleRecords data={role["role_data"]["require_records"]}/>
-                    </div>
-                    <div className={divFormatting}>
-                        <p className={pFormatting}>
-                            Required Roles
-                        </p>
-                        <HandleRoles data={role["role_data"]["require_role_ids"]}/>
-                    </div>
+                <div className="flex flex-col gap-2 pt-4">
+                    <ContentContainer otherStyle={true}>
+                        <details className={divFormatting}>
+                            <summary className={summaryFormatting}>
+                                Required Activities
+                            </summary>
+                            <div className="flex flex-col">
+                                <HandleActivities data={activities}/>
+                                {adminPerms &&
+                                    <div className="flex pt-2">
+                                            <button
+                                                className=""
+                                                type="button "
+                                                onClick={() => {
+                                                    handleUpdate("require_activity_completions")
+                                                }}
+                                            >
+                                                <FiPlusCircle className="object-contain hover:text-descend w-6 h-6"/>
+                                            </button>
+                                    </div>
+                                }
+                            </div>
+                        </details>
+                    </ContentContainer>
+                    <ContentContainer otherStyle={true}>
+                        <details className={divFormatting}>
+                            <summary className={summaryFormatting}>
+                                Required Collectibles
+                            </summary>
+                            <div className="flex flex-col">
+                                <HandleCollectibles data={collectibles}/>
+                                {adminPerms &&
+                                    <div className="flex pt-2">
+                                            <button
+                                                className=""
+                                                type="button"
+                                                onClick={() => {
+                                                    handleUpdate("require_collectibles")
+                                                }}
+                                            >
+                                                <FiPlusCircle className="object-contain hover:text-descend w-6 h-6"/>
+                                            </button>
+                                    </div>
+                                }
+                            </div>
+                        </details>
+                    </ContentContainer>
+                    <ContentContainer otherStyle={true}>
+                        <details className={divFormatting}>
+                            <summary className={summaryFormatting}>
+                                Required Triumphs
+                            </summary>
+                            <div className="flex flex-col">
+                                <HandleRecords data={records}/>
+                                {adminPerms &&
+                                    <div className="flex pt-2">
+                                            <button
+                                                className=""
+                                                type="button "
+                                                onClick={() => {
+                                                    handleUpdate("require_records")
+                                                }}
+                                            >
+                                                <FiPlusCircle className="object-contain hover:text-descend w-6 h-6"/>
+                                            </button>
+                                    </div>
+                                }
+                            </div>
+                        </details>
+                    </ContentContainer>
+                    <ContentContainer otherStyle={true}>
+                        <details className={divFormatting}>
+                            <summary className={summaryFormatting}>
+                                Required Roles
+                            </summary>
+                            <div className="flex flex-col">
+                                <HandleRoles data={reqRoles}/>
+                                {adminPerms &&
+                                    <div className="flex pt-2">
+                                            <button
+                                                className=""
+                                                type="button "
+                                                onClick={() => {
+                                                    handleUpdateRole("require_role_ids")
+                                                }}
+                                            >
+                                                <FiPlusCircle className="object-contain hover:text-descend w-6 h-6"/>
+                                            </button>
+                                    </div>
+                                }
+                            </div>
+                        </details>
+                    </ContentContainer>
                 </div>
 
                 {adminPerms &&
-                    <div className="flex justify-center p-2">
-                    <GlowingButton>
-                        <button className="p-1 font-bold" type="submit">Update</button>
-                    </GlowingButton>
-                </div>
+                    <div className="flex justify-around p-2">
+                        <GlowingButton glow={"opacity-20"}>
+                            <button className="p-1 font-bold" type="submit">Update</button>
+                        </GlowingButton>
+                        <GlowingButton glow={"opacity-20"}>
+                            <button className="p-1 font-bold" type="button">Delete</button>
+                        </GlowingButton>
+                    </div>
                 }
             </div>
         </form>
@@ -136,11 +268,8 @@ export default function RoleForm({role, adminPerms}) {
 }
 
 
-function HandleActivities(
-    {
-        data
-    }
-) {
+// todo need to be able to delete parts of those
+function HandleRequirement({data}) {
     return (
         <div>
 
@@ -148,38 +277,67 @@ function HandleActivities(
     )
 }
 
-function HandleCollectibles(
-    {
-        data
-    }
-) {
+
+function HandleActivities({data}) {
     return (
         <div>
-
+            {
+                data.map((activity) => {
+                    return (
+                        <p>
+                            {activity["count"]}
+                        </p>
+                    )
+                })
+            }
         </div>
     )
 }
 
-function HandleRecords(
-    {
-        data
-    }
-) {
+function HandleCollectibles({data}) {
     return (
         <div>
-
+            {
+                data.map((activity) => {
+                    return (
+                        <p>
+                            hi
+                        </p>
+                    )
+                })
+            }
         </div>
     )
 }
 
-function HandleRoles(
-    {
-        data
-    }
-) {
+function HandleRecords({data}) {
     return (
         <div>
+            {
+                data.map((activity) => {
+                    return (
+                        <p>
+                            hi
+                        </p>
+                    )
+                })
+            }
+        </div>
+    )
+}
 
+function HandleRoles({data}) {
+    return (
+        <div>
+            {
+                data.map((activity) => {
+                    return (
+                        <p>
+                            hi
+                        </p>
+                    )
+                })
+            }
         </div>
     )
 }
