@@ -100,12 +100,12 @@ export default function RoleForm({role, adminPerms}) {
         <form onSubmit={registerRole} className="p-2">
             <div className="flex flex-col gap-4 divide-y divide-descend">
                 <div className="grid grid-cols-2 gap-4">
-                    <div className={`${textInputDivFormatting} `}>
+                    <div className={textInputDivFormatting}>
                         <label className={labelFormatting} htmlFor="role_name">
                             Role Name
                         </label>
                         <input
-                            className={`${textInputFormatting} `} id="role_name" name="role_name" type="text"
+                            className={textInputFormatting} id="role_name" name="role_name" type="text"
                             placeholder="required" required disabled={!adminPerms} defaultValue={role["role_name"]}
                         />
                     </div>
@@ -139,10 +139,10 @@ export default function RoleForm({role, adminPerms}) {
                     </div>
                     <div className={checkboxInputDivFormatting}>
                         <label className={labelFormatting} htmlFor="deprecated">
-                            Are any requirements sunset?
+                            Are any requirements sunset
                         </label>
                         <input
-                            className={`${checkboxInputFormatting}`} id="deprecated" name="deprecated" type="checkbox"
+                            className={checkboxInputFormatting} id="deprecated" name="deprecated" type="checkbox"
                             defaultChecked={role["role_data"]["deprecated"]} disabled={!adminPerms}
                         />
                     </div>
@@ -286,153 +286,219 @@ function FormatRequirement({children, name}) {
 
 
 function HandleActivities({data, adminPerms}) {
-    console.log(data)
-
     return (
-        <div>
+        <div className="grid grid-flow-row gap-2">
             {
                 data.map((activity, index) => {
                     return (
                         <FormatRequirement name={`#${index + 1}`}>
                             <div className="grid grid-cols-2 gap-4">
                                 <div className={`${textInputDivFormatting} `}>
-                                    <label className={labelFormatting} htmlFor="allowed_activity_hashes">
-                                        allowed_activity_hashes
+                                    <label className={labelFormatting}
+                                           htmlFor={`require_activity_completions-${index}-allowed_activity_hashes`}>
+                                        Allowed Activities
                                     </label>
                                     <input
-                                        className={`${textInputFormatting} `} id="allowed_activity_hashes" name="allowed_activity_hashes" type="text"
-                                        placeholder="required" required disabled={!adminPerms}
+                                        className={textInputFormatting}
+                                        id={`require_activity_completions-${index}-allowed_activity_hashes`}
+                                        name={`require_activity_completions-${index}-allowed_activity_hashes`}
+                                        type="text"
+                                        placeholder="required"
+                                        required
+                                        disabled={!adminPerms}
                                         defaultValue={activity["allowed_activity_hashes"]}
                                     />
                                 </div>
                                 <div className={`${textInputDivFormatting} `}>
-                                    <label className={labelFormatting} htmlFor="count">
-                                        Count
+                                    <label className={labelFormatting}
+                                           htmlFor={`require_activity_completions-${index}-count`}>
+                                        Require Count
                                     </label>
                                     <input
-                                        className={`${textInputFormatting} `} id="count" name="count" type="number"
-                                        placeholder="required" required disabled={!adminPerms}
+                                        className={textInputFormatting}
+                                        id={`require_activity_completions-${index}-count`}
+                                        name={`require_activity_completions-${index}-count`}
+                                        type="number"
+                                        placeholder="required"
+                                        required
+                                        disabled={!adminPerms}
                                         defaultValue={activity["count"]}
                                     />
                                 </div>
-                                <div className={`${textInputDivFormatting} `}>
-                                    <label className={labelFormatting} htmlFor="require_score">
-                                        require_score
+                                <div className={textInputDivFormatting}>
+                                    <label className={labelFormatting}
+                                           htmlFor={`require_activity_completions-${index}-require_score`}>
+                                        Require Score
                                     </label>
                                     <input
-                                        className={`${textInputFormatting} `} id="require_score" name="require_score" type="number"
-                                        placeholder="optional" disabled={!adminPerms}
+                                        className={textInputFormatting}
+                                        id={`require_activity_completions-${index}-require_score`}
+                                        name={`require_activity_completions-${index}-require_score`}
+                                        type="number"
+                                        placeholder="optional"
+                                        disabled={!adminPerms}
                                         defaultValue={activity["require_score"]}
                                     />
                                 </div>
-                                <div className={`${textInputDivFormatting} `}>
-                                    <label className={labelFormatting} htmlFor="require_kills">
-                                        require_kills
+                                <div className={textInputDivFormatting}>
+                                    <label className={labelFormatting}
+                                           htmlFor={`require_activity_completions-${index}-require_kills`}>
+                                        Require Kills
                                     </label>
                                     <input
-                                        className={`${textInputFormatting} `} id="require_kills" name="require_kills" type="number"
-                                        placeholder="optional" disabled={!adminPerms}
+                                        className={textInputFormatting}
+                                        id={`require_activity_completions-${index}-require_kills`}
+                                        name={`require_activity_completions-${index}-require_kills`}
+                                        type="number"
+                                        placeholder="optional"
+                                        disabled={!adminPerms}
                                         defaultValue={activity["require_kills"]}
                                     />
                                 </div>
-                                <div className={`${textInputDivFormatting} `}>
-                                    <label className={labelFormatting} htmlFor="require_kills_per_minute">
-                                        require_kills_per_minute
+                                <div className={textInputDivFormatting}>
+                                    <label className={labelFormatting}
+                                           htmlFor={`require_activity_completions-${index}-require_kills_per_minute`}>
+                                        Require Kills/min
                                     </label>
                                     <input
-                                        className={`${textInputFormatting} `} id="require_kills_per_minute" name="require_kills_per_minute" type="number"
-                                        placeholder="optional" disabled={!adminPerms} step="0.01"
+                                        className={textInputFormatting}
+                                        id={`require_activity_completions-${index}-require_kills_per_minute`}
+                                        name={`require_activity_completions-${index}-require_kills_per_minute`}
+                                        type="number"
+                                        placeholder="optional"
+                                        disabled={!adminPerms}
+                                        step="0.01"
                                         defaultValue={activity["require_kills_per_minute"]}
                                     />
                                 </div>
-                                <div className={`${textInputDivFormatting} `}>
-                                    <label className={labelFormatting} htmlFor="require_kda">
-                                        require_kda
+                                <div className={textInputDivFormatting}>
+                                    <label className={labelFormatting}
+                                           htmlFor={`require_activity_completions-${index}-require_kda`}>
+                                        Require K/D/A
                                     </label>
                                     <input
-                                        className={`${textInputFormatting} `} id="require_kda" name="require_kda" type="number"
-                                        placeholder="optional" disabled={!adminPerms} step="0.01"
+                                        className={textInputFormatting}
+                                        id={`require_activity_completions-${index}-require_kda`}
+                                        name={`require_activity_completions-${index}-require_kda`}
+                                        type="number"
+                                        placeholder="optional"
+                                        disabled={!adminPerms}
+                                        step="0.01"
                                         defaultValue={activity["require_kda"]}
                                     />
                                 </div>
-                                <div className={`${textInputDivFormatting} `}>
-                                    <label className={labelFormatting} htmlFor="require_kd">
-                                        require_kd
+                                <div className={textInputDivFormatting}>
+                                    <label className={labelFormatting}
+                                           htmlFor={`require_activity_completions-${index}-require_kd`}>
+                                        Required K/D
                                     </label>
                                     <input
-                                        className={`${textInputFormatting} `} id="require_kd" name="require_kd" type="number"
-                                        placeholder="optional" disabled={!adminPerms} step="0.01"
+                                        className={textInputFormatting}
+                                        id={`require_activity_completions-${index}-require_kd`}
+                                        name={`require_activity_completions-${index}-require_kd`}
+                                        type="number"
+                                        placeholder="optional"
+                                        disabled={!adminPerms} step="0.01"
                                         defaultValue={activity["require_kd"]}
                                     />
                                 </div>
-                                <div className={`${textInputDivFormatting} `}>
-                                    <label className={labelFormatting} htmlFor="maximum_allowed_players">
-                                        maximum_allowed_players
+                                <div className={textInputDivFormatting}>
+                                    <label className={labelFormatting}
+                                           htmlFor={`require_activity_completions-${index}-maximum_allowed_players`}>
+                                        Maximum Allowed Players
                                     </label>
                                     <input
-                                        className={`${textInputFormatting} `} id="maximum_allowed_players" name="maximum_allowed_players" type="number"
-                                        placeholder="optional" disabled={!adminPerms}
+                                        className={textInputFormatting}
+                                        id={`require_activity_completions-${index}-maximum_allowed_players`}
+                                        name={`require_activity_completions-${index}-maximum_allowed_players`}
+                                        type="number"
+                                        placeholder="optional"
+                                        disabled={!adminPerms}
                                         defaultValue={activity["maximum_allowed_players"]}
                                     />
                                 </div>
-                                <div className={`${textInputDivFormatting} `}>
-                                    <label className={labelFormatting} htmlFor="allow_time_periods">
-                                        allow_time_periods
+                                <div className={textInputDivFormatting}>
+                                    <label className={labelFormatting}
+                                           htmlFor={`require_activity_completions-${index}-allow_time_periods`}>
+                                        Allow only these time periods
                                     </label>
                                     <input
-                                        className={`${textInputFormatting} `} id="allow_time_periods" name="allow_time_periods" type="text"
+                                        className={textInputFormatting}
+                                        id={`require_activity_completions-${index}-allow_time_periods`}
+                                        name={`require_activity_completions-${index}-allow_time_periods`}
+                                        type="text"
                                         placeholder="optional" disabled={!adminPerms}
                                         defaultValue={activity["allow_time_periods"]}
                                     />
                                 </div>
-                                <div className={`${textInputDivFormatting} `}>
-                                    <label className={labelFormatting} htmlFor="disallow_time_periods">
-                                        disallow_time_periods
+                                <div className={textInputDivFormatting}>
+                                    <label className={labelFormatting}
+                                           htmlFor={`require_activity_completions-${index}-disallow_time_periods`}>
+                                        Disallow these time periods
                                     </label>
                                     <input
-                                        className={`${textInputFormatting} `} id="disallow_time_periods" name="disallow_time_periods" type="text"
-                                        placeholder="optional" disabled={!adminPerms}
+                                        className={textInputFormatting}
+                                        id={`require_activity_completions-${index}-disallow_time_periods`}
+                                        name={`require_activity_completions-${index}-disallow_time_periods`}
+                                        type="text"
+                                        placeholder="optional"
+                                        disabled={!adminPerms}
                                         defaultValue={activity["disallow_time_periods"]}
                                     />
                                 </div>
                                 <div className={checkboxInputDivFormatting}>
-                                    <label className={labelFormatting} htmlFor="inverse">
-                                        inverse
-                                    </label>
-                                    <input
-                                        className={checkboxInputFormatting} id="inverse"
-                                        name="inverse" type="checkbox"
-                                        defaultChecked={activity["inverse"]} disabled={!adminPerms}
-                                    />
-                                </div>
-                                <div className={checkboxInputDivFormatting}>
-                                    <label className={labelFormatting} htmlFor="allow_checkpoints">
+                                    <label className={labelFormatting}
+                                           htmlFor={`require_activity_completions-${index}-allow_checkpoints`}>
                                         Allow checkpoint runs
                                     </label>
                                     <input
-                                        className={checkboxInputFormatting} id="allow_checkpoints"
-                                        name="allow_checkpoints" type="checkbox"
-                                        defaultChecked={activity["allow_checkpoints"]} disabled={!adminPerms}
+                                        className={checkboxInputFormatting}
+                                        id={`require_activity_completions-${index}-allow_checkpoints`}
+                                        name={`require_activity_completions-${index}-allow_checkpoints`}
+                                        type="checkbox"
+                                        defaultChecked={activity["allow_checkpoints"]}
+                                        disabled={!adminPerms}
                                     />
                                 </div>
                                 <div className={checkboxInputDivFormatting}>
-                                    <label className={labelFormatting} htmlFor="require_team_flawless">
-                                        require_team_flawless
+                                    <label className={labelFormatting}
+                                           htmlFor={`require_activity_completions-${index}-require_team_flawless`}>
+                                        Require team flawless
                                     </label>
                                     <input
-                                        className={checkboxInputFormatting} id="require_team_flawless"
-                                        name="require_team_flawless" type="checkbox"
+                                        className={checkboxInputFormatting}
+                                        id={`require_activity_completions-${index}-require_team_flawless`}
+                                        name={`require_activity_completions-${index}-require_team_flawless`}
+                                        type="checkbox"
                                         defaultChecked={activity["require_team_flawless"]} disabled={!adminPerms}
                                     />
                                 </div>
                                 <div className={checkboxInputDivFormatting}>
-                                    <label className={labelFormatting} htmlFor="require_individual_flawless">
-                                        require_individual_flawless
+                                    <label className={labelFormatting}
+                                           htmlFor={`require_activity_completions-${index}-require_individual_flawless`}>
+                                        Require individual flawless
                                     </label>
                                     <input
-                                        className={checkboxInputFormatting} id="require_individual_flawless"
-                                        name="require_individual_flawless" type="checkbox"
-                                        defaultChecked={activity["require_individual_flawless"]} disabled={!adminPerms}
+                                        className={checkboxInputFormatting}
+                                        id={`require_activity_completions-${index}-require_individual_flawless`}
+                                        name={`require_activity_completions-${index}-require_individual_flawless`}
+                                        type="checkbox"
+                                        defaultChecked={activity["require_individual_flawless"]}
+                                        disabled={!adminPerms}
+                                    />
+                                </div>
+                                <div className={checkboxInputDivFormatting}>
+                                    <label className={labelFormatting}
+                                           htmlFor={`require_activity_completions-${index}-inverse`}>
+                                        Invert all settings
+                                    </label>
+                                    <input
+                                        className={checkboxInputFormatting}
+                                        id={`require_activity_completions-${index}-"inverse`}
+                                        name={`require_activity_completions-${index}-inverse`}
+                                        type="checkbox"
+                                        defaultChecked={activity["inverse"]}
+                                        disabled={!adminPerms}
                                     />
                                 </div>
                             </div>
@@ -444,15 +510,45 @@ function HandleActivities({data, adminPerms}) {
     )
 }
 
+
 function HandleCollectibles({data, adminPerms}) {
     return (
-        <div>
+        <div className="grid grid-flow-row gap-2">
             {
-                data.map((collectible) => {
+                data.map((collectible, index) => {
                     return (
-                        <p>
-                            hi
-                        </p>
+                        <FormatRequirement name={`#${index + 1}`}>
+                            <div className="grid grid-cols-1 gap-4">
+                                <div className={`${textInputDivFormatting} `}>
+                                    <label className={labelFormatting} htmlFor={`require_collectibles-${index}-id`}>
+                                        Require Collectible
+                                    </label>
+                                    <input
+                                        className={textInputFormatting}
+                                        id={`require_collectibles-${index}-id`}
+                                        name={`require_collectibles-${index}-id`}
+                                        type="text"
+                                        placeholder="required"
+                                        required
+                                        disabled={!adminPerms}
+                                        defaultValue={collectible["id"]}
+                                    />
+                                </div>
+                                <div className={checkboxInputDivFormatting}>
+                                    <label className={labelFormatting} htmlFor={`require_collectibles-${index}-inverse`}>
+                                        Invert all settings
+                                    </label>
+                                    <input
+                                        className={checkboxInputFormatting}
+                                        id={`require_collectibles-${index}-"inverse`}
+                                        name={`require_collectibles-${index}-inverse`}
+                                        type="checkbox"
+                                        defaultChecked={collectible["inverse"]}
+                                        disabled={!adminPerms}
+                                    />
+                                </div>
+                            </div>
+                        </FormatRequirement>
                     )
                 })
             }
@@ -464,11 +560,40 @@ function HandleRecords({data, adminPerms}) {
     return (
         <div>
             {
-                data.map((record) => {
+                data.map((record, index) => {
                     return (
-                        <p>
-                            hi
-                        </p>
+                        <FormatRequirement name={`#${index + 1}`}>
+                            <div className="grid grid-cols-1 gap-4">
+                                <div className={`${textInputDivFormatting} `}>
+                                    <label className={labelFormatting} htmlFor={`require_records-${index}-id`}>
+                                        Require Record
+                                    </label>
+                                    <input
+                                        className={textInputFormatting}
+                                        id={`require_records-${index}-id`}
+                                        name={`require_records-${index}-id`}
+                                        type="text"
+                                        placeholder="required"
+                                        required
+                                        disabled={!adminPerms}
+                                        defaultValue={record["id"]}
+                                    />
+                                </div>
+                                <div className={checkboxInputDivFormatting}>
+                                    <label className={labelFormatting} htmlFor={`require_records-${index}-inverse`}>
+                                        Invert all settings
+                                    </label>
+                                    <input
+                                        className={checkboxInputFormatting}
+                                        id={`require_records-${index}-"inverse`}
+                                        name={`require_records-${index}-inverse`}
+                                        type="checkbox"
+                                        defaultChecked={record["inverse"]}
+                                        disabled={!adminPerms}
+                                    />
+                                </div>
+                            </div>
+                        </FormatRequirement>
                     )
                 })
             }
@@ -480,11 +605,40 @@ function HandleRoles({data, adminPerms}) {
     return (
         <div>
             {
-                data.map((role) => {
+                data.map((role, index) => {
                     return (
-                        <p>
-                            hi
-                        </p>
+                        <FormatRequirement name={`#${index + 1}`}>
+                            <div className="grid grid-cols-1 gap-4">
+                                <div className={`${textInputDivFormatting} `}>
+                                    <label className={labelFormatting} htmlFor={`require_role_ids-${index}-id`}>
+                                        Require Role
+                                    </label>
+                                    <input
+                                        className={textInputFormatting}
+                                        id={`require_role_ids-${index}-id`}
+                                        name={`require_role_ids-${index}-id`}
+                                        type="text"
+                                        placeholder="required"
+                                        required
+                                        disabled={!adminPerms}
+                                        defaultValue={role["id"]}
+                                    />
+                                </div>
+                                <div className={checkboxInputDivFormatting}>
+                                    <label className={labelFormatting} htmlFor={`require_role_ids-${index}-inverse`}>
+                                        Invert all settings
+                                    </label>
+                                    <input
+                                        className={checkboxInputFormatting}
+                                        id={`require_role_ids-${index}-"inverse`}
+                                        name={`require_role_ids-${index}-inverse`}
+                                        type="checkbox"
+                                        defaultChecked={role["inverse"]}
+                                        disabled={!adminPerms}
+                                    />
+                                </div>
+                            </div>
+                        </FormatRequirement>
                     )
                 })
             }
