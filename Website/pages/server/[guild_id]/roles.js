@@ -51,7 +51,8 @@ export default function ServerRolePage({token, guild_id, discordRoles, guildRole
             "category": "Destiny Roles",
             "deprecated": false,
             "acquirable": true,
-            "require_activity_completions": [],
+            "require_activity_completions": [
+            ],
             "require_collectibles": [],
             "require_records": [],
             "require_role_ids": [],
@@ -65,15 +66,16 @@ export default function ServerRolePage({token, guild_id, discordRoles, guildRole
                 <div className="flex flex-col">
                     <div className="flex flex-row justify-between">
                         {guild.name}'s Roles
-                        <span className="text-xs text-descend pr-2 align-top">
-                            Changes done on discord can take up to 30 to synchronise
-                        </span>
+
                     </div>
                     {adminPerms &&
                         <span className="italic text-xs text-descend pt-2">
                             Admin
                         </span>
                     }
+                    <span className="text-xs text-descend mt-8 border-t w-fit border-descend">
+                            Changes done on discord can take up to 30 to synchronise
+                        </span>
                 </div>
             </Title>
             <Description>
@@ -85,7 +87,7 @@ export default function ServerRolePage({token, guild_id, discordRoles, guildRole
                                     <ContentContainer>
                                         <details className="marker:text-descend group">
                                             <summary className="group-open:text-descend">
-                                                {role.name}
+                                                {role["role_name"]}
                                             </summary>
                                             <RoleForm
                                                 role={role}
