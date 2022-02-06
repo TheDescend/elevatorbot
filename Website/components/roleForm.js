@@ -30,12 +30,7 @@ export default function RoleForm({
                                      destinyTriumphs
                                  }) {
     const updateRole = async event => {
-        // todo convert datetime to utc https://stackoverflow.com/questions/1091372/getting-the-clients-time-zone-and-offset-in-javascript
-        // todo check that start time > end time
-
         const form = event.target
-
-        console.log(form)
 
         // correctly write the data
         let data = {
@@ -44,7 +39,11 @@ export default function RoleForm({
                 "category": form.category.value,
                 "deprecated": form.deprecated.checked,
                 "acquirable": form.acquirable.checked,
-                "replaced_by_role_id": form.replaced_by_role_id.value
+                "replaced_by_role_id": form.replaced_by_role_id.value,
+                "require_activity_completions": [],
+                "require_collectibles": [],
+                "require_records": [],
+                "require_role_ids": [],
             }
         }
         for (const [_, value] of Object.entries(form)) {
@@ -56,7 +55,6 @@ export default function RoleForm({
 
             let parts = []
             let _parts = key.split("-")
-            _parts.splice(0, 1)
             _parts.forEach(function (part) {
                 if (isNaN(part)) {
                     parts.push(part)
@@ -65,47 +63,72 @@ export default function RoleForm({
                 }
             })
 
-            if (key.startsWith("require_activity_completions")) {
-                if (!("require_activity_completions" in data)) {
-                    data["require_activity_completions"] = []
-                }
+            if (parts.length > 1) {
+                if (data["role_data"][parts[0]].length <= parts[1]) {
+                    switch (parts[0]) {
+                        case "require_activity_completions":
+                            data["role_data"][parts[0]].push({
+                                "allowed_activity_hashes": [],
+                                "count": 1,
+                                "allow_checkpoints": false,
+                                "require_team_flawless": false,
+                                "require_individual_flawless": false,
+                                "require_score": null,
+                                "require_kills": null,
+                                "require_kills_per_minute": null,
+                                "require_kda": null,
+                                "require_kd": null,
+                                "maximum_allowed_players": 6,
+                                "allow_time_periods": [],
+                                "disallow_time_periods": [],
+                                "inverse": false,
+                            })
+                            break
 
-                if (data["require_activity_completions"].length <= parts[1]) {
-                    data["require_activity_completions"].push({
-                        "allowed_activity_hashes": [],
-                        "count": 1,
-                        "allow_checkpoints": false,
-                        "require_team_flawless": false,
-                        "require_individual_flawless": false,
-                        "require_score": null,
-                        "require_kills": null,
-                        "require_kills_per_minute": null,
-                        "require_kda": null,
-                        "require_kd": null,
-                        "maximum_allowed_players": 6,
-                        "allow_time_periods": [],
-                        "disallow_time_periods": [],
-                        "inverse": false,
-                    })
+                        default:
+                            data["role_data"][parts[0]].push({
+                                "id": null,
+                                "inverse": false,
+                            })
+                            break
+                    }
                 }
-
                 switch (parts[2]) {
-                    case "allow_time_periods" || "disallow_time_periods":
-                        if (data["require_activity_completions"][parts[1]][parts[2]].length <= parts[3]) {
-                            data["require_activity_completions"][parts[1]][parts[2]].push({
+                    case "allow_time_periods":
+                    case "disallow_time_periods":
+                        if (data["role_data"][parts[0]][parts[1]][parts[2]].length <= parts[3]) {
+                            data["role_data"][parts[0]][parts[1]][parts[2]].push({
                                 "start_time": null,
                                 "end_time": null,
                             })
                         }
-                        data["require_activity_completions"][parts[1]][parts[2]][parts[3]][parts[4]] = new Date(value.value)
+                        data["role_data"][parts[0]][parts[1]][parts[2]][parts[3]][parts[4]] = new Date(value.value)
                         break
 
-                    case "inverse" || "allow_checkpoints" || "require_team_flawless" || "require_individual_flawless":
-                        data["require_activity_completions"][parts[1]][parts[2]] = value.checked
+                    case "inverse":
+                    case "allow_checkpoints":
+                    case "require_team_flawless":
+                    case "require_individual_flawless":
+                        data["role_data"][parts[0]][parts[1]][parts[2]] = value.checked
+                        break
+
+                    case "allowed_activity_hashes":
+                        let a = []
+                        for (const [_, item] of Object.entries(value.selectedOptions)) {
+                            a.push(...item.value.split(","))
+                        }
+                        data["role_data"][parts[0]][parts[1]][parts[2]] = a
                         break
 
                     default:
-                        data["require_activity_completions"][parts[1]][parts[2]] = value.value
+                        let b = value.valueAsNumber
+                        if (isNaN(b)) {
+                            b = value.value
+                        }
+                        if (b === "") {
+                            b = null
+                        }
+                        data["role_data"][parts[0]][parts[1]][parts[2]] = b
                         break
                 }
             }
@@ -776,7 +799,7 @@ function HandleActivities({data, adminPerms, destinyActivities, handleDelete, ha
                                     </label>
                                     <input
                                         className={checkboxInputFormatting}
-                                        id={`require_activity_completions-${index}-"inverse`}
+                                        id={`require_activity_completions-${index}-inverse`}
                                         name={`require_activity_completions-${index}-inverse`}
                                         type="checkbox"
                                         defaultChecked={activity["inverse"]}
@@ -921,7 +944,7 @@ function HandleCollectibles({data, adminPerms, destinyCollectibles, handleDelete
                                     </label>
                                     <input
                                         className={checkboxInputFormatting}
-                                        id={`require_collectibles-${index}-"inverse`}
+                                        id={`require_collectibles-${index}-inverse`}
                                         name={`require_collectibles-${index}-inverse`}
                                         type="checkbox"
                                         defaultChecked={collectible["inverse"]}
@@ -982,7 +1005,7 @@ function HandleRecords({data, adminPerms, destinyTriumphs, handleDelete}) {
                                     </label>
                                     <input
                                         className={checkboxInputFormatting}
-                                        id={`require_records-${index}-"inverse`}
+                                        id={`require_records-${index}-inverse`}
                                         name={`require_records-${index}-inverse`}
                                         type="checkbox"
                                         defaultChecked={record["inverse"]}
@@ -1045,7 +1068,7 @@ function HandleRoles({data, adminPerms, discordRoles, guildRoles, currentRole, h
                                     </label>
                                     <input
                                         className={checkboxInputFormatting}
-                                        id={`require_role_ids-${index}-"inverse`}
+                                        id={`require_role_ids-${index}-inverse`}
                                         name={`require_role_ids-${index}-inverse`}
                                         type="checkbox"
                                         defaultChecked={role["inverse"]}
