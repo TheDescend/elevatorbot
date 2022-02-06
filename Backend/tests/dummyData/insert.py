@@ -314,7 +314,6 @@ async def insert_dummy_data(db: AsyncSession, client: AsyncClient):
     input_model = RoleModel(
         role_id=1,
         guild_id=dummy_discord_guild_id,
-        role_name="Test Role",
         role_data=RoleDataModel(
             category="Destiny Roles",
             deprecated=False,

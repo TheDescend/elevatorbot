@@ -1,5 +1,5 @@
 import React from 'react'
-import {getSession, useSession} from 'next-auth/react'
+import {getSession, signOut, useSession} from 'next-auth/react'
 import Layout from "../../components/layout/layout";
 import AccessDenied from "../../components/auth/accessDenied";
 import request, {discord_fetcher, getAccessToken} from "../../lib/http";
@@ -33,6 +33,13 @@ export default function OwnServers({token, elevatorServers}) {
 
     if (error) return <LoadingFailed/>
     if (!data) return <Loading/>
+
+    console.log(data)
+    // Check if the auth is still OK
+    if (("message" in data) && (data.message === "401: Unauthorized")) {
+        signOut()
+        return <AccessDenied/>
+    }
 
     return (
         <Layout>

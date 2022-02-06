@@ -24,7 +24,6 @@ class CRUDRoles(CRUDBase):
                     RoleModel(
                         role_id=result.role_id,
                         guild_id=result.guild_id,
-                        role_name=result.role_name,
                         role_data=RoleDataModel.parse_obj(result.role_data),
                     )
                 )
@@ -45,7 +44,6 @@ class CRUDRoles(CRUDBase):
             role_obj = RoleModel(
                 role_id=result.role_id,
                 guild_id=result.guild_id,
-                role_name=result.role_name,
                 role_data=RoleDataModel.parse_obj(result.role_data),
             )
 
@@ -56,9 +54,7 @@ class CRUDRoles(CRUDBase):
     async def create_role(self, db: AsyncSession, role: RoleModel):
         """Insert the new role"""
 
-        db_role = Roles(
-            role_id=role.role_id, guild_id=role.guild_id, role_name=role.role_name, role_data=role.role_data.dict()
-        )
+        db_role = Roles(role_id=role.role_id, guild_id=role.guild_id, role_data=role.role_data.dict())
         await self._insert(db=db, to_create=db_role)
 
         # insert into cache
@@ -70,7 +66,7 @@ class CRUDRoles(CRUDBase):
         db_role = await self._get_with_key(db=db, primary_key=role.role_id)
         if not db_role:
             raise CustomException("RoleNotExist")
-        await self._update(db=db, to_update=db_role, role_name=role.role_name, role_data=role.role_data.dict())
+        await self._update(db=db, to_update=db_role, role_data=role.role_data.dict())
 
         # insert into cache / update the cache
         await self._update_cache(db=db, role=db_role)
@@ -112,7 +108,6 @@ class CRUDRoles(CRUDBase):
         pydantic_model = RoleModel(
             role_id=role.role_id,
             guild_id=role.guild_id,
-            role_name=role.role_name,
             role_data=RoleDataModel.parse_obj(role.role_data),
         )
 

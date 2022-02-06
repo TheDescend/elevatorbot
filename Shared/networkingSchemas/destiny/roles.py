@@ -94,7 +94,6 @@ class RoleDataUserModel(CustomBaseModel):
 class RoleModel(CustomBaseModel):
     role_id: int
     guild_id: int
-    role_name: str
     role_data: RoleDataModel
 
 

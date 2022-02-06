@@ -187,7 +187,6 @@ class Roles(Base):
 
     role_id = Column(BigInteger, primary_key=True, nullable=False, autoincrement=False)
     guild_id = Column(BigInteger, nullable=False, autoincrement=False)
-    role_name = Column(Text, nullable=False, primary_key=False, autoincrement=False)
     role_data = Column(JSON, nullable=False, primary_key=False, autoincrement=False)
 
 

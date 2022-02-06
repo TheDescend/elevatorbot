@@ -1,6 +1,6 @@
 import asyncio
 import dataclasses
-from typing import Any, Optional, TypeVar
+from typing import Any, Optional, Type, TypeVar
 
 from sqlalchemy import not_, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -10,12 +10,15 @@ from Backend.crud.misc.versions import versions
 from Backend.database.base import Base, is_test_mode
 from Backend.database.models import (
     DestinyActivityDefinition,
+    DestinyCollectibleDefinition,
     DestinyLoreDefinition,
+    DestinyRecordDefinition,
     DestinySeasonPassDefinition,
     Versions,
 )
 from Backend.misc.cache import cache
 from Shared.enums.destiny import UsableDestinyActivityModeTypeEnum
+from Shared.networkingSchemas import DestinyNamedItemModel
 from Shared.networkingSchemas.destiny import DestinyActivityModel, DestinyLoreModel
 
 ModelType = TypeVar("ModelType", bound=Base)
@@ -96,7 +99,30 @@ class CRUDManifest(CRUDBase):
                 )
             )
 
-        return result
+        sorted_result = sorted(result, key=lambda entry: entry.name)
+
+        return sorted_result
+
+    async def get_all_collectibles(self, db: AsyncSession) -> list[DestinyNamedItemModel]:
+        """Gets all collectibles"""
+
+        return await self._get_all_named_items(db=db, table=DestinyCollectibleDefinition)
+
+    async def get_all_triumphs(self, db: AsyncSession) -> list[DestinyNamedItemModel]:
+        """Gets all triumphs"""
+
+        return await self._get_all_named_items(db=db, table=DestinyRecordDefinition)
+
+    async def _get_all_named_items(self, db: AsyncSession, table: ModelType) -> list[DestinyNamedItemModel]:
+        """Gets all named items"""
+
+        # get them all from the db
+        query = select(table)
+        db_items: list[table] = (await self._execute_query(db=db, query=query)).scalars().fetchall()
+
+        pydantic_items = [DestinyNamedItemModel.from_orm(item) for item in db_items if item.name]
+
+        return sorted(pydantic_items, key=lambda entry: entry.name)
 
     async def get_all_lore(self, db: AsyncSession) -> list[DestinyLoreModel]:
         """Gets all lore"""

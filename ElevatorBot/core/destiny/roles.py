@@ -176,9 +176,6 @@ class Roles:
                 embed.add_field(name="You didn't have any roles before", value="⁣", inline=True)
 
             for topic in old_roles:
-                roles = []
-                for role_name in topic:
-                    roles.append(role_name)
                 embed.add_field(name=topic, value="\n".join(old_roles[topic]), inline=True)
 
             embed.add_field(name="⁣", value="__New Roles:__", inline=False)
@@ -186,9 +183,6 @@ class Roles:
                 embed.add_field(name="No new roles have been achieved", value="⁣", inline=True)
 
             for topic in new_roles:
-                roles = []
-                for role_name in topic:
-                    roles.append(role_name)
                 embed.add_field(name=topic, value="\n".join(new_roles[topic]), inline=True)
 
             await self.ctx.send(embeds=embed)

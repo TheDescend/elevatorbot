@@ -1,7 +1,7 @@
 import GlowingButton from "./styling/glowingButton";
 import ContentContainer from "./styling/container";
 import {useState} from "react";
-import {FiPlusCircle} from "react-icons/fi";
+import {FiMinusCircle, FiPlusCircle} from "react-icons/fi";
 
 
 const divFormatting = "marker:text-descend"
@@ -9,7 +9,8 @@ const summaryFormatting = ""
 const labelFormatting = "px-1"
 
 const _InputFormatting = "dark:bg-gray-900 rounded-lg border-none text-descend placeholder:italic"
-const textInputFormatting = `${_InputFormatting} focus:ring-2 focus:ring-descend invalid:text-red-700 required:ring-2 required:ring-red-700 valid:ring-0 mt-1`
+const selectInputFormatting = `${_InputFormatting} focus:ring-2 focus:ring-descend required:ring-2 required:ring-red-700 valid:ring-0 mt-1`
+const textInputFormatting = `${selectInputFormatting} invalid:text-red-700 `
 const checkboxInputFormatting = `${_InputFormatting} checked:ring-2 ring-descend`
 
 const _InputDivFormatting = "dark:bg-slate-700 flex border-1 p-1 rounded-lg border-white"
@@ -17,8 +18,21 @@ const textInputDivFormatting = `${_InputDivFormatting} flex-col justify-between`
 const checkboxInputDivFormatting = `${_InputDivFormatting} flex-row justify-between items-center`
 
 
-export default function RoleForm({role, adminPerms}) {
+// todo deleting required parts (like a collectible) results in wonky interactions. Fe. if collectible #1 is removed, collectible #2 gets the inputs of #1 since they do not get saved after typing. this might only happen with unsafed form data
+export default function RoleForm({
+                                     role,
+                                     roles,
+                                     adminPerms,
+                                     discordRole,
+                                     discordRoles,
+                                     destinyActivities,
+                                     destinyCollectibles,
+                                     destinyTriumphs
+                                 }) {
     const registerRole = async event => {
+        // todo convert datetime to utc https://stackoverflow.com/questions/1091372/getting-the-clients-time-zone-and-offset-in-javascript
+        // todo check that start time > end time
+
         console.log("getting executed...")
         event.preventDefault()
 
@@ -36,9 +50,12 @@ export default function RoleForm({role, adminPerms}) {
         const result = await res.json()
     }
 
-    // todo
-    const discordRole = "asd"
-    const replacementDiscordRole = role["role_data"]["replaced_by_role_id"]
+    let rolesIds = []
+    roles.forEach(function (item) {
+        rolesIds.push(String(role.role_id))
+    })
+
+    const replacementDiscordRole = discordRoles[role["role_data"]["replaced_by_role_id"]]
 
     // todo delete
     // todo edit
@@ -49,7 +66,7 @@ export default function RoleForm({role, adminPerms}) {
     const [records, updateRecords] = useState(role["role_data"]["require_records"])
     const [reqRoles, updateReqRoles] = useState(role["role_data"]["require_role_ids"])
 
-    function handleUpdate(key) {
+    function handleUpdate(key, index = null) {
         let data
 
         switch (key) {
@@ -71,6 +88,32 @@ export default function RoleForm({role, adminPerms}) {
                     "inverse": false,
                 }
                 updateActivities([...activities, data])
+                return
+
+            case "require_activity_completions-allow_time_periods":
+                updateActivities(x => x.map((item, i) =>
+                    i === index
+                        ? {
+                            ...item, "allow_time_periods": [...item["allow_time_periods"], {
+                                "start_time": null,
+                                "end_time": null,
+                            }]
+                        }
+                        : item
+                ))
+                return
+
+            case "require_activity_completions-disallow_time_periods":
+                updateActivities(x => x.map((item, i) =>
+                    i === index
+                        ? {
+                            ...item, "disallow_time_periods": [...item["disallow_time_periods"], {
+                                "start_time": null,
+                                "end_time": null,
+                            }]
+                        }
+                        : item
+                ))
                 return
 
             // the others all use the same format
@@ -96,20 +139,53 @@ export default function RoleForm({role, adminPerms}) {
         }
     }
 
+    function handleDelete(key, index, subIndex = null) {
+        switch (key) {
+            case "require_activity_completions":
+                updateActivities(x => x.filter((activities, i) => i !== index))
+                return
+
+            case "require_activity_completions-allow_time_periods":
+                updateActivities(x => x.map((item, i) =>
+                    i === index
+                        ? {
+                            ...item,
+                            "allow_time_periods": item["allow_time_periods"].filter((periods, i) => i !== subIndex)
+                        }
+                        : item
+                ))
+                return
+
+            case "require_activity_completions-disallow_time_periods":
+                updateActivities(x => x.map((item, i) =>
+                    i === index
+                        ? {
+                            ...item,
+                            "disallow_time_periods": item["disallow_time_periods"].filter((periods, i) => i !== subIndex)
+                        }
+                        : item
+                ))
+                return
+
+            case "require_collectibles":
+                updateCollectibles(x => x.filter((collectibles, i) => i !== index))
+                return
+
+            case "require_records":
+                updateRecords(x => x.filter((records, i) => i !== index))
+                return
+
+            default:
+                updateReqRoles(x => x.filter((reqRoles, i) => i !== index))
+                return
+        }
+    }
+
     return (
         <form onSubmit={registerRole} className="p-2">
             <div className="flex flex-col gap-4 divide-y divide-descend">
                 <div className="grid grid-cols-2 gap-4">
-                    <div className={textInputDivFormatting}>
-                        <label className={labelFormatting} htmlFor="role_name">
-                            Role Name
-                        </label>
-                        <input
-                            className={textInputFormatting} id="role_name" name="role_name" type="text"
-                            placeholder="required" required disabled={!adminPerms} defaultValue={role["role_name"]}
-                        />
-                    </div>
-                    <div className={textInputDivFormatting}>
+                    <div className={`${textInputDivFormatting} col-span-full`}>
                         <label className={labelFormatting} htmlFor="category">
                             Role Category
                         </label>
@@ -119,23 +195,59 @@ export default function RoleForm({role, adminPerms}) {
                         />
                     </div>
                     <div className={textInputDivFormatting}>
-                        <label className={labelFormatting} htmlFor="discord_role_name">
+                        <label className={labelFormatting} htmlFor="role_id">
                             Linked Discord Role
                         </label>
-                        <input
-                            className={textInputFormatting} id="discord_role_name" name="discord_role_name" type="text"
-                            placeholder="required" required disabled={!adminPerms} defaultValue={discordRole}
-                        />
+                        <select
+                            className={selectInputFormatting} id="role_id" name="role_id"
+                            required disabled={!adminPerms}
+                        >
+                            {
+                                Object.keys(discordRoles).map((id) => {
+                                    if (id === String(role.role_id)) {
+                                        return (
+                                            <option value={id} selected="selected">
+                                                {discordRoles[id]["name"]}
+                                            </option>
+                                        )
+                                    } else {
+                                        return (
+                                            <option value={id}>
+                                                {discordRoles[id]["name"]}
+                                            </option>
+                                        )
+                                    }
+                                })
+                            }
+                        </select>
                     </div>
                     <div className={textInputDivFormatting}>
                         <label className={labelFormatting} htmlFor="replaced_by_role_id">
                             Replacement Discord Role
                         </label>
-                        <input
-                            className={textInputFormatting} id="replaced_by_role_id" name="replaced_by_role_id"
-                            type="text"
-                            placeholder="optional" disabled={!adminPerms} defaultValue={replacementDiscordRole}
-                        />
+                        <select
+                            className={selectInputFormatting} id="replaced_by_role_id" name="replaced_by_role_id"
+                            disabled={!adminPerms} required
+                        >
+                            <option value="None" className="italic text-white">None</option>
+                            {
+                                Object.keys(discordRoles).map((id) => {
+                                    if (id === String(role.role_data.replaced_by_role_id)) {
+                                        return (
+                                            <option value={id} selected>
+                                                {discordRoles[id]["name"]}
+                                            </option>
+                                        )
+                                    } else {
+                                        return (
+                                            <option value={id}>
+                                                {discordRoles[id]["name"]}
+                                            </option>
+                                        )
+                                    }
+                                })
+                            }
+                        </select>
                     </div>
                     <div className={checkboxInputDivFormatting}>
                         <label className={labelFormatting} htmlFor="deprecated">
@@ -164,7 +276,13 @@ export default function RoleForm({role, adminPerms}) {
                                 Required Activities
                             </summary>
                             <div className="grid grid-flow-row gap-2 pl-2 pt-2">
-                                <HandleActivities data={activities} adminPerms={adminPerms}/>
+                                <HandleActivities
+                                    data={activities}
+                                    adminPerms={adminPerms}
+                                    destinyActivities={destinyActivities}
+                                    handleDelete={handleDelete}
+                                    handleUpdate={handleUpdate}
+                                />
                                 {adminPerms &&
                                     <div className="flex">
                                         <button
@@ -186,7 +304,12 @@ export default function RoleForm({role, adminPerms}) {
                                 Required Collectibles
                             </summary>
                             <div className="grid grid-flow-row gap-2 pl-2 pt-2">
-                                <HandleCollectibles data={collectibles} adminPerms={adminPerms}/>
+                                <HandleCollectibles
+                                    data={collectibles}
+                                    adminPerms={adminPerms}
+                                    destinyCollectibles={destinyCollectibles}
+                                    handleDelete={handleDelete}
+                                />
                                 {adminPerms &&
                                     <div className="flex">
                                         <button
@@ -209,7 +332,12 @@ export default function RoleForm({role, adminPerms}) {
                                 Required Triumphs
                             </summary>
                             <div className="grid grid-flow-row gap-2 pl-2 pt-2">
-                                <HandleRecords data={records} adminPerms={adminPerms}/>
+                                <HandleRecords
+                                    data={records}
+                                    adminPerms={adminPerms}
+                                    destinyTriumphs={destinyTriumphs}
+                                    handleDelete={handleDelete}
+                                />
                                 {adminPerms &&
                                     <div className="flex">
                                         <button
@@ -232,7 +360,14 @@ export default function RoleForm({role, adminPerms}) {
                                 Required Roles
                             </summary>
                             <div className="grid grid-flow-row gap-2 pl-2 pt-2">
-                                <HandleRoles data={reqRoles} adminPerms={adminPerms}/>
+                                <HandleRoles
+                                    data={reqRoles}
+                                    adminPerms={adminPerms}
+                                    discordRoles={discordRoles}
+                                    guildRoles={rolesIds}
+                                    currentRole={discordRole}
+                                    handleDelete={handleDelete}
+                                />
                                 {adminPerms &&
                                     <div className="flex">
                                         <button
@@ -268,12 +403,25 @@ export default function RoleForm({role, adminPerms}) {
 
 
 // todo need to be able to delete parts of those
-function FormatRequirement({children, name}) {
+function FormatRequirement({children, name, adminPerms, handleDelete, deleteKey, index, subIndex = null}) {
     return (
         <ContentContainer otherStyle={false}>
             <details className={divFormatting}>
                 <summary>
                     {name}
+                    {adminPerms &&
+                        <span className="float-right">
+                        <button
+                            className="align-middle"
+                            type="button "
+                            onClick={() => {
+                                handleDelete(deleteKey, index, subIndex)
+                            }}
+                        >
+                            <FiMinusCircle className="object-contain hover:text-descend w-5 h-5"/>
+                        </button>
+                    </span>
+                    }
                 </summary>
                 <div className="grid grid-flow-row gap-2 pl-2 pt-2">
                     {children}
@@ -285,29 +433,45 @@ function FormatRequirement({children, name}) {
 }
 
 
-function HandleActivities({data, adminPerms}) {
+function HandleActivities({data, adminPerms, destinyActivities, handleDelete, handleUpdate}) {
     return (
         <div className="grid grid-flow-row gap-2">
             {
                 data.map((activity, index) => {
                     return (
-                        <FormatRequirement name={`#${index + 1}`}>
+                        <FormatRequirement name={`#${index + 1}`} adminPerms={adminPerms}
+                                           handleDelete={handleDelete} deleteKey={"require_activity_completions"}
+                                           index={index}>
                             <div className="grid grid-cols-2 gap-4">
-                                <div className={`${textInputDivFormatting} `}>
+                                <div className={`${textInputDivFormatting} col-span-full`}>
                                     <label className={labelFormatting}
                                            htmlFor={`require_activity_completions-${index}-allowed_activity_hashes`}>
                                         Allowed Activities
                                     </label>
-                                    <input
-                                        className={textInputFormatting}
+                                    <select
+                                        className={selectInputFormatting}
                                         id={`require_activity_completions-${index}-allowed_activity_hashes`}
                                         name={`require_activity_completions-${index}-allowed_activity_hashes`}
-                                        type="text"
-                                        placeholder="required"
-                                        required
-                                        disabled={!adminPerms}
-                                        defaultValue={activity["allowed_activity_hashes"]}
-                                    />
+                                        disabled={!adminPerms} required multiple
+                                    >
+                                        {
+                                            destinyActivities["activities"].map((destinyActivity) => {
+                                                if (activity["allowed_activity_hashes"].includes(destinyActivity["activity_ids"][0])) {
+                                                    return (
+                                                        <option value={destinyActivity["activity_ids"]} selected>
+                                                            {destinyActivity["name"]}
+                                                        </option>
+                                                    )
+                                                } else {
+                                                    return (
+                                                        <option value={destinyActivity["activity_ids"]}>
+                                                            {destinyActivity["name"]}
+                                                        </option>
+                                                    )
+                                                }
+                                            })
+                                        }
+                                    </select>
                                 </div>
                                 <div className={`${textInputDivFormatting} `}>
                                     <label className={labelFormatting}
@@ -320,6 +484,7 @@ function HandleActivities({data, adminPerms}) {
                                         name={`require_activity_completions-${index}-count`}
                                         type="number"
                                         placeholder="required"
+                                        min="1"
                                         required
                                         disabled={!adminPerms}
                                         defaultValue={activity["count"]}
@@ -335,6 +500,7 @@ function HandleActivities({data, adminPerms}) {
                                         id={`require_activity_completions-${index}-require_score`}
                                         name={`require_activity_completions-${index}-require_score`}
                                         type="number"
+                                        min="1"
                                         placeholder="optional"
                                         disabled={!adminPerms}
                                         defaultValue={activity["require_score"]}
@@ -350,6 +516,7 @@ function HandleActivities({data, adminPerms}) {
                                         id={`require_activity_completions-${index}-require_kills`}
                                         name={`require_activity_completions-${index}-require_kills`}
                                         type="number"
+                                        min="1"
                                         placeholder="optional"
                                         disabled={!adminPerms}
                                         defaultValue={activity["require_kills"]}
@@ -365,6 +532,7 @@ function HandleActivities({data, adminPerms}) {
                                         id={`require_activity_completions-${index}-require_kills_per_minute`}
                                         name={`require_activity_completions-${index}-require_kills_per_minute`}
                                         type="number"
+                                        min="0.01"
                                         placeholder="optional"
                                         disabled={!adminPerms}
                                         step="0.01"
@@ -383,6 +551,7 @@ function HandleActivities({data, adminPerms}) {
                                         type="number"
                                         placeholder="optional"
                                         disabled={!adminPerms}
+                                        min="0.01"
                                         step="0.01"
                                         defaultValue={activity["require_kda"]}
                                     />
@@ -398,7 +567,9 @@ function HandleActivities({data, adminPerms}) {
                                         name={`require_activity_completions-${index}-require_kd`}
                                         type="number"
                                         placeholder="optional"
-                                        disabled={!adminPerms} step="0.01"
+                                        disabled={!adminPerms}
+                                        min="0.01"
+                                        step="0.01"
                                         defaultValue={activity["require_kd"]}
                                     />
                                 </div>
@@ -414,37 +585,72 @@ function HandleActivities({data, adminPerms}) {
                                         type="number"
                                         placeholder="optional"
                                         disabled={!adminPerms}
+                                        min="1"
+                                        max="12"
                                         defaultValue={activity["maximum_allowed_players"]}
                                     />
                                 </div>
-                                <div className={textInputDivFormatting}>
-                                    <label className={labelFormatting}
-                                           htmlFor={`require_activity_completions-${index}-allow_time_periods`}>
-                                        Allow only these time periods
-                                    </label>
-                                    <input
-                                        className={textInputFormatting}
-                                        id={`require_activity_completions-${index}-allow_time_periods`}
-                                        name={`require_activity_completions-${index}-allow_time_periods`}
-                                        type="text"
-                                        placeholder="optional" disabled={!adminPerms}
-                                        defaultValue={activity["allow_time_periods"]}
-                                    />
+                                <div className={`${textInputDivFormatting} col-span-full`}>
+                                    <ContentContainer otherStyle={true}>
+                                        <details className={divFormatting}>
+                                            <summary className={summaryFormatting}>
+                                                Allow only these time periods
+                                            </summary>
+                                            <div className="grid grid-flow-row gap-2 pl-2 pt-2">
+                                                <HandleAllowedTimes
+                                                    data={activity["allow_time_periods"]}
+                                                    topIndex={index}
+                                                    adminPerms={adminPerms}
+                                                    destinyActivities={destinyActivities}
+                                                    handleDelete={handleDelete}
+                                                />
+                                                {adminPerms &&
+                                                    <div className="flex">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => {
+                                                                handleUpdate("require_activity_completions-allow_time_periods", index)
+                                                            }}
+                                                        >
+                                                            <FiPlusCircle
+                                                                className="object-contain hover:text-descend w-6 h-6"/>
+                                                        </button>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </details>
+                                    </ContentContainer>
                                 </div>
-                                <div className={textInputDivFormatting}>
-                                    <label className={labelFormatting}
-                                           htmlFor={`require_activity_completions-${index}-disallow_time_periods`}>
-                                        Disallow these time periods
-                                    </label>
-                                    <input
-                                        className={textInputFormatting}
-                                        id={`require_activity_completions-${index}-disallow_time_periods`}
-                                        name={`require_activity_completions-${index}-disallow_time_periods`}
-                                        type="text"
-                                        placeholder="optional"
-                                        disabled={!adminPerms}
-                                        defaultValue={activity["disallow_time_periods"]}
-                                    />
+                                <div className={`${textInputDivFormatting} col-span-full`}>
+                                    <ContentContainer otherStyle={true}>
+                                        <details className={divFormatting}>
+                                            <summary className={summaryFormatting}>
+                                                Disallow these time periods
+                                            </summary>
+                                            <div className="grid grid-flow-row gap-2 pl-2 pt-2">
+                                                <HandleDisallowedTimes
+                                                    data={activity["disallow_time_periods"]}
+                                                    topIndex={index}
+                                                    adminPerms={adminPerms}
+                                                    destinyActivities={destinyActivities}
+                                                    handleDelete={handleDelete}
+                                                />
+                                                {adminPerms &&
+                                                    <div className="flex">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => {
+                                                                handleUpdate("require_activity_completions-disallow_time_periods", index)
+                                                            }}
+                                                        >
+                                                            <FiPlusCircle
+                                                                className="object-contain hover:text-descend w-6 h-6"/>
+                                                        </button>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </details>
+                                    </ContentContainer>
                                 </div>
                                 <div className={checkboxInputDivFormatting}>
                                     <label className={labelFormatting}
@@ -510,32 +716,130 @@ function HandleActivities({data, adminPerms}) {
     )
 }
 
+function HandleAllowedTimes({data, topIndex, adminPerms, handleDelete}) {
+    return <HandleTimes
+        timeType={"allow_time_periods"}
+        data={data}
+        topIndex={topIndex}
+        adminPerms={adminPerms}
+        handleDelete={handleDelete}
+    />
+}
 
-function HandleCollectibles({data, adminPerms}) {
+function HandleDisallowedTimes({data, topIndex, adminPerms, handleDelete}) {
+    return <HandleTimes
+        timeType={"disallow_time_periods"}
+        data={data}
+        topIndex={topIndex}
+        adminPerms={adminPerms}
+        handleDelete={handleDelete}
+    />
+}
+
+function HandleTimes({timeType, data, topIndex, adminPerms, handleDelete}) {
+    return (
+        <div className="grid grid-flow-row gap-2">
+            {
+                data.map((time, index) => {
+                    return (
+                        <FormatRequirement
+                            name={`#${index + 1}`}
+                            adminPerms={adminPerms}
+                            handleDelete={handleDelete}
+                            deleteKey={`require_activity_completions-${timeType}`}
+                            index={topIndex}
+                            subIndex={index}
+                        >
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className={textInputDivFormatting}>
+                                    <label
+                                        className={labelFormatting}
+                                        htmlFor={`require_activity_completions-${topIndex}-${timeType}-${index}-start_time`}
+                                    >
+                                        Start Time
+                                    </label>
+                                    <input
+                                        className={selectInputFormatting}
+                                        id={`require_activity_completions-${topIndex}-${timeType}-${index}-start_time`}
+                                        name={`require_activity_completions-${topIndex}-${timeType}-${index}-start_time`}
+                                        type="datetime-local"
+                                        min="2017-10-01T00:00"
+                                        max="2050-12-31T00:00"
+                                        defaultValue={time["start_time"]}
+                                        disabled={!adminPerms}
+                                        required
+                                    />
+                                </div>
+                                <div className={textInputDivFormatting}>
+                                    <label
+                                        className={labelFormatting}
+                                        htmlFor={`require_activity_completions-${topIndex}-${timeType}-${index}-end_time`}
+                                    >
+                                        End Time
+                                    </label>
+                                    <input
+                                        className={selectInputFormatting}
+                                        id={`require_activity_completions-${topIndex}-${timeType}-${index}-end_time`}
+                                        name={`require_activity_completions-${topIndex}-${timeType}-${index}-end_time`}
+                                        type="datetime-local"
+                                        min="2017-10-01T00:00"
+                                        max="2050-12-31T00:00"
+                                        defaultValue={time["end_time"]}
+                                        disabled={!adminPerms}
+                                        required
+                                    />
+                                </div>
+                            </div>
+                        </FormatRequirement>
+                    )
+                })
+            }
+        </div>
+    )
+}
+
+function HandleCollectibles({data, adminPerms, destinyCollectibles, handleDelete}) {
     return (
         <div className="grid grid-flow-row gap-2">
             {
                 data.map((collectible, index) => {
                     return (
-                        <FormatRequirement name={`#${index + 1}`}>
+                        <FormatRequirement name={`#${index + 1}`} adminPerms={adminPerms}
+                                           handleDelete={handleDelete} deleteKey={"require_collectibles"} index={index}>
                             <div className="grid grid-cols-1 gap-4">
                                 <div className={`${textInputDivFormatting} `}>
                                     <label className={labelFormatting} htmlFor={`require_collectibles-${index}-id`}>
                                         Require Collectible
                                     </label>
-                                    <input
-                                        className={textInputFormatting}
+                                    <select
+                                        className={selectInputFormatting}
                                         id={`require_collectibles-${index}-id`}
                                         name={`require_collectibles-${index}-id`}
-                                        type="text"
-                                        placeholder="required"
-                                        required
-                                        disabled={!adminPerms}
-                                        defaultValue={collectible["id"]}
-                                    />
+                                        disabled={!adminPerms} required
+                                    >
+                                        <option value="" disabled selected>Select the Collectible</option>
+                                        {
+                                            destinyCollectibles["collectibles"].map((destinyCollectible) => {
+                                                if (collectible["id"] === (destinyCollectible["reference_id"])) {
+                                                    return (
+                                                        <option value={destinyCollectible["reference_id"]} selected>
+                                                            {destinyCollectible["name"]}
+                                                        </option>
+                                                    )
+                                                } else {
+                                                    return (
+                                                        <option value={destinyCollectible["reference_id"]}>
+                                                            {destinyCollectible["name"]}
+                                                        </option>
+                                                    )
+                                                }
+                                            })
+                                        }
+                                    </select>
                                 </div>
                                 <div className={checkboxInputDivFormatting}>
-                                    <label className={labelFormatting} htmlFor={`require_collectibles-${index}-inverse`}>
+                                    <label className={labelFormatting}
+                                           htmlFor={`require_collectibles-${index}-inverse`}>
                                         Invert all settings
                                     </label>
                                     <input
@@ -556,28 +860,44 @@ function HandleCollectibles({data, adminPerms}) {
     )
 }
 
-function HandleRecords({data, adminPerms}) {
+function HandleRecords({data, adminPerms, destinyTriumphs, handleDelete}) {
     return (
         <div>
             {
                 data.map((record, index) => {
                     return (
-                        <FormatRequirement name={`#${index + 1}`}>
+                        <FormatRequirement name={`#${index + 1}`} adminPerms={adminPerms}
+                                           handleDelete={handleDelete} deleteKey={"require_records"} index={index}>
                             <div className="grid grid-cols-1 gap-4">
                                 <div className={`${textInputDivFormatting} `}>
                                     <label className={labelFormatting} htmlFor={`require_records-${index}-id`}>
                                         Require Record
                                     </label>
-                                    <input
-                                        className={textInputFormatting}
+                                    <select
+                                        className={selectInputFormatting}
                                         id={`require_records-${index}-id`}
                                         name={`require_records-${index}-id`}
-                                        type="text"
-                                        placeholder="required"
-                                        required
-                                        disabled={!adminPerms}
-                                        defaultValue={record["id"]}
-                                    />
+                                        disabled={!adminPerms} required
+                                    >
+                                        <option value="" disabled selected>Select the Record</option>
+                                        {
+                                            destinyTriumphs["triumphs"].map((destinyTriumph) => {
+                                                if (record["id"] === (destinyTriumph["reference_id"])) {
+                                                    return (
+                                                        <option value={destinyTriumph["reference_id"]} selected>
+                                                            {destinyTriumph["name"]}
+                                                        </option>
+                                                    )
+                                                } else {
+                                                    return (
+                                                        <option value={destinyTriumph["reference_id"]}>
+                                                            {destinyTriumph["name"]}
+                                                        </option>
+                                                    )
+                                                }
+                                            })
+                                        }
+                                    </select>
                                 </div>
                                 <div className={checkboxInputDivFormatting}>
                                     <label className={labelFormatting} htmlFor={`require_records-${index}-inverse`}>
@@ -601,28 +921,45 @@ function HandleRecords({data, adminPerms}) {
     )
 }
 
-function HandleRoles({data, adminPerms}) {
+function HandleRoles({data, adminPerms, discordRoles, guildRoles, currentRole, handleDelete}) {
     return (
         <div>
             {
                 data.map((role, index) => {
                     return (
-                        <FormatRequirement name={`#${index + 1}`}>
+                        <FormatRequirement name={`#${index + 1}`} adminPerms={adminPerms}
+                                           handleDelete={handleDelete} deleteKey={"require_role_ids"} index={index}>
                             <div className="grid grid-cols-1 gap-4">
                                 <div className={`${textInputDivFormatting} `}>
                                     <label className={labelFormatting} htmlFor={`require_role_ids-${index}-id`}>
                                         Require Role
                                     </label>
-                                    <input
-                                        className={textInputFormatting}
+                                    <select
+                                        className={selectInputFormatting}
                                         id={`require_role_ids-${index}-id`}
                                         name={`require_role_ids-${index}-id`}
-                                        type="text"
-                                        placeholder="required"
-                                        required
-                                        disabled={!adminPerms}
-                                        defaultValue={role["id"]}
-                                    />
+                                        disabled={!adminPerms} required
+                                    >
+                                        {
+                                            Object.keys(discordRoles).map((id) => {
+                                                if ((guildRoles.includes(id)) && (id !== currentRole["id"])) {
+                                                    if (id === String(role["id"])) {
+                                                        return (
+                                                            <option value={id} selected>
+                                                                {discordRoles[id]["name"]}
+                                                            </option>
+                                                        )
+                                                    } else {
+                                                        return (
+                                                            <option value={id}>
+                                                                {discordRoles[id]["name"]}
+                                                            </option>
+                                                        )
+                                                    }
+                                                }
+                                            })
+                                        }
+                                    </select>
                                 </div>
                                 <div className={checkboxInputDivFormatting}>
                                     <label className={labelFormatting} htmlFor={`require_role_ids-${index}-inverse`}>

@@ -1,5 +1,5 @@
 import {getSession, useSession} from "next-auth/react";
-import {discord_fetcher, getAccessToken} from "../../../lib/http";
+import request, {discord_fetcher, getAccessToken} from "../../../lib/http";
 import AccessDenied from "../../../components/auth/accessDenied";
 import useSWR from "swr";
 import LoadingFailed from "../../../components/auth/loadingFailed";
@@ -14,8 +14,7 @@ import React from "react";
 import RoleForm from "../../../components/roleForm";
 
 
-
-export default function ServerRolePage({token, guild_id, discordRoles, guildRoles}) {
+export default function ServerRolePage({token, guild_id, discordRoles, guildRoles, destinyActivities, destinyCollectibles, destinyTriumphs}) {
     // check if logged in client side
     const {data: session} = useSession()
 
@@ -44,10 +43,16 @@ export default function ServerRolePage({token, guild_id, discordRoles, guildRole
 
     // check roles
     if (discordRoles === null) return <LoadingFailed/>
+    let formattedDiscordRoles = {}
+    discordRoles.forEach(function (item) {
+        if ((item["name"] !== "@everyone") && !(item["managed"])) {
+            formattedDiscordRoles[item["id"]] = item
+        }
+    })
 
     // todo temp
     guildRoles = [{
-        "role_name": "test",
+        "role_id": "896132613197168671",
         "role_data": {
             "category": "Destiny Roles",
             "deprecated": false,
@@ -56,7 +61,7 @@ export default function ServerRolePage({token, guild_id, discordRoles, guildRole
             "require_collectibles": [],
             "require_records": [],
             "require_role_ids": [],
-            "replaced_by_role_id": 12345
+            "replaced_by_role_id": "896133649756487731"
         }
     }]
 
@@ -82,16 +87,24 @@ export default function ServerRolePage({token, guild_id, discordRoles, guildRole
                 <div className="grid grid-flow-row gap-6 pl-2 pt-2">
                     {guildRoles &&
                         guildRoles.map((role) => {
+                            const discordRole = formattedDiscordRoles[role.role_id]
+
                             return (
                                 <GlowingContainer>
                                     <ContentContainer>
                                         <details className="marker:text-descend group">
                                             <summary className="group-open:text-descend">
-                                                {role["role_name"]}
+                                                {discordRole["name"]}
                                             </summary>
                                             <RoleForm
                                                 role={role}
+                                                roles={guildRoles}
+                                                discordRole={discordRole}
+                                                discordRoles={formattedDiscordRoles}
                                                 adminPerms={adminPerms}
+                                                destinyActivities={destinyActivities}
+                                                destinyCollectibles={destinyCollectibles}
+                                                destinyTriumphs={destinyTriumphs}
                                             />
                                         </details>
                                     </ContentContainer>
@@ -120,7 +133,27 @@ export async function getServerSideProps(context) {
             session: session,
             guild_id: guild_id,
             discordRoles: discordRoles,
-            guildRoles: guildRoles
+            guildRoles: guildRoles,
+            destinyActivities: await getDestinyData({key: "destinyActivities", path: "/destiny/activities/get/all"}),
+            destinyCollectibles: await getDestinyData({key: "destinyCollectibles", path: "/destiny/items/collectible/get/all"}),
+            destinyTriumphs: await getDestinyData({key: "destinyTriumphs", path: "/destiny/items/triumph/get/all"}),
         },
     }
+}
+
+async function getDestinyData({key, path}) {
+    let value = global.customCache.get(key)
+
+    if (!value){
+        const data = await request(
+            "GET",
+            path
+        )
+        value = data.content
+
+        // TTL == 12h
+        global.customCache.set(key, value, 43200)
+    }
+
+    return value
 }

@@ -50,7 +50,9 @@ destiny_clan_unlink_route = destiny_clan_route + "{discord_id}/unlink/"  # DELET
 # items
 destiny_items_route = base_route + "destiny/items/"
 destiny_collectible_name_route = destiny_items_route + "collectible/{collectible_id}/"  # GET
+destiny_get_all_collectible_route = destiny_items_route + "collectible/get/all/"  # GET
 destiny_triumph_name_route = destiny_items_route + "triumph/{triumph_id}/"  # GET
+destiny_get_all_triumph_route = destiny_items_route + "triumph/get/all/"  # GET
 destiny_get_all_lore_route = destiny_items_route + "lore/get/all/"  # GET
 
 # lfg
