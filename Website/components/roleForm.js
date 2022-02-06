@@ -22,6 +22,7 @@ const checkboxInputDivFormatting = `${_InputDivFormatting} flex-row justify-betw
 export default function RoleForm({
                                      role,
                                      roles,
+                                     guild_id,
                                      adminPerms,
                                      discordRole,
                                      discordRoles,
@@ -35,6 +36,7 @@ export default function RoleForm({
         // correctly write the data
         let data = {
             "role_id": form.role_id.value,
+            "guild_id": form.guild_id.value,
             "role_data": {
                 "category": form.category.value,
                 "deprecated": form.deprecated.checked,
@@ -283,6 +285,13 @@ export default function RoleForm({
         <form onSubmit={updateRole} className="p-2">
             <div className="flex flex-col gap-4 divide-y divide-descend">
                 <div className="grid grid-cols-2 gap-4">
+                    <div className="hidden">
+                        <input
+                            className={textInputFormatting} id="guild_id" name="guild_id" type="text"
+                            disabled required
+                            value={guild_id}
+                        />
+                    </div>
                     <div className={`${textInputDivFormatting} col-span-full`}>
                         <label className={labelFormatting} htmlFor="category">
                             Role Category

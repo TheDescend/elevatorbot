@@ -99,6 +99,7 @@ export default function ServerRolePage({token, guild_id, discordRoles, guildRole
                                             <RoleForm
                                                 role={role}
                                                 roles={guildRoles}
+                                                guild_id={guild_id}
                                                 discordRole={discordRole}
                                                 discordRoles={formattedDiscordRoles}
                                                 adminPerms={adminPerms}
