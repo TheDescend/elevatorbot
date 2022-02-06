@@ -1,3 +1,4 @@
 export default function handler(req, res) {
-  res.status(200).json({ user: 'Ada Lovelace' })
+    console.log(req.body)
+    res.status(200).json({user: 'Ada Lovelace'})
 }

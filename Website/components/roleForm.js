@@ -29,18 +29,93 @@ export default function RoleForm({
                                      destinyCollectibles,
                                      destinyTriumphs
                                  }) {
-    const registerRole = async event => {
+    const updateRole = async event => {
         // todo convert datetime to utc https://stackoverflow.com/questions/1091372/getting-the-clients-time-zone-and-offset-in-javascript
         // todo check that start time > end time
 
-        console.log("getting executed...")
+        const form = event.target
+
+        console.log(form)
+
+        // correctly write the data
+        let data = {
+            "role_id": form.role_id.value,
+            "role_data": {
+                "category": form.category.value,
+                "deprecated": form.deprecated.checked,
+                "acquirable": form.acquirable.checked,
+                "replaced_by_role_id": form.replaced_by_role_id.value
+            }
+        }
+        for (const [_, value] of Object.entries(form)) {
+            if (!(value.id)) {
+                continue
+            }
+
+            const key = value.id
+
+            let parts = []
+            let _parts = key.split("-")
+            _parts.splice(0, 1)
+            _parts.forEach(function (part) {
+                if (isNaN(part)) {
+                    parts.push(part)
+                } else {
+                    parts.push(parseInt(part))
+                }
+            })
+
+            if (key.startsWith("require_activity_completions")) {
+                if (!("require_activity_completions" in data)) {
+                    data["require_activity_completions"] = []
+                }
+
+                if (data["require_activity_completions"].length <= parts[1]) {
+                    data["require_activity_completions"].push({
+                        "allowed_activity_hashes": [],
+                        "count": 1,
+                        "allow_checkpoints": false,
+                        "require_team_flawless": false,
+                        "require_individual_flawless": false,
+                        "require_score": null,
+                        "require_kills": null,
+                        "require_kills_per_minute": null,
+                        "require_kda": null,
+                        "require_kd": null,
+                        "maximum_allowed_players": 6,
+                        "allow_time_periods": [],
+                        "disallow_time_periods": [],
+                        "inverse": false,
+                    })
+                }
+
+                switch (parts[2]) {
+                    case "allow_time_periods" || "disallow_time_periods":
+                        if (data["require_activity_completions"][parts[1]][parts[2]].length <= parts[3]) {
+                            data["require_activity_completions"][parts[1]][parts[2]].push({
+                                "start_time": null,
+                                "end_time": null,
+                            })
+                        }
+                        data["require_activity_completions"][parts[1]][parts[2]][parts[3]][parts[4]] = new Date(value.value)
+                        break
+
+                    case "inverse" || "allow_checkpoints" || "require_team_flawless" || "require_individual_flawless":
+                        data["require_activity_completions"][parts[1]][parts[2]] = value.checked
+                        break
+
+                    default:
+                        data["require_activity_completions"][parts[1]][parts[2]] = value.value
+                        break
+                }
+            }
+        }
+
+
         event.preventDefault()
 
-        // https://nextjs.org/blog/forms
-        const res = await fetch(`/api/${role_id}`, {
-            body: JSON.stringify({
-                name: event.target.name.value
-            }),
+        const res = await fetch(`/api/${event.target.role_id.value}`, {
+            body: JSON.stringify(data),
             headers: {
                 'Content-Type': 'application/json'
             },
@@ -182,7 +257,7 @@ export default function RoleForm({
     }
 
     return (
-        <form onSubmit={registerRole} className="p-2">
+        <form onSubmit={updateRole} className="p-2">
             <div className="flex flex-col gap-4 divide-y divide-descend">
                 <div className="grid grid-cols-2 gap-4">
                     <div className={`${textInputDivFormatting} col-span-full`}>
@@ -191,7 +266,8 @@ export default function RoleForm({
                         </label>
                         <input
                             className={textInputFormatting} id="category" name="category" type="text"
-                            placeholder="optional" disabled={!adminPerms} defaultValue={role["role_data"]["category"]}
+                            placeholder="optional" disabled={!adminPerms}
+                            defaultValue={role["role_data"]["category"]}
                         />
                     </div>
                     <div className={textInputDivFormatting}>
@@ -805,7 +881,8 @@ function HandleCollectibles({data, adminPerms, destinyCollectibles, handleDelete
                 data.map((collectible, index) => {
                     return (
                         <FormatRequirement name={`#${index + 1}`} adminPerms={adminPerms}
-                                           handleDelete={handleDelete} deleteKey={"require_collectibles"} index={index}>
+                                           handleDelete={handleDelete} deleteKey={"require_collectibles"}
+                                           index={index}>
                             <div className="grid grid-cols-1 gap-4">
                                 <div className={`${textInputDivFormatting} `}>
                                     <label className={labelFormatting} htmlFor={`require_collectibles-${index}-id`}>
@@ -962,7 +1039,8 @@ function HandleRoles({data, adminPerms, discordRoles, guildRoles, currentRole, h
                                     </select>
                                 </div>
                                 <div className={checkboxInputDivFormatting}>
-                                    <label className={labelFormatting} htmlFor={`require_role_ids-${index}-inverse`}>
+                                    <label className={labelFormatting}
+                                           htmlFor={`require_role_ids-${index}-inverse`}>
                                         Invert all settings
                                     </label>
                                     <input
