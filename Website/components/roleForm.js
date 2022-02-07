@@ -29,7 +29,9 @@ export default function RoleForm({
                                      discordRoles,
                                      destinyActivities,
                                      destinyCollectibles,
-                                     destinyTriumphs
+                                     destinyTriumphs,
+                                     deleteRole,
+                                     roleIndex,
                                  }) {
     const handleForm = async event => {
         await toast.promise(
@@ -175,7 +177,7 @@ export default function RoleForm({
 
         event.preventDefault()
         let ogRoleId = null
-        let result = null
+        let result
 
         if (discordRole) {
             // update
@@ -191,8 +193,6 @@ export default function RoleForm({
 
         } else {
             // create
-            console.log(data)
-
             result = await fetch(`/api/roles/create/`, {
                 body: JSON.stringify(data),
                 headers: {
@@ -233,8 +233,6 @@ export default function RoleForm({
             throw json.content
         }
     }
-
-    // todo delete
 
     // if discordRole === null, we know that a new role is being created
     const [discordRole, updateDiscordRole] = useState(discordRoles[role["role_id"]])
@@ -626,7 +624,7 @@ export default function RoleForm({
                                     type="submit"
                                     disabled={buttonDisabled}
                                 >
-                                    Update
+                                    {discordRole ? "Update" : "Create"}
                                 </button>
                             </GlowingButton>
                             <GlowingButton glow={"opacity-20"}>
@@ -634,7 +632,9 @@ export default function RoleForm({
                                     className="p-1 font-bold"
                                     type="button"
                                     disabled={buttonDisabled}
-                                >
+                                    onClick={async () => {
+                                        await deleteRole(roleIndex, discordRole)
+                                    }}>
                                     Delete
                                 </button>
                             </GlowingButton>

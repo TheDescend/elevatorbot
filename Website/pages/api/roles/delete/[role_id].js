@@ -17,14 +17,13 @@ export default async function handler(req, res) {
 
     // post to backend
     const data = await request(
-        "POST",
-        `/destiny/roles/${guild_id}/update/${role_id}`,
-        req.body,
+        "DELETE",
+        `/destiny/roles/${guild_id}/delete/${role_id}`,
     )
 
     if (data.status_code === 200) {
         res.status(200).json({
-            content: "Role has been updated!"
+            content: "Role has been deleted!"
         })
     } else {
         res.status(500).json({

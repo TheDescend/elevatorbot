@@ -79,7 +79,7 @@ class CRUDRoles(CRUDBase):
             if not db_role:
                 raise CustomException("Role does not exist")
 
-            await self._update(db=db, to_update=db_role, role_data=role.dict())
+            await self._update(db=db, to_update=db_role, role_id=role_id, role_data=role.role_data.dict())
             await self._update_cache(db=db, role=role)
 
     @staticmethod

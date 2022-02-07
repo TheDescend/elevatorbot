@@ -14,6 +14,7 @@ import React, {useState} from "react";
 import RoleForm from "../../../components/roleForm";
 import GlowingButton from "../../../components/styling/glowingButton";
 import {HiPlus} from "react-icons/hi";
+import {toast} from "react-toastify";
 
 
 export default function ServerRolePage({
@@ -91,6 +92,56 @@ export default function ServerRolePage({
         updateGuildRoles([...guildRoles, newRole])
     }
 
+    async function deleteRole(roleIndex, discordRole) {
+        await toast.promise(
+            _deleteRole(roleIndex, discordRole),
+            {
+                pending: {
+                    render() {
+                        return "Deleting Role..."
+                    },
+                },
+                success: {
+                    render({data}) {
+                        return data
+                    },
+                },
+                error: {
+                    render({data}) {
+                        return data
+                    },
+                },
+            }
+        )
+    }
+
+    async function _deleteRole(roleIndex, discordRole) {
+        let resultText = "Role has been deleted!"
+
+        // if discordRole is null, we don't need to make an api call since the role is temp
+        if (discordRole) {
+            // make an api call to delete the role
+            const result = await fetch(`/api/roles/delete/${discordRole["id"]}`, {
+                body: JSON.stringify({
+                    "guild_id": guild_id
+                }),
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                method: 'POST'
+            })
+            resultText = await result.json()
+            resultText = resultText.content
+
+            if (result.status !== 200) {
+                throw resultText
+            }
+        }
+
+        updateGuildRoles(x => x.filter((guildRoles, i) => i !== roleIndex))
+        return resultText
+    }
+
     return (
         <Layout server={guild}>
             <Title>
@@ -128,7 +179,7 @@ export default function ServerRolePage({
             <Description>
                 <div className="grid grid-flow-row gap-6 pl-2 pt-2">
                     {guildRoles &&
-                        guildRoles.map((role) => {
+                        guildRoles.map((role, roleIndex) => {
                             return (
                                 <GlowingContainer>
                                     <ContentContainer>
@@ -142,6 +193,8 @@ export default function ServerRolePage({
                                             destinyActivities={destinyActivities}
                                             destinyCollectibles={destinyCollectibles}
                                             destinyTriumphs={destinyTriumphs}
+                                            deleteRole={deleteRole}
+                                            roleIndex={roleIndex}
                                         />
                                     </ContentContainer>
                                 </GlowingContainer>
