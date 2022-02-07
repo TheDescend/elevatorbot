@@ -37,8 +37,6 @@ class BungieRegistration(NetworkBase):
 
         # get the token
         async with aiohttp.ClientSession() as session:
-            current_time = int(time.time())
-
             response = await self._request(
                 session=session,
                 method="POST",

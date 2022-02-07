@@ -21,7 +21,6 @@ from dis_snek import (
     InteractionContext,
     Member,
     Message,
-    NotFound,
     OverwriteTypes,
     PermissionOverwrite,
     Permissions,
@@ -29,7 +28,7 @@ from dis_snek import (
     Timestamp,
     TimestampStyles,
 )
-from dis_snek.client.errors import Forbidden
+from dis_snek.client.errors import Forbidden, NotFound
 from ics import Calendar, Event
 
 from ElevatorBot.backendNetworking.destiny.lfgSystem import DestinyLfgSystem

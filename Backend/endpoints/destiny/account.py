@@ -27,7 +27,7 @@ router = APIRouter(
 
 
 @router.get("/name", response_model=NameModel)  # has test
-async def destiny_name(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
+async def destiny_name(guild_id: int, discord_id: int):
     """Return the bungie name"""
 
     user = await discord_users.get_profile_from_discord_id(discord_id)

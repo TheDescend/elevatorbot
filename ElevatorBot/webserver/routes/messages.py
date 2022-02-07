@@ -1,5 +1,5 @@
 from aiohttp import web
-from dis_snek import NotFound
+from dis_snek.client.errors import NotFound
 
 from ElevatorBot.misc.formatting import embed_message
 

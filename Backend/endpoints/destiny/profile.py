@@ -13,7 +13,7 @@ router = APIRouter(
 
 
 @router.get("/discord/{discord_id}", response_model=DestinyProfileModel)  # has test
-async def discord_get(discord_id: int, db: AsyncSession = Depends(get_db_session)):
+async def discord_get(discord_id: int):
     """Return a users profile"""
 
     profile = await discord_users.get_profile_from_discord_id(discord_id)
