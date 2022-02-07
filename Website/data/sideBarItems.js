@@ -5,7 +5,7 @@ export const SideBarItems = {
     },
     "Guides": {
         "is_link": true,
-        "link": "/"
+        "link": "/guides"
     },
     "Your Servers": {
         "is_link": true,
