@@ -56,14 +56,10 @@ async def on_message_create(event: MessageCreate, edit_mode: bool = False):
                     send = True
 
                 # look if it follows the naming scheme and is in the correct channel
-                elif (
-                    thread.channel.id
-                    in [
-                        descend_channels.admin_channel.id,
-                        descend_channels.bot_dev_channel.id,
-                    ]
-                    and thread.name.startswith("Message from")
-                ):
+                elif thread.channel.id in [
+                    descend_channels.admin_channel.id,
+                    descend_channels.bot_dev_channel.id,
+                ] and thread.name.startswith("Message from"):
                     linked_user_id = thread.name.split("|")[1]
                     linked_user = await event.bot.get_user(linked_user_id)
 
