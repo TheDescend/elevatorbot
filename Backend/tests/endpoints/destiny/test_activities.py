@@ -23,13 +23,10 @@ async def test_get_all(client: AsyncClient, mocker: MockerFixture):
     data = DestinyActivitiesModel.parse_obj(r.json())
     assert data.activities
     assert len(data.activities) > 0
-    assert data.activities[0].name == "Prophecy"
-    assert (
-        data.activities[0].description
-        == 'Enter the realm of the Nine and ask the question: "What is the nature of the Darkness?"'
-    )
-    assert data.activities[0].activity_ids == [1337]
-    assert data.activities[0].mode == 4
+    assert data.activities[0].name == "Also very difficult NF"
+    assert data.activities[0].description == "NF"
+    assert data.activities[0].activity_ids == [8761236781274]
+    assert data.activities[0].mode == 46
 
 
 @pytest.mark.asyncio

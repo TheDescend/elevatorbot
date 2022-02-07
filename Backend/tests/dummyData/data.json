@@ -1484,6 +1484,290 @@
         },
         "useTotalResults": true
     },
+    "https://www.bungie.net/Platform/GroupV2/User/555/444/0/1/?": {
+        "areAllMembershipsInactive": {
+            "4107840": false
+        },
+        "results": [
+            {
+                "member": {
+                    "memberType": 3,
+                    "isOnline": false,
+                    "lastOnlineStatusChange": "1644092530",
+                    "groupId": "4107840",
+                    "destinyUserInfo": {
+                        "LastSeenDisplayName": "Kigstn",
+                        "LastSeenDisplayNameType": 3,
+                        "iconPath": "/img/theme/bungienet/icons/steamLogo.png",
+                        "crossSaveOverride": 3,
+                        "applicableMembershipTypes": [
+                            1,
+                            3
+                        ],
+                        "isPublic": false,
+                        "membershipType": 3,
+                        "membershipId": "4611686018467765462",
+                        "displayName": "Kigstn",
+                        "bungieGlobalDisplayName": "Kigstn",
+                        "bungieGlobalDisplayNameCode": 4459
+                    },
+                    "joinDate": "2021-08-23T15:56:11Z"
+                },
+                "group": {
+                    "groupId": "4107840",
+                    "name": "Descend",
+                    "groupType": 1,
+                    "membershipIdCreated": "17041075",
+                    "creationDate": "2020-01-24T20:39:16.063Z",
+                    "modificationDate": "2021-08-09T14:29:24.626Z",
+                    "about": "We are an EU based community of veteran players who have created their own community for chill PVE and PVP activities while still focusing on raids and other endgame activities.\n\nRequirements:\nJoin the Discord: https://discord.gg/4bjZZ2w\n\nOur community Discord server has a number of roles you can earn through raids and other in-game activities. With new content releases more are added.\n\nMore information about the community can be found in the discord server.",
+                    "tags": [],
+                    "memberCount": 81,
+                    "isPublic": true,
+                    "isPublicTopicAdminOnly": false,
+                    "motto": "With every end, there is a new beginning",
+                    "allowChat": true,
+                    "isDefaultPostPublic": false,
+                    "chatSecurity": 0,
+                    "locale": "en",
+                    "avatarImageIndex": 0,
+                    "homepage": 0,
+                    "membershipOption": 2,
+                    "defaultPublicity": 2,
+                    "theme": "Group_Community1",
+                    "bannerPath": "/img/Themes/Group_Community1/struct_images/group_top_banner.jpg",
+                    "avatarPath": "/img/profile/avatars/group/defaultGroup.png",
+                    "conversationId": "55838701",
+                    "enableInvitationMessagingForAdmins": false,
+                    "banExpireDate": "2001-01-01T00:00:00Z",
+                    "features": {
+                        "maximumMembers": 100,
+                        "maximumMembershipsOfGroupType": 1,
+                        "capabilities": 31,
+                        "membershipTypes": [
+                            1,
+                            2,
+                            3,
+                            5
+                        ],
+                        "invitePermissionOverride": true,
+                        "updateCulturePermissionOverride": true,
+                        "hostGuidedGamePermissionOverride": 2,
+                        "updateBannerPermissionOverride": true,
+                        "joinLevel": 1
+                    },
+                    "clanInfo": {
+                        "d2ClanProgressions": {
+                            "584850370": {
+                                "progressionHash": 584850370,
+                                "dailyProgress": 600000,
+                                "dailyLimit": 0,
+                                "weeklyProgress": 0,
+                                "weeklyLimit": 0,
+                                "currentProgress": 600000,
+                                "level": 6,
+                                "levelCap": 6,
+                                "stepIndex": 6,
+                                "progressToNextLevel": 0,
+                                "nextLevelAt": 0
+                            },
+                            "1273404180": {
+                                "progressionHash": 1273404180,
+                                "dailyProgress": 0,
+                                "dailyLimit": 0,
+                                "weeklyProgress": 0,
+                                "weeklyLimit": 0,
+                                "currentProgress": 0,
+                                "level": 1,
+                                "levelCap": 6,
+                                "stepIndex": 1,
+                                "progressToNextLevel": 0,
+                                "nextLevelAt": 1
+                            },
+                            "3759191272": {
+                                "progressionHash": 3759191272,
+                                "dailyProgress": 0,
+                                "dailyLimit": 0,
+                                "weeklyProgress": 0,
+                                "weeklyLimit": 0,
+                                "currentProgress": 0,
+                                "level": 1,
+                                "levelCap": 6,
+                                "stepIndex": 1,
+                                "progressToNextLevel": 0,
+                                "nextLevelAt": 1
+                            },
+                            "3381682691": {
+                                "progressionHash": 3381682691,
+                                "dailyProgress": 0,
+                                "dailyLimit": 0,
+                                "weeklyProgress": 0,
+                                "weeklyLimit": 0,
+                                "currentProgress": 0,
+                                "level": 1,
+                                "levelCap": 6,
+                                "stepIndex": 1,
+                                "progressToNextLevel": 0,
+                                "nextLevelAt": 1
+                            }
+                        },
+                        "clanCallsign": "Ð",
+                        "clanBannerData": {
+                            "decalId": 4142223384,
+                            "decalColorId": 3379387803,
+                            "decalBackgroundColorId": 3568748763,
+                            "gonfalonId": 1473910866,
+                            "gonfalonColorId": 2157636335,
+                            "gonfalonDetailId": 1681253714,
+                            "gonfalonDetailColorId": 4128900502
+                        }
+                    }
+                }
+            }
+        ]
+    },
+    "https://www.bungie.net/Platform/GroupV2/User/555/445/0/1/?": {
+        "areAllMembershipsInactive": {
+            "4107840": false
+        },
+        "results": [
+            {
+                "member": {
+                    "memberType": 3,
+                    "isOnline": false,
+                    "lastOnlineStatusChange": "1644092530",
+                    "groupId": "4107840",
+                    "destinyUserInfo": {
+                        "LastSeenDisplayName": "Kigstn",
+                        "LastSeenDisplayNameType": 3,
+                        "iconPath": "/img/theme/bungienet/icons/steamLogo.png",
+                        "crossSaveOverride": 3,
+                        "applicableMembershipTypes": [
+                            1,
+                            3
+                        ],
+                        "isPublic": false,
+                        "membershipType": 3,
+                        "membershipId": "4611686018467765462",
+                        "displayName": "Kigstn",
+                        "bungieGlobalDisplayName": "Kigstn",
+                        "bungieGlobalDisplayNameCode": 4459
+                    },
+                    "joinDate": "2021-08-23T15:56:11Z"
+                },
+                "group": {
+                    "groupId": "4107840",
+                    "name": "Descend",
+                    "groupType": 1,
+                    "membershipIdCreated": "17041075",
+                    "creationDate": "2020-01-24T20:39:16.063Z",
+                    "modificationDate": "2021-08-09T14:29:24.626Z",
+                    "about": "We are an EU based community of veteran players who have created their own community for chill PVE and PVP activities while still focusing on raids and other endgame activities.\n\nRequirements:\nJoin the Discord: https://discord.gg/4bjZZ2w\n\nOur community Discord server has a number of roles you can earn through raids and other in-game activities. With new content releases more are added.\n\nMore information about the community can be found in the discord server.",
+                    "tags": [],
+                    "memberCount": 81,
+                    "isPublic": true,
+                    "isPublicTopicAdminOnly": false,
+                    "motto": "With every end, there is a new beginning",
+                    "allowChat": true,
+                    "isDefaultPostPublic": false,
+                    "chatSecurity": 0,
+                    "locale": "en",
+                    "avatarImageIndex": 0,
+                    "homepage": 0,
+                    "membershipOption": 2,
+                    "defaultPublicity": 2,
+                    "theme": "Group_Community1",
+                    "bannerPath": "/img/Themes/Group_Community1/struct_images/group_top_banner.jpg",
+                    "avatarPath": "/img/profile/avatars/group/defaultGroup.png",
+                    "conversationId": "55838701",
+                    "enableInvitationMessagingForAdmins": false,
+                    "banExpireDate": "2001-01-01T00:00:00Z",
+                    "features": {
+                        "maximumMembers": 100,
+                        "maximumMembershipsOfGroupType": 1,
+                        "capabilities": 31,
+                        "membershipTypes": [
+                            1,
+                            2,
+                            3,
+                            5
+                        ],
+                        "invitePermissionOverride": true,
+                        "updateCulturePermissionOverride": true,
+                        "hostGuidedGamePermissionOverride": 2,
+                        "updateBannerPermissionOverride": true,
+                        "joinLevel": 1
+                    },
+                    "clanInfo": {
+                        "d2ClanProgressions": {
+                            "584850370": {
+                                "progressionHash": 584850370,
+                                "dailyProgress": 600000,
+                                "dailyLimit": 0,
+                                "weeklyProgress": 0,
+                                "weeklyLimit": 0,
+                                "currentProgress": 600000,
+                                "level": 6,
+                                "levelCap": 6,
+                                "stepIndex": 6,
+                                "progressToNextLevel": 0,
+                                "nextLevelAt": 0
+                            },
+                            "1273404180": {
+                                "progressionHash": 1273404180,
+                                "dailyProgress": 0,
+                                "dailyLimit": 0,
+                                "weeklyProgress": 0,
+                                "weeklyLimit": 0,
+                                "currentProgress": 0,
+                                "level": 1,
+                                "levelCap": 6,
+                                "stepIndex": 1,
+                                "progressToNextLevel": 0,
+                                "nextLevelAt": 1
+                            },
+                            "3759191272": {
+                                "progressionHash": 3759191272,
+                                "dailyProgress": 0,
+                                "dailyLimit": 0,
+                                "weeklyProgress": 0,
+                                "weeklyLimit": 0,
+                                "currentProgress": 0,
+                                "level": 1,
+                                "levelCap": 6,
+                                "stepIndex": 1,
+                                "progressToNextLevel": 0,
+                                "nextLevelAt": 1
+                            },
+                            "3381682691": {
+                                "progressionHash": 3381682691,
+                                "dailyProgress": 0,
+                                "dailyLimit": 0,
+                                "weeklyProgress": 0,
+                                "weeklyLimit": 0,
+                                "currentProgress": 0,
+                                "level": 1,
+                                "levelCap": 6,
+                                "stepIndex": 1,
+                                "progressToNextLevel": 0,
+                                "nextLevelAt": 1
+                            }
+                        },
+                        "clanCallsign": "Ð",
+                        "clanBannerData": {
+                            "decalId": 4142223384,
+                            "decalColorId": 3379387803,
+                            "decalBackgroundColorId": 3568748763,
+                            "gonfalonId": 1473910866,
+                            "gonfalonColorId": 2157636335,
+                            "gonfalonDetailId": 1681253714,
+                            "gonfalonDetailColorId": 4128900502
+                        }
+                    }
+                }
+            }
+        ]
+    },
     "https://www.bungie.net/Platform/GroupV2/4107840/?": {
         "detail": {
             "groupId": "4107840",

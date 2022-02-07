@@ -25,8 +25,8 @@ async def test_get_all_collectible(client: AsyncClient, mocker: MockerFixture):
     r = await client.get("/destiny/items/collectible/get/all")
     assert r.status_code == 200
     data = DestinyAllCollectibleModel.parse_obj(r.json())
-    assert data.items
-    assert len(data.items) > 0
+    assert data.collectibles
+    assert len(data.collectibles) > 0
 
 
 @pytest.mark.asyncio
@@ -40,14 +40,14 @@ async def test_get_triumph_name(client: AsyncClient, mocker: MockerFixture):
 
 
 @pytest.mark.asyncio
-async def test_get_all_collectible(client: AsyncClient, mocker: MockerFixture):
+async def test_get_all_triumphs(client: AsyncClient, mocker: MockerFixture):
     mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
 
     r = await client.get("/destiny/items/triumph/get/all")
     assert r.status_code == 200
     data = DestinyAllTriumphModel.parse_obj(r.json())
-    assert data.items
-    assert len(data.items) > 0
+    assert data.triumphs
+    assert len(data.triumphs) > 0
 
 
 @pytest.mark.asyncio

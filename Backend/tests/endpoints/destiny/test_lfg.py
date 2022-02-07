@@ -84,7 +84,7 @@ async def test_lfg(client: AsyncClient, mocker: MockerFixture):
     data = UserAllLfgOutputModel.parse_obj(r.json())
     assert len(data.joined) == 1
     assert len(data.backup) == 0
-    assert_lfg_event_ok(data=data.joined[0])
+    assert_lfg_event_ok(data=data.joined[0], test_voice_category=False)
 
     # =====================================================================
     # delete
@@ -129,7 +129,7 @@ async def test_lfg(client: AsyncClient, mocker: MockerFixture):
     assert data.event_ids == [3]
 
 
-def assert_lfg_event_ok(data: LfgOutputModel):
+def assert_lfg_event_ok(data: LfgOutputModel, test_voice_category: bool = True):
     """Tests all attrs of the obj"""
 
     assert data.id == 1
@@ -143,4 +143,5 @@ def assert_lfg_event_ok(data: LfgOutputModel):
     assert data.joined_members == [1, 2, dummy_discord_id]
     assert data.backup_members == [4]
     assert data.creation_time.day == get_now_with_tz().day
-    assert data.voice_category_channel_id == dummy_persistent_lfg_voice_category_id
+    if test_voice_category:
+        assert data.voice_category_channel_id == dummy_persistent_lfg_voice_category_id

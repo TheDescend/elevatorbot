@@ -75,14 +75,14 @@ async def get_user_role(guild_id: int, role_id: int, discord_id: int, db: AsyncS
     return await user_roles.has_role(role=sought_role)
 
 
-@router.post("/create", response_model=EmptyResponseModel)  # todo test
+@router.post("/create", response_model=EmptyResponseModel)  # has test
 async def create_role(guild_id: int, role: RoleModel, db: AsyncSession = Depends(get_db_session)):
     """Create a role"""
 
     await crud_roles.create_role(db=db, role=role)
 
 
-@router.post("/update/{role_id}", response_model=EmptyResponseModel)  # todo test
+@router.post("/update/{role_id}", response_model=EmptyResponseModel)  # has test
 async def update_role(guild_id: int, role_id: int, role: RoleModel, db: AsyncSession = Depends(get_db_session)):
     """Update a role by (old) id"""
 
