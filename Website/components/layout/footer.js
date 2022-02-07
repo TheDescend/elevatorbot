@@ -13,7 +13,7 @@ export default function Footer() {
                             Privacy Policy
                         </a>
                     </Link>
-                    <a target="_blank" rel="noopener noreferrer" href="https://github.com/LukasSchmid97/elevatorbot"
+                    <a target="_blank" rel="noopener noreferrer" href="https://github.com/TheDescend/elevatorbot"
                        className="hover:text-descend">
                         GitHub
                     </a>
