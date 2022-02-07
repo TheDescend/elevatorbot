@@ -1,4 +1,4 @@
-from dis_snek import CommandTypes, InteractionContext, context_menu
+from dis_snek import CommandTypes, InteractionContext, Member, context_menu
 
 from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
 from ElevatorBot.commands.base import BaseScale
@@ -12,7 +12,7 @@ class UserMenuCommands(BaseScale):
 
     @context_menu(name="Get Join Code", context_type=CommandTypes.USER)
     async def command(self, ctx: InteractionContext):
-        member = await ctx.guild.get_member(ctx.target_id)
+        member: Member = ctx.target
 
         destiny_profile = DestinyAccount(ctx=ctx, discord_member=member, discord_guild=ctx.guild)
         result = await destiny_profile.get_destiny_name()

@@ -1,7 +1,7 @@
 import io
 
 import aiohttp
-from dis_snek import CommandTypes, InteractionContext, context_menu
+from dis_snek import CommandTypes, InteractionContext, Message, context_menu
 
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formatting import embed_message
@@ -20,7 +20,7 @@ class MessageMenuCommands(BaseScale):
     # todo perms
     @context_menu(name="Add Emoji", context_type=CommandTypes.MESSAGE, scopes=get_setting("COMMAND_GUILD_SCOPE"))
     async def add_emoji(self, ctx: InteractionContext):
-        message = await ctx.channel.get_message(ctx.target_id)
+        message: Message = ctx.target
 
         if not (message.attachments or len(message.attachments) > 1):
             await ctx.send(

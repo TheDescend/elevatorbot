@@ -1,6 +1,6 @@
 import random
 
-from dis_snek import CommandTypes, InteractionContext, context_menu
+from dis_snek import CommandTypes, InteractionContext, Message, context_menu
 
 from ElevatorBot.backendNetworking.misc.giveaway import BackendGiveaway
 from ElevatorBot.commands.base import BaseScale
@@ -22,7 +22,7 @@ class GiveawayWinners(BaseScale):
         name="Draw Giveaway Winner", context_type=CommandTypes.MESSAGE, scopes=get_setting("COMMAND_GUILD_SCOPE")
     )
     async def draw_winner(self, ctx: InteractionContext):
-        message = await ctx.channel.get_message(ctx.target_id)
+        message: Message = ctx.target
 
         # get the giveaway data from the db
         giveaway = BackendGiveaway(ctx=ctx, discord_guild=ctx.guild, discord_member=ctx.author, message_id=message.id)
