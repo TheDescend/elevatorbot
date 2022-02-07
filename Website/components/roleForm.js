@@ -2,6 +2,7 @@ import GlowingButton from "./styling/glowingButton";
 import ContentContainer from "./styling/container";
 import {useState} from "react";
 import {FiMinusCircle, FiPlusCircle} from "react-icons/fi";
+import {toast} from "react-toastify";
 
 
 const divFormatting = "marker:text-descend"
@@ -21,7 +22,8 @@ const checkboxInputDivFormatting = `${_InputDivFormatting} flex-row justify-betw
 // todo deleting required parts (like a collectible) results in wonky interactions. Fe. if collectible #1 is removed, collectible #2 gets the inputs of #1 since they do not get saved after typing. this might only happen with unsafed form data
 export default function RoleForm({
                                      role,
-                                     roles,
+                                     rolesIds,
+                                     updateRolesIds,
                                      guild_id,
                                      adminPerms,
                                      discordRole,
@@ -31,6 +33,31 @@ export default function RoleForm({
                                      destinyTriumphs
                                  }) {
     const updateRole = async event => {
+        await toast.promise(
+            _updateRole(event),
+            {
+                pending: {
+                    render() {
+                        return "Updating Role..."
+                    },
+                },
+                success: {
+                    render({data}) {
+                        return data
+                    },
+                },
+                error: {
+                    render({data}) {
+                        return data
+                    },
+                },
+            }
+        )
+    }
+
+    async function _updateRole(event) {
+        updateButtonDisabled(true)
+
         const form = event.target
 
         // correctly write the data
@@ -139,7 +166,7 @@ export default function RoleForm({
 
         event.preventDefault()
 
-        const res = await fetch(`/api/${event.target.role_id.value}`, {
+        const result = await fetch(`/api/roles`, {
             body: JSON.stringify(data),
             headers: {
                 'Content-Type': 'application/json'
@@ -147,24 +174,37 @@ export default function RoleForm({
             method: 'POST'
         })
 
-        const result = await res.json()
+        const json = await result.json()
+        updateButtonDisabled(false)
+
+        if (result.status === 200) {
+            // update page data
+            updateActivities(data["role_data"]["require_activity_completions"])
+            updateCollectibles(data["role_data"]["require_collectibles"])
+            updateRecords(data["role_data"]["require_records"])
+            updateReqRoles(data["role_data"]["require_role_ids"])
+
+            if (!rolesIds.includes(data["role_id"])) {
+                updateRolesIds([...rolesIds, data["role_id"]])
+            }
+
+            return json.content
+        } else {
+            throw json.content
+        }
     }
 
-    let rolesIds = []
-    roles.forEach(function (item) {
-        rolesIds.push(String(role.role_id))
-    })
-
-    const replacementDiscordRole = discordRoles[role["role_data"]["replaced_by_role_id"]]
-
     // todo delete
-    // todo edit
     // todo create
 
     const [activities, updateActivities] = useState(role["role_data"]["require_activity_completions"])
     const [collectibles, updateCollectibles] = useState(role["role_data"]["require_collectibles"])
     const [records, updateRecords] = useState(role["role_data"]["require_records"])
     const [reqRoles, updateReqRoles] = useState(role["role_data"]["require_role_ids"])
+
+    // disable the button while exchanging data with the backend
+    const [buttonDisabled, updateButtonDisabled] = useState(false)
+
 
     function handleUpdate(key, index = null) {
         let data
@@ -319,11 +359,13 @@ export default function RoleForm({
                                             </option>
                                         )
                                     } else {
-                                        return (
-                                            <option value={id}>
-                                                {discordRoles[id]["name"]}
-                                            </option>
-                                        )
+                                        if (!rolesIds.includes(id)) {
+                                            return (
+                                                <option value={id}>
+                                                    {discordRoles[id]["name"]}
+                                                </option>
+                                            )
+                                        }
                                     }
                                 })
                             }
@@ -390,6 +432,7 @@ export default function RoleForm({
                                     destinyActivities={destinyActivities}
                                     handleDelete={handleDelete}
                                     handleUpdate={handleUpdate}
+                                    buttonDisabled={buttonDisabled}
                                 />
                                 {adminPerms &&
                                     <div className="flex">
@@ -398,6 +441,7 @@ export default function RoleForm({
                                             onClick={() => {
                                                 handleUpdate("require_activity_completions")
                                             }}
+                                            disabled={buttonDisabled}
                                         >
                                             <FiPlusCircle className="object-contain hover:text-descend w-6 h-6"/>
                                         </button>
@@ -417,6 +461,7 @@ export default function RoleForm({
                                     adminPerms={adminPerms}
                                     destinyCollectibles={destinyCollectibles}
                                     handleDelete={handleDelete}
+                                    buttonDisabled={buttonDisabled}
                                 />
                                 {adminPerms &&
                                     <div className="flex">
@@ -426,6 +471,7 @@ export default function RoleForm({
                                             onClick={() => {
                                                 handleUpdate("require_collectibles")
                                             }}
+                                            disabled={buttonDisabled}
                                         >
                                             <FiPlusCircle className="object-contain hover:text-descend w-6 h-6"/>
                                         </button>
@@ -445,6 +491,7 @@ export default function RoleForm({
                                     adminPerms={adminPerms}
                                     destinyTriumphs={destinyTriumphs}
                                     handleDelete={handleDelete}
+                                    buttonDisabled={buttonDisabled}
                                 />
                                 {adminPerms &&
                                     <div className="flex">
@@ -454,6 +501,7 @@ export default function RoleForm({
                                             onClick={() => {
                                                 handleUpdate("require_records")
                                             }}
+                                            disabled={buttonDisabled}
                                         >
                                             <FiPlusCircle className="object-contain hover:text-descend w-6 h-6"/>
                                         </button>
@@ -475,6 +523,7 @@ export default function RoleForm({
                                     guildRoles={rolesIds}
                                     currentRole={discordRole}
                                     handleDelete={handleDelete}
+                                    buttonDisabled={buttonDisabled}
                                 />
                                 {adminPerms &&
                                     <div className="flex">
@@ -484,6 +533,7 @@ export default function RoleForm({
                                             onClick={() => {
                                                 handleUpdate("require_role_ids")
                                             }}
+                                            disabled={buttonDisabled}
                                         >
                                             <FiPlusCircle className="object-contain hover:text-descend w-6 h-6"/>
                                         </button>
@@ -497,10 +547,14 @@ export default function RoleForm({
                 {adminPerms &&
                     <div className="flex justify-around p-2">
                         <GlowingButton glow={"opacity-20"}>
-                            <button className="p-1 font-bold" type="submit">Update</button>
+                            <button className="p-1 font-bold" type="submit" disabled={buttonDisabled}>
+                                Update
+                            </button>
                         </GlowingButton>
                         <GlowingButton glow={"opacity-20"}>
-                            <button className="p-1 font-bold" type="button">Delete</button>
+                            <button className="p-1 font-bold" type="button" disabled={buttonDisabled}>
+                                Delete
+                            </button>
                         </GlowingButton>
                     </div>
                 }
@@ -509,9 +563,16 @@ export default function RoleForm({
     )
 }
 
-
-// todo need to be able to delete parts of those
-function FormatRequirement({children, name, adminPerms, handleDelete, deleteKey, index, subIndex = null}) {
+function FormatRequirement({
+                               children,
+                               name,
+                               adminPerms,
+                               handleDelete,
+                               deleteKey,
+                               index,
+                               subIndex = null,
+                               buttonDisabled
+                           }) {
     return (
         <ContentContainer otherStyle={false}>
             <details className={divFormatting}>
@@ -525,6 +586,7 @@ function FormatRequirement({children, name, adminPerms, handleDelete, deleteKey,
                             onClick={() => {
                                 handleDelete(deleteKey, index, subIndex)
                             }}
+                            disabled={buttonDisabled}
                         >
                             <FiMinusCircle className="object-contain hover:text-descend w-5 h-5"/>
                         </button>
@@ -540,16 +602,20 @@ function FormatRequirement({children, name, adminPerms, handleDelete, deleteKey,
     )
 }
 
-
-function HandleActivities({data, adminPerms, destinyActivities, handleDelete, handleUpdate}) {
+function HandleActivities({data, adminPerms, destinyActivities, handleDelete, handleUpdate, buttonDisabled}) {
     return (
         <div className="grid grid-flow-row gap-2">
             {
                 data.map((activity, index) => {
                     return (
-                        <FormatRequirement name={`#${index + 1}`} adminPerms={adminPerms}
-                                           handleDelete={handleDelete} deleteKey={"require_activity_completions"}
-                                           index={index}>
+                        <FormatRequirement
+                            name={`#${index + 1}`}
+                            adminPerms={adminPerms}
+                            handleDelete={handleDelete}
+                            deleteKey={"require_activity_completions"}
+                            index={index}
+                            buttonDisabled={buttonDisabled}
+                        >
                             <div className="grid grid-cols-2 gap-4">
                                 <div className={`${textInputDivFormatting} col-span-full`}>
                                     <label className={labelFormatting}
@@ -711,6 +777,7 @@ function HandleActivities({data, adminPerms, destinyActivities, handleDelete, ha
                                                     adminPerms={adminPerms}
                                                     destinyActivities={destinyActivities}
                                                     handleDelete={handleDelete}
+                                                    buttonDisabled={buttonDisabled}
                                                 />
                                                 {adminPerms &&
                                                     <div className="flex">
@@ -719,6 +786,7 @@ function HandleActivities({data, adminPerms, destinyActivities, handleDelete, ha
                                                             onClick={() => {
                                                                 handleUpdate("require_activity_completions-allow_time_periods", index)
                                                             }}
+                                                            disabled={buttonDisabled}
                                                         >
                                                             <FiPlusCircle
                                                                 className="object-contain hover:text-descend w-6 h-6"/>
@@ -742,6 +810,7 @@ function HandleActivities({data, adminPerms, destinyActivities, handleDelete, ha
                                                     adminPerms={adminPerms}
                                                     destinyActivities={destinyActivities}
                                                     handleDelete={handleDelete}
+                                                    buttonDisabled={buttonDisabled}
                                                 />
                                                 {adminPerms &&
                                                     <div className="flex">
@@ -750,6 +819,7 @@ function HandleActivities({data, adminPerms, destinyActivities, handleDelete, ha
                                                             onClick={() => {
                                                                 handleUpdate("require_activity_completions-disallow_time_periods", index)
                                                             }}
+                                                            disabled={buttonDisabled}
                                                         >
                                                             <FiPlusCircle
                                                                 className="object-contain hover:text-descend w-6 h-6"/>
@@ -824,27 +894,29 @@ function HandleActivities({data, adminPerms, destinyActivities, handleDelete, ha
     )
 }
 
-function HandleAllowedTimes({data, topIndex, adminPerms, handleDelete}) {
+function HandleAllowedTimes({data, topIndex, adminPerms, handleDelete, buttonDisabled}) {
     return <HandleTimes
         timeType={"allow_time_periods"}
         data={data}
         topIndex={topIndex}
         adminPerms={adminPerms}
         handleDelete={handleDelete}
+        buttonDisabled={buttonDisabled}
     />
 }
 
-function HandleDisallowedTimes({data, topIndex, adminPerms, handleDelete}) {
+function HandleDisallowedTimes({data, topIndex, adminPerms, handleDelete, buttonDisabled}) {
     return <HandleTimes
         timeType={"disallow_time_periods"}
         data={data}
         topIndex={topIndex}
         adminPerms={adminPerms}
         handleDelete={handleDelete}
+        buttonDisabled={buttonDisabled}
     />
 }
 
-function HandleTimes({timeType, data, topIndex, adminPerms, handleDelete}) {
+function HandleTimes({timeType, data, topIndex, adminPerms, handleDelete, buttonDisabled}) {
     return (
         <div className="grid grid-flow-row gap-2">
             {
@@ -857,6 +929,7 @@ function HandleTimes({timeType, data, topIndex, adminPerms, handleDelete}) {
                             deleteKey={`require_activity_completions-${timeType}`}
                             index={topIndex}
                             subIndex={index}
+                            buttonDisabled={buttonDisabled}
                         >
                             <div className="grid grid-cols-2 gap-4">
                                 <div className={textInputDivFormatting}>
@@ -906,15 +979,20 @@ function HandleTimes({timeType, data, topIndex, adminPerms, handleDelete}) {
     )
 }
 
-function HandleCollectibles({data, adminPerms, destinyCollectibles, handleDelete}) {
+function HandleCollectibles({data, adminPerms, destinyCollectibles, handleDelete, buttonDisabled}) {
     return (
         <div className="grid grid-flow-row gap-2">
             {
                 data.map((collectible, index) => {
                     return (
-                        <FormatRequirement name={`#${index + 1}`} adminPerms={adminPerms}
-                                           handleDelete={handleDelete} deleteKey={"require_collectibles"}
-                                           index={index}>
+                        <FormatRequirement
+                            name={`#${index + 1}`}
+                            adminPerms={adminPerms}
+                            handleDelete={handleDelete}
+                            deleteKey={"require_collectibles"}
+                            index={index}
+                            buttonDisabled={buttonDisabled}
+                        >
                             <div className="grid grid-cols-1 gap-4">
                                 <div className={`${textInputDivFormatting} `}>
                                     <label className={labelFormatting} htmlFor={`require_collectibles-${index}-id`}>
@@ -969,14 +1047,20 @@ function HandleCollectibles({data, adminPerms, destinyCollectibles, handleDelete
     )
 }
 
-function HandleRecords({data, adminPerms, destinyTriumphs, handleDelete}) {
+function HandleRecords({data, adminPerms, destinyTriumphs, handleDelete, buttonDisabled}) {
     return (
-        <div>
+        <div className="grid grid-flow-row gap-2">
             {
                 data.map((record, index) => {
                     return (
-                        <FormatRequirement name={`#${index + 1}`} adminPerms={adminPerms}
-                                           handleDelete={handleDelete} deleteKey={"require_records"} index={index}>
+                        <FormatRequirement
+                            name={`#${index + 1}`}
+                            adminPerms={adminPerms}
+                            handleDelete={handleDelete}
+                            deleteKey={"require_records"}
+                            index={index}
+                            buttonDisabled={buttonDisabled}
+                        >
                             <div className="grid grid-cols-1 gap-4">
                                 <div className={`${textInputDivFormatting} `}>
                                     <label className={labelFormatting} htmlFor={`require_records-${index}-id`}>
@@ -1030,14 +1114,20 @@ function HandleRecords({data, adminPerms, destinyTriumphs, handleDelete}) {
     )
 }
 
-function HandleRoles({data, adminPerms, discordRoles, guildRoles, currentRole, handleDelete}) {
+function HandleRoles({data, adminPerms, discordRoles, guildRoles, currentRole, handleDelete, buttonDisabled}) {
     return (
         <div>
             {
                 data.map((role, index) => {
                     return (
-                        <FormatRequirement name={`#${index + 1}`} adminPerms={adminPerms}
-                                           handleDelete={handleDelete} deleteKey={"require_role_ids"} index={index}>
+                        <FormatRequirement
+                            name={`#${index + 1}`}
+                            adminPerms={adminPerms}
+                            handleDelete={handleDelete}
+                            deleteKey={"require_role_ids"}
+                            index={index}
+                            buttonDisabled={buttonDisabled}
+                        >
                             <div className="grid grid-cols-1 gap-4">
                                 <div className={`${textInputDivFormatting} `}>
                                     <label className={labelFormatting} htmlFor={`require_role_ids-${index}-id`}>

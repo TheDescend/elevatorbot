@@ -1,5 +1,3 @@
-import JSONbig from "json-bigint";
-
 
 export const discord_fetcher = (url, token) => fetch(
     "https://discord.com/api/v9" + url,
@@ -51,8 +49,10 @@ export default async function request(method, path, body = null) {
         )
     }
 
-    const resultText = await response.text()
-    const result = JSONbig.parse(resultText)
+    // place big integers in strings
+    let json = await response.text()
+    json = json.replace(/([\[:])?(\d{9,})([,\}\]])/g, "$1\"$2\"$3");
+    const result = JSON.parse(json)
 
     if (response.status === 409) {
         return {

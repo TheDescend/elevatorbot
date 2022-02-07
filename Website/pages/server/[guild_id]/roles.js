@@ -10,11 +10,20 @@ import Title from "../../../components/content/title";
 import Description from "../../../components/content/description";
 import GlowingContainer from "../../../components/styling/glowingContainer";
 import ContentContainer from "../../../components/styling/container";
-import React from "react";
+import React, {useState} from "react";
 import RoleForm from "../../../components/roleForm";
 
 
-export default function ServerRolePage({token, guild_id, discordRoles, guildRoles, destinyActivities, destinyCollectibles, destinyTriumphs}) {
+export default function ServerRolePage({
+                                           token,
+                                           guild_id,
+                                           discordRoles,
+                                           guildRoles,
+                                           destinyActivities,
+                                           destinyCollectibles,
+                                           destinyTriumphs
+                                       }) {
+
     // check if logged in client side
     const {data: session} = useSession()
 
@@ -22,6 +31,16 @@ export default function ServerRolePage({token, guild_id, discordRoles, guildRole
     if (!session || token === null) {
         return <AccessDenied/>
     }
+
+    // get role data
+    guildRoles = guildRoles.content.roles
+    if (!guildRoles) return <LoadingFailed/>
+
+    let _rolesIds = []
+    guildRoles.forEach(function (item) {
+        _rolesIds.push(String(item["role_id"]))
+    })
+    const [rolesIds, updateRolesIds] = useState(_rolesIds)
 
     // get guilds
     const {data, error, mutate} = useSWR(["/users/@me/guilds", token], discord_fetcher)
@@ -50,20 +69,6 @@ export default function ServerRolePage({token, guild_id, discordRoles, guildRole
         }
     })
 
-    // todo temp
-    guildRoles = [{
-        "role_id": "896132613197168671",
-        "role_data": {
-            "category": "Destiny Roles",
-            "deprecated": false,
-            "acquirable": true,
-            "require_activity_completions": [],
-            "require_collectibles": [],
-            "require_records": [],
-            "require_role_ids": [],
-            "replaced_by_role_id": "896133649756487731"
-        }
-    }]
 
     return (
         <Layout server={guild}>
@@ -98,7 +103,8 @@ export default function ServerRolePage({token, guild_id, discordRoles, guildRole
                                             </summary>
                                             <RoleForm
                                                 role={role}
-                                                roles={guildRoles}
+                                                rolesIds={rolesIds}
+                                                updateRolesIds={updateRolesIds}
                                                 guild_id={guild_id}
                                                 discordRole={discordRole}
                                                 discordRoles={formattedDiscordRoles}
@@ -126,7 +132,10 @@ export async function getServerSideProps(context) {
     const discord = require('../../../lib/discord');
     const discordRoles = await discord.getRoles(guild_id)
 
-    const guildRoles = null
+    const guildRoles = await request(
+        "GET",
+        `/destiny/roles/${guild_id}/get/all`
+    )
 
     return {
         props: {
@@ -136,7 +145,10 @@ export async function getServerSideProps(context) {
             discordRoles: discordRoles,
             guildRoles: guildRoles,
             destinyActivities: await getDestinyData({key: "destinyActivities", path: "/destiny/activities/get/all"}),
-            destinyCollectibles: await getDestinyData({key: "destinyCollectibles", path: "/destiny/items/collectible/get/all"}),
+            destinyCollectibles: await getDestinyData({
+                key: "destinyCollectibles",
+                path: "/destiny/items/collectible/get/all"
+            }),
             destinyTriumphs: await getDestinyData({key: "destinyTriumphs", path: "/destiny/items/triumph/get/all"}),
         },
     }
@@ -145,7 +157,7 @@ export async function getServerSideProps(context) {
 async function getDestinyData({key, path}) {
     let value = global.customCache.get(key)
 
-    if (!value){
+    if (!value) {
         const data = await request(
             "GET",
             path

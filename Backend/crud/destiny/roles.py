@@ -51,25 +51,13 @@ class CRUDRoles(CRUDBase):
 
         return self.cache.roles[role_id]
 
-    async def create_role(self, db: AsyncSession, role: RoleModel):
-        """Insert the new role"""
+    async def upsert_role(self, db: AsyncSession, role: RoleModel):
+        """Upsert a role"""
 
-        db_role = Roles(role_id=role.role_id, guild_id=role.guild_id, role_data=role.role_data.dict())
-        await self._insert(db=db, to_create=db_role)
-
-        # insert into cache
-        await self._update_cache(db=db, role=db_role)
-
-    async def update_role(self, db: AsyncSession, role: RoleModel):
-        """Update a role"""
-
-        db_role = await self._get_with_key(db=db, primary_key=role.role_id)
-        if not db_role:
-            raise CustomException("RoleNotExist")
-        await self._update(db=db, to_update=db_role, role_data=role.role_data.dict())
+        await self._upsert(db=db, model_data=role.dict())
 
         # insert into cache / update the cache
-        await self._update_cache(db=db, role=db_role)
+        await self._update_cache(db=db, role=role)
 
     async def delete_guild_roles(self, db: AsyncSession, guild_id: int):
         """Delete all guild roles"""
@@ -104,15 +92,8 @@ class CRUDRoles(CRUDBase):
     async def _update_cache(self, db: AsyncSession, role: RoleModel):
         """Update the role cache"""
 
-        # get the pydantic model
-        pydantic_model = RoleModel(
-            role_id=role.role_id,
-            guild_id=role.guild_id,
-            role_data=RoleDataModel.parse_obj(role.role_data),
-        )
-
-        self.cache.roles.update({pydantic_model.role_id: pydantic_model})
-        await self.__update_guild_cache(db=db, guild_id=pydantic_model.guild_id)
+        self.cache.roles.update({role.role_id: role})
+        await self.__update_guild_cache(db=db, guild_id=role.guild_id)
 
     async def __update_guild_cache(self, db: AsyncSession, guild_id: int):
         """Update the guild role cache"""

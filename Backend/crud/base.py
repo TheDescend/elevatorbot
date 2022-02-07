@@ -1,3 +1,4 @@
+import asyncio
 from typing import Any, List, Optional, Type, TypeVar
 
 from sqlalchemy import delete, inspect, select
@@ -63,25 +64,26 @@ class CRUDBase:
     async def _upsert(self, db: AsyncSession, model_data: dict) -> ModelType:
         """Upsert the item. Doesn't work with foreign keys"""
 
-        # prepare insert
-        stmt = postgresql.insert(self.model).values(model_data)
+        async with asyncio.Lock():
+            # prepare insert
+            stmt = postgresql.insert(self.model).values(model_data)
 
-        # get primary key and info what should be updated if it fails
-        primary_keys = [key.name for key in inspect(self.model).primary_key]
-        update_dict = {c.name: c for c in stmt.excluded if not c.primary_key}
-        if not update_dict:
-            raise ValueError(
-                f"_upsert() resulted in an empty update_dict for model '{self.model}', model_data: '{model_data}'"
-            )
+            # get primary key and info what should be updated if it fails
+            primary_keys = [key.name for key in inspect(self.model).primary_key]
+            update_dict = {c.name: c for c in stmt.excluded if not c.primary_key}
+            if not update_dict:
+                raise ValueError(
+                    f"_upsert() resulted in an empty update_dict for model '{self.model}', model_data: '{model_data}'"
+                )
 
-        # add upsert clause
-        stmt = stmt.on_conflict_do_update(index_elements=primary_keys, set_=update_dict).returning(self.model)
+            # add upsert clause
+            stmt = stmt.on_conflict_do_update(index_elements=primary_keys, set_=update_dict).returning(self.model)
 
-        # convert that to orm
-        query = select(self.model).from_statement(stmt).execution_options(populate_existing=True)
+            # convert that to orm
+            query = select(self.model).from_statement(stmt).execution_options(populate_existing=True)
 
-        result = await self._execute_query(db=db, query=query)
-        return result.scalars().one()
+            result = await self._execute_query(db=db, query=query)
+            return result.scalars().one()
 
     @staticmethod
     async def _mass_insert(db: AsyncSession, to_create: list[ModelType]) -> None:

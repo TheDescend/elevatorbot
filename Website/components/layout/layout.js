@@ -3,9 +3,20 @@ import Footer from "./footer";
 import Sidebar from "./sidebar";
 import Content from "./content";
 import Header from "./header";
+import {ToastContainer} from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 
 export default function Layout({children, server = null}) {
+    const contextClass = {
+        success: "bg-blue-600",
+        error: "bg-red-600",
+        info: "bg-gray-600",
+        warning: "bg-orange-400",
+        default: "bg-indigo-600",
+        dark: "bg-white-600 font-gray-300",
+    }
+
     return (
         <div>
             <Head>
@@ -23,6 +34,18 @@ export default function Layout({children, server = null}) {
                 />
             </Head>
             <main className="flex flex-col h-screen bg-descend">
+                <ToastContainer
+                    position="top-right"
+                    autoClose={3000}
+                    hideProgressBar={false}
+                    newestOnTop
+                    closeOnClick
+                    rtl={false}
+                    pauseOnFocusLoss
+                    draggable
+                    pauseOnHover
+                    toastClassName="dark:!bg-slate-700 dark:!text-descend"
+                />
                 <Header/>
                 <div className="flex-grow flex h-full overflow-y-hidden">
                     <Sidebar server={server}/>
