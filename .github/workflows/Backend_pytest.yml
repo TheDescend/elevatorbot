@@ -56,7 +56,7 @@ jobs:
         export PYTHONPATH="${PYTHONPATH}:/home/runner/work/elevatorbot"
 
         # rename the settings file
-        sudo mv rename_to_settings.py settings.py
+        sudo mv rename_to_settings.toml settings.toml
 
         # run tests
         pytest Backend
