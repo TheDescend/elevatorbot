@@ -24,8 +24,8 @@ export default function Commands({allCommandData}) {
         return (
             <GlowingContainer>
                 <ContentContainer otherStyle={false}>
-                    <details className={`relative marker:text-descend`}>
-                        <summary>
+                    <details className="marker:text-descend group">
+                        <summary className="group-open:text-descend">
                             {topic}
                         </summary>
                         <div className={`${gridStyle}`}>

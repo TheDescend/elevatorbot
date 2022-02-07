@@ -14,7 +14,7 @@ import Image from "next/image";
 
 
 const loginPath = "/auth/discord"
-const inviteUrl = "some.url/here"
+const inviteUrl = "https://www.urbandictionary.com/define.php?term=soon%20%28tm%29"
 
 export default function Header() {
     // check if logged in client side

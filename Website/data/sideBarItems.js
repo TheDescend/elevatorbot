@@ -1,7 +1,7 @@
 export const SideBarItems = {
     "FAQ": {
         "is_link": true,
-        "link": "/"
+        "link": "/faq"
     },
     "Guides": {
         "is_link": true,
