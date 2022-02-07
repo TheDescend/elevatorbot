@@ -6,34 +6,23 @@ import Layout from "../components/layout/layout";
 export default function Home() {
     return (
         <Layout>
+            <div className="not-prose mb-12 flex flex-row justify-center">
+                <img className="max-h-36 " src="/images/logo.png" alt="ElevatorBotLogo"/>
+            </div>
             <Title>
-                Home
+                ElevatorBot Welcomes You
             </Title>
             <Description>
                 <div>
-                    <p>[Your Self Introduction]</p>
                     <p>
-                        (This is a sample website - you’ll be building a site like this on{' '}
-                        <a href="https://nextjs.org/learn">our Next.js tutorial</a>.)
+                        <code>@ElevatorBot#7635</code> is a modern and open source discord bot that can be used to
+                        interact with the Destiny 2 API.
                     </p>
                     <p>
-                        (This is a sample website - you’ll be building a site like this on{' '}
-                        <a href="https://nextjs.org/learnasdasd">our Next.js tutorial</a>.)
+                        He was originally created at the start of 2018 for the <a href="https://discord.gg/descend">Descend
+                        Discord Server</a> and has <span className="font-bold">greatly</span> expanded in scope since
+                        then.
                     </p>
-
-                    <p className="m-16">our Next.js tutorial</p>
-                    <p className="m-16">our Next.js tutorial</p>
-                    <p className="m-16">our Next.js tutorial</p>
-                    <p className="m-16">our Next.js tutorial</p>
-                    <p className="m-16">our Next.js tutorial</p>
-                    <p className="m-16">our Next.js tutorial</p>
-                    <p className="m-16">our Next.js tutorial</p>
-                    <p className="m-16">our Next.js tutorial</p>
-                    <p className="m-16">our Next.js tutorial</p>
-                    <p className="m-16">our Next.js tutorial</p>
-                    <p className="m-16">our Next.js tutorial</p>
-
-
                 </div>
             </Description>
         </Layout>

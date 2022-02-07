@@ -23,9 +23,9 @@
 
 ---
 
-`ElevatorBot#7635` is a modern and open source discord bot is used to interact with the Destiny 2 API. He was originally created at the start of 2018 because of a desire to access information not provided by the existing Destiny 2 bot, Charlemange. He has **greatly** expanded in scope since then.
+`ElevatorBot#7635` is a modern and open source discord bot that can be used to interact with the Destiny 2 API. He was originally created at the start of 2018 because of a desire to access information not provided by the existing Destiny 2 bot, Charlemange. He has **greatly** expanded in scope since then.
 
-ElevatorBot is mostly written in Python using [Dis-Snek](https://github.com/Discord-Snake-Pit/Dis-Snek), [FastApi](https://github.com/tiangolo/fastapi/) and [PostgreSQL](https://github.com/postgres/postgres). Only the website is written in JavaScript using [React](https://github.com/facebook/react). He has explicit support for modern discord features such as slash commands, components and context menus.
+ElevatorBot is mostly written in Python using [Dis-Snek](https://github.com/Discord-Snake-Pit/Dis-Snek), [FastApi](https://github.com/tiangolo/fastapi/) and [PostgreSQL](https://github.com/postgres/postgres). The website is written in JavaScript using [Next.js](https://github.com/vercel/next.js/) and [tailwindcss](https://github.com/tailwindlabs/tailwindcss). He has explicit support for modern discord features such as slash commands, components and context menus.
 
 
 ## Features
