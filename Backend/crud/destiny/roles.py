@@ -51,13 +51,49 @@ class CRUDRoles(CRUDBase):
 
         return self.cache.roles[role_id]
 
-    async def upsert_role(self, db: AsyncSession, role: RoleModel):
-        """Upsert a role"""
+    async def create_role(self, db: AsyncSession, role: RoleModel):
+        """Insert the new role"""
 
-        await self._upsert(db=db, model_data=role.dict())
+        self._check_role(role)
 
-        # insert into cache / update the cache
-        await self._update_cache(db=db, role=role)
+        db_role = Roles(role_id=role.role_id, guild_id=role.guild_id, role_data=role.role_data.dict())
+        await self._insert(db=db, to_create=db_role)
+
+        # insert into cache
+        await self._update_cache(db=db, role=db_role)
+
+    async def update_role(self, db: AsyncSession, role_id: int, role: RoleModel):
+        """Update a role"""
+
+        self._check_role(role)
+
+        # check if the primary key changed
+        if role.role_id != role_id:
+            # delete old and insert
+            await self.delete_role(db=db, role_id=role_id)
+            await self.create_role(db=db, role=role)
+
+        else:
+            # update the role
+            db_role = await self._get_with_key(db=db, primary_key=role_id)
+            if not db_role:
+                raise CustomException("Role does not exist")
+
+            await self._update(db=db, to_update=db_role, role_data=role.dict())
+            await self._update_cache(db=db, role=role)
+
+    @staticmethod
+    def _check_role(role: RoleModel):
+        """Check that the roles are formatted ok"""
+
+        # check that start time > end time
+        for activity in role.role_data.require_activity_completions:
+            for period in activity.allow_time_periods + activity.disallow_time_periods:
+                if period.start_time >= period.end_time:
+                    raise CustomException("End Time cannot be older than Start Time")
+
+                if not period.start_time.tzinfo or not period.end_time.tzinfo:
+                    raise CustomException("Naive datetimes are not supported")
 
     async def delete_guild_roles(self, db: AsyncSession, guild_id: int):
         """Delete all guild roles"""

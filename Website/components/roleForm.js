@@ -26,19 +26,24 @@ export default function RoleForm({
                                      updateRolesIds,
                                      guild_id,
                                      adminPerms,
-                                     discordRole,
                                      discordRoles,
                                      destinyActivities,
                                      destinyCollectibles,
                                      destinyTriumphs
                                  }) {
-    const updateRole = async event => {
+    const handleForm = async event => {
         await toast.promise(
-            _updateRole(event),
+            _handleForm(event),
             {
                 pending: {
                     render() {
-                        return "Updating Role..."
+                        if (discordRole) {
+                            // update
+                            return "Updating Role..."
+                        } else {
+                            // create
+                            return "Creating Role..."
+                        }
                     },
                 },
                 success: {
@@ -55,10 +60,15 @@ export default function RoleForm({
         )
     }
 
-    async function _updateRole(event) {
+    async function _handleForm(event) {
         updateButtonDisabled(true)
 
         const form = event.target
+
+        let replacedByRoleId = form.replaced_by_role_id.value
+        if (replacedByRoleId === "") {
+            replacedByRoleId = null
+        }
 
         // correctly write the data
         let data = {
@@ -68,7 +78,7 @@ export default function RoleForm({
                 "category": form.category.value,
                 "deprecated": form.deprecated.checked,
                 "acquirable": form.acquirable.checked,
-                "replaced_by_role_id": form.replaced_by_role_id.value,
+                "replaced_by_role_id": replacedByRoleId,
                 "require_activity_completions": [],
                 "require_collectibles": [],
                 "require_records": [],
@@ -163,22 +173,49 @@ export default function RoleForm({
             }
         }
 
-
         event.preventDefault()
+        let ogRoleId = null
+        let result = null
 
-        const result = await fetch(`/api/roles`, {
-            body: JSON.stringify(data),
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            method: 'POST'
-        })
+        if (discordRole) {
+            // update
+            ogRoleId = form.original_role_id.value
+
+            result = await fetch(`/api/roles/update/${ogRoleId}`, {
+                body: JSON.stringify(data),
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                method: 'POST'
+            })
+
+        } else {
+            // create
+            console.log(data)
+
+            result = await fetch(`/api/roles/create/`, {
+                body: JSON.stringify(data),
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                method: 'POST'
+            })
+
+        }
 
         const json = await result.json()
         updateButtonDisabled(false)
 
         if (result.status === 200) {
             // update page data
+            updateDiscordRole(discordRoles[data["role_id"]])
+
+            updateRoleId(data["role_id"])
+            updateCategory(data["role_data"]["category"])
+            updateDeprecated(data["role_data"]["deprecated"])
+            updateAcquirable(data["role_data"]["acquirable"])
+            updateReplacedBy(data["role_data"]["replaced_by_role_id"])
+
             updateActivities(data["role_data"]["require_activity_completions"])
             updateCollectibles(data["role_data"]["require_collectibles"])
             updateRecords(data["role_data"]["require_records"])
@@ -186,6 +223,9 @@ export default function RoleForm({
 
             if (!rolesIds.includes(data["role_id"])) {
                 updateRolesIds([...rolesIds, data["role_id"]])
+            }
+            if (data["role_id"] !== ogRoleId && rolesIds.includes(ogRoleId)) {
+                updateRolesIds(rolesIds.filter(item => item !== ogRoleId))
             }
 
             return json.content
@@ -195,7 +235,15 @@ export default function RoleForm({
     }
 
     // todo delete
-    // todo create
+
+    // if discordRole === null, we know that a new role is being created
+    const [discordRole, updateDiscordRole] = useState(discordRoles[role["role_id"]])
+
+    const [roleId, updateRoleId] = useState(role["role_id"])
+    const [category, updateCategory] = useState(role["role_data"]["category"])
+    const [deprecated, updateDeprecated] = useState(role["role_data"]["deprecated"])
+    const [acquirable, updateAcquirable] = useState(role["role_data"]["acquirable"])
+    const [replacedBy, updateReplacedBy] = useState(role["role_data"]["replaced_by_role_id"])
 
     const [activities, updateActivities] = useState(role["role_data"]["require_activity_completions"])
     const [collectibles, updateCollectibles] = useState(role["role_data"]["require_collectibles"])
@@ -204,7 +252,6 @@ export default function RoleForm({
 
     // disable the button while exchanging data with the backend
     const [buttonDisabled, updateButtonDisabled] = useState(false)
-
 
     function handleUpdate(key, index = null) {
         let data
@@ -322,244 +369,280 @@ export default function RoleForm({
     }
 
     return (
-        <form onSubmit={updateRole} className="p-2">
-            <div className="flex flex-col gap-4 divide-y divide-descend">
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="hidden">
-                        <input
-                            className={textInputFormatting} id="guild_id" name="guild_id" type="text"
-                            disabled required
-                            value={guild_id}
-                        />
-                    </div>
-                    <div className={`${textInputDivFormatting} col-span-full`}>
-                        <label className={labelFormatting} htmlFor="category">
-                            Role Category
-                        </label>
-                        <input
-                            className={textInputFormatting} id="category" name="category" type="text"
-                            placeholder="optional" disabled={!adminPerms}
-                            defaultValue={role["role_data"]["category"]}
-                        />
-                    </div>
-                    <div className={textInputDivFormatting}>
-                        <label className={labelFormatting} htmlFor="role_id">
-                            Linked Discord Role
-                        </label>
-                        <select
-                            className={selectInputFormatting} id="role_id" name="role_id"
-                            required disabled={!adminPerms}
-                        >
-                            {
-                                Object.keys(discordRoles).map((id) => {
-                                    if (id === String(role.role_id)) {
-                                        return (
-                                            <option value={id} selected="selected">
-                                                {discordRoles[id]["name"]}
-                                            </option>
-                                        )
-                                    } else {
-                                        if (!rolesIds.includes(id)) {
+        <details className="marker:text-descend group">
+            <summary className="group-open:text-descend">
+                {discordRole ?
+                    discordRole["name"]
+                    :
+                    <span className="italic text-gray-500">
+                    New Role
+                    </span>
+                }
+            </summary>
+            <form onSubmit={handleForm} className="p-2">
+                <div className="flex flex-col gap-4 divide-y divide-descend">
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="hidden">
+                            <input
+                                className={textInputFormatting}
+                                id="guild_id"
+                                name="guild_id"
+                                type="text"
+                                disabled required
+                                value={guild_id}
+                            />
+                        </div>
+                        <div className="hidden">
+                            <input
+                                className={textInputFormatting}
+                                id="original_role_id"
+                                name="original_role_id"
+                                type="text"
+                                disabled
+                                value={roleId}
+                            />
+                        </div>
+                        <div className={`${textInputDivFormatting} col-span-full`}>
+                            <label className={labelFormatting} htmlFor="category">
+                                Role Category
+                            </label>
+                            <input
+                                className={textInputFormatting} id="category" name="category" type="text"
+                                placeholder="optional" disabled={!adminPerms}
+                                defaultValue={category}
+                            />
+                        </div>
+                        <div className={textInputDivFormatting}>
+                            <label className={labelFormatting} htmlFor="role_id">
+                                Linked Discord Role
+                            </label>
+                            <select
+                                className={selectInputFormatting} id="role_id" name="role_id"
+                                required disabled={!adminPerms}
+                            >
+                                <option value="" disabled selected className="italic">Select the Role</option>
+                                {
+                                    Object.keys(discordRoles).map((id) => {
+                                        if (id === String(roleId)) {
                                             return (
-                                                <option value={id}>
+                                                <option value={id} selected="selected">
                                                     {discordRoles[id]["name"]}
                                                 </option>
                                             )
+                                        } else {
+                                            if (!rolesIds.includes(id)) {
+                                                return (
+                                                    <option value={id}>
+                                                        {discordRoles[id]["name"]}
+                                                    </option>
+                                                )
+                                            }
                                         }
-                                    }
-                                })
-                            }
-                        </select>
+                                    })
+                                }
+                            </select>
+                        </div>
+                        <div className={textInputDivFormatting}>
+                            <label className={labelFormatting} htmlFor="replaced_by_role_id">
+                                Replacement Discord Role
+                            </label>
+                            <select
+                                className={selectInputFormatting} id="replaced_by_role_id" name="replaced_by_role_id"
+                                disabled={!adminPerms}
+                            >
+                                <option value="" disabled className="italic" selected={false}>Select the Role</option>
+                                <option value="" className="italic text-white">None</option>
+                                {
+                                    rolesIds.map((id) => {
+                                        if (id !== roleId) {
+                                            if (id === String(replacedBy)) {
+                                                return (
+                                                    <option value={id} selected>
+                                                        {discordRoles[id]["name"]}
+                                                    </option>
+                                                )
+                                            } else {
+                                                return (
+                                                    <option value={id}>
+                                                        {discordRoles[id]["name"]}
+                                                    </option>
+                                                )
+                                            }
+                                        }
+                                    })
+                                }
+                            </select>
+                        </div>
+                        <div className={checkboxInputDivFormatting}>
+                            <label className={labelFormatting} htmlFor="deprecated">
+                                Are any requirements sunset
+                            </label>
+                            <input
+                                className={checkboxInputFormatting} id="deprecated" name="deprecated" type="checkbox"
+                                defaultChecked={deprecated} disabled={!adminPerms}
+                            />
+                        </div>
+                        <div className={checkboxInputDivFormatting}>
+                            <label className={labelFormatting} htmlFor="acquirable">
+                                Allow users to earn this role
+                            </label>
+                            <input
+                                className={checkboxInputFormatting} id="acquirable" name="acquirable" type="checkbox"
+                                defaultChecked={acquirable} disabled={!adminPerms}
+                            />
+                        </div>
                     </div>
-                    <div className={textInputDivFormatting}>
-                        <label className={labelFormatting} htmlFor="replaced_by_role_id">
-                            Replacement Discord Role
-                        </label>
-                        <select
-                            className={selectInputFormatting} id="replaced_by_role_id" name="replaced_by_role_id"
-                            disabled={!adminPerms} required
-                        >
-                            <option value="None" className="italic text-white">None</option>
-                            {
-                                Object.keys(discordRoles).map((id) => {
-                                    if (id === String(role.role_data.replaced_by_role_id)) {
-                                        return (
-                                            <option value={id} selected>
-                                                {discordRoles[id]["name"]}
-                                            </option>
-                                        )
-                                    } else {
-                                        return (
-                                            <option value={id}>
-                                                {discordRoles[id]["name"]}
-                                            </option>
-                                        )
-                                    }
-                                })
-                            }
-                        </select>
-                    </div>
-                    <div className={checkboxInputDivFormatting}>
-                        <label className={labelFormatting} htmlFor="deprecated">
-                            Are any requirements sunset
-                        </label>
-                        <input
-                            className={checkboxInputFormatting} id="deprecated" name="deprecated" type="checkbox"
-                            defaultChecked={role["role_data"]["deprecated"]} disabled={!adminPerms}
-                        />
-                    </div>
-                    <div className={checkboxInputDivFormatting}>
-                        <label className={labelFormatting} htmlFor="acquirable">
-                            Allow users to earn this role
-                        </label>
-                        <input
-                            className={checkboxInputFormatting} id="acquirable" name="acquirable" type="checkbox"
-                            defaultChecked={role["role_data"]["acquirable"]} disabled={!adminPerms}
-                        />
-                    </div>
-                </div>
 
-                <div className="flex flex-col gap-2 pt-4">
-                    <ContentContainer otherStyle={true}>
-                        <details className={divFormatting}>
-                            <summary className={summaryFormatting}>
-                                Required Activities
-                            </summary>
-                            <div className="grid grid-flow-row gap-2 pl-2 pt-2">
-                                <HandleActivities
-                                    data={activities}
-                                    adminPerms={adminPerms}
-                                    destinyActivities={destinyActivities}
-                                    handleDelete={handleDelete}
-                                    handleUpdate={handleUpdate}
-                                    buttonDisabled={buttonDisabled}
-                                />
-                                {adminPerms &&
-                                    <div className="flex">
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                handleUpdate("require_activity_completions")
-                                            }}
-                                            disabled={buttonDisabled}
-                                        >
-                                            <FiPlusCircle className="object-contain hover:text-descend w-6 h-6"/>
-                                        </button>
-                                    </div>
-                                }
-                            </div>
-                        </details>
-                    </ContentContainer>
-                    <ContentContainer otherStyle={true}>
-                        <details className={divFormatting}>
-                            <summary className={summaryFormatting}>
-                                Required Collectibles
-                            </summary>
-                            <div className="grid grid-flow-row gap-2 pl-2 pt-2">
-                                <HandleCollectibles
-                                    data={collectibles}
-                                    adminPerms={adminPerms}
-                                    destinyCollectibles={destinyCollectibles}
-                                    handleDelete={handleDelete}
-                                    buttonDisabled={buttonDisabled}
-                                />
-                                {adminPerms &&
-                                    <div className="flex">
-                                        <button
-                                            className=""
-                                            type="button"
-                                            onClick={() => {
-                                                handleUpdate("require_collectibles")
-                                            }}
-                                            disabled={buttonDisabled}
-                                        >
-                                            <FiPlusCircle className="object-contain hover:text-descend w-6 h-6"/>
-                                        </button>
-                                    </div>
-                                }
-                            </div>
-                        </details>
-                    </ContentContainer>
-                    <ContentContainer otherStyle={true}>
-                        <details className={divFormatting}>
-                            <summary className={summaryFormatting}>
-                                Required Triumphs
-                            </summary>
-                            <div className="grid grid-flow-row gap-2 pl-2 pt-2">
-                                <HandleRecords
-                                    data={records}
-                                    adminPerms={adminPerms}
-                                    destinyTriumphs={destinyTriumphs}
-                                    handleDelete={handleDelete}
-                                    buttonDisabled={buttonDisabled}
-                                />
-                                {adminPerms &&
-                                    <div className="flex">
-                                        <button
-                                            className=""
-                                            type="button "
-                                            onClick={() => {
-                                                handleUpdate("require_records")
-                                            }}
-                                            disabled={buttonDisabled}
-                                        >
-                                            <FiPlusCircle className="object-contain hover:text-descend w-6 h-6"/>
-                                        </button>
-                                    </div>
-                                }
-                            </div>
-                        </details>
-                    </ContentContainer>
-                    <ContentContainer otherStyle={true}>
-                        <details className={divFormatting}>
-                            <summary className={summaryFormatting}>
-                                Required Roles
-                            </summary>
-                            <div className="grid grid-flow-row gap-2 pl-2 pt-2">
-                                <HandleRoles
-                                    data={reqRoles}
-                                    adminPerms={adminPerms}
-                                    discordRoles={discordRoles}
-                                    guildRoles={rolesIds}
-                                    currentRole={discordRole}
-                                    handleDelete={handleDelete}
-                                    buttonDisabled={buttonDisabled}
-                                />
-                                {adminPerms &&
-                                    <div className="flex">
-                                        <button
-                                            className=""
-                                            type="button "
-                                            onClick={() => {
-                                                handleUpdate("require_role_ids")
-                                            }}
-                                            disabled={buttonDisabled}
-                                        >
-                                            <FiPlusCircle className="object-contain hover:text-descend w-6 h-6"/>
-                                        </button>
-                                    </div>
-                                }
-                            </div>
-                        </details>
-                    </ContentContainer>
-                </div>
-
-                {adminPerms &&
-                    <div className="flex justify-around p-2">
-                        <GlowingButton glow={"opacity-20"}>
-                            <button className="p-1 font-bold" type="submit" disabled={buttonDisabled}>
-                                Update
-                            </button>
-                        </GlowingButton>
-                        <GlowingButton glow={"opacity-20"}>
-                            <button className="p-1 font-bold" type="button" disabled={buttonDisabled}>
-                                Delete
-                            </button>
-                        </GlowingButton>
+                    <div className="flex flex-col gap-2 pt-4">
+                        <ContentContainer otherStyle={true}>
+                            <details className={divFormatting}>
+                                <summary className={summaryFormatting}>
+                                    Required Activities
+                                </summary>
+                                <div className="grid grid-flow-row gap-2 pl-2 pt-2">
+                                    <HandleActivities
+                                        data={activities}
+                                        adminPerms={adminPerms}
+                                        destinyActivities={destinyActivities}
+                                        handleDelete={handleDelete}
+                                        handleUpdate={handleUpdate}
+                                        buttonDisabled={buttonDisabled}
+                                    />
+                                    {adminPerms &&
+                                        <div className="flex">
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    handleUpdate("require_activity_completions")
+                                                }}
+                                                disabled={buttonDisabled}
+                                            >
+                                                <FiPlusCircle className="object-contain hover:text-descend w-6 h-6"/>
+                                            </button>
+                                        </div>
+                                    }
+                                </div>
+                            </details>
+                        </ContentContainer>
+                        <ContentContainer otherStyle={true}>
+                            <details className={divFormatting}>
+                                <summary className={summaryFormatting}>
+                                    Required Collectibles
+                                </summary>
+                                <div className="grid grid-flow-row gap-2 pl-2 pt-2">
+                                    <HandleCollectibles
+                                        data={collectibles}
+                                        adminPerms={adminPerms}
+                                        destinyCollectibles={destinyCollectibles}
+                                        handleDelete={handleDelete}
+                                        buttonDisabled={buttonDisabled}
+                                    />
+                                    {adminPerms &&
+                                        <div className="flex">
+                                            <button
+                                                className=""
+                                                type="button"
+                                                onClick={() => {
+                                                    handleUpdate("require_collectibles")
+                                                }}
+                                                disabled={buttonDisabled}
+                                            >
+                                                <FiPlusCircle className="object-contain hover:text-descend w-6 h-6"/>
+                                            </button>
+                                        </div>
+                                    }
+                                </div>
+                            </details>
+                        </ContentContainer>
+                        <ContentContainer otherStyle={true}>
+                            <details className={divFormatting}>
+                                <summary className={summaryFormatting}>
+                                    Required Triumphs
+                                </summary>
+                                <div className="grid grid-flow-row gap-2 pl-2 pt-2">
+                                    <HandleRecords
+                                        data={records}
+                                        adminPerms={adminPerms}
+                                        destinyTriumphs={destinyTriumphs}
+                                        handleDelete={handleDelete}
+                                        buttonDisabled={buttonDisabled}
+                                    />
+                                    {adminPerms &&
+                                        <div className="flex">
+                                            <button
+                                                className=""
+                                                type="button "
+                                                onClick={() => {
+                                                    handleUpdate("require_records")
+                                                }}
+                                                disabled={buttonDisabled}
+                                            >
+                                                <FiPlusCircle className="object-contain hover:text-descend w-6 h-6"/>
+                                            </button>
+                                        </div>
+                                    }
+                                </div>
+                            </details>
+                        </ContentContainer>
+                        <ContentContainer otherStyle={true}>
+                            <details className={divFormatting}>
+                                <summary className={summaryFormatting}>
+                                    Required Roles
+                                </summary>
+                                <div className="grid grid-flow-row gap-2 pl-2 pt-2">
+                                    <HandleRoles
+                                        data={reqRoles}
+                                        adminPerms={adminPerms}
+                                        discordRoles={discordRoles}
+                                        rolesIds={rolesIds}
+                                        currentRole={discordRole}
+                                        handleDelete={handleDelete}
+                                        buttonDisabled={buttonDisabled}
+                                    />
+                                    {adminPerms &&
+                                        <div className="flex">
+                                            <button
+                                                className=""
+                                                type="button "
+                                                onClick={() => {
+                                                    handleUpdate("require_role_ids")
+                                                }}
+                                                disabled={buttonDisabled}
+                                            >
+                                                <FiPlusCircle className="object-contain hover:text-descend w-6 h-6"/>
+                                            </button>
+                                        </div>
+                                    }
+                                </div>
+                            </details>
+                        </ContentContainer>
                     </div>
-                }
-            </div>
-        </form>
+
+                    {adminPerms &&
+                        <div className="flex justify-around p-2">
+                            <GlowingButton glow={"opacity-20"}>
+                                <button
+                                    className="p-1 font-bold"
+                                    type="submit"
+                                    disabled={buttonDisabled}
+                                >
+                                    Update
+                                </button>
+                            </GlowingButton>
+                            <GlowingButton glow={"opacity-20"}>
+                                <button
+                                    className="p-1 font-bold"
+                                    type="button"
+                                    disabled={buttonDisabled}
+                                >
+                                    Delete
+                                </button>
+                            </GlowingButton>
+                        </div>
+                    }
+                </div>
+            </form>
+        </details>
     )
 }
 
@@ -582,7 +665,7 @@ function FormatRequirement({
                         <span className="float-right">
                         <button
                             className="align-middle"
-                            type="button "
+                            type="button"
                             onClick={() => {
                                 handleDelete(deleteKey, index, subIndex)
                             }}
@@ -1004,7 +1087,9 @@ function HandleCollectibles({data, adminPerms, destinyCollectibles, handleDelete
                                         name={`require_collectibles-${index}-id`}
                                         disabled={!adminPerms} required
                                     >
-                                        <option value="" disabled selected>Select the Collectible</option>
+                                        <option value="" disabled selected className="italic">
+                                            Select the Collectible
+                                        </option>
                                         {
                                             destinyCollectibles["collectibles"].map((destinyCollectible) => {
                                                 if (collectible["id"] === (destinyCollectible["reference_id"])) {
@@ -1114,9 +1199,14 @@ function HandleRecords({data, adminPerms, destinyTriumphs, handleDelete, buttonD
     )
 }
 
-function HandleRoles({data, adminPerms, discordRoles, guildRoles, currentRole, handleDelete, buttonDisabled}) {
+function HandleRoles({data, adminPerms, discordRoles, rolesIds, currentRole, handleDelete, buttonDisabled}) {
+    let currentRoleId = currentRole
+    if (currentRoleId) {
+        currentRoleId = currentRole["id"]
+    }
+
     return (
-        <div>
+        <div className="grid grid-flow-row gap-2">
             {
                 data.map((role, index) => {
                     return (
@@ -1139,10 +1229,11 @@ function HandleRoles({data, adminPerms, discordRoles, guildRoles, currentRole, h
                                         name={`require_role_ids-${index}-id`}
                                         disabled={!adminPerms} required
                                     >
+                                        <option value="" disabled selected className="italic">Select the Role</option>
                                         {
-                                            Object.keys(discordRoles).map((id) => {
-                                                if ((guildRoles.includes(id)) && (id !== currentRole["id"])) {
-                                                    if (id === String(role["id"])) {
+                                            rolesIds.map((id) => {
+                                                if (id !== currentRoleId) {
+                                                    if (id === role["id"]) {
                                                         return (
                                                             <option value={id} selected>
                                                                 {discordRoles[id]["name"]}
@@ -1158,6 +1249,7 @@ function HandleRoles({data, adminPerms, discordRoles, guildRoles, currentRole, h
                                                 }
                                             })
                                         }
+
                                     </select>
                                 </div>
                                 <div className={checkboxInputDivFormatting}>

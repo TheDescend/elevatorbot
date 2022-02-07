@@ -4,7 +4,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from Backend.core.destiny.activities import DestinyActivities
 from Backend.core.destiny.profile import DestinyProfile
 from Backend.core.destiny.roles import UserRoles
-from Backend.core.errors import CustomException
 from Backend.crud import crud_roles, discord_users
 from Backend.dependencies import get_db_session
 from Shared.networkingSchemas import EmptyResponseModel
@@ -76,20 +75,18 @@ async def get_user_role(guild_id: int, role_id: int, discord_id: int, db: AsyncS
     return await user_roles.has_role(role=sought_role)
 
 
-@router.post("/upsert", response_model=EmptyResponseModel)  # todo test
-async def upsert_role(guild_id: int, role: RoleModel, db: AsyncSession = Depends(get_db_session)):
-    """Upsert a role by id"""
+@router.post("/create", response_model=EmptyResponseModel)  # todo test
+async def create_role(guild_id: int, role: RoleModel, db: AsyncSession = Depends(get_db_session)):
+    """Create a role"""
 
-    # check that start time > end time
-    for activity in role.role_data.require_activity_completions:
-        for period in activity.allow_time_periods + activity.disallow_time_periods:
-            if period.start_time >= period.end_time:
-                raise CustomException("End Time cannot be older than Start Time")
+    await crud_roles.create_role(db=db, role=role)
 
-            if not period.start_time.tzinfo or not period.end_time.tzinfo:
-                raise CustomException("Naive datetimes are not supported")
 
-    await crud_roles.upsert_role(db=db, role=role)
+@router.post("/update/{role_id}", response_model=EmptyResponseModel)  # todo test
+async def update_role(guild_id: int, role_id: int, role: RoleModel, db: AsyncSession = Depends(get_db_session)):
+    """Update a role by (old) id"""
+
+    await crud_roles.update_role(db=db, role=role, role_id=role_id)
 
 
 @router.delete("/delete/all", response_model=EmptyResponseModel)  # has test

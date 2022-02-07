@@ -34,7 +34,6 @@ export default function OwnServers({token, elevatorServers}) {
     if (error) return <LoadingFailed/>
     if (!data) return <Loading/>
 
-    console.log(data)
     // Check if the auth is still OK
     if (("message" in data) && (data.message === "401: Unauthorized")) {
         signOut()

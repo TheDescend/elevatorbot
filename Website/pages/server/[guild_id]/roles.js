@@ -12,13 +12,15 @@ import GlowingContainer from "../../../components/styling/glowingContainer";
 import ContentContainer from "../../../components/styling/container";
 import React, {useState} from "react";
 import RoleForm from "../../../components/roleForm";
+import GlowingButton from "../../../components/styling/glowingButton";
+import {HiPlus} from "react-icons/hi";
 
 
 export default function ServerRolePage({
                                            token,
                                            guild_id,
                                            discordRoles,
-                                           guildRoles,
+                                           _guildRoles,
                                            destinyActivities,
                                            destinyCollectibles,
                                            destinyTriumphs
@@ -33,13 +35,15 @@ export default function ServerRolePage({
     }
 
     // get role data
-    guildRoles = guildRoles.content.roles
-    if (!guildRoles) return <LoadingFailed/>
+    _guildRoles = _guildRoles.content.roles
+    if (!_guildRoles) return <LoadingFailed/>
 
     let _rolesIds = []
-    guildRoles.forEach(function (item) {
+    _guildRoles.forEach(function (item) {
         _rolesIds.push(String(item["role_id"]))
     })
+
+    const [guildRoles, updateGuildRoles] = useState(_guildRoles)
     const [rolesIds, updateRolesIds] = useState(_rolesIds)
 
     // get guilds
@@ -69,6 +73,23 @@ export default function ServerRolePage({
         }
     })
 
+    function createNew() {
+        const newRole = {
+            "role_id": null,
+            "guild_id": guild_id,
+            "role_data": {
+                "category": "Destiny Role",
+                "deprecated": false,
+                "acquirable": true,
+                "replaced_by_role_id": null,
+                "require_activity_completions": [],
+                "require_collectibles": [],
+                "require_records": [],
+                "require_role_ids": [],
+            }
+        }
+        updateGuildRoles([...guildRoles, newRole])
+    }
 
     return (
         <Layout server={guild}>
@@ -76,7 +97,23 @@ export default function ServerRolePage({
                 <div className="flex flex-col">
                     <div className="flex flex-row justify-between">
                         {guild.name}'s Roles
-
+                        {adminPerms &&
+                            <GlowingButton glow={"opacity-20"}>
+                                <button
+                                    className=""
+                                    type="button "
+                                    onClick={() => {
+                                        createNew()
+                                    }}
+                                >
+                                    <div
+                                        className="flex flex-row text-white items-center gap-x-1 font-bold text-sm hover:text-descend py-1">
+                                        <HiPlus className="object-contain h-4 w-4 "/>
+                                        New Role
+                                    </div>
+                                </button>
+                            </GlowingButton>
+                        }
                     </div>
                     {adminPerms &&
                         <span className="italic text-xs text-descend pt-2">
@@ -92,28 +129,20 @@ export default function ServerRolePage({
                 <div className="grid grid-flow-row gap-6 pl-2 pt-2">
                     {guildRoles &&
                         guildRoles.map((role) => {
-                            const discordRole = formattedDiscordRoles[role.role_id]
-
                             return (
                                 <GlowingContainer>
                                     <ContentContainer>
-                                        <details className="marker:text-descend group">
-                                            <summary className="group-open:text-descend">
-                                                {discordRole["name"]}
-                                            </summary>
-                                            <RoleForm
-                                                role={role}
-                                                rolesIds={rolesIds}
-                                                updateRolesIds={updateRolesIds}
-                                                guild_id={guild_id}
-                                                discordRole={discordRole}
-                                                discordRoles={formattedDiscordRoles}
-                                                adminPerms={adminPerms}
-                                                destinyActivities={destinyActivities}
-                                                destinyCollectibles={destinyCollectibles}
-                                                destinyTriumphs={destinyTriumphs}
-                                            />
-                                        </details>
+                                        <RoleForm
+                                            role={role}
+                                            rolesIds={rolesIds}
+                                            updateRolesIds={updateRolesIds}
+                                            guild_id={guild_id}
+                                            discordRoles={formattedDiscordRoles}
+                                            adminPerms={adminPerms}
+                                            destinyActivities={destinyActivities}
+                                            destinyCollectibles={destinyCollectibles}
+                                            destinyTriumphs={destinyTriumphs}
+                                        />
                                     </ContentContainer>
                                 </GlowingContainer>
                             )
@@ -143,7 +172,7 @@ export async function getServerSideProps(context) {
             session: session,
             guild_id: guild_id,
             discordRoles: discordRoles,
-            guildRoles: guildRoles,
+            _guildRoles: guildRoles,
             destinyActivities: await getDestinyData({key: "destinyActivities", path: "/destiny/activities/get/all"}),
             destinyCollectibles: await getDestinyData({
                 key: "destinyCollectibles",

@@ -79,7 +79,8 @@ destiny_role_get_all_route = destiny_role_route + "get/all/"  # GET
 destiny_role_get_all_user_route = destiny_role_route + "{discord_id}/get/all/"  # GET
 destiny_role_get_missing_user_route = destiny_role_route + "{discord_id}/get/missing/"  # GET
 destiny_role_get_user_route = destiny_role_route + "{discord_id}/get/{role_id}/"  # GET
-destiny_role_upsert_route = destiny_role_route + "upsert/"  # POST
+destiny_role_create_route = destiny_role_route + "create/"  # POST
+destiny_role_update_route = destiny_role_route + "update//{role_id}"  # POST
 destiny_role_delete_all_route = destiny_role_route + "delete/all/"  # DELETE
 destiny_role_delete_route = destiny_role_route + "delete/{role_id}/"  # DELETE
 

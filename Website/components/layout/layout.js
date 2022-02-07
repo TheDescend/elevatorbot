@@ -43,7 +43,7 @@ export default function Layout({children, server = null}) {
                     rtl={false}
                     pauseOnFocusLoss
                     draggable
-                    pauseOnHover
+                    pauseOnHover={false}
                     toastClassName="dark:!bg-slate-700 dark:!text-descend"
                 />
                 <Header/>
