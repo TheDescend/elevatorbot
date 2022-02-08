@@ -299,6 +299,7 @@ class DestinyPresentationNodeDefinition(Base):
     parent_node_hashes = Column(ARRAY(BigInteger()), nullable=False)
     index = Column(SmallInteger, nullable=False)
     redacted = Column(Boolean, nullable=False)
+    completion_record_hash = Column(BigInteger, nullable=True)
 
 
 class DestinyRecordDefinition(Base):

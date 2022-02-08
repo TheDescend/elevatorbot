@@ -113,6 +113,13 @@ class DestinyProfile:
 
             # normal triumph data
             completion_percentage = user_completed_int / len(user_completed)
+
+            # check if the seals maybe requires not all triumphs
+            completion_triumph_id = seal.completion_record_hash
+            if completion_triumph_id:
+                if await self.has_triumph(completion_triumph_id):
+                    completion_percentage = 1
+
             data = DestinySealModel(
                 name=seal.name,
                 description=seal.description,

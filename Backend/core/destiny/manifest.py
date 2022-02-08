@@ -315,6 +315,7 @@ class DestinyManifest:
                     parent_node_hashes=values.get("parentNodeHashes"),
                     index=values.get("index"),
                     redacted=values.get("redacted"),
+                    completion_record_hash=values.get("completionRecordHash"),
                 )
             )
 
