@@ -264,7 +264,7 @@ class CRUDDiscordUser(CRUDBase):
         if data:
             elevator_api = ElevatorApi()
             await elevator_api.post(
-                route_addition="roles/",
+                route_addition="/roles",
                 json={
                     "data": data,
                 },
@@ -299,7 +299,7 @@ class CRUDDiscordUser(CRUDBase):
         if data:
             elevator_api = ElevatorApi()
             await elevator_api.post(
-                route_addition="roles/",
+                route_addition="/roles",
                 json={
                     "data": data,
                 },

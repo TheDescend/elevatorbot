@@ -32,9 +32,10 @@ export default function FAQ() {
                             Check the ReadMe on GitHub for more information.
                         </p>
                     </FAQItem>
-                    <FAQItem title="Why are there random numbers in my commands?">
+                    <FAQItem title="Why are there random words / numbers between colons in my commands?">
                         <p>
-                            The random number are most likely emoji, or a newish discord feature.
+                            The <code>:text:</code> fragments are most likely emoji, or a newish discord feature.
+                            Either way, it is not being displayed correctly.
                         </p>
                         <p>
                             There are multiple possible fixes:

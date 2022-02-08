@@ -120,9 +120,17 @@ class LfgMessage:
         channel: GuildText = await client.get_channel(model.channel_id)
         start_time: datetime.datetime = model.start_time
 
+        # delete if in the past
+        if model.start_time < get_now_with_tz():
+            await backend.delete(discord_member_id=model.author_id, lfg_id=model.id)
+            return
+
         # make sure the message exists
-        message = await channel.get_message(model.message_id) if model.message_id else None
-        if not message:
+        try:
+            if not model.message_id:
+                raise NotFound
+            message = await channel.get_message(model.message_id)
+        except NotFound:
             await backend.delete(discord_member_id=model.author_id, lfg_id=model.id)
             return
 
@@ -231,15 +239,7 @@ class LfgMessage:
         )
 
         # send message in the channel to populate missing entries
-        await lfg_message.send()
-
-        # respond to the context
-        await ctx.send(
-            embeds=embed_message(
-                "Success",
-                f"I've created the event (ID: `{lfg_message.id}`) \nClick [here]({lfg_message.message.jump_url}) to view the event",
-            )
-        )
+        await lfg_message.send(ctx=ctx)
 
         return lfg_message
 
@@ -301,7 +301,7 @@ class LfgMessage:
             return True
         return False
 
-    async def send(self, ctx: Optional[ComponentContext] = None):
+    async def send(self, ctx: Optional[ComponentContext | InteractionContext] = None):
         """Send / edit the message in the channel"""
 
         embed = await self.__return_embed()
@@ -310,6 +310,16 @@ class LfgMessage:
             self.message = await self.channel.send(embed=embed, components=self.__buttons)
             self.creation_time = get_now_with_tz()
             first_send = True
+
+            # respond to the context
+            if ctx:
+                await ctx.send(
+                    embeds=embed_message(
+                        "Success",
+                        f"I've created the event (ID: `{self.message.id}`) \nClick [here]({self.message.jump_url}) to view the event",
+                    )
+                )
+
         else:
             # acknowledge the button press
             if ctx:
@@ -328,9 +338,9 @@ class LfgMessage:
         else:
             await self.schedule_event()
 
-        # if message was freshly send, sort messages
-        if first_send:
-            await self.__sort_lfg_messages()
+            # if message was freshly send, sort messages
+            if first_send:
+                await self.__sort_lfg_messages()
 
     async def delete(self, delete_command_user_id: Optional[int] = None):
         """Removes the message and also the database entries"""
@@ -488,6 +498,10 @@ class LfgMessage:
 
         # delete the post
         await self.delete()
+
+        # delete the voice channel if empty
+        if self.voice_channel and not self.voice_channel.voice_members:
+            await self.voice_channel.delete()
 
     async def __sort_lfg_messages(self):
         """Sort all the lfg messages in the guild by start_time"""

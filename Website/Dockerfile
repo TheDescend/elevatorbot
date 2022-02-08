@@ -5,8 +5,9 @@ FROM node:16-alpine AS deps
 RUN apk add --no-cache libc6-compat
 
 COPY ./Website/package.json /app/Website/package.json
+COPY ./Website/yarn.lock /app/Website/yarn.lock
 WORKDIR /app/Website
-RUN npm install --frozen-lockfile
+RUN yarn install --frozen-lockfile
 
 # Rebuild the source code only when needed
 FROM node:16-alpine AS builder
@@ -34,8 +35,8 @@ ENV NODE_ENV production
 RUN addgroup -g 1001 -S nodejs
 RUN adduser -S nextjs -u 1001
 
-# You only need to copy next.config.js if you are NOT using the default configuration
-# COPY --from=builder /app/next.config.js ./
+COPY --from=builder /app/Website/next.config.js ./
+COPY --from=builder /app/Website/settings.toml ./settings.toml
 COPY --from=builder /app/Website/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/Website/.next ./.next
 COPY --from=builder /app/Website/node_modules ./node_modules

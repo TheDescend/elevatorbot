@@ -46,7 +46,7 @@ async def save_bungie_token(
     # send a msg to Elevator and get the mutual guild ids
     elevator_api = ElevatorApi()
     response = await elevator_api.post(
-        route_addition="registration/",
+        route_addition="/registration",
         json={
             "discord_id": discord_id,
         },

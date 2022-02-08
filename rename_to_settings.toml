@@ -20,6 +20,11 @@ SYNC_COMMANDS = true                    # bool
 # Username is "admin"
 ADMIN_PASSWORD = "admin"                # str
 
+# A random assortment of letters. Used to encrypt / decrypt sensitive data
+# Should not be shared with anyone
+# To generate one, you can use the command `openssl rand -hex 32`
+SECRET = ""                             # str
+
 # The discord bot token to launch the bot
 DISCORD_APPLICATION_API_KEY = ""        # str
 
@@ -49,7 +54,7 @@ GITHUB_ISSUE_LABEL_NAMES = []           # Optional[list[str]
 # This bot is designed to run on the Descend discord server, where it has some extra functionality
 # Thus, some hard-coding is required. To use those functionalities on your own server, please change the following settings
 # Note: Not changing these settings while the bot is not in the Descend server **will** break some things
-DESCEND_GUILD_ID = 669293365900214293   # int
+DESCEND_GUILD_ID = 669293365900214293                       # int
 
 # Channel Ids
 DESCEND_CHANNEL_ADMIN_ID = 671264040974024705               # int

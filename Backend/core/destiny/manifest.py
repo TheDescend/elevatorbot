@@ -383,4 +383,4 @@ class DestinyManifest:
         if post_elevator:
             # populate the autocomplete options again
             elevator_api = ElevatorApi()
-            await elevator_api.post(route_addition="manifest_update/")
+            await elevator_api.post(route_addition="/manifest_update")

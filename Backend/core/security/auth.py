@@ -11,6 +11,7 @@ from passlib.context import CryptContext
 
 # defining algorithms
 from Shared.functions.helperFunctions import get_now_with_tz
+from Shared.functions.readSettingsFile import get_setting
 
 _SECRET_KEY = None
 ALGORITHM = "HS256"
@@ -26,20 +27,7 @@ CREDENTIALS_EXCEPTION = HTTPException(
 async def get_secret_key():
     """Get the secret key used to create a jwt token"""
 
-    global _SECRET_KEY
-
-    if not _SECRET_KEY:
-        secrets_file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "secrets.txt")
-        if os.path.exists(secrets_file_path):
-            async with await open_file(secrets_file_path, "r") as file:
-                secret_key = await file.read()
-        else:
-            async with await open_file(secrets_file_path, "w+") as file:
-                secret_key = secrets.token_hex()
-                await file.write(secret_key)
-        _SECRET_KEY = secret_key
-
-    return _SECRET_KEY
+    return get_setting("SECRET")
 
 
 # define auth schemes

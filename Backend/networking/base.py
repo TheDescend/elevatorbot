@@ -1,7 +1,8 @@
 import asyncio
+import dataclasses
 import logging
 import random
-from typing import Optional
+from typing import Callable, Coroutine, Optional
 from urllib.parse import urlencode
 
 import aiohttp
@@ -33,6 +34,9 @@ class NetworkBase:
 
     # how many times to retry a request
     max_web_request_tries = 10
+
+    # callback to handle responses
+    request_handler: Optional[Callable[..., Coroutine]] = None
 
     async def _request(
         self,
@@ -81,7 +85,10 @@ class NetworkBase:
                     data=form_data,
                     allow_redirects=allow_redirects,
                 ) as request:
-                    response = await self.__handle_request_data(
+                    if not self.request_handler:
+                        self.request_handler = self.__handle_request_data
+
+                    response = await self.request_handler(
                         request=request,
                         params=params,
                         route=route,
@@ -127,7 +134,7 @@ class NetworkBase:
             self.logger_exceptions.error(
                 f"""'{request.status}': Wrong content type '{request.headers["Content-Type"]}' with reason '{request.reason}' for '{route_with_params}'"""
             )
-            print(f"""Bungie return Content-Type: {request.headers["Content-Type"]}""")
+            print(f"""Bungie returned Content-Type: {request.headers["Content-Type"]}""")
             if request.status == 200:
                 self.logger_exceptions.error(f"Wrong content type returned text: '{await request.text()}'")
             await asyncio.sleep(3)
@@ -175,15 +182,13 @@ class NetworkBase:
 
         # handling any errors if not ok
         await self.__handle_bungie_errors(
-            route=route,
-            params=params,
-            response=response,
+            route=route, params=params, response=response, route_with_params=route_with_params
         )
 
-    async def __handle_bungie_errors(self, route: str, params: dict, response: InternalWebResponse):
+    async def __handle_bungie_errors(
+        self, route: str, params: dict, response: InternalWebResponse, route_with_params: str
+    ):
         """Looks for typical bungie errors and handles / logs them"""
-
-        route_with_params = f"{route}?{urlencode(params)}"
 
         match (response.status, response.error):
             case (_, "SystemDisabled"):

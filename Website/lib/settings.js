@@ -1,7 +1,6 @@
 import path from 'path'
 import fs from 'fs'
 import toml from 'toml'
-import crypto from 'crypto'
 
 
 export function getSetting(key) {
@@ -25,22 +24,5 @@ export function getSecret() {
         }
     }
 
-    const key = `secret`
-
-    let value = global.customCache.get(key)
-
-    if (!value) {
-        const secretPath = path.join(process.cwd(), "secrets.txt")
-
-        try {
-            // read the secret file
-            value = fs.readFileSync(secretPath, 'utf8')
-        } catch (error) {
-            // generate a secret
-            value = crypto.randomBytes(64).toString('hex')
-            fs.writeFileSync(secretPath, value)
-        }
-        global.customCache.set(key, value, 0)
-    }
-    return value
+    return getSetting("SECRET")
 }
