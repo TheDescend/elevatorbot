@@ -12,6 +12,7 @@ from apscheduler.events import (
 from ElevatorBot import backgroundEvents
 from ElevatorBot.backendNetworking.destiny.lfgSystem import DestinyLfgSystem
 from ElevatorBot.core.destiny.lfg.lfgSystem import LfgMessage
+from ElevatorBot.discordEvents.errorEvents import parse_dis_snek_error
 
 
 async def register_background_events(client):
@@ -66,6 +67,7 @@ async def register_background_events(client):
 
         # log the execution
         logger = logging.getLogger("backgroundEvents")
+        parse_dis_snek_error(error=scheduler_event.exception, logger_exceptions=logger)
         logger.error(
             "Event '%s' failed - Error '%s' - Traceback: \n%s",
             job_name,

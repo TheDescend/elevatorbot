@@ -13,11 +13,11 @@ async def on_voice_state_update(event: VoiceStateUpdate):
     """Triggers when a members voice state changes"""
 
     # freshly join a channel
-    if event.before.channel is None:
+    if event.before is None:
         await joined_channel(event)
 
     # fully leave a channel
-    elif event.after.channel is None:
+    elif event.after is None:
         await left_channel(event)
 
     # switch channel

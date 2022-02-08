@@ -40,7 +40,7 @@ async def on_channel_delete(event: ChannelDelete):
     try:
         await persistent_messages.delete(channel_id=event.channel.id)
     except BackendException:
-        raise LookupError
+        pass
 
 
 async def on_channel_create(event: ChannelCreate):
@@ -73,35 +73,35 @@ async def on_guild_left(event: GuildLeft):
     try:
         await elevator_guilds.delete(guild_id=event.guild_id)
     except BackendException:
-        raise LookupError
+        pass
 
     # remove all persistent messages
     persistent_messages = PersistentMessages(ctx=None, guild=None, message_name=None)
     try:
         await persistent_messages.delete_all(guild_id=event.guild_id)
     except BackendException:
-        raise LookupError
+        pass
 
     # remove all roles
     roles = DestinyRoles(ctx=None, discord_member=None, discord_guild=None)
     try:
         await roles.delete_all(guild_id=event.guild_id)
     except BackendException:
-        raise LookupError
+        pass
 
     # remove all polls
     polls = BackendPolls(ctx=None, discord_member=None, guild=None)
     try:
         await polls.delete_all(guild_id=event.guild_id)
     except BackendException:
-        raise LookupError
+        pass
 
     # remove all lfg stuff
     lfg = DestinyLfgSystem(ctx=None, discord_guild=None)
     try:
         await lfg.delete_all(client=event.bot, guild_id=event.guild_id)
     except BackendException:
-        raise LookupError
+        pass
 
 
 async def on_role_delete(event: RoleDelete):
@@ -112,7 +112,7 @@ async def on_role_delete(event: RoleDelete):
     try:
         await roles.delete(guild_id=event.guild_id, role_id=event.role_id)
     except BackendException:
-        raise LookupError
+        pass
 
 
 async def on_role_update(event: RoleUpdate):

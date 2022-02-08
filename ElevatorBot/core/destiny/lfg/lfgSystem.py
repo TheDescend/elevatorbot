@@ -4,6 +4,7 @@ import asyncio
 import dataclasses
 import datetime
 import io
+import logging
 from typing import Optional
 
 from apscheduler.jobstores.base import JobLookupError
@@ -39,6 +40,7 @@ from ElevatorBot.misc.formatting import embed_message, replace_progress_formatti
 from ElevatorBot.static.emojis import custom_emojis
 from Shared.functions.formatting import make_progress_bar_text
 from Shared.functions.helperFunctions import get_now_with_tz
+from Shared.functions.readSettingsFile import get_setting
 from Shared.networkingSchemas.destiny.lfgSystem import LfgCreateInputModel, LfgOutputModel, LfgUpdateInputModel
 
 asap_start_time = datetime.datetime(year=1997, month=6, day=11, tzinfo=datetime.timezone.utc)
@@ -89,6 +91,12 @@ class LfgMessage:
             asyncio.run(self.delete())
 
     def __lt__(self, other):
+        # special behaviour if one is "asap"
+        if self.start_time == "asap":
+            return True
+        if other.start_time == "asap":
+            return False
+
         # sort the classes by their start time
         return self.start_time < other.start_time
 
@@ -476,7 +484,6 @@ class LfgMessage:
         # delete the post
         await self.delete()
 
-    # todo doesnt work
     async def __sort_lfg_messages(self):
         """Sort all the lfg messages in the guild by start_time"""
 
@@ -489,16 +496,14 @@ class LfgMessage:
             if len(events) <= 1:
                 return
 
-            # get three lists:
+            # get two lists:
             # a list with the current message objs (sorted by asc creation date)
-            # a list with the creation_time
-            # and a list with the LfgMessage objs
+            # a list with the LfgMessage objs
             sorted_messages_by_creation_time = []
-            sorted_creation_times_by_creation_time = []
             lfg_messages = []
             for event in events:
-                sorted_messages_by_creation_time.append(await self.channel.get_message(event.message_id))
-                sorted_creation_times_by_creation_time.append(event.creation_time)
+                message = await self.channel.get_message(event.message_id)
+                sorted_messages_by_creation_time.append(message)
                 lfg_messages.append(
                     LfgMessage(
                         backend=self.backend,
@@ -509,9 +514,9 @@ class LfgMessage:
                         author_id=event.author_id,
                         activity=event.activity,
                         description=event.description,
-                        start_time=event.start_time,
+                        start_time=event.start_time if event.start_time != asap_start_time else "asap",
                         max_joined_members=event.max_joined_members,
-                        message=await self.channel.get_message(event.message_id),
+                        message=message,
                         creation_time=event.creation_time,
                         joined_ids=event.joined_members,
                         backup_ids=event.backup_members,
@@ -525,17 +530,15 @@ class LfgMessage:
                 )
 
             # sort the LfgMessages by their start_time
+            # latest at the bottom
             sorted_lfg_messages = sorted(lfg_messages, reverse=True)
 
             # update the messages with their new message obj
-            for message, creation_time, lfg_message in zip(
-                sorted_messages_by_creation_time,
-                sorted_creation_times_by_creation_time,
-                sorted_lfg_messages,
-            ):
-                lfg_message.message = message
-                lfg_message.creation_time = creation_time
-                await lfg_message.send()
+            for message, lfg_message in zip(sorted_messages_by_creation_time, sorted_lfg_messages):
+                # only send if the message changed
+                if lfg_message != message:
+                    lfg_message.message = message
+                    await lfg_message.send()
 
     async def __get_joined_members_display_names(self) -> list[str]:
         """Get the mention strings of the joined members"""
@@ -562,20 +565,24 @@ class LfgMessage:
             embed = self.message.embeds[0]
 
             # check if the message name matches
-            if embed.fields[0].value != self.activity:
-                return
+            try:
+                if embed.fields[0].value != self.activity:
+                    return
 
-            # check if the message start time matches
-            start_time = embed.fields[1].value.split("\n")
-            if start_time[0] != Timestamp.fromdatetime(self.start_time).format(style=TimestampStyles.ShortDateTime):
-                return
+                # check if the message start time matches
+                start_time = embed.fields[1].value.split("\n")
+                if start_time[0] != Timestamp.fromdatetime(self.start_time).format(style=TimestampStyles.ShortDateTime):
+                    return
 
-            # check if the message description matches
-            if embed.fields[3].value != self.description:
-                return
+                # check if the message description matches
+                if embed.fields[3].value != self.description:
+                    return
 
-            # return the ics url
-            return start_time[1].removeprefix("[Add To Calendar]")[1:-1]
+                # return the ics url
+                return start_time[1].removeprefix("[Add To Calendar]")[1:-1]
+            except:
+                print(embed)
+                logging.getLogger("generalExceptions").error(embed)
 
     async def __get_ics_url(self) -> str:
         """Create an ics file, upload it, and return the url if it does not exist yet"""
@@ -597,9 +604,8 @@ class LfgMessage:
 
         data = io.StringIO(str(calendar))
 
-        # todo settings.toml
         # send this in the spam channel in one of the test servers
-        spam_server: GuildText = await self.client.get_channel(761278600103723018)
+        spam_server: GuildText = await self.client.get_channel(get_setting("DESCEND_SPAM_CHANNEL_ID"))
         file_message = await spam_server.send(file=File(file=data, file_name=f"lfg_event_{self.id}.ics"))
 
         return file_message.attachments[0].url
