@@ -1,0 +1,32 @@
+name: Deploy Release
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - version.py
+
+jobs:
+  deploy:
+    name: Deploy
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Create SSH key
+        run: |
+          install -m 600 -D /dev/null ~/.ssh/id_rsa
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          host="${{ secrets.SSH_HOST_IP }}"
+          hosts="$(dig +short "$host" | grep -v '\.$' | sed -z 's|\n|,|g')$host"
+          ssh-keyscan -H "$hosts" > ~/.ssh/known_hosts
+
+      - name: Deploy on Remote
+        run: |
+          ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_HOST_USER }}@${{ secrets.SSH_HOST_IP }}
+          screen -dRRS elevator
+          cd /usr/local/ElevatorBot
+          git reset --hard HEAD
+          git pull
+          docker-compose up --build
