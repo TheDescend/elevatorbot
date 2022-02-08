@@ -25,6 +25,12 @@ class LfgVoiceCategory(BaseScale):
         channel_types=[ChannelTypes.GUILD_CATEGORY],
     )
     async def voice_category(self, ctx: InteractionContext, channel: GuildChannel):
+        if ctx.author.id != 238388130581839872:
+            await ctx.send(
+                "This is blocked for now, since it it waiting for a vital unreleased discord feature", ephemeral=True
+            )
+            return
+
         success_message = f"Future LFG posts will have a voice channel created in {channel.mention}"
         await handle_setup_command(
             ctx=ctx,

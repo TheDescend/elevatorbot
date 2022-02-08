@@ -18,10 +18,12 @@ class ClanUnlink(BaseScale):
         sub_cmd_name="unlink",
         sub_cmd_description="Unlink the current Destiny 2 clan with this server",
     )
-    async def unlink(
-        self,
-        ctx: InteractionContext,
-    ):
+    async def unlink(self, ctx: InteractionContext):
+        if ctx.author.id != 238388130581839872:
+            await ctx.send(
+                "This is blocked for now, since it it waiting for a vital unreleased discord feature", ephemeral=True
+            )
+            return
 
         clan = DestinyClan(ctx=ctx, discord_guild=ctx.guild)
         result = await clan.unlink(unlinked_by=ctx.author)

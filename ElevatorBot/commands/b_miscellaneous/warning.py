@@ -23,6 +23,12 @@ class ModWarning(BaseScale):
         opt_type=OptionTypes.STRING,
     )
     async def warning(self, ctx: InteractionContext, user: Member, reason: str):
+        if ctx.author.id != 238388130581839872:
+            await ctx.send(
+                "This is blocked for now, since it it waiting for a vital unreleased discord feature", ephemeral=True
+            )
+            return
+
         backend = Moderation(discord_member=user, discord_guild=ctx.guild, ctx=ctx)
         # get past warnings
         past_warnings = await backend.get_warnings()

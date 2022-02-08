@@ -1,13 +1,15 @@
 import dataclasses
 from typing import Optional
+from urllib.parse import urljoin
 
-from dis_snek import Guild, InteractionContext, Member, Role
+from dis_snek import Button, ButtonStyles, Guild, InteractionContext, Member, Role
 
 from ElevatorBot.backendNetworking.destiny.roles import DestinyRoles
 from ElevatorBot.commandHelpers.autocomplete import activities_by_id
 from ElevatorBot.misc.cache import collectible_cache, triumph_cache
 from ElevatorBot.misc.discordShortcutFunctions import assign_roles_to_member, remove_roles_from_member
 from ElevatorBot.misc.formatting import embed_message
+from Shared.functions.readSettingsFile import get_setting
 from Shared.networkingSchemas.destiny.roles import RolesCategoryModel
 
 
@@ -21,6 +23,12 @@ class Roles:
 
     def __post_init__(self):
         self.roles = DestinyRoles(ctx=self.ctx, discord_guild=self.guild, discord_member=self.member)
+
+        self.view_on_web = Button(
+            style=ButtonStyles.URL,
+            label="View Online",
+            url=urljoin(get_setting("WEBSITE_URL"), f"/server/{self.guild.id}/roles"),
+        )
 
     async def get_requirements(self, role: Role):
         """Get a roles get_requirements and what user has done"""
@@ -67,7 +75,7 @@ class Roles:
         if roles:
             embed.add_field(name="Required Roles", value="\n".join(roles), inline=False)
 
-        await self.ctx.send(embeds=embed)
+        await self.ctx.send(embeds=embed, components=self.view_on_web)
 
     async def get_missing(self):
         """Get a members missing roles"""
@@ -107,7 +115,7 @@ class Roles:
                     inline=True,
                 )
 
-        await self.ctx.send(embeds=embed)
+        await self.ctx.send(embeds=embed, components=self.view_on_web)
 
     async def update(self):
         """Get and update a members roles"""
@@ -140,12 +148,12 @@ class Roles:
             # if user has no roles show this
             if not result.earned:
                 await self.ctx.send(
-                    # todo link to where you can see all the roles
                     embeds=embed_message(
                         "Roles",
                         "You don't have any roles. \nUse `/roles missing` to see available roles and then `/roles requirements <role>` to view its requirements",
                         member=self.member,
-                    )
+                    ),
+                    components=self.view_on_web,
                 )
                 return
 

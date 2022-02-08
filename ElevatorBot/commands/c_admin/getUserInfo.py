@@ -22,7 +22,13 @@ class UserInfo(BaseScale):
     async def user_info(
         self, ctx: InteractionContext, discord_user: Member = None, destiny_id: str = None, fuzzy_name: str = None
     ):
-        # make sure exactly one arg was chosen
+        if ctx.author.id != 238388130581839872:
+            await ctx.send(
+                "This is blocked for now, since it it waiting for a vital unreleased discord feature", ephemeral=True
+            )
+            return
+
+            # make sure exactly one arg was chosen
         if (
             (not (discord_user or destiny_id or fuzzy_name))
             or (discord_user and destiny_id)

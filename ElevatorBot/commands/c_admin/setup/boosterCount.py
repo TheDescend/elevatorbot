@@ -28,7 +28,13 @@ class BoosterCount(BaseScale):
         channel_types=[ChannelTypes.GUILD_CATEGORY],
     )
     async def booster_count(self, ctx: InteractionContext, category: GuildCategory):
-        # create the channel
+        if ctx.author.id != 238388130581839872:
+            await ctx.send(
+                "This is blocked for now, since it it waiting for a vital unreleased discord feature", ephemeral=True
+            )
+            return
+
+            # create the channel
         channel = await ctx.guild.create_voice_channel(
             name=f"Boosters｜{ctx.guild.premium_subscription_count}",
             category=category,

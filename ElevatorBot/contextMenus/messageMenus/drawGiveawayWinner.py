@@ -22,6 +22,12 @@ class GiveawayWinners(BaseScale):
         name="Draw Giveaway Winner", context_type=CommandTypes.MESSAGE, scopes=get_setting("COMMAND_GUILD_SCOPE")
     )
     async def draw_winner(self, ctx: InteractionContext):
+        if ctx.author.id != 238388130581839872:
+            await ctx.send(
+                "This is blocked for now, since it it waiting for a vital unreleased discord feature", ephemeral=True
+            )
+            return
+
         message: Message = ctx.target
 
         # get the giveaway data from the db

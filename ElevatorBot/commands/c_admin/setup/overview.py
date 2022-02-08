@@ -18,6 +18,12 @@ class Overview(BaseScale):
         sub_cmd_description="Gives you an overview over my setting for this server",
     )
     async def overview(self, ctx: InteractionContext):
+        if ctx.author.id != 238388130581839872:
+            await ctx.send(
+                "This is blocked for now, since it it waiting for a vital unreleased discord feature", ephemeral=True
+            )
+            return
+
         backend = PersistentMessages(ctx=ctx, guild=ctx.guild, message_name=None)
         result = await backend.get_all()
 

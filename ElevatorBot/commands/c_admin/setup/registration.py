@@ -39,6 +39,12 @@ class Registration(BaseScale):
         opt_type=OptionTypes.STRING,
     )
     async def registration(self, ctx: InteractionContext, channel: GuildChannel, message_id: Optional[str] = None):
+        if ctx.author.id != 238388130581839872:
+            await ctx.send(
+                "This is blocked for now, since it it waiting for a vital unreleased discord feature", ephemeral=True
+            )
+            return
+
         message_name = "registration"
         components = [
             ActionRow(

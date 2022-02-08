@@ -24,6 +24,12 @@ class LfgChannel(BaseScale):
         channel_types=[ChannelTypes.GUILD_TEXT],
     )
     async def channel(self, ctx: InteractionContext, channel: GuildChannel):
+        if ctx.author.id != 238388130581839872:
+            await ctx.send(
+                "This is blocked for now, since it it waiting for a vital unreleased discord feature", ephemeral=True
+            )
+            return
+
         embed = embed_message(
             "How to make an LFG post",
             f"""

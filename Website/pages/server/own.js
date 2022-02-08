@@ -16,7 +16,6 @@ import GlowingButton from "../../components/styling/glowingButton";
 import {hasDiscordPermission} from "../../lib/discordPermission";
 
 
-// todo only show servers where elevator is on Incremental Static Regeneration (ISR)
 export default function OwnServers({token, elevatorServers}) {
     // check if logged in client side
     const {data: session} = useSession()

@@ -26,6 +26,12 @@ class BungieRssFeed(BaseScale):
         opt_type=OptionTypes.STRING,
     )
     async def bungie_feed(self, ctx: InteractionContext, channel: GuildChannel, message_id: str = None):
+        if ctx.author.id != 238388130581839872:
+            await ctx.send(
+                "This is blocked for now, since it it waiting for a vital unreleased discord feature", ephemeral=True
+            )
+            return
+
         success_message = f"Future Bungie Updates will be posted in {channel.mention}"
         await handle_setup_command(
             ctx=ctx,

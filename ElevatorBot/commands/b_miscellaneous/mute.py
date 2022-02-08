@@ -54,6 +54,12 @@ class Mute(BaseScale):
         opt_type=OptionTypes.STRING,
     )
     async def mute(self, ctx: InteractionContext, user: Member, muted_type: str, hours: int, reason: str):
+        if ctx.author.id != 238388130581839872:
+            await ctx.send(
+                "This is blocked for now, since it it waiting for a vital unreleased discord feature", ephemeral=True
+            )
+            return
+
         muted_type = int(muted_type)
         unmute_date = get_now_with_tz() + datetime.timedelta(hours=hours)
 

@@ -19,7 +19,9 @@ class LfgEdit(BaseScale):
     @lfg_event_id()
     @autocomplete_activity_option(description="Use this is you want to edit the name of the activity", required=False)
     async def edit(self, ctx: InteractionContext, lfg_id: int, activity: str):
-        await ctx.send("Requires modal")
+        await ctx.send(
+            "Please delete / re-create the event for now. This requires an unreleased discord feature", ephemeral=True
+        )
         return
 
         # get the message obj

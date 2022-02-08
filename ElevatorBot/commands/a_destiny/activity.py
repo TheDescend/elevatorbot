@@ -88,7 +88,6 @@ class DestinyActivity(BaseScale):
         if stats.fastest:
             embed.add_field(name="Time Played", value=format_timedelta(stats.time_spend.seconds), inline=False)
             embed.add_field(name="Average Time", value=format_timedelta(stats.average.seconds), inline=True)
-            # todo add this to other things (solos, ...)
             embed.add_field(
                 name="Fastest Time",
                 value=f"[{format_timedelta(stats.fastest.seconds)}](https://www.bungie.net/en/PGCR/{stats.fastest_instance_id})",
