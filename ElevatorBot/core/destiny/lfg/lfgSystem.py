@@ -322,7 +322,11 @@ class LfgMessage:
         await self.__dump_to_db()
 
         # schedule the event
-        await self.schedule_event()
+        # skip that if the event starts within 15 minutes
+        if self.start_time < (get_now_with_tz() + datetime.timedelta(minutes=15)):
+            await self.__notify_about_start()
+        else:
+            await self.schedule_event()
 
         # if message was freshly send, sort messages
         if first_send:
@@ -383,18 +387,14 @@ class LfgMessage:
                 # using the id the job gets added
                 timedelta = datetime.timedelta(minutes=10)
                 run_date = self.start_time - timedelta
-                now = get_now_with_tz()
-                if run_date < now:
-                    run_date = now
                 self.client.scheduler.add_job(
                     func=self.__notify_about_start,
-                    kwargs={"time_to_start": timedelta},
                     trigger="date",
                     run_date=run_date,
                     id=str(self.id),
                 )
 
-    async def __notify_about_start(self, time_to_start: datetime.timedelta):
+    async def __notify_about_start(self):
         """Notify joined members that the event is about to start"""
 
         voice_text = "Please start gathering in a voice channel"
@@ -440,7 +440,7 @@ class LfgMessage:
         # prepare embed
         embed = embed_message(
             f"LFG Event - {self.activity}",
-            f"The LFG event [{self.id}]({self.message.jump_url}) is going to start in **{int(time_to_start.seconds / 60)} minutes**\n{voice_text}",
+            f"The LFG event [{self.id}]({self.message.jump_url}) is going to start {Timestamp.fromdatetime(self.start_time).format(style=TimestampStyles.RelativeTime)}\n{voice_text}",
             "Start Time",
         )
         embed.add_field(
@@ -483,8 +483,8 @@ class LfgMessage:
         await self.message.edit(embeds=embed, components=[])
         await self.__dump_to_db()
 
-        # wait timedelta + 10 min
-        await asyncio.sleep(time_to_start.seconds + 60 * 10)
+        # wait time to start + 10 min
+        await asyncio.sleep((self.start_time - get_now_with_tz()).seconds + 60 * 10)
 
         # delete the post
         await self.delete()

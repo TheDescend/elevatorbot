@@ -4,6 +4,8 @@ import dateutil.parser
 import psutil as psutil
 from anyio import open_file
 from dis_snek import InteractionContext, Timestamp, TimestampStyles, slash_command
+
+# noinspection PyProtectedMember
 from psutil._common import bytes2human
 
 from ElevatorBot.commands.base import BaseScale

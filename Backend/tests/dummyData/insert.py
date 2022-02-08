@@ -99,6 +99,7 @@ async def insert_dummy_data(db: AsyncSession, client: AsyncClient):
         signup_date=get_now_with_tz(),
         signup_server_id=dummy_discord_guild_id,
     )
+    # noinspection PyProtectedMember
     await discord_users._insert(db=db, to_create=user_without_perms)
 
     # create a user that is deleted later
@@ -114,6 +115,7 @@ async def insert_dummy_data(db: AsyncSession, client: AsyncClient):
         signup_date=get_now_with_tz(),
         signup_server_id=dummy_discord_guild_id,
     )
+    # noinspection PyProtectedMember
     await discord_users._insert(db=db, to_create=user_to_delete)
 
     # =========================================================================
@@ -121,6 +123,7 @@ async def insert_dummy_data(db: AsyncSession, client: AsyncClient):
     activities = DestinyActivities(db=db, user=user)
     await activities.update_activity_db()
 
+    # noinspection PyProtectedMember
     assert activities._full_character_list == [{"char_id": 666, "deleted": False}]
     assert user.activities_last_updated.day == 15
     assert user.activities_last_updated.month == 12

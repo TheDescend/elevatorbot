@@ -26,6 +26,7 @@ async def auth_get_user(token: str = Depends(oauth2_scheme), db: AsyncSession = 
         raise CREDENTIALS_EXCEPTION
 
     # get the user
+    # noinspection PyProtectedMember
     user = await backend_user._get_with_key(db, user_name)
 
     # verify that the user is OK

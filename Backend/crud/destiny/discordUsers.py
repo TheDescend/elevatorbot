@@ -79,6 +79,7 @@ class CRUDDiscordUser(CRUDBase):
 
         # get the corresponding destiny data with manual headers, since the data is not in the db yet
         async with aiohttp.ClientSession(cookie_jar=aiohttp.DummyCookieJar()) as session:
+            # noinspection PyProtectedMember
             destiny_info = await api._request(
                 session=session,
                 method="GET",

@@ -24,4 +24,5 @@ async def run_webserver(client):
 
     # do some trickery that we don't block the loop
     # web.run_app() is blocking
+    # noinspection PyProtectedMember
     await web._run_app(app)
