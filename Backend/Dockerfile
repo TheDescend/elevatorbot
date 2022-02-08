@@ -19,5 +19,5 @@ COPY ./Backend /app/Backend
 
 # start the backend
 WORKDIR /app
-CMD ["uvicorn", "Backend.main:app", "--proxy-headers", "--host", "0.0.0.0", "--port", "8000"]
-EXPOSE 8000
+CMD ["uvicorn", "Backend.main:app", "--proxy-headers", "--host", "0.0.0.0", "--port", "8070"]
+EXPOSE 8070
