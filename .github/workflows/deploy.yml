@@ -1,11 +1,8 @@
 name: Deploy Release
 
 on:
-  push:
-    branches:
-      - master
-    paths:
-      - version.py
+  release:
+    types: [created]
 
 jobs:
   deploy:
