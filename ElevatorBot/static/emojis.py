@@ -34,6 +34,7 @@ class __ElevatorEmojis:
         self.submachine_gun: CustomEmoji | int = 906180170799521815
         self.trace_rifle: CustomEmoji | int = 912989912251367444
         self.bow: CustomEmoji | int = 906180170799538206
+        self.glaive: CustomEmoji | int = 940637142470778890
 
         self.primary: CustomEmoji | int = 906180170887622656
         self.special: CustomEmoji | int = 906180170858250260
