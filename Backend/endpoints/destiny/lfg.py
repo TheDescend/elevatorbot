@@ -94,7 +94,12 @@ async def create(
 
     # create the sql alchemy model
     to_create = LfgMessage(
-        guild_id=guild_id, channel_id=channel_id, author_id=discord_id, creation_time=creation_time, **lfg_data.dict()
+        guild_id=guild_id,
+        channel_id=channel_id,
+        author_id=discord_id,
+        creation_time=creation_time,
+        started=False,
+        **lfg_data.dict(),
     )
 
     # insert that

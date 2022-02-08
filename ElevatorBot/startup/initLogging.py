@@ -22,6 +22,7 @@ def init_logging() -> None:
 
     # Initialize logging for background events
     logger.make_logger("backgroundEvents")
+    logger.make_logger("backgroundEventsExceptions")
 
     # Initialize logging for backend networking
     logger.make_logger("backendNetworking")

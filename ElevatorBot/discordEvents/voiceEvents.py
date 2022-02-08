@@ -37,7 +37,7 @@ async def left_channel(event: VoiceStateUpdate):
     # check if the channel was a lfg channel (correct category)
     if event.before.channel.category == lfg_voice_category_channel:
         # check if channel is now empty
-        if len(event.before.channel.members) == 1:
+        if len(event.before.channel.voice_members) == 1:
             # get the guilds lfg events
             lfg_backend = DestinyLfgSystem(ctx=None, discord_guild=event.before.guild)
             result = await lfg_backend.get_all()
@@ -49,12 +49,12 @@ async def left_channel(event: VoiceStateUpdate):
                     await event.before.channel.delete(reason="LFG event over")
                     break
 
-    # auto channel deletion
+    # auto channel deletion (alpha / beta / gamma...)
     else:
         # only do this for descend
         if event.before and event.before.guild == descend_channels.guild:
             # only delete if they were the last in there
-            if len(event.before.channel.members) == 1:
+            if len(event.before.channel.voice_members) == 1:
                 split_name = event.before.channel.name.split("|")
                 if len(split_name) > 1:
                     base_name = split_name[0]
@@ -83,7 +83,7 @@ async def joined_channel(event: VoiceStateUpdate):
 
     # only do this for descend
     if event.after and event.after.guild == descend_channels.guild:
-        if len(event.after.channel.members) == 1:
+        if len(event.after.channel.voice_members) == 1:
             split_name = event.after.channel.name.split("|")
             if len(split_name) > 1:
                 greek_name = split_name[1].strip()

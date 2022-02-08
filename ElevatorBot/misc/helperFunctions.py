@@ -105,6 +105,11 @@ async def log_error(
 ) -> None:
     """Respond to the context and log error"""
 
+    # log the error
+    logger.exception(
+        f"InteractionID '{ctx.interaction_id}' - Error '{error}' - Traceback: \n{''.join(traceback.format_tb(error.__traceback__))}"
+    )
+
     if not ctx.responded:
         await ctx.send(
             embeds=embed_message(
@@ -113,11 +118,6 @@ async def log_error(
                 str(error),
             )
         )
-
-    # log the error
-    logger.exception(
-        f"InteractionID '{ctx.interaction_id}' - Error '{error}' - Traceback: \n{''.join(traceback.format_tb(error.__traceback__))}"
-    )
 
     # raising error again to making deving easier
     raise error

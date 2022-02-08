@@ -71,7 +71,7 @@ class LfgMessage:
     voice_category_channel: Optional[GuildCategory] = None
     voice_channel: Optional[GuildVoice] = None
 
-    deleted: bool = False
+    started: bool = False
 
     def __post_init__(self):
         # get the button emojis
@@ -145,6 +145,7 @@ class LfgMessage:
             voice_category_channel=await client.get_channel(model.voice_category_channel_id)
             if model.voice_category_channel_id
             else None,
+            started=model.started,
         )
 
         return lfg_message
@@ -226,6 +227,7 @@ class LfgMessage:
             if result.voice_category_channel_id
             else None,
             joined_ids=[ctx.author.id],
+            started=result.started,
         )
 
         # send message in the channel to populate missing entries
@@ -344,8 +346,7 @@ class LfgMessage:
                 pass
 
         # delete DB entry
-        if not self.deleted:
-            await self.backend.delete(discord_member_id=self.author_id, lfg_id=self.id)
+        await self.backend.delete(discord_member_id=self.author_id, lfg_id=self.id)
 
         # delete scheduler event
         # try to delete old job
@@ -397,10 +398,6 @@ class LfgMessage:
         """Notify joined members that the event is about to start"""
 
         voice_text = "Please start gathering in a voice channel"
-
-        # delete the backend entry
-        await self.backend.delete(lfg_id=self.id)
-        self.deleted = True
 
         # get the voice channel category and make a voice channel
         if self.voice_category_channel:
@@ -482,7 +479,9 @@ class LfgMessage:
                 pass
 
         # edit the channel message
+        self.started = True
         await self.message.edit(embeds=embed, components=[])
+        await self.__dump_to_db()
 
         # wait timedelta + 10 min
         await asyncio.sleep(time_to_start.seconds + 60 * 10)
@@ -508,6 +507,10 @@ class LfgMessage:
             sorted_messages_by_creation_time = []
             lfg_messages = []
             for event in events:
+                # ignore started messages
+                if event.started:
+                    continue
+
                 message = await self.channel.get_message(event.message_id)
                 sorted_messages_by_creation_time.append(message)
                 lfg_messages.append(
@@ -532,6 +535,7 @@ class LfgMessage:
                         voice_category_channel=await self.client.get_channel(event.voice_category_channel_id)
                         if event.voice_category_channel_id
                         else None,
+                        started=event.started,
                     )
                 )
 
@@ -699,6 +703,7 @@ class LfgMessage:
                 max_joined_members=self.max_joined_members,
                 joined_members=self.joined_ids,
                 backup_members=self.backup_ids,
+                started=self.started,
             ),
         )
 

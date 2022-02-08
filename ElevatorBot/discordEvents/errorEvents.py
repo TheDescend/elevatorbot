@@ -51,19 +51,6 @@ class CustomErrorSnake(Snake):
         # raising error again to making deving easier
         raise error
 
-    async def on_background_event_error(self, source: str, error: Exception, *args, **kwargs):
-        """Gets triggered after an error occurs (not in commands / components)"""
-
-        parse_dis_snek_error(error=error, logger_exceptions=self.logger_exceptions)
-
-        # log the error
-        self.logger_exceptions.exception(
-            f"Source '{source}' - Error '{error}' - Traceback: \n{''.join(traceback.format_tb(error.__traceback__))}"
-        )
-
-        # raising error again to making deving easier
-        raise error
-
     async def on_command(self, ctx: InteractionContext):
         """Gets triggered after a slash command is run"""
 
@@ -76,7 +63,7 @@ class CustomErrorSnake(Snake):
     async def on_command_error(self, ctx: InteractionContext, error: Exception, *args, **kwargs):
         """Gets triggered on slash command errors"""
 
-        parse_dis_snek_error(error=error, logger_exceptions=self.logger_exceptions)
+        parse_dis_snek_error(error=error, logger_exceptions=self.logger_commands_exceptions)
 
         # ignore some errors since they are intended
         if not isinstance(error, BackendException | CommandCheckFailure):
@@ -93,7 +80,7 @@ class CustomErrorSnake(Snake):
     async def on_component_error(self, ctx: ComponentContext, error: Exception, *args, **kwargs):
         """Gets triggered on component callback errors"""
 
-        parse_dis_snek_error(error=error, logger_exceptions=self.logger_exceptions)
+        parse_dis_snek_error(error=error, logger_exceptions=self.logger_components_exceptions)
 
         # ignore BackendException errors since they are intended
         if not isinstance(error, BackendException):

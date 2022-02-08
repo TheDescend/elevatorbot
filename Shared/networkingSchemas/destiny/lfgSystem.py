@@ -19,6 +19,7 @@ class LfgOutputModel(CustomBaseModel):
     message_id: Optional[int] = None
     voice_channel_id: Optional[int] = None
     voice_category_channel_id: Optional[int] = None
+    started: bool
 
     class Config:
         orm_mode = True
@@ -57,3 +58,5 @@ class LfgUpdateInputModel(CustomBaseModel):
     max_joined_members: Optional[int] = None
     joined_members: Optional[list[int]] = None
     backup_members: Optional[list[int]] = None
+
+    started: bool = False

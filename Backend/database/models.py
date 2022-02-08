@@ -358,6 +358,8 @@ class LfgMessage(Base):
     creation_time = Column(DateTime(True), nullable=False)
     voice_channel_id = Column(BigInteger, nullable=True)
 
+    started = Column(Boolean, nullable=False)
+
 
 ################################################################
 # Misc
