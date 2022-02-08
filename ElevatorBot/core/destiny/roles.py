@@ -75,7 +75,16 @@ class Roles:
         if roles:
             embed.add_field(name="Required Roles", value="\n".join(roles), inline=False)
 
-        await self.ctx.send(embeds=embed, components=self.view_on_web)
+        await self.ctx.send(embeds=embed, components=self._view_on_web_details(role))
+
+    def _view_on_web_details(self, role: Role):
+        """Get the component to view the specific role"""
+
+        return Button(
+            style=ButtonStyles.URL,
+            label="View Online",
+            url=urljoin(get_setting("WEBSITE_URL"), f"/server/{self.guild.id}/roles#{role.id}"),
+        )
 
     async def get_missing(self):
         """Get a members missing roles"""

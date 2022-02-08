@@ -367,7 +367,7 @@ export default function RoleForm({
     }
 
     return (
-        <details className="marker:text-descend group">
+        <details id={discordRole ? discordRole["id"] : "none"} className="marker:text-descend group">
             <summary className="group-open:text-descend">
                 {discordRole ?
                     discordRole["name"]
