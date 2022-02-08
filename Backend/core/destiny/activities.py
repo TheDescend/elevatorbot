@@ -276,10 +276,7 @@ class DestinyActivities:
                 # log that
                 print(e)
                 logger_exceptions.error(
-                    "Failed getting pgcr '%s' - Error '%s' - Traceback: \n'%s'",
-                    i,
-                    e,
-                    "".join(traceback.format_tb(e.__traceback__)),
+                    f"""Failed getting pgcr '{i}' - Error '{e}' - Traceback: \n'{"".join(traceback.format_tb(e.__traceback__))}'"""
                 )
 
                 # remove the instance_id from the cache
@@ -315,7 +312,7 @@ class DestinyActivities:
             if not entry_time:
                 entry_time = self.user.activities_last_updated
 
-            logger.info("Starting activity DB update for destinyID '%s'", self.destiny_id)
+            logger.info(f"Starting activity DB update for destinyID '{self.destiny_id}'")
 
             # loop through all activities
             instance_ids = []
@@ -374,16 +371,13 @@ class DestinyActivities:
             if start_time:
                 await discord_users.update(db=self.db, to_update=self.user, activities_last_updated=start_time)
 
-            logger.info("Done with activity DB update for destinyID '%s'", self.destiny_id)
+            logger.info(f"Done with activity DB update for destinyID '{self.destiny_id}'")
 
         except Exception as error:
             # log that
             print(error)
             logger_exceptions.error(
-                "Activity DB update for destinyID '%s' - Error '%s' - Traceback: \n'%s'",
-                self.destiny_id,
-                error,
-                "".join(traceback.format_tb(error.__traceback__)),
+                f"""Activity DB update for destinyID '{self.destiny_id}' - Error '{error}' - Traceback: \n'{"".join(traceback.format_tb(error.__traceback__))}'"""
             )
             raise error
 

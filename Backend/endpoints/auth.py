@@ -37,11 +37,7 @@ async def save_bungie_token(
 
     logger = logging.getLogger("registration")
     logger.info(
-        "User with discord ID '%s' has registered successfully with destiny ID '%s', system '%s', and bungie name '%s'",
-        user.discord_id,
-        user.destiny_id,
-        user.system,
-        user.bungie_name,
+        f"User with discord ID '{user.discord_id}' has registered successfully with destiny ID '{user.destiny_id}', system '{user.system}', and bungie name '{user.bungie_name}'"
     )
 
     # get users activities in background

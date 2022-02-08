@@ -194,7 +194,7 @@ class BaseBackendConnection:
         if response.status == 200:
             success = True
             error = None
-            self.logger.info("%s: '%s' - '%s'", response.status, response.method, response.url)
+            self.logger.info(f"{response.status}: '{response.method}' - '{response.url}'")
 
             # format the result to be the pydantic model
             result = await response.json(loads=orjson.loads)
@@ -212,22 +212,18 @@ class BaseBackendConnection:
         match response.status:
             case 409:
                 # this means the errors isn't really an error, and we want to return info to the user
-                self.logger.info("%s: '%s' - '%s'", response.status, response.method, response.url)
+                self.logger.info(f"{response.status}: '{response.method}' - '{response.url}'")
                 error_json = await response.json(loads=orjson.loads)
                 return error_json["error"]
 
             case 500:
                 # internal server error
-                self.logger_exceptions.error("%s: '%s' - '%s'", response.status, response.method, response.url)
+                self.logger_exceptions.error(f"{response.status}: '{response.method}' - '{response.url}'")
                 return "ProgrammingError"
 
             case _:
                 # if we don't know anything, just log it with the error
                 self.logger_exceptions.error(
-                    "%s: '%s' - '%s' - '%s'",
-                    response.status,
-                    response.method,
-                    response.url,
-                    await response.json(loads=orjson.loads),
+                    f"{response.status}: '{response.method}' - '{response.url}' - '{await response.json(loads=orjson.loads)}'"
                 )
                 return None

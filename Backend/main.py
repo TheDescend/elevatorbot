@@ -58,11 +58,7 @@ async def log_requests(request: Request, call_next):
         print(error)
         logger = logging.getLogger("requestsExceptions")
         logger.exception(
-            "'%s' for '%s' - Error '%s' - Traceback: \n'%s'",
-            request.method,
-            request.url,
-            error,
-            "".join(traceback.format_tb(error.__traceback__)),
+            f"""'{request.method}' for '{request.url}' - Error '{error}' - Traceback: \n'{"".join(traceback.format_tb(error.__traceback__))}'"""
         )
         raise error
 
@@ -71,12 +67,7 @@ async def log_requests(request: Request, call_next):
 
         # log that
         logger = logging.getLogger("requests")
-        logger.info(
-            "'%s' completed in '%s' seconds for '%s'",
-            request.method,
-            process_time,
-            request.url,
-        )
+        logger.info(f"'{request.method}' completed in '{process_time}' seconds for '{request.url}'")
 
         return response
 

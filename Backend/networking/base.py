@@ -97,19 +97,13 @@ class NetworkBase:
 
             except (asyncio.exceptions.TimeoutError, ConnectionResetError, ServerDisconnectedError) as error:
                 self.logger_exceptions.error(
-                    "Timeout error ('%s') for '%s'. Retrying...",
-                    error,
-                    f"{route}?{urlencode({} if params is None else params)}",
+                    f"Timeout error ('{error}') for '{route}?{urlencode({} if params is None else params)}'. Retrying..."
                 )
                 await asyncio.sleep(random.randrange(2, 6))
                 continue
 
         # return that it failed
-        self.logger_exceptions.error(
-            "Request failed '%s' times, aborting for '%s'",
-            self.max_web_request_tries,
-            route,
-        )
+        self.logger_exceptions.error(f"Request failed '{self.max_web_request_tries}' times, aborting for '{route}'")
         raise CustomException("UnknownError")
 
     async def __handle_request_data(
@@ -131,15 +125,11 @@ class NetworkBase:
         # make sure the return is a json, sometimes we get a http file for some reason
         elif "application/json" not in request.headers["Content-Type"]:
             self.logger_exceptions.error(
-                "'%s': Wrong content type '%s' with reason '%s' for '%s'",
-                request.status,
-                request.headers["Content-Type"],
-                request.reason,
-                route_with_params,
+                f"""'{request.status}': Wrong content type '{request.headers["Content-Type"]}' with reason '{request.reason}' for '{route_with_params}'"""
             )
             print(f"""Bungie return Content-Type: {request.headers["Content-Type"]}""")
             if request.status == 200:
-                self.logger_exceptions.error("Wrong content type returned text: '%s'", await request.text())
+                self.logger_exceptions.error(f"Wrong content type returned text: '{await request.text()}'")
             await asyncio.sleep(3)
             return
 
@@ -166,7 +156,7 @@ class NetworkBase:
                 response.from_cache = False
 
         except aiohttp.ClientPayloadError:
-            self.logger_exceptions.error("'%s': Payload error, retrying for '%s'", request.status, route_with_params)
+            self.logger_exceptions.error(f"'{request.status}': Payload error, retrying for '{route_with_params}'")
             return
         except aiohttp.ContentTypeError:
             response = InternalWebResponse(
@@ -202,65 +192,41 @@ class NetworkBase:
             case (401, _) | (_, "invalid_grant" | "AuthorizationCodeInvalid"):
                 # unauthorized
                 self.logger_exceptions.error(
-                    "'%s - %s': Unauthorized request for '%s' - '%s'",
-                    response.status,
-                    response.error,
-                    route_with_params,
-                    response,
+                    f"'{response.status} - {response.error}': Unauthorized request for '{route_with_params}' - '{response}'"
                 )
                 raise CustomException("BungieUnauthorized")
 
             case (404, error):
                 # not found
                 self.logger_exceptions.error(
-                    "'%s - %s': No stats found for '%s' - '%s'",
-                    response.status,
-                    error,
-                    route_with_params,
-                    response,
+                    f"'{response.status} - {error}': No stats found for '{route_with_params}' - '{response}'"
                 )
                 raise CustomException("BungieBadRequest")
 
             case (429, error):
                 # rate limited
                 self.logger_exceptions.warning(
-                    "'%s - %s': Getting rate limited for '%s' - '%s'",
-                    response.status,
-                    error,
-                    route_with_params,
-                    response,
+                    f"'{response.status} - {error}': Getting rate limited for '{route_with_params}' - '{response}'"
                 )
                 await asyncio.sleep(2)
 
             case (400, error):
                 # generic bad request, such as wrong format
                 self.logger_exceptions.error(
-                    "'%s - %s': Generic bad request for '%s' - '%s'",
-                    response.status,
-                    error,
-                    route_with_params,
-                    response,
+                    f"'{response.status} - {error}': Generic bad request for '{route_with_params}' - '{response}'"
                 )
                 raise CustomException("BungieDed")
 
             case (503, error):
                 self.logger_exceptions.error(
-                    "'%s - %s': Server is overloaded for '%s' - '%s'",
-                    response.status,
-                    error,
-                    route_with_params,
-                    response,
+                    f"'{response.status} - {error}': Server is overloaded for '{route_with_params}' - '{response}'"
                 )
                 await asyncio.sleep(10)
 
             case (status, "PerEndpointRequestThrottleExceeded" | "DestinyDirectBabelClientTimeout"):
                 # we are getting throttled (should never be called in theory)
                 self.logger_exceptions.warning(
-                    "'%s - %s': Getting throttled for '%s' - '%s'",
-                    status,
-                    response.error,
-                    route_with_params,
-                    response,
+                    f"'{status} - {response.error}': Getting throttled for '{route_with_params}' - '{response}'"
                 )
 
                 throttle_seconds = response.content["ErrorStatus"]["ThrottleSeconds"]
@@ -272,88 +238,56 @@ class NetworkBase:
             case (status, "ClanInviteAlreadyMember"):
                 # if user is in clan
                 self.logger.error(
-                    "'%s - %s': User is already in clan '%s' - '%s'",
-                    status,
-                    response.error,
-                    route_with_params,
-                    response,
+                    f"'{status} - {response.error}': User is already in clan '{route_with_params}' - '{response}'"
                 )
                 raise CustomException("BungieClanInviteAlreadyMember")
 
             case (status, "GroupMembershipNotFound"):
                 # if user isn't in clan
                 self.logger.error(
-                    "'%s - %s': User is not in clan '%s' - '%s'",
-                    status,
-                    response.error,
-                    route_with_params,
-                    response,
+                    f"'{status} - {response.error}': User is not in clan '{route_with_params}' - '{response}'"
                 )
                 raise CustomException("BungieGroupMembershipNotFound")
 
             case (status, "DestinyItemNotFound"):
                 # if user doesn't have that item
                 self.logger.error(
-                    "'%s - %s': User doesn't have that item for '%s' - '%s'",
-                    status,
-                    response.error,
-                    route_with_params,
-                    response,
+                    f"'{status} - {response.error}': User doesn't have that item for '{route_with_params}' - '{response}'"
                 )
                 raise CustomException("BungieDestinyItemNotFound")
 
             case (status, "DestinyPrivacyRestriction"):
                 # private profile
                 self.logger.error(
-                    "'%s - %s': User has private Profile for '%s' - '%s'",
-                    status,
-                    response.error,
-                    route_with_params,
-                    response,
+                    f"'{status} - {response.error}': User has private Profile for '{route_with_params}' - '{response}'"
                 )
                 raise CustomException("BungieDestinyPrivacyRestriction")
 
             case (status, "DestinyDirectBabelClientTimeout"):
                 # timeout
                 self.logger_exceptions.warning(
-                    "'%s - %s': Getting timeouts for '%s' - '%s'",
-                    status,
-                    response.error,
-                    route_with_params,
-                    response,
+                    f"'{status} - {response.error}': Getting timeouts for '{route_with_params}' - '{response}'"
                 )
                 await asyncio.sleep(60)
 
             case (status, "ClanTargetDisallowsInvites"):
                 # user has disallowed clan invites
                 self.logger.error(
-                    "'%s - %s': User disallows clan invites '%s' - '%s'",
-                    status,
-                    response.error,
-                    route_with_params,
-                    response,
+                    f"'{status} - {response.error}': User disallows clan invites '{route_with_params}' - '{response}'"
                 )
                 raise CustomException("BungieClanTargetDisallowsInvites")
 
             case (status, "AuthorizationRecordRevoked"):
                 # users tokens are no longer valid
                 self.logger.error(
-                    "'%s - %s': User refresh token is outdated and they need to re-registration for '%s' - '%s'",
-                    status,
-                    response,
-                    route_with_params,
-                    response.error_message,
+                    f"'{status} - {response}': User refresh token is outdated and they need to re-registration for '{route_with_params}' - '{response.error_message}'"
                 )
                 raise CustomException("NoToken")
 
             case (status, error):
                 # catch the rest
                 self.logger_exceptions.error(
-                    "'%s - %s': Request failed for '%s' - '%s'",
-                    status,
-                    error,
-                    route_with_params,
-                    response,
+                    f"'{status} - {error}': Request failed for '{route_with_params}' - '{response}'"
                 )
                 await asyncio.sleep(2)
 
