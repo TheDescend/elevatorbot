@@ -56,7 +56,7 @@ async def log_requests(request: Request, call_next):
     except Exception as error:
         # log that
         print(error)
-        logger = logging.getLogger("exceptions")
+        logger = logging.getLogger("requestsExceptions")
         logger.exception(
             "'%s' for '%s' - Error '%s' - Traceback: \n'%s'",
             request.method,

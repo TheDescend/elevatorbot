@@ -23,6 +23,7 @@ class NetworkBase:
 
     # get logger
     logger = logging.getLogger("bungieApi")
+    logger_exceptions = logging.getLogger("bungieApiExceptions")
 
     # get limiter
     limiter = bungie_limiter
@@ -95,7 +96,7 @@ class NetworkBase:
                         return WebResponse.from_dict(response.__dict__)
 
             except (asyncio.exceptions.TimeoutError, ConnectionResetError, ServerDisconnectedError) as error:
-                self.logger.error(
+                self.logger_exceptions.error(
                     "Timeout error ('%s') for '%s'. Retrying...",
                     error,
                     f"{route}?{urlencode({} if params is None else params)}",
@@ -104,7 +105,7 @@ class NetworkBase:
                 continue
 
         # return that it failed
-        self.logger.error(
+        self.logger_exceptions.error(
             "Request failed '%s' times, aborting for '%s'",
             self.max_web_request_tries,
             route,
@@ -129,7 +130,7 @@ class NetworkBase:
 
         # make sure the return is a json, sometimes we get a http file for some reason
         elif "application/json" not in request.headers["Content-Type"]:
-            self.logger.error(
+            self.logger_exceptions.error(
                 "'%s': Wrong content type '%s' with reason '%s' for '%s'",
                 request.status,
                 request.headers["Content-Type"],
@@ -138,7 +139,7 @@ class NetworkBase:
             )
             print(f"""Bungie return Content-Type: {request.headers["Content-Type"]}""")
             if request.status == 200:
-                self.logger.error("Wrong content type returned text: '%s'", await request.text())
+                self.logger_exceptions.error("Wrong content type returned text: '%s'", await request.text())
             await asyncio.sleep(3)
             return
 
@@ -165,7 +166,7 @@ class NetworkBase:
                 response.from_cache = False
 
         except aiohttp.ClientPayloadError:
-            self.logger.error("'%s': Payload error, retrying for '%s'", request.status, route_with_params)
+            self.logger_exceptions.error("'%s': Payload error, retrying for '%s'", request.status, route_with_params)
             return
         except aiohttp.ContentTypeError:
             response = InternalWebResponse(
@@ -200,7 +201,7 @@ class NetworkBase:
 
             case (401, _) | (_, "invalid_grant" | "AuthorizationCodeInvalid"):
                 # unauthorized
-                self.logger.error(
+                self.logger_exceptions.error(
                     "'%s - %s': Unauthorized request for '%s' - '%s'",
                     response.status,
                     response.error,
@@ -211,7 +212,7 @@ class NetworkBase:
 
             case (404, error):
                 # not found
-                self.logger.error(
+                self.logger_exceptions.error(
                     "'%s - %s': No stats found for '%s' - '%s'",
                     response.status,
                     error,
@@ -222,7 +223,7 @@ class NetworkBase:
 
             case (429, error):
                 # rate limited
-                self.logger.warning(
+                self.logger_exceptions.warning(
                     "'%s - %s': Getting rate limited for '%s' - '%s'",
                     response.status,
                     error,
@@ -233,7 +234,7 @@ class NetworkBase:
 
             case (400, error):
                 # generic bad request, such as wrong format
-                self.logger.error(
+                self.logger_exceptions.error(
                     "'%s - %s': Generic bad request for '%s' - '%s'",
                     response.status,
                     error,
@@ -243,7 +244,7 @@ class NetworkBase:
                 raise CustomException("BungieDed")
 
             case (503, error):
-                self.logger.error(
+                self.logger_exceptions.error(
                     "'%s - %s': Server is overloaded for '%s' - '%s'",
                     response.status,
                     error,
@@ -254,7 +255,7 @@ class NetworkBase:
 
             case (status, "PerEndpointRequestThrottleExceeded" | "DestinyDirectBabelClientTimeout"):
                 # we are getting throttled (should never be called in theory)
-                self.logger.warning(
+                self.logger_exceptions.warning(
                     "'%s - %s': Getting throttled for '%s' - '%s'",
                     status,
                     response.error,
@@ -314,7 +315,7 @@ class NetworkBase:
 
             case (status, "DestinyDirectBabelClientTimeout"):
                 # timeout
-                self.logger.warning(
+                self.logger_exceptions.warning(
                     "'%s - %s': Getting timeouts for '%s' - '%s'",
                     status,
                     response.error,
@@ -347,7 +348,7 @@ class NetworkBase:
 
             case (status, error):
                 # catch the rest
-                self.logger.error(
+                self.logger_exceptions.error(
                     "'%s - %s': Request failed for '%s' - '%s'",
                     status,
                     error,

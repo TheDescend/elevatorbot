@@ -18,6 +18,7 @@ class ElevatorOffline(Exception):
 @dataclasses.dataclass
 class ElevatorApi(NetworkBase):
     logger = logging.getLogger("elevatorApi")
+    logger_exceptions = logging.getLogger("elevatorApiExceptions")
 
     route = f"""http://{os.environ.get("ELEVATOR_HOST")}:{os.environ.get("ELEVATOR_PORT")}/"""
 

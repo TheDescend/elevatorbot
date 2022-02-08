@@ -273,10 +273,9 @@ class DestinyActivities:
                 results.append((i, t, pgcr.content))
 
             except Exception as e:
-                logger.error("Failed getting pgcr <%s>", i)
                 # log that
                 print(e)
-                logger.error(
+                logger_exceptions.error(
                     "Failed getting pgcr '%s' - Error '%s' - Traceback: \n'%s'",
                     i,
                     e,
@@ -306,6 +305,7 @@ class DestinyActivities:
 
         # get the logger
         logger = logging.getLogger("updateActivityDb")
+        logger_exceptions = logging.getLogger("updateActivityDbExceptions")
 
         try:
             # save the start time, so we can update the user afterwards
@@ -379,7 +379,7 @@ class DestinyActivities:
         except Exception as error:
             # log that
             print(error)
-            logger.error(
+            logger_exceptions.error(
                 "Activity DB update for destinyID '%s' - Error '%s' - Traceback: \n'%s'",
                 self.destiny_id,
                 error,

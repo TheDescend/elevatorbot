@@ -17,12 +17,13 @@ def init_logging() -> None:
     logger.make_logger("components")
     logger.make_logger("componentsExceptions")
 
-    # Initialize logging for registration
-    logger.make_logger("registration")
-
     # Initialize logging for background events
     logger.make_logger("backgroundEvents")
     logger.make_logger("backgroundEventsExceptions")
 
     # Initialize logging for backend networking
     logger.make_logger("backendNetworking")
+    logger.make_logger("backendNetworkingExceptions")
+
+    # Initialize logging for registration
+    logger.make_logger("registration")

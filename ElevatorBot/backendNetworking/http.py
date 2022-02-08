@@ -89,6 +89,12 @@ class BaseBackendConnection:
         compare=False,
         repr=False,
     )
+    logger_exceptions: logging.Logger = dataclasses.field(
+        default=logging.getLogger("backendNetworkingExceptions"),
+        init=False,
+        compare=False,
+        repr=False,
+    )
 
     # give request a max timeout of half an hour
     timeout: ClientTimeout = dataclasses.field(
@@ -212,12 +218,12 @@ class BaseBackendConnection:
 
             case 500:
                 # internal server error
-                self.logger.info("%s: '%s' - '%s'", response.status, response.method, response.url)
+                self.logger_exceptions.error("%s: '%s' - '%s'", response.status, response.method, response.url)
                 return "ProgrammingError"
 
             case _:
                 # if we don't know anything, just log it with the error
-                self.logger.error(
+                self.logger_exceptions.error(
                     "%s: '%s' - '%s' - '%s'",
                     response.status,
                     response.method,

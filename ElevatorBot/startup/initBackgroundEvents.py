@@ -57,7 +57,7 @@ async def register_background_events(client):
         job_name = client.scheduler.get_job(scheduler_event.job_id)
 
         # log the execution
-        logger = logging.getLogger("backgroundEvents")
+        logger = logging.getLogger("backgroundEventsExceptions")
         logger.warning("Event '%s' missed", job_name)
 
     client.scheduler.add_listener(event_missed, EVENT_JOB_MISSED)
