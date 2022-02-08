@@ -71,6 +71,8 @@ class LfgMessage:
     voice_category_channel: Optional[GuildCategory] = None
     voice_channel: Optional[GuildVoice] = None
 
+    deleted: bool = False
+
     def __post_init__(self):
         # get the button emojis
         self.__join_emoji = custom_emojis.join
@@ -342,7 +344,8 @@ class LfgMessage:
                 pass
 
         # delete DB entry
-        await self.backend.delete(discord_member_id=delete_command_user_id, lfg_id=self.id)
+        if not self.deleted:
+            await self.backend.delete(discord_member_id=self.author_id, lfg_id=self.id)
 
         # delete scheduler event
         # try to delete old job
@@ -394,6 +397,10 @@ class LfgMessage:
         """Notify joined members that the event is about to start"""
 
         voice_text = "Please start gathering in a voice channel"
+
+        # delete the backend entry
+        await self.backend.delete(lfg_id=self.id)
+        self.deleted = True
 
         # get the voice channel category and make a voice channel
         if self.voice_category_channel:
@@ -476,7 +483,6 @@ class LfgMessage:
 
         # edit the channel message
         await self.message.edit(embeds=embed, components=[])
-        await self.__dump_to_db()
 
         # wait timedelta + 10 min
         await asyncio.sleep(time_to_start.seconds + 60 * 10)
