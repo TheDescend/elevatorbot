@@ -29,11 +29,8 @@ def register_background_events() -> int:
     backgroundEvents.scheduler.add_listener(event_added, EVENT_JOB_ADDED)
 
     def event_removed(scheduler_event):
-        job = backgroundEvents.scheduler.get_job(scheduler_event.job_id)
-
-        # log the execution
         logger = logging.getLogger("backgroundEvents")
-        logger.info(f"Event '{job.func.__name__}' with ID '{scheduler_event.job_id}' has been removed")
+        logger.info(f"Event with ID '{scheduler_event.job_id}' has been removed")
 
     backgroundEvents.scheduler.add_listener(event_removed, EVENT_JOB_REMOVED)
 
