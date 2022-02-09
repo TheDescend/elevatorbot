@@ -51,7 +51,7 @@ services:
   backend:
     build:
       context: ./
-      dockerfile: ./Backend/Dockerfile
+      dockerfile: Backend/Dockerfile
     ports:
       - "${BACKEND_PORT}:${BACKEND_PORT}"
     volumes:
