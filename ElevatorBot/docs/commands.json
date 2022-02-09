@@ -127,6 +127,33 @@
                                 "description": "Use this is you want to edit the name of the activity",
                                 "required": false,
                                 "autocomplete": true
+                            },
+                            {
+                                "name": "start_time",
+                                "description": "Format: HH:MM DD/MM - Use this is you want to edit the start time of the activity",
+                                "required": false,
+                                "autocomplete": false
+                            },
+                            {
+                                "name": "timezone",
+                                "description": "Use this is you want to edit the start time of the activity",
+                                "required": false,
+                                "autocomplete": false,
+                                "choices": [
+                                    "GMT / UTC",
+                                    "Central Europe",
+                                    "Eastern Europe",
+                                    "Moscow / Turkey",
+                                    "Central US",
+                                    "Eastern US",
+                                    "Pacific US"
+                                ]
+                            },
+                            {
+                                "name": "overwrite_max_members",
+                                "description": "Use this is you want to edit the maximum number participants of the activity",
+                                "required": false,
+                                "autocomplete": false
                             }
                         ]
                     },

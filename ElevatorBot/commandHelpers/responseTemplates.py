@@ -77,15 +77,17 @@ async def respond_time_input_in_past(ctx: InteractionContext, hidden: bool = Tru
     return False
 
 
-async def respond_timeout(message: Optional[Message] = None):
+async def respond_timeout(message: Optional[Message] = None, ctx: Optional[InteractionContext] = None):
     """Respond to the given context"""
 
-    await message.edit(
-        embeds=embed_message(
-            "Error",
-            "You took too long. If you weren't finished, please try again. \nI can give you my grandmas phone number, her doing the typing might make it a bit faster 🙃",
-        ),
+    embed = embed_message(
+        "Error",
+        "You took too long. If you weren't finished, please try again. \nI can give you my grandmas phone number, her doing the typing might make it a bit faster 🙃",
     )
+    if message:
+        await message.edit(embeds=embed)
+    elif ctx:
+        await ctx.send(embeds=embed, ephemeral=True)
 
 
 async def respond_wrong_channel_type(

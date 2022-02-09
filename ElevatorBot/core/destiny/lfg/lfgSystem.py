@@ -22,6 +22,7 @@ from dis_snek import (
     InteractionContext,
     Member,
     Message,
+    ModalContext,
     OverwriteTypes,
     PermissionOverwrite,
     Permissions,
@@ -301,7 +302,7 @@ class LfgMessage:
             return True
         return False
 
-    async def send(self, ctx: Optional[ComponentContext | InteractionContext] = None):
+    async def send(self, ctx: Optional[ComponentContext | InteractionContext] = None, force_sort: bool = False):
         """Send / edit the message in the channel"""
 
         embed = await self.__return_embed()
@@ -309,7 +310,7 @@ class LfgMessage:
         if not self.message:
             self.message = await self.channel.send(embed=embed, components=self.__buttons)
             self.creation_time = get_now_with_tz()
-            first_send = True
+            force_sort = True
 
             # respond to the context
             if ctx:
@@ -326,7 +327,6 @@ class LfgMessage:
                 await ctx.edit_origin(embeds=embed, components=self.__buttons)
             else:
                 await self.message.edit(embeds=embed, components=self.__buttons)
-            first_send = False
 
         # update the database entry
         await self.__dump_to_db()
@@ -339,7 +339,7 @@ class LfgMessage:
             await self.schedule_event()
 
             # if message was freshly send, sort messages
-            if first_send:
+            if force_sort:
                 await self.__sort_lfg_messages()
 
     async def delete(self, delete_command_user_id: Optional[int] = None):

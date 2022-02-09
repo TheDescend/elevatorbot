@@ -1,4 +1,6 @@
-from dis_snek import InteractionContext, OptionTypes, slash_command, slash_option
+import asyncio
+
+from dis_snek import InteractionContext, Modal, OptionTypes, ParagraphText, ShortText, slash_command, slash_option
 
 from ElevatorBot.commandHelpers.autocomplete import activities, autocomplete_send_activity_name
 from ElevatorBot.commandHelpers.optionTemplates import (
@@ -6,6 +8,7 @@ from ElevatorBot.commandHelpers.optionTemplates import (
     default_time_option,
     get_timezone_choices,
 )
+from ElevatorBot.commandHelpers.responseTemplates import respond_timeout
 from ElevatorBot.commandHelpers.subCommandTemplates import lfg_sub_command
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.core.destiny.lfg.lfgSystem import LfgMessage
@@ -53,16 +56,40 @@ class LfgCreate(BaseScale):
 
         max_joined_members = activity.max_players
 
-        # todo modal
-        description = "placeholder until modals come out"
+        # get the description
         if overwrite_max_members:
             max_joined_members = overwrite_max_members
 
+        # ask more info in a modal
+        modal = Modal(
+            title="LFG Information",
+            components=[
+                ParagraphText(
+                    label="Updated Description for the LFG Event",
+                    custom_id="description",
+                    placeholder="Required",
+                    min_length=5,
+                    max_length=500,
+                    required=True,
+                ),
+            ],
+        )
+        await ctx.send_modal(modal=modal)
+
+        # wait 5 minutes for them to fill it out
+        try:
+            modal_ctx = await ctx.bot.wait_for_modal(modal=modal, timeout=300)
+
+        except asyncio.TimeoutError:
+            # give timeout message
+            await respond_timeout(ctx=ctx)
+            return
+
         # create lfg message
         await LfgMessage.create(
-            ctx=ctx,
+            ctx=modal_ctx,
             activity=activity.name,
-            description=description,
+            description=modal_ctx.responses["description"],
             start_time=start_time,
             max_joined_members=max_joined_members,
         )
