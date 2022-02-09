@@ -25,4 +25,4 @@ jobs:
           cd /usr/local/ElevatorBot
           git reset --hard HEAD
           git pull
-          docker-compose up --build
+          sudo docker-compose up --build --detach
