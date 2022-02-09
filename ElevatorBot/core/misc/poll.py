@@ -31,8 +31,10 @@ class Poll:
     guild: Guild
     channel: GuildText
     author: Member
-    message: Optional[Message] = None
 
+    image_url: Optional[str] = None
+
+    message: Optional[Message] = None
     id: Optional[int | str] = None
     choices: list[PollChoice] = dataclasses.field(default_factory=list)
 
@@ -79,12 +81,18 @@ class Poll:
                 if choice.name not in choice_names:
                     data.choices.append(PollChoice(name=choice.name, discord_ids=[]))
 
+        # get the image
+        image_url = None
+        if image := message.embeds[0].image:
+            image_url = image.url
+
         backend = BackendPolls(ctx=None, discord_member=author, guild=guild)
 
         return cls(
             backend=backend,
             name=data.name,
             description=data.description,
+            image_url=image_url,
             guild=guild,
             channel=channel,
             author=author,
@@ -234,6 +242,8 @@ class Poll:
             f"{self.description}\n**{total_users_count} votes**",
             f"Asked by {self.author.display_name}  |  ID: {self.id}",
         )
+        if self.image_url:
+            embed.set_image(self.image_url)
 
         # sort the data by most answers
         self.choices = sorted(self.choices, key=lambda item: len(item.discord_ids), reverse=True)

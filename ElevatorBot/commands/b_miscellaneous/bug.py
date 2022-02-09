@@ -33,7 +33,7 @@ class Bug(BaseScale):
         opt_type=OptionTypes.ATTACHMENT,
         required=False,
     )
-    async def bug(self, ctx: InteractionContext, message: str, image: Optional[Attachment]):
+    async def bug(self, ctx: InteractionContext, message: str, image: Attachment = None):
         if not image:
             image = "_No Image Provided_"
 

@@ -1,4 +1,4 @@
-from dis_snek import InteractionContext, OptionTypes, slash_command, slash_option
+from dis_snek import Attachment, InteractionContext, OptionTypes, slash_command, slash_option
 
 from ElevatorBot.backendNetworking.misc.polls import BackendPolls
 from ElevatorBot.commandHelpers.subCommandTemplates import poll_sub_command
@@ -24,13 +24,18 @@ class PollCreate(BaseScale):
         opt_type=OptionTypes.STRING,
         required=True,
     )
-    async def create(self, ctx: InteractionContext, name: str, description: str):
-        # todo allow images here
-
+    @slash_option(
+        name="image",
+        description="An image of the problem (press `win` + `shift` + `s`)",
+        opt_type=OptionTypes.ATTACHMENT,
+        required=False,
+    )
+    async def create(self, ctx: InteractionContext, name: str, description: str, image: Attachment = None):
         poll = Poll(
             backend=BackendPolls(ctx=ctx, discord_member=ctx.author, guild=ctx.guild),
             name=name,
             description=description,
+            image_url=image.url if image else None,
             guild=ctx.guild,
             channel=ctx.channel,
             author=ctx.author,
