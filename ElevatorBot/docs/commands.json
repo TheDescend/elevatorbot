@@ -1041,7 +1041,7 @@
                     {
                         "name": "image",
                         "description": "An image of the problem (press win + shift + s)",
-                        "required": true,
+                        "required": false,
                         "autocomplete": false
                     }
                 ]

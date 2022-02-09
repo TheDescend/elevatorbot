@@ -43,7 +43,7 @@ Then, use `/lfg create` and follow the instructions to make an event.
 Due to timezones sucking and there being at least 16789 of them, you might not find your own timezone in the list. In that case please use UTC and an online converter.
 ⁣
 {custom_emojis.circle} **Step 3-464:**
-Praise {ctx.bot.user.mention}!
+`for i in range(3, 464): print(f"praise {{self.mention}}!")`
 ⁣
 {custom_emojis.circle} **Step 465:**
 After you made the LFG post, or if you just want to join an existing post, use the fancy buttons to interact with the event.
