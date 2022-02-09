@@ -1,7 +1,11 @@
 name: Deploy Release
 
 on:
-  release
+  push:
+    branches:
+      - master
+    paths:
+      - version.py
 
 jobs:
   deploy:
