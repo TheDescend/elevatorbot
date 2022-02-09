@@ -19,6 +19,9 @@ COPY ./settings.toml /app/Website/settings.toml
 COPY ./logo.png /app/Website/public/images/logo.png
 COPY ./logo_small.png /app/Website/public/images/logo_small.png
 
+# copy the command docs
+COPY ./ElevatorBot/docs /app/Website/data/docs
+
 # copy everything else
 COPY ./Website /app/Website
 WORKDIR /app/Website

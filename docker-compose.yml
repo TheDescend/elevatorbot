@@ -56,6 +56,8 @@ services:
       - "${BACKEND_PORT}:${BACKEND_PORT}"
     volumes:
       - ./logs/Backend:/app/Logs/Backend
+    platform:
+      linux/amd64
     environment:
       - POSTGRES_DB
       - POSTGRES_USER
@@ -82,12 +84,11 @@ services:
   website:
     build:
       context: ./
-      dockerfile: Website/Dockerfile
+      dockerfile: ./Website/Dockerfile
     ports:
       - "${WEBSITE_PORT}:${WEBSITE_PORT}"
     volumes:
       - ./Logs/Website:/app/Website/logs
-      - ./ELevatorBot/docs:/app/Website/data/docs
     environment:
       - BACKEND_HOST
       - BACKEND_PORT
