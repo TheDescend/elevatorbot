@@ -369,13 +369,14 @@ class LfgMessage:
         except JobLookupError:
             pass
 
-    async def alert_start_time_changed(self, previous_start_time: datetime.datetime):
+    async def alert_start_time_changed(self, new_start_time: datetime.datetime):
         """Alert all joined / backups that the event start time was changed"""
 
         embed = embed_message(
             "Attention Please",
-            f"The start time for the lfg event [{self.id}]({self.message.jump_url}) has changed \nIt changed from {Timestamp.fromdatetime(previous_start_time).format(style=TimestampStyles.ShortDateTime)} to {Timestamp.fromdatetime(self.start_time).format(style=TimestampStyles.ShortDateTime)}",
+            f"The start time for the lfg event [{self.id}]({self.message.jump_url}) has changed \nIt changed from {Timestamp.fromdatetime(self.start_time).format(style=TimestampStyles.ShortDateTime)} to {Timestamp.fromdatetime(new_start_time).format(style=TimestampStyles.ShortDateTime)}",
         )
+        self.start_time = new_start_time
 
         for user_id in self.joined_ids + self.backup_ids:
             try:

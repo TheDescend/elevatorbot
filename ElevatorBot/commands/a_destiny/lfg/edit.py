@@ -121,13 +121,12 @@ class LfgEdit(BaseScale):
         # update the data
         sort = False
         if start_time:
-            await lfg_message.alert_start_time_changed(previous_start_time=lfg_message.start_time)
-            lfg_message.start_time = start_time
+            await lfg_message.alert_start_time_changed(new_start_time=start_time)
             sort = True
         if overwrite_max_members:
             lfg_message.max_joined_members = overwrite_max_members
         if activity:
-            lfg_message.activity = activity
+            lfg_message.activity = activity.name
         if (description := modal_ctx.responses["description"]) != lfg_message.description:
             lfg_message.description = description
 

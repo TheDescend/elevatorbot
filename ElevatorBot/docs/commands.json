@@ -978,6 +978,12 @@
                                 "description": "The description the poll should have",
                                 "required": true,
                                 "autocomplete": false
+                            },
+                            {
+                                "name": "image",
+                                "description": "An image of the problem (press win + shift + s)",
+                                "required": false,
+                                "autocomplete": false
                             }
                         ]
                     },

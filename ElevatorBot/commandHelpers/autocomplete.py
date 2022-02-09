@@ -17,7 +17,7 @@ lore: dict[str, DestinyLoreModel] = {}
 lore_by_id: dict[int, DestinyLoreModel] = {}
 
 
-async def autocomplete_send_activity_name(ctx: AutocompleteContext, activity: str):
+async def autocomplete_send_activity_name(ctx: AutocompleteContext, activity: str, *args, **kwargs):
     """Send the user the best fitting activities (fuzzy)"""
 
     best_matches = process.extract(activity.lower(), list(activities), scorer=fuzz.WRatio, limit=25)
@@ -32,7 +32,7 @@ async def autocomplete_send_activity_name(ctx: AutocompleteContext, activity: st
     )
 
 
-async def autocomplete_send_weapon_name(ctx: AutocompleteContext, weapon: str):
+async def autocomplete_send_weapon_name(ctx: AutocompleteContext, weapon: str, *args, **kwargs):
     """Send the user the best fitting weapons (fuzzy)"""
 
     best_matches = process.extract(weapon.lower(), list(weapons), scorer=fuzz.WRatio, limit=25)
@@ -47,7 +47,7 @@ async def autocomplete_send_weapon_name(ctx: AutocompleteContext, weapon: str):
     )
 
 
-async def autocomplete_send_lore_name(ctx: AutocompleteContext, name: str):
+async def autocomplete_send_lore_name(ctx: AutocompleteContext, name: str, *args, **kwargs):
     """Send the user the best fitting lore name (fuzzy)"""
 
     best_matches = process.extract(name.lower(), list(lore), scorer=fuzz.WRatio, limit=25)
