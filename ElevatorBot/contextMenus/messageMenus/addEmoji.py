@@ -1,8 +1,10 @@
+import asyncio
 import io
 
 import aiohttp
-from dis_snek import CommandTypes, InteractionContext, Message, context_menu
+from dis_snek import CommandTypes, InteractionContext, Message, Modal, ShortText, context_menu
 
+from ElevatorBot.commandHelpers.responseTemplates import respond_timeout
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formatting import embed_message
 from Shared.functions.readSettingsFile import get_setting
@@ -42,12 +44,34 @@ class MessageMenuCommands(BaseScale):
                     await ctx.send(ephemeral=True, embeds=embed_message("Error", "Web request failed, try again"))
                 image_data = io.BytesIO(await resp.read())
 
-        # todo wait for modals
-        name = "aaa"
+        # ask for name in a modal
+        modal = Modal(
+            title="Emoji Name",
+            components=[
+                ShortText(
+                    label="What should the name of the emoji be?",
+                    custom_id="name",
+                    placeholder="Required",
+                    min_length=1,
+                    max_length=20,
+                    required=True,
+                ),
+            ],
+        )
+        await ctx.send_modal(modal=modal)
 
-        emoji = await ctx.guild.create_custom_emoji(name=name, imagefile=image_data)
+        # wait 5 minutes for them to fill it out
+        try:
+            modal_ctx = await ctx.bot.wait_for_modal(modal=modal, timeout=300)
+
+        except asyncio.TimeoutError:
+            # give timeout message
+            await respond_timeout(ctx=ctx)
+            return
+
+        emoji = await ctx.guild.create_custom_emoji(name=modal_ctx.responses["name"], imagefile=image_data)
         await message.add_reaction(emoji)
-        await ctx.send("Success!", ephemeral=True)
+        await modal_ctx.send("Success!", ephemeral=True)
 
 
 def setup(client):

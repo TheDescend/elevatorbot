@@ -1,6 +1,6 @@
 from typing import Optional
 
-from dis_snek import ComponentContext, InteractionContext, Member, Message, SnakeBotUser
+from dis_snek import ComponentContext, InteractionContext, Member, Message, ModalContext, SnakeBotUser
 
 from ElevatorBot.backendNetworking.errorCodesAndResponses import error_codes_and_responses
 from ElevatorBot.misc.formatting import embed_message
@@ -77,7 +77,7 @@ async def respond_time_input_in_past(ctx: InteractionContext, hidden: bool = Tru
     return False
 
 
-async def respond_timeout(message: Optional[Message] = None, ctx: Optional[InteractionContext] = None):
+async def respond_timeout(message: Optional[Message] = None, ctx: Optional[InteractionContext | ModalContext] = None):
     """Respond to the given context"""
 
     embed = embed_message(

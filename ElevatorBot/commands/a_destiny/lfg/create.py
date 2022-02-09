@@ -15,7 +15,6 @@ from ElevatorBot.core.destiny.lfg.lfgSystem import LfgMessage
 from ElevatorBot.misc.helperFunctions import parse_string_datetime
 
 
-# todo switch start time / timezone / description / max member overwrite to modals (show current max members)
 class LfgCreate(BaseScale):
     @slash_command(
         **lfg_sub_command,

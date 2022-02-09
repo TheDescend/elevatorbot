@@ -15,8 +15,6 @@ from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.core.destiny.lfg.lfgSystem import LfgMessage
 from ElevatorBot.misc.discordShortcutFunctions import has_admin_permission
 from ElevatorBot.misc.formatting import embed_message
-
-# todo switch start time / timezone / description / max member overwrite to modals (show current max members)
 from ElevatorBot.misc.helperFunctions import parse_string_datetime
 
 
