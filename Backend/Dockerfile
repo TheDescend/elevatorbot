@@ -1,5 +1,4 @@
 FROM kigstn/uvicorn-gunicorn-fastapi:python3.10.2
-FROM python:3.10.2
 
 # we want stdout
 ENV PYTHONDONTWRITEBYTECODE=1
