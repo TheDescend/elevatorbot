@@ -44,7 +44,7 @@ export default function BungieRegistration({status_code, content}) {
                     Successfully linked your discord account to destiny user <code>{content["bungie_name"]}</code>.
                 </p>
                 <p>
-                    Come say hi in discord, there may or may not be cake.
+                    Come say hi in discord, there may or may not be <a href="https://i.pinimg.com/originals/78/40/41/784041a708117f22ffe0a2bae7e600e2.png">cake</a>
                 </p>
             </Description>
         </Layout>

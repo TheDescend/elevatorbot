@@ -1,4 +1,5 @@
 import logging
+import traceback
 from datetime import timedelta
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
@@ -45,12 +46,21 @@ async def save_bungie_token(
 
     # send a msg to Elevator and get the mutual guild ids
     elevator_api = ElevatorApi()
-    response = await elevator_api.post(
-        route_addition="/registration",
-        json={
-            "discord_id": discord_id,
-        },
-    )
+    try:
+        response = await elevator_api.post(
+            route_addition="/registration",
+            json={
+                "discord_id": discord_id,
+            },
+        )
+    except Exception as error:
+        response = None
+
+        # it is bad if this fails, since it disrupts the user flow
+        logger = logging.getLogger("elevatorApiExceptions")
+        logger.exception(
+            f"""Registration Error '{error}' - Traceback: \n'{"".join(traceback.format_tb(error.__traceback__))}'"""
+        )
 
     # see if we could connect
     if response is not None:

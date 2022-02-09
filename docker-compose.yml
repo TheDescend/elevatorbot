@@ -55,7 +55,7 @@ services:
     ports:
       - "${BACKEND_PORT}:${BACKEND_PORT}"
     volumes:
-      - ./logs/Backend:/app/Logs/Backend
+      - ./Logs/Backend:/app/Logs/Backend
     environment:
       - POSTGRES_DB
       - POSTGRES_USER
