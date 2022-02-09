@@ -21,7 +21,7 @@ async def get_github_repo() -> Optional[Repository]:
             github_api = Github(get_setting("GITHUB_APPLICATION_API_KEY"))
 
             # run those in a thread with anyio since they are blocking
-            _REPO = await to_thread.run_sync(github_api.get_repo, get_setting("GITHUB_REPOSITORY_ID"))
+            _REPO = await to_thread.run_sync(github_api.get_repo, int(get_setting("GITHUB_REPOSITORY_ID")))
 
     return _REPO
 

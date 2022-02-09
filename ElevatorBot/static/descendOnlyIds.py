@@ -6,13 +6,14 @@ from Shared.functions.readSettingsFile import get_setting
 
 
 class __DescendChannels:
-    guild: Guild | int | None = get_setting("DESCEND_GUILD_ID")
+    def __init__(self):
+        self.guild: Guild | int | None = get_setting("DESCEND_GUILD_ID")
 
-    admin_channel: GuildText | int | None = get_setting("DESCEND_CHANNEL_ADMIN_ID")
-    bot_dev_channel: GuildText | int | None = get_setting("DESCEND_CHANNEL_BOT_DEV_ID")
-    registration_channel: GuildText | int | None = get_setting("DESCEND_CHANNEL_REGISTRATION_ID")
-    community_roles_channel: GuildText | int | None = get_setting("DESCEND_CHANNEL_COMMUNITY_ROLES_ID")
-    join_log_channel: GuildText | int | None = get_setting("DESCEND_CHANNEL_JOIN_LOG_ID")
+        self.admin_channel: GuildText | int | None = get_setting("DESCEND_CHANNEL_ADMIN_ID")
+        self.bot_dev_channel: GuildText | int | None = get_setting("DESCEND_CHANNEL_BOT_DEV_ID")
+        self.registration_channel: GuildText | int | None = get_setting("DESCEND_CHANNEL_REGISTRATION_ID")
+        self.community_roles_channel: GuildText | int | None = get_setting("DESCEND_CHANNEL_COMMUNITY_ROLES_ID")
+        self.join_log_channel: GuildText | int | None = get_setting("DESCEND_CHANNEL_JOIN_LOG_ID")
 
     async def init_channels(self, client: ElevatorSnake):
         """Runs on startup to get the channels we use"""
