@@ -1,6 +1,7 @@
 # todo change back on full release
 # FROM kigstn/uvicorn-gunicorn-fastapi:python3.10.2
 FROM python:3.10.2
+RUN pip3.10 install uvicorn
 
 # we want stdout
 ENV PYTHONDONTWRITEBYTECODE=1
