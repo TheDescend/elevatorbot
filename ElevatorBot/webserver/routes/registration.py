@@ -28,7 +28,7 @@ async def registration(request: web.Request):
     await user.send(
         embeds=embed_message(
             "Registration",
-            f"{elevator_emoji} **You have registered successfully, thank you!** {elevator_emoji}\n⁣\n{enter_emoji}Registration is global, so you do not need to re-register, when you join a new server where I am also present\n{enter_emoji}If you want to link a different Destiny Account, just `/register` again",
+            f"{elevator_emoji} **You have registered successfully, thank you!** {elevator_emoji}\n⁣\n{enter_emoji} Registration is global, so you do not need to re-register, when you join a new server where I am also present\n{enter_emoji} If you want to link a different Destiny Account, just `/register` again",
         )
     )
 
