@@ -1,5 +1,4 @@
-# todo change back on full release
-# FROM kigstn/uvicorn-gunicorn-fastapi:python3.10.2
+FROM kigstn/uvicorn-gunicorn-fastapi:python3.10.2
 FROM python:3.10.2
 
 # we want stdout
@@ -10,7 +9,8 @@ ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH "${PYTHONPATH}:/app"
 
 # install the requirements
-RUN pip3.10 install uvloop
+# todo change back on full release
+# RUN pip3.10 install uvloop
 COPY ./Backend/requirements.txt /app/Backend/requirements.txt
 RUN pip3.10 install -r /app/Backend/requirements.txt
 

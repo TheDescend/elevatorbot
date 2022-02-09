@@ -56,8 +56,6 @@ services:
       - "${BACKEND_PORT}:${BACKEND_PORT}"
     volumes:
       - ./logs/Backend:/app/Logs/Backend
-    platform:
-      linux/amd64
     environment:
       - POSTGRES_DB
       - POSTGRES_USER

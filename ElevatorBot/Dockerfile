@@ -8,7 +8,8 @@ ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH "${PYTHONPATH}:/app"
 
 # install the requirements
-RUN pip3.10 install uvloop
+# todo change back on full release
+# RUN pip3.10 install uvloop
 COPY ./ElevatorBot/requirements.txt /app/ElevatorBot/requirements.txt
 RUN pip3.10 install -r /app/ElevatorBot/requirements.txt
 
