@@ -1066,12 +1066,6 @@
                 "description": "Use this if you want to report any bugs to the developer",
                 "options": [
                     {
-                        "name": "message",
-                        "description": "Please describe **in detail** the bug you have noticed",
-                        "required": true,
-                        "autocomplete": false
-                    },
-                    {
                         "name": "image",
                         "description": "An image of the problem (press win + shift + s)",
                         "required": false,
