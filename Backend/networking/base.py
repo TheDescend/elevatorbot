@@ -197,7 +197,7 @@ class NetworkBase:
             case (401, _) | (_, "invalid_grant" | "AuthorizationCodeInvalid"):
                 # unauthorized
                 self.logger_exceptions.error(
-                    f"'{response.status} - {response.error}': Unauthorized request for '{route_with_params}' - '{response}'"
+                    f"'{response.status} - {response.error}': Unauthorized (too slow, user fault) request for '{route_with_params}'"
                 )
                 raise CustomException("BungieUnauthorized")
 
@@ -242,9 +242,7 @@ class NetworkBase:
 
             case (status, "ClanInviteAlreadyMember"):
                 # if user is in clan
-                self.logger.error(
-                    f"'{status} - {response.error}': User is already in clan '{route_with_params}' - '{response}'"
-                )
+                self.logger.warning(f"'{status} - {response.error}': User is already in clan '{route_with_params}'")
                 raise CustomException("BungieClanInviteAlreadyMember")
 
             case (status, "GroupMembershipNotFound"):
