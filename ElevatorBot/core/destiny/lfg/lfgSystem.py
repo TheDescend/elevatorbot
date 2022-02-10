@@ -332,15 +332,16 @@ class LfgMessage:
         await self.__dump_to_db()
 
         # schedule the event
-        # skip that if the event starts within 15 minutes
-        if self.start_time < (get_now_with_tz() + datetime.timedelta(minutes=15)):
-            await self.__notify_about_start()
-        else:
-            await self.schedule_event()
+        if isinstance(self.start_time, datetime.datetime):
+            # skip that if the event starts within 15 minutes
+            if self.start_time < (get_now_with_tz() + datetime.timedelta(minutes=15)):
+                await self.__notify_about_start()
+            else:
+                await self.schedule_event()
 
-            # if message was freshly send, sort messages
-            if force_sort:
-                await self.__sort_lfg_messages()
+                # if message was freshly send, sort messages
+                if force_sort:
+                    await self.__sort_lfg_messages()
 
     async def delete(self, delete_command_user_id: Optional[int] = None):
         """Removes the message and also the database entries"""
