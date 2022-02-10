@@ -20,7 +20,7 @@ class TokenUpdater(BaseEvent):
 
     async def run(self):
         async with get_async_session().begin() as db:
-            all_users = await discord_users.get_all_name(db=db)
+            all_users = await discord_users.get_all(db=db)
 
             # loop through all users
             # no need to task group this. this can take time, it's fine
