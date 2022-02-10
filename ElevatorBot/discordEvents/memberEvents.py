@@ -157,9 +157,7 @@ async def _assign_roles_on_join(member: Member):
 
     # add filler roles for descend
     if member.guild == descend_channels.guild:
-        await assign_roles_to_member(
-            member=member, *get_setting("DESCEND_ROLE_FILLER_IDS"), reason="Destiny 2 Filler Roles"
-        )
+        await assign_roles_to_member(member, *get_setting("DESCEND_ROLE_FILLER_IDS"), reason="Destiny 2 Filler Roles")
 
     # assign their roles
     await Roles(guild=member.guild, member=member, ctx=None).update()

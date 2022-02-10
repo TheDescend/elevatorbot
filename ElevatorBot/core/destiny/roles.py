@@ -142,19 +142,19 @@ class Roles:
 
         # assign new roles
         await assign_roles_to_member(
-            member=self.member,
+            self.member,
             *[role_data.discord_role_id for role_data in result.earned],
             reason="Destiny 2 Role Update",
         )
 
         # remove old roles
         await remove_roles_from_member(
-            member=self.member,
+            self.member,
             *[role_data.discord_role_id for role_data in result.earned_but_replaced_by_higher_role],
             reason="Destiny 2 Role Update",
         )
         await remove_roles_from_member(
-            member=self.member,
+            self.member,
             *[role_data.discord_role_id for role_data in result.not_earned],
             reason="Destiny 2 Role Update",
         )

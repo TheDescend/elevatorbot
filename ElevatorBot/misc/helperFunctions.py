@@ -105,9 +105,15 @@ async def log_error(
 ) -> None:
     """Respond to the context and log error"""
 
+    # get the command name or the component name
+    if isinstance(ctx, ComponentContext):
+        extra = f"CustomID {ctx.custom_id}"
+    else:
+        extra = f"CommandName '/{ctx.invoked_name}'"
+
     # log the error
     logger.exception(
-        f"InteractionID '{ctx.interaction_id}' - Error '{error}' - Traceback: \n{''.join(traceback.format_tb(error.__traceback__))}"
+        f"InteractionID '{ctx.interaction_id}' - {extra} - Error '{error}' - Traceback: \n{''.join(traceback.format_tb(error.__traceback__))}"
     )
 
     if not ctx.responded:
