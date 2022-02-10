@@ -66,7 +66,7 @@ class DestinyProfile(BaseBackendConnection):
         """Checks if the user is registered"""
 
         # check in cache if the user is registered
-        if await registered_role_cache.is_not_registered(self.discord_member.id):
+        if registered_role_cache.is_not_registered(self.discord_member.id):
             result = DestinyHasTokenModel(token=False)
         else:
             try:

@@ -46,7 +46,7 @@ class RegisteredRoleCache:
 
         return self.guild_to_role[guild.id]
 
-    async def is_not_registered(self, user_id: int) -> bool:
+    def is_not_registered(self, user_id: int) -> bool:
         """Returns True if the user is not registered and that is cached. False if we dont know"""
 
         return user_id in self.not_registered_users
