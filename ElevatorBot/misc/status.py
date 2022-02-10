@@ -48,7 +48,7 @@ async def update_events_status_message(event_name: str):
     if not descend_cache.status_message:
         return
 
-    embed = copy(descend_cache.message.embeds[0])
+    embed = copy(descend_cache.status_message.message.embeds[0])
     embed.timestamp = now
 
     # get all the fields from the embed and change the one we are looking for
