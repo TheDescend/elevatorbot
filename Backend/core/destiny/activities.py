@@ -466,7 +466,7 @@ class DestinyActivities:
                 TimePeriodModel(start_time=start_time or datetime.datetime.min, end_time=end_time or get_now_with_tz())
             ]
 
-        data = await crud_activities.get_activities(
+        data_full = await crud_activities.get_activities(
             db=self.db,
             activity_hashes=activity_ids,
             mode=mode,
@@ -474,10 +474,24 @@ class DestinyActivities:
             allow_time_periods=allow_time_period,
             character_class=character_class,
             character_ids=character_ids,
+            no_checkpoints=True,
+            only_completed=False,
+        )
+        data_cp = await crud_activities.get_activities(
+            db=self.db,
+            activity_hashes=activity_ids,
+            mode=mode,
+            destiny_id=self.destiny_id,
+            allow_time_periods=allow_time_period,
+            character_class=character_class,
+            character_ids=character_ids,
+            no_checkpoints=False,
+            only_checkpoint=False,
+            only_completed=False,
         )
 
         # get output model
-        result = await to_thread.run_sync(get_activity_stats_subprocess, data)
+        result = await to_thread.run_sync(get_activity_stats_subprocess, data_full, data_cp)
 
         return result
 
@@ -511,7 +525,9 @@ def get_lowman_count_subprocess(
     return count, flawless_count, not_flawless_count, fastest, fastest_instance_id
 
 
-def get_activity_stats_subprocess(data: list[ActivitiesUsers]) -> DestinyActivityOutputModel:
+def get_activity_stats_subprocess(
+    data_full: list[ActivitiesUsers], data_cp: list[ActivitiesUsers]
+) -> DestinyActivityOutputModel:
     """Run in anyio subprocess on another thread since this might be slow"""
 
     result = DestinyActivityOutputModel(
@@ -530,48 +546,51 @@ def get_activity_stats_subprocess(data: list[ActivitiesUsers]) -> DestinyActivit
     # save some stats for each activity. needed because a user can participate with multiple characters in an activity
     # key: instance_id
     activities_time_played: dict[int, datetime.timedelta] = {}
-    activities_completed: dict[int, bool] = {}
+    activities_total: list[int] = []
+    activities_completed: list[int] = []
 
     # loop through all results
-    for activity_stats in data:
+    for activity_stats in data_cp + data_full:
         result.kills += activity_stats.kills
         result.precision_kills += activity_stats.precision_kills
         result.deaths += activity_stats.deaths
         result.assists += activity_stats.assists
         result.time_spend += datetime.timedelta(seconds=activity_stats.time_played_seconds)
 
-        # register the activity completion (with all chars)
-        if (activity_stats.activity_instance_id not in activities_completed) or (
-            not activities_completed[activity_stats.activity_instance_id] and bool(activity_stats.completed)
-        ):
-            activities_completed.update({activity_stats.activity_instance_id: True})
+        # register all activity completions
+        if activity_stats.activity_instance_id not in activities_total:
+            if bool(activity_stats.completed):
+                activities_total.append(activity_stats.activity_instance_id)
+
+    for activity_stats in data_full:
+        # register the full activity completions (with all chars)
+        if activity_stats.activity_instance_id not in activities_completed:
+            if bool(activity_stats.completed):
+                activities_completed.append(activity_stats.activity_instance_id)
 
         # register the activity duration (once, same for all chars)
         if activity_stats.activity_instance_id not in activities_time_played:
-            activities_time_played.update(
-                {
-                    activity_stats.activity_instance_id: datetime.timedelta(
-                        seconds=activity_stats.activity_duration_seconds
-                    )
-                }
-            )
+            activities_time_played[activity_stats.activity_instance_id] = datetime.timedelta(seconds=0)
+        activities_time_played[activity_stats.activity_instance_id] += datetime.timedelta(
+            seconds=activity_stats.activity_duration_seconds
+        )
 
-    # get the completion count
-    result.full_completions = sum(activities_completed.values())
-    result.cp_completions = len(activities_completed) - result.full_completions
+    result.full_completions = len(activities_completed)
+    result.cp_completions = len(activities_total) - result.full_completions
 
-    # get the fastest / average time
-    activities_completed_time_played: dict[int, datetime.timedelta] = {}
-    for completed_id, completed in activities_completed.items():
-        if completed:
-            activities_completed_time_played.update({completed_id: activities_time_played[completed_id]})
+    # make sure the fastest / average activity was completed
+    activities_time_played = {
+        activity_id: time_played
+        for activity_id, time_played in activities_time_played.items()
+        if activity_id in activities_completed
+    }
 
     # only do that if they actually played an activity tho
-    if activities_completed_time_played:
-        result.fastest_instance_id = min(activities_completed_time_played, key=activities_completed_time_played.get)
-        result.fastest = activities_completed_time_played[result.fastest_instance_id]
-        result.average = sum(activities_completed_time_played.values(), datetime.timedelta(seconds=0)) / len(
-            activities_completed_time_played
+    if activities_time_played:
+        result.fastest_instance_id = min(activities_time_played, key=activities_time_played.get)
+        result.fastest = activities_time_played[result.fastest_instance_id]
+        result.average = sum(activities_time_played.values(), datetime.timedelta(seconds=0)) / len(
+            activities_time_played
         )
 
     return result

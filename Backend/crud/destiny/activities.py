@@ -168,7 +168,9 @@ class CRUDActivities(CRUDBase):
         destiny_id: int,
         activity_hashes: Optional[list[int]] = None,
         mode: Optional[int] = None,
+        only_completed: bool = True,
         no_checkpoints: bool = True,
+        only_checkpoint: bool = False,
         require_team_flawless: bool = False,
         require_individual_flawless: bool = False,
         character_class: Optional[str] = None,
@@ -190,6 +192,8 @@ class CRUDActivities(CRUDBase):
         query = query.group_by(ActivitiesUsers.id)
         query = query.group_by(Activities.instance_id)
 
+        query = query.filter(ActivitiesUsers.destiny_id == destiny_id)
+
         # filter activity hashes
         if activity_hashes:
             query = query.filter(Activities.director_activity_hash.in_(activity_hashes))
@@ -201,14 +205,16 @@ class CRUDActivities(CRUDBase):
         # do we accept non checkpoint runs?
         if no_checkpoints:
             query = query.filter(Activities.starting_phase_index == 0)
+        if only_checkpoint:
+            query = query.filter(Activities.starting_phase_index != 0)
 
         # team flawless required?
         if require_team_flawless:
             query = query.having(func.count(distinct(ActivitiesUsers.deaths)) == 0)
 
         # check completion status
-        query = query.filter(ActivitiesUsers.destiny_id == destiny_id)
-        query = query.filter(ActivitiesUsers.completed == 1)
+        if only_completed:
+            query = query.filter(ActivitiesUsers.completed == 1)
         query = query.filter(ActivitiesUsers.completion_reason == 0)
 
         # individual flawless required?
