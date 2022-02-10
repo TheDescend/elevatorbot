@@ -18,6 +18,7 @@ from ElevatorBot import backgroundEvents
 from ElevatorBot.backendNetworking.destiny.lfgSystem import DestinyLfgSystem
 from ElevatorBot.core.destiny.lfg.lfgSystem import LfgMessage
 from ElevatorBot.discordEvents.errorEvents import parse_dis_snek_error
+from Shared.functions.helperFunctions import get_class_name
 
 
 async def register_background_events(client):
@@ -32,7 +33,7 @@ async def register_background_events(client):
 
         # log the execution
         logger = logging.getLogger("backgroundEvents")
-        logger.info(f"Event '{job.func.__name__}' with ID '{scheduler_event.job_id}' has been added")
+        logger.info(f"Event '{get_class_name(job.func)}' with ID '{scheduler_event.job_id}' has been added")
 
     client.scheduler.add_listener(event_added, EVENT_JOB_ADDED)
 

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import datetime
+import inspect
 
 
 def get_now_with_tz() -> datetime.datetime:
@@ -19,3 +20,11 @@ def localize_datetime(obj: datetime.datetime) -> datetime.datetime:
     """Returns a timezone aware object, localized to the system timezone"""
 
     return obj.astimezone()
+
+
+def get_class_name(method) -> str:
+    """Get the name of the (first children) class that implements this method"""
+
+    for cls in inspect.getmro(method.__self__.__class__):
+        if method.__name__ in cls.__dict__:
+            return cls.__name__

@@ -14,6 +14,7 @@ from apscheduler.events import (
 from apscheduler.job import Job
 
 from Backend import backgroundEvents
+from Shared.functions.helperFunctions import get_class_name
 
 
 def register_background_events() -> int:
@@ -28,7 +29,7 @@ def register_background_events() -> int:
 
         # log the execution
         logger = logging.getLogger("backgroundEvents")
-        logger.info(f"Event '{job.func.__name__}' with ID '{scheduler_event.job_id}' has been added")
+        logger.info(f"Event '{get_class_name(job.func)}' with ID '{scheduler_event.job_id}' has been added")
 
     backgroundEvents.scheduler.add_listener(event_added, EVENT_JOB_ADDED)
 
