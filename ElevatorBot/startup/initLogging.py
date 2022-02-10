@@ -25,5 +25,6 @@ def init_logging() -> None:
     logger.make_logger("backendNetworking")
     logger.make_logger("backendNetworkingExceptions")
 
-    # Initialize logging for registration
-    logger.make_logger("registration")
+    # Initialize logging for webserver stuff
+    logger.make_logger("webServer")
+    logger.make_logger("webServerExceptions")

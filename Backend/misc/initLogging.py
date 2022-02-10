@@ -23,3 +23,6 @@ def init_logging() -> None:
     # Initialize logging for activity DB updates
     logger.make_logger("updateActivityDb")
     logger.make_logger("updateActivityDbExceptions")
+
+    # Initialize logging for registrations
+    logger.make_logger("registration")

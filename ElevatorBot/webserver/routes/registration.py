@@ -38,6 +38,4 @@ async def registration(request: web.Request):
 
     # reply with the guilds the user is in
     # that's needed for the role assignment
-    guild_ids = [guild.id for guild in user.mutual_guilds]
-
-    return web.json_response({"guild_ids": guild_ids})
+    return web.json_response({"guild_ids": [guild.id for guild in user.mutual_guilds]})

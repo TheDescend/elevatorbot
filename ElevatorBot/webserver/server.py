@@ -1,3 +1,6 @@
+import logging
+import traceback
+
 from aiohttp import web
 
 from ElevatorBot.webserver.routes.manifestUpdate import manifest_update
@@ -7,8 +10,27 @@ from ElevatorBot.webserver.routes.roles import roles
 from ElevatorBot.webserver.routes.statusUpdate import status_update
 
 
+@web.middleware
+async def log_requests(request: web.Request, handler):
+    try:
+        response = await handler(request)
+
+        # log the successful request
+        logger = logging.getLogger("webServer")
+        logger.info(f"'{response.status}': '{request.path_qs}'")
+
+        return response
+
+    except Exception as error:
+        # logger any errors
+        logger = logging.getLogger("webServerExceptions")
+        logger.error(
+            f"""'{error}' for '{request.path_qs}' with body '{await request.json() if request.body_exists else ""}' - Traceback: \n'{"".join(traceback.format_tb(error.__traceback__))}'"""
+        )
+
+
 async def run_webserver(client):
-    app = web.Application()
+    app = web.Application(middlewares=[log_requests])
     app.add_routes(
         [
             web.post("/registration", registration),
