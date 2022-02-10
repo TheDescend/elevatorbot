@@ -586,7 +586,7 @@ class RankCommandHandler:
                 )
 
                 # save the stat
-                result.sort_value = stat.fastest
+                result.sort_value = stat.fastest if stat.fastest else 9999999
                 result.display_text = f"Fastest Time: {format_timedelta(stat.fastest)}"
 
                 result.sort_by_ascending = True
@@ -598,7 +598,7 @@ class RankCommandHandler:
                 )
 
                 # save the stat
-                result.sort_value = stat.average
+                result.sort_value = stat.average if stat.average else 9999999
                 result.display_text = f"Average Time: {format_timedelta(stat.average)}"
 
                 result.sort_by_ascending = True

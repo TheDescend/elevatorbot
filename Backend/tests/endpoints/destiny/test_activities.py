@@ -124,6 +124,25 @@ async def test_activity(client: AsyncClient, mocker: MockerFixture):
     assert data.fastest_instance_id == dummy_instance_id
     assert data.average.seconds == 917
 
+    # test for never run activities
+    input_model = DestinyActivityInputModel(activity_ids=[8761236781273])
+    r = await client.post(
+        f"/destiny/activities/{dummy_discord_guild_id}/{dummy_discord_id}/activity",
+        json=orjson.loads(input_model.json()),
+    )
+    assert r.status_code == 200
+    data = DestinyActivityOutputModel.parse_obj(r.json())
+    assert data.full_completions == 0
+    assert data.cp_completions == 0
+    assert data.kills == 0
+    assert data.precision_kills == 0
+    assert data.deaths == 0
+    assert data.assists == 0
+    assert data.time_spend.seconds == 0
+    assert data.fastest is None
+    assert data.fastest_instance_id is None
+    assert data.average is None
+
 
 @pytest.mark.asyncio
 async def test_get_grandmaster(client: AsyncClient, mocker: MockerFixture):

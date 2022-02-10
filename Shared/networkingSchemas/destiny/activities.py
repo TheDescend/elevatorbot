@@ -81,4 +81,4 @@ class DestinyActivityOutputModel(CustomBaseModel):
     time_spend: datetime.timedelta
     fastest: Optional[datetime.timedelta] = None  # only includes full runs
     fastest_instance_id: Optional[int] = None
-    average: datetime.timedelta
+    average: Optional[datetime.timedelta] = None

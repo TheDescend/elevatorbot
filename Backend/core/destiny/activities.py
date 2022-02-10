@@ -524,7 +524,7 @@ def get_activity_stats_subprocess(data: list[ActivitiesUsers]) -> DestinyActivit
         time_spend=datetime.timedelta(seconds=0),
         fastest=None,
         fastest_instance_id=None,
-        average=datetime.timedelta(seconds=0),
+        average=None,
     )
 
     # save some stats for each activity. needed because a user can participate with multiple characters in an activity
@@ -565,10 +565,13 @@ def get_activity_stats_subprocess(data: list[ActivitiesUsers]) -> DestinyActivit
     for completed_id, completed in activities_completed.items():
         if completed:
             activities_completed_time_played.update({completed_id: activities_time_played[completed_id]})
-    result.fastest_instance_id = min(activities_completed_time_played, key=activities_completed_time_played.get)
-    result.fastest = activities_completed_time_played[result.fastest_instance_id]
-    result.average = sum(activities_completed_time_played.values(), datetime.timedelta(seconds=0)) / len(
-        activities_completed_time_played
-    )
+
+    # only do that if they actually played an activity tho
+    if activities_completed_time_played:
+        result.fastest_instance_id = min(activities_completed_time_played, key=activities_completed_time_played.get)
+        result.fastest = activities_completed_time_played[result.fastest_instance_id]
+        result.average = sum(activities_completed_time_played.values(), datetime.timedelta(seconds=0)) / len(
+            activities_completed_time_played
+        )
 
     return result
