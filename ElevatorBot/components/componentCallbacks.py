@@ -5,6 +5,7 @@ from dis_snek import ComponentContext
 from github.GithubObject import NotSet
 
 from ElevatorBot.backendNetworking.destiny.clan import DestinyClan
+from ElevatorBot.backendNetworking.errors import BackendException
 from ElevatorBot.backendNetworking.github import get_github_repo
 from ElevatorBot.backendNetworking.misc.giveaway import BackendGiveaway
 from ElevatorBot.backendNetworking.misc.polls import BackendPolls
@@ -108,6 +109,7 @@ class ComponentCallbacks:
                     "Error", "You could not be added to the event because you are already in it or it is full"
                 ),
             )
+            raise BackendException
 
     @staticmethod
     async def lfg_leave(ctx: ComponentContext):

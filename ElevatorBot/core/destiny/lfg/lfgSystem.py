@@ -171,7 +171,20 @@ class LfgMessage:
                 lfg_id = int(field.value)
         assert isinstance(lfg_id, int)
 
-        return await LfgMessage.from_lfg_id(ctx=ctx, lfg_id=lfg_id, client=ctx.bot, guild=ctx.guild)
+        lfg_message = await LfgMessage.from_lfg_id(ctx=ctx, lfg_id=lfg_id, client=ctx.bot, guild=ctx.guild)
+
+        # error if that fails
+        if not lfg_message:
+            await ctx.message.delete()
+            await ctx.send(
+                embed=embed_message(
+                    "Error",
+                    "This LFG event has been lost to the depths of time in the vault of glass\nIt does not exist, and the message has now been deleted accordingly\nSorry for that",
+                ),
+                ephemeral=True,
+            )
+
+        return lfg_message
 
     @classmethod
     async def from_lfg_id(
