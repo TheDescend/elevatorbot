@@ -93,6 +93,7 @@ class CRUDActivities(CRUDBase):
                     bungie_name = "UnknownName"
                     bungie_code = 0000
 
+                extended_data = player_pgcr.get("extended", None)
                 player = ActivitiesUsers(
                     destiny_id=int(player_pgcr["player"]["destinyUserInfo"]["membershipId"]),
                     bungie_name=f"{bungie_name}#{bungie_code}",
@@ -121,25 +122,34 @@ class CRUDActivities(CRUDBase):
                     player_count=int(player_pgcr["values"]["playerCount"]["basic"]["value"]),
                     team_score=int(player_pgcr["values"]["teamScore"]["basic"]["value"]),
                     precision_kills=int(player_pgcr["extended"]["values"]["precisionKills"]["basic"]["value"]),
-                    weapon_kills_grenade=int(player_pgcr["extended"]["values"]["weaponKillsGrenade"]["basic"]["value"]),
-                    weapon_kills_melee=int(player_pgcr["extended"]["values"]["weaponKillsMelee"]["basic"]["value"]),
-                    weapon_kills_super=int(player_pgcr["extended"]["values"]["weaponKillsSuper"]["basic"]["value"]),
-                    weapon_kills_ability=int(player_pgcr["extended"]["values"]["weaponKillsAbility"]["basic"]["value"]),
+                    weapon_kills_grenade=int(extended_data["values"]["weaponKillsGrenade"]["basic"]["value"])
+                    if extended_data
+                    else 0,
+                    weapon_kills_melee=int(extended_data["values"]["weaponKillsMelee"]["basic"]["value"])
+                    if extended_data
+                    else 0,
+                    weapon_kills_super=int(extended_data["values"]["weaponKillsSuper"]["basic"]["value"])
+                    if extended_data
+                    else 0,
+                    weapon_kills_ability=int(extended_data["values"]["weaponKillsAbility"]["basic"]["value"])
+                    if extended_data
+                    else 0,
                 )
 
-                # loop through the weapons the player used and append that data
-                if "weapons" in player_pgcr["extended"]:
-                    for weapon_pgcr in player_pgcr["extended"]["weapons"]:
-                        weapon = ActivitiesUsersWeapons(
-                            weapon_id=weapon_pgcr["referenceId"],
-                            unique_weapon_kills=int(weapon_pgcr["values"]["uniqueWeaponKills"]["basic"]["value"]),
-                            unique_weapon_precision_kills=int(
-                                weapon_pgcr["values"]["uniqueWeaponPrecisionKills"]["basic"]["value"]
-                            ),
-                        )
+                if extended_data:
+                    # loop through the weapons the player used and append that data
+                    if "weapons" in player_pgcr["extended"]:
+                        for weapon_pgcr in player_pgcr["extended"]["weapons"]:
+                            weapon = ActivitiesUsersWeapons(
+                                weapon_id=weapon_pgcr["referenceId"],
+                                unique_weapon_kills=int(weapon_pgcr["values"]["uniqueWeaponKills"]["basic"]["value"]),
+                                unique_weapon_precision_kills=int(
+                                    weapon_pgcr["values"]["uniqueWeaponPrecisionKills"]["basic"]["value"]
+                                ),
+                            )
 
-                        # append weapon data to player
-                        player.weapons.append(weapon)
+                            # append weapon data to player
+                            player.weapons.append(weapon)
 
                 # append player data to activity
                 activity.users.append(player)
