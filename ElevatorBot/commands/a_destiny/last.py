@@ -56,7 +56,7 @@ class Last(BaseScale):
         # set footer
         footer = []
         if destiny_class:
-            footer.append(f"Class: {getattr(custom_emojis, destiny_class.lower())} {destiny_class}")
+            footer.append(f"Class: {destiny_class}")
         if mode:
             footer.append(
                 f"""Mode: {" ".join(

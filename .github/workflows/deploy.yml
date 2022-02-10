@@ -24,4 +24,11 @@ jobs:
 
       - name: Deploy on Remote
         run: |
-          ssh -tt -i ~/.ssh/id_rsa ${{ secrets.SSH_HOST_USER }}@${{ secrets.SSH_HOST_IP }} 'screen -dRRS elevator && cd /usr/local/ElevatorBot && git reset --hard HEAD && git pull && sudo docker-compose up --build --detach'
+          ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_HOST_USER }}@${{ secrets.SSH_HOST_IP }} "$( cat <<'EOT'
+          screen -dRRS elevator
+          cd /usr/local/ElevatorBot
+          git reset --hard HEAD
+          git pull
+          sudo docker-compose up --build --detach
+          EOT
+          )"
