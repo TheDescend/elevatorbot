@@ -1,5 +1,6 @@
 import asyncio
 import dataclasses
+import logging
 from typing import Optional
 
 from anyio import create_task_group
@@ -121,6 +122,11 @@ class UserRoles:
         self, role: RoleModel, called_with_task_group: bool, i_only_need_the_bool: bool
     ) -> tuple[RoleEnum, Optional[RoleDataUserModel]]:
         """Check the role. Can be used in anyio task groups"""
+
+        # this has errored out before, test this here
+        if isinstance(role.role_data, dict):
+            logger = logging.getLogger("requestsExceptions")
+            logger.error(f"Role obj for the following error is: {role}")
 
         # check if it is set as acquirable
         if not role.role_data.acquirable:

@@ -1,3 +1,4 @@
+import asyncio
 import datetime
 import time
 import urllib.parse
@@ -111,68 +112,74 @@ class CRUDDiscordUser(CRUDBase):
         if not destiny_id:
             raise CustomException("BungieNoDestinyId")
 
-        # look if that destiny_id is already in the db
-        try:
-            user = await self.get_profile_from_destiny_id(db=db, destiny_id=destiny_id)
+        # need to make this save
+        async with asyncio.Lock():
+            # look if that destiny_id is already in the db
+            try:
+                user = await self.get_profile_from_destiny_id(db=db, destiny_id=destiny_id)
 
-            # if that returned something, we need to make sure the destiny_id belongs to the same discord_id
-            if not user.discord_id == discord_id:
-                # if it doesn't, we need to delete that entry, otherwise a destiny account could be registered to multiple persons
-                await self.delete_profile(db=db, discord_id=user.discord_id)
+                # if that returned something, we need to make sure the destiny_id belongs to the same discord_id
+                if not user.discord_id == discord_id:
+                    # if it doesn't, we need to delete that entry, otherwise a destiny account could be registered to multiple persons
+                    await self.delete_profile(db=db, discord_id=user.discord_id)
 
-                # now we have to make it an insert instead of an update
+                    # now we have to make it an insert instead of an update
+                    method_insert = True
+
+                else:
+                    # if they are the same, we need to update the obj instead of inserting it
+                    method_insert = False
+
+            except CustomException:
+                # if this triggers we know no result was found in the db, so we insert
                 method_insert = True
 
+            if method_insert:
+                # new user! so lets construct their info
+                user = DiscordUsers(
+                    discord_id=discord_id,
+                    destiny_id=destiny_id,
+                    system=system,
+                    bungie_name=bungie_name,
+                    token=bungie_token.access_token,
+                    refresh_token=bungie_token.refresh_token,
+                    token_expiry=localize_datetime(
+                        datetime.datetime.fromtimestamp(current_time + bungie_token.expires_in)
+                    ),
+                    refresh_token_expiry=localize_datetime(
+                        datetime.datetime.fromtimestamp(current_time + bungie_token.refresh_expires_in)
+                    ),
+                    signup_date=get_now_with_tz(),
+                    signup_server_id=guild_id,
+                )
+
+                # and in the db they go
+                await self._insert(db=db, to_create=user)
+
+                # populate the cache
+                self.cache.discord_users.update({discord_id: user})
+
             else:
-                # if they are the same, we need to update the obj instead of inserting it
-                method_insert = False
-
-        except CustomException:
-            # if this triggers we know no result was found in the db, so we insert
-            method_insert = True
-
-        if method_insert:
-            # new user! so lets construct their info
-            user = DiscordUsers(
-                discord_id=discord_id,
-                destiny_id=destiny_id,
-                system=system,
-                bungie_name=bungie_name,
-                token=bungie_token.access_token,
-                refresh_token=bungie_token.refresh_token,
-                token_expiry=localize_datetime(datetime.datetime.fromtimestamp(current_time + bungie_token.expires_in)),
-                refresh_token_expiry=localize_datetime(
-                    datetime.datetime.fromtimestamp(current_time + bungie_token.refresh_expires_in)
-                ),
-                signup_date=get_now_with_tz(),
-                signup_server_id=guild_id,
-            )
-
-            # and in the db they go
-            await self._insert(db=db, to_create=user)
-
-            # populate the cache
-            self.cache.discord_users.update({discord_id: user})
-
-        else:
-            # now we call the update function instead of the insert function
-            datetime_default = get_min_with_tz()
-            await self.update(
-                db=db,
-                to_update=user,
-                destiny_id=destiny_id,
-                system=system,
-                bungie_name=bungie_name,
-                token=bungie_token.access_token,
-                refresh_token=bungie_token.refresh_token,
-                token_expiry=localize_datetime(datetime.datetime.fromtimestamp(current_time + bungie_token.expires_in)),
-                refresh_token_expiry=localize_datetime(
-                    datetime.datetime.fromtimestamp(current_time + bungie_token.refresh_expires_in)
-                ),
-                activities_last_updated=datetime_default,
-                collectibles_last_updated=datetime_default,
-                triumphs_last_updated=datetime_default,
-            )
+                # now we call the update function instead of the insert function
+                datetime_default = get_min_with_tz()
+                await self.update(
+                    db=db,
+                    to_update=user,
+                    destiny_id=destiny_id,
+                    system=system,
+                    bungie_name=bungie_name,
+                    token=bungie_token.access_token,
+                    refresh_token=bungie_token.refresh_token,
+                    token_expiry=localize_datetime(
+                        datetime.datetime.fromtimestamp(current_time + bungie_token.expires_in)
+                    ),
+                    refresh_token_expiry=localize_datetime(
+                        datetime.datetime.fromtimestamp(current_time + bungie_token.refresh_expires_in)
+                    ),
+                    activities_last_updated=datetime_default,
+                    collectibles_last_updated=datetime_default,
+                    triumphs_last_updated=datetime_default,
+                )
 
         return (
             BungieTokenOutput(bungie_name=user.bungie_name),

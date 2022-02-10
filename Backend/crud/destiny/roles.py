@@ -20,13 +20,15 @@ class CRUDRoles(CRUDBase):
             # format them
             results = []
             for result in db_results:
-                results.append(
-                    RoleModel(
-                        role_id=result.role_id,
-                        guild_id=result.guild_id,
-                        role_data=RoleDataModel.parse_obj(result.role_data),
-                    )
+                model = RoleModel(
+                    role_id=result.role_id,
+                    guild_id=result.guild_id,
+                    role_data=RoleDataModel.parse_obj(result.role_data),
                 )
+                results.append(model)
+
+                # also cache it
+                self.cache.roles.update({model.role_id: model})
 
             self.cache.guild_roles.update({guild_id: results})
 
