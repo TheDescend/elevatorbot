@@ -80,7 +80,7 @@ export default function Guides() {
                                     Note
                             </span>
                             <div>
-                                ElevatorBot will automatically apply roles to users every 12 hours. You can get your
+                                ElevatorBot will automatically apply roles to users every 24 hours. You can get your
                                 fancy new role faster by using <code>/roles get</code>
                             </div>
                         </p>

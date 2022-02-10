@@ -61,7 +61,7 @@ export default function FAQ() {
                     </FAQItem>
                     <FAQItem title="Why are my roles not updating?">
                         <p>
-                            The automatic update can take up to 12 hours.
+                            The automatic update can take up to 24 hours.
                         </p>
                         <p>
                             If you used <code>/roles get</code> and have not received your new role, you may need to
