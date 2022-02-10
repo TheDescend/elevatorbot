@@ -11,7 +11,7 @@ from ElevatorBot.commandHelpers.optionTemplates import (
     default_user_option,
 )
 from ElevatorBot.commands.base import BaseScale
-from ElevatorBot.misc.formatting import embed_message, format_timedelta
+from ElevatorBot.misc.formatting import add_filler_field, embed_message, format_timedelta
 from ElevatorBot.misc.helperFunctions import parse_datetime_options
 from ElevatorBot.static.emojis import custom_emojis
 from Shared.networkingSchemas.destiny import DestinyActivityInputModel
@@ -85,16 +85,19 @@ class DestinyActivity(BaseScale):
         # add the fields
         embed.add_field(name="Full Completions", value=str(stats.full_completions), inline=True)
         embed.add_field(name="CP Completions", value=str(stats.cp_completions), inline=True)
+        add_filler_field(embed)
+
         if stats.fastest:
-            embed.add_field(name="Time Played", value=format_timedelta(stats.time_spend.seconds), inline=False)
+            embed.add_field(name="Time Played", value=format_timedelta(stats.time_spend.seconds), inline=True)
             embed.add_field(name="Average Time", value=format_timedelta(stats.average.seconds), inline=True)
             embed.add_field(
                 name="Fastest Time",
                 value=f"[{format_timedelta(stats.fastest.seconds)}](https://www.bungie.net/en/PGCR/{stats.fastest_instance_id})",
                 inline=True,
             )
+
         percent = (stats.precision_kills / stats.kills) * 100 if stats.kills else 0
-        embed.add_field(name="Kills", value=f"{stats.kills} _({round(percent, 2)}% prec)_", inline=False)
+        embed.add_field(name="Kills", value=f"{stats.kills} _({round(percent, 2)}% prec)_", inline=True)
         embed.add_field(name="Assists", value=str(stats.assists), inline=True)
         embed.add_field(name="Deaths", value=str(stats.deaths), inline=True)
 

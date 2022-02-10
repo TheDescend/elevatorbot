@@ -140,3 +140,9 @@ def get_emoji_from_rank(rank: int) -> str:
             emoji = f"{rank})"
 
     return emoji
+
+
+def add_filler_field(embed: Embed):
+    """Adds a filler field to the embed"""
+
+    embed.add_field(name="⁣", value="⁣", inline=True)
