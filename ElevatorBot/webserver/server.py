@@ -27,6 +27,7 @@ async def log_requests(request: web.Request, handler):
         logger.error(
             f"""'{error}' for '{request.path_qs}' with body '{await request.json() if request.body_exists else ""}' - Traceback: \n'{"".join(traceback.format_tb(error.__traceback__))}'"""
         )
+        raise error
 
 
 async def run_webserver(client):
