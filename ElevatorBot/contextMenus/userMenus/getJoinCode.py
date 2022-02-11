@@ -15,6 +15,7 @@ class UserMenuCommands(BaseScale):
         member: Member = ctx.target
 
         destiny_profile = DestinyAccount(ctx=ctx, discord_member=member, discord_guild=ctx.guild)
+        destiny_profile.hidden = True
         result = await destiny_profile.get_destiny_name()
 
         await ctx.send(
