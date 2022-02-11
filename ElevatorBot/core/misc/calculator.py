@@ -174,6 +174,15 @@ class Calculator:
             else:
                 if "Error" in embed.description or "Please" in embed.description:
                     embed.description = "``````"
+
+                # special behaviour for * and /
+                if "*" in text:
+                    if embed.description[-1] == "*":
+                        text = text[1]
+                elif "/" in text:
+                    if embed.description[-1] == "/":
+                        text = text[1]
+
                 embed.description = f"```{embed.description[3:-3]}{text}```"
 
             if timeout:
