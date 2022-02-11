@@ -121,7 +121,9 @@ class CRUDActivities(CRUDBase):
                     time_played_seconds=int(player_pgcr["values"]["timePlayedSeconds"]["basic"]["value"]),
                     player_count=int(player_pgcr["values"]["playerCount"]["basic"]["value"]),
                     team_score=int(player_pgcr["values"]["teamScore"]["basic"]["value"]),
-                    precision_kills=int(player_pgcr["extended"]["values"]["precisionKills"]["basic"]["value"]),
+                    precision_kills=int(extended_data["values"]["precisionKills"]["basic"]["value"])
+                    if extended_data
+                    else 0,
                     weapon_kills_grenade=int(extended_data["values"]["weaponKillsGrenade"]["basic"]["value"])
                     if extended_data
                     else 0,
