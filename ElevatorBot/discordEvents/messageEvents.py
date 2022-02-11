@@ -108,7 +108,7 @@ async def on_message_create(event: MessageCreate, edit_mode: bool = False):
         # handle dm messages
         elif not message.guild:
             # reads a DM message and sends to Descend if the author is in the Descend Server
-            mutual_guilds = message.author.guilds
+            mutual_guilds = message.author.mutual_guilds
             if mutual_guilds:
                 # check is author is in descend. Checking COMMAND_GUILD_SCOPE for that, since that already has the id and doesn't break testing
                 allowed_guilds = [
