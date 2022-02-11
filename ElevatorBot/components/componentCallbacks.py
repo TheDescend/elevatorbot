@@ -143,7 +143,7 @@ class ComponentCallbacks:
     async def clan_join_request(ctx: ComponentContext):
         """Handles when a component with the custom_id 'clan_join_request' gets interacted with"""
 
-        await ctx.defer()
+        await ctx.defer(ephemeral=True)
 
         # invite them to the clan
         clan = DestinyClan(ctx=ctx, discord_guild=ctx.guild)
