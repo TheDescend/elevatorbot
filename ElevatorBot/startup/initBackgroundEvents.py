@@ -18,6 +18,8 @@ from ElevatorBot.backendNetworking.destiny.lfgSystem import DestinyLfgSystem
 from ElevatorBot.core.destiny.lfg.lfgSystem import LfgMessage
 from ElevatorBot.discordEvents.errorEvents import parse_dis_snek_error
 
+event_name_by_id: dict[str, str] = {}
+
 
 async def register_background_events(client):
     """Adds all the events to apscheduler"""
@@ -29,21 +31,27 @@ async def register_background_events(client):
     def event_added(scheduler_event: JobEvent):
         job: Job = client.scheduler.get_job(scheduler_event.job_id)
 
+        # cache the name
+        job_name = job.func.__self__.__class__.__name__
+        event_name_by_id[scheduler_event.job_id] = job_name
+
         # log the execution
         logger = logging.getLogger("backgroundEvents")
-        logger.info(f"Event '{job.func.__self__.__class__.__name__}' with ID '{scheduler_event.job_id}' has been added")
+        logger.info(f"Event '{job_name}' with ID '{scheduler_event.job_id}' has been added")
 
     client.scheduler.add_listener(event_added, EVENT_JOB_ADDED)
 
     def event_removed(scheduler_event: JobEvent):
         # log the execution
         logger = logging.getLogger("backgroundEvents")
-        logger.info(f"Event with ID '{scheduler_event.job_id}' has been removed")
+        logger.info(
+            f"Event '{event_name_by_id[scheduler_event.job_id]}' with ID '{scheduler_event.job_id}' has been removed"
+        )
 
     client.scheduler.add_listener(event_removed, EVENT_JOB_REMOVED)
 
     def event_submitted(scheduler_event: JobSubmissionEvent):
-        print(f"Running event with ID '{scheduler_event.job_id}'...")
+        print(f"Running event '{event_name_by_id[scheduler_event.job_id]}' with ID '{scheduler_event.job_id}'...")
 
     client.scheduler.add_listener(event_submitted, EVENT_JOB_SUBMITTED)
 
@@ -52,14 +60,16 @@ async def register_background_events(client):
 
         # log the execution
         logger = logging.getLogger("backgroundEvents")
-        logger.info(f"Event with ID '{scheduler_event.job_id}' successfully run")
+        logger.info(
+            f"Event '{event_name_by_id[scheduler_event.job_id]}' with ID '{scheduler_event.job_id}' successfully run"
+        )
 
     client.scheduler.add_listener(event_executed, EVENT_JOB_EXECUTED)
 
     def event_missed(scheduler_event: JobExecutionEvent):
         # log the execution
         logger = logging.getLogger("backgroundEventsExceptions")
-        logger.warning(f"Event with ID '{scheduler_event.job_id}' missed")
+        logger.warning(f"Event '{event_name_by_id[scheduler_event.job_id]}' with ID '{scheduler_event.job_id}' missed")
 
     client.scheduler.add_listener(event_missed, EVENT_JOB_MISSED)
 
@@ -68,7 +78,7 @@ async def register_background_events(client):
         logger = logging.getLogger("backgroundEventsExceptions")
         parse_dis_snek_error(error=scheduler_event.exception, logger_exceptions=logger)
         logger.error(
-            f"Event with ID '{scheduler_event.job_id}' failed - Error '{scheduler_event.exception}' - Traceback: \n{scheduler_event.traceback}"
+            f"Event '{event_name_by_id[scheduler_event.job_id]}' with ID '{scheduler_event.job_id}' failed - Error '{scheduler_event.exception}' - Traceback: \n{scheduler_event.traceback}"
         )
 
     client.scheduler.add_listener(event_error, EVENT_JOB_ERROR)

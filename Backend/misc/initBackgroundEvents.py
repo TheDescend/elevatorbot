@@ -15,6 +15,8 @@ from apscheduler.job import Job
 
 from Backend import backgroundEvents
 
+event_name_by_id: dict[str, str] = {}
+
 
 def register_background_events() -> int:
     """Adds all the events to apscheduler"""
@@ -26,21 +28,27 @@ def register_background_events() -> int:
     def event_added(scheduler_event: JobEvent):
         job: Job = backgroundEvents.scheduler.get_job(scheduler_event.job_id)
 
+        # cache the name
+        job_name = job.func.__self__.__class__.__name__
+        event_name_by_id[scheduler_event.job_id] = job_name
+
         # log the execution
         logger = logging.getLogger("backgroundEvents")
-        logger.info(f"Event '{job.func.__self__.__class__.__name__}' with ID '{scheduler_event.job_id}' has been added")
+        logger.info(f"Event '{job_name}' withwith ID '{scheduler_event.job_id}' has been added")
 
     backgroundEvents.scheduler.add_listener(event_added, EVENT_JOB_ADDED)
 
     def event_removed(scheduler_event: JobEvent):
         # log the execution
         logger = logging.getLogger("backgroundEvents")
-        logger.info(f"Event with ID '{scheduler_event.job_id}' has been removed")
+        logger.info(
+            f"Event '{event_name_by_id[scheduler_event.job_id]}' with ID '{scheduler_event.job_id}' has been removed"
+        )
 
     backgroundEvents.scheduler.add_listener(event_removed, EVENT_JOB_REMOVED)
 
     def event_submitted(scheduler_event: JobSubmissionEvent):
-        print(f"Running event with ID '{scheduler_event.job_id}'...")
+        print(f"Running event '{event_name_by_id[scheduler_event.job_id]}' with ID '{scheduler_event.job_id}'...")
 
     backgroundEvents.scheduler.add_listener(event_submitted, EVENT_JOB_SUBMITTED)
 
@@ -49,14 +57,16 @@ def register_background_events() -> int:
 
         # log the execution
         logger = logging.getLogger("backgroundEvents")
-        logger.info(f"Event with ID '{scheduler_event.job_id}' successfully run")
+        logger.info(
+            f"Event '{event_name_by_id[scheduler_event.job_id]}' with ID '{scheduler_event.job_id}' successfully run"
+        )
 
     backgroundEvents.scheduler.add_listener(event_executed, EVENT_JOB_EXECUTED)
 
     def event_missed(scheduler_event: JobExecutionEvent):
         # log the execution
         logger = logging.getLogger("backgroundEventsExceptions")
-        logger.warning(f"Event with ID '{scheduler_event.job_id}' missed")
+        logger.warning(f"Event '{event_name_by_id[scheduler_event.job_id]}' with ID '{scheduler_event.job_id}' missed")
 
     backgroundEvents.scheduler.add_listener(event_missed, EVENT_JOB_MISSED)
 
@@ -64,7 +74,7 @@ def register_background_events() -> int:
         # log the execution
         logger = logging.getLogger("backgroundEventsExceptions")
         logger.error(
-            f"Event with ID '{scheduler_event.job_id}' failed - Error '{scheduler_event.exception}' - Traceback: \n{scheduler_event.traceback}"
+            f"Event '{event_name_by_id[scheduler_event.job_id]}' with ID '{scheduler_event.job_id}' failed - Error '{scheduler_event.exception}' - Traceback: \n{scheduler_event.traceback}"
         )
 
     backgroundEvents.scheduler.add_listener(event_error, EVENT_JOB_ERROR)
