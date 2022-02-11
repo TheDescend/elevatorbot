@@ -22,7 +22,7 @@ class MessageMenuCommands(BaseScale):
     # todo perms
     @context_menu(name="Add Emoji", context_type=CommandTypes.MESSAGE, scopes=get_setting("COMMAND_GUILD_SCOPE"))
     async def add_emoji(self, ctx: InteractionContext):
-        if ctx.author.id != 238388130581839872:
+        if ctx.author.id not in [238388130581839872, 206878830017773568]:
             await ctx.send(
                 "This is blocked for now, since it it waiting for a vital unreleased discord feature", ephemeral=True
             )
