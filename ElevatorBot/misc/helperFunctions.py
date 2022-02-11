@@ -118,7 +118,7 @@ async def log_error(
 
     # do not send some errors to the user
     catch_errors = ["Unknown interaction", "Interaction has already been acknowledged"]
-    if any(item in catch_errors for item in str(error)):
+    if not any(item in catch_errors for item in str(error)):
         if not ctx.responded:
             await ctx.send(
                 embeds=embed_message(
