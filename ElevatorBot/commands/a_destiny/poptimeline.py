@@ -55,7 +55,7 @@ class PopTimeline(BaseScale):
                     date.start + datetime.timedelta(days=2),
                     (max(data_frame["number_of_players"]) - min(data_frame["number_of_players"])) * 1.02
                     + min(data_frame["number_of_players"]),
-                    date.name,
+                    date.name.replace("Season of ", ""),
                     color="darkgreen",
                     fontweight="bold",
                     bbox=dict(facecolor="white", edgecolor="darkgreen", pad=4, zorder=3),
