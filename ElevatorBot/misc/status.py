@@ -3,7 +3,7 @@ import itertools
 import re
 from copy import copy
 
-from dis_snek import Activity, Timestamp, TimestampStyles
+from dis_snek import Activity, Embed, Timestamp, TimestampStyles
 
 from ElevatorBot.misc.cache import descend_cache
 from Shared.functions.helperFunctions import get_now_with_tz
@@ -50,7 +50,7 @@ async def update_events_status_message(event_name: str):
     if not descend_cache.status_message:
         return
 
-    embed = copy(descend_cache.status_message.message.embeds[0])
+    embed: Embed = copy(descend_cache.status_message.message.embeds[0])
     embed.timestamp = now
 
     # get all the fields from the embed and change the one we are looking for

@@ -40,6 +40,7 @@ class DestinyActivityDetailsUsersModel(CustomBaseModel):
     deaths: int
     assists: int
     time_played_seconds: int
+    discord_id: Optional[int] = None
 
 
 class DestinyActivityDetailsModel(CustomBaseModel):

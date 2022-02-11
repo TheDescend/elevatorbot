@@ -20,7 +20,7 @@ from ElevatorBot.commandHelpers.optionTemplates import (
 from ElevatorBot.commandHelpers.subCommandTemplates import weapons_sub_command
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formatting import capitalize_string, embed_message
-from ElevatorBot.misc.helperFunctions import parse_datetime_options
+from ElevatorBot.misc.helperFunctions import get_emoji_by_name, parse_datetime_options
 from ElevatorBot.static.emojis import custom_emojis
 from Shared.enums.destiny import (
     DestinyWeaponTypeEnum,
@@ -77,6 +77,7 @@ class WeaponsWeapon(BaseScale):
         # get the actual weapon / activity
         weapon = weapons[weapon.lower()]
         if activity:
+            mode = None
             activity = activities[activity.lower()]
 
         member = user or ctx.author
@@ -97,9 +98,9 @@ class WeaponsWeapon(BaseScale):
         # format them nicely
         description = [
             f"Weapon: [{weapon.name}](https://www.light.gg/db/items/{weapon.reference_ids[0]})",
-            f"""Weapon Type: {getattr(custom_emojis, getattr(DestinyWeaponTypeEnum, "_".join(weapon.weapon_type.upper().split())).name.lower())} {weapon.weapon_type}""",
-            f"""Damage Type: {getattr(custom_emojis, getattr(UsableDestinyDamageTypeEnum, "_".join(weapon.damage_type.upper().split())).name.lower())} {weapon.damage_type}""",
-            f"""Ammo Type: {getattr(custom_emojis, getattr(UsableDestinyAmmunitionTypeEnum, "_".join(weapon.ammo_type.upper().split())).name.lower())} {weapon.ammo_type}""",
+            f"Weapon Type: {get_emoji_by_name(DestinyWeaponTypeEnum, weapon.weapon_type)} {weapon.weapon_type}",
+            f"Damage Type: {get_emoji_by_name(UsableDestinyDamageTypeEnum, weapon.damage_type)} {weapon.damage_type}",
+            f"Ammo Type: {get_emoji_by_name(UsableDestinyAmmunitionTypeEnum, weapon.ammo_type)} {weapon.ammo_type}",
             "⁣",
             f"Date: {Timestamp.fromdatetime(start_time).format(style=TimestampStyles.ShortDateTime)} - {Timestamp.fromdatetime(end_time).format(style=TimestampStyles.ShortDateTime)}",
         ]

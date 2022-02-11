@@ -3,6 +3,7 @@ import logging
 import os
 import traceback
 import zoneinfo
+from enum import Enum, EnumMeta
 from typing import Generator, Optional
 
 from dateutil.parser import ParserError, parse
@@ -158,3 +159,16 @@ def yield_files_in_folder(folder: str, extension: str) -> Generator:
                 file = file.removesuffix(f".{extension}")
                 path = os.path.join(root, file)
                 yield path.replace("/", ".").replace("\\", ".")
+
+
+def get_enum_by_name(enum_class: EnumMeta, key: str) -> Enum:
+    """Gets the name of the enum"""
+
+    return getattr(enum_class, "_".join(key.split(" ")).upper())
+
+
+def get_emoji_by_name(enum_class: EnumMeta, key: str) -> Enum:
+    """Gets the emoji of the enum"""
+
+    enum = get_enum_by_name(enum_class=enum_class, key=key)
+    return getattr(custom_emojis, enum.name.lower())

@@ -313,6 +313,9 @@ class CRUDActivities(CRUDBase):
         if completed:
             query = query.filter(ActivitiesUsers.completed == 1)
 
+        # oder them by the latest first
+        query = query.order_by(Activities.period.desc())
+
         result = await self._execute_query(db=db, query=query)
         result = result.scalar()
 

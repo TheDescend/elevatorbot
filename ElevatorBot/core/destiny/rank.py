@@ -12,6 +12,7 @@ from ElevatorBot.backendNetworking.destiny.roles import DestinyRoles
 from ElevatorBot.backendNetworking.destiny.weapons import DestinyWeapons
 from ElevatorBot.commandHelpers.autocomplete import activities, activities_grandmaster, weapons
 from ElevatorBot.misc.formatting import embed_message, format_timedelta, get_emoji_from_rank
+from ElevatorBot.misc.helperFunctions import get_emoji_by_name
 from ElevatorBot.static.destinyActivities import raid_to_emblem_hash
 from ElevatorBot.static.emojis import custom_emojis
 from Shared.enums.destiny import (
@@ -170,11 +171,9 @@ class RankCommandHandler:
             description.extend(
                 [
                     f"Weapon: [{weapon.name}](https://www.light.gg/db/items/{weapon.reference_ids[0]})",
-                    f"Weapon Type: {getattr(custom_emojis, getattr(DestinyWeaponTypeEnum, weapon.weapon_type.upper()).name.lower())} {weapon.weapon_type}",
-                    f"Damage Type: {getattr(custom_emojis, getattr(UsableDestinyDamageTypeEnum, weapon.damage_type.upper()).name.lower())} "
-                    f"{weapon.damage_type}",
-                    f"Ammo Type: {getattr(custom_emojis, getattr(UsableDestinyAmmunitionTypeEnum, weapon.ammo_type.upper()).name.lower())} "
-                    f"{weapon.ammo_type}",
+                    f"Weapon Type: {get_emoji_by_name(DestinyWeaponTypeEnum, weapon.weapon_type)} {weapon.weapon_type}",
+                    f"Damage Type: {get_emoji_by_name(UsableDestinyDamageTypeEnum, weapon.damage_type)} {weapon.damage_type}",
+                    f"Ammo Type: {get_emoji_by_name(UsableDestinyAmmunitionTypeEnum, weapon.damage_type)} {weapon.ammo_type}",
                     "⁣",
                 ]
             )

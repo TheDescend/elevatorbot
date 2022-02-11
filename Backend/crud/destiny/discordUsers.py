@@ -39,17 +39,26 @@ class CRUDDiscordUser(CRUDBase):
 
         # populate cache
         self.cache.discord_users.update({discord_id: profile})
+        self.cache.discord_users_by_destiny_id.update({profile.destiny_id: profile})
 
         return profile
 
     async def get_profile_from_destiny_id(self, db: AsyncSession, destiny_id: int) -> DiscordUsers:
         """Return the profile information"""
 
+        # check if exists in cache
+        if destiny_id in self.cache.discord_users_by_destiny_id:
+            return self.cache.discord_users_by_destiny_id[destiny_id]
+
         profiles: list[DiscordUsers] = await self._get_multi(db, destiny_id=destiny_id)
 
         # make sure the user exists
         if not profiles:
             raise CustomException(error="DestinyIdNotFound")
+
+        # populate cache
+        self.cache.discord_users.update({profiles[0].discord_id: profiles[0]})
+        self.cache.discord_users_by_destiny_id.update({profiles[0].destiny_id: profiles[0]})
 
         return profiles[0]
 
@@ -158,6 +167,7 @@ class CRUDDiscordUser(CRUDBase):
 
                 # populate the cache
                 self.cache.discord_users.update({discord_id: user})
+                self.cache.discord_users_by_destiny_id.update({user.destiny_id: user})
 
             else:
                 # now we call the update function instead of the insert function
@@ -195,6 +205,7 @@ class CRUDDiscordUser(CRUDBase):
 
         # update the cache
         self.cache.discord_users.update({to_update.discord_id: updated})
+        self.cache.discord_users_by_destiny_id.update({to_update.destiny_id: to_update})
 
     async def invalidate_token(self, db: AsyncSession, user: DiscordUsers):
         """Invalidates a token by setting it to None"""
@@ -236,6 +247,7 @@ class CRUDDiscordUser(CRUDBase):
         # delete from cache
         try:
             self.cache.discord_users.pop(discord_id)
+            self.cache.discord_users_by_destiny_id.pop(result.destiny_id)
         except KeyError:
             pass
 

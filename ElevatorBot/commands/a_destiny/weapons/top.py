@@ -187,6 +187,9 @@ def top_subprocess(
 ) -> Embed:
     """Run in anyio subprocess on another thread since this might be slow"""
 
+    if activity:
+        mode = None
+
     embed = embed_message(
         f"Top Weapons",
         f"Date: {Timestamp.fromdatetime(start_time).format(style=TimestampStyles.ShortDateTime)} - {Timestamp.fromdatetime(end_time).format(style=TimestampStyles.ShortDateTime)}",

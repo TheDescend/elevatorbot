@@ -20,6 +20,8 @@ class Cache:
 
     # User Objects - Key: discord_id
     discord_users: dict[int, DiscordUsers] = dataclasses.field(init=False, default_factory=dict)
+    # Key: destiny_id
+    discord_users_by_destiny_id: dict[int, DiscordUsers] = dataclasses.field(init=False, default_factory=dict)
 
     # Role Objects - Key: role_id
     roles: dict[int, RoleModel] = dataclasses.field(init=False, default_factory=dict)

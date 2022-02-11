@@ -177,6 +177,9 @@ def meta_subprocess(
 ) -> Embed:
     """Run in anyio subprocess on another thread since this might be slow"""
 
+    if activity:
+        mode = None
+
     # loop through the results and combine the weapon stats
     limit = 8
     to_sort = {}

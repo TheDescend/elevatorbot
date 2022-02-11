@@ -472,7 +472,6 @@ class LfgMessage:
             value=", ".join(await self.__get_joined_members_display_names()),
             inline=False,
         )
-        embed.timestamp = self.start_time
 
         # if the event was not full
         missing = self.max_joined_members - len(self.joined_ids)

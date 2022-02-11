@@ -239,6 +239,13 @@ class DestinyActivities:
 
         # loop through the users
         for user in result.users:
+            # get the registered user data
+            try:
+                profile = await discord_users.get_profile_from_destiny_id(db=self.db, destiny_id=user.destiny_id)
+                profile = profile.discord_id
+            except CustomException:
+                profile = None
+
             if data.activity_duration_seconds == 0:
                 # update temp values
                 data.activity_duration_seconds = user.activity_duration_seconds
@@ -257,6 +264,7 @@ class DestinyActivities:
                     deaths=user.deaths,
                     assists=user.assists,
                     time_played_seconds=user.time_played_seconds,
+                    discord_id=profile,
                 )
             )
 
