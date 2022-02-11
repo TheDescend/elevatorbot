@@ -76,14 +76,8 @@ class BungieAuth(NetworkBase):
 
         token = self.user.token
 
-        current_time = get_now_with_tz()
-        if current_time > self.user.refresh_token_expiry:
-            # set token to None
-            await discord_users.invalidate_token(db=self.db, user=self.user)
-
-            raise CustomException("NoToken")
-
         # refresh token if outdated
+        current_time = get_now_with_tz()
         if current_time > self.user.token_expiry:
             token = await self.__refresh_token()
 

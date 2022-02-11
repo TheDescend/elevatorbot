@@ -42,7 +42,7 @@ async def discord_has_token(discord_id: int, db: AsyncSession = Depends(get_db_s
         raise error
 
     else:
-        return DestinyHasTokenModel(token=not no_token, value=profile.token if not no_token else None)
+        return DestinyHasTokenModel(token=True, value=profile.token)
 
 
 @router.get("/{guild_id}/{discord_id}/registration_role/", response_model=EmptyResponseModel)  # has test
