@@ -21,10 +21,19 @@ from ElevatorBot.commandHelpers.responseTemplates import respond_timeout
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.static.descendOnlyIds import descend_channels
+from Shared.functions.readSettingsFile import get_setting
+
+# =============
+# Descend Only!
+# =============
 
 
 class Bug(BaseScale):
-    @slash_command(name="bug", description="Use this if you want to report any bugs to the developer")
+    @slash_command(
+        name="bug",
+        description="Use this if you want to report any bugs to the developer",
+        scopes=get_setting("COMMAND_GUILD_SCOPE"),
+    )
     @slash_option(
         name="image",
         description="An image of the problem (press `win` + `shift` + `s`)",
