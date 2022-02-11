@@ -116,14 +116,16 @@ async def log_error(
         f"InteractionID '{ctx.interaction_id}' - {extra} - Error '{error}' - Traceback: \n{''.join(traceback.format_tb(error.__traceback__))}"
     )
 
-    if not ctx.responded:
-        await ctx.send(
-            embeds=embed_message(
-                "Error",
-                "Sorry, something went wrong\nThe Error has been logged and will be worked on",
-                str(error),
+    # do not send some errors to the user
+    if "Unknown interaction" not in str(error):
+        if not ctx.responded:
+            await ctx.send(
+                embeds=embed_message(
+                    "Error",
+                    "Sorry, something went wrong\nThe Error has been logged and will be worked on",
+                    str(error),
+                )
             )
-        )
 
     # raising error again to making deving easier
     raise error
