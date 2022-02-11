@@ -173,7 +173,7 @@ class RankCommandHandler:
                     f"Weapon: [{weapon.name}](https://www.light.gg/db/items/{weapon.reference_ids[0]})",
                     f"Weapon Type: {get_emoji_by_name(DestinyWeaponTypeEnum, weapon.weapon_type)} {weapon.weapon_type}",
                     f"Damage Type: {get_emoji_by_name(UsableDestinyDamageTypeEnum, weapon.damage_type)} {weapon.damage_type}",
-                    f"Ammo Type: {get_emoji_by_name(UsableDestinyAmmunitionTypeEnum, weapon.damage_type)} {weapon.ammo_type}",
+                    f"Ammo Type: {get_emoji_by_name(UsableDestinyAmmunitionTypeEnum, weapon.ammo_type)} {weapon.ammo_type}",
                     "⁣",
                 ]
             )
