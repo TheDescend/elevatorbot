@@ -59,7 +59,7 @@ class Time(BaseScale):
             activity_name = activity_data.name
             total = {
                 # the first one is the .ALL which we want to keep
-                list[modes_names.values()][0]: 0,
+                list(modes_names.values())[0]: 0,
                 activity_name: 0,
             }
         else:
@@ -101,11 +101,13 @@ class Time(BaseScale):
                     total[modes_names[UsableDestinyActivityModeTypeEnum(entry.mode)]] += entry.time_played
 
             else:
+                all_entry = list(modes_names.values())[0]
+
                 # save by activities
                 data.update(
                     {
                         season: {
-                            list[modes_names.values()][0]: result.entries[0].time_played,
+                            all_entry: result.entries[0].time_played,
                             activity_name: result.entries[1].time_played,
                         }
                     }
@@ -114,8 +116,7 @@ class Time(BaseScale):
                 # add to the total amount
                 total.update(
                     {
-                        list[modes_names.values()][0]: total[list[modes_names][0]]
-                        + result.entries[modes[0].value].time_played,
+                        all_entry: total[all_entry] + result.entries[0].time_played,
                         activity_name: total[activity_name] + result.entries[1].time_played,
                     }
                 )
