@@ -35,7 +35,6 @@ class CustomErrorSnake(Snake):
     logger_components = logging.getLogger("components")
     logger_components_exceptions = logging.getLogger("componentsExceptions")
 
-    logger_events = logging.getLogger("discordEvents")
     logger_exceptions = logging.getLogger("generalExceptions")
 
     async def on_error(self, source: str, error: Exception, *args, **kwargs):

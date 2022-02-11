@@ -5,9 +5,10 @@ def init_logging() -> None:
     # Initialize formatter
     logger = ElevatorLogger("ElevatorBot")
 
-    # Initialize logging for discord events (on_member_add, etc.)
-    logger.make_logger("discordEvents")
     logger.make_logger("generalExceptions")
+
+    # Initialize logging for discord events exceptions (on_member_add, etc.)
+    logger.make_logger("discordEventsExceptions")
 
     # Initialize logging for command usage
     logger.make_logger("commands")
