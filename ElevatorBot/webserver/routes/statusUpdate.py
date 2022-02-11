@@ -17,3 +17,5 @@ async def status_update(request: web.Request):
     event_name = (await request.json())["status_name"]
 
     await update_events_status_message(event_name=event_name)
+
+    return web.json_response({"success": True})

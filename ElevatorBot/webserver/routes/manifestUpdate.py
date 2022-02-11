@@ -21,3 +21,5 @@ async def manifest_update(request: web.Request):
 
     # refill it
     await load_autocomplete_options(client=client)
+
+    return web.json_response({"success": True})
