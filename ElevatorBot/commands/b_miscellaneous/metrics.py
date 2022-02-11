@@ -21,10 +21,17 @@ from version import __version__
 
 
 class Metrics(BaseScale):
+    # todo perms
     @slash_command(
         name="metrics", description="Shows interesting ElevatorBot metrics", scopes=get_setting("COMMAND_GUILD_SCOPE")
     )
     async def metrics(self, ctx: InteractionContext):
+        if ctx.author.id != 238388130581839872:
+            await ctx.send(
+                "This is blocked for now, since it it waiting for a vital unreleased discord feature", ephemeral=True
+            )
+            return
+
         embed = embed_message("Metrics", member=ctx.guild.me)
 
         # version

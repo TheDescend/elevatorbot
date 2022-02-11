@@ -23,7 +23,7 @@ class Solos(BaseScale):
         solos = await account.get_solos()
         data = {solo.category: solo.solos for solo in solos.categories}
 
-        # todo switching between pages fails after first time
+        # todo add field for "Uncompleted Attempts"
 
         # display the data using the first category as a key
         await self.display_solo_page(ctx=ctx, member=member, data=data, key=list(data)[0])
