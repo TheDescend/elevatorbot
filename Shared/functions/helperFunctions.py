@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import datetime
-import inspect
 
 
 def get_now_with_tz() -> datetime.datetime:

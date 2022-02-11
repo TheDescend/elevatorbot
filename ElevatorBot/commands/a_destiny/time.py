@@ -11,7 +11,6 @@ from ElevatorBot.commandHelpers.optionTemplates import (
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formatting import embed_message, format_timedelta
 from ElevatorBot.static.destinyDates import season_and_expansion_dates
-from ElevatorBot.static.emojis import custom_emojis
 from Shared.enums.destiny import UsableDestinyActivityModeTypeEnum
 from Shared.functions.helperFunctions import get_now_with_tz
 

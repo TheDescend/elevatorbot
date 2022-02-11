@@ -13,7 +13,6 @@ from ElevatorBot.commandHelpers.optionTemplates import (
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formatting import add_filler_field, embed_message, format_timedelta
 from ElevatorBot.misc.helperFunctions import parse_datetime_options
-from ElevatorBot.static.emojis import custom_emojis
 from Shared.networkingSchemas.destiny import DestinyActivityInputModel
 
 

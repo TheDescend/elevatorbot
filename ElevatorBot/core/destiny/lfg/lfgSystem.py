@@ -22,7 +22,6 @@ from dis_snek import (
     InteractionContext,
     Member,
     Message,
-    ModalContext,
     OverwriteTypes,
     PermissionOverwrite,
     Permissions,

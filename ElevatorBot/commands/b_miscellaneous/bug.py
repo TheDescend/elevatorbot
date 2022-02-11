@@ -1,5 +1,4 @@
 import asyncio
-from typing import Optional
 
 from anyio import to_thread
 from dis_snek import (

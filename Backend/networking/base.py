@@ -1,5 +1,4 @@
 import asyncio
-import dataclasses
 import logging
 import random
 from typing import Callable, Coroutine, Optional

@@ -1,6 +1,6 @@
 import asyncio
 
-from dis_snek import InteractionContext, Modal, OptionTypes, ParagraphText, ShortText, slash_command, slash_option
+from dis_snek import InteractionContext, Modal, OptionTypes, ParagraphText, slash_command, slash_option
 
 from ElevatorBot.commandHelpers.autocomplete import activities, autocomplete_send_activity_name
 from ElevatorBot.commandHelpers.optionTemplates import (

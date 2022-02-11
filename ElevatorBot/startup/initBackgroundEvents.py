@@ -1,5 +1,4 @@
 import logging
-from typing import Optional
 
 from apscheduler.events import (
     EVENT_JOB_ADDED,

@@ -7,19 +7,17 @@ from typing import Optional
 
 import aiohttp
 from anyio import create_task_group
-from dis_snek import File, GuildText, InteractionContext, Member, Message, Timestamp, TimestampStyles, slash_command
+from dis_snek import File, GuildText, InteractionContext, Member, Message, Timestamp, TimestampStyles
 
 from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
 from ElevatorBot.backendNetworking.destiny.activities import DestinyActivities
 from ElevatorBot.backendNetworking.destiny.clan import DestinyClan
 from ElevatorBot.backendNetworking.errors import BackendException
 from ElevatorBot.commandHelpers.responseTemplates import something_went_wrong
-from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formatting import embed_message, format_timedelta
 from ElevatorBot.static.descendOnlyIds import descend_channels
 from ElevatorBot.static.emojis import custom_emojis
 from Shared.functions.helperFunctions import get_now_with_tz
-from Shared.functions.readSettingsFile import get_setting
 from Shared.networkingSchemas.destiny import DestinyActivityInputModel, DestinyActivityOutputModel
 from Shared.networkingSchemas.destiny.clan import DestinyClanMemberModel, DestinyClanMembersModel
 

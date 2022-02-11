@@ -1,6 +1,6 @@
 import asyncio
 import dataclasses
-from typing import Any, Optional, Type, TypeVar
+from typing import Any, Optional, TypeVar
 
 from sqlalchemy import not_, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession

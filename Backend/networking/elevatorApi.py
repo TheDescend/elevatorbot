@@ -1,7 +1,6 @@
-import dataclasses
 import logging
 import os
-from typing import Callable, Coroutine, Optional
+from typing import Optional
 from urllib.parse import urlencode, urljoin
 
 import aiohttp
