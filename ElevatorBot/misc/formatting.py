@@ -84,11 +84,12 @@ def split_into_chucks_of_max_2000_characters(
 def format_timedelta(seconds: Optional[float | datetime.timedelta]) -> str:
     """Returns a formatted message that is displayed whenever a command wants to display a duration"""
 
-    if seconds is None or seconds == 0:
-        return "None"
-
     if isinstance(seconds, datetime.timedelta):
         seconds = seconds.seconds
+    seconds = int(seconds)
+
+    if seconds is None or seconds == 0:
+        return "None"
 
     minutes = seconds // 60
     hours = minutes // 60

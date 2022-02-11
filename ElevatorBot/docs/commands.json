@@ -570,7 +570,7 @@
                                 "required": false,
                                 "autocomplete": false,
                                 "choices": [
-                                    "D2 Vanilla",
+                                    "Vanilla",
                                     "Forsaken",
                                     "Shadowkeep",
                                     "Beyond Light",
@@ -583,7 +583,7 @@
                                 "required": false,
                                 "autocomplete": false,
                                 "choices": [
-                                    "D2 Vanilla",
+                                    "Vanilla",
                                     "Curse of Osiris",
                                     "Warmind",
                                     "Forsaken",
@@ -650,7 +650,7 @@
                         "required": false,
                         "autocomplete": false,
                         "choices": [
-                            "D2 Vanilla",
+                            "Vanilla",
                             "Forsaken",
                             "Shadowkeep",
                             "Beyond Light",
@@ -663,7 +663,7 @@
                         "required": false,
                         "autocomplete": false,
                         "choices": [
-                            "D2 Vanilla",
+                            "Vanilla",
                             "Curse of Osiris",
                             "Warmind",
                             "Forsaken",
