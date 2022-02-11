@@ -5,6 +5,7 @@ import random
 
 import aiohttp
 from dis_snek import File, InteractionContext, Member, slash_command
+from dis_snek.client.errors import Forbidden
 
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
 from ElevatorBot.commands.base import BaseScale
@@ -53,10 +54,13 @@ class MuteMe(BaseScale):
             await ctx.author.send("Better luck next time if you were hunting for the jackpot")
 
         # time them out
-        await ctx.author.timeout(
-            communication_disabled_until=get_now_with_tz() + datetime.timedelta(minutes=timeout),
-            reason=f"/muteme by {ctx.author}",
-        )
+        try:
+            await ctx.author.timeout(
+                communication_disabled_until=get_now_with_tz() + datetime.timedelta(minutes=timeout),
+                reason=f"/muteme by {ctx.author}",
+            )
+        except Forbidden:
+            pass
 
         # inform user once timeout is over
         await asyncio.sleep(60 * timeout)
