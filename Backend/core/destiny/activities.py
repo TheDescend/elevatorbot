@@ -178,7 +178,7 @@ class DestinyActivities:
         """Insert the missing pgcr"""
 
         async with asyncio.Lock():
-            for activity in await crud_activities_fail_to_get.get_all_name():
+            for activity in await crud_activities_fail_to_get.get_all():
                 # check if info is already in DB, delete and skip if so
                 result = crud_activities.get(db=self.db, instance_id=activity.instance_id)
                 if result:
