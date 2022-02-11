@@ -33,6 +33,7 @@ from dis_snek.client.errors import Forbidden, NotFound
 from ics import Calendar, Event
 
 from ElevatorBot.backendNetworking.destiny.lfgSystem import DestinyLfgSystem
+from ElevatorBot.backendNetworking.errors import BackendException
 from ElevatorBot.commandHelpers.autocomplete import activities
 from ElevatorBot.core.destiny.lfg.scheduledEvents import delete_lfg_scheduled_events
 from ElevatorBot.discordEvents.base import ElevatorSnake
@@ -170,7 +171,13 @@ class LfgMessage:
                 lfg_id = int(field.value)
         assert isinstance(lfg_id, int)
 
-        lfg_message = await LfgMessage.from_lfg_id(ctx=ctx, lfg_id=lfg_id, client=ctx.bot, guild=ctx.guild)
+        try:
+            lfg_message = await LfgMessage.from_lfg_id(ctx=ctx, lfg_id=lfg_id, client=ctx.bot, guild=ctx.guild)
+        except BackendException as error:
+            if error.error == "NoLfgEventWithIdForGuild":
+                lfg_message = None
+            else:
+                raise error
 
         # error if that fails
         if not lfg_message:
