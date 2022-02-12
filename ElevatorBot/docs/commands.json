@@ -1062,18 +1062,6 @@
                 "description": "This 100% recreates the happy feeling of popping bubble wrap"
             },
             {
-                "name": "bug",
-                "description": "Use this if you want to report any bugs to the developer",
-                "options": [
-                    {
-                        "name": "image",
-                        "description": "An image of the problem (press win + shift + s)",
-                        "required": false,
-                        "autocomplete": false
-                    }
-                ]
-            },
-            {
                 "name": "calculator",
                 "description": "Summons a handy calculator"
             },
@@ -1098,6 +1086,18 @@
             {
                 "name": "api_key",
                 "description": "Get your own Destiny 2 oauth api key"
+            },
+            {
+                "name": "bug",
+                "description": "Use this if you want to report any bugs to the developer",
+                "options": [
+                    {
+                        "name": "image",
+                        "description": "An image of the problem (press win + shift + s)",
+                        "required": false,
+                        "autocomplete": false
+                    }
+                ]
             },
             {
                 "name": "giveaway",

@@ -34,7 +34,7 @@ def register_background_events() -> int:
 
         # log the execution
         logger = logging.getLogger("backgroundEvents")
-        logger.info(f"Event '{job_name}' withwith ID '{scheduler_event.job_id}' has been added")
+        logger.info(f"Event '{job_name}' with ID '{scheduler_event.job_id}' has been added")
 
     backgroundEvents.scheduler.add_listener(event_added, EVENT_JOB_ADDED)
 
