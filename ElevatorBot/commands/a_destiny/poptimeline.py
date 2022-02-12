@@ -13,6 +13,7 @@ from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.static.destinyDates import (
     other_important_dates_part_1,
     other_important_dates_part_2,
+    other_important_dates_part_3,
     season_and_expansion_dates,
 )
 
@@ -60,36 +61,27 @@ class PopTimeline(BaseScale):
                     fontweight="bold",
                     bbox=dict(facecolor="white", edgecolor="darkgreen", pad=4, zorder=3),
                 )
-            for date in other_important_dates_part_1:
-                ax.axvline(date.start, color="mediumaquamarine", zorder=1)
-                ax.text(
-                    date.start + datetime.timedelta(days=2),
-                    (max(data_frame["number_of_players"]) - min(data_frame["number_of_players"])) * 0.95
-                    + min(data_frame["number_of_players"]),
-                    date.name,
-                    color="mediumaquamarine",
-                    bbox=dict(
-                        facecolor="white",
-                        edgecolor="mediumaquamarine",
-                        boxstyle="round",
-                        zorder=3,
-                    ),
-                )
-            for date in other_important_dates_part_2:
-                ax.axvline(date.start, color="mediumaquamarine", zorder=1)
-                ax.text(
-                    date.start + datetime.timedelta(days=2),
-                    (max(data_frame["number_of_players"]) - min(data_frame["number_of_players"])) * 0.90
-                    + min(data_frame["number_of_players"]),
-                    date.name,
-                    color="mediumaquamarine",
-                    bbox=dict(
-                        facecolor="white",
-                        edgecolor="mediumaquamarine",
-                        boxstyle="round",
-                        zorder=3,
-                    ),
-                )
+
+            def format_other_dates(dates: list, position: float):
+                for date in dates:
+                    ax.axvline(date.start, color="mediumaquamarine", zorder=1)
+                    ax.text(
+                        date.start + datetime.timedelta(days=2),
+                        (max(data_frame["number_of_players"]) - min(data_frame["number_of_players"])) * position
+                        + min(data_frame["number_of_players"]),
+                        date.name,
+                        color="mediumaquamarine",
+                        bbox=dict(
+                            facecolor="white",
+                            edgecolor="mediumaquamarine",
+                            boxstyle="round",
+                            zorder=3,
+                        ),
+                    )
+
+            format_other_dates(other_important_dates_part_1, 0.95)
+            format_other_dates(other_important_dates_part_2, 0.90)
+            format_other_dates(other_important_dates_part_3, 0.85)
 
             # saving file im memory
             buffer = BytesIO()

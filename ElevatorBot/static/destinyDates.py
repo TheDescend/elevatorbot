@@ -55,11 +55,12 @@ other_important_dates_part_2 = [
     _Date("2020-10-12", "Festival of the Lost"),
     _Date("2021-05-22", "VoG"),
     _Date("2021-12-07", "30th Anniversary"),
-    _Date("2019-03-05", "WQ Raid"),
 ]
+
 other_important_dates_part_3 = [
     _Date("2020-04-21", "Guardian Games"),
     _Date("2020-07-07", "Moments of Triumph"),
+    _Date("2022-03-05", "WQ Raid"),
 ]
 
 season_and_expansion_dates = sorted(expansion_dates + season_dates, key=lambda m: m.start)
