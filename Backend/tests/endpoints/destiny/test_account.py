@@ -185,7 +185,7 @@ async def test_time(client: AsyncClient, mocker: MockerFixture):
     data = DestinyTimesModel.parse_obj(r.json())
     assert data.entries
     assert len(data.entries) == 1
-    assert data.entries[0].time_played == 557
+    assert data.entries[0].time_played == 557 + 9
     assert data.entries[0].mode == 4
     assert data.entries[0].activity_ids is None
 

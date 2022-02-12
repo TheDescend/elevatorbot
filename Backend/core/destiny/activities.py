@@ -494,7 +494,7 @@ class DestinyActivities:
             character_class=character_class,
             character_ids=character_ids,
             no_checkpoints=False,
-            only_checkpoint=False,
+            only_checkpoint=True,
             only_completed=False,
         )
 

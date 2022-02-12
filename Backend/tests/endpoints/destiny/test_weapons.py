@@ -50,7 +50,7 @@ async def test_get_top(client: AsyncClient, mocker: MockerFixture):
     assert r.status_code == 200
     data = DestinyTopWeaponsModel.parse_obj(r.json())
     assert_weapon_ranking(data)
-    assert data.kinetic[0].stat_value == 10
+    assert data.kinetic[0].stat_value == 10 + 9
 
     # kills
     input_model = DestinyTopWeaponsInputModel(stat=DestinyTopWeaponsStatInputModelEnum.KILLS, how_many_per_slot=10)
@@ -60,7 +60,7 @@ async def test_get_top(client: AsyncClient, mocker: MockerFixture):
     assert r.status_code == 200
     data = DestinyTopWeaponsModel.parse_obj(r.json())
     assert_weapon_ranking(data)
-    assert data.kinetic[0].stat_value == 100
+    assert data.kinetic[0].stat_value == 100 + 9
 
     # try a very variations
     input_model.weapon_type = 25
@@ -210,9 +210,9 @@ def assert_weapon_ranking(data: DestinyTopWeaponsModel):
 def assert_weapon_stats(data: DestinyWeaponStatsModel):
     """Tests that the weapon is OK"""
 
-    assert data.total_kills == 100
-    assert data.total_precision_kills == 10
-    assert data.total_activities == 1
+    assert data.total_kills == 100 + 9
+    assert data.total_precision_kills == 10 + 9
+    assert data.total_activities == 2
     assert data.best_kills == 100
     assert data.best_kills_activity_name == dummy_activity_name
     assert data.best_kills_activity_id == dummy_instance_id

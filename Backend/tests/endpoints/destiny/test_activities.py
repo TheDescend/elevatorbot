@@ -114,12 +114,12 @@ async def test_activity(client: AsyncClient, mocker: MockerFixture):
     assert r.status_code == 200
     data = DestinyActivityOutputModel.parse_obj(r.json())
     assert data.full_completions == 1
-    assert data.cp_completions == 0
-    assert data.kills == 22
-    assert data.precision_kills == 10
-    assert data.deaths == 1
-    assert data.assists == 6
-    assert data.time_spend.seconds == 557
+    assert data.cp_completions == 1
+    assert data.kills == 22 + 9
+    assert data.precision_kills == 10 + 9
+    assert data.deaths == 1 + 9
+    assert data.assists == 6 + 9
+    assert data.time_spend.seconds == 557 + 9
     assert data.fastest.seconds == 917
     assert data.fastest_instance_id == dummy_instance_id
     assert data.average.seconds == 917
