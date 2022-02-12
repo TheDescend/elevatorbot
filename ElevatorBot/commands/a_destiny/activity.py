@@ -81,8 +81,6 @@ class DestinyActivity(BaseScale):
         if footer:
             embed.set_footer(" | ".join(footer))
 
-        # todo add field for "Uncompleted Attempts"
-
         # add the fields
         embed.add_field(name="Full Completions", value=str(stats.full_completions), inline=True)
         embed.add_field(name="CP Completions", value=str(stats.cp_completions), inline=True)

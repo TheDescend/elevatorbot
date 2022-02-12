@@ -504,7 +504,6 @@ class DestinyActivities:
         return result
 
 
-# todo db and https://chrisfried.github.io/secret-scrublandeux/ show different number of activities (9893 vs 9962)
 async def update_activities_in_background(user: DiscordUsers):
     """Gets called when a user first registers and updates their activities in the background"""
     async with get_async_session().begin() as db:

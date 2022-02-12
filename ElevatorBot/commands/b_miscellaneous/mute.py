@@ -72,8 +72,7 @@ class Mute(BaseScale):
             return
 
         if muted_type == get_setting("DESCEND_ROLE_NO_NICKNAME_ID"):
-            # todo test if that removes it
-            await user.edit_nickname("")
+            await user.edit_nickname(None)
             await assign_roles_to_member(user, muted_type, reason=f"/mute by {ctx.author}")
 
         else:

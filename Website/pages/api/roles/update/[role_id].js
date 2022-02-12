@@ -55,7 +55,6 @@ export async function checkOk(req, res) {
         }
     })
 
-    // todo test
     // check admin perms
     const adminPerms = hasDiscordPermission(guild)
     if (!adminPerms) {
