@@ -5,6 +5,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from dis_snek import AutoDefer, Intents, InteractionContext, Permissions, Snake, listen, logger_name, slash_command
 
 from ElevatorBot.discordEvents.base import ElevatorSnake
+from ElevatorBot.misc.cache import descend_cache
 from ElevatorBot.misc.helperFunctions import yield_files_in_folder
 from ElevatorBot.misc.status import update_discord_bot_status
 from ElevatorBot.startup.initAutocompleteOptions import load_autocomplete_options
@@ -50,6 +51,7 @@ class Elevator(ElevatorSnake):
             # chunk descend and load its data, but not all guilds
             await descend_channels.guild.chunk_guild()
             print("Chunking Descend Discord Data...")
+        await descend_cache.init_status_message()
 
         print("Startup Finished!\n")
         print("--------------------------\n")
