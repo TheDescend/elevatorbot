@@ -1,3 +1,4 @@
+import aiohttp
 import feedparser
 
 from Backend.backgroundEvents.base import BaseEvent
@@ -15,11 +16,19 @@ class RssFeedChecker(BaseEvent):
 
     async def run(self):
         async with get_async_session().begin() as db:
-            feed = feedparser.parse("https://www.bungie.net/en/rss/News")
+            # use aiohttp to make the request instead of feedparsers request usage
+            async with aiohttp.ClientSession() as session:
+                async with session.get("https://www.bungie.net/en/rss/News") as resp:
+                    if resp.status == 200:
+                        text = await resp.text()
+                    else:
+                        return
+
+            feed = feedparser.parse(text)
 
             # loop through the articles and check if they have been published
             to_publish = []
-            for item in reversed(feed["entries"]):
+            for item in feed["entries"]:
                 if not await rss_feed.get(db=db, item_id=item["id"]):
                     to_publish.append(item)
                 else:
