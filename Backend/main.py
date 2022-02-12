@@ -53,6 +53,7 @@ async def log_requests(request: Request, call_next):
     start_time = time.time()
     try:
         response = await call_next(request)
+
     except Exception as error:
         # log that
         print(error)

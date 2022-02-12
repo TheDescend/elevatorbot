@@ -48,10 +48,11 @@ class Elevator(ElevatorSnake):
         print("Setting Up Descend Data...")
         is_descend = await descend_channels.init_channels(client)
         if is_descend:
+            await descend_cache.init_status_message()
+
             # chunk descend and load its data, but not all guilds
             await descend_channels.guild.chunk_guild()
             print("Chunking Descend Discord Data...")
-        await descend_cache.init_status_message()
 
         print("Startup Finished!\n")
         print("--------------------------\n")

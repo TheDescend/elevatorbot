@@ -44,13 +44,14 @@ async def update_events_status_message(event_name: str):
 
     now = get_now_with_tz()
     correctly_formatted_event_name = " ".join(re.findall("[A-Z][^A-Z]*", event_name))
-    correctly_formatted_event_time = f"{Timestamp.fromdatetime(now).format(style=TimestampStyles.ShortDateTime)} | {Timestamp.fromdatetime(now).format(style=TimestampStyles.RelativeTime)}"
+    correctly_formatted_event_time = f"{Timestamp.fromdatetime(now).format(style=TimestampStyles.ShortDateTime)}\n{Timestamp.fromdatetime(now).format(style=TimestampStyles.RelativeTime)}"
 
     # get the message from cache
     if not descend_cache.status_message:
         return
 
     embed: Embed = copy(descend_cache.status_message.embeds[0])
+    embed.timestamp = now
 
     # get all the fields from the embed and change the one we are looking for
     found = False
