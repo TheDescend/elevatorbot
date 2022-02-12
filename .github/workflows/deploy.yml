@@ -30,5 +30,6 @@ jobs:
           git reset --hard HEAD
           git pull
           sudo docker-compose up --build --detach
+          docker system prune -f
           EOT
           )"
