@@ -31,4 +31,4 @@ jobs:
           release_name: Release v${{ steps.version.outputs.version }}
           body: A new release for ElevatorBot
           draft: false
-          prerelease: true
+          prerelease: false
