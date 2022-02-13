@@ -38,6 +38,9 @@ class PopTimeline(BaseScale):
             dict_entries = [entry.dict() for entry in result.entries]
             data_frame = DataFrame(data=dict_entries)
 
+            # sort it
+            data_frame.sort_values("date", ascending=True, inplace=True)
+
             # create figure and plot space
             fig, ax = plt.subplots(figsize=(20, 10))
             ax.yaxis.grid(True)
