@@ -97,7 +97,7 @@ class PopTimeline(BaseScale):
             message = await ctx.send(file=image, embeds=embed)
 
             # save the url in cache
-            pop_timeline_cache.url = message.attachments[0].url
+            pop_timeline_cache.url = message.embeds[0].image.url
 
 
 def setup(client):
