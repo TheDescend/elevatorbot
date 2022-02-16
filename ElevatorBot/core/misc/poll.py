@@ -1,7 +1,7 @@
 import dataclasses
 from typing import Optional
 
-from dis_snek.models import (
+from dis_snek import (
     ActionRow,
     ComponentContext,
     Embed,
@@ -14,11 +14,12 @@ from dis_snek.models import (
     SelectOption,
 )
 
+from ElevatorBot.backendNetworking.errors import BackendException
 from ElevatorBot.backendNetworking.misc.polls import BackendPolls
-
 from ElevatorBot.misc.discordShortcutFunctions import has_admin_permission
-from ElevatorBot.misc.formating import embed_message
-from NetworkingSchemas.misc.polls import PollSchema
+from ElevatorBot.misc.formatting import embed_message, replace_progress_formatting
+from Shared.functions.formatting import make_progress_bar_text
+from Shared.networkingSchemas.misc.polls import PollChoice, PollSchema
 
 
 @dataclasses.dataclass()
@@ -30,10 +31,12 @@ class Poll:
     guild: Guild
     channel: GuildText
     author: Member
-    message: Optional[Message] = None
 
+    image_url: Optional[str] = None
+
+    message: Optional[Message] = None
     id: Optional[int | str] = None
-    data: dict = dataclasses.field(default_factory=dict)
+    choices: list[PollChoice] = dataclasses.field(default_factory=list)
 
     select: list[ActionRow] = dataclasses.field(init=False)
 
@@ -44,10 +47,10 @@ class Poll:
                     Select(
                         options=[
                             SelectOption(
-                                label=option_name,
-                                value=option_name,
+                                label=choice.name,
+                                value=choice.name,
                             )
-                            for option_name in self.data
+                            for choice in self.choices
                         ],
                         placeholder="Please select your choice",
                         min_values=1,
@@ -56,7 +59,7 @@ class Poll:
                     )
                 ),
             ]
-            if self.data
+            if self.choices
             else []
         )
 
@@ -66,26 +69,35 @@ class Poll:
     async def from_pydantic_model(cls, client, data: PollSchema):
         """Create the obj from the PollSchema data"""
 
-        name = data.name
-        description = data.description
         guild = await client.get_guild(data.guild_id)
-        channel = await guild.get_channel(data.channel_id)
+        channel = await client.get_channel(data.channel_id)
         author = await client.get_member(data.author_id, guild.id)
-        poll_id = data.id
-        poll_data = data.data
         message = await channel.get_message(data.message_id)
+
+        # make sure the choices match
+        if len(message.embeds[0].fields) != len(data.choices):
+            choice_names = [choice.name for choice in data.choices]
+            for choice in message.embeds[0].fields:
+                if choice.name not in choice_names:
+                    data.choices.append(PollChoice(name=choice.name, discord_ids=[]))
+
+        # get the image
+        image_url = None
+        if image := message.embeds[0].image:
+            image_url = image.url
 
         backend = BackendPolls(ctx=None, discord_member=author, guild=guild)
 
         return cls(
             backend=backend,
-            name=name,
-            description=description,
+            name=data.name,
+            description=data.description,
+            image_url=image_url,
             guild=guild,
             channel=channel,
             author=author,
-            id=poll_id,
-            data=poll_data,
+            id=data.id,
+            choices=data.choices,
             message=message,
         )
 
@@ -97,9 +109,6 @@ class Poll:
         backend.hidden = True
         result = await backend.get(poll_id=poll_id)
 
-        if not result:
-            return
-
         return await Poll.from_pydantic_model(client=ctx.bot, data=result)
 
     async def add_new_option(self, ctx: InteractionContext, option: str):
@@ -108,7 +117,11 @@ class Poll:
         if not await self._check_permission(ctx=ctx):
             return
 
-        self.data.update({option: []})
+        model = PollChoice(name=option, discord_ids=[])
+        if model in self.choices:
+            await ctx.send(embeds=embed_message("Error", f"Option `{option}` already exists"))
+            return
+        self.choices.append(model)
 
         # run the post init again to update select
         self.__post_init__()
@@ -121,12 +134,22 @@ class Poll:
         if not await self._check_permission(ctx=ctx):
             return
 
-        result = await self.backend.remove_option(poll_id=self.id, choice_name=option)
+        try:
+            result = await self.backend.remove_option(poll_id=self.id, choice_name=option)
+            new_poll = await Poll.from_pydantic_model(client=ctx.bot, data=result)
+        except BackendException as e:
+            # if the delete-call failed, check if the option maybe only exists locally
+            choice_names = [choice.name for choice in self.choices]
+            if option not in choice_names:
+                raise e
 
-        if not result:
-            return
+            self.choices = [choice for choice in self.choices if choice.name != option]
 
-        new_poll = await Poll.from_pydantic_model(client=ctx.bot, data=result)
+            # run the post init again to update select
+            self.__post_init__()
+
+            new_poll = self
+
         await new_poll.send(ctx=ctx)
 
     async def delete(self, ctx: InteractionContext):
@@ -135,11 +158,13 @@ class Poll:
         if not await self._check_permission(ctx=ctx):
             return
 
-        result = await self.backend.delete(poll_id=self.id)
-        if not result:
-            return
-
+        await self.backend.delete(poll_id=self.id)
         await self.message.delete()
+
+        await ctx.send(
+            ephemeral=True,
+            embeds=embed_message("Success", "The poll has been deleted"),
+        )
 
     async def _check_permission(self, ctx: InteractionContext) -> bool:
         """Checks permissions from the author"""
@@ -156,41 +181,38 @@ class Poll:
 
         return True
 
-    async def send(self, ctx: Optional[InteractionContext | ComponentContext] = None):
+    async def send(self, ctx: Optional[InteractionContext | ComponentContext] = None, user_input: bool = False):
         """Send the poll message"""
 
         if not self.id:
-            # we have not send anything to the db yet, so gotta do that and get our id
+            # we have not sent anything to the db yet, so gotta do that and get our id
             self.message = await self.channel.send(
                 embeds=embed_message(f"Poll: {self.name}", "Constructing Poll, gimme a sec...")
             )
             await self._dump_to_db()
 
+        # put the actual content in
         embed = self._get_embed()
 
-        if ctx:
-            if isinstance(ctx, ComponentContext):
-                await ctx.edit_origin(
-                    embeds=embed,
-                    components=self.select,
-                )
-
-                await ctx.send(
-                    ephemeral=True,
-                    embeds=embed_message("Success", "Your poll was edited"),
-                )
-        else:
-            await self.message.edit(
+        # user input can end quicker
+        if user_input:
+            await ctx.edit_origin(
                 embeds=embed,
                 components=self.select,
             )
+            return
 
+        await self.message.edit(
+            embeds=embed,
+            components=self.select,
+        )
+
+        # respond to the context
         if ctx:
-            if not isinstance(ctx, ComponentContext):
-                await ctx.send(
-                    ephemeral=True,
-                    embeds=embed_message("Success", "Your poll was edited"),
-                )
+            await ctx.send(
+                ephemeral=True,
+                embeds=embed_message("Success", f"Check your poll [here]({self.message.jump_url})"),
+            )
 
     async def disable(self, ctx: InteractionContext):
         """Disable the poll and delete it from the DB"""
@@ -199,9 +221,7 @@ class Poll:
             return
 
         # delete from db
-        result = await self.backend.delete(poll_id=self.id)
-        if not result:
-            return
+        await self.backend.delete(poll_id=self.id)
 
         # edit the message to remove the select and the id
         self.id = "DISABLED"
@@ -215,38 +235,29 @@ class Poll:
     def _get_embed(self) -> Embed:
         """Get embed"""
 
-        total_users_count = sum([len(option_users) for option_users in self.data.values()])
+        total_users_count = sum([len(choice.discord_ids) for choice in self.choices])
 
         embed = embed_message(
             f"Poll: {self.name}",
             f"{self.description}\n**{total_users_count} votes**",
             f"Asked by {self.author.display_name}  |  ID: {self.id}",
         )
+        if self.image_url:
+            embed.set_image(self.image_url)
 
         # sort the data by most answers
-        self.data = {k: v for k, v in sorted(self.data.items(), key=lambda item: len(item[1]), reverse=True)}
+        self.choices = sorted(self.choices, key=lambda item: len(item.discord_ids), reverse=True)
 
-        # add options
-        for option_name, option_users in self.data.items():
-            option_users_count = len(option_users)
+        # add choices
+        for choice in self.choices:
+            option_users_count = len(choice.discord_ids)
+            percentage = option_users_count / total_users_count if total_users_count else 0
 
-            # number of text elements
-            n = 10
-
-            # get value text
-            text = ""
-            try:
-                progress = option_users_count / total_users_count
-            except ZeroDivisionError:
-                progress = 0
-            for i in range(int(progress * n)):
-                text += "▓"
-            for i in range(n - int(progress * n)):
-                text += "░"
+            text = make_progress_bar_text(percentage=percentage, bar_length=10)
 
             embed.add_field(
-                name=option_name,
-                value=f"{text} {int(progress * 100)}%",
+                name=choice.name,
+                value=f"{replace_progress_formatting(text)}   {int(percentage * 100)}%",
                 inline=False,
             )
 

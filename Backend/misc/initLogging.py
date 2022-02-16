@@ -1,36 +1,28 @@
-import logging
-import os
-from typing import Optional
-
-
-class MakeFileHandler(logging.FileHandler):
-    def __init__(self, filename: str, mode: str = "a", encoding: Optional[str] = None, delay: bool = False):
-        os.makedirs(os.path.dirname(filename), exist_ok=True)
-        logging.FileHandler.__init__(self, filename, mode, encoding, delay)
+from Shared.functions.logging import ElevatorLogger
 
 
 def init_logging() -> None:
-    def make_logger(log_name: str) -> None:
-        logger = logging.getLogger(log_name)
-        logger.setLevel(logging.DEBUG)
-
-        file_handler = MakeFileHandler(
-            filename=f"./Logs/Backend/{log_name}.log",
-            encoding="utf-8",
-        )
-        file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
-
     # Initialize formatter
-    formatter = logging.Formatter("%(asctime)s - %(levelname)s : %(message)s")
+    logger = ElevatorLogger("Backend")
 
     # Initialize logging for incoming requests
-    make_logger("requests")
+    logger.make_logger("requests")
+    logger.make_logger("requestsExceptions")
 
     # Initialize logging for external api requests
-    make_logger("bungieApi")
-    make_logger("elevatorApi")
+    logger.make_logger("bungieApi")
+    logger.make_logger("bungieApiExceptions")
+
+    logger.make_logger("elevatorApi")
+    logger.make_logger("elevatorApiExceptions")
 
     # Initialize logging for Background Events
-    make_logger("backgroundEvents")
-    make_logger("updateActivityDb")
+    logger.make_logger("backgroundEvents")
+    logger.make_logger("backgroundEventsExceptions")
+
+    # Initialize logging for activity DB updates
+    logger.make_logger("updateActivityDb")
+    logger.make_logger("updateActivityDbExceptions")
+
+    # Initialize logging for registrations
+    logger.make_logger("registration")

@@ -2,37 +2,36 @@ import asyncio
 import dataclasses
 import datetime
 import logging
+import traceback
 from collections.abc import AsyncGenerator
 from typing import Optional
 
+from anyio import create_task_group, to_thread
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.destiny.profile import DestinyProfile
 from Backend.core.errors import CustomException
-from Backend.crud import (
-    crud_activities,
-    crud_activities_fail_to_get,
-    destiny_manifest,
-    discord_users,
-)
+from Backend.crud import crud_activities, crud_activities_fail_to_get, destiny_manifest, discord_users
 from Backend.database.base import get_async_session
 from Backend.database.models import ActivitiesUsers, DiscordUsers
 from Backend.misc.cache import cache
-from Backend.misc.helperFunctions import get_datetime_from_bungie_entry, get_now_with_tz
+from Backend.misc.helperFunctions import get_datetime_from_bungie_entry
 from Backend.networking.bungieApi import BungieApi
 from Backend.networking.bungieRoutes import activities_route, pgcr_route
 from Backend.networking.schemas import WebResponse
-from NetworkingSchemas.destiny.account import (
+from Shared.enums.destiny import UsableDestinyActivityModeTypeEnum
+from Shared.functions.helperFunctions import get_now_with_tz
+from Shared.networkingSchemas.destiny import (
+    DestinyActivityDetailsModel,
+    DestinyActivityDetailsUsersModel,
+    DestinyActivityModel,
+    DestinyActivityOutputModel,
+    DestinyLowManModel,
+    DestinyLowMansByCategoryModel,
     DestinyLowMansModel,
     DestinyUpdatedLowManModel,
 )
-from NetworkingSchemas.destiny.activities import (
-    DestinyActivityDetailsModel,
-    DestinyActivityDetailsUsersModel,
-    DestinyActivityOutputModel,
-    DestinyLowManModel,
-)
-from NetworkingSchemas.destiny.roles import TimePeriodModel
+from Shared.networkingSchemas.destiny.roles import TimePeriodModel
 
 
 @dataclasses.dataclass
@@ -62,10 +61,9 @@ class DestinyActivities:
         disallowed_datetimes: Optional[list[TimePeriodModel]] = None,
         score_threshold: Optional[int] = None,
         min_kills_per_minute: Optional[float] = None,
+        results: list[DestinyLowManModel] = None,
     ) -> DestinyLowManModel:
-        """Returns low man data"""
-
-        count, flawless_count, not_flawless_count, fastest = 0, 0, 0, None
+        """Returns low man data. If results gets passed, the result gets added to that list too"""
 
         # get player data
         low_activity_info = await crud_activities.get_activities(
@@ -81,22 +79,21 @@ class DestinyActivities:
         )
 
         # prepare player data
-        for solo in low_activity_info:
-            count += 1
-            if solo.deaths == 0:
-                flawless_count += 1
-            else:
-                not_flawless_count += 1
-            if not fastest or (solo.time_played_seconds < fastest):
-                fastest = datetime.timedelta(seconds=solo.time_played_seconds)
-
-        return DestinyLowManModel(
+        count, flawless_count, not_flawless_count, fastest, fastest_instance_id = await to_thread.run_sync(
+            get_lowman_count_subprocess, low_activity_info
+        )
+        result = DestinyLowManModel(
             activity_ids=activity_ids,
             count=count,
             flawless_count=flawless_count,
             not_flawless_count=not_flawless_count,
             fastest=fastest,
+            fastest_instance_id=fastest_instance_id,
         )
+
+        if results is not None:
+            results.append(result)
+        return result
 
     async def get_activity_history(
         self,
@@ -133,6 +130,10 @@ class DestinyActivities:
             br = False
             page = -1
             while True:
+                # break once threshold is reached
+                if br:
+                    break
+
                 page += 1
 
                 params = {
@@ -140,10 +141,6 @@ class DestinyActivities:
                     "count": 250,
                     "page": page,
                 }
-
-                # break once threshold is reached
-                if br:
-                    break
 
                 # get activities
                 rep = await self.api.get(route=route, params=params)
@@ -181,7 +178,7 @@ class DestinyActivities:
         """Insert the missing pgcr"""
 
         async with asyncio.Lock():
-            for activity in await crud_activities_fail_to_get.get_all_name():
+            for activity in await crud_activities_fail_to_get.get_all(db=self.db):
                 # check if info is already in DB, delete and skip if so
                 result = crud_activities.get(db=self.db, instance_id=activity.instance_id)
                 if result:
@@ -242,6 +239,13 @@ class DestinyActivities:
 
         # loop through the users
         for user in result.users:
+            # get the registered user data
+            try:
+                profile = await discord_users.get_profile_from_destiny_id(db=self.db, destiny_id=user.destiny_id)
+                profile = profile.discord_id
+            except CustomException:
+                profile = None
+
             if data.activity_duration_seconds == 0:
                 # update temp values
                 data.activity_duration_seconds = user.activity_duration_seconds
@@ -260,6 +264,7 @@ class DestinyActivities:
                     deaths=user.deaths,
                     assists=user.assists,
                     time_played_seconds=user.time_played_seconds,
+                    discord_id=profile,
                 )
             )
 
@@ -268,14 +273,19 @@ class DestinyActivities:
     async def update_activity_db(self, entry_time: Optional[datetime.datetime] = None):
         """Gets this user's not-saved history and saves it in the db"""
 
-        async def handle(i: int, t: datetime.datetime) -> Optional[list[int, datetime.datetime, dict]]:
+        async def handle(results: list, i: int, t: datetime.datetime):
             """Get pgcr"""
 
             try:
                 pgcr = await self.get_pgcr(i)
+                results.append((i, t, pgcr.content))
 
-            except CustomException:
-                logger.warning("Failed getting pgcr <%s>", i)
+            except Exception as e:
+                # log that
+                print(e)
+                logger_exceptions.error(
+                    f"""Failed getting pgcr '{i}' - Error '{e}' - Traceback: \n'{"".join(traceback.format_tb(e.__traceback__))}'"""
+                )
 
                 # remove the instance_id from the cache
                 cache.saved_pgcrs.remove(i)
@@ -283,87 +293,101 @@ class DestinyActivities:
                 # looks like it failed, lets try again later
                 await crud_activities_fail_to_get.insert(db=self.db, instance_id=i, period=t)
 
-                return
-            return [i, t, pgcr.content]
-
         async def input_data(gather_instance_ids: list[int], gather_activity_times: list[datetime.datetime]):
             """Gather all pgcr and insert them"""
 
-            results = await asyncio.gather(*[handle(i, t) for i, t in zip(gather_instance_ids, gather_activity_times)])
+            # get the data with anyio tasks
+            results: list[tuple] = []
+            async with create_task_group() as tg:
+                for i, t in zip(gather_instance_ids, gather_activity_times):
+                    tg.start_soon(handle, results, i, t)
 
             # do this with a separate DB session, do make smaller commits
             async with get_async_session().begin() as session:
-                for result in results:
-                    if result:
-                        i = result[0]
-                        t = result[1]
-                        pgcr = result[2]
-
-                        # insert information to DB
-                        await crud_activities.insert(db=session, instance_id=i, activity_time=t, pgcr=pgcr)
+                for i, t, pgcr in results:
+                    # insert information to DB
+                    await crud_activities.insert(db=session, instance_id=i, activity_time=t, pgcr=pgcr)
 
         # get the logger
         logger = logging.getLogger("updateActivityDb")
+        logger_exceptions = logging.getLogger("updateActivityDbExceptions")
 
-        # get the entry time
-        if not entry_time:
-            entry_time = self.user.activities_last_updated
+        try:
+            # save the start time, so we can update the user afterwards
+            start_time = None
 
-        logger.info("Starting activity DB update for destinyID <%s>", self.destiny_id)
+            # get the entry time
+            if not entry_time:
+                entry_time = self.user.activities_last_updated
 
-        # loop through all activities
-        instance_ids = []
-        activity_times = []
-        success = False
-        async for activity in self.get_activity_history(mode=0, earliest_allowed_datetime=entry_time):
-            success = True
+            logger.info(f"Starting activity DB update for destinyID '{self.destiny_id}'")
 
-            instance_id = int(activity["activityDetails"]["instanceId"])
-            activity_time: datetime.datetime = activity["period"]
+            # loop through all activities
+            instance_ids = []
+            activity_times = []
 
-            # update with the newest entry timestamp
-            if activity_time > entry_time:
-                entry_time = activity_time
+            try:
+                async for activity in self.get_activity_history(mode=0, earliest_allowed_datetime=entry_time):
+                    instance_id = int(activity["activityDetails"]["instanceId"])
+                    activity_time: datetime.datetime = activity["period"]
 
-            # needs to be same from gathers
-            async with asyncio.Lock():
-                # check if info is already in DB, skip if so. query the cache first
-                if instance_id in cache.saved_pgcrs:
-                    continue
+                    # save the youngest start time
+                    if (not start_time) or (activity_time > start_time):
+                        start_time = activity_time
 
-                # add the instance_id to the cache to prevent other users with the same instance to double check this
-                # will get removed again if something fails
-                cache.saved_pgcrs.add(instance_id)
+                    # needs to be same for anyio tasks
+                    async with asyncio.Lock():
+                        # check if info is already in DB, skip if so. query the cache first
+                        if instance_id in cache.saved_pgcrs:
+                            continue
 
-                # check if the cache is maybe just wrong
-                if await crud_activities.get(db=self.db, instance_id=instance_id) is not None:
-                    continue
+                        # add the instance_id to the cache to prevent other users with the same instance to double check this
+                        # will get removed again if something fails
+                        cache.saved_pgcrs.add(instance_id)
 
-            # add to gather list
-            instance_ids.append(instance_id)
-            activity_times.append(activity_time)
+                        # check if the cache is maybe just wrong
+                        if await crud_activities.get(db=self.db, instance_id=instance_id) is not None:
+                            continue
 
-            # gather once list is big enough
-            if len(instance_ids) < 50:
-                continue
-            else:
+                    # add to task list
+                    instance_ids.append(instance_id)
+                    activity_times.append(activity_time)
+
+                    # gather once list is big enough
+                    if len(instance_ids) < 50:
+                        continue
+                    else:
+                        # get and input the data
+                        await input_data(instance_ids, activity_times)
+
+                        # reset task list and restart
+                        instance_ids = []
+                        activity_times = []
+
+            except CustomException as e:
+                # catch when bungie is down and ignore it
+                if e.error == "BungieDed":
+                    return
+                raise e
+
+            # one last time to clean out the extras after the code is done
+            if instance_ids:
                 # get and input the data
                 await input_data(instance_ids, activity_times)
 
-                # reset gather list and restart
-                instance_ids = []
-                activity_times = []
+            # update them with the newest entry timestamp
+            if start_time:
+                await discord_users.update(db=self.db, to_update=self.user, activities_last_updated=start_time)
 
-        # one last time to clean out the extras after the code is done
-        if instance_ids:
-            # get and input the data
-            await input_data(instance_ids, activity_times)
+            logger.info(f"Done with activity DB update for destinyID '{self.destiny_id}'")
 
-        # update them with the newest entry timestamp
-        if success:
-            await discord_users.update(db=self.db, to_update=self.user, activities_last_updated=entry_time)
-
-        logger.info("Done with activity DB update for destinyID <%s>", self.destiny_id)
+        except Exception as error:
+            # log that
+            print(error)
+            logger_exceptions.error(
+                f"""Activity DB update for destinyID '{self.destiny_id}' - Error '{error}' - Traceback: \n'{"".join(traceback.format_tb(error.__traceback__))}'"""
+            )
+            raise error
 
     async def __get_full_character_list(self) -> list[dict]:
         """Get all character ids (including deleted characters)"""
@@ -384,25 +408,54 @@ class DestinyActivities:
 
         return self._full_character_list
 
-    async def get_solos(self) -> DestinyLowMansModel:
+    async def get_solos(self) -> DestinyLowMansByCategoryModel:
         """Return the destiny solos"""
+
+        async def get_by_topic(t_category: str, t_activities: list[DestinyActivityModel]):
+            """Get the activities by topic"""
+
+            # get the activities in anyio tasks
+            # allow cp runs for raids
+            results: list[DestinyLowManModel] = []
+            async with create_task_group() as tg2:
+                for activity in t_activities:
+                    tg2.start_soon(
+                        self.get_lowman_count,
+                        activity.activity_ids,
+                        1,
+                        False,
+                        activity.mode != UsableDestinyActivityModeTypeEnum.RAID.value,
+                        None,
+                        None,
+                        None,
+                        results,
+                    )
+
+            # loop through the results
+            # first loop through the activities since we want them ordered
+            # a bit inefficient but fine really
+            solos: list[DestinyUpdatedLowManModel] = []
+            for t_activity in t_activities:
+                for result in results:
+                    if t_activity.activity_ids == result.activity_ids:
+                        solos.append(DestinyUpdatedLowManModel(activity_name=t_activity.name, **result.dict()))
+                        break
+
+            # get the correct category and append there
+            for entry in solos_by_categories.categories:
+                if entry.category == t_category:
+                    entry.solos = solos
 
         interesting_solos = await destiny_manifest.get_challenging_solo_activities(db=self.db)
 
-        # get the results for this in a gather (keeps order)
-        results = await asyncio.gather(
-            *[
-                self.get_lowman_count(activity_ids=activity.activity_ids, max_player_count=1)
-                for activity in interesting_solos
-            ]
-        )
-        solos = DestinyLowMansModel()
+        # get the results for all categories in anyio tasks
+        solos_by_categories = DestinyLowMansByCategoryModel()
+        async with create_task_group() as tg1:
+            for category, activities in interesting_solos.items():
+                solos_by_categories.categories.append(DestinyLowMansModel(category=category))
+                tg1.start_soon(get_by_topic, category, activities)
 
-        # loop through the results
-        for result, activity in zip(results, interesting_solos):
-            solos.solos.append(DestinyUpdatedLowManModel(activity_name=activity.name, **result.dict()))
-
-        return solos
+        return solos_by_categories
 
     async def get_activity_stats(
         self,
@@ -421,7 +474,7 @@ class DestinyActivities:
                 TimePeriodModel(start_time=start_time or datetime.datetime.min, end_time=end_time or get_now_with_tz())
             ]
 
-        data = await crud_activities.get_activities(
+        data_full = await crud_activities.get_activities(
             db=self.db,
             activity_hashes=activity_ids,
             mode=mode,
@@ -429,64 +482,122 @@ class DestinyActivities:
             allow_time_periods=allow_time_period,
             character_class=character_class,
             character_ids=character_ids,
+            no_checkpoints=True,
+            only_completed=False,
+        )
+        data_cp = await crud_activities.get_activities(
+            db=self.db,
+            activity_hashes=activity_ids,
+            mode=mode,
+            destiny_id=self.destiny_id,
+            allow_time_periods=allow_time_period,
+            character_class=character_class,
+            character_ids=character_ids,
+            no_checkpoints=False,
+            only_checkpoint=True,
+            only_completed=False,
         )
 
         # get output model
-        result = DestinyActivityOutputModel(
-            full_completions=0,
-            cp_completions=0,
-            kills=0,
-            precision_kills=0,
-            deaths=0,
-            assists=0,
-            time_spend=datetime.timedelta(seconds=0),
-            fastest=None,
-            fastest_instance_id=None,
-            average=datetime.timedelta(seconds=0),
-        )
-
-        # save some stats for each activity. needed because a user can participate with multiple characters in an activity
-        # key: instance_id
-        activities_time_played: dict[int, datetime.timedelta] = {}
-        activities_completed: dict[int, bool] = {}
-
-        # loop through all results
-        for activity_stats in data:
-            result.kills += activity_stats.kills
-            result.precision_kills += activity_stats.precision_kills
-            result.deaths += activity_stats.deaths
-            result.assists += activity_stats.assists
-            result.time_spend += datetime.timedelta(seconds=activity_stats.time_played_seconds)
-
-            # register the activity completion (with all chars)
-            if (activity_stats.activity_instance_id not in activities_completed) or (
-                not activities_completed[activity_stats.activity_instance_id] and activity_stats.completed
-            ):
-                activities_completed.update({activity_stats.activity_instance_id: activity_stats.completed})
-
-            # register the activity duration (once, same for all chars)
-            if activity_stats.activity_instance_id not in activities_time_played:
-                activities_time_played.update(
-                    {
-                        activity_stats.activity_instance_id: datetime.timedelta(
-                            seconds=activity_stats.activity_duration_seconds
-                        )
-                    }
-                )
-
-        # get the completion count
-        result.full_completions = sum(activities_completed.values())
-        result.cp_completions = len(activities_completed) - result.full_completions
-
-        # get the fastest / average time
-        activities_completed_time_played: dict[int, datetime.timedelta] = {}
-        for completed_id, completed in activities_completed.items():
-            if completed:
-                activities_completed_time_played.update({completed_id: activities_time_played[completed_id]})
-        result.fastest_instance_id = min(activities_completed_time_played, key=activities_completed_time_played.get)
-        result.fastest = activities_completed_time_played[result.fastest_instance_id]
-        result.average = sum(activities_completed_time_played.values(), datetime.timedelta(seconds=0)) / len(
-            activities_completed_time_played
-        )
+        result = await to_thread.run_sync(get_activity_stats_subprocess, data_full, data_cp)
 
         return result
+
+
+async def update_activities_in_background(user: DiscordUsers):
+    """Gets called when a user first registers and updates their activities in the background"""
+    async with get_async_session().begin() as db:
+        activities = DestinyActivities(db=db, user=user)
+        await activities.update_activity_db()
+
+
+# todo those are running in to_thread.run_sync instead of subprocesses since they didnt work for whatever reason. subprocesses would be faster
+def get_lowman_count_subprocess(
+    low_activity_info: list[ActivitiesUsers],
+) -> tuple[int, int, int, Optional[datetime.timedelta], Optional[int]]:
+    """Run in anyio subprocess on another thread since this might be slow"""
+
+    count, flawless_count, not_flawless_count, fastest, fastest_instance_id = 0, 0, 0, None, None
+
+    for solo in low_activity_info:
+        count += 1
+        if solo.deaths == 0:
+            flawless_count += 1
+        else:
+            not_flawless_count += 1
+        if not fastest or (solo.time_played_seconds < fastest.seconds):
+            fastest = datetime.timedelta(seconds=solo.time_played_seconds)
+            fastest_instance_id = solo.activity_instance_id
+
+    return count, flawless_count, not_flawless_count, fastest, fastest_instance_id
+
+
+def get_activity_stats_subprocess(
+    data_full: list[ActivitiesUsers], data_cp: list[ActivitiesUsers]
+) -> DestinyActivityOutputModel:
+    """Run in anyio subprocess on another thread since this might be slow"""
+
+    result = DestinyActivityOutputModel(
+        full_completions=0,
+        cp_completions=0,
+        kills=0,
+        precision_kills=0,
+        deaths=0,
+        assists=0,
+        time_spend=datetime.timedelta(seconds=0),
+        fastest=None,
+        fastest_instance_id=None,
+        average=None,
+    )
+
+    # save some stats for each activity. needed because a user can participate with multiple characters in an activity
+    # key: instance_id
+    activities_time_played: dict[int, datetime.timedelta] = {}
+    activities_total: list[int] = []
+    activities_completed: list[int] = []
+
+    # loop through all results
+    for activity_stats in data_cp + data_full:
+        result.kills += activity_stats.kills
+        result.precision_kills += activity_stats.precision_kills
+        result.deaths += activity_stats.deaths
+        result.assists += activity_stats.assists
+        result.time_spend += datetime.timedelta(seconds=activity_stats.time_played_seconds)
+
+        # register all activity completions
+        if activity_stats.activity_instance_id not in activities_total:
+            if bool(activity_stats.completed):
+                activities_total.append(activity_stats.activity_instance_id)
+
+    for activity_stats in data_full:
+        # register the full activity completions (with all chars)
+        if activity_stats.activity_instance_id not in activities_completed:
+            if bool(activity_stats.completed):
+                activities_completed.append(activity_stats.activity_instance_id)
+
+        # register the activity duration (once, same for all chars)
+        if activity_stats.activity_instance_id not in activities_time_played:
+            activities_time_played[activity_stats.activity_instance_id] = datetime.timedelta(seconds=0)
+        activities_time_played[activity_stats.activity_instance_id] += datetime.timedelta(
+            seconds=activity_stats.activity_duration_seconds
+        )
+
+    result.full_completions = len(activities_completed)
+    result.cp_completions = len(activities_total) - result.full_completions
+
+    # make sure the fastest / average activity was completed
+    activities_time_played = {
+        activity_id: time_played
+        for activity_id, time_played in activities_time_played.items()
+        if activity_id in activities_completed
+    }
+
+    # only do that if they actually played an activity tho
+    if activities_time_played:
+        result.fastest_instance_id = min(activities_time_played, key=activities_time_played.get)
+        result.fastest = activities_time_played[result.fastest_instance_id]
+        result.average = sum(activities_time_played.values(), datetime.timedelta(seconds=0)) / len(
+            activities_time_played
+        )
+
+    return result

@@ -2,12 +2,12 @@ import dataclasses
 import datetime
 from typing import Optional
 
-from dis_snek.models import Guild, GuildVoice, Message, Role, ThreadChannel
+from dis_snek import Guild, GuildVoice, Message, Role, ThreadChannel
 
 from ElevatorBot.backendNetworking.destiny.items import DestinyItems
 from ElevatorBot.core.misc.persistentMessages import PersistentMessages
-from ElevatorBot.misc.helperFunctions import get_now_with_tz
 from ElevatorBot.static.descendOnlyIds import descend_channels
+from Shared.functions.helperFunctions import get_min_with_tz, get_now_with_tz
 
 
 @dataclasses.dataclass
@@ -46,7 +46,7 @@ class RegisteredRoleCache:
 
         return self.guild_to_role[guild.id]
 
-    async def is_not_registered(self, user_id: int) -> bool:
+    def is_not_registered(self, user_id: int) -> bool:
         """Returns True if the user is not registered and that is cached. False if we dont know"""
 
         return user_id in self.not_registered_users
@@ -61,33 +61,37 @@ class DescendCache:
     booster_count_channel: GuildVoice = dataclasses.field(init=False, default=None)
     member_count_channel: GuildVoice = dataclasses.field(init=False, default=None)
 
-    async def get_booster_count(self, descend_guild: Guild) -> GuildVoice:
+    async def get_booster_count(self) -> GuildVoice:
         """Get the booster count channel"""
 
         if not self.booster_count_channel:
             # populate it
-            persistent_messages = PersistentMessages(ctx=None, guild=descend_guild, message_name="booster_count")
+            persistent_messages = PersistentMessages(
+                ctx=None, guild=descend_channels.guild, message_name="booster_count"
+            )
             result = await persistent_messages.get()
 
             if not result:
                 raise LookupError("There is no channel set")
 
-            self.booster_count_channel = await descend_guild.get_channel(result.channel_id)
+            self.booster_count_channel = await descend_channels.guild.fetch_channel(result.channel_id)
 
         return self.booster_count_channel
 
-    async def get_member_count(self, descend_guild: Guild) -> GuildVoice:
+    async def get_member_count(self) -> GuildVoice:
         """Get the member count channel"""
 
         if not self.member_count_channel:
             # populate it
-            persistent_messages = PersistentMessages(ctx=None, guild=descend_guild, message_name="member_count")
+            persistent_messages = PersistentMessages(
+                ctx=None, guild=descend_channels.guild, message_name="member_count"
+            )
             result = await persistent_messages.get()
 
             if not result:
                 raise LookupError("There is no channel set")
 
-            self.member_count_channel = await descend_guild.get_channel(result.channel_id)
+            self.member_count_channel = await descend_channels.guild.fetch_channel(result.channel_id)
 
         return self.member_count_channel
 
@@ -100,7 +104,7 @@ class DescendCache:
             # when we have not set a message yet
             return
 
-        channel = await descend_channels.guild.get_channel(result.channel_id)
+        channel = await descend_channels.guild.fetch_channel(result.channel_id)
         self.status_message = await channel.get_message(result.message_id)
 
 
@@ -147,7 +151,7 @@ class TriumphCache(IDtoNameBase):
 class PopTimelineCache:
     """This saves the url in the cache for an hour"""
 
-    _time: datetime.datetime = dataclasses.field(init=False, default=datetime.datetime.min)
+    _time: datetime.datetime = dataclasses.field(init=False, default=get_min_with_tz())
     _url: str = dataclasses.field(init=False, default=None)
 
     @property

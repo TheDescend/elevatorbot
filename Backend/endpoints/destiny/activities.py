@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from Backend.core.destiny.activities import DestinyActivities
 from Backend.crud import destiny_manifest, discord_users
 from Backend.dependencies import get_db_session
-from NetworkingSchemas.destiny.activities import (
+from Shared.networkingSchemas.destiny import (
     DestinyActivitiesModel,
     DestinyActivityDetailsModel,
     DestinyActivityInputModel,
@@ -31,9 +31,9 @@ async def last(
 ):
     """Return information about the last completed activity"""
 
-    user = await discord_users.get_profile_from_discord_id(db, discord_id)
+    user = await discord_users.get_profile_from_discord_id(discord_id)
 
-    # update the users db entries
+    # update the user's db entries
     activities = DestinyActivities(db=db, user=user)
     await activities.update_activity_db()
 
@@ -54,7 +54,7 @@ async def activity(
 ):
     """Return information about the user their stats in the supplied activity ids"""
 
-    user = await discord_users.get_profile_from_discord_id(db, discord_id)
+    user = await discord_users.get_profile_from_discord_id(discord_id)
 
     # update the user's db entries
     activities = DestinyActivities(db=db, user=user)

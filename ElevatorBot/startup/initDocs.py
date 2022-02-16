@@ -2,7 +2,10 @@ import json
 from copy import copy
 from typing import Optional
 
-from dis_snek.models import CommandTypes, ContextMenu, SlashCommand, SlashCommandOption
+from dis_snek import CommandTypes, ContextMenu, SlashCommand, SlashCommandOption
+
+from ElevatorBot.misc.formatting import capitalize_string
+from Shared.functions.readSettingsFile import get_setting
 
 
 class NoValidatorOption:
@@ -18,19 +21,29 @@ def create_command_docs(client):
     """Create user documentation for commands and context menus in ./ElevatorBot/docs"""
 
     commands = {}
-    sub_commands = {}
-    context_menus_user = {}
-    context_menus_message = {}
+    context_menus = {}
 
     # loop through all commands to get global and guild commands
     for scope, command in client.interactions.items():
+        # only show descend and global scope
+        match scope:
+            case 0:
+                scope = "Available Globally"
+            case _ if scope == get_setting("COMMAND_GUILD_SCOPE")[0]:
+                scope = "Only Available in the Descend Server"
+            case _:
+                continue
+
         for resolved_name, data in command.items():
+            # ignore the reload command
+            if resolved_name == "reload":
+                continue
+
             # get the docstring
             docstring = data.scale.__doc__
             options = copy(data.options) if hasattr(data, "options") and data.options else []
             # todo
             permissions = copy(data.permissions)
-
             docstring, options = overwrite_options_text(options=options, docstring=docstring)
 
             # check what type of interaction this is
@@ -38,33 +51,39 @@ def create_command_docs(client):
                 case ContextMenu():
                     doc = {
                         "name": resolved_name,
-                        "description": str(docstring),
+                        "description": convert_markdown(str(docstring)),
                     }
 
                     match data.type:
                         case CommandTypes.USER:
-                            if scope not in context_menus_user:
-                                context_menus_user.update({scope: []})
-                            context_menus_user[scope].append(doc)
+                            topic = "User Context Menus"
+                        case _:
+                            topic = "Message Context Menus"
 
-                        case CommandTypes.MESSAGE:
-                            if scope not in context_menus_message:
-                                context_menus_message.update({scope: []})
-                            context_menus_message[scope].append(doc)
+                    if topic not in context_menus:
+                        context_menus.update({topic: {}})
+                    if scope not in context_menus[topic]:
+                        context_menus[topic].update({scope: []})
+                    context_menus[topic][scope].append(doc)
 
                 case SlashCommand():
-                    name = " ".join(resolved_name.split()[1:]) if data.is_subcommand else resolved_name
+                    # get the topic. The folder names are starting with numbers to define the order for this
+                    topic = f"""{capitalize_string(data.scale.extension_name.split(".")[2][2:])} Commands"""
+
+                    # get the actual description
+                    actual_description = data.sub_cmd_description if data.sub_cmd_name else data.description
 
                     doc = {
-                        "name": name,
-                        "description": docstring or data.description,
-                        "options": [],
+                        "name": resolved_name,
+                        "description": convert_markdown(docstring or actual_description),
                     }
+                    if options:
+                        doc.update({"options": []})
 
                     for option in options:
                         option_dict = {
                             "name": option.name,
-                            "description": option.description,
+                            "description": convert_markdown(option.description),
                             "required": option.required,
                             "autocomplete": option.autocomplete,
                         }
@@ -76,37 +95,66 @@ def create_command_docs(client):
 
                         doc["options"].append(option_dict)
 
+                    if topic not in commands:
+                        commands.update({topic: {}})
+                    if scope not in commands[topic]:
+                        commands[topic].update({scope: []})
+
                     if data.is_subcommand:
                         # this ignores groups and only splits them into base / sub
-                        base_name = resolved_name.split(" ")[0]
-
-                        if scope not in sub_commands:
-                            sub_commands.update({scope: []})
+                        base_name = (
+                            " ".join([part.capitalize() for part in resolved_name.split(" ")[0].split("_")])
+                            + " Commands"
+                        )
 
                         found = False
-                        for entry in sub_commands[scope]:
-                            if entry["base_name"] == base_name:
+                        for entry in commands[topic][scope]:
+                            if "base_name" in entry and entry["base_name"] == base_name:
                                 entry["sub_commands"].append(doc)
                                 found = True
                         if not found:
-                            sub_commands[scope].append(
-                                {"base_name": base_name, "base_description": data.description, "sub_commands": [doc]}
+                            commands[topic][scope].append(
+                                {
+                                    "base_name": base_name,
+                                    "base_description": convert_markdown(data.description),
+                                    "sub_commands": [doc],
+                                }
                             )
 
                     else:
-                        if scope not in commands:
-                            commands.update({scope: []})
-                        commands[scope].append(doc)
+                        commands[topic][scope].append(doc)
+
+    # sort the commands
+    # sub commands first, then normal commands
+    # everything alphabetical
+    for topic in commands:
+        for scope, c in commands[topic].items():
+            temp_s = []
+            temp_c = []
+            for command in c:
+                if "name" in command:
+                    temp_c.append(command)
+                else:
+                    temp_s.append(command)
+
+            # first sort the subcommands internally
+            for base_command in temp_s:
+                base_command["sub_commands"] = sorted(
+                    base_command["sub_commands"], key=lambda item: item["name"], reverse=False
+                )
+
+            # sort them
+            temp_c = sorted(temp_c, key=lambda item: item["name"], reverse=False)
+            temp_s = sorted(temp_s, key=lambda item: item["base_name"], reverse=False)
+
+            # overwrite the old data
+            commands[topic][scope] = temp_s + temp_c
 
     # write those to files
-    with open("./docs/commands.json", "w+", encoding="utf-8") as file:
+    with open("./ElevatorBot/docs/commands.json", "w+", encoding="utf-8") as file:
         json.dump(commands, file, indent=4)
-    with open("./docs/subCommands.json", "w+", encoding="utf-8") as file:
-        json.dump(sub_commands, file, indent=4)
-    with open("./docs/contextMenusUser.json", "w+", encoding="utf-8") as file:
-        json.dump(context_menus_user, file, indent=4)
-    with open("./docs/contextMenusMessage.json", "w+", encoding="utf-8") as file:
-        json.dump(context_menus_message, file, indent=4)
+    with open("./ElevatorBot/docs/contextMenus.json", "w+", encoding="utf-8") as file:
+        json.dump(context_menus, file, indent=4)
 
 
 def overwrite_options_text(
@@ -137,3 +185,9 @@ def overwrite_options_text(
 
         return docstring.replace("\n", "").strip(), new_options or options
     return None, options
+
+
+def convert_markdown(text: str) -> str:
+    """Removes the markdown tags"""
+
+    return text.replace("`", "")

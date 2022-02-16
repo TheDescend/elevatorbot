@@ -1,4 +1,4 @@
-import asyncio
+from anyio import create_task_group
 
 from Backend.backgroundEvents.base import BaseEvent
 from Backend.core.destiny.activities import DestinyActivities
@@ -15,9 +15,9 @@ class ActivitiesUpdater(BaseEvent):
 
     async def run(self):
         async with get_async_session().begin() as db:
-            all_users = await discord_users.get_all_name(db=db)
+            all_users = await discord_users.get_all(db=db)
 
-            to_gather = []
+            registered_users = []
 
             # loop through all users
             for user in all_users:
@@ -27,11 +27,13 @@ class ActivitiesUpdater(BaseEvent):
 
                 activities = DestinyActivities(db=db, user=user)
 
-                # add that to gather list
-                to_gather.append(activities.update_activity_db())
+                # add that to task list
+                registered_users.append(activities.update_activity_db)
 
-            # gather that to be speedier
-            await asyncio.gather(*to_gather)
+            # update them in anyio tasks
+            async with create_task_group() as tg:
+                for func in registered_users:
+                    tg.start_soon(func)
 
             # try to get the missing pgcr
             await activities.update_missing_pgcr()

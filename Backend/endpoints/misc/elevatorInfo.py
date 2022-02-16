@@ -3,8 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.crud import elevator_servers
 from Backend.dependencies import get_db_session
-from NetworkingSchemas.basic import EmptyResponseModel
-from NetworkingSchemas.misc.elevatorInfo import ElevatorGuildModel, ElevatorGuildsModel
+from Shared.networkingSchemas import ElevatorGuildModel, ElevatorGuildsModel, EmptyResponseModel
 
 router = APIRouter(
     prefix="/elevator/discord_servers",

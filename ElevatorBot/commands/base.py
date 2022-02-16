@@ -1,20 +1,19 @@
-from dis_snek.models import InteractionContext, Scale
+from dis_snek import InteractionContext, Scale, Snake
 
 from ElevatorBot.backendNetworking.destiny.profile import DestinyProfile
+from ElevatorBot.backendNetworking.errors import BackendException
 from ElevatorBot.commandHelpers.responseTemplates import respond_pending
-
 from ElevatorBot.misc.cache import registered_role_cache
-from ElevatorBot.misc.formating import embed_message
-from NetworkingSchemas.destiny.profile import DestinyHasTokenModel
+from ElevatorBot.misc.formatting import embed_message
 
 
-class BaseScale(Scale):
+class RegisteredScale(Scale):
     """Add checks to every scale"""
 
-    def __init__(self, client):
+    def __init__(self, client: Snake):
         self.client = client
-        self.add_scale_check(self.registered_check)
         self.add_scale_check(self.no_dm_check)
+        self.add_scale_check(self.no_pending_check)
 
     @staticmethod
     async def no_dm_check(ctx: InteractionContext) -> bool:
@@ -45,6 +44,14 @@ class BaseScale(Scale):
             return False
         return True
 
+
+class BaseScale(RegisteredScale):
+    """Add a registered check to every scale"""
+
+    def __init__(self, client: Snake):
+        self.add_scale_check(self.registered_check)
+        super().__init__(client)
+
     @staticmethod
     async def registered_check(ctx: InteractionContext) -> bool:
         """
@@ -52,28 +59,18 @@ class BaseScale(Scale):
         Checks if the command invoker is registered
         """
 
+        # this gets handled by the DM check
+        if not ctx.guild:
+            return True
+
         # get the registration role
-        registration_role = await registered_role_cache.get(guild=ctx.guild)
+        try:
+            registration_role = await registered_role_cache.get(guild=ctx.guild)
+        except BackendException:
+            registration_role = None
 
-        # check in cache if the user is registered
-        if await registered_role_cache.is_not_registered(ctx.author.id):
-            result = DestinyHasTokenModel(token=False)
-        else:
-            # todo test
-            # check their status with the backend
-            result = await DestinyProfile(
-                ctx=None, 
-                #client=ctx.bot, 
-                discord_member=ctx.author, 
-                discord_guild=ctx.guild
-            ).has_token()
-
-        if not result:
-            return False
-
-        if not result.token:
-            registered_role_cache.not_registered_users.append(ctx.author.id)
-
+        profile = DestinyProfile(ctx=None, discord_member=ctx.author, discord_guild=ctx.guild)
+        if not (result := await profile.is_registered()):
             # send error message
             await ctx.send(
                 embeds=embed_message(
@@ -92,4 +89,4 @@ class BaseScale(Scale):
             if registration_role and registration_role not in ctx.author.roles:
                 await ctx.author.add_role(role=registration_role, reason="Successful registration")
 
-        return result.token
+        return result

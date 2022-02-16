@@ -1,9 +1,8 @@
 from aiohttp import web
-from dis_snek.models import User
-
+from dis_snek import User
 
 from ElevatorBot.misc.cache import registered_role_cache
-from ElevatorBot.misc.formating import embed_message
+from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.static.emojis import custom_emojis
 
 
@@ -29,7 +28,7 @@ async def registration(request: web.Request):
     await user.send(
         embeds=embed_message(
             "Registration",
-            f"{elevator_emoji} **You have registered successfully, thank you!** {elevator_emoji}\n⁣\n{enter_emoji}Registration is global, so you do not need to re-register, when you join a new server where I am also present\n{enter_emoji}If you want to link a different Destiny Account, just `/register` again",
+            f"{elevator_emoji} **You have registered successfully, thank you!** {elevator_emoji}\n⁣\n{enter_emoji} Registration is global, so you do not need to re-register, when you join a new server where I am also present\n{enter_emoji} If you want to link a different Destiny Account, just `/register` again",
         )
     )
 
@@ -39,6 +38,4 @@ async def registration(request: web.Request):
 
     # reply with the guilds the user is in
     # that's needed for the role assignment
-    guild_ids = [guild.id for guild in user.mutual_guilds]
-
-    return web.json_response({"guild_ids": guild_ids})
+    return web.json_response({"success": True, "guild_ids": [guild.id for guild in user.mutual_guilds]})

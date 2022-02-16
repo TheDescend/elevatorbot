@@ -1,21 +1,12 @@
 from typing import Any
 
-from dis_snek.models import OptionTypes, SlashCommandChoice, slash_option
+from dis_snek import OptionTypes, SlashCommandChoice, slash_option
 
-from DestinyEnums.enums import (
-    DestinyWeaponTypeEnum,
-    UsableDestinyActivityModeTypeEnum,
-    UsableDestinyDamageTypeEnum,
-)
-from ElevatorBot.commandHelpers.autocomplete import (
-    autocomplete_send_activity_name,
-    autocomplete_send_lore_name,
-    autocomplete_send_weapon_name,
-)
 from ElevatorBot.core.destiny.stat import stat_translation
-from ElevatorBot.misc.formating import capitalize_string
+from ElevatorBot.misc.formatting import capitalize_string
 from ElevatorBot.static.destinyDates import expansion_dates, season_and_expansion_dates
 from ElevatorBot.static.timezones import timezones_dict
+from Shared.enums.destiny import DestinyWeaponTypeEnum, UsableDestinyActivityModeTypeEnum, UsableDestinyDamageTypeEnum
 
 
 def get_timezone_choices() -> list[SlashCommandChoice]:
@@ -28,13 +19,17 @@ def get_timezone_choices() -> list[SlashCommandChoice]:
     ]
 
 
-# Decorators:
+# ===================================================================================
+# Decorators
+
+
 def default_user_option(
     description: str = "The user you want to look up",
     required: bool = False,
 ) -> Any:
     """
     Decorator that replaces @slash_option()
+
     Call with `@default_user_option()`
     """
 
@@ -47,6 +42,7 @@ def default_user_option(
 def lfg_event_id() -> Any:
     """
     Decorator that replaces @slash_option()
+
     Call with `@lfg_event_id()`
     """
 
@@ -61,6 +57,7 @@ def lfg_event_id() -> Any:
 def default_class_option(description: str = "Restrict the class. Default: All classes") -> Any:
     """
     Decorator that replaces @slash_option()
+
     Call with `@default_class_option()`
     """
 
@@ -83,6 +80,7 @@ def default_class_option(description: str = "Restrict the class. Default: All cl
 def default_mode_option(description: str = "Restrict the game mode. Default: All modes") -> Any:
     """
     Decorator that replaces @slash_option()
+
     Call with `@default_mode_option()`
     """
 
@@ -107,6 +105,7 @@ def default_mode_option(description: str = "Restrict the game mode. Default: All
 def default_stat_option() -> Any:
     """
     Decorator that replaces @slash_option()
+
     Call with `@default_stat_option()`
     """
 
@@ -127,6 +126,7 @@ def default_time_option(
 ) -> Any:
     """
     Decorator that replaces @slash_option()
+
     Call with `@default_time_option()`
     """
 
@@ -146,6 +146,7 @@ def default_expansion_option(
 ) -> Any:
     """
     Decorator that replaces @slash_option()
+
     Call with `@default_expansion_option()`
 
     The value is formatted:
@@ -177,6 +178,7 @@ def default_season_option(
 ) -> Any:
     """
     Decorator that replaces @slash_option()
+
     Call with `@default_season_option()`
 
     The value is formatted:
@@ -208,6 +210,7 @@ def default_weapon_type_option(
 ) -> Any:
     """
     Decorator that replaces @slash_option()
+
     Call with `@default_weapon_type_option()`
     """
 
@@ -234,6 +237,7 @@ def default_damage_type_option(
 ) -> Any:
     """
     Decorator that replaces @slash_option()
+
     Call with `@default_damage_type_option()`
     """
 
@@ -260,7 +264,9 @@ def autocomplete_activity_option(
 ) -> Any:
     """
     Decorator that replaces @slash_option()
+
     Call with `@autocomplete_activity_option()`
+    And register the autocomplete callback in setup()
     """
 
     def wrapper(func):
@@ -270,11 +276,6 @@ def autocomplete_activity_option(
             name=name, description=description, opt_type=OptionTypes.STRING, required=required, autocomplete=True
         )(func)
 
-        # register the callback
-        if not hasattr(func, "autocomplete_callbacks"):
-            func.autocomplete_callbacks = {}
-        func.autocomplete_callbacks[name] = autocomplete_send_activity_name
-
         return option
 
     return wrapper
@@ -283,7 +284,9 @@ def autocomplete_activity_option(
 def autocomplete_weapon_option(description: str, required: bool = False) -> Any:
     """
     Decorator that replaces @slash_option()
+
     Call with `@autocomplete_weapon_option()`
+    And register the autocomplete callback in setup()
     """
 
     def wrapper(func):
@@ -292,11 +295,6 @@ def autocomplete_weapon_option(description: str, required: bool = False) -> Any:
         option = slash_option(
             name=name, description=description, opt_type=OptionTypes.STRING, required=required, autocomplete=True
         )(func)
-
-        # register the callback
-        if not hasattr(func, "autocomplete_callbacks"):
-            func.autocomplete_callbacks = {}
-        func.autocomplete_callbacks[name] = autocomplete_send_weapon_name
 
         return option
 
@@ -308,7 +306,9 @@ def autocomplete_lore_option(
 ) -> Any:
     """
     Decorator that replaces @slash_option()
+
     Call with `@autocomplete_lore_option()`
+    And register the autocomplete callback in setup()
     """
 
     def wrapper(func):
@@ -317,11 +317,6 @@ def autocomplete_lore_option(
         option = slash_option(
             name=name, description=description, opt_type=OptionTypes.STRING, required=required, autocomplete=True
         )(func)
-
-        # register the callback
-        if not hasattr(func, "autocomplete_callbacks"):
-            func.autocomplete_callbacks = {}
-        func.autocomplete_callbacks[name] = autocomplete_send_lore_name
 
         return option
 

@@ -8,18 +8,9 @@ from sqlalchemy.orm import joinedload
 from sqlalchemy.sql import Select
 
 from Backend.crud.base import CRUDBase
-from Backend.database.models import (
-    Activities,
-    ActivitiesUsers,
-    ActivitiesUsersWeapons,
-    DestinyInventoryItemDefinition,
-)
-from DestinyEnums.enums import (
-    DestinyDamageTypeEnum,
-    DestinyItemSubTypeEnum,
-    DestinyWeaponSlotEnum,
-)
-from NetworkingSchemas.destiny.weapons import DestinyTopWeaponsStatInputModelEnum
+from Backend.database.models import Activities, ActivitiesUsers, ActivitiesUsersWeapons, DestinyInventoryItemDefinition
+from Shared.enums.destiny import DestinyDamageTypeEnum, DestinyItemSubTypeEnum, DestinyWeaponSlotEnum
+from Shared.networkingSchemas.destiny import DestinyTopWeaponsStatInputModelEnum
 
 
 class CRUDWeapons(CRUDBase):
@@ -40,6 +31,8 @@ class CRUDWeapons(CRUDBase):
         query = select(ActivitiesUsersWeapons)
 
         # join the relationships
+        query = query.join(ActivitiesUsers)
+        query = query.join(Activities)
         query = query.options(joinedload(ActivitiesUsersWeapons.user).joinedload(ActivitiesUsers.activity))
 
         # filter by weapon ids
@@ -177,4 +170,4 @@ class CRUDWeapons(CRUDBase):
         return query
 
 
-weapons = CRUDWeapons(ActivitiesUsersWeapons)
+crud_weapons = CRUDWeapons(ActivitiesUsersWeapons)

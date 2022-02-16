@@ -3,10 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.crud import d2_steam_players
 from Backend.dependencies import get_db_session
-from NetworkingSchemas.destiny.steamPlayers import (
-    DestinySteamPlayerCountModel,
-    DestinySteamPlayersCountModel,
-)
+from Shared.networkingSchemas.destiny import DestinySteamPlayerCountModel, DestinySteamPlayersCountModel
 
 router = APIRouter(
     prefix="/destiny/steam_players",
@@ -25,4 +22,4 @@ async def get(db: AsyncSession = Depends(get_db_session)):
     for entry in result:
         data.entries.append(DestinySteamPlayerCountModel.from_orm(entry))
 
-    return result
+    return data

@@ -5,7 +5,7 @@ from httpx import AsyncClient
 from orjson import orjson
 from pytest_mock import MockerFixture
 
-from NetworkingSchemas.destiny.roles import (
+from Shared.networkingSchemas.destiny.roles import (
     EarnedRoleModel,
     EarnedRolesModel,
     MissingRolesModel,
@@ -29,7 +29,6 @@ async def test_get_all(client: AsyncClient, mocker: MockerFixture):
     assert len(data.roles) > 0
     assert data.roles[0].role_id == 1
     assert data.roles[0].guild_id == dummy_discord_guild_id
-    assert data.roles[0].role_name == "Test Role"
 
 
 @pytest.mark.asyncio
@@ -169,7 +168,6 @@ async def test_delete_role(client: AsyncClient, mocker: MockerFixture):
     input_model = RoleModel(
         role_id=2,
         guild_id=dummy_discord_guild_id,
-        role_name="Test Role Two",
         role_data=RoleDataModel(
             category="Destiny Roles",
             deprecated=False,

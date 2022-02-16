@@ -1,11 +1,12 @@
 import asyncio
 import logging
 import random
-from typing import Optional
+from typing import Callable, Coroutine, Optional
 from urllib.parse import urlencode
 
 import aiohttp
 import aiohttp_client_cache
+from aiohttp import ServerDisconnectedError
 from orjson import orjson
 
 from Backend.core.errors import CustomException
@@ -14,6 +15,7 @@ from Backend.networking.schemas import InternalWebResponse, WebResponse
 
 # the limiter object which to not get rate-limited by bungie. One obj for ever instance!
 bungie_limiter = BungieRateLimiter()
+semaphore = asyncio.Semaphore(200)
 
 
 class NetworkBase:
@@ -21,12 +23,19 @@ class NetworkBase:
 
     # get logger
     logger = logging.getLogger("bungieApi")
+    logger_exceptions = logging.getLogger("bungieApiExceptions")
 
     # get limiter
     limiter = bungie_limiter
 
+    # get semaphore
+    semaphore = semaphore
+
     # how many times to retry a request
     max_web_request_tries = 10
+
+    # callback to handle responses
+    request_handler: Optional[Callable[..., Coroutine]] = None
 
     async def _request(
         self,
@@ -37,14 +46,28 @@ class NetworkBase:
         params: dict = None,
         json: dict = None,
         form_data: dict = None,
+        _semaphored: bool = False,
     ) -> WebResponse:
         """Make a request to the url with the method and handles the result"""
 
-        assert not (form_data and json), "Only json or form_data can be used"
+        # respect the semaphore if it's a bungie request to not open 500 requests at once
+        if self.bungie_request and not _semaphored:
+            async with self.semaphore:
+                return await self._request(
+                    session=session,
+                    method=method,
+                    route=route,
+                    headers=headers,
+                    params=params,
+                    json=json,
+                    form_data=form_data,
+                    _semaphored=True,
+                )
 
+        assert not (form_data and json), "Only json or form_data can be used"
         allow_redirects = False if self.bungie_request and method == "POST" else True
 
-        # wait for a token from the rate limiter
+        # wait for a token from the rate limiter and use the semaphore
         if self.bungie_request:
             async with asyncio.Lock():
                 await bungie_limiter.wait_for_token()
@@ -61,7 +84,10 @@ class NetworkBase:
                     data=form_data,
                     allow_redirects=allow_redirects,
                 ) as request:
-                    response = await self.__handle_request_data(
+                    if not self.request_handler:
+                        self.request_handler = self.__handle_request_data
+
+                    response = await self.request_handler(
                         request=request,
                         params=params,
                         route=route,
@@ -73,19 +99,17 @@ class NetworkBase:
 
                     # return response
                     else:
-                        return WebResponse(**response.__dict__)
+                        return WebResponse.from_dict(response.__dict__)
 
-            except (asyncio.exceptions.TimeoutError, ConnectionResetError):
-                self.logger.error("Timeout error for '%s'", f"{route}?{urlencode(params)}")
+            except (asyncio.exceptions.TimeoutError, ConnectionResetError, ServerDisconnectedError) as error:
+                self.logger_exceptions.error(
+                    f"Timeout error ('{error}') for '{route}?{urlencode({} if params is None else params)}'. Retrying..."
+                )
                 await asyncio.sleep(random.randrange(2, 6))
                 continue
 
         # return that it failed
-        self.logger.error(
-            "Request failed '%s' times, aborting for '%s'",
-            self.max_web_request_tries,
-            route,
-        )
+        self.logger_exceptions.error(f"Request failed '{self.max_web_request_tries}' times, aborting for '{route}'")
         raise CustomException("UnknownError")
 
     async def __handle_request_data(
@@ -100,17 +124,18 @@ class NetworkBase:
             params = {}
         route_with_params = f"{route}?{urlencode(params)}"
 
+        # catch the content type "application/octet-stream" which is returned for some routes
+        if "application/octet-stream" in request.headers["Content-Type"]:
+            pass
+
         # make sure the return is a json, sometimes we get a http file for some reason
-        if "application/json" not in request.headers["Content-Type"]:
-            self.logger.error(
-                "'%s': Wrong content type '%s' with reason '%s' for '%s'",
-                request.status,
-                request.headers["Content-Type"],
-                request.reason,
-                route_with_params,
+        elif "application/json" not in request.headers["Content-Type"]:
+            self.logger_exceptions.error(
+                f"""'{request.status}': Wrong content type '{request.headers["Content-Type"]}' with reason '{request.reason}' for '{route_with_params}'"""
             )
+            print(f"""Bungie returned Content-Type: {request.headers["Content-Type"]}""")
             if request.status == 200:
-                self.logger.error("Wrong content type returned text: '%s'", await request.text())
+                self.logger_exceptions.error(f"Wrong content type returned text: '{await request.text()}'")
             await asyncio.sleep(3)
             return
 
@@ -137,17 +162,18 @@ class NetworkBase:
                 response.from_cache = False
 
         except aiohttp.ClientPayloadError:
-            self.logger.error("'%s': Payload error, retrying for '%s'", request.status, route_with_params)
+            self.logger_exceptions.error(f"'{request.status}': Payload error, retrying for '{route_with_params}'")
             return
         except aiohttp.ContentTypeError:
-            self.logger.error("'%s': Content type error, retrying for '%s'", request.status, route_with_params)
-            return
+            response = InternalWebResponse(
+                status=request.status,
+            )
 
         # if response is ok return it
         if response.status == 200:
             response.success = True
 
-            # remove the leading "Reponse" from the request (if exists)
+            # remove the leading "Response" from the request (if exists)
             if "Response" in response.content:
                 response.content = response.content["Response"]
 
@@ -155,149 +181,115 @@ class NetworkBase:
 
         # handling any errors if not ok
         await self.__handle_bungie_errors(
-            route=route,
-            params=params,
-            response=response,
+            route=route, params=params, response=response, route_with_params=route_with_params
         )
 
-    async def __handle_bungie_errors(self, route: str, params: dict, response: InternalWebResponse):
+    async def __handle_bungie_errors(
+        self, route: str, params: dict, response: InternalWebResponse, route_with_params: str
+    ):
         """Looks for typical bungie errors and handles / logs them"""
 
-        route_with_params = f"{route}?{urlencode(params)}"
-
         match (response.status, response.error):
-            case (400, error):
-                # generic bad request, such as wrong format
-                self.logger.error(
-                    "'%s - %s': Generic bad request for '%s' - '%s'",
-                    response.status,
-                    error,
-                    route_with_params,
-                    response,
-                )
+            case (_, "SystemDisabled"):
                 raise CustomException("BungieDed")
+
+            case (401, _) | (_, "invalid_grant" | "AuthorizationCodeInvalid"):
+                # unauthorized
+                self.logger_exceptions.error(
+                    f"'{response.status} - {response.error}': Unauthorized (too slow, user fault) request for '{route_with_params}'"
+                )
+                raise CustomException("BungieUnauthorized")
 
             case (404, error):
                 # not found
-                self.logger.error(
-                    "'%s - %s': No stats found for '%s' - '%s'",
-                    response.status,
-                    error,
-                    route_with_params,
-                    response,
+                self.logger_exceptions.error(
+                    f"'{response.status} - {error}': No stats found for '{route_with_params}' - '{response}'"
                 )
                 raise CustomException("BungieBadRequest")
 
-            case (503, error):
-                # bungie is ded
-                self.logger.error(
-                    "'%s - %s': Server is overloaded for '%s' - '%s'",
-                    response.status,
-                    error,
-                    route_with_params,
-                    response,
-                )
-                await asyncio.sleep(10)
-
             case (429, error):
                 # rate limited
-                self.logger.warning(
-                    "'%s - %s': Getting rate limited for '%s' - '%s'",
-                    response.status,
-                    error,
-                    route_with_params,
-                    response,
+                self.logger_exceptions.warning(
+                    f"'{response.status} - {error}': Getting rate limited for '{route_with_params}' - '{response}'"
                 )
                 await asyncio.sleep(2)
 
+            case (400, error):
+                # generic bad request, such as wrong format
+                self.logger_exceptions.error(
+                    f"'{response.status} - {error}': Generic bad request for '{route_with_params}' - '{response}'"
+                )
+                raise CustomException("BungieDed")
+
+            case (503, error):
+                self.logger_exceptions.error(
+                    f"'{response.status} - {error}': Server is overloaded for '{route_with_params}' - '{response}'"
+                )
+                await asyncio.sleep(10)
+
             case (status, "PerEndpointRequestThrottleExceeded" | "DestinyDirectBabelClientTimeout"):
-                # we we are getting throttled
-                self.logger.warning(
-                    "'%s - %s': Getting throttled for '%s' - '%s'",
-                    status,
-                    response.error,
-                    route_with_params,
-                    response,
+                # we are getting throttled (should never be called in theory)
+                self.logger_exceptions.warning(
+                    f"'{status} - {response.error}': Getting throttled for '{route_with_params}' - '{response}'"
                 )
 
                 throttle_seconds = response.content["ErrorStatus"]["ThrottleSeconds"]
 
-                await asyncio.sleep(throttle_seconds + random.randrange(1, 3))
+                # reset the ratelimit giver
+                self.limiter.tokens = 0
+                await asyncio.sleep(throttle_seconds)
+
+            case (status, "ClanInviteAlreadyMember"):
+                # if user is in clan
+                self.logger.warning(f"'{status} - {response.error}': User is already in clan '{route_with_params}'")
+                raise CustomException("BungieClanInviteAlreadyMember")
 
             case (status, "GroupMembershipNotFound"):
-                # if user doesn't have that item
+                # if user isn't in clan
                 self.logger.error(
-                    "'%s - %s': User is not in clan '%s' - '%s'",
-                    status,
-                    response.error,
-                    route_with_params,
-                    response,
+                    f"'{status} - {response.error}': User is not in clan '{route_with_params}' - '{response}'"
                 )
                 raise CustomException("BungieGroupMembershipNotFound")
 
             case (status, "DestinyItemNotFound"):
                 # if user doesn't have that item
                 self.logger.error(
-                    "'%s - %s': User doesn't have that item for '%s' - '%s'",
-                    status,
-                    response.error,
-                    route_with_params,
-                    response,
+                    f"'{status} - {response.error}': User doesn't have that item for '{route_with_params}' - '{response}'"
                 )
                 raise CustomException("BungieDestinyItemNotFound")
 
             case (status, "DestinyPrivacyRestriction"):
                 # private profile
                 self.logger.error(
-                    "'%s - %s': User has private Profile for '%s' - '%s'",
-                    status,
-                    response.error,
-                    route_with_params,
-                    response,
+                    f"'{status} - {response.error}': User has private Profile for '{route_with_params}' - '{response}'"
                 )
                 raise CustomException("BungieDestinyPrivacyRestriction")
 
             case (status, "DestinyDirectBabelClientTimeout"):
                 # timeout
-                self.logger.warning(
-                    "'%s - %s': Getting timeouts for '%s' - '%s'",
-                    status,
-                    response.error,
-                    route_with_params,
-                    response,
+                self.logger_exceptions.warning(
+                    f"'{status} - {response.error}': Getting timeouts for '{route_with_params}' - '{response}'"
                 )
                 await asyncio.sleep(60)
 
             case (status, "ClanTargetDisallowsInvites"):
                 # user has disallowed clan invites
                 self.logger.error(
-                    "'%s - %s': User disallows clan invites '%s' - '%s'",
-                    status,
-                    response.error,
-                    route_with_params,
-                    response,
+                    f"'{status} - {response.error}': User disallows clan invites '{route_with_params}' - '{response}'"
                 )
                 raise CustomException("BungieClanTargetDisallowsInvites")
 
             case (status, "AuthorizationRecordRevoked"):
                 # users tokens are no longer valid
                 self.logger.error(
-                    "'%s - %s': User refresh token is outdated and they need to re-registration for '%s' - '%s'",
-                    status,
-                    response,
-                    route_with_params,
-                    response.error_message,
+                    f"'{status} - {response}': User refresh token is outdated and they need to re-registration for '{route_with_params}' - '{response.error_message}'"
                 )
                 raise CustomException("NoToken")
 
             case (status, error):
                 # catch the rest
-                self.logger.error(
-                    "'%s - %s': Request failed for '%s' - '%s'",
-                    status,
-                    error,
-                    route_with_params,
-                    response,
+                self.logger_exceptions.error(
+                    f"'{status} - {error}': Request failed for '{route_with_params}' - '{response}'"
                 )
                 await asyncio.sleep(2)
 

@@ -5,7 +5,7 @@ from httpx import AsyncClient
 from pytest_mock import MockerFixture
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from NetworkingSchemas.destiny.profile import DestinyHasTokenModel, DestinyProfileModel
+from Shared.networkingSchemas.destiny.profile import DestinyHasTokenModel, DestinyProfileModel
 
 
 @pytest.mark.asyncio
@@ -58,9 +58,9 @@ async def test_destiny_get(client: AsyncClient, mocker: MockerFixture):
 async def test_discord_delete(client: AsyncClient, mocker: MockerFixture, db: AsyncSession):
     mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
 
-    r = await client.delete(f"/destiny/profile/98/delete")
+    r = await client.delete("/destiny/profile/98/delete")
     assert r.status_code == 409
     assert r.json()["error"] == "DiscordIdNotFound"
 
-    r = await client.delete(f"/destiny/profile/99/delete")
+    r = await client.delete("/destiny/profile/99/delete")
     assert r.status_code == 200

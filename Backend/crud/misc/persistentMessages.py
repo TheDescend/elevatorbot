@@ -7,7 +7,7 @@ from Backend.crud.base import CRUDBase
 from Backend.database.models import PersistentMessage
 from Backend.misc.cache import cache
 from Backend.misc.helperFunctions import convert_kwargs_into_dict
-from NetworkingSchemas.misc.persistentMessages import PersistentMessageDeleteInput
+from Shared.networkingSchemas.misc.persistentMessages import PersistentMessageDeleteInput
 
 
 class CRUDPersistentMessages(CRUDBase):
@@ -36,8 +36,14 @@ class CRUDPersistentMessages(CRUDBase):
     async def get_all_guild(self, db: AsyncSession, guild_id: int) -> list[PersistentMessage]:
         """Get all persistent messages for the guild"""
 
-        # not using cache for that since we dont know all message_names
-        return await self._get_multi(db=db, guild_id=guild_id)
+        results = await self._get_multi(db=db, guild_id=guild_id)
+
+        # cache them
+        for result in results:
+            cache_str = f"{guild_id}|{result.message_name}"
+            self.cache.persistent_messages.update({cache_str: result})
+
+        return results
 
     async def upsert(
         self,
@@ -72,12 +78,20 @@ class CRUDPersistentMessages(CRUDBase):
     async def delete(self, db: AsyncSession, guild_id: int, to_delete: PersistentMessageDeleteInput):
         """Delete the persistent message"""
 
+        objs: list[PersistentMessage]
+
         if to_delete.message_name:
-            objs = [await self._delete(db=db, primary_key=(to_delete.message_name, guild_id))]
+            obj = await self._delete(db=db, primary_key=(to_delete.message_name, guild_id))
+            objs = [obj] if obj else []
         elif to_delete.channel_id:
             objs = await self._delete_multi(db=db, guild_id=guild_id, channel_id=to_delete.channel_id)
-        else:
+        elif to_delete.message_id:
             objs = await self._delete_multi(db=db, guild_id=guild_id, message_id=to_delete.message_id)
+        else:
+            raise CustomException("PersistentMessageNotExist")
+
+        if not objs:
+            raise CustomException("PersistentMessageNotExist")
 
         # delete from cache
         for obj in objs:

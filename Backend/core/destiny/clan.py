@@ -7,10 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from Backend.core.errors import CustomException
 from Backend.crud import destiny_clan_links, discord_users
 from Backend.database.models import DiscordUsers
-from Backend.misc.helperFunctions import (
-    get_datetime_from_bungie_entry,
-    localize_datetime,
-)
+from Backend.misc.helperFunctions import get_datetime_from_bungie_entry
 from Backend.networking.bungieApi import BungieApi
 from Backend.networking.bungieRoutes import (
     clan_admins_route,
@@ -19,7 +16,8 @@ from Backend.networking.bungieRoutes import (
     clan_kick_route,
     clan_members_route,
 )
-from NetworkingSchemas.destiny.clan import DestinyClanMemberModel, DestinyClanModel
+from Shared.functions.helperFunctions import localize_datetime
+from Shared.networkingSchemas.destiny.clan import DestinyClanMemberModel, DestinyClanModel
 
 
 @dataclasses.dataclass
@@ -139,7 +137,6 @@ class DestinyClan:
 
         welcome_message = {"message": f"Welcome to {clan.name}"}
 
-        # todo error out if already in clan. that should return a nice error by the api
         await self.api.post(route=route, json=welcome_message)
 
     async def remove_from_clan(

@@ -1,10 +1,17 @@
+import asyncio
 import io
 
 import aiohttp
-from dis_snek.models import CommandTypes, InteractionContext, context_menu
+from dis_snek import CommandTypes, InteractionContext, Message, Modal, ShortText, context_menu
 
+from ElevatorBot.commandHelpers.responseTemplates import respond_timeout
 from ElevatorBot.commands.base import BaseScale
-from ElevatorBot.misc.formating import embed_message
+from ElevatorBot.misc.formatting import embed_message
+from Shared.functions.readSettingsFile import get_setting
+
+# =============
+# Descend Only!
+# =============
 
 
 class MessageMenuCommands(BaseScale):
@@ -12,10 +19,16 @@ class MessageMenuCommands(BaseScale):
     Add the selected image to the guild as an emoji
     """
 
-    # todo perms -> descend only
-    @context_menu(name="Add Emoji", context_type=CommandTypes.MESSAGE)
+    # todo perms
+    @context_menu(name="Add Emoji", context_type=CommandTypes.MESSAGE, scopes=get_setting("COMMAND_GUILD_SCOPE"))
     async def add_emoji(self, ctx: InteractionContext):
-        message = await ctx.channel.get_message(ctx.target_id)
+        if ctx.author.id not in [238388130581839872, 206878830017773568]:
+            await ctx.send(
+                "This is blocked for now, since it it waiting for a vital unreleased discord feature", ephemeral=True
+            )
+            return
+
+        message: Message = ctx.target
 
         if not (message.attachments or len(message.attachments) > 1):
             await ctx.send(
@@ -31,12 +44,34 @@ class MessageMenuCommands(BaseScale):
                     await ctx.send(ephemeral=True, embeds=embed_message("Error", "Web request failed, try again"))
                 image_data = io.BytesIO(await resp.read())
 
-        # todo ask for the name in hidden text field component
-        name = "aaa"
+        # ask for name in a modal
+        modal = Modal(
+            title="Emoji Name",
+            components=[
+                ShortText(
+                    label="What should the name of the emoji be?",
+                    custom_id="name",
+                    placeholder="Required",
+                    min_length=1,
+                    max_length=20,
+                    required=True,
+                ),
+            ],
+        )
+        await ctx.send_modal(modal=modal)
 
-        emoji = await ctx.guild.create_custom_emoji(name=name, imagefile=image_data)
+        # wait 5 minutes for them to fill it out
+        try:
+            modal_ctx = await ctx.bot.wait_for_modal(modal=modal, timeout=300)
+
+        except asyncio.TimeoutError:
+            # give timeout message
+            await respond_timeout(ctx=ctx)
+            return
+
+        emoji = await ctx.guild.create_custom_emoji(name=modal_ctx.responses["name"], imagefile=image_data)
         await message.add_reaction(emoji)
-        await ctx.send("Success!", ephemeral=True)
+        await modal_ctx.send("Success!", ephemeral=True)
 
 
 def setup(client):

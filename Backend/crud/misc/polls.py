@@ -1,11 +1,13 @@
 from typing import Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm.attributes import flag_modified
 
 from Backend.core.errors import CustomException
 from Backend.crud.base import CRUDBase
 from Backend.database.models import Poll
 from Backend.misc.helperFunctions import convert_kwargs_into_dict
+from Shared.networkingSchemas.misc.polls import PollChoice
 
 
 class CRUDPolls(CRUDBase):
@@ -25,11 +27,11 @@ class CRUDPolls(CRUDBase):
         poll_id: Optional[int] = None,
         name: Optional[str] = None,
         description: Optional[str] = None,
-        data: Optional[dict] = None,
         author_id: Optional[str] = None,
         guild_id: Optional[str] = None,
         channel_id: Optional[str] = None,
         message_id: Optional[str] = None,
+        choices: Optional[list[PollChoice]] = None,
     ) -> Poll:
         """Upsert the poll"""
 
@@ -38,7 +40,7 @@ class CRUDPolls(CRUDBase):
             id=poll_id,
             name=name,
             description=description,
-            data=data,
+            data={choice.name: choice.discord_ids for choice in choices} if choices else {},
             author_id=author_id,
             guild_id=guild_id,
             channel_id=channel_id,
@@ -53,12 +55,11 @@ class CRUDPolls(CRUDBase):
         """Update a user's choice"""
 
         poll = await self.get(db=db, poll_id=poll_id)
-        data = poll.data
 
         # look if the user voted before and remove that
-        for name, user_ids in poll.data:
+        for name, user_ids in poll.data.items():
             if user_id in user_ids:
-                user_ids.pop(user_id)
+                user_ids.remove(user_id)
 
         # now add the user vote
         # since the option might be new, checking that first
@@ -66,7 +67,8 @@ class CRUDPolls(CRUDBase):
             poll.data.update({choice_name: []})
         poll.data[choice_name].append(user_id)
 
-        # flush the changes
+        # flag it as modified, otherwise sqlalchemy won't update it
+        flag_modified(poll, "data")
         await db.flush()
 
         return poll
@@ -83,6 +85,9 @@ class CRUDPolls(CRUDBase):
             raise CustomException("PollOptionNotExist")
 
         poll.data.pop(option)
+
+        # flag it as modified, otherwise sqlalchemy won't update it
+        flag_modified(poll, "data")
         await db.flush()
 
         return poll

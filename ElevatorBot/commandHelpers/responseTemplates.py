@@ -1,11 +1,9 @@
 from typing import Optional
 
-from dis_snek.models import ComponentContext, InteractionContext, Member, Message
+from dis_snek import ComponentContext, InteractionContext, Member, Message, ModalContext, SnakeBotUser
 
-from ElevatorBot.backendNetworking.errorCodesAndResponses import (
-    error_codes_and_responses,
-)
-from ElevatorBot.misc.formating import embed_message
+from ElevatorBot.backendNetworking.errorCodesAndResponses import error_codes_and_responses
+from ElevatorBot.misc.formatting import embed_message
 
 
 async def something_went_wrong(ctx: InteractionContext, hidden: bool = False) -> bool:
@@ -79,15 +77,17 @@ async def respond_time_input_in_past(ctx: InteractionContext, hidden: bool = Tru
     return False
 
 
-async def respond_timeout(message: Optional[Message] = None):
+async def respond_timeout(message: Optional[Message] = None, ctx: Optional[InteractionContext | ModalContext] = None):
     """Respond to the given context"""
 
-    await message.edit(
-        embeds=embed_message(
-            "Error",
-            "You took too long. If you weren't finished, please try again. \nI can give you my grandmas phone number, her doing the typing might make it a bit faster 🙃",
-        ),
+    embed = embed_message(
+        "Error",
+        "You took too long. If you weren't finished, please try again. \nI can give you my grandmas phone number, her doing the typing might make it a bit faster 🙃",
     )
+    if message:
+        await message.edit(embeds=embed)
+    elif ctx:
+        await ctx.send(embeds=embed, ephemeral=True)
 
 
 async def respond_wrong_channel_type(
@@ -107,7 +107,9 @@ async def respond_wrong_channel_type(
     return False
 
 
-async def respond_wrong_author(ctx: InteractionContext, author_must_be: Member, hidden: bool = True) -> bool:
+async def respond_wrong_author(
+    ctx: InteractionContext, author_must_be: Member | SnakeBotUser, hidden: bool = True
+) -> bool:
     """Respond to the given context"""
 
     if not ctx.responded:
@@ -130,7 +132,7 @@ async def respond_pending(ctx: InteractionContext | ComponentContext) -> bool:
             ephemeral=True,
             embeds=embed_message(
                 "Error",
-                f"Please pass the member screening aka accept the rules and then try again",
+                "Please pass the member screening aka accept the rules and then try again",
             ),
         )
         return True

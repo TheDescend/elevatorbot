@@ -1,11 +1,12 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from Backend.core.destiny.activities import DestinyActivities
 from Backend.core.destiny.weapons import DestinyWeapons
 from Backend.crud import discord_users
 from Backend.dependencies import get_db_session
-from DestinyEnums.enums import DestinyDamageTypeEnum, DestinyItemSubTypeEnum
-from NetworkingSchemas.destiny.weapons import (
+from Shared.enums.destiny import DestinyDamageTypeEnum, DestinyItemSubTypeEnum
+from Shared.networkingSchemas.destiny import (
     DestinyTopWeaponsInputModel,
     DestinyTopWeaponsModel,
     DestinyWeaponsModel,
@@ -36,7 +37,12 @@ async def get_top(
 ):
     """Get the users top weapons"""
 
-    user = await discord_users.get_profile_from_discord_id(db, discord_id)
+    user = await discord_users.get_profile_from_discord_id(discord_id)
+
+    # update the user's db entries
+    activities = DestinyActivities(db=db, user=user)
+    await activities.update_activity_db()
+
     weapons = DestinyWeapons(db=db, user=user)
     return await weapons.get_top_weapons(
         stat=input_model.stat,
@@ -62,7 +68,12 @@ async def get_weapon(
 ):
     """Get the users stats for the specified weapon"""
 
-    user = await discord_users.get_profile_from_discord_id(db, discord_id)
+    user = await discord_users.get_profile_from_discord_id(discord_id)
+
+    # update the user's db entries
+    activities = DestinyActivities(db=db, user=user)
+    await activities.update_activity_db()
+
     weapons = DestinyWeapons(db=db, user=user)
     return await weapons.get_weapon_stats(
         weapon_ids=input_model.weapon_ids,

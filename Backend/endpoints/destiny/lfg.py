@@ -4,9 +4,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from Backend.crud import lfg
 from Backend.database.models import LfgMessage
 from Backend.dependencies import get_db_session
-from Backend.misc.helperFunctions import get_now_with_tz
-from NetworkingSchemas.basic import EmptyResponseModel
-from NetworkingSchemas.destiny.lfgSystem import (
+from Shared.functions.helperFunctions import get_now_with_tz
+from Shared.networkingSchemas import EmptyResponseModel
+from Shared.networkingSchemas.destiny.lfgSystem import (
     AllLfgDeleteOutputModel,
     AllLfgOutputModel,
     LfgCreateInputModel,
@@ -55,7 +55,7 @@ async def get(guild_id: int, lfg_id: int, db: AsyncSession = Depends(get_db_sess
 async def user_get_all(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Gets the lfg infos belonging to the discord_id"""
 
-    return await lfg.get_user(db=db, discord_id=discord_id, guild_id=guild_id)
+    return await lfg.get_user(db=db, discord_id=discord_id)
 
 
 @router.post("/{discord_id}/update/{lfg_id}", response_model=LfgOutputModel)  # has test
@@ -94,7 +94,12 @@ async def create(
 
     # create the sql alchemy model
     to_create = LfgMessage(
-        guild_id=guild_id, channel_id=channel_id, author_id=discord_id, creation_time=creation_time, **lfg_data.dict()
+        guild_id=guild_id,
+        channel_id=channel_id,
+        author_id=discord_id,
+        creation_time=creation_time,
+        started=False,
+        **lfg_data.dict(),
     )
 
     # insert that

@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from Backend.core.security.auth import get_password_hash, verify_password
 from Backend.crud.base import CRUDBase
 from Backend.database.models import BackendUser
-from settings import ADMIN_PASSWORD
+from Shared.functions.readSettingsFile import get_setting
 
 
 class CRUDBackendUser(CRUDBase):
@@ -33,7 +33,7 @@ class CRUDBackendUser(CRUDBase):
         if not model:
             model = BackendUser(
                 user_name="admin",
-                hashed_password=get_password_hash(ADMIN_PASSWORD),
+                hashed_password=get_password_hash(get_setting("ADMIN_PASSWORD")),
                 has_write_permission=True,
                 has_read_permission=True,
                 disabled=False,

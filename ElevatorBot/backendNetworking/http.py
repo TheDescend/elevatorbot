@@ -1,20 +1,25 @@
 import asyncio
 import dataclasses
 import logging
+import os
 import time
+from datetime import timedelta
 from typing import Optional
 
 import aiohttp
+import aiohttp_client_cache
 import orjson
-from aiohttp import ClientSession, ClientTimeout
-from dis_snek.models import ComponentContext, InteractionContext
-from dis_snek.models.discord_objects.user import Member
-from pydantic import BaseModel
+from aiohttp import ClientTimeout
+from dis_snek import ComponentContext, InteractionContext, Member
 
+from ElevatorBot.backendNetworking.errors import BackendException
 from ElevatorBot.backendNetworking.results import BackendResult
 
-
 # the limiter object to not overload the backend
+from Shared.functions.readSettingsFile import get_setting
+from Shared.networkingSchemas.base import CustomBaseModel
+
+
 class BackendRateLimiter:
     RATE = 250
     MAX_TOKENS = 10000
@@ -42,6 +47,25 @@ class BackendRateLimiter:
 
 
 backend_limiter = BackendRateLimiter()
+backend_cache = aiohttp_client_cache.RedisBackend(
+    cache_name="elevator",
+    address=f"""redis://{os.environ.get("REDIS_HOST")}:{os.environ.get("REDIS_PORT")}""",
+    allowed_methods=["GET", "POST"],
+    expire_after=0,  # only save selected stuff
+    urls_expire_after={
+        "**/destiny/account": timedelta(minutes=30),
+        "**/destiny/activities/**/last": 0,  # never save last activity
+        "**/destiny/activities/**/get/all": 0,  # never activity ids
+        "**/destiny/activities/**/get/grandmaster": 0,  # never grandmaster ids
+        "**/destiny/activities": timedelta(minutes=30),
+        "**/destiny/items/lore/get/all": 0,  # never save lore ids
+        "**/destiny/roles/*/*/get": timedelta(minutes=30),  # user roles
+        "**/destiny/weapons/**/top": timedelta(minutes=60),  # user top weapons
+        "**/destiny/weapons/**/weapon": timedelta(minutes=60),  # user weapon
+    }
+    if not get_setting("ENABLE_DEBUG_MODE")
+    else {},
+)
 _no_default = object()
 
 
@@ -61,6 +85,12 @@ class BaseBackendConnection:
     # get logger
     logger: logging.Logger = dataclasses.field(
         default=logging.getLogger("backendNetworking"),
+        init=False,
+        compare=False,
+        repr=False,
+    )
+    logger_exceptions: logging.Logger = dataclasses.field(
+        default=logging.getLogger("backendNetworkingExceptions"),
         init=False,
         compare=False,
         repr=False,
@@ -90,32 +120,45 @@ class BaseBackendConnection:
         repr=False,
     )
 
+    # redis cache
+    cache: aiohttp_client_cache.RedisBackend = dataclasses.field(
+        default=backend_cache,
+        init=False,
+        compare=False,
+        repr=False,
+    )
+
     def __bool__(self):
         """Bool function to test if this exist. Useful for testing if this class got returned and not BackendResult, can be returned on errors"""
 
         return True
 
     async def send_error(self, result: BackendResult):
-        """Send the error message"""
+        """
+        Send the error message
+
+        Raises BackendException if there is an error
+        """
 
         if self.ctx:
             if self.ctx.responded:
                 raise RuntimeError("The context was already responded")
             await result.send_error_message(ctx=self.ctx, hidden=self.hidden)
+        raise BackendException(result.error)
 
     async def _backend_request(
         self,
         method: str,
         route: str,
         params: Optional[dict] = None,
-        data: Optional[dict | BaseModel] = None,
+        data: Optional[dict | CustomBaseModel] = None,
         **error_message_kwargs,
     ) -> BackendResult:
         """Make a request to the specified backend route and return the results"""
 
         if data:
             # load with orjson to convert complex types such as datetime to a string
-            if isinstance(data, BaseModel):
+            if isinstance(data, CustomBaseModel):
                 data = data.json()
             else:
                 data = orjson.dumps(data)
@@ -124,8 +167,8 @@ class BaseBackendConnection:
         async with asyncio.Lock():
             await self.limiter.wait_for_token()
 
-            async with ClientSession(
-                timeout=self.timeout, json_serialize=lambda x: orjson.dumps(x).decode()
+            async with aiohttp_client_cache.CachedSession(
+                cache=self.cache, timeout=self.timeout, json_serialize=lambda x: orjson.dumps(x).decode()
             ) as session:
                 async with session.request(
                     method=method,
@@ -138,8 +181,10 @@ class BaseBackendConnection:
                     # if an error occurred, already do the basic formatting
                     if not result:
                         if self.discord_member:
-                            result.error_message = {"discord_member": self.discord_member, **error_message_kwargs}
-                            await self.send_error(result)
+                            result.error_message = {"discord_member": self.discord_member}
+                        if error_message_kwargs:
+                            result.error_message = error_message_kwargs
+                        await self.send_error(result)
 
                     return result
 
@@ -149,7 +194,7 @@ class BaseBackendConnection:
         if response.status == 200:
             success = True
             error = None
-            self.logger.info("%s: '%s' - '%s'", response.status, response.method, response.url)
+            self.logger.info(f"{response.status}: '{response.method}' - '{response.url}'")
 
             # format the result to be the pydantic model
             result = await response.json(loads=orjson.loads)
@@ -162,21 +207,23 @@ class BaseBackendConnection:
         return BackendResult(result=result, success=success, error=error)
 
     async def __backend_handle_errors(self, response: aiohttp.ClientResponse) -> Optional[str]:
-        """Handles potential errors. Returns None, None if the error should not be returned to the user and str, str if something should be returned to the user"""
+        """Handles potential errors. Returns None if the error should not be returned to the user and str, str if something should be returned to the user"""
 
-        if response.status == 409:
-            # this means the errors isn't really an error and we want to return info to the user
-            self.logger.info("%s: '%s' - '%s'", response.status, response.method, response.url)
-            error_json = await response.json()
-            return error_json["error"]
+        match response.status:
+            case 409:
+                # this means the errors isn't really an error, and we want to return info to the user
+                self.logger.info(f"{response.status}: '{response.method}' - '{response.url}'")
+                error_json = await response.json(loads=orjson.loads)
+                return error_json["error"]
 
-        else:
-            # if we dont know anything, just log it with the error
-            self.logger.error(
-                "%s: '%s' - '%s' - '%s'",
-                response.status,
-                response.method,
-                response.url,
-                await response.json(),
-            )
-            return None
+            case 500:
+                # internal server error
+                self.logger_exceptions.error(f"{response.status}: '{response.method}' - '{response.url}'")
+                return "ProgrammingError"
+
+            case _:
+                # if we don't know anything, just log it with the error
+                self.logger_exceptions.error(
+                    f"{response.status}: '{response.method}' - '{response.url}' - '{await response.json(loads=orjson.loads)}'"
+                )
+                return None

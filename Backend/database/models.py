@@ -1,5 +1,4 @@
-import datetime
-from time import sleep
+import asyncio
 
 from sqlalchemy import (
     ARRAY,
@@ -11,7 +10,6 @@ from sqlalchemy import (
     DateTime,
     ForeignKey,
     Integer,
-    Interval,
     Numeric,
     SmallInteger,
     Text,
@@ -20,7 +18,7 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.orm import relationship
 
 from Backend.database.base import Base, is_test_mode
-from Backend.misc.helperFunctions import get_now_with_tz
+from Shared.functions.helperFunctions import get_min_with_tz, get_now_with_tz
 
 """ All table models are in here, allowing for easy generation """
 
@@ -163,15 +161,9 @@ class DiscordUsers(Base):
     signup_date = Column(DateTime(timezone=True), nullable=False)
     signup_server_id = Column(BigInteger, nullable=False)
 
-    activities_last_updated = Column(
-        DateTime(timezone=True), nullable=False, default=datetime.datetime(2000, 1, 1, tzinfo=datetime.timezone.utc)
-    )
-    collectibles_last_updated = Column(
-        DateTime(timezone=True), nullable=False, default=datetime.datetime(2000, 1, 1, tzinfo=datetime.timezone.utc)
-    )
-    triumphs_last_updated = Column(
-        DateTime(timezone=True), nullable=False, default=datetime.datetime(2000, 1, 1, tzinfo=datetime.timezone.utc)
-    )
+    activities_last_updated = Column(DateTime(timezone=True), nullable=False, default=get_min_with_tz())
+    collectibles_last_updated = Column(DateTime(timezone=True), nullable=False, default=get_min_with_tz())
+    triumphs_last_updated = Column(DateTime(timezone=True), nullable=False, default=get_min_with_tz())
 
 
 class DestinyClanLinks(Base):
@@ -195,7 +187,6 @@ class Roles(Base):
 
     role_id = Column(BigInteger, primary_key=True, nullable=False, autoincrement=False)
     guild_id = Column(BigInteger, nullable=False, autoincrement=False)
-    role_name = Column(Text, nullable=False, primary_key=False, autoincrement=False)
     role_data = Column(JSON, nullable=False, primary_key=False, autoincrement=False)
 
 
@@ -216,7 +207,7 @@ class DestinyActivityDefinition(Base):
     reference_id = Column(BigInteger, nullable=False, primary_key=True)
     description = Column(Text, nullable=False)
     name = Column(Text, nullable=False)
-    activity_level = Column(SmallInteger)
+    pgcr_image_url = Column(Text, nullable=True)
     activity_light_level = Column(Integer, nullable=False)
     destination_hash = Column(BigInteger, nullable=False)
     place_hash = Column(BigInteger, nullable=False)
@@ -226,99 +217,102 @@ class DestinyActivityDefinition(Base):
     direct_activity_mode_type = Column(SmallInteger, nullable=False)
     activity_mode_hashes = Column(ARRAY(BigInteger()), nullable=False)
     activity_mode_types = Column(ARRAY(SmallInteger()), nullable=False)
+    matchmade = Column(Boolean, nullable=False)
+    max_players = Column(SmallInteger, nullable=False)
 
 
 class DestinyActivityModeDefinition(Base):
     __tablename__ = "destinyActivityModeDefinition"
 
-    reference_id = Column(SmallInteger, nullable=False, primary_key=True)
-    parent_hashes = Column(ARRAY(BigInteger()))
-    mode_type = Column(SmallInteger)
-    description = Column(Text)
-    name = Column(Text)
-    activity_mode_category = Column(SmallInteger)
-    is_team_based = Column(Boolean)
-    friendly_name = Column(Text)
-    display = Column(Boolean)
-    redacted = Column(Boolean)
+    reference_id = Column(BigInteger, nullable=False, primary_key=True)
+    parent_hashes = Column(ARRAY(BigInteger()), nullable=True)
+    mode_type = Column(SmallInteger, nullable=False)
+    description = Column(Text, nullable=False)
+    name = Column(Text, nullable=False)
+    activity_mode_category = Column(SmallInteger, nullable=False)
+    is_team_based = Column(Boolean, nullable=False)
+    friendly_name = Column(Text, nullable=False)
+    display = Column(Boolean, nullable=False)
+    redacted = Column(Boolean, nullable=False)
 
 
 class DestinyActivityTypeDefinition(Base):
     __tablename__ = "destinyActivityTypeDefinition"
 
     reference_id = Column(BigInteger, nullable=False, primary_key=True)
-    description = Column(Text)
-    name = Column(Text)
+    description = Column(Text, nullable=False, default="")
+    name = Column(Text, nullable=True)  # sometimes activity types do not have a name -> 73015004
 
 
 class DestinyCollectibleDefinition(Base):
     __tablename__ = "destinyCollectibleDefinition"
 
     reference_id = Column(BigInteger, nullable=False, primary_key=True)
-    description = Column(Text)
-    name = Column(Text)
-    source_hash = Column(BigInteger)
-    item_hash = Column(BigInteger)
-    parent_node_hashes = Column(ARRAY(BigInteger()))
+    description = Column(Text, nullable=False)
+    name = Column(Text, nullable=False)
+    source_hash = Column(BigInteger, nullable=False)
+    item_hash = Column(BigInteger, nullable=False)
+    parent_node_hashes = Column(ARRAY(BigInteger()), nullable=False)
 
 
 class DestinyInventoryBucketDefinition(Base):
     __tablename__ = "destinyInventoryBucketDefinition"
 
     reference_id = Column(BigInteger, nullable=False, primary_key=True)
-    description = Column(Text)
-    name = Column(Text)
-    category = Column(SmallInteger)
-    item_count = Column(SmallInteger)
-    location = Column(SmallInteger)
+    description = Column(Text, nullable=False, default="")
+    name = Column(Text, nullable=True)
+    category = Column(SmallInteger, nullable=False)
+    item_count = Column(SmallInteger, nullable=False)
+    location = Column(SmallInteger, nullable=False)
 
 
 class DestinyInventoryItemDefinition(Base):
     __tablename__ = "destinyInventoryItemDefinition"
 
     reference_id = Column(BigInteger, nullable=False, primary_key=True)
-    description = Column(Text)
-    name = Column(Text)
-    flavor_text = Column(Text)
-    item_type = Column(SmallInteger)
-    item_sub_type = Column(SmallInteger)
-    class_type = Column(SmallInteger)
-    bucket_type_hash = Column(BigInteger)
-    tier_type = Column(SmallInteger)
-    tier_type_name = Column(Text)
-    equippable = Column(Boolean)
-    default_damage_type = Column(SmallInteger)
-    ammo_type = Column(SmallInteger)
+    description = Column(Text, nullable=False, default="")
+    name = Column(Text, nullable=False)
+    flavor_text = Column(Text, nullable=False, default="")
+    item_type = Column(SmallInteger, nullable=False)
+    item_sub_type = Column(SmallInteger, nullable=False)
+    class_type = Column(SmallInteger, nullable=False)
+    bucket_type_hash = Column(BigInteger, nullable=False)
+    tier_type = Column(SmallInteger, nullable=False)
+    tier_type_name = Column(Text, nullable=False)
+    equippable = Column(Boolean, nullable=False)
+    default_damage_type = Column(SmallInteger, nullable=False)
+    ammo_type = Column(SmallInteger, nullable=False, default=0)  # 0 == no damage type
 
 
 class DestinyPresentationNodeDefinition(Base):
     __tablename__ = "destinyPresentationNodeDefinition"
 
     reference_id = Column(BigInteger, nullable=False, primary_key=True)
-    description = Column(Text)
-    name = Column(Text)
-    objective_hash = Column(BigInteger)
-    presentation_node_type = Column(SmallInteger)
-    children_presentation_node_hash = Column(ARRAY(BigInteger()))
-    children_collectible_hash = Column(ARRAY(BigInteger()))
-    children_record_hash = Column(ARRAY(BigInteger()))
-    children_metric_hash = Column(ARRAY(BigInteger()))
-    parent_node_hashes = Column(ARRAY(BigInteger()))
-    index = Column(SmallInteger)
-    redacted = Column(Boolean)
+    description = Column(Text, nullable=False, default="")
+    name = Column(Text, nullable=False)
+    objective_hash = Column(BigInteger, nullable=True)
+    presentation_node_type = Column(SmallInteger, nullable=False)
+    children_presentation_node_hash = Column(ARRAY(BigInteger()), nullable=False)
+    children_collectible_hash = Column(ARRAY(BigInteger()), nullable=False)
+    children_record_hash = Column(ARRAY(BigInteger()), nullable=False)
+    children_metric_hash = Column(ARRAY(BigInteger()), nullable=False)
+    parent_node_hashes = Column(ARRAY(BigInteger()), nullable=False)
+    index = Column(SmallInteger, nullable=False)
+    redacted = Column(Boolean, nullable=False)
+    completion_record_hash = Column(BigInteger, nullable=True)
 
 
 class DestinyRecordDefinition(Base):
     __tablename__ = "destinyRecordDefinition"
 
     reference_id = Column(BigInteger, nullable=False, primary_key=True)
-    description = Column(Text)
-    name = Column(Text)
-    for_title_gilding = Column(Boolean)
-    title_name = Column(Text)
-    objective_hashes = Column(ARRAY(BigInteger()))
-    score_value = Column(Integer)
-    parent_node_hashes = Column(ARRAY(BigInteger()))
+    description = Column(Text, nullable=False)
+    name = Column(Text, nullable=False)
+    for_title_gilding = Column(Boolean, nullable=False)
+    title_name = Column(Text, nullable=True)
+    objective_hashes = Column(ARRAY(BigInteger()), nullable=False, default=[])
+    score_value = Column(Integer, nullable=False, default=0)
+    parent_node_hashes = Column(ARRAY(BigInteger()), nullable=False, default=[])
 
 
 class DestinySeasonPassDefinition(Base):
@@ -365,12 +359,7 @@ class LfgMessage(Base):
     creation_time = Column(DateTime(True), nullable=False)
     voice_channel_id = Column(BigInteger, nullable=True)
 
-
-class LfgUser(Base):
-    __tablename__ = "lfgUsers"
-
-    user_id = Column(BigInteger, nullable=False, primary_key=True)
-    blacklisted_members = Column(ARRAY(BigInteger()), nullable=False)
+    started = Column(Boolean, nullable=False)
 
 
 ################################################################
@@ -387,7 +376,7 @@ class D2SteamPlayer(Base):
 class Poll(Base):
     __tablename__ = "polls"
 
-    id = Column(Integer, nullable=False, primary_key=True)
+    id = Column(BigInteger, nullable=False, primary_key=True)
     name = Column(Text, nullable=False)
     description = Column(Text, nullable=False)
     data = Column(JSON, nullable=False)
@@ -417,7 +406,7 @@ class PersistentMessage(Base):
 class ModerationLog(Base):
     __tablename__ = "moderationLog"
 
-    id = Column(Text, nullable=False, primary_key=True)
+    id = Column(BigInteger, nullable=False, primary_key=True)
     guild_id = Column(BigInteger, nullable=False)
     discord_id = Column(BigInteger, nullable=False)
     mod_discord_id = Column(BigInteger, nullable=False)
@@ -428,6 +417,15 @@ class ModerationLog(Base):
     date = Column(DateTime(True), nullable=False)
 
 
+class Giveaway(Base):
+    __tablename__ = "giveaway"
+
+    message_id = Column(BigInteger, nullable=False, primary_key=True)
+    author_id = Column(BigInteger, nullable=False)
+    guild_id = Column(BigInteger, nullable=False)
+    discord_ids = Column(ARRAY(BigInteger()), nullable=False, default=[])
+
+
 # insert all tables
 _TABLES_CREATED = False
 
@@ -435,21 +433,12 @@ _TABLES_CREATED = False
 async def create_tables(engine: Engine):
     global _TABLES_CREATED
 
-    if not _TABLES_CREATED:
-        _TABLES_CREATED = True
-        failed = False
-        for _ in range(10):
-            try:
-                async with engine.begin() as connection:
-                    if is_test_mode():
-                        await connection.run_sync(Base.metadata.drop_all)
+    async with asyncio.Lock():
+        if not _TABLES_CREATED:
+            async with engine.begin() as connection:
+                if is_test_mode():
+                    await connection.run_sync(Base.metadata.drop_all)
 
-                    await connection.run_sync(Base.metadata.create_all)
-                    if failed:
-                        print("Database connection success")
-            except:
-                sleep(1)
-                print("Database not ready, retrying...")
-                failed = True
-                pass
+                await connection.run_sync(Base.metadata.create_all)
 
+            _TABLES_CREATED = True

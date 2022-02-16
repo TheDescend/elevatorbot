@@ -1,18 +1,18 @@
-import asyncio
 import logging
+import traceback
 from datetime import timedelta
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from Backend import crud
-from Backend.core.destiny.activities import DestinyActivities
+from Backend.core.destiny.activities import update_activities_in_background
 from Backend.core.security.auth import ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token
-from Backend.crud import discord_users
+from Backend.crud import backend_user, discord_users
 from Backend.dependencies import get_db_session
+from Backend.networking.bungieAuth import BungieRegistration
 from Backend.networking.elevatorApi import ElevatorApi
-from NetworkingSchemas.misc.auth import BungieTokenInput, BungieTokenOutput, Token
+from Shared.networkingSchemas.misc.auth import BungieRegistrationInput, BungieTokenOutput, Token
 
 router = APIRouter(
     prefix="/auth",
@@ -20,42 +20,50 @@ router = APIRouter(
 )
 
 
-@router.post("/bungie", response_model=BungieTokenOutput)
-async def save_bungie_token(bungie_token: BungieTokenInput, db: AsyncSession = Depends(get_db_session)):
+@router.post("/bungie", response_model=BungieTokenOutput)  # has test
+async def save_bungie_token(
+    bungie_input: BungieRegistrationInput, background_tasks: BackgroundTasks, db: AsyncSession = Depends(get_db_session)
+):
     """Saves a bungie token"""
 
     # since this is a prerequisite for everything really, the test for this is called in insert_dummy_data()
     # it is not tested directly, since we don't want to update the activities in the background
 
+    # get the initial token from the authentication
+    auth = BungieRegistration()
+    bungie_token = await auth.get_first_token(user_input=bungie_input)
+
     # save in db
-    result, user, discord_id, guild_id = await crud.discord_users.insert_profile(
-        db=db,
-        bungie_token=bungie_token,
+    result, user, discord_id, guild_id = await discord_users.insert_profile(db=db, bungie_token=bungie_token)
+
+    logger = logging.getLogger("registration")
+    logger.info(
+        f"User with discord ID '{user.discord_id}' has registered successfully with destiny ID '{user.destiny_id}', system '{user.system}', and bungie name '{user.bungie_name}'"
     )
 
-    if result.success:
-        logger = logging.getLogger("registration")
-        logger.info(
-            "User with discord ID '%s' has registered successfully with destiny ID '%s', system '%s', and bungie name '%s'",
-            user.discord_id,
-            user.destiny_id,
-            user.system,
-            user.bungie_name,
-        )
+    # get users activities in background
+    background_tasks.add_task(update_activities_in_background, user)
 
-        # get users activities in background
-        activities = DestinyActivities(db=db, user=user)
-        asyncio.create_task(activities.update_activity_db())
-
-        # send a msg to Elevator and get the mutual guild ids
-        elevator_api = ElevatorApi()
+    # send a msg to Elevator and get the mutual guild ids
+    elevator_api = ElevatorApi()
+    try:
         response = await elevator_api.post(
-            route_addition="registration/",
+            route_addition="/registration",
             json={
                 "discord_id": discord_id,
             },
         )
+    except Exception as error:
+        response = None
 
+        # it is bad if this fails, since it disrupts the user flow
+        logger = logging.getLogger("elevatorApiExceptions")
+        logger.exception(
+            f"""Registration Error '{error}' - Traceback: \n'{"".join(traceback.format_tb(error.__traceback__))}'"""
+        )
+
+    # see if we could connect
+    if response is not None:
         # assign the role in all guilds
         await discord_users.add_registration_roles(
             db=db, discord_id=discord_id, guild_ids=response.content["guild_ids"]
@@ -71,12 +79,12 @@ async def login_for_access_token(
 ):
     """Generate and return a token"""
 
-    user = await crud.backend_user.authenticate(db=db, user_name=form_data.username, password=form_data.password)
+    user = await backend_user.authenticate(db=db, user_name=form_data.username, password=form_data.password)
 
     # check if OK
     if user:
         access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-        access_token = create_access_token(data={"sub": user.user_name}, expires_delta=access_token_expires)
+        access_token = await create_access_token(data={"sub": user.user_name}, expires_delta=access_token_expires)
         return {"access_token": access_token, "token_type": "bearer"}
 
     raise HTTPException(

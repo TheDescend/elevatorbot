@@ -13,12 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from Backend.core.destiny.activities import DestinyActivities
 from Backend.core.destiny.manifest import DestinyManifest
 from Backend.core.destiny.profile import DestinyProfile
-from Backend.crud import (
-    crud_activities,
-    crud_activities_fail_to_get,
-    destiny_manifest,
-    discord_users,
-)
+from Backend.crud import crud_activities, crud_activities_fail_to_get, destiny_manifest, discord_users
 from Backend.database.models import (
     DestinyActivityDefinition,
     DestinyActivityModeDefinition,
@@ -33,18 +28,13 @@ from Backend.database.models import (
     DiscordUsers,
 )
 from Backend.misc.cache import cache
-from Backend.misc.helperFunctions import get_now_with_tz, localize_datetime
 from Backend.networking.schemas import WebResponse
-from NetworkingSchemas.destiny.roles import (
-    RequirementActivityModel,
-    RequirementIntegerModel,
-    RoleDataModel,
-    RoleModel,
-    RolesModel,
-)
-from NetworkingSchemas.misc.auth import BungieTokenInput
-from NetworkingSchemas.misc.persistentMessages import (
+from Shared.functions.helperFunctions import get_now_with_tz, localize_datetime
+from Shared.networkingSchemas.destiny.roles import RequirementIntegerModel, RoleDataModel, RoleModel, RolesModel
+from Shared.networkingSchemas.misc.auth import BungieTokenInput
+from Shared.networkingSchemas.misc.persistentMessages import (
     PersistentMessage,
+    PersistentMessages,
     PersistentMessageUpsert,
 )
 
@@ -66,7 +56,7 @@ async def mock_request(
 
         # capture the required route when this fails
         try:
-            return WebResponse(0, 200, dummy_data[param_route], True)
+            return WebResponse(0, 200, dummy_data[param_route], True, True)
         except KeyError as e:
             print("Tried to call this route, but it doesnt exist in the dummy data:")
             print(route)
@@ -91,7 +81,7 @@ async def insert_dummy_data(db: AsyncSession, client: AsyncClient):
         state=f"{dummy_discord_id}:{dummy_discord_guild_id}:{dummy_discord_channel_id}",
     )
     result, user, discord_id, guild_id = await discord_users.insert_profile(db=db, bungie_token=token_data)
-    assert result.success is True
+    assert result.bungie_name == dummy_bungie_name
     assert user.destiny_id == dummy_destiny_id
     assert discord_id == dummy_discord_id
     assert guild_id == dummy_discord_guild_id
@@ -109,6 +99,7 @@ async def insert_dummy_data(db: AsyncSession, client: AsyncClient):
         signup_date=get_now_with_tz(),
         signup_server_id=dummy_discord_guild_id,
     )
+    # noinspection PyProtectedMember
     await discord_users._insert(db=db, to_create=user_without_perms)
 
     # create a user that is deleted later
@@ -124,6 +115,7 @@ async def insert_dummy_data(db: AsyncSession, client: AsyncClient):
         signup_date=get_now_with_tz(),
         signup_server_id=dummy_discord_guild_id,
     )
+    # noinspection PyProtectedMember
     await discord_users._insert(db=db, to_create=user_to_delete)
 
     # =========================================================================
@@ -131,6 +123,7 @@ async def insert_dummy_data(db: AsyncSession, client: AsyncClient):
     activities = DestinyActivities(db=db, user=user)
     await activities.update_activity_db()
 
+    # noinspection PyProtectedMember
     assert activities._full_character_list == [{"char_id": 666, "deleted": False}]
     assert user.activities_last_updated.day == 15
     assert user.activities_last_updated.month == 12
@@ -185,7 +178,6 @@ async def insert_dummy_data(db: AsyncSession, client: AsyncClient):
     data = await destiny_manifest.get(db=db, table=DestinyActivityDefinition, primary_key=dummy_activity_reference_id)
     assert data.description == 'Enter the realm of the Nine and ask the question: "What is the nature of the Darkness?"'
     assert data.name == "Prophecy"
-    assert data.activity_level is None
     assert data.activity_light_level == 1040
     assert data.destination_hash == 1553550479
     assert data.place_hash == 3747705955
@@ -195,6 +187,8 @@ async def insert_dummy_data(db: AsyncSession, client: AsyncClient):
     assert data.direct_activity_mode_type == 4
     assert data.activity_mode_hashes == [2043403989]
     assert data.activity_mode_types == [4]
+    assert data.max_players == 3
+    assert data.matchmade is False
 
     data = await destiny_manifest.get(db=db, table=DestinyActivityTypeDefinition, primary_key=2043403989)
     assert data.description == "Form a fireteam of six and brave the strange and powerful realms of our enemies."
@@ -238,7 +232,6 @@ async def insert_dummy_data(db: AsyncSession, client: AsyncClient):
     assert data.description == "Trophies from conquest in the Crucible."
     assert data.name == "Gotten Record"
     assert data.for_title_gilding is False
-    assert data.title_name is None
     assert data.objective_hashes == [1192806779]
     assert data.score_value == 0
     assert data.parent_node_hashes == []
@@ -291,6 +284,21 @@ async def insert_dummy_data(db: AsyncSession, client: AsyncClient):
     assert data.channel_id == dummy_persistent_lfg_channel_id
     assert data.message_id is None
 
+    # does delete work?
+    r = await client.delete(f"/persistentMessages/{dummy_discord_guild_id}/delete/all")
+    assert r.status_code == 200
+    r = await client.get(f"/persistentMessages/{dummy_discord_guild_id}/get/all")
+    assert r.status_code == 200
+    data = PersistentMessages.parse_obj(r.json())
+    assert data.messages == []
+
+    # now input them for real
+    input_model = PersistentMessageUpsert(channel_id=dummy_persistent_lfg_channel_id, message_id=None)
+    r = await client.post(
+        f"/persistentMessages/{dummy_discord_guild_id}/upsert/lfg_channel", json=orjson.loads(input_model.json())
+    )
+    assert r.status_code == 200
+
     input_model = PersistentMessageUpsert(channel_id=dummy_persistent_lfg_voice_category_id, message_id=None)
     r = await client.post(
         f"/persistentMessages/{dummy_discord_guild_id}/upsert/lfg_voice_category", json=orjson.loads(input_model.json())
@@ -309,7 +317,6 @@ async def insert_dummy_data(db: AsyncSession, client: AsyncClient):
     input_model = RoleModel(
         role_id=1,
         guild_id=dummy_discord_guild_id,
-        role_name="Test Role",
         role_data=RoleDataModel(
             category="Destiny Roles",
             deprecated=False,

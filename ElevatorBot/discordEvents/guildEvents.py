@@ -1,4 +1,4 @@
-from dis_snek.models.events import (
+from dis_snek.api.events import (
     ChannelCreate,
     ChannelDelete,
     ChannelUpdate,
@@ -13,6 +13,7 @@ from dis_snek.models.events import (
 
 from ElevatorBot.backendNetworking.destiny.lfgSystem import DestinyLfgSystem
 from ElevatorBot.backendNetworking.destiny.roles import DestinyRoles
+from ElevatorBot.backendNetworking.errors import BackendException
 from ElevatorBot.backendNetworking.misc.elevatorInfo import ElevatorGuilds
 from ElevatorBot.backendNetworking.misc.polls import BackendPolls
 from ElevatorBot.core.misc.persistentMessages import PersistentMessages
@@ -25,23 +26,21 @@ async def on_channel_delete(event: ChannelDelete):
 
     # remove all lfg stuff if the channel matches
     persistent_messages = PersistentMessages(ctx=None, guild=event.channel.guild, message_name="lfg_channel")
-    data = await persistent_messages.get()
-    if data and data.channel_id == event.channel.id:
-        # this is the lfg channel. Delete all the data
-        lfg = DestinyLfgSystem(
-            ctx=None, 
-            #client=event.bot, 
-            discord_guild=None
-        )
-        result = await lfg.delete_all(client=event.bot, guild_id=event.channel.guild.id)
-        if not result:
-            raise LookupError
+    try:
+        data = await persistent_messages.get()
+        if data and data.channel_id == event.channel.id:
+            # this is the lfg channel. Delete all the data
+            lfg = DestinyLfgSystem(ctx=None, discord_guild=None)
+            await lfg.delete_all(client=event.bot, guild_id=event.channel.guild.id)
+    except BackendException:
+        pass
 
     # delete all persistent messages in that channel
-    persistent_messages = PersistentMessages(ctx=None, guild=None, message_name=None)
-    result = await persistent_messages.delete(channel_id=event.channel.id)
-    if not result:
-        raise LookupError
+    persistent_messages = PersistentMessages(ctx=None, guild=event.channel.guild, message_name=None)
+    try:
+        await persistent_messages.delete(channel_id=event.channel.id)
+    except BackendException:
+        pass
 
 
 async def on_channel_create(event: ChannelCreate):
@@ -58,17 +57,11 @@ async def on_channel_update(event: ChannelUpdate):
 
 async def on_guild_join(event: GuildJoin):
     """Triggers when ElevatorBot gets added to a guild"""
-    elevator_guilds = ElevatorGuilds(ctx=None, discord_guild=event.guild)
-    activated_guild = event.guild
-    guilds_saved = await elevator_guilds.get()
-    if guilds_saved.success:
-        guild_list = guilds_saved.result["guilds"]
-    #{'guild_id': 223433090817720320, 'join_date': '2021-12-20T22:32:19.965987+00:00'}
-    guild_id_list = [guild["guild_id"] for guild in guild_list] 
-    guild_id = activated_guild.id
+
     # this gets called on startup. We don't want that
-    if not guild_id in guild_id_list:
+    if event.bot.is_ready:
         # add guild to the list of all guilds, needed for website info
+        elevator_guilds = ElevatorGuilds(ctx=None, discord_guild=event.guild)
         await elevator_guilds.add()
 
 
@@ -77,47 +70,49 @@ async def on_guild_left(event: GuildLeft):
 
     # remove guild from the list of all guilds, needed for website info
     elevator_guilds = ElevatorGuilds(ctx=None, discord_guild=event.guild)
-    result = await elevator_guilds.delete(guild_id=event.guild_id)
-    if not result:
-        raise LookupError
+    try:
+        await elevator_guilds.delete(guild_id=event.guild_id)
+    except BackendException:
+        pass
 
     # remove all persistent messages
     persistent_messages = PersistentMessages(ctx=None, guild=None, message_name=None)
-    result = await persistent_messages.delete_all(guild_id=event.guild_id)
-    if not result:
-        raise LookupError
+    try:
+        await persistent_messages.delete_all(guild_id=event.guild_id)
+    except BackendException:
+        pass
 
     # remove all roles
-    roles = DestinyRoles(ctx=None, client=event.bot, discord_member=None, discord_guild=None)
-    result = await roles.delete_all(guild_id=event.guild_id)
-    if not result:
-        raise LookupError
+    roles = DestinyRoles(ctx=None, discord_member=None, discord_guild=None)
+    try:
+        await roles.delete_all(guild_id=event.guild_id)
+    except BackendException:
+        pass
 
     # remove all polls
     polls = BackendPolls(ctx=None, discord_member=None, guild=None)
-    result = await polls.delete_all(guild_id=event.guild_id)
-    if not result:
-        raise LookupError
+    try:
+        await polls.delete_all(guild_id=event.guild_id)
+    except BackendException:
+        pass
 
     # remove all lfg stuff
-    lfg = DestinyLfgSystem(
-        ctx=None, 
-        #client=event.bot, 
-        discord_guild=None
-    )
-    result = await lfg.delete_all(client=event.bot, guild_id=event.guild_id)
-    if not result:
-        raise LookupError
+    lfg = DestinyLfgSystem(ctx=None, discord_guild=None)
+    try:
+        await lfg.delete_all(client=event.bot, guild_id=event.guild_id)
+    except BackendException:
+        pass
 
 
 async def on_role_delete(event: RoleDelete):
     """Triggers when a role gets deleted"""
 
     # remove the role
-    roles = DestinyRoles(ctx=None, client=event.bot, discord_member=None, discord_guild=None)
-    result = await roles.delete(guild_id=event.guild_id, role_id=event.role_id)
-    if not result:
-        raise LookupError
+    roles = DestinyRoles(ctx=None, discord_member=None, discord_guild=None)
+    try:
+        await roles.delete(guild_id=event.guild_id, role_id=event.role_id)
+    except BackendException:
+        pass
 
 
 async def on_role_update(event: RoleUpdate):

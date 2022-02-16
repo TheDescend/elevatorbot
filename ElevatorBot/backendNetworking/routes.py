@@ -1,7 +1,6 @@
 import os
 
 base_route = f"""http://{os.environ.get("BACKEND_HOST")}:{os.environ.get("BACKEND_PORT")}/"""
-destiny_base_route = base_route + "destiny/"
 
 
 # ===========================================================================
@@ -51,7 +50,9 @@ destiny_clan_unlink_route = destiny_clan_route + "{discord_id}/unlink/"  # DELET
 # items
 destiny_items_route = base_route + "destiny/items/"
 destiny_collectible_name_route = destiny_items_route + "collectible/{collectible_id}/"  # GET
+destiny_get_all_collectible_route = destiny_items_route + "collectible/get/all/"  # GET
 destiny_triumph_name_route = destiny_items_route + "triumph/{triumph_id}/"  # GET
+destiny_get_all_triumph_route = destiny_items_route + "triumph/get/all/"  # GET
 destiny_get_all_lore_route = destiny_items_route + "lore/get/all/"  # GET
 
 # lfg
@@ -79,7 +80,7 @@ destiny_role_get_all_user_route = destiny_role_route + "{discord_id}/get/all/"  
 destiny_role_get_missing_user_route = destiny_role_route + "{discord_id}/get/missing/"  # GET
 destiny_role_get_user_route = destiny_role_route + "{discord_id}/get/{role_id}/"  # GET
 destiny_role_create_route = destiny_role_route + "create/"  # POST
-destiny_role_update_route = destiny_role_route + "update/{role_id}/"  # POST
+destiny_role_update_route = destiny_role_route + "update//{role_id}"  # POST
 destiny_role_delete_all_route = destiny_role_route + "delete/all/"  # DELETE
 destiny_role_delete_route = destiny_role_route + "delete/{role_id}/"  # DELETE
 
@@ -113,14 +114,21 @@ persistent_messages_route = base_route + "persistentMessages/{guild_id}/"
 persistent_messages_get_route = persistent_messages_route + "get/{message_name}/"  # GET
 persistent_messages_get_all_route = persistent_messages_route + "get/all/"  # GET
 persistent_messages_upsert_route = persistent_messages_route + "upsert/{message_name}/"  # POST
-persistent_messages_delete_route = persistent_messages_route + "delete/{message_name}/"  # DELETE
+persistent_messages_delete_route = persistent_messages_route + "delete/"  # POST
 persistent_messages_delete_all_route = persistent_messages_route + "delete/all/"  # DELETE
 
 # polls
 polls_route = base_route + "polls/{guild_id}/"
 polls_insert_route = polls_route + "{discord_id}/insert/"  # POST
 polls_get_route = polls_route + "{discord_id}/get/{poll_id}/"  # GET
-polls_delete_option_route = polls_route + "{{discord_id}/poll_id}/delete_option/{option_name}"  # DELETE
-polls_user_input_route = polls_route + "{discord_id}/user_input/{poll_id}/"  # POST
-polls_delete_route = polls_route + "{discord_id}/delete/{poll_id}/"  # DELETE
+polls_delete_option_route = polls_route + "{discord_id}/{poll_id}/delete_option/{option_name}"  # DELETE
+polls_user_input_route = polls_route + "{discord_id}/{poll_id}/user_input/"  # POST
+polls_delete_route = polls_route + "{discord_id}/{poll_id}/delete"  # DELETE
 polls_delete_all_route = polls_route + "delete/all{"  # DELETE
+
+# giveaway
+giveaway_route = base_route + "giveaway/{guild_id}/{discord_id}/{giveaway_id}/"
+giveaway_get = giveaway_route + "get/"  # GET
+giveaway_create = giveaway_route + "create/"  # POST
+giveaway_insert = giveaway_route + "insert/"  # POST
+giveaway_remove = giveaway_route + "remove/"  # POST

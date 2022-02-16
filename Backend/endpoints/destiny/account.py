@@ -5,12 +5,12 @@ from Backend.core.destiny.activities import DestinyActivities
 from Backend.core.destiny.profile import DestinyProfile
 from Backend.crud import discord_users
 from Backend.dependencies import get_db_session
-from NetworkingSchemas.basic import BoolModel, NameModel, ValueModel
-from NetworkingSchemas.destiny.account import (
+from Shared.networkingSchemas import BoolModel, NameModel, ValueModel
+from Shared.networkingSchemas.destiny import (
     BoolModelRecord,
     DestinyCatalystsModel,
     DestinyCharactersModel,
-    DestinyLowMansModel,
+    DestinyLowMansByCategoryModel,
     DestinySealsModel,
     DestinyStatInputModel,
     DestinyTimeInputModel,
@@ -27,10 +27,10 @@ router = APIRouter(
 
 
 @router.get("/name", response_model=NameModel)  # has test
-async def destiny_name(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
+async def destiny_name(guild_id: int, discord_id: int):
     """Return the bungie name"""
 
-    user = await discord_users.get_profile_from_discord_id(db, discord_id)
+    user = await discord_users.get_profile_from_discord_id(discord_id)
     return NameModel(name=user.bungie_name)
 
 
@@ -40,7 +40,7 @@ async def has_collectible(
 ):
     """Return is the collectible is unlocked"""
 
-    user = await discord_users.get_profile_from_discord_id(db, discord_id)
+    user = await discord_users.get_profile_from_discord_id(discord_id)
     profile = DestinyProfile(db=db, user=user)
     return BoolModel(bool=await profile.has_collectible(collectible_hash=collectible_id))
 
@@ -49,7 +49,7 @@ async def has_collectible(
 async def has_triumph(guild_id: int, discord_id: int, triumph_id: int, db: AsyncSession = Depends(get_db_session)):
     """Return is the triumph is unlocked"""
 
-    user = await discord_users.get_profile_from_discord_id(db, discord_id)
+    user = await discord_users.get_profile_from_discord_id(discord_id)
     profile = DestinyProfile(db=db, user=user)
 
     return await profile.has_triumph(triumph_hash=triumph_id)
@@ -59,7 +59,7 @@ async def has_triumph(guild_id: int, discord_id: int, triumph_id: int, db: Async
 async def metric(guild_id: int, discord_id: int, metric_id: int, db: AsyncSession = Depends(get_db_session)):
     """Return the metric value"""
 
-    user = await discord_users.get_profile_from_discord_id(db, discord_id)
+    user = await discord_users.get_profile_from_discord_id(discord_id)
     profile = DestinyProfile(db=db, user=user)
 
     # get the metric value
@@ -68,12 +68,15 @@ async def metric(guild_id: int, discord_id: int, metric_id: int, db: AsyncSessio
     return ValueModel(value=value)
 
 
-@router.get("/solos", response_model=DestinyLowMansModel)  # has test
+@router.get("/solos", response_model=DestinyLowMansByCategoryModel)  # has test
 async def destiny_solos(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Return the destiny solos"""
 
-    user = await discord_users.get_profile_from_discord_id(db, discord_id)
+    user = await discord_users.get_profile_from_discord_id(discord_id)
     activities = DestinyActivities(db=db, user=user)
+
+    # update the user's db entries
+    await activities.update_activity_db()
 
     # get the solo data
     return await activities.get_solos()
@@ -83,7 +86,7 @@ async def destiny_solos(guild_id: int, discord_id: int, db: AsyncSession = Depen
 async def characters(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Return the characters with info on them"""
 
-    user = await discord_users.get_profile_from_discord_id(db, discord_id)
+    user = await discord_users.get_profile_from_discord_id(discord_id)
     profile = DestinyProfile(db=db, user=user)
 
     # get the characters
@@ -96,7 +99,7 @@ async def stat(
 ):
     """Return the stat value"""
 
-    user = await discord_users.get_profile_from_discord_id(db, discord_id)
+    user = await discord_users.get_profile_from_discord_id(discord_id)
     profile = DestinyProfile(db=db, user=user)
 
     # get the stat value
@@ -115,7 +118,7 @@ async def stat_characters(
 ):
     """Return the stat value by character_id"""
 
-    user = await discord_users.get_profile_from_discord_id(db, discord_id)
+    user = await discord_users.get_profile_from_discord_id(discord_id)
     profile = DestinyProfile(db=db, user=user)
 
     # get the stat value
@@ -134,7 +137,12 @@ async def time(
     Return the time played for the specified modes / activities
     """
 
-    user = await discord_users.get_profile_from_discord_id(db, discord_id)
+    user = await discord_users.get_profile_from_discord_id(discord_id)
+
+    # update the user's db entries
+    activities = DestinyActivities(db=db, user=user)
+    await activities.update_activity_db()
+
     profile = DestinyProfile(db=db, user=user)
 
     entries = []
@@ -183,9 +191,9 @@ async def time(
 
 @router.get("/seasonal_challenges", response_model=SeasonalChallengesModel)  # has test
 async def seasonal_challenges(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
-    """Return the seasonal challenges completion ratio"""
+    """Return the seasonal challenge's completion ratio"""
 
-    user = await discord_users.get_profile_from_discord_id(db, discord_id)
+    user = await discord_users.get_profile_from_discord_id(discord_id)
     profile = DestinyProfile(db=db, user=user)
 
     return await profile.get_seasonal_challenges()
@@ -195,7 +203,7 @@ async def seasonal_challenges(guild_id: int, discord_id: int, db: AsyncSession =
 async def triumph_score(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Return the user's triumph scores"""
 
-    user = await discord_users.get_profile_from_discord_id(db, discord_id)
+    user = await discord_users.get_profile_from_discord_id(discord_id)
     profile = DestinyProfile(db=db, user=user)
 
     return await profile.get_triumph_score()
@@ -205,7 +213,7 @@ async def triumph_score(guild_id: int, discord_id: int, db: AsyncSession = Depen
 async def artifact_level(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Return the user's artifact power bonus"""
 
-    user = await discord_users.get_profile_from_discord_id(db, discord_id)
+    user = await discord_users.get_profile_from_discord_id(discord_id)
     profile = DestinyProfile(db=db, user=user)
 
     return await profile.get_artifact_level()
@@ -215,7 +223,7 @@ async def artifact_level(guild_id: int, discord_id: int, db: AsyncSession = Depe
 async def season_pass_level(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Return the user's season pass level"""
 
-    user = await discord_users.get_profile_from_discord_id(db, discord_id)
+    user = await discord_users.get_profile_from_discord_id(discord_id)
     profile = DestinyProfile(db=db, user=user)
 
     return await profile.get_season_pass_level()
@@ -227,7 +235,7 @@ async def get_consumable_amount(
 ):
     """Gets the amount of the given consumable that the player has"""
 
-    user = await discord_users.get_profile_from_discord_id(db, discord_id)
+    user = await discord_users.get_profile_from_discord_id(discord_id)
     profile = DestinyProfile(db=db, user=user)
 
     return ValueModel(value=await profile.get_consumable_amount(consumable_id=consumable_id))
@@ -237,7 +245,7 @@ async def get_consumable_amount(
 async def get_max_power(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Gets the current max power of the player"""
 
-    user = await discord_users.get_profile_from_discord_id(db, discord_id)
+    user = await discord_users.get_profile_from_discord_id(discord_id)
     profile = DestinyProfile(db=db, user=user)
 
     return ValueModel(value=await profile.get_max_power())
@@ -247,7 +255,7 @@ async def get_max_power(guild_id: int, discord_id: int, db: AsyncSession = Depen
 async def get_vault_space(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Gets the current used vault space of the player"""
 
-    user = await discord_users.get_profile_from_discord_id(db, discord_id)
+    user = await discord_users.get_profile_from_discord_id(discord_id)
     profile = DestinyProfile(db=db, user=user)
 
     return ValueModel(value=await profile.get_used_vault_space())
@@ -257,7 +265,7 @@ async def get_vault_space(guild_id: int, discord_id: int, db: AsyncSession = Dep
 async def get_bright_dust(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Gets the current bright dust of the player"""
 
-    user = await discord_users.get_profile_from_discord_id(db, discord_id)
+    user = await discord_users.get_profile_from_discord_id(discord_id)
     profile = DestinyProfile(db=db, user=user)
 
     return ValueModel(value=await profile.get_bright_dust())
@@ -267,7 +275,7 @@ async def get_bright_dust(guild_id: int, discord_id: int, db: AsyncSession = Dep
 async def get_legendary_shards(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Gets the current legendary shards of the player"""
 
-    user = await discord_users.get_profile_from_discord_id(db, discord_id)
+    user = await discord_users.get_profile_from_discord_id(discord_id)
     profile = DestinyProfile(db=db, user=user)
 
     return ValueModel(value=await profile.get_legendary_shards())
@@ -275,9 +283,9 @@ async def get_legendary_shards(guild_id: int, discord_id: int, db: AsyncSession 
 
 @router.get("/catalysts", response_model=DestinyCatalystsModel)  # has test
 async def get_catalyst_completion(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
-    """Gets all catalysts and the users completion status"""
+    """Gets all catalysts and the user's completion status"""
 
-    user = await discord_users.get_profile_from_discord_id(db, discord_id)
+    user = await discord_users.get_profile_from_discord_id(discord_id)
     profile = DestinyProfile(db=db, user=user)
 
     return await profile.get_catalyst_completion()
@@ -285,9 +293,9 @@ async def get_catalyst_completion(guild_id: int, discord_id: int, db: AsyncSessi
 
 @router.get("/seals", response_model=DestinySealsModel)
 async def get_seal_completion(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
-    """Gets all seals and the users completion status"""
+    """Gets all seals and the user's completion status"""
 
-    user = await discord_users.get_profile_from_discord_id(db, discord_id)
+    user = await discord_users.get_profile_from_discord_id(discord_id)
     profile = DestinyProfile(db=db, user=user)
 
     return await profile.get_seal_completion()

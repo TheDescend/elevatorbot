@@ -1,5 +1,6 @@
 import dataclasses
-import time
+import inspect
+import time as py_time
 from typing import Optional
 
 
@@ -9,7 +10,7 @@ class InternalWebResponse:
 
     content: Optional[dict] = None
     status: Optional[int] = None
-    time: int = int(time.time())
+    time: int = int(py_time.time())
     success: bool = False
     error: str = None
     error_code: int = None
@@ -20,7 +21,7 @@ class InternalWebResponse:
         return self.success
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass()
 class WebResponse:
     """This gets returned from an api request"""
 
@@ -28,7 +29,11 @@ class WebResponse:
     status: int
     content: dict
     from_cache: bool
-    success: bool = False
+    success: bool
 
     def __bool__(self):
         return self.status == 200
+
+    @classmethod
+    def from_dict(cls, data: dict):
+        return cls(**{k: v for k, v in data.items() if k in inspect.signature(cls).parameters})

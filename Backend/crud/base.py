@@ -1,12 +1,14 @@
+import asyncio
 from typing import Any, List, Optional, Type, TypeVar
 
 from sqlalchemy import delete, inspect, select
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.engine import Result
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm.attributes import flag_modified
 from sqlalchemy.sql import Select
 
-from Backend.database.base import Base
+from Backend.database.base import Base, get_async_session
 
 ModelType = TypeVar("ModelType", bound=Base)
 
@@ -62,25 +64,26 @@ class CRUDBase:
     async def _upsert(self, db: AsyncSession, model_data: dict) -> ModelType:
         """Upsert the item. Doesn't work with foreign keys"""
 
-        # prepare insert
-        stmt = postgresql.insert(self.model).values(model_data)
+        async with asyncio.Lock():
+            # prepare insert
+            stmt = postgresql.insert(self.model).values(model_data)
 
-        # get primary key and info what should be updated if it fails
-        primary_keys = [key.name for key in inspect(self.model).primary_key]
-        update_dict = {c.name: c for c in stmt.excluded if not c.primary_key}
-        if not update_dict:
-            raise ValueError(
-                f"_upsert() resulted in an empty update_dict for model '{self.model}', model_data: '{model_data}'"
-            )
+            # get primary key and info what should be updated if it fails
+            primary_keys = [key.name for key in inspect(self.model).primary_key]
+            update_dict = {c.name: c for c in stmt.excluded if not c.primary_key}
+            if not update_dict:
+                raise ValueError(
+                    f"_upsert() resulted in an empty update_dict for model '{self.model}', model_data: '{model_data}'"
+                )
 
-        # add upsert clause
-        stmt = stmt.on_conflict_do_update(index_elements=primary_keys, set_=update_dict).returning(self.model)
+            # add upsert clause
+            stmt = stmt.on_conflict_do_update(index_elements=primary_keys, set_=update_dict).returning(self.model)
 
-        # convert that to orm
-        query = select(self.model).from_statement(stmt).execution_options(populate_existing=True)
+            # convert that to orm
+            query = select(self.model).from_statement(stmt).execution_options(populate_existing=True)
 
-        result = await self._execute_query(db=db, query=query)
-        return result.scalars().one()
+            result = await self._execute_query(db=db, query=query)
+            return result.scalars().one()
 
     @staticmethod
     async def _mass_insert(db: AsyncSession, to_create: list[ModelType]) -> None:
@@ -90,13 +93,28 @@ class CRUDBase:
         await db.flush()
 
     @staticmethod
-    async def _update(db: AsyncSession, to_update: ModelType, **update_kwargs) -> None:
+    async def _update(db: AsyncSession, to_update: ModelType, **update_kwargs) -> ModelType:
         """Update a initiated ModelType in the database"""
 
         for key, value in update_kwargs.items():
             setattr(to_update, key, value)
 
-        await db.flush()
+            # make sure to set them as modified
+            # otherwise they might not get updated
+            flag_modified(to_update, key)
+
+        # test if the obj is detached, then we need to renew it briefly
+        state = inspect(to_update)
+        if state.detached:
+            async with get_async_session().begin() as new_db:
+                # merge the obj, since updating does not work with detached objs
+                new_obj = await new_db.merge(to_update)
+            return new_obj
+
+        # only flush if it was not detached
+        else:
+            await db.flush()
+            return to_update
 
     async def _delete(
         self, db: AsyncSession, primary_key: Optional[Any] = None, obj: Optional[ModelType] = None

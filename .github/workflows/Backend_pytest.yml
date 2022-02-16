@@ -44,15 +44,19 @@ jobs:
 
         # make sure the db runs
         docker-compose run -d --service-ports postgres
+        docker-compose run -d --service-ports redis
 
         # add the env varible we need to connect to the db
         export $(grep -v '^#' .env | xargs -d '\n')
+
+        # change the redis env var
+        export REDIS_HOST=localhost
 
         # add the dir to pythonpath
         export PYTHONPATH="${PYTHONPATH}:/home/runner/work/elevatorbot"
 
         # rename the settings file
-        sudo mv rename_to_settings.py settings.py
+        sudo mv rename_to_settings.toml settings.toml
 
         # run tests
         pytest Backend

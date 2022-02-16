@@ -1,35 +1,34 @@
 import dataclasses
 from typing import Optional
+from urllib.parse import urljoin
 
-from dis_snek.models import Role
-from dis_snek.models.context import InteractionContext
-from dis_snek.models.discord_objects.guild import Guild
-from dis_snek.models.discord_objects.user import Member
+from dis_snek import Button, ButtonStyles, Guild, InteractionContext, Member, Role
 
 from ElevatorBot.backendNetworking.destiny.roles import DestinyRoles
+from ElevatorBot.backendNetworking.errors import BackendException
 from ElevatorBot.commandHelpers.autocomplete import activities_by_id
-
 from ElevatorBot.misc.cache import collectible_cache, triumph_cache
-from ElevatorBot.misc.discordShortcutFunctions import (
-    assign_roles_to_member,
-    remove_roles_from_member,
-)
-from ElevatorBot.misc.formating import embed_message
-from NetworkingSchemas.destiny.roles import RolesCategoryModel
+from ElevatorBot.misc.discordShortcutFunctions import assign_roles_to_member, remove_roles_from_member
+from ElevatorBot.misc.formatting import embed_message
+from Shared.functions.readSettingsFile import get_setting
+from Shared.networkingSchemas.destiny.roles import RolesCategoryModel
 
 
 @dataclasses.dataclass()
 class Roles:
     """Class to handle achievement Roles"""
 
-    
     guild: Guild
     member: Member
     ctx: Optional[InteractionContext] = None
 
     def __post_init__(self):
-        self.roles = DestinyRoles(
-            ctx=self.ctx, client=self.client, discord_guild=self.guild, discord_member=self.member
+        self.roles = DestinyRoles(ctx=self.ctx, discord_guild=self.guild, discord_member=self.member)
+
+        self.view_on_web = Button(
+            style=ButtonStyles.URL,
+            label="View Online",
+            url=urljoin(get_setting("WEBSITE_URL"), f"/server/{self.guild.id}/roles"),
         )
 
     async def get_requirements(self, role: Role):
@@ -38,16 +37,11 @@ class Roles:
         # get info what get_requirements the user fulfills and which not and info on the role
         result = await self.roles.get_detail(role)
 
-        if not result:
-            return
-
         role_data = result.role.role_data
         user_data = result.user_role_data
 
         # construct reply msg
-        embed = embed_message(
-            f"{self.member.display_name}'s '{role.name}' Eligibility", f"**Status: {result.earned.value}**"
-        )
+        embed = embed_message(f"'{role.name}' Eligibility", f"**Status: {result.earned.value}**", member=self.member)
 
         # loop through the requirements and their statuses
         activities: list[str] = []
@@ -70,7 +64,7 @@ class Roles:
 
         roles: list[str] = []
         for role_id, user_role in zip(role_data.require_collectibles, user_data.require_collectibles):
-            roles.append(f"{(await self.guild.get_role(role_id)).mention}: {user_role}")
+            roles.append(f"{(await self.guild.get_role(role_id.id)).mention}: {user_role}")
 
         # add the embed fields
         if activities:
@@ -82,22 +76,29 @@ class Roles:
         if roles:
             embed.add_field(name="Required Roles", value="\n".join(roles), inline=False)
 
-        await self.ctx.send(embeds=embed)
+        await self.ctx.send(embeds=embed, components=self._view_on_web_details(role))
+
+    def _view_on_web_details(self, role: Role):
+        """Get the component to view the specific role"""
+
+        return Button(
+            style=ButtonStyles.URL,
+            label="View Online",
+            url=urljoin(get_setting("WEBSITE_URL"), f"/server/{self.guild.id}/roles#{role.id}"),
+        )
 
     async def get_missing(self):
         """Get a members missing roles"""
 
         result = await self.roles.get_missing()
 
-        if not result:
-            return
-
         # do the missing roles display
-        embed = embed_message(f"{self.member.display_name}'s Roles")
-        embed.add_field(name="⁣", value=f"__**Acquirable Roles:**__", inline=False)
+        embed = embed_message("Roles", member=self.member)
 
         # only do this if there are roles to get
         if result.acquirable:
+            embed.add_field(name="⁣", value="__**Acquirable Roles:**__", inline=False)
+
             # sort by category
             by_category = await self.__sort_by_category(result.acquirable)
 
@@ -108,15 +109,12 @@ class Roles:
                     inline=True,
                 )
         else:
-            embed.add_field(
-                name="Wow, you got every single role. Congrats!",
-                value="⁣",
-                inline=False,
-            )
+            embed.description = "Wow, you got every single role. Congrats!"
 
         # Do the same for the deprecated roles
-        embed.add_field(name="⁣", value=f"__**Deprecated Roles:**__", inline=False)
         if result.deprecated:
+            embed.add_field(name="⁣", value="__**Deprecated Roles:**__", inline=False)
+
             # sort by category
             by_category = await self.__sort_by_category(result.deprecated)
 
@@ -127,33 +125,36 @@ class Roles:
                     inline=True,
                 )
 
-        await self.ctx.send(embeds=embed)
+        await self.ctx.send(embeds=embed, components=self.view_on_web)
 
     async def update(self):
         """Get and update a members roles"""
 
-        result = await self.roles.get()
-
-        if not result:
-            return
+        try:
+            result = await self.roles.get()
+        except BackendException as error:
+            # ignore people that are not registered
+            if error.error == "DiscordIdNotFound":
+                return
+            raise error
 
         roles_at_start = [role.id for role in self.member.roles]
 
         # assign new roles
         await assign_roles_to_member(
-            member=self.member,
+            self.member,
             *[role_data.discord_role_id for role_data in result.earned],
             reason="Destiny 2 Role Update",
         )
 
         # remove old roles
         await remove_roles_from_member(
-            member=self.member,
+            self.member,
             *[role_data.discord_role_id for role_data in result.earned_but_replaced_by_higher_role],
             reason="Destiny 2 Role Update",
         )
         await remove_roles_from_member(
-            member=self.member,
+            self.member,
             *[role_data.discord_role_id for role_data in result.not_earned],
             reason="Destiny 2 Role Update",
         )
@@ -163,11 +164,12 @@ class Roles:
             # if user has no roles show this
             if not result.earned:
                 await self.ctx.send(
-                    # todo link to where you can see all the roles
                     embeds=embed_message(
-                        "Info",
-                        f"You don't have any roles. \nUse `/roles overview` to see all available roles and then `/roles get_requirements <role>` to view its get_requirements.",
-                    )
+                        "Roles",
+                        "You don't have any roles. \nUse `/roles missing` to see available roles and then `/roles requirements <role>` to view its requirements",
+                        member=self.member,
+                    ),
+                    components=self.view_on_web,
                 )
                 return
 
@@ -193,24 +195,18 @@ class Roles:
                         new_roles[category].append(discord_role.mention)
 
             # construct reply msg
-            embed = embed_message(f"{self.member.display_name}'s New Roles", f"__Previous Roles:__")
+            embed = embed_message("Roles", "__Previous Roles:__", member=self.member)
             if not old_roles:
-                embed.add_field(name=f"You didn't have any roles before", value="⁣", inline=True)
+                embed.add_field(name="You didn't have any roles before", value="⁣", inline=True)
 
             for topic in old_roles:
-                roles = []
-                for role_name in topic:
-                    roles.append(role_name)
                 embed.add_field(name=topic, value="\n".join(old_roles[topic]), inline=True)
 
-            embed.add_field(name="⁣", value=f"__New Roles:__", inline=False)
+            embed.add_field(name="⁣", value="__New Roles:__", inline=False)
             if not new_roles:
                 embed.add_field(name="No new roles have been achieved", value="⁣", inline=True)
 
             for topic in new_roles:
-                roles = []
-                for role_name in topic:
-                    roles.append(role_name)
                 embed.add_field(name=topic, value="\n".join(new_roles[topic]), inline=True)
 
             await self.ctx.send(embeds=embed)

@@ -2,17 +2,10 @@ import asyncio
 import dataclasses
 from typing import Optional
 
-from dis_snek.models import (
-    ActionRow,
-    Button,
-    ButtonStyles,
-    ComponentContext,
-    InteractionContext,
-    Message,
-)
-from dis_snek.models.events import Component
+from dis_snek import ActionRow, Button, ButtonStyles, ComponentContext, InteractionContext, Message
+from dis_snek.api.events import Component
 
-from ElevatorBot.misc.formating import embed_message
+from ElevatorBot.misc.formatting import embed_message
 
 
 @dataclasses.dataclass()
@@ -140,8 +133,7 @@ class Calculator:
     def disable_buttons(self):
         for row in self.buttons:
             for button in row.components:
-                button_update = {"disabled": True}
-                button.update(button_update)
+                button.disabled = True
 
     async def send_message(
         self,
@@ -150,7 +142,7 @@ class Calculator:
         button_ctx: Optional[ComponentContext] = None,
     ):
         if not self.message:
-            embed = embed_message(f"{self.ctx.author.display_name}'s Calculator", f"```{text}```")
+            embed = embed_message("Calculator", f"```{text}```", member=self.ctx.author)
             self.message = await self.ctx.send(components=self.buttons, embeds=embed)
         else:
             embed = self.message.embeds[0]
@@ -160,7 +152,7 @@ class Calculator:
                 try:
                     embed.description = f"```{eval(embed.description[3:-3])}```"
                 except Exception:
-                    embed.description = f"```Error: Please Try again```"
+                    embed.description = "```Error: Please Try again```"
 
             # check if user pressed c
             elif "c" in text:
@@ -182,13 +174,20 @@ class Calculator:
             else:
                 if "Error" in embed.description or "Please" in embed.description:
                     embed.description = "``````"
+
+                # special behaviour for * and /
+                if "*" in text:
+                    if embed.description[-1] == "*":
+                        text = text[1]
+                elif "/" in text:
+                    if embed.description[-1] == "/":
+                        text = text[1]
+
                 embed.description = f"```{embed.description[3:-3]}{text}```"
 
             if timeout:
                 embed = embed_message(
-                    f"{self.ctx.author.display_name}'s Calculator",
-                    embed.description,
-                    "This calculator is now disabled",
+                    "Calculator", embed.description, "This calculator is now disabled", member=self.ctx.author
                 )
                 self.disable_buttons()
 
@@ -199,9 +198,7 @@ class Calculator:
 
     # checks that the button press author is the same as the message command invoker and that the message matches
     def check_author_and_message(self, component: Component):
-        return (component.context.author == self.ctx.author) and (
-            self.ctx.message.id == component.context.origin_message.id
-        )
+        return (component.context.author == self.ctx.author) and (self.message == component.context.message)
 
     # wait for button press look
     async def wait_for_button_press(self):

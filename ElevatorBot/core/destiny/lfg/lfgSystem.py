@@ -4,11 +4,11 @@ import asyncio
 import dataclasses
 import datetime
 import io
+import logging
 from typing import Optional
 
 from apscheduler.jobstores.base import JobLookupError
-from dis_snek.errors import Forbidden, NotFound
-from dis_snek.models import (
+from dis_snek import (
     ActionRow,
     Button,
     ButtonStyles,
@@ -25,22 +25,24 @@ from dis_snek.models import (
     OverwriteTypes,
     PermissionOverwrite,
     Permissions,
+    Snake,
     Timestamp,
     TimestampStyles,
 )
+from dis_snek.client.errors import Forbidden, NotFound
 from ics import Calendar, Event
 
 from ElevatorBot.backendNetworking.destiny.lfgSystem import DestinyLfgSystem
+from ElevatorBot.backendNetworking.errors import BackendException
+from ElevatorBot.commandHelpers.autocomplete import activities
 from ElevatorBot.core.destiny.lfg.scheduledEvents import delete_lfg_scheduled_events
-
-from ElevatorBot.misc.formating import embed_message
-from ElevatorBot.misc.helperFunctions import get_now_with_tz
+from ElevatorBot.discordEvents.base import ElevatorSnake
+from ElevatorBot.misc.formatting import embed_message, replace_progress_formatting
 from ElevatorBot.static.emojis import custom_emojis
-from NetworkingSchemas.destiny.lfgSystem import (
-    LfgCreateInputModel,
-    LfgOutputModel,
-    LfgUpdateInputModel,
-)
+from Shared.functions.formatting import make_progress_bar_text
+from Shared.functions.helperFunctions import get_now_with_tz
+from Shared.functions.readSettingsFile import get_setting
+from Shared.networkingSchemas.destiny.lfgSystem import LfgCreateInputModel, LfgOutputModel, LfgUpdateInputModel
 
 asap_start_time = datetime.datetime(year=1997, month=6, day=11, tzinfo=datetime.timezone.utc)
 
@@ -49,9 +51,9 @@ asap_start_time = datetime.datetime(year=1997, month=6, day=11, tzinfo=datetime.
 class LfgMessage:
     """Class to hold an LFG message"""
 
+    client: ElevatorSnake | Snake
     backend: DestinyLfgSystem
 
-    
     id: int
     guild: Guild
 
@@ -64,13 +66,14 @@ class LfgMessage:
     channel: Optional[GuildText] = None
     message: Optional[Message] = None
     creation_time: Optional[datetime.datetime] = None
-    joined_ids: Optional[list[int]] = None
+    joined_ids: list[int] = dataclasses.field(default_factory=list)
     backup_ids: list[int] = dataclasses.field(default_factory=list)
 
     voice_category_channel: Optional[GuildCategory] = None
     voice_channel: Optional[GuildVoice] = None
 
-    # post init to do list
+    started: bool = False
+
     def __post_init__(self):
         # get the button emojis
         self.__join_emoji = custom_emojis.join
@@ -90,8 +93,14 @@ class LfgMessage:
         if not (self.message or self.channel):
             asyncio.run(self.delete())
 
-    # less than operator to sort the classes by their start time
     def __lt__(self, other):
+        # special behaviour if one is "asap"
+        if self.start_time == "asap":
+            return True
+        if other.start_time == "asap":
+            return False
+
+        # sort the classes by their start time
         return self.start_time < other.start_time
 
     def __bool__(self):
@@ -100,7 +109,7 @@ class LfgMessage:
     @classmethod
     async def from_lfg_output_model(
         cls, client, model: LfgOutputModel, backend: DestinyLfgSystem, guild: Optional[Guild] = None
-    ) -> LfgMessage:
+    ) -> Optional[LfgMessage]:
         """Parse the info from the pydantic model"""
 
         if not guild:
@@ -109,8 +118,22 @@ class LfgMessage:
                 raise ValueError
 
         # fill class info
-        channel: GuildText = await guild.get_channel(model.channel_id)
+        channel: GuildText = await client.get_channel(model.channel_id)
         start_time: datetime.datetime = model.start_time
+
+        # delete if in the past
+        if model.start_time < get_now_with_tz():
+            await backend.delete(discord_member_id=model.author_id, lfg_id=model.id)
+            return
+
+        # make sure the message exists
+        try:
+            if not model.message_id:
+                raise NotFound
+            message = await channel.get_message(model.message_id)
+        except NotFound:
+            await backend.delete(discord_member_id=model.author_id, lfg_id=model.id)
+            return
 
         lfg_message = cls(
             backend=backend,
@@ -123,14 +146,15 @@ class LfgMessage:
             description=model.description,
             start_time=start_time if start_time != asap_start_time else "asap",
             max_joined_members=model.max_joined_members,
-            message=await channel.get_message(model.message_id),
+            message=message,
             creation_time=model.creation_time,
             joined_ids=model.joined_members,
             backup_ids=model.backup_members,
-            voice_channel=await guild.get_channel(model.voice_channel_id) if model.voice_channel_id else None,
-            voice_category_channel=await guild.get_channel(model.voice_category_channel_id)
+            voice_channel=await client.get_channel(model.voice_channel_id) if model.voice_channel_id else None,
+            voice_category_channel=await client.get_channel(model.voice_category_channel_id)
             if model.voice_category_channel_id
             else None,
+            started=model.started,
         )
 
         return lfg_message
@@ -147,27 +171,41 @@ class LfgMessage:
                 lfg_id = int(field.value)
         assert isinstance(lfg_id, int)
 
-        return await LfgMessage.from_lfg_id(ctx=ctx, lfg_id=lfg_id, client=ctx.bot, guild=ctx.guild)
+        try:
+            lfg_message = await LfgMessage.from_lfg_id(ctx=ctx, lfg_id=lfg_id, client=ctx.bot, guild=ctx.guild)
+        except BackendException as error:
+            if error.error == "NoLfgEventWithIdForGuild":
+                lfg_message = None
+            else:
+                raise error
+
+        # error if that fails
+        if not lfg_message:
+            await ctx.message.delete()
+            await ctx.send(
+                embed=embed_message(
+                    "Error",
+                    "This LFG event has been lost to the depths of time in the vault of glass\nIt does not exist, and the message has now been deleted accordingly\nSorry for that",
+                ),
+                ephemeral=True,
+            )
+
+        return lfg_message
 
     @classmethod
     async def from_lfg_id(
-        cls, lfg_id: int, client, guild: Guild, ctx: Optional[InteractionContext] = None
+        cls, lfg_id: int, client: ElevatorSnake | Snake, guild: Guild, ctx: Optional[InteractionContext] = None
     ) -> Optional[LfgMessage]:
         """
         Classmethod to get with a known lfg_id
         Returns LfgMessage() if successful, BackendResult() if not
         """
 
-        backend = DestinyLfgSystem(
-            ctx=ctx, 
-            #client=client, 
-            discord_guild=guild
-        )
+        backend = DestinyLfgSystem(ctx=ctx, discord_guild=guild)
+        backend.hidden = True
 
         # get the message by the id
         result = await backend.get(lfg_id=lfg_id)
-        if not result:
-            return
 
         return await LfgMessage.from_lfg_output_model(client=client, model=result, backend=backend, guild=guild)
 
@@ -182,11 +220,7 @@ class LfgMessage:
     ) -> Optional[LfgMessage]:
         """Classmethod to create a new lfg message"""
 
-        backend = DestinyLfgSystem(
-            ctx=ctx, 
-            #client=ctx.bot, 
-            discord_guild=ctx.guild
-        )
+        backend = DestinyLfgSystem(ctx=ctx, discord_guild=ctx.guild)
 
         # create the message and fill it later
         result = await backend.create(
@@ -211,27 +245,21 @@ class LfgMessage:
             client=ctx.bot,
             id=result.id,
             guild=ctx.guild,
-            channel=await ctx.guild.get_channel(result.channel_id),
+            channel=await ctx.bot.get_channel(result.channel_id),
             author_id=ctx.author.id,
             activity=activity,
             description=description,
             start_time=start_time,
             max_joined_members=max_joined_members,
-            voice_category_channel=await ctx.guild.get_channel(result.voice_category_channel_id)
+            voice_category_channel=await ctx.bot.get_channel(result.voice_category_channel_id)
             if result.voice_category_channel_id
             else None,
+            joined_ids=[ctx.author.id],
+            started=result.started,
         )
 
         # send message in the channel to populate missing entries
-        await lfg_message.send()
-
-        # respond to the context
-        await ctx.send(
-            embeds=embed_message(
-                "Success",
-                f"I've created the event (ID: `{lfg_message.id}`) \nClick [here]({lfg_message.message.jump_url}) to view the event",
-            )
-        )
+        await lfg_message.send(ctx=ctx)
 
         return lfg_message
 
@@ -241,7 +269,7 @@ class LfgMessage:
         ctx: Optional[ComponentContext] = None,
         force_into_joined: bool = False,
     ) -> bool:
-        """add a member"""
+        """Add a member"""
 
         if member.id not in self.joined_ids:
             if (len(self.joined_ids) < self.max_joined_members) or force_into_joined:
@@ -265,7 +293,7 @@ class LfgMessage:
         return False
 
     async def add_backup(self, member: Member, ctx: Optional[ComponentContext] = None) -> bool:
-        """Add a backup or move member to backup"""
+        """Add a backup or move a member to backup"""
 
         if member.id not in self.backup_ids:
             self.backup_ids.append(member.id)
@@ -293,35 +321,49 @@ class LfgMessage:
             return True
         return False
 
-    async def send(self, ctx: Optional[ComponentContext] = None):
-        """send / edit the message in the channel"""
+    async def send(self, ctx: Optional[ComponentContext | InteractionContext] = None, force_sort: bool = False):
+        """Send / edit the message in the channel"""
 
         embed = await self.__return_embed()
 
         if not self.message:
             self.message = await self.channel.send(embed=embed, components=self.__buttons)
             self.creation_time = get_now_with_tz()
-            first_send = True
+            force_sort = True
+
+            # respond to the context
+            if ctx:
+                await ctx.send(
+                    embeds=embed_message(
+                        "Success",
+                        f"I've created the event (ID: `{self.message.id}`) \nClick [here]({self.message.jump_url}) to view the event",
+                    )
+                )
+
         else:
             # acknowledge the button press
             if ctx:
                 await ctx.edit_origin(embeds=embed, components=self.__buttons)
             else:
                 await self.message.edit(embeds=embed, components=self.__buttons)
-            first_send = False
 
         # update the database entry
         await self.__dump_to_db()
 
         # schedule the event
-        await self.schedule_event()
+        if isinstance(self.start_time, datetime.datetime):
+            # skip that if the event starts within 15 minutes
+            if self.start_time < (get_now_with_tz() + datetime.timedelta(minutes=15)):
+                await self.__notify_about_start()
+            else:
+                await self.schedule_event()
 
-        # if message was freshly send, sort messages
-        if first_send:
-            await self.__sort_lfg_messages()
+                # if message was freshly send, sort messages
+                if force_sort:
+                    await self.__sort_lfg_messages()
 
     async def delete(self, delete_command_user_id: Optional[int] = None):
-        """removes the message and also the database entries"""
+        """Removes the message and also the database entries"""
 
         if not delete_command_user_id:
             delete_command_user_id = self.author_id
@@ -338,23 +380,23 @@ class LfgMessage:
                 pass
 
         # delete DB entry
-        result = await self.backend.delete(discord_member_id=delete_command_user_id, lfg_id=self.id)
+        await self.backend.delete(discord_member_id=self.author_id, lfg_id=self.id)
 
-        if result:
-            # delete scheduler event
-            # try to delete old job
-            try:
-                self.client.scheduler.remove_job(str(self.id))
-            except JobLookupError:
-                pass
+        # delete scheduler event
+        # try to delete old job
+        try:
+            self.client.scheduler.remove_job(str(self.id))
+        except JobLookupError:
+            pass
 
-    async def alert_start_time_changed(self, previous_start_time: datetime.datetime):
+    async def alert_start_time_changed(self, new_start_time: datetime.datetime):
         """Alert all joined / backups that the event start time was changed"""
 
         embed = embed_message(
             "Attention Please",
-            f"The start time for the lfg event [{self.id}]({self.message.jump_url}) has changed \nIt changed from {Timestamp.fromdatetime(previous_start_time).format(style=TimestampStyles.ShortDateTime)} to {Timestamp.fromdatetime(self.start_time).format(style=TimestampStyles.ShortDateTime)}",
+            f"The start time for the lfg event [{self.id}]({self.message.jump_url}) has changed \nIt changed from {Timestamp.fromdatetime(self.start_time).format(style=TimestampStyles.ShortDateTime)} to {Timestamp.fromdatetime(new_start_time).format(style=TimestampStyles.ShortDateTime)}",
         )
+        self.start_time = new_start_time
 
         for user_id in self.joined_ids + self.backup_ids:
             try:
@@ -365,7 +407,7 @@ class LfgMessage:
                 pass
 
     async def schedule_event(self):
-        """(re-) scheduled the event with apscheduler using the lfg_id as event_id"""
+        """(Re-) schedule the event with apscheduler using the lfg_id as event_id"""
 
         if self.message or self.channel:
             # only do this if is it has a start date
@@ -376,19 +418,15 @@ class LfgMessage:
                 # using the id the job gets added
                 timedelta = datetime.timedelta(minutes=10)
                 run_date = self.start_time - timedelta
-                now = get_now_with_tz()
-                if run_date < now:
-                    run_date = now
                 self.client.scheduler.add_job(
-                    self.__notify_about_start,
-                    "date",
-                    (self.client, self.guild, self.id, timedelta),
+                    func=self.__notify_about_start,
+                    trigger="date",
                     run_date=run_date,
                     id=str(self.id),
                 )
 
-    async def __notify_about_start(self, time_to_start: datetime.timedelta):
-        """notifies joined members that the event is about to start"""
+    async def __notify_about_start(self):
+        """Notify joined members that the event is about to start"""
 
         voice_text = "Please start gathering in a voice channel"
 
@@ -433,22 +471,21 @@ class LfgMessage:
         # prepare embed
         embed = embed_message(
             f"LFG Event - {self.activity}",
-            f"The LFG event [{self.id}]({self.message.jump_url}) is going to start in **{int(time_to_start.seconds / 60)} minutes**\n{voice_text}",
+            f"The LFG event [{self.id}]({self.message.jump_url}) is going to start {Timestamp.fromdatetime(self.start_time).format(style=TimestampStyles.RelativeTime)}\n{voice_text}",
             "Start Time",
         )
         embed.add_field(
-            name="Guardians",
-            value=", ".join(self.__get_joined_members_display_names()),
+            name="Guardians Joined",
+            value=", ".join(await self.__get_joined_members_display_names()),
             inline=False,
         )
-        embed.timestamp = self.start_time
 
         # if the event was not full
         missing = self.max_joined_members - len(self.joined_ids)
         if self.backup_ids:
             embed.add_field(
                 name="Backup",
-                value=", ".join(self.__get_alternate_members_display_names()),
+                value=", ".join(await self.__get_alternate_members_display_names()),
                 inline=False,
             )
 
@@ -472,78 +509,83 @@ class LfgMessage:
                 pass
 
         # edit the channel message
+        self.started = True
         await self.message.edit(embeds=embed, components=[])
         await self.__dump_to_db()
 
-        # wait timedelta + 10 min
-        await asyncio.sleep(time_to_start.seconds + 60 * 10)
+        # wait time to start + 10 min
+        await asyncio.sleep((self.start_time - get_now_with_tz()).seconds + 60 * 10)
 
         # delete the post
         await self.delete()
 
+        # delete the voice channel if empty
+        if self.voice_channel and not self.voice_channel.voice_members:
+            await self.voice_channel.delete()
+
     async def __sort_lfg_messages(self):
-        """sort all the lfg messages in the guild by start_time"""
+        """Sort all the lfg messages in the guild by start_time"""
 
         async with asyncio.Lock():
             # get all lfg ids
             result = await self.backend.get_all()
-            if result:
-                events = result.events
+            events = result.events
 
-                # only continue if there is more than one event
-                if len(events) <= 1:
-                    return
+            # only continue if there is more than one event
+            if len(events) <= 1:
+                return
 
-                # get three lists:
-                # a list with the current message objs (sorted by asc creation date)
-                # a list with the creation_time
-                # and a list with the LfgMessage objs
-                sorted_messages_by_creation_time = []
-                sorted_creation_times_by_creation_time = []
-                lfg_messages = []
-                for event in events:
-                    sorted_messages_by_creation_time.append(await self.channel.fetch_message(event.message_id))
-                    sorted_creation_times_by_creation_time.append(event.creation_time)
-                    lfg_messages.append(
-                        LfgMessage(
-                            backend=self.backend,
-                            client=self.client,
-                            id=event.id,
-                            guild=self.guild,
-                            channel=self.channel,
-                            author_id=event.author_id,
-                            activity=event.activity,
-                            description=event.description,
-                            start_time=event.start_time,
-                            max_joined_members=event.max_joined_members,
-                            message=await self.channel.fetch_message(event.message_id),
-                            creation_time=event.creation_time,
-                            joined_ids=event.joined_members,
-                            backup_ids=event.backup_members,
-                            voice_channel=await self.guild.get_channel(event.voice_channel_id)
-                            if event.voice_channel_id
-                            else None,
-                            voice_category_channel=await self.guild.get_channel(event.voice_category_channel_id)
-                            if event.voice_category_channel_id
-                            else None,
-                        )
+            # get two lists:
+            # a list with the current message objs (sorted by asc creation date)
+            # a list with the LfgMessage objs
+            sorted_messages_by_creation_time = []
+            lfg_messages = []
+            for event in events:
+                # ignore started messages
+                if event.started:
+                    continue
+
+                message = await self.channel.get_message(event.message_id)
+                sorted_messages_by_creation_time.append(message)
+                lfg_messages.append(
+                    LfgMessage(
+                        backend=self.backend,
+                        client=self.client,
+                        id=event.id,
+                        guild=self.guild,
+                        channel=self.channel,
+                        author_id=event.author_id,
+                        activity=event.activity,
+                        description=event.description,
+                        start_time=event.start_time if event.start_time != asap_start_time else "asap",
+                        max_joined_members=event.max_joined_members,
+                        message=message,
+                        creation_time=event.creation_time,
+                        joined_ids=event.joined_members,
+                        backup_ids=event.backup_members,
+                        voice_channel=await self.client.get_channel(event.voice_channel_id)
+                        if event.voice_channel_id
+                        else None,
+                        voice_category_channel=await self.client.get_channel(event.voice_category_channel_id)
+                        if event.voice_category_channel_id
+                        else None,
+                        started=event.started,
                     )
+                )
 
-                # sort the LfgMessages by their start_time
-                sorted_lfg_messages = sorted(lfg_messages, reverse=True)
+            # sort the LfgMessages by their start_time
+            # latest at the bottom
+            sorted_lfg_messages = sorted(lfg_messages, reverse=True)
 
-                # update the messages with their new message obj
-                for message, creation_time, lfg_message in zip(
-                    sorted_messages_by_creation_time,
-                    sorted_creation_times_by_creation_time,
-                    sorted_lfg_messages,
-                ):
+            # update the messages with their new message obj
+            for message, lfg_message in zip(sorted_messages_by_creation_time, sorted_lfg_messages):
+                # only send if the message changed
+                if lfg_message != message:
                     lfg_message.message = message
-                    lfg_message.creation_time = creation_time
                     await lfg_message.send()
 
     async def __get_joined_members_display_names(self) -> list[str]:
-        """gets the display name of the joined members"""
+        """Get the mention strings of the joined members"""
 
         mentions = []
         for member_id in self.joined_ids:
@@ -552,7 +594,7 @@ class LfgMessage:
         return mentions
 
     async def __get_alternate_members_display_names(self) -> list[str]:
-        """gets the display name of the alternate members"""
+        """Get the mention strings of the alternate members"""
 
         mentions = []
         for member_id in self.backup_ids:
@@ -560,8 +602,39 @@ class LfgMessage:
             mentions.append(member.mention if member else f"`{member_id}`")
         return mentions
 
+    def __reuse_ics_url(self) -> Optional[str]:
+        """Try to reuse the ics url"""
+
+        if self.message:
+            embed = self.message.embeds[0]
+
+            # check if the message name matches
+            try:
+                if embed.fields[0].value != self.activity:
+                    return
+
+                # check if the message start time matches
+                start_time = embed.fields[1].value.split("\n")
+                if start_time[0] != Timestamp.fromdatetime(self.start_time).format(style=TimestampStyles.ShortDateTime):
+                    return
+
+                # check if the message description matches
+                if embed.fields[3].value != self.description:
+                    return
+
+                # return the ics url
+                return start_time[1].removeprefix("[Add To Calendar]")[1:-1]
+            except:
+                print(embed)
+                logging.getLogger("generalExceptions").error(embed)
+
     async def __get_ics_url(self) -> str:
-        """Create an ics file, upload it, and return the url"""
+        """Create an ics file, upload it, and return the url if it does not exist yet"""
+
+        # try to re-use the ics url
+        url = self.__reuse_ics_url()
+        if url:
+            return url
 
         calendar = Calendar()
         event = Event()
@@ -576,18 +649,20 @@ class LfgMessage:
         data = io.StringIO(str(calendar))
 
         # send this in the spam channel in one of the test servers
-        spam_server: GuildText = await self.client.get_channel(761278600103723018)
+        spam_server: GuildText = await self.client.get_channel(get_setting("DESCEND_SPAM_CHANNEL_ID"))
         file_message = await spam_server.send(file=File(file=data, file_name=f"lfg_event_{self.id}.ics"))
 
         return file_message.attachments[0].url
 
     async def __return_embed(self) -> Embed:
-        """return the formatted embed"""
+        """Return the formatted embed"""
 
         author = await self.guild.get_member(self.author_id)
         embed = embed_message(
-            footer=f"Creator: {author.display_name if author else self.author_id}   |   Your Time",
+            footer=f"Creator: {author.display_name if author else self.author_id}",
         )
+        if author:
+            embed.footer.icon_url = author.display_avatar.url
 
         # add the fields with the data
         embed.add_field(
@@ -595,6 +670,10 @@ class LfgMessage:
             value=self.activity,
             inline=True,
         )
+        image_url = activities[self.activity.lower()].image_url
+        if image_url:
+            embed.set_thumbnail(image_url)
+
         if isinstance(self.start_time, datetime.datetime):
             embed.add_field(
                 name="Start Time",
@@ -604,7 +683,7 @@ class LfgMessage:
         else:
             embed.add_field(
                 name="Start Time",
-                value=f"__As Soon As Full__",
+                value="__As Soon As Full__",
                 inline=True,
             )
         embed.add_field(
@@ -617,26 +696,33 @@ class LfgMessage:
             value=self.description,
             inline=False,
         )
+
+        embed.add_field(
+            name="⁣",
+            value=replace_progress_formatting(
+                completion_status=make_progress_bar_text(
+                    percentage=len(self.joined_ids) / self.max_joined_members if self.max_joined_members != 0 else 0,
+                    bar_length=8,
+                )
+            ),
+            inline=False,
+        )
         embed.add_field(
             name=f"Guardians Joined ({len(self.joined_ids)}/{self.max_joined_members})",
-            value=", ".join(self.__get_joined_members_display_names()) if self.joined_ids else "_Empty Space :(_",
+            value=", ".join(await self.__get_joined_members_display_names()) if self.joined_ids else "_Empty Space :(_",
             inline=True,
         )
         if self.backup_ids:
             embed.add_field(
                 name="Backup",
-                value=", ".join(self.__get_alternate_members_display_names()),
+                value=", ".join(await self.__get_alternate_members_display_names()),
                 inline=True,
             )
-
-        if isinstance(self.start_time, datetime.datetime):
-            # add the start time to the footer
-            embed.timestamp = self.start_time
 
         return embed
 
     async def __dump_to_db(self):
-        """updates the database entry"""
+        """Update the database entry"""
 
         await self.backend.update(
             lfg_id=self.id,
@@ -651,11 +737,12 @@ class LfgMessage:
                 max_joined_members=self.max_joined_members,
                 joined_members=self.joined_ids,
                 backup_members=self.backup_ids,
+                started=self.started,
             ),
         )
 
     async def __edit_start_time_and_send(self, start_time: datetime.datetime):
-        """edit start time and sort messages again"""
+        """Edit start time and sort messages again"""
         self.start_time = start_time
 
         # send

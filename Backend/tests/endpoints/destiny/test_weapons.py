@@ -1,5 +1,3 @@
-import datetime
-
 import pytest
 from dummyData.insert import mock_request
 from dummyData.static import *
@@ -7,9 +5,8 @@ from httpx import AsyncClient
 from orjson import orjson
 from pytest_mock import MockerFixture
 
-from Backend.misc.helperFunctions import get_now_with_tz
-from NetworkingSchemas.destiny.weapons import (
-    DestinyTopWeaponModel,
+from Shared.functions.helperFunctions import get_now_with_tz
+from Shared.networkingSchemas.destiny import (
     DestinyTopWeaponsInputModel,
     DestinyTopWeaponsModel,
     DestinyTopWeaponsStatInputModelEnum,
@@ -23,7 +20,7 @@ from NetworkingSchemas.destiny.weapons import (
 async def test_get_all(client: AsyncClient, mocker: MockerFixture):
     mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
 
-    r = await client.get(f"/destiny/weapons/get/all")
+    r = await client.get("/destiny/weapons/get/all")
     assert r.status_code == 200
     data = DestinyWeaponsModel.parse_obj(r.json())
     assert data.weapons
@@ -53,7 +50,7 @@ async def test_get_top(client: AsyncClient, mocker: MockerFixture):
     assert r.status_code == 200
     data = DestinyTopWeaponsModel.parse_obj(r.json())
     assert_weapon_ranking(data)
-    assert data.kinetic[0].stat_value == 10
+    assert data.kinetic[0].stat_value == 10 + 9
 
     # kills
     input_model = DestinyTopWeaponsInputModel(stat=DestinyTopWeaponsStatInputModelEnum.KILLS, how_many_per_slot=10)
@@ -63,7 +60,7 @@ async def test_get_top(client: AsyncClient, mocker: MockerFixture):
     assert r.status_code == 200
     data = DestinyTopWeaponsModel.parse_obj(r.json())
     assert_weapon_ranking(data)
-    assert data.kinetic[0].stat_value == 100
+    assert data.kinetic[0].stat_value == 100 + 9
 
     # try a very variations
     input_model.weapon_type = 25
@@ -213,9 +210,9 @@ def assert_weapon_ranking(data: DestinyTopWeaponsModel):
 def assert_weapon_stats(data: DestinyWeaponStatsModel):
     """Tests that the weapon is OK"""
 
-    assert data.total_kills == 100
-    assert data.total_precision_kills == 10
-    assert data.total_activities == 1
+    assert data.total_kills == 100 + 9
+    assert data.total_precision_kills == 10 + 9
+    assert data.total_activities == 2
     assert data.best_kills == 100
     assert data.best_kills_activity_name == dummy_activity_name
     assert data.best_kills_activity_id == dummy_instance_id

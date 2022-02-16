@@ -1,5 +1,7 @@
+import asyncio
 import datetime
 import time
+import urllib.parse
 from typing import Optional
 
 import aiohttp
@@ -7,28 +9,29 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.errors import CustomException
 from Backend.crud.base import CRUDBase
-from Backend.crud.discord.roles import roles
 from Backend.crud.misc.persistentMessages import persistent_messages
+from Backend.database.base import get_async_session
 from Backend.database.models import DiscordUsers
 from Backend.misc.cache import cache
-from Backend.misc.helperFunctions import get_now_with_tz, localize_datetime
 from Backend.networking.base import NetworkBase
 from Backend.networking.elevatorApi import ElevatorApi
-from NetworkingSchemas.misc.auth import BungieTokenInput, BungieTokenOutput
-from settings import BUNGIE_APPLICATION_API_KEY
+from Shared.functions.helperFunctions import get_min_with_tz, get_now_with_tz, localize_datetime
+from Shared.functions.readSettingsFile import get_setting
+from Shared.networkingSchemas.misc.auth import BungieTokenInput, BungieTokenOutput
 
 
 class CRUDDiscordUser(CRUDBase):
     cache = cache
 
-    async def get_profile_from_discord_id(self, db: AsyncSession, discord_id: int) -> DiscordUsers:
+    async def get_profile_from_discord_id(self, discord_id: int) -> DiscordUsers:
         """Return the profile information"""
 
         # check if exists in cache
         if discord_id in self.cache.discord_users:
             return self.cache.discord_users[discord_id]
 
-        profile: Optional[DiscordUsers] = await self._get_with_key(db, discord_id)
+        async with get_async_session().begin() as db:
+            profile: Optional[DiscordUsers] = await self._get_with_key(db, discord_id)
 
         # make sure the user exists
         if not profile:
@@ -36,17 +39,26 @@ class CRUDDiscordUser(CRUDBase):
 
         # populate cache
         self.cache.discord_users.update({discord_id: profile})
+        self.cache.discord_users_by_destiny_id.update({profile.destiny_id: profile})
 
         return profile
 
     async def get_profile_from_destiny_id(self, db: AsyncSession, destiny_id: int) -> DiscordUsers:
         """Return the profile information"""
 
+        # check if exists in cache
+        if destiny_id in self.cache.discord_users_by_destiny_id:
+            return self.cache.discord_users_by_destiny_id[destiny_id]
+
         profiles: list[DiscordUsers] = await self._get_multi(db, destiny_id=destiny_id)
 
         # make sure the user exists
         if not profiles:
             raise CustomException(error="DestinyIdNotFound")
+
+        # populate cache
+        self.cache.discord_users.update({profiles[0].discord_id: profiles[0]})
+        self.cache.discord_users_by_destiny_id.update({profiles[0].destiny_id: profiles[0]})
 
         return profiles[0]
 
@@ -63,6 +75,9 @@ class CRUDDiscordUser(CRUDBase):
         # get current time
         current_time = int(time.time())
 
+        # make sure the state is not url encoded
+        bungie_token.state = urllib.parse.unquote(bungie_token.state)
+
         # split the state
         (discord_id, guild_id, channel_id) = bungie_token.state.split(":")
         discord_id, guild_id, channel_id, = (
@@ -74,12 +89,13 @@ class CRUDDiscordUser(CRUDBase):
 
         # get the corresponding destiny data with manual headers, since the data is not in the db yet
         async with aiohttp.ClientSession(cookie_jar=aiohttp.DummyCookieJar()) as session:
+            # noinspection PyProtectedMember
             destiny_info = await api._request(
                 session=session,
                 method="GET",
                 route="https://www.bungie.net/platform/User/GetMembershipsForCurrentUser/",
                 headers={
-                    "X-API-Key": BUNGIE_APPLICATION_API_KEY,
+                    "X-API-Key": get_setting("BUNGIE_APPLICATION_API_KEY"),
                     "Accept": "application/json",
                     "Authorization": f"Bearer {bungie_token.access_token}",
                 },
@@ -104,94 +120,97 @@ class CRUDDiscordUser(CRUDBase):
 
         # that should find a system 100% of the time, extra check here to be sure
         if not system:
-            return (
-                BungieTokenOutput(success=False, errror_message="Could not find what platform you are on"),
-                None,
-                discord_id,
-                guild_id,
-            )
+            raise CustomException("ProgrammingError")
 
         # if they have no destiny profile
         if not destiny_id:
-            return (
-                BungieTokenOutput(success=False, errror_message="You do not seem to have a destiny account"),
-                None,
-                discord_id,
-                guild_id,
-            )
+            raise CustomException("BungieNoDestinyId")
 
-        # look if that destiny_id is already in the db
-        try:
-            user = await self.get_profile_from_destiny_id(db=db, destiny_id=destiny_id)
+        # need to make this save
+        async with asyncio.Lock():
+            # look if that destiny_id is already in the db
+            try:
+                user = await self.get_profile_from_destiny_id(db=db, destiny_id=destiny_id)
 
-            # if that returned something, we need to make sure the destiny_id belongs to the same discord_id
-            if not user.discord_id == discord_id:
-                # if it doesn't, we need to delete that entry, otherwise a destiny account could be registered to multiple persons
-                await self.delete_profile(db=db, discord_id=user.discord_id)
+                # if that returned something, we need to make sure the destiny_id belongs to the same discord_id
+                if not user.discord_id == discord_id:
+                    # if it doesn't, we need to delete that entry, otherwise a destiny account could be registered to multiple persons
+                    await self.delete_profile(db=db, discord_id=user.discord_id)
 
-                # now we have to make it an insert instead of an update
+                    # now we have to make it an insert instead of an update
+                    method_insert = True
+
+                else:
+                    # if they are the same, we need to update the obj instead of inserting it
+                    method_insert = False
+
+            except CustomException:
+                # if this triggers we know no result was found in the db, so we insert
                 method_insert = True
 
+            if method_insert:
+                # new user! so lets construct their info
+                user = DiscordUsers(
+                    discord_id=discord_id,
+                    destiny_id=destiny_id,
+                    system=system,
+                    bungie_name=bungie_name,
+                    token=bungie_token.access_token,
+                    refresh_token=bungie_token.refresh_token,
+                    token_expiry=localize_datetime(
+                        datetime.datetime.fromtimestamp(current_time + bungie_token.expires_in)
+                    ),
+                    refresh_token_expiry=localize_datetime(
+                        datetime.datetime.fromtimestamp(current_time + bungie_token.refresh_expires_in)
+                    ),
+                    signup_date=get_now_with_tz(),
+                    signup_server_id=guild_id,
+                )
+
+                # and in the db they go
+                await self._insert(db=db, to_create=user)
+
+                # populate the cache
+                self.cache.discord_users.update({discord_id: user})
+                self.cache.discord_users_by_destiny_id.update({user.destiny_id: user})
+
             else:
-                # if they are the same, we need to update the obj instead of inserting it
-                method_insert = False
+                # now we call the update function instead of the insert function
+                datetime_default = get_min_with_tz()
+                await self.update(
+                    db=db,
+                    to_update=user,
+                    destiny_id=destiny_id,
+                    system=system,
+                    bungie_name=bungie_name,
+                    token=bungie_token.access_token,
+                    refresh_token=bungie_token.refresh_token,
+                    token_expiry=localize_datetime(
+                        datetime.datetime.fromtimestamp(current_time + bungie_token.expires_in)
+                    ),
+                    refresh_token_expiry=localize_datetime(
+                        datetime.datetime.fromtimestamp(current_time + bungie_token.refresh_expires_in)
+                    ),
+                    activities_last_updated=datetime_default,
+                    collectibles_last_updated=datetime_default,
+                    triumphs_last_updated=datetime_default,
+                )
 
-        except CustomException:
-            # if this triggers we know no result was found in the db, so we insert
-            method_insert = True
-
-        if method_insert:
-            # new user! so lets construct their info
-            user = DiscordUsers(
-                discord_id=discord_id,
-                destiny_id=destiny_id,
-                system=system,
-                bungie_name=bungie_name,
-                token=bungie_token.access_token,
-                refresh_token=bungie_token.refresh_token,
-                token_expiry=localize_datetime(datetime.datetime.fromtimestamp(current_time + bungie_token.expires_in)),
-                refresh_token_expiry=localize_datetime(
-                    datetime.datetime.fromtimestamp(current_time + bungie_token.refresh_expires_in)
-                ),
-                signup_date=get_now_with_tz(),
-                signup_server_id=guild_id,
-            )
-
-            # and in the db they go
-            await self._insert(db=db, to_create=user)
-
-            # populate the cache
-            self.cache.discord_users.update({discord_id: user})
-
-        else:
-            # now we call the update function instead of the insert function
-            datetime_default = datetime.datetime(2000, 1, 1, tzinfo=datetime.timezone.utc)
-            await self.update(
-                db=db,
-                to_update=user,
-                destiny_id=destiny_id,
-                system=system,
-                bungie_name=bungie_name,
-                token=bungie_token.access_token,
-                refresh_token=bungie_token.refresh_token,
-                token_expiry=localize_datetime(datetime.datetime.fromtimestamp(current_time + bungie_token.expires_in)),
-                refresh_token_expiry=localize_datetime(
-                    datetime.datetime.fromtimestamp(current_time + bungie_token.refresh_expires_in)
-                ),
-                activities_last_updated=datetime_default,
-                collectibles_last_updated=datetime_default,
-                triumphs_last_updated=datetime_default,
-            )
-
-        return BungieTokenOutput(success=True, errror_message=None), user, discord_id, guild_id
+        return (
+            BungieTokenOutput(bungie_name=user.bungie_name),
+            user,
+            discord_id,
+            guild_id,
+        )
 
     async def update(self, db: AsyncSession, to_update: DiscordUsers, **update_kwargs):
         """Updates a profile"""
 
-        await self._update(db=db, to_update=to_update, **update_kwargs)
+        updated: DiscordUsers = await self._update(db=db, to_update=to_update, **update_kwargs)
 
         # update the cache
-        self.cache.discord_users.update({to_update.discord_id: to_update})
+        self.cache.discord_users.update({to_update.discord_id: updated})
+        self.cache.discord_users_by_destiny_id.update({to_update.destiny_id: to_update})
 
     async def invalidate_token(self, db: AsyncSession, user: DiscordUsers):
         """Invalidates a token by setting it to None"""
@@ -233,6 +252,7 @@ class CRUDDiscordUser(CRUDBase):
         # delete from cache
         try:
             self.cache.discord_users.pop(discord_id)
+            self.cache.discord_users_by_destiny_id.pop(result.destiny_id)
         except KeyError:
             pass
 
@@ -268,7 +288,7 @@ class CRUDDiscordUser(CRUDBase):
         if data:
             elevator_api = ElevatorApi()
             await elevator_api.post(
-                route_addition="roles/",
+                route_addition="/roles",
                 json={
                     "data": data,
                 },
@@ -303,7 +323,7 @@ class CRUDDiscordUser(CRUDBase):
         if data:
             elevator_api = ElevatorApi()
             await elevator_api.post(
-                route_addition="roles/",
+                route_addition="/roles",
                 json={
                     "data": data,
                 },

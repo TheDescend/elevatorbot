@@ -11,25 +11,29 @@
 env/
 venv/
 .pytest_cache/
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
 # paths
-/Website/node_modules/
+/Website*/node_modules/
+/Website*/coverage
+/Website*/.next/
+/Website*/out/
+/Website*/logs/
+/Website*/data/docs
+/Website*/public/images/logo*.png
 /Database/
 /DatabaseBackups/
+/redis.conf/
 
 # secret setting files
-**/secrets.py
-**/settings.py
+**/secrets.*
+**/settings.*
 
 # file types
-**/*.sqlite
 **/*.log
 **/**.sock
-
-package-lock.json
-psql_credentials.py
-config.py
-slashCommandConfig.py
-Website/package-lock.json
-Website/build
-pytest.ini
+**/**.pnp
+**/**.pnp.js

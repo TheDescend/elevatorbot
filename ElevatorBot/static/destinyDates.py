@@ -4,7 +4,7 @@ import datetime
 from dateutil import parser
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(unsafe_hash=True)
 class _Date:
     _start: datetime.datetime | str
     name: str
@@ -17,7 +17,7 @@ class _Date:
 
 
 expansion_dates = [
-    _Date("2017-09-06", "D2 Vanilla"),
+    _Date("2017-09-06", "Vanilla"),
     _Date("2018-09-04", "Forsaken"),
     _Date("2019-10-01", "Shadowkeep"),
     _Date("2020-11-10", "Beyond Light"),
@@ -40,22 +40,27 @@ season_dates = [
 
 other_important_dates_part_1 = [
     _Date("2019-10-04", "GoS"),
-    _Date("2019-10-29", "PoH"),
     _Date("2020-01-14", "Corridors of Time"),
     _Date("2020-06-06", "Almighty Live Event"),
-    _Date("2020-08-11", "Solstice of Heroes"),
     _Date("2020-11-21", "DSC"),
-    _Date("2021-04-20", "Guardian Games"),
     _Date("2020-07-06", "Solstice of Heroes"),
-    _Date("2020-10-12", "Festival of the Lost"),
-    _Date("2021-12-07", "30th Anniversary Pack"),
+    _Date("2021-04-20", "Guardian Games"),
+    _Date("2021-10-12", "Festival of the Lost"),
 ]
 
 other_important_dates_part_2 = [
+    _Date("2019-10-29", "PoH"),
     _Date("2020-02-04", "Empyrean Foundation"),
+    _Date("2020-08-11", "Solstice of Heroes"),
+    _Date("2020-10-12", "Festival of the Lost"),
+    _Date("2021-05-22", "VoG"),
+    _Date("2021-12-07", "30th Anniversary"),
+]
+
+other_important_dates_part_3 = [
     _Date("2020-04-21", "Guardian Games"),
     _Date("2020-07-07", "Moments of Triumph"),
-    _Date("2021-05-22", "VoG"),
+    _Date("2022-03-05", "WQ Raid"),
 ]
 
 season_and_expansion_dates = sorted(expansion_dates + season_dates, key=lambda m: m.start)

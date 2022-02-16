@@ -8,12 +8,12 @@ from orjson import orjson
 from pytest_mock import MockerFixture
 
 from Backend.misc.cache import cache
-from NetworkingSchemas.basic import BoolModel, NameModel, ValueModel
-from NetworkingSchemas.destiny.account import (
+from Shared.networkingSchemas import BoolModel, NameModel, ValueModel
+from Shared.networkingSchemas.destiny import (
     BoolModelRecord,
     DestinyCatalystsModel,
     DestinyCharactersModel,
-    DestinyLowMansModel,
+    DestinyLowMansByCategoryModel,
     DestinySealsModel,
     DestinyStatInputModel,
     DestinyTimeInputModel,
@@ -32,7 +32,7 @@ async def test_destiny_name(client: AsyncClient, mocker: MockerFixture):
     data = NameModel.parse_obj(r.json())
     assert data.name == dummy_bungie_name
 
-    r = await client.get(f"/destiny/account/0/0/name")
+    r = await client.get("/destiny/account/0/0/name")
     assert r.status_code == 409
     assert r.json() == {"error": "DiscordIdNotFound"}
 
@@ -98,14 +98,16 @@ async def test_destiny_solos(client: AsyncClient, mocker: MockerFixture):
 
     r = await client.get(f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/solos")
     assert r.status_code == 200
-    data = DestinyLowMansModel.parse_obj(r.json())
-    assert data.solos
-    assert data.solos[0].activity_name == dummy_activity_name
-    assert data.solos[0].activity_ids == [1337]
-    assert data.solos[0].count == 1
-    assert data.solos[0].flawless_count == 0
-    assert data.solos[0].not_flawless_count == 1
-    assert data.solos[0].fastest.seconds == 557
+    data = DestinyLowMansByCategoryModel.parse_obj(r.json())
+    assert data.categories
+    assert data.categories[0].category == "Dungeons"
+    assert data.categories[0].solos
+    assert data.categories[0].solos[0].activity_name == dummy_activity_name
+    assert data.categories[0].solos[0].activity_ids == [1337]
+    assert data.categories[0].solos[0].count == 1
+    assert data.categories[0].solos[0].flawless_count == 0
+    assert data.categories[0].solos[0].not_flawless_count == 1
+    assert data.categories[0].solos[0].fastest.seconds == 557
 
 
 @pytest.mark.asyncio
@@ -183,7 +185,7 @@ async def test_time(client: AsyncClient, mocker: MockerFixture):
     data = DestinyTimesModel.parse_obj(r.json())
     assert data.entries
     assert len(data.entries) == 1
-    assert data.entries[0].time_played == 557
+    assert data.entries[0].time_played == 557 + 9
     assert data.entries[0].mode == 4
     assert data.entries[0].activity_ids is None
 
@@ -374,11 +376,11 @@ async def test_get_catalyst_completion(client: AsyncClient, mocker: MockerFixtur
     assert data.power[0].name == "Tractor Cannon Catalyst"
     assert data.power[0].complete is True
     assert data.power[0].completion_percentage == 1
-    assert data.power[0].completion_status == "▓▓▓▓▓▓▓▓▓▓"
+    assert data.power[0].completion_status == "FF"
     assert data.power[1].name == "Acrius Catalyst"
     assert data.power[1].complete is False
     assert data.power[1].completion_percentage == 0.75
-    assert data.power[1].completion_status == "▓▓▓▓▓▓▓▓░░"
+    assert data.power[1].completion_status == "FD"
 
 
 @pytest.mark.asyncio

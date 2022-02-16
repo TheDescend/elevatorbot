@@ -1,7 +1,7 @@
 import asyncio
 from typing import Optional
 
-from sqlalchemy import select
+from sqlalchemy import BigInteger, cast, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.errors import CustomException
@@ -9,17 +9,13 @@ from Backend.crud.base import CRUDBase
 from Backend.crud.misc.persistentMessages import persistent_messages
 from Backend.database.models import LfgMessage
 from Backend.misc.cache import cache
-from NetworkingSchemas.destiny.lfgSystem import (
-    AllLfgDeleteOutputModel,
-    LfgOutputModel,
-    UserAllLfgOutputModel,
-)
+from Shared.networkingSchemas.destiny.lfgSystem import AllLfgDeleteOutputModel, LfgOutputModel, UserAllLfgOutputModel
 
 
 class CRUDLfgMessages(CRUDBase):
     @staticmethod
-    async def get_channel_id(db: AsyncSession, guild_id: int) -> Optional[int]:
-        """Return the guild's lfg channel id if set"""
+    async def get_channel_id(db: AsyncSession, guild_id: int) -> int:
+        """Return the guild's lfg channel id"""
 
         # check cache:
         async with asyncio.Lock():
@@ -36,6 +32,8 @@ class CRUDLfgMessages(CRUDBase):
                         raise e
 
             result = cache.persistent_messages[cache_key]
+            if not result:
+                raise CustomException("NoLfgChannelForGuild")
             return result.channel_id if result else None
 
     @staticmethod
@@ -80,22 +78,16 @@ class CRUDLfgMessages(CRUDBase):
 
         return await self._get_multi(db=db, guild_id=guild_id)
 
-    async def get_user(self, db: AsyncSession, discord_id: int, guild_id: int) -> UserAllLfgOutputModel:
+    async def get_user(self, db: AsyncSession, discord_id: int) -> UserAllLfgOutputModel:
         """Get the lfg infos for the user"""
-
-        voice_category_channel_id = await self.get_voice_category_channel_id(db=db, guild_id=guild_id)
 
         result = UserAllLfgOutputModel()
 
         joined = await self._get_user_events(db=db, discord_id=discord_id, joined=True)
         result.joined = [LfgOutputModel.from_orm(obj) for obj in joined]
-        for entry in result.joined:
-            entry.voice_category_channel_id = voice_category_channel_id
 
         backup = await self._get_user_events(db=db, discord_id=discord_id, backup=True)
         result.backup = [LfgOutputModel.from_orm(obj) for obj in backup]
-        for entry in result.backup:
-            entry.voice_category_channel_id = voice_category_channel_id
 
         return result
 
@@ -146,9 +138,9 @@ class CRUDLfgMessages(CRUDBase):
         query = select(LfgMessage)
 
         if joined:
-            query = query.filter(LfgMessage.joined_members.any(discord_id))
+            query = query.filter(LfgMessage.joined_members.any(cast(discord_id, BigInteger())))
         if backup:
-            query = query.filter(LfgMessage.backup_members.any(discord_id))
+            query = query.filter(LfgMessage.backup_members.any(cast(discord_id, BigInteger())))
 
         result = await self._execute_query(db, query)
         return result.scalars().fetchall()

@@ -1,4 +1,3 @@
-from DestinyEnums.enums import DestinyActivityModeTypeEnum
 from ElevatorBot.backendNetworking.destiny.activities import DestinyActivities
 from ElevatorBot.backendNetworking.destiny.items import DestinyItems
 from ElevatorBot.backendNetworking.destiny.weapons import DestinyWeapons
@@ -11,8 +10,8 @@ from ElevatorBot.commandHelpers.autocomplete import (
     weapons,
     weapons_by_id,
 )
-
-from NetworkingSchemas.destiny.activities import DestinyActivityModel
+from Shared.enums.destiny import DestinyActivityModeTypeEnum
+from Shared.networkingSchemas.destiny import DestinyActivityModel
 
 
 async def load_autocomplete_options(client):
@@ -55,6 +54,8 @@ async def load_autocomplete_options(client):
             "Raid: All": DestinyActivityModel(
                 name="Raid: All",
                 description="Raid: All",
+                matchmade=False,
+                max_players=6,
                 activity_ids=raids,
                 mode=DestinyActivityModeTypeEnum.RAID.value,
             )
@@ -67,6 +68,8 @@ async def load_autocomplete_options(client):
             "Dungeon: All": DestinyActivityModel(
                 name="Dungeon: All",
                 description="Dungeon: All",
+                matchmade=False,
+                max_players=3,
                 activity_ids=dungeons,
                 mode=DestinyActivityModeTypeEnum.DUNGEON.value,
             )

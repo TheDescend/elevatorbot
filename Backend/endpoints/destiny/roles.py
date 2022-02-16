@@ -5,18 +5,14 @@ from Backend.core.destiny.activities import DestinyActivities
 from Backend.core.destiny.profile import DestinyProfile
 from Backend.core.destiny.roles import UserRoles
 from Backend.crud import crud_roles, discord_users
-from Backend.database.models import Roles
 from Backend.dependencies import get_db_session
-from NetworkingSchemas.basic import EmptyResponseModel
-from NetworkingSchemas.destiny.roles import (
+from Shared.networkingSchemas import EmptyResponseModel
+from Shared.networkingSchemas.destiny.roles import (
     EarnedRoleModel,
     EarnedRolesModel,
     MissingRolesModel,
-    RequirementActivityModel,
-    RoleDataModel,
     RoleModel,
     RolesModel,
-    TimePeriodModel,
 )
 
 router = APIRouter(
@@ -36,7 +32,7 @@ async def get_all(guild_id: int, db: AsyncSession = Depends(get_db_session)):
 async def get_user_all(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Get all roles for a user in their guild"""
 
-    user = await discord_users.get_profile_from_discord_id(db, discord_id)
+    user = await discord_users.get_profile_from_discord_id(discord_id)
     profile = DestinyProfile(db=db, user=user)
     user_roles = UserRoles(db=db, user=profile)
 
@@ -51,7 +47,7 @@ async def get_user_all(guild_id: int, discord_id: int, db: AsyncSession = Depend
 async def get_user_missing(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Get the missing roles for a user in a guild"""
 
-    user = await discord_users.get_profile_from_discord_id(db, discord_id)
+    user = await discord_users.get_profile_from_discord_id(discord_id)
     profile = DestinyProfile(db=db, user=user)
     user_roles = UserRoles(db=db, user=profile)
 
@@ -66,7 +62,7 @@ async def get_user_missing(guild_id: int, discord_id: int, db: AsyncSession = De
 async def get_user_role(guild_id: int, role_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Get completion info for a role for a user"""
 
-    user = await discord_users.get_profile_from_discord_id(db, discord_id)
+    user = await discord_users.get_profile_from_discord_id(discord_id)
     profile = DestinyProfile(db=db, user=user)
     user_roles = UserRoles(db=db, user=profile)
 
@@ -81,16 +77,16 @@ async def get_user_role(guild_id: int, role_id: int, discord_id: int, db: AsyncS
 
 @router.post("/create", response_model=EmptyResponseModel)  # has test
 async def create_role(guild_id: int, role: RoleModel, db: AsyncSession = Depends(get_db_session)):
-    """Create a role. Note: role_id should be the discord role id"""
+    """Create a role"""
 
     await crud_roles.create_role(db=db, role=role)
 
 
 @router.post("/update/{role_id}", response_model=EmptyResponseModel)  # has test
-async def update_role(guild_id: int, role: RoleModel, db: AsyncSession = Depends(get_db_session)):
-    """Update a role by id"""
+async def update_role(guild_id: int, role_id: int, role: RoleModel, db: AsyncSession = Depends(get_db_session)):
+    """Update a role by (old) id"""
 
-    await crud_roles.update_role(db=db, role=role)
+    await crud_roles.update_role(db=db, role=role, role_id=role_id)
 
 
 @router.delete("/delete/all", response_model=EmptyResponseModel)  # has test

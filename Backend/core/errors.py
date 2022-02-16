@@ -10,7 +10,7 @@ class CustomException(Exception):
 
     def __init__(
         self,
-        error: str,
+        error: str = "ProgrammingError",
     ):
         self.error = error
 

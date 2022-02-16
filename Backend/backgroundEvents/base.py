@@ -2,7 +2,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from Backend.networking.elevatorApi import ElevatorApi
 
-scheduler = AsyncIOScheduler()
+scheduler = AsyncIOScheduler(timezone="UTC")
 
 
 class BaseEvent:
@@ -28,7 +28,7 @@ class BaseEvent:
         elif self.scheduler_type == "date":
             # date
             # https://apscheduler.readthedocs.io/en/stable/modules/triggers/date.html
-            self.run_date = kwargs["run_date"]  # datetime(2000, 2, 20, 19, 30, 50)
+            self.run_date = kwargs["run_date"]
 
     async def call(self):
         """Run the post event functions"""
@@ -37,9 +37,7 @@ class BaseEvent:
 
         # update elevator status message
         elevator_api = ElevatorApi()
-        result = await elevator_api.post(route_addition="status_update/", json={"status_name": type(self).__name__})
-        if not result:
-            raise ConnectionError
+        await elevator_api.post(route_addition="/status_update", json={"status_name": type(self).__name__})
 
     async def run(self):
         """Every event must override this method"""

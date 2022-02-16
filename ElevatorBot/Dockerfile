@@ -1,20 +1,24 @@
-FROM python:3.10
+FROM python:3.10.2
 
+# we want stdout
+ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
+
+# add the path to pythonpath
 ENV PYTHONPATH "${PYTHONPATH}:/app"
 
-# Install nodemon
-RUN apt-get update && apt-get upgrade -y 
-#&& apt-get install -y nodejs npm
-#RUN npm install -g nodemon
+# install the requirements
+RUN pip3.10 install uvloop
+COPY ./ElevatorBot/requirements.txt /app/ElevatorBot/requirements.txt
+RUN pip3.10 install -r /app/ElevatorBot/requirements.txt
 
-# Prep Elevator Code
-WORKDIR /app/
+# copy over the required files
+COPY ./version.py /app/version.py
+COPY ./settings.toml /app/settings.toml
+COPY ./Shared /app/Shared
+COPY ./ElevatorBot /app/ElevatorBot
 
-COPY requirements.txt .
-
-RUN pip3.10 install -r requirements.txt
-
-COPY . .
-
-CMD python elevator.py
+# start elevator
+WORKDIR /app
+CMD ["python3.10", "ElevatorBot/elevator.py"]
+EXPOSE 8080

@@ -1,8 +1,8 @@
-from dis_snek.models import CommandTypes, InteractionContext, context_menu
+from dis_snek import CommandTypes, InteractionContext, Member, context_menu
 
 from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
 from ElevatorBot.commands.base import BaseScale
-from ElevatorBot.misc.formating import embed_message
+from ElevatorBot.misc.formatting import embed_message
 
 
 class UserMenuCommands(BaseScale):
@@ -12,21 +12,19 @@ class UserMenuCommands(BaseScale):
 
     @context_menu(name="Get Join Code", context_type=CommandTypes.USER)
     async def command(self, ctx: InteractionContext):
-        member = await ctx.guild.get_member(ctx.target_id)
+        member: Member = ctx.target
 
-        destiny_profile = DestinyAccount(ctx=ctx, client=ctx.bot, discord_member=member, discord_guild=ctx.guild)
+        destiny_profile = DestinyAccount(ctx=ctx, discord_member=member, discord_guild=ctx.guild)
+        destiny_profile.hidden = True
         result = await destiny_profile.get_destiny_name()
 
-        if not result:
-            return
-        else:
-            await ctx.send(
-                ephemeral=True,
-                embeds=embed_message(
-                    f"{member.display_name}'s Join Code",
-                    f"`/join {result.name}`",
-                ),
-            )
+        await ctx.send(
+            ephemeral=True,
+            embeds=embed_message(
+                f"{member.display_name}'s Join Code",
+                f"`/join {result.name}`",
+            ),
+        )
 
 
 def setup(client):

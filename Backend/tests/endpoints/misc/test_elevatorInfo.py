@@ -4,8 +4,8 @@ from dummyData.static import *
 from httpx import AsyncClient
 from pytest_mock import MockerFixture
 
-from Backend.misc.helperFunctions import get_now_with_tz
-from NetworkingSchemas.misc.elevatorInfo import ElevatorGuildsModel
+from Shared.functions.helperFunctions import get_now_with_tz
+from Shared.networkingSchemas import ElevatorGuildsModel
 
 
 @pytest.mark.asyncio
@@ -16,7 +16,7 @@ async def test_elevator(client: AsyncClient, mocker: MockerFixture):
 
     # =====================================================================
     # no guild exists yet
-    r = await client.get(f"/elevator/discord_servers/get/all")
+    r = await client.get("/elevator/discord_servers/get/all")
     assert r.status_code == 200
     data = ElevatorGuildsModel.parse_obj(r.json())
     assert data.guilds == []
@@ -28,7 +28,7 @@ async def test_elevator(client: AsyncClient, mocker: MockerFixture):
 
     # =====================================================================
     # get
-    r = await client.get(f"/elevator/discord_servers/get/all")
+    r = await client.get("/elevator/discord_servers/get/all")
     assert r.status_code == 200
     data = ElevatorGuildsModel.parse_obj(r.json())
     assert data.guilds != []
@@ -43,7 +43,7 @@ async def test_elevator(client: AsyncClient, mocker: MockerFixture):
 
     # =====================================================================
     # no guild exists again
-    r = await client.get(f"/elevator/discord_servers/get/all")
+    r = await client.get("/elevator/discord_servers/get/all")
     assert r.status_code == 200
     data = ElevatorGuildsModel.parse_obj(r.json())
     assert data.guilds == []

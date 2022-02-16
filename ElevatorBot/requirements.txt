@@ -1,12 +1,19 @@
 aiohttp[speedups]==3.8.1
+aiohttp_client_cache==0.5.2
+
+# aiohttp_client_cache currently requires this version
+aioredis==1.3.1
+anyio==3.5.0
 apscheduler==3.8.1
-dis-snek==4.1.0
+git+https://github.com/Discord-Snake-Pit/Dis-Snek@dev
 ics==0.7
-matplotlib==3.4.3
-orjson==3.6.4
-pandas==1.3.4
-psutil==5.8.0
-pydantic==1.8.2
+matplotlib==3.5.1
+orjson==3.6.6
+pandas==1.4.0
+psutil==5.9.0
+pydantic==1.9.0
+PyGithub==1.55
 python-dateutil==2.8.2
-pytz==2021.3
-rapidfuzz==1.8.2
+rapidfuzz==1.9.1
+toml==0.10.2
+tzdata==2021.5

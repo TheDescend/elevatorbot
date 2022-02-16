@@ -12,7 +12,7 @@ from Backend.database.models import (
     DestinyRecordDefinition,
 )
 from Backend.misc.cache import cache
-from DestinyEnums.enums import DestinyPresentationNodesEnum
+from Shared.enums.destiny import DestinyPresentationNodesEnum
 
 
 class CRUDDestinyItems(CRUDBase):
@@ -65,7 +65,7 @@ class CRUDDestinyItems(CRUDBase):
         # check cache
         if not cache.catalysts:
             query = select(DestinyRecordDefinition)
-            query = query.filter(DestinyRecordDefinition.name.like(f"% Catalyst"))
+            query = query.filter(DestinyRecordDefinition.name.like("% Catalyst"))
 
             results = await self._execute_query(db=db, query=query)
             cache.catalysts = results.scalars().all()

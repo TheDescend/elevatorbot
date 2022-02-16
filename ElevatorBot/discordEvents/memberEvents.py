@@ -1,22 +1,19 @@
 import asyncio
 
-from dis_snek.models import ActionRow, Button, ButtonStyles, Member
-from dis_snek.models.events import Component, MemberAdd, MemberRemove, MemberUpdate
+from dis_snek import ActionRow, Button, ButtonStyles, Member
+from dis_snek.api.events import Component, MemberAdd, MemberRemove, MemberUpdate
 
 from ElevatorBot.backendNetworking.destiny.clan import DestinyClan
 from ElevatorBot.backendNetworking.destiny.lfgSystem import DestinyLfgSystem
 from ElevatorBot.backendNetworking.destiny.profile import DestinyProfile
+from ElevatorBot.backendNetworking.errors import BackendException
 from ElevatorBot.core.destiny.lfg.lfgSystem import LfgMessage
 from ElevatorBot.core.destiny.roles import Roles
-
 from ElevatorBot.misc.discordShortcutFunctions import assign_roles_to_member
-from ElevatorBot.misc.formating import embed_message
-from ElevatorBot.static.descendOnlyIds import (
-    descend_channels,
-    descend_filler_role_ids,
-    descend_no_nickname_role_id,
-)
+from ElevatorBot.misc.formatting import embed_message
+from ElevatorBot.static.descendOnlyIds import descend_channels
 from ElevatorBot.static.emojis import custom_emojis
+from Shared.functions.readSettingsFile import get_setting
 
 
 async def on_member_add(event: MemberAdd):
@@ -25,17 +22,17 @@ async def on_member_add(event: MemberAdd):
     if not event.member.bot:
         # descend only stuff
         if event.member.guild == descend_channels.guild:
-            # inform the user that they should registration with the bot
+            # inform the user that they should register with the bot
             await event.member.send(
                 embeds=embed_message(
-                    f"{custom_emojis.descend_logo} Welcome to Descend {event.member.name}! {custom_emojis.descend_logo}",
+                    f"{custom_emojis.descend_logo} Welcome to Descend {event.member.user.tag}! {custom_emojis.descend_logo}",
                     f"Before you can do anything else, you need to accept our rules. Please read them and accept them [> here <](discord://-/event.member-verification/{descend_channels.guild.id}), if you have not done so already \n⁣\nYou can join the Destiny 2 clan in {descend_channels.registration_channel.mention}\nYou can find our current requirements in the same channel. \n⁣\nWe have a wide variety of roles you can earn, for more information, please use `roles overview` or check out {descend_channels.community_roles_channel.mention}\n⁣\nIf you have any problems / questions, do not hesitate to write {event.bot.user.mention} (me) a personal message with your problem / question. This will get forwarded to staff",
                 )
             )
 
         # only do stuff here if the event.member is not pending
         if not event.member.pending:
-            await _assign_roles_on_join(client=event.bot, member=event.member)
+            await _assign_roles_on_join(member=event.member)
 
 
 async def on_member_remove(event: MemberRemove):
@@ -47,7 +44,7 @@ async def on_member_remove(event: MemberRemove):
         # send a message in the join log channel
         embed = embed_message("Server Update", f"{event.member.mention} has left the server")
         embed.add_field(name="Display Name", value=event.member.display_name)
-        embed.add_field(name="Name", value=event.member.name)
+        embed.add_field(name="Name", value=event.member.user.tag)
         embed.add_field(name="Discord ID", value=event.member.id)
         await descend_channels.join_log_channel.send(embeds=embed)
 
@@ -56,7 +53,7 @@ async def on_member_remove(event: MemberRemove):
         # wait 10 min bc bungie takes forever in updating the clan roster
         await asyncio.sleep(10 * 60)
 
-        clan = DestinyClan(ctx=None, client=event.bot, discord_guild=event.member.guild)
+        clan = DestinyClan(ctx=None, discord_guild=event.member.guild)
 
         # check if the user was in the clan
         result = await clan.get_clan_members(use_cache=False)
@@ -116,11 +113,11 @@ async def on_member_remove(event: MemberRemove):
     # remove them from any lfg events
     backend = DestinyLfgSystem(
         ctx=None,
-        #client=event.bot, 
-        discord_guild=event.member.guild
+        discord_guild=event.member.guild,
     )
-    result = await backend.user_get_all(discord_member=event.member)
-    if not result:
+    try:
+        result = await backend.user_get_all(discord_member=event.member)
+    except BackendException:
         raise LookupError
 
     # delete them from all of them
@@ -128,11 +125,7 @@ async def on_member_remove(event: MemberRemove):
         guild = await event.bot.get_guild(lfg_event.guild_id)
         if not guild:
             raise ValueError
-        backend = DestinyLfgSystem(
-            ctx=None, 
-            #client=event.bot, 
-            discord_guild=guild
-        )
+        backend = DestinyLfgSystem(ctx=None, discord_guild=guild)
         lfg_message = await LfgMessage.from_lfg_output_model(
             client=event.bot, model=lfg_event, backend=backend, guild=guild
         )
@@ -146,25 +139,25 @@ async def on_member_update(event: MemberUpdate):
     if not event.after.bot:
         # add registration role should the member no longer be pending
         if event.before.pending and not event.after.pending:
-            await _assign_roles_on_join(client=event.bot, member=event.after)
+            await _assign_roles_on_join(member=event.after)
 
         # descend only stuff
         if event.after.guild == descend_channels.guild:
             # change nickname back if it is not None
             if (not event.before.nickname) and event.after.nickname:
-                if descend_no_nickname_role_id in [role.id for role in event.after.roles]:
+                if get_setting("DESCEND_ROLE_NO_NICKNAME_ID") in [role.id for role in event.after.roles]:
                     await event.after.edit_nickname("")
 
 
-async def _assign_roles_on_join(client, member: Member):
+async def _assign_roles_on_join(member: Member):
     """Assign all applicable roles when a member joins a guild"""
 
-    destiny_profile = DestinyProfile(ctx=None, client=client, discord_member=member, discord_guild=member.guild)
+    destiny_profile = DestinyProfile(ctx=None, discord_member=member, discord_guild=member.guild)
     await destiny_profile.assign_registration_role()
 
     # add filler roles for descend
     if member.guild == descend_channels.guild:
-        await assign_roles_to_member(member=member, *descend_filler_role_ids, reason="Destiny 2 Filler Roles")
+        await assign_roles_to_member(member, *get_setting("DESCEND_ROLE_FILLER_IDS"), reason="Destiny 2 Filler Roles")
 
     # assign their roles
-    await Roles(client=client, guild=member.guild, member=member, ctx=None).update()
+    await Roles(guild=member.guild, member=member, ctx=None).update()

@@ -1,7 +1,6 @@
 from aiohttp import web
 
 from ElevatorBot.commandHelpers import autocomplete
-
 from ElevatorBot.startup.initAutocompleteOptions import load_autocomplete_options
 
 
@@ -22,3 +21,5 @@ async def manifest_update(request: web.Request):
 
     # refill it
     await load_autocomplete_options(client=client)
+
+    return web.json_response({"success": True})

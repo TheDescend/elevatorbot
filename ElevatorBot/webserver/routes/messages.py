@@ -1,8 +1,7 @@
 from aiohttp import web
-from dis_snek.errors import NotFound
+from dis_snek.client.errors import NotFound
 
-
-from ElevatorBot.misc.formating import embed_message
+from ElevatorBot.misc.formatting import embed_message
 
 
 async def messages(request: web.Request):
@@ -16,8 +15,10 @@ async def messages(request: web.Request):
         "embed_description": Optional[str],
 
         "guilds": [
-            "guild_id": int,
-            "channel_id": int,
+            {
+                "guild_id": int,
+                "channel_id": int
+            }
         ],
         ...
     }
@@ -39,7 +40,7 @@ async def messages(request: web.Request):
             continue
 
         embed = None
-        if not parameters["message"]:
+        if parameters["embed_title"]:
             embed = embed_message(parameters["embed_title"], parameters["embed_description"])
         await channel.send(content=parameters["message"], embeds=embed)
 

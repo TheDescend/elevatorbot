@@ -1,13 +1,13 @@
 import random
 
-from dis_snek.models import AutoArchiveDuration, ChannelTypes, ThreadList
-from dis_snek.models.events import MessageCreate, MessageDelete, MessageUpdate
+from dis_snek import AutoArchiveDuration, ChannelTypes, ThreadList
+from dis_snek.api.events import MessageCreate, MessageDelete, MessageUpdate
 
 from ElevatorBot.misc.cache import reply_cache
-from ElevatorBot.misc.formating import embed_message
+from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.static.descendOnlyIds import descend_channels
 from ElevatorBot.static.emojis import custom_emojis
-from settings import COMMAND_GUILD_SCOPE
+from Shared.functions.readSettingsFile import get_setting
 
 
 async def on_message_delete(event: MessageDelete):
@@ -56,14 +56,10 @@ async def on_message_create(event: MessageCreate, edit_mode: bool = False):
                     send = True
 
                 # look if it follows the naming scheme and is in the correct channel
-                elif (
-                    thread.channel.id
-                    in [
-                        descend_channels.admin_channel.id,
-                        descend_channels.bot_dev_channel.id,
-                    ]
-                    and thread.name.startswith("Message from")
-                ):
+                elif thread.channel.id in [
+                    descend_channels.admin_channel.id,
+                    descend_channels.bot_dev_channel.id,
+                ] and thread.name.startswith("Message from"):
                     linked_user_id = thread.name.split("|")[1]
                     linked_user = await event.bot.get_user(linked_user_id)
 
@@ -112,10 +108,12 @@ async def on_message_create(event: MessageCreate, edit_mode: bool = False):
         # handle dm messages
         elif not message.guild:
             # reads a DM message and sends to Descend if the author is in the Descend Server
-            mutual_guilds = message.author.guilds
+            mutual_guilds = message.author.mutual_guilds
             if mutual_guilds:
                 # check is author is in descend. Checking COMMAND_GUILD_SCOPE for that, since that already has the id and doesn't break testing
-                allowed_guilds = [await event.bot.get_guild(guild_id) for guild_id in COMMAND_GUILD_SCOPE]
+                allowed_guilds = [
+                    await event.bot.get_guild(guild_id) for guild_id in get_setting("COMMAND_GUILD_SCOPE")
+                ]
                 mutual_allowed_guilds = [g for g in allowed_guilds if g.id in mutual_guilds]
 
                 if mutual_allowed_guilds:
@@ -152,15 +150,18 @@ async def on_message_create(event: MessageCreate, edit_mode: bool = False):
                             # first message in thread
                             await thread.send(
                                 embeds=embed_message(
-                                    f"{message.author.display_name}'s Inquiry",
+                                    "Inquiry",
                                     f"Any message you send here that starts with `@ElevatorBot` is relayed to them (not including the mention of course)\nI will react with {custom_emojis.descend_logo} if I conveyed the message successfully",
+                                    member=message.author,
                                 )
                             )
 
                             # send author a message to let them know that we got the msg
                             await message.author.send(
                                 embeds=embed_message(
-                                    "Your Inquiry", "I forwarded your message to staff, you will be contacted shortly 🙃"
+                                    "Inquiry",
+                                    "I forwarded your message to staff, you will be contacted shortly 🙃",
+                                    member=message.author,
                                 )
                             )
 
@@ -240,9 +241,11 @@ async def on_message_create(event: MessageCreate, edit_mode: bool = False):
                             ]
                             await message.channel.send(f"{random.choice(welcome_choice)} <@{neria_id}>!")
 
+                # be annoyed if getting pinged
+                async for member in message.mention_users:
+                    if member == event.bot.user:
+                        await message.add_reaction(custom_emojis.ping)
+                        break
+
             # =========================================================================
             # valid for all guilds
-
-            # be annoyed if getting pinged
-            if event.bot.user in [member for member in await message.mention_users()]:
-                await message.add_reaction(custom_emojis.ping_sock)

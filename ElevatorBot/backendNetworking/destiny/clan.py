@@ -1,7 +1,6 @@
 import dataclasses
-from typing import Optional
 
-from dis_snek.models import Guild, Member
+from dis_snek import Guild, Member
 
 from ElevatorBot.backendNetworking.http import BaseBackendConnection
 from ElevatorBot.backendNetworking.routes import (
@@ -14,23 +13,18 @@ from ElevatorBot.backendNetworking.routes import (
     destiny_clan_search_members_route,
     destiny_clan_unlink_route,
 )
-
-from NetworkingSchemas.destiny.clan import (
-    DestinyClanLink,
-    DestinyClanMembersModel,
-    DestinyClanModel,
-)
-from NetworkingSchemas.destiny.profile import DestinyProfileModel
+from Shared.networkingSchemas.destiny.clan import DestinyClanLink, DestinyClanMembersModel, DestinyClanModel
+from Shared.networkingSchemas.destiny.profile import DestinyProfileModel
 
 
 @dataclasses.dataclass
 class DestinyClan(BaseBackendConnection):
-    
+
     discord_guild: Guild
 
-    discord_member: Member = dataclasses.field(init=False)
+    discord_member: Member = dataclasses.field(init=False, default=None)
 
-    async def get_clan(self) -> Optional[DestinyClanModel]:
+    async def get_clan(self) -> DestinyClanModel:
         """Return the linked destiny clan"""
 
         result = await self._backend_request(
@@ -39,9 +33,9 @@ class DestinyClan(BaseBackendConnection):
         )
 
         # convert to correct pydantic model
-        return DestinyClanModel.parse_obj(result.result) if result else None
+        return DestinyClanModel.parse_obj(result.result)
 
-    async def get_clan_members(self, use_cache: bool = True) -> Optional[DestinyClanMembersModel]:
+    async def get_clan_members(self, use_cache: bool = True) -> DestinyClanMembersModel:
         """Return the destiny clan members"""
 
         if use_cache:
@@ -54,9 +48,9 @@ class DestinyClan(BaseBackendConnection):
         )
 
         # convert to correct pydantic model
-        return DestinyClanMembersModel.parse_obj(result.result) if result else None
+        return DestinyClanMembersModel.parse_obj(result.result)
 
-    async def search_for_clan_members(self, search_phrase: str) -> Optional[DestinyClanMembersModel]:
+    async def search_for_clan_members(self, search_phrase: str) -> DestinyClanMembersModel:
         """Return the destiny clan members which match the search term"""
 
         result = await self._backend_request(
@@ -68,9 +62,9 @@ class DestinyClan(BaseBackendConnection):
         )
 
         # convert to correct pydantic model
-        return DestinyClanMembersModel.parse_obj(result.result) if result else None
+        return DestinyClanMembersModel.parse_obj(result.result)
 
-    async def invite_to_clan(self, to_invite: Member) -> Optional[DestinyProfileModel]:
+    async def invite_to_clan(self, to_invite: Member) -> DestinyProfileModel:
         """Invite the user to the linked clan"""
 
         result = await self._backend_request(
@@ -79,9 +73,9 @@ class DestinyClan(BaseBackendConnection):
         )
 
         # convert to correct pydantic model
-        return DestinyProfileModel.parse_obj(result.result) if result else None
+        return DestinyProfileModel.parse_obj(result.result)
 
-    async def kick_from_clan(self, to_kick: Member) -> Optional[DestinyProfileModel]:
+    async def kick_from_clan(self, to_kick: Member) -> DestinyProfileModel:
         """Kick the user from the linked clan"""
 
         result = await self._backend_request(
@@ -90,9 +84,9 @@ class DestinyClan(BaseBackendConnection):
         )
 
         # convert to correct pydantic model
-        return DestinyProfileModel.parse_obj(result.result) if result else None
+        return DestinyProfileModel.parse_obj(result.result)
 
-    async def link(self, linked_by: Member) -> Optional[DestinyClanLink]:
+    async def link(self, linked_by: Member) -> DestinyClanLink:
         """Link the discord guild to the destiny guild"""
 
         result = await self._backend_request(
@@ -104,9 +98,9 @@ class DestinyClan(BaseBackendConnection):
         )
 
         # convert to correct pydantic model
-        return DestinyClanLink.parse_obj(result.result) if result else None
+        return DestinyClanLink.parse_obj(result.result)
 
-    async def unlink(self, unlinked_by: Member) -> Optional[DestinyClanLink]:
+    async def unlink(self, unlinked_by: Member) -> DestinyClanLink:
         """Unlink the discord guild to the destiny guild"""
 
         result = await self._backend_request(
@@ -118,4 +112,4 @@ class DestinyClan(BaseBackendConnection):
         )
 
         # convert to correct pydantic model
-        return DestinyClanLink.parse_obj(result.result) if result else None
+        return DestinyClanLink.parse_obj(result.result)

@@ -9,9 +9,8 @@ from Backend.database.models import (
     DiscordUsers,
     PersistentMessage,
 )
-from NetworkingSchemas.destiny.account import SeasonalChallengesModel
-from NetworkingSchemas.destiny.activities import DestinyActivityModel
-from NetworkingSchemas.destiny.roles import RoleModel
+from Shared.networkingSchemas.destiny import DestinyActivityModel, SeasonalChallengesModel
+from Shared.networkingSchemas.destiny.roles import RoleModel
 
 
 @dataclasses.dataclass
@@ -21,6 +20,8 @@ class Cache:
 
     # User Objects - Key: discord_id
     discord_users: dict[int, DiscordUsers] = dataclasses.field(init=False, default_factory=dict)
+    # Key: destiny_id
+    discord_users_by_destiny_id: dict[int, DiscordUsers] = dataclasses.field(init=False, default_factory=dict)
 
     # Role Objects - Key: role_id
     roles: dict[int, RoleModel] = dataclasses.field(init=False, default_factory=dict)
@@ -52,8 +53,8 @@ class Cache:
         init=False, default_factory=dict
     )
 
-    # Interesting Solos  - Key: activity_name
-    interesting_solos: list[DestinyActivityModel] = dataclasses.field(init=False, default_factory=list)
+    # Interesting Solos - Key: activity_category
+    interesting_solos: dict[str, list[DestinyActivityModel]] = dataclasses.field(init=False, default_factory=dict)
 
     def reset(self):
         """Reset the caches after a manifest update"""
@@ -63,7 +64,7 @@ class Cache:
         self.items = {}
         self.catalysts = []
         self.seals = {}
-        self.interesting_solos = []
+        self.interesting_solos = {}
 
 
 cache = Cache()

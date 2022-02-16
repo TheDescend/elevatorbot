@@ -1,31 +1,19 @@
 import datetime
 import logging
+import os
 import traceback
-from typing import Optional
+import zoneinfo
+from enum import Enum, EnumMeta
+from typing import Generator, Optional
 
-import pytz
 from dateutil.parser import ParserError, parse
-from dis_snek.models import ComponentContext, InteractionContext
+from dis_snek import ComponentContext, InteractionContext
 
 from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
-from ElevatorBot.commandHelpers.responseTemplates import (
-    respond_invalid_time_input,
-    respond_time_input_in_past,
-)
-from ElevatorBot.misc.formating import embed_message
+from ElevatorBot.commandHelpers.responseTemplates import respond_invalid_time_input, respond_time_input_in_past
+from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.static.emojis import custom_emojis
-
-
-def get_now_with_tz() -> datetime.datetime:
-    """Returns the current datetime (timezone aware)"""
-
-    return datetime.datetime.now(tz=datetime.timezone.utc)
-
-
-def localize_datetime(obj: datetime.datetime) -> datetime.datetime:
-    """Returns a timezone aware object, localized to the system timezone"""
-
-    return obj.astimezone()
+from Shared.functions.helperFunctions import get_min_with_tz, get_now_with_tz
 
 
 async def parse_string_datetime(
@@ -40,9 +28,10 @@ async def parse_string_datetime(
         await respond_invalid_time_input(ctx=ctx)
         return
 
-    # make that timezone aware
-    tz = pytz.timezone(timezone)
-    start_time = tz.localize(start_time)
+    if not start_time.tzinfo:
+        # make that timezone aware
+        tz = zoneinfo.ZoneInfo(timezone)
+        start_time = start_time.replace(tzinfo=tz)
 
     # make sure that is in the future
     if start_time < get_now_with_tz():
@@ -86,7 +75,7 @@ async def parse_datetime_options(
         return None, None
 
     # default values
-    formatted_start_time = datetime.datetime(year=2000, month=1, day=1, tzinfo=datetime.timezone.utc)
+    formatted_start_time = get_min_with_tz()
     formatted_end_time = get_now_with_tz()
 
     if expansion:
@@ -117,19 +106,28 @@ async def log_error(
 ) -> None:
     """Respond to the context and log error"""
 
-    if not ctx.responded:
-        await ctx.send(
-            embeds=embed_message(
-                "Error",
-                f"Sorry, something went wrong\nThe Error has been logged and will be worked on",
-                str(error),
-            )
-        )
+    # get the command name or the component name
+    if isinstance(ctx, ComponentContext):
+        extra = f"CustomID {ctx.custom_id}"
+    else:
+        extra = f"CommandName '/{ctx.invoked_name}'"
 
     # log the error
     logger.exception(
-        f"InteractionID '{ctx.interaction_id}' - Error '{error}' - Traceback: \n{''.join(traceback.format_tb(error.__traceback__))}"
+        f"InteractionID '{ctx.interaction_id}' - {extra} - Error '{error}' - Traceback: \n{''.join(traceback.format_tb(error.__traceback__))}"
     )
+
+    # do not send some errors to the user
+    catch_errors = ["Unknown interaction", "Interaction has already been acknowledged"]
+    if not any(item in catch_errors for item in str(error)):
+        if not ctx.responded:
+            await ctx.send(
+                embeds=embed_message(
+                    "Error",
+                    "Sorry, something went wrong\nThe Error has been logged and will be worked on",
+                    str(error),
+                )
+            )
 
     # raising error again to making deving easier
     raise error
@@ -150,3 +148,27 @@ async def get_character_ids_from_class(profile: DestinyAccount, destiny_class: s
             character_ids.append(character.character_id)
 
     return character_ids if character_ids else None
+
+
+def yield_files_in_folder(folder: str, extension: str) -> Generator:
+    """Yields all paths of all files with the correct extension in the specified folder"""
+
+    for root, dirs, files in os.walk(folder):
+        for file in files:
+            if file.endswith(f".{extension}") and not file.startswith("__init__") and not file.startswith("base"):
+                file = file.removesuffix(f".{extension}")
+                path = os.path.join(root, file)
+                yield path.replace("/", ".").replace("\\", ".")
+
+
+def get_enum_by_name(enum_class: EnumMeta, key: str) -> Enum:
+    """Gets the name of the enum"""
+
+    return getattr(enum_class, "_".join(key.split(" ")).upper())
+
+
+def get_emoji_by_name(enum_class: EnumMeta, key: str) -> Enum:
+    """Gets the emoji of the enum"""
+
+    enum = get_enum_by_name(enum_class=enum_class, key=key)
+    return getattr(custom_emojis, enum.name.lower())

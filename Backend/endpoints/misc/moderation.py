@@ -4,11 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from Backend.crud import moderation
 from Backend.crud.misc.moderation import ModerationTypes
 from Backend.dependencies import get_db_session
-from NetworkingSchemas.misc.moderation import (
-    ModerationAddModel,
-    ModerationModel,
-    ModerationsModel,
-)
+from Shared.networkingSchemas.misc.moderation import ModerationAddModel, ModerationModel, ModerationsModel
 
 router = APIRouter(
     prefix="/moderation/{guild_id}/{discord_id}",
@@ -16,7 +12,7 @@ router = APIRouter(
 )
 
 
-@router.get("/mute", response_model=ModerationsModel)
+@router.get("/mute", response_model=ModerationsModel)  # has test
 async def get_mutes(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Gets all mutes for the user in the guild"""
 
@@ -24,7 +20,7 @@ async def get_mutes(guild_id: int, discord_id: int, db: AsyncSession = Depends(g
     return ModerationsModel(entries=[ModerationModel.from_orm(model) for model in entries])
 
 
-@router.get("/warning", response_model=ModerationsModel)
+@router.get("/warning", response_model=ModerationsModel)  # has test
 async def get_warnings(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
     """Gets all warnings for the user in the guild"""
 
@@ -32,7 +28,7 @@ async def get_warnings(guild_id: int, discord_id: int, db: AsyncSession = Depend
     return ModerationsModel(entries=[ModerationModel.from_orm(model) for model in entries])
 
 
-@router.post("/mute", response_model=ModerationModel)
+@router.post("/mute", response_model=ModerationModel)  # has test
 async def add_mute(
     guild_id: int, discord_id: int, data: ModerationAddModel, db: AsyncSession = Depends(get_db_session)
 ):
@@ -44,7 +40,7 @@ async def add_mute(
     return ModerationModel.from_orm(model)
 
 
-@router.post("/warning", response_model=ModerationModel)
+@router.post("/warning", response_model=ModerationModel)  # has test
 async def add_warning(
     guild_id: int, discord_id: int, data: ModerationAddModel, db: AsyncSession = Depends(get_db_session)
 ):

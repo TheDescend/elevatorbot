@@ -16,7 +16,8 @@ class BungieRateLimiter:
         self.updated_at = time.monotonic()
 
     async def wait_for_token(self):
-        """waits until a token becomes available"""
+        """Waits until a token becomes available"""
+
         while self.tokens < 1:
             self.add_new_tokens()
             await asyncio.sleep(0.1)
@@ -25,6 +26,7 @@ class BungieRateLimiter:
 
     def add_new_tokens(self):
         """Adds a new token if eligible"""
+
         now = time.monotonic()
         time_since_update = now - self.updated_at
         new_tokens = time_since_update * self.RATE

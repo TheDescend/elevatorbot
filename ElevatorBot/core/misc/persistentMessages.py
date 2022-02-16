@@ -1,14 +1,13 @@
 import dataclasses
 from typing import Optional
 
-from dis_snek.errors import NotFound
-from dis_snek.models import ActionRow, Embed, GuildChannel, InteractionContext, Message
+from dis_snek import ActionRow, Embed, GuildChannel, InteractionContext, Message
+from dis_snek.client.errors import NotFound
 
-from ElevatorBot.backendNetworking.misc.backendPersistentMessages import (
-    BackendPersistentMessages,
-)
+from ElevatorBot.backendNetworking.errors import BackendException
+from ElevatorBot.backendNetworking.misc.backendPersistentMessages import BackendPersistentMessages
 from ElevatorBot.commandHelpers.responseTemplates import respond_wrong_author
-from ElevatorBot.misc.formating import embed_message
+from ElevatorBot.misc.formatting import embed_message
 
 
 @dataclasses.dataclass()
@@ -19,7 +18,7 @@ class PersistentMessages(BackendPersistentMessages):
         result = await self.get()
 
         if result:
-            channel = await self.guild.get_channel(result.channel_id)
+            channel = await self.guild.fetch_channel(result.channel_id)
             message = await channel.get_message(result.message_id) if channel else None
 
             return channel, message
@@ -46,14 +45,19 @@ async def handle_setup_command(
     if message_id:
         try:
             message = await channel.get_message(message_id)
-            if message.author != ctx.bot.user:
+            if message.author != message.guild.me:
                 raise NotFound
         except NotFound:
             await respond_wrong_author(ctx=ctx, author_must_be=ctx.bot.user)
             return
 
-    connection = PersistentMessages(ctx=ctx, guild=ctx.guild, message_name=message_name)
+    connection = PersistentMessages(ctx=None, guild=ctx.guild, message_name=message_name)
     connection.hidden = True
+    try:
+        old_data = await connection.get()
+    except BackendException:
+        old_data = None
+    connection.ctx = ctx
 
     # send the message
     if send_message:
@@ -69,17 +73,24 @@ async def handle_setup_command(
     else:
         result = await connection.upsert(channel_id=channel.id)
 
+    # delete the old message if that existed and is not the same message
+    if old_data and old_data.message_id and old_data.message_id != message.id:
+        old_channel = await ctx.bot.get_channel(old_data.channel_id)
+        if old_channel:
+            old_message = await old_channel.get_message(old_data.message_id)
+            if old_message:
+                await old_message.delete()
+
     # calculate the success message if that is not given
     if success_message == "None":
-        if send_components:
-            success_message = f"Click [here]({message.jump_url}) to view the message"
+        success_message = f"Click [here]({message.jump_url}) to view the message"
 
     # send confirmation message if everything went well
     if result:
         await ctx.send(
             ephemeral=True,
             embeds=embed_message(
-                f"Success",
+                "Success",
                 success_message,
             ),
         )

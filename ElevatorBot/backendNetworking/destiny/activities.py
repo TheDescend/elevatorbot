@@ -1,10 +1,8 @@
 import dataclasses
 from typing import Optional
 
-from dis_snek.models import Guild, Member
-from orjson import orjson
+from dis_snek import Guild, Member
 
-from DestinyEnums.enums import UsableDestinyActivityModeTypeEnum
 from ElevatorBot.backendNetworking.http import BaseBackendConnection
 from ElevatorBot.backendNetworking.routes import (
     destiny_activities_activity_route,
@@ -12,12 +10,13 @@ from ElevatorBot.backendNetworking.routes import (
     destiny_activities_get_grandmaster_route,
     destiny_activities_last_route,
 )
-
-from NetworkingSchemas.destiny.activities import (
+from Shared.enums.destiny import UsableDestinyActivityModeTypeEnum
+from Shared.networkingSchemas.destiny import (
     DestinyActivitiesModel,
     DestinyActivityDetailsModel,
     DestinyActivityInputModel,
     DestinyActivityOutputModel,
+    DestinyLastInputModel,
 )
 
 
@@ -26,7 +25,7 @@ class DestinyActivities(BaseBackendConnection):
     discord_guild: Optional[Guild]
     discord_member: Optional[Member]
 
-    async def get_all(self) -> Optional[DestinyActivitiesModel]:
+    async def get_all(self) -> DestinyActivitiesModel:
         """Get all activities"""
 
         result = await self._backend_request(
@@ -35,9 +34,9 @@ class DestinyActivities(BaseBackendConnection):
         )
 
         # convert to correct pydantic model
-        return DestinyActivitiesModel.parse_obj(result.result) if result else None
+        return DestinyActivitiesModel.parse_obj(result.result)
 
-    async def get_grandmaster(self) -> Optional[DestinyActivitiesModel]:
+    async def get_grandmaster(self) -> DestinyActivitiesModel:
         """Get all grandmaster nfs"""
 
         result = await self._backend_request(
@@ -46,7 +45,7 @@ class DestinyActivities(BaseBackendConnection):
         )
 
         # convert to correct pydantic model
-        return DestinyActivitiesModel.parse_obj(result.result) if result else None
+        return DestinyActivitiesModel.parse_obj(result.result)
 
     async def last(
         self,
@@ -54,27 +53,23 @@ class DestinyActivities(BaseBackendConnection):
         mode: UsableDestinyActivityModeTypeEnum = UsableDestinyActivityModeTypeEnum.ALL,
         character_class: Optional[str] = None,
         completed: bool = True,
-    ) -> Optional[DestinyActivityDetailsModel]:
+    ) -> DestinyActivityDetailsModel:
         """Get the last activity"""
 
-        # todo use pydantic model
         result = await self._backend_request(
             method="POST",
             route=destiny_activities_last_route.format(
                 guild_id=self.discord_guild.id, discord_id=self.discord_member.id
             ),
-            data={
-                "completed": completed,
-                "activity_ids": activity_ids,
-                "mode": mode,
-                "character_class": character_class,
-            },
+            data=DestinyLastInputModel(
+                completed=completed, activity_ids=activity_ids, mode=mode.value, character_class=character_class
+            ),
         )
 
         # convert to correct pydantic model
-        return DestinyActivityDetailsModel.parse_obj(result.result) if result else None
+        return DestinyActivityDetailsModel.parse_obj(result.result)
 
-    async def get_activity_stats(self, input_model: DestinyActivityInputModel) -> Optional[DestinyActivityOutputModel]:
+    async def get_activity_stats(self, input_model: DestinyActivityInputModel) -> DestinyActivityOutputModel:
         """Get all activities"""
 
         result = await self._backend_request(
@@ -86,4 +81,4 @@ class DestinyActivities(BaseBackendConnection):
         )
 
         # convert to correct pydantic model
-        return DestinyActivityOutputModel.parse_obj(result.result) if result else None
+        return DestinyActivityOutputModel.parse_obj(result.result)

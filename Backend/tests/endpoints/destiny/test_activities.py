@@ -5,7 +5,7 @@ from httpx import AsyncClient
 from orjson import orjson
 from pytest_mock import MockerFixture
 
-from NetworkingSchemas.destiny.activities import (
+from Shared.networkingSchemas.destiny import (
     DestinyActivitiesModel,
     DestinyActivityDetailsModel,
     DestinyActivityInputModel,
@@ -18,18 +18,15 @@ from NetworkingSchemas.destiny.activities import (
 async def test_get_all(client: AsyncClient, mocker: MockerFixture):
     mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
 
-    r = await client.get(f"/destiny/activities/get/all")
+    r = await client.get("/destiny/activities/get/all")
     assert r.status_code == 200
     data = DestinyActivitiesModel.parse_obj(r.json())
     assert data.activities
     assert len(data.activities) > 0
-    assert data.activities[0].name == "Prophecy"
-    assert (
-        data.activities[0].description
-        == 'Enter the realm of the Nine and ask the question: "What is the nature of the Darkness?"'
-    )
-    assert data.activities[0].activity_ids == [1337]
-    assert data.activities[0].mode == 4
+    assert data.activities[0].name == "Also very difficult NF"
+    assert data.activities[0].description == "NF"
+    assert data.activities[0].activity_ids == [8761236781274]
+    assert data.activities[0].mode == 46
 
 
 @pytest.mark.asyncio
@@ -117,22 +114,41 @@ async def test_activity(client: AsyncClient, mocker: MockerFixture):
     assert r.status_code == 200
     data = DestinyActivityOutputModel.parse_obj(r.json())
     assert data.full_completions == 1
-    assert data.cp_completions == 0
-    assert data.kills == 22
-    assert data.precision_kills == 10
-    assert data.deaths == 1
-    assert data.assists == 6
-    assert data.time_spend.seconds == 557
+    assert data.cp_completions == 1
+    assert data.kills == 22 + 9
+    assert data.precision_kills == 10 + 9
+    assert data.deaths == 1 + 9
+    assert data.assists == 6 + 9
+    assert data.time_spend.seconds == 557 + 9
     assert data.fastest.seconds == 917
     assert data.fastest_instance_id == dummy_instance_id
     assert data.average.seconds == 917
+
+    # test for never run activities
+    input_model = DestinyActivityInputModel(activity_ids=[8761236781273])
+    r = await client.post(
+        f"/destiny/activities/{dummy_discord_guild_id}/{dummy_discord_id}/activity",
+        json=orjson.loads(input_model.json()),
+    )
+    assert r.status_code == 200
+    data = DestinyActivityOutputModel.parse_obj(r.json())
+    assert data.full_completions == 0
+    assert data.cp_completions == 0
+    assert data.kills == 0
+    assert data.precision_kills == 0
+    assert data.deaths == 0
+    assert data.assists == 0
+    assert data.time_spend.seconds == 0
+    assert data.fastest is None
+    assert data.fastest_instance_id is None
+    assert data.average is None
 
 
 @pytest.mark.asyncio
 async def test_get_grandmaster(client: AsyncClient, mocker: MockerFixture):
     mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
 
-    r = await client.get(f"/destiny/activities/get/grandmaster")
+    r = await client.get("/destiny/activities/get/grandmaster")
     assert r.status_code == 200
     data = DestinyActivitiesModel.parse_obj(r.json())
     assert data.activities
