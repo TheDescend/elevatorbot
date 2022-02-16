@@ -4,8 +4,6 @@ services:
   redis:
     image: redis:6.2.6
     command: ["redis-server", "--maxmemory", "1gb", "--maxmemory-policy", "allkeys-lru"]
-    ports:
-      - "${REDIS_PORT}:${REDIS_PORT}"
     volumes:
       - ./redis.conf:/redis.conf
     networks:
