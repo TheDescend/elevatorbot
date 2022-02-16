@@ -103,11 +103,13 @@ class CRUDDiscordUser(CRUDBase):
 
         # get the user's destiny info
         destiny_id = destiny_info.content.get("primaryMembershipId")
+        is_crosssave = destiny_id is not None
         if not destiny_id:
             #if primary is not defined, there is only one
             memberships = destiny_info.content["destinyMemberships"]
             assert(len(memberships) == 1)
             destiny_id = memberships[0]["membershipId"]
+            
 
         destiny_id = int(destiny_id)
 
@@ -117,6 +119,8 @@ class CRUDDiscordUser(CRUDBase):
         for profile in destiny_info.content["destinyMemberships"]:
             if int(profile["membershipId"]) == destiny_id:
                 system = profile["membershipType"]
+                if not profile["bungieGlobalDisplayName"] or not profile.get("bungieGlobalDisplayNameCode"):
+                    raise CustomException("No Bungie Name found, please launch the game")
                 bungie_name = f"""{profile["bungieGlobalDisplayName"]}#{profile["bungieGlobalDisplayNameCode"]}"""
                 break
 
