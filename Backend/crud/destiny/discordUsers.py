@@ -102,12 +102,14 @@ class CRUDDiscordUser(CRUDBase):
             )
 
         # get the user's destiny info
-        destiny_id = int(destiny_info.content.get("primaryMembershipId"))
+        destiny_id = destiny_info.content.get("primaryMembershipId")
         if not destiny_id:
             #if primary is not defined, there is only one
             memberships = destiny_info.content["destinyMemberships"]
             assert(len(memberships) == 1)
-            destiny_id = int(memberships[0]["membershipId"])
+            destiny_id = memberships[0]["membershipId"]
+
+        destiny_id = int(destiny_id)
 
         # get the system
         system = None
