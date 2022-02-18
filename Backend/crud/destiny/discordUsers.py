@@ -105,11 +105,10 @@ class CRUDDiscordUser(CRUDBase):
         destiny_id = destiny_info.content.get("primaryMembershipId")
         is_crosssave = destiny_id is not None
         if not destiny_id:
-            #if primary is not defined, there is only one
+            # if primary is not defined, there is only one
             memberships = destiny_info.content["destinyMemberships"]
-            assert(len(memberships) == 1)
+            assert len(memberships) == 1
             destiny_id = memberships[0]["membershipId"]
-            
 
         destiny_id = int(destiny_id)
 
