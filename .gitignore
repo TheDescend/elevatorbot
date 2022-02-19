@@ -37,3 +37,11 @@ venv/
 **/**.sock
 **/**.pnp
 **/**.pnp.js
+
+Website/build
+pytest.ini
+psql_credentials.py
+bungie_networking_cache.sqlite
+config.py
+slashCommandConfig.py
+Website/config.py
