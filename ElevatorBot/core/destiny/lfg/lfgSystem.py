@@ -113,7 +113,7 @@ class LfgMessage:
         """Parse the info from the pydantic model"""
 
         if not guild:
-            guild = await client.get_guild(model.guild_id)
+            guild = client.get_guild(model.guild_id)
             if not guild:
                 raise ValueError
 

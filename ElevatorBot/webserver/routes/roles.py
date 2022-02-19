@@ -30,7 +30,7 @@ async def roles(request: web.Request):
     # loop through the guilds where roles need to be assigned
     for data in parameters["data"]:
         if data["guild_id"] in mutual_guild_ids:
-            guild = await client.get_guild(data["guild_id"])
+            guild = client.get_guild(data["guild_id"])
             member = await guild.get_member(data["discord_id"])
 
             if data["to_assign_role_ids"]:

@@ -112,7 +112,7 @@ async def on_message_create(event: MessageCreate, edit_mode: bool = False):
             if mutual_guilds:
                 # check is author is in descend. Checking COMMAND_GUILD_SCOPE for that, since that already has the id and doesn't break testing
                 allowed_guilds = [
-                    await event.bot.get_guild(guild_id) for guild_id in get_setting("COMMAND_GUILD_SCOPE")
+                    event.bot.get_guild(guild_id) for guild_id in get_setting("COMMAND_GUILD_SCOPE")
                 ]
                 mutual_allowed_guilds = [g for g in allowed_guilds if g.id in mutual_guilds]
 

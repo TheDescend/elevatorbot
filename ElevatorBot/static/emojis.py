@@ -1,4 +1,4 @@
-from dis_snek import CustomEmoji
+from dis_snek import CustomEmoji, Snake
 from dis_snek.client.errors import Forbidden
 
 
@@ -94,7 +94,7 @@ class __ElevatorEmojis:
         self.second_place: CustomEmoji | int = 933410347195445268
         self.third_place: CustomEmoji | int = 933410347287724072
 
-    async def init_emojis(self, client):
+    async def init_emojis(self, client: Snake):
         """Runs on startup to get the emojis we use"""
 
         emojis = []
@@ -102,9 +102,10 @@ class __ElevatorEmojis:
         # get all emojis from the emote servers
         for guild_id in [768902336914391070, 724676552175910934, 556418279015448596, 697720309847162921]:
             try:
-                guild = await client.get_guild(guild_id)
-                emojis.extend(await guild.get_all_custom_emojis())
+                if guild := client.get_guild(guild_id):
+                    emojis.extend(await guild.get_all_custom_emojis())
             except Forbidden:
+                # no access to descend servers
                 continue
 
         # loop through found emojis
