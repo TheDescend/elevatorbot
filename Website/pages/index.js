@@ -15,11 +15,11 @@ export default function Home() {
             <Description>
                 <div>
                     <p>
-                        <code>@ElevatorBot#7635</code> is a modern and open source discord bot that can be used to
+                        <code>@ElevatorBot#7635</code> is a modern and <a href="https://github.com/TheDescend/elevatorbot" target="_blank">open source</a> discord bot that can be used to
                         interact with the Destiny 2 API.
                     </p>
                     <p>
-                        He was originally created at the start of 2018 for the <a href="https://discord.gg/descend">Descend
+                        He was originally created at the start of 2018 for the <a href="https://discord.gg/descend" target="_blank">Descend
                         Discord Server</a> and has <span className="font-bold">greatly</span> expanded in scope since
                         then.
                     </p>
