@@ -34,7 +34,7 @@ class CRUDDiscordUser(CRUDBase):
 
         async with AsyncExitStack() as async_onexit_calls:
             if db is None:
-                db = await async_onexit_calls.enter_async_context(get_async_sessionmaker()().begin())
+                db = await async_onexit_calls.enter_async_context(get_async_sessionmaker().begin())
             profile: Optional[DiscordUsers] = await self._get_with_key(db, discord_id)
 
             # make sure the user exists
