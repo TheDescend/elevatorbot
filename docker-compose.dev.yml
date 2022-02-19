@@ -1,0 +1,145 @@
+version: "3.9"
+
+services:
+  redis:
+    image: redis:6.2.6
+    command: ["redis-server", "--maxmemory", "1gb", "--maxmemory-policy", "allkeys-lru"]
+    volumes:
+      - ./redis.conf:/redis.conf
+    ports:
+      - "${REDIS_PORT}:${REDIS_PORT}"
+    networks:
+      - redis-network
+    restart:
+      always
+
+  postgres:
+    image: postgres:14.1
+    volumes:
+      - ./Database:/var/lib/postgresql/data
+    ports:
+      - "${POSTGRES_PORT}:${POSTGRES_PORT}"
+    environment:
+      - POSTGRES_DB
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+    networks:
+      - database-network
+    restart:
+      always
+
+  postgresbackups:
+    image: prodrigestivill/postgres-backup-local
+    volumes:
+      - ./DatabaseBackups:/backups
+    environment:
+      - POSTGRES_DB
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_HOST
+      - POSTGRES_PORT
+      - SCHEDULE=@weekly
+      - BACKUP_KEEP_WEEKS=4
+      - BACKUP_KEEP_MONTHS=6
+    networks:
+      - database-network
+    restart:
+      always
+    depends_on:
+      - postgres
+
+  backend:
+    build:
+      context: ./
+      args:
+        BACKEND_PORT: "${BACKEND_PORT}"
+      dockerfile: Backend/Dockerfile
+    ports:
+      - "${BACKEND_PORT}:${BACKEND_PORT}"
+    volumes:
+      - ./Logs/Backend:/app/Logs/Backend
+    environment:
+      - POSTGRES_DB
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_HOST
+      - POSTGRES_PORT
+      - BACKEND_HOST
+      - BACKEND_PORT
+      - ELEVATOR_HOST
+      - ELEVATOR_PORT
+      - REDIS_HOST
+      - REDIS_PORT
+    networks:
+      - database-network
+      - backend-network
+      - redis-network
+    restart:
+      unless-stopped
+    depends_on:
+      - postgres
+      - postgresbackups
+      - redis
+
+  website:
+    build:
+      context: ./
+      dockerfile: ./Website/Dockerfile
+      args:
+        WEBSITE_PORT: ${WEBSITE_PORT}
+    ports:
+      - "${WEBSITE_PORT}:${WEBSITE_PORT}"
+    volumes:
+      - ./Logs/Website:/app/Website/logs
+    environment:
+      - BACKEND_HOST
+      - BACKEND_PORT
+      - WEBSITE_HOST
+      - WEBSITE_PORT
+      - ELEVATOR_HOST
+      - ELEVATOR_PORT
+    networks:
+      - backend-network
+      - website-network
+    restart:
+      unless-stopped
+    depends_on:
+      - backend
+
+  elevator:
+    build:
+      context: ./
+      dockerfile: ./ElevatorBot/Dockerfile
+      args:
+        ELEVATOR_PORT: ${ELEVATOR_PORT}
+    ports:
+      - "${ELEVATOR_PORT}:${ELEVATOR_PORT}"
+    volumes:
+      - ./Logs/ElevatorBot:/app/Logs/ElevatorBot
+    environment:
+      - BACKEND_HOST
+      - BACKEND_PORT
+      - WEBSITE_HOST
+      - WEBSITE_PORT
+      - ELEVATOR_HOST
+      - ELEVATOR_PORT
+      - REDIS_HOST
+      - REDIS_PORT
+    networks:
+      - backend-network
+      - elevator-network
+      - website-network
+      - redis-network
+    restart:
+      unless-stopped
+    depends_on:
+      - backend
+      - redis
+
+
+networks:
+  backend-network:
+  elevator-network:
+  website-network:
+  database-network:
+  redis-network:
