@@ -11,7 +11,7 @@ from Shared.functions.readSettingsFile import get_setting
 
 DATABASE_URL = f"""postgresql+asyncpg://{os.environ.get("POSTGRES_USER")}:{os.environ.get("POSTGRES_PASSWORD")}@{os.environ.get("POSTGRES_HOST")}:{os.environ.get("POSTGRES_PORT")}/{os.environ.get("POSTGRES_DB")}"""
 _ENGINE = None
-_SESSION = None
+_SESSIONMAKER = None
 _TEST_MODE = False
 
 
@@ -38,13 +38,13 @@ def setup_engine(database_url: str = DATABASE_URL) -> Engine:
 
 
 def get_async_sessionmaker() -> sessionmaker:
-    global _SESSION
+    global _SESSIONMAKER
 
     # if expire_on_commit is enabled, our own cache would get expired after every session close
     # since we are careful and update the cache when we change an object, that should not be a problem
-    if not _SESSION:
-        _SESSION = sessionmaker(bind=setup_engine(), class_=AsyncSession, future=True, expire_on_commit=False)
-    return _SESSION
+    if not _SESSIONMAKER:
+        _SESSIONMAKER = sessionmaker(bind=setup_engine(), class_=AsyncSession, future=True, expire_on_commit=False)
+    return _SESSIONMAKER
 
 
 def is_test_mode(set_test_mode: Optional[bool] = None) -> bool:
