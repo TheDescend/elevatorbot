@@ -21,7 +21,7 @@ class __DescendChannels:
         try:
             if guild := client.get_guild(self.guild_id):
                 self.guild = guild
-             # loop through all class attributes and fill out the channel objs
+                # loop through all class attributes and fill out the channel objs
                 for attr, value in self.__dict__.items():
                     if attr != "guild":
                         # get the channel

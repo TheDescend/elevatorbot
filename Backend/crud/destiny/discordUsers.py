@@ -22,10 +22,11 @@ from Shared.networkingSchemas.misc.auth import BungieTokenInput, BungieTokenOutp
 
 
 class CRUDDiscordUser(CRUDBase):
-    """ Database interface for DiscordUser Manipulation"""
+    """Database interface for DiscordUser Manipulation"""
+
     cache = cache
 
-    async def get_profile_from_discord_id(self, discord_id: int, db: AsyncSession=None) -> DiscordUsers:
+    async def get_profile_from_discord_id(self, discord_id: int, db: AsyncSession = None) -> DiscordUsers:
         """Return the profile information"""
 
         # check if exists in cache
