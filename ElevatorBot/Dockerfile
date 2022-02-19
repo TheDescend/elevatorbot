@@ -3,6 +3,8 @@ FROM python:3.10.2
 # we want stdout
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
+# get arg from docker-compose, otherwise use default
+ARG ELEVATOR_PORT=8080
 
 # add the path to pythonpath
 ENV PYTHONPATH "${PYTHONPATH}:/app"
@@ -21,4 +23,4 @@ COPY ./ElevatorBot /app/ElevatorBot
 # start elevator
 WORKDIR /app
 CMD ["python3.10", "ElevatorBot/elevator.py"]
-EXPOSE 8080
+EXPOSE $ELEVATOR_PORT
