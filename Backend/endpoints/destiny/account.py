@@ -40,7 +40,7 @@ async def has_collectible(
 ):
     """Return is the collectible is unlocked"""
 
-    user = await discord_users.get_profile_from_discord_id(discord_id)
+    user = await discord_users.get_profile_from_discord_id(discord_id, db=db)
     profile = DestinyProfile(db=db, user=user)
     return BoolModel(bool=await profile.has_collectible(collectible_hash=collectible_id))
 

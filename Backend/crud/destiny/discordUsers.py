@@ -5,6 +5,7 @@ import urllib.parse
 from typing import Optional
 
 import aiohttp
+from contextlib import ExitStack
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.errors import CustomException
@@ -21,27 +22,31 @@ from Shared.networkingSchemas.misc.auth import BungieTokenInput, BungieTokenOutp
 
 
 class CRUDDiscordUser(CRUDBase):
+    """ Database interface for DiscordUser Manipulation"""
     cache = cache
 
-    async def get_profile_from_discord_id(self, discord_id: int) -> DiscordUsers:
+    async def get_profile_from_discord_id(self, discord_id: int, db: AsyncSession=None) -> DiscordUsers:
         """Return the profile information"""
 
         # check if exists in cache
         if discord_id in self.cache.discord_users:
             return self.cache.discord_users[discord_id]
 
-        async with get_async_session().begin() as db:
+        with ExitStack() as onexit_calls:
+            if db is None:
+                db = onexit_calls.enter_context(get_async_session()().begin())
             profile: Optional[DiscordUsers] = await self._get_with_key(db, discord_id)
 
-        # make sure the user exists
-        if not profile:
-            raise CustomException(error="DiscordIdNotFound")
+            # make sure the user exists
+            if not profile:
+                raise CustomException(error="DiscordIdNotFound")
 
-        # populate cache
-        self.cache.discord_users.update({discord_id: profile})
-        self.cache.discord_users_by_destiny_id.update({profile.destiny_id: profile})
+            # populate cache
+            self.cache.discord_users.update({discord_id: profile})
+            self.cache.discord_users_by_destiny_id.update({profile.destiny_id: profile})
 
-        return profile
+            return profile
+            # context-manager calls session.close
 
     async def get_profile_from_destiny_id(self, db: AsyncSession, destiny_id: int) -> DiscordUsers:
         """Return the profile information"""
