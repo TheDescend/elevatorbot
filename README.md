@@ -60,6 +60,5 @@ Since you are not in the server where the emojis are from, these will display as
 If you want to change that, you need to change the IDs in `/ElevatorBot/static/emojis.py`.
 
 ## Security
-
 Make sure to change the default passwords in `settings.toml`.
 If you decide to add ports to the `docker-compose.yml` be aware that docker will try to publish them externally, whether your firewall allows it or not.
