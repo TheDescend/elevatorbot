@@ -35,6 +35,8 @@ DISCORD_CLIENT_SECRET = ""              # str
 WEBSITE_URL = "https://elevatorbot.ch"  # str
 
 # Your own bungie token, and you bungie secret data. Needed to access bungies api
+# Oauth Client Type is Confidential
+# The Redirect URL should point to yourserver.url/auth/bungie
 BUNGIE_APPLICATION_API_KEY= ""          # str
 BUNGIE_APPLICATION_CLIENT_SECRET= ""    # str
 BUNGIE_APPLICATION_CLIENT_ID= ""        # str
