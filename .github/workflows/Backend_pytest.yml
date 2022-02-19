@@ -43,8 +43,8 @@ jobs:
         pip install httpx
 
         # make sure the db runs
-        docker-compose run -d --service-ports -p 5432:5432 postgres
-        docker-compose run -d --service-ports -p 6379:6379 redis
+        docker-compose run -d -p 5432:5432 postgres
+        docker-compose run -d -p 6379:6379 redis
 
         # add the env varible we need to connect to the db
         export $(grep -v '^#' .env | xargs -d '\n')
