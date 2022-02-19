@@ -5,7 +5,7 @@ import urllib.parse
 from typing import Optional
 
 import aiohttp
-from contextlib import ExitStack
+from contextlib import AsyncExitStack
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.errors import CustomException
@@ -32,9 +32,9 @@ class CRUDDiscordUser(CRUDBase):
         if discord_id in self.cache.discord_users:
             return self.cache.discord_users[discord_id]
 
-        with ExitStack() as onexit_calls:
+        async with AsyncExitStack() as async_onexit_calls:
             if db is None:
-                db = onexit_calls.enter_context(get_async_sessionmaker().begin())
+                db = await async_onexit_calls.enter_async_context(get_async_sessionmaker()().begin())
             profile: Optional[DiscordUsers] = await self._get_with_key(db, discord_id)
 
             # make sure the user exists
