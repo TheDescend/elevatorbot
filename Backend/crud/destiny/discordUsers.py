@@ -11,7 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from Backend.core.errors import CustomException
 from Backend.crud.base import CRUDBase
 from Backend.crud.misc.persistentMessages import persistent_messages
-from Backend.database.base import get_async_session
+from Backend.database.base import get_async_sessionmaker
 from Backend.database.models import DiscordUsers
 from Backend.misc.cache import cache
 from Backend.networking.base import NetworkBase
@@ -34,7 +34,7 @@ class CRUDDiscordUser(CRUDBase):
 
         with ExitStack() as onexit_calls:
             if db is None:
-                db = onexit_calls.enter_context(get_async_session()().begin())
+                db = onexit_calls.enter_context(get_async_sessionmaker()().begin())
             profile: Optional[DiscordUsers] = await self._get_with_key(db, discord_id)
 
             # make sure the user exists

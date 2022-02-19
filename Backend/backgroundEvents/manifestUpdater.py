@@ -1,6 +1,6 @@
 from Backend.backgroundEvents.base import BaseEvent
 from Backend.core.destiny.manifest import DestinyManifest
-from Backend.database.base import get_async_session
+from Backend.database.base import get_async_sessionmaker
 
 
 class ManifestUpdater(BaseEvent):
@@ -11,7 +11,7 @@ class ManifestUpdater(BaseEvent):
         super().__init__(scheduler_type="interval", interval_minutes=interval_minutes)
 
     async def run(self):
-        async with get_async_session().begin() as db:
+        async with get_async_sessionmaker().begin() as db:
             manifest = DestinyManifest(db=db)
 
             # update

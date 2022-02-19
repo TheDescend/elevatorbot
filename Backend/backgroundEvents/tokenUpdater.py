@@ -1,6 +1,6 @@
 from Backend.backgroundEvents.base import BaseEvent
 from Backend.crud import discord_users
-from Backend.database.base import get_async_session
+from Backend.database.base import get_async_sessionmaker
 from Backend.networking.bungieAuth import BungieAuth
 
 
@@ -19,7 +19,7 @@ class TokenUpdater(BaseEvent):
         )
 
     async def run(self):
-        async with get_async_session().begin() as db:
+        async with get_async_sessionmaker().begin() as db:
             all_users = await discord_users.get_all(db=db)
 
             # loop through all users

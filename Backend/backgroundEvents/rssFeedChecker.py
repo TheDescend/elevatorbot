@@ -3,7 +3,7 @@ import feedparser
 
 from Backend.backgroundEvents.base import BaseEvent
 from Backend.crud import persistent_messages, rss_feed
-from Backend.database.base import get_async_session
+from Backend.database.base import get_async_sessionmaker
 from Backend.networking.elevatorApi import ElevatorApi
 
 
@@ -15,7 +15,7 @@ class RssFeedChecker(BaseEvent):
         super().__init__(scheduler_type="interval", interval_minutes=interval_minutes)
 
     async def run(self):
-        async with get_async_session().begin() as db:
+        async with get_async_sessionmaker().begin() as db:
             # use aiohttp to make the request instead of feedparsers request usage
             async with aiohttp.ClientSession() as session:
                 async with session.get("https://www.bungie.net/en/rss/News") as resp:

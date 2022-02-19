@@ -12,7 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from Backend.core.destiny.profile import DestinyProfile
 from Backend.core.errors import CustomException
 from Backend.crud import crud_activities, crud_activities_fail_to_get, destiny_manifest, discord_users
-from Backend.database.base import get_async_session
+from Backend.database.base import get_async_sessionmaker
 from Backend.database.models import ActivitiesUsers, DiscordUsers
 from Backend.misc.cache import cache
 from Backend.misc.helperFunctions import get_datetime_from_bungie_entry
@@ -303,7 +303,7 @@ class DestinyActivities:
                     tg.start_soon(handle, results, i, t)
 
             # do this with a separate DB session, do make smaller commits
-            async with get_async_session().begin() as session:
+            async with get_async_sessionmaker().begin() as session:
                 for i, t, pgcr in results:
                     # insert information to DB
                     await crud_activities.insert(db=session, instance_id=i, activity_time=t, pgcr=pgcr)
@@ -506,7 +506,7 @@ class DestinyActivities:
 
 async def update_activities_in_background(user: DiscordUsers):
     """Gets called when a user first registers and updates their activities in the background"""
-    async with get_async_session().begin() as db:
+    async with get_async_sessionmaker().begin() as db:
         activities = DestinyActivities(db=db, user=user)
         await activities.update_activity_db()
 

@@ -6,7 +6,7 @@ from dummyData.insert import insert_dummy_data
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from Backend.database.base import get_async_session, is_test_mode, setup_engine
+from Backend.database.base import get_async_sessionmaker, is_test_mode, setup_engine
 from Backend.database.models import create_tables
 from Backend.main import app
 from Backend.misc.initLogging import init_logging
@@ -44,12 +44,12 @@ async def init_db_tables(setup):
 @pytest.fixture(scope="session", autouse=True)
 async def db(init_db_tables) -> AsyncSession:
     # first, insert the dummy data
-    async with get_async_session().begin() as session:
+    async with get_async_sessionmaker().begin() as session:
         async with AsyncClient(app=app, base_url="http://testserver", follow_redirects=True) as client:
             await insert_dummy_data(db=session, client=client)
 
     # yield the session obj to the rest
-    async with get_async_session().begin() as session:
+    async with get_async_sessionmaker().begin() as session:
         yield session
 
 

@@ -37,7 +37,7 @@ def setup_engine(database_url: str = DATABASE_URL) -> Engine:
     return _ENGINE
 
 
-def get_async_session() -> sessionmaker:
+def get_async_sessionmaker() -> sessionmaker:
     global _SESSION
 
     # if expire_on_commit is enabled, our own cache would get expired after every session close

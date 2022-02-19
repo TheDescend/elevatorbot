@@ -9,7 +9,7 @@ from fastapi import Depends, FastAPI, Request
 from Backend.core.destiny.manifest import DestinyManifest
 from Backend.core.errors import CustomException, handle_custom_exception
 from Backend.crud import backend_user
-from Backend.database.base import get_async_session, setup_engine
+from Backend.database.base import get_async_sessionmaker, setup_engine
 from Backend.database.models import BackendUser, create_tables
 from Backend.dependencies import auth_get_user_with_read_perm, auth_get_user_with_write_perm
 from Backend.misc.initBackgroundEvents import register_background_events
@@ -112,12 +112,12 @@ async def startup():
 
     # create the admin user for the website
     print("Setting Up Admin Account...")
-    async with get_async_session().begin() as db:
+    async with get_async_sessionmaker().begin() as db:
         await backend_user.create_admin(db=db)
 
     # Update the Destiny 2 manifest
     print("Updating Destiny 2 Manifest...")
-    async with get_async_session().begin() as db:
+    async with get_async_sessionmaker().begin() as db:
         manifest = DestinyManifest(db=db)
         await manifest.update(post_elevator=False)
 

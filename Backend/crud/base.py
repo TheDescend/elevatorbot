@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm.attributes import flag_modified
 from sqlalchemy.sql import Select
 
-from Backend.database.base import Base, get_async_session
+from Backend.database.base import Base, get_async_sessionmaker
 
 ModelType = TypeVar("ModelType", bound=Base)
 
@@ -106,7 +106,7 @@ class CRUDBase:
         # test if the obj is detached, then we need to renew it briefly
         state = inspect(to_update)
         if state.detached:
-            async with get_async_session().begin() as new_db:
+            async with get_async_sessionmaker().begin() as new_db:
                 # merge the obj, since updating does not work with detached objs
                 new_obj = await new_db.merge(to_update)
             return new_obj

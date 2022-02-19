@@ -4,13 +4,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.security.auth import ALGORITHM, CREDENTIALS_EXCEPTION, get_secret_key, oauth2_scheme
 from Backend.crud import backend_user
-from Backend.database.base import get_async_session
+from Backend.database.base import get_async_sessionmaker
 from Backend.database.models import BackendUser
 
 
 # get the database session
 async def get_db_session() -> AsyncSession:
-    async with get_async_session().begin() as session:
+    async with get_async_sessionmaker().begin() as session:
         yield session
 
 
