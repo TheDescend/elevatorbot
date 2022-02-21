@@ -28,6 +28,7 @@ destiny_account_bright_dust_route = destiny_account_route + "bright_dust/"  # GE
 destiny_account_leg_shards_route = destiny_account_route + "shards/"  # GET
 destiny_account_catalysts_route = destiny_account_route + "catalysts/"  # GET
 destiny_account_seals_route = destiny_account_route + "seals/"  # GET
+destiny_account_craftable_route = destiny_account_route + "craftable/{craftable_id}/"  # GET
 
 # activities
 destiny_activities_route = base_route + "destiny/activities/"

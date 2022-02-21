@@ -1,6 +1,7 @@
 import datetime
 
 import pytest as pytest
+from Shared.networkingSchemas.destiny.account import DestinyCraftableModel
 from dummyData.insert import mock_request
 from dummyData.static import *
 from httpx import AsyncClient
@@ -401,3 +402,13 @@ async def test_get_seal_completion(client: AsyncClient, mocker: MockerFixture):
     assert data.not_guilded[0].name == "Not Gambit"
 
     assert cache.seals != {}
+
+
+@pytest.mark.asyncio
+async def test_get_craftables(client: AsyncClient, mocker: MockerFixture):
+    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+
+    r = await client.get(f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/craftables")
+    assert r.status_code == 200
+    data = [DestinyCraftableModel.parse_obj(res) for res in r.json()]
+    assert len(data) == 0

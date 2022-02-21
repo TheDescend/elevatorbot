@@ -26,6 +26,7 @@ from ElevatorBot.backendNetworking.routes import (
     destiny_account_triumph_route,
     destiny_account_triumph_score_route,
     destiny_account_vault_space_route,
+    destiny_account_craftable_route,
 )
 from Shared.enums.destiny import UsableDestinyActivityModeTypeEnum
 from Shared.networkingSchemas import BoolModel, NameModel, ValueModel
@@ -40,6 +41,7 @@ from Shared.networkingSchemas.destiny import (
     DestinyTimesModel,
     DestinyTriumphScoreModel,
     SeasonalChallengesModel,
+    DestinyCraftableModel,
 )
 
 
@@ -317,3 +319,16 @@ class DestinyAccount(BaseBackendConnection):
 
         # convert to correct pydantic model
         return DestinySealsModel.parse_obj(result.result)
+
+    async def get_craftables(self) -> list[DestinyCraftableModel]:
+        """Gets all seals and the users completion status"""
+
+        result = await self._backend_request(
+            method="GET",
+            route=destiny_account_craftable_route.format(
+                guild_id=self.discord_guild.id, discord_id=self.discord_member.id
+            ),
+        )
+
+        # convert to correct pydantic model
+        return [DestinyCraftableModel.parse_obj(res) for res in result.result]

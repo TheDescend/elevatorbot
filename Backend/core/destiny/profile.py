@@ -631,6 +631,13 @@ class DestinyProfile:
         # combine profile and character ones
         return await to_thread.run_sync(get_collectibles_subprocess, result)
 
+    async def get_craftables(self) -> dict:
+        """Populate the craftables and then return them"""
+
+        result = await self.__get_profile()
+        # combine profile and character ones
+        return await to_thread.run_sync(get_craftables_subprocess, result)
+
     async def get_metrics(self) -> dict:
         """Populate the metrics and then return them"""
 
@@ -835,6 +842,8 @@ class DestinyProfile:
             800,
             900,
             1100,
+            1200,
+            1300,
         )
 
         route = profile_route.format(system=self.system, destiny_id=self.destiny_id)
@@ -983,6 +992,28 @@ def get_collectibles_subprocess(result: dict) -> dict:
                 user_collectibles.update({collectible_hash: collectible_state})
 
     return user_collectibles
+
+
+def get_craftables_subprocess(result: dict) -> dict:
+    """Run in anyio subprocess on another thread since this might be slow"""
+
+    # get profile triumphs
+    user_craftables = []
+
+    # get character triumphs
+    character_craftables = [
+        character_info["craftables"] for _character_id, character_info in result["characterCraftables"]["data"].items()
+    ]
+
+    # combine them
+    for character in character_craftables:
+        # loop through all the collectibles and only update them if the collectible is earned
+        # see https://bungie-net.github.io/multi/schema_Destiny-DestinyCollectibleState.html#schema_Destiny-DestinyCollectibleState
+        for collectible_hash, collectible_state in character.items():
+            if collectible_state["state"] & 1 == 0:
+                user_craftables.update({collectible_hash: collectible_state})
+
+    return user_craftables
 
 
 def get_inventory_bucket_subprocess(result: dict, buckets: list[DestinyInventoryBucketEnum]) -> dict:

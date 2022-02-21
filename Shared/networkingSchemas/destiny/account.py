@@ -121,3 +121,8 @@ class DestinySealsModel(CustomBaseModel):
     not_completed: list[DestinySealModel] = []
     guilded: list[DestinySealModel] = []
     not_guilded: list[DestinySealModel] = []
+
+
+class DestinyCraftableModel(CustomBaseModel):
+    data: dict
+    pass

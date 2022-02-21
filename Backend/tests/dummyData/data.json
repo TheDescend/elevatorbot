@@ -1085,7 +1085,7 @@
         ],
         "teams": []
     },
-    "https://www.bungie.net/Platform/Destiny2/555/Profile/444/?components=100%2C101%2C102%2C103%2C104%2C105%2C200%2C201%2C202%2C204%2C205%2C300%2C301%2C302%2C304%2C305%2C306%2C307%2C400%2C401%2C402%2C500%2C600%2C700%2C800%2C900%2C1100": {
+    "https://www.bungie.net/Platform/Destiny2/555/Profile/444/?components=100%2C101%2C102%2C103%2C104%2C105%2C200%2C201%2C202%2C204%2C205%2C300%2C301%2C302%2C304%2C305%2C306%2C307%2C400%2C401%2C402%2C500%2C600%2C700%2C800%2C900%2C1100%2C1200%2C1300": {
         "profile": {
             "data": {
                 "userInfo": {
@@ -1457,6 +1457,17 @@
                     },
                     "collectionCategoriesRootNodeHash": 3790247699,
                     "collectionBadgesRootNodeHash": 498211331
+                }
+            }
+        },
+        "characterCraftables": {
+            "data": {
+                "666": {
+                    "craftables": {
+                        "2": {
+                            "state": 69
+                        }
+                    }
                 }
             }
         },
@@ -2860,8 +2871,7 @@
                 "hasIcon": true
             },
             "tooltipNotifications": [],
-            "backgroundColor": {
-            },
+            "backgroundColor": {},
             "screenshot": "/common/destiny2_content/screenshots/2899766705.jpg",
             "itemTypeDisplayName": "Gauntlets",
             "flavorText": "",
@@ -2897,13 +2907,11 @@
             },
             "translationBlock": {},
             "quality": {
-                "itemLevels": [
-                ],
+                "itemLevels": [],
                 "qualityLevel": 0,
                 "infusionCategoryName": "0",
                 "infusionCategoryHash": 0,
-                "infusionCategoryHashes": [
-                ],
+                "infusionCategoryHashes": [],
                 "progressionLevelRequirementHash": 0,
                 "currentVersion": 0,
                 "versions": [
@@ -2954,8 +2962,7 @@
                 "hasIcon": true
             },
             "tooltipNotifications": [],
-            "backgroundColor": {
-            },
+            "backgroundColor": {},
             "screenshot": "/common/destiny2_content/screenshots/2899766705.jpg",
             "itemTypeDisplayName": "Gauntlets",
             "flavorText": "",
@@ -2991,13 +2998,11 @@
             },
             "translationBlock": {},
             "quality": {
-                "itemLevels": [
-                ],
+                "itemLevels": [],
                 "qualityLevel": 0,
                 "infusionCategoryName": "0",
                 "infusionCategoryHash": 0,
-                "infusionCategoryHashes": [
-                ],
+                "infusionCategoryHashes": [],
                 "progressionLevelRequirementHash": 0,
                 "currentVersion": 0,
                 "versions": [
@@ -3048,8 +3053,7 @@
                 "hasIcon": true
             },
             "tooltipNotifications": [],
-            "backgroundColor": {
-            },
+            "backgroundColor": {},
             "screenshot": "/common/destiny2_content/screenshots/2899766705.jpg",
             "itemTypeDisplayName": "Gauntlets",
             "flavorText": "",
@@ -3085,13 +3089,11 @@
             },
             "translationBlock": {},
             "quality": {
-                "itemLevels": [
-                ],
+                "itemLevels": [],
                 "qualityLevel": 0,
                 "infusionCategoryName": "0",
                 "infusionCategoryHash": 0,
-                "infusionCategoryHashes": [
-                ],
+                "infusionCategoryHashes": [],
                 "progressionLevelRequirementHash": 0,
                 "currentVersion": 0,
                 "versions": [
@@ -3142,8 +3144,7 @@
                 "hasIcon": true
             },
             "tooltipNotifications": [],
-            "backgroundColor": {
-            },
+            "backgroundColor": {},
             "screenshot": "/common/destiny2_content/screenshots/2899766705.jpg",
             "itemTypeDisplayName": "Gauntlets",
             "flavorText": "",
@@ -3179,13 +3180,11 @@
             },
             "translationBlock": {},
             "quality": {
-                "itemLevels": [
-                ],
+                "itemLevels": [],
                 "qualityLevel": 0,
                 "infusionCategoryName": "0",
                 "infusionCategoryHash": 0,
-                "infusionCategoryHashes": [
-                ],
+                "infusionCategoryHashes": [],
                 "progressionLevelRequirementHash": 0,
                 "currentVersion": 0,
                 "versions": [
@@ -3236,8 +3235,7 @@
                 "hasIcon": true
             },
             "tooltipNotifications": [],
-            "backgroundColor": {
-            },
+            "backgroundColor": {},
             "screenshot": "/common/destiny2_content/screenshots/2899766705.jpg",
             "itemTypeDisplayName": "Gauntlets",
             "flavorText": "",
@@ -3273,13 +3271,11 @@
             },
             "translationBlock": {},
             "quality": {
-                "itemLevels": [
-                ],
+                "itemLevels": [],
                 "qualityLevel": 0,
                 "infusionCategoryName": "0",
                 "infusionCategoryHash": 0,
-                "infusionCategoryHashes": [
-                ],
+                "infusionCategoryHashes": [],
                 "progressionLevelRequirementHash": 0,
                 "currentVersion": 0,
                 "versions": [
@@ -3330,8 +3326,7 @@
                 "hasIcon": true
             },
             "tooltipNotifications": [],
-            "backgroundColor": {
-            },
+            "backgroundColor": {},
             "screenshot": "/common/destiny2_content/screenshots/2899766705.jpg",
             "itemTypeDisplayName": "Gauntlets",
             "flavorText": "",
@@ -3367,13 +3362,11 @@
             },
             "translationBlock": {},
             "quality": {
-                "itemLevels": [
-                ],
+                "itemLevels": [],
                 "qualityLevel": 0,
                 "infusionCategoryName": "0",
                 "infusionCategoryHash": 0,
-                "infusionCategoryHashes": [
-                ],
+                "infusionCategoryHashes": [],
                 "progressionLevelRequirementHash": 0,
                 "currentVersion": 0,
                 "versions": [
@@ -3424,8 +3417,7 @@
                 "hasIcon": true
             },
             "tooltipNotifications": [],
-            "backgroundColor": {
-            },
+            "backgroundColor": {},
             "screenshot": "/common/destiny2_content/screenshots/2899766705.jpg",
             "itemTypeDisplayName": "Gauntlets",
             "flavorText": "Oh my gawd",
@@ -3461,13 +3453,11 @@
             },
             "translationBlock": {},
             "quality": {
-                "itemLevels": [
-                ],
+                "itemLevels": [],
                 "qualityLevel": 0,
                 "infusionCategoryName": "0",
                 "infusionCategoryHash": 0,
-                "infusionCategoryHashes": [
-                ],
+                "infusionCategoryHashes": [],
                 "progressionLevelRequirementHash": 0,
                 "currentVersion": 0,
                 "versions": [
@@ -3518,8 +3508,7 @@
                 "hasIcon": true
             },
             "tooltipNotifications": [],
-            "backgroundColor": {
-            },
+            "backgroundColor": {},
             "screenshot": "/common/destiny2_content/screenshots/2899766705.jpg",
             "itemTypeDisplayName": "Gauntlets",
             "flavorText": "",
@@ -3555,13 +3544,11 @@
             },
             "translationBlock": {},
             "quality": {
-                "itemLevels": [
-                ],
+                "itemLevels": [],
                 "qualityLevel": 0,
                 "infusionCategoryName": "0",
                 "infusionCategoryHash": 0,
-                "infusionCategoryHashes": [
-                ],
+                "infusionCategoryHashes": [],
                 "progressionLevelRequirementHash": 0,
                 "currentVersion": 0,
                 "versions": [
@@ -3612,8 +3599,7 @@
                 "hasIcon": true
             },
             "tooltipNotifications": [],
-            "backgroundColor": {
-            },
+            "backgroundColor": {},
             "screenshot": "/common/destiny2_content/screenshots/2899766705.jpg",
             "itemTypeDisplayName": "Gauntlets",
             "flavorText": "",
@@ -3649,13 +3635,11 @@
             },
             "translationBlock": {},
             "quality": {
-                "itemLevels": [
-                ],
+                "itemLevels": [],
                 "qualityLevel": 0,
                 "infusionCategoryName": "0",
                 "infusionCategoryHash": 0,
-                "infusionCategoryHashes": [
-                ],
+                "infusionCategoryHashes": [],
                 "progressionLevelRequirementHash": 0,
                 "currentVersion": 0,
                 "versions": [
@@ -3706,8 +3690,7 @@
                 "hasIcon": true
             },
             "tooltipNotifications": [],
-            "backgroundColor": {
-            },
+            "backgroundColor": {},
             "screenshot": "/common/destiny2_content/screenshots/2899766705.jpg",
             "itemTypeDisplayName": "Gauntlets",
             "flavorText": "",
@@ -3743,13 +3726,11 @@
             },
             "translationBlock": {},
             "quality": {
-                "itemLevels": [
-                ],
+                "itemLevels": [],
                 "qualityLevel": 0,
                 "infusionCategoryName": "0",
                 "infusionCategoryHash": 0,
-                "infusionCategoryHashes": [
-                ],
+                "infusionCategoryHashes": [],
                 "progressionLevelRequirementHash": 0,
                 "currentVersion": 0,
                 "versions": [

@@ -17,6 +17,7 @@ from Shared.networkingSchemas.destiny import (
     DestinyTimeModel,
     DestinyTimesModel,
     DestinyTriumphScoreModel,
+    DestinyCraftableModel,
     SeasonalChallengesModel,
 )
 
@@ -43,6 +44,15 @@ async def has_collectible(
     user = await discord_users.get_profile_from_discord_id(discord_id, db=db)
     profile = DestinyProfile(db=db, user=user)
     return BoolModel(bool=await profile.has_collectible(collectible_hash=collectible_id))
+
+
+@router.get("/craftables", response_model=list[DestinyCraftableModel])
+async def get_craftables(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
+    """Return is the collectible is unlocked"""
+
+    user = await discord_users.get_profile_from_discord_id(discord_id, db=db)
+    profile = DestinyProfile(db=db, user=user)
+    return [DestinyCraftableModel(craftable=craftable) for craftable in (await profile.get_craftables())]
 
 
 @router.get("/triumph/{triumph_id}", response_model=BoolModelRecord)  # has test
