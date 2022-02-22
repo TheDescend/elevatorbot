@@ -3,6 +3,7 @@ import dataclasses
 import logging
 import os
 import time
+from asyncio import Semaphore
 from datetime import timedelta
 from typing import Optional
 
@@ -47,6 +48,7 @@ class BackendRateLimiter:
 
 
 backend_limiter = BackendRateLimiter()
+backend_semaphore = asyncio.Semaphore(200)
 backend_cache = aiohttp_client_cache.RedisBackend(
     cache_name="elevator",
     address=f"""redis://{os.environ.get("REDIS_HOST")}:{os.environ.get("REDIS_PORT")}""",
@@ -119,6 +121,12 @@ class BaseBackendConnection:
         compare=False,
         repr=False,
     )
+    semaphore: Semaphore = dataclasses.field(
+        default=backend_semaphore,
+        init=False,
+        compare=False,
+        repr=False,
+    )
 
     # redis cache
     cache: aiohttp_client_cache.RedisBackend = dataclasses.field(
@@ -167,26 +175,27 @@ class BaseBackendConnection:
         async with asyncio.Lock():
             await self.limiter.wait_for_token()
 
-            async with aiohttp_client_cache.CachedSession(
-                cache=self.cache, timeout=self.timeout, json_serialize=lambda x: orjson.dumps(x).decode()
-            ) as session:
-                async with session.request(
-                    method=method,
-                    url=route,
-                    params=params,
-                    json=data,
-                ) as response:
-                    result = await self.__backend_parse_response(response=response)
+            async with self.semaphore:
+                async with aiohttp_client_cache.CachedSession(
+                    cache=self.cache, timeout=self.timeout, json_serialize=lambda x: orjson.dumps(x).decode()
+                ) as session:
+                    async with session.request(
+                        method=method,
+                        url=route,
+                        params=params,
+                        json=data,
+                    ) as response:
+                        result = await self.__backend_parse_response(response=response)
 
-                    # if an error occurred, already do the basic formatting
-                    if not result:
-                        if self.discord_member:
-                            result.error_message = {"discord_member": self.discord_member}
-                        if error_message_kwargs:
-                            result.error_message = error_message_kwargs
-                        await self.send_error(result)
+                        # if an error occurred, already do the basic formatting
+                        if not result:
+                            if self.discord_member:
+                                result.error_message = {"discord_member": self.discord_member}
+                            if error_message_kwargs:
+                                result.error_message = error_message_kwargs
+                            await self.send_error(result)
 
-                    return result
+                        return result
 
     async def __backend_parse_response(self, response: aiohttp.ClientResponse) -> BackendResult:
         """Handle any errors and then return the content of the response"""
