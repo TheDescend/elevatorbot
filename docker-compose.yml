@@ -114,6 +114,7 @@ services:
     volumes:
       - ./Logs/ElevatorBot:/app/Logs/ElevatorBot
     environment:
+      - MAX_WORKERS
       - BACKEND_HOST
       - BACKEND_PORT
       - WEBSITE_HOST
