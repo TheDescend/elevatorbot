@@ -28,7 +28,7 @@ class RegisteredRoleCache:
 
     guild_to_role: dict[int, Role] = dataclasses.field(init=False, default_factory=dict)
     not_registered_users: list[int] = dataclasses.field(init=False, default_factory=list)
-    registered_users: TTLCache = TTLCache(ttl=3600, maxsize=None)
+    registered_users: TTLCache = TTLCache(ttl=3600, maxsize=10000)
 
     async def get(self, guild: Guild) -> Optional[Role]:
         """Get the role for a guild"""
