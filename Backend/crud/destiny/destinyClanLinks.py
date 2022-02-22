@@ -11,7 +11,7 @@ class CRUDDestinyClanLinks(CRUDBase):
         """Gets the discord guilds linked clan"""
 
         result = await self._get_with_key(db, discord_guild_id)
-        if not result:
+        if result is None:
             raise CustomException("NoClanLink")
 
         return result
