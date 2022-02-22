@@ -64,9 +64,10 @@ class Destiny(BaseScale):
             )
             efficiency.update({character.character_id: result.value})
 
+        total_playtime = sum(seconds_played.values())
         embed = embed_message(
             "Destiny Stats",
-            f"**Total Playtime:** {format_timedelta(seconds=sum(seconds_played.values()))} \n[Click to see your heatmap]({heatmap_url})",
+            f"**Total Playtime:** {format_timedelta(seconds=total_playtime)} \n[Click to see your heatmap]({heatmap_url})",
             "For info on achievable discord roles, type: /roles missing",
             member=member,
         )
@@ -76,7 +77,7 @@ class Destiny(BaseScale):
         for character in characters.characters:
             character_id = character.character_id
 
-            text = f"""Playtime: {format_timedelta(seconds=seconds_played[character_id])} \n⁣\nPower: {int(power[character_id]):,} \nActivities: {int(activities_cleared[character_id]):,} \nKills: {int(kills[character_id]):,} \nDeaths: {int(deaths[character_id]):,} \nEfficiency: {round(efficiency[character_id], 2)}"""
+            text = f"""Playtime: {format_timedelta(seconds=seconds_played[character_id])} ({(total_playtime / seconds_played[character_id]) * 100 if seconds_played[character_id] else 0:.0f}%)\n⁣\nPower: {int(power[character_id]):,} \nActivities: {int(activities_cleared[character_id]):,} \nKills: {int(kills[character_id]):,} \nDeaths: {int(deaths[character_id]):,} \nEfficiency: {round(efficiency[character_id], 2)}"""
             embed.add_field(
                 name=f"""{character.character_class} ({character.character_race} / {character.character_gender})""",
                 value=text,
