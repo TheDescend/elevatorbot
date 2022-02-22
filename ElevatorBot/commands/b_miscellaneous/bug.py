@@ -90,8 +90,9 @@ class Bug(BaseScale):
             await respond_timeout(ctx=ctx)
             return
 
-        if not image:
-            image = "_No Image Provided_"
+        image_text = "_No Image Provided_"
+        if image:
+            image_text = image.url
 
         affected = modal_ctx.responses["affected"]
         description = modal_ctx.responses["description"]
@@ -108,7 +109,7 @@ class Bug(BaseScale):
             issue = await to_thread.run_sync(
                 repo.create_issue,
                 f"Bug Report by Discord User `{ctx.author.username}#{ctx.author.discriminator}`",
-                f"### Image\n{image.url}\n⁣\n### {affected_text}\n```{affected}```\n⁣\n### {description_text}\n```{description}```\n⁣\n### {wanted_text}\n```{wanted}```\n⁣\n### {got_text}\n```{got}```\n⁣\n⁣\n_This action was performed automatically by a bot_",
+                f"### Image\n{image_text}\n⁣\n### {affected_text}\n```{affected}```\n⁣\n### {description_text}\n```{description}```\n⁣\n### {wanted_text}\n```{wanted}```\n⁣\n### {got_text}\n```{got}```\n⁣\n⁣\n_This action was performed automatically by a bot_",
                 NotSet,
                 NotSet,
                 await get_github_labels(),
