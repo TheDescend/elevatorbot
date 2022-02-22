@@ -119,8 +119,17 @@ async def log_error(
 
     # do not send some errors to the user
     catch_errors = ["Unknown interaction", "Interaction has already been acknowledged"]
-    if not any(item in catch_errors for item in str(error)):
-        if not ctx.responded:
+
+    if not ctx.responded:
+        if any(item in catch_errors for item in str(error)):
+            # send a generic error message
+            # Note: It probably is my fault
+            await ctx.send(
+                embeds=embed_message(
+                    "Error", "I swear its not my fault - discord did an oopsie\nPlease use the command again"
+                )
+            )
+        else:
             await ctx.send(
                 embeds=embed_message(
                     "Error",
