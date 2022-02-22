@@ -331,6 +331,14 @@ async def insert_dummy_data(db: AsyncSession, client: AsyncClient):
     r = await client.post(f"/destiny/roles/{dummy_discord_guild_id}/create", json=orjson.loads(input_model.json()))
     assert r.status_code == 200
 
+    r = await client.get(f"/destiny/roles/{dummy_discord_guild_id}/get/all")
+    assert r.status_code == 200
+    data = RolesModel.parse_obj(r.json())
+    assert len(data.roles) == 1
+    assert data.roles[0].role_id == 1
+    assert data.roles[0].guild_id == dummy_discord_guild_id
+    assert data.roles[0].role_data.require_records[0].id == dummy_gotten_record_id
+
     # delete all roles
     r = await client.delete(f"/destiny/roles/{dummy_discord_guild_id}/delete/all")
     assert r.status_code == 200
