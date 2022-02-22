@@ -86,6 +86,7 @@ class UsableDestinyDamageTypeEnum(Enum):
     NONE = 0
     KINETIC = 1
     ARC = 2
+    THERMAL = 3
     VOID = 4
     STASIS = 6
 
@@ -93,11 +94,11 @@ class UsableDestinyDamageTypeEnum(Enum):
 class DestinyDamageTypeEnum(Enum):
     KINETIC = 1
     ARC = 2
+    THERMAL = 3
     VOID = 4
     STASIS = 6
 
     NONE = 0
-    THERMAL = 3
     RAID = 5
 
 
