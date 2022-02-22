@@ -30,9 +30,7 @@ async def on_member_add(event: MemberAdd):
                 )
             )
 
-        # only do stuff here if the event.member is not pending
-        if not event.member.pending:
-            await _assign_roles_on_join(member=event.member)
+        await _assign_roles_on_join(member=event.member)
 
 
 async def on_member_remove(event: MemberRemove):
@@ -152,12 +150,22 @@ async def on_member_update(event: MemberUpdate):
 async def _assign_roles_on_join(member: Member):
     """Assign all applicable roles when a member joins a guild"""
 
-    destiny_profile = DestinyProfile(ctx=None, discord_member=member, discord_guild=member.guild)
-    await destiny_profile.assign_registration_role()
+    # only do stuff here if the event.member is not pending
+    if not member.pending:
+        # assign member role for descend
+        await assign_roles_to_member(
+            member, get_setting("DESCEND_ROLE_MEMBER_ID"), reason="Member Screening Completion"
+        )
 
-    # add filler roles for descend
-    if member.guild == descend_channels.guild:
-        await assign_roles_to_member(member, *get_setting("DESCEND_ROLE_FILLER_IDS"), reason="Destiny 2 Filler Roles")
+        # assign registration roles in every guild
+        destiny_profile = DestinyProfile(ctx=None, discord_member=member, discord_guild=member.guild)
+        await destiny_profile.assign_registration_role()
 
-    # assign their roles
-    await Roles(guild=member.guild, member=member, ctx=None).update()
+        # add filler roles for descend
+        if member.guild == descend_channels.guild:
+            await assign_roles_to_member(
+                member, *get_setting("DESCEND_ROLE_FILLER_IDS"), reason="Destiny 2 Filler Roles"
+            )
+
+        # assign their roles
+        await Roles(guild=member.guild, member=member, ctx=None).update()
