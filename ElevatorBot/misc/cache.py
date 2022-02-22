@@ -2,6 +2,7 @@ import dataclasses
 import datetime
 from typing import Optional
 
+from cachetools import TTLCache
 from dis_snek import Guild, GuildVoice, Message, Role, ThreadChannel
 
 from ElevatorBot.backendNetworking.destiny.items import DestinyItems
@@ -27,6 +28,7 @@ class RegisteredRoleCache:
 
     guild_to_role: dict[int, Role] = dataclasses.field(init=False, default_factory=dict)
     not_registered_users: list[int] = dataclasses.field(init=False, default_factory=list)
+    registered_users: TTLCache = TTLCache(ttl=3600, maxsize=None)
 
     async def get(self, guild: Guild) -> Optional[Role]:
         """Get the role for a guild"""
@@ -50,6 +52,11 @@ class RegisteredRoleCache:
         """Returns True if the user is not registered and that is cached. False if we dont know"""
 
         return user_id in self.not_registered_users
+
+    def is_registered(self, user_id: int) -> bool:
+        """Returns True if the user has been registered within the last hour"""
+
+        return bool(self.registered_users.get(user_id))
 
 
 @dataclasses.dataclass

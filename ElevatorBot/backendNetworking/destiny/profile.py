@@ -67,8 +67,11 @@ class DestinyProfile(BaseBackendConnection):
 
         # check in cache if the user is registered
         if registered_role_cache.is_not_registered(self.discord_member.id):
-            result = DestinyHasTokenModel(token=False)
+            return False
         else:
+            # check if they were registered in the last hour
+            if registered_role_cache.is_registered(self.discord_member.id):
+                return True
             try:
                 # check their status with the backend
                 result = await self.has_token()
@@ -77,6 +80,8 @@ class DestinyProfile(BaseBackendConnection):
 
         if not result.token:
             registered_role_cache.not_registered_users.append(self.discord_member.id)
+        else:
+            registered_role_cache.registered_users[self.discord_member.id] = True
 
         return result.token
 
