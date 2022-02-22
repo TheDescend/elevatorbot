@@ -1,4 +1,5 @@
 from dis_snek import InteractionContext, Member, OptionTypes, slash_command, slash_option
+from dis_snek.client.errors import NotFound
 
 from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
 from ElevatorBot.backendNetworking.destiny.clan import DestinyClan
@@ -93,7 +94,7 @@ class UserInfo(BaseScale):
 
         # fill that
         for i, profile in enumerate(profiles):
-            discord_member = await ctx.guild.get_member(profile.discord_id)
+            discord_member = await ctx.guild.fetch_member(profile.discord_id)
             if not discord_member:
                 await ctx.send(
                     embeds=embed_message(

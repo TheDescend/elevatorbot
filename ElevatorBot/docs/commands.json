@@ -726,6 +726,18 @@
                 ]
             },
             {
+                "name": "craftables",
+                "description": "View your craftables",
+                "options": [
+                    {
+                        "name": "user",
+                        "description": "The user you want to look up",
+                        "required": false,
+                        "autocomplete": false
+                    }
+                ]
+            },
+            {
                 "name": "destiny",
                 "description": "Gives you an overview of your Destiny 2 stats",
                 "options": [

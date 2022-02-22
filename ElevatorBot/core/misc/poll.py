@@ -69,10 +69,10 @@ class Poll:
     async def from_pydantic_model(cls, client, data: PollSchema):
         """Create the obj from the PollSchema data"""
 
-        guild = client.get_guild(data.guild_id)
-        channel = await client.get_channel(data.channel_id)
-        author = await client.get_member(data.author_id, guild.id)
-        message = await channel.get_message(data.message_id)
+        guild = await client.fetch_guild(data.guild_id)
+        channel = await client.fetch_channel(data.channel_id)
+        author = await client.fetch_member(data.author_id, guild.id)
+        message = await channel.fetch_message(data.message_id)
 
         # make sure the choices match
         if len(message.embeds[0].fields) != len(data.choices):

@@ -30,7 +30,7 @@ async def assign_roles_to_member(member: Member, *role_ids: int, reason: Optiona
     if not member.pending:
         # loop through role_ids and get the role objs
         for role_id in role_ids:
-            role = await guild.get_role(role_id)
+            role = await guild.fetch_role(role_id)
 
             if not role:
                 continue
@@ -48,7 +48,7 @@ async def remove_roles_from_member(member: Member, *role_ids: int, reason: Optio
     if not member.pending:
         # loop through role_ids and get the role objs
         for role_id in role_ids:
-            role = await guild.get_role(role_id)
+            role = await guild.fetch_role(role_id)
 
             if not role:
                 continue

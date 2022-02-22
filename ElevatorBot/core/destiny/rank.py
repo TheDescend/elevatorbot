@@ -127,7 +127,7 @@ class RankCommandHandler:
 
             # remove the clan members without a discord id
             clan_discord_members: list[Optional[Member]] = [
-                await ctx.guild.get_member(clan_member.discord_id)
+                await ctx.guild.fetch_member(clan_member.discord_id)
                 for clan_member in clan_members.members
                 if clan_member.discord_id
             ]

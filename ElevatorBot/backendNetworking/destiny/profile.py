@@ -37,7 +37,7 @@ class DestinyProfile(BaseBackendConnection):
         )
 
         # check if the discord member is actually found
-        discord_member = await self.discord_guild.get_member(result.result["discord_id"])
+        discord_member = await self.discord_guild.fetch_member(result.result["discord_id"])
         if not discord_member:
             error = "DestinyIdNotFound"
             await self.ctx.send(

@@ -19,7 +19,7 @@ class PersistentMessages(BackendPersistentMessages):
 
         if result:
             channel = await self.guild.fetch_channel(result.channel_id)
-            message = await channel.get_message(result.message_id) if channel else None
+            message = await channel.fetch_message(result.message_id) if channel else None
 
             return channel, message
 
@@ -43,11 +43,10 @@ async def handle_setup_command(
     # check that the message exists
     message = None
     if message_id:
-        try:
-            message = await channel.get_message(message_id)
-            if message.author != message.guild.me:
-                raise NotFound
-        except NotFound:
+        message = await channel.fetch_message(message_id)
+        if message and message.author != message.guild.me:
+            message = None
+        if not message:
             await respond_wrong_author(ctx=ctx, author_must_be=ctx.bot.user)
             return
 
@@ -75,9 +74,9 @@ async def handle_setup_command(
 
     # delete the old message if that existed and is not the same message
     if old_data and old_data.message_id and old_data.message_id != message.id:
-        old_channel = await ctx.bot.get_channel(old_data.channel_id)
+        old_channel = await ctx.bot.fetch_channel(old_data.channel_id)
         if old_channel:
-            old_message = await old_channel.get_message(old_data.message_id)
+            old_message = await old_channel.fetch_message(old_data.message_id)
             if old_message:
                 await old_message.delete()
 

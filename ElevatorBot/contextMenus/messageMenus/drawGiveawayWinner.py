@@ -48,7 +48,7 @@ class GiveawayWinners(BaseScale):
 
         # draw a winner
         drawn = random.choice(data.discord_ids)
-        drawn_member = await ctx.guild.get_member(drawn)
+        drawn_member = await ctx.guild.fetch_member(drawn)
 
         if not drawn_member:
             await ctx.send(

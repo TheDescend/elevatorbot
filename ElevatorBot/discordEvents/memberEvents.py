@@ -122,7 +122,7 @@ async def on_member_remove(event: MemberRemove):
 
     # delete them from all of them
     for lfg_event in result.joined + result.backup:
-        guild = event.bot.get_guild(lfg_event.guild_id)
+        guild = await event.bot.fetch_guild(lfg_event.guild_id)
         if not guild:
             raise ValueError
         backend = DestinyLfgSystem(ctx=None, discord_guild=guild)

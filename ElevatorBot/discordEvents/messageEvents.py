@@ -1,8 +1,12 @@
 import random
+import re
 
+import github
 from dis_snek import AutoArchiveDuration, ChannelTypes, ThreadList
 from dis_snek.api.events import MessageCreate, MessageDelete, MessageUpdate
 
+from ElevatorBot.backendNetworking.github import get_github_repo
+from ElevatorBot.core.misc.github import github_manager
 from ElevatorBot.misc.cache import reply_cache
 from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.static.descendOnlyIds import descend_channels
@@ -61,7 +65,7 @@ async def on_message_create(event: MessageCreate, edit_mode: bool = False):
                     descend_channels.bot_dev_channel.id,
                 ] and thread.name.startswith("Message from"):
                     linked_user_id = thread.name.split("|")[1]
-                    linked_user = await event.bot.get_user(linked_user_id)
+                    linked_user = await event.bot.fetch_user(linked_user_id)
 
                     if linked_user:
                         # save in cache
@@ -77,7 +81,7 @@ async def on_message_create(event: MessageCreate, edit_mode: bool = False):
                         content.removeprefix(event.bot.user.mention)
 
                         # alright, lets send that to the linked member
-                        linked_user = await event.bot.get_user(reply_cache.thread_to_user[thread])
+                        linked_user = await event.bot.fetch_user(reply_cache.thread_to_user[thread])
 
                         # send the message
                         if not edit_mode:
@@ -111,7 +115,7 @@ async def on_message_create(event: MessageCreate, edit_mode: bool = False):
             mutual_guilds = message.author.mutual_guilds
             if mutual_guilds:
                 # check is author is in descend. Checking COMMAND_GUILD_SCOPE for that, since that already has the id and doesn't break testing
-                allowed_guilds = [event.bot.get_guild(guild_id) for guild_id in get_setting("COMMAND_GUILD_SCOPE")]
+                allowed_guilds = [event.bot.fetch_guild(guild_id) for guild_id in get_setting("COMMAND_GUILD_SCOPE")]
                 mutual_allowed_guilds = [g for g in allowed_guilds if g.id in mutual_guilds]
 
                 if mutual_allowed_guilds:
@@ -127,7 +131,7 @@ async def on_message_create(event: MessageCreate, edit_mode: bool = False):
                         thread = reply_cache.user_to_thread[message.author.id]
 
                     else:
-                        channel_threads: ThreadList = await descend_channels.admin_channel.get_all_threads()
+                        channel_threads: ThreadList = await descend_channels.admin_channel.fetch_all_threads()
 
                         # maybe a thread does exist, but is not cached since we restarted
                         threads = [thread for thread in channel_threads.threads if thread.name == thread_name]
@@ -244,6 +248,32 @@ async def on_message_create(event: MessageCreate, edit_mode: bool = False):
                     if member == event.bot.user:
                         await message.add_reaction(custom_emojis.ping)
                         break
+
+                # make deving with github easier
+                if (
+                    event.message.channel == descend_channels.bot_dev_channel
+                    or event.message.channel == descend_channels.admin_channel
+                ):
+                    message = event.message
+                    try:
+                        in_data = message.content.lower()
+
+                        try:
+                            if "github.com/" in in_data and "#l" in in_data:
+                                return await github_manager.send_snippet(message)
+                            elif data := re.search(r"(?:\s|^)#(\d{1,3})(?:\s|$)", in_data):
+                                issue = await github_manager.get_issue(await get_github_repo(), int(data.group(1)))
+                                if not issue:
+                                    return
+
+                                if issue.pull_request:
+                                    pr = await github_manager.get_pull(await get_github_repo(), int(data.group(1)))
+                                    return await github_manager.send_pr(message=message, pr=pr)
+                                return await github_manager.send_issue(message, issue)
+                        except github.UnknownObjectException:
+                            pass
+                    except github.GithubException:
+                        pass
 
             # =========================================================================
             # valid for all guilds

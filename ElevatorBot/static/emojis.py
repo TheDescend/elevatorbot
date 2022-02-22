@@ -102,8 +102,8 @@ class __ElevatorEmojis:
         # get all emojis from the emote servers
         for guild_id in [768902336914391070, 724676552175910934, 556418279015448596, 697720309847162921]:
             try:
-                if guild := client.get_guild(guild_id):
-                    emojis.extend(await guild.get_all_custom_emojis())
+                if guild := await client.fetch_guild(guild_id):
+                    emojis.extend(await guild.fetch_all_custom_emojis())
             except Forbidden:
                 # no access to descend servers
                 continue

@@ -113,12 +113,12 @@ class LfgMessage:
         """Parse the info from the pydantic model"""
 
         if not guild:
-            guild = client.get_guild(model.guild_id)
+            guild = await client.fetch_guild(model.guild_id)
             if not guild:
                 raise ValueError
 
         # fill class info
-        channel: GuildText = await client.get_channel(model.channel_id)
+        channel: GuildText = await client.fetch_channel(model.channel_id)
         start_time: datetime.datetime = model.start_time
 
         # delete if in the past
@@ -127,11 +127,8 @@ class LfgMessage:
             return
 
         # make sure the message exists
-        try:
-            if not model.message_id:
-                raise NotFound
-            message = await channel.get_message(model.message_id)
-        except NotFound:
+        message = await channel.fetch_message(model.message_id) if model.message_id else None
+        if not message:
             await backend.delete(discord_member_id=model.author_id, lfg_id=model.id)
             return
 
@@ -150,8 +147,8 @@ class LfgMessage:
             creation_time=model.creation_time,
             joined_ids=model.joined_members,
             backup_ids=model.backup_members,
-            voice_channel=await client.get_channel(model.voice_channel_id) if model.voice_channel_id else None,
-            voice_category_channel=await client.get_channel(model.voice_category_channel_id)
+            voice_channel=await client.fetch_channel(model.voice_channel_id) if model.voice_channel_id else None,
+            voice_category_channel=await client.fetch_channel(model.voice_category_channel_id)
             if model.voice_category_channel_id
             else None,
             started=model.started,
@@ -245,13 +242,13 @@ class LfgMessage:
             client=ctx.bot,
             id=result.id,
             guild=ctx.guild,
-            channel=await ctx.bot.get_channel(result.channel_id),
+            channel=await ctx.bot.fetch_channel(result.channel_id),
             author_id=ctx.author.id,
             activity=activity,
             description=description,
             start_time=start_time,
             max_joined_members=max_joined_members,
-            voice_category_channel=await ctx.bot.get_channel(result.voice_category_channel_id)
+            voice_category_channel=await ctx.bot.fetch_channel(result.voice_category_channel_id)
             if result.voice_category_channel_id
             else None,
             joined_ids=[ctx.author.id],
@@ -400,7 +397,7 @@ class LfgMessage:
 
         for user_id in self.joined_ids + self.backup_ids:
             try:
-                user = await self.guild.get_member(user_id)
+                user = await self.guild.fetch_member(user_id)
                 if user:
                     await user.send(embed=embed)
             except Forbidden:
@@ -493,7 +490,7 @@ class LfgMessage:
             if missing > 0:
                 for user_id in self.backup_ids:
                     try:
-                        user = await self.guild.get_member(user_id)
+                        user = await self.guild.fetch_member(user_id)
                         if user:
                             await user.send(embed=embed)
                     except Forbidden:
@@ -502,7 +499,7 @@ class LfgMessage:
         # dm the users
         for user_id in self.joined_ids:
             try:
-                user = await self.guild.get_member(user_id)
+                user = await self.guild.fetch_member(user_id)
                 if user:
                     await user.send(embed=embed)
             except Forbidden:
@@ -545,7 +542,7 @@ class LfgMessage:
                 if event.started:
                     continue
 
-                message = await self.channel.get_message(event.message_id)
+                message = await self.channel.fetch_message(event.message_id)
                 sorted_messages_by_creation_time.append(message)
                 lfg_messages.append(
                     LfgMessage(
@@ -563,10 +560,10 @@ class LfgMessage:
                         creation_time=event.creation_time,
                         joined_ids=event.joined_members,
                         backup_ids=event.backup_members,
-                        voice_channel=await self.client.get_channel(event.voice_channel_id)
+                        voice_channel=await self.client.fetch_channel(event.voice_channel_id)
                         if event.voice_channel_id
                         else None,
-                        voice_category_channel=await self.client.get_channel(event.voice_category_channel_id)
+                        voice_category_channel=await self.client.fetch_channel(event.voice_category_channel_id)
                         if event.voice_category_channel_id
                         else None,
                         started=event.started,
@@ -589,7 +586,7 @@ class LfgMessage:
 
         mentions = []
         for member_id in self.joined_ids:
-            member = await self.guild.get_member(member_id)
+            member = await self.guild.fetch_member(member_id)
             mentions.append(member.mention if member else f"`{member_id}`")
         return mentions
 
@@ -598,7 +595,7 @@ class LfgMessage:
 
         mentions = []
         for member_id in self.backup_ids:
-            member = await self.guild.get_member(member_id)
+            member = await self.guild.fetch_member(member_id)
             mentions.append(member.mention if member else f"`{member_id}`")
         return mentions
 
@@ -649,7 +646,7 @@ class LfgMessage:
         data = io.StringIO(str(calendar))
 
         # send this in the spam channel in one of the test servers
-        spam_server: GuildText = await self.client.get_channel(get_setting("DESCEND_SPAM_CHANNEL_ID"))
+        spam_server: GuildText = await self.client.fetch_channel(get_setting("DESCEND_SPAM_CHANNEL_ID"))
         file_message = await spam_server.send(file=File(file=data, file_name=f"lfg_event_{self.id}.ics"))
 
         return file_message.attachments[0].url
@@ -657,7 +654,7 @@ class LfgMessage:
     async def __return_embed(self) -> Embed:
         """Return the formatted embed"""
 
-        author = await self.guild.get_member(self.author_id)
+        author = await self.guild.fetch_member(self.author_id)
         embed = embed_message(
             footer=f"Creator: {author.display_name if author else self.author_id}",
         )

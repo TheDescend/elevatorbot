@@ -64,7 +64,7 @@ class Roles:
 
         roles: list[str] = []
         for role_id, user_role in zip(role_data.require_collectibles, user_data.require_collectibles):
-            roles.append(f"{(await self.guild.get_role(role_id.id)).mention}: {user_role}")
+            roles.append(f"{(await self.guild.fetch_role(role_id.id)).mention}: {user_role}")
 
         # add the embed fields
         if activities:
@@ -179,7 +179,7 @@ class Roles:
             old_roles = {}
             new_roles = {}
             for role_data in all_earned_roles:
-                discord_role = await self.guild.get_role(role_data.discord_role_id)
+                discord_role = await self.guild.fetch_role(role_data.discord_role_id)
                 category = role_data.category
 
                 if discord_role:
@@ -218,6 +218,6 @@ class Roles:
         for role_data in items:
             if role_data.category not in by_category:
                 by_category.update({role_data.category: []})
-            by_category[role_data.category].append((await self.guild.get_role(role_data.discord_role_id)).mention)
+            by_category[role_data.category].append((await self.guild.fetch_role(role_data.discord_role_id)).mention)
 
         return by_category

@@ -38,7 +38,7 @@ class RegisteredRoleCache:
             if not result:
                 return
 
-            role = await guild.get_role(result.channel_id)
+            role = await guild.fetch_role(result.channel_id)
             if not role:
                 return
 
@@ -105,7 +105,7 @@ class DescendCache:
             return
 
         channel = await descend_channels.guild.fetch_channel(result.channel_id)
-        self.status_message = await channel.get_message(result.message_id)
+        self.status_message = await channel.fetch_message(result.message_id)
 
 
 @dataclasses.dataclass

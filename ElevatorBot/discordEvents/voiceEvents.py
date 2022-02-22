@@ -32,7 +32,7 @@ async def left_channel(event: VoiceStateUpdate):
     # get the lfg voice category
     persistent_messages = PersistentMessages(ctx=None, guild=event.before.guild, message_name="lfg_voice_category")
     result = await persistent_messages.get()
-    lfg_voice_category_channel = await event.bot.get_channel(result.channel_id)
+    lfg_voice_category_channel = await event.bot.fetch_channel(result.channel_id)
 
     # check if the channel was a lfg channel (correct category)
     if event.before.channel.category == lfg_voice_category_channel:

@@ -8,6 +8,7 @@ from typing import Optional
 import aiohttp
 from anyio import create_task_group
 from dis_snek import File, GuildText, InteractionContext, Member, Message, Timestamp, TimestampStyles
+from dis_snek.client.errors import NotFound
 
 from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
 from ElevatorBot.backendNetworking.destiny.activities import DestinyActivities
@@ -90,7 +91,7 @@ class DayOneRace:
                     )
                     await self.channel.send(file=File(file=data, file_name="raid_image.png"))
 
-        self.leaderboard_channel = await self.ctx.bot.get_channel(self.leaderboard_channel)
+        self.leaderboard_channel = await self.ctx.bot.fetch_channel(self.leaderboard_channel)
         if not self.leaderboard_channel:
             await something_went_wrong(ctx=self.ctx)
             return
@@ -105,7 +106,7 @@ class DayOneRace:
         self.clan_members = await clan.get_clan_members()
 
         for member in self.clan_members.members:
-            discord_member = await self.ctx.guild.get_member(member.discord_id) if member.discord_id else None
+            discord_member = await self.ctx.guild.fetch_member(member.discord_id) if member.discord_id else None
             if not discord_member:
                 await self.ctx.send(f"Don't know discord_id for {member.name}", ephemeral=True)
                 return
