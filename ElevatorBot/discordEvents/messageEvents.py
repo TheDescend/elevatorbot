@@ -250,30 +250,28 @@ async def on_message_create(event: MessageCreate, edit_mode: bool = False):
                         break
 
                 # make deving with github easier
-                if (
-                    event.message.channel == descend_channels.bot_dev_channel
-                    or event.message.channel == descend_channels.admin_channel
-                ):
-                    message = event.message
-                    try:
-                        in_data = message.content.lower()
+                message = event.message
+                in_data = message.content.lower()
 
-                        try:
-                            if "github.com/" in in_data and "#l" in in_data:
-                                return await github_manager.send_snippet(message)
-                            elif data := re.search(r"(?:\s|^)#(\d{1,3})(?:\s|$)", in_data):
-                                issue = await github_manager.get_issue(await get_github_repo(), int(data.group(1)))
-                                if not issue:
-                                    return
+                try:
+                    if "github.com/" in in_data and "#l" in in_data:
+                        return await github_manager.send_snippet(message)
+                    elif data := re.search(r"(?:\s|^)#(\d{1,3})(?:\s|$)", in_data):
+                        # only send issues and prs in the dev channels
+                        if (
+                            event.message.channel == descend_channels.bot_dev_channel
+                            or event.message.channel == descend_channels.admin_channel
+                        ):
+                            issue = await github_manager.get_issue(await get_github_repo(), int(data.group(1)))
+                            if not issue:
+                                return
 
-                                if issue.pull_request:
-                                    pr = await github_manager.get_pull(await get_github_repo(), int(data.group(1)))
-                                    return await github_manager.send_pr(message=message, pr=pr)
-                                return await github_manager.send_issue(message, issue)
-                        except github.UnknownObjectException:
-                            pass
-                    except github.GithubException:
-                        pass
+                            if issue.pull_request:
+                                pr = await github_manager.get_pull(await get_github_repo(), int(data.group(1)))
+                                return await github_manager.send_pr(message=message, pr=pr)
+                            return await github_manager.send_issue(message, issue)
+                except (github.UnknownObjectException, github.GithubException):
+                    pass
 
             # =========================================================================
             # valid for all guilds
