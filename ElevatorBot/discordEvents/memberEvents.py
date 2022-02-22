@@ -2,6 +2,7 @@ import asyncio
 
 from dis_snek import ActionRow, Button, ButtonStyles, Member
 from dis_snek.api.events import Component, MemberAdd, MemberRemove, MemberUpdate
+from dis_snek.client.errors import Forbidden
 
 from ElevatorBot.backendNetworking.destiny.clan import DestinyClan
 from ElevatorBot.backendNetworking.destiny.lfgSystem import DestinyLfgSystem
@@ -23,12 +24,15 @@ async def on_member_add(event: MemberAdd):
         # descend only stuff
         if event.member.guild == descend_channels.guild:
             # inform the user that they should register with the bot
-            await event.member.send(
-                embeds=embed_message(
-                    f"{custom_emojis.descend_logo} Welcome to Descend {event.member.user.tag}! {custom_emojis.descend_logo}",
-                    f"Before you can do anything else, you need to accept our rules. Please read them and accept them [> here <](discord://-/event.member-verification/{descend_channels.guild.id}), if you have not done so already \n⁣\nYou can join the Destiny 2 clan in {descend_channels.registration_channel.mention}\nYou can find our current requirements in the same channel. \n⁣\nWe have a wide variety of roles you can earn, for more information, please use `roles overview` or check out {descend_channels.community_roles_channel.mention}\n⁣\nIf you have any problems / questions, do not hesitate to write {event.bot.user.mention} (me) a personal message with your problem / question. This will get forwarded to staff",
+            try:
+                await event.member.send(
+                    embeds=embed_message(
+                        f"{custom_emojis.descend_logo} Welcome to Descend {event.member.user.tag}! {custom_emojis.descend_logo}",
+                        f"Before you can do anything else, you need to accept our rules. Please read them and accept them [> here <](discord://-/event.member-verification/{descend_channels.guild.id}), if you have not done so already \n⁣\nYou can join the Destiny 2 clan in {descend_channels.registration_channel.mention}\nYou can find our current requirements in the same channel. \n⁣\nWe have a wide variety of roles you can earn, for more information, please use `roles overview` or check out {descend_channels.community_roles_channel.mention}\n⁣\nIf you have any problems / questions, do not hesitate to write {event.bot.user.mention} (me) a personal message with your problem / question. This will get forwarded to staff",
+                    )
                 )
-            )
+            except Forbidden:
+                pass
 
         await _assign_roles_on_join(member=event.member)
 

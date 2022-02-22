@@ -102,8 +102,8 @@ class NetworkBase:
                         return WebResponse.from_dict(response.__dict__)
 
             except (asyncio.exceptions.TimeoutError, ConnectionResetError, ServerDisconnectedError) as error:
-                self.logger_exceptions.error(
-                    f"Timeout error ('{error}') for '{route}?{urlencode({} if params is None else params)}'. Retrying..."
+                self.logger.warning(
+                    f"Retrying... - Timeout error ('{error}') for '{route}?{urlencode({} if params is None else params)}'"
                 )
                 await asyncio.sleep(random.randrange(2, 6))
                 continue
@@ -131,7 +131,7 @@ class NetworkBase:
         # make sure the return is a json, sometimes we get a http file for some reason
         elif "application/json" not in request.headers["Content-Type"]:
             self.logger_exceptions.error(
-                f"""'{request.status}': Wrong content type '{request.headers["Content-Type"]}' with reason '{request.reason}' for '{route_with_params}'"""
+                f"""'{request.status}': Retrying... - Wrong content type '{request.headers["Content-Type"]}' with reason '{request.reason}' for '{route_with_params}'"""
             )
             print(f"""Bungie returned Content-Type: {request.headers["Content-Type"]}""")
             if request.status == 200:
@@ -200,40 +200,13 @@ class NetworkBase:
                 )
                 raise CustomException("BungieUnauthorized")
 
-            case (404, error):
-                # not found
-                self.logger_exceptions.error(
-                    f"'{response.status} - {error}': No stats found for '{route_with_params}' - '{response}'"
-                )
-                raise CustomException("BungieBadRequest")
-
-            case (429, error):
-                # rate limited
-                self.logger_exceptions.warning(
-                    f"'{response.status} - {error}': Getting rate limited for '{route_with_params}' - '{response}'"
-                )
-                await asyncio.sleep(2)
-
-            case (400, error):
-                # generic bad request, such as wrong format
-                self.logger_exceptions.error(
-                    f"'{response.status} - {error}': Generic bad request for '{route_with_params}' - '{response}'"
-                )
-                raise CustomException("BungieDed")
-
-            case (503, error):
-                self.logger_exceptions.error(
-                    f"'{response.status} - {error}': Server is overloaded for '{route_with_params}' - '{response}'"
-                )
-                await asyncio.sleep(10)
-
             case (status, "PerEndpointRequestThrottleExceeded" | "DestinyDirectBabelClientTimeout"):
                 # we are getting throttled (should never be called in theory)
-                self.logger_exceptions.warning(
-                    f"'{status} - {response.error}': Getting throttled for '{route_with_params}' - '{response}'"
+                self.logger.warning(
+                    f"'{status} - {response.error}': Retrying... - Getting throttled for '{route_with_params}' - '{response}'"
                 )
 
-                throttle_seconds = response.content["ErrorStatus"]["ThrottleSeconds"]
+                throttle_seconds = response.content["ThrottleSeconds"]
 
                 # reset the ratelimit giver
                 self.limiter.tokens = 0
@@ -246,50 +219,84 @@ class NetworkBase:
 
             case (status, "GroupMembershipNotFound"):
                 # if user isn't in clan
-                self.logger.error(
+                self.logger_exceptions.error(
                     f"'{status} - {response.error}': User is not in clan '{route_with_params}' - '{response}'"
                 )
                 raise CustomException("BungieGroupMembershipNotFound")
 
             case (status, "DestinyItemNotFound"):
                 # if user doesn't have that item
-                self.logger.error(
+                self.logger_exceptions.error(
                     f"'{status} - {response.error}': User doesn't have that item for '{route_with_params}' - '{response}'"
                 )
                 raise CustomException("BungieDestinyItemNotFound")
 
             case (status, "DestinyPrivacyRestriction"):
                 # private profile
-                self.logger.error(
+                self.logger_exceptions.error(
                     f"'{status} - {response.error}': User has private Profile for '{route_with_params}' - '{response}'"
                 )
                 raise CustomException("BungieDestinyPrivacyRestriction")
 
             case (status, "DestinyDirectBabelClientTimeout"):
                 # timeout
-                self.logger_exceptions.warning(
-                    f"'{status} - {response.error}': Getting timeouts for '{route_with_params}' - '{response}'"
+                self.logger.warning(
+                    f"'{status} - {response.error}': Retrying... - Getting timeouts for '{route_with_params}' - '{response}'"
+                )
+                await asyncio.sleep(60)
+
+            case (status, "DestinyServiceFailure"):
+                # timeout
+                self.logger.warning(
+                    f"'{status} - {response.error}': Retrying... - Bungie is having problems '{route_with_params}' - '{response}'"
                 )
                 await asyncio.sleep(60)
 
             case (status, "ClanTargetDisallowsInvites"):
                 # user has disallowed clan invites
-                self.logger.error(
+                self.logger_exceptions.error(
                     f"'{status} - {response.error}': User disallows clan invites '{route_with_params}' - '{response}'"
                 )
                 raise CustomException("BungieClanTargetDisallowsInvites")
 
-            case (status, "AuthorizationRecordRevoked"):
+            case (status, "AuthorizationRecordRevoked" | "AuthorizationRecordExpired"):
                 # users tokens are no longer valid
-                self.logger.error(
+                self.logger_exceptions.error(
                     f"'{status} - {response}': User refresh token is outdated and they need to re-registration for '{route_with_params}' - '{response.error_message}'"
                 )
                 raise CustomException("NoToken")
 
+            case (404, error):
+                # not found
+                self.logger_exceptions.error(
+                    f"'{response.status} - {error}': No stats found for '{route_with_params}' - '{response}'"
+                )
+                raise CustomException("BungieBadRequest")
+
+            case (429, error):
+                # rate limited
+                self.logger.warning(
+                    f"'{response.status} - {error}': Retrying... - Getting rate limited for '{route_with_params}' - '{response}'"
+                )
+                await asyncio.sleep(2)
+
+            case (400, error):
+                # generic bad request, such as wrong format
+                self.logger_exceptions.error(
+                    f"'{response.status} - {error}': Generic bad request for '{route_with_params}' - '{response}'"
+                )
+                raise CustomException("BungieBadRequest")
+
+            case (503, error):
+                self.logger_exceptions.error(
+                    f"'{response.status} - {error}': Retrying... - Server is overloaded for '{route_with_params}' - '{response}'"
+                )
+                await asyncio.sleep(10)
+
             case (status, error):
                 # catch the rest
                 self.logger_exceptions.error(
-                    f"'{status} - {error}': Request failed for '{route_with_params}' - '{response}'"
+                    f"'{status} - {error}': Retrying... - Request failed for '{route_with_params}' - '{response}'"
                 )
                 await asyncio.sleep(2)
 

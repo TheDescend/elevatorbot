@@ -27,13 +27,15 @@ class CRUDActivitiesFailToGet(CRUDBase):
     async def insert(self, db: AsyncSession, instance_id: int, period: datetime.datetime):
         """Insert missing pgcr"""
 
-        if await self._get_with_key(db=db, primary_key=instance_id) is None:
-            await self._insert(db=db, to_create=ActivitiesFailToGet(instance_id=instance_id, period=period))
+        async with asyncio.Lock():
+            if await self._get_with_key(db=db, primary_key=instance_id) is None:
+                await self._insert(db=db, to_create=ActivitiesFailToGet(instance_id=instance_id, period=period))
 
     async def delete(self, db: AsyncSession, obj: ActivitiesFailToGet):
         """Insert missing pgcr"""
 
-        await self._delete(db=db, obj=obj)
+        async with asyncio.Lock():
+            await self._delete(db=db, obj=obj)
 
 
 class CRUDActivities(CRUDBase):

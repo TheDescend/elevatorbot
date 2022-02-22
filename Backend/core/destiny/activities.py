@@ -281,6 +281,11 @@ class DestinyActivities:
                 results.append((i, t, pgcr.content))
 
             except Exception as e:
+                # stop everything if bungie is ded
+                if isinstance(e, CustomException):
+                    if e.error == "BungieDed":
+                        raise e
+
                 # log that
                 print(e)
                 logger_exceptions.error(
@@ -358,7 +363,12 @@ class DestinyActivities:
                         continue
                     else:
                         # get and input the data
-                        await input_data(instance_ids, activity_times)
+                        try:
+                            await input_data(instance_ids, activity_times)
+                        except CustomException as error:
+                            if error.error == "BungieDed":
+                                return
+                            raise error
 
                         # reset task list and restart
                         instance_ids = []
@@ -373,7 +383,12 @@ class DestinyActivities:
             # one last time to clean out the extras after the code is done
             if instance_ids:
                 # get and input the data
-                await input_data(instance_ids, activity_times)
+                try:
+                    await input_data(instance_ids, activity_times)
+                except CustomException as error:
+                    if error.error == "BungieDed":
+                        return
+                    raise error
 
             # update them with the newest entry timestamp
             if start_time:

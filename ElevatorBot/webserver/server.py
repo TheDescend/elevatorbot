@@ -22,11 +22,12 @@ async def log_requests(request: web.Request, handler):
         return response
 
     except Exception as error:
-        # logger any errors
-        logger = logging.getLogger("webServerExceptions")
-        logger.error(
-            f"""'{error}' for '{request.path_qs}' with body '{await request.json() if request.body_exists else ""}' - Traceback: \n'{"".join(traceback.format_tb(error.__traceback__))}'"""
-        )
+        if not isinstance(error, web.HTTPClientError):
+            # logger any errors
+            logger = logging.getLogger("webServerExceptions")
+            logger.error(
+                f"""'{error}' for '{request.path_qs}' with body '{await request.json() if request.body_exists else ""}' - Traceback: \n'{"".join(traceback.format_tb(error.__traceback__))}'"""
+            )
         raise error
 
 

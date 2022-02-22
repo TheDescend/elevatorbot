@@ -1,5 +1,6 @@
 import aiohttp
 import feedparser
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.backgroundEvents.base import BaseEvent
 from Backend.crud import persistent_messages, rss_feed
@@ -15,15 +16,15 @@ class RssFeedChecker(BaseEvent):
         super().__init__(scheduler_type="interval", interval_minutes=interval_minutes)
 
     async def run(self):
-        async with get_async_sessionmaker().begin() as db:
-            # use aiohttp to make the request instead of feedparsers request usage
-            async with aiohttp.ClientSession() as session:
-                async with session.get("https://www.bungie.net/en/rss/News") as resp:
-                    if resp.status == 200:
-                        text = await resp.text()
-                    else:
-                        return
+        # use aiohttp to make the request instead of feedparsers request usage
+        async with aiohttp.ClientSession() as session:
+            async with session.get("https://www.bungie.net/en/rss/News") as resp:
+                if resp.status == 200:
+                    text = await resp.text()
+                else:
+                    return
 
+        async with get_async_sessionmaker().begin() as db:
             feed = feedparser.parse(text)
 
             # loop through the articles and check if they have been published

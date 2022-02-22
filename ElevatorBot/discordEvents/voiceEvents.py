@@ -29,13 +29,17 @@ async def on_voice_state_update(event: VoiceStateUpdate):
 async def left_channel(event: VoiceStateUpdate):
     """Gets triggered when a member leaves a channel"""
 
+    # ignore this is it is not a voice channel in a category
+    if not event.before.channel.category:
+        return
+
     # get the lfg voice category
     persistent_messages = PersistentMessages(ctx=None, guild=event.before.guild, message_name="lfg_voice_category")
     result = await persistent_messages.get()
     lfg_voice_category_channel = await event.bot.fetch_channel(result.channel_id)
 
     # check if the channel was a lfg channel (correct category)
-    if event.before.channel.category == lfg_voice_category_channel:
+    if lfg_voice_category_channel and event.before.channel.category == lfg_voice_category_channel:
         # check if channel is now empty
         if len(event.before.channel.voice_members) == 1:
             # get the guilds lfg events
@@ -80,6 +84,10 @@ async def left_channel(event: VoiceStateUpdate):
 
 async def joined_channel(event: VoiceStateUpdate):
     """Gets triggered when a member joins a channel"""
+
+    # ignore this is it is not a voice channel in a category
+    if not event.after.channel.category:
+        return
 
     # only do this for descend
     if event.after and event.after.guild == descend_channels.guild:
