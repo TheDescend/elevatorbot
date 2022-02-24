@@ -19,7 +19,7 @@ class DefaultDict:
 
     _dict: dict
 
-    def get(self, *keys: Any, default: Optional = None) -> Optional[Any]:
+    def get(self, *keys: Any, default: Optional[Any] = None) -> Any:
         """Get the key value or None"""
 
         depth = self._dict
