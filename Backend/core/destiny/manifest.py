@@ -182,12 +182,16 @@ class DestinyManifest:
         # save data to bulk insert later
         to_insert = []
         for reference_id, values in content.items():
+            # source hash can be classified
+            if source_hash := values.get("sourceHash") == "Classified":
+                source_hash = 0
+
             to_insert.append(
                 DestinyCollectibleDefinition(
                     reference_id=int(reference_id),
                     description=values.get("displayProperties", "description"),
                     name=values.get("displayProperties", "name"),
-                    source_hash=values.get("sourceHash"),
+                    source_hash=source_hash,
                     item_hash=values.get("itemHash"),
                     parent_node_hashes=values.get("parentNodeHashes"),
                 )
