@@ -161,8 +161,8 @@ class DestinyManifest:
                     direct_activity_mode_type=direct_activity_mode_type,
                     activity_mode_hashes=activity_mode_hashes,
                     activity_mode_types=activity_mode_types,
-                    matchmade=values.get("matchmaking", "isMatchmade") or False,
-                    max_players=values.get("matchmaking", "maxParty") or 0,
+                    matchmade=values.get("matchmaking", "isMatchmade", default=False),
+                    max_players=values.get("matchmaking", "maxParty", default=0),
                 )
             )
 
@@ -183,10 +183,8 @@ class DestinyManifest:
         to_insert = []
         for reference_id, values in content.items():
             # hashes can be classified
-            parent_node_hashes = values.get("parentNodeHashes")
-            if source_hash := values.get("sourceHash") == "Classified":
-                source_hash = 0
-                parent_node_hashes = []
+            if (source_hash := values.get("sourceHash", default=-1)) == "Classified":
+                source_hash = -1
 
             to_insert.append(
                 DestinyCollectibleDefinition(
@@ -195,7 +193,7 @@ class DestinyManifest:
                     name=values.get("displayProperties", "name"),
                     source_hash=source_hash,
                     item_hash=values.get("itemHash"),
-                    parent_node_hashes=parent_node_hashes,
+                    parent_node_hashes=values.get("parentNodeHashes", default=[]),
                 )
             )
 
@@ -226,7 +224,7 @@ class DestinyManifest:
                     class_type=values.get("classType"),
                     bucket_type_hash=values.get("inventory", "bucketTypeHash"),
                     tier_type=values.get("inventory", "tierType"),
-                    tier_type_name=values.get("inventory", "tierTypeName") or "Unknown",
+                    tier_type_name=values.get("inventory", "tierTypeName", default="Unknown"),
                     equippable=values.get("equippable"),
                     default_damage_type=values.get("defaultDamageType"),
                     ammo_type=values.get("equippingBlock", "ammoType"),
@@ -313,12 +311,14 @@ class DestinyManifest:
                     objective_hash=values.get("objectiveHash"),
                     presentation_node_type=values.get("presentationNodeType"),
                     children_presentation_node_hash=[
-                        list(x.values())[0] for x in values.get("children", "presentationNodes")
+                        list(x.values())[0] for x in values.get("children", "presentationNodes", default=[])
                     ],
-                    children_collectible_hash=[list(x.values())[0] for x in values.get("children", "collectibles")],
-                    children_record_hash=[list(x.values())[0] for x in values.get("children", "records")],
-                    children_metric_hash=[list(x.values())[0] for x in values.get("children", "metrics")],
-                    parent_node_hashes=values.get("parentNodeHashes"),
+                    children_collectible_hash=[
+                        list(x.values())[0] for x in values.get("children", "collectibles", default=[])
+                    ],
+                    children_record_hash=[list(x.values())[0] for x in values.get("children", "records", default=[])],
+                    children_metric_hash=[list(x.values())[0] for x in values.get("children", "metrics", default=[])],
+                    parent_node_hashes=values.get("parentNodeHashes", default=[]),
                     index=values.get("index"),
                     redacted=values.get("redacted"),
                     completion_record_hash=values.get("completionRecordHash"),
