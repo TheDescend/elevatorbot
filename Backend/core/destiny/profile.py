@@ -853,7 +853,7 @@ class DestinyProfile:
         response = await self.api.get(route=route, params=params, with_token=True)
 
         # get bungie name
-        bungie_name = f"""{response.content["profile"]["data"]["userInfo"]["bungieGlobalDisplayName"]}#{response.content["profile"]["data"]["userInfo"]["bungieGlobalDisplayNameCode"]}"""
+        bungie_name = f"""{response.content["profile"]["data"]["userInfo"]["bungieGlobalDisplayName"]}#{str(response.content["profile"]["data"]["userInfo"]["bungieGlobalDisplayNameCode"]).zfill(4)}"""
 
         # update name if different
         if bungie_name != self.user.bungie_name:

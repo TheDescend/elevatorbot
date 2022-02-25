@@ -17,6 +17,7 @@ from Backend.database.models import DiscordUsers
 from Backend.misc.cache import cache
 from Backend.networking.base import NetworkBase
 from Backend.networking.elevatorApi import ElevatorApi
+from Shared.enums.elevator import DestinySystemEnum
 from Shared.functions.helperFunctions import get_min_with_tz, get_now_with_tz, localize_datetime
 from Shared.functions.readSettingsFile import get_setting
 from Shared.networkingSchemas.misc.auth import BungieTokenInput, BungieTokenOutput
@@ -108,16 +109,23 @@ class CRUDDiscordUser(CRUDBase):
                 },
             )
 
+        user_should_set_up_cross_save = False
+
         # get the user's destiny info
         # this is not set if the user has no cross save
         destiny_id = destiny_info.content.get("primaryMembershipId")
         if not destiny_id:
             # if primary is not defined, there is only one
             memberships = destiny_info.content["destinyMemberships"]
-            logger = logging.getLogger("registration")
-            logger.info(destiny_info.content)
-            assert len(memberships) == 1
             destiny_id = memberships[0]["membershipId"]
+
+            # sometimes they don't have cross save set up yet have multiple entries
+            if len(memberships) > 1:
+                user_should_set_up_cross_save = True
+                for profile in memberships:
+                    # try to prefer the pc one
+                    if profile["membershipType"] == 3:
+                        destiny_id = profile["membershipId"]
 
         destiny_id = int(destiny_id)
 
@@ -129,7 +137,9 @@ class CRUDDiscordUser(CRUDBase):
                 system = profile["membershipType"]
                 if not profile["bungieGlobalDisplayName"] or not profile.get("bungieGlobalDisplayNameCode"):
                     raise CustomException("No Bungie Name found, please launch the game")
-                bungie_name = f"""{profile["bungieGlobalDisplayName"]}#{profile["bungieGlobalDisplayNameCode"]}"""
+                bungie_name = (
+                    f"""{profile["bungieGlobalDisplayName"]}#{str(profile["bungieGlobalDisplayNameCode"]).zfill(4)}"""
+                )
                 break
 
         # that should find a system 100% of the time, extra check here to be sure
@@ -211,7 +221,11 @@ class CRUDDiscordUser(CRUDBase):
                 )
 
         return (
-            BungieTokenOutput(bungie_name=user.bungie_name),
+            BungieTokenOutput(
+                bungie_name=user.bungie_name,
+                user_should_set_up_cross_save=user_should_set_up_cross_save,
+                system=DestinySystemEnum(user.system).name,
+            ),
             user,
             discord_id,
             guild_id,

@@ -87,13 +87,15 @@ class CRUDActivities(CRUDBase):
                     bungie_name = player_pgcr["player"]["destinyUserInfo"]["bungieGlobalDisplayName"]
                     if bungie_name == "":
                         bungie_name = player_pgcr["player"]["destinyUserInfo"]["displayName"]
-                        bungie_code = 0000
+                        bungie_code = "0000"
                     else:
-                        bungie_code = player_pgcr["player"]["destinyUserInfo"]["bungieGlobalDisplayNameCode"]
+                        bungie_code = str(
+                            player_pgcr["player"]["destinyUserInfo"]["bungieGlobalDisplayNameCode"]
+                        ).zfill(4)
                 except KeyError:
                     # sometimes do not even pass the field, very fun
                     bungie_name = "UnknownName"
-                    bungie_code = 0000
+                    bungie_code = "0000"
 
                 extended_data = player_pgcr.get("extended", None)
                 player = ActivitiesUsers(

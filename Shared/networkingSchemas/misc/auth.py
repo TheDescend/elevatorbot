@@ -33,4 +33,6 @@ class BungieTokenInput(CustomBaseModel):
 
 
 class BungieTokenOutput(CustomBaseModel):
+    system: str
     bungie_name: str
+    user_should_set_up_cross_save: bool
