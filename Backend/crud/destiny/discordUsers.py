@@ -1,5 +1,6 @@
 import asyncio
 import datetime
+import logging
 import time
 import urllib.parse
 from contextlib import AsyncExitStack
@@ -108,11 +109,13 @@ class CRUDDiscordUser(CRUDBase):
             )
 
         # get the user's destiny info
+        # this is not set if the user has no cross save
         destiny_id = destiny_info.content.get("primaryMembershipId")
-        is_crosssave = destiny_id is not None
         if not destiny_id:
             # if primary is not defined, there is only one
             memberships = destiny_info.content["destinyMemberships"]
+            logger = logging.getLogger("registration")
+            logger.info(destiny_info.content)
             assert len(memberships) == 1
             destiny_id = memberships[0]["membershipId"]
 

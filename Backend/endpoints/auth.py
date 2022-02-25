@@ -26,20 +26,29 @@ async def save_bungie_token(
 ):
     """Saves a bungie token"""
 
+    user = None
+
     # since this is a prerequisite for everything really, the test for this is called in insert_dummy_data()
     # it is not tested directly, since we don't want to update the activities in the background
 
     # get the initial token from the authentication
-    auth = BungieRegistration()
-    bungie_token = await auth.get_first_token(user_input=bungie_input)
+    try:
+        auth = BungieRegistration()
+        bungie_token = await auth.get_first_token(user_input=bungie_input)
 
-    # save in db
-    result, user, discord_id, guild_id = await discord_users.insert_profile(db=db, bungie_token=bungie_token)
+        # save in db
+        result, user, discord_id, guild_id = await discord_users.insert_profile(db=db, bungie_token=bungie_token)
 
-    logger = logging.getLogger("registration")
-    logger.info(
-        f"User with discord ID '{user.discord_id}' has registered successfully with destiny ID '{user.destiny_id}', system '{user.system}', and bungie name '{user.bungie_name}'"
-    )
+        logger = logging.getLogger("registration")
+        logger.info(
+            f"User with discord ID '{user.discord_id}' has registered successfully with destiny ID '{user.destiny_id}', system '{user.system}', and bungie name '{user.bungie_name}'"
+        )
+    except Exception as error:
+        logger = logging.getLogger("registration")
+        logger.error(
+            f"""Registration for ID '{user.destiny_id if user else bungie_input.state}' failed - Error '{error}' - Traceback: \n'{"".join(traceback.format_tb(error.__traceback__))}'"""
+        )
+        raise error
 
     # get users activities in background
     background_tasks.add_task(update_activities_in_background, user)
