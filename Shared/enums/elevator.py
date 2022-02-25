@@ -7,3 +7,5 @@ class DestinySystemEnum(Enum):
     STEAM = 3
     BLIZZARD = 3
     STADIA = 5
+
+    PYTEST = 555
