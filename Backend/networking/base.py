@@ -15,7 +15,7 @@ from Backend.networking.schemas import InternalWebResponse, WebResponse
 
 # the limiter object which to not get rate-limited by bungie. One obj for ever instance!
 bungie_limiter = BungieRateLimiter()
-semaphore = asyncio.Semaphore(200)
+semaphore = asyncio.Semaphore(100)
 
 
 class NetworkBase:
@@ -195,7 +195,7 @@ class NetworkBase:
 
             case (401, _) | (_, "invalid_grant" | "AuthorizationCodeInvalid"):
                 # unauthorized
-                self.logger_exceptions.error(
+                self.logger.warning(
                     f"'{response.status} - {response.error}': Unauthorized (too slow, user fault) request for '{route_with_params}'"
                 )
                 raise CustomException("BungieUnauthorized")
@@ -261,8 +261,8 @@ class NetworkBase:
 
             case (status, "AuthorizationRecordRevoked" | "AuthorizationRecordExpired"):
                 # users tokens are no longer valid
-                self.logger_exceptions.error(
-                    f"'{status} - {response}': User refresh token is outdated and they need to re-registration for '{route_with_params}' - '{response.error_message}'"
+                self.logger.warning(
+                    f"'{status} - {response.error}': User refresh token is outdated and they need to re-registration for '{route_with_params}' - '{response.error_message}'"
                 )
                 raise CustomException("NoToken")
 

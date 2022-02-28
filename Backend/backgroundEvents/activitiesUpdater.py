@@ -4,6 +4,7 @@ from Backend.backgroundEvents.base import BaseEvent
 from Backend.core.destiny.activities import DestinyActivities
 from Backend.crud import discord_users
 from Backend.database.base import get_async_sessionmaker
+from Shared.functions.helperFunctions import split_list
 
 
 class ActivitiesUpdater(BaseEvent):
@@ -31,9 +32,11 @@ class ActivitiesUpdater(BaseEvent):
                 registered_users.append(activities.update_activity_db)
 
             # update them in anyio tasks
-            async with create_task_group() as tg:
-                for func in registered_users:
-                    tg.start_soon(func)
+            # max 50 at the same time tho
+            for chunk in split_list(registered_users, 50):
+                async with create_task_group() as tg:
+                    for func in chunk:
+                        tg.start_soon(func)
 
             # try to get the missing pgcr
             await activities.update_missing_pgcr()
