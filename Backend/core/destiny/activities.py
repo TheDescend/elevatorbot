@@ -296,7 +296,8 @@ class DestinyActivities:
                 cache.saved_pgcrs.remove(i)
 
                 # looks like it failed, lets try again later
-                await crud_activities_fail_to_get.insert(db=self.db, instance_id=i, period=t)
+                async with get_async_sessionmaker().begin() as db:
+                    await crud_activities_fail_to_get.insert(db=db, instance_id=i, period=t)
 
         async def input_data(gather_instance_ids: list[int], gather_activity_times: list[datetime.datetime]):
             """Gather all pgcr and insert them"""
@@ -307,7 +308,7 @@ class DestinyActivities:
                 for i, t in zip(gather_instance_ids, gather_activity_times):
                     tg.start_soon(handle, results, i, t)
 
-            # do this with a separate DB session, do make smaller commits
+            # do this with a separate DB session, to make smaller commits
             async with get_async_sessionmaker().begin() as session:
                 for i, t, pgcr in results:
                     # insert information to DB
@@ -392,7 +393,8 @@ class DestinyActivities:
 
             # update them with the newest entry timestamp
             if start_time:
-                await discord_users.update(db=self.db, to_update=self.user, activities_last_updated=start_time)
+                async with get_async_sessionmaker().begin() as db:
+                    await discord_users.update(db=db, to_update=self.user, activities_last_updated=start_time)
 
             logger.info(f"Done with activity DB update for destinyID '{self.destiny_id}'")
 
