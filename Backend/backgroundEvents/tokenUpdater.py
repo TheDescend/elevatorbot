@@ -1,4 +1,5 @@
 from Backend.backgroundEvents.base import BaseEvent
+from Backend.core.errors import CustomException
 from Backend.crud import discord_users
 from Backend.database.base import get_async_sessionmaker
 from Backend.networking.bungieAuth import BungieAuth
@@ -29,4 +30,9 @@ class TokenUpdater(BaseEvent):
                     auth = BungieAuth(db=db, user=user)
 
                     # get a working token aka update
-                    await auth.get_working_token()
+                    try:
+                        await auth.get_working_token()
+                    except CustomException as exc:
+                        # this can get raised for outdated tokens and is expected
+                        if exc.error != "NoToken":
+                            raise exc

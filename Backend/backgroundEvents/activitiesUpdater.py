@@ -19,25 +19,17 @@ class ActivitiesUpdater(BaseEvent):
         async with get_async_sessionmaker().begin() as db:
             all_users = await discord_users.get_all(db=db)
 
-        registered_users = []
-
-        # loop through all users
-        user = None
-        for user in all_users:
-            # add them to a task list
-            registered_users.append(self.handle_user(user=user))
-
         # update them in anyio tasks
         # max 10 at the same time tho
-        for chunk in split_list(registered_users, 10):
+        for chunk in split_list(all_users, 10):
             async with create_task_group() as tg:
-                for func in chunk:
-                    tg.start_soon(func)
+                for user in chunk:
+                    tg.start_soon(self.handle_user, user)
 
         # try to get the missing pgcr
-        if user:
+        if all_users:
             async with get_async_sessionmaker().begin() as db:
-                activities = DestinyActivities(db=db, user=user)
+                activities = DestinyActivities(db=db, user=all_users[0])
                 await activities.update_missing_pgcr()
 
     @staticmethod
