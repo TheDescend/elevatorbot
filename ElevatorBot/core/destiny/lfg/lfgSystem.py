@@ -277,7 +277,7 @@ class LfgMessage:
                 # check if the post is full and the event is supposed to start asap
                 if self.start_time == "asap" and len(self.joined_ids) >= self.max_joined_members:
                     self.start_time = datetime.datetime.now(tz=datetime.timezone.utc)
-                    await self.__notify_about_start(datetime.timedelta(minutes=10))
+                    await self.__notify_about_start()
 
             else:
                 if member.id not in self.backup_ids:
