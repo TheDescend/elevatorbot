@@ -94,7 +94,7 @@ class CRUDBase:
 
     @staticmethod
     async def _update(db: AsyncSession, to_update: ModelType, **update_kwargs) -> ModelType:
-        """Update a initiated ModelType in the database"""
+        """Updates an initiated ModelType in the database"""
 
         for key, value in update_kwargs.items():
             setattr(to_update, key, value)

@@ -9,7 +9,6 @@ stat_route = destiny_route + "{system}/Account/{destiny_id}/Stats/"
 stat_route_characters = stat_route + "Character/{character_id}/Stats/AggregateActivityStats/"
 
 activities_route = destiny_route + "{system}/Account/{destiny_id}/Character/{character_id}/Stats/Activities/"
-pgcr_route = destiny_route + "Stats/PostGameCarnageReport/{instance_id}/"
 
 clan_route = base_route + "GroupV2/"
 clan_user_route = clan_route + "User/{system}/{destiny_id}/0/1/"
@@ -19,4 +18,6 @@ clan_invite_route = clan_members_route + "IndividualInvite/{system}/{destiny_id}
 clan_kick_route = clan_members_route + "{system}/{destiny_id}/Kick/"
 clan_get_route = clan_route + "{clan_id}/"
 
+# routes without user data
 manifest_route = destiny_route + "Manifest/"
+pgcr_route = destiny_route + "Stats/PostGameCarnageReport/{instance_id}/"

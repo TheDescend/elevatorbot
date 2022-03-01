@@ -1,5 +1,6 @@
 import os
 from datetime import timedelta
+from typing import Optional
 
 import aiohttp
 import aiohttp_client_cache
@@ -8,9 +9,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.errors import CustomException
 from Backend.crud import discord_users
+from Backend.database.base import get_async_sessionmaker
 from Backend.database.models import DiscordUsers
 from Backend.networking.base import NetworkBase
 from Backend.networking.bungieAuth import BungieAuth
+from Backend.networking.bungieRoutes import manifest_route, pgcr_route
 from Backend.networking.schemas import WebResponse
 
 # the cache object
@@ -49,8 +52,8 @@ class BungieApi(NetworkBase):
     def __init__(
         self,
         db: AsyncSession,
-        user: DiscordUsers = None,
-        headers: dict = None,
+        user: Optional[DiscordUsers] = None,
+        headers: Optional[dict] = None,
         i_understand_what_im_doing_and_that_setting_this_to_true_might_break_stuff: bool = False,
     ):
 
@@ -72,19 +75,22 @@ class BungieApi(NetworkBase):
     ) -> WebResponse:
         """Grabs JSON from the specified URL (no oauth)"""
 
-        # check if the user has a private profile, if so we use oauth
-        if self.user:
-            if self.user.private_profile:
-                # then we use a token
-                with_token = True
-
-        # use a token if we need to
         no_jar = None
-        if with_token:
-            await self.__set_auth_headers()
 
-            # ignore cookies
-            no_jar = aiohttp.DummyCookieJar()
+        # don't need user auth for some endpoints
+        if not any([ok_route in route for ok_route in [pgcr_route, manifest_route]]):
+            # check if the user has a private profile, if so we use oauth
+            if self.user:
+                if self.user.private_profile:
+                    # then we use a token
+                    with_token = True
+
+            # use a token if we need to
+            if with_token:
+                await self.__set_auth_headers()
+
+                # ignore cookies
+                no_jar = aiohttp.DummyCookieJar()
 
         try:
             async with aiohttp_client_cache.CachedSession(
@@ -114,7 +120,7 @@ class BungieApi(NetworkBase):
         except CustomException as exc:
             if exc.error == "BungieDestinyPrivacyRestriction":
                 # catch the BungieDestinyPrivacyRestriction error to change privacy settings in our db
-                await discord_users.update(db=self.db, to_update=self.user, private_profile=True)
+                self.user = await discord_users.update(db=self.db, to_update=self.user, private_profile=True)
 
                 # then call the same endpoint again, this time with a token
                 return await self.get(route=route, params=params, use_cache=use_cache, with_token=True)

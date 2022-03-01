@@ -347,7 +347,7 @@ class DestinyActivities:
                         if instance_id in cache.saved_pgcrs:
                             continue
 
-                        # add the instance_id to the cache to prevent other users with the same instance to double check this
+                        # add the instance_id to the cache to prevent other users with the same instance to double-check this
                         # will get removed again if something fails
                         cache.saved_pgcrs.add(instance_id)
 
@@ -393,8 +393,7 @@ class DestinyActivities:
 
             # update them with the newest entry timestamp
             if start_time:
-                async with get_async_sessionmaker().begin() as db:
-                    await discord_users.update(db=db, to_update=self.user, activities_last_updated=start_time)
+                await discord_users.update(db=self.db, to_update=self.user, activities_last_updated=start_time)
 
             logger.info(f"Done with activity DB update for destinyID '{self.destiny_id}'")
 

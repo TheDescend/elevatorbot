@@ -231,7 +231,7 @@ class CRUDDiscordUser(CRUDBase):
             guild_id,
         )
 
-    async def update(self, db: AsyncSession, to_update: DiscordUsers, **update_kwargs):
+    async def update(self, db: AsyncSession, to_update: DiscordUsers, **update_kwargs) -> DiscordUsers:
         """Updates a profile"""
 
         async with asyncio.Lock():
@@ -240,6 +240,8 @@ class CRUDDiscordUser(CRUDBase):
             # update the cache
             self.cache.discord_users.update({to_update.discord_id: updated})
             self.cache.discord_users_by_destiny_id.update({to_update.destiny_id: to_update})
+
+        return updated
 
     async def invalidate_token(self, db: AsyncSession, user: DiscordUsers):
         """Invalidates a token by setting it to None"""
