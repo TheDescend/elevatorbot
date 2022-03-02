@@ -1,6 +1,7 @@
 import importlib.util
 import logging
 import os
+import sys
 import time
 import traceback
 
@@ -106,6 +107,8 @@ app.add_exception_handler(CustomException, handle_custom_exception)
 
 @app.on_event("startup")
 async def startup():
+    sys.setrecursionlimit(1500)
+
     # insert db tables
     print("Creating Database Tables...")
     await create_tables(engine=setup_engine())
