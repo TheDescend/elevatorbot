@@ -68,7 +68,7 @@ async def mock_request(
     param_route = f"{route}?{urlencode(params)}"
 
     # handle elevator calls
-    if param_route.startswith("http://None:None"):
+    if param_route.startswith("http://None:None") or param_route.startswith("http://elevator:8080"):
         raise CustomException
 
     # handle rss feed checker calls, since they return xml
