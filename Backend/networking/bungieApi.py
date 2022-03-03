@@ -77,20 +77,22 @@ class BungieApi(NetworkBase):
 
         no_jar = None
 
-        # don't need user auth for some endpoints
-        if not any([ok_route in route for ok_route in [pgcr_route, manifest_route]]):
-            # check if the user has a private profile, if so we use oauth
-            if self.user:
-                if self.user.private_profile:
-                    # then we use a token
-                    with_token = True
+        # check if we need a token
+        if not with_token:
+            # don't need user auth for some endpoints
+            if not any([ok_route in route for ok_route in [pgcr_route, manifest_route]]):
+                # check if the user has a private profile, if so we use oauth
+                if self.user:
+                    if self.user.private_profile:
+                        # then we use a token
+                        with_token = True
 
-            # use a token if we need to
-            if with_token:
-                await self.__set_auth_headers()
+        # use a token if we need to
+        if with_token:
+            await self.__set_auth_headers()
 
-                # ignore cookies
-                no_jar = aiohttp.DummyCookieJar()
+            # ignore cookies
+            no_jar = aiohttp.DummyCookieJar()
 
         try:
             async with aiohttp_client_cache.CachedSession(
