@@ -3,6 +3,7 @@ import feedparser
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.backgroundEvents.base import BaseEvent
+from Backend.core.errors import CustomException
 from Backend.crud import persistent_messages, rss_feed
 from Backend.database.base import get_async_sessionmaker
 from Backend.networking.elevatorApi import ElevatorApi
@@ -48,28 +49,31 @@ class RssFeedChecker(BaseEvent):
                     )
 
                 # loop through the items to publish and do that
-                elevator_api = ElevatorApi()
-                for item in to_publish:
-                    data = {
-                        "message": item["link"],
-                        "embed_title": None,
-                        "embed_description": None,
-                        "guilds": subscribed_data,
-                    }
+                try:
+                    elevator_api = ElevatorApi()
+                    for item in to_publish:
+                        data = {
+                            "message": item["link"],
+                            "embed_title": None,
+                            "embed_description": None,
+                            "guilds": subscribed_data,
+                        }
 
-                    # send the payload to elevator
-                    result = await elevator_api.post(
-                        route_addition="/messages",
-                        json=data,
-                    )
+                        # send the payload to elevator
+                        result = await elevator_api.post(
+                            route_addition="/messages",
+                            json=data,
+                        )
 
-                    # remove db entry if channel doesnt exist
-                    if result:
-                        if not result.content["success"]:
-                            for error_guild in result.content["guilds"]:
-                                await persistent_messages.delete(
-                                    db=db, message_name="rss", guild_id=error_guild["guild_id"]
-                                )
+                        # remove db entry if channel doesnt exist
+                        if result:
+                            if not result.content["success"]:
+                                for error_guild in result.content["guilds"]:
+                                    await persistent_messages.delete(
+                                        db=db, message_name="rss", guild_id=error_guild["guild_id"]
+                                    )
 
-                    # save item in DB
-                    await rss_feed.insert(db=db, item_id=item["id"])
+                        # save item in DB
+                        await rss_feed.insert(db=db, item_id=item["id"])
+                except CustomException:
+                    pass

@@ -1,7 +1,6 @@
 import importlib.util
 import logging
 import os
-import sys
 import time
 import traceback
 
@@ -13,8 +12,8 @@ from Backend.crud import backend_user
 from Backend.database.base import get_async_sessionmaker, setup_engine
 from Backend.database.models import BackendUser, create_tables
 from Backend.dependencies import auth_get_user_with_read_perm, auth_get_user_with_write_perm
-from Backend.misc.initBackgroundEvents import register_background_events
-from Backend.misc.initLogging import init_logging
+from Backend.startup.initBackgroundEvents import register_background_events
+from Backend.startup.initLogging import init_logging
 from Shared.functions.readSettingsFile import get_setting
 from Shared.networkingSchemas.misc.auth import BackendUserModel
 

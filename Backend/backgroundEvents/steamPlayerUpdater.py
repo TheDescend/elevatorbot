@@ -1,6 +1,6 @@
 from Backend.backgroundEvents.base import BaseEvent
 from Backend.crud import d2_steam_players
-from Backend.database.base import get_async_sessionmaker
+from Backend.database.base import get_async_sessionmaker, is_test_mode
 from Backend.networking.bungieApi import BungieApi
 from Shared.functions.readSettingsFile import get_setting
 
@@ -25,4 +25,5 @@ class SteamPlayerUpdater(BaseEvent):
             number_of_players = int(current_players.content["response"]["player_count"])
 
             # update the db info
-            await d2_steam_players.upsert(db=db, player_count=number_of_players)
+            if not is_test_mode():
+                await d2_steam_players.upsert(db=db, player_count=number_of_players)

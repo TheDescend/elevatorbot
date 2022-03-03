@@ -3,7 +3,7 @@ from anyio import create_task_group
 from Backend.backgroundEvents.base import BaseEvent
 from Backend.core.destiny.activities import DestinyActivities
 from Backend.crud import discord_users
-from Backend.database.base import get_async_sessionmaker
+from Backend.database.base import get_async_sessionmaker, is_test_mode
 from Backend.database.models import DiscordUsers
 from Shared.functions.helperFunctions import split_list
 
@@ -18,6 +18,10 @@ class ActivitiesUpdater(BaseEvent):
     async def run(self):
         async with get_async_sessionmaker().begin() as db:
             all_users = await discord_users.get_all(db=db)
+
+            # when testing, make this only return our user where we have data
+            if is_test_mode():
+                all_users = [user for user in all_users if user.destiny_id == 444]
 
         # update them in anyio tasks
         # max 10 at the same time tho
