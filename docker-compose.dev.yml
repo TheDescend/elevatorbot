@@ -4,6 +4,8 @@ services:
   redis:
     image: redis:6.2.6
     command: ["redis-server", "--maxmemory", "1gb", "--maxmemory-policy", "allkeys-lru"]
+    ports:
+      - "${REDIS_PORT}:${REDIS_PORT}"
     volumes:
       - ./redis.conf:/redis.conf
     networks:
@@ -13,6 +15,8 @@ services:
 
   postgres:
     image: postgres:14.1
+    ports:
+      - "${POSTGRES_PORT}:${POSTGRES_PORT}"
     volumes:
       - ./Database:/var/lib/postgresql/data
       - ./postgresStartupScript.sql:/docker-entrypoint-initdb.d/postgresStartupScript.sql
