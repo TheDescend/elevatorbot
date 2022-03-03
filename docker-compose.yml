@@ -13,6 +13,8 @@ services:
 
   postgres:
     image: postgres:14.1
+    ports:
+      - "${POSTGRES_PORT}:${POSTGRES_PORT}"
     volumes:
       - ./Database:/var/lib/postgresql/data
       - ./postgresStartupScript.sql:/docker-entrypoint-initdb.d/postgresStartupScript.sql
