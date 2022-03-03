@@ -1,6 +1,3 @@
-from ElevatorBot.backendNetworking.destiny.activities import DestinyActivities
-from ElevatorBot.backendNetworking.destiny.items import DestinyItems
-from ElevatorBot.backendNetworking.destiny.weapons import DestinyWeapons
 from ElevatorBot.commandHelpers.autocomplete import (
     activities,
     activities_by_id,
@@ -10,6 +7,9 @@ from ElevatorBot.commandHelpers.autocomplete import (
     weapons,
     weapons_by_id,
 )
+from ElevatorBot.networking.destiny.activities import DestinyActivities
+from ElevatorBot.networking.destiny.items import DestinyItems
+from ElevatorBot.networking.destiny.weapons import DestinyWeapons
 from Shared.enums.destiny import DestinyActivityModeTypeEnum
 from Shared.networkingSchemas.destiny import DestinyActivityModel
 

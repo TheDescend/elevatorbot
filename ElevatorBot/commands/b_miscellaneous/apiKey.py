@@ -1,8 +1,8 @@
 from dis_snek import InteractionContext, slash_command
 
-from ElevatorBot.backendNetworking.destiny.profile import DestinyProfile
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formatting import embed_message
+from ElevatorBot.networking.destiny.profile import DestinyProfile
 from Shared.functions.readSettingsFile import get_setting
 
 # =============

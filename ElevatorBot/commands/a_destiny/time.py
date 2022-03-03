@@ -1,6 +1,5 @@
 from dis_snek import InteractionContext, Member, slash_command
 
-from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
 from ElevatorBot.commandHelpers.autocomplete import activities, autocomplete_send_activity_name
 from ElevatorBot.commandHelpers.optionTemplates import (
     autocomplete_activity_option,
@@ -10,6 +9,7 @@ from ElevatorBot.commandHelpers.optionTemplates import (
 )
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formatting import embed_message, format_timedelta
+from ElevatorBot.networking.destiny.account import DestinyAccount
 from ElevatorBot.static.destinyDates import season_and_expansion_dates
 from Shared.enums.destiny import UsableDestinyActivityModeTypeEnum
 from Shared.functions.helperFunctions import get_now_with_tz

@@ -16,10 +16,10 @@ from dis_snek import (
 )
 from github.GithubObject import NotSet
 
-from ElevatorBot.backendNetworking.github import get_github_labels, get_github_repo
 from ElevatorBot.commandHelpers.responseTemplates import respond_timeout
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formatting import embed_message
+from ElevatorBot.networking.github import get_github_labels, get_github_repo
 from ElevatorBot.static.descendOnlyIds import descend_channels
 from Shared.functions.readSettingsFile import get_setting
 

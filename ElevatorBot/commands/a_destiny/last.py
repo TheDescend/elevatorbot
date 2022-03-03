@@ -1,6 +1,5 @@
 from dis_snek import InteractionContext, Member, Timestamp, TimestampStyles, slash_command
 
-from ElevatorBot.backendNetworking.destiny.activities import DestinyActivities
 from ElevatorBot.commandHelpers.autocomplete import activities, activities_by_id, autocomplete_send_activity_name
 from ElevatorBot.commandHelpers.optionTemplates import (
     autocomplete_activity_option,
@@ -10,6 +9,7 @@ from ElevatorBot.commandHelpers.optionTemplates import (
 )
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formatting import capitalize_string, embed_message, format_timedelta
+from ElevatorBot.networking.destiny.activities import DestinyActivities
 from ElevatorBot.static.emojis import custom_emojis
 from Shared.enums.destiny import UsableDestinyActivityModeTypeEnum
 

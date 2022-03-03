@@ -1,10 +1,10 @@
 from dis_snek import InteractionContext, Member, slash_command
 
-from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
-from ElevatorBot.backendNetworking.destiny.profile import DestinyProfile
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formatting import embed_message, format_timedelta
+from ElevatorBot.networking.destiny.account import DestinyAccount
+from ElevatorBot.networking.destiny.profile import DestinyProfile
 
 
 class Destiny(BaseScale):

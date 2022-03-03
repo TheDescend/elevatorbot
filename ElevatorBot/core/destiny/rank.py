@@ -4,15 +4,15 @@ from typing import Optional
 from anyio import create_task_group
 from dis_snek import InteractionContext, Member, TimestampStyles
 
-from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
-from ElevatorBot.backendNetworking.destiny.activities import DestinyActivities
-from ElevatorBot.backendNetworking.destiny.clan import DestinyClan
-from ElevatorBot.backendNetworking.destiny.profile import DestinyProfile
-from ElevatorBot.backendNetworking.destiny.roles import DestinyRoles
-from ElevatorBot.backendNetworking.destiny.weapons import DestinyWeapons
 from ElevatorBot.commandHelpers.autocomplete import activities, activities_grandmaster, weapons
 from ElevatorBot.misc.formatting import embed_message, format_timedelta, get_emoji_from_rank
 from ElevatorBot.misc.helperFunctions import get_emoji_by_name
+from ElevatorBot.networking.destiny.account import DestinyAccount
+from ElevatorBot.networking.destiny.activities import DestinyActivities
+from ElevatorBot.networking.destiny.clan import DestinyClan
+from ElevatorBot.networking.destiny.profile import DestinyProfile
+from ElevatorBot.networking.destiny.roles import DestinyRoles
+from ElevatorBot.networking.destiny.weapons import DestinyWeapons
 from ElevatorBot.static.destinyActivities import raid_to_emblem_hash
 from ElevatorBot.static.emojis import custom_emojis
 from Shared.enums.destiny import (

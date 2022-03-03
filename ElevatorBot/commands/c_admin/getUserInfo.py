@@ -1,11 +1,11 @@
 from dis_snek import InteractionContext, Member, OptionTypes, slash_command, slash_option
 from dis_snek.client.errors import NotFound
 
-from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
-from ElevatorBot.backendNetworking.destiny.clan import DestinyClan
-from ElevatorBot.backendNetworking.destiny.profile import DestinyProfile
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formatting import embed_message
+from ElevatorBot.networking.destiny.account import DestinyAccount
+from ElevatorBot.networking.destiny.clan import DestinyClan
+from ElevatorBot.networking.destiny.profile import DestinyProfile
 
 
 class UserInfo(BaseScale):

@@ -1,11 +1,11 @@
 from anyio import create_task_group
 from dis_snek import InteractionContext, OptionTypes, SlashCommandChoice, slash_command, slash_option
 
-from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
-from ElevatorBot.backendNetworking.errors import BackendException
 from ElevatorBot.commandHelpers.subCommandTemplates import day1completions_sub_command
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formatting import embed_message
+from ElevatorBot.networking.destiny.account import DestinyAccount
+from ElevatorBot.networking.errors import BackendException
 from ElevatorBot.static.destinyActivities import raid_to_emblem_hash
 
 

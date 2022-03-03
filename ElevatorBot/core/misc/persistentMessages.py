@@ -4,10 +4,10 @@ from typing import Optional
 from dis_snek import ActionRow, Embed, GuildChannel, InteractionContext, Message
 from dis_snek.client.errors import NotFound
 
-from ElevatorBot.backendNetworking.errors import BackendException
-from ElevatorBot.backendNetworking.misc.backendPersistentMessages import BackendPersistentMessages
 from ElevatorBot.commandHelpers.responseTemplates import respond_wrong_author
 from ElevatorBot.misc.formatting import embed_message
+from ElevatorBot.networking.errors import BackendException
+from ElevatorBot.networking.misc.backendPersistentMessages import BackendPersistentMessages
 
 
 @dataclasses.dataclass()

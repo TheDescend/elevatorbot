@@ -32,12 +32,12 @@ from dis_snek import (
 from dis_snek.client.errors import Forbidden, NotFound
 from ics import Calendar, Event
 
-from ElevatorBot.backendNetworking.destiny.lfgSystem import DestinyLfgSystem
-from ElevatorBot.backendNetworking.errors import BackendException
 from ElevatorBot.commandHelpers.autocomplete import activities
 from ElevatorBot.core.destiny.lfg.scheduledEvents import delete_lfg_scheduled_events
 from ElevatorBot.discordEvents.base import ElevatorSnake
 from ElevatorBot.misc.formatting import embed_message, replace_progress_formatting
+from ElevatorBot.networking.destiny.lfgSystem import DestinyLfgSystem
+from ElevatorBot.networking.errors import BackendException
 from ElevatorBot.static.emojis import custom_emojis
 from Shared.functions.formatting import make_progress_bar_text
 from Shared.functions.helperFunctions import get_now_with_tz

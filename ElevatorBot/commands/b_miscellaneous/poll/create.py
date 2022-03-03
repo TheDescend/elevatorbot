@@ -1,9 +1,9 @@
 from dis_snek import Attachment, InteractionContext, OptionTypes, slash_command, slash_option
 
-from ElevatorBot.backendNetworking.misc.polls import BackendPolls
 from ElevatorBot.commandHelpers.subCommandTemplates import poll_sub_command
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.core.misc.poll import Poll
+from ElevatorBot.networking.misc.polls import BackendPolls
 
 
 class PollCreate(BaseScale):

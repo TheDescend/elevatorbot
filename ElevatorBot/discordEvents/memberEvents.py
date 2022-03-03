@@ -4,14 +4,14 @@ from dis_snek import ActionRow, Button, ButtonStyles, Member
 from dis_snek.api.events import Component, MemberAdd, MemberRemove, MemberUpdate
 from dis_snek.client.errors import Forbidden
 
-from ElevatorBot.backendNetworking.destiny.clan import DestinyClan
-from ElevatorBot.backendNetworking.destiny.lfgSystem import DestinyLfgSystem
-from ElevatorBot.backendNetworking.destiny.profile import DestinyProfile
-from ElevatorBot.backendNetworking.errors import BackendException
 from ElevatorBot.core.destiny.lfg.lfgSystem import LfgMessage
 from ElevatorBot.core.destiny.roles import Roles
 from ElevatorBot.misc.discordShortcutFunctions import assign_roles_to_member
 from ElevatorBot.misc.formatting import embed_message
+from ElevatorBot.networking.destiny.clan import DestinyClan
+from ElevatorBot.networking.destiny.lfgSystem import DestinyLfgSystem
+from ElevatorBot.networking.destiny.profile import DestinyProfile
+from ElevatorBot.networking.errors import BackendException
 from ElevatorBot.static.descendOnlyIds import descend_channels
 from ElevatorBot.static.emojis import custom_emojis
 from Shared.functions.readSettingsFile import get_setting

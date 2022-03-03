@@ -14,9 +14,9 @@ from apscheduler.events import (
 from apscheduler.job import Job
 
 from ElevatorBot import backgroundEvents
-from ElevatorBot.backendNetworking.destiny.lfgSystem import DestinyLfgSystem
 from ElevatorBot.core.destiny.lfg.lfgSystem import LfgMessage
 from ElevatorBot.discordEvents.errorEvents import parse_dis_snek_error
+from ElevatorBot.networking.destiny.lfgSystem import DestinyLfgSystem
 
 event_name_by_id: dict[str, str] = {}
 

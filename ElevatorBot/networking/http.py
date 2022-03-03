@@ -13,8 +13,8 @@ import orjson
 from aiohttp import ClientTimeout
 from dis_snek import ComponentContext, InteractionContext, Member
 
-from ElevatorBot.backendNetworking.errors import BackendException
-from ElevatorBot.backendNetworking.results import BackendResult
+from ElevatorBot.networking.errors import BackendException
+from ElevatorBot.networking.results import BackendResult
 
 # the limiter object to not overload the backend
 from Shared.functions.readSettingsFile import get_setting

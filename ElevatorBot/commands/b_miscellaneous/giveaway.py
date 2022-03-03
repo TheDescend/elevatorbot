@@ -9,9 +9,9 @@ from dis_snek import (
     slash_option,
 )
 
-from ElevatorBot.backendNetworking.misc.giveaway import BackendGiveaway
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formatting import embed_message
+from ElevatorBot.networking.misc.giveaway import BackendGiveaway
 from Shared.functions.readSettingsFile import get_setting
 
 # =============

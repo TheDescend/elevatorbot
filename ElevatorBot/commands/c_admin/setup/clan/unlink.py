@@ -1,9 +1,9 @@
 from dis_snek import InteractionContext, slash_command
 
-from ElevatorBot.backendNetworking.destiny.clan import DestinyClan
 from ElevatorBot.commandHelpers.subCommandTemplates import setup_sub_command, setup_sub_command_clan_group
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formatting import embed_message
+from ElevatorBot.networking.destiny.clan import DestinyClan
 
 
 class ClanUnlink(BaseScale):

@@ -1,9 +1,9 @@
 from dis_snek import InteractionContext, Timestamp, TimestampStyles, slash_command
 
-from ElevatorBot.backendNetworking.destiny.lfgSystem import DestinyLfgSystem
 from ElevatorBot.commandHelpers.subCommandTemplates import lfg_sub_command
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formatting import embed_message
+from ElevatorBot.networking.destiny.lfgSystem import DestinyLfgSystem
 from Shared.networkingSchemas import LfgOutputModel
 
 

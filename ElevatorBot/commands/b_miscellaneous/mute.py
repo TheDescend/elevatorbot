@@ -12,11 +12,11 @@ from dis_snek import (
     slash_option,
 )
 
-from ElevatorBot.backendNetworking.misc.moderation import Moderation
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.discordShortcutFunctions import assign_roles_to_member, remove_roles_from_member
 from ElevatorBot.misc.formatting import embed_message
+from ElevatorBot.networking.misc.moderation import Moderation
 from Shared.functions.helperFunctions import get_now_with_tz
 from Shared.functions.readSettingsFile import get_setting
 

@@ -2,8 +2,8 @@ from typing import Optional
 
 from dis_snek import ComponentContext, InteractionContext, Member, Message, ModalContext, SnakeBotUser
 
-from ElevatorBot.backendNetworking.errorCodesAndResponses import error_codes_and_responses
 from ElevatorBot.misc.formatting import embed_message
+from ElevatorBot.networking.errorCodesAndResponses import error_codes_and_responses
 
 
 async def something_went_wrong(ctx: InteractionContext, hidden: bool = False) -> bool:

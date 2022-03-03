@@ -14,7 +14,6 @@ from dis_snek import (
     slash_option,
 )
 
-from ElevatorBot.backendNetworking.destiny.weapons import DestinyWeapons
 from ElevatorBot.commandHelpers.autocomplete import (
     activities,
     autocomplete_send_activity_name,
@@ -37,6 +36,7 @@ from ElevatorBot.commandHelpers.subCommandTemplates import weapons_sub_command
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formatting import capitalize_string, embed_message, get_emoji_from_rank
 from ElevatorBot.misc.helperFunctions import parse_datetime_options
+from ElevatorBot.networking.destiny.weapons import DestinyWeapons
 from ElevatorBot.static.emojis import custom_emojis
 from Shared.enums.destiny import DestinyWeaponTypeEnum, UsableDestinyActivityModeTypeEnum, UsableDestinyDamageTypeEnum
 from Shared.networkingSchemas.destiny import (

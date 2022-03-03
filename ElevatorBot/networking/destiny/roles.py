@@ -3,15 +3,15 @@ from typing import Optional
 
 from dis_snek import Guild, Role
 
-from ElevatorBot.backendNetworking.http import BaseBackendConnection
-from ElevatorBot.backendNetworking.routes import (
+from ElevatorBot.misc.cache import registered_role_cache
+from ElevatorBot.networking.http import BaseBackendConnection
+from ElevatorBot.networking.routes import (
     destiny_role_delete_all_route,
     destiny_role_delete_route,
     destiny_role_get_all_user_route,
     destiny_role_get_missing_user_route,
     destiny_role_get_user_route,
 )
-from ElevatorBot.misc.cache import registered_role_cache
 from Shared.networkingSchemas.destiny.roles import EarnedRoleModel, EarnedRolesModel, MissingRolesModel
 
 

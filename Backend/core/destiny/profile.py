@@ -937,7 +937,13 @@ def get_seasonal_challenges_subprocess(user_sc: SeasonalChallengesModel, user_re
             # calculate completion rate
             rate = []
             for objective in record["objectives"]:
-                rate.append(objective["progress"] / objective["completionValue"] if not objective["complete"] else 1)
+                try:
+                    rate.append(
+                        objective["progress"] / objective["completionValue"] if not objective["complete"] else 1
+                    )
+                except ZeroDivisionError:
+                    # the item is classified
+                    rate.append(0)
             percentage = sum(rate) / len(rate)
 
             # make emoji art for completion rate

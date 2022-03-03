@@ -4,8 +4,8 @@ import traceback
 from dis_snek import ComponentContext, InteractionContext, Snake
 from dis_snek.client.errors import CommandCheckFailure, HTTPException
 
-from ElevatorBot.backendNetworking.errors import BackendException
 from ElevatorBot.misc.helperFunctions import log_error
+from ElevatorBot.networking.errors import BackendException
 
 
 def parse_dis_snek_error(error: Exception, logger_exceptions: logging.Logger):

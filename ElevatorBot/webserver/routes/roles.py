@@ -2,10 +2,10 @@ from aiohttp import web
 from dis_snek.api.events import GuildLeft
 from dis_snek.client.errors import Forbidden
 
-from ElevatorBot.backendNetworking.errors import BackendException
-from ElevatorBot.backendNetworking.misc.elevatorInfo import ElevatorGuilds
 from ElevatorBot.discordEvents.guildEvents import on_guild_left
 from ElevatorBot.misc.discordShortcutFunctions import assign_roles_to_member, remove_roles_from_member
+from ElevatorBot.networking.errors import BackendException
+from ElevatorBot.networking.misc.elevatorInfo import ElevatorGuilds
 
 
 async def roles(request: web.Request):

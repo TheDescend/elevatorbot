@@ -4,18 +4,18 @@ import dataclasses
 
 from dis_snek import Guild, Member
 
-from ElevatorBot.backendNetworking.errorCodesAndResponses import error_codes_and_responses
-from ElevatorBot.backendNetworking.errors import BackendException
-from ElevatorBot.backendNetworking.http import BaseBackendConnection
-from ElevatorBot.backendNetworking.routes import (
+from ElevatorBot.misc.cache import registered_role_cache
+from ElevatorBot.misc.formatting import embed_message
+from ElevatorBot.networking.errorCodesAndResponses import error_codes_and_responses
+from ElevatorBot.networking.errors import BackendException
+from ElevatorBot.networking.http import BaseBackendConnection
+from ElevatorBot.networking.routes import (
     destiny_profile_delete_route,
     destiny_profile_from_destiny_id_route,
     destiny_profile_from_discord_id_route,
     destiny_profile_has_token_route,
     destiny_profile_registration_role_route,
 )
-from ElevatorBot.misc.cache import registered_role_cache
-from ElevatorBot.misc.formatting import embed_message
 from Shared.networkingSchemas.destiny.profile import DestinyHasTokenModel, DestinyProfileModel
 
 

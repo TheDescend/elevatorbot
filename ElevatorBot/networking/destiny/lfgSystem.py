@@ -3,8 +3,10 @@ from typing import Optional
 
 from dis_snek import Guild, Member, Snake
 
-from ElevatorBot.backendNetworking.http import BaseBackendConnection
-from ElevatorBot.backendNetworking.routes import (
+from ElevatorBot.core.destiny.lfg.scheduledEvents import delete_lfg_scheduled_events
+from ElevatorBot.discordEvents.base import ElevatorSnake
+from ElevatorBot.networking.http import BaseBackendConnection
+from ElevatorBot.networking.routes import (
     destiny_lfg_create_route,
     destiny_lfg_delete_all_route,
     destiny_lfg_delete_route,
@@ -13,8 +15,6 @@ from ElevatorBot.backendNetworking.routes import (
     destiny_lfg_update_route,
     destiny_lfg_user_get_all_route,
 )
-from ElevatorBot.core.destiny.lfg.scheduledEvents import delete_lfg_scheduled_events
-from ElevatorBot.discordEvents.base import ElevatorSnake
 from Shared.networkingSchemas.destiny.lfgSystem import (
     AllLfgDeleteOutputModel,
     AllLfgOutputModel,

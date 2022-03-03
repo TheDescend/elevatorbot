@@ -10,12 +10,12 @@ from anyio import create_task_group
 from dis_snek import File, GuildText, InteractionContext, Member, Message, Timestamp, TimestampStyles
 from dis_snek.client.errors import NotFound
 
-from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
-from ElevatorBot.backendNetworking.destiny.activities import DestinyActivities
-from ElevatorBot.backendNetworking.destiny.clan import DestinyClan
-from ElevatorBot.backendNetworking.errors import BackendException
 from ElevatorBot.commandHelpers.responseTemplates import something_went_wrong
 from ElevatorBot.misc.formatting import embed_message, format_timedelta
+from ElevatorBot.networking.destiny.account import DestinyAccount
+from ElevatorBot.networking.destiny.activities import DestinyActivities
+from ElevatorBot.networking.destiny.clan import DestinyClan
+from ElevatorBot.networking.errors import BackendException
 from ElevatorBot.static.descendOnlyIds import descend_channels
 from ElevatorBot.static.emojis import custom_emojis
 from Shared.functions.helperFunctions import get_now_with_tz

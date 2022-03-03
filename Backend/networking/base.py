@@ -195,7 +195,7 @@ class NetworkBase:
 
             case (401, _) | (_, "invalid_grant" | "AuthorizationCodeInvalid"):
                 # unauthorized
-                self.logger.warning(
+                self.logger_exceptions.warning(
                     f"'{response.status} - {response.error}': Unauthorized (too slow, user fault) request for '{route_with_params}'"
                 )
                 raise CustomException("BungieUnauthorized")
@@ -214,28 +214,18 @@ class NetworkBase:
 
             case (status, "ClanInviteAlreadyMember"):
                 # if user is in clan
-                self.logger.warning(f"'{status} - {response.error}': User is already in clan '{route_with_params}'")
                 raise CustomException("BungieClanInviteAlreadyMember")
 
             case (status, "GroupMembershipNotFound"):
                 # if user isn't in clan
-                self.logger_exceptions.error(
-                    f"'{status} - {response.error}': User is not in clan '{route_with_params}' - '{response}'"
-                )
                 raise CustomException("BungieGroupMembershipNotFound")
 
             case (status, "DestinyItemNotFound"):
                 # if user doesn't have that item
-                self.logger_exceptions.error(
-                    f"'{status} - {response.error}': User doesn't have that item for '{route_with_params}' - '{response}'"
-                )
                 raise CustomException("BungieDestinyItemNotFound")
 
             case (status, "DestinyPrivacyRestriction"):
                 # private profile
-                self.logger_exceptions.error(
-                    f"'{status} - {response.error}': User has private Profile for '{route_with_params}' - '{response}'"
-                )
                 raise CustomException("BungieDestinyPrivacyRestriction")
 
             case (status, "DestinyDirectBabelClientTimeout"):
@@ -254,16 +244,10 @@ class NetworkBase:
 
             case (status, "ClanTargetDisallowsInvites"):
                 # user has disallowed clan invites
-                self.logger_exceptions.error(
-                    f"'{status} - {response.error}': User disallows clan invites '{route_with_params}' - '{response}'"
-                )
                 raise CustomException("BungieClanTargetDisallowsInvites")
 
             case (status, "AuthorizationRecordRevoked" | "AuthorizationRecordExpired"):
                 # users tokens are no longer valid
-                self.logger.warning(
-                    f"'{status} - {response.error}': User refresh token is outdated and they need to re-registration for '{route_with_params}' - '{response.error_message}'"
-                )
                 raise CustomException("NoToken")
 
             case (404, error):
@@ -288,7 +272,7 @@ class NetworkBase:
                 raise CustomException("BungieBadRequest")
 
             case (503, error):
-                self.logger_exceptions.error(
+                self.logger.warning(
                     f"'{response.status} - {error}': Retrying... - Server is overloaded for '{route_with_params}' - '{response}'"
                 )
                 await asyncio.sleep(10)

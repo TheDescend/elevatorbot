@@ -3,9 +3,9 @@ from typing import Optional
 
 from dis_snek import Guild, Member
 
-from ElevatorBot.backendNetworking.errors import BackendException
-from ElevatorBot.backendNetworking.http import BaseBackendConnection
-from ElevatorBot.backendNetworking.routes import (
+from ElevatorBot.networking.errors import BackendException
+from ElevatorBot.networking.http import BaseBackendConnection
+from ElevatorBot.networking.routes import (
     persistent_messages_delete_all_route,
     persistent_messages_delete_route,
     persistent_messages_get_all_route,

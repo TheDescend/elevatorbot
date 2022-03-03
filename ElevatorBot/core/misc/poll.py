@@ -14,10 +14,10 @@ from dis_snek import (
     SelectOption,
 )
 
-from ElevatorBot.backendNetworking.errors import BackendException
-from ElevatorBot.backendNetworking.misc.polls import BackendPolls
 from ElevatorBot.misc.discordShortcutFunctions import has_admin_permission
 from ElevatorBot.misc.formatting import embed_message, replace_progress_formatting
+from ElevatorBot.networking.errors import BackendException
+from ElevatorBot.networking.misc.polls import BackendPolls
 from Shared.functions.formatting import make_progress_bar_text
 from Shared.networkingSchemas.misc.polls import PollChoice, PollSchema
 

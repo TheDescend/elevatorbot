@@ -2,9 +2,9 @@ import random
 
 from dis_snek import CommandTypes, InteractionContext, Message, context_menu
 
-from ElevatorBot.backendNetworking.misc.giveaway import BackendGiveaway
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formatting import embed_message
+from ElevatorBot.networking.misc.giveaway import BackendGiveaway
 from Shared.functions.readSettingsFile import get_setting
 
 # =============

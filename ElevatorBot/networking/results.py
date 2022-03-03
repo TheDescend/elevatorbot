@@ -3,8 +3,8 @@ from typing import Optional
 
 from dis_snek import Embed, InteractionContext
 
-from ElevatorBot.backendNetworking.errorCodesAndResponses import error_codes_and_responses
 from ElevatorBot.misc.formatting import embed_message
+from ElevatorBot.networking.errorCodesAndResponses import error_codes_and_responses
 
 
 @dataclasses.dataclass()

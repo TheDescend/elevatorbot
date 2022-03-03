@@ -11,13 +11,13 @@ from dis_snek.api.events import (
     ThreadUpdate,
 )
 
-from ElevatorBot.backendNetworking.destiny.lfgSystem import DestinyLfgSystem
-from ElevatorBot.backendNetworking.destiny.roles import DestinyRoles
-from ElevatorBot.backendNetworking.errors import BackendException
-from ElevatorBot.backendNetworking.misc.elevatorInfo import ElevatorGuilds
-from ElevatorBot.backendNetworking.misc.polls import BackendPolls
 from ElevatorBot.core.misc.persistentMessages import PersistentMessages
 from ElevatorBot.misc.cache import reply_cache
+from ElevatorBot.networking.destiny.lfgSystem import DestinyLfgSystem
+from ElevatorBot.networking.destiny.roles import DestinyRoles
+from ElevatorBot.networking.errors import BackendException
+from ElevatorBot.networking.misc.elevatorInfo import ElevatorGuilds
+from ElevatorBot.networking.misc.polls import BackendPolls
 from ElevatorBot.static.descendOnlyIds import descend_channels
 
 

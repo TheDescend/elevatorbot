@@ -2,8 +2,8 @@ import asyncio
 
 from dis_snek.api.events import VoiceStateUpdate
 
-from ElevatorBot.backendNetworking.destiny.lfgSystem import DestinyLfgSystem
 from ElevatorBot.core.misc.persistentMessages import PersistentMessages
+from ElevatorBot.networking.destiny.lfgSystem import DestinyLfgSystem
 from ElevatorBot.static.descendOnlyIds import descend_channels
 
 greek_names = ["Alpha", "Beta", "Gamma", "Delta", "Epsilon", "Zeta", "Eta", "Theta", "Iota", "Kappa"]

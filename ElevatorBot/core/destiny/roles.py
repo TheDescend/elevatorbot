@@ -4,12 +4,12 @@ from urllib.parse import urljoin
 
 from dis_snek import Button, ButtonStyles, Guild, InteractionContext, Member, Role
 
-from ElevatorBot.backendNetworking.destiny.roles import DestinyRoles
-from ElevatorBot.backendNetworking.errors import BackendException
 from ElevatorBot.commandHelpers.autocomplete import activities_by_id
 from ElevatorBot.misc.cache import collectible_cache, triumph_cache
 from ElevatorBot.misc.discordShortcutFunctions import assign_roles_to_member, remove_roles_from_member
 from ElevatorBot.misc.formatting import embed_message
+from ElevatorBot.networking.destiny.roles import DestinyRoles
+from ElevatorBot.networking.errors import BackendException
 from Shared.functions.readSettingsFile import get_setting
 from Shared.networkingSchemas.destiny.roles import RolesCategoryModel
 
