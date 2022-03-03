@@ -94,6 +94,9 @@ class BungieApi(NetworkBase):
             # ignore cookies
             no_jar = aiohttp.DummyCookieJar()
 
+        # use the correct headers
+        request_headers = self.normal_headers if not with_token else self.auth_headers
+
         try:
             async with aiohttp_client_cache.CachedSession(
                 cache=self.cache, json_serialize=lambda x: orjson.dumps(x).decode(), cookie_jar=no_jar
@@ -104,7 +107,7 @@ class BungieApi(NetworkBase):
                         session=session,
                         method="GET",
                         route=route,
-                        headers=self.normal_headers,
+                        headers=request_headers,
                         params=params,
                     )
 
@@ -115,7 +118,7 @@ class BungieApi(NetworkBase):
                             session=session,
                             method="GET",
                             route=route,
-                            headers=self.normal_headers,
+                            headers=request_headers,
                             params=params,
                         )
 
@@ -152,12 +155,12 @@ class BungieApi(NetworkBase):
     async def __set_auth_headers(self):
         """Update the auth headers to include a working token. Raise an error if that doesnt exist"""
 
-        # get a working token or abort
-        auth = BungieAuth(db=self.db, user=self.user)
-        token = await auth.get_working_token()
-
         # use special token headers if its a bungie request
         if self.bungie_request:
+            # get a working token or abort
+            auth = BungieAuth(db=self.db, user=self.user)
+            token = await auth.get_working_token()
+
             self.auth_headers.update(
                 {
                     "Authorization": f"Bearer {token}",
