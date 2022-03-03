@@ -85,15 +85,15 @@ class ElevatorApi(NetworkBase):
             response = await request.text()
 
         match request.status:
-            case 404:
-                # not found
-                self.logger_exceptions.error(f"'{response.status}': Not Found for '{route_with_params}' - '{response}'")
-
             case 200:
                 return InternalWebResponse(
                     content=response,
                     status=request.status,
                 )
+
+            case 404:
+                # not found
+                self.logger_exceptions.error(f"'{response.status}': Not Found for '{route_with_params}' - '{response}'")
 
             # wildcard error
             case _:

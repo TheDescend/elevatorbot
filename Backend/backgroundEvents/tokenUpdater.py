@@ -9,7 +9,7 @@ class TokenUpdater(BaseEvent):
     """Every week, this updates user tokens, so they dont have to re-register so much"""
 
     def __init__(self):
-        dow_day_of_week = "thu"
+        dow_day_of_week = "fri"
         dow_hour = 4
         dow_minute = 0
         super().__init__(

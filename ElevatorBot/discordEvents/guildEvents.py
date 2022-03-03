@@ -69,7 +69,7 @@ async def on_guild_left(event: GuildLeft):
     """Triggers when ElevatorBot gets removed from a guild"""
 
     # remove guild from the list of all guilds, needed for website info
-    elevator_guilds = ElevatorGuilds(ctx=None, discord_guild=event.guild)
+    elevator_guilds = ElevatorGuilds(ctx=None, discord_guild=None)
     try:
         await elevator_guilds.delete(guild_id=event.guild_id)
     except BackendException:

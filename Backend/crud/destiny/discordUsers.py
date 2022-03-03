@@ -252,8 +252,11 @@ class CRUDDiscordUser(CRUDBase):
             token=None,
         )
 
-        # remove registration roles
-        await self.remove_registration_roles(db=db, discord_id=user.discord_id)
+        try:
+            # remove registration roles
+            await self.remove_registration_roles(db=db, discord_id=user.discord_id)
+        except CustomException:
+            pass
 
     async def token_is_expired(self, db: AsyncSession, user: DiscordUsers):
         """Checks if a token exists and the refresh token is not expired"""
