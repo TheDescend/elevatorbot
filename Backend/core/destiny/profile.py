@@ -315,9 +315,6 @@ class DestinyProfile:
                         # calculate if the triumph is gotten and save the triumph we are looking for
                         status = True
                         if "objectives" not in triumph_info:
-                            # make sure it's RewardUnavailable aka legacy
-                            assert triumph_info["state"] & 2
-
                             # https://bungie-net.github.io/multi/schema_Destiny-DestinyRecordState.html#schema_Destiny-DestinyRecordState
                             status &= triumph_info["state"] & 1
 
