@@ -2,7 +2,7 @@ import random
 import re
 
 import github
-from dis_snek import AutoArchiveDuration, ChannelTypes, ThreadList
+from dis_snek import AutoArchiveDuration, ChannelTypes, ThreadChannel, ThreadList
 from dis_snek.api.events import MessageCreate, MessageDelete, MessageUpdate
 
 from ElevatorBot.core.misc.github import github_manager
@@ -34,7 +34,7 @@ async def on_message_delete(event: MessageDelete):
 async def on_message_update(event: MessageUpdate):
     """Triggers when a message gets edited"""
 
-    if event.before != event.after:
+    if event.before != event.after and event.after:
         # run the message create checks
         await on_message_create(event=MessageCreate(bot=event.bot, message=event.after), edit_mode=True)
 
@@ -48,40 +48,49 @@ async def on_message_create(event: MessageCreate, edit_mode: bool = False):
     if not message.author.bot:
         # =========================================================================
         # handle thread messages
-        if message.thread:
-            thread = message.thread
+        if isinstance(message.channel, ThreadChannel):
+            thread = message.channel
 
             # only do this for descend
             if message.guild == descend_channels.guild:
-                send = False
+                # check that the message starts with a @ElevatorBot mention and remove that
+                # noinspection PyProtectedMember
+                if event.bot.user.id in message._mention_ids:
+                    # remove the mention with a regex
+                    content = re.sub(f"<@!*&*{event.bot.user.id}+>", "", message.content, 1).strip()
 
-                # check if message is in cache
-                if thread in reply_cache.thread_to_user:
-                    send = True
+                    send = False
 
-                # look if it follows the naming scheme and is in the correct channel
-                elif thread.channel.id in [
-                    descend_channels.admin_channel.id,
-                    descend_channels.bot_dev_channel.id,
-                ] and thread.name.startswith("Message from"):
-                    linked_user_id = thread.name.split("|")[1]
-                    linked_user = await event.bot.fetch_user(linked_user_id)
-
-                    if linked_user:
-                        # save in cache
-                        reply_cache.user_to_thread.update({linked_user.id: thread})
-                        reply_cache.thread_to_user.update({thread: linked_user.id})
-
+                    # check if message is in cache
+                    if thread.id in reply_cache.thread_to_user:
                         send = True
 
-                if send:
-                    # check that the message starts with a @ElevatorBot mention and remove that
-                    content = message.content
-                    if content.startswith(event.bot.user.mention):
-                        content.removeprefix(event.bot.user.mention)
+                    # look if it follows the naming scheme and is in the correct channel
+                    elif thread.parent_channel.id in [
+                        descend_channels.admin_channel.id,
+                        descend_channels.bot_dev_channel.id,
+                    ] and thread.name.startswith("Message from"):
+                        linked_user_id = thread.name.split("|")[1].strip()
+                        linked_user = await event.bot.fetch_user(linked_user_id)
 
+                        if linked_user:
+                            # save in cache
+                            reply_cache.user_to_thread.update({linked_user.id: thread})
+                            reply_cache.thread_to_user.update({thread.id: linked_user.id})
+
+                            send = True
+
+                    if send:
                         # alright, lets send that to the linked member
-                        linked_user = await event.bot.fetch_user(reply_cache.thread_to_user[thread])
+                        linked_user = await event.bot.fetch_user(reply_cache.thread_to_user[thread.id])
+
+                        # add the urls to the message
+                        attached_files = [attachment.url for attachment in message.attachments]
+                        if attached_files:
+                            attached_files.insert(0, "⁣\n__**Attachments**__")
+                            if message.content:
+                                attached_files.insert(0, content)
+                            content = "\n".join(attached_files)
 
                         # send the message
                         if not edit_mode:
@@ -101,10 +110,6 @@ async def on_message_create(event: MessageCreate, edit_mode: bool = False):
                                 user_message = await linked_user.send(content=content)
                                 reply_cache.thread_message_id_to_user_message.update({message.id: user_message})
 
-                        # also send images
-                        for url in [attachment.url for attachment in message.attachments]:
-                            await linked_user.send(content=url)
-
                         # react to the message to signal the OK
                         await message.add_reaction(custom_emojis.descend_logo)
 
@@ -118,12 +123,10 @@ async def on_message_create(event: MessageCreate, edit_mode: bool = False):
                 allowed_guilds = [
                     await event.bot.fetch_guild(guild_id) for guild_id in get_setting("COMMAND_GUILD_SCOPE")
                 ]
-                mutual_allowed_guilds = [g for g in allowed_guilds if g.id in mutual_guilds]
+                mutual_allowed_guilds = [guild for guild in allowed_guilds if guild in mutual_guilds]
 
                 if mutual_allowed_guilds:
-                    thread_name = (
-                        f"Message from {message.author.username}_{message.author.discriminator}|{message.author.id}"
-                    )
+                    thread_name = f"Message from {message.author.username} | {message.author.id}"
 
                     # we just need to get the url, no need to re-upload
                     attached_files = [attachment.url for attachment in message.attachments]
@@ -151,11 +154,17 @@ async def on_message_create(event: MessageCreate, edit_mode: bool = False):
                                 reason="Received DM",
                             )
 
+                            # ping all users
+                            pings = await thread.send(
+                                " ".join([member.mention for member in thread.parent_channel.humans])
+                            )
+                            await pings.delete()
+
                             # first message in thread
                             await thread.send(
                                 embeds=embed_message(
                                     "Inquiry",
-                                    f"Any message you send here that starts with `@ElevatorBot` is relayed to them (not including the mention of course)\nI will react with {custom_emojis.descend_logo} if I conveyed the message successfully",
+                                    f"Any message you send here that starts with `@ElevatorBot` is relayed to them (not including the mention of course)\nAlternatively, you can reply to the message\nI will react with {custom_emojis.descend_logo} if I conveyed the message successfully\n⁣\nAll messages from me are directly forwarded from {message.author.mention}",
                                     member=message.author,
                                 )
                             )
@@ -171,11 +180,20 @@ async def on_message_create(event: MessageCreate, edit_mode: bool = False):
 
                         # save in cache
                         reply_cache.user_to_thread.update({message.author.id: thread})
-                        reply_cache.thread_to_user.update({thread: message.author.id})
+                        reply_cache.thread_to_user.update({thread.id: message.author.id})
 
                     # send the message
                     if not edit_mode:
-                        thread_message = await thread.send(content=message.content)
+                        content = message.content
+
+                        # add the urls to the message
+                        if attached_files:
+                            attached_files.insert(0, "⁣\n__**Attachments**__")
+                            if message.content:
+                                attached_files.insert(0, content)
+                            content = "\n".join(attached_files)
+
+                        thread_message = await thread.send(content=content)
                         reply_cache.user_message_id_to_thread_message.update({message.id: thread_message})
 
                     # edit the message
@@ -190,9 +208,6 @@ async def on_message_create(event: MessageCreate, edit_mode: bool = False):
                         else:
                             thread_message = await thread.send(content=message.content)
                             reply_cache.user_message_id_to_thread_message.update({message.id: thread_message})
-
-                    for url in attached_files:
-                        await thread.send(content=url)
 
         # =========================================================================
         # handle guild messages

@@ -138,7 +138,7 @@ async def on_thread_delete(event: ThreadDelete):
 
     if event.thread.guild == descend_channels.guild:
         # remove the reply thread cache data
-        if event.thread in reply_cache.thread_to_user:
-            user_id = reply_cache.thread_to_user[event.thread]
-            reply_cache.thread_to_user.pop(event.thread)
+        if event.thread.id in reply_cache.thread_to_user:
+            user_id = reply_cache.thread_to_user[event.thread.id]
+            reply_cache.thread_to_user.pop(event.thread.id)
             reply_cache.user_to_thread.pop(user_id)
