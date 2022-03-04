@@ -58,6 +58,7 @@ services:
     volumes:
       - ./Logs/Backend:/app/Logs/Backend
     environment:
+      - MAX_WORKERS
       - POSTGRES_DB
       - POSTGRES_USER
       - POSTGRES_PASSWORD
@@ -116,7 +117,6 @@ services:
     volumes:
       - ./Logs/ElevatorBot:/app/Logs/ElevatorBot
     environment:
-      - MAX_WORKERS
       - BACKEND_HOST
       - BACKEND_PORT
       - WEBSITE_HOST
