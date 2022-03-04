@@ -38,7 +38,7 @@ class DayOneRaid(BaseScale):
 
         raid_completions = []
         async with create_task_group() as tg:
-            for member in ctx.guild.members:
+            for member in ctx.guild.humans:
                 tg.start_soon(check_member, DestinyAccount(discord_member=member, discord_guild=ctx.guild, ctx=None))
 
         embed = embed_message(f"{raid} - Day One Completions")

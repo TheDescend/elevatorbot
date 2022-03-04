@@ -43,7 +43,7 @@ class RegisteredRole(BaseScale):
         )
 
         # check all members
-        for member in ctx.guild.members:
+        for member in ctx.guild.humans:
             # check if member is not pending
             if not member.pending:
                 destiny_profile = DestinyProfile(ctx=ctx, discord_member=member, discord_guild=ctx.guild)

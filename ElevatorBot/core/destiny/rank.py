@@ -141,7 +141,7 @@ class RankCommandHandler:
             # get all server members with a registration
             discord_members = [
                 server_member
-                for server_member in ctx.guild.members
+                for server_member in ctx.guild.humans
                 if await DestinyProfile(ctx=None, discord_member=server_member, discord_guild=ctx.guild).is_registered()
             ]
 

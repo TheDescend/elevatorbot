@@ -24,7 +24,7 @@ class AutomaticRoleAssignment(BaseEvent):
     async def run(self, client: ElevatorSnake):
         # loop through all guilds members
         for guild in client.guilds:
-            for member in guild.members:
+            for member in guild.humans:
                 # ignore know unregistered people
                 if await DestinyProfile(ctx=None, discord_member=member, discord_guild=guild).is_registered():
                     await Roles(guild=guild, member=member, ctx=None).update()
