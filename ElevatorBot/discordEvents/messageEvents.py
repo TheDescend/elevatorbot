@@ -261,10 +261,8 @@ async def on_message_create(event: MessageCreate, edit_mode: bool = False):
                             await message.channel.send(f"{random.choice(welcome_choice)} <@{neria_id}>!")
 
                 # be annoyed if getting pinged
-                async for member in message.mention_users:
-                    if member == event.bot.user:
-                        await message.add_reaction(custom_emojis.ping)
-                        break
+                if event.bot.user.id in message._mention_ids:
+                    await message.add_reaction(custom_emojis.ping)
 
                 # make deving with github easier
                 message = event.message
