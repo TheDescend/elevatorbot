@@ -200,6 +200,7 @@ class RankCommandHandler:
 
             elif not found:
                 if result.discord_member == member:
+                    found = True
                     description.append("...")
                     description.append(
                         f"{emoji} {result.discord_member.mention}\n{custom_emojis.enter} {result.display_text}"
