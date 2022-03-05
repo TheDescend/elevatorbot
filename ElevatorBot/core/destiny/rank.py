@@ -13,6 +13,7 @@ from ElevatorBot.networking.destiny.clan import DestinyClan
 from ElevatorBot.networking.destiny.profile import DestinyProfile
 from ElevatorBot.networking.destiny.roles import DestinyRoles
 from ElevatorBot.networking.destiny.weapons import DestinyWeapons
+from ElevatorBot.networking.errors import BackendException
 from ElevatorBot.static.destinyActivities import raid_to_emblem_hash
 from ElevatorBot.static.emojis import custom_emojis
 from Shared.enums.destiny import (
@@ -233,10 +234,10 @@ class RankCommandHandler:
         result = RankResult(discord_member=discord_member)
 
         # open connections
-        backend_account = DestinyAccount(ctx=ctx, discord_member=discord_member, discord_guild=ctx.guild)
-        backend_activities = DestinyActivities(ctx=ctx, discord_member=discord_member, discord_guild=ctx.guild)
-        backend_weapons = DestinyWeapons(ctx=ctx, discord_member=discord_member, discord_guild=ctx.guild)
-        backend_roles = DestinyRoles(ctx=ctx, discord_member=discord_member, discord_guild=ctx.guild)
+        backend_account = DestinyAccount(ctx=None, discord_member=discord_member, discord_guild=ctx.guild)
+        backend_activities = DestinyActivities(ctx=None, discord_member=discord_member, discord_guild=ctx.guild)
+        backend_weapons = DestinyWeapons(ctx=None, discord_member=discord_member, discord_guild=ctx.guild)
+        backend_roles = DestinyRoles(ctx=None, discord_member=discord_member, discord_guild=ctx.guild)
 
         # handle each leaderboard differently
         match leaderboard_name:
@@ -605,9 +606,12 @@ class RankCommandHandler:
 
             case "weapon_kills":
                 # get the stat
-                stat = await backend_weapons.get_weapon(
-                    input_data=DestinyWeaponStatsInputModel(weapon_ids=weapon.reference_ids)
-                )
+                try:
+                    stat = await backend_weapons.get_weapon(
+                        input_data=DestinyWeaponStatsInputModel(weapon_ids=weapon.reference_ids)
+                    )
+                except BackendException:
+                    stat = 0
 
                 # save the stat
                 percent = (stat.total_precision_kills / stat.total_kills) * 100 if stat.total_kills else 0
@@ -616,9 +620,12 @@ class RankCommandHandler:
 
             case "weapon_precision_kills":
                 # get the stat
-                stat = await backend_weapons.get_weapon(
-                    input_data=DestinyWeaponStatsInputModel(weapon_ids=weapon.reference_ids)
-                )
+                try:
+                    stat = await backend_weapons.get_weapon(
+                        input_data=DestinyWeaponStatsInputModel(weapon_ids=weapon.reference_ids)
+                    )
+                except BackendException:
+                    stat = 0
 
                 # save the stat
                 result.sort_value = stat.total_precision_kills
@@ -626,9 +633,12 @@ class RankCommandHandler:
 
             case "weapon_precision_kills_percent":
                 # get the stat
-                stat = await backend_weapons.get_weapon(
-                    input_data=DestinyWeaponStatsInputModel(weapon_ids=weapon.reference_ids)
-                )
+                try:
+                    stat = await backend_weapons.get_weapon(
+                        input_data=DestinyWeaponStatsInputModel(weapon_ids=weapon.reference_ids)
+                    )
+                except BackendException:
+                    stat = 0
 
                 # save the stat
                 percent = (stat.total_precision_kills / stat.total_kills) * 100 if stat.total_kills else 0
