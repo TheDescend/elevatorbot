@@ -57,7 +57,7 @@ async def left_channel(event: VoiceStateUpdate):
     # auto channel deletion (alpha / beta / gamma...)
     else:
         # only do this for descend
-        if event.before and event.before.guild == descend_channels.guild:
+        if event.before.guild == descend_channels.guild and event.before.channel.category:
             # only delete if they were the last in there
             if len(event.before.channel.voice_members) == 1:
                 split_name = event.before.channel.name.split("|")
@@ -91,7 +91,7 @@ async def joined_channel(event: VoiceStateUpdate):
         return
 
     # only do this for descend
-    if event.after and event.after.guild == descend_channels.guild:
+    if event.after.guild == descend_channels.guild and event.after.channel.category:
         if len(event.after.channel.voice_members) == 1:
             split_name = event.after.channel.name.split("|")
             if len(split_name) > 1:
