@@ -333,7 +333,7 @@ class LfgMessage:
                 await ctx.send(
                     embeds=embed_message(
                         "Success",
-                        f"I've created the event (ID: `{self.message.id}`) \nClick [here]({self.message.jump_url}) to view the event",
+                        f"I've created the event (ID: `{self.id}`) \nClick [here]({self.message.jump_url}) to view the event",
                     )
                 )
 
