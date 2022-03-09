@@ -98,9 +98,9 @@ def format_timedelta(seconds: Optional[float | datetime.timedelta]) -> str:
     hours = minutes // 60
 
     if hours != 0:
-        return f"{hours:,}h {minutes % 60:,}m"
+        return f"{hours:,}h {minutes % 60}m"
     else:
-        return f"{minutes % 60:,}m {seconds % 60:,}s"
+        return f"{minutes % 60}m {seconds % 60}s"
 
 
 def replace_progress_formatting(completion_status: str) -> str:
