@@ -1,7 +1,6 @@
 import datetime
 
 import pytest as pytest
-from Shared.networkingSchemas.destiny.account import DestinyCraftableModel
 from dummyData.insert import mock_request
 from dummyData.static import *
 from httpx import AsyncClient
@@ -22,6 +21,7 @@ from Shared.networkingSchemas.destiny import (
     DestinyTriumphScoreModel,
     SeasonalChallengesModel,
 )
+from Shared.networkingSchemas.destiny.account import DestinyCraftableModel
 
 
 @pytest.mark.asyncio
@@ -50,6 +50,12 @@ async def test_has_collectible(client: AsyncClient, mocker: MockerFixture):
     assert data.bool is True
     assert dummy_gotten_collectible_id in cache.collectibles[dummy_destiny_id]
 
+    # run the same test again to see that the cache works
+    r = await client.get(
+        f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/collectible/{dummy_gotten_collectible_id}"
+    )
+    assert r.status_code == 200
+
     r = await client.get(
         f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/collectible/{dummy_not_gotten_collectible_id}"
     )
@@ -71,6 +77,12 @@ async def test_has_triumph(client: AsyncClient, mocker: MockerFixture):
     assert data.bool is True
     assert data.objectives == []
     assert dummy_gotten_record_id in cache.triumphs[dummy_destiny_id]
+
+    # run the same test again to see that the cache works
+    r = await client.get(
+        f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/triumph/{dummy_gotten_record_id}"
+    )
+    assert r.status_code == 200
 
     r = await client.get(
         f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/triumph/{dummy_not_gotten_record_id}"

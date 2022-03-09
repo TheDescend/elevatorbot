@@ -270,7 +270,7 @@ class DestinyProfile:
         # check cache
         async with asyncio.Lock():
             if self.destiny_id not in cache.triumphs:
-                cache.triumphs.update({self.destiny_id: {}})
+                cache.triumphs.update({self.destiny_id: set()})
 
             if triumph_hash not in cache.triumphs[self.destiny_id]:
                 # check if the last update is older than 10 minutes
@@ -284,7 +284,7 @@ class DestinyProfile:
                     result = await records.has_record(db=self.db, destiny_id=self.destiny_id, triumph_hash=triumph_hash)
                     if result:
                         # only caching already got triumphs
-                        cache.triumphs[self.destiny_id].update({triumph_hash: True})
+                        cache.triumphs[self.destiny_id].add(triumph_hash)
                         return BoolModelRecord(bool=True)
 
                     # alright, the user doesn't have the triumph, at least not in the db. So let's update the db entries
@@ -305,11 +305,11 @@ class DestinyProfile:
 
                         # does the entry exist in the db?
                         # we don't need to re calc the state if its already marked as earned in the db
-                        result = await records.get_record(
+                        result = await records.has_record(
                             db=self.db, destiny_id=self.destiny_id, triumph_hash=triumph_id
                         )
-                        if result and result.completed:
-                            cache.triumphs[self.destiny_id].update({triumph_id: True})
+                        if result:
+                            cache.triumphs[self.destiny_id].add(triumph_id)
                             continue
 
                         # calculate if the triumph is gotten and save the triumph we are looking for
@@ -328,17 +328,8 @@ class DestinyProfile:
 
                         # don't really need to insert not-gained triumphs
                         if status:
-                            cache.triumphs[self.destiny_id].update({triumph_id: True})
-                            # do we need to update or insert?
-                            if not result:
-                                # insert
-                                to_insert.append(
-                                    Records(destiny_id=self.destiny_id, record_id=triumph_id, completed=True)
-                                )
-
-                            else:
-                                # update
-                                await records.update_record(db=self.db, obj=result, completed=True)
+                            cache.triumphs[self.destiny_id].add(triumph_id)
+                            to_insert.append(Records(destiny_id=self.destiny_id, record_id=triumph_id, completed=True))
 
                     # mass insert the missing entries
                     if to_insert:
@@ -366,7 +357,7 @@ class DestinyProfile:
         # check cache
         async with asyncio.Lock():
             if self.destiny_id not in cache.collectibles:
-                cache.collectibles.update({self.destiny_id: {}})
+                cache.collectibles.update({self.destiny_id: set()})
 
             if collectible_hash not in cache.collectibles[self.destiny_id]:
                 # check if the last update is older than 10 minutes
@@ -379,7 +370,7 @@ class DestinyProfile:
                 )
                 if result:
                     # only caching already got collectibles
-                    cache.collectibles[self.destiny_id].update({collectible_hash: True})
+                    cache.collectibles[self.destiny_id].add(collectible_hash)
                     return True
 
                 # as with the triumphs, we need to update our local collectible data now
@@ -395,11 +386,11 @@ class DestinyProfile:
 
                     # does the entry exist in the db?
                     # we don't need to re calc the state if its already marked as owned in the db
-                    result = await collectibles.get_collectible(
+                    result = await collectibles.has_collectible(
                         db=self.db, destiny_id=self.destiny_id, collectible_hash=collectible_id
                     )
-                    if result and result.owned:
-                        cache.collectibles[self.destiny_id].update({collectible_id: True})
+                    if result:
+                        cache.collectibles[self.destiny_id].add(collectible_id)
                         continue
 
                     # bit 1 not being set means the collectible is gotten
@@ -408,17 +399,10 @@ class DestinyProfile:
 
                     # don't really need to insert not-owned collectibles
                     if status:
-                        cache.collectibles[self.destiny_id].update({collectible_id: True})
-                        # do we need to update or insert?
-                        if not result:
-                            # insert
-                            to_insert.append(
-                                Collectibles(destiny_id=self.destiny_id, collectible_id=collectible_id, owned=True)
-                            )
-
-                        else:
-                            # update
-                            await collectibles.update_collectible(db=self.db, obj=result, owned=True)
+                        cache.collectibles[self.destiny_id].add(collectible_id)
+                        to_insert.append(
+                            Collectibles(destiny_id=self.destiny_id, collectible_id=collectible_id, owned=True)
+                        )
 
                 # mass insert the missing entries
                 if to_insert:
@@ -428,10 +412,7 @@ class DestinyProfile:
                 await discord_users.update(db=self.db, to_update=self.user, collectibles_last_updated=get_now_with_tz())
 
         # now check again if its owned
-        if collectible_hash in cache.collectibles[self.destiny_id]:
-            return True
-        else:
-            return False
+        return collectible_hash in cache.collectibles[self.destiny_id]
 
     async def get_metric_value(self, metric_hash: str | int) -> int:
         """Returns the value of the given metric hash"""

@@ -34,7 +34,7 @@ class DayOneRaid(BaseScale):
                     if e.error == "DiscordIdNotFound":
                         pass
                     else:
-                        raise e
+                        raise LookupError
 
         raid_completions = []
         async with create_task_group() as tg:

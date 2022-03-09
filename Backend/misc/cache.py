@@ -33,10 +33,10 @@ class Cache:
     persistent_messages: dict[str, Optional[PersistentMessage]] = dataclasses.field(init=False, default_factory=dict)
 
     # User Triumphs - Key: destiny_id[triumph_hash]
-    triumphs: dict[int, dict[int, bool]] = dataclasses.field(init=False, default_factory=dict)
+    triumphs: dict[int, set] = dataclasses.field(init=False, default_factory=dict)
 
     # User Collectibles - Key: destiny_id[collectible_hash]
-    collectibles: dict[int, dict[int, bool]] = dataclasses.field(init=False, default_factory=dict)
+    collectibles: dict[int, set] = dataclasses.field(init=False, default_factory=dict)
 
     # Manifest Definitions. Saving DB calls since 1982. Make sure to `async with asyncio.Lock():` them
     season_pass_definition: Optional[DestinySeasonPassDefinition] = dataclasses.field(init=False, default=None)
