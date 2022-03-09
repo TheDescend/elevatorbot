@@ -50,6 +50,7 @@ class DestinyWeaponTypeEnum(Enum):
     SUBMACHINE_GUN = 24
     TRACE_RIFLE = 25
     BOW = 31
+    GLAIVE = 33
 
 
 class DestinyItemSubTypeEnum(Enum):
@@ -69,6 +70,7 @@ class DestinyItemSubTypeEnum(Enum):
     SUBMACHINE_GUN = 24
     TRACE_RIFLE = 25
     BOW = 31
+    GLAIVE = 33
 
     NONE = 0
     MASK = 19
