@@ -9,17 +9,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.errors import CustomException
 from Backend.crud import discord_users
-from Backend.database.base import get_async_sessionmaker
 from Backend.database.models import DiscordUsers
 from Backend.networking.base import NetworkBase
 from Backend.networking.bungieAuth import BungieAuth
 from Backend.networking.bungieRoutes import manifest_route, pgcr_route
 from Backend.networking.schemas import WebResponse
+from Shared.functions.readSettingsFile import get_setting
 
 # the cache object
 # low expire time since players don't want to wait an eternity for their stuff to update
-from Shared.functions.readSettingsFile import get_setting
-
 bungie_cache = aiohttp_client_cache.RedisBackend(
     cache_name="backend",
     address=f"""redis://{os.environ.get("REDIS_HOST")}:{os.environ.get("REDIS_PORT")}""",
@@ -36,15 +34,14 @@ bungie_cache = aiohttp_client_cache.RedisBackend(
         "**/GroupV2": timedelta(days=1),  # all clan stuff
     },
 )
-headers = {"X-API-Key": get_setting("BUNGIE_APPLICATION_API_KEY"), "Accept": "application/json"}
+bungie_headers = {"X-API-Key": get_setting("BUNGIE_APPLICATION_API_KEY"), "Accept": "application/json"}
 
 
 class BungieApi(NetworkBase):
     """Handles all networking to any API. To call an api that is not bungies, change the headers"""
 
     # base bungie headers
-    normal_headers = headers.copy()
-    auth_headers = headers.copy()
+    headers = bungie_headers
 
     # redis cache
     cache = bungie_cache
@@ -66,8 +63,7 @@ class BungieApi(NetworkBase):
 
         # allows different urls than bungies to be called (fe. steam players)
         if headers:
-            self.normal_headers = headers
-            self.auth_headers = headers
+            self.headers = headers
             self.bungie_request = False
 
     async def get(
@@ -89,13 +85,11 @@ class BungieApi(NetworkBase):
 
         # use a token if we need to
         if with_token:
-            await self.__set_auth_headers()
-
             # ignore cookies
             no_jar = aiohttp.DummyCookieJar()
 
         # use the correct headers
-        request_headers = self.normal_headers if not with_token else self.auth_headers
+        headers = self.headers if not with_token else await self.__get_auth_headers()
 
         try:
             async with aiohttp_client_cache.CachedSession(
@@ -107,7 +101,7 @@ class BungieApi(NetworkBase):
                         session=session,
                         method="GET",
                         route=route,
-                        headers=request_headers,
+                        headers=headers,
                         params=params,
                     )
 
@@ -118,7 +112,7 @@ class BungieApi(NetworkBase):
                             session=session,
                             method="GET",
                             route=route,
-                            headers=request_headers,
+                            headers=headers,
                             params=params,
                         )
 
@@ -137,9 +131,6 @@ class BungieApi(NetworkBase):
     async def post(self, route: str, json: dict = None, params: dict = None) -> WebResponse:
         """Post data to bungie. self.discord_id must have the authentication for the action"""
 
-        # set the auth headers to a working token
-        await self.__set_auth_headers()
-
         async with aiohttp_client_cache.CachedSession(cache=self.cache) as session:
             # do not use cache here
             async with session.disabled():
@@ -148,21 +139,25 @@ class BungieApi(NetworkBase):
                     method="POST",
                     route=route,
                     json=json,
-                    headers=self.auth_headers,
+                    headers=await self.__get_auth_headers(),
                     params=params,
                 )
 
-    async def __set_auth_headers(self):
+    async def __get_auth_headers(self) -> dict:
         """Update the auth headers to include a working token. Raise an error if that doesnt exist"""
 
-        # use special token headers if its a bungie request
+        headers = self.headers.copy()
+
+        # use special token headers if it's a bungie request
         if self.bungie_request:
             # get a working token or abort
             auth = BungieAuth(db=self.db, user=self.user)
             token = await auth.get_working_token()
 
-            self.auth_headers.update(
+            headers.update(
                 {
                     "Authorization": f"Bearer {token}",
                 }
             )
+
+        return headers
