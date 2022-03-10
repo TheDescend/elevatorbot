@@ -273,7 +273,7 @@ class CRUDManifest(CRUDBase):
     async def get_current_season_pass(self, db: AsyncSession) -> DestinySeasonPassDefinition:
         """Get the current season pass from the DB"""
 
-        query = select(DestinySeasonPassDefinition).order_by(DestinySeasonPassDefinition.index.dsc()).limit(1)
+        query = select(DestinySeasonPassDefinition).order_by(DestinySeasonPassDefinition.index.desc()).limit(1)
 
         result = await self._execute_query(db=db, query=query)
         return result.scalar()
