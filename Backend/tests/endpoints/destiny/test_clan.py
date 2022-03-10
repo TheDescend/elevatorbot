@@ -24,7 +24,7 @@ async def test_clan(client: AsyncClient, mocker: MockerFixture):
     r = await client.post(f"/destiny/clan/{dummy_discord_guild_id}/{dummy_discord_id}/link")
     assert r.status_code == 200
     data = DestinyClanLink.parse_obj(r.json())
-    assert data.success is True
+    assert bool(data) is True
     assert data.clan_name == "Descend"
 
     # link clan (without admin)
@@ -86,5 +86,5 @@ async def test_clan(client: AsyncClient, mocker: MockerFixture):
     r = await client.delete(f"/destiny/clan/{dummy_discord_guild_id}/{dummy_discord_id}/unlink")
     assert r.status_code == 200
     data = DestinyClanLink.parse_obj(r.json())
-    assert data.success is True
+    assert bool(data) is True
     assert data.clan_name == "Descend"

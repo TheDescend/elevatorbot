@@ -4,29 +4,23 @@ import time
 from base64 import b64encode
 
 import aiohttp
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.errors import CustomException
 from Backend.crud import discord_users
-from Backend.database.models import DiscordUsers
-from Backend.networking.base import NetworkBase
+from Backend.networking.bungieApi import BungieApi
 from Shared.functions.helperFunctions import get_now_with_tz, localize_datetime
 from Shared.functions.readSettingsFile import get_setting
 from Shared.networkingSchemas.misc.auth import BungieRegistrationInput, BungieTokenInput
 
-base_headers = headers = {
+auth_headers = headers = {
     "content-type": "application/x-www-form-urlencoded",
     "authorization": f"""Basic {b64encode(f"{get_setting('BUNGIE_APPLICATION_CLIENT_ID')}:{get_setting('BUNGIE_APPLICATION_CLIENT_SECRET')}".encode()).decode()}""",
 }
+auth_route = "https://www.bungie.net/platform/app/oauth/token/"
 
 
 @dataclasses.dataclass
-class BungieRegistration(NetworkBase):
-    route = "https://www.bungie.net/platform/app/oauth/token/"
-    headers = base_headers
-
-    bungie_request: bool = True
-
+class BungieRegistration(BungieApi):
     async def get_first_token(self, user_input: BungieRegistrationInput) -> BungieTokenInput:
         """Returns the first token of the user with their authorization code"""
 
@@ -40,9 +34,9 @@ class BungieRegistration(NetworkBase):
             response = await self._request(
                 session=session,
                 method="POST",
-                route=self.route,
+                route=auth_route,
                 form_data=data,
-                headers=self.headers,
+                headers=auth_headers,
             )
 
             # parse the token data and return it
@@ -58,14 +52,11 @@ class BungieRegistration(NetworkBase):
 
 
 @dataclasses.dataclass
-class BungieAuth(NetworkBase):
-    db: AsyncSession
-    user: DiscordUsers
-
-    route = "https://www.bungie.net/platform/app/oauth/token/"
-    headers = base_headers
-
-    bungie_request: bool = True
+class BungieAuth(BungieRegistration):
+    def __post_init__(self):
+        # this cannot be None
+        if not self.user:
+            raise ValueError
 
     async def get_working_token(self) -> str:
         """Returns token or raises an error"""
@@ -99,9 +90,9 @@ class BungieAuth(NetworkBase):
                 response = await self._request(
                     session=session,
                     method="POST",
-                    route=self.route,
+                    route=auth_route,
                     form_data=data,
-                    headers=self.headers,
+                    headers=auth_headers,
                 )
                 if response:
                     access_token = response.content["access_token"]
