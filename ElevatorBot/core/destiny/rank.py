@@ -234,10 +234,10 @@ class RankCommandHandler:
         result = RankResult(discord_member=discord_member)
 
         # open connections
-        backend_account = DestinyAccount(ctx=None, discord_member=discord_member, discord_guild=ctx.guild)
-        backend_activities = DestinyActivities(ctx=None, discord_member=discord_member, discord_guild=ctx.guild)
-        backend_weapons = DestinyWeapons(ctx=None, discord_member=discord_member, discord_guild=ctx.guild)
-        backend_roles = DestinyRoles(ctx=None, discord_member=discord_member, discord_guild=ctx.guild)
+        backend_account = DestinyAccount(ctx=ctx, discord_member=discord_member, discord_guild=ctx.guild)
+        backend_activities = DestinyActivities(ctx=ctx, discord_member=discord_member, discord_guild=ctx.guild)
+        backend_weapons = DestinyWeapons(ctx=ctx, discord_member=discord_member, discord_guild=ctx.guild)
+        backend_roles = DestinyRoles(ctx=ctx, discord_member=discord_member, discord_guild=ctx.guild)
 
         # handle each leaderboard differently
         match leaderboard_name:
