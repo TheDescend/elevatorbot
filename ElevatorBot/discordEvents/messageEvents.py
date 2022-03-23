@@ -1,8 +1,10 @@
+import datetime
 import random
 import re
 
 import github
-from dis_snek import AutoArchiveDuration, ChannelTypes, ThreadChannel, ThreadList
+from dateparser.search import search_dates
+from dis_snek import AutoArchiveDuration, ChannelTypes, ThreadChannel, ThreadList, Timestamp, TimestampStyles
 from dis_snek.api.events import MessageCreate, MessageDelete, MessageUpdate
 
 from ElevatorBot.core.misc.github import github_manager
@@ -287,6 +289,39 @@ async def on_message_create(event: MessageCreate, edit_mode: bool = False):
                             return await github_manager.send_issue(message, issue)
                 except (github.UnknownObjectException, github.GithubException):
                     pass
+
+                # parse datetimes
+                search_string = message.content.upper()
+                dates = []
+
+                # parse actual dates or times
+                if absolute_dates := search_dates(
+                    search_string,
+                    languages=["en"],
+                    settings={"PREFER_DATES_FROM": "future", "DATE_ORDER": "DMY", "PARSERS": ["absolute-time"]},
+                ):
+                    # only use datetimes that have a timezone attached
+                    dates = [date for date in absolute_dates if date[1].tzinfo]
+
+                # parse relative times
+                if relative_dates := search_dates(
+                    search_string,
+                    languages=["en"],
+                    settings={"RETURN_TIME_AS_PERIOD": True, "PARSERS": ["relative-time"]},
+                ):
+                    dates.extend(relative_dates)
+
+                # reply with the dates
+                if dates:
+                    # add the texts
+                    text = []
+                    for date in dates:
+                        timestamp = Timestamp.fromdatetime(date[1])
+                        time_text = f"{timestamp.format(style=TimestampStyles.ShortDateTime)} - {timestamp.format(style=TimestampStyles.RelativeTime)}"
+                        text.append(f"`{date[0]}`\n{custom_emojis.enter} {time_text}")
+
+                    embed = embed_message(description="\n".join(text))
+                    await message.reply(embeds=embed)
 
             # =========================================================================
             # valid for all guilds
