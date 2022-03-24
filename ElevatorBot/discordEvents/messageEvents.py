@@ -307,7 +307,11 @@ async def on_message_create(event: MessageCreate, edit_mode: bool = False):
                 if relative_dates := search_dates(
                     search_string,
                     languages=["en"],
-                    settings={"RETURN_TIME_AS_PERIOD": True, "PARSERS": ["relative-time"]},
+                    settings={
+                        "PREFER_DATES_FROM": "future",
+                        "RETURN_TIME_AS_PERIOD": True,
+                        "PARSERS": ["relative-time"],
+                    },
                 ):
                     dates.extend(relative_dates)
 
