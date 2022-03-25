@@ -1,4 +1,5 @@
 import asyncio
+import copy
 import dataclasses
 import datetime
 from typing import Optional
@@ -476,7 +477,7 @@ class DestinyProfile:
         # get the current season pass hash
         async with asyncio.Lock():
             if not cache.season_pass_definition:
-                cache.season_pass_definition = await destiny_manifest.get_current_season_pass(db=self.db)
+                cache.season_pass_definition = copy.copy(await destiny_manifest.get_current_season_pass(db=self.db))
 
         # get a character id since they are character specific
         character_id = (await self.get_character_ids())[0]
@@ -532,7 +533,7 @@ class DestinyProfile:
                             definition.topics.append(topic)
                         break
 
-                cache.seasonal_challenges_definition = definition
+                cache.seasonal_challenges_definition = copy.copy(definition)
 
         user_sc = cache.seasonal_challenges_definition.copy()
         user_records = await self.get_triumphs()
