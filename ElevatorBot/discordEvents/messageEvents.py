@@ -8,6 +8,7 @@ from dis_snek import AutoArchiveDuration, ChannelTypes, ThreadChannel, ThreadLis
 from dis_snek.api.events import MessageCreate, MessageDelete, MessageUpdate
 
 from ElevatorBot.core.misc.github import github_manager
+from ElevatorBot.core.misc.timestamps import get_timestamp_embed
 from ElevatorBot.misc.cache import reply_cache
 from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.networking.github import get_github_repo
@@ -291,40 +292,7 @@ async def on_message_create(event: MessageCreate, edit_mode: bool = False):
                     pass
 
                 # parse datetimes
-                search_string = message.content.upper()
-                dates = []
-
-                # parse actual dates or times
-                if absolute_dates := search_dates(
-                    search_string,
-                    languages=["en"],
-                    settings={"PREFER_DATES_FROM": "future", "DATE_ORDER": "DMY", "PARSERS": ["absolute-time"]},
-                ):
-                    # only use datetimes that have a timezone attached
-                    dates = [date for date in absolute_dates if date[1].tzinfo]
-
-                # parse relative times
-                if relative_dates := search_dates(
-                    search_string,
-                    languages=["en"],
-                    settings={
-                        "PREFER_DATES_FROM": "future",
-                        "RETURN_TIME_AS_PERIOD": True,
-                        "PARSERS": ["relative-time"],
-                    },
-                ):
-                    dates.extend(relative_dates)
-
-                # reply with the dates
-                if dates:
-                    # add the texts
-                    text = []
-                    for date in dates:
-                        timestamp = Timestamp.fromdatetime(date[1])
-                        time_text = f"{timestamp.format(style=TimestampStyles.ShortDateTime)} - {timestamp.format(style=TimestampStyles.RelativeTime)}"
-                        text.append(f"`{date[0]}`\n{custom_emojis.enter} {time_text}")
-
-                    embed = embed_message(description="\n".join(text))
+                if embed := await get_timestamp_embed(search_string=message.content.upper(), parse_relative=False):
                     await message.reply(embeds=embed)
 
             # =========================================================================

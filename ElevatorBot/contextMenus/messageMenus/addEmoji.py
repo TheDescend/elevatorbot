@@ -15,7 +15,7 @@ from Shared.functions.readSettingsFile import get_setting
 # =============
 
 
-class MessageMenuCommands(BaseScale):
+class EmojiCommands(BaseScale):
     """
     Add the selected image to the guild as an emoji
     """
@@ -85,4 +85,4 @@ class MessageMenuCommands(BaseScale):
 
 
 def setup(client):
-    MessageMenuCommands(client)
+    EmojiCommands(client)
