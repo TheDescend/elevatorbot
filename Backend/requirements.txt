@@ -1,17 +1,15 @@
 aiohttp[speedups]==3.8.1
-aiohttp_client_cache==0.5.2
-
-# aiohttp_client_cache currently requires this version
-aioredis==1.3.1
+aiohttp_client_cache==0.6.1
+aioredis==2.0.1
 anyio==3.5.0
-apscheduler==3.8.1
+apscheduler==3.9.1
 asyncpg==0.25.0
-fastapi==0.73.0
+fastapi==0.75.0
 feedparser==6.0.8
 ics==0.7
 matplotlib==3.5.1
-orjson==3.6.6
-pandas==1.4.0
+orjson==3.6.7
+pandas==1.4.1
 passlib[bcrypt]==1.7.4
 psutil==5.9.0
 pydantic==1.9.0
@@ -19,6 +17,6 @@ python-dateutil==2.8.2
 python-jose[cryptography]>=3.3.0
 python-multipart==0.0.5
 requests==2.27.1
-sqlalchemy==1.4.31
+sqlalchemy==1.4.32
 toml==0.10.2
-tzdata==2021.5
+tzdata==2022.1
