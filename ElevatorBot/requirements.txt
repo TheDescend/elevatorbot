@@ -7,7 +7,7 @@ anyio==3.5.0
 apscheduler==3.8.1
 cachetools==5.0.0
 dateparser==1.1.1
-git+https://github.com/Discord-Snake-Pit/Dis-Snek@79f4d7b93348cf789a94061b6b8375653ff69e9a
+git+https://github.com/Discord-Snake-Pit/Dis-Snek@a5590f139fbe43978f6e0dba64da9689b4056052
 ics==0.7
 matplotlib==3.5.1
 orjson==3.6.6

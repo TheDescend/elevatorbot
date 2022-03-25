@@ -1,13 +1,11 @@
 {
-    "User Context Menus": {
+    "Message Context Menus": {
         "Available Globally": [
             {
-                "name": "Get Join Code",
-                "description": "Gets the selected users Destiny 2 join code, like /join Name#1234"
+                "name": "Get Timestamps",
+                "description": "Format all (relative) dates and times in the message"
             }
-        ]
-    },
-    "Message Context Menus": {
+        ],
         "Only Available in the Descend Server": [
             {
                 "name": "Add Emoji",
@@ -16,6 +14,14 @@
             {
                 "name": "Draw Giveaway Winner",
                 "description": "Close the giveaway and draw a winner from the giveaway. Use multiple times if you want multiple winners"
+            }
+        ]
+    },
+    "User Context Menus": {
+        "Available Globally": [
+            {
+                "name": "Get Join Code",
+                "description": "Gets the selected users Destiny 2 join code, like /join Name#1234"
             }
         ]
     }
