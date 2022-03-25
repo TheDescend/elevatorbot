@@ -17,28 +17,29 @@ from Shared.functions.helperFunctions import get_min_with_tz, get_now_with_tz
 
 
 async def parse_string_datetime(
-    ctx: InteractionContext, time: str, timezone: str = "UTC"
+    ctx: InteractionContext, time: str, timezone: str = "UTC", can_start_in_past: bool = True
 ) -> Optional[datetime.datetime]:
     """Parse an input time and return it, or None if that fails"""
 
     # get start time
     try:
-        start_time = parse(time, dayfirst=True)
+        time = parse(time, dayfirst=True)
     except ParserError:
         await respond_invalid_time_input(ctx=ctx)
         return
 
-    if not start_time.tzinfo:
+    if not time.tzinfo:
         # make that timezone aware
         tz = zoneinfo.ZoneInfo(timezone)
-        start_time = start_time.replace(tzinfo=tz)
+        time = time.replace(tzinfo=tz)
 
     # make sure that is in the future
-    if start_time < get_now_with_tz():
-        await respond_time_input_in_past(ctx=ctx)
-        return
+    if not can_start_in_past:
+        if time < get_now_with_tz():
+            await respond_time_input_in_past(ctx=ctx)
+            return
 
-    return start_time
+    return time
 
 
 async def parse_datetime_options(
@@ -47,6 +48,7 @@ async def parse_datetime_options(
     season: Optional[str] = None,
     start_time: Optional[str] = None,
     end_time: Optional[str] = None,
+    can_start_in_past: bool = True,
 ) -> tuple[Optional[datetime.datetime], Optional[datetime.datetime]]:
     """
     Parse datetime options and return:
@@ -89,12 +91,14 @@ async def parse_datetime_options(
         formatted_end_time = datetime.datetime.fromtimestamp(int(parts[2]), tz=datetime.timezone.utc)
 
     if start_time:
-        formatted_start_time = await parse_string_datetime(ctx=ctx, time=start_time)
+        formatted_start_time = await parse_string_datetime(
+            ctx=ctx, time=start_time, can_start_in_past=can_start_in_past
+        )
         if not formatted_start_time:
             return None, None
 
     if end_time:
-        formatted_end_time = await parse_string_datetime(ctx=ctx, time=end_time)
+        formatted_end_time = await parse_string_datetime(ctx=ctx, time=end_time, can_start_in_past=can_start_in_past)
         if not formatted_end_time:
             return None, None
 
@@ -102,7 +106,7 @@ async def parse_datetime_options(
 
 
 async def log_error(
-    ctx: Optional[InteractionContext | ComponentContext], error: Exception, logger: logging.Logger
+    ctx: InteractionContext | ComponentContext | None, error: Exception, logger: logging.Logger
 ) -> None:
     """Respond to the context and log error"""
 

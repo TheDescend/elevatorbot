@@ -182,123 +182,6 @@
                 ]
             },
             {
-                "base_name": "Rank Commands",
-                "base_description": "Display Destiny 2 leaderboards. Pick **only** one leaderboard from all options",
-                "sub_commands": [
-                    {
-                        "name": "rank server",
-                        "description": "Show all server members on the leaderboard",
-                        "options": [
-                            {
-                                "name": "discord_leaderboards",
-                                "description": "Leaderboards concerning this discord server",
-                                "required": false,
-                                "autocomplete": false,
-                                "choices": [
-                                    "Roles Earned on this Discord Server",
-                                    "Join-Date of this Discord Server"
-                                ]
-                            },
-                            {
-                                "name": "basic_leaderboards",
-                                "description": "Leaderboards concerning basic Destiny 2 stats",
-                                "required": false,
-                                "autocomplete": false,
-                                "choices": [
-                                    "Total Playtime",
-                                    "Maximum Power Level",
-                                    "Maximum Season Pass Level",
-                                    "Kills",
-                                    "Kills with: Melee",
-                                    "Kills with: Super",
-                                    "Kills with: Grenade",
-                                    "Deaths",
-                                    "Suicides",
-                                    "Orbs of Power Generated",
-                                    "Triumph Score",
-                                    "Active Triumph Score",
-                                    "Legacy Triumph Score",
-                                    "Enhancement Cores",
-                                    "Vault Space Used",
-                                    "Bright Dust Owned",
-                                    "Legendary Shards Owned",
-                                    "Raid Banners Owned",
-                                    "Forges Done",
-                                    "AFK Forges Done",
-                                    "Weapon Catalysts Completed"
-                                ]
-                            },
-                            {
-                                "name": "endgame_leaderboards",
-                                "description": "Leaderboards concerning stats in Destiny 2 endgame activities",
-                                "required": false,
-                                "autocomplete": false,
-                                "choices": [
-                                    "Raids Completed",
-                                    "Raid Playtime",
-                                    "Raids Completed on Day One",
-                                    "Grandmaster Nightfalls Completed",
-                                    "Grandmaster Nightfalls Playtime"
-                                ]
-                            },
-                            {
-                                "name": "activity_leaderboards",
-                                "description": "Leaderboards concerning stats in Destiny 2 activities. Input the sought activity in activity",
-                                "required": false,
-                                "autocomplete": false,
-                                "choices": [
-                                    "Full Activity Completions",
-                                    "CP Activity Completions",
-                                    "Activity Kills",
-                                    "Activity Precision Kills",
-                                    "Activity % Precision Kills",
-                                    "Activity Deaths",
-                                    "Activity Assists",
-                                    "Activity Playtime",
-                                    "Fastest Activity Completion Time",
-                                    "Average Activity Completion Time"
-                                ]
-                            },
-                            {
-                                "name": "weapon_leaderboards",
-                                "description": "Leaderboards concerning Destiny 2 weapon stats. Input the sought weapon in weapon",
-                                "required": false,
-                                "autocomplete": false,
-                                "choices": [
-                                    "Weapon Kills",
-                                    "Weapon Precision Kills",
-                                    "Weapon % Precision Kills"
-                                ]
-                            },
-                            {
-                                "name": "activity",
-                                "description": "If are looking for a activity_leaderboards, please select the activity",
-                                "required": false,
-                                "autocomplete": true
-                            },
-                            {
-                                "name": "weapon",
-                                "description": "If are looking for a weapon_leaderboards, please select the weapon",
-                                "required": false,
-                                "autocomplete": true
-                            },
-                            {
-                                "name": "reverse",
-                                "description": "If you want to reverse the sorting: Default: False",
-                                "required": false,
-                                "autocomplete": false
-                            },
-                            {
-                                "name": "user",
-                                "description": "The user you want to look up",
-                                "required": false,
-                                "autocomplete": false
-                            }
-                        ]
-                    }
-                ]
-            },
-            {
                 "base_name": "Roles Commands",
                 "base_description": "Various commands concerning Destiny 2 achievement discord roles",
                 "sub_commands": [
@@ -501,117 +384,6 @@
                                     "Hunter",
                                     "Titan"
                                 ]
-                            },
-                            {
-                                "name": "user",
-                                "description": "The user you want to look up",
-                                "required": false,
-                                "autocomplete": false
-                            }
-                        ]
-                    }
-                ]
-            },
-            {
-                "base_name": "Weapons Commands",
-                "base_description": "Everything concerning Destiny 2 weapons and their usage",
-                "sub_commands": [
-                    {
-                        "name": "weapons weapon",
-                        "description": "Shows Destiny 2 weapon stats for the specified weapon",
-                        "options": [
-                            {
-                                "name": "weapon",
-                                "description": "The weapon you want to look up",
-                                "required": true,
-                                "autocomplete": true
-                            },
-                            {
-                                "name": "mode",
-                                "description": "Restrict the game mode. Default: All modes",
-                                "required": false,
-                                "autocomplete": false,
-                                "choices": [
-                                    "All",
-                                    "Raid",
-                                    "Dungeon",
-                                    "Story",
-                                    "Strike",
-                                    "Nightfall",
-                                    "Patrol",
-                                    "Gambit",
-                                    "All Pve",
-                                    "Iron Banner",
-                                    "Trials Of Osiris",
-                                    "Private Matches",
-                                    "All Pvp"
-                                ]
-                            },
-                            {
-                                "name": "activity",
-                                "description": "Restrict the activity. Overwrites mode. Default: All activities",
-                                "required": false,
-                                "autocomplete": true
-                            },
-                            {
-                                "name": "destiny_class",
-                                "description": "Restrict the class. Default: All classes",
-                                "required": false,
-                                "autocomplete": false,
-                                "choices": [
-                                    "Warlock",
-                                    "Hunter",
-                                    "Titan"
-                                ]
-                            },
-                            {
-                                "name": "expansion",
-                                "description": "Restrict the expansion. Default: All expansions",
-                                "required": false,
-                                "autocomplete": false,
-                                "choices": [
-                                    "Vanilla",
-                                    "Forsaken",
-                                    "Shadowkeep",
-                                    "Beyond Light",
-                                    "Witch Queen"
-                                ]
-                            },
-                            {
-                                "name": "season",
-                                "description": "Restrict the season. Default: All seasons",
-                                "required": false,
-                                "autocomplete": false,
-                                "choices": [
-                                    "Vanilla",
-                                    "Curse of Osiris",
-                                    "Warmind",
-                                    "Forsaken",
-                                    "Season of the Forge",
-                                    "Season of the Drifter",
-                                    "Season of Opulence",
-                                    "Shadowkeep",
-                                    "Season of Dawn",
-                                    "Season of the Worthy",
-                                    "Season of Arrivals",
-                                    "Beyond Light",
-                                    "Season of the Chosen",
-                                    "Season of the Splicer",
-                                    "Season of the Lost",
-                                    "Witch Queen"
-                                ]
-                            },
-                            {
-                                "name": "start_time",
-                                "description": "Format: DD/MM/YY - Input the **earliest** date you want the weapon stats for. Default: Big Bang",
-                                "required": false,
-                                "autocomplete": false
-                            },
-                            {
-                                "name": "end_time",
-                                "description": "Format: DD/MM/YY - Input the **latest** date you want the weapon stats for. Default: Now",
-                                "required": false,
-                                "autocomplete": false
                             },
                             {
                                 "name": "user",
@@ -828,6 +600,228 @@
                 "description": "Shows you the Destiny 2 steam maximum population timeline"
             },
             {
+                "name": "rank_clan",
+                "description": "Display Destiny 2 clan leaderboards. Pick **only** one leaderboard from all options",
+                "options": [
+                    {
+                        "name": "discord_leaderboards",
+                        "description": "Leaderboards concerning this discord server",
+                        "required": false,
+                        "autocomplete": false,
+                        "choices": [
+                            "Roles Earned on this Discord Server",
+                            "Join-Date of this Discord Server"
+                        ]
+                    },
+                    {
+                        "name": "basic_leaderboards",
+                        "description": "Leaderboards concerning basic Destiny 2 stats",
+                        "required": false,
+                        "autocomplete": false,
+                        "choices": [
+                            "Total Playtime",
+                            "Maximum Power Level",
+                            "Maximum Season Pass Level",
+                            "Kills",
+                            "Kills with: Melee",
+                            "Kills with: Super",
+                            "Kills with: Grenade",
+                            "Deaths",
+                            "Suicides",
+                            "Orbs of Power Generated",
+                            "Triumph Score",
+                            "Active Triumph Score",
+                            "Legacy Triumph Score",
+                            "Enhancement Cores",
+                            "Vault Space Used",
+                            "Bright Dust Owned",
+                            "Legendary Shards Owned",
+                            "Raid Banners Owned",
+                            "Forges Done",
+                            "AFK Forges Done",
+                            "Weapon Catalysts Completed"
+                        ]
+                    },
+                    {
+                        "name": "endgame_leaderboards",
+                        "description": "Leaderboards concerning stats in Destiny 2 endgame activities",
+                        "required": false,
+                        "autocomplete": false,
+                        "choices": [
+                            "Raids Completed",
+                            "Raid Playtime",
+                            "Raids Completed on Day One",
+                            "Grandmaster Nightfalls Completed",
+                            "Grandmaster Nightfalls Playtime"
+                        ]
+                    },
+                    {
+                        "name": "activity_leaderboards",
+                        "description": "Leaderboards concerning stats in Destiny 2 activities. Input the sought activity in activity",
+                        "required": false,
+                        "autocomplete": false,
+                        "choices": [
+                            "Full Activity Completions",
+                            "CP Activity Completions",
+                            "Activity Kills",
+                            "Activity Precision Kills",
+                            "Activity % Precision Kills",
+                            "Activity Deaths",
+                            "Activity Assists",
+                            "Activity Playtime",
+                            "Fastest Activity Completion Time",
+                            "Average Activity Completion Time"
+                        ]
+                    },
+                    {
+                        "name": "weapon_leaderboards",
+                        "description": "Leaderboards concerning Destiny 2 weapon stats. Input the sought weapon in weapon",
+                        "required": false,
+                        "autocomplete": false,
+                        "choices": [
+                            "Weapon Kills",
+                            "Weapon Precision Kills",
+                            "Weapon % Precision Kills"
+                        ]
+                    },
+                    {
+                        "name": "activity",
+                        "description": "If are looking for a activity_leaderboards, please select the activity",
+                        "required": false,
+                        "autocomplete": true
+                    },
+                    {
+                        "name": "weapon",
+                        "description": "If are looking for a weapon_leaderboards, please select the weapon",
+                        "required": false,
+                        "autocomplete": true
+                    },
+                    {
+                        "name": "reverse",
+                        "description": "If you want to reverse the sorting: Default: False",
+                        "required": false,
+                        "autocomplete": false
+                    },
+                    {
+                        "name": "user",
+                        "description": "The user you want to look up",
+                        "required": false,
+                        "autocomplete": false
+                    }
+                ]
+            },
+            {
+                "name": "rank_server",
+                "description": "Display Destiny 2 leaderboards. Pick **only** one leaderboard from all options",
+                "options": [
+                    {
+                        "name": "discord_leaderboards",
+                        "description": "Leaderboards concerning this discord server",
+                        "required": false,
+                        "autocomplete": false,
+                        "choices": [
+                            "Roles Earned on this Discord Server",
+                            "Join-Date of this Discord Server"
+                        ]
+                    },
+                    {
+                        "name": "basic_leaderboards",
+                        "description": "Leaderboards concerning basic Destiny 2 stats",
+                        "required": false,
+                        "autocomplete": false,
+                        "choices": [
+                            "Total Playtime",
+                            "Maximum Power Level",
+                            "Maximum Season Pass Level",
+                            "Kills",
+                            "Kills with: Melee",
+                            "Kills with: Super",
+                            "Kills with: Grenade",
+                            "Deaths",
+                            "Suicides",
+                            "Orbs of Power Generated",
+                            "Triumph Score",
+                            "Active Triumph Score",
+                            "Legacy Triumph Score",
+                            "Enhancement Cores",
+                            "Vault Space Used",
+                            "Bright Dust Owned",
+                            "Legendary Shards Owned",
+                            "Raid Banners Owned",
+                            "Forges Done",
+                            "AFK Forges Done",
+                            "Weapon Catalysts Completed"
+                        ]
+                    },
+                    {
+                        "name": "endgame_leaderboards",
+                        "description": "Leaderboards concerning stats in Destiny 2 endgame activities",
+                        "required": false,
+                        "autocomplete": false,
+                        "choices": [
+                            "Raids Completed",
+                            "Raid Playtime",
+                            "Raids Completed on Day One",
+                            "Grandmaster Nightfalls Completed",
+                            "Grandmaster Nightfalls Playtime"
+                        ]
+                    },
+                    {
+                        "name": "activity_leaderboards",
+                        "description": "Leaderboards concerning stats in Destiny 2 activities. Input the sought activity in activity",
+                        "required": false,
+                        "autocomplete": false,
+                        "choices": [
+                            "Full Activity Completions",
+                            "CP Activity Completions",
+                            "Activity Kills",
+                            "Activity Precision Kills",
+                            "Activity % Precision Kills",
+                            "Activity Deaths",
+                            "Activity Assists",
+                            "Activity Playtime",
+                            "Fastest Activity Completion Time",
+                            "Average Activity Completion Time"
+                        ]
+                    },
+                    {
+                        "name": "weapon_leaderboards",
+                        "description": "Leaderboards concerning Destiny 2 weapon stats. Input the sought weapon in weapon",
+                        "required": false,
+                        "autocomplete": false,
+                        "choices": [
+                            "Weapon Kills",
+                            "Weapon Precision Kills",
+                            "Weapon % Precision Kills"
+                        ]
+                    },
+                    {
+                        "name": "activity",
+                        "description": "If are looking for a activity_leaderboards, please select the activity",
+                        "required": false,
+                        "autocomplete": true
+                    },
+                    {
+                        "name": "weapon",
+                        "description": "If are looking for a weapon_leaderboards, please select the weapon",
+                        "required": false,
+                        "autocomplete": true
+                    },
+                    {
+                        "name": "reverse",
+                        "description": "If you want to reverse the sorting: Default: False",
+                        "required": false,
+                        "autocomplete": false
+                    },
+                    {
+                        "name": "user",
+                        "description": "The user you want to look up",
+                        "required": false,
+                        "autocomplete": false
+                    }
+                ]
+            },
+            {
                 "name": "register",
                 "description": "Link your Destiny 2 account with ElevatorBot"
             },
@@ -908,6 +902,397 @@
             {
                 "name": "unregister",
                 "description": "Unlink your Destiny 2 account from ElevatorBot"
+            },
+            {
+                "name": "weapons_meta",
+                "description": "Displays the most used Destiny 2 weapons by clan members from the linked clan",
+                "options": [
+                    {
+                        "name": "mode",
+                        "description": "Restrict the game mode. Default: All modes",
+                        "required": false,
+                        "autocomplete": false,
+                        "choices": [
+                            "All",
+                            "Raid",
+                            "Dungeon",
+                            "Story",
+                            "Strike",
+                            "Nightfall",
+                            "Patrol",
+                            "Gambit",
+                            "All Pve",
+                            "Iron Banner",
+                            "Trials Of Osiris",
+                            "Private Matches",
+                            "All Pvp"
+                        ]
+                    },
+                    {
+                        "name": "activity",
+                        "description": "Restrict the activity. Overwrites mode. Default: All activities",
+                        "required": false,
+                        "autocomplete": true
+                    },
+                    {
+                        "name": "weapon_type",
+                        "description": "Restrict the weapon type. Default: All types",
+                        "required": false,
+                        "autocomplete": false,
+                        "choices": [
+                            "Auto Rifle",
+                            "Shotgun",
+                            "Machine Gun",
+                            "Hand Cannon",
+                            "Rocket Launcher",
+                            "Fusion Rifle",
+                            "Sniper Rifle",
+                            "Pulse Rifle",
+                            "Scout Rifle",
+                            "Sidearm",
+                            "Sword",
+                            "Linear Fusion Rifle",
+                            "Grenade Launcher",
+                            "Submachine Gun",
+                            "Trace Rifle",
+                            "Bow",
+                            "Glaive"
+                        ]
+                    },
+                    {
+                        "name": "damage_type",
+                        "description": "Restrict the damage type. Default: All types",
+                        "required": false,
+                        "autocomplete": false,
+                        "choices": [
+                            "None",
+                            "Kinetic",
+                            "Arc",
+                            "Thermal",
+                            "Void",
+                            "Stasis"
+                        ]
+                    },
+                    {
+                        "name": "destiny_class",
+                        "description": "Restrict the class. Default: All classes",
+                        "required": false,
+                        "autocomplete": false,
+                        "choices": [
+                            "Warlock",
+                            "Hunter",
+                            "Titan"
+                        ]
+                    },
+                    {
+                        "name": "expansion",
+                        "description": "Restrict the expansion. Default: All expansions",
+                        "required": false,
+                        "autocomplete": false,
+                        "choices": [
+                            "Vanilla",
+                            "Forsaken",
+                            "Shadowkeep",
+                            "Beyond Light",
+                            "Witch Queen"
+                        ]
+                    },
+                    {
+                        "name": "season",
+                        "description": "Restrict the season. Default: All seasons",
+                        "required": false,
+                        "autocomplete": false,
+                        "choices": [
+                            "Vanilla",
+                            "Curse of Osiris",
+                            "Warmind",
+                            "Forsaken",
+                            "Season of the Forge",
+                            "Season of the Drifter",
+                            "Season of Opulence",
+                            "Shadowkeep",
+                            "Season of Dawn",
+                            "Season of the Worthy",
+                            "Season of Arrivals",
+                            "Beyond Light",
+                            "Season of the Chosen",
+                            "Season of the Splicer",
+                            "Season of the Lost",
+                            "Witch Queen"
+                        ]
+                    },
+                    {
+                        "name": "start_time",
+                        "description": "Format: DD/MM/YY - Input the **earliest** date you want the weapon stats for. Default: Big Bang",
+                        "required": false,
+                        "autocomplete": false
+                    },
+                    {
+                        "name": "end_time",
+                        "description": "Format: DD/MM/YY - Input the **latest** date you want the weapon stats for. Default: Now",
+                        "required": false,
+                        "autocomplete": false
+                    }
+                ]
+            },
+            {
+                "name": "weapons_top",
+                "description": "Shows your top Destiny 2 weapon ranking",
+                "options": [
+                    {
+                        "name": "stat",
+                        "description": "Which stat you want the leaderboard to consider. Default: Kills",
+                        "required": false,
+                        "autocomplete": false,
+                        "choices": [
+                            "Kills",
+                            "Precision Kills"
+                        ]
+                    },
+                    {
+                        "name": "weapon",
+                        "description": "If you want a specific weapon to be included in the ranking. Otherwise the command will only show your top eight weapons per slot",
+                        "required": false,
+                        "autocomplete": true
+                    },
+                    {
+                        "name": "mode",
+                        "description": "Restrict the game mode. Default: All modes",
+                        "required": false,
+                        "autocomplete": false,
+                        "choices": [
+                            "All",
+                            "Raid",
+                            "Dungeon",
+                            "Story",
+                            "Strike",
+                            "Nightfall",
+                            "Patrol",
+                            "Gambit",
+                            "All Pve",
+                            "Iron Banner",
+                            "Trials Of Osiris",
+                            "Private Matches",
+                            "All Pvp"
+                        ]
+                    },
+                    {
+                        "name": "activity",
+                        "description": "Restrict the activity. Overwrites mode. Default: All activities",
+                        "required": false,
+                        "autocomplete": true
+                    },
+                    {
+                        "name": "weapon_type",
+                        "description": "Restrict the weapon type. Default: All types",
+                        "required": false,
+                        "autocomplete": false,
+                        "choices": [
+                            "Auto Rifle",
+                            "Shotgun",
+                            "Machine Gun",
+                            "Hand Cannon",
+                            "Rocket Launcher",
+                            "Fusion Rifle",
+                            "Sniper Rifle",
+                            "Pulse Rifle",
+                            "Scout Rifle",
+                            "Sidearm",
+                            "Sword",
+                            "Linear Fusion Rifle",
+                            "Grenade Launcher",
+                            "Submachine Gun",
+                            "Trace Rifle",
+                            "Bow",
+                            "Glaive"
+                        ]
+                    },
+                    {
+                        "name": "damage_type",
+                        "description": "Restrict the damage type. Default: All types",
+                        "required": false,
+                        "autocomplete": false,
+                        "choices": [
+                            "None",
+                            "Kinetic",
+                            "Arc",
+                            "Thermal",
+                            "Void",
+                            "Stasis"
+                        ]
+                    },
+                    {
+                        "name": "destiny_class",
+                        "description": "Restrict the class. Default: All classes",
+                        "required": false,
+                        "autocomplete": false,
+                        "choices": [
+                            "Warlock",
+                            "Hunter",
+                            "Titan"
+                        ]
+                    },
+                    {
+                        "name": "expansion",
+                        "description": "Restrict the expansion. Default: All expansions",
+                        "required": false,
+                        "autocomplete": false,
+                        "choices": [
+                            "Vanilla",
+                            "Forsaken",
+                            "Shadowkeep",
+                            "Beyond Light",
+                            "Witch Queen"
+                        ]
+                    },
+                    {
+                        "name": "season",
+                        "description": "Restrict the season. Default: All seasons",
+                        "required": false,
+                        "autocomplete": false,
+                        "choices": [
+                            "Vanilla",
+                            "Curse of Osiris",
+                            "Warmind",
+                            "Forsaken",
+                            "Season of the Forge",
+                            "Season of the Drifter",
+                            "Season of Opulence",
+                            "Shadowkeep",
+                            "Season of Dawn",
+                            "Season of the Worthy",
+                            "Season of Arrivals",
+                            "Beyond Light",
+                            "Season of the Chosen",
+                            "Season of the Splicer",
+                            "Season of the Lost",
+                            "Witch Queen"
+                        ]
+                    },
+                    {
+                        "name": "start_time",
+                        "description": "Format: DD/MM/YY - Input the **earliest** date you want the weapon stats for. Default: Big Bang",
+                        "required": false,
+                        "autocomplete": false
+                    },
+                    {
+                        "name": "end_time",
+                        "description": "Format: DD/MM/YY - Input the **latest** date you want the weapon stats for. Default: Now",
+                        "required": false,
+                        "autocomplete": false
+                    },
+                    {
+                        "name": "user",
+                        "description": "The user you want to look up",
+                        "required": false,
+                        "autocomplete": false
+                    }
+                ]
+            },
+            {
+                "name": "weapons_weapon",
+                "description": "Shows Destiny 2 weapon stats for the specified weapon",
+                "options": [
+                    {
+                        "name": "weapon",
+                        "description": "The weapon you want to look up",
+                        "required": true,
+                        "autocomplete": true
+                    },
+                    {
+                        "name": "mode",
+                        "description": "Restrict the game mode. Default: All modes",
+                        "required": false,
+                        "autocomplete": false,
+                        "choices": [
+                            "All",
+                            "Raid",
+                            "Dungeon",
+                            "Story",
+                            "Strike",
+                            "Nightfall",
+                            "Patrol",
+                            "Gambit",
+                            "All Pve",
+                            "Iron Banner",
+                            "Trials Of Osiris",
+                            "Private Matches",
+                            "All Pvp"
+                        ]
+                    },
+                    {
+                        "name": "activity",
+                        "description": "Restrict the activity. Overwrites mode. Default: All activities",
+                        "required": false,
+                        "autocomplete": true
+                    },
+                    {
+                        "name": "destiny_class",
+                        "description": "Restrict the class. Default: All classes",
+                        "required": false,
+                        "autocomplete": false,
+                        "choices": [
+                            "Warlock",
+                            "Hunter",
+                            "Titan"
+                        ]
+                    },
+                    {
+                        "name": "expansion",
+                        "description": "Restrict the expansion. Default: All expansions",
+                        "required": false,
+                        "autocomplete": false,
+                        "choices": [
+                            "Vanilla",
+                            "Forsaken",
+                            "Shadowkeep",
+                            "Beyond Light",
+                            "Witch Queen"
+                        ]
+                    },
+                    {
+                        "name": "season",
+                        "description": "Restrict the season. Default: All seasons",
+                        "required": false,
+                        "autocomplete": false,
+                        "choices": [
+                            "Vanilla",
+                            "Curse of Osiris",
+                            "Warmind",
+                            "Forsaken",
+                            "Season of the Forge",
+                            "Season of the Drifter",
+                            "Season of Opulence",
+                            "Shadowkeep",
+                            "Season of Dawn",
+                            "Season of the Worthy",
+                            "Season of Arrivals",
+                            "Beyond Light",
+                            "Season of the Chosen",
+                            "Season of the Splicer",
+                            "Season of the Lost",
+                            "Witch Queen"
+                        ]
+                    },
+                    {
+                        "name": "start_time",
+                        "description": "Format: DD/MM/YY - Input the **earliest** date you want the weapon stats for. Default: Big Bang",
+                        "required": false,
+                        "autocomplete": false
+                    },
+                    {
+                        "name": "end_time",
+                        "description": "Format: DD/MM/YY - Input the **latest** date you want the weapon stats for. Default: Now",
+                        "required": false,
+                        "autocomplete": false
+                    },
+                    {
+                        "name": "user",
+                        "description": "The user you want to look up",
+                        "required": false,
+                        "autocomplete": false
+                    }
+                ]
             },
             {
                 "name": "website",

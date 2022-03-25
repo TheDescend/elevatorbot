@@ -141,7 +141,7 @@ def get_emoji_from_rank(rank: int) -> str:
         case 3:
             emoji = str(custom_emojis.third_place)
         case _:
-            emoji = f"{rank})"
+            emoji = f"{rank})  "
 
     return emoji
 

@@ -11,7 +11,7 @@ class __ElevatorEmojis:
         self.kinetic: CustomEmoji | int = 906180170875031562
         self.stasis: CustomEmoji | int = 897797463799369769
         self.arc: CustomEmoji | int = 897797463933583401
-        self.solar: CustomEmoji | int = 897797463937798174
+        self.thermal: CustomEmoji | int = 897797463937798174
         self.void: CustomEmoji | int = 897797464013307905
 
         self.unstoppable: CustomEmoji | int = 897797463807774752

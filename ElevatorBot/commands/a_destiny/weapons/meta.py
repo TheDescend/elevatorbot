@@ -35,9 +35,8 @@ from Shared.networkingSchemas.destiny.clan import DestinyClanModel
 
 class WeaponsMeta(BaseScale):
     @slash_command(
-        **weapons_sub_command,
-        sub_cmd_name="meta",
-        sub_cmd_description="Displays the most used Destiny 2 weapons by clan members from the linked clan",
+        name="weapons_meta",
+        description="Displays the most used Destiny 2 weapons by clan members from the linked clan",
     )
     @default_mode_option()
     @autocomplete_activity_option()
@@ -93,6 +92,7 @@ class WeaponsMeta(BaseScale):
             for clan_member in clan_members.members:
                 tg.start_soon(
                     self.handle_clan_member,
+                    ctx,
                     results,
                     stat,
                     clan_member.discord_id,
@@ -124,6 +124,7 @@ class WeaponsMeta(BaseScale):
 
     @staticmethod
     async def handle_clan_member(
+        ctx: InteractionContext,
         results: list,
         stat: DestinyTopWeaponsStatInputModelEnum,
         discord_id: int,
@@ -139,7 +140,7 @@ class WeaponsMeta(BaseScale):
         """Gather all clan members. Return None if something fails"""
 
         # get the top weapons for the user
-        backend_weapons = DestinyWeapons(ctx=None, discord_member=None, discord_guild=guild)
+        backend_weapons = DestinyWeapons(ctx=ctx, discord_member=None, discord_guild=guild)
         result = await backend_weapons.get_top(
             discord_id=discord_id,
             input_data=DestinyTopWeaponsInputModel(

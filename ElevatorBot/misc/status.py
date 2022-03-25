@@ -26,7 +26,6 @@ async def update_discord_bot_status(client):
         "I can win the hard mode TicTacToe, can you?",
         "@Feedy's removed message is now forever gone",
         "Presenting: Extra context! Right click a message or a user and be amazed",
-        "What is dis? I have been snekified",
         "Now using Descend™ green",
         "Join the Descend discord: `discord.gg/descend`",
     ]

@@ -69,10 +69,8 @@ class RankClan(BaseScale):
     )
 
     @slash_command(
-        name="rank",
-        description="Display Destiny 2 leaderboards. Pick **only** one leaderboard from all options",
-        sub_cmd_name="clan",
-        sub_cmd_description="Only show clan members on the leaderboard",
+        name="rank_clan",
+        description="Display Destiny 2 clan leaderboards. Pick **only** one leaderboard from all options",
     )
     @slash_option(
         name="discord_leaderboards",

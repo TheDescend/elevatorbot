@@ -154,9 +154,9 @@ class DestinyWeapons:
             sought_weapon = await destiny_items.get_item(db=self.db, item_id=include_weapon_with_ids[0])
 
             # check if the weapon / damage type matches
-            if sought_weapon.item_sub_type != weapon_type.value:
+            if weapon_type and sought_weapon.item_sub_type != weapon_type.value:
                 raise CustomException("WeaponTypeMismatch")
-            if sought_weapon.default_damage_type != damage_type.value:
+            if damage_type and sought_weapon.default_damage_type != damage_type.value:
                 raise CustomException("WeaponDamageTypeMismatch")
 
         # loop through all three slots
@@ -276,10 +276,10 @@ def get_top_weapons_subprocess(
     )
 
     # set the rankings and the limit and include the sought weapon
-    found = sought_weapon.bucket_type_hash == slot.value if sought_weapon else True
+    found = sought_weapon.bucket_type_hash != slot.value if sought_weapon else True
     final_slot = []
     for i, item in enumerate(sorted_slot):
-        if i < how_many_per_slot:
+        if not how_many_per_slot or i < how_many_per_slot:
             item.ranking = i + 1
             final_slot.append(item)
 
@@ -287,7 +287,7 @@ def get_top_weapons_subprocess(
                 found = True
 
         elif not found:
-            if sought_weapon and include_weapon_with_ids[0] in item.weapon_ids:
+            if sought_weapon and sought_weapon.reference_id in item.weapon_ids:
                 item.ranking = i + 1
                 final_slot.append(item)
                 found = True
