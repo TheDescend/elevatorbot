@@ -10,7 +10,7 @@ class TimestampsCommands(BaseScale):
     Format all (relative) dates and times in the message
     """
 
-    @context_menu(name="Add Emoji", context_type=CommandTypes.MESSAGE)
+    @context_menu(name="Get Timestamps", context_type=CommandTypes.MESSAGE)
     async def get_timestamp(self, ctx: InteractionContext):
         # parse datetimes
         if embed := await get_timestamp_embed(search_string=ctx.target.content.upper()):
