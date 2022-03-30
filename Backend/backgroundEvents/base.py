@@ -37,7 +37,7 @@ class BaseEvent:
 
         # update elevator status message
         elevator_api = ElevatorApi()
-        await elevator_api.post(route_addition="/status_update", json={"status_name": type(self).__name__})
+        await elevator_api.post(route="/status_update", json={"status_name": type(self).__name__})
 
     async def run(self):
         """Every event must override this method"""

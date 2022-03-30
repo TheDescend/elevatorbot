@@ -80,7 +80,7 @@ async def mock_request(
 
         # capture the required route when this fails
         try:
-            return WebResponse(0, 200, dummy_data[param_route], True, True)
+            return WebResponse(get_now_with_tz(), 200, dummy_data[param_route], True)
         except KeyError as e:
             print("Tried to call this route, but it doesnt exist in the dummy data:")
             print(route)
@@ -91,7 +91,7 @@ async def mock_elevator_post(self, *args, **kwargs):
     return True
 
 
-@unittest.mock.patch("Backend.networking.base.NetworkBase._request", mock_request)
+@unittest.mock.patch("Backend.networking.http.NetworkBase._request", mock_request)
 @unittest.mock.patch("Backend.networking.elevatorApi.ElevatorApi.post", mock_elevator_post)
 async def insert_dummy_data(db: AsyncSession, client: AsyncClient):
     # create our registered destiny user

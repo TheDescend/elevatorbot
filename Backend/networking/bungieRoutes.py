@@ -2,6 +2,8 @@ bungie_route = "https://www.bungie.net/"
 base_route = bungie_route + "Platform/"
 destiny_route = base_route + "Destiny2/"
 
+auth_route = base_route + "app/oauth/token/"
+
 profile_route = destiny_route + "{system}/Profile/{destiny_id}/"
 item_route = profile_route + "Item/{item_instance_id}/"
 

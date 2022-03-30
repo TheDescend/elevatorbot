@@ -9,7 +9,7 @@ from Shared.networkingSchemas.misc.giveaway import GiveawayModel
 
 @pytest.mark.asyncio
 async def test_giveaway(client: AsyncClient, mocker: MockerFixture):
-    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+    mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
 
     # =====================================================================
     # no giveaway exists yet

@@ -10,7 +10,7 @@ from Shared.networkingSchemas.destiny.profile import DestinyHasTokenModel, Desti
 
 @pytest.mark.asyncio
 async def test_discord_get(client: AsyncClient, mocker: MockerFixture):
-    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+    mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
 
     r = await client.get(f"/destiny/profile/discord/{dummy_discord_id}")
     assert r.status_code == 200
@@ -23,7 +23,7 @@ async def test_discord_get(client: AsyncClient, mocker: MockerFixture):
 
 @pytest.mark.asyncio
 async def test_discord_has_token(client: AsyncClient, mocker: MockerFixture):
-    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+    mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
 
     r = await client.get(f"/destiny/profile/{dummy_discord_id}/has_token")
     assert r.status_code == 200
@@ -34,7 +34,7 @@ async def test_discord_has_token(client: AsyncClient, mocker: MockerFixture):
 
 @pytest.mark.asyncio
 async def test_discord_registration_role(client: AsyncClient, mocker: MockerFixture):
-    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+    mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
 
     # this does not fail, but does not do anything either, since no registration roles exist
     r = await client.get(f"/destiny/profile/{dummy_discord_guild_id}/{dummy_discord_id}/registration_role")
@@ -43,7 +43,7 @@ async def test_discord_registration_role(client: AsyncClient, mocker: MockerFixt
 
 @pytest.mark.asyncio
 async def test_destiny_get(client: AsyncClient, mocker: MockerFixture):
-    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+    mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
 
     r = await client.get(f"/destiny/profile/destiny/{dummy_destiny_id}")
     assert r.status_code == 200
@@ -56,7 +56,7 @@ async def test_destiny_get(client: AsyncClient, mocker: MockerFixture):
 
 @pytest.mark.asyncio
 async def test_discord_delete(client: AsyncClient, mocker: MockerFixture, db: AsyncSession):
-    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+    mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
 
     r = await client.delete("/destiny/profile/98/delete")
     assert r.status_code == 409

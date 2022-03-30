@@ -18,7 +18,7 @@ from Shared.networkingSchemas.destiny import (
 
 @pytest.mark.asyncio
 async def test_get_all(client: AsyncClient, mocker: MockerFixture):
-    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+    mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
 
     r = await client.get("/destiny/weapons/get/all")
     assert r.status_code == 200
@@ -38,7 +38,7 @@ async def test_get_all(client: AsyncClient, mocker: MockerFixture):
 
 @pytest.mark.asyncio
 async def test_get_top(client: AsyncClient, mocker: MockerFixture):
-    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+    mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
 
     # prec kills
     input_model = DestinyTopWeaponsInputModel(
@@ -131,7 +131,7 @@ async def test_get_top(client: AsyncClient, mocker: MockerFixture):
 
 @pytest.mark.asyncio
 async def test_get_weapon(client: AsyncClient, mocker: MockerFixture):
-    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+    mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
 
     input_model = DestinyWeaponStatsInputModel(weapon_ids=[61])
     r = await client.post(

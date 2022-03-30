@@ -2,6 +2,7 @@ from Backend.backgroundEvents.base import BaseEvent
 from Backend.crud import d2_steam_players
 from Backend.database.base import get_async_sessionmaker, is_test_mode
 from Backend.networking.bungieApi import BungieApi
+from Backend.networking.http import NetworkBase
 from Shared.functions.readSettingsFile import get_setting
 
 
@@ -16,12 +17,12 @@ class SteamPlayerUpdater(BaseEvent):
         async with get_async_sessionmaker().begin() as db:
             # init api connection
             headers = {"X-API-Key": get_setting("STEAM_APPLICATION_API_KEY")}
-            steam_api = BungieApi(db=db, user=None, headers=headers)
+            steam_api = NetworkBase(db=db)
 
             # get current amount of players
             route = "https://api.steampowered.com/ISteamUserStats/GetNumberOfCurrentPlayers/v1/"
             params = {"appid": "1085660"}
-            current_players = await steam_api.get(route=route, params=params, use_cache=False)
+            current_players = await steam_api.get(route=route, params=params, headers=headers)
             number_of_players = int(current_players.content["response"]["player_count"])
 
             # update the db info

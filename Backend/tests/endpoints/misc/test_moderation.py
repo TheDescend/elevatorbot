@@ -11,7 +11,7 @@ from Shared.networkingSchemas.misc.moderation import ModerationAddModel, Moderat
 
 @pytest.mark.asyncio
 async def test_mute(client: AsyncClient, mocker: MockerFixture):
-    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+    mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
 
     # =====================================================================
     # no mute exists yet
@@ -48,7 +48,7 @@ async def test_mute(client: AsyncClient, mocker: MockerFixture):
 
 @pytest.mark.asyncio
 async def test_warning(client: AsyncClient, mocker: MockerFixture):
-    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+    mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
 
     # =====================================================================
     # no warning exists yet

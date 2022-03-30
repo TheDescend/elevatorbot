@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from Backend.core.errors import CustomException
 from Backend.crud import discord_users
 from Backend.dependencies import get_db_session
-from Backend.networking.bungieAuth import BungieAuth
+from Backend.networking.bungieApi import BungieApi
 from Shared.networkingSchemas import EmptyResponseModel
 from Shared.networkingSchemas.destiny.profile import DestinyHasTokenModel, DestinyProfileModel
 
@@ -33,7 +33,7 @@ async def discord_has_token(discord_id: int, db: AsyncSession = Depends(get_db_s
         return no_token
 
     # get a working token
-    auth = BungieAuth(db=db, user=profile)
+    auth = BungieApi(db=db, user=profile)
     try:
         await auth.get_working_token()
     except CustomException as error:

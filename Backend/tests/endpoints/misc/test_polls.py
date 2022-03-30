@@ -12,7 +12,7 @@ from Shared.networkingSchemas.misc.polls import PollInsertSchema, PollSchema, Po
 async def test_polls(client: AsyncClient, mocker: MockerFixture):
     """This tests all function in the file, because insert() needs to be called first"""
 
-    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+    mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
 
     # =====================================================================
     # insert
