@@ -85,10 +85,10 @@ class RoleDataModel(CustomBaseModel):
 
 
 class RoleDataUserModel(CustomBaseModel):
-    require_activity_completions: list[str]
-    require_collectibles: list[bool]
-    require_records: list[bool]
-    require_role_ids: list[bool]
+    require_activity_completions: list[str] = []
+    require_collectibles: list[bool] = []
+    require_records: list[bool] = []
+    require_role_ids: list[bool] = []
 
 
 class RoleModel(CustomBaseModel):

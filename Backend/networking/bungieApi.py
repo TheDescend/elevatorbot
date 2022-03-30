@@ -296,7 +296,7 @@ class BungieApi(NetworkBase):
                 )
                 await asyncio.sleep(60)
 
-            case (_, "DestinyServiceFailure"):
+            case (_, "DestinyServiceFailure" | "DestinyInternalError"):
                 # timeout
                 self.logger.warning(
                     f"'{response.status} - {error} | {error_code}': Retrying... - Bungie is having problems '{route_with_params}' - '{response}'"

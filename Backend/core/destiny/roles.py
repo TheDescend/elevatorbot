@@ -10,6 +10,7 @@ from Backend.core.destiny.profile import DestinyProfile
 from Backend.core.errors import CustomException
 from Backend.crud import crud_activities
 from Backend.crud.destiny.roles import CRUDRoles, crud_roles
+from Backend.database.base import get_async_sessionmaker
 from Backend.database.models import Roles
 from Shared.networkingSchemas.destiny.roles import (
     EarnedRoleModel,
@@ -74,7 +75,7 @@ class UserRoles:
         # get them in anyio tasks
         async with create_task_group() as tg:
             for role in guild_roles:
-                tg.start_soon(self._has_role, role, True, True)
+                tg.start_soon(lambda: self._has_role(role=role, called_with_task_group=True, i_only_need_the_bool=True))
 
         # loop through the roles now that the tasks are done and categorise them
         for role in guild_roles:
@@ -143,12 +144,13 @@ class UserRoles:
             async with create_task_group() as tg:
                 for requirement_name, _ in role.role_data:
                     tg.start_soon(
-                        self._check_requirements,
-                        results,
-                        role,
-                        requirement_name,
-                        i_only_need_the_bool,
-                        called_with_task_group,
+                        lambda: self.check_requirement(
+                            results=results,
+                            role=role,
+                            requirement_name=requirement_name,
+                            i_only_need_the_bool=i_only_need_the_bool,
+                            called_with_task_group=called_with_task_group,
+                        )
                     )
 
         except RoleNotEarnedException as e:
@@ -168,7 +170,43 @@ class UserRoles:
 
         return self._cache_worthy[role.role_id], self._cache_worthy_info[role.role_id]
 
-    async def _check_requirements(
+    async def check_requirement(
+        self,
+        results: list[RoleEnum],
+        role: RoleModel,
+        requirement_name: str,
+        i_only_need_the_bool: bool,
+        called_with_task_group: bool,
+    ):
+        """Start a new db connection and check the reqs separately"""
+
+        # open a db connection for each requirement
+        async with get_async_sessionmaker().begin() as db:
+            requirement_user = DestinyProfile(db=db, user=self.user.user)
+            requirement_roles = UserRoles(db=db, user=requirement_user)
+
+            # synchronise the cache
+            requirement_roles._cache_worthy = self._cache_worthy
+            requirement_roles._cache_worthy_info = self._cache_worthy_info
+
+            try:
+                await requirement_roles._check_requirement(
+                    results=results,
+                    role=role,
+                    requirement_name=requirement_name,
+                    i_only_need_the_bool=i_only_need_the_bool,
+                    called_with_task_group=called_with_task_group,
+                )
+                failed = False
+
+            # catch this error to allow the db to commit its changes
+            except RoleNotEarnedException as e:
+                failed = e
+
+        if failed is not False:
+            raise failed
+
+    async def _check_requirement(
         self,
         results: list[RoleEnum],
         role: RoleModel,
@@ -286,7 +324,6 @@ class UserRoles:
                         waited_for = 0
                         while waited_for < 300:
                             if requirement_role.id in self._cache_worthy:
-
                                 if self._cache_worthy[requirement_role.id] == RoleEnum.NOT_EARNED:
                                     if not requirement_role.inverse:
                                         worthy = RoleEnum.NOT_EARNED
@@ -307,6 +344,13 @@ class UserRoles:
 
                         # this is only called if nothing was found
                         if waited_for >= 300:
+                            # todo hali plox fix -> ON DELETE SET NULL when its an actual db
+                            # todo delete required roles
+                            # todo delete replaced roles
+
+                            print(role.role_id)
+                            print(requirement_role.id)
+
                             raise CustomException("RoleLookupTimedOut")
 
                     # check the sub-roles ourselves
