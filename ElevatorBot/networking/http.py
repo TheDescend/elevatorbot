@@ -87,7 +87,7 @@ class BaseBackendConnection:
     )
 
     # the rate limiter
-    limiter: BackendRateLimiter = dataclasses.field(
+    limiter: RateLimiter = dataclasses.field(
         default=backend_limiter,
         init=False,
         compare=False,
