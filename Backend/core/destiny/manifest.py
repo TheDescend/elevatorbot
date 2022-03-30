@@ -34,9 +34,7 @@ class DestinyManifest:
 
     def __post_init__(self):
         # the network class
-        self.api = BungieApi(
-            db=self.db, i_understand_what_im_doing_and_that_setting_this_to_true_might_break_stuff=True
-        )
+        self.api = BungieApi(db=self.db)
 
     async def update(self, post_elevator: bool = True):
         """Checks the local manifests versions and updates the local copy should it have changed"""

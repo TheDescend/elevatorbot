@@ -11,7 +11,7 @@ from Backend.core.errors import CustomException
 from Backend.core.security.auth import ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token
 from Backend.crud import backend_user, discord_users
 from Backend.dependencies import get_db_session
-from Backend.networking.bungieAuth import BungieRegistration
+from Backend.networking.bungieRegistration import BungieRegistration
 from Backend.networking.elevatorApi import ElevatorApi
 from Shared.networkingSchemas.misc.auth import BungieRegistrationInput, BungieTokenOutput, Token
 
@@ -34,7 +34,7 @@ async def save_bungie_token(
 
     # get the initial token from the authentication
     try:
-        auth = BungieRegistration()
+        auth = BungieRegistration(db=db)
         bungie_token = await auth.get_first_token(user_input=bungie_input)
 
         # save in db

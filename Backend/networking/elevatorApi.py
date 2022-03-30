@@ -7,6 +7,7 @@ from urllib.parse import urljoin
 import aiohttp
 from aiohttp import ClientConnectorError
 from orjson import orjson
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.errors import CustomException
 from Backend.networking.http import NetworkBase
@@ -17,6 +18,8 @@ elevator_route = f"""http://{os.environ.get("ELEVATOR_HOST")}:{os.environ.get("E
 
 @dataclasses.dataclass
 class ElevatorApi(NetworkBase):
+    db: Optional[AsyncSession] = None
+
     def __post_init__(self):
         self.request_retries = 1
         self.logger = logging.getLogger("elevatorApi")

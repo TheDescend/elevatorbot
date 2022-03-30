@@ -27,6 +27,23 @@ class NetworkBase:
     # how many times to retry a request
     request_retries: int = dataclasses.field(init=False, default=10)
 
+    async def get(
+        self,
+        route: str,
+        headers: dict,
+        params: dict | None = None,
+    ) -> WebResponse:
+        """Grabs JSON from the specified URL"""
+
+        async with aiohttp.ClientSession(json_serialize=lambda x: orjson.dumps(x).decode()) as session:
+            return await self._request(
+                session=session,
+                method="GET",
+                route=route,
+                headers=headers,
+                params=params,
+            )
+
     async def _request(
         self,
         session: aiohttp_client_cache.CachedSession | aiohttp.ClientSession,
@@ -136,5 +153,5 @@ class NetworkBase:
         # handling any errors if not ok
         await self._handle_errors(response=response, route_with_params=route_with_params)
 
-    def _handle_errors(self, response: WebResponse, route_with_params: str):
+    async def _handle_errors(self, response: WebResponse, route_with_params: str):
         raise NotImplementedError

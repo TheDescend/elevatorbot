@@ -1,25 +1,22 @@
 import asyncio
 import datetime
-import logging
 import time
 import urllib.parse
 from contextlib import AsyncExitStack
 from typing import Optional
 
-import aiohttp
 from sqlalchemy.ext.asyncio import AsyncSession
 
+import Backend.networking.bungieApi as bungieApi
 from Backend.core.errors import CustomException
 from Backend.crud.base import CRUDBase
 from Backend.crud.misc.persistentMessages import persistent_messages
 from Backend.database.base import get_async_sessionmaker
 from Backend.database.models import DiscordUsers
 from Backend.misc.cache import cache
-from Backend.networking.base import NetworkBase
 from Backend.networking.elevatorApi import ElevatorApi
 from Shared.enums.elevator import DestinySystemEnum
 from Shared.functions.helperFunctions import get_min_with_tz, get_now_with_tz, localize_datetime
-from Shared.functions.readSettingsFile import get_setting
 from Shared.networkingSchemas.misc.auth import BungieTokenInput, BungieTokenOutput
 
 
@@ -93,21 +90,16 @@ class CRUDDiscordUser(CRUDBase):
             int(guild_id),
             int(channel_id),
         )
-        api = NetworkBase()
 
-        # get the corresponding destiny data with manual headers, since the data is not in the db yet
-        async with aiohttp.ClientSession(cookie_jar=aiohttp.DummyCookieJar()) as session:
-            # noinspection PyProtectedMember
-            destiny_info = await api._request(
-                session=session,
-                method="GET",
-                route="https://www.bungie.net/platform/User/GetMembershipsForCurrentUser/",
-                headers={
-                    "X-API-Key": get_setting("BUNGIE_APPLICATION_API_KEY"),
-                    "Accept": "application/json",
-                    "Authorization": f"Bearer {bungie_token.access_token}",
-                },
-            )
+        # get the corresponding destiny data
+        api = bungieApi.BungieApi(db=db)
+        auth_headers = bungieApi.bungie_headers.copy()
+        auth_headers.update({"Authorization": f"Bearer {bungie_token.access_token}"})
+        destiny_info = await api.get(
+            route="https://www.bungie.net/platform/User/GetMembershipsForCurrentUser/",
+            use_cache=False,
+            headers=auth_headers,
+        )
 
         user_should_set_up_cross_save = False
 

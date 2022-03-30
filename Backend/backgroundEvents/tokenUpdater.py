@@ -2,7 +2,7 @@ from Backend.backgroundEvents.base import BaseEvent
 from Backend.core.errors import CustomException
 from Backend.crud import discord_users
 from Backend.database.base import get_async_sessionmaker
-from Backend.networking.bungieAuth import BungieAuth
+from Backend.networking.bungieApi import BungieApi
 
 
 class TokenUpdater(BaseEvent):
@@ -27,7 +27,7 @@ class TokenUpdater(BaseEvent):
             # no need to task group this. this can take time, it's fine
             for user in all_users:
                 if user.token:
-                    auth = BungieAuth(db=db, user=user)
+                    auth = BungieApi(db=db, user=user)
 
                     # get a working token aka update
                     try:

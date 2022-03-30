@@ -2,23 +2,25 @@ import asyncio
 import dataclasses
 import datetime
 import os
+import time
+from base64 import b64encode
 from typing import Optional
 
 import aiohttp
 import aiohttp_client_cache
 import orjson
 
+import Backend.crud as crud
 from Backend.core.errors import CustomException
-from Backend.crud import discord_users
 from Backend.database.models import DiscordUsers
-from Backend.networking.bungieAuth import BungieAuth
-
-# the limiter object which to not get rate-limited by bungie. One obj for every instance!
+from Backend.networking.bungieRoutes import auth_route
 from Backend.networking.http import NetworkBase
 from Backend.networking.schemas import WebResponse
+from Shared.functions.helperFunctions import get_now_with_tz, localize_datetime
 from Shared.functions.ratelimiter import RateLimiter
 from Shared.functions.readSettingsFile import get_setting
 
+# the limiter object which to not get rate-limited by bungie. One obj for every instance!
 bungie_semaphore = asyncio.Semaphore(100)
 bungie_limiter = RateLimiter()
 bungie_cache = aiohttp_client_cache.RedisBackend(
@@ -39,10 +41,107 @@ bungie_cache = aiohttp_client_cache.RedisBackend(
 )
 bungie_headers = {"X-API-Key": get_setting("BUNGIE_APPLICATION_API_KEY"), "Accept": "application/json"}
 
+bungie_auth_headers = {
+    "content-type": "application/x-www-form-urlencoded",
+    "authorization": f"""Basic {b64encode(f"{get_setting('BUNGIE_APPLICATION_CLIENT_ID')}:{get_setting('BUNGIE_APPLICATION_CLIENT_SECRET')}".encode()).decode()}""",
+}
+
 
 @dataclasses.dataclass
 class BungieApi(NetworkBase):
-    user: Optional[DiscordUsers] = None
+    user: DiscordUsers | None = None
+
+    async def get(
+        self,
+        route: str,
+        headers: dict | None = None,
+        params: dict | None = None,
+        use_cache: bool = True,
+        with_token: bool = False,
+    ) -> WebResponse:
+        """Grabs JSON from the specified URL"""
+
+        # check if we need a token
+        if not with_token:
+            if self.user:
+                # check if the user has a private profile, if so we use oauth
+                if self.user.private_profile:
+                    # then we use a token
+                    with_token = True
+
+        # use the correct headers
+        if not headers:
+            headers = bungie_headers if not with_token else await self._get_auth_headers()
+
+        try:
+            async with aiohttp_client_cache.CachedSession(
+                cache=bungie_cache,
+                json_serialize=lambda x: orjson.dumps(x).decode(),
+                cookie_jar=aiohttp.DummyCookieJar() if with_token else None,
+            ) as session:
+                # use cache for the responses
+                if use_cache:
+                    return await self._request(
+                        session=session,
+                        method="GET",
+                        route=route,
+                        headers=headers,
+                        params=params,
+                    )
+
+                # do not use cache
+                else:
+                    async with session.disabled():
+                        return await self._request(
+                            session=session,
+                            method="GET",
+                            route=route,
+                            headers=headers,
+                            params=params,
+                        )
+
+        except CustomException as exc:
+            if exc.error == "BungieDestinyPrivacyRestriction":
+                # catch the BungieDestinyPrivacyRestriction error to change privacy settings in our db
+                self.user = await crud.discord_users.update(db=self.db, to_update=self.user, private_profile=True)
+
+                # then call the same endpoint again, this time with a token
+                return await self.get(route=route, params=params, use_cache=use_cache, with_token=True)
+
+            else:
+                # otherwise, raise error again
+                raise exc
+
+    async def post(self, route: str, json: dict | None = None, params: dict | None = None) -> WebResponse:
+        """Post data to bungie. self.discord_id must have the authentication for the action"""
+
+        async with aiohttp_client_cache.CachedSession(cache=bungie_cache) as session:
+            # do not use cache here
+            async with session.disabled():
+                return await self._request(
+                    session=session,
+                    method="POST",
+                    route=route,
+                    json=json,
+                    headers=await self._get_auth_headers(),
+                    params=params,
+                )
+
+    async def _get_auth_headers(self) -> dict:
+        """Update the auth headers to include a working token. Raise an error if that doesn't exist"""
+
+        headers = bungie_headers.copy()
+
+        # get a working token or abort
+        token = await self.get_working_token()
+
+        headers.update(
+            {
+                "Authorization": f"Bearer {token}",
+            }
+        )
+
+        return headers
 
     async def _request(
         self,
@@ -75,92 +174,69 @@ class BungieApi(NetworkBase):
                     form_data=form_data,
                 )
 
-    async def get(
-        self, route: str, params: dict = None, use_cache: bool = True, with_token: bool = False
-    ) -> WebResponse:
-        """Grabs JSON from the specified URL"""
+    async def get_working_token(self) -> str:
+        """Returns token or raises an error"""
 
-        # check if we need a token
-        if not with_token:
-            if self.user:
-                # check if the user has a private profile, if so we use oauth
-                if self.user.private_profile:
-                    # then we use a token
-                    with_token = True
+        if not self.user:
+            raise ValueError
 
-        # use the correct headers
-        headers = bungie_headers if not with_token else await self._get_auth_headers()
+        # check refresh token expiry and that it exists
+        if await crud.discord_users.token_is_expired(db=self.db, user=self.user):
+            raise CustomException("NoToken")
 
-        try:
-            async with aiohttp_client_cache.CachedSession(
-                cache=bungie_cache,
-                json_serialize=lambda x: orjson.dumps(x).decode(),
-                cookie_jar=aiohttp.DummyCookieJar() if with_token else None,
-            ) as session:
-                # use cache for the responses
-                if use_cache:
-                    return await self._request(
-                        session=session,
-                        method="GET",
-                        route=route,
-                        headers=headers,
-                        params=params,
-                    )
+        token = self.user.token
 
-                # do not use cache
-                else:
-                    async with session.disabled():
-                        return await self._request(
-                            session=session,
-                            method="GET",
-                            route=route,
-                            headers=headers,
-                            params=params,
-                        )
+        # refresh token if outdated
+        current_time = get_now_with_tz()
+        if current_time > self.user.token_expiry:
+            token = await self._refresh_token()
 
-        except CustomException as exc:
-            if exc.error == "BungieDestinyPrivacyRestriction":
-                # catch the BungieDestinyPrivacyRestriction error to change privacy settings in our db
-                self.user = await discord_users.update(db=self.db, to_update=self.user, private_profile=True)
+        return token
 
-                # then call the same endpoint again, this time with a token
-                return await self.get(route=route, params=params, use_cache=use_cache, with_token=True)
+    async def _refresh_token(self) -> str:
+        """Updates the token and saves it to the DB. Raises an error if failed"""
 
-            else:
-                # otherwise, raise error again
-                raise exc
+        data = {
+            "grant_type": "refresh_token",
+            "refresh_token": str(self.user.refresh_token),
+        }
 
-    async def post(self, route: str, json: dict = None, params: dict = None) -> WebResponse:
-        """Post data to bungie. self.discord_id must have the authentication for the action"""
+        # get a new token
+        async with aiohttp.ClientSession(json_serialize=lambda x: orjson.dumps(x).decode()) as session:
+            current_time = int(time.time())
 
-        async with aiohttp_client_cache.CachedSession(cache=bungie_cache) as session:
-            # do not use cache here
-            async with session.disabled():
-                return await self._request(
+            try:
+                response = await self._request(
                     session=session,
                     method="POST",
-                    route=route,
-                    json=json,
-                    headers=await self._get_auth_headers(),
-                    params=params,
+                    route=auth_route,
+                    form_data=data,
+                    headers=bungie_auth_headers,
                 )
+                if response:
+                    access_token = response.content["access_token"]
 
-    async def _get_auth_headers(self) -> dict:
-        """Update the auth headers to include a working token. Raise an error if that doesn't exist"""
+                    await crud.discord_users.update(
+                        db=self.db,
+                        to_update=self.user,
+                        token=access_token,
+                        refresh_token=response.content["refresh_token"],
+                        token_expiry=localize_datetime(
+                            datetime.datetime.fromtimestamp(current_time + int(response.content["expires_in"]))
+                        ),
+                        refresh_token_expiry=localize_datetime(
+                            datetime.datetime.fromtimestamp(current_time + int(response.content["refresh_expires_in"]))
+                        ),
+                    )
 
-        headers = bungie_headers.copy()
+                    return access_token
 
-        # get a working token or abort
-        auth = BungieAuth(db=self.db, user=self.user)
-        token = await auth.get_working_token()
+            except CustomException as exc:
+                if exc.error == "NoToken":
+                    # catch the NoToken error to invalidate the db
+                    await crud.discord_users.invalidate_token(db=self.db, user=self.user)
 
-        headers.update(
-            {
-                "Authorization": f"Bearer {token}",
-            }
-        )
-
-        return headers
+                raise exc
 
     async def _handle_errors(self, response: WebResponse, route_with_params: str):
         """Looks for typical bungie errors and handles / logs them"""
