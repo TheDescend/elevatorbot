@@ -61,7 +61,7 @@ class RssFeedChecker(BaseEvent):
 
                         # send the payload to elevator
                         result = await elevator_api.post(
-                            route_addition="/messages",
+                            route="/messages",
                             json=data,
                         )
 

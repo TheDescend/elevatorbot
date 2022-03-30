@@ -22,7 +22,7 @@ from Shared.networkingSchemas.destiny.lfgSystem import (
 async def test_lfg(client: AsyncClient, mocker: MockerFixture):
     """This tests all function in the file, because create() needs to be called first"""
 
-    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+    mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
 
     # =====================================================================
     # no lfg exists yet

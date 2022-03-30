@@ -20,7 +20,7 @@ from Shared.networkingSchemas.destiny.roles import (
 
 @pytest.mark.asyncio
 async def test_get_all(client: AsyncClient, mocker: MockerFixture):
-    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+    mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
 
     r = await client.get(f"/destiny/roles/{dummy_discord_guild_id}/get/all")
     assert r.status_code == 200
@@ -35,7 +35,7 @@ async def test_get_all(client: AsyncClient, mocker: MockerFixture):
 async def test_get_user(client: AsyncClient, mocker: MockerFixture):
     """Tests: get_user_all(), get_user_missing()"""
 
-    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+    mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
 
     # get the role
     r = await client.get(f"/destiny/roles/{dummy_discord_guild_id}/get/all")
@@ -163,7 +163,7 @@ async def test_get_user(client: AsyncClient, mocker: MockerFixture):
 
 @pytest.mark.asyncio
 async def test_delete_role(client: AsyncClient, mocker: MockerFixture):
-    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+    mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
 
     input_model = RoleModel(
         role_id=2,

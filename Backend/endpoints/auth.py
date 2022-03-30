@@ -62,7 +62,7 @@ async def save_bungie_token(
     elevator_api = ElevatorApi()
     try:
         response = await elevator_api.post(
-            route_addition="/registration",
+            route="/registration",
             json={
                 "discord_id": discord_id,
             },

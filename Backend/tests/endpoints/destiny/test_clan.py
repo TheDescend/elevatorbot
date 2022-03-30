@@ -12,7 +12,7 @@ from Shared.networkingSchemas.destiny.profile import DestinyProfileModel
 async def test_clan(client: AsyncClient, mocker: MockerFixture):
     """This tests all function in the file, because link_clan() needs to be called first"""
 
-    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+    mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
 
     # =====================================================================
     # no link exists yet

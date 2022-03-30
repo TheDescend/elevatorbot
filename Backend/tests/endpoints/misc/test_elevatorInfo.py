@@ -12,7 +12,7 @@ from Shared.networkingSchemas import ElevatorGuildsModel
 async def test_elevator(client: AsyncClient, mocker: MockerFixture):
     """This tests all function in the file, because add_discord_server() needs to be called first"""
 
-    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+    mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
 
     # =====================================================================
     # no guild exists yet

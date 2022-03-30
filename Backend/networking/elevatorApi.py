@@ -26,23 +26,23 @@ class ElevatorApi(NetworkBase):
         self.logger_exceptions = logging.getLogger("elevatorApiExceptions")
 
     async def post(
-        self, route_addition: str, json: Optional[dict] = None, params: Optional[dict] = None
+        self, route: str, json: Optional[dict] = None, params: Optional[dict] = None
     ) -> Optional[WebResponse]:
         """Post Request. Return None if Elevator is offline"""
 
         return await self._request(
             method="POST",
-            route=urljoin(elevator_route, route_addition),
+            route=urljoin(elevator_route, route),
             json=json,
             params=params,
         )
 
-    async def get(self, route_addition: str, params: Optional[dict] = None) -> Optional[WebResponse]:
+    async def get(self, route: str, params: dict | None = None, *kwargs) -> Optional[WebResponse]:
         """Get Request. Return None if Elevator is offline"""
 
         return await self._request(
             method="GET",
-            route=urljoin(elevator_route, route_addition),
+            route=urljoin(elevator_route, route),
             params=params,
         )
 

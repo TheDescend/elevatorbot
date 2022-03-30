@@ -15,7 +15,7 @@ from Shared.networkingSchemas.misc.persistentMessages import (
 
 @pytest.mark.asyncio
 async def test_get_all(client: AsyncClient, mocker: MockerFixture):
-    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+    mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
 
     r = await client.get(f"/persistentMessages/{dummy_discord_guild_id}/get/all")
     assert r.status_code == 200
@@ -34,7 +34,7 @@ async def test_get_all(client: AsyncClient, mocker: MockerFixture):
 
 @pytest.mark.asyncio
 async def test_get(client: AsyncClient, mocker: MockerFixture):
-    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+    mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
 
     r = await client.get(f"/persistentMessages/{dummy_discord_guild_id}/get/lfg_channel")
     assert r.status_code == 200
@@ -47,7 +47,7 @@ async def test_get(client: AsyncClient, mocker: MockerFixture):
 
 @pytest.mark.asyncio
 async def test_delete(client: AsyncClient, mocker: MockerFixture):
-    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+    mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
 
     # use the message_name
     delete_model = PersistentMessageDeleteInput(message_name="to_delete")
