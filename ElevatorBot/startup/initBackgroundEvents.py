@@ -17,6 +17,7 @@ from ElevatorBot import backgroundEvents
 from ElevatorBot.core.destiny.lfg.lfgSystem import LfgMessage
 from ElevatorBot.discordEvents.errorEvents import parse_dis_snek_error
 from ElevatorBot.networking.destiny.lfgSystem import DestinyLfgSystem
+from Shared.functions.readSettingsFile import get_setting
 
 event_name_by_id: dict[str, str] = {}
 
@@ -94,7 +95,7 @@ async def register_background_events(client):
                 trigger="interval",
                 args=(client,),
                 minutes=event.interval_minutes,
-                jitter=15 * 60,
+                jitter=5 * 60 if not get_setting("ENABLE_DEBUG_MODE") else None,
             )
         elif event.scheduler_type == "cron":
             client.scheduler.add_job(
@@ -121,7 +122,6 @@ async def register_background_events(client):
     for guild in client.guilds:
         backend = DestinyLfgSystem(
             ctx=None,
-            # client=client,
             discord_guild=guild,
         )
 

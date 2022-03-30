@@ -9,6 +9,10 @@ ARG ELEVATOR_PORT=8080
 # add the path to pythonpath
 ENV PYTHONPATH "${PYTHONPATH}:/app"
 
+# install ffmpeg
+RUN apt-get -y update
+RUN apt-get -y install ffmpeg
+
 # install the requirements
 RUN pip3.10 install uvloop
 COPY ./ElevatorBot/requirements.txt /app/ElevatorBot/requirements.txt

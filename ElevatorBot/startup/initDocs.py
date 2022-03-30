@@ -2,8 +2,7 @@ import json
 from copy import copy
 from typing import Optional
 
-from dis_snek import CommandTypes, ContextMenu, SlashCommand
-from dis_snek.models.snek.application_commands import SlashCommandOption
+from dis_snek import CommandTypes, ContextMenu, SlashCommand, SlashCommandOption
 
 from ElevatorBot.misc.formatting import capitalize_string
 from Shared.functions.readSettingsFile import get_setting
