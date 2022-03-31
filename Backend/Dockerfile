@@ -1,13 +1,11 @@
-FROM kigstn/uvicorn-gunicorn-fastapi:python3.10.2
+FROM python:3.10.3
 
 # we want stdout
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
-# get arg from docker-compose, otherwise use default
-ARG BACKEND_PORT=8070
 
 # add the path to pythonpath
-ENV PYTHONPATH "${PYTHONPATH}:/app"
+ENV PYTHONPATH="${PYTHONPATH}:/app"
 
 # install the requirements
 RUN pip3.10 install uvloop

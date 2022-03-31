@@ -50,15 +50,12 @@ services:
   backend:
     build:
       context: ./
-      args:
-        BACKEND_PORT: "${BACKEND_PORT}"
       dockerfile: Backend/Dockerfile
     ports:
       - "${BACKEND_PORT}:${BACKEND_PORT}"
     volumes:
       - ./Logs/Backend:/app/Logs/Backend
     environment:
-      - MAX_WORKERS
       - POSTGRES_DB
       - POSTGRES_USER
       - POSTGRES_PASSWORD
@@ -85,8 +82,6 @@ services:
     build:
       context: ./
       dockerfile: ./Website/Dockerfile
-      args:
-        WEBSITE_PORT: ${WEBSITE_PORT}
     ports:
       - "${WEBSITE_PORT}:${WEBSITE_PORT}"
     volumes:
@@ -110,8 +105,6 @@ services:
     build:
       context: ./
       dockerfile: ./ElevatorBot/Dockerfile
-      args:
-        ELEVATOR_PORT: ${ELEVATOR_PORT}
     ports:
       - "${ELEVATOR_PORT}:${ELEVATOR_PORT}"
     volumes:

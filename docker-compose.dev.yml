@@ -52,8 +52,6 @@ services:
   backend:
     build:
       context: ./
-      args:
-        BACKEND_PORT: "${BACKEND_PORT}"
       dockerfile: Backend/Dockerfile
     ports:
       - "${BACKEND_PORT}:${BACKEND_PORT}"
@@ -86,8 +84,6 @@ services:
     build:
       context: ./
       dockerfile: ./Website/Dockerfile
-      args:
-        WEBSITE_PORT: ${WEBSITE_PORT}
     ports:
       - "${WEBSITE_PORT}:${WEBSITE_PORT}"
     volumes:
@@ -111,8 +107,6 @@ services:
     build:
       context: ./
       dockerfile: ./ElevatorBot/Dockerfile
-      args:
-        ELEVATOR_PORT: ${ELEVATOR_PORT}
     ports:
       - "${ELEVATOR_PORT}:${ELEVATOR_PORT}"
     volumes:

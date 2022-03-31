@@ -34,8 +34,6 @@ FROM node:16-alpine AS runner
 WORKDIR /app/Website
 
 ENV NODE_ENV production
-# get arg from docker-compose, otherwise use default
-ARG WEBSITE_PORT=3000
 
 RUN addgroup -g 1001 -S nodejs
 RUN adduser -S nextjs -u 1001
@@ -49,8 +47,8 @@ COPY --from=builder /app/Website/package.json ./package.json
 
 USER nextjs
 
-ENV PORT $WEBSITE_PORT
-ENV NEXT_TELEMETRY_DISABLED 1
+ENV PORT=$WEBSITE_PORT
+ENV NEXT_TELEMETRY_DISABLED=1
 
 CMD ["node_modules/.bin/next", "start"]
 EXPOSE $WEBSITE_PORT
