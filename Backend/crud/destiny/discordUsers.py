@@ -19,6 +19,9 @@ from Shared.enums.elevator import DestinySystemEnum
 from Shared.functions.helperFunctions import get_min_with_tz, get_now_with_tz, localize_datetime
 from Shared.networkingSchemas.misc.auth import BungieTokenInput, BungieTokenOutput
 
+insert_profile_lock = asyncio.Lock()
+update_lock = asyncio.Lock()
+
 
 class CRUDDiscordUser(CRUDBase):
     """Database interface for DiscordUser Manipulation"""
@@ -143,7 +146,7 @@ class CRUDDiscordUser(CRUDBase):
             raise CustomException("BungieNoDestinyId")
 
         # need to make this save
-        async with asyncio.Lock():
+        async with insert_profile_lock:
             # look if that destiny_id is already in the db
             try:
                 user = await self.get_profile_from_destiny_id(db=db, destiny_id=destiny_id)
@@ -226,7 +229,7 @@ class CRUDDiscordUser(CRUDBase):
     async def update(self, db: AsyncSession, to_update: DiscordUsers, **update_kwargs) -> DiscordUsers:
         """Updates a profile"""
 
-        async with asyncio.Lock():
+        async with update_lock:
             updated: DiscordUsers = await self._update(db=db, to_update=to_update, **update_kwargs)
 
             # update the cache

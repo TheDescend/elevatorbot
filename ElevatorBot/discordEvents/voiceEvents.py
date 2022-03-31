@@ -9,6 +9,10 @@ from ElevatorBot.static.descendOnlyIds import descend_channels
 greek_names = ["Alpha", "Beta", "Gamma", "Delta", "Epsilon", "Zeta", "Eta", "Theta", "Iota", "Kappa"]
 
 
+auto_channel_deletion_lock = asyncio.Lock()
+auto_voice_channel_removal_lock = asyncio.Lock()
+
+
 async def on_voice_state_update(event: VoiceStateUpdate):
     """Triggers when a members voice state changes"""
 
@@ -65,7 +69,7 @@ async def left_channel(event: VoiceStateUpdate):
                     base_name = split_name[0]
                     greek_name = split_name[1].strip()
                     if greek_name in greek_names:
-                        async with asyncio.Lock():
+                        async with auto_channel_deletion_lock:
                             # get all channels from the category and change them
                             i = 0
                             for voice_channel in event.before.channel.category.voice_channels:
@@ -97,7 +101,7 @@ async def joined_channel(event: VoiceStateUpdate):
             if len(split_name) > 1:
                 greek_name = split_name[1].strip()
                 if greek_name in greek_names:
-                    async with asyncio.Lock():
+                    async with auto_voice_channel_removal_lock:
                         # calculate the next name
                         try:
                             next_greek_name = greek_names[greek_names.index(greek_name) + 1]

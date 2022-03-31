@@ -144,30 +144,29 @@ class BaseBackendConnection:
                 data = orjson.dumps(data)
             data = orjson.loads(data)
 
-        async with asyncio.Lock():
-            await self.limiter.wait_for_token()
+        await self.limiter.wait_for_token()
 
-            async with self.semaphore:
-                async with aiohttp_client_cache.CachedSession(
-                    cache=self.cache, timeout=self.timeout, json_serialize=lambda x: orjson.dumps(x).decode()
-                ) as session:
-                    async with session.request(
-                        method=method,
-                        url=route,
-                        params=params,
-                        json=data,
-                    ) as response:
-                        result = await self.__backend_parse_response(response=response)
+        async with self.semaphore:
+            async with aiohttp_client_cache.CachedSession(
+                cache=self.cache, timeout=self.timeout, json_serialize=lambda x: orjson.dumps(x).decode()
+            ) as session:
+                async with session.request(
+                    method=method,
+                    url=route,
+                    params=params,
+                    json=data,
+                ) as response:
+                    result = await self.__backend_parse_response(response=response)
 
-                        # if an error occurred, already do the basic formatting
-                        if not result:
-                            if self.discord_member:
-                                result.error_message = {"discord_member": self.discord_member}
-                            if error_message_kwargs:
-                                result.error_message = error_message_kwargs
-                            await self.send_error(result)
+                    # if an error occurred, already do the basic formatting
+                    if not result:
+                        if self.discord_member:
+                            result.error_message = {"discord_member": self.discord_member}
+                        if error_message_kwargs:
+                            result.error_message = error_message_kwargs
+                        await self.send_error(result)
 
-                        return result
+                    return result
 
     async def __backend_parse_response(self, response: aiohttp.ClientResponse) -> BackendResult:
         """Handle any errors and then return the content of the response"""

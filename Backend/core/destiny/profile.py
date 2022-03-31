@@ -44,6 +44,11 @@ from Shared.networkingSchemas.destiny import (
 )
 from Shared.networkingSchemas.destiny.clan import DestinyClanModel
 
+has_triumph_lock = asyncio.Lock()
+has_collectible_lock = asyncio.Lock()
+get_season_pass_level_lock = asyncio.Lock()
+get_seasonal_challenges_lock = asyncio.Lock()
+
 
 @dataclasses.dataclass
 class DestinyProfile:
@@ -269,7 +274,7 @@ class DestinyProfile:
         triumph_hash = int(triumph_hash)
 
         # check cache
-        async with asyncio.Lock():
+        async with has_triumph_lock:
             if self.destiny_id not in cache.triumphs:
                 cache.triumphs.update({self.destiny_id: set()})
 
@@ -356,7 +361,7 @@ class DestinyProfile:
         collectible_hash = int(collectible_hash)
 
         # check cache
-        async with asyncio.Lock():
+        async with has_collectible_lock:
             if self.destiny_id not in cache.collectibles:
                 cache.collectibles.update({self.destiny_id: set()})
 
@@ -475,7 +480,7 @@ class DestinyProfile:
         """Returns the seasonal pass level"""
 
         # get the current season pass hash
-        async with asyncio.Lock():
+        async with get_season_pass_level_lock:
             if not cache.season_pass_definition:
                 cache.season_pass_definition = copy.copy(await destiny_manifest.get_current_season_pass(db=self.db))
 
@@ -493,7 +498,7 @@ class DestinyProfile:
         """Returns the seasonal challenges completion info"""
 
         # do we have the info cached?
-        async with asyncio.Lock():
+        async with get_seasonal_challenges_lock:
             if not cache.seasonal_challenges_definition:
                 definition = SeasonalChallengesModel()
 

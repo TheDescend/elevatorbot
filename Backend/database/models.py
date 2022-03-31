@@ -429,11 +429,13 @@ class Giveaway(Base):
 # insert all tables
 _TABLES_CREATED = False
 
+create_tables_lock = asyncio.Lock()
+
 
 async def create_tables(engine: Engine):
     global _TABLES_CREATED
 
-    async with asyncio.Lock():
+    async with create_tables_lock:
         if not _TABLES_CREATED:
             async with engine.begin() as connection:
                 if is_test_mode():

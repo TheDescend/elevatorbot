@@ -11,6 +11,9 @@ from Backend.database.models import LfgMessage
 from Backend.misc.cache import cache
 from Shared.networkingSchemas.destiny.lfgSystem import AllLfgDeleteOutputModel, LfgOutputModel, UserAllLfgOutputModel
 
+lfg_lock = asyncio.Lock()
+get_voice_category_channel_id_lock = asyncio.Lock()
+
 
 class CRUDLfgMessages(CRUDBase):
     @staticmethod
@@ -18,7 +21,7 @@ class CRUDLfgMessages(CRUDBase):
         """Return the guild's lfg channel id"""
 
         # check cache:
-        async with asyncio.Lock():
+        async with lfg_lock:
             cache_key = f"{guild_id}|lfg_channel"
 
             # populate cache
@@ -41,7 +44,7 @@ class CRUDLfgMessages(CRUDBase):
         """Return the guild's lfg voice category channel id if set"""
 
         # check cache:
-        async with asyncio.Lock():
+        async with get_voice_category_channel_id_lock:
             cache_key = f"{guild_id}|lfg_voice_category"
 
             # populate cache

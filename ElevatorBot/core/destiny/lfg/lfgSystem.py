@@ -45,6 +45,7 @@ from Shared.functions.readSettingsFile import get_setting
 from Shared.networkingSchemas.destiny.lfgSystem import LfgCreateInputModel, LfgOutputModel, LfgUpdateInputModel
 
 asap_start_time = datetime.datetime(year=1997, month=6, day=11, tzinfo=datetime.timezone.utc)
+sort_lfg_messages_lock = asyncio.Lock()
 
 
 @dataclasses.dataclass()
@@ -523,7 +524,7 @@ class LfgMessage:
     async def __sort_lfg_messages(self):
         """Sort all the lfg messages in the guild by start_time"""
 
-        async with asyncio.Lock():
+        async with sort_lfg_messages_lock:
             # get all lfg ids
             result = await self.backend.get_all()
             events = result.events

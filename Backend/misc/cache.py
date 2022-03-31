@@ -38,7 +38,7 @@ class Cache:
     # User Collectibles - Key: destiny_id[collectible_hash]
     collectibles: dict[int, set] = dataclasses.field(init=False, default_factory=dict)
 
-    # Manifest Definitions. Saving DB calls since 1982. Make sure to `async with asyncio.Lock():` them
+    # Manifest Definitions. Saving DB calls since 1982. Make sure to `asyncio.Lock():` them
     season_pass_definition: Optional[DestinySeasonPassDefinition] = dataclasses.field(init=False, default=None)
     seasonal_challenges_definition: Optional[SeasonalChallengesModel] = dataclasses.field(init=False, default=None)
 

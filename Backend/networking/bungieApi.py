@@ -156,23 +156,21 @@ class BungieApi(NetworkBase):
         **kwargs,
     ) -> WebResponse:
         # wait for a token from the rate limiter
-        async with asyncio.Lock():
-            await bungie_limiter.wait_for_token()
+        await bungie_limiter.wait_for_token()
 
-            # use the semaphore
-            async with bungie_semaphore:
-
-                # call the parent method
-                return await super()._request(
-                    session=session,
-                    method=method,
-                    route=route,
-                    allow_redirects=method == "POST",
-                    headers=headers,
-                    params=params,
-                    json=json,
-                    form_data=form_data,
-                )
+        # use the semaphore
+        async with bungie_semaphore:
+            # call the parent method
+            return await super()._request(
+                session=session,
+                method=method,
+                route=route,
+                allow_redirects=method == "POST",
+                headers=headers,
+                params=params,
+                json=json,
+                form_data=form_data,
+            )
 
     async def get_working_token(self) -> str:
         """Returns token or raises an error"""

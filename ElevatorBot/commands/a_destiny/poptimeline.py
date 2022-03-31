@@ -17,11 +17,13 @@ from ElevatorBot.static.destinyDates import (
     season_and_expansion_dates,
 )
 
+pop_timeline_lock = asyncio.Lock()
+
 
 class PopTimeline(BaseScale):
     @slash_command(name="pop_timeline", description="Shows you the Destiny 2 steam maximum population timeline")
     async def pop_timeline(self, ctx: InteractionContext):
-        async with asyncio.Lock():
+        async with pop_timeline_lock:
             embed = embed_message("Maximum Destiny 2 Steam Player Count")
 
             # do we have an url cached?

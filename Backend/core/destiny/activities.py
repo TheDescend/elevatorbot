@@ -33,6 +33,9 @@ from Shared.networkingSchemas.destiny import (
 )
 from Shared.networkingSchemas.destiny.roles import TimePeriodModel
 
+update_missing_pgcr_lock = asyncio.Lock()
+input_data_lock = asyncio.Lock()
+
 
 @dataclasses.dataclass
 class DestinyActivities:
@@ -177,7 +180,7 @@ class DestinyActivities:
     async def update_missing_pgcr(self):
         """Insert the missing pgcr"""
 
-        async with asyncio.Lock():
+        async with update_missing_pgcr_lock:
             for activity in await crud_activities_fail_to_get.get_all(db=self.db):
                 # check if info is already in DB, delete and skip if so
                 result = crud_activities.get(db=self.db, instance_id=activity.instance_id)
@@ -342,7 +345,7 @@ class DestinyActivities:
                         start_time = activity_time
 
                     # needs to be same for anyio tasks
-                    async with asyncio.Lock():
+                    async with input_data_lock:
                         # check if info is already in DB, skip if so. query the cache first
                         if instance_id in cache.saved_pgcrs:
                             continue

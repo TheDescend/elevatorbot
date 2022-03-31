@@ -14,20 +14,22 @@ class RateLimiter:
     max_tokens: int = 240  # how many requests can we save up - bungie limits after 250 in 10s, so will put that to 240
 
     tokens: float = dataclasses.field(init=False)
-    updated_at: float = dataclasses.field(init=False)
+    updated_at: float = dataclasses.field(init=False, default=time.monotonic())
+
+    lock: asyncio.Lock = dataclasses.field(init=False, default=asyncio.Lock())
 
     def __post_init__(self):
         self.tokens = self.max_tokens
-        self.updated_at = time.monotonic()
 
     async def wait_for_token(self):
         """Waits until a token becomes available"""
 
-        while self.tokens < 1:
-            self.add_new_tokens()
-            await asyncio.sleep(0.1)
-        assert self.tokens >= 1
-        self.tokens -= 1
+        async with self.lock:
+            while self.tokens < 1:
+                self.add_new_tokens()
+                await asyncio.sleep(0.1)
+            assert self.tokens >= 1
+            self.tokens -= 1
 
     def add_new_tokens(self):
         """Adds a new token if eligible"""

@@ -17,6 +17,10 @@ from Backend.database.models import (
 )
 from Shared.networkingSchemas.destiny.roles import TimePeriodModel
 
+fail_to_get_insert_lock = asyncio.Lock()
+delete_lock = asyncio.Lock()
+insert_lock = asyncio.Lock()
+
 
 class CRUDActivitiesFailToGet(CRUDBase):
     async def get_all(self, db: AsyncSession) -> list[ActivitiesFailToGet]:
@@ -27,14 +31,14 @@ class CRUDActivitiesFailToGet(CRUDBase):
     async def insert(self, db: AsyncSession, instance_id: int, period: datetime.datetime):
         """Insert missing pgcr"""
 
-        async with asyncio.Lock():
+        async with fail_to_get_insert_lock:
             if await self._get_with_key(db=db, primary_key=instance_id) is None:
                 await self._insert(db=db, to_create=ActivitiesFailToGet(instance_id=instance_id, period=period))
 
     async def delete(self, db: AsyncSession, obj: ActivitiesFailToGet):
         """Insert missing pgcr"""
 
-        async with asyncio.Lock():
+        async with delete_lock:
             await self._delete(db=db, obj=obj)
 
 
@@ -60,7 +64,7 @@ class CRUDActivities(CRUDBase):
         """Get the activity with the instance_id"""
 
         # get this to not accidentally insert the same thing twice
-        async with asyncio.Lock():
+        async with insert_lock:
             return await self.__locked_insert(db=db, instance_id=instance_id, activity_time=activity_time, pgcr=pgcr)
 
     async def __locked_insert(self, db: AsyncSession, instance_id: int, activity_time: datetime, pgcr: dict):
