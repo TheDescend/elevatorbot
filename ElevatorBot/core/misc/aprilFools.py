@@ -17,7 +17,7 @@ async def play_joke(bot_voice_state: ActiveVoiceState, message: Message | None =
                 joke_json = await resp.json()
                 joke = joke_json["joke"]
 
-                joke_audio = await asyncio.to_thread(gtts.gTTS, joke)
+                joke_audio = await asyncio.to_thread(lambda: gtts.gTTS(joke))
 
             except:
                 if message:

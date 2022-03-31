@@ -26,9 +26,8 @@ class AprilFoolsJokes(BaseEvent):
         # choose one at random
         chosen = random.choice(voice_states)
 
+        # connect and play audio
         bot_voice_state = client.get_bot_voice_state(guild_id=descend_channels.guild.id)
         if not bot_voice_state or not bot_voice_state.connected:
-            user_channel = await descend_channels.guild.fetch_channel(chosen["channel_id"])
-            bot_voice_state = await user_channel.connect()
-
+            bot_voice_state = await chosen.channel.connect()
             await play_joke(bot_voice_state=bot_voice_state)
