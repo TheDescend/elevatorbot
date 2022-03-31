@@ -33,6 +33,12 @@ except ModuleNotFoundError:
     print("Uvloop not installed, skipping")
 
 
+# healthcheck to see if this is running fine
+@app.get("/health_check")
+async def health_check():
+    return {"status": "alive"}
+
+
 # only allow people with read permissions
 @app.get("/read_perm", response_model=BackendUserModel)
 async def read_perm(user: BackendUser = Depends(auth_get_user_with_read_perm)):
@@ -64,11 +70,13 @@ async def log_requests(request: Request, call_next):
         raise error
 
     else:
-        process_time = round(time.time() - start_time, 2)
+        # do not log health check spam
+        if "health_check" not in request.url:
+            process_time = round(time.time() - start_time, 2)
 
-        # log that
-        logger = logging.getLogger("requests")
-        logger.info(f"'{request.method}' completed in '{process_time}' seconds for '{request.url}'")
+            # log that
+            logger = logging.getLogger("requests")
+            logger.info(f"'{request.method}' completed in '{process_time}' seconds for '{request.url}'")
 
         return response
 

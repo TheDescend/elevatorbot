@@ -4,6 +4,8 @@ services:
   redis:
     image: redis:6.2.6
     command: ["redis-server", "--maxmemory", "1gb", "--maxmemory-policy", "allkeys-lru"]
+    ports:
+      - "${REDIS_PORT}:${REDIS_PORT}"
     volumes:
       - ./redis.conf:/redis.conf
     networks:
@@ -26,6 +28,8 @@ services:
       - database-network
     restart:
       always
+    healthcheck:
+      test: pg_isready -U postgres
 
   postgresbackups:
     image: prodrigestivill/postgres-backup-local
@@ -45,7 +49,8 @@ services:
     restart:
       always
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
 
   backend:
     build:
@@ -73,10 +78,16 @@ services:
       - redis-network
     restart:
       unless-stopped
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:${BACKEND_PORT}/health_check" ]
+      timeout: 5s
     depends_on:
-      - postgres
-      - postgresbackups
-      - redis
+      postgres:
+        condition: service_healthy
+      postgresbackups:
+        condition: service_started
+      redis:
+        condition: service_started
 
   website:
     build:
@@ -99,7 +110,8 @@ services:
     restart:
       unless-stopped
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
 
   elevator:
     build:
@@ -110,6 +122,7 @@ services:
     volumes:
       - ./Logs/ElevatorBot:/app/Logs/ElevatorBot
     environment:
+      - MAX_WORKERS
       - BACKEND_HOST
       - BACKEND_PORT
       - WEBSITE_HOST
@@ -126,8 +139,10 @@ services:
     restart:
       unless-stopped
     depends_on:
-      - backend
-      - redis
+      backend:
+        condition: service_healthy
+      redis:
+        condition: service_started
 
 
 networks:
