@@ -1,6 +1,8 @@
 aiohttp[speedups]==3.8.1
-aiohttp_client_cache==0.6.1
-aioredis==2.0.1
+aiohttp_client_cache==0.5.2
+
+# aiohttp_client_cache currently requires this version
+aioredis==1.3.1
 anyio==3.5.0
 apscheduler==3.9.1
 asyncpg==0.25.0
