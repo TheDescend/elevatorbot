@@ -71,7 +71,7 @@ async def log_requests(request: Request, call_next):
 
     else:
         # do not log health check spam
-        if "health_check" not in request.url:
+        if "health_check" not in request.url.path:
             process_time = round(time.time() - start_time, 2)
 
             # log that
@@ -114,10 +114,6 @@ app.add_exception_handler(CustomException, handle_custom_exception)
 
 @app.on_event("startup")
 async def startup():
-    # insert db tables
-    print("Creating Database Tables...")
-    await create_tables(engine=setup_engine())
-
     # create the admin user for the website
     print("Setting Up Admin Account...")
     async with get_async_sessionmaker().begin() as db:

@@ -9,7 +9,20 @@ from sqlalchemy.orm import sessionmaker
 
 from Shared.functions.readSettingsFile import get_setting
 
-DATABASE_URL = f"""postgresql+asyncpg://{os.environ.get("POSTGRES_USER")}:{os.environ.get("POSTGRES_PASSWORD")}@{os.environ.get("POSTGRES_HOST")}:{os.environ.get("POSTGRES_PORT")}/{os.environ.get("POSTGRES_DB")}"""
+POSTGRES_USER = os.environ.get("POSTGRES_USER")
+assert POSTGRES_USER
+POSTGRES_PASSWORD = os.environ.get("POSTGRES_PASSWORD")
+assert POSTGRES_PASSWORD
+POSTGRES_HOST = os.environ.get("POSTGRES_HOST")
+assert POSTGRES_HOST
+POSTGRES_PORT = os.environ.get("POSTGRES_PORT")
+assert POSTGRES_PORT
+POSTGRES_DB = os.environ.get("POSTGRES_DB")
+assert POSTGRES_DB
+
+DATABASE_URL = (
+    f"""postgresql+asyncpg://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}"""
+)
 _ENGINE = None
 _SESSIONMAKER = None
 _TEST_MODE = False
