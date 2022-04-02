@@ -16,7 +16,7 @@ from Shared.networkingSchemas.destiny import (
 
 @pytest.mark.asyncio
 async def test_get_all(client: AsyncClient, mocker: MockerFixture):
-    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+    mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
 
     r = await client.get("/destiny/activities/get/all")
     assert r.status_code == 200
@@ -31,7 +31,7 @@ async def test_get_all(client: AsyncClient, mocker: MockerFixture):
 
 @pytest.mark.asyncio
 async def test_last(client: AsyncClient, mocker: MockerFixture):
-    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+    mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
 
     input_model = DestinyLastInputModel(completed=True)
     r = await client.post(
@@ -104,7 +104,7 @@ async def test_last(client: AsyncClient, mocker: MockerFixture):
 
 @pytest.mark.asyncio
 async def test_activity(client: AsyncClient, mocker: MockerFixture):
-    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+    mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
 
     input_model = DestinyActivityInputModel(activity_ids=[dummy_activity_reference_id])
     r = await client.post(
@@ -146,7 +146,7 @@ async def test_activity(client: AsyncClient, mocker: MockerFixture):
 
 @pytest.mark.asyncio
 async def test_get_grandmaster(client: AsyncClient, mocker: MockerFixture):
-    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+    mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
 
     r = await client.get("/destiny/activities/get/grandmaster")
     assert r.status_code == 200

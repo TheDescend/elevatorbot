@@ -1,7 +1,9 @@
 import aiohttp
 import feedparser
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.backgroundEvents.base import BaseEvent
+from Backend.core.errors import CustomException
 from Backend.crud import persistent_messages, rss_feed
 from Backend.database.base import get_async_sessionmaker
 from Backend.networking.elevatorApi import ElevatorApi
@@ -15,15 +17,15 @@ class RssFeedChecker(BaseEvent):
         super().__init__(scheduler_type="interval", interval_minutes=interval_minutes)
 
     async def run(self):
-        async with get_async_sessionmaker().begin() as db:
-            # use aiohttp to make the request instead of feedparsers request usage
-            async with aiohttp.ClientSession() as session:
-                async with session.get("https://www.bungie.net/en/rss/News") as resp:
-                    if resp.status == 200:
-                        text = await resp.text()
-                    else:
-                        return
+        # use aiohttp to make the request instead of feedparsers request usage
+        async with aiohttp.ClientSession() as session:
+            async with session.get("https://www.bungie.net/en/rss/News") as resp:
+                if resp.status == 200:
+                    text = await resp.text()
+                else:
+                    return
 
+        async with get_async_sessionmaker().begin() as db:
             feed = feedparser.parse(text)
 
             # loop through the articles and check if they have been published
@@ -47,28 +49,31 @@ class RssFeedChecker(BaseEvent):
                     )
 
                 # loop through the items to publish and do that
-                elevator_api = ElevatorApi()
-                for item in to_publish:
-                    data = {
-                        "message": item["link"],
-                        "embed_title": None,
-                        "embed_description": None,
-                        "guilds": subscribed_data,
-                    }
+                try:
+                    elevator_api = ElevatorApi()
+                    for item in to_publish:
+                        data = {
+                            "message": item["link"],
+                            "embed_title": None,
+                            "embed_description": None,
+                            "guilds": subscribed_data,
+                        }
 
-                    # send the payload to elevator
-                    result = await elevator_api.post(
-                        route_addition="/messages",
-                        json=data,
-                    )
+                        # send the payload to elevator
+                        result = await elevator_api.post(
+                            route="/messages",
+                            json=data,
+                        )
 
-                    # remove db entry if channel doesnt exist
-                    if result:
-                        if not result.content["success"]:
-                            for error_guild in result.content["guilds"]:
-                                await persistent_messages.delete(
-                                    db=db, message_name="rss", guild_id=error_guild["guild_id"]
-                                )
+                        # remove db entry if channel doesnt exist
+                        if result:
+                            if not result.content["success"]:
+                                for error_guild in result.content["guilds"]:
+                                    await persistent_messages.delete(
+                                        db=db, message_name="rss", guild_id=error_guild["guild_id"]
+                                    )
 
-                    # save item in DB
-                    await rss_feed.insert(db=db, item_id=item["id"])
+                        # save item in DB
+                        await rss_feed.insert(db=db, item_id=item["id"])
+                except CustomException:
+                    pass

@@ -1,7 +1,7 @@
 import datetime
 from typing import Any, Optional
 
-from dis_snek import Colour, Embed, Guild, Member
+from dis_snek import Colour, Embed, Guild, Member, User
 
 from ElevatorBot.static.emojis import custom_emojis
 
@@ -10,7 +10,7 @@ def embed_message(
     title: Optional[str] = None,
     description: Optional[str] = None,
     footer: Optional[str] = None,
-    member: Optional[Member] = None,
+    member: Optional[Member | User] = None,
     guild: Optional[Guild] = None,
 ) -> Embed:
     """Takes title description and footer and returns an Embed"""
@@ -24,7 +24,10 @@ def embed_message(
     else:
         embed = Embed(description=description, color=Colour.from_hex("#71b093"))
         if member:
-            embed.set_author(name=f"{member.display_name}'s {title}", icon_url=member.display_avatar.url)
+            if isinstance(member, Member):
+                embed.set_author(name=f"{member.display_name}'s {title}", icon_url=member.display_avatar.url)
+            else:
+                embed.set_author(name=f"{member.username}#{member.discriminator}'s {title}", icon_url=member.avatar.url)
         elif guild:
             embed.set_author(name=f"{guild.name}'s {title}", icon_url=guild.icon.url)
 
@@ -95,9 +98,9 @@ def format_timedelta(seconds: Optional[float | datetime.timedelta]) -> str:
     hours = minutes // 60
 
     if hours != 0:
-        return f"{hours:,}h {minutes % 60:,}m"
+        return f"{hours:,}h {minutes % 60}m"
     else:
-        return f"{minutes % 60:,}m {seconds % 60:,}s"
+        return f"{minutes % 60}m {seconds % 60}s"
 
 
 def replace_progress_formatting(completion_status: str) -> str:
@@ -138,7 +141,7 @@ def get_emoji_from_rank(rank: int) -> str:
         case 3:
             emoji = str(custom_emojis.third_place)
         case _:
-            emoji = f"{rank})"
+            emoji = f"{rank})  "
 
     return emoji
 

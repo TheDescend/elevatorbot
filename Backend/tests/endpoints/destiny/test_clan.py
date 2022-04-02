@@ -12,7 +12,7 @@ from Shared.networkingSchemas.destiny.profile import DestinyProfileModel
 async def test_clan(client: AsyncClient, mocker: MockerFixture):
     """This tests all function in the file, because link_clan() needs to be called first"""
 
-    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+    mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
 
     # =====================================================================
     # no link exists yet
@@ -25,7 +25,7 @@ async def test_clan(client: AsyncClient, mocker: MockerFixture):
     assert r.status_code == 200
     assert r.json() == {"success": True, "clan_name": "Descend"}
     data = DestinyClanLink.parse_obj(r.json())
-    assert data.success is True
+    assert bool(data) is True
     assert data.clan_name == "Descend"
 
     # link clan (without admin)
@@ -87,5 +87,5 @@ async def test_clan(client: AsyncClient, mocker: MockerFixture):
     r = await client.delete(f"/destiny/clan/{dummy_discord_guild_id}/{dummy_discord_id}/unlink")
     assert r.status_code == 200
     data = DestinyClanLink.parse_obj(r.json())
-    assert data.success is True
+    assert bool(data) is True
     assert data.clan_name == "Descend"

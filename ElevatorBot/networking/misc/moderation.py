@@ -2,8 +2,8 @@ import dataclasses
 
 from dis_snek import Guild, Member
 
-from ElevatorBot.backendNetworking.http import BaseBackendConnection
-from ElevatorBot.backendNetworking.routes import moderation_mute, moderation_warning
+from ElevatorBot.networking.http import BaseBackendConnection
+from ElevatorBot.networking.routes import moderation_mute, moderation_warning
 from Shared.networkingSchemas.misc.moderation import ModerationAddModel, ModerationModel, ModerationsModel
 
 

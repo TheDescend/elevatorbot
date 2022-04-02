@@ -7,7 +7,7 @@ from Shared.functions.readSettingsFile import get_setting
 
 class __DescendChannels:
     def __init__(self):
-        self.guild_id: int = get_setting("DESCEND_GUILD_ID")
+        self._guild_id: int = get_setting("DESCEND_GUILD_ID")
         self.guild: Guild | None = None
 
         self.admin_channel: GuildText | int | None = get_setting("DESCEND_CHANNEL_ADMIN_ID")
@@ -19,17 +19,15 @@ class __DescendChannels:
     async def init_channels(self, client: ElevatorSnake):
         """Runs on startup to get the channels we use"""
         try:
-            if guild := client.get_guild(self.guild_id):
+            if guild := await client.fetch_guild(self._guild_id):
                 self.guild = guild
                 # loop through all class attributes and fill out the channel objs
                 for attr, value in self.__dict__.items():
                     if attr != "guild":
                         # get the channel
-                        channel = await client.get_channel(value)
+                        channel = await client.fetch_channel(value)
                         setattr(self, attr, channel)
         except Forbidden:
-            pass
-        finally:
             # loop through all class attributes and set them to None
             for attr, value in self.__dict__.items():
                 setattr(self, attr, None)

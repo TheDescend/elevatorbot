@@ -1,5 +1,6 @@
 import aiohttp
 from dis_snek import InteractionContext, slash_command
+from orjson import orjson
 
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formatting import embed_message
@@ -11,7 +12,7 @@ class FunFact(BaseScale):
 
         url = "https://uselessfacts.jsph.pl/random.json?language=en"
 
-        async with aiohttp.ClientSession() as session:
+        async with aiohttp.ClientSession(json_serialize=lambda x: orjson.dumps(x).decode()) as session:
             async with session.get(url=url) as r:
                 if r.status == 200:
                     text = (await r.json())["text"]

@@ -33,6 +33,9 @@ from Shared.networkingSchemas.destiny import (
 )
 from Shared.networkingSchemas.destiny.roles import TimePeriodModel
 
+update_missing_pgcr_lock = asyncio.Lock()
+input_data_lock = asyncio.Lock()
+
 
 @dataclasses.dataclass
 class DestinyActivities:
@@ -177,7 +180,7 @@ class DestinyActivities:
     async def update_missing_pgcr(self):
         """Insert the missing pgcr"""
 
-        async with asyncio.Lock():
+        async with update_missing_pgcr_lock:
             for activity in await crud_activities_fail_to_get.get_all(db=self.db):
                 # check if info is already in DB, delete and skip if so
                 result = crud_activities.get(db=self.db, instance_id=activity.instance_id)
@@ -281,6 +284,11 @@ class DestinyActivities:
                 results.append((i, t, pgcr.content))
 
             except Exception as e:
+                # stop everything if bungie is ded
+                if isinstance(e, CustomException):
+                    if e.error == "BungieDed":
+                        raise e
+
                 # log that
                 print(e)
                 logger_exceptions.error(
@@ -291,7 +299,8 @@ class DestinyActivities:
                 cache.saved_pgcrs.remove(i)
 
                 # looks like it failed, lets try again later
-                await crud_activities_fail_to_get.insert(db=self.db, instance_id=i, period=t)
+                async with get_async_sessionmaker().begin() as db:
+                    await crud_activities_fail_to_get.insert(db=db, instance_id=i, period=t)
 
         async def input_data(gather_instance_ids: list[int], gather_activity_times: list[datetime.datetime]):
             """Gather all pgcr and insert them"""
@@ -302,7 +311,7 @@ class DestinyActivities:
                 for i, t in zip(gather_instance_ids, gather_activity_times):
                     tg.start_soon(handle, results, i, t)
 
-            # do this with a separate DB session, do make smaller commits
+            # do this with a separate DB session, to make smaller commits
             async with get_async_sessionmaker().begin() as session:
                 for i, t, pgcr in results:
                     # insert information to DB
@@ -336,12 +345,12 @@ class DestinyActivities:
                         start_time = activity_time
 
                     # needs to be same for anyio tasks
-                    async with asyncio.Lock():
+                    async with input_data_lock:
                         # check if info is already in DB, skip if so. query the cache first
                         if instance_id in cache.saved_pgcrs:
                             continue
 
-                        # add the instance_id to the cache to prevent other users with the same instance to double check this
+                        # add the instance_id to the cache to prevent other users with the same instance to double-check this
                         # will get removed again if something fails
                         cache.saved_pgcrs.add(instance_id)
 
@@ -358,7 +367,12 @@ class DestinyActivities:
                         continue
                     else:
                         # get and input the data
-                        await input_data(instance_ids, activity_times)
+                        try:
+                            await input_data(instance_ids, activity_times)
+                        except CustomException as error:
+                            if error.error == "BungieDed":
+                                return
+                            raise error
 
                         # reset task list and restart
                         instance_ids = []
@@ -373,7 +387,12 @@ class DestinyActivities:
             # one last time to clean out the extras after the code is done
             if instance_ids:
                 # get and input the data
-                await input_data(instance_ids, activity_times)
+                try:
+                    await input_data(instance_ids, activity_times)
+                except CustomException as error:
+                    if error.error == "BungieDed":
+                        return
+                    raise error
 
             # update them with the newest entry timestamp
             if start_time:

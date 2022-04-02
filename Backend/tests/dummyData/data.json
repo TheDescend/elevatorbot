@@ -1,4 +1,9 @@
 {
+    "https://api.steampowered.com/ISteamUserStats/GetNumberOfCurrentPlayers/v1/?appid=1085660": {
+        "response": {
+            "player_count": "1337"
+        }
+    },
     "https://www.bungie.net/platform/User/GetMembershipsForCurrentUser/?": {
         "destinyMemberships": [
             {

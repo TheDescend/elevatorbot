@@ -10,9 +10,9 @@ from dis_snek import (
     slash_option,
 )
 
-from ElevatorBot.backendNetworking.destiny.profile import DestinyProfile
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
 from ElevatorBot.commands.base import BaseScale
+from ElevatorBot.networking.destiny.profile import DestinyProfile
 
 
 class Website(BaseScale):

@@ -9,7 +9,20 @@ from sqlalchemy.orm import sessionmaker
 
 from Shared.functions.readSettingsFile import get_setting
 
-DATABASE_URL = f"""postgresql+asyncpg://{os.environ.get("POSTGRES_USER")}:{os.environ.get("POSTGRES_PASSWORD")}@{os.environ.get("POSTGRES_HOST")}:{os.environ.get("POSTGRES_PORT")}/{os.environ.get("POSTGRES_DB")}"""
+POSTGRES_USER = os.environ.get("POSTGRES_USER")
+assert POSTGRES_USER
+POSTGRES_PASSWORD = os.environ.get("POSTGRES_PASSWORD")
+assert POSTGRES_PASSWORD
+POSTGRES_HOST = os.environ.get("POSTGRES_HOST")
+assert POSTGRES_HOST
+POSTGRES_PORT = os.environ.get("POSTGRES_PORT")
+assert POSTGRES_PORT
+POSTGRES_DB = os.environ.get("POSTGRES_DB")
+assert POSTGRES_DB
+
+DATABASE_URL = (
+    f"""postgresql+asyncpg://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}"""
+)
 _ENGINE = None
 _SESSIONMAKER = None
 _TEST_MODE = False
@@ -29,9 +42,9 @@ def setup_engine(database_url: str = DATABASE_URL) -> Engine:
             json_deserializer=orjson.loads,
             json_serializer=lambda x: orjson.dumps(x).decode(),
             pool_pre_ping=True,
-            pool_size=50,
-            max_overflow=200,
-            pool_timeout=60,
+            pool_size=75,
+            max_overflow=-1,
+            pool_timeout=300,
         )
 
     return _ENGINE

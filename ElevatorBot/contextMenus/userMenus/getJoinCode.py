@@ -1,8 +1,8 @@
 from dis_snek import CommandTypes, InteractionContext, Member, context_menu
 
-from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formatting import embed_message
+from ElevatorBot.networking.destiny.account import DestinyAccount
 
 
 class UserMenuCommands(BaseScale):

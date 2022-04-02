@@ -1,62 +1,65 @@
+import dataclasses
 import logging
 import os
 from typing import Optional
-from urllib.parse import urlencode, urljoin
+from urllib.parse import urljoin
 
 import aiohttp
-import aiohttp_client_cache
 from aiohttp import ClientConnectorError
 from orjson import orjson
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.errors import CustomException
-from Backend.networking.base import NetworkBase
-from Backend.networking.schemas import InternalWebResponse, WebResponse
+from Backend.networking.http import NetworkBase
+from Backend.networking.schemas import WebResponse
+
+elevator_route = f"""http://{os.environ.get("ELEVATOR_HOST")}:{os.environ.get("ELEVATOR_PORT")}/"""
 
 
-class ElevatorOffline(Exception):
-    pass
-
-
+@dataclasses.dataclass
 class ElevatorApi(NetworkBase):
-    logger = logging.getLogger("elevatorApi")
-    logger_exceptions = logging.getLogger("elevatorApiExceptions")
+    db: Optional[AsyncSession] = None
 
-    route = f"""http://{os.environ.get("ELEVATOR_HOST")}:{os.environ.get("ELEVATOR_PORT")}/"""
-
-    bungie_request: bool = False
-    max_web_request_tries: int = 1
+    def __post_init__(self):
+        self.request_retries = 1
+        self.logger = logging.getLogger("elevatorApi")
+        self.logger_exceptions = logging.getLogger("elevatorApiExceptions")
 
     async def post(
-        self, route_addition: str, json: Optional[dict] = None, params: Optional[dict] = None
+        self, route: str, json: Optional[dict] = None, params: Optional[dict] = None
     ) -> Optional[WebResponse]:
         """Post Request. Return None if Elevator is offline"""
 
-        return await self._elevator_request(
+        return await self._request(
             method="POST",
-            route=urljoin(self.route, route_addition),
+            route=urljoin(elevator_route, route),
             json=json,
             params=params,
         )
 
-    async def get(self, route_addition: str, params: Optional[dict] = None) -> Optional[WebResponse]:
+    async def get(self, route: str, params: dict | None = None, *kwargs) -> Optional[WebResponse]:
         """Get Request. Return None if Elevator is offline"""
 
-        return await self._elevator_request(
+        return await self._request(
             method="GET",
-            route=urljoin(self.route, route_addition),
+            route=urljoin(elevator_route, route),
             params=params,
         )
 
-    async def _elevator_request(
-        self, method: str, route: str, params: Optional[dict] = None, json: Optional[dict] = None
+    async def _request(
+        self,
+        method: str,
+        route: str,
+        params: Optional[dict] = None,
+        json: Optional[dict] = None,
+        *args,
+        **kwargs,
     ) -> Optional[WebResponse]:
         """Reduce duplication"""
 
-        self.request_handler = self.__handle_elevator_request_data
-
         async with aiohttp.ClientSession(json_serialize=lambda x: orjson.dumps(x).decode()) as session:
             try:
-                return await self._request(
+                return await super()._request(
                     session=session,
                     method=method,
                     route=route.removesuffix("/"),
@@ -67,38 +70,18 @@ class ElevatorApi(NetworkBase):
                 # if it can't connect to elevator
                 return None
 
-    async def __handle_elevator_request_data(
-        self,
-        request: aiohttp.ClientResponse | aiohttp_client_cache.CachedResponse,
-        route: str,
-        params: Optional[dict],
-    ) -> Optional[InternalWebResponse]:
-        """Overwrite the bungie handler"""
+    async def _handle_errors(self, response: WebResponse, route_with_params: str):
+        """Handle the elevator request results"""
 
-        if not params:
-            params = {}
-        route_with_params = f"{route}?{urlencode(params)}"
-
-        try:
-            response = await request.json(loads=orjson.loads)
-        except aiohttp.ContentTypeError:
-            response = await request.text()
-
-        match request.status:
+        match response.status:
             case 404:
                 # not found
                 self.logger_exceptions.error(f"'{response.status}': Not Found for '{route_with_params}' - '{response}'")
 
-            case 200:
-                return InternalWebResponse(
-                    content=response,
-                    status=request.status,
-                )
-
             # wildcard error
             case _:
                 self.logger_exceptions.error(
-                    f"'{request.status}': Request failed for '{route_with_params}' - '{response}'"
+                    f"'{response.status}': Request failed for '{route_with_params}' - '{response}'"
                 )
 
         raise CustomException("ProgrammingError")

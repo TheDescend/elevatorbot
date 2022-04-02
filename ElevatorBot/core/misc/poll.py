@@ -14,10 +14,10 @@ from dis_snek import (
     SelectOption,
 )
 
-from ElevatorBot.backendNetworking.errors import BackendException
-from ElevatorBot.backendNetworking.misc.polls import BackendPolls
 from ElevatorBot.misc.discordShortcutFunctions import has_admin_permission
 from ElevatorBot.misc.formatting import embed_message, replace_progress_formatting
+from ElevatorBot.networking.errors import BackendException
+from ElevatorBot.networking.misc.polls import BackendPolls
 from Shared.functions.formatting import make_progress_bar_text
 from Shared.networkingSchemas.misc.polls import PollChoice, PollSchema
 
@@ -69,10 +69,10 @@ class Poll:
     async def from_pydantic_model(cls, client, data: PollSchema):
         """Create the obj from the PollSchema data"""
 
-        guild = client.get_guild(data.guild_id)
-        channel = await client.get_channel(data.channel_id)
-        author = await client.get_member(data.author_id, guild.id)
-        message = await channel.get_message(data.message_id)
+        guild = await client.fetch_guild(data.guild_id)
+        channel = await client.fetch_channel(data.channel_id)
+        author = await client.fetch_member(data.author_id, guild.id)
+        message = await channel.fetch_message(data.message_id)
 
         # make sure the choices match
         if len(message.embeds[0].fields) != len(data.choices):

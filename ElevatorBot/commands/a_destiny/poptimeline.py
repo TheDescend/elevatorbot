@@ -6,10 +6,10 @@ import matplotlib.pyplot as plt
 from dis_snek import File, InteractionContext, slash_command
 from pandas import DataFrame
 
-from ElevatorBot.backendNetworking.destiny.steamPlayers import SteamPlayers
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.cache import pop_timeline_cache
 from ElevatorBot.misc.formatting import embed_message
+from ElevatorBot.networking.destiny.steamPlayers import SteamPlayers
 from ElevatorBot.static.destinyDates import (
     other_important_dates_part_1,
     other_important_dates_part_2,
@@ -17,11 +17,13 @@ from ElevatorBot.static.destinyDates import (
     season_and_expansion_dates,
 )
 
+pop_timeline_lock = asyncio.Lock()
+
 
 class PopTimeline(BaseScale):
     @slash_command(name="pop_timeline", description="Shows you the Destiny 2 steam maximum population timeline")
     async def pop_timeline(self, ctx: InteractionContext):
-        async with asyncio.Lock():
+        async with pop_timeline_lock:
             embed = embed_message("Maximum Destiny 2 Steam Player Count")
 
             # do we have an url cached?
@@ -59,7 +61,7 @@ class PopTimeline(BaseScale):
                     date.start + datetime.timedelta(days=2),
                     (max(data_frame["number_of_players"]) - min(data_frame["number_of_players"])) * 1.02
                     + min(data_frame["number_of_players"]),
-                    date.name.replace("Season of ", ""),
+                    date.name.replace("Season of the ", "").replace("Season of ", ""),
                     color="darkgreen",
                     fontweight="bold",
                     bbox=dict(facecolor="white", edgecolor="darkgreen", pad=4, zorder=3),

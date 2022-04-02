@@ -2,7 +2,7 @@ import asyncio
 import dataclasses
 import logging
 import os
-import time
+from asyncio import Semaphore
 from datetime import timedelta
 from typing import Optional
 
@@ -12,45 +12,19 @@ import orjson
 from aiohttp import ClientTimeout
 from dis_snek import ComponentContext, InteractionContext, Member
 
-from ElevatorBot.backendNetworking.errors import BackendException
-from ElevatorBot.backendNetworking.results import BackendResult
-
-# the limiter object to not overload the backend
+from ElevatorBot.networking.errors import BackendException
+from ElevatorBot.networking.results import BackendResult
+from Shared.functions.ratelimiter import RateLimiter
 from Shared.functions.readSettingsFile import get_setting
 from Shared.networkingSchemas.base import CustomBaseModel
 
-
-class BackendRateLimiter:
-    RATE = 250
-    MAX_TOKENS = 10000
-
-    def __init__(self):
-        self.tokens = self.MAX_TOKENS
-        self.updated_at = time.monotonic()
-
-    async def wait_for_token(self):
-        """waits until a token becomes available"""
-        while self.tokens < 1:
-            self.add_new_tokens()
-            await asyncio.sleep(0.1)
-        assert self.tokens >= 1
-        self.tokens -= 1
-
-    def add_new_tokens(self):
-        """Adds a new token if eligible"""
-        now = time.monotonic()
-        time_since_update = now - self.updated_at
-        new_tokens = time_since_update * self.RATE
-        if self.tokens + new_tokens >= 1:
-            self.tokens = min(self.tokens + new_tokens, self.MAX_TOKENS)
-            self.updated_at = now
-
-
-backend_limiter = BackendRateLimiter()
+# the limiter object to not overload the backend
+backend_limiter = RateLimiter(rate=250, max_tokens=10000)
+backend_semaphore = asyncio.Semaphore(200)
 backend_cache = aiohttp_client_cache.RedisBackend(
     cache_name="elevator",
     address=f"""redis://{os.environ.get("REDIS_HOST")}:{os.environ.get("REDIS_PORT")}""",
-    allowed_methods=["GET", "POST"],
+    allowed_methods=["GET", "POST"] if not get_setting("ENABLE_DEBUG_MODE") else [],
     expire_after=0,  # only save selected stuff
     urls_expire_after={
         "**/destiny/account": timedelta(minutes=30),
@@ -113,8 +87,14 @@ class BaseBackendConnection:
     )
 
     # the rate limiter
-    limiter: BackendRateLimiter = dataclasses.field(
+    limiter: RateLimiter = dataclasses.field(
         default=backend_limiter,
+        init=False,
+        compare=False,
+        repr=False,
+    )
+    semaphore: Semaphore = dataclasses.field(
+        default=backend_semaphore,
         init=False,
         compare=False,
         repr=False,
@@ -164,9 +144,9 @@ class BaseBackendConnection:
                 data = orjson.dumps(data)
             data = orjson.loads(data)
 
-        async with asyncio.Lock():
-            await self.limiter.wait_for_token()
+        await self.limiter.wait_for_token()
 
+        async with self.semaphore:
             async with aiohttp_client_cache.CachedSession(
                 cache=self.cache, timeout=self.timeout, json_serialize=lambda x: orjson.dumps(x).decode()
             ) as session:

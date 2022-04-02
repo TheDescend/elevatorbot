@@ -19,7 +19,7 @@ async def registration(request: web.Request):
 
     # get discord object
     parameters = await request.json()
-    user: User = await client.get_user(parameters["discord_id"])
+    user: User = await client.fetch_user(parameters["discord_id"])
 
     # get emoji
     enter_emoji = custom_emojis.enter

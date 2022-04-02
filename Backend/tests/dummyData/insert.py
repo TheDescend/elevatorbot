@@ -13,6 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from Backend.core.destiny.activities import DestinyActivities
 from Backend.core.destiny.manifest import DestinyManifest
 from Backend.core.destiny.profile import DestinyProfile
+from Backend.core.errors import CustomException
 from Backend.crud import crud_activities, crud_activities_fail_to_get, destiny_manifest, discord_users
 from Backend.database.models import (
     DestinyActivityDefinition,
@@ -39,24 +40,47 @@ from Shared.networkingSchemas.misc.persistentMessages import (
 )
 
 
+class DummyClientResponse:
+    status = 200
+
+    @staticmethod
+    async def text():
+        return '<?xml version="1.0" encoding="utf-8" ?>\r\n<rss version="2.0" xmlns:media="http://search.yahoo.com/mrss/" xmlns:atom="http://www.w3.org/2005/Atom">\r\n\t<channel>\r\n\t\t<atom:icon>http://www.bungie.net/img/Bungie-Logo-PicLens-white.png</atom:icon>\r\n\t\t<title>Bungie.Net Content Feed</title>\r\n\t\t<link>http://www.bungie.net/en/rss/News?currentPage=1&amp;itemsPerPage=10&amp;category=All</link>\r\n\t\t<description>Data from the Bungie.Net News, Jobs, and other information</description>\r\n\t\t<language>en</language>\r\n\t\t<pubDate>Thu, 03 Mar 2022 10:40:02 GMT</pubDate>\r\n\t\t<docs>http://blogs.law.harvard.edu/tech/rss</docs>\r\n\t\t<generator>BlamDotNet RSS Generator</generator>\r\n\t\t<webMaster>webmaster@bungie.net (Bungie WebMaster)</webMaster>\r\n\t\t<atom:link rel="self" href="http://www.bungie.net:46000/en/rss/News"></atom:link>\r\n\t\t\t\t<atom:link rel="next" href="http://www.bungie.net/en/rss/News?currentPage=2&amp;itemsPerPage=10&amp;category=All"></atom:link>\r\n\t\t\t\t\t<item>\r\n\t\t\t\t<title>Community Focus - EpicDan22</title>\r\n\t\t\t\t<link>http://www.bungie.net/en/News/Article/51126</link>\r\n\t\t\t\t<pubDate>Fri, 25 Feb 2022 19:26:40 GMT</pubDate>\r\n\t\t\t\t<guid isPermaLink="false">BungieNet_ContentItem_51126</guid>\r\n\t\t\t\t<description></description>\r\n\t\t\t</item>\r\n\t</channel>\r\n</rss>'
+
+    def release(self):
+        pass
+
+
 async def mock_request(
     self,
     method: str,
-    route: str,
+    route: str = None,
+    str_or_url: str = None,
     params=None,
     *args,
     **kwargs,
-) -> WebResponse:
+) -> WebResponse | DummyClientResponse:
+    if str_or_url:
+        route = str_or_url
+
     if params is None:
         params = {}
     param_route = f"{route}?{urlencode(params)}"
+
+    # handle elevator calls
+    if param_route.startswith("http://None:None") or param_route.startswith("http://elevator:8080"):
+        raise CustomException
+
+    # handle rss feed checker calls, since they return xml
+    if param_route == "https://www.bungie.net/en/rss/News?":
+        return DummyClientResponse()
 
     with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), "data.json"), "r", encoding="utf-8") as file:
         dummy_data: dict = json_lib.load(file)
 
         # capture the required route when this fails
         try:
-            return WebResponse(0, 200, dummy_data[param_route], True, True)
+            return WebResponse(get_now_with_tz(), 200, dummy_data[param_route], True)
         except KeyError as e:
             print("Tried to call this route, but it doesnt exist in the dummy data:")
             print(route)
@@ -67,7 +91,7 @@ async def mock_elevator_post(self, *args, **kwargs):
     return True
 
 
-@unittest.mock.patch("Backend.networking.base.NetworkBase._request", mock_request)
+@unittest.mock.patch("Backend.networking.http.NetworkBase._request", mock_request)
 @unittest.mock.patch("Backend.networking.elevatorApi.ElevatorApi.post", mock_elevator_post)
 async def insert_dummy_data(db: AsyncSession, client: AsyncClient):
     # create our registered destiny user
@@ -83,8 +107,10 @@ async def insert_dummy_data(db: AsyncSession, client: AsyncClient):
     result, user, discord_id, guild_id = await discord_users.insert_profile(db=db, bungie_token=token_data)
     assert result.bungie_name == dummy_bungie_name
     assert user.destiny_id == dummy_destiny_id
+    assert result.system == "PYTEST"
     assert discord_id == dummy_discord_id
     assert guild_id == dummy_discord_guild_id
+    assert result.user_should_set_up_cross_save is False
 
     # create our registered destiny user without perms
     user_without_perms = DiscordUsers(

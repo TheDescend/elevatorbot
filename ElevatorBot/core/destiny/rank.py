@@ -4,15 +4,16 @@ from typing import Optional
 from anyio import create_task_group
 from dis_snek import InteractionContext, Member, TimestampStyles
 
-from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
-from ElevatorBot.backendNetworking.destiny.activities import DestinyActivities
-from ElevatorBot.backendNetworking.destiny.clan import DestinyClan
-from ElevatorBot.backendNetworking.destiny.profile import DestinyProfile
-from ElevatorBot.backendNetworking.destiny.roles import DestinyRoles
-from ElevatorBot.backendNetworking.destiny.weapons import DestinyWeapons
 from ElevatorBot.commandHelpers.autocomplete import activities, activities_grandmaster, weapons
 from ElevatorBot.misc.formatting import embed_message, format_timedelta, get_emoji_from_rank
 from ElevatorBot.misc.helperFunctions import get_emoji_by_name
+from ElevatorBot.networking.destiny.account import DestinyAccount
+from ElevatorBot.networking.destiny.activities import DestinyActivities
+from ElevatorBot.networking.destiny.clan import DestinyClan
+from ElevatorBot.networking.destiny.profile import DestinyProfile
+from ElevatorBot.networking.destiny.roles import DestinyRoles
+from ElevatorBot.networking.destiny.weapons import DestinyWeapons
+from ElevatorBot.networking.errors import BackendException
 from ElevatorBot.static.destinyActivities import raid_to_emblem_hash
 from ElevatorBot.static.emojis import custom_emojis
 from Shared.enums.destiny import (
@@ -127,7 +128,7 @@ class RankCommandHandler:
 
             # remove the clan members without a discord id
             clan_discord_members: list[Optional[Member]] = [
-                await ctx.guild.get_member(clan_member.discord_id)
+                await ctx.guild.fetch_member(clan_member.discord_id)
                 for clan_member in clan_members.members
                 if clan_member.discord_id
             ]
@@ -141,7 +142,7 @@ class RankCommandHandler:
             # get all server members with a registration
             discord_members = [
                 server_member
-                for server_member in ctx.guild.members
+                for server_member in ctx.guild.humans
                 if await DestinyProfile(ctx=None, discord_member=server_member, discord_guild=ctx.guild).is_registered()
             ]
 
@@ -200,6 +201,7 @@ class RankCommandHandler:
 
             elif not found:
                 if result.discord_member == member:
+                    found = True
                     description.append("...")
                     description.append(
                         f"{emoji} {result.discord_member.mention}\n{custom_emojis.enter} {result.display_text}"
@@ -210,7 +212,7 @@ class RankCommandHandler:
                 break
 
         if not found:
-            description.append(f"{member.discord_member.mention} does not have this stat.")
+            description.append(f"{result.discord_member.mention} does not have this stat.")
 
         embed.description = "\n".join(description)
         await ctx.send(embeds=embed)
@@ -604,9 +606,12 @@ class RankCommandHandler:
 
             case "weapon_kills":
                 # get the stat
-                stat = await backend_weapons.get_weapon(
-                    input_data=DestinyWeaponStatsInputModel(weapon_ids=weapon.reference_ids)
-                )
+                try:
+                    stat = await backend_weapons.get_weapon(
+                        input_data=DestinyWeaponStatsInputModel(weapon_ids=weapon.reference_ids)
+                    )
+                except BackendException:
+                    stat = 0
 
                 # save the stat
                 percent = (stat.total_precision_kills / stat.total_kills) * 100 if stat.total_kills else 0
@@ -615,9 +620,12 @@ class RankCommandHandler:
 
             case "weapon_precision_kills":
                 # get the stat
-                stat = await backend_weapons.get_weapon(
-                    input_data=DestinyWeaponStatsInputModel(weapon_ids=weapon.reference_ids)
-                )
+                try:
+                    stat = await backend_weapons.get_weapon(
+                        input_data=DestinyWeaponStatsInputModel(weapon_ids=weapon.reference_ids)
+                    )
+                except BackendException:
+                    stat = 0
 
                 # save the stat
                 result.sort_value = stat.total_precision_kills
@@ -625,9 +633,12 @@ class RankCommandHandler:
 
             case "weapon_precision_kills_percent":
                 # get the stat
-                stat = await backend_weapons.get_weapon(
-                    input_data=DestinyWeaponStatsInputModel(weapon_ids=weapon.reference_ids)
-                )
+                try:
+                    stat = await backend_weapons.get_weapon(
+                        input_data=DestinyWeaponStatsInputModel(weapon_ids=weapon.reference_ids)
+                    )
+                except BackendException:
+                    stat = 0
 
                 # save the stat
                 percent = (stat.total_precision_kills / stat.total_kills) * 100 if stat.total_kills else 0

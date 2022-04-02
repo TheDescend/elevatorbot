@@ -32,12 +32,12 @@ from dis_snek import (
 from dis_snek.client.errors import Forbidden, NotFound
 from ics import Calendar, Event
 
-from ElevatorBot.backendNetworking.destiny.lfgSystem import DestinyLfgSystem
-from ElevatorBot.backendNetworking.errors import BackendException
 from ElevatorBot.commandHelpers.autocomplete import activities
 from ElevatorBot.core.destiny.lfg.scheduledEvents import delete_lfg_scheduled_events
 from ElevatorBot.discordEvents.base import ElevatorSnake
 from ElevatorBot.misc.formatting import embed_message, replace_progress_formatting
+from ElevatorBot.networking.destiny.lfgSystem import DestinyLfgSystem
+from ElevatorBot.networking.errors import BackendException
 from ElevatorBot.static.emojis import custom_emojis
 from Shared.functions.formatting import make_progress_bar_text
 from Shared.functions.helperFunctions import get_now_with_tz
@@ -45,6 +45,7 @@ from Shared.functions.readSettingsFile import get_setting
 from Shared.networkingSchemas.destiny.lfgSystem import LfgCreateInputModel, LfgOutputModel, LfgUpdateInputModel
 
 asap_start_time = datetime.datetime(year=1997, month=6, day=11, tzinfo=datetime.timezone.utc)
+sort_lfg_messages_lock = asyncio.Lock()
 
 
 @dataclasses.dataclass()
@@ -113,12 +114,12 @@ class LfgMessage:
         """Parse the info from the pydantic model"""
 
         if not guild:
-            guild = client.get_guild(model.guild_id)
+            guild = await client.fetch_guild(model.guild_id)
             if not guild:
                 raise ValueError
 
         # fill class info
-        channel: GuildText = await client.get_channel(model.channel_id)
+        channel: GuildText = await client.fetch_channel(model.channel_id)
         start_time: datetime.datetime = model.start_time
 
         # delete if in the past
@@ -127,11 +128,8 @@ class LfgMessage:
             return
 
         # make sure the message exists
-        try:
-            if not model.message_id:
-                raise NotFound
-            message = await channel.get_message(model.message_id)
-        except NotFound:
+        message = await channel.fetch_message(model.message_id) if model.message_id else None
+        if not message:
             await backend.delete(discord_member_id=model.author_id, lfg_id=model.id)
             return
 
@@ -150,8 +148,8 @@ class LfgMessage:
             creation_time=model.creation_time,
             joined_ids=model.joined_members,
             backup_ids=model.backup_members,
-            voice_channel=await client.get_channel(model.voice_channel_id) if model.voice_channel_id else None,
-            voice_category_channel=await client.get_channel(model.voice_category_channel_id)
+            voice_channel=await client.fetch_channel(model.voice_channel_id) if model.voice_channel_id else None,
+            voice_category_channel=await client.fetch_channel(model.voice_category_channel_id)
             if model.voice_category_channel_id
             else None,
             started=model.started,
@@ -245,13 +243,13 @@ class LfgMessage:
             client=ctx.bot,
             id=result.id,
             guild=ctx.guild,
-            channel=await ctx.bot.get_channel(result.channel_id),
+            channel=await ctx.bot.fetch_channel(result.channel_id),
             author_id=ctx.author.id,
             activity=activity,
             description=description,
             start_time=start_time,
             max_joined_members=max_joined_members,
-            voice_category_channel=await ctx.bot.get_channel(result.voice_category_channel_id)
+            voice_category_channel=await ctx.bot.fetch_channel(result.voice_category_channel_id)
             if result.voice_category_channel_id
             else None,
             joined_ids=[ctx.author.id],
@@ -280,7 +278,7 @@ class LfgMessage:
                 # check if the post is full and the event is supposed to start asap
                 if self.start_time == "asap" and len(self.joined_ids) >= self.max_joined_members:
                     self.start_time = datetime.datetime.now(tz=datetime.timezone.utc)
-                    await self.__notify_about_start(datetime.timedelta(minutes=10))
+                    await self.__notify_about_start()
 
             else:
                 if member.id not in self.backup_ids:
@@ -336,7 +334,7 @@ class LfgMessage:
                 await ctx.send(
                     embeds=embed_message(
                         "Success",
-                        f"I've created the event (ID: `{self.message.id}`) \nClick [here]({self.message.jump_url}) to view the event",
+                        f"I've created the event (ID: `{self.id}`) \nClick [here]({self.message.jump_url}) to view the event",
                     )
                 )
 
@@ -400,7 +398,7 @@ class LfgMessage:
 
         for user_id in self.joined_ids + self.backup_ids:
             try:
-                user = await self.guild.get_member(user_id)
+                user = await self.guild.fetch_member(user_id)
                 if user:
                     await user.send(embed=embed)
             except Forbidden:
@@ -493,7 +491,7 @@ class LfgMessage:
             if missing > 0:
                 for user_id in self.backup_ids:
                     try:
-                        user = await self.guild.get_member(user_id)
+                        user = await self.guild.fetch_member(user_id)
                         if user:
                             await user.send(embed=embed)
                     except Forbidden:
@@ -502,7 +500,7 @@ class LfgMessage:
         # dm the users
         for user_id in self.joined_ids:
             try:
-                user = await self.guild.get_member(user_id)
+                user = await self.guild.fetch_member(user_id)
                 if user:
                     await user.send(embed=embed)
             except Forbidden:
@@ -526,7 +524,7 @@ class LfgMessage:
     async def __sort_lfg_messages(self):
         """Sort all the lfg messages in the guild by start_time"""
 
-        async with asyncio.Lock():
+        async with sort_lfg_messages_lock:
             # get all lfg ids
             result = await self.backend.get_all()
             events = result.events
@@ -545,7 +543,7 @@ class LfgMessage:
                 if event.started:
                     continue
 
-                message = await self.channel.get_message(event.message_id)
+                message = await self.channel.fetch_message(event.message_id)
                 sorted_messages_by_creation_time.append(message)
                 lfg_messages.append(
                     LfgMessage(
@@ -563,10 +561,10 @@ class LfgMessage:
                         creation_time=event.creation_time,
                         joined_ids=event.joined_members,
                         backup_ids=event.backup_members,
-                        voice_channel=await self.client.get_channel(event.voice_channel_id)
+                        voice_channel=await self.client.fetch_channel(event.voice_channel_id)
                         if event.voice_channel_id
                         else None,
-                        voice_category_channel=await self.client.get_channel(event.voice_category_channel_id)
+                        voice_category_channel=await self.client.fetch_channel(event.voice_category_channel_id)
                         if event.voice_category_channel_id
                         else None,
                         started=event.started,
@@ -589,7 +587,7 @@ class LfgMessage:
 
         mentions = []
         for member_id in self.joined_ids:
-            member = await self.guild.get_member(member_id)
+            member = await self.guild.fetch_member(member_id)
             mentions.append(member.mention if member else f"`{member_id}`")
         return mentions
 
@@ -598,7 +596,7 @@ class LfgMessage:
 
         mentions = []
         for member_id in self.backup_ids:
-            member = await self.guild.get_member(member_id)
+            member = await self.guild.fetch_member(member_id)
             mentions.append(member.mention if member else f"`{member_id}`")
         return mentions
 
@@ -649,7 +647,7 @@ class LfgMessage:
         data = io.StringIO(str(calendar))
 
         # send this in the spam channel in one of the test servers
-        spam_server: GuildText = await self.client.get_channel(get_setting("DESCEND_SPAM_CHANNEL_ID"))
+        spam_server: GuildText = await self.client.fetch_channel(get_setting("DESCEND_SPAM_CHANNEL_ID"))
         file_message = await spam_server.send(file=File(file=data, file_name=f"lfg_event_{self.id}.ics"))
 
         return file_message.attachments[0].url
@@ -657,7 +655,7 @@ class LfgMessage:
     async def __return_embed(self) -> Embed:
         """Return the formatted embed"""
 
-        author = await self.guild.get_member(self.author_id)
+        author = await self.guild.fetch_member(self.author_id)
         embed = embed_message(
             footer=f"Creator: {author.display_name if author else self.author_id}",
         )

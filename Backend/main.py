@@ -12,8 +12,8 @@ from Backend.crud import backend_user
 from Backend.database.base import get_async_sessionmaker, setup_engine
 from Backend.database.models import BackendUser, create_tables
 from Backend.dependencies import auth_get_user_with_read_perm, auth_get_user_with_write_perm
-from Backend.misc.initBackgroundEvents import register_background_events
-from Backend.misc.initLogging import init_logging
+from Backend.startup.initBackgroundEvents import register_background_events
+from Backend.startup.initLogging import init_logging
 from Shared.functions.readSettingsFile import get_setting
 from Shared.networkingSchemas.misc.auth import BackendUserModel
 
@@ -31,6 +31,12 @@ try:
     uvloop.install()
 except ModuleNotFoundError:
     print("Uvloop not installed, skipping")
+
+
+# healthcheck to see if this is running fine
+@app.get("/health_check")
+async def health_check():
+    return {"status": "alive"}
 
 
 # only allow people with read permissions
@@ -64,11 +70,13 @@ async def log_requests(request: Request, call_next):
         raise error
 
     else:
-        process_time = round(time.time() - start_time, 2)
+        # do not log health check spam
+        if "health_check" not in request.url.path:
+            process_time = round(time.time() - start_time, 2)
 
-        # log that
-        logger = logging.getLogger("requests")
-        logger.info(f"'{request.method}' completed in '{process_time}' seconds for '{request.url}'")
+            # log that
+            logger = logging.getLogger("requests")
+            logger.info(f"'{request.method}' completed in '{process_time}' seconds for '{request.url}'")
 
         return response
 
@@ -106,10 +114,6 @@ app.add_exception_handler(CustomException, handle_custom_exception)
 
 @app.on_event("startup")
 async def startup():
-    # insert db tables
-    print("Creating Database Tables...")
-    await create_tables(engine=setup_engine())
-
     # create the admin user for the website
     print("Setting Up Admin Account...")
     async with get_async_sessionmaker().begin() as db:

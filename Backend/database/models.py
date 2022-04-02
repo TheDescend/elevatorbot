@@ -128,7 +128,6 @@ class Records(Base):
 
     destiny_id = Column(BigInteger, nullable=False, primary_key=True)
     record_id = Column(BigInteger, nullable=False, primary_key=True)
-    completed = Column(Boolean, nullable=False)
 
 
 class Collectibles(Base):
@@ -136,7 +135,6 @@ class Collectibles(Base):
 
     destiny_id = Column(BigInteger, nullable=False, primary_key=True)
     collectible_id = Column(BigInteger, nullable=False, primary_key=True)
-    owned = Column(Boolean, nullable=False)
 
 
 ################################################################
@@ -429,11 +427,13 @@ class Giveaway(Base):
 # insert all tables
 _TABLES_CREATED = False
 
+create_tables_lock = asyncio.Lock()
+
 
 async def create_tables(engine: Engine):
     global _TABLES_CREATED
 
-    async with asyncio.Lock():
+    async with create_tables_lock:
         if not _TABLES_CREATED:
             async with engine.begin() as connection:
                 if is_test_mode():

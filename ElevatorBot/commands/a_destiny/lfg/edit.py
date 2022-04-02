@@ -71,7 +71,9 @@ class LfgEdit(BaseScale):
 
         if start_time:
             if start_time.lower() != "asap":
-                start_time = await parse_string_datetime(ctx=ctx, time=start_time, timezone=timezone)
+                start_time = await parse_string_datetime(
+                    ctx=ctx, time=start_time, timezone=timezone, can_start_in_past=False
+                )
                 if not start_time:
                     return
 

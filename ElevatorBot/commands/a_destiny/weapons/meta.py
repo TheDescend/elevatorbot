@@ -4,8 +4,6 @@ from typing import Optional
 from anyio import create_task_group, to_thread
 from dis_snek import Embed, Guild, InteractionContext, Timestamp, TimestampStyles, slash_command
 
-from ElevatorBot.backendNetworking.destiny.clan import DestinyClan
-from ElevatorBot.backendNetworking.destiny.weapons import DestinyWeapons
 from ElevatorBot.commandHelpers.autocomplete import activities, autocomplete_send_activity_name
 from ElevatorBot.commandHelpers.optionTemplates import (
     autocomplete_activity_option,
@@ -21,6 +19,8 @@ from ElevatorBot.commandHelpers.subCommandTemplates import weapons_sub_command
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formatting import capitalize_string, embed_message
 from ElevatorBot.misc.helperFunctions import parse_datetime_options
+from ElevatorBot.networking.destiny.clan import DestinyClan
+from ElevatorBot.networking.destiny.weapons import DestinyWeapons
 from ElevatorBot.static.emojis import custom_emojis
 from Shared.enums.destiny import DestinyWeaponTypeEnum, UsableDestinyActivityModeTypeEnum, UsableDestinyDamageTypeEnum
 from Shared.networkingSchemas.destiny import (
@@ -35,9 +35,8 @@ from Shared.networkingSchemas.destiny.clan import DestinyClanModel
 
 class WeaponsMeta(BaseScale):
     @slash_command(
-        **weapons_sub_command,
-        sub_cmd_name="meta",
-        sub_cmd_description="Displays the most used Destiny 2 weapons by clan members from the linked clan",
+        name="weapons_meta",
+        description="Displays the most used Destiny 2 weapons by clan members from the linked clan",
     )
     @default_mode_option()
     @autocomplete_activity_option()
@@ -93,6 +92,7 @@ class WeaponsMeta(BaseScale):
             for clan_member in clan_members.members:
                 tg.start_soon(
                     self.handle_clan_member,
+                    ctx,
                     results,
                     stat,
                     clan_member.discord_id,
@@ -124,6 +124,7 @@ class WeaponsMeta(BaseScale):
 
     @staticmethod
     async def handle_clan_member(
+        ctx: InteractionContext,
         results: list,
         stat: DestinyTopWeaponsStatInputModelEnum,
         discord_id: int,
@@ -139,7 +140,7 @@ class WeaponsMeta(BaseScale):
         """Gather all clan members. Return None if something fails"""
 
         # get the top weapons for the user
-        backend_weapons = DestinyWeapons(ctx=None, discord_member=None, discord_guild=guild)
+        backend_weapons = DestinyWeapons(ctx=ctx, discord_member=None, discord_guild=guild)
         result = await backend_weapons.get_top(
             discord_id=discord_id,
             input_data=DestinyTopWeaponsInputModel(

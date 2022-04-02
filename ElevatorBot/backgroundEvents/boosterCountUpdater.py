@@ -1,7 +1,7 @@
-from ElevatorBot.backendNetworking.errors import BackendException
 from ElevatorBot.backgroundEvents.base import BaseEvent
 from ElevatorBot.discordEvents.base import ElevatorSnake
 from ElevatorBot.misc.cache import descend_cache
+from ElevatorBot.networking.errors import BackendException
 from ElevatorBot.static.descendOnlyIds import descend_channels
 
 

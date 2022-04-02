@@ -4,16 +4,16 @@ from anyio import to_thread
 from dis_snek import ComponentContext
 from github.GithubObject import NotSet
 
-from ElevatorBot.backendNetworking.destiny.clan import DestinyClan
-from ElevatorBot.backendNetworking.errors import BackendException
-from ElevatorBot.backendNetworking.github import get_github_repo
-from ElevatorBot.backendNetworking.misc.giveaway import BackendGiveaway
-from ElevatorBot.backendNetworking.misc.polls import BackendPolls
 from ElevatorBot.commands.a_destiny.registration.register import send_registration
 from ElevatorBot.core.destiny.lfg.lfgSystem import LfgMessage
 from ElevatorBot.core.misc.poll import Poll
 from ElevatorBot.misc.discordShortcutFunctions import assign_roles_to_member, remove_roles_from_member
 from ElevatorBot.misc.formatting import embed_message
+from ElevatorBot.networking.destiny.clan import DestinyClan
+from ElevatorBot.networking.errors import BackendException
+from ElevatorBot.networking.github import get_github_repo
+from ElevatorBot.networking.misc.giveaway import BackendGiveaway
+from ElevatorBot.networking.misc.polls import BackendPolls
 from ElevatorBot.static.descendOnlyIds import descend_channels
 from ElevatorBot.static.emojis import custom_emojis
 

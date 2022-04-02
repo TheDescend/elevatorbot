@@ -10,7 +10,9 @@ class CRUDCollectibles(CRUDBase):
     async def has_collectible(self, db: AsyncSession, destiny_id: int, collectible_hash: int) -> bool:
         """Return if the collectible is gotten (in the db)"""
 
-        result: Optional[Collectibles] = await self._get_with_key(db, (destiny_id, collectible_hash))
+        result: Optional[Collectibles] = await self.get_collectible(
+            db=db, destiny_id=destiny_id, collectible_hash=collectible_hash
+        )
 
         # check if exists in db
         if not result:
@@ -22,11 +24,6 @@ class CRUDCollectibles(CRUDBase):
         """Return the db entry if exists"""
 
         return await self._get_with_key(db, (destiny_id, collectible_hash))
-
-    async def update_collectible(self, db: AsyncSession, obj: Collectibles, owned: bool):
-        """Update the collectible entry in the db"""
-
-        await self._update(db, obj, owned=owned)
 
     async def insert_collectibles(self, db: AsyncSession, objs: list[Collectibles]):
         """Insert the collectible entries in the db"""

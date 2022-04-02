@@ -12,6 +12,8 @@ from Backend.database.base import Base, get_async_sessionmaker
 
 ModelType = TypeVar("ModelType", bound=Base)
 
+upsert_lock = asyncio.Lock()
+
 
 class CRUDBase:
     def __init__(self, model: Type[ModelType]):
@@ -64,7 +66,7 @@ class CRUDBase:
     async def _upsert(self, db: AsyncSession, model_data: dict) -> ModelType:
         """Upsert the item. Doesn't work with foreign keys"""
 
-        async with asyncio.Lock():
+        async with upsert_lock:
             # prepare insert
             stmt = postgresql.insert(self.model).values(model_data)
 
@@ -94,7 +96,7 @@ class CRUDBase:
 
     @staticmethod
     async def _update(db: AsyncSession, to_update: ModelType, **update_kwargs) -> ModelType:
-        """Update a initiated ModelType in the database"""
+        """Updates an initiated ModelType in the database"""
 
         for key, value in update_kwargs.items():
             setattr(to_update, key, value)

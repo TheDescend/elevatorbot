@@ -1,3 +1,4 @@
+import copy
 from typing import Optional
 
 from sqlalchemy import select
@@ -27,7 +28,7 @@ class CRUDDestinyItems(CRUDBase):
 
         # check cache
         if item_id not in cache.items:
-            cache.items.update({item_id: await self._get_with_key(db=db, primary_key=item_id)})
+            cache.items.update({item_id: copy.copy(await self._get_with_key(db=db, primary_key=item_id))})
 
         return cache.items[item_id]
 
@@ -68,7 +69,7 @@ class CRUDDestinyItems(CRUDBase):
             query = query.filter(DestinyRecordDefinition.name.like("% Catalyst"))
 
             results = await self._execute_query(db=db, query=query)
-            cache.catalysts = results.scalars().all()
+            cache.catalysts = copy.copy(results.scalars().all())
 
         return cache.catalysts
 
@@ -85,13 +86,13 @@ class CRUDDestinyItems(CRUDBase):
             )
 
             results = await self._execute_query(db=db, query=query)
-            seals: list[DestinyPresentationNodeDefinition] = results.scalars().all()
+            seals: list[DestinyPresentationNodeDefinition] = copy.copy(results.scalars().all())
 
             # now loop through all the seals and get the record infos
             for seal in seals:
                 records = []
                 for record in seal.children_record_hash:
-                    records.append(await self.get_record(db=db, record_id=record))
+                    records.append(copy.copy(await self.get_record(db=db, record_id=record)))
 
                 cache.seals.update({seal: records})
 

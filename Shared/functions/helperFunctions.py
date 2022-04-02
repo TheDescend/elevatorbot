@@ -19,3 +19,10 @@ def localize_datetime(obj: datetime.datetime) -> datetime.datetime:
     """Returns a timezone aware object, localized to the system timezone"""
 
     return obj.astimezone()
+
+
+def split_list(to_split: list, n: int):
+    """Yield successive n-sized chunks from list l"""
+
+    for i in range(0, len(to_split), n):
+        yield to_split[i : i + n]

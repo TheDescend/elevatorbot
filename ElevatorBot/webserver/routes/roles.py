@@ -1,6 +1,11 @@
 from aiohttp import web
+from dis_snek.api.events import GuildLeft
+from dis_snek.client.errors import Forbidden
 
+from ElevatorBot.discordEvents.guildEvents import on_guild_left
 from ElevatorBot.misc.discordShortcutFunctions import assign_roles_to_member, remove_roles_from_member
+from ElevatorBot.networking.errors import BackendException
+from ElevatorBot.networking.misc.elevatorInfo import ElevatorGuilds
 
 
 async def roles(request: web.Request):
@@ -22,20 +27,23 @@ async def roles(request: web.Request):
     client = request.app["client"]
     parameters = await request.json()
 
-    # get mutual guilds
-    mutual_guild_ids = [
-        guild.id for guild in (await client.get_user(parameters["data"][0]["discord_id"])).mutual_guilds
-    ]
-
     # loop through the guilds where roles need to be assigned
     for data in parameters["data"]:
-        if data["guild_id"] in mutual_guild_ids:
-            guild = client.get_guild(data["guild_id"])
-            member = await guild.get_member(data["discord_id"])
+        # make sure both the guild and the member can be not found anymore
+        try:
+            if not (guild := await client.fetch_guild(data["guild_id"])):
+                await on_guild_left(GuildLeft(guild_id=data["guild_id"]))
+                continue
 
-            if data["to_assign_role_ids"]:
-                await assign_roles_to_member(member, *data["to_assign_role_ids"])
-            if data["to_remove_role_ids"]:
-                await remove_roles_from_member(member, *data["to_remove_role_ids"])
+        except Forbidden:
+            continue
+
+        if not (member := await guild.fetch_member(data["discord_id"])):
+            continue
+
+        if data["to_assign_role_ids"]:
+            await assign_roles_to_member(member, *data["to_assign_role_ids"])
+        if data["to_remove_role_ids"]:
+            await remove_roles_from_member(member, *data["to_remove_role_ids"])
 
     return web.json_response({"success": True})

@@ -45,3 +45,4 @@ bungie_networking_cache.sqlite
 config.py
 slashCommandConfig.py
 Website/config.py
+**/ffmpeg.exe

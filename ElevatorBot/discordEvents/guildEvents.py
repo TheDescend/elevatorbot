@@ -11,13 +11,13 @@ from dis_snek.api.events import (
     ThreadUpdate,
 )
 
-from ElevatorBot.backendNetworking.destiny.lfgSystem import DestinyLfgSystem
-from ElevatorBot.backendNetworking.destiny.roles import DestinyRoles
-from ElevatorBot.backendNetworking.errors import BackendException
-from ElevatorBot.backendNetworking.misc.elevatorInfo import ElevatorGuilds
-from ElevatorBot.backendNetworking.misc.polls import BackendPolls
 from ElevatorBot.core.misc.persistentMessages import PersistentMessages
 from ElevatorBot.misc.cache import reply_cache
+from ElevatorBot.networking.destiny.lfgSystem import DestinyLfgSystem
+from ElevatorBot.networking.destiny.roles import DestinyRoles
+from ElevatorBot.networking.errors import BackendException
+from ElevatorBot.networking.misc.elevatorInfo import ElevatorGuilds
+from ElevatorBot.networking.misc.polls import BackendPolls
 from ElevatorBot.static.descendOnlyIds import descend_channels
 
 
@@ -69,7 +69,7 @@ async def on_guild_left(event: GuildLeft):
     """Triggers when ElevatorBot gets removed from a guild"""
 
     # remove guild from the list of all guilds, needed for website info
-    elevator_guilds = ElevatorGuilds(ctx=None, discord_guild=event.guild)
+    elevator_guilds = ElevatorGuilds(ctx=None, discord_guild=None)
     try:
         await elevator_guilds.delete(guild_id=event.guild_id)
     except BackendException:
@@ -138,7 +138,7 @@ async def on_thread_delete(event: ThreadDelete):
 
     if event.thread.guild == descend_channels.guild:
         # remove the reply thread cache data
-        if event.thread in reply_cache.thread_to_user:
-            user_id = reply_cache.thread_to_user[event.thread]
-            reply_cache.thread_to_user.pop(event.thread)
+        if event.thread.id in reply_cache.thread_to_user:
+            user_id = reply_cache.thread_to_user[event.thread.id]
+            reply_cache.thread_to_user.pop(event.thread.id)
             reply_cache.user_to_thread.pop(user_id)

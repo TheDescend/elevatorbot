@@ -2,8 +2,8 @@ import dataclasses
 
 from dis_snek import Guild, Member
 
-from ElevatorBot.backendNetworking.http import BaseBackendConnection
-from ElevatorBot.backendNetworking.routes import (
+from ElevatorBot.networking.http import BaseBackendConnection
+from ElevatorBot.networking.routes import (
     destiny_clan_get_members_no_cache_route,
     destiny_clan_get_members_route,
     destiny_clan_get_route,

@@ -1,10 +1,24 @@
+import asyncio
+import datetime
+import os
+import pathlib
 import random
+import re
 
-from dis_snek import AutoArchiveDuration, ChannelTypes, ThreadList
+import aiohttp
+import github
+import gtts
+from dateparser.search import search_dates
+from dis_snek import AutoArchiveDuration, ChannelTypes, ThreadChannel, ThreadList, Timestamp, TimestampStyles
 from dis_snek.api.events import MessageCreate, MessageDelete, MessageUpdate
+from dis_snek.api.voice.audio import AudioVolume, YTDLAudio
 
+from ElevatorBot.core.misc.aprilFools import play_joke
+from ElevatorBot.core.misc.github import github_manager
+from ElevatorBot.core.misc.timestamps import get_timestamp_embed
 from ElevatorBot.misc.cache import reply_cache
 from ElevatorBot.misc.formatting import embed_message
+from ElevatorBot.networking.github import get_github_repo
 from ElevatorBot.static.descendOnlyIds import descend_channels
 from ElevatorBot.static.emojis import custom_emojis
 from Shared.functions.readSettingsFile import get_setting
@@ -30,7 +44,7 @@ async def on_message_delete(event: MessageDelete):
 async def on_message_update(event: MessageUpdate):
     """Triggers when a message gets edited"""
 
-    if event.before != event.after:
+    if event.before != event.after and event.after:
         # run the message create checks
         await on_message_create(event=MessageCreate(bot=event.bot, message=event.after), edit_mode=True)
 
@@ -44,40 +58,49 @@ async def on_message_create(event: MessageCreate, edit_mode: bool = False):
     if not message.author.bot:
         # =========================================================================
         # handle thread messages
-        if message.thread:
-            thread = message.thread
+        if isinstance(message.channel, ThreadChannel):
+            thread = message.channel
 
             # only do this for descend
             if message.guild == descend_channels.guild:
-                send = False
+                # check that the message starts with a @ElevatorBot mention and remove that
+                # noinspection PyProtectedMember
+                if event.bot.user.id in message._mention_ids:
+                    # remove the mention with a regex
+                    content = re.sub(f"<@!*&*{event.bot.user.id}+>", "", message.content, 1).strip()
 
-                # check if message is in cache
-                if thread in reply_cache.thread_to_user:
-                    send = True
+                    send = False
 
-                # look if it follows the naming scheme and is in the correct channel
-                elif thread.channel.id in [
-                    descend_channels.admin_channel.id,
-                    descend_channels.bot_dev_channel.id,
-                ] and thread.name.startswith("Message from"):
-                    linked_user_id = thread.name.split("|")[1]
-                    linked_user = await event.bot.get_user(linked_user_id)
-
-                    if linked_user:
-                        # save in cache
-                        reply_cache.user_to_thread.update({linked_user.id: thread})
-                        reply_cache.thread_to_user.update({thread: linked_user.id})
-
+                    # check if message is in cache
+                    if thread.id in reply_cache.thread_to_user:
                         send = True
 
-                if send:
-                    # check that the message starts with a @ElevatorBot mention and remove that
-                    content = message.content
-                    if content.startswith(event.bot.user.mention):
-                        content.removeprefix(event.bot.user.mention)
+                    # look if it follows the naming scheme and is in the correct channel
+                    elif thread.parent_channel.id in [
+                        descend_channels.admin_channel.id,
+                        descend_channels.bot_dev_channel.id,
+                    ] and thread.name.startswith("Message from"):
+                        linked_user_id = thread.name.split("|")[1].strip()
+                        linked_user = await event.bot.fetch_user(linked_user_id)
 
+                        if linked_user:
+                            # save in cache
+                            reply_cache.user_to_thread.update({linked_user.id: thread})
+                            reply_cache.thread_to_user.update({thread.id: linked_user.id})
+
+                            send = True
+
+                    if send:
                         # alright, lets send that to the linked member
-                        linked_user = await event.bot.get_user(reply_cache.thread_to_user[thread])
+                        linked_user = await event.bot.fetch_user(reply_cache.thread_to_user[thread.id])
+
+                        # add the urls to the message
+                        attached_files = [attachment.url for attachment in message.attachments]
+                        if attached_files:
+                            attached_files.insert(0, "⁣\n__**Attachments**__")
+                            if message.content:
+                                attached_files.insert(0, content)
+                            content = "\n".join(attached_files)
 
                         # send the message
                         if not edit_mode:
@@ -97,10 +120,6 @@ async def on_message_create(event: MessageCreate, edit_mode: bool = False):
                                 user_message = await linked_user.send(content=content)
                                 reply_cache.thread_message_id_to_user_message.update({message.id: user_message})
 
-                        # also send images
-                        for url in [attachment.url for attachment in message.attachments]:
-                            await linked_user.send(content=url)
-
                         # react to the message to signal the OK
                         await message.add_reaction(custom_emojis.descend_logo)
 
@@ -111,13 +130,13 @@ async def on_message_create(event: MessageCreate, edit_mode: bool = False):
             mutual_guilds = message.author.mutual_guilds
             if mutual_guilds:
                 # check is author is in descend. Checking COMMAND_GUILD_SCOPE for that, since that already has the id and doesn't break testing
-                allowed_guilds = [event.bot.get_guild(guild_id) for guild_id in get_setting("COMMAND_GUILD_SCOPE")]
-                mutual_allowed_guilds = [g for g in allowed_guilds if g.id in mutual_guilds]
+                allowed_guilds = [
+                    await event.bot.fetch_guild(guild_id) for guild_id in get_setting("COMMAND_GUILD_SCOPE")
+                ]
+                mutual_allowed_guilds = [guild for guild in allowed_guilds if guild in mutual_guilds]
 
                 if mutual_allowed_guilds:
-                    thread_name = (
-                        f"Message from {message.author.username}_{message.author.discriminator}|{message.author.id}"
-                    )
+                    thread_name = f"Message from {message.author.username} | {message.author.id}"
 
                     # we just need to get the url, no need to re-upload
                     attached_files = [attachment.url for attachment in message.attachments]
@@ -127,7 +146,7 @@ async def on_message_create(event: MessageCreate, edit_mode: bool = False):
                         thread = reply_cache.user_to_thread[message.author.id]
 
                     else:
-                        channel_threads: ThreadList = await descend_channels.admin_channel.get_all_threads()
+                        channel_threads: ThreadList = await descend_channels.admin_channel.fetch_all_threads()
 
                         # maybe a thread does exist, but is not cached since we restarted
                         threads = [thread for thread in channel_threads.threads if thread.name == thread_name]
@@ -145,11 +164,17 @@ async def on_message_create(event: MessageCreate, edit_mode: bool = False):
                                 reason="Received DM",
                             )
 
+                            # ping all users
+                            pings = await thread.send(
+                                " ".join([member.mention for member in thread.parent_channel.humans])
+                            )
+                            await pings.delete()
+
                             # first message in thread
                             await thread.send(
                                 embeds=embed_message(
                                     "Inquiry",
-                                    f"Any message you send here that starts with `@ElevatorBot` is relayed to them (not including the mention of course)\nI will react with {custom_emojis.descend_logo} if I conveyed the message successfully",
+                                    f"Any message you send here that starts with `@ElevatorBot` is relayed to them (not including the mention of course)\nAlternatively, you can reply to the message\nI will react with {custom_emojis.descend_logo} if I conveyed the message successfully\n⁣\nAll messages from me are directly forwarded from {message.author.mention}",
                                     member=message.author,
                                 )
                             )
@@ -165,11 +190,20 @@ async def on_message_create(event: MessageCreate, edit_mode: bool = False):
 
                         # save in cache
                         reply_cache.user_to_thread.update({message.author.id: thread})
-                        reply_cache.thread_to_user.update({thread: message.author.id})
+                        reply_cache.thread_to_user.update({thread.id: message.author.id})
 
                     # send the message
                     if not edit_mode:
-                        thread_message = await thread.send(content=message.content)
+                        content = message.content
+
+                        # add the urls to the message
+                        if attached_files:
+                            attached_files.insert(0, "⁣\n__**Attachments**__")
+                            if message.content:
+                                attached_files.insert(0, content)
+                            content = "\n".join(attached_files)
+
+                        thread_message = await thread.send(content=content)
                         reply_cache.user_message_id_to_thread_message.update({message.id: thread_message})
 
                     # edit the message
@@ -184,9 +218,6 @@ async def on_message_create(event: MessageCreate, edit_mode: bool = False):
                         else:
                             thread_message = await thread.send(content=message.content)
                             reply_cache.user_message_id_to_thread_message.update({message.id: thread_message})
-
-                    for url in attached_files:
-                        await thread.send(content=url)
 
         # =========================================================================
         # handle guild messages
@@ -239,11 +270,66 @@ async def on_message_create(event: MessageCreate, edit_mode: bool = False):
                             ]
                             await message.channel.send(f"{random.choice(welcome_choice)} <@{neria_id}>!")
 
+                # =========================================================================
                 # be annoyed if getting pinged
-                async for member in message.mention_users:
-                    if member == event.bot.user:
-                        await message.add_reaction(custom_emojis.ping)
-                        break
+                if event.bot.user.id in message._mention_ids:
+                    await message.add_reaction(custom_emojis.ping)
+
+                # =========================================================================
+                # make deving with github easier
+                message = event.message
+                in_data = message.content.lower()
+
+                try:
+                    if "github.com/" in in_data and "#l" in in_data:
+                        return await github_manager.send_snippet(message)
+                    elif data := re.search(r"(?:\s|^)#(\d{1,3})(?:\s|$)", in_data):
+                        # only send issues and prs in the dev channels
+                        if (
+                            event.message.channel == descend_channels.bot_dev_channel
+                            or event.message.channel == descend_channels.admin_channel
+                        ):
+                            issue = await github_manager.get_issue(await get_github_repo(), int(data.group(1)))
+                            if not issue:
+                                return
+
+                            if issue.pull_request:
+                                pr = await github_manager.get_pull(await get_github_repo(), int(data.group(1)))
+                                return await github_manager.send_pr(message=message, pr=pr)
+                            return await github_manager.send_issue(message, issue)
+                except (github.UnknownObjectException, github.GithubException):
+                    pass
+
+                # =========================================================================
+                # parse datetimes
+                if embed := await get_timestamp_embed(search_string=message.content.upper(), parse_relative=False):
+                    await message.reply(embeds=embed)
+
+                # =========================================================================
+                # april fools
+
+                if event.bot.user.id in message._mention_ids and "joke" in in_data:
+                    voice_state = event.message.author.voice
+                    run = True
+
+                    # user not in voice
+                    if not voice_state:
+                        await message.reply("You are not in a voice channel, how am I supposed to tell you a joke???")
+
+                    else:
+                        bot_voice_state = event.bot.get_bot_voice_state(guild_id=voice_state.guild.id)
+
+                        # bot not in voice
+                        if bot_voice_state and bot_voice_state.connected:
+                            await message.reply("I'm busy telling a joke, try again in a bit")
+                            run = False
+
+                        else:
+                            # connect to the authors voice channel
+                            bot_voice_state = await voice_state.channel.connect()
+
+                        if run:
+                            await play_joke(bot_voice_state=bot_voice_state, message=message)
 
             # =========================================================================
             # valid for all guilds

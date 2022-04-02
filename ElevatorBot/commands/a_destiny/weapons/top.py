@@ -14,7 +14,6 @@ from dis_snek import (
     slash_option,
 )
 
-from ElevatorBot.backendNetworking.destiny.weapons import DestinyWeapons
 from ElevatorBot.commandHelpers.autocomplete import (
     activities,
     autocomplete_send_activity_name,
@@ -36,9 +35,15 @@ from ElevatorBot.commandHelpers.optionTemplates import (
 from ElevatorBot.commandHelpers.subCommandTemplates import weapons_sub_command
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formatting import capitalize_string, embed_message, get_emoji_from_rank
-from ElevatorBot.misc.helperFunctions import parse_datetime_options
+from ElevatorBot.misc.helperFunctions import get_emoji_by_name, parse_datetime_options
+from ElevatorBot.networking.destiny.weapons import DestinyWeapons
 from ElevatorBot.static.emojis import custom_emojis
-from Shared.enums.destiny import DestinyWeaponTypeEnum, UsableDestinyActivityModeTypeEnum, UsableDestinyDamageTypeEnum
+from Shared.enums.destiny import (
+    DestinyWeaponTypeEnum,
+    UsableDestinyActivityModeTypeEnum,
+    UsableDestinyAmmunitionTypeEnum,
+    UsableDestinyDamageTypeEnum,
+)
 from Shared.networkingSchemas.destiny import (
     DestinyActivityModel,
     DestinyTopWeaponModel,
@@ -56,9 +61,7 @@ class WeaponsTop(BaseScale):
     :option:weapon: If you want a specific weapon to be included in the ranking. Otherwise the command will only show your top eight weapons per slot
     """
 
-    @slash_command(
-        **weapons_sub_command, sub_cmd_name="top", sub_cmd_description="Shows your top Destiny 2 weapon ranking"
-    )
+    @slash_command(name="weapons_top", description="Shows your top Destiny 2 weapon ranking")
     @slash_option(
         name="stat",
         description="Which stat you want the leaderboard to consider. Default: Kills",
@@ -104,7 +107,6 @@ class WeaponsTop(BaseScale):
     ):
         mode = int(mode) if mode else None
 
-        limit = 8
         stat = (
             DestinyTopWeaponsStatInputModelEnum.KILLS
             if stat == "kills"
@@ -123,6 +125,8 @@ class WeaponsTop(BaseScale):
             weapon = weapons[weapon.lower()]
         if activity:
             activity = activities[activity.lower()]
+
+        limit = 5 if weapon else 6
 
         member = user or ctx.author
         backend_weapons = DestinyWeapons(ctx=ctx, discord_member=member, discord_guild=ctx.guild)
@@ -221,24 +225,24 @@ def top_subprocess(
             # use the special emojis
             emoji = get_emoji_from_rank(item.ranking)
 
-            # append the ... if the sought weapon is in here
-            if weapon and len(slot_entries) > limit:
+            # if this is the sought weapon
+            if weapon and weapon.reference_ids[0] in item.weapon_ids:
+                # append the ... if the sought weapon is in here
                 if len(field_text) == limit:
                     field_text.append("...")
 
-            if weapon and weapon.reference_ids[0] in item.weapon_ids:
                 field_text.append(
-                    f"""**{emoji} {getattr(custom_emojis, item.weapon_type.lower())}{getattr(custom_emojis, item.weapon_damage_type.lower())}
-                    {getattr(custom_emojis, item.weapon_ammo_type.lower())} [{item.weapon_name}](https://www.light.gg/db/items/{item.weapon_ids[0]})\n
-                    {custom_emojis.enter} {capitalize_string(stat.name)}: {item.stat_value}**"""
-                )
-            else:
-                field_text.append(
-                    f"""{emoji} {getattr(custom_emojis, item.weapon_type.lower())}{getattr(custom_emojis, item.weapon_damage_type.lower())}
-                    {getattr(custom_emojis, item.weapon_ammo_type.lower())} [{item.weapon_name}](https://www.light.gg/db/items/{item.weapon_ids[0]})\n
-                    {custom_emojis.enter} {capitalize_string(stat.name)}: {item.stat_value}"""
+                    f"""**{emoji} {get_emoji_by_name(DestinyWeaponTypeEnum, item.weapon_type)}[{item.weapon_name}](https://www.light.gg/db/items/{item.weapon_ids[0]})\n{custom_emojis.enter} {capitalize_string(stat.name)}: {item.stat_value:,}**"""
                 )
 
-        embed.add_field(name=slot_name, value="\n".join(field_text) or "None", inline=True)
+            # if it is not the sought weapon
+            else:
+                if len(field_text) < limit:
+                    field_text.append(
+                        f"""{emoji} {get_emoji_by_name(DestinyWeaponTypeEnum, item.weapon_type)}[{item.weapon_name}](https://www.light.gg/db/items/{item.weapon_ids[0]})\n{custom_emojis.enter} {capitalize_string(stat.name)}: {item.stat_value:,}"""
+                    )
+
+        if field_text:
+            embed.add_field(name=slot_name.capitalize(), value="\n".join(field_text), inline=True)
 
     return embed

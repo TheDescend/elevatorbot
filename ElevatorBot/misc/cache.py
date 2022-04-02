@@ -2,10 +2,11 @@ import dataclasses
 import datetime
 from typing import Optional
 
+from cachetools import TTLCache
 from dis_snek import Guild, GuildVoice, Message, Role, ThreadChannel
 
-from ElevatorBot.backendNetworking.destiny.items import DestinyItems
 from ElevatorBot.core.misc.persistentMessages import PersistentMessages
+from ElevatorBot.networking.destiny.items import DestinyItems
 from ElevatorBot.static.descendOnlyIds import descend_channels
 from Shared.functions.helperFunctions import get_min_with_tz, get_now_with_tz
 
@@ -15,7 +16,7 @@ class ReplyCache:
     """This saves the user_id and thread to prevent the same user from opening new threads all the time"""
 
     user_to_thread: dict[int, ThreadChannel] = dataclasses.field(init=False, default_factory=dict)
-    thread_to_user: dict[ThreadChannel, int] = dataclasses.field(init=False, default_factory=dict)
+    thread_to_user: dict[int, int] = dataclasses.field(init=False, default_factory=dict)
 
     thread_message_id_to_user_message: dict[int, Message] = dataclasses.field(init=False, default_factory=dict)
     user_message_id_to_thread_message: dict[int, Message] = dataclasses.field(init=False, default_factory=dict)
@@ -27,6 +28,7 @@ class RegisteredRoleCache:
 
     guild_to_role: dict[int, Role] = dataclasses.field(init=False, default_factory=dict)
     not_registered_users: list[int] = dataclasses.field(init=False, default_factory=list)
+    registered_users: TTLCache = TTLCache(ttl=3600, maxsize=10000)
 
     async def get(self, guild: Guild) -> Optional[Role]:
         """Get the role for a guild"""
@@ -38,7 +40,7 @@ class RegisteredRoleCache:
             if not result:
                 return
 
-            role = await guild.get_role(result.channel_id)
+            role = await guild.fetch_role(result.channel_id)
             if not role:
                 return
 
@@ -50,6 +52,11 @@ class RegisteredRoleCache:
         """Returns True if the user is not registered and that is cached. False if we dont know"""
 
         return user_id in self.not_registered_users
+
+    def is_registered(self, user_id: int) -> bool:
+        """Returns True if the user has been registered within the last hour"""
+
+        return bool(self.registered_users.get(user_id))
 
 
 @dataclasses.dataclass
@@ -105,7 +112,7 @@ class DescendCache:
             return
 
         channel = await descend_channels.guild.fetch_channel(result.channel_id)
-        self.status_message = await channel.get_message(result.message_id)
+        self.status_message = await channel.fetch_message(result.message_id)
 
 
 @dataclasses.dataclass

@@ -1,13 +1,15 @@
-FROM python:3.10.2
+FROM python:3.10.3
 
 # we want stdout
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
-# get arg from docker-compose, otherwise use default
-ARG ELEVATOR_PORT=8080
 
 # add the path to pythonpath
 ENV PYTHONPATH "${PYTHONPATH}:/app"
+
+# install ffmpeg
+RUN apt-get -y update
+RUN apt-get -y install ffmpeg
 
 # install the requirements
 RUN pip3.10 install uvloop

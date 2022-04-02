@@ -1,7 +1,6 @@
 import datetime
 
 import pytest as pytest
-from Shared.networkingSchemas.destiny.account import DestinyCraftableModel
 from dummyData.insert import mock_request
 from dummyData.static import *
 from httpx import AsyncClient
@@ -22,11 +21,12 @@ from Shared.networkingSchemas.destiny import (
     DestinyTriumphScoreModel,
     SeasonalChallengesModel,
 )
+from Shared.networkingSchemas.destiny.account import DestinyCraftableModel
 
 
 @pytest.mark.asyncio
 async def test_destiny_name(client: AsyncClient, mocker: MockerFixture):
-    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+    mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
 
     r = await client.get(f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/name/")
     assert r.status_code == 200
@@ -40,7 +40,7 @@ async def test_destiny_name(client: AsyncClient, mocker: MockerFixture):
 
 @pytest.mark.asyncio
 async def test_has_collectible(client: AsyncClient, mocker: MockerFixture):
-    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+    mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
 
     r = await client.get(
         f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/collectible/{dummy_gotten_collectible_id}"
@@ -49,6 +49,12 @@ async def test_has_collectible(client: AsyncClient, mocker: MockerFixture):
     data = BoolModel.parse_obj(r.json())
     assert data.bool is True
     assert dummy_gotten_collectible_id in cache.collectibles[dummy_destiny_id]
+
+    # run the same test again to see that the cache works
+    r = await client.get(
+        f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/collectible/{dummy_gotten_collectible_id}"
+    )
+    assert r.status_code == 200
 
     r = await client.get(
         f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/collectible/{dummy_not_gotten_collectible_id}"
@@ -61,7 +67,7 @@ async def test_has_collectible(client: AsyncClient, mocker: MockerFixture):
 
 @pytest.mark.asyncio
 async def test_has_triumph(client: AsyncClient, mocker: MockerFixture):
-    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+    mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
 
     r = await client.get(
         f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/triumph/{dummy_gotten_record_id}"
@@ -71,6 +77,12 @@ async def test_has_triumph(client: AsyncClient, mocker: MockerFixture):
     assert data.bool is True
     assert data.objectives == []
     assert dummy_gotten_record_id in cache.triumphs[dummy_destiny_id]
+
+    # run the same test again to see that the cache works
+    r = await client.get(
+        f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/triumph/{dummy_gotten_record_id}"
+    )
+    assert r.status_code == 200
 
     r = await client.get(
         f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/triumph/{dummy_not_gotten_record_id}"
@@ -85,7 +97,7 @@ async def test_has_triumph(client: AsyncClient, mocker: MockerFixture):
 
 @pytest.mark.asyncio
 async def test_metric(client: AsyncClient, mocker: MockerFixture):
-    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+    mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
 
     r = await client.get(f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/metric/{dummy_metric_id}")
     assert r.status_code == 200
@@ -95,7 +107,7 @@ async def test_metric(client: AsyncClient, mocker: MockerFixture):
 
 @pytest.mark.asyncio
 async def test_destiny_solos(client: AsyncClient, mocker: MockerFixture):
-    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+    mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
 
     r = await client.get(f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/solos")
     assert r.status_code == 200
@@ -113,7 +125,7 @@ async def test_destiny_solos(client: AsyncClient, mocker: MockerFixture):
 
 @pytest.mark.asyncio
 async def test_characters(client: AsyncClient, mocker: MockerFixture):
-    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+    mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
 
     r = await client.get(f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/characters")
     assert r.status_code == 200
@@ -124,7 +136,7 @@ async def test_characters(client: AsyncClient, mocker: MockerFixture):
 
 @pytest.mark.asyncio
 async def test_stat(client: AsyncClient, mocker: MockerFixture):
-    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+    mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
 
     input_model = DestinyStatInputModel(stat_name="kills", stat_category="allPvE")
     r = await client.post(f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/stat", json=input_model.dict())
@@ -141,7 +153,7 @@ async def test_stat(client: AsyncClient, mocker: MockerFixture):
 
 @pytest.mark.asyncio
 async def test_stat_characters(client: AsyncClient, mocker: MockerFixture):
-    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+    mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
 
     input_model = DestinyStatInputModel(stat_name="kills", stat_category="allPvE")
     r = await client.post(
@@ -170,7 +182,7 @@ async def test_stat_characters(client: AsyncClient, mocker: MockerFixture):
 
 @pytest.mark.asyncio
 async def test_time(client: AsyncClient, mocker: MockerFixture):
-    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+    mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
 
     input_model = DestinyTimeInputModel(
         start_time=datetime.datetime(year=2021, month=12, day=1, tzinfo=datetime.timezone.utc),
@@ -268,7 +280,7 @@ async def test_time(client: AsyncClient, mocker: MockerFixture):
 
 @pytest.mark.asyncio
 async def test_seasonal_challenges(client: AsyncClient, mocker: MockerFixture):
-    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+    mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
 
     r = await client.get(f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/seasonal_challenges")
     assert r.status_code == 200
@@ -283,7 +295,7 @@ async def test_seasonal_challenges(client: AsyncClient, mocker: MockerFixture):
 
 @pytest.mark.asyncio
 async def test_triumphs(client: AsyncClient, mocker: MockerFixture):
-    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+    mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
 
     r = await client.get(f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/triumphs")
     assert r.status_code == 200
@@ -295,7 +307,7 @@ async def test_triumphs(client: AsyncClient, mocker: MockerFixture):
 
 @pytest.mark.asyncio
 async def test_artifact_level(client: AsyncClient, mocker: MockerFixture):
-    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+    mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
 
     r = await client.get(f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/artifact")
     assert r.status_code == 200
@@ -305,7 +317,7 @@ async def test_artifact_level(client: AsyncClient, mocker: MockerFixture):
 
 @pytest.mark.asyncio
 async def test_season_pass_level(client: AsyncClient, mocker: MockerFixture):
-    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+    mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
 
     r = await client.get(f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/season_pass")
     assert r.status_code == 200
@@ -315,7 +327,7 @@ async def test_season_pass_level(client: AsyncClient, mocker: MockerFixture):
 
 @pytest.mark.asyncio
 async def test_get_consumable_amount(client: AsyncClient, mocker: MockerFixture):
-    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+    mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
 
     r = await client.get(
         f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/consumable/{dummy_consumable_id}"
@@ -327,7 +339,7 @@ async def test_get_consumable_amount(client: AsyncClient, mocker: MockerFixture)
 
 @pytest.mark.asyncio
 async def test_get_max_power(client: AsyncClient, mocker: MockerFixture):
-    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+    mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
 
     r = await client.get(f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/max_power")
     assert r.status_code == 200
@@ -337,7 +349,7 @@ async def test_get_max_power(client: AsyncClient, mocker: MockerFixture):
 
 @pytest.mark.asyncio
 async def test_get_vault_space(client: AsyncClient, mocker: MockerFixture):
-    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+    mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
 
     r = await client.get(f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/vault_space")
     assert r.status_code == 200
@@ -347,7 +359,7 @@ async def test_get_vault_space(client: AsyncClient, mocker: MockerFixture):
 
 @pytest.mark.asyncio
 async def test_get_bright_dust(client: AsyncClient, mocker: MockerFixture):
-    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+    mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
 
     r = await client.get(f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/bright_dust")
     assert r.status_code == 200
@@ -357,7 +369,7 @@ async def test_get_bright_dust(client: AsyncClient, mocker: MockerFixture):
 
 @pytest.mark.asyncio
 async def test_get_legendary_shards(client: AsyncClient, mocker: MockerFixture):
-    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+    mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
 
     r = await client.get(f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/shards")
     assert r.status_code == 200
@@ -367,7 +379,7 @@ async def test_get_legendary_shards(client: AsyncClient, mocker: MockerFixture):
 
 @pytest.mark.asyncio
 async def test_get_catalyst_completion(client: AsyncClient, mocker: MockerFixture):
-    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+    mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
 
     r = await client.get(f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/catalysts")
     assert r.status_code == 200
@@ -386,7 +398,7 @@ async def test_get_catalyst_completion(client: AsyncClient, mocker: MockerFixtur
 
 @pytest.mark.asyncio
 async def test_get_seal_completion(client: AsyncClient, mocker: MockerFixture):
-    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+    mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
 
     r = await client.get(f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/seals")
     assert r.status_code == 200
@@ -406,7 +418,7 @@ async def test_get_seal_completion(client: AsyncClient, mocker: MockerFixture):
 
 @pytest.mark.asyncio
 async def test_get_craftables(client: AsyncClient, mocker: MockerFixture):
-    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+    mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
 
     r = await client.get(f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/craftables")
     assert r.status_code == 200

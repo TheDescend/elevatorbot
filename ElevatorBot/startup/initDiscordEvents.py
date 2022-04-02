@@ -3,7 +3,6 @@ import traceback
 
 from dis_snek import Listener
 
-from ElevatorBot.backendNetworking.errors import BackendException
 from ElevatorBot.discordEvents.base import ElevatorSnake
 from ElevatorBot.discordEvents.guildEvents import (
     on_channel_create,
@@ -20,6 +19,7 @@ from ElevatorBot.discordEvents.guildEvents import (
 from ElevatorBot.discordEvents.memberEvents import on_member_add, on_member_remove, on_member_update
 from ElevatorBot.discordEvents.messageEvents import on_message_create, on_message_delete, on_message_update
 from ElevatorBot.discordEvents.voiceEvents import on_voice_state_update
+from ElevatorBot.networking.errors import BackendException
 
 
 class MyListener(Listener):

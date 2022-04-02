@@ -2,11 +2,11 @@ from typing import Optional
 
 from dis_snek import ComponentContext, InteractionContext, Member, Message, slash_command
 
-from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
 from ElevatorBot.commandHelpers.paginator import paginate
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formatting import capitalize_string, embed_message, format_progress, un_capitalize_string
+from ElevatorBot.networking.destiny.account import DestinyAccount
 from Shared.networkingSchemas.destiny import DestinySealsModel
 
 

@@ -2,8 +2,8 @@ from typing import Optional
 
 from dis_snek import ComponentContext, InteractionContext, Member, Message, ModalContext, SnakeBotUser
 
-from ElevatorBot.backendNetworking.errorCodesAndResponses import error_codes_and_responses
 from ElevatorBot.misc.formatting import embed_message
+from ElevatorBot.networking.errorCodesAndResponses import error_codes_and_responses
 
 
 async def something_went_wrong(ctx: InteractionContext, hidden: bool = False) -> bool:
@@ -71,7 +71,7 @@ async def respond_time_input_in_past(ctx: InteractionContext, hidden: bool = Tru
     if not ctx.responded:
         await ctx.send(
             ephemeral=hidden,
-            embeds=embed_message("Error", "The event cannot start in the past. Please try again"),
+            embeds=embed_message("Error", "The start time cannot be in the past. Please try again"),
         )
         return True
     return False

@@ -15,8 +15,8 @@ class RankServer(RankClan):
         cls.rank = copy.copy(cls.rank)
 
         # set the subcommand to the correct name
-        cls.rank.sub_cmd_name = "server"
-        cls.rank.sub_cmd_description = "Show all server members on the leaderboard"
+        cls.rank.name = "rank_server"
+        cls.rank.description = "Display Destiny 2 leaderboards. Pick **only** one leaderboard from all options"
 
         super().__new__(cls=cls, bot=bot, *args, **kwargs)
         return cls

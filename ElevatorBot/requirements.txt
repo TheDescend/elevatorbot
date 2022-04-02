@@ -4,16 +4,21 @@ aiohttp_client_cache==0.5.2
 # aiohttp_client_cache currently requires this version
 aioredis==1.3.1
 anyio==3.5.0
-apscheduler==3.8.1
-git+https://github.com/Discord-Snake-Pit/Dis-Snek@dev
+apscheduler==3.9.1
+cachetools==5.0.0
+dateparser==1.1.1
+git+https://github.com/Discord-Snake-Pit/Dis-Snek@5b12241a144dc8bdbce5db4076b09801d37a7f2a
+gtts==2.2.4
 ics==0.7
 matplotlib==3.5.1
-orjson==3.6.6
-pandas==1.4.0
+orjson==3.6.7
+pandas==1.4.1
 psutil==5.9.0
 pydantic==1.9.0
 PyGithub==1.55
+PyNaCl>=1.5.0,<1.6
 python-dateutil==2.8.2
-rapidfuzz==1.9.1
+rapidfuzz==2.0.7
 toml==0.10.2
-tzdata==2021.5
+tzdata==2022.1
+yt-dlp

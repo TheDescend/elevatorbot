@@ -2,23 +2,25 @@ import asyncio
 import datetime
 import time
 import urllib.parse
+from contextlib import AsyncExitStack
 from typing import Optional
 
-import aiohttp
-from contextlib import AsyncExitStack
 from sqlalchemy.ext.asyncio import AsyncSession
 
+import Backend.networking.bungieApi as bungieApi
 from Backend.core.errors import CustomException
 from Backend.crud.base import CRUDBase
 from Backend.crud.misc.persistentMessages import persistent_messages
 from Backend.database.base import get_async_sessionmaker
 from Backend.database.models import DiscordUsers
 from Backend.misc.cache import cache
-from Backend.networking.base import NetworkBase
 from Backend.networking.elevatorApi import ElevatorApi
+from Shared.enums.elevator import DestinySystemEnum
 from Shared.functions.helperFunctions import get_min_with_tz, get_now_with_tz, localize_datetime
-from Shared.functions.readSettingsFile import get_setting
 from Shared.networkingSchemas.misc.auth import BungieTokenInput, BungieTokenOutput
+
+insert_profile_lock = asyncio.Lock()
+update_lock = asyncio.Lock()
 
 
 class CRUDDiscordUser(CRUDBase):
@@ -91,30 +93,34 @@ class CRUDDiscordUser(CRUDBase):
             int(guild_id),
             int(channel_id),
         )
-        api = NetworkBase()
 
-        # get the corresponding destiny data with manual headers, since the data is not in the db yet
-        async with aiohttp.ClientSession(cookie_jar=aiohttp.DummyCookieJar()) as session:
-            # noinspection PyProtectedMember
-            destiny_info = await api._request(
-                session=session,
-                method="GET",
-                route="https://www.bungie.net/platform/User/GetMembershipsForCurrentUser/",
-                headers={
-                    "X-API-Key": get_setting("BUNGIE_APPLICATION_API_KEY"),
-                    "Accept": "application/json",
-                    "Authorization": f"Bearer {bungie_token.access_token}",
-                },
-            )
+        # get the corresponding destiny data
+        api = bungieApi.BungieApi(db=db)
+        auth_headers = bungieApi.bungie_headers.copy()
+        auth_headers.update({"Authorization": f"Bearer {bungie_token.access_token}"})
+        destiny_info = await api.get(
+            route="https://www.bungie.net/platform/User/GetMembershipsForCurrentUser/",
+            use_cache=False,
+            headers=auth_headers,
+        )
+
+        user_should_set_up_cross_save = False
 
         # get the user's destiny info
+        # this is not set if the user has no cross save
         destiny_id = destiny_info.content.get("primaryMembershipId")
-        is_crosssave = destiny_id is not None
         if not destiny_id:
             # if primary is not defined, there is only one
             memberships = destiny_info.content["destinyMemberships"]
-            assert len(memberships) == 1
             destiny_id = memberships[0]["membershipId"]
+
+            # sometimes they don't have cross save set up yet have multiple entries
+            if len(memberships) > 1:
+                user_should_set_up_cross_save = True
+                for profile in memberships:
+                    # try to prefer the pc one
+                    if profile["membershipType"] == 3:
+                        destiny_id = profile["membershipId"]
 
         destiny_id = int(destiny_id)
 
@@ -126,7 +132,9 @@ class CRUDDiscordUser(CRUDBase):
                 system = profile["membershipType"]
                 if not profile["bungieGlobalDisplayName"] or not profile.get("bungieGlobalDisplayNameCode"):
                     raise CustomException("No Bungie Name found, please launch the game")
-                bungie_name = f"""{profile["bungieGlobalDisplayName"]}#{profile["bungieGlobalDisplayNameCode"]}"""
+                bungie_name = (
+                    f"""{profile["bungieGlobalDisplayName"]}#{str(profile["bungieGlobalDisplayNameCode"]).zfill(4)}"""
+                )
                 break
 
         # that should find a system 100% of the time, extra check here to be sure
@@ -138,7 +146,7 @@ class CRUDDiscordUser(CRUDBase):
             raise CustomException("BungieNoDestinyId")
 
         # need to make this save
-        async with asyncio.Lock():
+        async with insert_profile_lock:
             # look if that destiny_id is already in the db
             try:
                 user = await self.get_profile_from_destiny_id(db=db, destiny_id=destiny_id)
@@ -208,20 +216,27 @@ class CRUDDiscordUser(CRUDBase):
                 )
 
         return (
-            BungieTokenOutput(bungie_name=user.bungie_name),
+            BungieTokenOutput(
+                bungie_name=user.bungie_name,
+                user_should_set_up_cross_save=user_should_set_up_cross_save,
+                system=DestinySystemEnum(user.system).name,
+            ),
             user,
             discord_id,
             guild_id,
         )
 
-    async def update(self, db: AsyncSession, to_update: DiscordUsers, **update_kwargs):
+    async def update(self, db: AsyncSession, to_update: DiscordUsers, **update_kwargs) -> DiscordUsers:
         """Updates a profile"""
 
-        updated: DiscordUsers = await self._update(db=db, to_update=to_update, **update_kwargs)
+        async with update_lock:
+            updated: DiscordUsers = await self._update(db=db, to_update=to_update, **update_kwargs)
 
-        # update the cache
-        self.cache.discord_users.update({to_update.discord_id: updated})
-        self.cache.discord_users_by_destiny_id.update({to_update.destiny_id: to_update})
+            # update the cache
+            self.cache.discord_users.update({to_update.discord_id: updated})
+            self.cache.discord_users_by_destiny_id.update({to_update.destiny_id: to_update})
+
+        return updated
 
     async def invalidate_token(self, db: AsyncSession, user: DiscordUsers):
         """Invalidates a token by setting it to None"""
@@ -232,8 +247,11 @@ class CRUDDiscordUser(CRUDBase):
             token=None,
         )
 
-        # remove registration roles
-        await self.remove_registration_roles(db=db, discord_id=user.discord_id)
+        try:
+            # remove registration roles
+            await self.remove_registration_roles(db=db, discord_id=user.discord_id)
+        except CustomException:
+            pass
 
     async def token_is_expired(self, db: AsyncSession, user: DiscordUsers):
         """Checks if a token exists and the refresh token is not expired"""
@@ -299,7 +317,7 @@ class CRUDDiscordUser(CRUDBase):
         if data:
             elevator_api = ElevatorApi()
             await elevator_api.post(
-                route_addition="/roles",
+                route="/roles",
                 json={
                     "data": data,
                 },
@@ -334,7 +352,7 @@ class CRUDDiscordUser(CRUDBase):
         if data:
             elevator_api = ElevatorApi()
             await elevator_api.post(
-                route_addition="/roles",
+                route="/roles",
                 json={
                     "data": data,
                 },

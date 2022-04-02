@@ -3,8 +3,8 @@ from typing import Optional
 
 from dis_snek import Guild, Member
 
-from ElevatorBot.backendNetworking.http import BaseBackendConnection
-from ElevatorBot.backendNetworking.routes import (
+from ElevatorBot.networking.http import BaseBackendConnection
+from ElevatorBot.networking.routes import (
     destiny_activities_activity_route,
     destiny_activities_get_all_route,
     destiny_activities_get_grandmaster_route,

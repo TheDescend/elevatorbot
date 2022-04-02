@@ -3,8 +3,8 @@ from typing import Optional
 
 from dis_snek import Guild, Member
 
-from ElevatorBot.backendNetworking.http import BaseBackendConnection
-from ElevatorBot.backendNetworking.routes import (
+from ElevatorBot.networking.http import BaseBackendConnection
+from ElevatorBot.networking.routes import (
     polls_delete_all_route,
     polls_delete_option_route,
     polls_delete_route,

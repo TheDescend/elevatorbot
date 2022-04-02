@@ -2,40 +2,49 @@ import asyncio
 
 from dis_snek.api.events import VoiceStateUpdate
 
-from ElevatorBot.backendNetworking.destiny.lfgSystem import DestinyLfgSystem
 from ElevatorBot.core.misc.persistentMessages import PersistentMessages
+from ElevatorBot.networking.destiny.lfgSystem import DestinyLfgSystem
 from ElevatorBot.static.descendOnlyIds import descend_channels
 
 greek_names = ["Alpha", "Beta", "Gamma", "Delta", "Epsilon", "Zeta", "Eta", "Theta", "Iota", "Kappa"]
+
+
+auto_channel_deletion_lock = asyncio.Lock()
+auto_voice_channel_removal_lock = asyncio.Lock()
 
 
 async def on_voice_state_update(event: VoiceStateUpdate):
     """Triggers when a members voice state changes"""
 
     # freshly join a channel
-    if event.before is None:
+    if event.before is None and event.after is not None:
         await joined_channel(event)
 
     # fully leave a channel
-    elif event.after is None:
+    elif event.before is not None and event.after is None:
         await left_channel(event)
 
     # switch channel
-    elif event.before.channel != event.after.channel:
-        await left_channel(event)
-        await joined_channel(event)
+    elif event.before is not None and event.after is not None:
+        if event.before.channel != event.after.channel:
+            await left_channel(event)
+            await joined_channel(event)
 
 
 async def left_channel(event: VoiceStateUpdate):
     """Gets triggered when a member leaves a channel"""
 
+    # ignore this is it is not a voice channel in a category
+    if not event.before.channel.category:
+        return
+
     # get the lfg voice category
     persistent_messages = PersistentMessages(ctx=None, guild=event.before.guild, message_name="lfg_voice_category")
     result = await persistent_messages.get()
-    lfg_voice_category_channel = await event.bot.get_channel(result.channel_id)
+    lfg_voice_category_channel = await event.bot.fetch_channel(result.channel_id)
 
     # check if the channel was a lfg channel (correct category)
-    if event.before.channel.category == lfg_voice_category_channel:
+    if lfg_voice_category_channel and event.before.channel.category == lfg_voice_category_channel:
         # check if channel is now empty
         if len(event.before.channel.voice_members) == 1:
             # get the guilds lfg events
@@ -52,7 +61,7 @@ async def left_channel(event: VoiceStateUpdate):
     # auto channel deletion (alpha / beta / gamma...)
     else:
         # only do this for descend
-        if event.before and event.before.guild == descend_channels.guild:
+        if event.before.guild == descend_channels.guild and event.before.channel.category:
             # only delete if they were the last in there
             if len(event.before.channel.voice_members) == 1:
                 split_name = event.before.channel.name.split("|")
@@ -60,7 +69,7 @@ async def left_channel(event: VoiceStateUpdate):
                     base_name = split_name[0]
                     greek_name = split_name[1].strip()
                     if greek_name in greek_names:
-                        async with asyncio.Lock():
+                        async with auto_channel_deletion_lock:
                             # get all channels from the category and change them
                             i = 0
                             for voice_channel in event.before.channel.category.voice_channels:
@@ -81,14 +90,18 @@ async def left_channel(event: VoiceStateUpdate):
 async def joined_channel(event: VoiceStateUpdate):
     """Gets triggered when a member joins a channel"""
 
+    # ignore this is it is not a voice channel in a category
+    if not event.after.channel.category:
+        return
+
     # only do this for descend
-    if event.after and event.after.guild == descend_channels.guild:
+    if event.after.guild == descend_channels.guild and event.after.channel.category:
         if len(event.after.channel.voice_members) == 1:
             split_name = event.after.channel.name.split("|")
             if len(split_name) > 1:
                 greek_name = split_name[1].strip()
                 if greek_name in greek_names:
-                    async with asyncio.Lock():
+                    async with auto_voice_channel_removal_lock:
                         # calculate the next name
                         try:
                             next_greek_name = greek_names[greek_names.index(greek_name) + 1]

@@ -33,9 +33,8 @@ async def messages(request: web.Request):
 
     # loop through the guilds where messages need to be send
     for guild_info in parameters["guilds"]:
-        try:
-            channel = await client.get_channel(guild_info["channel_id"])
-        except NotFound:
+        channel = await client.fetch_channel(guild_info["channel_id"])
+        if not channel:
             guilds_with_errors.append(guild_info)
             continue
 

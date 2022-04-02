@@ -2,8 +2,8 @@ import dataclasses
 
 from dis_snek import Member
 
-from ElevatorBot.backendNetworking.http import BaseBackendConnection
-from ElevatorBot.backendNetworking.routes import steam_player_get_route
+from ElevatorBot.networking.http import BaseBackendConnection
+from ElevatorBot.networking.routes import steam_player_get_route
 from Shared.networkingSchemas.destiny import DestinySteamPlayersCountModel
 
 

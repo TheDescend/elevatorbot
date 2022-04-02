@@ -21,6 +21,8 @@ from Shared.enums.destiny import UsableDestinyActivityModeTypeEnum
 from Shared.networkingSchemas import DestinyNamedItemModel
 from Shared.networkingSchemas.destiny import DestinyActivityModel, DestinyLoreModel
 
+get_challenging_solo_activities_lock = asyncio.Lock()
+
 ModelType = TypeVar("ModelType", bound=Base)
 
 
@@ -190,7 +192,7 @@ class CRUDManifest(CRUDBase):
     async def get_challenging_solo_activities(self, db: AsyncSession) -> dict[str, list[DestinyActivityModel]]:
         """Get activities that are difficult to solo"""
 
-        async with asyncio.Lock():
+        async with get_challenging_solo_activities_lock:
             # check cache
             if not cache.interesting_solos:
                 # key is the topic, then the activity display name
@@ -273,7 +275,7 @@ class CRUDManifest(CRUDBase):
     async def get_current_season_pass(self, db: AsyncSession) -> DestinySeasonPassDefinition:
         """Get the current season pass from the DB"""
 
-        query = select(DestinySeasonPassDefinition).order_by(DestinySeasonPassDefinition.index.asc()).limit(1)
+        query = select(DestinySeasonPassDefinition).order_by(DestinySeasonPassDefinition.index.desc()).limit(1)
 
         result = await self._execute_query(db=db, query=query)
         return result.scalar()

@@ -1,7 +1,7 @@
 import dataclasses
 
-from ElevatorBot.backendNetworking.http import BaseBackendConnection
-from ElevatorBot.backendNetworking.routes import (
+from ElevatorBot.networking.http import BaseBackendConnection
+from ElevatorBot.networking.routes import (
     destiny_collectible_name_route,
     destiny_get_all_lore_route,
     destiny_triumph_name_route,

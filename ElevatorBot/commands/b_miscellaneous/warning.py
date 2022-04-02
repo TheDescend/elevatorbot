@@ -1,9 +1,9 @@
 from dis_snek import InteractionContext, Member, OptionTypes, Timestamp, TimestampStyles, slash_command, slash_option
 
-from ElevatorBot.backendNetworking.misc.moderation import Moderation
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formatting import embed_message
+from ElevatorBot.networking.misc.moderation import Moderation
 from Shared.functions.readSettingsFile import get_setting
 
 # =============

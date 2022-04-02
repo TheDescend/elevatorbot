@@ -1,7 +1,7 @@
 from dis_snek import InteractionContext, Scale, slash_command
 
-from ElevatorBot.backendNetworking.destiny.profile import DestinyProfile
 from ElevatorBot.misc.formatting import embed_message
+from ElevatorBot.networking.destiny.profile import DestinyProfile
 
 
 class UnRegister(Scale):

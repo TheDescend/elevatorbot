@@ -1,5 +1,6 @@
 import asyncio
 import io
+import re
 
 import aiohttp
 from dis_snek import CommandTypes, InteractionContext, Message, Modal, ShortText, context_menu
@@ -14,7 +15,7 @@ from Shared.functions.readSettingsFile import get_setting
 # =============
 
 
-class MessageMenuCommands(BaseScale):
+class EmojiCommands(BaseScale):
     """
     Add the selected image to the guild as an emoji
     """
@@ -30,16 +31,23 @@ class MessageMenuCommands(BaseScale):
 
         message: Message = ctx.target
 
-        if not (message.attachments or len(message.attachments) > 1):
+        # attachments
+        if message.attachments and len(message.attachments) == 1:
+            url = message.attachments[0].url
+
+        # url
+        elif url := re.search(r"([a-z\-_0-9\/\:\.]*\.(jpg|jpeg|png|gif))", message.content):
+            pass
+
+        else:
             await ctx.send(
                 ephemeral=True,
                 embeds=embed_message("Error", "There either is no image in that message, or more than one"),
             )
             return
 
-        image = message.attachments[0]
         async with aiohttp.ClientSession() as session:
-            async with session.get(image.url) as resp:
+            async with session.get(url) as resp:
                 if resp.status != 200:
                     await ctx.send(ephemeral=True, embeds=embed_message("Error", "Web request failed, try again"))
                 image_data = io.BytesIO(await resp.read())
@@ -69,10 +77,12 @@ class MessageMenuCommands(BaseScale):
             await respond_timeout(ctx=ctx)
             return
 
-        emoji = await ctx.guild.create_custom_emoji(name=modal_ctx.responses["name"], imagefile=image_data)
-        await message.add_reaction(emoji)
-        await modal_ctx.send("Success!", ephemeral=True)
+        else:
+            await modal_ctx.defer()
+            emoji = await ctx.guild.create_custom_emoji(name=modal_ctx.responses["name"], imagefile=image_data)
+            await message.add_reaction(emoji)
+            await modal_ctx.send("Success!", ephemeral=True)
 
 
 def setup(client):
-    MessageMenuCommands(client)
+    EmojiCommands(client)

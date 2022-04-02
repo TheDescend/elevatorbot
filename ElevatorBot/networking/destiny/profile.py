@@ -4,18 +4,18 @@ import dataclasses
 
 from dis_snek import Guild, Member
 
-from ElevatorBot.backendNetworking.errorCodesAndResponses import error_codes_and_responses
-from ElevatorBot.backendNetworking.errors import BackendException
-from ElevatorBot.backendNetworking.http import BaseBackendConnection
-from ElevatorBot.backendNetworking.routes import (
+from ElevatorBot.misc.cache import registered_role_cache
+from ElevatorBot.misc.formatting import embed_message
+from ElevatorBot.networking.errorCodesAndResponses import error_codes_and_responses
+from ElevatorBot.networking.errors import BackendException
+from ElevatorBot.networking.http import BaseBackendConnection
+from ElevatorBot.networking.routes import (
     destiny_profile_delete_route,
     destiny_profile_from_destiny_id_route,
     destiny_profile_from_discord_id_route,
     destiny_profile_has_token_route,
     destiny_profile_registration_role_route,
 )
-from ElevatorBot.misc.cache import registered_role_cache
-from ElevatorBot.misc.formatting import embed_message
 from Shared.networkingSchemas.destiny.profile import DestinyHasTokenModel, DestinyProfileModel
 
 
@@ -37,7 +37,7 @@ class DestinyProfile(BaseBackendConnection):
         )
 
         # check if the discord member is actually found
-        discord_member = await self.discord_guild.get_member(result.result["discord_id"])
+        discord_member = await self.discord_guild.fetch_member(result.result["discord_id"])
         if not discord_member:
             error = "DestinyIdNotFound"
             await self.ctx.send(
@@ -67,8 +67,11 @@ class DestinyProfile(BaseBackendConnection):
 
         # check in cache if the user is registered
         if registered_role_cache.is_not_registered(self.discord_member.id):
-            result = DestinyHasTokenModel(token=False)
+            return False
         else:
+            # check if they were registered in the last hour
+            if registered_role_cache.is_registered(self.discord_member.id):
+                return True
             try:
                 # check their status with the backend
                 result = await self.has_token()
@@ -77,6 +80,8 @@ class DestinyProfile(BaseBackendConnection):
 
         if not result.token:
             registered_role_cache.not_registered_users.append(self.discord_member.id)
+        else:
+            registered_role_cache.registered_users[self.discord_member.id] = True
 
         return result.token
 

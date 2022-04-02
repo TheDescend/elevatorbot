@@ -1,10 +1,10 @@
 from dis_snek import InteractionContext, slash_command
 
-from ElevatorBot.backendNetworking.destiny.clan import DestinyClan
 from ElevatorBot.commandHelpers.subCommandTemplates import setup_sub_command
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.core.misc.persistentMessages import PersistentMessages
 from ElevatorBot.misc.formatting import embed_message
+from ElevatorBot.networking.destiny.clan import DestinyClan
 from ElevatorBot.static.descendOnlyIds import descend_channels
 from Shared.networkingSchemas.misc.persistentMessages import PersistentMessage
 

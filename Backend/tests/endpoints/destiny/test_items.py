@@ -10,7 +10,7 @@ from Shared.networkingSchemas.destiny import DestinyAllLoreModel
 
 @pytest.mark.asyncio
 async def test_get_collectible_name(client: AsyncClient, mocker: MockerFixture):
-    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+    mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
 
     r = await client.get(f"/destiny/items/collectible/{dummy_gotten_collectible_id}")
     assert r.status_code == 200
@@ -20,7 +20,7 @@ async def test_get_collectible_name(client: AsyncClient, mocker: MockerFixture):
 
 @pytest.mark.asyncio
 async def test_get_all_collectible(client: AsyncClient, mocker: MockerFixture):
-    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+    mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
 
     r = await client.get("/destiny/items/collectible/get/all")
     assert r.status_code == 200
@@ -31,7 +31,7 @@ async def test_get_all_collectible(client: AsyncClient, mocker: MockerFixture):
 
 @pytest.mark.asyncio
 async def test_get_triumph_name(client: AsyncClient, mocker: MockerFixture):
-    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+    mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
 
     r = await client.get(f"/destiny/items/triumph/{dummy_gotten_record_id}")
     assert r.status_code == 200
@@ -41,7 +41,7 @@ async def test_get_triumph_name(client: AsyncClient, mocker: MockerFixture):
 
 @pytest.mark.asyncio
 async def test_get_all_triumphs(client: AsyncClient, mocker: MockerFixture):
-    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+    mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
 
     r = await client.get("/destiny/items/triumph/get/all")
     assert r.status_code == 200
@@ -52,7 +52,7 @@ async def test_get_all_triumphs(client: AsyncClient, mocker: MockerFixture):
 
 @pytest.mark.asyncio
 async def test_get_all_lore(client: AsyncClient, mocker: MockerFixture):
-    mocker.patch("Backend.networking.base.NetworkBase._request", mock_request)
+    mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
 
     r = await client.get("/destiny/items/lore/get/all")
     assert r.status_code == 200

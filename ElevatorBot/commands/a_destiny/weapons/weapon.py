@@ -1,6 +1,5 @@
 from dis_snek import InteractionContext, Member, Timestamp, TimestampStyles, slash_command
 
-from ElevatorBot.backendNetworking.destiny.weapons import DestinyWeapons
 from ElevatorBot.commandHelpers.autocomplete import (
     activities,
     autocomplete_send_activity_name,
@@ -21,6 +20,7 @@ from ElevatorBot.commandHelpers.subCommandTemplates import weapons_sub_command
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formatting import capitalize_string, embed_message
 from ElevatorBot.misc.helperFunctions import get_emoji_by_name, parse_datetime_options
+from ElevatorBot.networking.destiny.weapons import DestinyWeapons
 from ElevatorBot.static.emojis import custom_emojis
 from Shared.enums.destiny import (
     DestinyWeaponTypeEnum,
@@ -33,9 +33,8 @@ from Shared.networkingSchemas.destiny import DestinyWeaponStatsInputModel
 
 class WeaponsWeapon(BaseScale):
     @slash_command(
-        **weapons_sub_command,
-        sub_cmd_name="weapon",
-        sub_cmd_description="Shows Destiny 2 weapon stats for the specified weapon",
+        name="weapons_weapon",
+        description="Shows Destiny 2 weapon stats for the specified weapon",
     )
     @autocomplete_weapon_option(description="The weapon you want to look up", required=True)
     @default_mode_option()

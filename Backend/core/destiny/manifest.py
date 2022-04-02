@@ -21,6 +21,10 @@ from Backend.networking.bungieApi import BungieApi
 from Backend.networking.bungieRoutes import manifest_route
 from Backend.networking.elevatorApi import ElevatorApi
 
+default_bool = False
+default_integer = -1
+default_text = "Unknown"
+
 
 @dataclasses.dataclass
 class DestinyManifest:
@@ -30,9 +34,7 @@ class DestinyManifest:
 
     def __post_init__(self):
         # the network class
-        self.api = BungieApi(
-            db=self.db, i_understand_what_im_doing_and_that_setting_this_to_true_might_break_stuff=True
-        )
+        self.api = BungieApi(db=self.db)
 
     async def update(self, post_elevator: bool = True):
         """Checks the local manifests versions and updates the local copy should it have changed"""
@@ -66,8 +68,8 @@ class DestinyManifest:
             to_insert.append(
                 DestinyActivityTypeDefinition(
                     reference_id=int(reference_id),
-                    description=values.get("displayProperties", "description"),
-                    name=values.get("displayProperties", "name"),
+                    description=values.get("displayProperties", "description", default=default_text),
+                    name=values.get("displayProperties", "name", default=default_text),
                 )
             )
 
@@ -90,15 +92,15 @@ class DestinyManifest:
             to_insert.append(
                 DestinyActivityModeDefinition(
                     reference_id=int(reference_id),
-                    parent_hashes=values.get("parentHashes"),
-                    mode_type=values.get("modeType"),
-                    description=values.get("displayProperties", "description"),
-                    name=values.get("displayProperties", "name"),
-                    activity_mode_category=values.get("activityModeCategory"),
-                    is_team_based=values.get("isTeamBased"),
-                    friendly_name=values.get("friendlyName"),
-                    display=values.get("display"),
-                    redacted=values.get("redacted"),
+                    parent_hashes=values.get("parentHashes", default=[]),
+                    mode_type=values.get("modeType", default=default_integer),
+                    description=values.get("displayProperties", "description", default=default_text),
+                    name=values.get("displayProperties", "name", default=default_text),
+                    activity_mode_category=values.get("activityModeCategory", default=default_integer),
+                    is_team_based=values.get("isTeamBased", default=default_bool),
+                    friendly_name=values.get("friendlyName", default=default_text),
+                    display=values.get("display", default=default_bool),
+                    redacted=values.get("redacted", default=default_bool),
                 )
             )
 
@@ -149,20 +151,20 @@ class DestinyManifest:
             to_insert.append(
                 DestinyActivityDefinition(
                     reference_id=int(reference_id),
-                    description=values.get("displayProperties", "description"),
-                    name=values.get("displayProperties", "name"),
+                    description=values.get("displayProperties", "description", default=default_text),
+                    name=values.get("displayProperties", "name", default=default_text),
                     pgcr_image_url=f"https://www.bungie.net/{pgcr_image_url}" if pgcr_image_url else None,
-                    activity_light_level=values.get("activityLightLevel"),
-                    destination_hash=values.get("destinationHash"),
-                    place_hash=values.get("placeHash"),
+                    activity_light_level=values.get("activityLightLevel", default=default_integer),
+                    destination_hash=values.get("destinationHash", default=default_integer),
+                    place_hash=values.get("placeHash", default=default_integer),
                     activity_type_hash=activity_type_hash,
-                    is_pvp=values.get("isPvP"),
+                    is_pvp=values.get("isPvP", default=default_bool),
                     direct_activity_mode_hash=direct_activity_mode_hash,
                     direct_activity_mode_type=direct_activity_mode_type,
                     activity_mode_hashes=activity_mode_hashes,
                     activity_mode_types=activity_mode_types,
-                    matchmade=values.get("matchmaking", "isMatchmade") or False,
-                    max_players=values.get("matchmaking", "maxParty") or 0,
+                    matchmade=values.get("matchmaking", "isMatchmade", default=default_bool),
+                    max_players=values.get("matchmaking", "maxParty", default=0),
                 )
             )
 
@@ -182,14 +184,18 @@ class DestinyManifest:
         # save data to bulk insert later
         to_insert = []
         for reference_id, values in content.items():
+            # hashes can be classified
+            if (source_hash := values.get("sourceHash", default=default_integer)) == "Classified":
+                source_hash = -1
+
             to_insert.append(
                 DestinyCollectibleDefinition(
                     reference_id=int(reference_id),
-                    description=values.get("displayProperties", "description"),
-                    name=values.get("displayProperties", "name"),
-                    source_hash=values.get("sourceHash"),
-                    item_hash=values.get("itemHash"),
-                    parent_node_hashes=values.get("parentNodeHashes"),
+                    description=values.get("displayProperties", "description", default=default_text),
+                    name=values.get("displayProperties", "name", default=default_text),
+                    source_hash=source_hash,
+                    item_hash=values.get("itemHash", default=default_integer),
+                    parent_node_hashes=values.get("parentNodeHashes", default=[]),
                 )
             )
 
@@ -212,18 +218,18 @@ class DestinyManifest:
             to_insert.append(
                 DestinyInventoryItemDefinition(
                     reference_id=int(reference_id),
-                    description=values.get("displayProperties", "description"),
-                    name=values.get("displayProperties", "name"),
-                    flavor_text=values.get("flavorText"),
-                    item_type=values.get("itemType"),
-                    item_sub_type=values.get("itemSubType"),
-                    class_type=values.get("classType"),
-                    bucket_type_hash=values.get("inventory", "bucketTypeHash"),
-                    tier_type=values.get("inventory", "tierType"),
-                    tier_type_name=values.get("inventory", "tierTypeName") or "Unknown",
-                    equippable=values.get("equippable"),
-                    default_damage_type=values.get("defaultDamageType"),
-                    ammo_type=values.get("equippingBlock", "ammoType"),
+                    description=values.get("displayProperties", "description", default=default_text),
+                    name=values.get("displayProperties", "name", default=default_text),
+                    flavor_text=values.get("flavorText", default=default_text),
+                    item_type=values.get("itemType", default=default_integer),
+                    item_sub_type=values.get("itemSubType", default=default_integer),
+                    class_type=values.get("classType", default=default_integer),
+                    bucket_type_hash=values.get("inventory", "bucketTypeHash", default=default_integer),
+                    tier_type=values.get("inventory", "tierType", default=default_integer),
+                    tier_type_name=values.get("inventory", "tierTypeName", default=default_text),
+                    equippable=values.get("equippable", default=default_bool),
+                    default_damage_type=values.get("defaultDamageType", default=default_integer),
+                    ammo_type=values.get("equippingBlock", "ammoType", default=0),
                 )
             )
 
@@ -246,13 +252,13 @@ class DestinyManifest:
             to_insert.append(
                 DestinyRecordDefinition(
                     reference_id=int(reference_id),
-                    description=values.get("displayProperties", "description"),
-                    name=values.get("displayProperties", "name"),
-                    for_title_gilding=values.get("forTitleGilding"),
-                    title_name=values.get("titleInfo", "titlesByGender", "Male"),
-                    objective_hashes=values.get("objectiveHashes"),
-                    score_value=values.get("completionInfo", "ScoreValue"),
-                    parent_node_hashes=values.get("parentNodeHashes"),
+                    description=values.get("displayProperties", "description", default=default_text),
+                    name=values.get("displayProperties", "name", default=default_text),
+                    for_title_gilding=values.get("forTitleGilding", default=default_bool),
+                    title_name=values.get("titleInfo", "titlesByGender", "Male", default=default_text),
+                    objective_hashes=values.get("objectiveHashes", default=[]),
+                    score_value=values.get("completionInfo", "ScoreValue", default=0),
+                    parent_node_hashes=values.get("parentNodeHashes", default=[]),
                 )
             )
 
@@ -275,11 +281,11 @@ class DestinyManifest:
             to_insert.append(
                 DestinyInventoryBucketDefinition(
                     reference_id=int(reference_id),
-                    description=values.get("displayProperties", "description"),
-                    name=values.get("displayProperties", "name"),
-                    category=values.get("category"),
-                    item_count=values.get("itemCount"),
-                    location=values.get("location"),
+                    description=values.get("displayProperties", "description", default=default_text),
+                    name=values.get("displayProperties", "name", default=default_text),
+                    category=values.get("category", default=default_integer),
+                    item_count=values.get("itemCount", default=default_integer),
+                    location=values.get("location", default=default_integer),
                 )
             )
 
@@ -302,19 +308,21 @@ class DestinyManifest:
             to_insert.append(
                 DestinyPresentationNodeDefinition(
                     reference_id=int(reference_id),
-                    description=values.get("displayProperties", "description"),
-                    name=values.get("displayProperties", "name"),
+                    description=values.get("displayProperties", "description", default=default_text),
+                    name=values.get("displayProperties", "name", default=default_text),
                     objective_hash=values.get("objectiveHash"),
-                    presentation_node_type=values.get("presentationNodeType"),
+                    presentation_node_type=values.get("presentationNodeType", default=default_integer),
                     children_presentation_node_hash=[
-                        list(x.values())[0] for x in values.get("children", "presentationNodes")
+                        list(x.values())[0] for x in values.get("children", "presentationNodes", default=[])
                     ],
-                    children_collectible_hash=[list(x.values())[0] for x in values.get("children", "collectibles")],
-                    children_record_hash=[list(x.values())[0] for x in values.get("children", "records")],
-                    children_metric_hash=[list(x.values())[0] for x in values.get("children", "metrics")],
-                    parent_node_hashes=values.get("parentNodeHashes"),
-                    index=values.get("index"),
-                    redacted=values.get("redacted"),
+                    children_collectible_hash=[
+                        list(x.values())[0] for x in values.get("children", "collectibles", default=[])
+                    ],
+                    children_record_hash=[list(x.values())[0] for x in values.get("children", "records", default=[])],
+                    children_metric_hash=[list(x.values())[0] for x in values.get("children", "metrics", default=[])],
+                    parent_node_hashes=values.get("parentNodeHashes", default=[]),
+                    index=values.get("index", default=default_integer),
+                    redacted=values.get("redacted", default=default_bool),
                     completion_record_hash=values.get("completionRecordHash"),
                 )
             )
@@ -338,10 +346,10 @@ class DestinyManifest:
             to_insert.append(
                 DestinySeasonPassDefinition(
                     reference_id=int(reference_id),
-                    name=values.get("displayProperties", "name"),
-                    reward_progression_hash=values.get("rewardProgressionHash"),
-                    prestige_progression_hash=values.get("prestigeProgressionHash"),
-                    index=values.get("index"),
+                    name=values.get("displayProperties", "name", default=default_text),
+                    reward_progression_hash=values.get("rewardProgressionHash", default=default_integer),
+                    prestige_progression_hash=values.get("prestigeProgressionHash", default=default_integer),
+                    index=values.get("index", default=default_integer),
                 )
             )
 
@@ -364,10 +372,10 @@ class DestinyManifest:
             to_insert.append(
                 DestinyLoreDefinition(
                     reference_id=int(reference_id),
-                    name=values.get("displayProperties", "name"),
-                    description=values.get("displayProperties", "description"),
+                    name=values.get("displayProperties", "name", default=default_text),
+                    description=values.get("displayProperties", "description", default=default_text),
                     sub_title=values.get("subtitle"),
-                    redacted=values.get("redacted"),
+                    redacted=values.get("redacted", default=default_bool),
                 )
             )
 
@@ -383,4 +391,4 @@ class DestinyManifest:
         if post_elevator:
             # populate the autocomplete options again
             elevator_api = ElevatorApi()
-            await elevator_api.post(route_addition="/manifest_update")
+            await elevator_api.post(route="/manifest_update")

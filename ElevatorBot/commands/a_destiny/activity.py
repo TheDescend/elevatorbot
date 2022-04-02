@@ -1,6 +1,5 @@
 from dis_snek import InteractionContext, Member, Timestamp, TimestampStyles, slash_command
 
-from ElevatorBot.backendNetworking.destiny.activities import DestinyActivities
 from ElevatorBot.commandHelpers.autocomplete import activities, autocomplete_send_activity_name
 from ElevatorBot.commandHelpers.optionTemplates import (
     autocomplete_activity_option,
@@ -13,6 +12,7 @@ from ElevatorBot.commandHelpers.optionTemplates import (
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formatting import add_filler_field, embed_message, format_timedelta
 from ElevatorBot.misc.helperFunctions import parse_datetime_options
+from ElevatorBot.networking.destiny.activities import DestinyActivities
 from Shared.networkingSchemas.destiny import DestinyActivityInputModel
 
 
@@ -82,8 +82,8 @@ class DestinyActivity(BaseScale):
             embed.set_footer(" | ".join(footer))
 
         # add the fields
-        embed.add_field(name="Full Completions", value=str(stats.full_completions), inline=True)
-        embed.add_field(name="CP Completions", value=str(stats.cp_completions), inline=True)
+        embed.add_field(name="Full Completions", value=f"{stats.full_completions:,}", inline=True)
+        embed.add_field(name="CP Completions", value=f"{stats.cp_completions:,}", inline=True)
         add_filler_field(embed)
 
         if stats.fastest:
@@ -96,9 +96,9 @@ class DestinyActivity(BaseScale):
             )
 
         percent = (stats.precision_kills / stats.kills) * 100 if stats.kills else 0
-        embed.add_field(name="Kills", value=f"{stats.kills} _({round(percent, 2)}% prec)_", inline=True)
-        embed.add_field(name="Assists", value=str(stats.assists), inline=True)
-        embed.add_field(name="Deaths", value=str(stats.deaths), inline=True)
+        embed.add_field(name="Kills", value=f"{stats.kills:,} _({round(percent, 2)}% prec)_", inline=True)
+        embed.add_field(name="Assists", value=f"{stats.assists:,}", inline=True)
+        embed.add_field(name="Deaths", value=f"{stats.deaths:,}", inline=True)
 
         await ctx.send(embeds=embed)
 

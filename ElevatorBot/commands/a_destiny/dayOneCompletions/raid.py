@@ -1,11 +1,11 @@
 from anyio import create_task_group
 from dis_snek import InteractionContext, OptionTypes, SlashCommandChoice, slash_command, slash_option
 
-from ElevatorBot.backendNetworking.destiny.account import DestinyAccount
-from ElevatorBot.backendNetworking.errors import BackendException
 from ElevatorBot.commandHelpers.subCommandTemplates import day1completions_sub_command
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formatting import embed_message
+from ElevatorBot.networking.destiny.account import DestinyAccount
+from ElevatorBot.networking.errors import BackendException
 from ElevatorBot.static.destinyActivities import raid_to_emblem_hash
 
 
@@ -34,11 +34,11 @@ class DayOneRaid(BaseScale):
                     if e.error == "DiscordIdNotFound":
                         pass
                     else:
-                        raise e
+                        raise LookupError
 
         raid_completions = []
         async with create_task_group() as tg:
-            for member in ctx.guild.members:
+            for member in ctx.guild.humans:
                 tg.start_soon(check_member, DestinyAccount(discord_member=member, discord_guild=ctx.guild, ctx=None))
 
         embed = embed_message(f"{raid} - Day One Completions")

@@ -1,11 +1,11 @@
 from dis_snek import InteractionContext, OptionTypes, Role, slash_command, slash_option
 
-from ElevatorBot.backendNetworking.destiny.profile import DestinyProfile
 from ElevatorBot.commandHelpers.subCommandTemplates import setup_sub_command
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.core.misc.persistentMessages import PersistentMessages
 from ElevatorBot.misc.cache import registered_role_cache
 from ElevatorBot.misc.formatting import embed_message
+from ElevatorBot.networking.destiny.profile import DestinyProfile
 
 
 class RegisteredRole(BaseScale):
@@ -43,7 +43,7 @@ class RegisteredRole(BaseScale):
         )
 
         # check all members
-        for member in ctx.guild.members:
+        for member in ctx.guild.humans:
             # check if member is not pending
             if not member.pending:
                 destiny_profile = DestinyProfile(ctx=ctx, discord_member=member, discord_guild=ctx.guild)
