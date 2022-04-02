@@ -128,7 +128,6 @@ class Records(Base):
 
     destiny_id = Column(BigInteger, nullable=False, primary_key=True)
     record_id = Column(BigInteger, nullable=False, primary_key=True)
-    completed = Column(Boolean, nullable=False)
 
 
 class Collectibles(Base):
@@ -136,7 +135,6 @@ class Collectibles(Base):
 
     destiny_id = Column(BigInteger, nullable=False, primary_key=True)
     collectible_id = Column(BigInteger, nullable=False, primary_key=True)
-    owned = Column(Boolean, nullable=False)
 
 
 ################################################################

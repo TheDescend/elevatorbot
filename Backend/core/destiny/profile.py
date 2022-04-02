@@ -335,7 +335,7 @@ class DestinyProfile:
                         # don't really need to insert not-gained triumphs
                         if status:
                             cache.triumphs[self.destiny_id].add(triumph_id)
-                            to_insert.append(Records(destiny_id=self.destiny_id, record_id=triumph_id, completed=True))
+                            to_insert.append(Records(destiny_id=self.destiny_id, record_id=triumph_id))
 
                     # mass insert the missing entries
                     if to_insert:
@@ -406,9 +406,7 @@ class DestinyProfile:
                     # don't really need to insert not-owned collectibles
                     if status:
                         cache.collectibles[self.destiny_id].add(collectible_id)
-                        to_insert.append(
-                            Collectibles(destiny_id=self.destiny_id, collectible_id=collectible_id, owned=True)
-                        )
+                        to_insert.append(Collectibles(destiny_id=self.destiny_id, collectible_id=collectible_id))
 
                 # mass insert the missing entries
                 if to_insert:
