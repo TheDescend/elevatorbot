@@ -20,12 +20,8 @@ async def update_discord_bot_status(client):
         "If you encounter a bug, please use `/bug`",
         "Also visit my website: `elevatorbot.ch`",
         "↓ Psst! Did you know this person stinks",
-        "@Feedy would like to inform you that the next message is wrong",
-        "Vow of the Disciple releases 05/03/22 1h after reset",
         "To invite me to your own server, click on my profile",
-        "I can win the hard mode TicTacToe, can you?",
-        "@Feedy's removed message is now forever gone",
-        "Presenting: Extra context! Right click a message or a user and be amazed",
+        "@Feedy's has managed to find errors in three of my statuses so far and all he got was this 🍪",
         "Now using Descend™ green",
         "Join the Descend discord: `discord.gg/descend`",
     ]
