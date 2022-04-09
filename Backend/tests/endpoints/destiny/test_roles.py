@@ -11,7 +11,6 @@ from Shared.networkingSchemas.destiny.roles import (
     MissingRolesModel,
     RequirementActivityModel,
     RequirementIntegerModel,
-    RoleDataModel,
     RoleEnum,
     RoleModel,
     RolesModel,
@@ -168,16 +167,14 @@ async def test_delete_role(client: AsyncClient, mocker: MockerFixture):
     input_model = RoleModel(
         role_id=2,
         guild_id=dummy_discord_guild_id,
-        role_data=RoleDataModel(
-            category="Destiny Roles",
-            deprecated=False,
-            acquirable=False,
-            require_activity_completions=[],
-            require_collectibles=[RequirementIntegerModel(id=dummy_gotten_collectible_id)],
-            require_records=[RequirementIntegerModel(id=dummy_gotten_record_id)],
-            require_role_ids=[],
-            replaced_by_role_id=None,
-        ),
+        category="Destiny Roles",
+        deprecated=False,
+        acquirable=False,
+        require_activity_completions=[],
+        require_collectibles=[RequirementIntegerModel(id=dummy_gotten_collectible_id)],
+        require_records=[RequirementIntegerModel(id=dummy_gotten_record_id)],
+        require_role_ids=[],
+        replaced_by_role_id=None,
     )
     r = await client.post(f"/destiny/roles/{dummy_discord_guild_id}/create", json=orjson.loads(input_model.json()))
     assert r.status_code == 200

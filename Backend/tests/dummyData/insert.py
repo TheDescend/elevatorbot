@@ -31,7 +31,7 @@ from Backend.database.models import (
 from Backend.misc.cache import cache
 from Backend.networking.schemas import WebResponse
 from Shared.functions.helperFunctions import get_now_with_tz, localize_datetime
-from Shared.networkingSchemas.destiny.roles import RequirementIntegerModel, RoleDataModel, RoleModel, RolesModel
+from Shared.networkingSchemas.destiny.roles import RequirementIntegerModel, RoleModel, RolesModel
 from Shared.networkingSchemas.misc.auth import BungieTokenInput
 from Shared.networkingSchemas.misc.persistentMessages import (
     PersistentMessage,
@@ -343,16 +343,14 @@ async def insert_dummy_data(db: AsyncSession, client: AsyncClient):
     input_model = RoleModel(
         role_id=1,
         guild_id=dummy_discord_guild_id,
-        role_data=RoleDataModel(
-            category="Destiny Roles",
-            deprecated=False,
-            acquirable=True,
-            require_activity_completions=[],
-            require_collectibles=[],
-            require_records=[RequirementIntegerModel(id=dummy_gotten_record_id)],
-            require_role_ids=[],
-            replaced_by_role_id=None,
-        ),
+        category="Destiny Roles",
+        deprecated=False,
+        acquirable=True,
+        require_activity_completions=[],
+        require_collectibles=[],
+        require_records=[RequirementIntegerModel(id=dummy_gotten_record_id)],
+        require_role_ids=[],
+        replaced_by_role_id=None,
     )
     r = await client.post(f"/destiny/roles/{dummy_discord_guild_id}/create", json=orjson.loads(input_model.json()))
     assert r.status_code == 200

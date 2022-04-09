@@ -66,24 +66,6 @@ class RequirementIntegerModel(CustomBaseModel):
     inverse: bool = False
 
 
-class RoleDataModel(CustomBaseModel):
-    # the category of the role. Used to better format roles
-    category: str = "Destiny Roles"
-
-    # mark the role as acquirable, but reliant on removed content
-    deprecated: bool = False
-
-    # set whether the role can be earned
-    acquirable: bool = True
-
-    require_activity_completions: list[RequirementActivityModel] = []
-    require_collectibles: list[RequirementIntegerModel] = []
-    require_records: list[RequirementIntegerModel] = []
-    require_role_ids: list[RequirementIntegerModel] = []
-
-    replaced_by_role_id: Optional[int] = None
-
-
 class RoleDataUserModel(CustomBaseModel):
     require_activity_completions: list[str] = []
     require_collectibles: list[bool] = []
@@ -94,7 +76,21 @@ class RoleDataUserModel(CustomBaseModel):
 class RoleModel(CustomBaseModel):
     role_id: int
     guild_id: int
-    role_data: RoleDataModel
+
+    category: str
+
+    # mark the role as acquirable, but reliant on removed content
+    deprecated: bool
+
+    # set whether the role can be earned
+    acquirable: bool
+
+    require_activity_completions: list[int]  # list of acitivty hashes
+    require_collectibles: list[int]  # list of collectible hashes
+    require_records: list[int]  # list of record hashes
+    require_role_ids: list[int]  # list of discord role ids
+
+    replaced_by_role_id: Optional[int]
 
 
 class RolesModel(CustomBaseModel):

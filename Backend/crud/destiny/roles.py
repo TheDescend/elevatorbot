@@ -4,7 +4,7 @@ from Backend.core.errors import CustomException
 from Backend.crud.base import CRUDBase
 from Backend.database.models import Roles
 from Backend.misc.cache import cache
-from Shared.networkingSchemas.destiny.roles import RoleDataModel, RoleModel
+from Shared.networkingSchemas.destiny.roles import RoleModel
 
 
 class CRUDRoles(CRUDBase):
@@ -21,9 +21,7 @@ class CRUDRoles(CRUDBase):
             results = []
             for result in db_results:
                 model = RoleModel(
-                    role_id=result.role_id,
-                    guild_id=result.guild_id,
-                    role_data=RoleDataModel.parse_obj(result.role_data),
+                    **result,
                 )
                 results.append(model)
 
@@ -43,11 +41,7 @@ class CRUDRoles(CRUDBase):
             if not result:
                 raise CustomException("RoleNotExist")
 
-            role_obj = RoleModel(
-                role_id=result.role_id,
-                guild_id=result.guild_id,
-                role_data=RoleDataModel.parse_obj(result.role_data),
-            )
+            role_obj = RoleModel(**result)
 
             self.cache.roles.update({role_id: role_obj})
 

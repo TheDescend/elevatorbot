@@ -16,6 +16,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import relationship
+from sqlalchemy.schema import Table
 
 from Backend.database.base import Base, is_test_mode
 from Shared.functions.helperFunctions import get_min_with_tz, get_now_with_tz
@@ -135,6 +136,7 @@ class Collectibles(Base):
 
     destiny_id = Column(BigInteger, nullable=False, primary_key=True)
     collectible_id = Column(BigInteger, nullable=False, primary_key=True)
+    owned = Column(Boolean, nullable=False)
 
 
 ################################################################
@@ -180,12 +182,35 @@ class ElevatorServers(Base):
     join_date = Column(DateTime(timezone=True), nullable=False, default=get_now_with_tz())
 
 
+association_table = Table(
+    "association",
+    Base.metadata,
+    Column("roles_role_id", ForeignKey("roles.role_id"), primary_key=True),
+    Column("roles_require_role_ids", ForeignKey("roles.require_role_ids"), primary_key=True),
+)
+
+
 class Roles(Base):
     __tablename__ = "roles"
 
     role_id = Column(BigInteger, primary_key=True, nullable=False, autoincrement=False)
     guild_id = Column(BigInteger, nullable=False, autoincrement=False)
     role_data = Column(JSON, nullable=False, primary_key=False, autoincrement=False)
+
+    category = Column(Text, primary_key=False, nullable=False)
+
+    # mark the role as acquirable, but reliant on removed content
+    deprecated = Column(Boolean, primary_key=False, nullable=False)
+
+    # set whether the role can be earned
+    acquirable = Column(Boolean, primary_key=False, nullable=False)
+
+    require_activity_completions = Column(ARRAY(BigInteger))  # list of acitivty hashes
+    require_collectibles = Column(ARRAY(BigInteger))  # list of collectible hashes
+    require_records = Column(ARRAY(BigInteger))  # list of record hashes
+    require_role_ids = relationship("Roles", secondary=association_table)  # list of discord role ids
+
+    replaced_by_role_id = Column(BigInteger, ForeignKey("roles.role_id"), nullable=True)
 
 
 ################################################################
