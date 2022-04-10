@@ -2,9 +2,12 @@ from __future__ import annotations
 
 import datetime
 from enum import Enum
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 from Shared.networkingSchemas.base import CustomBaseModel
+
+if TYPE_CHECKING:
+    from Backend.database import Roles
 
 
 class RolesCategoryModel(CustomBaseModel):
@@ -59,6 +62,9 @@ class RequirementActivityModel(CustomBaseModel):
     # reverse this requirement - only people WITHOUT it get it
     inverse: bool = False
 
+    class Config:
+        orm_mode = True
+
 
 class RequirementIntegerModel(CustomBaseModel):
     # the id of the collectible / record / role
@@ -66,6 +72,9 @@ class RequirementIntegerModel(CustomBaseModel):
 
     # reverse this requirement - only people WITHOUT it get it
     inverse: bool = False
+
+    class Config:
+        orm_mode = True
 
 
 class RoleDataUserModel(CustomBaseModel):
@@ -94,9 +103,32 @@ class RoleModel(CustomBaseModel):
     # list of record hashes
     require_records: list[RequirementIntegerModel] = []
     # list of discord role ids
-    require_role_ids: list[RequirementIntegerModel] = []
+    # todo changed behaviour - can't be inverse anymore -> change that everywhere
+    # todo old: require_role_ids: list[RequirementIntegerModel] = []
+    require_role_ids: list[int] = []
 
     replaced_by_role_id: Optional[int] = None
+
+    @classmethod
+    def from_roles_model(cls, db_model: Roles):
+        """Convert SqlAlchemy's `Roles` to this model"""
+
+        return cls(
+            role_id=db_model.role_id,
+            guild_id=db_model.guild_id,
+            category=db_model.category,
+            deprecated=db_model.deprecated,
+            acquirable=db_model.acquirable,
+            require_activity_completions=[
+                RequirementActivityModel.from_orm(activity) for activity in db_model.require_activity_completions
+            ],
+            require_collectibles=[
+                RequirementIntegerModel.from_orm(collectible) for collectible in db_model.require_collectibles
+            ],
+            require_records=[RequirementIntegerModel.from_orm(record) for record in db_model.require_records],
+            require_role_ids=[role.role_id for role in db_model.require_roles],
+            replaced_by_role_id=db_model.replaced_by_role_id,
+        )
 
 
 class RolesModel(CustomBaseModel):
