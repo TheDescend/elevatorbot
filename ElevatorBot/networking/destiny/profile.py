@@ -75,8 +75,11 @@ class DestinyProfile(BaseBackendConnection):
             try:
                 # check their status with the backend
                 result = await self.has_token()
-            except BackendException:
-                return False
+            except BackendException as e:
+                if e.error == "NoToken":
+                    return False
+                else:
+                    raise e
 
         if not result.token:
             registered_role_cache.not_registered_users.append(self.discord_member.id)

@@ -59,4 +59,6 @@ class BackendResult:
         if format_kwargs:
             self.error_message = format_kwargs
 
-        await ctx.send(ephemeral=hidden, embeds=self.embed)
+        # do not send "NoToken" errors since they are handled elsewhere
+        if self.error != "NoToken":
+            await ctx.send(ephemeral=hidden, embeds=self.embed)
