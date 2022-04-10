@@ -69,7 +69,7 @@ class BaseScale(RegisteredScale):
         except BackendException:
             registration_role = None
 
-        profile = DestinyProfile(ctx=None, discord_member=ctx.author, discord_guild=ctx.guild)
+        profile = DestinyProfile(ctx=ctx, discord_member=ctx.author, discord_guild=ctx.guild)
         if not (result := await profile.is_registered()):
             # send error message
             await ctx.send(
