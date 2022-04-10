@@ -15,7 +15,7 @@ from sqlalchemy import (
     Text,
 )
 from sqlalchemy.engine import Engine
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import backref, relationship
 from sqlalchemy.schema import Table
 
 from Backend.database.base import Base, is_test_mode
@@ -182,19 +182,22 @@ class ElevatorServers(Base):
     join_date = Column(DateTime(timezone=True), nullable=False, default=get_now_with_tz())
 
 
-association_table = Table(
-    "association",
+# association table to link roles and their required roles - https://docs.sqlalchemy.org/en/14/orm/join_conditions.html#self-referential-many-to-many-relationship
+required_roles_association_table = Table(
+    "requiredRolesAssociation",
     Base.metadata,
-    Column("roles_role_id", ForeignKey("roles.role_id"), primary_key=True),
-    Column("roles_require_role_ids", ForeignKey("roles.require_role_ids"), primary_key=True),
+    Column("parent_role_id", ForeignKey("roles.role_id"), primary_key=True),
+    Column("require_role_id", ForeignKey("roles.role_id"), primary_key=True),
 )
 
-
+# todo add tests for cascading
 class Roles(Base):
     __tablename__ = "roles"
 
     role_id = Column(BigInteger, primary_key=True, nullable=False, autoincrement=False)
     guild_id = Column(BigInteger, nullable=False, autoincrement=False)
+
+    # todo delete (also in alembic)
     role_data = Column(JSON, nullable=False, primary_key=False, autoincrement=False)
 
     category = Column(Text, primary_key=False, nullable=False)
@@ -205,12 +208,21 @@ class Roles(Base):
     # set whether the role can be earned
     acquirable = Column(Boolean, primary_key=False, nullable=False)
 
-    require_activity_completions = Column(ARRAY(BigInteger))  # list of acitivty hashes
+    require_activity_completions = Column(ARRAY(BigInteger))  # list of activity hashes
     require_collectibles = Column(ARRAY(BigInteger))  # list of collectible hashes
     require_records = Column(ARRAY(BigInteger))  # list of record hashes
-    require_role_ids = relationship("Roles", secondary=association_table)  # list of discord role ids
+    require_roles = relationship(
+        "Roles",
+        secondary=required_roles_association_table,
+        primaryjoin=role_id == required_roles_association_table.c.parent_role_id,
+        secondaryjoin=role_id == required_roles_association_table.c.require_role_id,
+        backref=backref("required_by_roles"),
+        cascade="all, delete-orphan",
+        lazy="joined",
+        join_depth=100,
+    )  # list of discord role ids
 
-    replaced_by_role_id = Column(BigInteger, ForeignKey("roles.role_id"), nullable=True)
+    replaced_by_role = Column(BigInteger, ForeignKey("roles.role_id"), nullable=True)
 
 
 ################################################################
