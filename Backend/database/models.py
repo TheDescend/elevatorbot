@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import asyncio
+from typing import Optional
 
 from sqlalchemy import (
     ARRAY,
@@ -63,7 +66,7 @@ class Activities(Base):
     is_private = Column(Boolean, nullable=False)
     system = Column(SmallInteger, nullable=False)
 
-    users = relationship(
+    users: list[ActivitiesUsers] = relationship(
         "ActivitiesUsers", back_populates="activity", cascade="all, delete", passive_deletes=True, lazy="joined"
     )
 
@@ -104,9 +107,9 @@ class ActivitiesUsers(Base):
     weapon_kills_ability = Column(Integer, nullable=False)
 
     activity_instance_id = Column(BigInteger, ForeignKey(Activities.instance_id))
-    activity = relationship("Activities", back_populates="users", lazy="joined")
+    activity: list[Activities] = relationship("Activities", back_populates="users", lazy="joined")
 
-    weapons = relationship(
+    weapons: list[ActivitiesUsersWeapons] = relationship(
         "ActivitiesUsersWeapons", back_populates="user", cascade="all, delete", passive_deletes=True, lazy="joined"
     )
 
@@ -121,7 +124,7 @@ class ActivitiesUsersWeapons(Base):
     unique_weapon_precision_kills = Column(Integer, nullable=False)
 
     user_id = Column(BigInteger, ForeignKey(ActivitiesUsers.id))
-    user = relationship("ActivitiesUsers", back_populates="weapons", lazy="joined")
+    user: list[ActivitiesUsers] = relationship("ActivitiesUsers", back_populates="weapons", lazy="joined")
 
 
 class Records(Base):
@@ -206,10 +209,10 @@ class RolesActivity(Base):
 
     maximum_allowed_players = Column(Integer, nullable=False)
 
-    allow_time_periods = relationship(
+    allow_time_periods: list[RolesActivityTimePeriod] = relationship(
         "RolesActivityTimePeriod", cascade="all, delete-orphan", passive_deletes=True, lazy="joined"
     )
-    disallow_time_periods = relationship(
+    disallow_time_periods: list[RolesActivityTimePeriod] = relationship(
         "RolesActivityTimePeriod", cascade="all, delete-orphan", passive_deletes=True, lazy="joined"
     )
 
@@ -262,14 +265,16 @@ class Roles(Base):
     deprecated = Column(Boolean, nullable=False)
     acquirable = Column(Boolean, nullable=False)
 
-    require_activity_completions = relationship(
+    require_activity_completions: list[RolesActivity] = relationship(
         "RolesActivity", cascade="all, delete-orphan", passive_deletes=True, lazy="joined"
     )
-    require_collectibles = relationship(
+    require_collectibles: list[RolesInteger] = relationship(
         "RolesInteger", cascade="all, delete-orphan", passive_deletes=True, lazy="joined"
     )
-    require_records = relationship("RolesInteger", cascade="all, delete-orphan", passive_deletes=True, lazy="joined")
-    require_roles = relationship(
+    require_records: list[RolesInteger] = relationship(
+        "RolesInteger", cascade="all, delete-orphan", passive_deletes=True, lazy="joined"
+    )
+    require_roles: list[Roles] = relationship(
         "Roles",
         secondary=required_roles_association_table,
         primaryjoin=role_id == required_roles_association_table.c.parent_role_id,
@@ -282,7 +287,7 @@ class Roles(Base):
     )
 
     replaced_by_role_id = Column(BigInteger, ForeignKey("roles.role_id"), nullable=True)
-    replaced_by_role = relationship(
+    replaced_by_role: Roles | None = relationship(
         "Roles",
         remote_side=[role_id],
         lazy="joined",
