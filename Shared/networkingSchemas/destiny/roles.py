@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import datetime
 from enum import Enum
 from typing import Optional
@@ -85,12 +87,16 @@ class RoleModel(CustomBaseModel):
     # set whether the role can be earned
     acquirable: bool
 
-    require_activity_completions: list[int]  # list of acitivty hashes
-    require_collectibles: list[int]  # list of collectible hashes
-    require_records: list[int]  # list of record hashes
-    require_role_ids: list[int]  # list of discord role ids
+    # list of activity hashes
+    require_activity_completions: list[RequirementActivityModel] = []
+    # list of collectible hashes
+    require_collectibles: list[RequirementIntegerModel] = []
+    # list of record hashes
+    require_records: list[RequirementIntegerModel] = []
+    # list of discord role ids
+    require_role_ids: list[RequirementIntegerModel] = []
 
-    replaced_by_role_id: Optional[int]
+    replaced_by_role_id: Optional[int] = None
 
 
 class RolesModel(CustomBaseModel):

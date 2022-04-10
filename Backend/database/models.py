@@ -189,6 +189,9 @@ required_roles_association_table = Table(
     Column("require_role_id", ForeignKey("roles.role_id"), primary_key=True),
 )
 
+################################################################
+# Roles
+
 # todo add tests for cascading
 class Roles(Base):
     __tablename__ = "roles"
@@ -207,6 +210,7 @@ class Roles(Base):
     # set whether the role can be earned
     acquirable = Column(Boolean, primary_key=False, nullable=False)
 
+    # todo shit
     require_activity_completions = Column(ARRAY(BigInteger))  # list of activity hashes
     require_collectibles = Column(ARRAY(BigInteger))  # list of collectible hashes
     require_records = Column(ARRAY(BigInteger))  # list of record hashes

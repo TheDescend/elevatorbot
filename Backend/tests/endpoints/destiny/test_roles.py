@@ -56,7 +56,7 @@ async def test_get_user(client: AsyncClient, mocker: MockerFixture):
 
     # update the role a couple of times to see if it's still earned
     # check activity
-    my_role.role_data.require_activity_completions = [
+    my_role.require_activity_completions = [
         RequirementActivityModel(
             allowed_activity_hashes=[dummy_activity_reference_id], count=1, maximum_allowed_players=1
         )
@@ -72,7 +72,7 @@ async def test_get_user(client: AsyncClient, mocker: MockerFixture):
     assert len(data.earned) == 1
 
     # check wrong activity
-    my_role.role_data.require_activity_completions = [
+    my_role.require_activity_completions = [
         RequirementActivityModel(
             allowed_activity_hashes=[dummy_activity_reference_id], count=2, maximum_allowed_players=1
         )
@@ -88,8 +88,8 @@ async def test_get_user(client: AsyncClient, mocker: MockerFixture):
     assert len(data.not_earned) == 1
 
     # check collectible
-    my_role.role_data.require_activity_completions = []
-    my_role.role_data.require_collectibles = [RequirementIntegerModel(id=dummy_gotten_collectible_id)]
+    my_role.require_activity_completions = []
+    my_role.require_collectibles = [RequirementIntegerModel(id=dummy_gotten_collectible_id)]
     r = await client.post(
         f"/destiny/roles/{dummy_discord_guild_id}/update/{my_role.role_id}", json=orjson.loads(my_role.json())
     )
@@ -101,7 +101,7 @@ async def test_get_user(client: AsyncClient, mocker: MockerFixture):
     assert len(data.earned) == 1
 
     # check wrong collectible
-    my_role.role_data.require_collectibles = [RequirementIntegerModel(id=dummy_not_gotten_collectible_id)]
+    my_role.require_collectibles = [RequirementIntegerModel(id=dummy_not_gotten_collectible_id)]
     r = await client.post(
         f"/destiny/roles/{dummy_discord_guild_id}/update/{my_role.role_id}", json=orjson.loads(my_role.json())
     )
@@ -113,8 +113,8 @@ async def test_get_user(client: AsyncClient, mocker: MockerFixture):
     assert len(data.not_earned) == 1
 
     # check record
-    my_role.role_data.require_collectibles = []
-    my_role.role_data.require_records = [RequirementIntegerModel(id=dummy_gotten_record_id)]
+    my_role.require_collectibles = []
+    my_role.require_records = [RequirementIntegerModel(id=dummy_gotten_record_id)]
     r = await client.post(
         f"/destiny/roles/{dummy_discord_guild_id}/update/{my_role.role_id}", json=orjson.loads(my_role.json())
     )
@@ -126,7 +126,7 @@ async def test_get_user(client: AsyncClient, mocker: MockerFixture):
     assert len(data.earned) == 1
 
     # check wrong record
-    my_role.role_data.require_records = [RequirementIntegerModel(id=dummy_not_gotten_record_id)]
+    my_role.require_records = [RequirementIntegerModel(id=dummy_not_gotten_record_id)]
     r = await client.post(
         f"/destiny/roles/{dummy_discord_guild_id}/update/{my_role.role_id}", json=orjson.loads(my_role.json())
     )
@@ -156,7 +156,7 @@ async def test_get_user(client: AsyncClient, mocker: MockerFixture):
     data = MissingRolesModel.parse_obj(r.json())
     assert data.acquirable
     assert len(data.acquirable) == 1
-    assert data.acquirable[0].category == my_role.role_data.category
+    assert data.acquirable[0].category == my_role.category
     assert data.acquirable[0].discord_role_id == my_role.role_id
 
 
