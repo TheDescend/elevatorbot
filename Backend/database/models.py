@@ -8,6 +8,7 @@ from sqlalchemy import (
     Column,
     Date,
     DateTime,
+    Float,
     ForeignKey,
     Integer,
     Numeric,
@@ -181,6 +182,63 @@ class ElevatorServers(Base):
     join_date = Column(DateTime(timezone=True), nullable=False, default=get_now_with_tz())
 
 
+################################################################
+# Roles
+
+# for activities
+class RolesActivity(Base):
+    __tablename__ = "rolesActivity"
+
+    role_id = Column(Integer, ForeignKey("roles.role_id"))
+    id = Column(Integer, autoincrement=True, primary_key=True)
+
+    allowed_activity_hashes = Column(ARRAY(BigInteger()), nullable=False)
+    count = Column(Integer, nullable=False)
+
+    allow_checkpoints = Column(Boolean, nullable=False)
+    require_team_flawless = Column(Boolean, nullable=False)
+    require_individual_flawless = Column(Boolean, nullable=False)
+
+    require_score = Column(Integer, nullable=True)
+    require_kills = Column(Integer, nullable=True)
+    require_kills_per_minute = Column(Float, nullable=True)
+    require_kda = Column(Float, nullable=True)
+    require_kd = Column(Float, nullable=True)
+
+    maximum_allowed_players = Column(Integer, nullable=False)
+
+    allow_time_periods = relationship(
+        "RolesActivityTimePeriod", cascade="all, delete-orphan", passive_deletes=True, lazy="joined"
+    )
+    disallow_time_periods = relationship(
+        "RolesActivityTimePeriod", cascade="all, delete-orphan", passive_deletes=True, lazy="joined"
+    )
+
+    inverse = Column(Boolean, nullable=False)
+
+
+class RolesActivityTimePeriod(Base):
+    __tablename__ = "rolesActivityTimePeriod"
+
+    role_activity_id = Column(Integer, ForeignKey("rolesActivity.id"))
+    id = Column(Integer, autoincrement=True, primary_key=True)
+
+    start_time = Column(DateTime(timezone=True), nullable=False)
+    end_time = Column(DateTime(timezone=True), nullable=False)
+
+
+# for collectibles, triumphs, etc.
+class RolesInteger(Base):
+    __tablename__ = "rolesInteger"
+
+    role_id = Column(Integer, ForeignKey("roles.role_id"))
+
+    # the id of the collectible / record
+    id = Column(BigInteger, primary_key=True, nullable=False, autoincrement=False)
+
+    inverse = Column(Boolean, nullable=False)
+
+
 # association table to link roles and their required roles - https://docs.sqlalchemy.org/en/14/orm/join_conditions.html#self-referential-many-to-many-relationship
 required_roles_association_table = Table(
     "requiredRolesAssociation",
@@ -189,31 +247,29 @@ required_roles_association_table = Table(
     Column("require_role_id", ForeignKey("roles.role_id"), primary_key=True),
 )
 
-################################################################
-# Roles
 
-# todo add tests for cascading
 class Roles(Base):
     __tablename__ = "roles"
 
-    role_id = Column(BigInteger, primary_key=True, nullable=False, autoincrement=False)
-    guild_id = Column(BigInteger, nullable=False, autoincrement=False)
-
     # todo delete (also in alembic)
-    role_data = Column(JSON, nullable=False, primary_key=False, autoincrement=False)
+    role_data = Column(JSON, nullable=True)
 
-    category = Column(Text, primary_key=False, nullable=False)
+    id = Column(Integer, autoincrement=True, primary_key=True)
 
-    # mark the role as acquirable, but reliant on removed content
-    deprecated = Column(Boolean, primary_key=False, nullable=False)
+    role_id = Column(BigInteger, nullable=False, unique=True)
+    guild_id = Column(BigInteger, nullable=False)
 
-    # set whether the role can be earned
-    acquirable = Column(Boolean, primary_key=False, nullable=False)
+    category = Column(Text, nullable=False)
+    deprecated = Column(Boolean, nullable=False)
+    acquirable = Column(Boolean, nullable=False)
 
-    # todo shit
-    require_activity_completions = Column(ARRAY(BigInteger))  # list of activity hashes
-    require_collectibles = Column(ARRAY(BigInteger))  # list of collectible hashes
-    require_records = Column(ARRAY(BigInteger))  # list of record hashes
+    require_activity_completions = relationship(
+        "RolesActivity", cascade="all, delete-orphan", passive_deletes=True, lazy="joined"
+    )
+    require_collectibles = relationship(
+        "RolesInteger", cascade="all, delete-orphan", passive_deletes=True, lazy="joined"
+    )
+    require_records = relationship("RolesInteger", cascade="all, delete-orphan", passive_deletes=True, lazy="joined")
     require_roles = relationship(
         "Roles",
         secondary=required_roles_association_table,
@@ -221,9 +277,10 @@ class Roles(Base):
         secondaryjoin=role_id == required_roles_association_table.c.require_role_id,
         backref=backref("required_by_roles"),
         cascade="all, delete-orphan",
+        passive_deletes=True,
         lazy="joined",
         join_depth=100,
-    )  # list of discord role ids
+    )
 
     replaced_by_role_id = Column(BigInteger, ForeignKey("roles.role_id"), nullable=True)
     replaced_by_role = relationship(

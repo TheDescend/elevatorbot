@@ -1,8 +1,10 @@
+import copy
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.errors import CustomException
-from Backend.crud.base import CRUDBase
-from Backend.database.models import Roles
+from Backend.crud.base import CRUDBase, ModelType
+from Backend.database.models import Roles, RolesActivity, RolesActivityTimePeriod, RolesInteger
 from Backend.misc.cache import cache
 from Shared.networkingSchemas.destiny.roles import RoleModel
 
@@ -10,7 +12,7 @@ from Shared.networkingSchemas.destiny.roles import RoleModel
 class CRUDRoles(CRUDBase):
     cache = cache
 
-    async def get_guild_roles(self, db: AsyncSession, guild_id: int) -> list[RoleModel]:
+    async def get_guild_roles(self, db: AsyncSession, guild_id: int) -> list[Roles]:
         """Return all guild roles"""
 
         # populate cache if not exists
@@ -18,30 +20,30 @@ class CRUDRoles(CRUDBase):
             db_results = await self._get_multi(db=db, guild_id=guild_id)
 
             # format them
-            results = []
+            results: list[Roles] = []
             for result in db_results:
-                model = RoleModel(
-                    **result,
-                )
-                results.append(model)
+                # copy it once to prevent it from expiring
+                role_obj = copy.copy(result)
+                results.append(role_obj)
 
                 # also cache it
-                self.cache.roles.update({model.role_id: model})
+                self.cache.roles.update({role_obj.role_id: role_obj})
 
             self.cache.guild_roles.update({guild_id: results})
 
         return self.cache.guild_roles[guild_id]
 
-    async def get_role(self, db: AsyncSession, role_id: int) -> RoleModel:
+    async def get_role(self, db: AsyncSession, role_id: int) -> Roles:
         """Return the role by id"""
 
         # populate cache if not exists
         if role_id not in self.cache.roles:
-            result = await self._get_with_key(db=db, primary_key=role_id)
+            result = await self._get_one(db=db, role_id=role_id)
             if not result:
                 raise CustomException("RoleNotExist")
 
-            role_obj = RoleModel(**result)
+            # copy it once to prevent it from expiring
+            role_obj = copy.copy(result)
 
             self.cache.roles.update({role_id: role_obj})
 
@@ -52,38 +54,143 @@ class CRUDRoles(CRUDBase):
 
         self._check_role(role)
 
-        db_role = Roles(role_id=role.role_id, guild_id=role.guild_id, role_data=role.role_data.dict())
+        db_role = Roles(
+            role_id=role.role_id,
+            guild_id=role.guild_id,
+            category=role.category,
+            deprecated=role.deprecated,
+            acquirable=role.acquirable,
+        )
+
+        # set the relationships
+        await self._set_role_relationships(db=db, role=role, db_role=db_role)
+
         await self._insert(db=db, to_create=db_role)
 
-        # insert into cache
-        await self._update_cache(db=db, role=db_role)
+        # update guild roles and roles cache
+        await self._update_guild_cache(db=db, guild_id=role.guild_id)
 
     async def update_role(self, db: AsyncSession, role_id: int, role: RoleModel):
         """Update a role"""
 
         self._check_role(role)
 
-        # check if the primary key changed
-        if role.role_id != role_id:
-            # delete old and insert
-            await self.delete_role(db=db, role_id=role_id)
-            await self.create_role(db=db, role=role)
+        # update the role
+        db_role: Roles = await self._get_one(db=db, role_id=role_id)
+        if not db_role:
+            raise CustomException("Role does not exist")
 
-        else:
-            # update the role
-            db_role = await self._get_with_key(db=db, primary_key=role_id)
-            if not db_role:
-                raise CustomException("Role does not exist")
+        db_role = await self._update(
+            db=db,
+            to_update=db_role,
+            role_id=role.role_id,
+            guild_id=role.guild_id,
+            category=role.category,
+            deprecated=role.deprecated,
+            acquirable=role.acquirable,
+        )
 
-            await self._update(db=db, to_update=db_role, role_id=role_id, role_data=role.role_data.dict())
-            await self._update_cache(db=db, role=role)
+        # set the relationships
+        await self._set_role_relationships(db=db, role=role, db_role=db_role)
+
+        # flush changes
+        await db.flush()
+
+        # update guild roles and roles cache
+        await self._update_guild_cache(db=db, guild_id=role.guild_id)
+
+    async def _delete_old_role_relationships(self, db: AsyncSession, objs: list[ModelType]):
+        """Delete old role relationship entries"""
+
+        for obj in objs:
+            await self._delete(db=db, obj=obj)
+
+    async def _set_role_relationships(self, db: AsyncSession, role: RoleModel, db_role: Roles):
+        """Set the role relationships. Used by both insert and update"""
+
+        # delete old ones
+        await self._delete_old_role_relationships(db=db, objs=db_role.require_activity_completions)
+
+        # insert new ones
+        for activity in role.require_activity_completions:
+            db_role.require_activity_completions.append(
+                RolesActivity(
+                    allowed_activity_hashes=activity.allowed_activity_hashes,
+                    count=activity.count,
+                    allow_checkpoints=activity.allow_checkpoints,
+                    require_team_flawless=activity.require_team_flawless,
+                    require_individual_flawless=activity.require_individual_flawless,
+                    require_score=activity.require_score,
+                    require_kills=activity.require_kills,
+                    require_kills_per_minute=activity.require_kills_per_minute,
+                    require_kda=activity.require_kda,
+                    require_kd=activity.require_kd,
+                    maximum_allowed_players=activity.maximum_allowed_players,
+                    allow_time_periods=[
+                        RolesActivityTimePeriod(
+                            start_time=time_period.start_time,
+                            end_time=time_period.end_time,
+                        )
+                        for time_period in activity.allow_time_periods
+                    ],
+                    disallow_time_periods=[
+                        RolesActivityTimePeriod(
+                            start_time=time_period.start_time,
+                            end_time=time_period.end_time,
+                        )
+                        for time_period in activity.disallow_time_periods
+                    ],
+                    inverse=activity.inverse,
+                )
+            )
+
+        # delete old ones
+        await self._delete_old_role_relationships(db=db, objs=db_role.require_collectibles)
+
+        # insert new ones
+        for collectible in role.require_collectibles:
+            db_role.require_collectibles.append(
+                RolesInteger(
+                    id=collectible.id,
+                    inverse=collectible.inverse,
+                )
+            )
+
+        # delete old ones
+        await self._delete_old_role_relationships(db=db, objs=db_role.require_records)
+
+        # insert new ones
+        for record in role.require_records:
+            db_role.require_records.append(
+                RolesInteger(
+                    id=record.id,
+                    inverse=record.inverse,
+                )
+            )
+
+        # don't delete old roles, that would be a bad idea. We just overwrite them
+        # insert new ones
+        for require_role_id in role.require_role_ids:
+            # get the role from the db
+            require_role = await self._get_one(db=db, role_id=require_role_id)
+            if not require_role:
+                raise CustomException("RoleNotExist")
+
+            db_role.require_roles.append(require_role)
+
+        if role.replaced_by_role_id and db_role.replaced_by_role_id != role.replaced_by_role_id:
+            # get the role from the db
+            replaced_by_role = await self._get_one(db=db, role_id=role.replaced_by_role_id)
+            if not replaced_by_role:
+                raise CustomException("RoleNotExist")
+            db_role.replaced_by_role = replaced_by_role
 
     @staticmethod
     def _check_role(role: RoleModel):
         """Check that the roles are formatted ok"""
 
         # check that start time > end time
-        for activity in role.role_data.require_activity_completions:
+        for activity in role.require_activity_completions:
             for period in activity.allow_time_periods + activity.disallow_time_periods:
                 if period.start_time >= period.end_time:
                     raise CustomException("End Time cannot be older than Start Time")
@@ -105,8 +212,8 @@ class CRUDRoles(CRUDBase):
             except KeyError:
                 pass
 
-        # delete from cache
-        await self.__update_guild_cache(db=db, guild_id=guild_id)
+        # update guild roles and roles cache
+        await self._update_guild_cache(db=db, guild_id=guild_id)
 
     async def delete_role(self, db: AsyncSession, role_id: int):
         """Delete a role"""
@@ -119,15 +226,10 @@ class CRUDRoles(CRUDBase):
         except KeyError:
             pass
         if obj:
-            await self.__update_guild_cache(db=db, guild_id=obj.guild_id)
+            # update guild roles and roles cache
+            await self._update_guild_cache(db=db, guild_id=obj.guild_id)
 
-    async def _update_cache(self, db: AsyncSession, role: RoleModel):
-        """Update the role cache"""
-
-        self.cache.roles.update({role.role_id: role})
-        await self.__update_guild_cache(db=db, guild_id=role.guild_id)
-
-    async def __update_guild_cache(self, db: AsyncSession, guild_id: int):
+    async def _update_guild_cache(self, db: AsyncSession, guild_id: int):
         """Update the guild role cache"""
 
         try:

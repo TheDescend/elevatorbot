@@ -87,7 +87,7 @@ class RoleModel(CustomBaseModel):
     # set whether the role can be earned
     acquirable: bool
 
-    # list of activity hashes
+    # list of activities
     require_activity_completions: list[RequirementActivityModel] = []
     # list of collectible hashes
     require_collectibles: list[RequirementIntegerModel] = []

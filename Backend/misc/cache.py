@@ -8,6 +8,7 @@ from Backend.database.models import (
     DestinySeasonPassDefinition,
     DiscordUsers,
     PersistentMessage,
+    Roles,
 )
 from Shared.networkingSchemas.destiny import DestinyActivityModel, SeasonalChallengesModel
 from Shared.networkingSchemas.destiny.roles import RoleModel
@@ -24,10 +25,10 @@ class Cache:
     discord_users_by_destiny_id: dict[int, DiscordUsers] = dataclasses.field(init=False, default_factory=dict)
 
     # Role Objects - Key: role_id
-    roles: dict[int, RoleModel] = dataclasses.field(init=False, default_factory=dict)
+    roles: dict[int, Roles] = dataclasses.field(init=False, default_factory=dict)
 
     # Guild Roles Objects - Key: guild_id
-    guild_roles: dict[int, list[RoleModel]] = dataclasses.field(init=False, default_factory=dict)
+    guild_roles: dict[int, list[Roles]] = dataclasses.field(init=False, default_factory=dict)
 
     # Persistent Messages Objects - Key: f"{guild_id}|{message_name}"
     persistent_messages: dict[str, Optional[PersistentMessage]] = dataclasses.field(init=False, default_factory=dict)
