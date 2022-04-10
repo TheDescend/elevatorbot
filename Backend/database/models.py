@@ -136,7 +136,6 @@ class Collectibles(Base):
 
     destiny_id = Column(BigInteger, nullable=False, primary_key=True)
     collectible_id = Column(BigInteger, nullable=False, primary_key=True)
-    owned = Column(Boolean, nullable=False)
 
 
 ################################################################
