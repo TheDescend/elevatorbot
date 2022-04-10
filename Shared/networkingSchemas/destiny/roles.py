@@ -110,7 +110,7 @@ class RoleModel(CustomBaseModel):
     replaced_by_role_id: Optional[int] = None
 
     @classmethod
-    def from_roles_model(cls, db_model: Roles):
+    def from_sql_model(cls, db_model: Roles):
         """Convert SqlAlchemy's `Roles` to this model"""
 
         return cls(
