@@ -222,7 +222,13 @@ class Roles(Base):
         join_depth=100,
     )  # list of discord role ids
 
-    replaced_by_role = Column(BigInteger, ForeignKey("roles.role_id"), nullable=True)
+    replaced_by_role_id = Column(BigInteger, ForeignKey("roles.role_id"), nullable=True)
+    replaced_by_role = relationship(
+        "Roles",
+        remote_side=[role_id],
+        lazy="joined",
+        join_depth=100,
+    )
 
 
 ################################################################
