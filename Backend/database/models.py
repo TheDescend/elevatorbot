@@ -199,7 +199,7 @@ class ElevatorServers(Base):
 class RolesActivity(Base):
     __tablename__ = "rolesActivity"
 
-    role_id = Column(Integer, ForeignKey("roles.role_id"))
+    role_id = Column(Integer, ForeignKey("roles.role_id", ondelete="CASCADE", onupdate="CASCADE"))
     id = Column(Integer, autoincrement=True, primary_key=True)
 
     allowed_activity_hashes = Column(ARRAY(BigInteger()), nullable=False)
@@ -230,7 +230,7 @@ class RolesActivity(Base):
 class RolesActivityTimePeriod(Base):
     __tablename__ = "rolesActivityTimePeriod"
 
-    role_activity_id = Column(Integer, ForeignKey("rolesActivity.id"))
+    role_activity_id = Column(Integer, ForeignKey("rolesActivity.id", ondelete="CASCADE", onupdate="CASCADE"))
     id = Column(Integer, autoincrement=True, primary_key=True)
 
     start_time = Column(DateTime(timezone=True), nullable=False)
@@ -241,7 +241,7 @@ class RolesActivityTimePeriod(Base):
 class RolesInteger(Base):
     __tablename__ = "rolesInteger"
 
-    role_id = Column(Integer, ForeignKey("roles.role_id"))
+    role_id = Column(Integer, ForeignKey("roles.role_id", ondelete="CASCADE", onupdate="CASCADE"))
 
     # the id of the collectible / record
     id = Column(BigInteger, primary_key=True, nullable=False, autoincrement=False)
@@ -287,24 +287,14 @@ class Roles(Base):
         secondary=required_roles_association_table,
         primaryjoin=role_id == required_roles_association_table.c.parent_role_id,
         secondaryjoin=role_id == required_roles_association_table.c.require_role_id,
-        backref=backref(
-            "required_by_roles",
-            cascade="all",
-            lazy="selectin",
-            join_depth=100,
-        ),
-        cascade="all",
-        passive_deletes=True,
+        backref=backref("required_by_roles", cascade="all", lazy="selectin", join_depth=2),
         lazy="selectin",
-        join_depth=100,
+        join_depth=2,
     )
 
-    replaced_by_role_id = Column(BigInteger, ForeignKey("roles.role_id"), nullable=True)
+    _replaced_by_role_id = Column(BigInteger, ForeignKey("roles.role_id"), nullable=True)
     replaced_by_role: Roles | None = relationship(
-        "Roles",
-        remote_side=[role_id],
-        lazy="selectin",
-        join_depth=100,
+        "Roles", remote_side=[role_id], cascade="save-update, merge", lazy="selectin", join_depth=2
     )
 
 

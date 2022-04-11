@@ -82,18 +82,16 @@ class UserRoles:
             category = str(role.category)
             model = RolesCategoryModel(category=category, discord_role_id=role.role_id)
 
-            replaced_by_role_id = role.replaced_by_role_id
-
             if self._cache_worthy[role.role_id] == RoleEnum.EARNED:
                 user_roles.earned.append(model)
 
             elif self._cache_worthy[role.role_id] == RoleEnum.NOT_EARNED:
                 user_roles.not_earned.append(model)
 
-            if replaced_by_role_id:
+            if role.replaced_by_role:
                 if (
                     self._cache_worthy[role.role_id] == RoleEnum.EARNED
-                    and self._cache_worthy[replaced_by_role_id] == RoleEnum.EARNED
+                    and self._cache_worthy[role.replaced_by_role.id] == RoleEnum.EARNED
                 ):
                     user_roles.earned_but_replaced_by_higher_role.append(model)
 
@@ -318,6 +316,9 @@ class UserRoles:
 
                 # loop through the role_ids
                 for requirement_role in role.require_roles:
+                    # get the role with the proper relationship depths -> all attrs are loaded
+                    requirement_role = crud_roles.get_role(db=self.db, role_id=requirement_role.role_id)
+
                     # alright so this is a bit more convoluted
                     # simply calling this function again would lead to double-checking / race conditions when checking all roles (because of task groups)
                     # but just waiting would not work too, since a single role can get checked too
@@ -378,9 +379,12 @@ class UserRoles:
             case "replaced_by_role_id":
                 # only need to check this sometimes
                 if role.replaced_by_role and not called_with_task_group:
+                    # get the role with the proper relationship depths -> all attrs are loaded
+                    replaced_by_role = crud_roles.get_role(db=self.db, role_id=role.replaced_by_role.role_id)
+
                     # check the higher role
                     higher_role_worthy, _ = await self._has_role(
-                        role=role.replaced_by_role,
+                        role=replaced_by_role,
                         called_with_task_group=False,
                         i_only_need_the_bool=i_only_need_the_bool,
                     )

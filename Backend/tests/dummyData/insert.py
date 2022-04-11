@@ -403,11 +403,10 @@ async def insert_dummy_data(db: AsyncSession, client: AsyncClient):
     for role in data.roles:
         assert role.role_id != 3
 
-    # adding role 3 again
-    r = await client.post(f"/destiny/roles/{dummy_discord_guild_id}/create", json=orjson.loads(input_model2.json()))
+    # deleting role 1 should delete role 1 and 2
+    r = await client.post(f"/destiny/roles/{dummy_discord_guild_id}/create", json=orjson.loads(input_model3.json()))
     assert r.status_code == 200
 
-    # deleting role 1 should delete role 2
     r = await client.delete(f"/destiny/roles/{dummy_discord_guild_id}/delete/1")
     assert r.status_code == 200
 
@@ -418,6 +417,27 @@ async def insert_dummy_data(db: AsyncSession, client: AsyncClient):
     for role in data.roles:
         assert role.role_id != 1
         assert role.role_id != 2
+
+    # deleting role 2 should not delete role 1, only role 2
+    r = await client.post(f"/destiny/roles/{dummy_discord_guild_id}/create", json=orjson.loads(input_model.json()))
+    assert r.status_code == 200
+    r = await client.post(f"/destiny/roles/{dummy_discord_guild_id}/create", json=orjson.loads(input_model2.json()))
+    assert r.status_code == 200
+
+    r = await client.delete(f"/destiny/roles/{dummy_discord_guild_id}/delete/2")
+    assert r.status_code == 200
+
+    r = await client.get(f"/destiny/roles/{dummy_discord_guild_id}/get/all")
+    assert r.status_code == 200
+    data = RolesModel.parse_obj(r.json())
+    assert len(data.roles) == 2
+    for role in data.roles:
+        assert role.role_id != 2
+
+    # check that role 3 is no longer replaced by 2
+    # noinspection PyProtectedMember
+    assert cache.roles[3]._replaced_by_role_id is None
+    assert cache.roles[3].replaced_by_role is None
 
     # insert the og role again because we need it
     r = await client.post(f"/destiny/roles/{dummy_discord_guild_id}/create", json=orjson.loads(input_model.json()))

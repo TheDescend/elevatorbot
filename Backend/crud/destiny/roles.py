@@ -60,7 +60,6 @@ class CRUDRoles(CRUDBase):
             category=role.category,
             deprecated=role.deprecated,
             acquirable=role.acquirable,
-            replaced_by_role_id=role.replaced_by_role_id,
         )
 
         # set the relationships
@@ -90,7 +89,6 @@ class CRUDRoles(CRUDBase):
             category=role.category,
             deprecated=role.deprecated,
             acquirable=role.acquirable,
-            replaced_by_role_id=role.replaced_by_role_id,
             require_activity_completions=[],
             require_collectibles=[],
             require_records=[],
@@ -109,7 +107,6 @@ class CRUDRoles(CRUDBase):
     async def _set_role_relationships(self, db: AsyncSession, role: RoleModel, db_role: Roles):
         """Set the role relationships. Used by both insert and update"""
 
-        # insert new ones
         for activity in role.require_activity_completions:
             db_role.require_activity_completions.append(
                 RolesActivity(
@@ -142,7 +139,6 @@ class CRUDRoles(CRUDBase):
                 )
             )
 
-        # insert new ones
         for collectible in role.require_collectibles:
             db_role.require_collectibles.append(
                 RolesInteger(
@@ -151,7 +147,6 @@ class CRUDRoles(CRUDBase):
                 )
             )
 
-        # insert new ones
         for record in role.require_records:
             db_role.require_records.append(
                 RolesInteger(
@@ -160,8 +155,6 @@ class CRUDRoles(CRUDBase):
                 )
             )
 
-        # don't delete old roles, that would be a bad idea. We just overwrite them
-        # insert new ones
         for require_role_id in role.require_role_ids:
             # get the role from the db
             require_role = await self._get_one(db=db, role_id=require_role_id)
@@ -169,6 +162,14 @@ class CRUDRoles(CRUDBase):
                 raise CustomException("RoleNotExist")
 
             db_role.require_roles.append(require_role)
+
+        if role.replaced_by_role_id:
+            # get the role from the db
+            replacement_role = await self._get_one(db=db, role_id=role.replaced_by_role_id)
+            if not replacement_role:
+                raise CustomException("RoleNotExist")
+
+            db_role.replaced_by_role = replacement_role
 
     @staticmethod
     def _check_role(role: RoleModel):
@@ -203,16 +204,20 @@ class CRUDRoles(CRUDBase):
     async def delete_role(self, db: AsyncSession, role_id: int):
         """Delete a role"""
 
-        obj = await self._delete(db=db, primary_key=role_id)
+        # get the role
+        db_role: Roles = await self._get_one(db=db, role_id=role_id)
+
+        # delete it
+        await self._delete(db=db, obj=db_role)
 
         # delete from cache
         try:
             self.cache.roles.pop(role_id)
         except KeyError:
             pass
-        if obj:
+        if db_role:
             # update guild roles and roles cache
-            await self._update_guild_cache(db=db, guild_id=obj.guild_id)
+            await self._update_guild_cache(db=db, guild_id=db_role.guild_id)
 
     async def _update_guild_cache(self, db: AsyncSession, guild_id: int):
         """Update the guild role cache"""
