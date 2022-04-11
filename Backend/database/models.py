@@ -67,7 +67,11 @@ class Activities(Base):
     system = Column(SmallInteger, nullable=False)
 
     users: list[ActivitiesUsers] = relationship(
-        "ActivitiesUsers", back_populates="activity", cascade="all, delete", passive_deletes=True, lazy="joined"
+        "ActivitiesUsers",
+        back_populates="activity",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+        lazy="selectin",
     )
 
 
@@ -107,10 +111,14 @@ class ActivitiesUsers(Base):
     weapon_kills_ability = Column(Integer, nullable=False)
 
     activity_instance_id = Column(BigInteger, ForeignKey(Activities.instance_id))
-    activity: list[Activities] = relationship("Activities", back_populates="users", lazy="joined")
+    activity: list[Activities] = relationship("Activities", back_populates="users", lazy="selectin")
 
     weapons: list[ActivitiesUsersWeapons] = relationship(
-        "ActivitiesUsersWeapons", back_populates="user", cascade="all, delete", passive_deletes=True, lazy="joined"
+        "ActivitiesUsersWeapons",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+        lazy="selectin",
     )
 
 
@@ -124,7 +132,7 @@ class ActivitiesUsersWeapons(Base):
     unique_weapon_precision_kills = Column(Integer, nullable=False)
 
     user_id = Column(BigInteger, ForeignKey(ActivitiesUsers.id))
-    user: list[ActivitiesUsers] = relationship("ActivitiesUsers", back_populates="weapons", lazy="joined")
+    user: list[ActivitiesUsers] = relationship("ActivitiesUsers", back_populates="weapons", lazy="selectin")
 
 
 class Records(Base):
@@ -210,10 +218,10 @@ class RolesActivity(Base):
     maximum_allowed_players = Column(Integer, nullable=False)
 
     allow_time_periods: list[RolesActivityTimePeriod] = relationship(
-        "RolesActivityTimePeriod", cascade="all, delete-orphan", passive_deletes=True, lazy="joined"
+        "RolesActivityTimePeriod", cascade="all, delete-orphan", passive_deletes=True, lazy="selectin"
     )
     disallow_time_periods: list[RolesActivityTimePeriod] = relationship(
-        "RolesActivityTimePeriod", cascade="all, delete-orphan", passive_deletes=True, lazy="joined"
+        "RolesActivityTimePeriod", cascade="all, delete-orphan", passive_deletes=True, lazy="selectin"
     )
 
     inverse = Column(Boolean, nullable=False)
@@ -266,23 +274,28 @@ class Roles(Base):
     acquirable = Column(Boolean, nullable=False)
 
     require_activity_completions: list[RolesActivity] = relationship(
-        "RolesActivity", cascade="all, delete-orphan", passive_deletes=True, lazy="joined"
+        "RolesActivity", cascade="all, delete-orphan", passive_deletes=True, lazy="selectin"
     )
     require_collectibles: list[RolesInteger] = relationship(
-        "RolesInteger", cascade="all, delete-orphan", passive_deletes=True, lazy="joined"
+        "RolesInteger", cascade="all, delete-orphan", passive_deletes=True, lazy="selectin"
     )
     require_records: list[RolesInteger] = relationship(
-        "RolesInteger", cascade="all, delete-orphan", passive_deletes=True, lazy="joined"
+        "RolesInteger", cascade="all, delete-orphan", passive_deletes=True, lazy="selectin"
     )
     require_roles: list[Roles] = relationship(
         "Roles",
         secondary=required_roles_association_table,
         primaryjoin=role_id == required_roles_association_table.c.parent_role_id,
         secondaryjoin=role_id == required_roles_association_table.c.require_role_id,
-        backref=backref("required_by_roles", cascade="all, delete"),
-        cascade="all, delete",
+        backref=backref(
+            "required_by_roles",
+            cascade="all",
+            lazy="selectin",
+            join_depth=100,
+        ),
+        cascade="all",
         passive_deletes=True,
-        lazy="joined",
+        lazy="selectin",
         join_depth=100,
     )
 
@@ -290,7 +303,7 @@ class Roles(Base):
     replaced_by_role: Roles | None = relationship(
         "Roles",
         remote_side=[role_id],
-        lazy="joined",
+        lazy="selectin",
         join_depth=100,
     )
 

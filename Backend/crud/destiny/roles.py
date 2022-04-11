@@ -3,7 +3,7 @@ import copy
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.errors import CustomException
-from Backend.crud.base import CRUDBase, ModelType
+from Backend.crud.base import CRUDBase
 from Backend.database.models import Roles, RolesActivity, RolesActivityTimePeriod, RolesInteger
 from Backend.misc.cache import cache
 from Shared.networkingSchemas.destiny.roles import RoleModel
@@ -60,6 +60,7 @@ class CRUDRoles(CRUDBase):
             category=role.category,
             deprecated=role.deprecated,
             acquirable=role.acquirable,
+            replaced_by_role_id=role.replaced_by_role_id,
         )
 
         # set the relationships
@@ -80,6 +81,7 @@ class CRUDRoles(CRUDBase):
         if not db_role:
             raise CustomException("Role does not exist")
 
+        # set the relationship to null to delete orphans
         db_role = await self._update(
             db=db,
             to_update=db_role,
@@ -88,6 +90,11 @@ class CRUDRoles(CRUDBase):
             category=role.category,
             deprecated=role.deprecated,
             acquirable=role.acquirable,
+            replaced_by_role_id=role.replaced_by_role_id,
+            require_activity_completions=[],
+            require_collectibles=[],
+            require_records=[],
+            require_roles=[],
         )
 
         # set the relationships
@@ -99,17 +106,8 @@ class CRUDRoles(CRUDBase):
         # update guild roles and roles cache
         await self._update_guild_cache(db=db, guild_id=role.guild_id)
 
-    async def _delete_old_role_relationships(self, db: AsyncSession, objs: list[ModelType]):
-        """Delete old role relationship entries"""
-
-        for obj in objs:
-            await self._delete(db=db, obj=obj)
-
     async def _set_role_relationships(self, db: AsyncSession, role: RoleModel, db_role: Roles):
         """Set the role relationships. Used by both insert and update"""
-
-        # delete old ones
-        await self._delete_old_role_relationships(db=db, objs=db_role.require_activity_completions)
 
         # insert new ones
         for activity in role.require_activity_completions:
@@ -144,9 +142,6 @@ class CRUDRoles(CRUDBase):
                 )
             )
 
-        # delete old ones
-        await self._delete_old_role_relationships(db=db, objs=db_role.require_collectibles)
-
         # insert new ones
         for collectible in role.require_collectibles:
             db_role.require_collectibles.append(
@@ -155,9 +150,6 @@ class CRUDRoles(CRUDBase):
                     inverse=collectible.inverse,
                 )
             )
-
-        # delete old ones
-        await self._delete_old_role_relationships(db=db, objs=db_role.require_records)
 
         # insert new ones
         for record in role.require_records:
@@ -177,13 +169,6 @@ class CRUDRoles(CRUDBase):
                 raise CustomException("RoleNotExist")
 
             db_role.require_roles.append(require_role)
-
-        if role.replaced_by_role_id and db_role.replaced_by_role_id != role.replaced_by_role_id:
-            # get the role from the db
-            replaced_by_role = await self._get_one(db=db, role_id=role.replaced_by_role_id)
-            if not replaced_by_role:
-                raise CustomException("RoleNotExist")
-            db_role.replaced_by_role = replaced_by_role
 
     @staticmethod
     def _check_role(role: RoleModel):
