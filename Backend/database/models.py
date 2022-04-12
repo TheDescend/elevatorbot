@@ -199,8 +199,8 @@ class ElevatorServers(Base):
 class RolesActivity(Base):
     __tablename__ = "rolesActivity"
 
-    role_id = Column(Integer, ForeignKey("roles.role_id", ondelete="CASCADE", onupdate="CASCADE"))
     _id = Column(Integer, autoincrement=True, primary_key=True)
+    role_id = Column(BigInteger, ForeignKey("roles.role_id", ondelete="CASCADE", onupdate="CASCADE"))
 
     allowed_activity_hashes = Column(ARRAY(BigInteger()), nullable=False)
     count = Column(Integer, nullable=False)
@@ -230,8 +230,8 @@ class RolesActivity(Base):
 class RolesActivityTimePeriod(Base):
     __tablename__ = "rolesActivityTimePeriod"
 
-    role_activity_id = Column(Integer, ForeignKey("rolesActivity._id", ondelete="CASCADE", onupdate="CASCADE"))
     _id = Column(Integer, autoincrement=True, primary_key=True)
+    role_activity_id = Column(Integer, ForeignKey("rolesActivity._id", ondelete="CASCADE", onupdate="CASCADE"))
 
     start_time = Column(DateTime(timezone=True), nullable=False)
     end_time = Column(DateTime(timezone=True), nullable=False)
@@ -241,8 +241,8 @@ class RolesActivityTimePeriod(Base):
 class RolesInteger(Base):
     __tablename__ = "rolesInteger"
 
-    role_id = Column(Integer, ForeignKey("roles.role_id", ondelete="CASCADE", onupdate="CASCADE"))
-    _id = Column(BigInteger, primary_key=True, autoincrement=True)
+    _id = Column(Integer, primary_key=True, autoincrement=True)
+    role_id = Column(BigInteger, ForeignKey("roles.role_id", ondelete="CASCADE", onupdate="CASCADE"))
 
     # the id of the collectible / record
     bungie_id = Column(BigInteger, nullable=False)
@@ -261,9 +261,6 @@ required_roles_association_table = Table(
 
 class Roles(Base):
     __tablename__ = "roles"
-
-    # todo delete (also in alembic)
-    role_data = Column(JSON, nullable=True)
 
     _id = Column(Integer, autoincrement=True, primary_key=True)
 
