@@ -4,6 +4,8 @@ import re
 
 import aiohttp
 from dis_snek import CommandTypes, InteractionContext, Message, Modal, ShortText, context_menu
+from dis_snek.client.errors import HTTPException
+from PIL import Image
 
 from ElevatorBot.commandHelpers.responseTemplates import respond_timeout
 from ElevatorBot.commands.base import BaseScale
@@ -79,7 +81,20 @@ class EmojiCommands(BaseScale):
 
         else:
             await modal_ctx.defer()
-            emoji = await ctx.guild.create_custom_emoji(name=modal_ctx.responses["name"], imagefile=image_data)
+
+            try:
+                emoji = await ctx.guild.create_custom_emoji(name=modal_ctx.responses["name"], imagefile=image_data)
+            except HTTPException:
+                # image is too big, resize
+
+                image = Image.open(image_data)
+                image.thumbnail((200, 200), Image.ANTIALIAS)
+
+                image_data = io.BytesIO()
+                image.save(image_data, "PNG")
+
+                emoji = await ctx.guild.create_custom_emoji(name=modal_ctx.responses["name"], imagefile=image_data)
+
             await message.add_reaction(emoji)
             await modal_ctx.send("Success!", ephemeral=True)
 
