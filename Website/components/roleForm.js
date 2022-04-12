@@ -126,9 +126,13 @@ export default function RoleForm({
                             })
                             break
 
+                        case "require_role_ids":
+                            data["role_data"][parts[0]].push(null)
+                            break
+
                         default:
                             data["role_data"][parts[0]].push({
-                                "id": null,
+                                "bungie_id": null,
                                 "inverse": false,
                             })
                             break
@@ -301,10 +305,16 @@ export default function RoleForm({
                 ))
                 return
 
+            case "require_role_ids":
+                data = null
+
+                updateReqRoles([...reqRoles, data])
+                return
+
             // the others all use the same format
             default:
                 data = {
-                    "id": null,
+                    "bungie_id": null,
                     "inverse": false,
                 }
 
@@ -313,12 +323,8 @@ export default function RoleForm({
                         updateCollectibles([...collectibles, data])
                         return
 
-                    case "require_records":
-                        updateRecords([...records, data])
-                        return
-
                     default:
-                        updateReqRoles([...reqRoles, data])
+                        updateRecords([...reqRoles, data])
                         return
                 }
         }
@@ -1078,13 +1084,13 @@ function HandleCollectibles({data, adminPerms, destinyCollectibles, handleDelete
                         >
                             <div className="grid grid-cols-1 gap-4">
                                 <div className={`${textInputDivFormatting} `}>
-                                    <label className={labelFormatting} htmlFor={`require_collectibles-${index}-id`}>
+                                    <label className={labelFormatting} htmlFor={`require_collectibles-${index}-bungie_id`}>
                                         Require Collectible
                                     </label>
                                     <select
                                         className={selectInputFormatting}
-                                        id={`require_collectibles-${index}-id`}
-                                        name={`require_collectibles-${index}-id`}
+                                        id={`require_collectibles-${index}-bungie_id`}
+                                        name={`require_collectibles-${index}-bungie_id`}
                                         disabled={!adminPerms} required
                                     >
                                         <option value="" disabled selected className="italic">
@@ -1092,7 +1098,7 @@ function HandleCollectibles({data, adminPerms, destinyCollectibles, handleDelete
                                         </option>
                                         {
                                             destinyCollectibles["collectibles"].map((destinyCollectible) => {
-                                                if (collectible["id"] === (destinyCollectible["reference_id"])) {
+                                                if (collectible["bungie_id"] === (destinyCollectible["reference_id"])) {
                                                     return (
                                                         <option value={destinyCollectible["reference_id"]} selected>
                                                             {destinyCollectible["name"]}
@@ -1148,19 +1154,19 @@ function HandleRecords({data, adminPerms, destinyTriumphs, handleDelete, buttonD
                         >
                             <div className="grid grid-cols-1 gap-4">
                                 <div className={`${textInputDivFormatting} `}>
-                                    <label className={labelFormatting} htmlFor={`require_records-${index}-id`}>
+                                    <label className={labelFormatting} htmlFor={`require_records-${index}-bungie_id`}>
                                         Require Record
                                     </label>
                                     <select
                                         className={selectInputFormatting}
-                                        id={`require_records-${index}-id`}
-                                        name={`require_records-${index}-id`}
+                                        id={`require_records-${index}-bungie_id`}
+                                        name={`require_records-${index}-bungie_id`}
                                         disabled={!adminPerms} required
                                     >
                                         <option value="" disabled selected>Select the Record</option>
                                         {
                                             destinyTriumphs["triumphs"].map((destinyTriumph) => {
-                                                if (record["id"] === (destinyTriumph["reference_id"])) {
+                                                if (record["bungie_id"] === (destinyTriumph["reference_id"])) {
                                                     return (
                                                         <option value={destinyTriumph["reference_id"]} selected>
                                                             {destinyTriumph["name"]}
@@ -1220,20 +1226,20 @@ function HandleRoles({data, adminPerms, discordRoles, rolesIds, currentRole, han
                         >
                             <div className="grid grid-cols-1 gap-4">
                                 <div className={`${textInputDivFormatting} `}>
-                                    <label className={labelFormatting} htmlFor={`require_role_ids-${index}-id`}>
+                                    <label className={labelFormatting} htmlFor={`require_role_ids-${index}`}>
                                         Require Role
                                     </label>
                                     <select
                                         className={selectInputFormatting}
-                                        id={`require_role_ids-${index}-id`}
-                                        name={`require_role_ids-${index}-id`}
+                                        id={`require_role_ids-${index}`}
+                                        name={`require_role_ids-${index}`}
                                         disabled={!adminPerms} required
                                     >
                                         <option value="" disabled selected className="italic">Select the Role</option>
                                         {
                                             rolesIds.map((id) => {
                                                 if (id !== currentRoleId) {
-                                                    if (id === role["id"]) {
+                                                    if (id === role) {
                                                         return (
                                                             <option value={id} selected>
                                                                 {discordRoles[id]["name"]}
@@ -1251,20 +1257,6 @@ function HandleRoles({data, adminPerms, discordRoles, rolesIds, currentRole, han
                                         }
 
                                     </select>
-                                </div>
-                                <div className={checkboxInputDivFormatting}>
-                                    <label className={labelFormatting}
-                                           htmlFor={`require_role_ids-${index}-inverse`}>
-                                        Invert all settings
-                                    </label>
-                                    <input
-                                        className={checkboxInputFormatting}
-                                        id={`require_role_ids-${index}-inverse`}
-                                        name={`require_role_ids-${index}-inverse`}
-                                        type="checkbox"
-                                        defaultChecked={role["inverse"]}
-                                        disabled={!adminPerms}
-                                    />
                                 </div>
                             </div>
                         </FormatRequirement>
