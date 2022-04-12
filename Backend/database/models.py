@@ -110,7 +110,7 @@ class ActivitiesUsers(Base):
     weapon_kills_super = Column(Integer, nullable=False)
     weapon_kills_ability = Column(Integer, nullable=False)
 
-    activity_instance_id = Column(BigInteger, ForeignKey(Activities.instance_id))
+    activity_instance_id = Column(BigInteger, ForeignKey(Activities.instance_id, ondelete="CASCADE"))
     activity: list[Activities] = relationship("Activities", back_populates="users", lazy="selectin")
 
     weapons: list[ActivitiesUsersWeapons] = relationship(
@@ -131,7 +131,7 @@ class ActivitiesUsersWeapons(Base):
     unique_weapon_kills = Column(Integer, nullable=False)
     unique_weapon_precision_kills = Column(Integer, nullable=False)
 
-    user_id = Column(BigInteger, ForeignKey(ActivitiesUsers.id))
+    user_id = Column(BigInteger, ForeignKey(ActivitiesUsers.id, ondelete="CASCADE"))
     user: list[ActivitiesUsers] = relationship("ActivitiesUsers", back_populates="weapons", lazy="selectin")
 
 
@@ -200,7 +200,7 @@ class RolesActivity(Base):
     __tablename__ = "rolesActivity"
 
     role_id = Column(Integer, ForeignKey("roles.role_id", ondelete="CASCADE", onupdate="CASCADE"))
-    id = Column(Integer, autoincrement=True, primary_key=True)
+    _id = Column(Integer, autoincrement=True, primary_key=True)
 
     allowed_activity_hashes = Column(ARRAY(BigInteger()), nullable=False)
     count = Column(Integer, nullable=False)
@@ -230,8 +230,8 @@ class RolesActivity(Base):
 class RolesActivityTimePeriod(Base):
     __tablename__ = "rolesActivityTimePeriod"
 
-    role_activity_id = Column(Integer, ForeignKey("rolesActivity.id", ondelete="CASCADE", onupdate="CASCADE"))
-    id = Column(Integer, autoincrement=True, primary_key=True)
+    role_activity_id = Column(Integer, ForeignKey("rolesActivity._id", ondelete="CASCADE", onupdate="CASCADE"))
+    _id = Column(Integer, autoincrement=True, primary_key=True)
 
     start_time = Column(DateTime(timezone=True), nullable=False)
     end_time = Column(DateTime(timezone=True), nullable=False)
@@ -242,9 +242,10 @@ class RolesInteger(Base):
     __tablename__ = "rolesInteger"
 
     role_id = Column(Integer, ForeignKey("roles.role_id", ondelete="CASCADE", onupdate="CASCADE"))
+    _id = Column(BigInteger, primary_key=True, autoincrement=True)
 
     # the id of the collectible / record
-    id = Column(BigInteger, primary_key=True, nullable=False, autoincrement=False)
+    bungie_id = Column(BigInteger, nullable=False)
 
     inverse = Column(Boolean, nullable=False)
 
@@ -253,8 +254,8 @@ class RolesInteger(Base):
 required_roles_association_table = Table(
     "requiredRolesAssociation",
     Base.metadata,
-    Column("parent_role_id", ForeignKey("roles.role_id"), primary_key=True),
-    Column("require_role_id", ForeignKey("roles.role_id"), primary_key=True),
+    Column("parent_role_id", ForeignKey("roles.role_id", ondelete="CASCADE"), primary_key=True),
+    Column("require_role_id", ForeignKey("roles.role_id", ondelete="CASCADE"), primary_key=True),
 )
 
 
@@ -264,7 +265,7 @@ class Roles(Base):
     # todo delete (also in alembic)
     role_data = Column(JSON, nullable=True)
 
-    id = Column(Integer, autoincrement=True, primary_key=True)
+    _id = Column(Integer, autoincrement=True, primary_key=True)
 
     role_id = Column(BigInteger, nullable=False, unique=True)
     guild_id = Column(BigInteger, nullable=False)
@@ -273,29 +274,37 @@ class Roles(Base):
     deprecated = Column(Boolean, nullable=False)
     acquirable = Column(Boolean, nullable=False)
 
-    require_activity_completions: list[RolesActivity] = relationship(
+    # requirement columns need to start with "requirement_"
+    requirement_require_activity_completions: list[RolesActivity] = relationship(
         "RolesActivity", cascade="all, delete-orphan", passive_deletes=True, lazy="selectin"
     )
-    require_collectibles: list[RolesInteger] = relationship(
+    requirement_require_collectibles: list[RolesInteger] = relationship(
         "RolesInteger", cascade="all, delete-orphan", passive_deletes=True, lazy="selectin"
     )
-    require_records: list[RolesInteger] = relationship(
+    requirement_require_records: list[RolesInteger] = relationship(
         "RolesInteger", cascade="all, delete-orphan", passive_deletes=True, lazy="selectin"
     )
-    require_roles: list[Roles] = relationship(
+    requirement_require_roles: list[Roles] = relationship(
         "Roles",
         secondary=required_roles_association_table,
         primaryjoin=role_id == required_roles_association_table.c.parent_role_id,
         secondaryjoin=role_id == required_roles_association_table.c.require_role_id,
-        backref=backref("required_by_roles", cascade="all", lazy="selectin", join_depth=2),
+        backref=backref("required_by_roles", cascade="all", lazy="selectin", join_depth=1),
+        passive_deletes=True,
         lazy="selectin",
-        join_depth=2,
+        join_depth=1,
     )
 
-    _replaced_by_role_id = Column(BigInteger, ForeignKey("roles.role_id"), nullable=True)
-    replaced_by_role: Roles | None = relationship(
-        "Roles", remote_side=[role_id], cascade="save-update, merge", lazy="selectin", join_depth=2
+    _replaced_by_role_id = Column(BigInteger, ForeignKey("roles.role_id", ondelete="SET NULL"), nullable=True)
+    requirement_replaced_by_role: Roles | None = relationship(
+        "Roles", remote_side=[role_id], cascade="save-update, merge", lazy="selectin", join_depth=1
     )
+
+    def __eq__(self, other: Roles | int) -> bool:
+        if isinstance(other, Roles):
+            return self.role_id == other.role_id
+        else:
+            return self.role_id == other
 
 
 ################################################################

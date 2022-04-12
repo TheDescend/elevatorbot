@@ -54,16 +54,17 @@ class CRUDRoles(CRUDBase):
 
         self._check_role(role)
 
+        # get the relationships
+        relationships = await self._get_role_relationships(db=db, role=role)
+
         db_role = Roles(
             role_id=role.role_id,
             guild_id=role.guild_id,
             category=role.category,
             deprecated=role.deprecated,
             acquirable=role.acquirable,
+            **relationships,
         )
-
-        # set the relationships
-        await self._set_role_relationships(db=db, role=role, db_role=db_role)
 
         await self._insert(db=db, to_create=db_role)
 
@@ -80,8 +81,11 @@ class CRUDRoles(CRUDBase):
         if not db_role:
             raise CustomException("Role does not exist")
 
-        # set the relationship to null to delete orphans
-        db_role = await self._update(
+        # get the relationships
+        relationships = await self._get_role_relationships(db=db, role=role, db_role=db_role)
+
+        # update the role
+        await self._update(
             db=db,
             to_update=db_role,
             role_id=role.role_id,
@@ -89,26 +93,33 @@ class CRUDRoles(CRUDBase):
             category=role.category,
             deprecated=role.deprecated,
             acquirable=role.acquirable,
-            require_activity_completions=[],
-            require_collectibles=[],
-            require_records=[],
-            require_roles=[],
+            **relationships,
         )
-
-        # set the relationships
-        await self._set_role_relationships(db=db, role=role, db_role=db_role)
-
-        # flush changes
-        await db.flush()
 
         # update guild roles and roles cache
         await self._update_guild_cache(db=db, guild_id=role.guild_id)
 
-    async def _set_role_relationships(self, db: AsyncSession, role: RoleModel, db_role: Roles):
-        """Set the role relationships. Used by both insert and update"""
+    async def _get_role_relationships(self, db: AsyncSession, role: RoleModel, db_role: Roles | None = None) -> dict:
+        """Get the role relationships as a dict. Used by both insert and update"""
+
+        # delete old items
+        if db_role:
+            for activity in db_role.requirement_require_activity_completions:
+                await self._delete(db=db, obj=activity)
+            for collectible in db_role.requirement_require_collectibles:
+                await self._delete(db=db, obj=collectible)
+            for record in db_role.requirement_require_records:
+                await self._delete(db=db, obj=record)
+
+        to_update = {
+            "requirement_require_activity_completions": [],
+            "requirement_require_collectibles": [],
+            "requirement_require_records": [],
+            "requirement_replaced_by_role": None,
+        }
 
         for activity in role.require_activity_completions:
-            db_role.require_activity_completions.append(
+            to_update["requirement_require_activity_completions"].append(
                 RolesActivity(
                     allowed_activity_hashes=activity.allowed_activity_hashes,
                     count=activity.count,
@@ -140,28 +151,46 @@ class CRUDRoles(CRUDBase):
             )
 
         for collectible in role.require_collectibles:
-            db_role.require_collectibles.append(
+            to_update["requirement_require_collectibles"].append(
                 RolesInteger(
-                    id=collectible.id,
+                    bungie_id=collectible.bungie_id,
                     inverse=collectible.inverse,
                 )
             )
 
         for record in role.require_records:
-            db_role.require_records.append(
+            to_update["requirement_require_records"].append(
                 RolesInteger(
-                    id=record.id,
+                    bungie_id=record.bungie_id,
                     inverse=record.inverse,
                 )
             )
 
-        for require_role_id in role.require_role_ids:
-            # get the role from the db
-            require_role = await self._get_one(db=db, role_id=require_role_id)
-            if not require_role:
-                raise CustomException("RoleNotExist")
+        # we do not want to return this dict on an update call, because it will try to re-add them to the association table -> integrity error
+        if not db_role:
+            to_update.update({"requirement_require_roles": []})
+            existing_roles = []
+        else:
+            existing_roles = db_role.requirement_require_roles
 
-            db_role.require_roles.append(require_role)
+        # add new ones
+        for require_role_id in role.require_role_ids:
+            if require_role_id not in existing_roles:
+                # get the role from the db
+                require_role = await self._get_one(db=db, role_id=require_role_id)
+                if not require_role:
+                    raise CustomException("RoleNotExist")
+
+                if not db_role:
+                    to_update["requirement_require_roles"].append(require_role)
+                else:
+                    db_role.requirement_require_roles.append(require_role)
+
+        # remove old roles
+        if db_role:
+            for old_require_role in db_role.requirement_require_roles:
+                if old_require_role.role_id not in role.require_role_ids:
+                    db_role.requirement_require_roles.remove(old_require_role)
 
         if role.replaced_by_role_id:
             # get the role from the db
@@ -169,7 +198,9 @@ class CRUDRoles(CRUDBase):
             if not replacement_role:
                 raise CustomException("RoleNotExist")
 
-            db_role.replaced_by_role = replacement_role
+            to_update["requirement_replaced_by_role"] = replacement_role
+
+        return to_update
 
     @staticmethod
     def _check_role(role: RoleModel):

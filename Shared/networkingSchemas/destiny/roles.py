@@ -68,7 +68,7 @@ class RequirementActivityModel(CustomBaseModel):
 
 class RequirementIntegerModel(CustomBaseModel):
     # the id of the collectible / record / role
-    id: int
+    bungie_id: int
 
     # reverse this requirement - only people WITHOUT it get it
     inverse: bool = False
@@ -120,14 +120,20 @@ class RoleModel(CustomBaseModel):
             deprecated=db_model.deprecated,
             acquirable=db_model.acquirable,
             require_activity_completions=[
-                RequirementActivityModel.from_orm(activity) for activity in db_model.require_activity_completions
+                RequirementActivityModel.from_orm(activity)
+                for activity in db_model.requirement_require_activity_completions
             ],
             require_collectibles=[
-                RequirementIntegerModel.from_orm(collectible) for collectible in db_model.require_collectibles
+                RequirementIntegerModel.from_orm(collectible)
+                for collectible in db_model.requirement_require_collectibles
             ],
-            require_records=[RequirementIntegerModel.from_orm(record) for record in db_model.require_records],
-            require_role_ids=[role.role_id for role in db_model.require_roles],
-            replaced_by_role_id=db_model.replaced_by_role.role_id if db_model.replaced_by_role else None,
+            require_records=[
+                RequirementIntegerModel.from_orm(record) for record in db_model.requirement_require_records
+            ],
+            require_role_ids=[role.role_id for role in db_model.requirement_require_roles],
+            replaced_by_role_id=db_model.requirement_replaced_by_role.role_id
+            if db_model.requirement_replaced_by_role
+            else None,
         )
 
 
@@ -145,4 +151,4 @@ class RoleEnum(Enum):
 class EarnedRoleModel(CustomBaseModel):
     earned: RoleEnum
     role: RoleModel
-    user_role_data: Optional[RoleDataUserModel] = None
+    user_role_data: RoleDataUserModel
