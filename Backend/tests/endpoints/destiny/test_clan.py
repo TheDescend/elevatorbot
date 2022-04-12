@@ -23,6 +23,7 @@ async def test_clan(client: AsyncClient, mocker: MockerFixture):
     # link clan
     r = await client.post(f"/destiny/clan/{dummy_discord_guild_id}/{dummy_discord_id}/link")
     assert r.status_code == 200
+    assert r.json() == {"success": True, "clan_name": "Descend"}
     data = DestinyClanLink.parse_obj(r.json())
     assert bool(data) is True
     assert data.clan_name == "Descend"

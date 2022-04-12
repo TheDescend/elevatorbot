@@ -49,6 +49,12 @@ class CRUDBase:
         result = await self._execute_query(db, query)
         return result.scalars().fetchall()
 
+    async def _get_one(self, db: AsyncSession, **filter_kwargs) -> ModelType | None:
+        """Returns the first object which fulfill the filter clauses"""
+
+        results = await self._get_multi(db=db, limit=None, **filter_kwargs)
+        return results[0] if results else None
+
     @staticmethod
     async def _insert(db: AsyncSession, to_create: ModelType) -> None:
         """Insert a initiated ModelType into the database"""

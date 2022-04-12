@@ -33,6 +33,7 @@ class CRUDWeapons(CRUDBase):
         # join the relationships
         query = query.join(ActivitiesUsers)
         query = query.join(Activities)
+        # todo remove all joinedloads (configed in models)
         query = query.options(joinedload(ActivitiesUsersWeapons.user).joinedload(ActivitiesUsers.activity))
 
         # filter by weapon ids

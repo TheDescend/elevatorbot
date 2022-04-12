@@ -1,8 +1,13 @@
+from __future__ import annotations
+
 import datetime
 from enum import Enum
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 from Shared.networkingSchemas.base import CustomBaseModel
+
+if TYPE_CHECKING:
+    from Backend.database import Roles
 
 
 class RolesCategoryModel(CustomBaseModel):
@@ -57,31 +62,19 @@ class RequirementActivityModel(CustomBaseModel):
     # reverse this requirement - only people WITHOUT it get it
     inverse: bool = False
 
+    class Config:
+        orm_mode = True
+
 
 class RequirementIntegerModel(CustomBaseModel):
     # the id of the collectible / record / role
-    id: int
+    bungie_id: int
 
     # reverse this requirement - only people WITHOUT it get it
     inverse: bool = False
 
-
-class RoleDataModel(CustomBaseModel):
-    # the category of the role. Used to better format roles
-    category: str = "Destiny Roles"
-
-    # mark the role as acquirable, but reliant on removed content
-    deprecated: bool = False
-
-    # set whether the role can be earned
-    acquirable: bool = True
-
-    require_activity_completions: list[RequirementActivityModel] = []
-    require_collectibles: list[RequirementIntegerModel] = []
-    require_records: list[RequirementIntegerModel] = []
-    require_role_ids: list[RequirementIntegerModel] = []
-
-    replaced_by_role_id: Optional[int] = None
+    class Config:
+        orm_mode = True
 
 
 class RoleDataUserModel(CustomBaseModel):
@@ -94,7 +87,54 @@ class RoleDataUserModel(CustomBaseModel):
 class RoleModel(CustomBaseModel):
     role_id: int
     guild_id: int
-    role_data: RoleDataModel
+
+    category: str
+
+    # mark the role as acquirable, but reliant on removed content
+    deprecated: bool
+
+    # set whether the role can be earned
+    acquirable: bool
+
+    # list of activities
+    require_activity_completions: list[RequirementActivityModel] = []
+    # list of collectible hashes
+    require_collectibles: list[RequirementIntegerModel] = []
+    # list of record hashes
+    require_records: list[RequirementIntegerModel] = []
+    # list of discord role ids
+    # todo changed behaviour - can't be inverse anymore -> change that everywhere
+    # todo old: require_role_ids: list[RequirementIntegerModel] = []
+    require_role_ids: list[int] = []
+
+    replaced_by_role_id: Optional[int] = None
+
+    @classmethod
+    def from_sql_model(cls, db_model: Roles):
+        """Convert SqlAlchemy's `Roles` to this model"""
+
+        return cls(
+            role_id=db_model.role_id,
+            guild_id=db_model.guild_id,
+            category=db_model.category,
+            deprecated=db_model.deprecated,
+            acquirable=db_model.acquirable,
+            require_activity_completions=[
+                RequirementActivityModel.from_orm(activity)
+                for activity in db_model.requirement_require_activity_completions
+            ],
+            require_collectibles=[
+                RequirementIntegerModel.from_orm(collectible)
+                for collectible in db_model.requirement_require_collectibles
+            ],
+            require_records=[
+                RequirementIntegerModel.from_orm(record) for record in db_model.requirement_require_records
+            ],
+            require_role_ids=[role.role_id for role in db_model.requirement_require_roles],
+            replaced_by_role_id=db_model.requirement_replaced_by_role.role_id
+            if db_model.requirement_replaced_by_role
+            else None,
+        )
 
 
 class RolesModel(CustomBaseModel):
@@ -111,4 +151,4 @@ class RoleEnum(Enum):
 class EarnedRoleModel(CustomBaseModel):
     earned: RoleEnum
     role: RoleModel
-    user_role_data: Optional[RoleDataUserModel] = None
+    user_role_data: RoleDataUserModel

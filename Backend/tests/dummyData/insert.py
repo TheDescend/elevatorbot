@@ -1,3 +1,4 @@
+import copy
 import datetime
 import json as json_lib
 import os
@@ -31,7 +32,12 @@ from Backend.database.models import (
 from Backend.misc.cache import cache
 from Backend.networking.schemas import WebResponse
 from Shared.functions.helperFunctions import get_now_with_tz, localize_datetime
-from Shared.networkingSchemas.destiny.roles import RequirementIntegerModel, RoleDataModel, RoleModel, RolesModel
+from Shared.networkingSchemas.destiny.roles import (
+    RequirementActivityModel,
+    RequirementIntegerModel,
+    RoleModel,
+    RolesModel,
+)
 from Shared.networkingSchemas.misc.auth import BungieTokenInput
 from Shared.networkingSchemas.misc.persistentMessages import (
     PersistentMessage,
@@ -343,19 +349,70 @@ async def insert_dummy_data(db: AsyncSession, client: AsyncClient):
     input_model = RoleModel(
         role_id=1,
         guild_id=dummy_discord_guild_id,
-        role_data=RoleDataModel(
-            category="Destiny Roles",
-            deprecated=False,
-            acquirable=True,
-            require_activity_completions=[],
-            require_collectibles=[],
-            require_records=[RequirementIntegerModel(id=dummy_gotten_record_id)],
-            require_role_ids=[],
-            replaced_by_role_id=None,
-        ),
+        category="Destiny Roles",
+        deprecated=False,
+        acquirable=True,
     )
     r = await client.post(f"/destiny/roles/{dummy_discord_guild_id}/create", json=orjson.loads(input_model.json()))
     assert r.status_code == 200
+
+    r = await client.get(f"/destiny/roles/{dummy_discord_guild_id}/get/all")
+    assert r.status_code == 200
+    data = RolesModel.parse_obj(r.json())
+    assert len(data.roles) == 1
+    assert data.roles[0].role_id == 1
+    assert data.roles[0].guild_id == dummy_discord_guild_id
+
+    # insert 2nd role
+    input_model2 = copy.deepcopy(input_model)
+    input_model2.role_id = 2
+    input_model2.acquirable = False
+    r = await client.post(f"/destiny/roles/{dummy_discord_guild_id}/create", json=orjson.loads(input_model2.json()))
+    assert r.status_code == 200
+
+    r = await client.get(f"/destiny/roles/{dummy_discord_guild_id}/get/all")
+    assert r.status_code == 200
+    data = RolesModel.parse_obj(r.json())
+    assert len(data.roles) == 2
+
+    # test update behaviour
+    input_model.require_activity_completions = [RequirementActivityModel(allowed_activity_hashes=[1], count=1)]
+    input_model.require_collectibles = [RequirementIntegerModel(bungie_id=1)]
+    input_model.require_records = [RequirementIntegerModel(bungie_id=1)]
+    input_model.require_role_ids = [2]
+    input_model.replaced_by_role_id = 2
+    r = await client.post(
+        f"/destiny/roles/{dummy_discord_guild_id}/update/{input_model.role_id}", json=orjson.loads(input_model.json())
+    )
+    assert r.status_code == 200
+    r = await client.get(f"/destiny/roles/{dummy_discord_guild_id}/get/all")
+    assert r.status_code == 200
+    data = RolesModel.parse_obj(r.json())
+    role = data.roles[1]
+    assert role.require_activity_completions == input_model.require_activity_completions
+    assert role.require_collectibles == input_model.require_collectibles
+    assert role.require_records == input_model.require_records
+    assert role.require_role_ids == input_model.require_role_ids
+    assert role.replaced_by_role_id == input_model.replaced_by_role_id
+
+    input_model.require_activity_completions = []
+    input_model.require_collectibles = []
+    input_model.require_records = []
+    input_model.require_role_ids = []
+    input_model.replaced_by_role_id = None
+    r = await client.post(
+        f"/destiny/roles/{dummy_discord_guild_id}/update/{input_model.role_id}", json=orjson.loads(input_model.json())
+    )
+    assert r.status_code == 200
+    r = await client.get(f"/destiny/roles/{dummy_discord_guild_id}/get/all")
+    assert r.status_code == 200
+    data = RolesModel.parse_obj(r.json())
+    role = data.roles[1]
+    assert role.require_activity_completions == input_model.require_activity_completions
+    assert role.require_collectibles == input_model.require_collectibles
+    assert role.require_records == input_model.require_records
+    assert role.require_role_ids == input_model.require_role_ids
+    assert role.replaced_by_role_id == input_model.replaced_by_role_id
 
     # delete all roles
     r = await client.delete(f"/destiny/roles/{dummy_discord_guild_id}/delete/all")
@@ -366,9 +423,77 @@ async def insert_dummy_data(db: AsyncSession, client: AsyncClient):
     data = RolesModel.parse_obj(r.json())
     assert data.roles == []
 
-    # insert the role again because we need it
+    # now test cascade behaviour
     r = await client.post(f"/destiny/roles/{dummy_discord_guild_id}/create", json=orjson.loads(input_model.json()))
     assert r.status_code == 200
 
-    assert cache.roles
-    assert cache.guild_roles
+    input_model2.require_role_ids = [1]
+    r = await client.post(f"/destiny/roles/{dummy_discord_guild_id}/create", json=orjson.loads(input_model2.json()))
+    assert r.status_code == 200
+    assert cache.roles[2].requirement_require_roles
+    assert len(cache.roles[2].requirement_require_roles) == 1
+    assert cache.roles[2].requirement_require_roles[0].role_id == 1
+
+    input_model3 = copy.deepcopy(input_model)
+    input_model3.role_id = 3
+    input_model3.replaced_by_role_id = 2
+    input_model3.acquirable = False
+    r = await client.post(f"/destiny/roles/{dummy_discord_guild_id}/create", json=orjson.loads(input_model3.json()))
+    assert r.status_code == 200
+    # noinspection PyProtectedMember
+    assert cache.roles[3]._replaced_by_role_id == 2
+    assert cache.roles[3].requirement_replaced_by_role
+    assert cache.roles[3].requirement_replaced_by_role.role_id == 2
+
+    # deleting role 3 should not delete role 2
+    r = await client.delete(f"/destiny/roles/{dummy_discord_guild_id}/delete/3")
+    assert r.status_code == 200
+
+    r = await client.get(f"/destiny/roles/{dummy_discord_guild_id}/get/all")
+    assert r.status_code == 200
+    data = RolesModel.parse_obj(r.json())
+    assert len(data.roles) == 2
+    for role in data.roles:
+        assert role.role_id != 3
+
+    # deleting role 1 should delete role 1 and 2
+    r = await client.post(f"/destiny/roles/{dummy_discord_guild_id}/create", json=orjson.loads(input_model3.json()))
+    assert r.status_code == 200
+
+    r = await client.delete(f"/destiny/roles/{dummy_discord_guild_id}/delete/1")
+    assert r.status_code == 200
+
+    r = await client.get(f"/destiny/roles/{dummy_discord_guild_id}/get/all")
+    assert r.status_code == 200
+    data = RolesModel.parse_obj(r.json())
+    assert len(data.roles) == 1
+    for role in data.roles:
+        assert role.role_id != 1
+        assert role.role_id != 2
+
+    # deleting role 2 should not delete role 1, only role 2
+    r = await client.post(f"/destiny/roles/{dummy_discord_guild_id}/create", json=orjson.loads(input_model.json()))
+    assert r.status_code == 200
+    r = await client.post(f"/destiny/roles/{dummy_discord_guild_id}/create", json=orjson.loads(input_model2.json()))
+    assert r.status_code == 200
+
+    r = await client.delete(f"/destiny/roles/{dummy_discord_guild_id}/delete/2")
+    assert r.status_code == 200
+
+    r = await client.get(f"/destiny/roles/{dummy_discord_guild_id}/get/all")
+    assert r.status_code == 200
+    data = RolesModel.parse_obj(r.json())
+    assert len(data.roles) == 2
+    for role in data.roles:
+        assert role.role_id != 2
+
+    # check that role 3 is no longer replaced by 2
+    # noinspection PyProtectedMember
+    assert cache.roles[3]._replaced_by_role_id is None
+    assert cache.roles[3].requirement_replaced_by_role is None
+    assert len(cache.roles) == 2
+
+    assert dummy_discord_guild_id in cache.guild_roles
+    assert len(cache.guild_roles[dummy_discord_guild_id]) == 2
+    for role in cache.guild_roles[dummy_discord_guild_id]:
+        assert role.role_id != 2

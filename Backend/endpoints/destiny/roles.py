@@ -25,7 +25,9 @@ router = APIRouter(
 async def get_all(guild_id: int, db: AsyncSession = Depends(get_db_session)):
     """Get all roles for the corresponding guild"""
 
-    return RolesModel(roles=await crud_roles.get_guild_roles(db=db, guild_id=guild_id))
+    return RolesModel(
+        roles=[RoleModel.from_sql_model(role) for role in await crud_roles.get_guild_roles(db=db, guild_id=guild_id)]
+    )
 
 
 @router.get("/{discord_id}/get/all", response_model=EarnedRolesModel)  # has test

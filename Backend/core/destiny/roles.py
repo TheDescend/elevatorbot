@@ -1,7 +1,5 @@
 import asyncio
 import dataclasses
-import logging
-from typing import Optional
 
 from anyio import create_task_group
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -55,10 +53,10 @@ class UserRoles:
         for role_data in missing_roles:
             role = await self.crud_roles.get_role(db=self.db, role_id=role_data.discord_role_id)
 
-            model = RolesCategoryModel(category=role.role_data.category, discord_role_id=role.role_id)
+            model = RolesCategoryModel(category=role.category, discord_role_id=role.role_id)
 
             # check if deprecated
-            if role.role_data.deprecated:
+            if role.deprecated:
                 result.deprecated.append(model)
             else:
                 result.acquirable.append(model)
@@ -79,10 +77,8 @@ class UserRoles:
 
         # loop through the roles now that the tasks are done and categorise them
         for role in guild_roles:
-            category = str(role.role_data.category)
+            category = str(role.category)
             model = RolesCategoryModel(category=category, discord_role_id=role.role_id)
-
-            replaced_by_role_id = role.role_data.replaced_by_role_id
 
             if self._cache_worthy[role.role_id] == RoleEnum.EARNED:
                 user_roles.earned.append(model)
@@ -90,10 +86,10 @@ class UserRoles:
             elif self._cache_worthy[role.role_id] == RoleEnum.NOT_EARNED:
                 user_roles.not_earned.append(model)
 
-            if replaced_by_role_id:
+            if role.requirement_replaced_by_role:
                 if (
                     self._cache_worthy[role.role_id] == RoleEnum.EARNED
-                    and self._cache_worthy[replaced_by_role_id] == RoleEnum.EARNED
+                    and self._cache_worthy[role.requirement_replaced_by_role.role_id] == RoleEnum.EARNED
                 ):
                     user_roles.earned_but_replaced_by_higher_role.append(model)
 
@@ -105,7 +101,7 @@ class UserRoles:
 
         return user_roles
 
-    async def has_role(self, role: RoleModel, i_only_need_the_bool: bool = False) -> EarnedRoleModel:
+    async def has_role(self, role: Roles, i_only_need_the_bool: bool = False) -> EarnedRoleModel:
         """
         Return is the role is gotten and a dictionary of what is missing to get the role
 
@@ -114,48 +110,49 @@ class UserRoles:
         Argument `i_only_need_the_bool` makes this stop as soon as worthy is not true anymore
         """
 
-        worthy, data = await self._has_role(
+        worthy = await self._has_role(
             role=role, called_with_task_group=False, i_only_need_the_bool=i_only_need_the_bool
         )
-        return EarnedRoleModel(earned=worthy, role=role, user_role_data=data)
+        return EarnedRoleModel(
+            earned=worthy,
+            role=RoleModel.from_sql_model(role),
+            user_role_data=RoleDataUserModel.parse_obj(self._cache_worthy_info[role.role_id]),
+        )
 
-    async def _has_role(
-        self, role: RoleModel, called_with_task_group: bool, i_only_need_the_bool: bool
-    ) -> tuple[RoleEnum, Optional[RoleDataUserModel]]:
+    async def _has_role(self, role: Roles, called_with_task_group: bool, i_only_need_the_bool: bool) -> RoleEnum:
         """Check the role. Can be used in anyio task groups"""
 
-        # this has errored out before, test this here
-        if isinstance(role.role_data, dict):
-            logger = logging.getLogger("requestsExceptions")
-            logger.error(f"Role obj for the following error is: {role}")
+        self._cache_worthy_info[role.role_id] = {}
 
         # check if it is set as acquirable
-        if not role.role_data.acquirable:
-            return RoleEnum.NOT_ACQUIRABLE, None
+        if not role.acquirable:
+            self._cache_worthy[role.role_id] = RoleEnum.NOT_ACQUIRABLE
+            return RoleEnum.NOT_ACQUIRABLE
 
         # check cache first
         if role.role_id in self._cache_worthy:
-            return self._cache_worthy[role.role_id], self._cache_worthy_info[role.role_id]
+            return self._cache_worthy[role.role_id]
 
         # get all get_requirements in anyio tasks
-        self._cache_worthy_info[role.role_id] = {}
         try:
             results: list[RoleEnum] = []
             async with create_task_group() as tg:
-                for requirement_name, _ in role.role_data:
-                    tg.start_soon(
-                        lambda: self.check_requirement(
-                            results=results,
-                            role=role,
-                            requirement_name=requirement_name,
-                            i_only_need_the_bool=i_only_need_the_bool,
-                            called_with_task_group=called_with_task_group,
+                for requirement_name in role.__dict__:
+                    # skip internals
+                    if requirement_name.startswith("requirement_"):
+                        tg.start_soon(
+                            lambda: self.check_requirement(
+                                results=results,
+                                role=role,
+                                requirement_name=requirement_name,
+                                i_only_need_the_bool=i_only_need_the_bool,
+                                called_with_task_group=called_with_task_group,
+                            )
                         )
-                    )
 
-        except RoleNotEarnedException as e:
+        except RoleNotEarnedException:
             self._cache_worthy[role.role_id] = RoleEnum.NOT_EARNED
-            return self._cache_worthy[role.role_id], RoleDataUserModel.parse_obj(self._cache_worthy_info[e.role_id])
+            return self._cache_worthy[role.role_id]
 
         # loop through the results and check if all reqs are OK
         worthy = RoleEnum.EARNED
@@ -168,12 +165,12 @@ class UserRoles:
         # put the results in the cache and return them
         self._cache_worthy[role.role_id] = worthy
 
-        return self._cache_worthy[role.role_id], self._cache_worthy_info[role.role_id]
+        return self._cache_worthy[role.role_id]
 
     async def check_requirement(
         self,
         results: list[RoleEnum],
-        role: RoleModel,
+        role: Roles,
         requirement_name: str,
         i_only_need_the_bool: bool,
         called_with_task_group: bool,
@@ -209,7 +206,7 @@ class UserRoles:
     async def _check_requirement(
         self,
         results: list[RoleEnum],
-        role: RoleModel,
+        role: Roles,
         requirement_name: str,
         i_only_need_the_bool: bool,
         called_with_task_group: bool,
@@ -219,11 +216,11 @@ class UserRoles:
         worthy = RoleEnum.EARNED
 
         match requirement_name:
-            case "require_activity_completions":
+            case "requirement_require_activity_completions":
                 self._cache_worthy_info[role.role_id].update({"require_activity_completions": []})
 
                 # loop through the activities
-                for entry in role.role_data.require_activity_completions:
+                for entry in role.requirement_require_activity_completions:
                     found = await crud_activities.get_activities(
                         db=self.db,
                         destiny_id=self.user.destiny_id,
@@ -262,12 +259,12 @@ class UserRoles:
                     if role.role_id in self._cache_worthy:
                         break
 
-            case "require_collectibles":
+            case "requirement_require_collectibles":
                 self._cache_worthy_info[role.role_id].update({"require_collectibles": []})
 
                 # loop through the collectibles
-                for collectible in role.role_data.require_collectibles:
-                    result = await self.user.has_collectible(collectible.id)
+                for collectible in role.requirement_require_collectibles:
+                    result = await self.user.has_collectible(collectible.bungie_id)
 
                     if not result:
                         if not collectible.inverse:
@@ -286,12 +283,12 @@ class UserRoles:
                     if role.role_id in self._cache_worthy:
                         break
 
-            case "require_records":
+            case "requirement_require_records":
                 self._cache_worthy_info[role.role_id].update({"require_records": []})
 
                 # loop through the records
-                for record in role.role_data.require_records:
-                    result = await self.user.has_triumph(record.id)
+                for record in role.requirement_require_records:
+                    result = await self.user.has_triumph(record.bungie_id)
 
                     if not result:
                         if not record.inverse:
@@ -310,11 +307,14 @@ class UserRoles:
                     if role.role_id in self._cache_worthy:
                         break
 
-            case "require_role_ids":
+            case "requirement_require_roles":
                 self._cache_worthy_info[role.role_id].update({"require_role_ids": []})
 
                 # loop through the role_ids
-                for requirement_role in role.role_data.require_role_ids:
+                for requirement_role in role.requirement_require_roles:
+                    # get the role with the proper relationship depths from cache -> all attrs are loaded
+                    requirement_role = await crud_roles.get_role(db=self.db, role_id=requirement_role.role_id)
+
                     # alright so this is a bit more convoluted
                     # simply calling this function again would lead to double-checking / race conditions when checking all roles (because of task groups)
                     # but just waiting would not work too, since a single role can get checked too
@@ -323,19 +323,12 @@ class UserRoles:
                         # 5 minutes wait time
                         waited_for = 0
                         while waited_for < 300:
-                            if requirement_role.id in self._cache_worthy:
-                                if self._cache_worthy[requirement_role.id] == RoleEnum.NOT_EARNED:
-                                    if not requirement_role.inverse:
-                                        worthy = RoleEnum.NOT_EARNED
-                                        self._cache_worthy_info[role.role_id]["require_role_ids"].append(False)
-                                    else:
-                                        self._cache_worthy_info[role.role_id]["require_role_ids"].append(True)
+                            if requirement_role.role_id in self._cache_worthy:
+                                if self._cache_worthy[requirement_role.role_id] == RoleEnum.NOT_EARNED:
+                                    worthy = RoleEnum.NOT_EARNED
+                                    self._cache_worthy_info[role.role_id]["require_role_ids"].append(False)
                                 else:
-                                    if not requirement_role.inverse:
-                                        self._cache_worthy_info[role.role_id]["require_role_ids"].append(True)
-                                    else:
-                                        worthy = RoleEnum.NOT_EARNED
-                                        self._cache_worthy_info[role.role_id]["require_role_ids"].append(False)
+                                    self._cache_worthy_info[role.role_id]["require_role_ids"].append(True)
 
                                 break
 
@@ -344,38 +337,35 @@ class UserRoles:
 
                         # this is only called if nothing was found
                         if waited_for >= 300:
-                            # todo hali plox fix -> ON DELETE SET NULL when its an actual db
-                            # todo delete required roles
-                            # todo delete replaced roles
-
-                            print(role.role_id)
-                            print(requirement_role.id)
-
                             raise CustomException("RoleLookupTimedOut")
 
                     # check the sub-roles ourselves
                     else:
-                        sub_role: Roles = await crud_roles.get_role(db=self.db, role_id=requirement_role.id)
-                        sub_role_worthy, _ = await self._has_role(
-                            role=sub_role, called_with_task_group=False, i_only_need_the_bool=i_only_need_the_bool
+                        sub_role_worthy = await self._has_role(
+                            role=requirement_role,
+                            called_with_task_group=False,
+                            i_only_need_the_bool=i_only_need_the_bool,
                         )
+
+                        # check if this role replaces the sub role
+                        if (
+                            requirement_role.requirement_replaced_by_role
+                            and requirement_role.requirement_replaced_by_role.role_id == role.role_id
+                        ):
+                            # do not set it to EARNED
+                            if sub_role_worthy == RoleEnum.EARNED:
+                                sub_role_worthy = RoleEnum.EARNED_BUT_REPLACED_BY_HIGHER_ROLE
+                                self._cache_worthy[requirement_role.role_id] = sub_role_worthy
 
                         if (
                             sub_role_worthy == RoleEnum.EARNED
                             or sub_role_worthy == RoleEnum.EARNED_BUT_REPLACED_BY_HIGHER_ROLE
                         ):
-                            if not requirement_role.inverse:
-                                self._cache_worthy_info[role.role_id]["require_role_ids"].append(True)
-                            else:
-                                worthy = RoleEnum.NOT_EARNED
-                                self._cache_worthy_info[role.role_id]["require_role_ids"].append(False)
+                            self._cache_worthy_info[role.role_id]["require_role_ids"].append(True)
 
                         else:
-                            if not requirement_role.inverse:
-                                worthy = RoleEnum.NOT_EARNED
-                                self._cache_worthy_info[role.role_id]["require_role_ids"].append(False)
-                            else:
-                                self._cache_worthy_info[role.role_id]["require_role_ids"].append(True)
+                            worthy = RoleEnum.NOT_EARNED
+                            self._cache_worthy_info[role.role_id]["require_role_ids"].append(False)
 
                     # make this end early
                     if i_only_need_the_bool and worthy == RoleEnum.NOT_EARNED:
@@ -385,18 +375,28 @@ class UserRoles:
                     if role.role_id in self._cache_worthy:
                         break
 
-            case "replaced_by_role_id":
+            case "requirement_replaced_by_role":
                 # only need to check this sometimes
-                if role.role_data.replaced_by_role_id and not called_with_task_group:
-                    # check the higher role
-                    higher_role: Roles = await crud_roles.get_role(
-                        db=self.db, role_id=role.role_data.replaced_by_role_id
-                    )
-                    higher_role_worthy, _ = await self._has_role(
-                        role=higher_role, called_with_task_group=False, i_only_need_the_bool=i_only_need_the_bool
+                if role.requirement_replaced_by_role and not called_with_task_group:
+                    # get the role with the proper relationship depths -> all attrs are loaded
+                    replaced_by_role = await crud_roles.get_role(
+                        db=self.db, role_id=role.requirement_replaced_by_role.role_id
                     )
 
-                    if higher_role_worthy == RoleEnum.EARNED:
-                        worthy = RoleEnum.EARNED_BUT_REPLACED_BY_HIGHER_ROLE
+                    # edge case:
+                    # the higher role requires this role, in that instance we do not check
+                    # we instead check that on the higher role and change the RoleEnum for this
+                    if role.role_id not in [
+                        req_role.role_id for req_role in replaced_by_role.requirement_require_roles
+                    ]:
+                        # check the higher role
+                        higher_role_worthy = await self._has_role(
+                            role=replaced_by_role,
+                            called_with_task_group=False,
+                            i_only_need_the_bool=i_only_need_the_bool,
+                        )
+
+                        if higher_role_worthy == RoleEnum.EARNED:
+                            worthy = RoleEnum.EARNED_BUT_REPLACED_BY_HIGHER_ROLE
 
         results.append(worthy)

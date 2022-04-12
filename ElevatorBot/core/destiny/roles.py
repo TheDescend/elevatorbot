@@ -37,7 +37,7 @@ class Roles:
         # get info what get_requirements the user fulfills and which not and info on the role
         result = await self.roles.get_detail(role)
 
-        role_data = result.role.role_data
+        role_data = result.role
         user_data = result.user_role_data
 
         # construct reply msg
@@ -63,8 +63,8 @@ class Roles:
             )
 
         roles: list[str] = []
-        for role_id, user_role in zip(role_data.require_collectibles, user_data.require_collectibles):
-            roles.append(f"{(await self.guild.fetch_role(role_id.id)).mention}: {user_role}")
+        for role_id, user_role in zip(role_data.require_role_ids, user_data.require_role_ids):
+            roles.append(f"{(await self.guild.fetch_role(role_id)).mention}: {user_role}")
 
         # add the embed fields
         if activities:
