@@ -36,7 +36,7 @@ class EmojiCommands(BaseScale):
             url = message.attachments[0].url
 
         # url
-        elif url := re.search(r"([a-z\-_0-9\/\:\.]*\.(jpg|jpeg|png|gif))", message.content):
+        elif url := re.search(r"([a-z\-_0-9\/\:\.]*\.(jpg|jpeg|png|gif|webp))", message.content):
             pass
 
         else:
