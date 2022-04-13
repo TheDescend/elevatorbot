@@ -62,6 +62,18 @@
                         ]
                     },
                     {
+                        "name": "lfg alert",
+                        "description": "Message all users in the event",
+                        "options": [
+                            {
+                                "name": "lfg_id",
+                                "description": "The lfg event ID",
+                                "required": true,
+                                "autocomplete": false
+                            }
+                        ]
+                    },
+                    {
                         "name": "lfg create",
                         "description": "Creates an LFG event",
                         "options": [

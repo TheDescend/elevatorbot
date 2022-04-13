@@ -34,7 +34,7 @@ class DestinyMode(BaseScale):
         description="Format: `DD/MM/YY` - Input the **latest** date you want the weapon stats for. Default: Now",
     )
     @default_user_option()
-    async def activity(
+    async def mode(
         self,
         ctx: InteractionContext,
         mode: str,

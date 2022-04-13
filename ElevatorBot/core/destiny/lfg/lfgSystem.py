@@ -390,11 +390,19 @@ class LfgMessage:
     async def alert_start_time_changed(self, new_start_time: datetime.datetime):
         """Alert all joined / backups that the event start time was changed"""
 
-        embed = embed_message(
-            "Attention Please",
-            f"The start time for the lfg event [{self.id}]({self.message.jump_url}) has changed \nIt changed from {Timestamp.fromdatetime(self.start_time).format(style=TimestampStyles.ShortDateTime)} to {Timestamp.fromdatetime(new_start_time).format(style=TimestampStyles.ShortDateTime)}",
-        )
+        text = f"The start time for the lfg event [{self.id}]({self.message.jump_url}) has changed \nIt changed from {Timestamp.fromdatetime(self.start_time).format(style=TimestampStyles.ShortDateTime)} to {Timestamp.fromdatetime(new_start_time).format(style=TimestampStyles.ShortDateTime)}"
         self.start_time = new_start_time
+        await self.alert_members(text=text)
+
+    async def alert_members(self, text: str, from_member: Member | None = None):
+        """Alert all lfg members with the text"""
+
+        footer = None
+        if from_member:
+            text += f"\n⁣\n**Sent by {from_member.mention}**"
+            footer = "Sent with - /lfg alert"
+
+        embed = embed_message("Attention Please", text, footer=footer)
 
         for user_id in self.joined_ids + self.backup_ids:
             try:

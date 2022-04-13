@@ -55,6 +55,7 @@ If you want to feel like an [expert](https://www.youtube.com/watch?v=BKorP55Aqvg
 {custom_emojis.enter} `/lfg delete` - Remove the LFG event
 {custom_emojis.enter} `/lfg add` - Add a user to your own LFG event
 {custom_emojis.enter} `/lfg kick` - Kick a user from your own LFG event
+{custom_emojis.enter} `/lfg alert` - Message all members in an event
 {custom_emojis.enter} `/lfg joined` - Shows you an overview which LFG events you have joined
 ⁣
 ⁣
