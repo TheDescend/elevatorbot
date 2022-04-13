@@ -15,10 +15,7 @@ class CRUDCollectibles(CRUDBase):
         )
 
         # check if exists in db
-        if not result:
-            return False
-
-        return result.owned
+        return bool(result)
 
     async def get_collectible(self, db: AsyncSession, destiny_id: int, collectible_hash: int) -> Optional[Collectibles]:
         """Return the db entry if exists"""

@@ -13,10 +13,7 @@ class CRUDRecords(CRUDBase):
         result: Optional[Records] = await self.get_record(db=db, destiny_id=destiny_id, triumph_hash=triumph_hash)
 
         # check if exists in db
-        if not result:
-            return False
-
-        return result.completed
+        return bool(result)
 
     async def get_record(self, db: AsyncSession, destiny_id: int, triumph_hash: int) -> Optional[Records]:
         """Return the db entry if exists"""
