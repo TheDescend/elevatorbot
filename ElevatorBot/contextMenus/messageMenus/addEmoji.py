@@ -38,8 +38,8 @@ class EmojiCommands(BaseScale):
             url = message.attachments[0].url
 
         # url
-        elif url := re.search(r"([a-z\-_0-9\/\:\.]*\.(jpg|jpeg|png|gif|webp))", message.content):
-            pass
+        elif match := re.search(r"([a-z\-_0-9\/\:\.]*\.(jpg|jpeg|png|gif|webp))", message.content):
+            url = match.string
 
         else:
             await ctx.send(
@@ -92,6 +92,7 @@ class EmojiCommands(BaseScale):
 
                 image_data = io.BytesIO()
                 image.save(image_data, "PNG")
+                image_data.seek(0)
 
                 emoji = await ctx.guild.create_custom_emoji(name=modal_ctx.responses["name"], imagefile=image_data)
 
