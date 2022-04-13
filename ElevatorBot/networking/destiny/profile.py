@@ -76,7 +76,7 @@ class DestinyProfile(BaseBackendConnection):
                 # check their status with the backend
                 result = await self.has_token()
             except BackendException as e:
-                if e.error == "NoToken":
+                if e.error in ["NoToken", "DiscordIdNotFound"]:
                     return False
                 else:
                     raise e
