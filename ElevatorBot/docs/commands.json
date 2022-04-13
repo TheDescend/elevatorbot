@@ -596,6 +596,99 @@
                 ]
             },
             {
+                "name": "mode",
+                "description": "Display stats for Destiny 2 activity modes",
+                "options": [
+                    {
+                        "name": "mode",
+                        "description": "Chose the mode you want to see the stats for",
+                        "required": true,
+                        "autocomplete": false,
+                        "choices": [
+                            "All",
+                            "Raid",
+                            "Dungeon",
+                            "Story",
+                            "Strike",
+                            "Nightfall",
+                            "Patrol",
+                            "Gambit",
+                            "All Pve",
+                            "Iron Banner",
+                            "Trials Of Osiris",
+                            "Private Matches",
+                            "All Pvp"
+                        ]
+                    },
+                    {
+                        "name": "destiny_class",
+                        "description": "Restrict the class. Default: All classes",
+                        "required": false,
+                        "autocomplete": false,
+                        "choices": [
+                            "Warlock",
+                            "Hunter",
+                            "Titan"
+                        ]
+                    },
+                    {
+                        "name": "expansion",
+                        "description": "Restrict the expansion. Default: All expansions",
+                        "required": false,
+                        "autocomplete": false,
+                        "choices": [
+                            "Vanilla",
+                            "Forsaken",
+                            "Shadowkeep",
+                            "Beyond Light",
+                            "Witch Queen"
+                        ]
+                    },
+                    {
+                        "name": "season",
+                        "description": "Restrict the season. Default: All seasons",
+                        "required": false,
+                        "autocomplete": false,
+                        "choices": [
+                            "Vanilla",
+                            "Curse of Osiris",
+                            "Warmind",
+                            "Forsaken",
+                            "Season of the Forge",
+                            "Season of the Drifter",
+                            "Season of Opulence",
+                            "Shadowkeep",
+                            "Season of Dawn",
+                            "Season of the Worthy",
+                            "Season of Arrivals",
+                            "Beyond Light",
+                            "Season of the Chosen",
+                            "Season of the Splicer",
+                            "Season of the Lost",
+                            "Witch Queen"
+                        ]
+                    },
+                    {
+                        "name": "start_time",
+                        "description": "Format: DD/MM/YY - Input the **earliest** date you want the weapon stats for. Default: Big Bang",
+                        "required": false,
+                        "autocomplete": false
+                    },
+                    {
+                        "name": "end_time",
+                        "description": "Format: DD/MM/YY - Input the **latest** date you want the weapon stats for. Default: Now",
+                        "required": false,
+                        "autocomplete": false
+                    },
+                    {
+                        "name": "user",
+                        "description": "The user you want to look up",
+                        "required": false,
+                        "autocomplete": false
+                    }
+                ]
+            },
+            {
                 "name": "pop_timeline",
                 "description": "Shows you the Destiny 2 steam maximum population timeline"
             },

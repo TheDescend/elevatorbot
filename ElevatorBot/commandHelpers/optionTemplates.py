@@ -77,7 +77,7 @@ def default_class_option(description: str = "Restrict the class. Default: All cl
     return wrapper
 
 
-def default_mode_option(description: str = "Restrict the game mode. Default: All modes") -> Any:
+def default_mode_option(description: str = "Restrict the game mode. Default: All modes", required: bool = False) -> Any:
     """
     Decorator that replaces @slash_option()
 
@@ -89,7 +89,7 @@ def default_mode_option(description: str = "Restrict the game mode. Default: All
             name="mode",
             description=description,
             opt_type=OptionTypes.STRING,
-            required=False,
+            required=required,
             choices=[
                 SlashCommandChoice(
                     name=capitalize_string(activity_type.name),

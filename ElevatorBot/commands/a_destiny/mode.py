@@ -5,6 +5,7 @@ from ElevatorBot.commandHelpers.optionTemplates import (
     autocomplete_activity_option,
     default_class_option,
     default_expansion_option,
+    default_mode_option,
     default_season_option,
     default_time_option,
     default_user_option,
@@ -14,12 +15,13 @@ from ElevatorBot.core.destiny.activity import format_and_send_activity_data
 from ElevatorBot.misc.formatting import add_filler_field, embed_message, format_timedelta
 from ElevatorBot.misc.helperFunctions import parse_datetime_options
 from ElevatorBot.networking.destiny.activities import DestinyActivities
+from Shared.enums.destiny import UsableDestinyActivityModeTypeEnum
 from Shared.networkingSchemas.destiny import DestinyActivityInputModel
 
 
-class DestinyActivity(BaseScale):
-    @slash_command(name="activity", description="Display stats for Destiny 2 activities")
-    @autocomplete_activity_option(description="Chose the activity you want to see the stats for", required=True)
+class DestinyMode(BaseScale):
+    @slash_command(name="mode", description="Display stats for Destiny 2 activity modes")
+    @default_mode_option(description="Chose the mode you want to see the stats for", required=True)
     @default_class_option()
     @default_expansion_option()
     @default_season_option()
@@ -35,7 +37,7 @@ class DestinyActivity(BaseScale):
     async def activity(
         self,
         ctx: InteractionContext,
-        activity: str,
+        mode: str,
         destiny_class: str = None,
         expansion: str = None,
         season: str = None,
@@ -50,9 +52,7 @@ class DestinyActivity(BaseScale):
         if not start_time:
             return
 
-        # get the actual activity
-        if activity:
-            activity = activities[activity.lower()]
+        mode = UsableDestinyActivityModeTypeEnum(int(mode))
 
         member = user or ctx.author
         backend_activities = DestinyActivities(ctx=ctx, discord_member=member, discord_guild=ctx.guild)
@@ -60,7 +60,7 @@ class DestinyActivity(BaseScale):
         # get the stats
         stats = await backend_activities.get_activity_stats(
             input_model=DestinyActivityInputModel(
-                activity_ids=activity.activity_ids,
+                mode=mode.value,
                 character_class=destiny_class,
                 start_time=start_time,
                 end_time=end_time,
@@ -71,8 +71,8 @@ class DestinyActivity(BaseScale):
             ctx=ctx,
             member=member,
             stats=stats,
-            name="Activity Stats",
-            activity_name=activity.name,
+            name="Activity Mode Stats",
+            activity_name=mode.name.capitalize(),
             start_time=start_time,
             end_time=end_time,
             destiny_class=destiny_class,
@@ -80,7 +80,4 @@ class DestinyActivity(BaseScale):
 
 
 def setup(client):
-    command = DestinyActivity(client)
-
-    # register the autocomplete callback
-    command.activity.autocomplete("activity")(autocomplete_send_activity_name)
+    DestinyMode(client)
