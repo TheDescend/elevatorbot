@@ -22,6 +22,9 @@ delete_lock = asyncio.Lock()
 insert_lock = asyncio.Lock()
 
 
+starting_phase_cutoff = datetime.datetime(day=22, month=2, year=2022, hour=17, tzinfo=datetime.timezone.utc)
+
+
 class CRUDActivitiesFailToGet(CRUDBase):
     async def get_all(self, db: AsyncSession) -> list[ActivitiesFailToGet]:
         """Get all missing pgcr ids"""
@@ -71,13 +74,19 @@ class CRUDActivities(CRUDBase):
         """Actually do the insert"""
 
         try:
+            # starting phase index is only the way to go before 22/2/22, after we should use activityWasStartedFromBeginning
+            if activity_time > starting_phase_cutoff:
+                starting_phase_index = 0 if pgcr["activityWasStartedFromBeginning"] else 99
+            else:
+                starting_phase_index = pgcr["startingPhaseIndex"]
+
             # build the activity
             activity = Activities(
                 instance_id=instance_id,
                 period=activity_time,
                 reference_id=pgcr["activityDetails"]["referenceId"],
                 director_activity_hash=pgcr["activityDetails"]["directorActivityHash"],
-                starting_phase_index=pgcr["startingPhaseIndex"],
+                starting_phase_index=starting_phase_index,
                 mode=pgcr["activityDetails"]["mode"],
                 modes=pgcr["activityDetails"]["modes"],
                 is_private=pgcr["activityDetails"]["isPrivate"],

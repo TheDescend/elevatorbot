@@ -183,7 +183,7 @@ class DestinyActivities:
         async with update_missing_pgcr_lock:
             for activity in await crud_activities_fail_to_get.get_all(db=self.db):
                 # check if info is already in DB, delete and skip if so
-                result = crud_activities.get(db=self.db, instance_id=activity.instance_id)
+                result = await crud_activities.get(db=self.db, instance_id=activity.instance_id)
                 if result:
                     await crud_activities_fail_to_get.delete(db=self.db, obj=activity)
                     continue

@@ -106,17 +106,27 @@ class NetworkBase:
 
         route_with_params = f"{route}?{urlencode(params or {})}"
 
+        # cached responses do not have the content type field
+        content_type = (
+            request.headers.get("Content-Type", "NOT SET")
+            if not hasattr(request, "content_type")
+            else request.content_type
+        )
+
         # catch the content type "application/octet-stream" which is returned for some routes
-        if "application/octet-stream" in request.headers["Content-Type"]:
-            pass
+        if "application/octet-stream" in content_type:
+            # this is issued with a 301 when bungie is of the opinion that this moved (which is wrong)
+            # just retrying fixes it
+            if request.status == 301:
+                return
 
         # make sure the return is a json, sometimes we get a http file for some reason
-        elif "application/json" not in request.headers["Content-Type"]:
+        elif "application/json" not in content_type:
             self.logger_exceptions.error(
-                f"""'{request.status}': Retrying... - Wrong content type '{request.headers["Content-Type"]}' with reason '{request.reason}' for '
+                f"""'{request.status}': Retrying... - Wrong content type '{content_type}' with reason '{request.reason}' for '
                 {route_with_params}'"""
             )
-            print(f"""Bungie returned Content-Type: {request.headers["Content-Type"]}""")
+            print(f"""Bungie returned Content-Type: {content_type}""")
             if request.status == 200:
                 self.logger_exceptions.error(f"Wrong content type returned text: '{await request.text()}'")
             await asyncio.sleep(3)
