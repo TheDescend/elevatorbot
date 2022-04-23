@@ -98,7 +98,10 @@ class RankCommandHandler:
                 return
 
             # get the actual weapon
-            activity: DestinyActivityModel = activities[activity.lower()]
+            activity: DestinyActivityModel | None = activities[activity.lower()]
+        else:
+            # set the activity to None if some joker decided to supply it without needing it
+            activity = None
 
         # make sure the weapon was supplied
         if weapon_leaderboards:
