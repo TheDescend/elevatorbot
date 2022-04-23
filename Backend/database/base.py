@@ -39,11 +39,12 @@ def setup_engine(database_url: str = DATABASE_URL) -> Engine:
             database_url,
             future=True,
             echo=bool(get_setting("ENABLE_DEBUG_MODE") and not is_test_mode()),
+            echo_pool=bool(get_setting("ENABLE_DEBUG_MODE") and not is_test_mode()),
             json_deserializer=orjson.loads,
             json_serializer=lambda x: orjson.dumps(x).decode(),
             pool_pre_ping=True,
-            pool_size=75,
-            max_overflow=-1,
+            pool_size=25,
+            max_overflow=50,
             pool_timeout=300,
         )
 
