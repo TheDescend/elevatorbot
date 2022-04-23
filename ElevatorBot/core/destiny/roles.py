@@ -57,7 +57,7 @@ class Roles:
             )
 
         records: list[str] = []
-        for triumph, user_triumph in zip(role_data.require_collectibles, user_data.require_collectibles):
+        for triumph, user_triumph in zip(role_data.require_records, user_data.require_records):
             records.append(
                 f"[{await triumph_cache.get_name(triumph_id=triumph.bungie_id)}](https://www.light.gg/db/legend/triumphs/{triumph.bungie_id}): {user_triumph}"
             )
