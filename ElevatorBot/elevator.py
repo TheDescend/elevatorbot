@@ -156,8 +156,7 @@ if __name__ == "__main__":
                     val.scopes = get_setting("COMMAND_GUILD_SCOPE")
                 elif isinstance(val, Listener | Task):
                     setattr(cls, name, None)
-            super().__new__(cls=cls, bot=bot, *args, **kwargs)
-            return cls
+            return super().__new__(cls=cls, bot=bot, *args, **kwargs)
 
         @slash_command(name="debug", sub_cmd_name="reload", sub_cmd_description="Reload all scales")
         async def my_command_function(self, ctx: InteractionContext):
