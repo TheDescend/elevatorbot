@@ -242,33 +242,33 @@ async def on_message_create(event: MessageCreate, edit_mode: bool = False):
 
                 # =========================================================================
                 # neria welcome message
-                if "welcome" in message.content.lower() and message.mentions:
-                    for mention in message.mentions:
-                        neria_id = 109022023979667456
-                        if mention.id == neria_id:
-                            welcome_choice = [
-                                "Welcome",
-                                "I mirëpritur",
-                                "Dobrodošli",
-                                "Vitejte",
-                                "Welkom",
-                                "Tere tulemast",
-                                "Tervetuloa",
-                                "Bienvenue",
-                                "Herzlich willkommen",
-                                "Üdvözöljük",
-                                "Velkominn",
-                                "Fáilte",
-                                "Benvenuta",
-                                "Velkommen",
-                                "Witamy",
-                                "Bine ați venit (this is spelled correctly thanks to <@171371726444167168>)",
-                                "Bienvenidas",
-                                "Välkommen",
-                                "Croeso",
-                                "Yeeeeeeeeeeeeeeeeeeeeeeeeeeeeehaw",
-                            ]
-                            await message.channel.send(f"{random.choice(welcome_choice)} <@{neria_id}>!")
+                if "welcome" in message.content.lower():
+                    # nerias id
+                    # todo move over to new mention property I will make
+                    if 109022023979667456 in message._mention_ids:
+                        welcome_choice = [
+                            "Welcome",
+                            "I mirëpritur",
+                            "Dobrodošli",
+                            "Vitejte",
+                            "Welkom",
+                            "Tere tulemast",
+                            "Tervetuloa",
+                            "Bienvenue",
+                            "Herzlich willkommen",
+                            "Üdvözöljük",
+                            "Velkominn",
+                            "Fáilte",
+                            "Benvenuta",
+                            "Velkommen",
+                            "Witamy",
+                            "Bine ați venit (this is spelled correctly thanks to <@171371726444167168>)",
+                            "Bienvenidas",
+                            "Välkommen",
+                            "Croeso",
+                            "Yeeeeeeeeeeeeeeeeeeeeeeeeeeeeehaw",
+                        ]
+                        await message.channel.send(f"{random.choice(welcome_choice)} <@{neria_id}>!")
 
                 # =========================================================================
                 # be annoyed if getting pinged
