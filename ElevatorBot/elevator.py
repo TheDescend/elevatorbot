@@ -142,7 +142,7 @@ if __name__ == "__main__":
     add_component_callbacks(client=client)
 
     print("Loading Autocomplete Options...")
-    asyncio.run(load_autocomplete_options(client))
+    asyncio.run(load_autocomplete_options())
 
     local_commands = load_commands(client=client)
 

@@ -1,6 +1,7 @@
 from Backend.backgroundEvents.base import BaseEvent
 from Backend.core.destiny.manifest import DestinyManifest
 from Backend.database.base import get_async_sessionmaker
+from Backend.networking.elevatorApi import ElevatorApi
 
 
 class ManifestUpdater(BaseEvent):
@@ -15,4 +16,9 @@ class ManifestUpdater(BaseEvent):
             manifest = DestinyManifest(db=db)
 
             # update
-            await manifest.update()
+            post_elevator = await manifest.update()
+
+        # populate the autocomplete options again because something changed
+        if post_elevator:
+            elevator_api = ElevatorApi()
+            await elevator_api.post(route="/manifest_update")

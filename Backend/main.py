@@ -123,7 +123,7 @@ async def startup():
     print("Updating Destiny 2 Manifest...")
     async with get_async_sessionmaker().begin() as db:
         manifest = DestinyManifest(db=db)
-        await manifest.update(post_elevator=False)
+        await manifest.update()
 
     # register background events
     print("Loading Background Events...")

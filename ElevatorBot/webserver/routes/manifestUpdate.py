@@ -8,18 +8,8 @@ async def manifest_update(request: web.Request):
     """
     Update the autocomplete options after a manifest update
     """
-    client = request.app["client"]
 
-    # delete old data
-    autocomplete.activities_grandmaster = {}
-    autocomplete.activities = {}
-    autocomplete.activities_by_id = {}
-    autocomplete.weapons = {}
-    autocomplete.weapons_by_id = {}
-    autocomplete.lore = {}
-    autocomplete.lore_by_id = {}
-
-    # refill it
-    await load_autocomplete_options(client=client)
+    # refill data
+    await load_autocomplete_options()
 
     return web.json_response({"success": True})

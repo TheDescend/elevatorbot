@@ -1,12 +1,4 @@
-from ElevatorBot.commandHelpers.autocomplete import (
-    activities,
-    activities_by_id,
-    activities_grandmaster,
-    lore,
-    lore_by_id,
-    weapons,
-    weapons_by_id,
-)
+from ElevatorBot.commandHelpers import autocomplete
 from ElevatorBot.networking.destiny.activities import DestinyActivities
 from ElevatorBot.networking.destiny.items import DestinyItems
 from ElevatorBot.networking.destiny.weapons import DestinyWeapons
@@ -14,15 +6,19 @@ from Shared.enums.destiny import DestinyActivityModeTypeEnum
 from Shared.networkingSchemas.destiny import DestinyActivityModel
 
 
-async def load_autocomplete_options(client):
+async def load_autocomplete_options():
     """Fetch the needed data from the DB"""
 
-    # get activities
     # loop through them all and add them to the global activities dict
     backend = DestinyActivities(ctx=None, discord_member=None, discord_guild=None)
     db_activities = await backend.get_all()
     if not db_activities:
         raise LookupError("Couldn't load activities")
+
+    # delete old data
+    autocomplete.activities_grandmaster = {}
+    autocomplete.activities = {}
+    autocomplete.activities_by_id = {}
 
     raids = []
     dungeons = []
@@ -39,9 +35,9 @@ async def load_autocomplete_options(client):
 
         # don't add the budget grandmasters
         if "Grandmaster" not in activity.name:
-            activities.update({activity.name.lower(): activity})
+            autocomplete.activities.update({activity.name.lower(): activity})
             for activity_id in activity.activity_ids:
-                activities_by_id.update({activity_id: activity})
+                autocomplete.activities_by_id.update({activity_id: activity})
 
     # get the more nicely formatted gms
     db_grandmaster = await backend.get_grandmaster()
@@ -49,7 +45,7 @@ async def load_autocomplete_options(client):
         raise LookupError("Couldn't load grandmasters")
 
     # get all raids
-    activities.update(
+    autocomplete.activities.update(
         {
             "Raid: All": DestinyActivityModel(
                 name="Raid: All",
@@ -63,7 +59,7 @@ async def load_autocomplete_options(client):
     )
 
     # get all dungeons
-    activities.update(
+    autocomplete.activities.update(
         {
             "Dungeon: All": DestinyActivityModel(
                 name="Dungeon: All",
@@ -77,10 +73,10 @@ async def load_autocomplete_options(client):
     )
 
     for grandmaster in db_grandmaster.activities:
-        activities_grandmaster.update({grandmaster.name.lower(): grandmaster})
-        activities.update({grandmaster.name.lower(): grandmaster})
+        autocomplete.activities_grandmaster.update({grandmaster.name.lower(): grandmaster})
+        autocomplete.activities.update({grandmaster.name.lower(): grandmaster})
         for activity_id in grandmaster.activity_ids:
-            activities_by_id.update({activity_id: grandmaster})
+            autocomplete.activities_by_id.update({activity_id: grandmaster})
 
     # ==================================================================
     # get weapons
@@ -88,10 +84,14 @@ async def load_autocomplete_options(client):
     if not db_activities:
         raise LookupError("Couldn't load weapons")
 
+    # delete old data
+    autocomplete.weapons = {}
+    autocomplete.weapons_by_id = {}
+
     for weapon in db_weapons.weapons:
-        weapons.update({weapon.name.lower(): weapon})
+        autocomplete.weapons.update({weapon.name.lower(): weapon})
         for reference_id in weapon.reference_ids:
-            weapons_by_id.update({reference_id: weapon})
+            autocomplete.weapons_by_id.update({reference_id: weapon})
 
     # ==================================================================
     # get all lore
@@ -99,6 +99,10 @@ async def load_autocomplete_options(client):
     if not db_lore:
         raise LookupError("Couldn't load lore")
 
+    # delete old data
+    autocomplete.lore = {}
+    autocomplete.lore_by_id = {}
+
     for lore_item in db_lore.items:
-        lore.update({lore_item.name.lower(): lore_item})
-        lore_by_id.update({lore_item.reference_id: lore_item})
+        autocomplete.lore.update({lore_item.name.lower(): lore_item})
+        autocomplete.lore_by_id.update({lore_item.reference_id: lore_item})

@@ -36,7 +36,7 @@ class DestinyManifest:
         # the network class
         self.api = BungieApi(db=self.db)
 
-    async def update(self, post_elevator: bool = True):
+    async def update(self) -> bool:
         """Checks the local manifests versions and updates the local copy should it have changed"""
 
         # get the manifest
@@ -47,7 +47,7 @@ class DestinyManifest:
         version = manifest.content["version"]
         db_version = await db_manifest.get_version(db=self.db)
         if db_version and (version == db_version.version):
-            return
+            return False
 
         # version is different, so re-download
         path = manifest.content["jsonWorldComponentContentPaths"]["en"]
@@ -388,7 +388,4 @@ class DestinyManifest:
         # update version entry
         await db_manifest.upsert_version(db=self.db, version=version)
 
-        if post_elevator:
-            # populate the autocomplete options again
-            elevator_api = ElevatorApi()
-            await elevator_api.post(route="/manifest_update")
+        return True
