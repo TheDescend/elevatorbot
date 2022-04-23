@@ -44,7 +44,7 @@ async def on_message_delete(event: MessageDelete):
 async def on_message_update(event: MessageUpdate):
     """Triggers when a message gets edited"""
 
-    if event.before != event.after and event.after:
+    if event.after and event.before.content != event.after.content:
         # run the message create checks
         await on_message_create(event=MessageCreate(bot=event.bot, message=event.after), edit_mode=True)
 
