@@ -1,4 +1,4 @@
-bungie_route = "https://www.bungie.net/"
+bungie_route = "https://stats.bungie.net/"
 base_route = bungie_route + "Platform/"
 destiny_route = base_route + "Destiny2/"
 

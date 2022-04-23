@@ -115,9 +115,10 @@ class NetworkBase:
 
         # catch the content type "application/octet-stream" which is returned for some routes
         if "application/octet-stream" in content_type:
-            # this is issued with a 301 when bungie is of the opinion that this moved (which is wrong)
-            # just retrying fixes it
+            # this is issued with a 301 when bungie is of the opinion that resource this moved (which is wrong, depending on server)
+            # just retrying fixes it with the new url fixes it
             if request.status == 301:
+                self.route = request.headers.get("Location")
                 return
 
         # make sure the return is a json, sometimes we get a http file for some reason
