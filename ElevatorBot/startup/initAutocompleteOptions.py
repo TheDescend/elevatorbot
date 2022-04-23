@@ -47,7 +47,7 @@ async def load_autocomplete_options():
     # get all raids
     autocomplete.activities.update(
         {
-            "Raid: All": DestinyActivityModel(
+            "Raid: All".lower(): DestinyActivityModel(
                 name="Raid: All",
                 description="Raid: All",
                 matchmade=False,
@@ -61,7 +61,7 @@ async def load_autocomplete_options():
     # get all dungeons
     autocomplete.activities.update(
         {
-            "Dungeon: All": DestinyActivityModel(
+            "Dungeon: All".lower(): DestinyActivityModel(
                 name="Dungeon: All",
                 description="Dungeon: All",
                 matchmade=False,
