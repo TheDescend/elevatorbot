@@ -1,11 +1,5 @@
 {
     "Message Context Menus": {
-        "Available Globally": [
-            {
-                "name": "Get Timestamps",
-                "description": "Format all (relative) dates and times in the message"
-            }
-        ],
         "Only Available in the Descend Server": [
             {
                 "name": "Add Emoji",
@@ -14,6 +8,12 @@
             {
                 "name": "Draw Giveaway Winner",
                 "description": "Close the giveaway and draw a winner from the giveaway. Use multiple times if you want multiple winners"
+            }
+        ],
+        "Available Globally": [
+            {
+                "name": "Get Timestamps",
+                "description": "Format all (relative) dates and times in the message"
             }
         ]
     },

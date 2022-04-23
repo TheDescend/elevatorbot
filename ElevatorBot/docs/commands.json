@@ -1,5 +1,11 @@
 {
     "Destiny Commands": {
+        "Only Available in the Descend Server": [
+            {
+                "name": "day_one_raid_race",
+                "description": "Starts the Day One raid completion announcer"
+            }
+        ],
         "Available Globally": [
             {
                 "base_name": "Day One Commands",
@@ -1433,15 +1439,117 @@
                     }
                 ]
             }
-        ],
-        "Only Available in the Descend Server": [
-            {
-                "name": "day_one_raid_race",
-                "description": "Starts the Day One raid completion announcer"
-            }
         ]
     },
     "Miscellaneous Commands": {
+        "Only Available in the Descend Server": [
+            {
+                "name": "api_key",
+                "description": "Get your own Destiny 2 oauth api key"
+            },
+            {
+                "name": "bug",
+                "description": "Use this if you want to report any bugs to the developer",
+                "options": [
+                    {
+                        "name": "image",
+                        "description": "An image of the problem (press win + shift + s)",
+                        "required": false,
+                        "autocomplete": false
+                    }
+                ]
+            },
+            {
+                "name": "giveaway",
+                "description": "Creates a giveaway",
+                "options": [
+                    {
+                        "name": "description",
+                        "description": "Input details about the giveaway",
+                        "required": true,
+                        "autocomplete": false
+                    },
+                    {
+                        "name": "host",
+                        "description": "The user which is hosting the giveaway if it is not you",
+                        "required": false,
+                        "autocomplete": false
+                    }
+                ]
+            },
+            {
+                "name": "metrics",
+                "description": "Shows interesting ElevatorBot metrics"
+            },
+            {
+                "name": "mute",
+                "description": "Mutes the specified user",
+                "options": [
+                    {
+                        "name": "user",
+                        "description": "Which user to mute",
+                        "required": true,
+                        "autocomplete": false
+                    },
+                    {
+                        "name": "muted_type",
+                        "description": "How should the user be muted",
+                        "required": true,
+                        "autocomplete": false,
+                        "choices": [
+                            "Muted",
+                            "Muted - No Nickname"
+                        ]
+                    },
+                    {
+                        "name": "hours",
+                        "description": "How many hours to mute the user for",
+                        "required": true,
+                        "autocomplete": false
+                    },
+                    {
+                        "name": "reason",
+                        "description": "Whats the reason for the mute",
+                        "required": true,
+                        "autocomplete": false
+                    }
+                ]
+            },
+            {
+                "name": "mute_me",
+                "description": "I wonder what this does...",
+                "options": [
+                    {
+                        "name": "user",
+                        "description": "The user you want to look up",
+                        "required": false,
+                        "autocomplete": false
+                    }
+                ]
+            },
+            {
+                "name": "socialist",
+                "description": "Spams #socialist \ud83d\ude43"
+            },
+            {
+                "name": "warning",
+                "description": "Warns the specified user",
+                "options": [
+                    {
+                        "name": "user",
+                        "description": "Which user to warn",
+                        "required": true,
+                        "autocomplete": false
+                    },
+                    {
+                        "name": "reason",
+                        "description": "Whats the reason for the warning",
+                        "required": true,
+                        "autocomplete": false
+                    }
+                ]
+            }
+        ],
         "Available Globally": [
             {
                 "base_name": "Poll Commands",
@@ -1583,117 +1691,77 @@
                 "name": "funfact",
                 "description": "Get a fun fact, which most of the time is even pretty interesting"
             }
-        ],
-        "Only Available in the Descend Server": [
-            {
-                "name": "api_key",
-                "description": "Get your own Destiny 2 oauth api key"
-            },
-            {
-                "name": "bug",
-                "description": "Use this if you want to report any bugs to the developer",
-                "options": [
-                    {
-                        "name": "image",
-                        "description": "An image of the problem (press win + shift + s)",
-                        "required": false,
-                        "autocomplete": false
-                    }
-                ]
-            },
-            {
-                "name": "giveaway",
-                "description": "Creates a giveaway",
-                "options": [
-                    {
-                        "name": "description",
-                        "description": "Input details about the giveaway",
-                        "required": true,
-                        "autocomplete": false
-                    },
-                    {
-                        "name": "host",
-                        "description": "The user which is hosting the giveaway if it is not you",
-                        "required": false,
-                        "autocomplete": false
-                    }
-                ]
-            },
-            {
-                "name": "metrics",
-                "description": "Shows interesting ElevatorBot metrics"
-            },
-            {
-                "name": "mute",
-                "description": "Mutes the specified user",
-                "options": [
-                    {
-                        "name": "user",
-                        "description": "Which user to mute",
-                        "required": true,
-                        "autocomplete": false
-                    },
-                    {
-                        "name": "muted_type",
-                        "description": "How should the user be muted",
-                        "required": true,
-                        "autocomplete": false,
-                        "choices": [
-                            "Muted",
-                            "Muted - No Nickname"
-                        ]
-                    },
-                    {
-                        "name": "hours",
-                        "description": "How many hours to mute the user for",
-                        "required": true,
-                        "autocomplete": false
-                    },
-                    {
-                        "name": "reason",
-                        "description": "Whats the reason for the mute",
-                        "required": true,
-                        "autocomplete": false
-                    }
-                ]
-            },
-            {
-                "name": "mute_me",
-                "description": "I wonder what this does...",
-                "options": [
-                    {
-                        "name": "user",
-                        "description": "The user you want to look up",
-                        "required": false,
-                        "autocomplete": false
-                    }
-                ]
-            },
-            {
-                "name": "socialist",
-                "description": "Spams #socialist \ud83d\ude43"
-            },
-            {
-                "name": "warning",
-                "description": "Warns the specified user",
-                "options": [
-                    {
-                        "name": "user",
-                        "description": "Which user to warn",
-                        "required": true,
-                        "autocomplete": false
-                    },
-                    {
-                        "name": "reason",
-                        "description": "Whats the reason for the warning",
-                        "required": true,
-                        "autocomplete": false
-                    }
-                ]
-            }
         ]
     },
     "Admin Commands": {
+        "Only Available in the Descend Server": [
+            {
+                "base_name": "Descend Setup Commands",
+                "base_description": "Use these commands to setup ElevatorBot on this server",
+                "sub_commands": [
+                    {
+                        "name": "descend_setup booster_count",
+                        "description": "Designate a voice channel that will always show the current booster count",
+                        "options": [
+                            {
+                                "name": "category",
+                                "description": "The voice channel where the message should be displayed",
+                                "required": true,
+                                "autocomplete": false
+                            }
+                        ]
+                    },
+                    {
+                        "name": "descend_setup member_count",
+                        "description": "Designate a voice channel that will always show the current member count",
+                        "options": [
+                            {
+                                "name": "category",
+                                "description": "The voice channel where the message should be displayed",
+                                "required": true,
+                                "autocomplete": false
+                            }
+                        ]
+                    },
+                    {
+                        "name": "descend_setup miscellaneous_roles",
+                        "description": "Designate a channel in which user can assign themselves miscellaneous roles",
+                        "options": [
+                            {
+                                "name": "channel",
+                                "description": "The text channel where the message should be displayed",
+                                "required": true,
+                                "autocomplete": false
+                            },
+                            {
+                                "name": "message_id",
+                                "description": "You can input a message ID (needs to be from me and selected channel) to have me edit that message",
+                                "required": false,
+                                "autocomplete": false
+                            }
+                        ]
+                    },
+                    {
+                        "name": "descend_setup status",
+                        "description": "Designate a channel in which status messages get posted and updated",
+                        "options": [
+                            {
+                                "name": "channel",
+                                "description": "The text channel where the message should be displayed",
+                                "required": true,
+                                "autocomplete": false
+                            },
+                            {
+                                "name": "message_id",
+                                "description": "You can input a message ID (needs to be from me and selected channel) to have me edit that message",
+                                "required": false,
+                                "autocomplete": false
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
         "Available Globally": [
             {
                 "base_name": "Setup Commands",
@@ -1842,74 +1910,6 @@
                         "description": "If you know how the user is called",
                         "required": false,
                         "autocomplete": false
-                    }
-                ]
-            }
-        ],
-        "Only Available in the Descend Server": [
-            {
-                "base_name": "Descend Setup Commands",
-                "base_description": "Use these commands to setup ElevatorBot on this server",
-                "sub_commands": [
-                    {
-                        "name": "descend_setup booster_count",
-                        "description": "Designate a voice channel that will always show the current booster count",
-                        "options": [
-                            {
-                                "name": "category",
-                                "description": "The voice channel where the message should be displayed",
-                                "required": true,
-                                "autocomplete": false
-                            }
-                        ]
-                    },
-                    {
-                        "name": "descend_setup member_count",
-                        "description": "Designate a voice channel that will always show the current member count",
-                        "options": [
-                            {
-                                "name": "category",
-                                "description": "The voice channel where the message should be displayed",
-                                "required": true,
-                                "autocomplete": false
-                            }
-                        ]
-                    },
-                    {
-                        "name": "descend_setup miscellaneous_roles",
-                        "description": "Designate a channel in which user can assign themselves miscellaneous roles",
-                        "options": [
-                            {
-                                "name": "channel",
-                                "description": "The text channel where the message should be displayed",
-                                "required": true,
-                                "autocomplete": false
-                            },
-                            {
-                                "name": "message_id",
-                                "description": "You can input a message ID (needs to be from me and selected channel) to have me edit that message",
-                                "required": false,
-                                "autocomplete": false
-                            }
-                        ]
-                    },
-                    {
-                        "name": "descend_setup status",
-                        "description": "Designate a channel in which status messages get posted and updated",
-                        "options": [
-                            {
-                                "name": "channel",
-                                "description": "The text channel where the message should be displayed",
-                                "required": true,
-                                "autocomplete": false
-                            },
-                            {
-                                "name": "message_id",
-                                "description": "You can input a message ID (needs to be from me and selected channel) to have me edit that message",
-                                "required": false,
-                                "autocomplete": false
-                            }
-                        ]
                     }
                 ]
             }

@@ -1,12 +1,26 @@
 import asyncio
+import inspect
 import logging
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from dis_snek import AutoDefer, Intents, InteractionContext, Permissions, Snake, listen, logger_name, slash_command
+from dis_snek import (
+    AutoDefer,
+    Intents,
+    InteractionCommand,
+    InteractionContext,
+    Listener,
+    Permissions,
+    Snake,
+    Task,
+    listen,
+    logger_name,
+    slash_command,
+)
+from dis_snek.ext.debug_scale import DebugScale
 
 from ElevatorBot.discordEvents.base import ElevatorSnake
 from ElevatorBot.misc.cache import descend_cache
-from ElevatorBot.misc.helperFunctions import yield_files_in_folder
+from ElevatorBot.misc.helperFunctions import check_is_guild, yield_files_in_folder
 from ElevatorBot.misc.status import update_discord_bot_status
 from ElevatorBot.startup.initAutocompleteOptions import load_autocomplete_options
 from ElevatorBot.startup.initBackgroundEvents import register_background_events
@@ -130,6 +144,28 @@ if __name__ == "__main__":
         auto_defer=AutoDefer(enabled=True),
     )
 
+    # load the debug scale for the debug guilds only
+    class CustomDebugScale(DebugScale):
+        def __init__(self, bot: Snake):
+            super().__init__(bot)
+            self.add_scale_check(check_is_guild())
+
+        def __new__(cls, bot: Snake, *args, **kwargs):
+            for name, val in inspect.getmembers(cls):
+                if isinstance(val, InteractionCommand):
+                    val.scopes = get_setting("COMMAND_GUILD_SCOPE")
+                elif isinstance(val, Listener | Task):
+                    setattr(cls, name, None)
+            super().__new__(cls=cls, bot=bot, *args, **kwargs)
+            return cls
+
+        @slash_command(name="debug", sub_cmd_name="reload", sub_cmd_description="Reload all scales")
+        async def my_command_function(self, ctx: InteractionContext):
+            load_commands(client=ctx.bot)
+            await ctx.send("Reload successful!")
+
+    CustomDebugScale(bot=client)
+
     if get_setting("ENABLE_DEBUG_MODE"):
         print("Setting Up Snek Logging...")
         cls_log = logging.getLogger(logger_name)
@@ -151,17 +187,6 @@ if __name__ == "__main__":
         if key != 0:
             local_context_menus += len(value)
     print(f"< {local_context_menus - local_commands} > Local Context Menus Loaded")
-
-    # load the reload command if debug mode is on
-    if get_setting("ENABLE_DEBUG_MODE"):
-
-        @slash_command(name="reload", description="Reload all scales", scopes=get_setting("COMMAND_GUILD_SCOPE"))
-        async def my_command_function(ctx: InteractionContext):
-            if not ctx.author.has_permission(Permissions.ADMINISTRATOR):
-                await ctx.send("Admin Only")
-                return
-            load_commands(client=ctx.bot)
-            await ctx.send("Reload successful!")
 
     # run the bot
     client.start(get_setting("DISCORD_APPLICATION_API_KEY"))

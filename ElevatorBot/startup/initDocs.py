@@ -36,7 +36,7 @@ def create_command_docs(client):
 
         for resolved_name, data in command.items():
             # ignore the reload command
-            if resolved_name == "reload":
+            if resolved_name.startswith("debug"):
                 continue
 
             # get the docstring

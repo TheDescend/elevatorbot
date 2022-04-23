@@ -7,13 +7,15 @@ from enum import Enum, EnumMeta
 from typing import Generator, Optional
 
 from dateutil.parser import ParserError, parse
-from dis_snek import ComponentContext, InteractionContext
+from dis_snek import ComponentContext, Context, InteractionContext
+from dis_snek.models.snek.checks import TYPE_CHECK_FUNCTION
 
 from ElevatorBot.commandHelpers.responseTemplates import respond_invalid_time_input, respond_time_input_in_past
 from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.networking.destiny.account import DestinyAccount
 from ElevatorBot.static.emojis import custom_emojis
 from Shared.functions.helperFunctions import get_min_with_tz, get_now_with_tz
+from Shared.functions.readSettingsFile import get_setting
 
 
 async def parse_string_datetime(
@@ -185,3 +187,12 @@ def get_emoji_by_name(enum_class: EnumMeta, key: str) -> Enum:
 
     enum = get_enum_by_name(enum_class=enum_class, key=key)
     return getattr(custom_emojis, enum.name.lower())
+
+
+def check_is_guild() -> TYPE_CHECK_FUNCTION:
+    """Check that the guild is correct"""
+
+    async def check(ctx: Context) -> bool:
+        return ctx.guild and ctx.guild.id in get_setting("COMMAND_GUILD_SCOPE")
+
+    return check
