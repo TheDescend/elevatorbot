@@ -7,11 +7,11 @@ alembic==1.7.7
 anyio==3.5.0
 apscheduler==3.9.1
 asyncpg==0.25.0
-fastapi==0.75.0
+fastapi==0.75.2
 feedparser==6.0.8
 ics==0.7
 matplotlib==3.5.1
-orjson==3.6.7
+orjson==3.6.8
 pandas==1.4.1
 passlib[bcrypt]==1.7.4
 psutil==5.9.0
