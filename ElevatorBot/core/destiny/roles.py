@@ -51,15 +51,15 @@ class Roles:
             activities.append(f"{activities_by_id[activity_info.allowed_activity_hashes[0]].name}: {user_activity}")
 
         collectibles: list[str] = []
-        for collectible_id, user_collectible in zip(role_data.require_collectibles, user_data.require_collectibles):
+        for collectible, user_collectible in zip(role_data.require_collectibles, user_data.require_collectibles):
             collectibles.append(
-                f"[{await collectible_cache.get_name(collectible_id=collectible_id)}](https://www.light.gg/db/items/{collectible_id}): {user_collectible}"
+                f"[{await collectible_cache.get_name(collectible_id=collectible.bungie_id)}](https://www.light.gg/db/items/{collectible.bungie_id}): {user_collectible}"
             )
 
         records: list[str] = []
-        for triumph_id, user_triumph in zip(role_data.require_collectibles, user_data.require_collectibles):
+        for triumph, user_triumph in zip(role_data.require_collectibles, user_data.require_collectibles):
             records.append(
-                f"[{await triumph_cache.get_name(triumph_id=triumph_id)}](https://www.light.gg/db/legend/triumphs/{triumph_id}): {user_triumph}"
+                f"[{await triumph_cache.get_name(triumph_id=triumph.bungie_id)}](https://www.light.gg/db/legend/triumphs/{triumph.bungie_id}): {user_triumph}"
             )
 
         roles: list[str] = []
