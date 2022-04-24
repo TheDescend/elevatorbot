@@ -31,7 +31,7 @@ class LfgVoiceCategory(BaseScale):
             )
             return
 
-        success_message = f"Future LFG posts will have a voice channel created in {channel.mention}"
+        success_message = f"Future LFG events will have a voice channel created in {channel.mention}"
         await handle_setup_command(
             ctx=ctx,
             message_name="lfg_voice_category",

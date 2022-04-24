@@ -400,7 +400,7 @@ class LfgMessage:
         footer = None
         if from_member:
             text += f"\n⁣\n**Sent by {from_member.mention}**"
-            footer = "Sent with - /lfg alert"
+            footer = f"Event {self.id} | Sent with /lfg alert"
 
         embed = embed_message("Attention Please", text, footer=footer)
 

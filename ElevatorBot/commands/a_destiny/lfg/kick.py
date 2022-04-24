@@ -32,13 +32,13 @@ class LfgKick(BaseScale):
         if await lfg_message.remove_member(user):
             embed = embed_message(
                 "Success",
-                f"{user.mention} has been removed from the LFG post with the id `{lfg_id}`",
+                f"{user.mention} has been removed from the LFG event [{lfg_id}]({lfg_message.message.jump_url})",
             )
 
         else:
             embed = embed_message(
                 "Error",
-                f"{user.mention} could not be deleted from the LFG post with the id `{lfg_id}`, because they are not in it",
+                f"{user.mention} could not be deleted from the LFG event [{lfg_id}]({lfg_message.message.jump_url}), because they are not in it",
             )
 
         await ctx.send(ephemeral=True, embeds=embed)

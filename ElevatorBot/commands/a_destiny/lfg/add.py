@@ -1,4 +1,5 @@
 from dis_snek import InteractionContext, Member, slash_command
+from dis_snek.client.errors import Forbidden
 
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option, lfg_event_id
 from ElevatorBot.commandHelpers.subCommandTemplates import lfg_sub_command
@@ -36,12 +37,23 @@ class LfgAdd(BaseScale):
         if await lfg_message.add_joined(user, force_into_joined=True):
             embed = embed_message(
                 "Success",
-                f"{user.mention} has been added to the LFG post with the id `{lfg_id}`",
+                f"{user.mention} has been added to the LFG event [{lfg_id}]({lfg_message.message.jump_url})",
             )
+
+            try:
+                await user.send(
+                    embed=embed_message(
+                        "Attention Please",
+                        f"You have been added to the LFG event [{lfg_id}]({lfg_message.message.jump_url}) by {ctx.author.mention}",
+                    )
+                )
+            except Forbidden:
+                pass
+
         else:
             embed = embed_message(
                 "Error",
-                f"{user.mention} could not be added to the LFG post with the id `{lfg_id}` because they are already in it",
+                f"{user.mention} could not be added to the LFG event [{lfg_id}]({lfg_message.message.jump_url}) because they are already in it",
             )
 
         await ctx.send(ephemeral=True, embeds=embed)

@@ -31,7 +31,7 @@ class LfgDelete(BaseScale):
         await lfg_message.delete()
         await ctx.send(
             ephemeral=True,
-            embeds=embed_message("Success", f"The LFG post with the id `{lfg_id}` has been deleted"),
+            embeds=embed_message("Success", f"The LFG event with the id `{lfg_id}` has been deleted"),
         )
 
 

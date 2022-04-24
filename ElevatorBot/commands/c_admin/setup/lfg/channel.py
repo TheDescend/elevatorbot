@@ -31,7 +31,7 @@ class LfgChannel(BaseScale):
             return
 
         embed = embed_message(
-            "How to make an LFG post",
+            "How to make an LFG event",
             f"""
 Hello fellow humans, and welcome to this easy, 465 steps, guide:
 ⁣
@@ -46,7 +46,7 @@ Due to timezones sucking and there being at least 16789 of them, you might not f
 `for i in range(3, 464): print(f"praise {{self.mention}}!")`
 ⁣
 {custom_emojis.circle} **Step 465:**
-After you made the LFG post, or if you just want to join an existing post, use the fancy buttons to interact with the event.
+After you made the LFG event, or if you just want to join an existing post, use the fancy buttons to interact with the event.
 ⁣
 ⁣
 If you want to feel like an [expert](https://www.youtube.com/watch?v=BKorP55Aqvg), there are a bunch of additional commands you can use to interact with LFG events:
@@ -61,7 +61,7 @@ If you want to feel like an [expert](https://www.youtube.com/watch?v=BKorP55Aqvg
 ⁣
 Basically just type `/lfg` and look around. There are many other cool commands too, so maybe just type `/`.""",
         )
-        success_message = f"Future LFG posts will be posted in {channel.mention}"
+        success_message = f"Future LFG events will be posted in {channel.mention}"
         await handle_setup_command(
             ctx=ctx,
             message_name="lfg_channel",
