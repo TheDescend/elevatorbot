@@ -1,6 +1,6 @@
 from Backend.backgroundEvents.base import BaseEvent
 from Backend.core.destiny.manifest import DestinyManifest
-from Backend.database.base import acquire_db_session, get_async_sessionmaker
+from Backend.database.base import acquire_db_session
 from Backend.networking.elevatorApi import ElevatorApi
 
 

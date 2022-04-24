@@ -2,12 +2,11 @@ import asyncio
 
 from dis_snek import InteractionContext, Member, Modal, ParagraphText, slash_command
 
-from ElevatorBot.commandHelpers.optionTemplates import default_user_option, lfg_event_id
+from ElevatorBot.commandHelpers.optionTemplates import lfg_event_id
 from ElevatorBot.commandHelpers.responseTemplates import respond_timeout
 from ElevatorBot.commandHelpers.subCommandTemplates import lfg_sub_command
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.core.destiny.lfg.lfgSystem import LfgMessage
-from ElevatorBot.misc.discordShortcutFunctions import has_admin_permission
 from ElevatorBot.misc.formatting import embed_message
 
 

@@ -19,7 +19,6 @@ from Backend.misc.cache import cache
 from Backend.misc.helperFunctions import DefaultDict
 from Backend.networking.bungieApi import BungieApi
 from Backend.networking.bungieRoutes import manifest_route
-from Backend.networking.elevatorApi import ElevatorApi
 
 default_bool = False
 default_integer = -1

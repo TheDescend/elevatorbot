@@ -11,7 +11,7 @@ import Backend.networking.bungieApi as bungieApi
 from Backend.core.errors import CustomException
 from Backend.crud.base import CRUDBase
 from Backend.crud.misc.persistentMessages import persistent_messages
-from Backend.database.base import acquire_db_session, get_async_sessionmaker
+from Backend.database.base import acquire_db_session
 from Backend.database.models import DiscordUsers
 from Backend.misc.cache import cache
 from Backend.networking.elevatorApi import ElevatorApi

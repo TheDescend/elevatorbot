@@ -1,17 +1,9 @@
-import asyncio
-import datetime
-import os
-import pathlib
 import random
 import re
 
-import aiohttp
 import github
-import gtts
-from dateparser.search import search_dates
-from dis_snek import AutoArchiveDuration, ChannelTypes, ThreadChannel, ThreadList, Timestamp, TimestampStyles
+from dis_snek import AutoArchiveDuration, ChannelTypes, ThreadChannel, ThreadList
 from dis_snek.api.events import MessageCreate, MessageDelete, MessageUpdate
-from dis_snek.api.voice.audio import AudioVolume, YTDLAudio
 
 from ElevatorBot.core.misc.aprilFools import play_joke
 from ElevatorBot.core.misc.github import github_manager

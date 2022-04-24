@@ -15,7 +15,6 @@ from ElevatorBot.commandHelpers.optionTemplates import (
     default_time_option,
     default_weapon_type_option,
 )
-from ElevatorBot.commandHelpers.subCommandTemplates import weapons_sub_command
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formatting import capitalize_string, embed_message
 from ElevatorBot.misc.helperFunctions import parse_datetime_options

@@ -1,7 +1,6 @@
 from Backend.backgroundEvents.base import BaseEvent
 from Backend.crud import d2_steam_players
-from Backend.database.base import acquire_db_session, get_async_sessionmaker, is_test_mode
-from Backend.networking.bungieApi import BungieApi
+from Backend.database.base import acquire_db_session, is_test_mode
 from Backend.networking.http import NetworkBase
 from Shared.functions.readSettingsFile import get_setting
 

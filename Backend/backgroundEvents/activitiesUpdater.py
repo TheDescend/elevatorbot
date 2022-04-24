@@ -3,9 +3,8 @@ from anyio import create_task_group
 from Backend.backgroundEvents.base import BaseEvent
 from Backend.core.destiny.activities import DestinyActivities
 from Backend.crud import discord_users
-from Backend.database.base import acquire_db_session, get_async_sessionmaker, is_test_mode
+from Backend.database.base import acquire_db_session, is_test_mode
 from Backend.database.models import DiscordUsers
-from Backend.dependencies import get_db_session
 from Shared.functions.helperFunctions import split_list
 
 

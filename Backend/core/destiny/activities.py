@@ -12,7 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from Backend.core.destiny.profile import DestinyProfile
 from Backend.core.errors import CustomException
 from Backend.crud import crud_activities, crud_activities_fail_to_get, destiny_manifest, discord_users
-from Backend.database.base import acquire_db_session, get_async_sessionmaker
+from Backend.database.base import acquire_db_session
 from Backend.database.models import ActivitiesUsers, DiscordUsers
 from Backend.misc.cache import cache
 from Backend.misc.helperFunctions import get_datetime_from_bungie_entry

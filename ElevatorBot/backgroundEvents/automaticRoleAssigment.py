@@ -1,9 +1,6 @@
-from anyio import create_task_group
-
 from ElevatorBot.backgroundEvents.base import BaseEvent
 from ElevatorBot.core.destiny.roles import Roles
 from ElevatorBot.discordEvents.base import ElevatorSnake
-from ElevatorBot.misc.cache import registered_role_cache
 from ElevatorBot.networking.destiny.profile import DestinyProfile
 
 

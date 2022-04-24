@@ -8,7 +8,7 @@ from Backend.core.destiny.profile import DestinyProfile
 from Backend.core.errors import CustomException
 from Backend.crud import crud_activities
 from Backend.crud.destiny.roles import CRUDRoles, crud_roles
-from Backend.database.base import acquire_db_session, get_async_sessionmaker
+from Backend.database.base import acquire_db_session
 from Backend.database.models import Roles
 from Shared.networkingSchemas.destiny.roles import (
     EarnedRoleModel,

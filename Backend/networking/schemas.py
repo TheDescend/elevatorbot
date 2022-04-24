@@ -1,8 +1,6 @@
 import dataclasses
 import datetime
 import inspect
-import time as py_time
-from typing import Optional
 
 
 @dataclasses.dataclass()

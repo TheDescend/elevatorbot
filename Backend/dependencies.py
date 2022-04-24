@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.security.auth import ALGORITHM, CREDENTIALS_EXCEPTION, get_secret_key, oauth2_scheme
 from Backend.crud import backend_user
-from Backend.database.base import acquire_db_session, get_async_sessionmaker
+from Backend.database.base import acquire_db_session
 from Backend.database.models import BackendUser
 
 

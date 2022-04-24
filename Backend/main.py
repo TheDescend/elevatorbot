@@ -9,8 +9,8 @@ from fastapi import Depends, FastAPI, Request
 from Backend.core.destiny.manifest import DestinyManifest
 from Backend.core.errors import CustomException, handle_custom_exception
 from Backend.crud import backend_user
-from Backend.database.base import acquire_db_session, get_async_sessionmaker, setup_engine
-from Backend.database.models import BackendUser, create_tables
+from Backend.database.base import acquire_db_session
+from Backend.database.models import BackendUser
 from Backend.dependencies import auth_get_user_with_read_perm, auth_get_user_with_write_perm
 from Backend.startup.initBackgroundEvents import register_background_events
 from Backend.startup.initLogging import init_logging

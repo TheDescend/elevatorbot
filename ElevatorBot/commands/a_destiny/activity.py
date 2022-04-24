@@ -1,4 +1,4 @@
-from dis_snek import InteractionContext, Member, Timestamp, TimestampStyles, slash_command
+from dis_snek import InteractionContext, Member, slash_command
 
 from ElevatorBot.commandHelpers import autocomplete
 from ElevatorBot.commandHelpers.optionTemplates import (
@@ -11,7 +11,6 @@ from ElevatorBot.commandHelpers.optionTemplates import (
 )
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.core.destiny.activity import format_and_send_activity_data
-from ElevatorBot.misc.formatting import add_filler_field, embed_message, format_timedelta
 from ElevatorBot.misc.helperFunctions import parse_datetime_options
 from ElevatorBot.networking.destiny.activities import DestinyActivities
 from Shared.networkingSchemas.destiny import DestinyActivityInputModel

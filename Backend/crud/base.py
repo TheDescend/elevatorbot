@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm.attributes import flag_modified
 from sqlalchemy.sql import Select
 
-from Backend.database.base import Base, acquire_db_session, get_async_sessionmaker
+from Backend.database.base import Base, acquire_db_session
 
 ModelType = TypeVar("ModelType", bound=Base)
 

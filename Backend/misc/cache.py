@@ -11,7 +11,6 @@ from Backend.database.models import (
     Roles,
 )
 from Shared.networkingSchemas.destiny import DestinyActivityModel, SeasonalChallengesModel
-from Shared.networkingSchemas.destiny.roles import RoleModel
 
 
 @dataclasses.dataclass

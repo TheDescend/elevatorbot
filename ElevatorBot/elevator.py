@@ -9,7 +9,6 @@ from dis_snek import (
     InteractionCommand,
     InteractionContext,
     Listener,
-    Permissions,
     Snake,
     Task,
     listen,

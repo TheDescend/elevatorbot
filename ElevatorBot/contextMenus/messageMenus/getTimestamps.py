@@ -1,4 +1,4 @@
-from dis_snek import CommandTypes, InteractionContext, Message, context_menu
+from dis_snek import CommandTypes, InteractionContext, context_menu
 
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.core.misc.timestamps import get_timestamp_embed

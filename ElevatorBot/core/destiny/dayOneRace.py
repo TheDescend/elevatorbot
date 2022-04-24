@@ -8,7 +8,6 @@ from typing import Optional
 import aiohttp
 from anyio import create_task_group
 from dis_snek import File, GuildText, InteractionContext, Member, Message, Timestamp, TimestampStyles
-from dis_snek.client.errors import NotFound
 
 from ElevatorBot.commandHelpers.responseTemplates import something_went_wrong
 from ElevatorBot.misc.formatting import embed_message, format_timedelta

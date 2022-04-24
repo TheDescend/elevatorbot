@@ -7,7 +7,6 @@ from httpx import AsyncClient
 from orjson import orjson
 from pytest_mock import MockerFixture
 
-from Backend.misc.cache import cache
 from Shared.networkingSchemas.destiny.roles import (
     EarnedRoleModel,
     EarnedRolesModel,

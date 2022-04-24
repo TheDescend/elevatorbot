@@ -2,7 +2,6 @@ import dataclasses
 from typing import Optional
 
 from dis_snek import ActionRow, Embed, GuildChannel, InteractionContext, Message
-from dis_snek.client.errors import NotFound
 
 from ElevatorBot.commandHelpers.responseTemplates import respond_wrong_author
 from ElevatorBot.misc.formatting import embed_message

@@ -1,5 +1,4 @@
 from dis_snek import InteractionContext, Member, OptionTypes, slash_command, slash_option
-from dis_snek.client.errors import NotFound
 
 from ElevatorBot.commands.base import BaseScale
 from ElevatorBot.misc.formatting import embed_message

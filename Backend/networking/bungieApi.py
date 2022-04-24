@@ -4,7 +4,6 @@ import datetime
 import os
 import time
 from base64 import b64encode
-from typing import Optional
 
 import aiohttp
 import aiohttp_client_cache

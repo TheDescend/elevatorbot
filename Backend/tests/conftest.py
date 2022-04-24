@@ -6,9 +6,8 @@ from dummyData.insert import insert_dummy_data
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from Backend.database.base import acquire_db_session, get_async_sessionmaker, is_test_mode, setup_engine
+from Backend.database.base import acquire_db_session, is_test_mode, setup_engine
 from Backend.database.models import create_tables
-from Backend.dependencies import get_db_session
 from Backend.main import app
 from Backend.startup.initLogging import init_logging
 

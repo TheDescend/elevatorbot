@@ -1,11 +1,10 @@
 import aiohttp
 import feedparser
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.backgroundEvents.base import BaseEvent
 from Backend.core.errors import CustomException
 from Backend.crud import persistent_messages, rss_feed
-from Backend.database.base import acquire_db_session, get_async_sessionmaker
+from Backend.database.base import acquire_db_session
 from Backend.networking.elevatorApi import ElevatorApi
 
 

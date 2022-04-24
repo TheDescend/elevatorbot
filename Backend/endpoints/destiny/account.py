@@ -10,6 +10,7 @@ from Shared.networkingSchemas.destiny import (
     BoolModelRecord,
     DestinyCatalystsModel,
     DestinyCharactersModel,
+    DestinyCraftableModel,
     DestinyLowMansByCategoryModel,
     DestinySealsModel,
     DestinyStatInputModel,
@@ -17,7 +18,6 @@ from Shared.networkingSchemas.destiny import (
     DestinyTimeModel,
     DestinyTimesModel,
     DestinyTriumphScoreModel,
-    DestinyCraftableModel,
     SeasonalChallengesModel,
 )
 

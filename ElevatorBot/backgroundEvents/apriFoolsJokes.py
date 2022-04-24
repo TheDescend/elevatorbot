@@ -3,8 +3,6 @@ import random
 from ElevatorBot.backgroundEvents.base import BaseEvent
 from ElevatorBot.core.misc.aprilFools import play_joke
 from ElevatorBot.discordEvents.base import ElevatorSnake
-from ElevatorBot.misc.cache import descend_cache
-from ElevatorBot.networking.errors import BackendException
 from ElevatorBot.static.descendOnlyIds import descend_channels
 from Shared.functions.helperFunctions import get_now_with_tz
 
