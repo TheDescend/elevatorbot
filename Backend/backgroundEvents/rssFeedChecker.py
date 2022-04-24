@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from Backend.backgroundEvents.base import BaseEvent
 from Backend.core.errors import CustomException
 from Backend.crud import persistent_messages, rss_feed
-from Backend.database.base import get_async_sessionmaker
+from Backend.database.base import acquire_db_session, get_async_sessionmaker
 from Backend.networking.elevatorApi import ElevatorApi
 
 
@@ -25,7 +25,7 @@ class RssFeedChecker(BaseEvent):
                 else:
                     return
 
-        async with get_async_sessionmaker().begin() as db:
+        async with acquire_db_session() as db:
             feed = feedparser.parse(text)
 
             # loop through the articles and check if they have been published

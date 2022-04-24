@@ -1,7 +1,7 @@
 from Backend.backgroundEvents.base import BaseEvent
 from Backend.core.errors import CustomException
 from Backend.crud import discord_users
-from Backend.database.base import get_async_sessionmaker
+from Backend.database.base import acquire_db_session, get_async_sessionmaker
 from Backend.networking.bungieApi import BungieApi
 
 
@@ -20,7 +20,7 @@ class TokenUpdater(BaseEvent):
         )
 
     async def run(self):
-        async with get_async_sessionmaker().begin() as db:
+        async with acquire_db_session() as db:
             all_users = await discord_users.get_all(db=db)
 
             # loop through all users

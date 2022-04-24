@@ -3,8 +3,9 @@ from anyio import create_task_group
 from Backend.backgroundEvents.base import BaseEvent
 from Backend.core.destiny.activities import DestinyActivities
 from Backend.crud import discord_users
-from Backend.database.base import get_async_sessionmaker, is_test_mode
+from Backend.database.base import acquire_db_session, get_async_sessionmaker, is_test_mode
 from Backend.database.models import DiscordUsers
+from Backend.dependencies import get_db_session
 from Shared.functions.helperFunctions import split_list
 
 
@@ -16,7 +17,7 @@ class ActivitiesUpdater(BaseEvent):
         super().__init__(scheduler_type="interval", interval_minutes=interval_minutes)
 
     async def run(self):
-        async with get_async_sessionmaker().begin() as db:
+        async with acquire_db_session() as db:
             all_users = await discord_users.get_all(db=db)
 
             # when testing, make this only return our user where we have data
@@ -32,7 +33,7 @@ class ActivitiesUpdater(BaseEvent):
 
         # try to get the missing pgcr
         if all_users:
-            async with get_async_sessionmaker().begin() as db:
+            async with acquire_db_session() as db:
                 activities = DestinyActivities(db=db, user=all_users[0])
                 await activities.update_missing_pgcr()
 
@@ -40,7 +41,7 @@ class ActivitiesUpdater(BaseEvent):
     async def handle_user(user: DiscordUsers):
         """Create a sessions for the user and handle their activities"""
 
-        async with get_async_sessionmaker().begin() as db:
+        async with acquire_db_session() as db:
             # make sure they have a token
             if await discord_users.token_is_expired(db=db, user=user):
                 return

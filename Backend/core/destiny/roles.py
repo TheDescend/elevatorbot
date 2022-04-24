@@ -8,7 +8,7 @@ from Backend.core.destiny.profile import DestinyProfile
 from Backend.core.errors import CustomException
 from Backend.crud import crud_activities
 from Backend.crud.destiny.roles import CRUDRoles, crud_roles
-from Backend.database.base import get_async_sessionmaker
+from Backend.database.base import acquire_db_session, get_async_sessionmaker
 from Backend.database.models import Roles
 from Shared.networkingSchemas.destiny.roles import (
     EarnedRoleModel,
@@ -178,7 +178,7 @@ class UserRoles:
         """Start a new db connection and check the reqs separately"""
 
         # open a db connection for each requirement
-        async with get_async_sessionmaker().begin() as db:
+        async with acquire_db_session() as db:
             requirement_user = DestinyProfile(db=db, user=self.user.user)
             requirement_roles = UserRoles(db=db, user=requirement_user)
 

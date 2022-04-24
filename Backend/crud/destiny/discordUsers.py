@@ -11,7 +11,7 @@ import Backend.networking.bungieApi as bungieApi
 from Backend.core.errors import CustomException
 from Backend.crud.base import CRUDBase
 from Backend.crud.misc.persistentMessages import persistent_messages
-from Backend.database.base import get_async_sessionmaker
+from Backend.database.base import acquire_db_session, get_async_sessionmaker
 from Backend.database.models import DiscordUsers
 from Backend.misc.cache import cache
 from Backend.networking.elevatorApi import ElevatorApi
@@ -37,7 +37,7 @@ class CRUDDiscordUser(CRUDBase):
 
         async with AsyncExitStack() as async_onexit_calls:
             if db is None:
-                db = await async_onexit_calls.enter_async_context(get_async_sessionmaker().begin())
+                db = await async_onexit_calls.enter_async_context(acquire_db_session())
             profile: Optional[DiscordUsers] = await self._get_with_key(db, discord_id)
 
             # make sure the user exists

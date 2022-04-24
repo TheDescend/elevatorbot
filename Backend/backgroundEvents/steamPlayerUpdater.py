@@ -1,6 +1,6 @@
 from Backend.backgroundEvents.base import BaseEvent
 from Backend.crud import d2_steam_players
-from Backend.database.base import get_async_sessionmaker, is_test_mode
+from Backend.database.base import acquire_db_session, get_async_sessionmaker, is_test_mode
 from Backend.networking.bungieApi import BungieApi
 from Backend.networking.http import NetworkBase
 from Shared.functions.readSettingsFile import get_setting
@@ -14,7 +14,7 @@ class SteamPlayerUpdater(BaseEvent):
         super().__init__(scheduler_type="interval", interval_minutes=interval_minutes)
 
     async def run(self):
-        async with get_async_sessionmaker().begin() as db:
+        async with acquire_db_session() as db:
             # init api connection
             headers = {"X-API-Key": get_setting("STEAM_APPLICATION_API_KEY")}
             steam_api = NetworkBase(db=db)

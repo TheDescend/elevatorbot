@@ -1,5 +1,7 @@
+import asyncio
 import os
-from typing import Optional
+from contextlib import asynccontextmanager
+from typing import AsyncContextManager, Optional
 
 import orjson
 from sqlalchemy.engine import Engine
@@ -19,6 +21,11 @@ POSTGRES_PORT = os.environ.get("POSTGRES_PORT")
 assert POSTGRES_PORT
 POSTGRES_DB = os.environ.get("POSTGRES_DB")
 assert POSTGRES_DB
+
+# max DB connections
+MAX_DB_CONNECTIONS = 80
+# how long to wait for a free db connection
+WAIT_FOR_DB_CONNECTION = 180
 
 DATABASE_URL = (
     f"""postgresql+asyncpg://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}"""
@@ -43,7 +50,7 @@ def setup_engine(database_url: str = DATABASE_URL) -> Engine:
             json_deserializer=orjson.loads,
             json_serializer=lambda x: orjson.dumps(x).decode(),
             pool_pre_ping=True,
-            pool_size=25,
+            pool_size=50,
             max_overflow=50,
             pool_timeout=300,
         )
@@ -68,3 +75,24 @@ def is_test_mode(set_test_mode: Optional[bool] = None) -> bool:
         _TEST_MODE = set_test_mode
 
     return _TEST_MODE
+
+
+db_semaphore = asyncio.Semaphore(MAX_DB_CONNECTIONS)
+
+
+@asynccontextmanager
+async def acquire_db_session() -> AsyncContextManager[AsyncSession]:
+    """Get a database session"""
+
+    async def _timeout():
+        """Times out waiting for a session"""
+
+        raise TimeoutError
+
+    loop = asyncio.get_event_loop()
+    timeout_handler = loop.call_later(WAIT_FOR_DB_CONNECTION, loop.create_task, _timeout())
+
+    async with db_semaphore:
+        timeout_handler.cancel()
+        async with get_async_sessionmaker().begin() as session:
+            yield session
