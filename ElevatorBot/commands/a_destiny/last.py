@@ -1,6 +1,6 @@
 from dis_snek import InteractionContext, Member, Timestamp, TimestampStyles, slash_command
 
-from ElevatorBot.commandHelpers.autocomplete import activities, activities_by_id, autocomplete_send_activity_name
+from ElevatorBot.commandHelpers import autocomplete
 from ElevatorBot.commandHelpers.optionTemplates import (
     autocomplete_activity_option,
     default_class_option,
@@ -33,7 +33,7 @@ class Last(BaseScale):
         # get the activity ids
         if activity:
             mode = None
-            activity = activities[activity.lower()]
+            activity = autocomplete.activities[activity.lower()]
 
         member = user or ctx.author
         db_activities = DestinyActivities(ctx=ctx, discord_guild=ctx.guild, discord_member=member)
@@ -47,7 +47,7 @@ class Last(BaseScale):
         # prepare embed
         embed = embed_message(
             "Last Activity",
-            f"""**{activities_by_id[result.reference_id].name}{(' - ' + str(result.score) + ' Points') if result.score > 0 else ""} - {Timestamp.fromdatetime(result.period).format(style=TimestampStyles.ShortDateTime)} - [{format_timedelta(result.activity_duration_seconds)}](https://www.bungie.net/en/PGCR/{result.instance_id})**""",
+            f"""**{autocomplete.activities_by_id[result.reference_id].name}{(' - ' + str(result.score) + ' Points') if result.score > 0 else ""} - {Timestamp.fromdatetime(result.period).format(style=TimestampStyles.ShortDateTime)} - [{format_timedelta(result.activity_duration_seconds)}](https://www.bungie.net/en/PGCR/{result.instance_id})**""",
             member=member,
         )
 
@@ -96,4 +96,4 @@ def setup(client):
     command = Last(client)
 
     # register the autocomplete callback
-    command.last.autocomplete("activity")(autocomplete_send_activity_name)
+    command.last.autocomplete("activity")(autocomplete.autocomplete_send_activity_name)

@@ -4,7 +4,7 @@ from urllib.parse import urljoin
 
 from dis_snek import Button, ButtonStyles, Guild, InteractionContext, Member, Role
 
-from ElevatorBot.commandHelpers.autocomplete import activities_by_id
+from ElevatorBot.commandHelpers import autocomplete
 from ElevatorBot.misc.cache import collectible_cache, triumph_cache
 from ElevatorBot.misc.discordShortcutFunctions import assign_roles_to_member, remove_roles_from_member
 from ElevatorBot.misc.formatting import embed_message
@@ -48,7 +48,9 @@ class Roles:
         for activity_info, user_activity in zip(
             role_data.require_activity_completions, user_data.require_activity_completions
         ):
-            activities.append(f"{activities_by_id[activity_info.allowed_activity_hashes[0]].name}: {user_activity}")
+            activities.append(
+                f"{autocomplete.activities_by_id[activity_info.allowed_activity_hashes[0]].name}: {user_activity}"
+            )
 
         collectibles: list[str] = []
         for collectible, user_collectible in zip(role_data.require_collectibles, user_data.require_collectibles):

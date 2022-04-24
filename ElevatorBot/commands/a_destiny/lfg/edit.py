@@ -2,7 +2,7 @@ import asyncio
 
 from dis_snek import InteractionContext, Modal, OptionTypes, ParagraphText, slash_command, slash_option
 
-from ElevatorBot.commandHelpers.autocomplete import activities, autocomplete_send_activity_name
+from ElevatorBot.commandHelpers import autocomplete
 from ElevatorBot.commandHelpers.optionTemplates import (
     autocomplete_activity_option,
     default_time_option,
@@ -79,7 +79,7 @@ class LfgEdit(BaseScale):
 
         # get the actual activity
         if activity:
-            activity = activities[activity]
+            activity = autocomplete.activities[activity]
 
         # get the message obj
         lfg_message = await LfgMessage.from_lfg_id(ctx=ctx, lfg_id=lfg_id, client=ctx.bot, guild=ctx.guild)
@@ -144,4 +144,4 @@ def setup(client):
     command = LfgEdit(client)
 
     # register the autocomplete callback
-    command.edit.autocomplete("activity")(autocomplete_send_activity_name)
+    command.edit.autocomplete("activity")(autocomplete.autocomplete_send_activity_name)

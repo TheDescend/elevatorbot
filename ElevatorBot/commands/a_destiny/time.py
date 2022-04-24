@@ -1,6 +1,6 @@
 from dis_snek import InteractionContext, Member, slash_command
 
-from ElevatorBot.commandHelpers.autocomplete import activities, autocomplete_send_activity_name
+from ElevatorBot.commandHelpers import autocomplete
 from ElevatorBot.commandHelpers.optionTemplates import (
     autocomplete_activity_option,
     default_class_option,
@@ -54,7 +54,7 @@ class Time(BaseScale):
         # get the activity ids
         activity_name = None
         if activity:
-            activity_data = activities[activity.lower()]
+            activity_data = autocomplete.activities[activity.lower()]
             activity_ids = activity_data.activity_ids
             activity_name = activity_data.name
             total = {
@@ -154,4 +154,4 @@ def setup(client):
     command = Time(client)
 
     # register the autocomplete callback
-    command.time.autocomplete("activity")(autocomplete_send_activity_name)
+    command.time.autocomplete("activity")(autocomplete.autocomplete_send_activity_name)

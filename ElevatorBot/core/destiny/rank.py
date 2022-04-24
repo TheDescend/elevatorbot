@@ -4,7 +4,7 @@ from typing import Optional
 from anyio import create_task_group
 from dis_snek import InteractionContext, Member, TimestampStyles
 
-from ElevatorBot.commandHelpers.autocomplete import activities, activities_grandmaster, weapons
+from ElevatorBot.commandHelpers import autocomplete
 from ElevatorBot.misc.formatting import embed_message, format_timedelta, get_emoji_from_rank
 from ElevatorBot.misc.helperFunctions import get_emoji_by_name
 from ElevatorBot.networking.destiny.account import DestinyAccount
@@ -98,7 +98,7 @@ class RankCommandHandler:
                 return
 
             # get the actual weapon
-            activity: DestinyActivityModel | None = activities[activity.lower()]
+            activity: DestinyActivityModel | None = autocomplete.activities[activity.lower()]
         else:
             # set the activity to None if some joker decided to supply it without needing it
             activity = None
@@ -115,7 +115,7 @@ class RankCommandHandler:
                 return
 
             # get the actual weapon
-            weapon: DestinyWeaponModel = weapons[weapon.lower()]
+            weapon: DestinyWeaponModel = autocomplete.weapons[weapon.lower()]
 
         member = user or ctx.author
 
@@ -481,7 +481,7 @@ class RankCommandHandler:
                 # get the stat
                 stat = await backend_activities.get_activity_stats(
                     input_model=DestinyActivityInputModel(
-                        activity_ids=activities_grandmaster["Grandmaster: All".lower()].activity_ids
+                        activity_ids=autocomplete.activities_grandmaster["Grandmaster: All".lower()].activity_ids
                     )
                 )
 
@@ -493,7 +493,7 @@ class RankCommandHandler:
                 # get the stat
                 stat = await backend_activities.get_activity_stats(
                     input_model=DestinyActivityInputModel(
-                        activity_ids=activities_grandmaster["Grandmaster: All".lower()].activity_ids
+                        activity_ids=autocomplete.activities_grandmaster["Grandmaster: All".lower()].activity_ids
                     )
                 )
 

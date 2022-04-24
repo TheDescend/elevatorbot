@@ -2,7 +2,7 @@ import copy
 
 from dis_snek import Snake
 
-from ElevatorBot.commandHelpers.autocomplete import autocomplete_send_activity_name, autocomplete_send_weapon_name
+from ElevatorBot.commandHelpers import autocomplete
 from ElevatorBot.commands.a_destiny.rank.clan import RankClan
 
 
@@ -26,5 +26,5 @@ def setup(client):
     command = RankServer(client)
 
     # register the autocomplete callback
-    command.rank.autocomplete("weapon")(autocomplete_send_weapon_name)
-    command.rank.autocomplete("activity")(autocomplete_send_activity_name)
+    command.rank.autocomplete("weapon")(autocomplete.autocomplete_send_weapon_name)
+    command.rank.autocomplete("activity")(autocomplete.autocomplete_send_activity_name)

@@ -1,11 +1,6 @@
 from dis_snek import InteractionContext, Member, Timestamp, TimestampStyles, slash_command
 
-from ElevatorBot.commandHelpers.autocomplete import (
-    activities,
-    autocomplete_send_activity_name,
-    autocomplete_send_weapon_name,
-    weapons,
-)
+from ElevatorBot.commandHelpers import autocomplete
 from ElevatorBot.commandHelpers.optionTemplates import (
     autocomplete_activity_option,
     autocomplete_weapon_option,
@@ -74,10 +69,10 @@ class WeaponsWeapon(BaseScale):
             return
 
         # get the actual weapon / activity
-        weapon = weapons[weapon.lower()]
+        weapon = autocomplete.weapons[weapon.lower()]
         if activity:
             mode = None
-            activity = activities[activity.lower()]
+            activity = autocomplete.activities[activity.lower()]
 
         member = user or ctx.author
         backend_weapons = DestinyWeapons(ctx=ctx, discord_member=member, discord_guild=ctx.guild)
@@ -146,5 +141,5 @@ def setup(client):
     command = WeaponsWeapon(client)
 
     # register the autocomplete callback
-    command.weapon.autocomplete("weapon")(autocomplete_send_weapon_name)
-    command.weapon.autocomplete("activity")(autocomplete_send_activity_name)
+    command.weapon.autocomplete("weapon")(autocomplete.autocomplete_send_weapon_name)
+    command.weapon.autocomplete("activity")(autocomplete.autocomplete_send_activity_name)

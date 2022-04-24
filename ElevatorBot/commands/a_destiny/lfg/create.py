@@ -2,7 +2,7 @@ import asyncio
 
 from dis_snek import InteractionContext, Modal, OptionTypes, ParagraphText, slash_command, slash_option
 
-from ElevatorBot.commandHelpers.autocomplete import activities, autocomplete_send_activity_name
+from ElevatorBot.commandHelpers import autocomplete
 from ElevatorBot.commandHelpers.optionTemplates import (
     autocomplete_activity_option,
     default_time_option,
@@ -46,7 +46,7 @@ class LfgCreate(BaseScale):
         self, ctx: InteractionContext, activity: str, start_time: str, timezone: str, overwrite_max_members: int = None
     ):
         # get the actual activity
-        activity = activities[activity]
+        activity = autocomplete.activities[activity]
 
         if start_time.lower() != "asap":
             start_time = await parse_string_datetime(
@@ -100,4 +100,4 @@ def setup(client):
     command = LfgCreate(client)
 
     # register the autocomplete callback
-    command.create.autocomplete("activity")(autocomplete_send_activity_name)
+    command.create.autocomplete("activity")(autocomplete.autocomplete_send_activity_name)

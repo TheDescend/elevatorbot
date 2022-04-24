@@ -4,7 +4,7 @@ from typing import Optional
 from anyio import create_task_group, to_thread
 from dis_snek import Embed, Guild, InteractionContext, Timestamp, TimestampStyles, slash_command
 
-from ElevatorBot.commandHelpers.autocomplete import activities, autocomplete_send_activity_name
+from ElevatorBot.commandHelpers import autocomplete
 from ElevatorBot.commandHelpers.optionTemplates import (
     autocomplete_activity_option,
     default_class_option,
@@ -84,7 +84,7 @@ class WeaponsMeta(BaseScale):
 
         # get the actual activity
         if activity:
-            activity = activities[activity.lower()]
+            activity = autocomplete.activities[activity.lower()]
 
         # get the clan members in anyio tasks
         results: list[DestinyTopWeaponsModel] = []
@@ -162,7 +162,7 @@ def setup(client):
     command = WeaponsMeta(client)
 
     # register the autocomplete callback
-    command.meta.autocomplete("activity")(autocomplete_send_activity_name)
+    command.meta.autocomplete("activity")(autocomplete.autocomplete_send_activity_name)
 
 
 def meta_subprocess(

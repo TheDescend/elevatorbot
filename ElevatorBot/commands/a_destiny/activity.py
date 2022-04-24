@@ -1,6 +1,6 @@
 from dis_snek import InteractionContext, Member, Timestamp, TimestampStyles, slash_command
 
-from ElevatorBot.commandHelpers.autocomplete import activities, autocomplete_send_activity_name
+from ElevatorBot.commandHelpers import autocomplete
 from ElevatorBot.commandHelpers.optionTemplates import (
     autocomplete_activity_option,
     default_class_option,
@@ -52,7 +52,7 @@ class DestinyActivity(BaseScale):
 
         # get the actual activity
         if activity:
-            activity = activities[activity.lower()]
+            activity = autocomplete.activities[activity.lower()]
 
         member = user or ctx.author
         backend_activities = DestinyActivities(ctx=ctx, discord_member=member, discord_guild=ctx.guild)
@@ -83,4 +83,4 @@ def setup(client):
     command = DestinyActivity(client)
 
     # register the autocomplete callback
-    command.activity.autocomplete("activity")(autocomplete_send_activity_name)
+    command.activity.autocomplete("activity")(autocomplete.autocomplete_send_activity_name)

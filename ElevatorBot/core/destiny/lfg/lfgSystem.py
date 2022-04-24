@@ -32,7 +32,7 @@ from dis_snek import (
 from dis_snek.client.errors import Forbidden, NotFound
 from ics import Calendar, Event
 
-from ElevatorBot.commandHelpers.autocomplete import activities
+from ElevatorBot.commandHelpers import autocomplete
 from ElevatorBot.core.destiny.lfg.scheduledEvents import delete_lfg_scheduled_events
 from ElevatorBot.discordEvents.base import ElevatorSnake
 from ElevatorBot.misc.formatting import embed_message, replace_progress_formatting
@@ -319,7 +319,7 @@ class LfgMessage:
             return True
         return False
 
-    async def send(self, ctx: Optional[ComponentContext | InteractionContext] = None, force_sort: bool = False):
+    async def send(self, ctx: ComponentContext | InteractionContext | None = None, force_sort: bool = False):
         """Send / edit the message in the channel"""
 
         embed = await self.__return_embed()
@@ -676,7 +676,7 @@ class LfgMessage:
             value=self.activity,
             inline=True,
         )
-        image_url = activities[self.activity.lower()].image_url
+        image_url = autocomplete.activities[self.activity.lower()].image_url
         if image_url:
             embed.set_thumbnail(image_url)
 

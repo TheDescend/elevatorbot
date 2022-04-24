@@ -1,6 +1,6 @@
 from dis_snek import InteractionContext, Member, OptionTypes, SlashCommandChoice, slash_command, slash_option
 
-from ElevatorBot.commandHelpers.autocomplete import autocomplete_send_activity_name, autocomplete_send_weapon_name
+from ElevatorBot.commandHelpers import autocomplete
 from ElevatorBot.commandHelpers.optionTemplates import (
     autocomplete_activity_option,
     autocomplete_weapon_option,
@@ -150,5 +150,5 @@ def setup(client):
     command = RankClan(client)
 
     # register the autocomplete callback
-    command.rank.autocomplete("weapon")(autocomplete_send_weapon_name)
-    command.rank.autocomplete("activity")(autocomplete_send_activity_name)
+    command.rank.autocomplete("weapon")(autocomplete.autocomplete_send_weapon_name)
+    command.rank.autocomplete("activity")(autocomplete.autocomplete_send_activity_name)

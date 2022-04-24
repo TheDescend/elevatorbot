@@ -14,12 +14,7 @@ from dis_snek import (
     slash_option,
 )
 
-from ElevatorBot.commandHelpers.autocomplete import (
-    activities,
-    autocomplete_send_activity_name,
-    autocomplete_send_weapon_name,
-    weapons,
-)
+from ElevatorBot.commandHelpers import autocomplete
 from ElevatorBot.commandHelpers.optionTemplates import (
     autocomplete_activity_option,
     autocomplete_weapon_option,
@@ -122,9 +117,9 @@ class WeaponsTop(BaseScale):
 
         # get the actual weapon / activities
         if weapon:
-            weapon = weapons[weapon.lower()]
+            weapon = autocomplete.weapons[weapon.lower()]
         if activity:
-            activity = activities[activity.lower()]
+            activity = autocomplete.activities[activity.lower()]
 
         limit = 5 if weapon else 6
 
@@ -171,8 +166,8 @@ def setup(client):
     command = WeaponsTop(client)
 
     # register the autocomplete callback
-    command.top_weapons.autocomplete("weapon")(autocomplete_send_weapon_name)
-    command.top_weapons.autocomplete("activity")(autocomplete_send_activity_name)
+    command.top_weapons.autocomplete("weapon")(autocomplete.autocomplete_send_weapon_name)
+    command.top_weapons.autocomplete("activity")(autocomplete.autocomplete_send_activity_name)
 
 
 def top_subprocess(
