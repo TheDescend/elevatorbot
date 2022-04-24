@@ -14,6 +14,7 @@ from ElevatorBot.networking.routes import (
     destiny_account_consumable_amount_route,
     destiny_account_craftable_route,
     destiny_account_leg_shards_route,
+    destiny_account_materials_route,
     destiny_account_max_power_route,
     destiny_account_metric_route,
     destiny_account_name_route,
@@ -29,7 +30,7 @@ from ElevatorBot.networking.routes import (
     destiny_account_vault_space_route,
 )
 from Shared.enums.destiny import UsableDestinyActivityModeTypeEnum
-from Shared.networkingSchemas import BoolModel, NameModel, ValueModel
+from Shared.networkingSchemas import BoolModel, DestinyAllMaterialsModel, NameModel, ValueModel
 from Shared.networkingSchemas.destiny import (
     BoolModelRecord,
     DestinyCatalystsModel,
@@ -230,6 +231,19 @@ class DestinyAccount(BaseBackendConnection):
 
         # convert to correct pydantic model
         return ValueModel.parse_obj(result.result)
+
+    async def get_material_amount(self) -> DestinyAllMaterialsModel:
+        """Get all noteworthy materials of the user"""
+
+        result = await self._backend_request(
+            method="GET",
+            route=destiny_account_materials_route.format(
+                guild_id=self.discord_guild.id, discord_id=self.discord_member.id
+            ),
+        )
+
+        # convert to correct pydantic model
+        return DestinyAllMaterialsModel.parse_obj(result.result)
 
     async def get_consumable_amount(self, consumable_id: int) -> ValueModel:
         """Return the user's consumable amount"""

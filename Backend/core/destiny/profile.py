@@ -26,7 +26,7 @@ from Backend.networking.bungieRoutes import clan_user_route, profile_route, stat
 from Shared.enums.destiny import DestinyInventoryBucketEnum, DestinyPresentationNodeWeaponSlotEnum
 from Shared.functions.formatting import make_progress_bar_text
 from Shared.functions.helperFunctions import get_now_with_tz
-from Shared.networkingSchemas import ValueModel
+from Shared.networkingSchemas import DestinyAllMaterialsModel, DestinyNamedValueItemModel, ValueModel
 from Shared.networkingSchemas.destiny import (
     BoolModelObjective,
     BoolModelRecord,
@@ -65,6 +65,8 @@ class DestinyProfile:
     class_map = {671679327: "Hunter", 2271682572: "Warlock", 3655393761: "Titan"}
 
     _triumphs: dict = dataclasses.field(init=False, default_factory=dict)
+    _profile: dict = dataclasses.field(init=False, default_factory=dict)
+    _inventory_bucket: dict = dataclasses.field(init=False, default_factory=dict)
 
     def __post_init__(self):
         # some shortcuts
@@ -226,18 +228,30 @@ class DestinyProfile:
 
         return await self.__get_currency_amount(bucket=DestinyInventoryBucketEnum.SHARDS)
 
-    async def get_consumable_amount(self, consumable_id: int) -> int:
+    async def get_consumable_amount(
+        self, consumable_id: int, check_vault: bool = False, check_postmaster: bool = False
+    ) -> int:
         """Returns the amount of a consumable this user has"""
 
-        buckets = await self.__get_inventory_bucket(
-            DestinyInventoryBucketEnum.VAULT, DestinyInventoryBucketEnum.CONSUMABLES
-        )
+        result = await self.__get_profile()
+        items = list(result["characterCurrencyLookups"]["data"].values())[0]["itemQuantities"]
+        try:
+            value = items[str(consumable_id)]
+        except KeyError:
+            value = 0
 
-        # get the value
-        value = 0
-        for bucket in buckets.values():
-            if consumable_id in bucket:
-                value += bucket[consumable_id]["quantity"]
+        to_check = []
+        if check_vault:
+            to_check.append(DestinyInventoryBucketEnum.VAULT)
+        if check_postmaster:
+            to_check.append(DestinyInventoryBucketEnum.POSTMASTER)
+
+        if to_check:
+            buckets = await self.__get_inventory_bucket(*to_check)
+
+            for bucket in buckets.values():
+                if consumable_id in bucket:
+                    value += bucket[consumable_id]["quantity"]
 
         return value
 
@@ -620,6 +634,84 @@ class DestinyProfile:
         # combine profile and character ones
         return await to_thread.run_sync(get_craftables_subprocess, result)
 
+    async def get_materials(self) -> DestinyAllMaterialsModel:
+        """Get all noteworthy materials of the user"""
+
+        materials = DestinyAllMaterialsModel()
+        for item in [
+            ["Glimmer", 3159615086, False, False],
+            ["Legendary Shards", 1022552290, False, False],
+            ["Bright Dust", 2817410917, False, False],
+        ]:
+            materials.basic.append(
+                DestinyNamedValueItemModel(
+                    reference_id=item[1],
+                    name=item[0],
+                    value=await self.get_consumable_amount(
+                        consumable_id=item[1], check_vault=item[2], check_postmaster=item[3]
+                    ),
+                )
+            )
+        for item in [
+            ["Spoils of Conquest", 3702027555, False, True],
+            ["Raid Banner", 3282419336, True, False],
+            ["Sweaty Confetti", 1643912408, False, False],
+        ]:
+            materials.special.append(
+                DestinyNamedValueItemModel(
+                    reference_id=item[1],
+                    name=item[0],
+                    value=await self.get_consumable_amount(
+                        consumable_id=item[1], check_vault=item[2], check_postmaster=item[3]
+                    ),
+                )
+            )
+        for item in [
+            ["Synthweave Strap (Hunter)", 4019412287, False, False],
+            ["Synthweave Plate (Titan)", 4238733045, False, False],
+            ["Synthweave Bolt (Warlock)", 1498161294, False, False],
+        ]:
+            materials.transmog.append(
+                DestinyNamedValueItemModel(
+                    reference_id=item[1],
+                    name=item[0],
+                    value=await self.get_consumable_amount(
+                        consumable_id=item[1], check_vault=item[2], check_postmaster=item[3]
+                    ),
+                )
+            )
+        for item in [
+            ["Resonant Alloy", 2497395625, False, False],
+            ["Drowned Alloy", 2708128607, False, True],
+            ["Ascendant Alloy", 353704689, False, True],
+        ]:
+            materials.crafting.append(
+                DestinyNamedValueItemModel(
+                    reference_id=item[1],
+                    name=item[0],
+                    value=await self.get_consumable_amount(
+                        consumable_id=item[1], check_vault=item[2], check_postmaster=item[3]
+                    ),
+                )
+            )
+        for item in [
+            ["Upgrade Module", 2979281381, False, True],
+            ["Enhancement Core", 3853748946, False, False],
+            ["Enhancement Prism", 4257549984, False, True],
+            ["Ascendant Shard", 4257549985, False, True],
+        ]:
+            materials.upgrading.append(
+                DestinyNamedValueItemModel(
+                    reference_id=item[1],
+                    name=item[0],
+                    value=await self.get_consumable_amount(
+                        consumable_id=item[1], check_vault=item[2], check_postmaster=item[3]
+                    ),
+                )
+            )
+
+        return materials
+
     async def get_metrics(self) -> dict:
         """Populate the metrics and then return them"""
 
@@ -690,12 +782,13 @@ class DestinyProfile:
         if not buckets:
             buckets = DestinyInventoryBucketEnum.all()
 
-        result = await self.__get_profile()
+        if buckets not in self._inventory_bucket:
+            result = await self.__get_profile()
 
-        # only get the items in the correct buckets
-        items = await to_thread.run_sync(get_inventory_bucket_subprocess, result, buckets)
+            # only get the items in the correct buckets
+            self._inventory_bucket[buckets] = await to_thread.run_sync(get_inventory_bucket_subprocess, result, buckets)
 
-        return items
+        return self._inventory_bucket[buckets]
 
     async def __get_all_inventory_bucket(
         self, *buckets: DestinyInventoryBucketEnum, include_item_level: bool = False
@@ -795,53 +888,56 @@ class DestinyProfile:
         Return info from the profile call
         https://bungie-net.github.io/multi/schema_Destiny-DestinyComponentType.html#schema_Destiny-DestinyComponentType
         """
-        # just calling nearly all of them. Don't need all quite yet, but who knows what the future will bring
-        components = (
-            100,
-            101,
-            102,
-            103,
-            104,
-            105,
-            200,
-            201,
-            202,
-            204,
-            205,
-            300,
-            301,
-            302,
-            304,
-            305,
-            306,
-            307,
-            400,
-            401,
-            402,
-            500,
-            600,
-            700,
-            800,
-            900,
-            1100,
-            1200,
-            1300,
-        )
+        if not self._profile:
+            # just calling nearly all of them. Don't need all quite yet, but who knows what the future will bring
+            components = (
+                100,
+                101,
+                102,
+                103,
+                104,
+                105,
+                200,
+                201,
+                202,
+                204,
+                205,
+                300,
+                301,
+                302,
+                304,
+                305,
+                306,
+                307,
+                400,
+                401,
+                402,
+                500,
+                600,
+                700,
+                800,
+                900,
+                1100,
+                1200,
+                1300,
+            )
 
-        route = profile_route.format(system=self.system, destiny_id=self.destiny_id)
-        params = {"components": ",".join(map(str, components))}
+            route = profile_route.format(system=self.system, destiny_id=self.destiny_id)
+            params = {"components": ",".join(map(str, components))}
 
-        # need to call this with a token, since this data is sensitive
-        response = await self.api.get(route=route, params=params, with_token=True)
+            # need to call this with a token, since this data is sensitive
+            response = await self.api.get(route=route, params=params, with_token=True)
 
-        # get bungie name
-        bungie_name = f"""{response.content["profile"]["data"]["userInfo"]["bungieGlobalDisplayName"]}#{str(response.content["profile"]["data"]["userInfo"]["bungieGlobalDisplayNameCode"]).zfill(4)}"""
+            # get bungie name
+            bungie_name = f"""{response.content["profile"]["data"]["userInfo"]["bungieGlobalDisplayName"]}#{str(response.content["profile"]["data"]["userInfo"]["bungieGlobalDisplayNameCode"]).zfill(4)}"""
 
-        # update name if different
-        if bungie_name != self.user.bungie_name:
-            await discord_users.update(db=self.db, to_update=self.user, bungie_name=bungie_name)
+            # update name if different
+            if bungie_name != self.user.bungie_name:
+                await discord_users.update(db=self.db, to_update=self.user, bungie_name=bungie_name)
 
-        return response.content
+            self._profile = response.content
+
+        return self._profile
 
     async def __get_currency_amount(self, bucket: DestinyInventoryBucketEnum) -> int:
         """Returns the amount of the specified currency owned"""
@@ -1007,25 +1103,41 @@ def get_craftables_subprocess(result: dict) -> dict:
 def get_inventory_bucket_subprocess(result: dict, buckets: list[DestinyInventoryBucketEnum]) -> dict:
     """Run in anyio subprocess on another thread since this might be slow"""
 
-    items = {}
-
-    for item in result["profileInventory"]["data"]["items"]:
+    def check_bucket():
         for bucket in buckets:
             if item["bucketHash"] == bucket.value:
                 item_hash = int(item["itemHash"])
                 if bucket not in items:
                     items.update({bucket: {}})
-                items[bucket].update({item_hash: item})
-                try:
-                    items[bucket][item_hash].update(
-                        {
-                            "power_level": result["itemComponents"]["instances"]["data"][str(item_hash)]["primaryStat"][
-                                "value"
-                            ]
-                        }
-                    )
-                except KeyError:
-                    pass
-                break
+
+                # unique items
+                if item_hash not in items[bucket]:
+                    items[bucket].update({item_hash: item})
+                    try:
+                        items[bucket][item_hash].update(
+                            {
+                                "power_level": result["itemComponents"]["instances"]["data"][str(item_hash)][
+                                    "primaryStat"
+                                ]["value"]
+                            }
+                        )
+                    except KeyError:
+                        pass
+                    break
+                # stackables, like enhancement prims
+                else:
+                    items[bucket][item_hash]["quantity"] += item["quantity"]
+
+    items = {}
+
+    # profile items
+    for item in result["profileInventory"]["data"]["items"]:
+        check_bucket()
+
+    if DestinyInventoryBucketEnum.POSTMASTER in buckets:
+        # character items
+        for data in result["characterInventories"]["data"].values():
+            for item in data["items"]:
+                check_bucket()
 
     return items

@@ -244,6 +244,7 @@ class DestinyActivityModeTypeEnum(Enum):
 class DestinyInventoryBucketEnum(Enum):
     VAULT = 138197802
     CONSUMABLES = 1469714392
+    POSTMASTER = 215593132
 
     HELMET = 3448274439
     GAUNTLETS = 3551918588

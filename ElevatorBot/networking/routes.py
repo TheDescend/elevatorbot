@@ -21,6 +21,7 @@ destiny_account_seasonal_challenges_route = destiny_account_route + "seasonal_ch
 destiny_account_triumph_score_route = destiny_account_route + "triumphs/"  # GET
 destiny_account_artifact_level_route = destiny_account_route + "artifact/"  # GET
 destiny_account_season_pass_level_route = destiny_account_route + "season_pass/"  # GET
+destiny_account_materials_route = destiny_account_route + "materials/"  # GET
 destiny_account_consumable_amount_route = destiny_account_route + "consumable/{consumable_id}"  # GET
 destiny_account_max_power_route = destiny_account_route + "max_power/"  # GET
 destiny_account_vault_space_route = destiny_account_route + "vault_space/"  # GET

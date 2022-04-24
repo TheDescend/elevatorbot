@@ -94,6 +94,24 @@ class __ElevatorEmojis:
         self.second_place: CustomEmoji | int = 933410347195445268
         self.third_place: CustomEmoji | int = 933410347287724072
 
+        # DESCEND [SK]
+        self.glimmer: CustomEmoji | int = 967764582514970654
+        self.legendary_shards: CustomEmoji | int = 967764636491460718
+        self.bright_dust: CustomEmoji | int = 967764684910501888
+        self.spoils_of_conquest: CustomEmoji | int = 967764715562487868
+        self.raid_banner: CustomEmoji | int = 967766506861637632
+        self.sweaty_confetti: CustomEmoji | int = 967764751209873458
+        self.synthweave_strap_hunter: CustomEmoji | int = 967764790523084820
+        self.synthweave_plate_titan: CustomEmoji | int = 967764821166669915
+        self.synthweave_bolt_warlock: CustomEmoji | int = 967764881250066442
+        self.resonant_alloy: CustomEmoji | int = 967764995867815986
+        self.drowned_alloy: CustomEmoji | int = 967765028931526676
+        self.ascendant_alloy: CustomEmoji | int = 967765063798759444
+        self.upgrade_module: CustomEmoji | int = 967765090562637874
+        self.enhancement_core: CustomEmoji | int = 967765115027992677
+        self.enhancement_prism: CustomEmoji | int = 967765139937972254
+        self.ascendant_shard: CustomEmoji | int = 967765168228540446
+
     async def init_emojis(self, client: Snake):
         """Runs on startup to get the emojis we use"""
 

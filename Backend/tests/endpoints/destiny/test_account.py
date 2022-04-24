@@ -8,7 +8,7 @@ from orjson import orjson
 from pytest_mock import MockerFixture
 
 from Backend.misc.cache import cache
-from Shared.networkingSchemas import BoolModel, NameModel, ValueModel
+from Shared.networkingSchemas import BoolModel, DestinyAllMaterialsModel, NameModel, ValueModel
 from Shared.networkingSchemas.destiny import (
     BoolModelRecord,
     DestinyCatalystsModel,
@@ -323,6 +323,20 @@ async def test_season_pass_level(client: AsyncClient, mocker: MockerFixture):
     assert r.status_code == 200
     data = ValueModel.parse_obj(r.json())
     assert data.value == 210
+
+
+@pytest.mark.asyncio
+async def test_get_material_amount(client: AsyncClient, mocker: MockerFixture):
+    mocker.patch("Backend.networking.http.NetworkBase._request", mock_request)
+
+    r = await client.get(f"/destiny/account/{dummy_discord_guild_id}/{dummy_discord_id}/materials")
+    assert r.status_code == 200
+    data = DestinyAllMaterialsModel.parse_obj(r.json())
+    assert data.basic
+    assert data.transmog
+    assert data.upgrading
+    assert data.crafting
+    assert data.special
 
 
 @pytest.mark.asyncio

@@ -614,6 +614,18 @@
                 ]
             },
             {
+                "name": "materials",
+                "description": "Shows your number of Destiny 2 materials",
+                "options": [
+                    {
+                        "name": "user",
+                        "description": "The user you want to look up",
+                        "required": false,
+                        "autocomplete": false
+                    }
+                ]
+            },
+            {
                 "name": "mode",
                 "description": "Display stats for Destiny 2 activity modes",
                 "options": [

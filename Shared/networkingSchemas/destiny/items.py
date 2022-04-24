@@ -11,6 +11,10 @@ class DestinyNamedItemModel(CustomBaseModel):
         orm_mode = True
 
 
+class DestinyNamedValueItemModel(DestinyNamedItemModel):
+    value: float
+
+
 class DestinyLoreModel(DestinyNamedItemModel):
     description: str
     sub_title: Optional[str] = None
@@ -27,3 +31,11 @@ class DestinyAllCollectibleModel(CustomBaseModel):
 
 class DestinyAllTriumphModel(CustomBaseModel):
     triumphs: list[DestinyNamedItemModel]
+
+
+class DestinyAllMaterialsModel(CustomBaseModel):
+    basic: list[DestinyNamedValueItemModel] = []
+    special: list[DestinyNamedValueItemModel] = []
+    transmog: list[DestinyNamedValueItemModel] = []
+    crafting: list[DestinyNamedValueItemModel] = []
+    upgrading: list[DestinyNamedValueItemModel] = []

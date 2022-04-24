@@ -5,7 +5,7 @@ from Backend.core.destiny.activities import DestinyActivities
 from Backend.core.destiny.profile import DestinyProfile
 from Backend.crud import discord_users
 from Backend.dependencies import get_db_session
-from Shared.networkingSchemas import BoolModel, NameModel, ValueModel
+from Shared.networkingSchemas import BoolModel, DestinyAllMaterialsModel, NameModel, ValueModel
 from Shared.networkingSchemas.destiny import (
     BoolModelRecord,
     DestinyCatalystsModel,
@@ -239,6 +239,16 @@ async def season_pass_level(guild_id: int, discord_id: int, db: AsyncSession = D
     return await profile.get_season_pass_level()
 
 
+@router.get("/materials", response_model=DestinyAllMaterialsModel)  # has test
+async def get_material_amount(guild_id: int, discord_id: int, db: AsyncSession = Depends(get_db_session)):
+    """Get all noteworthy materials of the user"""
+
+    user = await discord_users.get_profile_from_discord_id(discord_id)
+    profile = DestinyProfile(db=db, user=user)
+
+    return await profile.get_materials()
+
+
 @router.get("/consumable/{consumable_id}", response_model=ValueModel)  # has test
 async def get_consumable_amount(
     guild_id: int, discord_id: int, consumable_id: int, db: AsyncSession = Depends(get_db_session)
@@ -248,7 +258,9 @@ async def get_consumable_amount(
     user = await discord_users.get_profile_from_discord_id(discord_id)
     profile = DestinyProfile(db=db, user=user)
 
-    return ValueModel(value=await profile.get_consumable_amount(consumable_id=consumable_id))
+    return ValueModel(
+        value=await profile.get_consumable_amount(consumable_id=consumable_id, check_vault=True, check_postmaster=True)
+    )
 
 
 @router.get("/max_power", response_model=ValueModel)  # has test
