@@ -1,5 +1,4 @@
 import logging
-import traceback
 
 from aiohttp import web
 
@@ -17,18 +16,20 @@ async def log_requests(request: web.Request, handler):
 
         # log the successful request
         logger = logging.getLogger("webServer")
-        logger.info(f"'{response.status}': '{request.path_qs}'")
+        logger.info(f"`{response.status}`: `{request.path_qs}`")
 
         return response
 
     except Exception as error:
-        if not isinstance(error, web.HTTPClientError):
-            # logger any errors
-            logger = logging.getLogger("webServerExceptions")
-            logger.error(
-                f"""'{error}' for '{request.path_qs}' with body '{await request.json() if request.body_exists else ""}' - Traceback: \n'{"".join(traceback.format_tb(error.__traceback__))}'"""
-            )
-        raise error
+        if isinstance(error, web.HTTPClientError):
+            raise error
+
+        # log any errors
+        logger = logging.getLogger("webServerExceptions")
+        logger.error(
+            f"""`{error}` for `{request.path_qs}` with body `{await request.json() if request.body_exists else ""}`""",
+            exc_info=error,
+        )
 
 
 async def run_webserver(client):

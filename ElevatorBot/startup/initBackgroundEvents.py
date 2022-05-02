@@ -15,7 +15,7 @@ from apscheduler.job import Job
 
 from ElevatorBot import backgroundEvents
 from ElevatorBot.core.destiny.lfg.lfgSystem import LfgMessage
-from ElevatorBot.discordEvents.errorEvents import parse_dis_snek_error
+from ElevatorBot.discordEvents.errorEvents import parse_naff_errors
 from ElevatorBot.networking.destiny.lfgSystem import DestinyLfgSystem
 from Shared.functions.readSettingsFile import get_setting
 
@@ -38,7 +38,7 @@ async def register_background_events(client):
 
         # log the execution
         logger = logging.getLogger("backgroundEvents")
-        logger.info(f"Event '{job_name}' with ID '{scheduler_event.job_id}' has been added")
+        logger.info(f"Event `{job_name}` with ID `{scheduler_event.job_id}` has been added")
 
     client.scheduler.add_listener(event_added, EVENT_JOB_ADDED)
 
@@ -46,23 +46,24 @@ async def register_background_events(client):
         # log the execution
         logger = logging.getLogger("backgroundEvents")
         logger.info(
-            f"Event '{event_name_by_id[scheduler_event.job_id]}' with ID '{scheduler_event.job_id}' has been removed"
+            f"Event `{event_name_by_id[scheduler_event.job_id]}` with ID `{scheduler_event.job_id}` has been removed"
         )
 
     client.scheduler.add_listener(event_removed, EVENT_JOB_REMOVED)
 
     def event_submitted(scheduler_event: JobSubmissionEvent):
-        print(f"Running event '{event_name_by_id[scheduler_event.job_id]}' with ID '{scheduler_event.job_id}'...")
+        logger = logging.getLogger("backgroundEvents")
+        logger.debug(
+            f"Running event `{event_name_by_id[scheduler_event.job_id]}` with ID `{scheduler_event.job_id}`..."
+        )
 
     client.scheduler.add_listener(event_submitted, EVENT_JOB_SUBMITTED)
 
     def event_executed(scheduler_event: JobExecutionEvent):
-        print(f"Event with ID '{scheduler_event.job_id}' successfully run")
-
         # log the execution
         logger = logging.getLogger("backgroundEvents")
         logger.info(
-            f"Event '{event_name_by_id[scheduler_event.job_id]}' with ID '{scheduler_event.job_id}' successfully run"
+            f"Event `{event_name_by_id[scheduler_event.job_id]}` with ID `{scheduler_event.job_id}` successfully run"
         )
 
     client.scheduler.add_listener(event_executed, EVENT_JOB_EXECUTED)
@@ -70,21 +71,24 @@ async def register_background_events(client):
     def event_missed(scheduler_event: JobExecutionEvent):
         # log the execution
         logger = logging.getLogger("backgroundEventsExceptions")
-        logger.warning(f"Event '{event_name_by_id[scheduler_event.job_id]}' with ID '{scheduler_event.job_id}' missed")
+        logger.warning(f"Event `{event_name_by_id[scheduler_event.job_id]}` with ID `{scheduler_event.job_id}` missed")
 
     client.scheduler.add_listener(event_missed, EVENT_JOB_MISSED)
 
     def event_error(scheduler_event: JobExecutionEvent):
         # log the execution
+        naff_errors = parse_naff_errors(error=scheduler_event.exception)
+        msg = f"Event `{event_name_by_id[scheduler_event.job_id]}` with ID `{scheduler_event.job_id}` failed"
+        if naff_errors:
+            msg += f" - NAFF Errors:\n{naff_errors}"
+
         logger = logging.getLogger("backgroundEventsExceptions")
-        parse_dis_snek_error(error=scheduler_event.exception, logger_exceptions=logger)
-        logger.error(
-            f"Event '{event_name_by_id[scheduler_event.job_id]}' with ID '{scheduler_event.job_id}' failed - Error '{scheduler_event.exception}' - Traceback: \n{scheduler_event.traceback}"
-        )
+        logger.exception(msg, exc_info=scheduler_event.exception)
 
     client.scheduler.add_listener(event_error, EVENT_JOB_ERROR)
 
     # loop through the subclasses of BaseEvent to get all events. The events get imported through .__init__
+    logger = logging.getLogger("backgroundEvents")
     for BackgroundEvent in backgroundEvents.BaseEvent.__subclasses__():
         event = BackgroundEvent()
 
@@ -114,9 +118,9 @@ async def register_background_events(client):
                 run_date=event.run_date,
             )
         else:
-            print(f"Failed to load event {event}")
+            logger.debug(f"Failed to load event {event}")
     jobs = client.scheduler.get_jobs()
-    print(f"< {len(jobs)} > Background Events Loaded")
+    logger.debug(f"< {len(jobs)} > Background Events Loaded")
 
     # load the lfg events
     for guild in client.guilds:
@@ -140,4 +144,4 @@ async def register_background_events(client):
                 if lfg_event:
                     await lfg_event.schedule_event()
 
-    print(f"< {len(client.scheduler.get_jobs()) - len(jobs)} > LFG Events Loaded")
+    logger.debug(f"< {len(client.scheduler.get_jobs()) - len(jobs)} > LFG Events Loaded")

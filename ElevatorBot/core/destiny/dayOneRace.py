@@ -1,6 +1,7 @@
 import asyncio
 import copy
 import datetime
+import logging
 import pickle
 from io import BytesIO
 from typing import Optional
@@ -161,12 +162,12 @@ class DayOneRace:
 
                 # set new now
                 now = get_now_with_tz()
-                print(f"Done with loop at {str(now)}")
+                self.ctx.bot.logger_exceptions.debug(f"Done with loop at {str(now)}")
 
             except Exception as e:
-                error_message = f"An error occurred while I was doing Day1 Stuff:\n{e}\n{e.__traceback__}"
-                print(error_message)
-                await descend_channels.bot_dev_channel.send(error_message)
+                logger = logging.getLogger("generalExceptions")
+                logger.error("An error occurred while I was doing Day1 Stuff", exc_info=e)
+                await descend_channels.bot_dev_channel.send(f"An error occurred while I was doing Day1 Stuff: {e}")
 
                 await asyncio.sleep(120)
                 continue

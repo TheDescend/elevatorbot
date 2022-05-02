@@ -254,14 +254,14 @@ class BungieApi(NetworkBase):
             case (401, _) | (_, "invalid_grant" | "AuthorizationCodeInvalid"):
                 # unauthorized
                 self.logger_exceptions.warning(
-                    f"'{response.status} - {error} | {error_code}': Unauthorized (too slow, user fault) request for '{route_with_params}'"
+                    f"`{response.status} - {error} | {error_code}`: Unauthorized (too slow, user fault) request for `{route_with_params}`"
                 )
                 raise CustomException("BungieUnauthorized")
 
             case (_, "PerEndpointRequestThrottleExceeded" | "DestinyDirectBabelClientTimeout"):
                 # we are getting throttled (should never be called in theory)
                 self.logger.warning(
-                    f"'{response.status} - {error} | {error_code}': Retrying... - Getting throttled for '{route_with_params}' - '{response}'"
+                    f"`{response.status} - {error} | {error_code}`: Retrying... - Getting throttled for `{route_with_params}`\n{response}"
                 )
 
                 throttle_seconds = response.content["ThrottleSeconds"]
@@ -289,14 +289,14 @@ class BungieApi(NetworkBase):
             case (_, "DestinyDirectBabelClientTimeout"):
                 # timeout
                 self.logger.warning(
-                    f"'{response.status} - {error} | {error_code}': Retrying... - Getting timeouts for '{route_with_params}' - '{response}'"
+                    f"`{response.status} - {error} | {error_code}`: Retrying... - Getting timeouts for `{route_with_params}`\n{response}"
                 )
                 await asyncio.sleep(60)
 
             case (_, "DestinyServiceFailure" | "DestinyInternalError"):
                 # timeout
                 self.logger.warning(
-                    f"'{response.status} - {error} | {error_code}': Retrying... - Bungie is having problems '{route_with_params}' - '{response}'"
+                    f"`{response.status} - {error} | {error_code}`: Retrying... - Bungie is having problems `{route_with_params}`\n{response}"
                 )
                 await asyncio.sleep(60)
 
@@ -310,34 +310,34 @@ class BungieApi(NetworkBase):
 
             case (404, error):
                 # not found
-                self.logger_exceptions.error(
-                    f"'{response.status} - {error} | {error_code}': No stats found for '{route_with_params}' - '{response}'"
+                self.logger_exceptions.exception(
+                    f"`{response.status} - {error} | {error_code}`: No stats found for `{route_with_params}`\n{response}"
                 )
                 raise CustomException("BungieBadRequest")
 
             case (429, error):
                 # rate limited
                 self.logger.warning(
-                    f"'{response.status} - {error} | {error_code}': Retrying... - Getting rate limited for '{route_with_params}' - '{response}'"
+                    f"`{response.status} - {error} | {error_code}`: Retrying... - Getting rate limited for `{route_with_params}`\n{response}"
                 )
                 await asyncio.sleep(2)
 
             case (400, error):
                 # generic bad request, such as wrong format
-                self.logger_exceptions.error(
-                    f"'{response.status} - {error} | {error_code}': Generic bad request for '{route_with_params}' - '{response}'"
+                self.logger_exceptions.exception(
+                    f"`{response.status} - {error} | {error_code}`: Generic bad request for `{route_with_params}`\n{response}"
                 )
                 raise CustomException("BungieBadRequest")
 
             case (503, error):
                 self.logger.warning(
-                    f"'{response.status} - {error} | {error_code}': Retrying... - Server is overloaded for '{route_with_params}' - '{response}'"
+                    f"`{response.status} - {error} | {error_code}`: Retrying... - Server is overloaded for `{route_with_params}`\n{response}"
                 )
                 await asyncio.sleep(10)
 
             case (status, error):
                 # catch the rest
-                self.logger_exceptions.error(
-                    f"'{status} - {error} | {error_code}': Retrying... - Request failed for '{route_with_params}' - '{error_message}' - '{response}'"
+                self.logger_exceptions.exception(
+                    f"`{status} - {error} | {error_code}`: Retrying... - Request failed for `{route_with_params}` - `{error_message}`\n{response}"
                 )
                 await asyncio.sleep(2)

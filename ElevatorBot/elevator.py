@@ -16,6 +16,11 @@ from dis_snek import (
     slash_command,
 )
 from dis_snek.ext.debug_scale import DebugScale
+from rich.console import Console
+from rich.padding import PaddingDimensions
+from rich.panel import Panel
+from rich.progress import Progress
+from rich.text import Text
 
 from ElevatorBot.discordEvents.base import ElevatorSnake
 from ElevatorBot.misc.cache import descend_cache
@@ -30,6 +35,7 @@ from ElevatorBot.startup.initLogging import init_logging
 from ElevatorBot.static.descendOnlyIds import descend_channels
 from ElevatorBot.static.emojis import custom_emojis
 from ElevatorBot.webserver.server import run_webserver
+from Shared.functions.logging import DESCEND_COLOUR, ColourHighlighter, ElevatorLogger
 from Shared.functions.readSettingsFile import get_setting
 
 
@@ -42,86 +48,102 @@ class Elevator(ElevatorSnake):
     async def on_startup(self):
         """Gets triggered on startup"""
 
-        print("Creating docs for commands...")
+        startup_progress.update(startup_task, advance=1)
+
+        self.logger_exceptions.debug("Creating docs for commands...")
         create_command_docs(client)
+        startup_progress.update(startup_task, advance=1)
 
-        print("Loading Background Events...")
+        self.logger_exceptions.debug("Loading Background Events...")
         await register_background_events(client)
+        startup_progress.update(startup_task, advance=1)
 
-        print("Launching the Status Changer...")
+        self.logger_exceptions.debug("Launching the Status Changer...")
         # its **important** that this has a reference - https://docs.python.org/3/library/asyncio-task.html#asyncio.create_task
         task = asyncio.create_task(update_discord_bot_status(client))
+        startup_progress.update(startup_task, advance=1)
 
-        print("Start Webserver...")
+        self.logger_exceptions.debug("Start Webserver...")
         task2 = asyncio.create_task(run_webserver(client=client))
+        startup_progress.update(startup_task, advance=1)
 
-        print("Loading Custom Emoji...")
+        self.logger_exceptions.debug("Loading Custom Emoji...")
         await custom_emojis.init_emojis(client)
+        startup_progress.update(startup_task, advance=1)
 
-        print("Setting Up Descend Data...")
+        self.logger_exceptions.debug("Setting Up Descend Data...")
         is_descend = await descend_channels.init_channels(client)
         if is_descend:
             await descend_cache.init_status_message()
+        startup_progress.update(startup_task, advance=1)
 
-        print("Startup Finished!\n")
-        print("--------------------------\n")
+        startup_progress.stop()
 
 
-def load_commands(client: Snake) -> int:
+def load_commands(client: Elevator) -> int:
     """Load all commands scales. Returns number of local commands"""
 
     # load commands
-    print("Loading Commands...")
+    client.logger_exceptions.debug("Loading Commands...")
     for path in yield_files_in_folder("ElevatorBot/commands", "py"):
         client.reload_extension(path)
 
     global_commands = len(client.interactions[0])
-    print(f"< {global_commands} > Global Commands Loaded")
+    client.logger_exceptions.debug(f"< {global_commands} > Global Commands Loaded")
+    startup_progress.update(startup_task, advance=1)
 
     local = 0
     for k, v in client.interactions.items():
         if k != 0:
             local += len(v)
-    print(f"< {local} > Local Commands Loaded")
+    client.logger_exceptions.debug(f"< {local} > Local Commands Loaded")
+    startup_progress.update(startup_task, advance=1)
 
     # load context menus
-    print("Loading Context Menus...")
+    client.logger_exceptions.debug("Loading Context Menus...")
     for path in yield_files_in_folder("ElevatorBot/contextMenus", "py"):
         client.reload_extension(path)
 
     global_context_menus = len(client.interactions[0])
-    print(f"< {global_context_menus - global_commands} > Global Context Menus Loaded")
+    client.logger_exceptions.debug(f"< {global_context_menus - global_commands} > Global Context Menus Loaded")
+    startup_progress.update(startup_task, advance=1)
 
     return local
 
 
 if __name__ == "__main__":
+    # print ascii art
+    console = Console()
+    text = Text.assemble(
+        (
+            """
+ ███████ ██      ███████ ██    ██  █████  ████████  ██████  ██████  ██████   ██████  ████████
+ ██      ██      ██      ██    ██ ██   ██    ██    ██    ██ ██   ██ ██   ██ ██    ██    ██
+ █████   ██      █████   ██    ██ ███████    ██    ██    ██ ██████  ██████  ██    ██    ██
+ ██      ██      ██       ██  ██  ██   ██    ██    ██    ██ ██   ██ ██   ██ ██    ██    ██
+ ███████ ███████ ███████   ████   ██   ██    ██     ██████  ██   ██ ██████   ██████     ██
+══════════════════════════════════════════════════════════════════════════════════════════════
+    """,
+            DESCEND_COLOUR,
+        )
+    )
+    console.print(Panel.fit(text, padding=(0, 6), border_style="black"))
+
+    # loading bar
+    startup_progress = Progress()
+    startup_progress.start()
+    startup_task = startup_progress.add_task("Starting Up...", total=16)
+
     # config logging
     init_logging()
+    logger = logging.getLogger("generalExceptions")
 
-    # print ascii art
-    print("----------------------------------------------------------------------------------------")
-    print(
-        """
-  ______   _                          _                    ____            _
- |  ____| | |                        | |                  |  _ \          | |
- | |__    | |   ___  __   __   __ _  | |_    ___    _ __  | |_) |   ___   | |_
- |  __|   | |  / _ \ \ \ / /  / _` | | __|  / _ \  | '__| |  _ <   / _ \  | __|
- | |____  | | |  __/  \ V /  | (_| | | |_  | (_) | | |    | |_) | | (_) | | |_
- |______| |_|  \___|   \_/    \__,_|  \__|  \___/  |_|    |____/   \___/   \__|
-    """
-    )
-    print("----------------------------------------------------------------------------------------\n")
-    print("Starting Up...")
-
-    try:
-        # install uvloop for faster asyncio (docker only)
-        import uvloop
-
-        print("Installing uvloop...")
-        uvloop.install()
-    except ModuleNotFoundError:
-        print("Uvloop not installed, skipping")
+    if get_setting("ENABLE_DEBUG_MODE"):
+        logger.debug("Setting Up NAFF Logging...")
+        naff_log = logging.getLogger(logger_name)
+        naff_log.setLevel(logging.DEBUG)
+        ElevatorLogger.make_console_logger(naff_log, ColourHighlighter(colour="red", name="NAFF"))
+    startup_progress.update(startup_task, advance=1)
 
     # enable intents to allow certain events--
     # see https://discord.com/developers/docs/topics/gateway#gateway-intents
@@ -142,6 +164,16 @@ if __name__ == "__main__":
         fetch_members=True,
         auto_defer=AutoDefer(enabled=True),
     )
+
+    # install uvloop for faster asyncio (docker only)
+    try:
+        import uvloop
+    except ModuleNotFoundError:
+        logger.debug("Uvloop not installed, skipping")
+    else:
+        logger.debug("Installing uvloop...")
+        uvloop.install()
+    startup_progress.update(startup_task, advance=1)
 
     # load the debug scale for the debug guilds only
     class CustomDebugScale(DebugScale):
@@ -164,19 +196,17 @@ if __name__ == "__main__":
 
     CustomDebugScale(bot=client)
 
-    if get_setting("ENABLE_DEBUG_MODE"):
-        print("Setting Up Snek Logging...")
-        cls_log = logging.getLogger(logger_name)
-        cls_log.setLevel(logging.DEBUG)
-
-    print("Loading Discord Events...")
+    logger.debug("Loading Discord Events...")
     register_discord_events(client)
+    startup_progress.update(startup_task, advance=1)
 
-    print("Loading Component Callbacks...")
+    logger.debug("Loading Component Callbacks...")
     add_component_callbacks(client=client)
+    startup_progress.update(startup_task, advance=1)
 
-    print("Loading Autocomplete Options...")
+    logger.debug("Loading Autocomplete Options...")
     asyncio.run(load_autocomplete_options())
+    startup_progress.update(startup_task, advance=1)
 
     local_commands = load_commands(client=client)
 
@@ -184,7 +214,9 @@ if __name__ == "__main__":
     for key, value in client.interactions.items():
         if key != 0:
             local_context_menus += len(value)
-    print(f"< {local_context_menus - local_commands} > Local Context Menus Loaded")
+    logger.debug(f"< {local_context_menus - local_commands} > Local Context Menus Loaded")
+    startup_progress.update(startup_task, advance=1)
 
     # run the bot
+    logger.debug(f"Logging Into Discord...")
     client.start(get_setting("DISCORD_APPLICATION_API_KEY"))

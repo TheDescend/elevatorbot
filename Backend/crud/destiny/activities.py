@@ -73,113 +73,105 @@ class CRUDActivities(CRUDBase):
     async def __locked_insert(self, db: AsyncSession, instance_id: int, activity_time: datetime, pgcr: dict):
         """Actually do the insert"""
 
-        try:
-            # starting phase index is only the way to go before 22/2/22, after we should use activityWasStartedFromBeginning
-            if activity_time > starting_phase_cutoff:
-                starting_phase_index = 0 if pgcr["activityWasStartedFromBeginning"] else 99
-            else:
-                starting_phase_index = pgcr["startingPhaseIndex"]
+        # starting phase index is only the way to go before 22/2/22, after we should use activityWasStartedFromBeginning
+        if activity_time > starting_phase_cutoff:
+            starting_phase_index = 0 if pgcr["activityWasStartedFromBeginning"] else 99
+        else:
+            starting_phase_index = pgcr["startingPhaseIndex"]
 
-            # build the activity
-            activity = Activities(
-                instance_id=instance_id,
-                period=activity_time,
-                reference_id=pgcr["activityDetails"]["referenceId"],
-                director_activity_hash=pgcr["activityDetails"]["directorActivityHash"],
-                starting_phase_index=starting_phase_index,
-                mode=pgcr["activityDetails"]["mode"],
-                modes=pgcr["activityDetails"]["modes"],
-                is_private=pgcr["activityDetails"]["isPrivate"],
-                system=pgcr["activityDetails"]["membershipType"],
+        # build the activity
+        activity = Activities(
+            instance_id=instance_id,
+            period=activity_time,
+            reference_id=pgcr["activityDetails"]["referenceId"],
+            director_activity_hash=pgcr["activityDetails"]["directorActivityHash"],
+            starting_phase_index=starting_phase_index,
+            mode=pgcr["activityDetails"]["mode"],
+            modes=pgcr["activityDetails"]["modes"],
+            is_private=pgcr["activityDetails"]["isPrivate"],
+            system=pgcr["activityDetails"]["membershipType"],
+        )
+
+        # loop through the members of the activity and append that data
+        for player_pgcr in pgcr["entries"]:
+            # get the bungie name separately, since bungie decided it would be fun to pass it as an empty string if it does not exist yet
+            try:
+                bungie_name = player_pgcr["player"]["destinyUserInfo"]["bungieGlobalDisplayName"]
+                if bungie_name == "":
+                    bungie_name = player_pgcr["player"]["destinyUserInfo"]["displayName"]
+                    bungie_code = "0000"
+                else:
+                    bungie_code = str(player_pgcr["player"]["destinyUserInfo"]["bungieGlobalDisplayNameCode"]).zfill(4)
+            except KeyError:
+                # sometimes do not even pass the field, very fun
+                bungie_name = "UnknownName"
+                bungie_code = "0000"
+
+            extended_data = player_pgcr.get("extended", None)
+            player = ActivitiesUsers(
+                destiny_id=int(player_pgcr["player"]["destinyUserInfo"]["membershipId"]),
+                bungie_name=f"{bungie_name}#{bungie_code}",
+                character_id=int(player_pgcr["characterId"]),
+                character_class=player_pgcr["player"]["characterClass"]
+                if "characterClass" in player_pgcr["player"]
+                else None,
+                character_level=player_pgcr["player"]["characterLevel"],
+                system=player_pgcr["player"]["destinyUserInfo"]["membershipType"],
+                light_level=player_pgcr["player"]["lightLevel"],
+                emblem_hash=player_pgcr["player"]["emblemHash"],
+                standing=player_pgcr["standing"],
+                assists=int(player_pgcr["values"]["assists"]["basic"]["value"]),
+                completed=int(player_pgcr["values"]["completed"]["basic"]["value"]),
+                deaths=int(player_pgcr["values"]["deaths"]["basic"]["value"]),
+                kills=int(player_pgcr["values"]["kills"]["basic"]["value"]),
+                opponents_defeated=int(player_pgcr["values"]["opponentsDefeated"]["basic"]["value"]),
+                efficiency=player_pgcr["values"]["efficiency"]["basic"]["value"],
+                kills_deaths_ratio=player_pgcr["values"]["killsDeathsRatio"]["basic"]["value"],
+                kills_deaths_assists=player_pgcr["values"]["killsDeathsAssists"]["basic"]["value"],
+                score=int(player_pgcr["values"]["score"]["basic"]["value"]),
+                activity_duration_seconds=int(player_pgcr["values"]["activityDurationSeconds"]["basic"]["value"]),
+                completion_reason=int(player_pgcr["values"]["completionReason"]["basic"]["value"]),
+                start_seconds=int(player_pgcr["values"]["startSeconds"]["basic"]["value"]),
+                time_played_seconds=int(player_pgcr["values"]["timePlayedSeconds"]["basic"]["value"]),
+                player_count=int(player_pgcr["values"]["playerCount"]["basic"]["value"]),
+                team_score=int(player_pgcr["values"]["teamScore"]["basic"]["value"]),
+                precision_kills=int(extended_data["values"]["precisionKills"]["basic"]["value"])
+                if extended_data
+                else 0,
+                weapon_kills_grenade=int(extended_data["values"]["weaponKillsGrenade"]["basic"]["value"])
+                if extended_data
+                else 0,
+                weapon_kills_melee=int(extended_data["values"]["weaponKillsMelee"]["basic"]["value"])
+                if extended_data
+                else 0,
+                weapon_kills_super=int(extended_data["values"]["weaponKillsSuper"]["basic"]["value"])
+                if extended_data
+                else 0,
+                weapon_kills_ability=int(extended_data["values"]["weaponKillsAbility"]["basic"]["value"])
+                if extended_data
+                else 0,
             )
 
-            # loop through the members of the activity and append that data
-            for player_pgcr in pgcr["entries"]:
-                # get the bungie name separately, since bungie decided it would be fun to pass it as an empty string if it does not exist yet
-                try:
-                    bungie_name = player_pgcr["player"]["destinyUserInfo"]["bungieGlobalDisplayName"]
-                    if bungie_name == "":
-                        bungie_name = player_pgcr["player"]["destinyUserInfo"]["displayName"]
-                        bungie_code = "0000"
-                    else:
-                        bungie_code = str(
-                            player_pgcr["player"]["destinyUserInfo"]["bungieGlobalDisplayNameCode"]
-                        ).zfill(4)
-                except KeyError:
-                    # sometimes do not even pass the field, very fun
-                    bungie_name = "UnknownName"
-                    bungie_code = "0000"
+            if extended_data:
+                # loop through the weapons the player used and append that data
+                if "weapons" in player_pgcr["extended"]:
+                    for weapon_pgcr in player_pgcr["extended"]["weapons"]:
+                        weapon = ActivitiesUsersWeapons(
+                            weapon_id=weapon_pgcr["referenceId"],
+                            unique_weapon_kills=int(weapon_pgcr["values"]["uniqueWeaponKills"]["basic"]["value"]),
+                            unique_weapon_precision_kills=int(
+                                weapon_pgcr["values"]["uniqueWeaponPrecisionKills"]["basic"]["value"]
+                            ),
+                        )
 
-                extended_data = player_pgcr.get("extended", None)
-                player = ActivitiesUsers(
-                    destiny_id=int(player_pgcr["player"]["destinyUserInfo"]["membershipId"]),
-                    bungie_name=f"{bungie_name}#{bungie_code}",
-                    character_id=int(player_pgcr["characterId"]),
-                    character_class=player_pgcr["player"]["characterClass"]
-                    if "characterClass" in player_pgcr["player"]
-                    else None,
-                    character_level=player_pgcr["player"]["characterLevel"],
-                    system=player_pgcr["player"]["destinyUserInfo"]["membershipType"],
-                    light_level=player_pgcr["player"]["lightLevel"],
-                    emblem_hash=player_pgcr["player"]["emblemHash"],
-                    standing=player_pgcr["standing"],
-                    assists=int(player_pgcr["values"]["assists"]["basic"]["value"]),
-                    completed=int(player_pgcr["values"]["completed"]["basic"]["value"]),
-                    deaths=int(player_pgcr["values"]["deaths"]["basic"]["value"]),
-                    kills=int(player_pgcr["values"]["kills"]["basic"]["value"]),
-                    opponents_defeated=int(player_pgcr["values"]["opponentsDefeated"]["basic"]["value"]),
-                    efficiency=player_pgcr["values"]["efficiency"]["basic"]["value"],
-                    kills_deaths_ratio=player_pgcr["values"]["killsDeathsRatio"]["basic"]["value"],
-                    kills_deaths_assists=player_pgcr["values"]["killsDeathsAssists"]["basic"]["value"],
-                    score=int(player_pgcr["values"]["score"]["basic"]["value"]),
-                    activity_duration_seconds=int(player_pgcr["values"]["activityDurationSeconds"]["basic"]["value"]),
-                    completion_reason=int(player_pgcr["values"]["completionReason"]["basic"]["value"]),
-                    start_seconds=int(player_pgcr["values"]["startSeconds"]["basic"]["value"]),
-                    time_played_seconds=int(player_pgcr["values"]["timePlayedSeconds"]["basic"]["value"]),
-                    player_count=int(player_pgcr["values"]["playerCount"]["basic"]["value"]),
-                    team_score=int(player_pgcr["values"]["teamScore"]["basic"]["value"]),
-                    precision_kills=int(extended_data["values"]["precisionKills"]["basic"]["value"])
-                    if extended_data
-                    else 0,
-                    weapon_kills_grenade=int(extended_data["values"]["weaponKillsGrenade"]["basic"]["value"])
-                    if extended_data
-                    else 0,
-                    weapon_kills_melee=int(extended_data["values"]["weaponKillsMelee"]["basic"]["value"])
-                    if extended_data
-                    else 0,
-                    weapon_kills_super=int(extended_data["values"]["weaponKillsSuper"]["basic"]["value"])
-                    if extended_data
-                    else 0,
-                    weapon_kills_ability=int(extended_data["values"]["weaponKillsAbility"]["basic"]["value"])
-                    if extended_data
-                    else 0,
-                )
+                        # append weapon data to player
+                        player.weapons.append(weapon)
 
-                if extended_data:
-                    # loop through the weapons the player used and append that data
-                    if "weapons" in player_pgcr["extended"]:
-                        for weapon_pgcr in player_pgcr["extended"]["weapons"]:
-                            weapon = ActivitiesUsersWeapons(
-                                weapon_id=weapon_pgcr["referenceId"],
-                                unique_weapon_kills=int(weapon_pgcr["values"]["uniqueWeaponKills"]["basic"]["value"]),
-                                unique_weapon_precision_kills=int(
-                                    weapon_pgcr["values"]["uniqueWeaponPrecisionKills"]["basic"]["value"]
-                                ),
-                            )
+            # append player data to activity
+            activity.users.append(player)
 
-                            # append weapon data to player
-                            player.weapons.append(weapon)
-
-                # append player data to activity
-                activity.users.append(player)
-
-            # insert all the stuff to the db
-            await self._insert(db=db, to_create=activity)
-
-        except Exception as e:
-            print(e)
-            print(pgcr)
-            raise e
+        # insert all the stuff to the db
+        await self._insert(db=db, to_create=activity)
 
     async def get_activities(
         self,

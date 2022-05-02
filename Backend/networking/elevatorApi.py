@@ -76,12 +76,14 @@ class ElevatorApi(NetworkBase):
         match response.status:
             case 404:
                 # not found
-                self.logger_exceptions.error(f"'{response.status}': Not Found for '{route_with_params}' - '{response}'")
+                self.logger_exceptions.exception(
+                    f"`{response.status}`: Not Found for `{route_with_params}`\n{response}"
+                )
 
             # wildcard error
             case _:
-                self.logger_exceptions.error(
-                    f"'{response.status}': Request failed for '{route_with_params}' - '{response}'"
+                self.logger_exceptions.exception(
+                    f"`{response.status}`: Request failed for `{route_with_params}`\n{response}"
                 )
 
         raise CustomException("ProgrammingError")

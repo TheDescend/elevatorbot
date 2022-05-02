@@ -81,7 +81,7 @@ class CRUDBase:
             update_dict = {c.name: c for c in stmt.excluded if not c.primary_key}
             if not update_dict:
                 raise ValueError(
-                    f"_upsert() resulted in an empty update_dict for model '{self.model}', model_data: '{model_data}'"
+                    f"_upsert() resulted in an empty update_dict for model `{self.model}`, model_data: `{model_data}`"
                 )
 
             # add upsert clause

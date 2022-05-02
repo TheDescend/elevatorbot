@@ -217,10 +217,18 @@ class RolesActivity(Base):
     maximum_allowed_players = Column(Integer, nullable=False)
 
     allow_time_periods: list[RolesActivityTimePeriod] = relationship(
-        "RolesActivityTimePeriod", cascade="all, delete-orphan", passive_deletes=True, lazy="selectin"
+        "RolesActivityTimePeriod",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+        lazy="selectin",
+        overlaps="disallow_time_periods",
     )
     disallow_time_periods: list[RolesActivityTimePeriod] = relationship(
-        "RolesActivityTimePeriod", cascade="all, delete-orphan", passive_deletes=True, lazy="selectin"
+        "RolesActivityTimePeriod",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+        lazy="selectin",
+        overlaps="allow_time_periods",
     )
 
     inverse = Column(Boolean, nullable=False)
@@ -275,10 +283,18 @@ class Roles(Base):
         "RolesActivity", cascade="all, delete-orphan", passive_deletes=True, lazy="selectin"
     )
     requirement_require_collectibles: list[RolesInteger] = relationship(
-        "RolesInteger", cascade="all, delete-orphan", passive_deletes=True, lazy="selectin"
+        "RolesInteger",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+        lazy="selectin",
+        overlaps="requirement_require_records",
     )
     requirement_require_records: list[RolesInteger] = relationship(
-        "RolesInteger", cascade="all, delete-orphan", passive_deletes=True, lazy="selectin"
+        "RolesInteger",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+        lazy="selectin",
+        overlaps="requirement_require_collectibles",
     )
     requirement_require_roles: list[Roles] = relationship(
         "Roles",

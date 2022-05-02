@@ -1,6 +1,6 @@
 import asyncio
 import os
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, suppress
 from typing import AsyncContextManager, Optional
 
 import orjson
@@ -84,15 +84,13 @@ db_semaphore = asyncio.Semaphore(MAX_DB_CONNECTIONS)
 async def acquire_db_session() -> AsyncContextManager[AsyncSession]:
     """Get a database session"""
 
-    async def _timeout():
-        """Times out waiting for a session"""
+    async def _wait_for_semaphore():
+        await db_semaphore.acquire()
 
-        raise TimeoutError
+    await asyncio.wait_for(asyncio.shield(_wait_for_semaphore()), timeout=WAIT_FOR_DB_CONNECTION)
 
-    loop = asyncio.get_event_loop()
-    timeout_handler = loop.call_later(WAIT_FOR_DB_CONNECTION, loop.create_task, _timeout())
-
-    async with db_semaphore:
-        timeout_handler.cancel()
+    try:
         async with get_async_sessionmaker().begin() as session:
             yield session
+    finally:
+        db_semaphore.release()

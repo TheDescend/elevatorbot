@@ -1,5 +1,4 @@
 import logging
-import traceback
 
 from dis_snek import Listener
 
@@ -35,10 +34,7 @@ class MyListener(Listener):
             if isinstance(error, BackendException):
                 pass
             else:
-                self.logger_events.exception(
-                    f"Event '{self.event}' - Error '{error}' - Traceback: \n{''.join(traceback.format_tb(error.__traceback__))}"
-                )
-                raise error
+                self.logger_events.exception(f"Event `{self.event}`", exc_info=error)
 
 
 def register_discord_events(client: ElevatorSnake):

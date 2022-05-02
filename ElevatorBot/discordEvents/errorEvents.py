@@ -1,30 +1,10 @@
 import logging
-import traceback
 
 from dis_snek import ComponentContext, InteractionContext, Snake
 from dis_snek.client.errors import CommandCheckFailure, HTTPException
 
-from ElevatorBot.misc.helperFunctions import log_error
+from ElevatorBot.misc.helperFunctions import log_error, parse_naff_errors
 from ElevatorBot.networking.errors import BackendException
-
-
-def parse_dis_snek_error(error: Exception, logger_exceptions: logging.Logger):
-    """Parses dis-snek error messages and logs that"""
-
-    if isinstance(error, HTTPException):
-        if error.errors:
-            # HTTPException's are of 3 known formats, we can parse them for human-readable errors
-            try:
-                errors = error.search_for_message(error.errors)
-                formatted = f"HTTPException: {error.status}|{error.response.reason}: " + "\n".join(errors)
-                logger_exceptions.error(formatted)
-                print(formatted)
-            except TypeError as e:
-                print("Parsing Failed, errors are:")
-                formatted = f"HTTPException: {error.status}|{error.response.reason}: {str(error.errors)}"
-                logger_exceptions.error(formatted)
-                print(formatted)
-                pass
 
 
 class CustomErrorSnake(Snake):
@@ -40,29 +20,24 @@ class CustomErrorSnake(Snake):
     async def on_error(self, source: str, error: Exception, *args, **kwargs):
         """Gets triggered after an error occurs (not in commands / components)"""
 
-        parse_dis_snek_error(error=error, logger_exceptions=self.logger_exceptions)
+        naff_errors = parse_naff_errors(error=error)
 
         # log the error
-        self.logger_exceptions.exception(
-            f"Source '{source}' - Error '{error}' - Traceback: \n{''.join(traceback.format_tb(error.__traceback__))}"
-        )
-
-        # raising error again to making deving easier
-        raise error
+        msg = f"Source `{source}`"
+        if naff_errors:
+            msg += f" - NAFF Errors:\n{naff_errors}"
+        self.logger_exceptions.exception(msg, exc_info=error)
 
     async def on_command(self, ctx: InteractionContext):
         """Gets triggered after a slash command is run"""
 
-        if ctx.guild:
-            # log the command
-            self.logger_commands.info(
-                f"InteractionID '{ctx.interaction_id}' - CommandName '/{ctx.invoked_name}' - Kwargs '{ctx.kwargs}' - DiscordName '{ctx.author.username}' - DiscordID '{ctx.author.id}' - GuildID '{ctx.guild.id}' - ChannelID '{ctx.channel.id}'"
-            )
+        # log the command
+        self.logger_commands.info(
+            f"InteractionID `{ctx.interaction_id}` - CommandName `/{ctx.invoked_name}` - Kwargs `{ctx.kwargs}` - DiscordName `{ctx.author.username}` - DiscordID `{ctx.author.id}` - GuildID `{ctx.guild.id}` - ChannelID `{ctx.channel.id}`"
+        )
 
     async def on_command_error(self, ctx: InteractionContext, error: Exception, *args, **kwargs):
         """Gets triggered on slash command errors"""
-
-        parse_dis_snek_error(error=error, logger_exceptions=self.logger_commands_exceptions)
 
         # ignore some errors since they are intended
         if not isinstance(error, BackendException | CommandCheckFailure):
@@ -73,13 +48,11 @@ class CustomErrorSnake(Snake):
 
         # log the command
         self.logger_components.info(
-            f"InteractionID '{ctx.interaction_id}' - Component '{ctx.invoked_name}' - Target '{ctx.target_id}' - DiscordName '{ctx.author.username}' - DiscordID '{ctx.author.id}' - GuildID '{ctx.guild.id}' - ChannelID '{ctx.channel.id}'"
+            f"InteractionID `{ctx.interaction_id}` - Component `{ctx.invoked_name}` - Target `{ctx.target_id}` - DiscordName `{ctx.author.username}` - DiscordID `{ctx.author.id}` - GuildID `{ctx.guild.id}` - ChannelID `{ctx.channel.id}`"
         )
 
     async def on_component_error(self, ctx: ComponentContext, error: Exception, *args, **kwargs):
         """Gets triggered on component callback errors"""
-
-        parse_dis_snek_error(error=error, logger_exceptions=self.logger_components_exceptions)
 
         # ignore BackendException errors since they are intended
         if not isinstance(error, BackendException):

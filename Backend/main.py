@@ -2,9 +2,12 @@ import importlib.util
 import logging
 import os
 import time
-import traceback
 
 from fastapi import Depends, FastAPI, Request
+from rich.console import Console
+from rich.panel import Panel
+from rich.progress import Progress
+from rich.text import Text
 
 from Backend.core.destiny.manifest import DestinyManifest
 from Backend.core.errors import CustomException, handle_custom_exception
@@ -14,23 +17,49 @@ from Backend.database.models import BackendUser
 from Backend.dependencies import auth_get_user_with_read_perm, auth_get_user_with_write_perm
 from Backend.startup.initBackgroundEvents import register_background_events
 from Backend.startup.initLogging import init_logging
+from Shared.functions.logging import DESCEND_COLOUR
 from Shared.functions.readSettingsFile import get_setting
 from Shared.networkingSchemas.misc.auth import BackendUserModel
 
-app = FastAPI()
+# print ascii art
+console = Console()
+text = Text.assemble(
+    (
+        """
+ ███████ ██      ███████ ██    ██  █████  ████████  ██████  ██████      ██████   █████   ██████ ██   ██ ███████ ███    ██ ██████
+ ██      ██      ██      ██    ██ ██   ██    ██    ██    ██ ██   ██     ██   ██ ██   ██ ██      ██  ██  ██      ████   ██ ██   ██
+ █████   ██      █████   ██    ██ ███████    ██    ██    ██ ██████      ██████  ███████ ██      █████   █████   ██ ██  ██ ██   ██
+ ██      ██      ██       ██  ██  ██   ██    ██    ██    ██ ██   ██     ██   ██ ██   ██ ██      ██  ██  ██      ██  ██ ██ ██   ██
+ ███████ ███████ ███████   ████   ██   ██    ██     ██████  ██   ██     ██████  ██   ██  ██████ ██   ██ ███████ ██   ████ ██████
+══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+        """,
+        DESCEND_COLOUR,
+    )
+)
+console.print(Panel.fit(text, padding=(0, 6), border_style="black"))
 
+
+# loading bar
+startup_progress = Progress()
+startup_progress.start()
+startup_task = startup_progress.add_task("Starting Up...", total=6)
+
+app = FastAPI()
 
 # init logging
 init_logging()
 
+default_logger = logging.getLogger("requests")
+
 try:
     # install uvloop for faster asyncio (docker only)
     import uvloop
-
-    print("Installing uvloop...")
-    uvloop.install()
 except ModuleNotFoundError:
-    print("Uvloop not installed, skipping")
+    default_logger.debug("Uvloop not installed, skipping")
+else:
+    default_logger.debug("Installing uvloop...")
+    uvloop.install()
+startup_progress.update(startup_task, advance=1)
 
 
 # healthcheck to see if this is running fine
@@ -57,17 +86,13 @@ async def log_requests(request: Request, call_next):
 
     # calculate the time needed to handle the request
     start_time = time.time()
+
     try:
         response = await call_next(request)
-
     except Exception as error:
         # log that
-        print(error)
         logger = logging.getLogger("requestsExceptions")
-        logger.exception(
-            f"""'{request.method}' for '{request.url}' - Error '{error}' - Traceback: \n'{"".join(traceback.format_tb(error.__traceback__))}'"""
-        )
-        raise error
+        logger.exception(f"`{request.method}` for `{request.url}`", exc_info=error)
 
     else:
         # do not log health check spam
@@ -76,7 +101,7 @@ async def log_requests(request: Request, call_next):
 
             # log that
             logger = logging.getLogger("requests")
-            logger.info(f"'{request.method}' completed in '{process_time}' seconds for '{request.url}'")
+            logger.info(f"`{request.method}` completed in `{process_time}` seconds for `{request.url}`")
 
         return response
 
@@ -91,12 +116,13 @@ if get_setting("ENABLE_DEBUG_MODE"):
         start_time = time.perf_counter()
         response = await call_next(request)
         process_time = time.perf_counter() - start_time
-        print(f"Performance Counter: `{request.url}` took `{process_time}s`")
+        default_logger.debug(f"Performance Counter: `{request.url}` took `{process_time}s`")
 
         return response
 
 
 # add routers
+default_logger.debug("Registering Endpoints...")
 for root, dirs, files in os.walk("Backend/endpoints"):
     for file in files:
         if file.endswith(".py") and not file.startswith("__init__"):
@@ -107,25 +133,33 @@ for root, dirs, files in os.walk("Backend/endpoints"):
             module = importlib.import_module(resolved_path)
             router = setup = getattr(module, "router")
             app.include_router(router)
+startup_progress.update(startup_task, advance=1)
 
 # add exception handlers
+default_logger.debug("Adding Exception Handlers...")
 app.add_exception_handler(CustomException, handle_custom_exception)
+startup_progress.update(startup_task, advance=1)
 
 
 @app.on_event("startup")
 async def startup():
     # create the admin user for the website
-    print("Setting Up Admin Account...")
+    default_logger.debug("Setting Up Admin Account...")
     async with acquire_db_session() as db:
         await backend_user.create_admin(db=db)
+    startup_progress.update(startup_task, advance=1)
 
     # Update the Destiny 2 manifest
-    print("Updating Destiny 2 Manifest...")
+    default_logger.debug("Updating Destiny 2 Manifest...")
     async with acquire_db_session() as db:
         manifest = DestinyManifest(db=db)
         await manifest.update()
+    startup_progress.update(startup_task, advance=1)
 
     # register background events
-    print("Loading Background Events...")
+    default_logger.debug("Loading Background Events...")
     events_loaded = register_background_events()
-    print(f"< {events_loaded} > Background Events Loaded")
+    default_logger.debug(f"< {events_loaded} > Background Events Loaded")
+    startup_progress.update(startup_task, advance=1)
+
+    startup_progress.stop()

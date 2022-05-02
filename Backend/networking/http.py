@@ -87,13 +87,14 @@ class NetworkBase:
 
             except (asyncio.exceptions.TimeoutError, ConnectionResetError, ServerDisconnectedError) as error:
                 self.logger.warning(
-                    f"Retrying... - Timeout error ('{error}') for '{route}?{urlencode({} if params is None else params)}'"
+                    f"Retrying... - Timeout error for `{route}?{urlencode({} if params is None else params)}`",
+                    exc_info=error,
                 )
                 await asyncio.sleep(random.randrange(2, 6))
                 continue
 
         # return that it failed
-        self.logger_exceptions.error(f"Request failed '{self.request_retries}' times, aborting for '{route}'")
+        self.logger_exceptions.exception(f"Request failed `{self.request_retries}` times, aborting for `{route}`")
         raise CustomException("UnknownError")
 
     async def _handle_request_data(
@@ -123,13 +124,11 @@ class NetworkBase:
 
         # make sure the return is a json, sometimes we get a http file for some reason
         elif "application/json" not in content_type:
-            self.logger_exceptions.error(
-                f"""'{request.status}': Retrying... - Wrong content type '{content_type}' with reason '{request.reason}' for '
-                {route_with_params}'"""
+            self.logger_exceptions.exception(
+                f"`{request.status}`: Retrying... - Wrong content type `{content_type}` with reason `{request.reason}` for `{route_with_params}`"
             )
-            print(f"""Bungie returned Content-Type: {content_type}""")
             if request.status == 200:
-                self.logger_exceptions.error(f"Wrong content type returned text: '{await request.text()}'")
+                self.logger_exceptions.exception(f"Wrong content type returned text: '{await request.text()}'")
             await asyncio.sleep(3)
             return
 
@@ -148,7 +147,7 @@ class NetworkBase:
                 time=get_now_with_tz(),
             )
         except aiohttp.ClientPayloadError:
-            self.logger_exceptions.error(f"'{request.status}': Payload error, retrying for '{route_with_params}'")
+            self.logger_exceptions.exception(f"`{request.status}`: Payload error, retrying for `{route_with_params}`")
             return
         except aiohttp.ContentTypeError:
             return

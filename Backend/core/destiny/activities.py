@@ -2,7 +2,6 @@ import asyncio
 import dataclasses
 import datetime
 import logging
-import traceback
 from collections.abc import AsyncGenerator
 from typing import Optional
 
@@ -290,10 +289,7 @@ class DestinyActivities:
                         raise e
 
                 # log that
-                print(e)
-                logger_exceptions.error(
-                    f"""Failed getting pgcr '{i}' - Error '{e}' - Traceback: \n'{"".join(traceback.format_tb(e.__traceback__))}'"""
-                )
+                logger_exceptions.exception(f"Failed getting PGCR `{i}`", exc_info=e)
 
                 # remove the instance_id from the cache
                 cache.saved_pgcrs.remove(i)
@@ -329,7 +325,7 @@ class DestinyActivities:
             if not entry_time:
                 entry_time = self.user.activities_last_updated
 
-            logger.info(f"Starting activity DB update for destinyID '{self.destiny_id}'")
+            logger.info(f"Starting activity DB update for destinyID `{self.destiny_id}`")
 
             # loop through all activities
             instance_ids = []
@@ -398,15 +394,11 @@ class DestinyActivities:
             if start_time:
                 await discord_users.update(db=self.db, to_update=self.user, activities_last_updated=start_time)
 
-            logger.info(f"Done with activity DB update for destinyID '{self.destiny_id}'")
+            logger.info(f"Done with activity DB update for destinyID `{self.destiny_id}`")
 
         except Exception as error:
             # log that
-            print(error)
-            logger_exceptions.error(
-                f"""Activity DB update for destinyID '{self.destiny_id}' - Error '{error}' - Traceback: \n'{"".join(traceback.format_tb(error.__traceback__))}'"""
-            )
-            raise error
+            logger_exceptions.exception(f"Activity DB update for destinyID `{self.destiny_id}`", exc_info=error)
 
     async def __get_full_character_list(self) -> list[dict]:
         """Get all character ids (including deleted characters)"""

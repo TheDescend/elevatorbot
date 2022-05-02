@@ -1,13 +1,13 @@
 import datetime
 import logging
 import os
-import traceback
 import zoneinfo
 from enum import Enum, EnumMeta
 from typing import Generator, Optional
 
 from dateutil.parser import ParserError, parse
 from dis_snek import ComponentContext, Context, InteractionContext
+from dis_snek.client.errors import HTTPException
 from dis_snek.models.snek.checks import TYPE_CHECK_FUNCTION
 
 from ElevatorBot.commandHelpers.responseTemplates import respond_invalid_time_input, respond_time_input_in_past
@@ -107,45 +107,47 @@ async def parse_datetime_options(
     return formatted_start_time, formatted_end_time
 
 
+def parse_naff_errors(error: Exception) -> Optional[str]:
+    """Parses dis-snek error messages and logs that"""
+
+    if isinstance(error, HTTPException):
+        if error.errors:
+            # HTTPException's are of 3 known formats, we can parse them for human-readable errors
+            try:
+                errors = error.search_for_message(error.errors)
+                formatted = f"HTTPException: {error.status}|{error.response.reason}: " + "\n".join(errors)
+            except TypeError:
+                formatted = f"HTTPException: {error.status}|{error.response.reason}: {str(error.errors)}"
+
+            return formatted
+
+
 async def log_error(
-    ctx: InteractionContext | ComponentContext | None, error: Exception, logger: logging.Logger
+    ctx: Optional[InteractionContext | ComponentContext], error: Exception, logger: logging.Logger
 ) -> None:
     """Respond to the context and log error"""
 
     # get the command name or the component name
     if isinstance(ctx, ComponentContext):
-        extra = f"CustomID {ctx.custom_id}"
+        extra = f"CustomID `{ctx.custom_id}`"
     else:
-        extra = f"CommandName '/{ctx.invoked_name}'"
+        extra = f"CommandName `/{ctx.invoked_name}`"
+
+    naff_errors = parse_naff_errors(error=error)
 
     # log the error
-    logger.exception(
-        f"InteractionID '{ctx.interaction_id}' - {extra} - Error '{error}' - Traceback: \n{''.join(traceback.format_tb(error.__traceback__))}"
-    )
-
-    # do not send some errors to the user
-    catch_errors = ["Unknown interaction", "Interaction has already been acknowledged"]
+    msg = f"InteractionID `{ctx.interaction_id}` - {extra}"
+    if naff_errors:
+        msg += f" - NAFF Errors:\n{naff_errors}"
+    logger.exception(msg, exc_info=error)
 
     if not ctx.responded:
-        if any(item in catch_errors for item in str(error)):
-            # send a generic error message
-            # Note: It probably is my fault
-            await ctx.send(
-                embeds=embed_message(
-                    "Error", "I swear its not my fault - discord did an oopsie\nPlease use the command again"
-                )
+        await ctx.send(
+            embeds=embed_message(
+                "Error",
+                "Sorry, something went wrong\nThe Error has been logged and will be worked on",
             )
-        else:
-            await ctx.send(
-                embeds=embed_message(
-                    "Error",
-                    "Sorry, something went wrong\nThe Error has been logged and will be worked on",
-                    str(error),
-                )
-            )
-
-    # raising error again to making deving easier
-    raise error
+        )
 
 
 async def get_character_ids_from_class(profile: DestinyAccount, destiny_class: str) -> Optional[list[int]]:

@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from dis_snek import InteractionContext, Scale, Snake
 
 from ElevatorBot.commandHelpers.responseTemplates import respond_pending
@@ -6,11 +8,16 @@ from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.networking.destiny.profile import DestinyProfile
 from ElevatorBot.networking.errors import BackendException
 
+if TYPE_CHECKING:
+    from ElevatorBot.elevator import Elevator
+
 
 class RegisteredScale(Scale):
     """Add checks to every scale"""
 
-    def __init__(self, client: Snake):
+    bot: "Elevator"
+
+    def __init__(self, client: "Elevator"):
         self.client = client
         self.add_scale_check(self.no_dm_check)
         self.add_scale_check(self.no_pending_check)

@@ -631,7 +631,6 @@ class LfgMessage:
                 # return the ics url
                 return start_time[1].removeprefix("[Add To Calendar]")[1:-1]
             except:
-                print(embed)
                 logging.getLogger("generalExceptions").error(embed)
 
     async def __get_ics_url(self) -> str:

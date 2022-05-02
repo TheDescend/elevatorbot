@@ -1,7 +1,26 @@
-from Shared.functions.logging import ElevatorLogger
+import logging
+
+from Shared.functions.logging import ColourHighlighter, ElevatorLogger
 
 
 def init_logging() -> None:
+    # Initialize lib loggers
+    ElevatorLogger.make_console_logger(
+        logger=logging.getLogger("fastapi"),
+        level=logging.NOTSET,
+        highlighter=ColourHighlighter(name="fastapi", colour="yellow"),
+    )
+    ElevatorLogger.make_console_logger(
+        logger=logging.getLogger("uvicorn"),
+        level=logging.NOTSET,
+        highlighter=ColourHighlighter(name="uvicorn", colour="yellow"),
+    )
+    ElevatorLogger.make_console_logger(
+        logger=logging.getLogger("sqlalchemy"),
+        level=logging.NOTSET,
+        highlighter=ColourHighlighter(name="sqlalchemy", colour="red"),
+    )
+
     # Initialize formatter
     logger = ElevatorLogger("Backend")
 
