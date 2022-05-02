@@ -483,7 +483,7 @@
         ]
     },
     "https://www.bungie.net/Platform/Destiny2/555/Account/444/Character/666/Stats/Activities/?mode=0&count=250&page=1": {},
-    "https://www.bungie.net/Platform/Destiny2/Stats/PostGameCarnageReport/12345/?": {
+    "https://stats.bungie.net/Platform/Destiny2/Stats/PostGameCarnageReport/12345/?": {
         "period": "2021-12-15T14:24:15Z",
         "startingPhaseIndex": 0,
         "activityDetails": {
@@ -692,7 +692,7 @@
         ],
         "teams": []
     },
-    "https://www.bungie.net/Platform/Destiny2/Stats/PostGameCarnageReport/12346/?": {
+    "https://stats.bungie.net/Platform/Destiny2/Stats/PostGameCarnageReport/12346/?": {
         "period": "2021-12-11T14:24:15Z",
         "startingPhaseIndex": 5,
         "activityDetails": {

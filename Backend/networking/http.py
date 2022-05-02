@@ -17,6 +17,11 @@ from Shared.functions.helperFunctions import get_now_with_tz
 
 
 @dataclasses.dataclass
+class RouteError(Exception):
+    route: str
+
+
+@dataclasses.dataclass
 class NetworkBase:
     db: AsyncSession
 
@@ -60,7 +65,11 @@ class NetworkBase:
         assert not (form_data and json), "Only json or form_data can be used"
 
         # abort after self.request_retries tries
-        for _ in range(self.request_retries):
+        for i in range(self.request_retries):
+            # take a rate limiter token
+            if hasattr(self, "limiter"):
+                await self.limiter.wait_for_token()
+
             try:
                 async with session.request(
                     method=method,
@@ -84,6 +93,9 @@ class NetworkBase:
 
                     # otherwise, return response
                     return response
+            except RouteError as error:
+                route = error.route
+                continue
 
             except (
                 asyncio.exceptions.TimeoutError,
@@ -120,66 +132,31 @@ class NetworkBase:
         route_with_params = f"{route}?{urlencode(params or {})}"
 
         # cached responses do not have the content type field
-        content_type = (
-            request.headers.get("Content-Type", "NOT SET")
-            if not hasattr(request, "content_type")
-            else request.content_type
+        content_type = getattr(request, "content_type", None) or request.headers.get("Content-Type", "NOT SET")
+
+        # get the json
+        content = await request.json(loads=orjson.loads) if "application/json" in content_type else None
+
+        # handle status codes
+        if not await self._handle_status_codes(request=request, route_with_params=route_with_params, content=content):
+            return
+
+        # clean the json
+        if content:
+            if "Response" in content:
+                content = content["Response"]
+        return WebResponse(
+            content=content,
+            status=request.status,
+            from_cache=getattr(request, "from_cache", False),
+            time=get_now_with_tz(),
         )
 
-        # catch the content type "application/octet-stream" which is returned for some routes
-        if "application/octet-stream" in content_type:
-            # this is issued with a 301 when bungie is of the opinion that resource this moved (which is wrong, depending on server)
-            # just retrying fixes it with the new url fixes it
-            if request.status == 301:
-                self.route = request.headers.get("Location")
-                self.logger_exceptions.debug(
-                    f"Wrong location, retrying with the correct one: `{route}` -> `{self.route}`"
-                )
-                return
-
-        # make sure the return is a json, sometimes we get a http file for some reason
-        elif "application/json" not in content_type:
-            self.logger_exceptions.exception(
-                f"`{request.status}`: Retrying... - Wrong content type `{content_type}` with reason `{request.reason}` for `{route_with_params}`"
-            )
-            if request.status == 200:
-                self.logger_exceptions.exception(f"Wrong content type returned text: '{await request.text()}'")
-            await asyncio.sleep(3)
-            return
-
-        #  set if the response was cached
-        try:
-            from_cache = request.from_cache
-        except AttributeError:
-            from_cache = False
-
-        # get the response as a json
-        try:
-            response = WebResponse(
-                content=await request.json(loads=orjson.loads),
-                status=request.status,
-                from_cache=from_cache,
-                time=get_now_with_tz(),
-            )
-        except aiohttp.ClientPayloadError:
-            self.logger_exceptions.exception(f"`{request.status}`: Payload error, retrying for `{route_with_params}`")
-            return
-        except aiohttp.ContentTypeError:
-            self.logger_exceptions.exception(
-                f"`{request.status}`: ContentType error, retrying for `{route_with_params}`"
-            )
-            return
-
-        # if response is ok return it
-        if response.status == 200:
-            # remove the leading "Response" from the request (if exists)
-            if "Response" in response.content:
-                response.content = response.content["Response"]
-
-            return response
-
-        # handling any errors if not ok
-        await self._handle_errors(response=response, route_with_params=route_with_params)
-
-    async def _handle_errors(self, response: WebResponse, route_with_params: str):
+    async def _handle_status_codes(
+        self,
+        request: aiohttp.ClientResponse | aiohttp_client_cache.CachedResponse,
+        route_with_params: str,
+        content: Optional[dict] = None,
+    ) -> bool:
+        """Handles Status Codes"""
         raise NotImplementedError

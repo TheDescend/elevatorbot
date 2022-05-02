@@ -34,7 +34,14 @@ async def test_ratelimiter():
         for _ in range(10000):
             tg.start_soon(lambda: limiter.wait_for_token())
     end = time.perf_counter()
-    assert (end - start) <= 1
+    assert (end - start) < 1
 
-
-asyncio.run(test_ratelimiter())
+    # test the default config
+    limiter = RateLimiter()
+    start = time.perf_counter()
+    async with create_task_group() as tg:
+        for _ in range(260):
+            tg.start_soon(lambda: limiter.wait_for_token())
+    end = time.perf_counter()
+    assert (end - start) >= 10
+    assert (end - start) < 20

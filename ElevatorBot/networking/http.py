@@ -19,7 +19,7 @@ from Shared.functions.readSettingsFile import get_setting
 from Shared.networkingSchemas.base import CustomBaseModel
 
 # the limiter object to not overload the backend
-backend_limiter = RateLimiter(rate=250, max_tokens=10000)
+backend_limiter = RateLimiter(seconds=4, max_tokens=1000)
 backend_semaphore = asyncio.Semaphore(200)
 backend_cache = aiohttp_client_cache.RedisBackend(
     cache_name="elevator",

@@ -4,6 +4,7 @@ import datetime
 import os
 import time
 from base64 import b64encode
+from typing import Optional
 
 import aiohttp
 import aiohttp_client_cache
@@ -13,7 +14,7 @@ import Backend.crud as crud
 from Backend.core.errors import CustomException
 from Backend.database.models import DiscordUsers
 from Backend.networking.bungieRoutes import auth_route
-from Backend.networking.http import NetworkBase
+from Backend.networking.http import NetworkBase, RouteError
 from Backend.networking.schemas import WebResponse
 from Shared.functions.helperFunctions import get_now_with_tz, localize_datetime
 from Shared.functions.ratelimiter import RateLimiter
@@ -156,9 +157,6 @@ class BungieApi(NetworkBase):
         *args,
         **kwargs,
     ) -> WebResponse:
-        # wait for a token from the rate limiter
-        await self.limiter.wait_for_token()
-
         # use the semaphore
         async with bungie_semaphore:
             # call the parent method
@@ -237,8 +235,8 @@ class BungieApi(NetworkBase):
 
                 raise exc
 
-    async def _handle_errors(self, response: WebResponse, route_with_params: str):
-        """Looks for typical bungie errors and handles / logs them"""
+    async def _handle_errors(self, response: WebResponse, route_with_params: str) -> bool:
+        """Looks for typical bungie errors and handles / logs them´. Returns True if everything is ok"""
 
         # set the error vars
         error = None
@@ -343,3 +341,137 @@ class BungieApi(NetworkBase):
                     f"`{status} - {error} | {error_code}`: Retrying... - Request failed for `{route_with_params}` - `{error_message}`\n{response}"
                 )
                 await asyncio.sleep(2)
+
+    async def _handle_status_codes(
+        self,
+        request: aiohttp.ClientResponse | aiohttp_client_cache.CachedResponse,
+        route_with_params: str,
+        content: Optional[dict] = None,
+    ) -> bool:
+        # get the bungie errors from the json
+        error, error_code = None, None
+        if content:
+            if "ErrorStatus" in content:
+                error = content["ErrorStatus"]
+            elif "error_description" in content:
+                error = content["error_description"]
+            error_code = content["ErrorCode"] if "ErrorCode" in content else None
+            error_message = content["Message"] if "Message" in content else None
+
+        match (request.status, error):
+            case (_, "SystemDisabled"):
+                raise CustomException("BungieDed")
+
+            case (200, _):
+                # make sure we got a json
+                if not content:
+                    self.logger_exceptions.exception(f"Wrong content type returned text: '{await request.text()}'")
+                    await asyncio.sleep(3)
+                    return False
+                return True
+
+            case (301, _):
+                # this is issued with a 301 when bungie is of the opinion that resource this moved
+                # just retrying fixes it with the new url fixes it
+                new_route = request.headers.get("Location")
+                self.logger_exceptions.debug(
+                    f"Wrong location, retrying with the correct one: `{request.url}` -> `{new_route}`"
+                )
+                raise RouteError(route=new_route)
+
+            case (401, _) | (_, "invalid_grant" | "AuthorizationCodeInvalid"):
+                # unauthorized
+                self.logger_exceptions.warning(
+                    f"`{request.status} - {error} | {error_code}`: Unauthorized (too slow, user fault) request for `{route_with_params}`"
+                )
+                raise CustomException("BungieUnauthorized")
+
+            case (_, "PerEndpointRequestThrottleExceeded" | "DestinyDirectBabelClientTimeout"):
+                # we are getting throttled (should never be called in theory)
+                self.logger.warning(
+                    f"`{request.status} - {error} | {error_code}`: Retrying... - Getting throttled for `{route_with_params}`\n{response}"
+                )
+
+                throttle_seconds = request.content["ThrottleSeconds"]
+
+                # reset the ratelimit giver
+                self.limiter.tokens = 0
+                await asyncio.sleep(throttle_seconds)
+                return False
+
+            case (_, "ClanInviteAlreadyMember"):
+                # if user is in clan
+                raise CustomException("BungieClanInviteAlreadyMember")
+
+            case (_, "GroupMembershipNotFound"):
+                # if user isn't in clan
+                raise CustomException("BungieGroupMembershipNotFound")
+
+            case (_, "DestinyItemNotFound"):
+                # if user doesn't have that item
+                raise CustomException("BungieDestinyItemNotFound")
+
+            case (_, "DestinyPrivacyRestriction"):
+                # private profile
+                raise CustomException("BungieDestinyPrivacyRestriction")
+
+            case (_, "DestinyDirectBabelClientTimeout"):
+                # timeout
+                self.logger.warning(
+                    f"`{request.status} - {error} | {error_code}`: Retrying... - Getting timeouts for `{route_with_params}`\n{response}"
+                )
+                await asyncio.sleep(60)
+                return False
+
+            case (_, "DestinyServiceFailure" | "DestinyInternalError"):
+                # timeout
+                self.logger.warning(
+                    f"`{request.status} - {error} | {error_code}`: Retrying... - Bungie is having problems `{route_with_params}`\n{response}"
+                )
+                await asyncio.sleep(60)
+                return False
+
+            case (_, "ClanTargetDisallowsInvites"):
+                # user has disallowed clan invites
+                raise CustomException("BungieClanTargetDisallowsInvites")
+
+            case (_, "AuthorizationRecordRevoked" | "AuthorizationRecordExpired"):
+                # users tokens are no longer valid
+                raise CustomException("NoToken")
+
+            case (404, error):
+                # not found
+                self.logger_exceptions.exception(
+                    f"`{request.status} - {error} | {error_code}`: No stats found for `{route_with_params}`\n{response}"
+                )
+                raise CustomException("BungieBadRequest")
+
+            case (429, error):
+                # rate limited
+                self.logger.warning(
+                    f"`{request.status} - {error} | {error_code}`: Retrying... - Getting rate limited for `{route_with_params}`\n{response}"
+                )
+                await asyncio.sleep(2)
+                return False
+
+            case (400, error):
+                # generic bad request, such as wrong format
+                self.logger_exceptions.exception(
+                    f"`{request.status} - {error} | {error_code}`: Generic bad request for `{route_with_params}`\n{response}"
+                )
+                raise CustomException("BungieBadRequest")
+
+            case (503, error):
+                self.logger.warning(
+                    f"`{request.status} - {error} | {error_code}`: Retrying... - Server is overloaded for `{route_with_params}`\n{response}"
+                )
+                await asyncio.sleep(10)
+                return False
+
+            case (status, error):
+                # catch the rest
+                self.logger_exceptions.exception(
+                    f"`{status} - {error} | {error_code}`: Retrying... - Request failed for `{route_with_params}` - `{error_message}`\n{response}"
+                )
+                await asyncio.sleep(2)
+                return False

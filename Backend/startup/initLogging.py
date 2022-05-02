@@ -8,10 +8,15 @@ def init_logging() -> None:
     ElevatorLogger.make_console_logger(
         logger=logging.getLogger("fastapi"),
         level=logging.NOTSET,
-        highlighter=ColourHighlighter(name="fastapi", colour="yellow"),
+        highlighter=ColourHighlighter(name="fastapi", colour="purple"),
     )
     ElevatorLogger.make_console_logger(
         logger=logging.getLogger("uvicorn"),
+        level=logging.NOTSET,
+        highlighter=ColourHighlighter(name="uvicorn", colour="yellow"),
+    )
+    ElevatorLogger.make_console_logger(
+        logger=logging.getLogger("uvicorn.access"),
         level=logging.NOTSET,
         highlighter=ColourHighlighter(name="uvicorn", colour="yellow"),
     )

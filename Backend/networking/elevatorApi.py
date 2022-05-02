@@ -5,6 +5,7 @@ from typing import Optional
 from urllib.parse import urljoin
 
 import aiohttp
+import aiohttp_client_cache
 from aiohttp import ClientConnectorError
 from orjson import orjson
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -70,20 +71,26 @@ class ElevatorApi(NetworkBase):
                 # if it can't connect to elevator
                 return None
 
-    async def _handle_errors(self, response: WebResponse, route_with_params: str):
+    async def _handle_status_codes(
+        self,
+        request: aiohttp.ClientResponse | aiohttp_client_cache.CachedResponse,
+        route_with_params: str,
+        content: Optional[dict] = None,
+    ) -> bool:
         """Handle the elevator request results"""
 
-        match response.status:
+        match request.status:
+            case 200:
+                return True
+
             case 404:
                 # not found
-                self.logger_exceptions.exception(
-                    f"`{response.status}`: Not Found for `{route_with_params}`\n{response}"
-                )
+                self.logger_exceptions.exception(f"`{request.status}`: Not Found for `{route_with_params}`\n{content}")
 
             # wildcard error
             case _:
                 self.logger_exceptions.exception(
-                    f"`{response.status}`: Request failed for `{route_with_params}`\n{response}"
+                    f"`{request.status}`: Request failed for `{route_with_params}`\n{content}"
                 )
 
         raise CustomException("ProgrammingError")

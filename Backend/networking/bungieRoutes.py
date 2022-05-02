@@ -22,4 +22,4 @@ clan_get_route = clan_route + "{clan_id}/"
 
 # routes without user data
 manifest_route = destiny_route + "Manifest/"
-pgcr_route = destiny_route + "Stats/PostGameCarnageReport/{instance_id}/"
+pgcr_route = destiny_route.replace("www", "stats") + "Stats/PostGameCarnageReport/{instance_id}/"
