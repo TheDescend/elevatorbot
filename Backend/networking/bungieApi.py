@@ -50,6 +50,8 @@ bungie_auth_headers = {
 class BungieApi(NetworkBase):
     user: DiscordUsers | None = None
 
+    limiter: RateLimiter = dataclasses.field(init=False, default=bungie_limiter)
+
     async def get(
         self,
         route: str,
@@ -155,7 +157,7 @@ class BungieApi(NetworkBase):
         **kwargs,
     ) -> WebResponse:
         # wait for a token from the rate limiter
-        await bungie_limiter.wait_for_token()
+        await self.limiter.wait_for_token()
 
         # use the semaphore
         async with bungie_semaphore:
@@ -267,7 +269,7 @@ class BungieApi(NetworkBase):
                 throttle_seconds = response.content["ThrottleSeconds"]
 
                 # reset the ratelimit giver
-                bungie_limiter.tokens = 0
+                self.limiter.tokens = 0
                 await asyncio.sleep(throttle_seconds)
 
             case (_, "ClanInviteAlreadyMember"):
