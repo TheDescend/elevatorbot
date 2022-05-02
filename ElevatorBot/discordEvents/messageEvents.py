@@ -15,6 +15,8 @@ from ElevatorBot.static.descendOnlyIds import descend_channels
 from ElevatorBot.static.emojis import custom_emojis
 from Shared.functions.readSettingsFile import get_setting
 
+neria_id = 109022023979667456
+
 
 async def on_message_delete(event: MessageDelete):
     """Triggers when a message gets deleted"""
