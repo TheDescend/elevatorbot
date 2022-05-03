@@ -4,13 +4,11 @@ import dataclasses
 import datetime
 from typing import Any, Generator, Optional
 
-import dateutil.parser
-
 
 def get_datetime_from_bungie_entry(string: str) -> datetime.datetime:
     """Converts the bungie string to a utc datetime obj"""
 
-    return dateutil.parser.parse(string)
+    return datetime.datetime.strptime(string, "%Y-%m-%dT%H:%M:%S%z")
 
 
 @dataclasses.dataclass

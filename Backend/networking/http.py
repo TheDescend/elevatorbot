@@ -7,7 +7,8 @@ from urllib.parse import urlencode
 
 import aiohttp
 import aiohttp_client_cache
-from aiohttp import ClientConnectorCertificateError, ServerDisconnectedError
+from aiohttp import ClientConnectorCertificateError, ClientConnectorError, ClientSession, ServerDisconnectedError
+from aiohttp_client_cache import CachedSession
 from orjson import orjson
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -25,6 +26,10 @@ class RouteError(Exception):
 class NetworkBase:
     db: AsyncSession
 
+    session: ClientSession | CachedSession = dataclasses.field(
+        init=False, default=ClientSession(json_serialize=lambda x: orjson.dumps(x).decode())
+    )
+
     # get logger
     logger: logging.Logger = dataclasses.field(init=False, default=logging.getLogger("bungieApi"))
     logger_exceptions: logging.Logger = dataclasses.field(init=False, default=logging.getLogger("bungieApiExceptions"))
@@ -40,18 +45,15 @@ class NetworkBase:
     ) -> WebResponse:
         """Grabs JSON from the specified URL"""
 
-        async with aiohttp.ClientSession(json_serialize=lambda x: orjson.dumps(x).decode()) as session:
-            return await self._request(
-                session=session,
-                method="GET",
-                route=route,
-                headers=headers,
-                params=params,
-            )
+        return await self._request(
+            method="GET",
+            route=route,
+            headers=headers,
+            params=params,
+        )
 
     async def _request(
         self,
-        session: aiohttp_client_cache.CachedSession | aiohttp.ClientSession,
         method: str,
         route: str,
         allow_redirects: bool = True,
@@ -71,7 +73,7 @@ class NetworkBase:
                 await self.limiter.wait_for_token()
 
             try:
-                async with session.request(
+                async with self.session.request(
                     method=method,
                     url=route,
                     headers=headers,
@@ -109,6 +111,9 @@ class NetworkBase:
                 )
                 await asyncio.sleep(random.randrange(2, 6))
                 continue
+
+            except ClientConnectorError:
+                raise
 
             except Exception as error:
                 self.logger.exception(

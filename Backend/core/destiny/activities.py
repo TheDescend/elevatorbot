@@ -35,6 +35,11 @@ from Shared.networkingSchemas.destiny.roles import TimePeriodModel
 update_missing_pgcr_lock = asyncio.Lock()
 input_data_lock = asyncio.Lock()
 
+pgcr_getter_semaphore = asyncio.Semaphore(100)
+
+_instance_ids = []
+_activity_times = []
+
 
 @dataclasses.dataclass
 class DestinyActivities:
@@ -42,6 +47,9 @@ class DestinyActivities:
 
     db: AsyncSession
     user: DiscordUsers
+
+    instance_ids: list = dataclasses.field(init=False)
+    activity_times: list = dataclasses.field(init=False)
 
     _full_character_list: list[dict] = dataclasses.field(init=False, default_factory=list)
 
@@ -53,6 +61,9 @@ class DestinyActivities:
 
         # the network class
         self.api = BungieApi(db=self.db, user=self.user)
+
+        self.instance_ids = _instance_ids
+        self.activity_times = _activity_times
 
     async def get_lowman_count(
         self,
@@ -279,8 +290,9 @@ class DestinyActivities:
             """Get pgcr"""
 
             try:
-                pgcr = await self.get_pgcr(i)
-                results.append((i, t, pgcr.content))
+                async with pgcr_getter_semaphore:
+                    pgcr = await self.get_pgcr(i)
+                    results.append((i, t, pgcr.content))
 
             except Exception as e:
                 # stop everything if bungie is ded
@@ -305,13 +317,10 @@ class DestinyActivities:
             results: list[tuple] = []
             async with create_task_group() as tg:
                 for i, t in zip(gather_instance_ids, gather_activity_times):
-                    tg.start_soon(handle, results, i, t)
+                    tg.start_soon(lambda: handle(results=results, i=i, t=t))
 
-            # do this with a separate DB session, to make smaller commits
-            async with acquire_db_session() as session:
-                for i, t, pgcr in results:
-                    # insert information to DB
-                    await crud_activities.insert(db=session, instance_id=i, activity_time=t, pgcr=pgcr)
+            # insert information to DB
+            await crud_activities.insert(data=results)
 
         # get the logger
         logger = logging.getLogger("updateActivityDb")
@@ -328,9 +337,6 @@ class DestinyActivities:
             logger.info(f"Starting activity DB update for destinyID `{self.destiny_id}`")
 
             # loop through all activities
-            instance_ids = []
-            activity_times = []
-
             try:
                 async for activity in self.get_activity_history(mode=0, earliest_allowed_datetime=entry_time):
                     instance_id = int(activity["activityDetails"]["instanceId"])
@@ -354,41 +360,25 @@ class DestinyActivities:
                         if await crud_activities.get(db=self.db, instance_id=instance_id) is not None:
                             continue
 
-                    # add to task list
-                    instance_ids.append(instance_id)
-                    activity_times.append(activity_time)
+                        # add to task list
+                        self.instance_ids.append(instance_id)
+                        self.activity_times.append(activity_time)
 
-                    # gather once list is big enough
-                    if len(instance_ids) < 50:
-                        continue
-                    else:
-                        # get and input the data
-                        try:
-                            await input_data(instance_ids, activity_times)
-                        except CustomException as error:
-                            if error.error == "BungieDed":
-                                return
-                            raise error
+                # insert the missing activities
+                if self.instance_ids:
+                    to_get_instance_ids = self.instance_ids
+                    to_get_activity_times = self.activity_times
+                    self.instance_ids = []
+                    self.activity_times = []
 
-                        # reset task list and restart
-                        instance_ids = []
-                        activity_times = []
+                    # get and input the data
+                    await input_data(to_get_instance_ids, to_get_activity_times)
 
             except CustomException as e:
                 # catch when bungie is down and ignore it
                 if e.error == "BungieDed":
                     return
                 raise e
-
-            # one last time to clean out the extras after the code is done
-            if instance_ids:
-                # get and input the data
-                try:
-                    await input_data(instance_ids, activity_times)
-                except CustomException as error:
-                    if error.error == "BungieDed":
-                        return
-                    raise error
 
             # update them with the newest entry timestamp
             if start_time:

@@ -7,7 +7,6 @@ from urllib.parse import urljoin
 import aiohttp
 import aiohttp_client_cache
 from aiohttp import ClientConnectorError
-from orjson import orjson
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from Backend.core.errors import CustomException
@@ -58,18 +57,16 @@ class ElevatorApi(NetworkBase):
     ) -> Optional[WebResponse]:
         """Reduce duplication"""
 
-        async with aiohttp.ClientSession(json_serialize=lambda x: orjson.dumps(x).decode()) as session:
-            try:
-                return await super()._request(
-                    session=session,
-                    method=method,
-                    route=route.removesuffix("/"),
-                    params=params,
-                    json=json,
-                )
-            except ClientConnectorError:
-                # if it can't connect to elevator
-                return None
+        try:
+            return await super()._request(
+                method=method,
+                route=route.removesuffix("/"),
+                params=params,
+                json=json,
+            )
+        except ClientConnectorError:
+            # if it can't connect to elevator
+            return None
 
     async def _handle_status_codes(
         self,

@@ -8,6 +8,7 @@ from sqlalchemy.orm import joinedload
 
 from Backend.core.errors import CustomException
 from Backend.crud.base import CRUDBase
+from Backend.database import acquire_db_session
 from Backend.database.models import (
     Activities,
     ActivitiesFailToGet,
@@ -63,14 +64,18 @@ class CRUDActivities(CRUDBase):
 
         return result
 
-    async def insert(self, db: AsyncSession, instance_id: int, activity_time: datetime, pgcr: dict):
+    async def insert(self, data: list[tuple[int, datetime.datetime, dict]]):
         """Get the activity with the instance_id"""
 
-        # get this to not accidentally insert the same thing twice
-        async with insert_lock:
-            return await self.__locked_insert(db=db, instance_id=instance_id, activity_time=activity_time, pgcr=pgcr)
+        to_create = []
+        for instance_id, activity_time, pgcr in data:
+            to_create.append(self._convert_to_model(instance_id=instance_id, activity_time=activity_time, pgcr=pgcr))
 
-    async def __locked_insert(self, db: AsyncSession, instance_id: int, activity_time: datetime, pgcr: dict):
+        async with acquire_db_session() as session:
+            await self._insert_multi(db=session, to_create=to_create)
+
+    @staticmethod
+    def _convert_to_model(instance_id: int, activity_time: datetime, pgcr: dict) -> Activities:
         """Actually do the insert"""
 
         # starting phase index is only the way to go before 22/2/22, after we should use activityWasStartedFromBeginning
@@ -170,8 +175,7 @@ class CRUDActivities(CRUDBase):
             # append player data to activity
             activity.users.append(player)
 
-        # insert all the stuff to the db
-        await self._insert(db=db, to_create=activity)
+        return activity
 
     async def get_activities(
         self,
