@@ -79,7 +79,7 @@ class LfgEdit(BaseScale):
 
         # get the actual activity
         if activity:
-            activity = autocomplete.activities[activity]
+            activity = autocomplete.activities[activity.lower()]
 
         # get the message obj
         lfg_message = await LfgMessage.from_lfg_id(ctx=ctx, lfg_id=lfg_id, client=ctx.bot, guild=ctx.guild)

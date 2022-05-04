@@ -46,7 +46,7 @@ class LfgCreate(BaseScale):
         self, ctx: InteractionContext, activity: str, start_time: str, timezone: str, overwrite_max_members: int = None
     ):
         # get the actual activity
-        activity = autocomplete.activities[activity]
+        activity = autocomplete.activities[activity.lower()]
 
         if start_time.lower() != "asap":
             start_time = await parse_string_datetime(

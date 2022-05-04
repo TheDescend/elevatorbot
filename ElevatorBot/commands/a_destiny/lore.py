@@ -11,7 +11,7 @@ class DestinyLore(BaseScale):
     @autocomplete_lore_option()
     async def lore(self, ctx: InteractionContext, name: str):
         # get the lore item
-        lore_item = autocomplete.lore[name]
+        lore_item = autocomplete.lore[name.lower()]
 
         embed = embed_message(
             f"Lore: {lore_item.name}",
