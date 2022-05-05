@@ -106,8 +106,7 @@ class NetworkBase:
                 ClientConnectorCertificateError,
             ) as error:
                 self.logger.warning(
-                    f"Retrying... - Timeout error for `{route}?{urlencode({} if params is None else params)}`",
-                    exc_info=error,
+                    f"Retrying... - Timeout error for `{route}?{urlencode({} if params is None else params)}`"
                 )
                 await asyncio.sleep(random.randrange(2, 6))
                 continue
