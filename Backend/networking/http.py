@@ -116,7 +116,7 @@ class NetworkBase:
                 raise
 
             except Exception as error:
-                self.logger.exception(
+                self.logger_exceptions.exception(
                     f"Unknown error `{type(error)}` for `{route}?{urlencode({} if params is None else params)}`",
                     exc_info=error,
                 )
