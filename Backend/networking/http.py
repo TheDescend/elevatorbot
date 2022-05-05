@@ -163,5 +163,20 @@ class NetworkBase:
         route_with_params: str,
         content: Optional[dict] = None,
     ) -> bool:
-        """Handles Status Codes"""
-        raise NotImplementedError
+        """Handle the elevator request results"""
+
+        match request.status:
+            case 200:
+                return True
+
+            case 404:
+                # not found
+                self.logger_exceptions.exception(f"`{request.status}`: Not Found for `{route_with_params}`\n{content}")
+
+            # wildcard error
+            case _:
+                self.logger_exceptions.exception(
+                    f"`{request.status}`: Request failed for `{route_with_params}`\n{content}"
+                )
+
+        raise CustomException("ProgrammingError")

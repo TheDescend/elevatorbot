@@ -67,27 +67,3 @@ class ElevatorApi(NetworkBase):
         except ClientConnectorError:
             # if it can't connect to elevator
             return None
-
-    async def _handle_status_codes(
-        self,
-        request: aiohttp.ClientResponse | aiohttp_client_cache.CachedResponse,
-        route_with_params: str,
-        content: Optional[dict] = None,
-    ) -> bool:
-        """Handle the elevator request results"""
-
-        match request.status:
-            case 200:
-                return True
-
-            case 404:
-                # not found
-                self.logger_exceptions.exception(f"`{request.status}`: Not Found for `{route_with_params}`\n{content}")
-
-            # wildcard error
-            case _:
-                self.logger_exceptions.exception(
-                    f"`{request.status}`: Request failed for `{route_with_params}`\n{content}"
-                )
-
-        raise CustomException("ProgrammingError")
