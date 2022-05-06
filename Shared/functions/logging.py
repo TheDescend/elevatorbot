@@ -38,6 +38,7 @@ RICH_LOGGING_PARAMS = {
     "tracebacks_suppress": to_suppress,
     "log_time_format": "[%d/%m/%Y %H:%M:%S]",
 }
+os.environ["CONSOLE"] = "200"
 
 
 @dataclasses.dataclass
