@@ -144,4 +144,4 @@ async def register_background_events(client):
                 if lfg_event:
                     await lfg_event.schedule_event()
 
-    logger.debug(f"< {len(client.scheduler.get_jobs()) - len(jobs)} > LFG Events Loaded")
+    event_logger.debug(f"< {len(client.scheduler.get_jobs()) - len(jobs)} > LFG Events Loaded")
