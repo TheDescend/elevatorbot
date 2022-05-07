@@ -72,6 +72,7 @@ services:
       - ELEVATOR_PORT
       - REDIS_HOST
       - REDIS_PORT
+      - COLUMNS
     networks:
       - database-network
       - backend-network
@@ -131,6 +132,7 @@ services:
       - ELEVATOR_PORT
       - REDIS_HOST
       - REDIS_PORT
+      - COLUMNS
     networks:
       - backend-network
       - elevator-network
