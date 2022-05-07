@@ -17,7 +17,7 @@ class LfgAlert(BaseScale):
         sub_cmd_description="Message all users in the event",
     )
     @lfg_event_id()
-    async def alert(self, ctx: InteractionContext, lfg_id: int, user: Member):
+    async def alert(self, ctx: InteractionContext, lfg_id: int):
         # get the message obj
         lfg_message = await LfgMessage.from_lfg_id(ctx=ctx, lfg_id=lfg_id, client=ctx.bot, guild=ctx.guild)
 
