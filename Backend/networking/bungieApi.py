@@ -278,6 +278,11 @@ class BungieApi(NetworkBase):
                 )
                 raise CustomException("BungieUnauthorized")
 
+            case (524, _):
+                # cloudflare error, retry
+                self.logger.warning(f"Retrying... - `{request.status}` Cloudflare error for `{route_with_params}`")
+                await asyncio.sleep(2)
+
             case (_, "PerEndpointRequestThrottleExceeded" | "DestinyDirectBabelClientTimeout"):
                 # we are getting throttled (should never be called in theory)
                 self.logger.warning(
@@ -289,7 +294,6 @@ class BungieApi(NetworkBase):
                 # reset the ratelimit giver
                 self.limiter.tokens = 0
                 await asyncio.sleep(throttle_seconds)
-                return False
 
             case (_, "ClanInviteAlreadyMember"):
                 # if user is in clan
@@ -313,7 +317,6 @@ class BungieApi(NetworkBase):
                     f"`{request.status} - {error} | {error_code}`: Retrying... - Getting timeouts for `{route_with_params}`\n{content}"
                 )
                 await asyncio.sleep(60)
-                return False
 
             case (_, "DestinyServiceFailure" | "DestinyInternalError"):
                 # timeout
@@ -321,7 +324,6 @@ class BungieApi(NetworkBase):
                     f"`{request.status} - {error} | {error_code}`: Retrying... - Bungie is having problems `{route_with_params}`\n{content}"
                 )
                 await asyncio.sleep(60)
-                return False
 
             case (_, "ClanTargetDisallowsInvites"):
                 # user has disallowed clan invites
@@ -344,7 +346,6 @@ class BungieApi(NetworkBase):
                     f"`{request.status} - {error} | {error_code}`: Retrying... - Getting rate limited for `{route_with_params}`\n{content}"
                 )
                 await asyncio.sleep(2)
-                return False
 
             case (400, error):
                 # generic bad request, such as wrong format
@@ -358,7 +359,6 @@ class BungieApi(NetworkBase):
                     f"`{request.status} - {error} | {error_code}`: Retrying... - Server is overloaded for `{route_with_params}`\n{content}"
                 )
                 await asyncio.sleep(10)
-                return False
 
             case (status, error):
                 # catch the rest
@@ -366,4 +366,5 @@ class BungieApi(NetworkBase):
                     f"`{status} - {error} | {error_code}`: Retrying... - Request failed for `{route_with_params}` - `{error_message}`\n{content}"
                 )
                 await asyncio.sleep(2)
-                return False
+
+        return False
