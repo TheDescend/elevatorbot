@@ -19,6 +19,7 @@ class EventStats(BaseScale):
 
         # get destiny info
         destiny_account = DestinyAccount(ctx=ctx, discord_member=member, discord_guild=ctx.guild)
+        destiny_name = await destiny_account.get_destiny_name()
         discord_guild = destiny_account.discord_guild
         destiny_clan = DestinyClan(ctx=ctx, discord_guild=discord_guild)
         clanmembers = await destiny_clan.get_clan_members()
@@ -74,11 +75,21 @@ class EventStats(BaseScale):
         embed.add_field(
             name="Leaderboard", value=f"""{"**top_score**":^10}\t{"**medallions**":^15}\t{"**ranking**":^10}"""
         )
-        for userstats in ranked_userstats:
+        for userstats in ranked_userstats[:10]:
             embed.add_field(
                 name=userstats["username"],
                 value=f"""{userstats["top_score"]:^10}\t{userstats["total_medallions"]:^15}\tTop {userstats["ranking"]:^10}%""",
             )
+
+        if destiny_name not in map(lambda dic: dic["username"], ranked_userstats[:10]):
+            my_entry = list(filter(lambda entry: entry["username"] == destiny_name, ranked_userstats))
+            if len(my_entry) == 0:
+                print("user not found, skipping...")
+            else:
+                embed.add_field(
+                    name=my_entry[0]["username"],
+                    value=f"""{my_entry[0]["top_score"]:^10}\t{my_entry[0]["total_medallions"]:^15}\tTop {my_entry[0]["ranking"]:^10}%""",
+                )
 
         await ctx.send(embeds=embed)
 
