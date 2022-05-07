@@ -330,12 +330,13 @@ class DestinyActivities:
         logger_exceptions = logging.getLogger("updateActivityDbExceptions")
 
         try:
-            # ignore this if the same user is currently running
-            if self.destiny_id in self._running_updates:
-                logger.info(f"Skipping duplicate activity DB update for destinyID `{self.destiny_id}`")
-                return
-            else:
-                self._running_updates.add(self.destiny_id)
+            async with input_data_lock:
+                # ignore this if the same user is currently running
+                if self.destiny_id in self._running_updates:
+                    logger.info(f"Skipping duplicate activity DB update for destinyID `{self.destiny_id}`")
+                    return
+                else:
+                    self._running_updates.add(self.destiny_id)
 
             # save the start time, so we can update the user afterwards
             start_time = None
@@ -375,14 +376,16 @@ class DestinyActivities:
                         self.activity_times.append(activity_time)
 
                 # insert the missing activities
-                if self.instance_ids:
-                    to_get_instance_ids = self.instance_ids
-                    to_get_activity_times = self.activity_times
-                    self.instance_ids = []
-                    self.activity_times = []
+                async with input_data_lock:
+                    if self.instance_ids:
+                        to_get_instance_ids = self.instance_ids
+                        to_get_activity_times = self.activity_times
+                        self.instance_ids, self.activity_times = [], []
+                    else:
+                        to_get_instance_ids, to_get_activity_times = [], []
 
-                    # get and input the data
-                    await input_data(to_get_instance_ids, to_get_activity_times)
+                # get and input the data
+                await input_data(to_get_instance_ids, to_get_activity_times)
 
             except CustomException as e:
                 # catch when bungie is down and ignore it
@@ -400,8 +403,7 @@ class DestinyActivities:
             # log that
             logger_exceptions.exception(f"Activity DB update for destinyID `{self.destiny_id}`", exc_info=error)
 
-        finally:
-            self._running_updates.remove(self.destiny_id)
+        self._running_updates.remove(self.destiny_id)
 
     async def __get_full_character_list(self) -> list[dict]:
         """Get all character ids (including deleted characters)"""
