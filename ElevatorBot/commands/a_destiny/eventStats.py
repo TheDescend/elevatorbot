@@ -47,9 +47,11 @@ class EventStats(BaseScale):
                 ) as resp:
                     response_data = (await resp.json())["Response"]["metrics"]
 
-                    metricdata = response_data["data"]["metrics"]
+                    metricdata = response_data.get("data")
+                    if not metricdata:
+                        return {"total_medallions": 0}
 
-                    metrics = get_metrics(metricdata)
+                    metrics = get_metrics(metricdata["metrics"])
                     return {**metrics, "username": username}
 
         async with aiohttp.ClientSession() as session:
