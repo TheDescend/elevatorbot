@@ -41,7 +41,7 @@ class LfgAlert(BaseScale):
             title="LFG Alert Content",
             components=[
                 ParagraphText(
-                    label="The message you want to sent to the other LFG participants",
+                    label="The message the participants will receive",
                     custom_id="text",
                     min_length=5,
                     max_length=500,
