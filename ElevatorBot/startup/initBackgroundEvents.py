@@ -88,7 +88,7 @@ async def register_background_events(client):
     client.scheduler.add_listener(event_error, EVENT_JOB_ERROR)
 
     # loop through the subclasses of BaseEvent to get all events. The events get imported through .__init__
-    logger = logging.getLogger("backgroundEvents")
+    event_logger = logging.getLogger("backgroundEvents")
     for BackgroundEvent in backgroundEvents.BaseEvent.__subclasses__():
         event = BackgroundEvent()
 
@@ -118,9 +118,9 @@ async def register_background_events(client):
                 run_date=event.run_date,
             )
         else:
-            logger.debug(f"Failed to load event {event}")
+            event_logger.debug(f"Failed to load event {event}")
     jobs = client.scheduler.get_jobs()
-    logger.debug(f"< {len(jobs)} > Background Events Loaded")
+    event_logger.debug(f"< {len(jobs)} > Background Events Loaded")
 
     # load the lfg events
     for guild in client.guilds:

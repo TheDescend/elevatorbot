@@ -39,6 +39,7 @@ pgcr_getter_semaphore = asyncio.Semaphore(100)
 
 _instance_ids = []
 _activity_times = []
+_running_updates = set()
 
 
 @dataclasses.dataclass
@@ -64,6 +65,8 @@ class DestinyActivities:
 
         self.instance_ids = _instance_ids
         self.activity_times = _activity_times
+
+        self._running_updates = _running_updates
 
     async def get_lowman_count(
         self,
@@ -327,6 +330,13 @@ class DestinyActivities:
         logger_exceptions = logging.getLogger("updateActivityDbExceptions")
 
         try:
+            # ignore this if the same user is currently running
+            if self.destiny_id in self._running_updates:
+                logger.info(f"Skipping duplicate activity DB update for destinyID `{self.destiny_id}`")
+                return
+            else:
+                self._running_updates.add(self.destiny_id)
+
             # save the start time, so we can update the user afterwards
             start_time = None
 
@@ -389,6 +399,9 @@ class DestinyActivities:
         except Exception as error:
             # log that
             logger_exceptions.exception(f"Activity DB update for destinyID `{self.destiny_id}`", exc_info=error)
+
+        finally:
+            self._running_updates.remove(self.destiny_id)
 
     async def __get_full_character_list(self) -> list[dict]:
         """Get all character ids (including deleted characters)"""

@@ -81,7 +81,7 @@ def getLogger(name=None):  # noqa
 
     if not logger.propagate:
         for handler in logger.handlers:
-            if isinstance(handler, logging.StreamHandler):
+            if isinstance(handler, logging.StreamHandler) and not isinstance(handler, logging.FileHandler):
                 logger.removeHandler(handler)
         if not logger.handlers:
             logger.addHandler(default_handler)
