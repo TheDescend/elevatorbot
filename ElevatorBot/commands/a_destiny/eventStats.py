@@ -75,7 +75,7 @@ class EventStats(BaseScale):
         for userstats in ranked_userstats[:12]:
             embed.add_field(
                 name=userstats["username"],
-                value=f"""Top Score: {userstats["top_score"]:^10}\n Medallions: {userstats["total_medallions"]:^15}\nPlacement: Top {userstats["ranking"]:>10}%""",
+                value=f"""Top Score: {userstats["top_score"]:n}\n Medallions: {userstats["total_medallions"]}\nPlacement: Top {userstats["ranking"]}%""",
                 inline=True,
             )
 
@@ -86,7 +86,7 @@ class EventStats(BaseScale):
             else:
                 embed.add_field(
                     name=my_entry[0]["username"],
-                    value=f"""{my_entry[0]["top_score"]:^10}\t{my_entry[0]["total_medallions"]:^15}\tTop {my_entry[0]["ranking"]:^10}%""",
+                    value=f"""{my_entry[0]["top_score"]:n}\t{my_entry[0]["total_medallions"]}\tTop {my_entry[0]["ranking"]:}%""",
                 )
 
         await ctx.send(embeds=embed)
