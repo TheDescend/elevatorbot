@@ -61,7 +61,7 @@ class EventStats(BaseScale):
 
         async with aiohttp.ClientSession() as session:
             tasks = []
-            for cmember in clanmembers:
+            for cmember in clanmembers.members:
                 url = f"https://stats.bungie.net/Platform/Destiny2/{cmember.system}/Profile/{cmember.destinyid}/?components=1100"
                 tasks.append(asyncio.ensure_future(get_userstats(session, url, cmember.name, parallelization_enabler)))
 
