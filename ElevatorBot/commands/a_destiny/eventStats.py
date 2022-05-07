@@ -36,7 +36,7 @@ class EventStats(BaseScale):
                 "ranking": ranking_metric_hash,
                 "total_medallions": total_medallion_metric_hash,
             }.items():
-                output_dict[metricname] = [metric_dict[metrichash]["objectiveProgress"]["progress"]]
+                output_dict[metricname] = metric_dict[metrichash]["objectiveProgress"]["progress"]
             return output_dict
 
         async def get_userstats(session, url, username, sem):
@@ -50,7 +50,18 @@ class EventStats(BaseScale):
                     metricdata = response_data["data"]["metrics"]
 
                     metrics = get_metrics(metricdata)
-                    return {"username": metrics}
+                    return {**metrics, "username": username}
+
+        async with aiohttp.ClientSession() as session:
+            tasks = []
+            for cmember in clanmembers.members:
+                url = f"https://stats.bungie.net/Platform/Destiny2/{cmember.system}/Profile/{cmember.destiny_id}/?components=1100"
+                tasks.append(asyncio.ensure_future(get_userstats(session, url, cmember.name, parallelization_enabler)))
+
+            userstats = await asyncio.gather(*tasks)
+            ranked_userstats = sorted(
+                filter(lambda x: x["total_medallions"] != 0, userstats), key=lambda us: us["top_score"], reverse=True
+            )
 
         embed = embed_message(
             title="Clan Ranking",
@@ -58,28 +69,13 @@ class EventStats(BaseScale):
             footer="",
             member=member,
         )
-
-        async with aiohttp.ClientSession() as session:
-            tasks = []
-            for cmember in clanmembers.members:
-                url = f"https://stats.bungie.net/Platform/Destiny2/{cmember.system}/Profile/{cmember.destinyid}/?components=1100"
-                tasks.append(asyncio.ensure_future(get_userstats(session, url, cmember.name, parallelization_enabler)))
-
-            userstats = await asyncio.gather(*tasks)
-            ranked_userstats = sorted(userstats, key=lambda us: us["top_score"], reverse=True)
-
-        # get clanmembers
-
-        # get stats
-
-        # add char info fields
-        embed.add_field(name="⁣", value="__**Players:**__", inline=False)
-        for username, userstats in ranked_userstats.items():
-            text = f"""**top_score**: {userstats["top_score"]}\n **total medallions**: {userstats["total_medallions"]} \n **global ranking**: {userstats["ranking"]}"""
+        embed.add_field(
+            name="Leaderboard", value=f"""{"**top_score**":^10}\t{"**medallions**":^15}\t{"**ranking**":^10}"""
+        )
+        for userstats in ranked_userstats:
             embed.add_field(
-                name=f"""{username}""",
-                value=text,
-                inline=True,
+                name=userstats["username"],
+                value=f"""{userstats["top_score"]:^10}\t{userstats["total_medallions"]:^15}\tTop {userstats["ranking"]:^10}%""",
             )
 
         await ctx.send(embeds=embed)
