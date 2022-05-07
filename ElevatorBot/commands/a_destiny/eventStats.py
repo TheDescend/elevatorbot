@@ -72,13 +72,11 @@ class EventStats(BaseScale):
             footer="",
             member=member,
         )
-        embed.add_field(
-            name="Leaderboard", value=f"""{"**top_score**":^10}\t{"**medallions**":^15}\t{"**ranking**":^10}"""
-        )
-        for userstats in ranked_userstats[:10]:
+        for userstats in ranked_userstats[:12]:
             embed.add_field(
                 name=userstats["username"],
-                value=f"""{userstats["top_score"]:^10}\t{userstats["total_medallions"]:^15}\tTop {userstats["ranking"]:^10}%""",
+                value=f"""Top Score: {userstats["top_score"]:^10}\n Medallions: {userstats["total_medallions"]:^15}\nPlacement: Top {userstats["ranking"]:>10}%""",
+                inline=True,
             )
 
         if destiny_name not in map(lambda dic: dic["username"], ranked_userstats[:10]):
