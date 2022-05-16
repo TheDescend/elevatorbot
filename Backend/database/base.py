@@ -22,10 +22,6 @@ assert POSTGRES_PORT
 POSTGRES_DB = os.environ.get("POSTGRES_DB")
 assert POSTGRES_DB
 
-# max DB connections
-MAX_DB_CONNECTIONS = 80
-# how long to wait for a free db connection
-WAIT_FOR_DB_CONNECTION = 180
 
 DATABASE_URL = (
     f"""postgresql+asyncpg://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}"""
@@ -51,7 +47,7 @@ def setup_engine(database_url: str = DATABASE_URL) -> Engine:
             json_serializer=lambda x: orjson.dumps(x).decode(),
             pool_pre_ping=True,
             pool_size=50,
-            max_overflow=50,
+            max_overflow=25,
             pool_timeout=300,
         )
 
@@ -77,20 +73,9 @@ def is_test_mode(set_test_mode: Optional[bool] = None) -> bool:
     return _TEST_MODE
 
 
-db_semaphore = asyncio.Semaphore(MAX_DB_CONNECTIONS)
-
-
 @asynccontextmanager
 async def acquire_db_session() -> AsyncContextManager[AsyncSession]:
     """Get a database session"""
 
-    async def _wait_for_semaphore():
-        await db_semaphore.acquire()
-
-    await asyncio.wait_for(asyncio.shield(_wait_for_semaphore()), timeout=WAIT_FOR_DB_CONNECTION)
-
-    try:
-        async with get_async_sessionmaker().begin() as session:
-            yield session
-    finally:
-        db_semaphore.release()
+    async with get_async_sessionmaker().begin() as session:
+        yield session
