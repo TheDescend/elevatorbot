@@ -13,6 +13,7 @@ from aiohttp_client_cache import CachedResponse, CachedSession, RedisBackend
 
 import Backend.crud as crud
 from Backend.core.errors import CustomException
+from Backend.database import acquire_db_session
 from Backend.database.models import DiscordUsers
 from Backend.networking.bungieRoutes import auth_route
 from Backend.networking.http import NetworkBase, RouteError
@@ -49,6 +50,8 @@ bungie_auth_headers = {
     "content-type": "application/x-www-form-urlencoded",
     "authorization": f"""Basic {b64encode(f"{get_setting('BUNGIE_APPLICATION_CLIENT_ID')}:{get_setting('BUNGIE_APPLICATION_CLIENT_SECRET')}".encode()).decode()}""",
 }
+
+token_update_semaphore = {}
 
 
 @dataclasses.dataclass
@@ -110,8 +113,9 @@ class BungieApi(NetworkBase):
 
         except CustomException as exc:
             if exc.error == "BungieDestinyPrivacyRestriction":
-                # catch the BungieDestinyPrivacyRestriction error to change privacy settings in our db
-                self.user = await crud.discord_users.update(db=self.db, to_update=self.user, private_profile=True)
+                async with acquire_db_session() as db:
+                    # catch the BungieDestinyPrivacyRestriction error to change privacy settings in our db
+                    self.user = await crud.discord_users.update(db=db, to_update=self.user, private_profile=True)
 
                 # then call the same endpoint again, this time with a token
                 return await self.get(route=route, params=params, use_cache=use_cache, with_token=True)
@@ -178,15 +182,21 @@ class BungieApi(NetworkBase):
             raise ValueError
 
         # check refresh token expiry and that it exists
-        if await crud.discord_users.token_is_expired(db=self.db, user=self.user):
+        if await crud.discord_users.token_is_expired(user=self.user):
             raise CustomException("NoToken")
 
-        token = self.user.token
-
         # refresh token if outdated
-        current_time = get_now_with_tz()
-        if current_time > self.user.token_expiry:
-            token = await self._refresh_token()
+        # locked on a per-user basis
+        if self.user.destiny_id not in token_update_semaphore:
+            token_update_semaphore.update({self.user.destiny_id: asyncio.Semaphore(1)})
+
+        async with token_update_semaphore[self.user.destiny_id]:
+            self.user = await crud.discord_users.get_profile_from_discord_id(self.user.discord_id)
+            token = self.user.token
+
+            current_time = get_now_with_tz()
+            if current_time > self.user.token_expiry:
+                token = await self._refresh_token()
 
         return token
 
@@ -211,25 +221,27 @@ class BungieApi(NetworkBase):
             if response:
                 access_token = response.content["access_token"]
 
-                await crud.discord_users.update(
-                    db=self.db,
-                    to_update=self.user,
-                    token=access_token,
-                    refresh_token=response.content["refresh_token"],
-                    token_expiry=localize_datetime(
-                        datetime.datetime.fromtimestamp(current_time + int(response.content["expires_in"]))
-                    ),
-                    refresh_token_expiry=localize_datetime(
-                        datetime.datetime.fromtimestamp(current_time + int(response.content["refresh_expires_in"]))
-                    ),
-                )
+                async with acquire_db_session() as db:
+                    self.user = await crud.discord_users.update(
+                        db=db,
+                        to_update=self.user,
+                        token=access_token,
+                        refresh_token=response.content["refresh_token"],
+                        token_expiry=localize_datetime(
+                            datetime.datetime.fromtimestamp(current_time + int(response.content["expires_in"]))
+                        ),
+                        refresh_token_expiry=localize_datetime(
+                            datetime.datetime.fromtimestamp(current_time + int(response.content["refresh_expires_in"]))
+                        ),
+                    )
 
                 return access_token
 
         except CustomException as exc:
             if exc.error == "NoToken":
-                # catch the NoToken error to invalidate the db
-                await crud.discord_users.invalidate_token(db=self.db, user=self.user)
+                async with acquire_db_session() as db:
+                    # catch the NoToken error to invalidate the db
+                    await crud.discord_users.invalidate_token(db=db, user=self.user)
 
             raise exc
 

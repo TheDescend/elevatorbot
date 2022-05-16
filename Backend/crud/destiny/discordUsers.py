@@ -95,7 +95,7 @@ class CRUDDiscordUser(CRUDBase):
         )
 
         # get the corresponding destiny data
-        api = bungieApi.BungieApi(db=db)
+        api = bungieApi.BungieApi()
         auth_headers = bungieApi.bungie_headers.copy()
         auth_headers.update({"Authorization": f"Bearer {bungie_token.access_token}"})
         destiny_info = await api.get(
@@ -233,8 +233,9 @@ class CRUDDiscordUser(CRUDBase):
             updated: DiscordUsers = await self._update(db=db, to_update=to_update, **update_kwargs)
 
             # update the cache
-            self.cache.discord_users.update({to_update.discord_id: updated})
-            self.cache.discord_users_by_destiny_id.update({to_update.destiny_id: to_update})
+            if id(updated) != id(to_update):
+                self.cache.discord_users.update({to_update.discord_id: updated})
+                self.cache.discord_users_by_destiny_id.update({to_update.destiny_id: updated})
 
         return updated
 
@@ -253,7 +254,7 @@ class CRUDDiscordUser(CRUDBase):
         except CustomException:
             pass
 
-    async def token_is_expired(self, db: AsyncSession, user: DiscordUsers):
+    async def token_is_expired(self, user: DiscordUsers):
         """Checks if a token exists and the refresh token is not expired"""
 
         if not user.token:
@@ -261,11 +262,11 @@ class CRUDDiscordUser(CRUDBase):
 
         current_time = get_now_with_tz()
         if current_time > user.refresh_token_expiry:
-            # set token to None
-            await self.invalidate_token(db=db, user=user)
+            async with acquire_db_session() as db:
+                # set token to None
+                await self.invalidate_token(db=db, user=user)
 
             return True
-
         return False
 
     async def delete_profile(self, db: AsyncSession, discord_id: int):

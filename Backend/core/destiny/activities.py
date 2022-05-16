@@ -61,7 +61,7 @@ class DestinyActivities:
         self.system = self.user.system
 
         # the network class
-        self.api = BungieApi(db=self.db, user=self.user)
+        self.api = BungieApi(user=self.user)
 
         self.instance_ids = _instance_ids
         self.activity_times = _activity_times
@@ -77,13 +77,13 @@ class DestinyActivities:
         disallowed_datetimes: Optional[list[TimePeriodModel]] = None,
         score_threshold: Optional[int] = None,
         min_kills_per_minute: Optional[float] = None,
-        results: list[DestinyLowManModel] = None,
+        db: Optional[AsyncSession] = None,
     ) -> DestinyLowManModel:
         """Returns low man data. If results gets passed, the result gets added to that list too"""
 
         # get player data
         low_activity_info = await crud_activities.get_activities(
-            db=self.db,
+            db=db or self.db,
             activity_hashes=activity_ids,
             maximum_allowed_players=max_player_count,
             destiny_id=self.destiny_id,
@@ -107,8 +107,6 @@ class DestinyActivities:
             fastest_instance_id=fastest_instance_id,
         )
 
-        if results is not None:
-            results.append(result)
         return result
 
     async def get_activity_history(
@@ -433,18 +431,16 @@ class DestinyActivities:
             # get the activities in anyio tasks
             # allow cp runs for raids
             results: list[DestinyLowManModel] = []
-            async with create_task_group() as tg2:
+            async with acquire_db_session() as db:
                 for activity in t_activities:
-                    tg2.start_soon(
-                        self.get_lowman_count,
-                        activity.activity_ids,
-                        1,
-                        False,
-                        activity.mode != UsableDestinyActivityModeTypeEnum.RAID.value,
-                        None,
-                        None,
-                        None,
-                        results,
+                    results.append(
+                        await self.get_lowman_count(
+                            db=db,
+                            activity_ids=activity.activity_ids,
+                            max_player_count=1,
+                            require_flawless=False,
+                            no_checkpoints=activity.mode != UsableDestinyActivityModeTypeEnum.RAID.value,
+                        )
                     )
 
             # loop through the results

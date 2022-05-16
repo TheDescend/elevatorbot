@@ -33,7 +33,7 @@ async def discord_has_token(discord_id: int, db: AsyncSession = Depends(get_db_s
         return no_token
 
     # get a working token
-    auth = BungieApi(db=db, user=profile)
+    auth = BungieApi(user=profile)
     try:
         await auth.get_working_token()
     except CustomException as error:

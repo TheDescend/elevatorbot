@@ -188,6 +188,7 @@ class UserRoles:
 
             try:
                 await requirement_roles._check_requirement(
+                    db=db,
                     results=results,
                     role=role,
                     requirement_name=requirement_name,
@@ -205,6 +206,7 @@ class UserRoles:
 
     async def _check_requirement(
         self,
+        db: AsyncSession,
         results: list[RoleEnum],
         role: Roles,
         requirement_name: str,

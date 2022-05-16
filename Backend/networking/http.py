@@ -24,8 +24,6 @@ class RouteError(Exception):
 
 @dataclasses.dataclass
 class NetworkBase:
-    db: AsyncSession
-
     session: ClientSession | CachedSession = dataclasses.field(
         init=False, default=ClientSession(json_serialize=lambda x: orjson.dumps(x).decode())
     )

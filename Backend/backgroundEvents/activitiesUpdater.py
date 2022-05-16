@@ -42,7 +42,7 @@ class ActivitiesUpdater(BaseEvent):
 
         async with acquire_db_session() as db:
             # make sure they have a token
-            if await discord_users.token_is_expired(db=db, user=user):
+            if await discord_users.token_is_expired(user=user):
                 return
 
             # update the activities

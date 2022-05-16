@@ -36,7 +36,7 @@ class DestinyClan:
             self.system = self.user.system
 
         # the network class
-        self.api = BungieApi(db=self.db, user=self.user)
+        self.api = BungieApi(user=self.user)
 
     async def get_clan(self) -> DestinyClanModel:
         """Gets clan information"""

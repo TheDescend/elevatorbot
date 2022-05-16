@@ -27,7 +27,7 @@ class TokenUpdater(BaseEvent):
             # no need to task group this. this can take time, it's fine
             for user in all_users:
                 if user.token:
-                    auth = BungieApi(db=db, user=user)
+                    auth = BungieApi(user=user)
 
                     # get a working token aka update
                     try:
