@@ -1,6 +1,7 @@
 import asyncio
 
 import aiohttp
+from anyio import create_task_group
 from naff import Member, slash_command
 
 from ElevatorBot.commandHelpers.optionTemplates import default_user_option
@@ -9,6 +10,8 @@ from ElevatorBot.discordEvents.base import ElevatorInteractionContext
 from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.networking.destiny.account import DestinyAccount
 from ElevatorBot.networking.destiny.clan import DestinyClan
+from ElevatorBot.networking.errors import BackendException
+from Shared.networkingSchemas import DestinyClanMemberModel
 
 
 class EventStats(BaseModule):
@@ -22,53 +25,37 @@ class EventStats(BaseModule):
         destiny_name = await destiny_account.get_destiny_name()
         discord_guild = destiny_account.discord_guild
         destiny_clan = DestinyClan(ctx=ctx, discord_guild=discord_guild)
-        clanmembers = await destiny_clan.get_clan_members()
+        clan_members = await destiny_clan.get_clan_members()
 
-        parallelization_enabler = asyncio.Semaphore(10)
+        async def get_member_stats(clan_member: DestinyClanMemberModel):
+            if clan_member.discord_id:
+                discord_account = await ctx.guild.fetch_member(clan_member.discord_id)
+                account = DestinyAccount(ctx=ctx, discord_member=discord_account, discord_guild=ctx.guild)
 
-        top_fireteam_score_metric_hash = "2539150057"
-        ranking_metric_hash = "2850716853"
-        total_medallion_metric_hash = "4017597957"
+                try:
+                    userstats.append(
+                        {
+                            "username": clan_member.name,
+                            "top_score": await account.get_metric(2539150057),
+                            "total_medallions": await account.get_metric(4017597957),
+                            "ranking": await account.get_metric(2850716853),
+                        }
+                    )
+                except BackendException:
+                    pass
 
-        def get_metrics(metric_dict):
-            output_dict = {}
-            for metricname, metrichash in {
-                "top_score": top_fireteam_score_metric_hash,
-                "ranking": ranking_metric_hash,
-                "total_medallions": total_medallion_metric_hash,
-            }.items():
-                output_dict[metricname] = metric_dict[metrichash]["objectiveProgress"]["progress"]
-            return output_dict
+        userstats: list[dict] = []
+        async with create_task_group() as tg:
+            for clan_member in clan_members.members:
+                tg.start_soon(lambda: get_member_stats(clan_member=clan_member))
 
-        async def get_userstats(session, url, username, sem):
-            async with sem:
-                async with session.get(
-                    url,
-                    headers={"x-api-key": "e294021b3a234537bee435d575a0e31c"},
-                ) as resp:
-                    response_data = (await resp.json())["Response"]["metrics"]
-
-                    metricdata = response_data.get("data")
-                    if not metricdata:
-                        return {"total_medallions": 0}
-
-                    metrics = get_metrics(metricdata["metrics"])
-                    return {**metrics, "username": username}
-
-        async with aiohttp.ClientSession() as session:
-            tasks = []
-            for cmember in clanmembers.members:
-                url = f"https://stats.bungie.net/Platform/Destiny2/{cmember.system}/Profile/{cmember.destiny_id}/?components=1100"
-                tasks.append(asyncio.ensure_future(get_userstats(session, url, cmember.name, parallelization_enabler)))
-
-            userstats = await asyncio.gather(*tasks)
-            ranked_userstats = sorted(
-                filter(lambda x: x["total_medallions"] != 0, userstats), key=lambda us: us["top_score"], reverse=True
-            )
+        ranked_userstats = sorted(
+            filter(lambda x: x["total_medallions"] != 0, userstats), key=lambda us: us["top_score"], reverse=True
+        )
 
         embed = embed_message(
             title="Clan Ranking",
-            description="All clanmembers and their GG Scores",
+            description="All clan members and their GG Scores",
             footer="",
             member=member,
         )
@@ -79,8 +66,8 @@ class EventStats(BaseModule):
                 inline=True,
             )
 
-        if destiny_name not in map(lambda dic: dic["username"], ranked_userstats[:10]):
-            my_entry = list(filter(lambda entry: entry["username"] == destiny_name, ranked_userstats))
+        if destiny_name.name not in map(lambda dic: dic["username"], ranked_userstats[:10]):
+            my_entry = list(filter(lambda entry: entry["username"] == destiny_name.name, ranked_userstats))
             if len(my_entry) == 0:
                 print("user not found, skipping...")
             else:
