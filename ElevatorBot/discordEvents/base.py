@@ -15,10 +15,18 @@ class ElevatorInteractionContext(InteractionContext):
     def bot(self) -> ElevatorClient:
         return self._client  # noqa
 
+    @property
+    def client(self) -> ElevatorClient:
+        return self._client  # noqa
+
 
 class ElevatorPrefixedContext(PrefixedContext):
     @property
     def bot(self) -> ElevatorClient:
+        return self._client  # noqa
+
+    @property
+    def client(self) -> ElevatorClient:
         return self._client  # noqa
 
 
@@ -27,8 +35,16 @@ class ElevatorComponentContext(ComponentContext):
     def bot(self) -> ElevatorClient:
         return self._client  # noqa
 
+    @property
+    def client(self) -> ElevatorClient:
+        return self._client  # noqa
+
 
 class ElevatorAutocompleteContext(AutocompleteContext):
     @property
     def bot(self) -> ElevatorClient:
+        return self._client  # noqa
+
+    @property
+    def client(self) -> ElevatorClient:
         return self._client  # noqa
