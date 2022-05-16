@@ -13,17 +13,17 @@ class SteamPlayerUpdater(BaseEvent):
         super().__init__(scheduler_type="interval", interval_minutes=interval_minutes)
 
     async def run(self):
-        async with acquire_db_session() as db:
-            # init api connection
-            headers = {"X-API-Key": get_setting("STEAM_APPLICATION_API_KEY")}
-            steam_api = NetworkBase(db=db)
+        # init api connection
+        headers = {"X-API-Key": get_setting("STEAM_APPLICATION_API_KEY")}
+        steam_api = NetworkBase()
 
-            # get current amount of players
-            route = "https://api.steampowered.com/ISteamUserStats/GetNumberOfCurrentPlayers/v1/"
-            params = {"appid": "1085660"}
-            current_players = await steam_api.get(route=route, params=params, headers=headers)
-            number_of_players = int(current_players.content["response"]["player_count"])
+        # get current amount of players
+        route = "https://api.steampowered.com/ISteamUserStats/GetNumberOfCurrentPlayers/v1/"
+        params = {"appid": "1085660"}
+        current_players = await steam_api.get(route=route, params=params, headers=headers)
+        number_of_players = int(current_players.content["response"]["player_count"])
 
-            # update the db info
-            if not is_test_mode():
+        # update the db info
+        if not is_test_mode():
+            async with acquire_db_session() as db:
                 await d2_steam_players.upsert(db=db, player_count=number_of_players)

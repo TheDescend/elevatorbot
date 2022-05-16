@@ -1,5 +1,5 @@
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from naff import AutocompleteContext, ComponentContext, InteractionContext, PrefixedContext
+from naff import AutocompleteContext, ComponentContext, InteractionContext, ModalContext, PrefixedContext
 
 from ElevatorBot.discordEvents.errorEvents import CustomErrorClient
 
@@ -41,6 +41,16 @@ class ElevatorComponentContext(ComponentContext):
 
 
 class ElevatorAutocompleteContext(AutocompleteContext):
+    @property
+    def bot(self) -> ElevatorClient:
+        return self._client  # noqa
+
+    @property
+    def client(self) -> ElevatorClient:
+        return self._client  # noqa
+
+
+class ElevatorModalContext(ModalContext):
     @property
     def bot(self) -> ElevatorClient:
         return self._client  # noqa

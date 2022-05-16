@@ -31,6 +31,7 @@ async def on_channel_delete(event: ChannelDelete):
         if data and data.channel_id == event.channel.id:
             # this is the lfg channel. Delete all the data
             lfg = DestinyLfgSystem(ctx=None, discord_guild=None)
+            # noinspection PyTypeChecker
             await lfg.delete_all(client=event.bot, guild_id=event.channel.guild.id)
     except BackendException:
         pass
@@ -99,6 +100,7 @@ async def on_guild_left(event: GuildLeft):
     # remove all lfg stuff
     lfg = DestinyLfgSystem(ctx=None, discord_guild=None)
     try:
+        # noinspection PyTypeChecker
         await lfg.delete_all(client=event.bot, guild_id=event.guild_id)
     except BackendException:
         pass

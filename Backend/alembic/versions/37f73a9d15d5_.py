@@ -330,7 +330,7 @@ def upgrade():
         sa.Column("weapon_kills_ability", sa.Integer(), nullable=False),
         sa.Column("activity_instance_id", sa.BigInteger(), nullable=True),
         sa.ForeignKeyConstraint(
-            ["activity_instance_id"],
+            ["activity_instance_id"],  # noqa
             ["activities.instance_id"],
         ),
         sa.PrimaryKeyConstraint("id"),
@@ -343,7 +343,7 @@ def upgrade():
         sa.Column("unique_weapon_precision_kills", sa.Integer(), nullable=False),
         sa.Column("user_id", sa.BigInteger(), nullable=True),
         sa.ForeignKeyConstraint(
-            ["user_id"],
+            ["user_id"],  # noqa
             ["activitiesUsers.id"],
         ),
         sa.PrimaryKeyConstraint("id"),

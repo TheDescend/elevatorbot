@@ -115,13 +115,13 @@ class GitHubManager:
                     copy = False
                 if copy:
                     lines.append(line)
-            pr_type = re.sub("\[[^\s]]", "✅", "\n".join(lines[1:]))
+            pr_type = re.sub("\[[^\s]]", "✅", "\n".join(lines[1:]))  # noqa
             pr_type = pr_type.replace("[ ]", "❌")
             embed.add_field(name="PR Type", value=pr_type)
 
         if body and "## Checklist" in body:
             checklist = body.split("## Checklist")[-1].strip("\r")
-            checklist = re.sub("\[[^\s]]", "✅", checklist)
+            checklist = re.sub("\[[^\s]]", "✅", checklist)  # noqa
             checklist = checklist.replace("[ ]", "❌")
             embed.add_field(name="Checklist", value=checklist)
 
@@ -180,7 +180,7 @@ class GitHubManager:
                     lines[0] -= 1  # account for 0 based indexing
                     sample = file_data.split("\n")
                     if len(lines) == 2:
-                        sample = sample[lines[0] :][: lines[1] - lines[0]]
+                        sample = sample[lines[0] :][: lines[1] - lines[0]]  # noqa
                         file_data = "\n".join(sample)
                     else:
                         file_data = sample[lines[0]]

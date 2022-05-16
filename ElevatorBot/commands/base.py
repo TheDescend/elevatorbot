@@ -15,8 +15,8 @@ class RegisteredModule(Cog):
 
     def __init__(self, client: ElevatorClient):
         self.client = client
-        self.add_cog_check(self.no_dm_check)
-        self.add_cog_check(self.no_pending_check)
+        self.add_cog_check(self.no_dm_check)  # noqa
+        self.add_cog_check(self.no_pending_check)  # noqa
 
     @staticmethod
     async def no_dm_check(ctx: ElevatorInteractionContext) -> bool:
@@ -52,7 +52,7 @@ class BaseModule(RegisteredModule):
     """Add a registered check to every module"""
 
     def __init__(self, client: ElevatorClient):
-        self.add_cog_check(self.registered_check)
+        self.add_cog_check(self.registered_check)  # noqa
         super().__init__(client)
 
     @staticmethod

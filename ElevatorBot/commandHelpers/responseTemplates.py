@@ -1,8 +1,8 @@
 from typing import Optional
 
-from naff import Member, Message, ModalContext, NaffUser
+from naff import Member, Message, NaffUser
 
-from ElevatorBot.discordEvents.base import ElevatorComponentContext, ElevatorInteractionContext
+from ElevatorBot.discordEvents.base import ElevatorComponentContext, ElevatorInteractionContext, ElevatorModalContext
 from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.networking.errorCodesAndResponses import error_codes_and_responses
 
@@ -81,7 +81,7 @@ async def respond_time_input_in_past(ctx: ElevatorInteractionContext, hidden: bo
 
 
 async def respond_timeout(
-    message: Optional[Message] = None, ctx: Optional[ElevatorInteractionContext | ModalContext] = None
+    message: Optional[Message] = None, ctx: Optional[ElevatorInteractionContext | ElevatorModalContext] = None
 ):
     """Respond to the given context"""
 

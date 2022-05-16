@@ -14,6 +14,7 @@ from ElevatorBot.discordEvents.base import (
     ElevatorClient,
     ElevatorComponentContext,
     ElevatorInteractionContext,
+    ElevatorModalContext,
     ElevatorPrefixedContext,
 )
 from ElevatorBot.misc.cache import descend_cache
@@ -157,6 +158,7 @@ if __name__ == "__main__":
         prefixed_context=ElevatorPrefixedContext,
         component_context=ElevatorComponentContext,
         autocomplete_context=ElevatorAutocompleteContext,
+        modal_context=ElevatorModalContext,
     )
 
     # install uvloop for faster asyncio (docker only)

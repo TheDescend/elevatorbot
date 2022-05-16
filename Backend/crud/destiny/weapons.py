@@ -121,11 +121,11 @@ class CRUDWeapons(CRUDBase):
         # sort by the given stat
         match stat:
             case stat.KILLS:
-                query = query.order_by(func.sum(ActivitiesUsersWeapons.unique_weapon_kills).desc())
+                query = query.order_by(func.sum(ActivitiesUsersWeapons.unique_weapon_kills).desc())  # noqa
             case _:
-                query = query.order_by(func.sum(ActivitiesUsersWeapons.unique_weapon_precision_kills).desc())
+                query = query.order_by(func.sum(ActivitiesUsersWeapons.unique_weapon_precision_kills).desc())  # noqa
 
-        result = await self._execute_query(db=db, query=query)
+        result = await self._execute_query(db=db, query=query)  # noqa
         return result.all()
 
     @staticmethod

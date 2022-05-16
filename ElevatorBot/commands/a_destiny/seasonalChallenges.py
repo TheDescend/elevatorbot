@@ -102,7 +102,8 @@ class SeasonalChallenges(BaseModule):
             await message.edit(components=[])
             return
         else:
-            select_ctx = component.context
+            # noinspection PyTypeChecker
+            select_ctx: ElevatorComponentContext = component.context
             new_week = select_ctx.values[0]
 
             # recursively call this function

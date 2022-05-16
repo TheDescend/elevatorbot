@@ -33,7 +33,7 @@ async def save_bungie_token(
 
     # get the initial token from the authentication
     try:
-        auth = BungieRegistration(db=db)
+        auth = BungieRegistration()
         bungie_token = await auth.get_first_token(user_input=bungie_input)
 
         # save in db

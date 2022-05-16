@@ -31,7 +31,12 @@ from naff.client.errors import Forbidden, NotFound
 
 from ElevatorBot.commandHelpers import autocomplete
 from ElevatorBot.core.destiny.lfg.scheduledEvents import delete_lfg_scheduled_events
-from ElevatorBot.discordEvents.base import ElevatorClient, ElevatorComponentContext, ElevatorInteractionContext
+from ElevatorBot.discordEvents.base import (
+    ElevatorClient,
+    ElevatorComponentContext,
+    ElevatorInteractionContext,
+    ElevatorModalContext,
+)
 from ElevatorBot.misc.formatting import embed_message, replace_progress_formatting
 from ElevatorBot.networking.destiny.lfgSystem import DestinyLfgSystem
 from ElevatorBot.networking.errors import BackendException
@@ -211,7 +216,7 @@ class LfgMessage:
     @classmethod
     async def create(
         cls,
-        ctx: ElevatorInteractionContext,
+        ctx: ElevatorInteractionContext | ElevatorModalContext,
         activity: str,
         description: str,
         start_time: datetime.datetime | str,

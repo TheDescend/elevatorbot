@@ -130,7 +130,7 @@ def upgrade():
         sa.Column("deprecated", sa.Boolean(), nullable=False),
         sa.Column("acquirable", sa.Boolean(), nullable=False),
         sa.Column("_replaced_by_role_id", sa.BigInteger(), nullable=True),
-        sa.ForeignKeyConstraint(["_replaced_by_role_id"], ["roles.role_id"], ondelete="SET NULL"),
+        sa.ForeignKeyConstraint(["_replaced_by_role_id"], ["roles.role_id"], ondelete="SET NULL"),  # noqa
         sa.PrimaryKeyConstraint("_id"),
         sa.UniqueConstraint("role_id"),
     )
@@ -138,8 +138,8 @@ def upgrade():
         "requiredRolesAssociation",
         sa.Column("parent_role_id", sa.BigInteger(), nullable=False),
         sa.Column("require_role_id", sa.BigInteger(), nullable=False),
-        sa.ForeignKeyConstraint(["parent_role_id"], ["roles.role_id"], ondelete="CASCADE"),
-        sa.ForeignKeyConstraint(["require_role_id"], ["roles.role_id"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(["parent_role_id"], ["roles.role_id"], ondelete="CASCADE"),  # noqa
+        sa.ForeignKeyConstraint(["require_role_id"], ["roles.role_id"], ondelete="CASCADE"),  # noqa
         sa.PrimaryKeyConstraint("parent_role_id", "require_role_id"),
     )
     op.create_table(
@@ -158,7 +158,7 @@ def upgrade():
         sa.Column("require_kd", sa.Float(), nullable=True),
         sa.Column("maximum_allowed_players", sa.Integer(), nullable=False),
         sa.Column("inverse", sa.Boolean(), nullable=False),
-        sa.ForeignKeyConstraint(["role_id"], ["roles.role_id"], onupdate="CASCADE", ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(["role_id"], ["roles.role_id"], onupdate="CASCADE", ondelete="CASCADE"),  # noqa
         sa.PrimaryKeyConstraint("_id"),
     )
     op.create_table(
@@ -167,7 +167,7 @@ def upgrade():
         sa.Column("role_id", sa.BigInteger(), nullable=True),
         sa.Column("bungie_id", sa.BigInteger(), nullable=False),
         sa.Column("inverse", sa.Boolean(), nullable=False),
-        sa.ForeignKeyConstraint(["role_id"], ["roles.role_id"], onupdate="CASCADE", ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(["role_id"], ["roles.role_id"], onupdate="CASCADE", ondelete="CASCADE"),  # noqa
         sa.PrimaryKeyConstraint("_id"),
     )
     op.create_table(
@@ -176,7 +176,9 @@ def upgrade():
         sa.Column("role_activity_id", sa.Integer(), nullable=True),
         sa.Column("start_time", sa.DateTime(timezone=True), nullable=False),
         sa.Column("end_time", sa.DateTime(timezone=True), nullable=False),
-        sa.ForeignKeyConstraint(["role_activity_id"], ["rolesActivity._id"], onupdate="CASCADE", ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(
+            ["role_activity_id"], ["rolesActivity._id"], onupdate="CASCADE", ondelete="CASCADE"
+        ),  # noqa
         sa.PrimaryKeyConstraint("_id"),
     )
 
@@ -184,11 +186,11 @@ def upgrade():
     bind = op.get_bind()
     session = Session(bind=bind)
 
-    old_entries = bind.execute("select role_id, guild_id, role_data from roles_temp").fetchall()
+    old_entries = bind.execute("select role_id, guild_id, role_data from roles_temp").fetchall()  # noqa
 
     # add roles
     for entry in old_entries:
-        add_role(session, entry, old_entries)
+        add_role(session, entry, old_entries)  # noqa
 
     # add the replaced_by field
     for entry in old_entries:

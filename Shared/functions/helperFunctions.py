@@ -25,4 +25,4 @@ def split_list(to_split: list, n: int):
     """Yield successive n-sized chunks from list l"""
 
     for i in range(0, len(to_split), n):
-        yield to_split[i : i + n]
+        yield to_split[i : i + n]  # noqa

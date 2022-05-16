@@ -39,7 +39,7 @@ class UserRoles:
     _cache_worthy: dict = dataclasses.field(default_factory=dict, init=False)
     _cache_worthy_info: dict = dataclasses.field(default_factory=dict, init=False)
 
-    async def get_missing_roles(self, guild_id: int) -> MissingRolesModel:
+    async def get_missing_roles(self, guild_id: int, db: AsyncSession) -> MissingRolesModel:
         """Return all the missing guild roles"""
 
         # get the users completion status

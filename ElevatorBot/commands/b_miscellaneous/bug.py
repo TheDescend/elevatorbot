@@ -17,7 +17,7 @@ from naff import (
 
 from ElevatorBot.commandHelpers.responseTemplates import respond_timeout
 from ElevatorBot.commands.base import BaseModule
-from ElevatorBot.discordEvents.base import ElevatorInteractionContext
+from ElevatorBot.discordEvents.base import ElevatorInteractionContext, ElevatorModalContext
 from ElevatorBot.misc.formatting import embed_message
 from ElevatorBot.networking.github import get_github_labels, get_github_repo
 from ElevatorBot.static.descendOnlyIds import descend_channels
@@ -83,7 +83,8 @@ class Bug(BaseModule):
 
         # wait 10 minutes for them to fill it out
         try:
-            modal_ctx = await ctx.bot.wait_for_modal(modal=modal, timeout=600)
+            # noinspection PyTypeChecker
+            modal_ctx: ElevatorModalContext = await ctx.bot.wait_for_modal(modal=modal, timeout=600)
 
         except asyncio.TimeoutError:
             # give timeout message

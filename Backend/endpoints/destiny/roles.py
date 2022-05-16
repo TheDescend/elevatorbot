@@ -57,7 +57,7 @@ async def get_user_missing(guild_id: int, discord_id: int, db: AsyncSession = De
     activities = DestinyActivities(db=db, user=user)
     await activities.update_activity_db()
 
-    return await user_roles.get_missing_roles(guild_id=guild_id)
+    return await user_roles.get_missing_roles(guild_id=guild_id, db=db)
 
 
 @router.get("/{discord_id}/get/{role_id}", response_model=EarnedRoleModel)  # has test

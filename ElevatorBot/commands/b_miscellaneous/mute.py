@@ -64,6 +64,7 @@ class Mute(BaseModule):
             return
 
         if muted_type == get_setting("DESCEND_ROLE_NO_NICKNAME_ID"):
+            # noinspection PyTypeChecker
             await user.edit_nickname(None)
             await assign_roles_to_member(user, muted_type, reason=f"/mute by {ctx.author}")
 

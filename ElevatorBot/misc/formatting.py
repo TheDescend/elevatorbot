@@ -67,7 +67,7 @@ def split_into_chucks_of_max_2000_characters(
     n = 2000
 
     if text_str:
-        for return_text in [text_str[i : i + n] for i in range(0, len(text_str), n)]:
+        for return_text in [text_str[i : i + n] for i in range(0, len(text_str), n)]:  # noqa
             return_list.append(return_text)
         return return_list
 
