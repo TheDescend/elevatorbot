@@ -7,7 +7,13 @@ from urllib.parse import urlencode
 
 import aiohttp
 import aiohttp_client_cache
-from aiohttp import ClientConnectorCertificateError, ClientConnectorError, ClientSession, ServerDisconnectedError
+from aiohttp import (
+    ClientConnectorCertificateError,
+    ClientConnectorError,
+    ClientOSError,
+    ClientSession,
+    ServerDisconnectedError,
+)
 from aiohttp_client_cache import CachedSession
 from orjson import orjson
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -59,6 +65,7 @@ class NetworkBase:
         params: dict = None,
         json: dict = None,
         form_data: dict = None,
+        supress_custom_errors: bool = False,
     ) -> WebResponse:
         """Make a request to the url with the method and handles the result"""
 
@@ -82,9 +89,7 @@ class NetworkBase:
                 ) as request:
                     # parse the response
                     response = await self._handle_request_data(
-                        request=request,
-                        params=params,
-                        route=route,
+                        request=request, params=params, route=route, supress_custom_errors=supress_custom_errors
                     )
 
                     # try again
@@ -97,11 +102,15 @@ class NetworkBase:
                 route = error.route
                 continue
 
+            except ClientConnectorError:
+                raise
+
             except (
                 asyncio.exceptions.TimeoutError,
                 ConnectionResetError,
                 ServerDisconnectedError,
                 ClientConnectorCertificateError,
+                ClientOSError,
             ) as error:
                 self.logger.warning(
                     f"Retrying... - Timeout error for `{route}?{urlencode({} if params is None else params)}`"
@@ -109,14 +118,12 @@ class NetworkBase:
                 await asyncio.sleep(random.randrange(2, 6))
                 continue
 
-            except ClientConnectorError:
-                raise
-
             except Exception as error:
-                self.logger_exceptions.exception(
-                    f"Unknown error `{type(error)}` for `{route}?{urlencode({} if params is None else params)}`",
-                    exc_info=error,
-                )
+                if not supress_custom_errors:
+                    self.logger_exceptions.exception(
+                        f"Unknown error `{type(error)}` for `{route}?{urlencode({} if params is None else params)}`",
+                        exc_info=error,
+                    )
                 raise error
 
         # return that it failed
@@ -128,6 +135,7 @@ class NetworkBase:
         request: aiohttp.ClientResponse | aiohttp_client_cache.CachedResponse,
         route: str,
         params: Optional[dict],
+        supress_custom_errors: bool = False,
     ) -> Optional[WebResponse]:
         """Handle the bungie request results"""
 
@@ -140,7 +148,12 @@ class NetworkBase:
         content = await request.json(loads=orjson.loads) if "application/json" in content_type else None
 
         # handle status codes
-        if not await self._handle_status_codes(request=request, route_with_params=route_with_params, content=content):
+        if not await self._handle_status_codes(
+            request=request,
+            route_with_params=route_with_params,
+            content=content,
+            supress_custom_errors=supress_custom_errors,
+        ):
             return
 
         # clean the json
@@ -159,8 +172,9 @@ class NetworkBase:
         request: aiohttp.ClientResponse | aiohttp_client_cache.CachedResponse,
         route_with_params: str,
         content: Optional[dict] = None,
+        supress_custom_errors: bool = False,
     ) -> bool:
-        """Handle the elevator request results"""
+        """Handle the request results"""
 
         match request.status:
             case 200:

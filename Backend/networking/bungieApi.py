@@ -159,6 +159,7 @@ class BungieApi(NetworkBase):
         params: dict = None,
         json: dict = None,
         form_data: dict = None,
+        supress_custom_errors: bool = False,
         *args,
         **kwargs,
     ) -> WebResponse:
@@ -173,6 +174,7 @@ class BungieApi(NetworkBase):
                 params=params,
                 json=json,
                 form_data=form_data,
+                supress_custom_errors=supress_custom_errors,
             )
 
     async def get_working_token(self) -> str:
@@ -217,6 +219,7 @@ class BungieApi(NetworkBase):
                 route=auth_route,
                 form_data=data,
                 headers=bungie_auth_headers,
+                supress_custom_errors=True,
             )
             if response:
                 access_token = response.content["access_token"]
@@ -250,7 +253,10 @@ class BungieApi(NetworkBase):
         request: ClientResponse | CachedResponse,
         route_with_params: str,
         content: Optional[dict] = None,
+        supress_custom_errors: bool = False,
     ) -> bool:
+        """Handle the bungie api results"""
+
         # get the bungie errors from the json
         error, error_code, error_message = None, None, None
         if content:
@@ -285,10 +291,16 @@ class BungieApi(NetworkBase):
 
             case (401, _) | (_, "invalid_grant" | "AuthorizationCodeInvalid"):
                 # unauthorized
-                self.logger_exceptions.warning(
-                    f"`{request.status} - {error} | {error_code}`: Unauthorized (too slow, user fault) request for `{route_with_params}`"
-                )
+                if not supress_custom_errors:
+                    self.logger_exceptions.warning(
+                        f"`{request.status} - {error} | {error_code}`: Unauthorized (too slow, user fault) request for `{route_with_params}`"
+                    )
                 raise CustomException("BungieUnauthorized")
+
+            case (502, _):
+                # bad gateway
+                self.logger.warning(f"Retrying... - `{request.status}` Bad gateway error for `{route_with_params}`")
+                await asyncio.sleep(5)
 
             case (524, _):
                 # cloudflare error, retry
@@ -347,9 +359,10 @@ class BungieApi(NetworkBase):
 
             case (404, error):
                 # not found
-                self.logger_exceptions.exception(
-                    f"`{request.status} - {error} | {error_code}`: No stats found for `{route_with_params}`\n{content}"
-                )
+                if not supress_custom_errors:
+                    self.logger_exceptions.exception(
+                        f"`{request.status} - {error} | {error_code}`: No stats found for `{route_with_params}`\n{content}"
+                    )
                 raise CustomException("BungieBadRequest")
 
             case (429, error):
@@ -361,9 +374,10 @@ class BungieApi(NetworkBase):
 
             case (400, error):
                 # generic bad request, such as wrong format
-                self.logger_exceptions.exception(
-                    f"`{request.status} - {error} | {error_code}`: Generic bad request for `{route_with_params}`\n{content}"
-                )
+                if not supress_custom_errors:
+                    self.logger_exceptions.exception(
+                        f"`{request.status} - {error} | {error_code}`: Generic bad request for `{route_with_params}`\n{content}"
+                    )
                 raise CustomException("BungieBadRequest")
 
             case (503, error):
