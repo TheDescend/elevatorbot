@@ -36,7 +36,7 @@ async def get_user_all(guild_id: int, discord_id: int, db: AsyncSession = Depend
 
     user = await discord_users.get_profile_from_discord_id(discord_id)
     profile = DestinyProfile(db=db, user=user)
-    user_roles = UserRoles(db=db, user=profile)
+    user_roles = UserRoles(user=profile)
 
     # update the user's db entries
     activities = DestinyActivities(db=db, user=user)
@@ -51,7 +51,7 @@ async def get_user_missing(guild_id: int, discord_id: int, db: AsyncSession = De
 
     user = await discord_users.get_profile_from_discord_id(discord_id)
     profile = DestinyProfile(db=db, user=user)
-    user_roles = UserRoles(db=db, user=profile)
+    user_roles = UserRoles(user=profile)
 
     # update the user's db entries
     activities = DestinyActivities(db=db, user=user)
@@ -66,7 +66,7 @@ async def get_user_role(guild_id: int, role_id: int, discord_id: int, db: AsyncS
 
     user = await discord_users.get_profile_from_discord_id(discord_id)
     profile = DestinyProfile(db=db, user=user)
-    user_roles = UserRoles(db=db, user=profile)
+    user_roles = UserRoles(user=profile)
 
     sought_role = await crud_roles.get_role(db=db, role_id=role_id)
 

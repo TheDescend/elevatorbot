@@ -462,10 +462,10 @@ class DestinyActivities:
 
         # get the results for all categories in anyio tasks
         solos_by_categories = DestinyLowMansByCategoryModel()
-        async with create_task_group() as tg1:
+        async with create_task_group() as tg:
             for category, activities in interesting_solos.items():
                 solos_by_categories.categories.append(DestinyLowMansModel(category=category))
-                tg1.start_soon(get_by_topic, category, activities)
+                tg.start_soon(get_by_topic, category, activities)
 
         return solos_by_categories
 

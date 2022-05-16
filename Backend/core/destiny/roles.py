@@ -32,7 +32,6 @@ class RoleNotEarnedException(Exception):
 class UserRoles:
     """Check for role completions with a cache to remove double role check on role dependencies"""
 
-    db: AsyncSession
     user: DestinyProfile
 
     crud_roles: CRUDRoles = crud_roles
@@ -51,7 +50,7 @@ class UserRoles:
 
         # loop through the roles and sort them based on if they are acquirable or not
         for role_data in missing_roles:
-            role = await self.crud_roles.get_role(db=self.db, role_id=role_data.discord_role_id)
+            role = await self.crud_roles.get_role(db=db, role_id=role_data.discord_role_id)
 
             model = RolesCategoryModel(category=role.category, discord_role_id=role.role_id)
 
@@ -67,7 +66,8 @@ class UserRoles:
         """Return all the gotten / not gotten guild roles"""
 
         # get all guild roles
-        guild_roles = await self.crud_roles.get_guild_roles(db=self.db, guild_id=guild_id)
+        async with acquire_db_session() as db:
+            guild_roles = await self.crud_roles.get_guild_roles(db=db, guild_id=guild_id)
         user_roles = EarnedRolesModel()
 
         # get them in anyio tasks
@@ -175,44 +175,6 @@ class UserRoles:
         i_only_need_the_bool: bool,
         called_with_task_group: bool,
     ):
-        """Start a new db connection and check the reqs separately"""
-
-        # open a db connection for each requirement
-        async with acquire_db_session() as db:
-            requirement_user = DestinyProfile(db=db, user=self.user.user)
-            requirement_roles = UserRoles(db=db, user=requirement_user)
-
-            # synchronise the cache
-            requirement_roles._cache_worthy = self._cache_worthy
-            requirement_roles._cache_worthy_info = self._cache_worthy_info
-
-            try:
-                await requirement_roles._check_requirement(
-                    db=db,
-                    results=results,
-                    role=role,
-                    requirement_name=requirement_name,
-                    i_only_need_the_bool=i_only_need_the_bool,
-                    called_with_task_group=called_with_task_group,
-                )
-                failed = False
-
-            # catch this error to allow the db to commit its changes
-            except RoleNotEarnedException as e:
-                failed = e
-
-        if failed is not False:
-            raise failed
-
-    async def _check_requirement(
-        self,
-        db: AsyncSession,
-        results: list[RoleEnum],
-        role: Roles,
-        requirement_name: str,
-        i_only_need_the_bool: bool,
-        called_with_task_group: bool,
-    ):
         """Check the get_requirements. Can be used in task groups"""
 
         worthy = RoleEnum.EARNED
@@ -222,75 +184,77 @@ class UserRoles:
                 self._cache_worthy_info[role.role_id].update({"require_activity_completions": []})
 
                 # loop through the activities
-                for entry in role.requirement_require_activity_completions:
-                    found = await crud_activities.get_activities(
-                        db=self.db,
-                        destiny_id=self.user.destiny_id,
-                        activity_hashes=entry.allowed_activity_hashes,
-                        no_checkpoints=not entry.allow_checkpoints,
-                        require_team_flawless=entry.require_team_flawless,
-                        require_individual_flawless=entry.require_individual_flawless,
-                        require_score=entry.require_score,
-                        require_kills=entry.require_kills,
-                        require_kills_per_minute=entry.require_kills_per_minute,
-                        require_kda=entry.require_kda,
-                        require_kd=entry.require_kd,
-                        maximum_allowed_players=entry.maximum_allowed_players,
-                        allow_time_periods=entry.allow_time_periods,
-                        disallow_time_periods=entry.disallow_time_periods,
-                    )
+                async with acquire_db_session() as db:
+                    for entry in role.requirement_require_activity_completions:
+                        found = await crud_activities.get_activities(
+                            db=db,
+                            destiny_id=self.user.destiny_id,
+                            activity_hashes=entry.allowed_activity_hashes,
+                            no_checkpoints=not entry.allow_checkpoints,
+                            require_team_flawless=entry.require_team_flawless,
+                            require_individual_flawless=entry.require_individual_flawless,
+                            require_score=entry.require_score,
+                            require_kills=entry.require_kills,
+                            require_kills_per_minute=entry.require_kills_per_minute,
+                            require_kda=entry.require_kda,
+                            require_kd=entry.require_kd,
+                            maximum_allowed_players=entry.maximum_allowed_players,
+                            allow_time_periods=entry.allow_time_periods,
+                            disallow_time_periods=entry.disallow_time_periods,
+                        )
 
-                    # check how many activities fulfill that
-                    if len(found) < entry.count:
-                        if not entry.inverse:
-                            worthy = RoleEnum.NOT_EARNED
+                        # check how many activities fulfill that
+                        if len(found) < entry.count:
+                            if not entry.inverse:
+                                worthy = RoleEnum.NOT_EARNED
 
-                    else:
-                        if entry.inverse:
-                            worthy = RoleEnum.NOT_EARNED
+                        else:
+                            if entry.inverse:
+                                worthy = RoleEnum.NOT_EARNED
 
-                    self._cache_worthy_info[role.role_id]["require_activity_completions"].append(
-                        f"{len(found)} / {entry.count}"
-                    )
+                        self._cache_worthy_info[role.role_id]["require_activity_completions"].append(
+                            f"{len(found)} / {entry.count}"
+                        )
 
-                    # make this end early
-                    if i_only_need_the_bool and worthy == RoleEnum.NOT_EARNED:
-                        raise RoleNotEarnedException(role_id=role.role_id)
+                        # make this end early
+                        if i_only_need_the_bool and worthy == RoleEnum.NOT_EARNED:
+                            raise RoleNotEarnedException(role_id=role.role_id)
 
-                    # check if other processes ended negatively already
-                    if role.role_id in self._cache_worthy:
-                        break
+                        # check if other processes ended negatively already
+                        if role.role_id in self._cache_worthy:
+                            break
 
             case "requirement_require_collectibles":
                 self._cache_worthy_info[role.role_id].update({"require_collectibles": []})
 
                 # loop through the collectibles
-                for collectible in role.requirement_require_collectibles:
-                    result = await self.user.has_collectible(collectible.bungie_id)
+                async with acquire_db_session() as db:
+                    for collectible in role.requirement_require_collectibles:
+                        result = await self.user.has_collectible(collectible.bungie_id)
 
-                    if not result:
-                        if not collectible.inverse:
-                            worthy = RoleEnum.NOT_EARNED
-                    else:
-                        if collectible.inverse:
-                            worthy = RoleEnum.NOT_EARNED
+                        if not result:
+                            if not collectible.inverse:
+                                worthy = RoleEnum.NOT_EARNED
+                        else:
+                            if collectible.inverse:
+                                worthy = RoleEnum.NOT_EARNED
 
-                    self._cache_worthy_info[role.role_id]["require_collectibles"].append(result)
+                        self._cache_worthy_info[role.role_id]["require_collectibles"].append(result)
 
-                    # make this end early
-                    if i_only_need_the_bool and worthy == RoleEnum.NOT_EARNED:
-                        raise RoleNotEarnedException(role_id=role.role_id)
+                        # make this end early
+                        if i_only_need_the_bool and worthy == RoleEnum.NOT_EARNED:
+                            raise RoleNotEarnedException(role_id=role.role_id)
 
-                    # check if other processes ended negatively already
-                    if role.role_id in self._cache_worthy:
-                        break
+                        # check if other processes ended negatively already
+                        if role.role_id in self._cache_worthy:
+                            break
 
             case "requirement_require_records":
                 self._cache_worthy_info[role.role_id].update({"require_records": []})
 
                 # loop through the records
                 for record in role.requirement_require_records:
-                    result = await self.user.has_triumph(record.bungie_id)
+                    result = await self.user.has_triumph(triumph_hash=record.bungie_id)
 
                     if not result:
                         if not record.inverse:
@@ -315,7 +279,8 @@ class UserRoles:
                 # loop through the role_ids
                 for requirement_role in role.requirement_require_roles:
                     # get the role with the proper relationship depths from cache -> all attrs are loaded
-                    requirement_role = await crud_roles.get_role(db=self.db, role_id=requirement_role.role_id)
+                    async with acquire_db_session() as db:
+                        requirement_role = await crud_roles.get_role(db=db, role_id=requirement_role.role_id)
 
                     # alright so this is a bit more convoluted
                     # simply calling this function again would lead to double-checking / race conditions when checking all roles (because of task groups)
@@ -381,9 +346,10 @@ class UserRoles:
                 # only need to check this sometimes
                 if role.requirement_replaced_by_role and not called_with_task_group:
                     # get the role with the proper relationship depths -> all attrs are loaded
-                    replaced_by_role = await crud_roles.get_role(
-                        db=self.db, role_id=role.requirement_replaced_by_role.role_id
-                    )
+                    async with acquire_db_session() as db:
+                        replaced_by_role = await crud_roles.get_role(
+                            db=db, role_id=role.requirement_replaced_by_role.role_id
+                        )
 
                     # edge case:
                     # the higher role requires this role, in that instance we do not check
