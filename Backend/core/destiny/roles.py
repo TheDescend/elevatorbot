@@ -228,26 +228,25 @@ class UserRoles:
                 self._cache_worthy_info[role.role_id].update({"require_collectibles": []})
 
                 # loop through the collectibles
-                async with acquire_db_session() as db:
-                    for collectible in role.requirement_require_collectibles:
-                        result = await self.user.has_collectible(collectible.bungie_id)
+                for collectible in role.requirement_require_collectibles:
+                    result = await self.user.has_collectible(collectible.bungie_id)
 
-                        if not result:
-                            if not collectible.inverse:
-                                worthy = RoleEnum.NOT_EARNED
-                        else:
-                            if collectible.inverse:
-                                worthy = RoleEnum.NOT_EARNED
+                    if not result:
+                        if not collectible.inverse:
+                            worthy = RoleEnum.NOT_EARNED
+                    else:
+                        if collectible.inverse:
+                            worthy = RoleEnum.NOT_EARNED
 
-                        self._cache_worthy_info[role.role_id]["require_collectibles"].append(result)
+                    self._cache_worthy_info[role.role_id]["require_collectibles"].append(result)
 
-                        # make this end early
-                        if i_only_need_the_bool and worthy == RoleEnum.NOT_EARNED:
-                            raise RoleNotEarnedException(role_id=role.role_id)
+                    # make this end early
+                    if i_only_need_the_bool and worthy == RoleEnum.NOT_EARNED:
+                        raise RoleNotEarnedException(role_id=role.role_id)
 
-                        # check if other processes ended negatively already
-                        if role.role_id in self._cache_worthy:
-                            break
+                    # check if other processes ended negatively already
+                    if role.role_id in self._cache_worthy:
+                        break
 
             case "requirement_require_records":
                 self._cache_worthy_info[role.role_id].update({"require_records": []})
